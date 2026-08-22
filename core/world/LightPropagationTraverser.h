@@ -33,8 +33,7 @@
 #include "core/math/TileVector2D.h"
 #include "core/math/Vector2DIHash.h"
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * LightPropagationTraverser
      * 光照传播遍历器
@@ -46,9 +45,7 @@ namespace glimmer
      * 用于实现光照扩散、亮度衰减、光源影响范围计算等功能。
      * 遍历时会自动计算欧几里得距离，并通过回调控制传播行为。
      */
-    class LightPropagationTraverser
-    {
-
+    class LightPropagationTraverser {
         //Use the "使用GlimmerWorksCli raycirc" command to perform the pre-computation.
         //使用GlimmerWorksCli raycirc命令预先计算。
         static constexpr std::array<int, CHUNK_SIZE> RAY_COUNT = {
@@ -116,7 +113,7 @@ namespace glimmer
          * @param visited  visited 已访问坐标
          * @param maxRadSq maxRadSq 最大半径的平方
          */
-        void PropagateSingleRayImpl(int rayIndex, std::unordered_set<TileVector2D, Vector2DIHash>& visited,
+        void PropagateSingleRayImpl(int rayIndex, std::unordered_set<TileVector2D, Vector2DIHash> &visited,
                                     int maxRadSq) const;
 
         /**
@@ -129,7 +126,7 @@ namespace glimmer
         LightPropagationTraverser(TileVector2D center, int maxRadius,
                                   const std::function<TraverseAction(TileVector2D current, TileVector2D next,
                                                                      bool centerOfCircle,
-                                                                     int reyIndex)>& stepCallback);
+                                                                     int reyIndex)> &stepCallback);
 
 
         /**

@@ -27,10 +27,8 @@
 #pragma once
 #include <cstdint>
 
-namespace glimmer
-{
-    enum class GameSystemType : uint8_t
-    {
+namespace glimmer {
+    enum class GameSystemType : uint8_t {
         None,
         AndroidControlSystem,
         AreaMarkerSystem,

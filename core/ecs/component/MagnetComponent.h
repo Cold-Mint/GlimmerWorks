@@ -32,14 +32,12 @@
 #include "core/Constants.h"
 #include "core/ecs/EcsTypes.h"
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * Magnet (the side that generates suction)
      * 吸铁石（产生吸力的一方）
      */
-    class MagnetComponent : public GameComponent
-    {
+    class MagnetComponent : public GameComponent {
         /**
          * radius(Add it to entities when the radius is less than or equal to this)
          * 吸附半径(当小于等于此半径时将其加入到entities内)
@@ -85,7 +83,7 @@ namespace glimmer
 
         void AddEntity(GameEntityID entityId);
 
-        [[nodiscard]] const std::vector<GameEntityID>& GetEntities() const;
+        [[nodiscard]] const std::vector<GameEntityID> &GetEntities() const;
 
         [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 

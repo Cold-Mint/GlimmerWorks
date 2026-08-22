@@ -35,36 +35,34 @@
 #include "core/rmi/DecoratorNinePatchTextureInstancer.h"
 #include "RmlUi/Core/ElementDocument.h"
 
-namespace glimmer
-{
-    class RmlContext
-    {
+namespace glimmer {
+    class RmlContext {
         friend class Scene;
         friend class App;
         friend class AppEventLoop;
         std::unique_ptr<SystemInterfaceSDL3> systemInterfaceSDL3_ = nullptr;
         std::unique_ptr<RenderInterfaceSDL3> renderInterfaceSDL3_ = nullptr;
-        ResourcePackManager* resourcePackManager_ = nullptr;
+        ResourcePackManager *resourcePackManager_ = nullptr;
         std::unique_ptr<GameFileInterface> gameFileInterface_ = nullptr;
         std::unique_ptr<GameFontEngineInterface> gameFontEngineInterface_ = nullptr;
         DecoratorNinePatchTextureInstancer decoratorNinePatchTextureInstancer_;
-        Rml::Context* context_ = nullptr;
-        std::unordered_map<uint64_t, Rml::ElementDocument*> elementDocumentCache_;
-        std::vector<std::vector<Rml::byte>> fontDataBuffers_;
+        Rml::Context *context_ = nullptr;
+        std::unordered_map<uint64_t, Rml::ElementDocument *> elementDocumentCache_;
+        std::vector<std::vector<Rml::byte> > fontDataBuffers_;
 
-        [[nodiscard]] Rml::ElementDocument* LoadDocument(const AppContext* appContext,
-                                                         const ResourceRef* resourceRef);
+        [[nodiscard]] Rml::ElementDocument *LoadDocument(const AppContext *appContext,
+                                                         const ResourceRef *resourceRef);
 
-        void CloseDocument(Rml::ElementDocument* document);
+        void CloseDocument(Rml::ElementDocument *document);
 
-        [[nodiscard]] Rml::Context* GetRmlContext() const;
+        [[nodiscard]] Rml::Context *GetRmlContext() const;
 
     public:
-        bool Init(VirtualFileSystem* virtualFileSystem, SDL_Renderer* renderer,
-                  ResourcePackManager* resourcePackManager, ResourceLocator* resourceLocator,
-                  toml::value* langsValuePtr, SDL_Window* window, int width, int height);
+        bool Init(VirtualFileSystem *virtualFileSystem, SDL_Renderer *renderer,
+                  ResourcePackManager *resourcePackManager, ResourceLocator *resourceLocator,
+                  toml::value *langsValuePtr, SDL_Window *window, int width, int height);
 
-        bool LoadFont(const VirtualFileSystem* virtualFileSystem, const std::filesystem::path& path);
+        bool LoadFont(const VirtualFileSystem *virtualFileSystem, const std::filesystem::path &path);
 
         void UpdateContext() const;
 

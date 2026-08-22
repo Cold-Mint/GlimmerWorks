@@ -31,17 +31,15 @@
 
 #include "Scene.h"
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * Scene Manager
      * 场景管理器
      */
-    class SceneManager
-    {
-        std::stack<std::unique_ptr<Scene>> sceneStack_;
-        std::vector<std::unique_ptr<Scene>> overlayScenes_;
-        std::vector<Scene*> overlayScenesPtr_;
+    class SceneManager {
+        std::stack<std::unique_ptr<Scene> > sceneStack_;
+        std::vector<std::unique_ptr<Scene> > overlayScenes_;
+        std::vector<Scene *> overlayScenesPtr_;
         /**
          * Are there any scenarios that need to be mounted
          * 是否有需要挂载的场景
@@ -63,7 +61,7 @@ namespace glimmer
          * 移除叠加层
          * @param overlay 场景 scene
          */
-        void RemoveOverlayScene(const Scene* overlay);
+        void RemoveOverlayScene(const Scene *overlay);
 
 
         /**
@@ -71,7 +69,7 @@ namespace glimmer
          * 获取叠加层
          * @return overlayScenes 所有叠加层
          */
-        [[nodiscard]] std::vector<Scene*> GetOverlayScenes() const;
+        [[nodiscard]] std::vector<Scene *> GetOverlayScenes() const;
 
         /**
          * PushScene
@@ -98,7 +96,7 @@ namespace glimmer
          * 获取栈顶的场景
          * @return Scene 场景
          */
-        [[nodiscard]] Scene* GetTopScene() const;
+        [[nodiscard]] Scene *GetTopScene() const;
 
 
         /**

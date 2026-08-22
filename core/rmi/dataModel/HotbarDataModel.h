@@ -29,10 +29,8 @@
 
 #include "ItemSlotDataModel.h"
 
-namespace glimmer
-{
-    struct HotbarDataModel
-    {
+namespace glimmer {
+    struct HotbarDataModel {
         std::vector<ItemSlotDataModel> itemSlots;
     };
 }

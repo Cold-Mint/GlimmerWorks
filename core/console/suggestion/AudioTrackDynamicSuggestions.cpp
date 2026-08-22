@@ -31,25 +31,21 @@
 
 #include "core/Constants.h"
 
-glimmer::AudioTrackDynamicSuggestions::AudioTrackDynamicSuggestions()
-{
+glimmer::AudioTrackDynamicSuggestions::AudioTrackDynamicSuggestions() {
     suggestions_.emplace_back(AUDIO_TRACK_BGM);
     suggestions_.emplace_back(AUDIO_TRACK_AMBIENT);
 }
 
-std::string glimmer::AudioTrackDynamicSuggestions::GetId() const
-{
+std::string glimmer::AudioTrackDynamicSuggestions::GetId() const {
     return AUDIO_TRACK_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-const std::vector<std::string>& glimmer::AudioTrackDynamicSuggestions::GetSuggestions(
-    const std::optional<std::string>& param)
-{
+const std::vector<std::string> &glimmer::AudioTrackDynamicSuggestions::GetSuggestions(
+    const std::optional<std::string> &param) {
     return suggestions_;
 }
 
 
-bool glimmer::AudioTrackDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
-{
+bool glimmer::AudioTrackDynamicSuggestions::Match(const std::string &keyword, const std::string &param) {
     return std::ranges::contains(suggestions_, keyword);
 }

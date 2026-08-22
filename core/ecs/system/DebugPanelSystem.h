@@ -30,55 +30,53 @@
 #include "core/ecs/component/CameraComponent.h"
 #include "core/ecs/component/TileLayerComponent.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class Transform2DComponent;
     class AppContext;
     class PreloadColors;
     struct LangsResources;
     class ResourcePackManager;
 
-    class DebugPanelSystem : public GameSystem
-    {
+    class DebugPanelSystem : public GameSystem {
         WorldVector2D mousePosition_ = WorldVector2D{};
-        CameraComponent* cameraComponent_ = nullptr;
-        Transform2DComponent* cameraTransform2DComponent_ = nullptr;
-        std::vector<TileLayerComponent*> tileLayerComponents_;
-        AppContext* appContext_ = nullptr;
+        CameraComponent *cameraComponent_ = nullptr;
+        Transform2DComponent *cameraTransform2DComponent_ = nullptr;
+        std::vector<TileLayerComponent *> tileLayerComponents_;
+        AppContext *appContext_ = nullptr;
         bool displayDebugPanel_ = false;
         std::shared_ptr<SDL_Texture> chunkTextTexture_ = nullptr;
         uint64_t chunkTextFingerprint_ = 0;
-        PreloadColors* preloadColors_ = nullptr;
-        LangsResources* langsResources_ = nullptr;
-        ResourcePackManager* resourcePackManager_ = nullptr;
-        std::unordered_map<uint64_t, std::shared_ptr<SDL_Texture>> textures_;
+        PreloadColors *preloadColors_ = nullptr;
+        LangsResources *langsResources_ = nullptr;
+        ResourcePackManager *resourcePackManager_ = nullptr;
+        std::unordered_map<uint64_t, std::shared_ptr<SDL_Texture> > textures_;
 
-        void RenderDebugText(SDL_Renderer* renderer, int windowW, const std::string& text, float y,
-                             const Color& textColor, SDL_Color textBGColor);
+        void RenderDebugText(SDL_Renderer *renderer, int windowW, const std::string &text, float y,
+                             const Color &textColor, SDL_Color textBGColor);
 
-        void RenderCrosshairToEdge(SDL_Renderer* renderer, float screenX, float screenY) const;
+        void RenderCrosshairToEdge(SDL_Renderer *renderer, float screenX, float screenY) const;
 
         /**
          * RenderChunkBounds
          * 渲染区块边界
          */
-        static void RenderChunkBounds(SDL_Renderer* renderer, const CameraComponent* cameraComponent,
-                                      const WorldVector2D& cameraPosition);
+        static void RenderChunkBounds(SDL_Renderer *renderer, const CameraComponent *cameraComponent,
+                                      const WorldVector2D &cameraPosition);
 
     public:
         bool CanActive() const override;
 
-        explicit DebugPanelSystem(WorldContext* worldContext);
+        explicit DebugPanelSystem(WorldContext *worldContext);
 
-        void OnConfigChanged(const Config* config) override;
+        void OnConfigChanged(const Config *config) override;
 
         void OnActivationChanged(bool activeStatus) override;
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
-        void Render(SDL_Renderer* renderer) override;
+        void Render(SDL_Renderer *renderer) override;
 
-        bool HandleEvent(const SDL_Event& event) override;
+        bool HandleEvent(const SDL_Event &event) override;
 
         uint8_t GetExecutionOrder() override;
 

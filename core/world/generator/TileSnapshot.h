@@ -35,6 +35,7 @@ namespace glimmer {
     class TileSnapshot {
         const Tile *tile_ = nullptr;
         const TileStateMessage *tileState_ = nullptr;
+
     public:
         void SetTile(const Tile *tile);
 

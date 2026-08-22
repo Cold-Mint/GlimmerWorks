@@ -34,8 +34,7 @@
 #include "core/math/Vector2DIHash.h"
 #include "generator/TerrainResult.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class WorldContext;
 
     /**
@@ -43,17 +42,16 @@ namespace glimmer
      * 地形管理器，负责地形数据的生成、缓存和卸载。
      * 从 WorldContext 拆分而来。
      */
-    class TerrainManager
-    {
+    class TerrainManager {
         std::unordered_map<TileVector2D, std::unique_ptr<TerrainResult>, Vector2DIHash> terrainTileData_;
-        std::unordered_map<TileVector2D, TerrainResult*, Vector2DIHash> terrainTileDataCache_;
+        std::unordered_map<TileVector2D, TerrainResult *, Vector2DIHash> terrainTileDataCache_;
         std::unordered_set<TileVector2D, Vector2DIHash> processedTerrainTiles_;
-        WorldContext* worldContext_ = nullptr;
+        WorldContext *worldContext_ = nullptr;
 
     public:
-        explicit TerrainManager(WorldContext* worldContext);
+        explicit TerrainManager(WorldContext *worldContext);
 
-        [[nodiscard]] TerrainResult* GetTerrainData(const TileVector2D& position);
+        [[nodiscard]] TerrainResult *GetTerrainData(const TileVector2D &position);
 
         /**
         * GetOrCreateTerrainData
@@ -62,9 +60,9 @@ namespace glimmer
         * 如果地形已存在，那么返回地形数据，如果地形不存在，那么创建一份空白数据。
         * @return
         */
-        [[nodiscard]] TerrainResult* GetOrCreateTerrainData(const TileVector2D& position);
+        [[nodiscard]] TerrainResult *GetOrCreateTerrainData(const TileVector2D &position);
 
-        [[nodiscard]] std::unordered_map<TileVector2D, TerrainResult*, Vector2DIHash>* GetTerrainResults();
+        [[nodiscard]] std::unordered_map<TileVector2D, TerrainResult *, Vector2DIHash> *GetTerrainResults();
 
         /**
          * LoadTerrainAt

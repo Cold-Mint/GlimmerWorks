@@ -33,10 +33,8 @@
 #include "SDL3/SDL_render.h"
 #include "tweeny/tween.h"
 
-namespace glimmer
-{
-    class GameUIMessage : IFingerprintable
-    {
+namespace glimmer {
+    class GameUIMessage : IFingerprintable {
         std::string text_;
         uint64_t createTime_;
         uint64_t expireTime_;
@@ -47,7 +45,7 @@ namespace glimmer
         std::shared_ptr<SDL_Texture> texture_;
 
     public:
-        GameUIMessage(ResourcePackManager* resourcePackManager, std::string text, uint64_t now, const Color* color,
+        GameUIMessage(ResourcePackManager *resourcePackManager, std::string text, uint64_t now, const Color *color,
                       float targetFps);
 
         [[nodiscard]] uint64_t GetCreateTime() const;
@@ -58,9 +56,9 @@ namespace glimmer
 
         [[nodiscard]] float GetAlpha() const;
 
-        [[nodiscard]] SDL_Texture* GetTexture() const;
+        [[nodiscard]] SDL_Texture *GetTexture() const;
 
-        [[nodiscard]] tweeny::tween<float>& GetTween();
+        [[nodiscard]] tweeny::tween<float> &GetTween();
 
         [[nodiscard]] uint64_t GetExpireTime() const;
 

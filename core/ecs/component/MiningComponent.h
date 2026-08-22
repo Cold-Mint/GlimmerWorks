@@ -29,8 +29,7 @@
 #include "core/inventory/ability/MiningRangeData.h"
 #include "core/world/generator/TileLayerType.h"
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * MiningComponent
      * 正在挖掘组件
@@ -38,8 +37,7 @@ namespace glimmer
      * This component saves the state of the player digging blocks.
      * 此组件保存玩家挖掘方块的状态。
      */
-    class MiningComponent : public GameComponent
-    {
+    class MiningComponent : public GameComponent {
         bool enable_ = false;
         bool activeSignal_ = false;
 
@@ -69,15 +67,15 @@ namespace glimmer
 
         void SetEnable(bool enable);
 
-        void SetMiningRangeData(const MiningRangeData& miningRangeData);
+        void SetMiningRangeData(const MiningRangeData &miningRangeData);
 
         void ClearMiningRangeData();
 
-        [[nodiscard]] const MiningRangeData* GetMiningRangeData() const;
+        [[nodiscard]] const MiningRangeData *GetMiningRangeData() const;
 
         void SetStartPosition(TileVector2D startPosition);
 
-        [[nodiscard]] const TileVector2D& GetStartPosition() const;
+        [[nodiscard]] const TileVector2D &GetStartPosition() const;
 
         [[nodiscard]] bool HasStartPosition() const;
 

@@ -28,31 +28,25 @@
 
 #include "core/Constants.h"
 
-glimmer::SceneDynamicSuggestions::SceneDynamicSuggestions()
-{
+glimmer::SceneDynamicSuggestions::SceneDynamicSuggestions() {
     sceneName_.emplace_back(SCENE_NAME_MAIN);
     sceneName_.emplace_back(SCENE_NAME_SPLASH);
     sceneName_.emplace_back(SCENE_NAME_SAVED_GAMES);
     sceneName_.emplace_back(SCENE_NAME_CREATE_WORLD);
 }
 
-std::string glimmer::SceneDynamicSuggestions::GetId() const
-{
+std::string glimmer::SceneDynamicSuggestions::GetId() const {
     return SCENE_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-const std::vector<std::string>& glimmer::SceneDynamicSuggestions::GetSuggestions(
-    const std::optional<std::string>& param)
-{
+const std::vector<std::string> &glimmer::SceneDynamicSuggestions::GetSuggestions(
+    const std::optional<std::string> &param) {
     return sceneName_;
 }
 
-bool glimmer::SceneDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
-{
-    for (auto& sceneName : sceneName_)
-    {
-        if (sceneName == keyword)
-        {
+bool glimmer::SceneDynamicSuggestions::Match(const std::string &keyword, const std::string &param) {
+    for (auto &sceneName: sceneName_) {
+        if (sceneName == keyword) {
             return true;
         }
     }

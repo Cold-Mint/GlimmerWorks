@@ -33,32 +33,26 @@
 #include "RmlUi/Debugger/Debugger.h"
 
 
-Rml::ElementDocument* glimmer::RmlContext::LoadDocument(const AppContext* appContext, const ResourceRef* resourceRef)
-{
-    if (context_ == nullptr || resourcePackManager_ == nullptr || resourceRef == nullptr)
-    {
+Rml::ElementDocument *glimmer::RmlContext::LoadDocument(const AppContext *appContext, const ResourceRef *resourceRef) {
+    if (context_ == nullptr || resourcePackManager_ == nullptr || resourceRef == nullptr) {
         return nullptr;
     }
     const uint64_t fingerprint = resourceRef->GetFingerprint();
     auto iterator = elementDocumentCache_.find(fingerprint);
-    if (iterator == elementDocumentCache_.end())
-    {
+    if (iterator == elementDocumentCache_.end()) {
         const std::unique_ptr<RmlResourceResult> rmlResourceResult = resourcePackManager_->GetRmlFilePath(
             appContext, resourceRef);
-        if (rmlResourceResult == nullptr)
-        {
+        if (rmlResourceResult == nullptr) {
             LogCat::w(std::source_location::current(), "rmlResourceResult == nullptr");
             return nullptr;
         }
         auto rmlPath = rmlResourceResult->GetResource();
-        if (rmlPath == nullptr)
-        {
+        if (rmlPath == nullptr) {
             LogCat::w(std::source_location::current(), "path == nullptr");
             return nullptr;
         }
-        Rml::ElementDocument* elementDocument = context_->LoadDocument(rmlPath->string());
-        if (elementDocument == nullptr)
-        {
+        Rml::ElementDocument *elementDocument = context_->LoadDocument(rmlPath->string());
+        if (elementDocument == nullptr) {
             LogCat::w(std::source_location::current(), "elementDocument == nullptr");
             return nullptr;
         }
@@ -66,21 +60,17 @@ Rml::ElementDocument* glimmer::RmlContext::LoadDocument(const AppContext* appCon
         elementDocument->Show();
         return elementDocument;
     }
-    Rml::ElementDocument* elementDocument = iterator->second;
+    Rml::ElementDocument *elementDocument = iterator->second;
     elementDocument->Show();
     return elementDocument;
 }
 
-void glimmer::RmlContext::CloseDocument(Rml::ElementDocument* document)
-{
-    if (document == nullptr)
-    {
+void glimmer::RmlContext::CloseDocument(Rml::ElementDocument *document) {
+    if (document == nullptr) {
         return;
     }
-    for (auto iterator = elementDocumentCache_.begin(); iterator != elementDocumentCache_.end(); ++iterator)
-    {
-        if (iterator->second == document)
-        {
+    for (auto iterator = elementDocumentCache_.begin(); iterator != elementDocumentCache_.end(); ++iterator) {
+        if (iterator->second == document) {
             document->Close();
             elementDocumentCache_.erase(iterator);
             return;
@@ -89,20 +79,18 @@ void glimmer::RmlContext::CloseDocument(Rml::ElementDocument* document)
     document->Close();
 }
 
-Rml::Context* glimmer::RmlContext::GetRmlContext() const
-{
-    if (context_ == nullptr)
-    {
+Rml::Context *glimmer::RmlContext::GetRmlContext() const {
+    if (context_ == nullptr) {
         LogCat::w(std::source_location::current(), "context_ == nullptr");
         return nullptr;
     }
     return context_;
 }
 
-bool glimmer::RmlContext::Init(VirtualFileSystem* virtualFileSystem, SDL_Renderer* renderer,
-    ResourcePackManager* resourcePackManager, ResourceLocator* resourceLocator, toml::value* langsValuePtr,
-    SDL_Window* window, int width, int height)
-{
+bool glimmer::RmlContext::Init(VirtualFileSystem *virtualFileSystem, SDL_Renderer *renderer,
+                               ResourcePackManager *resourcePackManager, ResourceLocator *resourceLocator,
+                               toml::value *langsValuePtr,
+                               SDL_Window *window, int width, int height) {
     LogCat::i("Initializing RmlContext, width: ", width, ", height: ", height);
     resourcePackManager_ = resourcePackManager;
     systemInterfaceSDL3_ = std::make_unique<SystemInterfaceSDL3>(langsValuePtr);
@@ -125,59 +113,49 @@ bool glimmer::RmlContext::Init(VirtualFileSystem* virtualFileSystem, SDL_Rendere
     return true;
 }
 
-bool glimmer::RmlContext::LoadFont(const VirtualFileSystem* virtualFileSystem, const std::filesystem::path& path)
-{
-    if (virtualFileSystem == nullptr)
-    {
+bool glimmer::RmlContext::LoadFont(const VirtualFileSystem *virtualFileSystem, const std::filesystem::path &path) {
+    if (virtualFileSystem == nullptr) {
         return false;
     }
     std::unique_ptr<std::istream> stream = virtualFileSystem->ReadFileAsStream(path);
-    if (stream == nullptr)
-    {
+    if (stream == nullptr) {
         return false;
     }
     std::vector<Rml::byte> buffer;
     stream->seekg(0, std::ios::end);
     std::streamsize size = stream->tellg();
-    if (size <= 0)
-    {
+    if (size <= 0) {
         return false;
     }
     stream->seekg(0, std::ios::beg);
 
     buffer.resize(static_cast<size_t>(size));
-    if (!stream->read(reinterpret_cast<std::istream::char_type*>(buffer.data()), size))
-    {
+    if (!stream->read(reinterpret_cast<std::istream::char_type *>(buffer.data()), size)) {
         return false;
     }
     fontDataBuffers_.push_back(std::move(buffer));
-    const auto& storedData = fontDataBuffers_.back();
+    const auto &storedData = fontDataBuffers_.back();
     bool success = Rml::LoadFontFace(
         Rml::Span(storedData.data(), storedData.size()),
         "core",
         Rml::Style::FontStyle::Normal
     );
-    if (!success)
-    {
+    if (!success) {
         fontDataBuffers_.pop_back();
     }
     return success;
 }
 
 
-void glimmer::RmlContext::UpdateContext() const
-{
-    if (context_ == nullptr)
-    {
+void glimmer::RmlContext::UpdateContext() const {
+    if (context_ == nullptr) {
         return;
     }
     context_->Update();
 }
 
-void glimmer::RmlContext::RenderContext() const
-{
-    if (context_ == nullptr)
-    {
+void glimmer::RmlContext::RenderContext() const {
+    if (context_ == nullptr) {
         return;
     }
     context_->Render();
@@ -186,8 +164,7 @@ void glimmer::RmlContext::RenderContext() const
 
 glimmer::RmlContext::RmlContext() = default;
 
-glimmer::RmlContext::~RmlContext()
-{
+glimmer::RmlContext::~RmlContext() {
     LogCat::d("Destroy rmlContext");
     Rml::Shutdown();
 }

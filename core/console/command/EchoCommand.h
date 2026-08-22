@@ -28,8 +28,7 @@
 #include "core/console/Command.h"
 
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * Echo
      * 输出内容
@@ -37,16 +36,15 @@ namespace glimmer
      * Echo [Text Content]
      * 格式为：Echo [文本内容]
      */
-    class EchoCommand final : public Command
-    {
+    class EchoCommand final : public Command {
     public:
-        explicit EchoCommand(AppContext* appContext);
+        explicit EchoCommand(AppContext *appContext);
 
-        [[nodiscard]] const std::string& GetName() const override;
+        [[nodiscard]] const std::string &GetName() const override;
 
-        void PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) override;
+        void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
 
-        bool Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                     const std::function<void(const std::string& text)>* onMessage) override;
+        bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                     const std::function<void(const std::string &text)> *onMessage) override;
     };
 }

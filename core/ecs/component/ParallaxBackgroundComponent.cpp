@@ -29,41 +29,33 @@
 #include <utility>
 
 
-GameComponentTypeMessage glimmer::ParallaxBackgroundComponent::GetComponentTypeStatic()
-{
+GameComponentTypeMessage glimmer::ParallaxBackgroundComponent::GetComponentTypeStatic() {
     return COMPONENT_PARALLAX_BACKGROUND;
 }
 
-GameComponentTypeMessage glimmer::ParallaxBackgroundComponent::GetComponentType()
-{
+GameComponentTypeMessage glimmer::ParallaxBackgroundComponent::GetComponentType() {
     return GetComponentTypeStatic();
 }
 
-void glimmer::ParallaxBackgroundComponent::SetTextureResourceRef(const ResourceRef& textureResourceRef)
-{
+void glimmer::ParallaxBackgroundComponent::SetTextureResourceRef(const ResourceRef &textureResourceRef) {
     textureResourceRef_ = textureResourceRef;
     newTextureResourceFingerprint_ = textureResourceRef_.GetFingerprint();
 }
 
-glimmer::ResourceRef& glimmer::ParallaxBackgroundComponent::GetTextureResourceRef()
-{
+glimmer::ResourceRef &glimmer::ParallaxBackgroundComponent::GetTextureResourceRef() {
     return textureResourceRef_;
 }
 
-void glimmer::ParallaxBackgroundComponent::ClearTexture()
-{
+void glimmer::ParallaxBackgroundComponent::ClearTexture() {
     textureResourceResult_ = nullptr;
 }
 
-SDL_Texture* glimmer::ParallaxBackgroundComponent::GetTexture(const ResourceLocator* resourceLocator)
-{
-    if (textureResourceFingerprint_ != newTextureResourceFingerprint_)
-    {
+SDL_Texture *glimmer::ParallaxBackgroundComponent::GetTexture(const ResourceLocator *resourceLocator) {
+    if (textureResourceFingerprint_ != newTextureResourceFingerprint_) {
         textureResourceResult_ = resourceLocator->FindTexture(&textureResourceRef_);
         textureResourceFingerprint_ = newTextureResourceFingerprint_;
     }
-    if (textureResourceResult_ == nullptr)
-    {
+    if (textureResourceResult_ == nullptr) {
         return nullptr;
     }
     return textureResourceResult_->GetResource();

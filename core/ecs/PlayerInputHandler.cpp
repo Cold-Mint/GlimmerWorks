@@ -26,157 +26,126 @@
  */
 #include "PlayerInputHandler.h"
 
-void glimmer::PlayerInputHandler::RemoveHorizontalInput(const float increment)
-{
+void glimmer::PlayerInputHandler::RemoveHorizontalInput(const float increment) {
     horizontalInput_ -= increment;
 }
 
-void glimmer::PlayerInputHandler::AddHorizontalInput(const float increment)
-{
+void glimmer::PlayerInputHandler::AddHorizontalInput(const float increment) {
     horizontalInput_ += increment;
 }
 
-void glimmer::PlayerInputHandler::ResetHorizontalInput()
-{
+void glimmer::PlayerInputHandler::ResetHorizontalInput() {
     horizontalInput_ = 0.0F;
 }
 
-float glimmer::PlayerInputHandler::GetHorizontalInput() const
-{
+float glimmer::PlayerInputHandler::GetHorizontalInput() const {
     return horizontalInput_;
 }
 
-void glimmer::PlayerInputHandler::RemoveVerticalInput(const float increment)
-{
+void glimmer::PlayerInputHandler::RemoveVerticalInput(const float increment) {
     verticalInput_ -= increment;
 }
 
-void glimmer::PlayerInputHandler::AddVerticalInput(const float increment)
-{
+void glimmer::PlayerInputHandler::AddVerticalInput(const float increment) {
     verticalInput_ += increment;
 }
 
-void glimmer::PlayerInputHandler::ResetVerticalInput()
-{
+void glimmer::PlayerInputHandler::ResetVerticalInput() {
     verticalInput_ = 0.0F;
 }
 
-void glimmer::PlayerInputHandler::SetVerticalInput(const float verticalInput)
-{
+void glimmer::PlayerInputHandler::SetVerticalInput(const float verticalInput) {
     verticalInput_ = verticalInput;
 }
 
-float glimmer::PlayerInputHandler::GetVerticalInput() const
-{
+float glimmer::PlayerInputHandler::GetVerticalInput() const {
     return verticalInput_;
 }
 
-void glimmer::PlayerInputHandler::SetPressedW(const bool pressedW)
-{
+void glimmer::PlayerInputHandler::SetPressedW(const bool pressedW) {
     pressedW_ = pressedW;
 }
 
-void glimmer::PlayerInputHandler::SetPressedA(const bool pressedA)
-{
+void glimmer::PlayerInputHandler::SetPressedA(const bool pressedA) {
     pressedA_ = pressedA;
 }
 
-void glimmer::PlayerInputHandler::SetPressedS(const bool pressedS)
-{
+void glimmer::PlayerInputHandler::SetPressedS(const bool pressedS) {
     pressedS_ = pressedS;
 }
 
-void glimmer::PlayerInputHandler::SetPressedD(const bool pressedD)
-{
+void glimmer::PlayerInputHandler::SetPressedD(const bool pressedD) {
     pressedD_ = pressedD;
 }
 
-bool glimmer::PlayerInputHandler::IsPressedW() const
-{
+bool glimmer::PlayerInputHandler::IsPressedW() const {
     return pressedW_;
 }
 
-bool glimmer::PlayerInputHandler::IsPressedA() const
-{
+bool glimmer::PlayerInputHandler::IsPressedA() const {
     return pressedA_;
 }
 
-bool glimmer::PlayerInputHandler::IsPressedS() const
-{
+bool glimmer::PlayerInputHandler::IsPressedS() const {
     return pressedS_;
 }
 
-bool glimmer::PlayerInputHandler::IsPressedD() const
-{
+bool glimmer::PlayerInputHandler::IsPressedD() const {
     return pressedD_;
 }
 
-void glimmer::PlayerInputHandler::ResetDropTimer()
-{
+void glimmer::PlayerInputHandler::ResetDropTimer() {
     dropTimer_ = 0;
 }
 
-void glimmer::PlayerInputHandler::AddDropTimer(const float delta)
-{
+void glimmer::PlayerInputHandler::AddDropTimer(const float delta) {
     dropTimer_ += delta;
 }
 
-void glimmer::PlayerInputHandler::RemoveDropTimer(const float delta)
-{
+void glimmer::PlayerInputHandler::RemoveDropTimer(const float delta) {
     dropTimer_ -= delta;
 }
 
-void glimmer::PlayerInputHandler::SetJump(const bool jump)
-{
+void glimmer::PlayerInputHandler::SetJump(const bool jump) {
     jump_ = jump;
 }
 
-bool glimmer::PlayerInputHandler::IsJump() const
-{
+bool glimmer::PlayerInputHandler::IsJump() const {
     return jump_;
 }
 
-void glimmer::PlayerInputHandler::SetJumpBuffer(const float jumpBuffer)
-{
+void glimmer::PlayerInputHandler::SetJumpBuffer(const float jumpBuffer) {
     jumpBuffer_ = jumpBuffer;
 }
 
-float glimmer::PlayerInputHandler::GetJumpBuffer() const
-{
+float glimmer::PlayerInputHandler::GetJumpBuffer() const {
     return jumpBuffer_;
 }
 
-void glimmer::PlayerInputHandler::SetMouseLeftDown(const bool mouseLeftDown)
-{
+void glimmer::PlayerInputHandler::SetMouseLeftDown(const bool mouseLeftDown) {
     mouseLeftDown_ = mouseLeftDown;
 }
 
-bool glimmer::PlayerInputHandler::IsMouseLeftDown() const
-{
+bool glimmer::PlayerInputHandler::IsMouseLeftDown() const {
     return mouseLeftDown_;
 }
 
-void glimmer::PlayerInputHandler::SetMouseRightDown(const bool mouseRightDown)
-{
+void glimmer::PlayerInputHandler::SetMouseRightDown(const bool mouseRightDown) {
     mouseRightDown_ = mouseRightDown;
 }
 
-bool glimmer::PlayerInputHandler::IsMouseRightDown() const
-{
+bool glimmer::PlayerInputHandler::IsMouseRightDown() const {
     return mouseRightDown_;
 }
 
-float glimmer::PlayerInputHandler::GetDropTimer() const
-{
+float glimmer::PlayerInputHandler::GetDropTimer() const {
     return dropTimer_;
 }
 
-void glimmer::PlayerInputHandler::SetDropPressed(const bool dropPressed)
-{
+void glimmer::PlayerInputHandler::SetDropPressed(const bool dropPressed) {
     dropPressed_ = dropPressed;
 }
 
-bool glimmer::PlayerInputHandler::IsDropPressed() const
-{
+bool glimmer::PlayerInputHandler::IsDropPressed() const {
     return dropPressed_;
 }

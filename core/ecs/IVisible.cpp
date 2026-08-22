@@ -26,17 +26,14 @@
  */
 #include "IVisible.h"
 
-void glimmer::IVisible::Show()
-{
+void glimmer::IVisible::Show() {
     visible_ = true;
 }
 
-void glimmer::IVisible::Hide()
-{
+void glimmer::IVisible::Hide() {
     visible_ = false;
 }
 
-bool glimmer::IVisible::IsVisible() const
-{
+bool glimmer::IVisible::IsVisible() const {
     return visible_;
 }

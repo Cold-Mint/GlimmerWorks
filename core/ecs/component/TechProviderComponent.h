@@ -28,10 +28,8 @@
 #include "core/ecs/GameComponent.h"
 #include "core/mod/dataPack/RecipeGroup.h"
 
-namespace glimmer
-{
-    class TechProviderComponent : public GameComponent
-    {
+namespace glimmer {
+    class TechProviderComponent : public GameComponent {
         uint8_t technologyLevel_ = 0;
         RecipeGroup recipeGroup_ = RecipeGroup::None;
 

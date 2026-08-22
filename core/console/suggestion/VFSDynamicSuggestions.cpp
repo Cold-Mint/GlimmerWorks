@@ -28,54 +28,43 @@
 
 #include "core/Constants.h"
 
-glimmer::VFSDynamicSuggestions::VFSDynamicSuggestions(VirtualFileSystem* virtualFileSystem) : virtualFileSystem_(
-    virtualFileSystem)
-{
+glimmer::VFSDynamicSuggestions::VFSDynamicSuggestions(VirtualFileSystem *virtualFileSystem) : virtualFileSystem_(
+    virtualFileSystem) {
 }
 
-std::string glimmer::VFSDynamicSuggestions::GetId() const
-{
+std::string glimmer::VFSDynamicSuggestions::GetId() const {
     return VFS_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-bool glimmer::VFSDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
-{
+bool glimmer::VFSDynamicSuggestions::Match(const std::string &keyword, const std::string &param) {
     return virtualFileSystem_->Exists(keyword);
 }
 
-const std::vector<std::string>& glimmer::VFSDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
-{
+const std::vector<std::string> &
+glimmer::VFSDynamicSuggestions::GetSuggestions(const std::optional<std::string> &param) {
     suggestions_.clear();
-    if (!param.has_value())
-    {
+    if (!param.has_value()) {
         return suggestions_;
     }
-    const std::string& paramValue = param.value();
+    const std::string &paramValue = param.value();
     std::filesystem::path directory;
     std::string keyword;
-    if (auto pos = paramValue.find_last_of('/'); pos != std::string::npos)
-    {
+    if (auto pos = paramValue.find_last_of('/'); pos != std::string::npos) {
         directory = paramValue.substr(0, pos);
-        if (directory.empty())
-        {
+        if (directory.empty()) {
             directory = "/";
         }
         keyword = paramValue.substr(pos + 1);
-    }
-    else
-    {
+    } else {
         directory = "";
         keyword = paramValue;
     }
-    if (!virtualFileSystem_->Exists(directory))
-    {
+    if (!virtualFileSystem_->Exists(directory)) {
         return suggestions_;
     }
     const auto files = virtualFileSystem_->ListFile(directory, false);
-    for (const auto& file : files)
-    {
-        if (std::string path = file.string(); keyword.empty() || path.contains(keyword))
-        {
+    for (const auto &file: files) {
+        if (std::string path = file.string(); keyword.empty() || path.contains(keyword)) {
             suggestions_.emplace_back(path);
         }
     }

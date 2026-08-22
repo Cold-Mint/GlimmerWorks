@@ -32,54 +32,44 @@
 #include <thread>
 #include <functional>
 
-namespace glimmer
-{
-    class MainThreadDispatcher
-    {
+namespace glimmer {
+    class MainThreadDispatcher {
         std::mutex mainThreadMutex_;
-        std::queue<std::function<void()>> mainThreadTasks_;
+        std::queue<std::function<void()> > mainThreadTasks_;
         std::thread::id mainThreadId_;
 
     public:
         MainThreadDispatcher();
+
         ~MainThreadDispatcher();
 
         [[nodiscard]] bool IsMainThread() const;
 
         void ProcessMainThreadTasks();
 
-        template <typename Func>
-        std::future<std::invoke_result_t<Func>> AddMainThreadTaskAwait(Func&& func)
-        {
+        template<typename Func>
+        std::future<std::invoke_result_t<Func> > AddMainThreadTaskAwait(Func &&func) {
             using Result = std::invoke_result_t<Func>;
-            if (IsMainThread())
-            {
+            if (IsMainThread()) {
                 std::promise<Result> p;
-                if constexpr (std::is_void_v<Result>)
-                {
+                if constexpr (std::is_void_v<Result>) {
                     func();
                     p.set_value();
-                }
-                else
-                {
+                } else {
                     p.set_value(func());
                 }
                 return p.get_future();
             }
-            auto promise = std::make_shared<std::promise<Result>>();
+            auto promise = std::make_shared<std::promise<Result> >();
             auto future = promise->get_future();
             {
                 std::lock_guard lock(mainThreadMutex_);
                 mainThreadTasks_.push(
-                    [func = std::forward<Func>(func), promise]() mutable
-                    {
-                        if constexpr (std::is_void_v<Result>)
-                        {
+                    [func = std::forward<Func>(func), promise]() mutable {
+                        if constexpr (std::is_void_v<Result>) {
                             func();
                             promise->set_value();
-                        }
-                        else
-                        {
+                        } else {
                             promise->set_value(func());
                         }
                     }

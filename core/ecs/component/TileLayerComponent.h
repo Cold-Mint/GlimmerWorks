@@ -35,8 +35,7 @@
 #include "core/world/generator/TileSnapshot.h"
 #include "SDL3/SDL_rect.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class Chunk;
     class Tile;
     /**
@@ -45,32 +44,31 @@ namespace glimmer
      * TileLayer组件被设计为只能在世界原点（0,0）工作。
      * Transform2DComponent组件的位置不会影响坐标转换。
      */
-    class TileLayerComponent final : public GameComponent
-    {
-        WorldContext* worldContext_;
+    class TileLayerComponent final : public GameComponent {
+        WorldContext *worldContext_;
         TileLayerType tileLayerType_;
         TileVector2D focusPosition_ = TileVector2D{};
-        std::vector<std::pair<TileVector2D, std::vector<TileSnapshot*>>> visibleTiles_;
+        std::vector<std::pair<TileVector2D, std::vector<TileSnapshot *> > > visibleTiles_;
         Vector2DIFingerprint visibleTileTopLeftFingerprint_ = 0;
         Vector2DIFingerprint visibleTileBottomRightFingerprint_ = 0;
 
 
         [[nodiscard]] std::shared_ptr<Tile>
-        GetTileShared(TileLayerType layerType, const TileVector2D& tilePos) const;
+        GetTileShared(TileLayerType layerType, const TileVector2D &tilePos) const;
 
-        [[nodiscard]] static std::vector<TileSnapshot*> GetTopVisibleTileSnapshots(
-            const Chunk* chunk, std::byte layerFilter,
-            const TileVector2D& tilePos);
+        [[nodiscard]] static std::vector<TileSnapshot *> GetTopVisibleTileSnapshots(
+            const Chunk *chunk, std::byte layerFilter,
+            const TileVector2D &tilePos);
 
-        [[nodiscard]] TileStateMessage* GetTileStatePtr(
+        [[nodiscard]] TileStateMessage *GetTileStatePtr(
             TileLayerType layerType,
-            const TileVector2D& tilePos) const;
+            const TileVector2D &tilePos) const;
 
     public:
-        [[nodiscard]] static uint64_t GenerateTileFingerprint(const TileVector2D& tileTopLeftPosition,
+        [[nodiscard]] static uint64_t GenerateTileFingerprint(const TileVector2D &tileTopLeftPosition,
                                                               TileLayerType tileLayerType);
 
-        [[nodiscard]] const Tile* GetTile(TileLayerType layerType, const TileVector2D& tilePos) const;
+        [[nodiscard]] const Tile *GetTile(TileLayerType layerType, const TileVector2D &tilePos) const;
 
         /**
          * Get Top Visible Tiles In Viewport
@@ -79,25 +77,25 @@ namespace glimmer
          * @param worldViewport
          * @return
          */
-        [[nodiscard]] std::vector<std::pair<TileVector2D, std::vector<TileSnapshot*>>>*
+        [[nodiscard]] std::vector<std::pair<TileVector2D, std::vector<TileSnapshot *> > > *
         GetTopVisibleTileSnapshotsInViewport(
             std::byte layerFilter,
-            const SDL_FRect& worldViewport);
+            const SDL_FRect &worldViewport);
 
 
-        [[nodiscard]] const Tile* GetSelfLayerTile(const TileVector2D& tilePos) const;
+        [[nodiscard]] const Tile *GetSelfLayerTile(const TileVector2D &tilePos) const;
 
-        [[nodiscard]] std::shared_ptr<Tile> GetSelfLayerTileShared(const TileVector2D& tilePos) const;
+        [[nodiscard]] std::shared_ptr<Tile> GetSelfLayerTileShared(const TileVector2D &tilePos) const;
 
         [[nodiscard]] bool CommitTileState(
-            BreakSource breakSource, TileLayerType layerType, const TileVector2D& tilePos, bool fallback) const;
+            BreakSource breakSource, TileLayerType layerType, const TileVector2D &tilePos, bool fallback) const;
 
 
-        [[nodiscard]] const TileStateMessage* GetSelfLayerTileState(
-            const TileVector2D& tilePos) const;
+        [[nodiscard]] const TileStateMessage *GetSelfLayerTileState(
+            const TileVector2D &tilePos) const;
 
-        [[nodiscard]] TileStateMessage* GetSelfLayerTileStateMutable(
-            const TileVector2D& tilePos) const;
+        [[nodiscard]] TileStateMessage *GetSelfLayerTileStateMutable(
+            const TileVector2D &tilePos) const;
 
         [[nodiscard]] TileLayerType GetTileLayerType() const;
 
@@ -106,17 +104,17 @@ namespace glimmer
          * 设置焦点位置
          * @param focusPosition
          */
-        void SetFocusPosition(const TileVector2D& focusPosition);
+        void SetFocusPosition(const TileVector2D &focusPosition);
 
         /**
          * Get the focus position
          * 获取焦点位置
          * @return
          */
-        [[nodiscard]] const TileVector2D& GetFocusPosition() const;
+        [[nodiscard]] const TileVector2D &GetFocusPosition() const;
 
 
-        explicit TileLayerComponent(WorldContext* worldContext,
+        explicit TileLayerComponent(WorldContext *worldContext,
                                     TileLayerType tileLayerType);
 
         [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();

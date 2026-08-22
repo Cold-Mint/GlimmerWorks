@@ -27,10 +27,8 @@
 #pragma once
 #include "ResourceResult.h"
 
-namespace glimmer
-{
-    class RmlResourceResult : public ResourceResult<std::filesystem::path>
-    {
+namespace glimmer {
+    class RmlResourceResult : public ResourceResult<std::filesystem::path> {
         /**
          * RML file path
          * rml文件路径
@@ -38,7 +36,7 @@ namespace glimmer
         std::filesystem::path rmlPath_;
 
     public:
-        void SetPath(const std::filesystem::path& rmlPath);
+        void SetPath(const std::filesystem::path &rmlPath);
 
         void DestroyResource() override;
     };

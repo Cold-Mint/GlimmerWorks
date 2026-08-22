@@ -28,22 +28,18 @@
 
 
 glimmer::CommandRequest::CommandRequest(const uint32_t id, const std::string_view command,
-                                        CommandSender* commandSender) :
-    id_(id), command_(command), commandSender_(commandSender)
-{
+                                        CommandSender *commandSender) : id_(id), command_(command),
+                                                                        commandSender_(commandSender) {
 }
 
-uint32_t glimmer::CommandRequest::GetId() const
-{
+uint32_t glimmer::CommandRequest::GetId() const {
     return id_;
 }
 
-const std::string& glimmer::CommandRequest::GetCommand() const
-{
+const std::string &glimmer::CommandRequest::GetCommand() const {
     return command_;
 }
 
-const glimmer::CommandSender* glimmer::CommandRequest::GetCommandSender() const
-{
+const glimmer::CommandSender *glimmer::CommandRequest::GetCommandSender() const {
     return commandSender_;
 }

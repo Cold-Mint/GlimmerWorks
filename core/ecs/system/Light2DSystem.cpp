@@ -32,15 +32,12 @@
 #include "core/world/LightPropagationTraverser.h"
 #include "core/world/WorldContext.h"
 
-void glimmer::Light2DSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
-{
-    EntityShortCut* entityShortCut = GetEntityShortCut();
-    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
-    {
+void glimmer::Light2DSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) {
+    EntityShortCut *entityShortCut = GetEntityShortCut();
+    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr) {
         cameraComponent_ = entityShortCut->GetCameraComponent();
     }
-    if (gameComponentType == COMPONENT_TRANSFORM_2D && cameraTransform2DComponent_ == nullptr)
-    {
+    if (gameComponentType == COMPONENT_TRANSFORM_2D && cameraTransform2DComponent_ == nullptr) {
         cameraTransform2DComponent_ = entityShortCut->GetCameraTransform2DComponent();
     }
 }
@@ -49,46 +46,39 @@ uint8_t glimmer::Light2DSystem::GetExecutionOrder() {
     return EXECUTION_ORDER_LIGHT2D;
 }
 
-glimmer::Light2DSystem::Light2DSystem(WorldContext* worldContext) : GameSystem(worldContext)
-{
+glimmer::Light2DSystem::Light2DSystem(WorldContext *worldContext) : GameSystem(worldContext) {
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_TRANSFORM_2D);
     Init();
 }
 
-void glimmer::Light2DSystem::Render(SDL_Renderer* renderer)
-{
-    WorldContext* worldContext = GetWorldContext();
-    if (worldContext == nullptr)
-    {
+void glimmer::Light2DSystem::Render(SDL_Renderer *renderer) {
+    WorldContext *worldContext = GetWorldContext();
+    if (worldContext == nullptr) {
         return;
     }
-    const AppContext* appContext = worldContext->GetAppContext();
-    if (appContext == nullptr)
-    {
+    const AppContext *appContext = worldContext->GetAppContext();
+    if (appContext == nullptr) {
         return;
     }
 #if  !defined(NDEBUG)
-    const Config* config = appContext->GetConfig();
-    if (config == nullptr)
-    {
+    const Config *config = appContext->GetConfig();
+    if (config == nullptr) {
         return;
     }
-    if (!config->light.enable)
-    {
+    if (!config->light.enable) {
         return;
     }
 #endif
-    if (cameraComponent_ == nullptr)
-    {
+    if (cameraComponent_ == nullptr) {
         return;
     }
-    if (cameraTransform2DComponent_ == nullptr)
-    {
+    if (cameraTransform2DComponent_ == nullptr) {
         return;
     }
     const float zoom = cameraComponent_->GetZoom();
-    auto viewportRect = CoordinateTransformer::GetViewportRect(cameraTransform2DComponent_->GetPosition(), cameraComponent_->GetSize(), zoom);
+    auto viewportRect = CoordinateTransformer::GetViewportRect(cameraTransform2DComponent_->GetPosition(),
+                                                               cameraComponent_->GetSize(), zoom);
     const TileVector2D topLeft = CoordinateTransformer::WorldToTile({viewportRect.x, viewportRect.y});
     //The purpose of adding "TILE_SIZE" in the lower right corner is to prevent blank areas from appearing.
     //右下角加TILE_SIZE的目的是，防止出现空白区域。
@@ -96,10 +86,8 @@ void glimmer::Light2DSystem::Render(SDL_Renderer* renderer)
         viewportRect.x + viewportRect.w + TILE_SIZE,
         viewportRect.y + viewportRect.h + TILE_SIZE
     });
-    for (int y = topLeft.y; y <= bottomRight.y; ++y)
-    {
-        for (int x = topLeft.x; x <= bottomRight.x; ++x)
-        {
+    for (int y = topLeft.y; y <= bottomRight.y; ++y) {
+        for (int x = topLeft.x; x <= bottomRight.x; ++x) {
             auto tileVector2D = TileVector2D(x, y);
             const WorldVector2D worldTilePos = CoordinateTransformer::TileToWorld(tileVector2D);
             const ScreenVector2D screenPos = CoordinateTransformer::WorldToScreen(
@@ -110,13 +98,11 @@ void glimmer::Light2DSystem::Render(SDL_Renderer* renderer)
             renderQuad.x = screenPos.x - renderQuad.w * 0.5F;
             renderQuad.y = screenPos.y - renderQuad.h * 0.5F;
             SDL_FRect dstRect = {renderQuad.x, renderQuad.y, renderQuad.w, renderQuad.h};
-            const Color* finalLightColor = worldContext->GetLightingBuffer()->GetFinalLightColor(tileVector2D);
-            if (finalLightColor == nullptr)
-            {
+            const Color *finalLightColor = worldContext->GetLightingBuffer()->GetFinalLightColor(tileVector2D);
+            if (finalLightColor == nullptr) {
                 continue;
             }
-            if (finalLightColor->a == 0)
-            {
+            if (finalLightColor->a == 0) {
                 continue;
             }
             SDL_SetRenderDrawColor(renderer, finalLightColor->r,
@@ -129,7 +115,6 @@ void glimmer::Light2DSystem::Render(SDL_Renderer* renderer)
     AppContext::RestoreColorRenderer(renderer);
 }
 
-glimmer::GameSystemType glimmer::Light2DSystem::GetGameSystemType() const
-{
+glimmer::GameSystemType glimmer::Light2DSystem::GetGameSystemType() const {
     return GameSystemType::Light2DSystem;
 }

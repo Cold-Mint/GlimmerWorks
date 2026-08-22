@@ -33,13 +33,11 @@
 #include "ability/ItemAbility.h"
 #include "core/mod/ResourceRef.h"
 
-namespace glimmer
-{
+namespace glimmer {
     struct ItemTagResource;
     class TextureResourceResult;
 
-    class AbilityItemCreateParams
-    {
+    class AbilityItemCreateParams {
         std::string id_;
         std::string name_;
         std::optional<std::string> description_;
@@ -54,23 +52,23 @@ namespace glimmer
         ResourceRef iconResourceRef_;
 
     public:
-        void SetIconResult(const ResourceRef& iconResult);
+        void SetIconResult(const ResourceRef &iconResult);
 
-        [[nodiscard]] const ResourceRef& GetIconResourceRef() const;
+        [[nodiscard]] const ResourceRef &GetIconResourceRef() const;
 
         void SetCanUseAlone(bool canUseAlone);
 
         [[nodiscard]] bool IsCanUseAlone() const;
 
-        void SetItemAbility(const std::shared_ptr<ItemAbility>& itemAbility);
+        void SetItemAbility(const std::shared_ptr<ItemAbility> &itemAbility);
 
-        [[nodiscard]] const std::shared_ptr<ItemAbility>& GetItemAbility() const;
+        [[nodiscard]] const std::shared_ptr<ItemAbility> &GetItemAbility() const;
 
         void SetUnbreakable(bool unbreakable);
 
-        void SetTags(const std::vector<ItemTagResource>& tags);
+        void SetTags(const std::vector<ItemTagResource> &tags);
 
-        void SetResourceRef(const ResourceRef& resourceRef);
+        void SetResourceRef(const ResourceRef &resourceRef);
 
         void SetMaxDurability(uint32_t maxDurability);
 
@@ -78,28 +76,28 @@ namespace glimmer
 
         [[nodiscard]] uint8_t GetMaxSize() const;
 
-        void SetIconResult(const std::shared_ptr<TextureResourceResult>& iconResult);
+        void SetIconResult(const std::shared_ptr<TextureResourceResult> &iconResult);
 
-        [[nodiscard]] const std::shared_ptr<TextureResourceResult>& GetIconResult() const;
+        [[nodiscard]] const std::shared_ptr<TextureResourceResult> &GetIconResult() const;
 
         [[nodiscard]] uint32_t GetMaxDurability() const;
 
-        void SetDescription(const std::optional<std::string>& description);
+        void SetDescription(const std::optional<std::string> &description);
 
         void SetName(std::string_view name);
 
         void SetId(std::string_view id);
 
-        [[nodiscard]] const std::optional<std::string>& GetDescription() const;
+        [[nodiscard]] const std::optional<std::string> &GetDescription() const;
 
         [[nodiscard]] bool IsUnbreakable() const;
 
-        [[nodiscard]] const std::vector<ItemTagResource>& GetTags() const;
+        [[nodiscard]] const std::vector<ItemTagResource> &GetTags() const;
 
-        [[nodiscard]] const ResourceRef& GetResourceRef() const;
+        [[nodiscard]] const ResourceRef &GetResourceRef() const;
 
-        [[nodiscard]] const std::string& GetName() const;
+        [[nodiscard]] const std::string &GetName() const;
 
-        [[nodiscard]] const std::string& GetId() const;
+        [[nodiscard]] const std::string &GetId() const;
     };
 }

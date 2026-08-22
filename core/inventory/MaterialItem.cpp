@@ -33,34 +33,30 @@
 
 glimmer::MaterialItem::MaterialItem(std::string id, std::string name, std::optional<std::string> description,
                                     std::shared_ptr<TextureResourceResult> iconResult,
-                                    const std::vector<ItemTagResource>& tags,
-                                    const ResourceRef& resourceRef,
+                                    const std::vector<ItemTagResource> &tags,
+                                    const ResourceRef &resourceRef,
                                     ResourceRef textureResourceRef) : id_(std::move(id)),
                                                                       name_(std::move(name)),
                                                                       description_(std::move(description)),
                                                                       iconResult_(std::move(iconResult)),
                                                                       textureResourceRef_(std::move(
-                                                                          textureResourceRef))
-{
+                                                                          textureResourceRef)) {
     SetTags(tags);
     SetResourceRef(resourceRef);
     SetMaxStack(ITEM_MAX_STACK);
 }
 
-std::unique_ptr<glimmer::MaterialItem> glimmer::MaterialItem::FromItemResource(const AppContext* appContext,
-                                                                               const MaterialItemResource* itemResource,
-                                                                               const ResourceRef& resourceRef)
-{
+std::unique_ptr<glimmer::MaterialItem> glimmer::MaterialItem::FromItemResource(const AppContext *appContext,
+                                                                               const MaterialItemResource *itemResource,
+                                                                               const ResourceRef &resourceRef) {
     std::string name = Resource::GenerateId(itemResource->packId, itemResource->resourceId);
     const auto nameRes = appContext->GetResourceLocator()->FindString(&itemResource->name);
-    if (nameRes != nullptr)
-    {
+    if (nameRes != nullptr) {
         name = nameRes->value;
     }
     std::optional<std::string> description;
     auto descriptionRes = appContext->GetResourceLocator()->FindString(&itemResource->description);
-    if (descriptionRes != nullptr)
-    {
+    if (descriptionRes != nullptr) {
         description = descriptionRes->value;
     }
     return std::make_unique<MaterialItem>(Resource::GenerateId(*itemResource), name,
@@ -70,55 +66,45 @@ std::unique_ptr<glimmer::MaterialItem> glimmer::MaterialItem::FromItemResource(c
                                           itemResource->texture);
 }
 
-const glimmer::ResourceRef* glimmer::MaterialItem::GetIconResourceRef() const
-{
+const glimmer::ResourceRef *glimmer::MaterialItem::GetIconResourceRef() const {
     return &textureResourceRef_;
 }
 
-const std::string& glimmer::MaterialItem::GetId() const
-{
+const std::string &glimmer::MaterialItem::GetId() const {
     return id_;
 }
 
-const std::string& glimmer::MaterialItem::GetName() const
-{
+const std::string &glimmer::MaterialItem::GetName() const {
     return name_;
 }
 
-const std::optional<std::string>& glimmer::MaterialItem::GetDescription() const
-{
+const std::optional<std::string> &glimmer::MaterialItem::GetDescription() const {
     return description_;
 }
 
-const glimmer::AbilityConfig* glimmer::MaterialItem::GetAbilityConfig() const
-{
+const glimmer::AbilityConfig *glimmer::MaterialItem::GetAbilityConfig() const {
     return nullptr;
 }
 
-void glimmer::MaterialItem::Reduce(unsigned value)
-{
+void glimmer::MaterialItem::Reduce(unsigned value) {
     // MaterialItem has no durability to reduce
 }
 
 
-SDL_Texture* glimmer::MaterialItem::GetIcon() const
-{
-    if (iconResult_ == nullptr)
-    {
+SDL_Texture *glimmer::MaterialItem::GetIcon() const {
+    if (iconResult_ == nullptr) {
         return nullptr;
     }
     return iconResult_->GetResource();
 }
 
-bool glimmer::MaterialItem::OnUse(bool mouseLeft, WorldContext* worldContext, uint32_t user,
-                                  const AbilityConfig* abilityConfig, std::unordered_set<AbilityType>& popupAbility)
-{
+bool glimmer::MaterialItem::OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user,
+                                  const AbilityConfig *abilityConfig, std::unordered_set<AbilityType> &popupAbility) {
     // MaterialItem has no special use behavior
     return false;
 }
 
 
-std::unique_ptr<glimmer::Item> glimmer::MaterialItem::Clone() const
-{
+std::unique_ptr<glimmer::Item> glimmer::MaterialItem::Clone() const {
     return std::make_unique<MaterialItem>(*this);
 }

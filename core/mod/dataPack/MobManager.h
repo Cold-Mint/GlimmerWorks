@@ -33,20 +33,18 @@
 #include "BaseResManager.h"
 #include "core/mod/Resource.h"
 
-namespace glimmer
-{
-    class MobManager : public BaseResManager<MobResource>
-    {
-        std::vector<MobResource*> playerMobsResource_;
+namespace glimmer {
+    class MobManager : public BaseResManager<MobResource> {
+        std::vector<MobResource *> playerMobsResource_;
 
     public:
-        void OnRegister(MobResource* resource) override;
+        void OnRegister(MobResource *resource) override;
 
         /**
          * FindPlayerResource
          * 获取玩家资源列表
          * @return
          */
-        [[nodiscard]] std::span<const MobResource* const> GetPlayerResourceList() const;
+        [[nodiscard]] std::span<const MobResource * const> GetPlayerResourceList() const;
     };
 }

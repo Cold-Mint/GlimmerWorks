@@ -33,10 +33,8 @@
 #include "core/scene/WorldScene.h"
 #include "core/world/SystemScheduler.h"
 
-void glimmer::EcsCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
-{
-    if (suggestionsTree == nullptr)
-    {
+void glimmer::EcsCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
+    if (suggestionsTree == nullptr) {
         return;
     }
     suggestionsTree->AddChild("showEntityList");
@@ -44,26 +42,21 @@ void glimmer::EcsCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree
     suggestionsTree->AddChild("activeSystems");
 }
 
-glimmer::EcsCommand::EcsCommand(AppContext* appContext) : Command(appContext)
-{
+glimmer::EcsCommand::EcsCommand(AppContext *appContext) : Command(appContext) {
 }
 
-std::optional<std::string> glimmer::EcsCommand::EntityToString(GameEntityID gameEntityId) const
-{
-    const WorldContext* worldContext = GetWorldContext();
-    if (worldContext == nullptr)
-    {
+std::optional<std::string> glimmer::EcsCommand::EntityToString(GameEntityID gameEntityId) const {
+    const WorldContext *worldContext = GetWorldContext();
+    if (worldContext == nullptr) {
         return std::nullopt;
     }
-    EntityManager* entityManager = worldContext->GetEntityManager();
-    const std::vector<GameComponent*> components = entityManager->GetAllComponent(gameEntityId);
+    EntityManager *entityManager = worldContext->GetEntityManager();
+    const std::vector<GameComponent *> components = entityManager->GetAllComponent(gameEntityId);
     std::stringstream stringStream;
-    for (int i = 0; i < components.size(); ++i)
-    {
-        auto const& component = components[i];
+    for (int i = 0; i < components.size(); ++i) {
+        auto const &component = components[i];
         stringStream << component->GetComponentType();
-        if (i != components.size() - 1)
-        {
+        if (i != components.size() - 1) {
             stringStream << ',';
         }
     }
@@ -72,92 +65,75 @@ std::optional<std::string> glimmer::EcsCommand::EntityToString(GameEntityID game
                        stringStream.str());
 }
 
-const std::string& glimmer::EcsCommand::GetName() const
-{
+const std::string &glimmer::EcsCommand::GetName() const {
     return ECS_COMMAND_NAME;
 }
 
-void glimmer::EcsCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
-{
-    if (commandArgs == nullptr || strings == nullptr)
-    {
+void glimmer::EcsCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
+    if (commandArgs == nullptr || strings == nullptr) {
         return;
     }
     strings->emplace_back("[type:string]");
-    if (commandArgs->GetSize() > 1 && commandArgs->AsString(1) == "displayDetailedInformation")
-    {
+    if (commandArgs->GetSize() > 1 && commandArgs->AsString(1) == "displayDetailedInformation") {
         strings->emplace_back("[id:uint]");
     }
 }
 
-bool glimmer::EcsCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                                  const std::function<void(const std::string& text)>* onMessage)
-{
-    const AppContext* appContext = GetAppContext();
-    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
-    {
+bool glimmer::EcsCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                                  const std::function<void(const std::string &text)> *onMessage) {
+    const AppContext *appContext = GetAppContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr) {
         return false;
     }
-    const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    const LangsResources* langsResources = appContext->GetLangsResources();
-    if (langsResources == nullptr)
-    {
+    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
+    const LangsResources *langsResources = appContext->GetLangsResources();
+    if (langsResources == nullptr) {
         return false;
     }
-    const WorldContext* worldContext = GetWorldContext();
-    if (worldContext == nullptr)
-    {
+    const WorldContext *worldContext = GetWorldContext();
+    if (worldContext == nullptr) {
         onMessageRef(langsResources->worldContextIsNull);
         return false;
     }
     int size = commandArgs->GetSize();
-    if (commandArgs->GetSize() < 2)
-    {
+    if (commandArgs->GetSize() < 2) {
         onMessageRef(fmt::format(
             fmt::runtime(langsResources->insufficientParameterLength),
             2, size));
         return false;
     }
     std::string arg = commandArgs->AsString(1);
-    if (arg == "showEntityList")
-    {
+    if (arg == "showEntityList") {
         for (const std::vector<uint32_t> allGameEntities = worldContext->GetEntityManager()->GetAllEntityIDs(); const
-             auto& e :
-             allGameEntities)
-        {
-            if (auto string = EntityToString(e); string.has_value())
-            {
+             auto &e:
+             allGameEntities) {
+            if (auto string = EntityToString(e); string.has_value()) {
                 onMessageRef(string.value());
             }
         }
         return true;
     }
-    if (arg == "displayDetailedInformation")
-    {
-        if (commandArgs->GetSize() < 3)
-        {
+    if (arg == "displayDetailedInformation") {
+        if (commandArgs->GetSize() < 3) {
             onMessageRef(fmt::format(
                 fmt::runtime(langsResources->insufficientParameterLength),
                 3, size));
             return false;
         }
         const uint32_t id = commandArgs->AsInt(2);
-        if (WorldContext::IsEmptyEntityId(id))
-        {
+        if (WorldContext::IsEmptyEntityId(id)) {
             onMessageRef(langsResources->cantFindObject);
             return false;
         }
-        if (auto string = EntityToString(id); string.has_value())
-        {
+        if (auto string = EntityToString(id); string.has_value()) {
             onMessageRef(string.value());
         }
         return true;
     }
-    if (arg == "activeSystems")
-    {
-        for (const std::vector<GameSystemType> allGameSystems = worldContext->GetSystemScheduler()->GetAllActiveSystemType(); const auto& type :
-             allGameSystems)
-        {
+    if (arg == "activeSystems") {
+        for (const std::vector<GameSystemType> allGameSystems = worldContext->GetSystemScheduler()->
+                     GetAllActiveSystemType(); const auto &type:
+             allGameSystems) {
             onMessageRef(fmt::format("{}\n", std::to_underlying(type)));
         }
         return true;
@@ -166,8 +142,7 @@ bool glimmer::EcsCommand::Execute(const CommandSender* commandSender, const Comm
 }
 
 
-bool glimmer::EcsCommand::RequiresWorldContext() const
-{
+bool glimmer::EcsCommand::RequiresWorldContext() const {
     return true;
 }
 #endif

@@ -33,109 +33,87 @@
 #include "core/log/LogCat.h"
 #include "toml11/spec.hpp"
 
-namespace glimmer
-{
+namespace glimmer {
     class Config;
 }
 
 namespace fs = std::filesystem;
 
-bool glimmer::DataPackManager::IsDataPackAvailable(const DataPack& pack) const
-{
-    const PackManifest& manifest = pack.GetManifest();
-    if (manifest.id == RESOURCE_REF_CORE || manifest.id == RESOURCE_REF_SELF)
-    {
+bool glimmer::DataPackManager::IsDataPackAvailable(const DataPack &pack) const {
+    const PackManifest &manifest = pack.GetManifest();
+    if (manifest.id == RESOURCE_REF_CORE || manifest.id == RESOURCE_REF_SELF) {
         return false;
     }
-    for (const auto& packId : packManifestVector_)
-    {
-        if (packId.id == manifest.id)
-        {
+    for (const auto &packId: packManifestVector_) {
+        if (packId.id == manifest.id) {
             return false;
         }
     }
-    if (manifest.minGameVersion > GAME_VERSION_NUMBER)
-    {
+    if (manifest.minGameVersion > GAME_VERSION_NUMBER) {
         return false;
     }
     return !manifest.resPack;
 }
 
-bool glimmer::DataPackManager::IsDataPackEnabled(const DataPack& pack,
-                                                 const std::vector<std::string>& enabledDataPack)
-{
+bool glimmer::DataPackManager::IsDataPackEnabled(const DataPack &pack,
+                                                 const std::vector<std::string> &enabledDataPack) {
     return std::ranges::find(enabledDataPack, pack.GetManifest().id) != enabledDataPack.end();
 }
 
-bool glimmer::DataPackManager::CheckDependencyVersion(const std::vector<PackDependence>& dependencies,
-                                                      const std::string_view packId, const uint32_t version)
-{
-    return std::ranges::any_of(dependencies, [&](const auto& dep)
-    {
+bool glimmer::DataPackManager::CheckDependencyVersion(const std::vector<PackDependence> &dependencies,
+                                                      const std::string_view packId, const uint32_t version) {
+    return std::ranges::any_of(dependencies, [&](const auto &dep) {
         return dep.packId == packId && version >= dep.minVersion;
     });
 }
 
-glimmer::DataPackManager::DataPackManager(VirtualFileSystem* virtualFilesystem,
-                                          TomlTemplateExpander* tomlTemplateExpander) : virtualFileSystem_(
-        virtualFilesystem), tomlTemplateExpander_(tomlTemplateExpander)
-{
+glimmer::DataPackManager::DataPackManager(VirtualFileSystem *virtualFilesystem,
+                                          TomlTemplateExpander *tomlTemplateExpander) : virtualFileSystem_(
+    virtualFilesystem), tomlTemplateExpander_(tomlTemplateExpander) {
 }
 
-bool glimmer::DataPackManager::IsDependencySatisfied(const std::string& pack1Id, const std::string& pack2Id)
-{
-    if (pack1Id == pack2Id)
-    {
+bool glimmer::DataPackManager::IsDependencySatisfied(const std::string &pack1Id, const std::string &pack2Id) {
+    if (pack1Id == pack2Id) {
         return true;
     }
-    const DataPackManifest* dataPackManifest1 = nullptr;
-    for (auto& packId : packManifestVector_)
-    {
-        if (packId.id == pack1Id)
-        {
+    const DataPackManifest *dataPackManifest1 = nullptr;
+    for (auto &packId: packManifestVector_) {
+        if (packId.id == pack1Id) {
             dataPackManifest1 = &packId;
             break;
         }
     }
-    if (dataPackManifest1 == nullptr)
-    {
+    if (dataPackManifest1 == nullptr) {
         LogCat::w(std::source_location::current(), "Cannot find data package1:", pack1Id);
         return false;
     }
-    if (pack2Id == RESOURCE_REF_CORE)
-    {
+    if (pack2Id == RESOURCE_REF_CORE) {
 #if  defined(NDEBUG)
         return CheckDependencyVersion(dataPackManifest1->packDependencies, pack2Id, CORE_DATA_PACK_VERSION_NUMBER);
 #else
         bool result = CheckDependencyVersion(dataPackManifest1->packDependencies, pack2Id,
                                              CORE_DATA_PACK_VERSION_NUMBER);
-        if (!result)
-        {
+        if (!result) {
             LogCat::w(std::source_location::current(), "The detection of the dependent version failed package1:",
                       pack1Id, ",package2:", pack2Id);
         }
         return result;
 #endif
     }
-    DataPackManifest* dataPackManifest2 = nullptr;
-    for (auto& packId : packManifestVector_)
-    {
-        if (packId.id == pack2Id)
-        {
+    DataPackManifest *dataPackManifest2 = nullptr;
+    for (auto &packId: packManifestVector_) {
+        if (packId.id == pack2Id) {
             dataPackManifest2 = &packId;
             break;
         }
     }
-    if (dataPackManifest2 == nullptr)
-    {
+    if (dataPackManifest2 == nullptr) {
         LogCat::w(std::source_location::current(), "Cannot find data package2:", pack1Id);
         return false;
     }
     bool match = false;
-    for (auto& packDependency : dataPackManifest1->packDependencies)
-    {
-        if (packDependency.packId == pack2Id && dataPackManifest2->versionNumber >= packDependency.minVersion)
-        {
+    for (auto &packDependency: dataPackManifest1->packDependencies) {
+        if (packDependency.packId == pack2Id && dataPackManifest2->versionNumber >= packDependency.minVersion) {
             //If the dependencies within data packet 1 include the ID of data packet 2.
             //如果数据包1内的依赖项包含数据包2的id。
             //If the dependency version in package 1 is less than or equal to the version of package 2.
@@ -145,55 +123,45 @@ bool glimmer::DataPackManager::IsDependencySatisfied(const std::string& pack1Id,
         }
     }
 #if  !defined(NDEBUG)
-    if (!match)
-    {
+    if (!match) {
         LogCat::w(std::source_location::current(), "package1 ", pack1Id, " not matched package2", pack2Id);
     }
 #endif
     return match;
 }
 
-bool glimmer::DataPackManager::Contains(const std::string& packId) const
-{
+bool glimmer::DataPackManager::Contains(const std::string &packId) const {
     return packVerifyStateMap_.contains(packId);
 }
 
-glimmer::PackVerifyState glimmer::DataPackManager::GetPackVerifyState(const std::string& packId)
-{
-    if (packVerifyStateMap_.contains(packId))
-    {
+glimmer::PackVerifyState glimmer::DataPackManager::GetPackVerifyState(const std::string &packId) {
+    if (packVerifyStateMap_.contains(packId)) {
         return packVerifyStateMap_[packId];
     }
     return PackVerifyState::Unsigned;
 }
 
-const std::vector<std::string>& glimmer::DataPackManager::GetPackIdList()
-{
+const std::vector<std::string> &glimmer::DataPackManager::GetPackIdList() {
     packIdList.clear();
-    for (auto& packManifest : packManifestVector_)
-    {
+    for (auto &packManifest: packManifestVector_) {
         packIdList.push_back(packManifest.id);
     }
     return packIdList;
 }
 
-int glimmer::DataPackManager::Scan(AppContext* appContext, const toml::spec& tomlVersion)
-{
+int glimmer::DataPackManager::Scan(AppContext *appContext, const toml::spec &tomlVersion) {
     LogCat::i("Scanning data packs");
-    if (virtualFileSystem_ == nullptr)
-    {
+    if (virtualFileSystem_ == nullptr) {
         LogCat::e(std::source_location::current(), "virtualFileSystem_ is nullptr");
         return 0;
     }
-    Config* config = appContext->GetConfig();
-    if (config == nullptr)
-    {
+    Config *config = appContext->GetConfig();
+    if (config == nullptr) {
         LogCat::e(std::source_location::current(), "config is nullptr");
         return 0;
     }
-    const std::filesystem::path& dataPackPath = config->mods.dataPackPath;
-    if (!virtualFileSystem_->Exists(dataPackPath))
-    {
+    const std::filesystem::path &dataPackPath = config->mods.dataPackPath;
+    if (!virtualFileSystem_->Exists(dataPackPath)) {
         LogCat::w(std::source_location::current(), "Data pack path does not exist: ", dataPackPath.string());
         return 0;
     }
@@ -201,34 +169,27 @@ int glimmer::DataPackManager::Scan(AppContext* appContext, const toml::spec& tom
     packVerifyStateMap_.clear();
 
     int success = 0;
-    for (const std::vector<std::filesystem::path> files = virtualFileSystem_->ListFile(dataPackPath, false); const auto&
-         entry : files)
-    {
-        if (!virtualFileSystem_->IsFile(entry))
-        {
+    for (const std::vector<std::filesystem::path> files = virtualFileSystem_->ListFile(dataPackPath, false); const auto
+         &
+         entry: files) {
+        if (!virtualFileSystem_->IsFile(entry)) {
             DataPack pack(entry, virtualFileSystem_, tomlTemplateExpander_, tomlVersion);
-            if (!pack.LoadManifest())
-            {
+            if (!pack.LoadManifest()) {
                 LogCat::w(std::source_location::current(), "Failed to load manifest for data pack: ", entry.string());
                 continue;
             }
-            if (!IsDataPackEnabled(pack, appContext->GetConfig()->mods.enabledDataPack))
-            {
+            if (!IsDataPackEnabled(pack, appContext->GetConfig()->mods.enabledDataPack)) {
                 continue;
             }
-            if (!IsDataPackAvailable(pack))
-            {
+            if (!IsDataPackAvailable(pack)) {
                 continue;
             }
-            if (pack.LoadPack(appContext))
-            {
+            if (pack.LoadPack(appContext)) {
                 LogCat::i("Loaded data pack: ", pack.GetManifest().id);
                 success++;
                 packVerifyStateMap_[pack.GetManifest().id] = pack.GetPackVerifyState();
                 packManifestVector_.push_back(pack.GetManifest());
-            }
-            else
-            {
+            } else {
                 LogCat::w(std::source_location::current(), "Failed to load data pack: ", pack.GetManifest().id);
             }
         }

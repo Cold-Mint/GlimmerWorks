@@ -29,8 +29,7 @@
 #include "DecoratorNinePatchTexture.h"
 #include "RmlUi/Core/PropertyDefinition.h"
 
-void glimmer::DecoratorNinePatchTextureInstancer::RegisterProperties()
-{
+void glimmer::DecoratorNinePatchTextureInstancer::RegisterProperties() {
     srcId_ = RegisterProperty("src", "").AddParser("string").GetId();
     edgeIds_[0] = RegisterProperty("edge-top", "0px").AddParser("number_length_percent").GetId();
     edgeIds_[1] = RegisterProperty("edge-right", "0px").AddParser("number_length_percent").GetId();
@@ -41,31 +40,26 @@ void glimmer::DecoratorNinePatchTextureInstancer::RegisterProperties()
     RegisterShorthand("decorator", "src, edge?", Rml::ShorthandType::RecursiveCommaSeparated);
 }
 
-Rml::SharedPtr<Rml::Decorator> glimmer::DecoratorNinePatchTextureInstancer::InstanceDecorator(const Rml::String& name,
-    const Rml::PropertyDictionary& properties, const Rml::DecoratorInstancerInterface& instancer_interface)
-{
+Rml::SharedPtr<Rml::Decorator> glimmer::DecoratorNinePatchTextureInstancer::InstanceDecorator(const Rml::String &name,
+    const Rml::PropertyDictionary &properties, const Rml::DecoratorInstancerInterface &instancer_interface) {
     const auto textureName = properties.GetProperty(srcId_)->Get<Rml::String>();
 
     Rml::Texture texture = instancer_interface.GetTexture(textureName);
-    if (!texture)
-    {
+    if (!texture) {
         Rml::Log::Message(Rml::Log::LT_WARNING, "Could not load texture '%s' in ninepatch-texture decorator.",
                           textureName.c_str());
         return nullptr;
     }
 
     float edges[4] = {0, 0, 0, 0};
-    for (int i = 0; i < 4; i++)
-    {
-        const Rml::Property* prop = properties.GetProperty(edgeIds_[i]);
+    for (int i = 0; i < 4; i++) {
+        const Rml::Property *prop = properties.GetProperty(edgeIds_[i]);
         if (prop->unit == Rml::Unit::PX)
             edges[i] = prop->Get<float>();
-        else if (prop->unit == Rml::Unit::PERCENT)
-        {
+        else if (prop->unit == Rml::Unit::PERCENT) {
             // 百分比值将在 GenerateElementData 中通过 dpRatio 处理
             edges[i] = prop->Get<float>();
-        }
-        else
+        } else
             edges[i] = prop->Get<float>();
     }
 

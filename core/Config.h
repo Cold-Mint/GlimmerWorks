@@ -32,12 +32,10 @@
 #include "toml11/types.hpp"
 
 
-namespace glimmer
-{
+namespace glimmer {
     class CommandHookManager;
 
-    struct Window
-    {
+    struct Window {
         int width = 1920;
         int height = 1080;
         bool fullscreen = false;
@@ -60,25 +58,21 @@ namespace glimmer
         bool vSync = true;
     };
 
-    struct MainMenuBackground
-    {
+    struct MainMenuBackground {
         float targetFps;
     };
 
-    struct AnimConfig
-    {
+    struct AnimConfig {
         float chunkFadeinDuration = 0.35F;
         float chunkFadeInFrom = 0.0F;
         float chunkFadeInTo = 1.0F;
     };
 
-    struct CommandConfig
-    {
+    struct CommandConfig {
         uint16_t locateMaxRadiusSearchChunks = 2048;
     };
 
-    struct Mods
-    {
+    struct Mods {
         bool enableSignVerify;
         bool loadOnlyVerified;
         std::string dataPackPath;
@@ -87,8 +81,7 @@ namespace glimmer
         std::vector<std::string> enabledResourcePack;
     };
 
-    struct Debug
-    {
+    struct Debug {
         bool displayDebugPanel;
         bool displayBox2dShape;
         bool displayDraggableTarget;
@@ -99,18 +92,15 @@ namespace glimmer
         bool displayWeirdnessMap;
     };
 
-    struct LightConfig
-    {
+    struct LightConfig {
         bool enable;
     };
 
-    struct Console
-    {
+    struct Console {
         uint16_t maxHistoryEntries = 100;
     };
 
-    struct World
-    {
+    struct World {
         float preloadChunkRadius;
         float preloadStructureRadius;
         float preloadLightingRadius;
@@ -125,15 +115,13 @@ namespace glimmer
         uint16_t unloadTerrainBatch;
     };
 
-    struct AudioTrack
-    {
+    struct AudioTrack {
         AudioType type;
         int trackCount;
         float volume;
     };
 
-    struct Audio
-    {
+    struct Audio {
         float masterVolume;
         int channels;
         int freq;
@@ -141,8 +129,7 @@ namespace glimmer
         std::vector<AudioTrack> track;
     };
 
-    struct CommandHookResource
-    {
+    struct CommandHookResource {
         std::string hookId;
         std::string command;
         bool keyRepeat;
@@ -151,8 +138,7 @@ namespace glimmer
     };
 
 
-    class Config
-    {
+    class Config {
         uint64_t fingerprint_ = 0;
         std::unique_ptr<toml::value> configValue_ = nullptr;
 
@@ -177,7 +163,7 @@ namespace glimmer
 
         void SetConfigValue(std::unique_ptr<toml::value> configValue);
 
-        [[nodiscard]] toml::value* GetConfigValue() const;
+        [[nodiscard]] toml::value *GetConfigValue() const;
 
         bool ReloadConfig();
     };

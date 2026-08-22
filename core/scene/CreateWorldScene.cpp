@@ -40,17 +40,14 @@
 #include "core/utils/TimeUtils.h"
 namespace fs = std::filesystem;
 
-glimmer::CreateWorldScene::CreateWorldScene(AppContext* context) : Scene(context)
-{
+glimmer::CreateWorldScene::CreateWorldScene(AppContext *context) : Scene(context) {
     sceneManager_ = context->GetSceneManager();
-    if (sceneManager_ == nullptr)
-    {
+    if (sceneManager_ == nullptr) {
         LogCat::e(std::source_location::current(), "Scene manager cannot be nullptr.");
         return;
     }
     mainThreadDispatcher_ = context->GetMainThreadDispatcher();
-    if (mainThreadDispatcher_ == nullptr)
-    {
+    if (mainThreadDispatcher_ == nullptr) {
         LogCat::e(std::source_location::current(), "Main Thread Dispatcher cannot be nullptr.");
         return;
     }
@@ -58,11 +55,9 @@ glimmer::CreateWorldScene::CreateWorldScene(AppContext* context) : Scene(context
     Init();
 }
 
-void glimmer::CreateWorldScene::OnCreateDataModels()
-{
-    Rml::DataModelConstructor* constructor = CreateDataModel("create_world_scene");
-    if (constructor != nullptr)
-    {
+void glimmer::CreateWorldScene::OnCreateDataModels() {
+    Rml::DataModelConstructor *constructor = CreateDataModel("create_world_scene");
+    if (constructor != nullptr) {
         constructor->Bind("world_name", &createWorldDataModel_.worldName);
         constructor->Bind("seed", &createWorldDataModel_.seedStr);
         constructor->Bind("allow_cheats", &createWorldDataModel_.allowCheats);
@@ -90,15 +85,13 @@ void glimmer::CreateWorldScene::OnCreateDataModels()
     }
 }
 
-void glimmer::CreateWorldScene::OnPauseScene()
-{
+void glimmer::CreateWorldScene::OnPauseScene() {
     Scene::OnPauseScene();
     modelHandle_ = nullptr;
 }
 
 
-void glimmer::CreateWorldScene::LoadDocuments()
-{
+void glimmer::CreateWorldScene::LoadDocuments() {
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
@@ -106,61 +99,50 @@ void glimmer::CreateWorldScene::LoadDocuments()
     LoadSingleDocument(&resourceRef);
 }
 
-void glimmer::CreateWorldScene::RandomizeWorld()
-{
+void glimmer::CreateWorldScene::RandomizeWorld() {
     RandomizeName();
     RandomizeSeed();
 }
 
-void glimmer::CreateWorldScene::RandomizeName()
-{
+void glimmer::CreateWorldScene::RandomizeName() {
     auto op = RandomName();
-    if (op.has_value())
-    {
+    if (op.has_value()) {
         createWorldDataModel_.worldName = op.value();
     }
 }
 
-void glimmer::CreateWorldScene::RandomizeSeed()
-{
+void glimmer::CreateWorldScene::RandomizeSeed() {
     const int newSeed = RandomUtils::Random<int>();
     createWorldDataModel_.seedStr = std::to_string(newSeed);
 }
 
-void glimmer::CreateWorldScene::OnCreateWorldClick(Rml::DataModelHandle handle, Rml::Event& event,
-                                                   const Rml::VariantList& args)
-{
+void glimmer::CreateWorldScene::OnCreateWorldClick(Rml::DataModelHandle handle, Rml::Event &event,
+                                                   const Rml::VariantList &args) {
     CreateWorld();
 }
 
-void glimmer::CreateWorldScene::OnBackClick(Rml::DataModelHandle handle, Rml::Event& event,
-                                            const Rml::VariantList& args)
-{
-    mainThreadDispatcher_->PostToNextMainFrame([this]
-    {
+void glimmer::CreateWorldScene::OnBackClick(Rml::DataModelHandle handle, Rml::Event &event,
+                                            const Rml::VariantList &args) {
+    mainThreadDispatcher_->PostToNextMainFrame([this] {
         sceneManager_->PopScene();
     });
 }
 
-void glimmer::CreateWorldScene::OnRandomSeedClick(Rml::DataModelHandle handle, Rml::Event& event,
-                                                  const Rml::VariantList& args)
-{
+void glimmer::CreateWorldScene::OnRandomSeedClick(Rml::DataModelHandle handle, Rml::Event &event,
+                                                  const Rml::VariantList &args) {
     RandomizeSeed();
     modelHandle_.DirtyVariable("seed");
 }
 
-void glimmer::CreateWorldScene::OnRandomNameClick(Rml::DataModelHandle handle, Rml::Event& event,
-                                                  const Rml::VariantList& args)
-{
+void glimmer::CreateWorldScene::OnRandomNameClick(Rml::DataModelHandle handle, Rml::Event &event,
+                                                  const Rml::VariantList &args) {
     RandomizeName();
     modelHandle_.DirtyVariable("world_name");
 }
 
-void glimmer::CreateWorldScene::CreateWorld() const
-{
+void glimmer::CreateWorldScene::CreateWorld() const {
     std::string name = createWorldDataModel_.worldName;
-    if (name.empty())
-    {
+    if (name.empty()) {
         LogCat::w(std::source_location::current(), "World name cannot be empty");
         return;
     }
@@ -168,12 +150,9 @@ void glimmer::CreateWorldScene::CreateWorld() const
 
     const std::string seedInput = createWorldDataModel_.seedStr;
     int seedValue = 0;
-    if (StringUtils::IsInteger(seedInput))
-    {
+    if (StringUtils::IsInteger(seedInput)) {
         seedValue = std::stoi(seedInput);
-    }
-    else
-    {
+    } else {
         seedValue = static_cast<int>(StringUtils::StringToUint64Blake3(seedInput));
     }
     LogCat::i("World seed: ", seedValue, " (input: ", seedInput, ")");
@@ -189,21 +168,18 @@ void glimmer::CreateWorldScene::CreateWorld() const
     manifest.allowCheats = createWorldDataModel_.allowCheats;
     LogCat::i("World manifest: version=", GAME_VERSION_STRING, ", allowCheats=", createWorldDataModel_.allowCheats);
     auto savesManager = GetAppContext()->GetSavesManager();
-    if (savesManager == nullptr)
-    {
+    if (savesManager == nullptr) {
         LogCat::e(std::source_location::current(), "savesManager is nullptr");
         return;
     }
 
-    Saves* saves = savesManager->Create(GetAppContext()->GetConfig()->runtimePath, manifest);
-    if (saves == nullptr)
-    {
+    Saves *saves = savesManager->Create(GetAppContext()->GetConfig()->runtimePath, manifest);
+    if (saves == nullptr) {
         LogCat::e(std::source_location::current(), "Failed to create saves");
         return;
     }
     LogCat::i("World saved successfully");
-    mainThreadDispatcher_->PostToNextMainFrame([this, savesManager, saves]
-    {
+    mainThreadDispatcher_->PostToNextMainFrame([this, savesManager, saves] {
         sceneManager_->ReplaceScene(std::make_unique<WorldScene>(
             GetAppContext(), std::make_unique<WorldContext>(
                 GetAppContext(), savesManager->GetMapManifest(savesManager->GetSavesListSize() - 1),
@@ -212,27 +188,22 @@ void glimmer::CreateWorldScene::CreateWorld() const
     LogCat::i("Transitioning to WorldScene");
 }
 
-void glimmer::CreateWorldScene::OnConfigChanged(const Config* config)
-{
+void glimmer::CreateWorldScene::OnConfigChanged(const Config *config) {
     uiScale_ = config->window.uiScale;
 }
 
-std::optional<std::string> glimmer::CreateWorldScene::RandomName() const
-{
-    const std::vector<std::string>& prefixList = GetAppContext()->GetLangsResources()->worldNamePrefix;
-    if (prefixList.empty())
-    {
+std::optional<std::string> glimmer::CreateWorldScene::RandomName() const {
+    const std::vector<std::string> &prefixList = GetAppContext()->GetLangsResources()->worldNamePrefix;
+    if (prefixList.empty()) {
         return std::nullopt;
     }
-    const std::vector<std::string>& suffixList = GetAppContext()->GetLangsResources()->worldNameSuffix;
-    if (suffixList.empty())
-    {
+    const std::vector<std::string> &suffixList = GetAppContext()->GetLangsResources()->worldNameSuffix;
+    if (suffixList.empty()) {
         return std::nullopt;
     }
     const auto randomPrefixIdx = RandomUtils::Random<size_t>(0, prefixList.size() - 1);
     const auto randomSuffixIdx = RandomUtils::Random<size_t>(0, suffixList.size() - 1);
-    if (GetAppContext()->GetLanguage().compare(0, 2, "en") == 0)
-    {
+    if (GetAppContext()->GetLanguage().compare(0, 2, "en") == 0) {
         return prefixList[randomPrefixIdx] + " " + suffixList[randomSuffixIdx];
     }
     return prefixList[randomPrefixIdx] + suffixList[randomSuffixIdx];

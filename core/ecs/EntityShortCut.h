@@ -37,60 +37,58 @@
 #include "component/Transform2DComponent.h"
 #include "core/Constants.h"
 
-namespace glimmer
-{
-    class EntityShortCut
-    {
+namespace glimmer {
+    class EntityShortCut {
         GameEntityID player_ = GAME_ENTITY_ID_INVALID;
-        CameraComponent* cameraComponent_ = nullptr;
-        Transform2DComponent* cameraTransform2DComponent_ = nullptr;
-        BlueprintComponent* blueprintComponent_ = nullptr;
-        ItemContainerComponent* itemContainerComponent_ = nullptr;
-        MiningComponent* miningComponent_ = nullptr;
-        AreaMarkerComponent* areaMarkerComponent_ = nullptr;
-        ParallaxBackgroundComponent* parallaxBackgroundComponent_ = nullptr;
-        ItemToolTipComponent* itemToolTipComponent_ = nullptr;
-        RecipeSelectionComponent* recipeSelectionComponent_ = nullptr;
+        CameraComponent *cameraComponent_ = nullptr;
+        Transform2DComponent *cameraTransform2DComponent_ = nullptr;
+        BlueprintComponent *blueprintComponent_ = nullptr;
+        ItemContainerComponent *itemContainerComponent_ = nullptr;
+        MiningComponent *miningComponent_ = nullptr;
+        AreaMarkerComponent *areaMarkerComponent_ = nullptr;
+        ParallaxBackgroundComponent *parallaxBackgroundComponent_ = nullptr;
+        ItemToolTipComponent *itemToolTipComponent_ = nullptr;
+        RecipeSelectionComponent *recipeSelectionComponent_ = nullptr;
 
     public:
         void SetPlayer(GameEntityID player);
 
-        void SetParallaxBackgroundComponent(ParallaxBackgroundComponent* parallaxBackgroundComponent);
+        void SetParallaxBackgroundComponent(ParallaxBackgroundComponent *parallaxBackgroundComponent);
 
-        [[nodiscard]] ParallaxBackgroundComponent* GetParallaxBackgroundComponent() const;
+        [[nodiscard]] ParallaxBackgroundComponent *GetParallaxBackgroundComponent() const;
 
         [[nodiscard]] GameEntityID GetPlayer() const;
 
-        [[nodiscard]] ItemToolTipComponent* GetItemToolTipComponent() const;
+        [[nodiscard]] ItemToolTipComponent *GetItemToolTipComponent() const;
 
-        void SetItemToolTipComponent(ItemToolTipComponent* itemToolTipComponent);
+        void SetItemToolTipComponent(ItemToolTipComponent *itemToolTipComponent);
 
-        void SetMiningComponent(MiningComponent* miningComponent);
+        void SetMiningComponent(MiningComponent *miningComponent);
 
-        [[nodiscard]] MiningComponent* GetMiningComponent() const;
+        [[nodiscard]] MiningComponent *GetMiningComponent() const;
 
-        void SetBlueprintComponent(BlueprintComponent* blueprintComponent);
+        void SetBlueprintComponent(BlueprintComponent *blueprintComponent);
 
-        [[nodiscard]] BlueprintComponent* GetBlueprintComponent() const;
+        [[nodiscard]] BlueprintComponent *GetBlueprintComponent() const;
 
-        void SetItemContainerComponent(ItemContainerComponent* itemContainerComponent);
+        void SetItemContainerComponent(ItemContainerComponent *itemContainerComponent);
 
-        [[nodiscard]] ItemContainerComponent* GetItemContainerComponent() const;
+        [[nodiscard]] ItemContainerComponent *GetItemContainerComponent() const;
 
-        void SetCameraComponent(CameraComponent* cameraComponent);
+        void SetCameraComponent(CameraComponent *cameraComponent);
 
-        void SetAreaMarkerComponent(AreaMarkerComponent* areaMarkerComponent);
+        void SetAreaMarkerComponent(AreaMarkerComponent *areaMarkerComponent);
 
-        [[nodiscard]] AreaMarkerComponent* GetAreaMarkerComponent() const;
+        [[nodiscard]] AreaMarkerComponent *GetAreaMarkerComponent() const;
 
-        [[nodiscard]] CameraComponent* GetCameraComponent() const;
+        [[nodiscard]] CameraComponent *GetCameraComponent() const;
 
-        void SetCameraTransform2DComponent(Transform2DComponent* cameraTransform2DComponent);
+        void SetCameraTransform2DComponent(Transform2DComponent *cameraTransform2DComponent);
 
-        [[nodiscard]] Transform2DComponent* GetCameraTransform2DComponent() const;
+        [[nodiscard]] Transform2DComponent *GetCameraTransform2DComponent() const;
 
-        void SetRecipeSelectionComponent(RecipeSelectionComponent* recipeSelectionComponent);
+        void SetRecipeSelectionComponent(RecipeSelectionComponent *recipeSelectionComponent);
 
-        [[nodiscard]] RecipeSelectionComponent* GetRecipeSelectionComponent() const;
+        [[nodiscard]] RecipeSelectionComponent *GetRecipeSelectionComponent() const;
     };
 }

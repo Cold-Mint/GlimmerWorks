@@ -30,7 +30,7 @@
 namespace glimmer {
     class MobEntityCreator : public IPersistenceEntityCreator {
     public:
-        explicit MobEntityCreator(WorldContext* worldContext);
+        explicit MobEntityCreator(WorldContext *worldContext);
 
         static EntityItemMessage GetEntityItemMessage(WorldVector2D position);
 

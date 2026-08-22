@@ -27,10 +27,8 @@
 #pragma once
 #include <string>
 
-namespace glimmer
-{
-    struct RecipeItemChoiceDataModel
-    {
+namespace glimmer {
+    struct RecipeItemChoiceDataModel {
         int inventoryIndex = 0;
         std::string image;
         std::string name;

@@ -27,24 +27,22 @@
 #pragma once
 #include "core/mod/ResourceRef.h"
 
-namespace glimmer
-{
-    struct TileLightResourceData
-    {
+namespace glimmer {
+    struct TileLightResourceData {
         ResourceRef lightSource_;
         ResourceRef sideLightMask_;
         ResourceRef backLightMask_;
 
-        [[nodiscard]] const ResourceRef* GetLightSourceResource() const;
+        [[nodiscard]] const ResourceRef *GetLightSourceResource() const;
 
-        [[nodiscard]] const ResourceRef* GetSideLightMaskResource() const;
+        [[nodiscard]] const ResourceRef *GetSideLightMaskResource() const;
 
-        [[nodiscard]] const ResourceRef* GetBackLightMaskResource() const;
+        [[nodiscard]] const ResourceRef *GetBackLightMaskResource() const;
 
-        void SetLightSource(const ResourceRef& lightSource);
+        void SetLightSource(const ResourceRef &lightSource);
 
-        void SetSideLightMask(const ResourceRef& sideLightMask);
+        void SetSideLightMask(const ResourceRef &sideLightMask);
 
-        void SetBackLightMask(const ResourceRef& backLightMask);
+        void SetBackLightMask(const ResourceRef &backLightMask);
     };
 }

@@ -33,12 +33,10 @@
 #include "core/mod/Resource.h"
 #include "core/world/generator/TileLayerType.h"
 
-namespace glimmer
-{
+namespace glimmer {
     enum class TilePhysicsType : uint8_t;
 
-    struct CoreTileResourceParams
-    {
+    struct CoreTileResourceParams {
         std::string resourceId;
         TilePhysicsType physicsType;
         TileLayerType layerType;
@@ -53,28 +51,27 @@ namespace glimmer
         std::optional<std::string> descriptionKey;
     };
 
-    class TileResourceManager
-    {
+    class TileResourceManager {
         std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<TileResource>,
-                                                           TransparentStringHash, std::equal_to<>>,
-                           TransparentStringHash, std::equal_to<>> tileMap_{};
+                TransparentStringHash, std::equal_to<> >,
+            TransparentStringHash, std::equal_to<> > tileMap_{};
 
         std::unordered_map<std::string_view, std::unordered_map<std::string_view, std::unique_ptr<TileResource>,
-                                                                TransparentStringHash, std::equal_to<>>,
-                           TransparentStringHash, std::equal_to<>>
+                TransparentStringHash, std::equal_to<> >,
+            TransparentStringHash, std::equal_to<> >
         accessDeniedTileMap_{};
 
         std::vector<std::string> tileIdList_{};
 
-        TileResource* air_ = nullptr;
-        TileResource* airWall_ = nullptr;
+        TileResource *air_ = nullptr;
+        TileResource *airWall_ = nullptr;
 
         inline static uint64_t airResourceRefFingerprint_ = 0;
         inline static uint64_t airWallResourceRefFingerprint_ = 0;
 
-        TileResource* AddCoreResource(const CoreTileResourceParams& params);
+        TileResource *AddCoreResource(const CoreTileResourceParams &params);
 
-        static ResourceRef CreateCoreRef(const std::string& key, ResourceTypeMessage type);
+        static ResourceRef CreateCoreRef(const std::string &key, ResourceTypeMessage type);
 
     public:
         TileResourceManager();
@@ -85,13 +82,13 @@ namespace glimmer
          */
         void InitBuiltinTiles();
 
-        [[nodiscard]] TileResource* AddErrorPlaceHolder(
+        [[nodiscard]] TileResource *AddErrorPlaceHolder(
             std::string_view packId, std::string_view resourceId, TileLayerType tileLayer);
 
-        [[nodiscard]] TileResource* GenerateAccessDeniedPlaceHolder(
+        [[nodiscard]] TileResource *GenerateAccessDeniedPlaceHolder(
             std::string_view packId, std::string_view resourceId, TileLayerType tileLayer);
 
-        TileResource* AddResource(std::unique_ptr<TileResource> tileResource);
+        TileResource *AddResource(std::unique_ptr<TileResource> tileResource);
 
 
         [[nodiscard]] static uint64_t GetAirResourceRefFingerprint(TileLayerType tileLayerType);
@@ -105,7 +102,7 @@ namespace glimmer
          * @param key
          * @return
          */
-        [[nodiscard]] TileResource* FindTileRaw(std::string_view packId, std::string_view key);
+        [[nodiscard]] TileResource *FindTileRaw(std::string_view packId, std::string_view key);
 
 
         /**
@@ -116,10 +113,10 @@ namespace glimmer
          * @param tileLayer
          * @return
          */
-        [[nodiscard]] TileResource* FindTileFallback(std::string_view packId, std::string_view key,
+        [[nodiscard]] TileResource *FindTileFallback(std::string_view packId, std::string_view key,
                                                      TileLayerType tileLayer);
 
-        [[nodiscard]] const std::vector<std::string>& GetTileIDList();
+        [[nodiscard]] const std::vector<std::string> &GetTileIDList();
 
         std::string ListTiles() const;
     };

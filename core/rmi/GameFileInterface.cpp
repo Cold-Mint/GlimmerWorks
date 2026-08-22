@@ -29,21 +29,17 @@
 #include "core/log/LogCat.h"
 #include "core/utils/StringUtils.h"
 
-glimmer::GameFileInterface::GameFileInterface(VirtualFileSystem* virtualFileSystem) : virtualFileSystem_(
-    virtualFileSystem)
-{
+glimmer::GameFileInterface::GameFileInterface(VirtualFileSystem *virtualFileSystem) : virtualFileSystem_(
+    virtualFileSystem) {
 }
 
-Rml::FileHandle glimmer::GameFileInterface::Open(const Rml::String& path)
-{
-    if (virtualFileSystem_ == nullptr)
-    {
+Rml::FileHandle glimmer::GameFileInterface::Open(const Rml::String &path) {
+    if (virtualFileSystem_ == nullptr) {
         LogCat::w(std::source_location::current(), "virtualFileSystem_ == nullptr");
         return 0;
     }
     std::unique_ptr<std::istream> stream = virtualFileSystem_->ReadFileAsStream(path);
-    if (stream == nullptr)
-    {
+    if (stream == nullptr) {
         LogCat::w(std::source_location::current(), "stream == nullptr");
         return 0;
     }
@@ -52,93 +48,80 @@ Rml::FileHandle glimmer::GameFileInterface::Open(const Rml::String& path)
     return indexFileHandle_;
 }
 
-void glimmer::GameFileInterface::Close(Rml::FileHandle file)
-{
+void glimmer::GameFileInterface::Close(Rml::FileHandle file) {
     streamMap_.erase(file);
 }
 
-size_t glimmer::GameFileInterface::Read(void* buffer, size_t size, Rml::FileHandle file)
-{
+size_t glimmer::GameFileInterface::Read(void *buffer, size_t size, Rml::FileHandle file) {
     const auto it = streamMap_.find(file);
-    if (it == streamMap_.end())
-    {
+    if (it == streamMap_.end()) {
         LogCat::w(std::source_location::current(), "it == streamMap_.end()");
         return 0;
     }
-    std::istream* stream = it->second.get();
-    stream->read(static_cast<char*>(buffer), static_cast<std::streamsize>(size));
+    std::istream *stream = it->second.get();
+    stream->read(static_cast<char *>(buffer), static_cast<std::streamsize>(size));
     return static_cast<size_t>(stream->gcount());
 }
 
-bool glimmer::GameFileInterface::Seek(Rml::FileHandle file, long offset, int origin)
-{
+bool glimmer::GameFileInterface::Seek(Rml::FileHandle file, long offset, int origin) {
     const auto it = streamMap_.find(file);
-    if (it == streamMap_.end())
-    {
+    if (it == streamMap_.end()) {
         LogCat::w(std::source_location::current(), "it == streamMap_.end()");
         return false;
     }
-    std::istream* stream = it->second.get();
+    std::istream *stream = it->second.get();
     std::ios::seekdir seekDir;
-    switch (origin)
-    {
-    case SEEK_SET:
-        seekDir = std::ios::beg;
-        break;
-    case SEEK_CUR:
-        seekDir = std::ios::cur;
-        break;
-    case SEEK_END:
-        seekDir = std::ios::end;
-        break;
-    default:
-        LogCat::w(std::source_location::current(), "invalid origin: ", origin);
-        return false;
+    switch (origin) {
+        case SEEK_SET:
+            seekDir = std::ios::beg;
+            break;
+        case SEEK_CUR:
+            seekDir = std::ios::cur;
+            break;
+        case SEEK_END:
+            seekDir = std::ios::end;
+            break;
+        default:
+            LogCat::w(std::source_location::current(), "invalid origin: ", origin);
+            return false;
     }
     stream->seekg(offset, seekDir);
     return !stream->fail();
 }
 
-size_t glimmer::GameFileInterface::Tell(Rml::FileHandle file)
-{
+size_t glimmer::GameFileInterface::Tell(Rml::FileHandle file) {
     const auto it = streamMap_.find(file);
-    if (it == streamMap_.end())
-    {
+    if (it == streamMap_.end()) {
         LogCat::w(std::source_location::current(), "index:", file, "it == streamMap_.end()");
         return 0;
     }
-    std::istream* stream = it->second.get();
+    std::istream *stream = it->second.get();
     //Clear the error flag.
     //清空错误标志。
     stream->clear();
     const std::streampos pos = stream->tellg();
-    if (pos == std::streampos(-1))
-    {
+    if (pos == std::streampos(-1)) {
         LogCat::w(std::source_location::current(), "index:", file, " pos == std::streampos(-1)");
         return 0;
     }
     return pos;
 }
 
-size_t glimmer::GameFileInterface::Length(Rml::FileHandle file)
-{
+size_t glimmer::GameFileInterface::Length(Rml::FileHandle file) {
     const auto it = streamMap_.find(file);
-    if (it == streamMap_.end())
-    {
+    if (it == streamMap_.end()) {
         LogCat::w(std::source_location::current(), "it == streamMap_.end() ");
         return 0;
     }
-    std::istream* stream = it->second.get();
+    std::istream *stream = it->second.get();
     const std::streampos currentPos = stream->tellg();
-    if (currentPos == std::streampos(-1))
-    {
+    if (currentPos == std::streampos(-1)) {
         LogCat::w(std::source_location::current(), "currentPos == std::streampos(-1)");
         return 0;
     }
     stream->seekg(0, std::ios::end);
     const std::streampos endPos = stream->tellg();
-    if (endPos == std::streampos(-1))
-    {
+    if (endPos == std::streampos(-1)) {
         LogCat::w(std::source_location::current(), "endPos == std::streampos(-1)");
         stream->seekg(currentPos);
         return 0;
@@ -148,15 +131,12 @@ size_t glimmer::GameFileInterface::Length(Rml::FileHandle file)
     return length;
 }
 
-bool glimmer::GameFileInterface::LoadFile(const Rml::String& path, Rml::String& out_data)
-{
-    if (virtualFileSystem_ == nullptr)
-    {
+bool glimmer::GameFileInterface::LoadFile(const Rml::String &path, Rml::String &out_data) {
+    if (virtualFileSystem_ == nullptr) {
         LogCat::w(std::source_location::current(), "virtualFileSystem_ == nullptr");
         return false;
     }
-    if (std::optional<std::string> string = virtualFileSystem_->ReadFileAsString(path); string.has_value())
-    {
+    if (std::optional<std::string> string = virtualFileSystem_->ReadFileAsString(path); string.has_value()) {
         out_data = string.value();
         return true;
     }
@@ -164,7 +144,6 @@ bool glimmer::GameFileInterface::LoadFile(const Rml::String& path, Rml::String& 
     return false;
 }
 
-glimmer::GameFileInterface::~GameFileInterface()
-{
+glimmer::GameFileInterface::~GameFileInterface() {
     streamMap_.clear();
 }

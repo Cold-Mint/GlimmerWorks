@@ -27,20 +27,18 @@
 #pragma once
 #include "core/console/Command.h"
 
-namespace glimmer
-{
-    class PackVerifyCommand final : public Command
-    {
-        void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
+namespace glimmer {
+    class PackVerifyCommand final : public Command {
+        void InitSuggestions(NodeTree<std::string> *suggestionsTree) override;
 
     public:
-        explicit PackVerifyCommand(AppContext* appContext);
+        explicit PackVerifyCommand(AppContext *appContext);
 
-        void PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) override;
+        void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
 
-        bool Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                     const std::function<void(const std::string& text)>* onMessage) override;
+        bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                     const std::function<void(const std::string &text)> *onMessage) override;
 
-        [[nodiscard]] const std::string& GetName() const override;
+        [[nodiscard]] const std::string &GetName() const override;
     };
 }

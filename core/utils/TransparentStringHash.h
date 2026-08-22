@@ -29,25 +29,20 @@
 #include <string>
 #include <string_view>
 
-namespace glimmer
-{
-    class TransparentStringHash
-    {
+namespace glimmer {
+    class TransparentStringHash {
     public:
         using is_transparent = void;
 
-        std::size_t operator()(const std::string_view sv) const noexcept
-        {
+        std::size_t operator()(const std::string_view sv) const noexcept {
             return std::hash<std::string_view>{}(sv);
         }
 
-        std::size_t operator()(const std::string& s) const noexcept
-        {
+        std::size_t operator()(const std::string &s) const noexcept {
             return std::hash<std::string>{}(s);
         }
 
-        std::size_t operator()(const char* s) const noexcept
-        {
+        std::size_t operator()(const char *s) const noexcept {
             return std::hash<std::string_view>{}(s);
         }
     };

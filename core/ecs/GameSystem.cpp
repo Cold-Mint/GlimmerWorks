@@ -30,143 +30,117 @@
 #include "core/world/WorldContext.h"
 
 
-void glimmer::GameSystem::OnActivationChanged(const bool activeStatus)
-{
+void glimmer::GameSystem::OnActivationChanged(const bool activeStatus) {
     LogCat::i("GameSystem activation changed: ", activeStatus ? "active" : "inactive");
 }
 
-void glimmer::GameSystem::AddActiveWatchComponent(GameComponentTypeMessage gameComponentType)
-{
+void glimmer::GameSystem::AddActiveWatchComponent(GameComponentTypeMessage gameComponentType) {
     activeWatchComponents_.emplace(gameComponentType);
 }
 
-void glimmer::GameSystem::RemoveActiveWatchComponent(GameComponentTypeMessage gameComponentType)
-{
+void glimmer::GameSystem::RemoveActiveWatchComponent(GameComponentTypeMessage gameComponentType) {
     activeWatchComponents_.erase(gameComponentType);
 }
 
-bool glimmer::GameSystem::IsAllWatchComponentsReady() const
-{
+bool glimmer::GameSystem::IsAllWatchComponentsReady() const {
     return activeWatchComponents_ == watchComponents_;
 }
 
-bool glimmer::GameSystem::CanActive() const
-{
+bool glimmer::GameSystem::CanActive() const {
     return true;
 }
 
-void glimmer::GameSystem::WatchComponent(const GameComponentTypeMessage gameComponentType)
-{
-    if (lockWatchComponents_)
-    {
+void glimmer::GameSystem::WatchComponent(const GameComponentTypeMessage gameComponentType) {
+    if (lockWatchComponents_) {
         return;
     }
     watchComponents_.insert(gameComponentType);
     //When observing the changes of a certain component, a callback will be triggered first.
     //当开始观察某个组件的变化时，会优先进行一次回调。
     const uint32_t count = entityManager_->GetComponentCount(gameComponentType);
-    if (count > 0)
-    {
+    if (count > 0) {
         AddActiveWatchComponent(gameComponentType);
     }
     OnWatchedComponentChanged(gameComponentType, count);
 }
 
-glimmer::WorldContext* glimmer::GameSystem::GetWorldContext() const
-{
+glimmer::WorldContext *glimmer::GameSystem::GetWorldContext() const {
     return worldContext_;
 }
 
-glimmer::EntityManager* glimmer::GameSystem::GetEntityManager() const
-{
+glimmer::EntityManager *glimmer::GameSystem::GetEntityManager() const {
     return entityManager_;
 }
 
-glimmer::EntityShortCut* glimmer::GameSystem::GetEntityShortCut() const
-{
+glimmer::EntityShortCut *glimmer::GameSystem::GetEntityShortCut() const {
     return entityShortCut_;
 }
 
-void glimmer::GameSystem::LockWatchComponent()
-{
+void glimmer::GameSystem::LockWatchComponent() {
     lockWatchComponents_ = true;
 }
 
-void glimmer::GameSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
-{
+void glimmer::GameSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) {
     //You could consider updating the values of the member variables here.
     //可以考虑在这里将更新成员变量的值。
 }
 
 
-glimmer::GameSystem::GameSystem(WorldContext* worldContext) : worldContext_(worldContext)
-{
+glimmer::GameSystem::GameSystem(WorldContext *worldContext) : worldContext_(worldContext) {
     entityManager_ = worldContext_->GetEntityManager();
     entityShortCut_ = worldContext_->GetEntityShortCut();
     LogCat::i("GameSystem created");
 }
 
-void glimmer::GameSystem::Init()
-{
+void glimmer::GameSystem::Init() {
     LogCat::i("GameSystem initializing");
     initSubclassFinish_ = true;
-    const AppContext* appContext = worldContext_->GetAppContext();
-    if (appContext == nullptr)
-    {
+    const AppContext *appContext = worldContext_->GetAppContext();
+    if (appContext == nullptr) {
         LogCat::w(std::source_location::current(), "appContext is nullptr");
         return;
     }
     OnWindowSizeChanged(appContext->GetWindowContext()->GetWindowWidth(),
                         appContext->GetWindowContext()->GetWindowHeight());
-    const Config* config = appContext->GetConfig();
-    if (config != nullptr)
-    {
+    const Config *config = appContext->GetConfig();
+    if (config != nullptr) {
         OnConfigChanged(config);
     }
     LogCat::i("GameSystem initialized");
 }
 
-bool glimmer::GameSystem::IsWatchingComponent(GameComponentTypeMessage gameComponentType) const
-{
+bool glimmer::GameSystem::IsWatchingComponent(GameComponentTypeMessage gameComponentType) const {
     return watchComponents_.contains(gameComponentType);
 }
 
-bool glimmer::GameSystem::HandleEvent(const SDL_Event& event)
-{
+bool glimmer::GameSystem::HandleEvent(const SDL_Event &event) {
     return false;
 }
 
-void glimmer::GameSystem::OnConfigChanged(const Config* config)
-{
+void glimmer::GameSystem::OnConfigChanged(const Config *config) {
     //Rewrite this function to handle configuration changes.
     //重写这个函数，处理配置变更。
 }
 
-void glimmer::GameSystem::OnWindowSizeChanged(const int& width, const int& height)
-{
+void glimmer::GameSystem::OnWindowSizeChanged(const int &width, const int &height) {
     //Rewrite this function so that it performs certain actions when the window size changes.
     //重写这个函数，以便在窗口尺寸发生改变时，做些什么。
 }
 
-bool glimmer::GameSystem::OnBackPressed()
-{
+bool glimmer::GameSystem::OnBackPressed() {
     return false;
 }
 
-void glimmer::GameSystem::OnFrameStart()
-{
+void glimmer::GameSystem::OnFrameStart() {
     //Carry out the preparatory work before processing each frame.
     //处理每帧开始前的工作。
 }
 
-void glimmer::GameSystem::Update(const float delta)
-{
+void glimmer::GameSystem::Update(const float delta) {
 #if  !defined(NDEBUG)
-    if (!initSubclassFinish_)
-    {
+    if (!initSubclassFinish_) {
         initTimeOut_ += delta;
-        if (initTimeOut_ > 2)
-        {
+        if (initTimeOut_ > 2) {
             LogCat::e(std::source_location::current(), "systemType = ", static_cast<int>(GetGameSystemType()),
                       " ,Did not be called within two seconds GameSystem::Init()");
         }
@@ -174,13 +148,11 @@ void glimmer::GameSystem::Update(const float delta)
 #endif
 }
 
-uint8_t glimmer::GameSystem::GetExecutionOrder()
-{
+uint8_t glimmer::GameSystem::GetExecutionOrder() {
     return 0;
 }
 
-void glimmer::GameSystem::Render(SDL_Renderer* renderer)
-{
+void glimmer::GameSystem::Render(SDL_Renderer *renderer) {
     //Here, it is drawn using SDL.
     //在这里使用SDL绘制。
 }

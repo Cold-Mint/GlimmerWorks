@@ -40,96 +40,79 @@
 #include "core/math/CoordinateTransformer.h"
 
 
-bool glimmer::MiningSystem::CanProcessTile(const Tile* tile, bool isPlaceMode)
-{
-    if (tile == nullptr)
-    {
+bool glimmer::MiningSystem::CanProcessTile(const Tile *tile, bool isPlaceMode) {
+    if (tile == nullptr) {
         return false;
     }
-    if (isPlaceMode && !tile->IsOverwritable())
-    {
+    if (isPlaceMode && !tile->IsOverwritable()) {
         return false;
     }
-    const TileMiningData* miningData = tile->GetMiningData();
-    if (miningData == nullptr)
-    {
+    const TileMiningData *miningData = tile->GetMiningData();
+    if (miningData == nullptr) {
         return false;
     }
-    if (!isPlaceMode && !miningData->IsBreakable())
-    {
+    if (!isPlaceMode && !miningData->IsBreakable()) {
         return false;
     }
     return true;
 }
 
-void glimmer::MiningSystem::SaveTileState(const TileStateMessage* tileState, TileStateBackup& backup)
-{
+void glimmer::MiningSystem::SaveTileState(const TileStateMessage *tileState, TileStateBackup &backup) {
     backup.ReadResourceRefMessage(tileState->resourceref());
     backup.SetWidth(tileState->width());
     backup.SetHeight(tileState->height());
     backup.ReadOffsetMessage(tileState->offset());
 }
 
-void glimmer::MiningSystem::RestoreTileState(TileStateMessage* tileState, const TileStateBackup& backup)
-{
+void glimmer::MiningSystem::RestoreTileState(TileStateMessage *tileState, const TileStateBackup &backup) {
     backup.WriteResourceRefMessage(*tileState->mutable_resourceref());
     tileState->set_width(backup.GetWidth());
     tileState->set_height(backup.GetHeight());
     backup.WriteOffsetMessage(*tileState->mutable_offset());
 }
 
-bool glimmer::MiningSystem::TryPlaceTile(const TileLayerComponent* tileLayerComponent,
-                                          TileStateMessage* tileState,
-                                          const TileVector2D& currentVector,
-                                          const TileVector2D& topLeftVector,
-                                          const TilePlacementConfig& config,
-                                          TileStateBackup& backup)
-{
+bool glimmer::MiningSystem::TryPlaceTile(const TileLayerComponent *tileLayerComponent,
+                                         TileStateMessage *tileState,
+                                         const TileVector2D &currentVector,
+                                         const TileVector2D &topLeftVector,
+                                         const TilePlacementConfig &config,
+                                         TileStateBackup &backup) {
     SaveTileState(tileState, backup);
     config.WriteResourceRefMessage(*tileState->mutable_resourceref());
     tileState->set_width(config.GetTileWidth());
     tileState->set_height(config.GetTileHeight());
-    if (config.IsPlaceMode())
-    {
+    if (config.IsPlaceMode()) {
         tileState->set_placesource(PLACE_SOURCE_PLAYER);
-    }
-    else
-    {
+    } else {
         tileState->set_placesource(PLACE_SOURCE_WORLD_GEN);
     }
     TileVector2D offset = topLeftVector - currentVector;
     offset.WriteVector2DIMessage(*tileState->mutable_offset());
     if (tileLayerComponent->CommitTileState(config.GetBreakSource(), tileLayerComponent->GetTileLayerType(),
                                             currentVector,
-                                            false))
-    {
+                                            false)) {
         return true;
     }
     RestoreTileState(tileState, backup);
     return false;
 }
 
-void glimmer::MiningSystem::ApplyItemDurability(Item* item, const Tile* tile, bool isCenter)
-{
-    if (item == nullptr)
-    {
+void glimmer::MiningSystem::ApplyItemDurability(Item *item, const Tile *tile, bool isCenter) {
+    if (item == nullptr) {
         return;
     }
-    const TileMiningData* miningData = tile->GetMiningData();
-    if (miningData == nullptr)
-    {
+    const TileMiningData *miningData = tile->GetMiningData();
+    if (miningData == nullptr) {
         return;
     }
-    if (miningData->IsAutoDigCostScale() || isCenter)
-    {
+    if (miningData->IsAutoDigCostScale() || isCenter) {
         item->Reduce(miningData->GetUnitDigCost());
     }
 }
 
-void glimmer::MiningSystem::DropDefaultLoot(WorldContext* worldContext, EntityManager* entityManager,
-                                             const std::shared_ptr<Tile>& tile, const TileVector2D& position,
-                                             const ResourceRef& oldResourceRef)
-{
+void glimmer::MiningSystem::DropDefaultLoot(WorldContext *worldContext, EntityManager *entityManager,
+                                            const std::shared_ptr<Tile> &tile, const TileVector2D &position,
+                                            const ResourceRef &oldResourceRef) {
     const uint32_t droppedEntity = entityManager->AddEntity();
     DroppedItemCreator droppedItemCreator{worldContext};
     droppedItemCreator.LoadTemplateComponents(droppedEntity,
@@ -141,43 +124,35 @@ void glimmer::MiningSystem::DropDefaultLoot(WorldContext* worldContext, EntityMa
                                                   0));
 }
 
-void glimmer::MiningSystem::DropTileLoot(WorldContext* worldContext, EntityManager* entityManager,
-                                          const std::shared_ptr<Tile>& tile, const TileVector2D& position,
-                                          const ResourceRef& oldResourceRef, bool precisionMining)
-{
-    const AppContext* appContext = worldContext->GetAppContext();
-    if (appContext == nullptr)
-    {
+void glimmer::MiningSystem::DropTileLoot(WorldContext *worldContext, EntityManager *entityManager,
+                                         const std::shared_ptr<Tile> &tile, const TileVector2D &position,
+                                         const ResourceRef &oldResourceRef, bool precisionMining) {
+    const AppContext *appContext = worldContext->GetAppContext();
+    if (appContext == nullptr) {
         return;
     }
-    const TileLootData* tileLootData = tile->GetLootData();
-    if (tileLootData == nullptr)
-    {
+    const TileLootData *tileLootData = tile->GetLootData();
+    if (tileLootData == nullptr) {
         return;
     }
-    if (!tileLootData->CanDropLoot())
-    {
+    if (!tileLootData->CanDropLoot()) {
         return;
     }
     const auto lootResource = appContext->GetResourceLocator()->FindLoot(tileLootData->GetLootTableRef());
-    if (precisionMining || !tileLootData->IsCustomLootTable() || lootResource == nullptr)
-    {
+    if (precisionMining || !tileLootData->IsCustomLootTable() || lootResource == nullptr) {
         DropDefaultLoot(worldContext, entityManager, tile, position, oldResourceRef);
         return;
     }
     DropCustomLoot(worldContext, entityManager, appContext, lootResource, position);
 }
 
-void glimmer::MiningSystem::DropCustomLoot(WorldContext* worldContext, EntityManager* entityManager,
-                                            const AppContext* appContext, const LootResource* lootResource,
-                                            const TileVector2D& topLeftVector)
-{
+void glimmer::MiningSystem::DropCustomLoot(WorldContext *worldContext, EntityManager *entityManager,
+                                           const AppContext *appContext, const LootResource *lootResource,
+                                           const TileVector2D &topLeftVector) {
     std::vector<ItemMessage> itemMessageList = LootResource::GetLootItems(lootResource);
-    for (auto& itemMessage : itemMessageList)
-    {
+    for (auto &itemMessage: itemMessageList) {
         auto itemPtr = appContext->GetResourceLocator()->FindItem(worldContext, itemMessage);
-        if (itemPtr == nullptr)
-        {
+        if (itemPtr == nullptr) {
             continue;
         }
         itemPtr->ReadItemMessage(worldContext, itemMessage);
@@ -192,30 +167,24 @@ void glimmer::MiningSystem::DropCustomLoot(WorldContext* worldContext, EntityMan
     }
 }
 
-void glimmer::MiningSystem::PlayBreakSFX(const AppContext* appContext, const Tile* tile)
-{
-    if (appContext == nullptr || tile == nullptr)
-    {
+void glimmer::MiningSystem::PlayBreakSFX(const AppContext *appContext, const Tile *tile) {
+    if (appContext == nullptr || tile == nullptr) {
         return;
     }
-    const AudioContext* audioContext = appContext->GetAudioContext();
-    if (audioContext == nullptr)
-    {
+    const AudioContext *audioContext = appContext->GetAudioContext();
+    if (audioContext == nullptr) {
         return;
     }
-    const TileResourceData* tileResourceData = tile->GetResourceData();
-    if (tileResourceData == nullptr)
-    {
+    const TileResourceData *tileResourceData = tile->GetResourceData();
+    if (tileResourceData == nullptr) {
         return;
     }
     auto breakSFX = tileResourceData->GetBreakSFX();
-    if (breakSFX == nullptr)
-    {
+    if (breakSFX == nullptr) {
         return;
     }
-    AudioManager* audioManager = audioContext->GetAudioManager();
-    if (audioManager == nullptr)
-    {
+    AudioManager *audioManager = audioContext->GetAudioManager();
+    if (audioManager == nullptr) {
         return;
     }
     audioManager->TryPlayFree(
@@ -223,46 +192,40 @@ void glimmer::MiningSystem::PlayBreakSFX(const AppContext* appContext, const Til
 }
 
 
-static bool CheckMiningEfficiency(const glimmer::Tile* tile, const glimmer::Item* item)
-{
-    if (item == nullptr)
-    {
+static bool CheckMiningEfficiency(const glimmer::Tile *tile, const glimmer::Item *item) {
+    if (item == nullptr) {
         return true;
     }
-    const glimmer::TileMiningData* tileMiningData = tile->GetMiningData();
-    if (tileMiningData == nullptr)
-    {
+    const glimmer::TileMiningData *tileMiningData = tile->GetMiningData();
+    if (tileMiningData == nullptr) {
         glimmer::LogCat::w(std::source_location::current(), "tileMiningData == nullptr");
         return true;
     }
-    const glimmer::AbilityConfig* abilityConfig = item->GetAbilityConfig();
-    if (abilityConfig == nullptr)
-    {
+    const glimmer::AbilityConfig *abilityConfig = item->GetAbilityConfig();
+    if (abilityConfig == nullptr) {
         glimmer::LogCat::w(std::source_location::current(), "abilityConfig == nullptr");
         return true;
     }
-    if (tileMiningData->GetMinMiningEfficiency() > abilityConfig->miningEfficiency)
-    {
-        glimmer::LogCat::w(std::source_location::current(), "tileMiningData->GetMinMiningEfficiency() > abilityConfig->miningEfficiency");
+    if (tileMiningData->GetMinMiningEfficiency() > abilityConfig->miningEfficiency) {
+        glimmer::LogCat::w(std::source_location::current(),
+                           "tileMiningData->GetMinMiningEfficiency() > abilityConfig->miningEfficiency");
         return false;
     }
     return true;
 }
 
-void glimmer::MiningSystem::ProcessSingleTile(const TileBreakParams& params,
-                                               const TileVector2D& currentVector,
-                                               Item* item,
-                                               const bool isCenter,
-                                               uint8_t& sum)
-{
-    const AppContext* appContext = params.worldContext->GetAppContext();
-    EntityManager* entityManager = params.worldContext->GetEntityManager();
+void glimmer::MiningSystem::ProcessSingleTile(const TileBreakParams &params,
+                                              const TileVector2D &currentVector,
+                                              Item *item,
+                                              const bool isCenter,
+                                              uint8_t &sum) {
+    const AppContext *appContext = params.worldContext->GetAppContext();
+    EntityManager *entityManager = params.worldContext->GetEntityManager();
     const auto currentTile = params.tileLayerComponent->GetSelfLayerTileShared(currentVector);
-    if (!CanProcessTile(currentTile.get(), params.isPlaceMode))
-    {
+    if (!CanProcessTile(currentTile.get(), params.isPlaceMode)) {
         return;
     }
-    TileStateMessage* tileStateMessage = params.tileLayerComponent->GetSelfLayerTileStateMutable(currentVector);
+    TileStateMessage *tileStateMessage = params.tileLayerComponent->GetSelfLayerTileStateMutable(currentVector);
     TileStateBackup backup;
     TilePlacementConfig config;
     config.SetTileHeight(params.tileHeight);
@@ -271,76 +234,61 @@ void glimmer::MiningSystem::ProcessSingleTile(const TileBreakParams& params,
     config.SetPlaceMode(params.isPlaceMode);
     config.SetBreakSource(params.breakSource);
     if (!TryPlaceTile(params.tileLayerComponent, tileStateMessage, currentVector, params.topLeftVector,
-                      config, backup))
-    {
+                      config, backup)) {
         return;
     }
     sum++;
-    if (!CheckMiningEfficiency(currentTile.get(), item))
-    {
+    if (!CheckMiningEfficiency(currentTile.get(), item)) {
         return;
     }
     ApplyItemDurability(item, currentTile.get(), isCenter);
-    if (isCenter && !params.isPlaceMode)
-    {
+    if (isCenter && !params.isPlaceMode) {
         PlayBreakSFX(appContext, currentTile.get());
     }
-    const TileLootData* tileLootData = currentTile->GetLootData();
-    if (tileLootData == nullptr)
-    {
+    const TileLootData *tileLootData = currentTile->GetLootData();
+    if (tileLootData == nullptr) {
         return;
     }
-    if (!isCenter && !tileLootData->LootScaleBySize())
-    {
+    if (!isCenter && !tileLootData->LootScaleBySize()) {
         return;
     }
     DropTileLoot(params.worldContext, entityManager, currentTile, currentVector,
                  backup.GetResourceRef(), params.precisionMining);
 }
 
-uint16_t glimmer::MiningSystem::BreakTile(const TileBreakParams& params)
-{
-    if (params.worldContext == nullptr || params.tileLayerComponent == nullptr)
-    {
+uint16_t glimmer::MiningSystem::BreakTile(const TileBreakParams &params) {
+    if (params.worldContext == nullptr || params.tileLayerComponent == nullptr) {
         return 0;
     }
-    const AppContext* appContext = params.worldContext->GetAppContext();
-    if (appContext == nullptr)
-    {
+    const AppContext *appContext = params.worldContext->GetAppContext();
+    if (appContext == nullptr) {
         return 0;
     }
-    const EntityShortCut* entityShortCut = params.worldContext->GetEntityShortCut();
-    if (entityShortCut == nullptr)
-    {
+    const EntityShortCut *entityShortCut = params.worldContext->GetEntityShortCut();
+    if (entityShortCut == nullptr) {
         return 0;
     }
     GameEntityID player = entityShortCut->GetPlayer();
-    if (WorldContext::IsEmptyEntityId(player))
-    {
+    if (WorldContext::IsEmptyEntityId(player)) {
         return 0;
     }
-    EntityManager* entityManager = params.worldContext->GetEntityManager();
-    if (entityManager == nullptr)
-    {
+    EntityManager *entityManager = params.worldContext->GetEntityManager();
+    if (entityManager == nullptr) {
         return 0;
     }
     auto playerComponent = entityManager->GetComponent<PlayerComponent>(player);
-    Item* item = nullptr;
-    if (playerComponent != nullptr)
-    {
+    Item *item = nullptr;
+    if (playerComponent != nullptr) {
         item = playerComponent->GetItem();
-        if (item == nullptr)
-        {
+        if (item == nullptr) {
             item = playerComponent->GetEmptyHandAutoUseItem();
         }
     }
     uint8_t sum = 0;
     auto centerX = params.tileWidth / 2;
     auto centerY = params.tileHeight / 2;
-    for (int x = 0; x < params.tileWidth; x++)
-    {
-        for (int y = 0; y < params.tileHeight; y++)
-        {
+    for (int x = 0; x < params.tileWidth; x++) {
+        for (int y = 0; y < params.tileHeight; y++) {
             ProcessSingleTile(params, TileVector2D(params.topLeftVector.x + x, params.topLeftVector.y - y), item,
                               x == centerX && y == centerY, sum);
         }
@@ -348,32 +296,25 @@ uint16_t glimmer::MiningSystem::BreakTile(const TileBreakParams& params)
     return sum;
 }
 
-void glimmer::MiningSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
-{
-    const EntityShortCut* entityShortCut = GetEntityShortCut();
-    EntityManager* entityManager = GetEntityManager();
-    if (gameComponentType == COMPONENT_MINING && miningComponent_ == nullptr)
-    {
+void glimmer::MiningSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) {
+    const EntityShortCut *entityShortCut = GetEntityShortCut();
+    EntityManager *entityManager = GetEntityManager();
+    if (gameComponentType == COMPONENT_MINING && miningComponent_ == nullptr) {
         miningComponent_ = entityShortCut->GetMiningComponent();
     }
-    if (gameComponentType == COMPONENT_TRANSFORM_2D && cameraTransform2DComponent_ == nullptr)
-    {
+    if (gameComponentType == COMPONENT_TRANSFORM_2D && cameraTransform2DComponent_ == nullptr) {
         cameraTransform2DComponent_ = entityShortCut->GetCameraTransform2DComponent();
     }
-    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
-    {
+    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr) {
         cameraComponent_ = entityShortCut->GetCameraComponent();
     }
-    if (gameComponentType == COMPONENT_TILE_LAYER)
-    {
+    if (gameComponentType == COMPONENT_TILE_LAYER) {
         tileLayerComponents_.clear();
         auto tileLayerEntities = entityManager->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
         std::sort(tileLayerEntities.begin(), tileLayerEntities.end());
-        for (GameEntityID tileLayerEntity : tileLayerEntities)
-        {
+        for (GameEntityID tileLayerEntity: tileLayerEntities) {
             const auto tileLayer = entityManager->GetComponent<TileLayerComponent>(tileLayerEntity);
-            if (tileLayer == nullptr)
-            {
+            if (tileLayer == nullptr) {
                 continue;
             }
             tileLayerComponents_.emplace_back(tileLayer);
@@ -381,8 +322,7 @@ void glimmer::MiningSystem::OnWatchedComponentChanged(GameComponentTypeMessage g
     }
 }
 
-glimmer::MiningSystem::MiningSystem(WorldContext* worldContext) : GameSystem(worldContext)
-{
+glimmer::MiningSystem::MiningSystem(WorldContext *worldContext) : GameSystem(worldContext) {
     WatchComponent(COMPONENT_MINING);
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_CAMERA);
@@ -390,60 +330,50 @@ glimmer::MiningSystem::MiningSystem(WorldContext* worldContext) : GameSystem(wor
     Init();
 }
 
-void glimmer::MiningSystem::Update(const float delta)
-{
-    WorldContext* worldContext = GetWorldContext();
-    if (worldContext == nullptr)
-    {
+void glimmer::MiningSystem::Update(const float delta) {
+    WorldContext *worldContext = GetWorldContext();
+    if (worldContext == nullptr) {
         return;
     }
-    if (!miningComponent_->CheckAndResetActive())
-    {
+    if (!miningComponent_->CheckAndResetActive()) {
         miningComponent_->SetEnable(false);
         miningComponent_->SetProgress(0.0F);
         miningComponent_->ClearMiningRangeData();
         return;
     }
     miningComponent_->SetEnable(true);
-    for (auto tileLayer : tileLayerComponents_)
-    {
+    for (auto tileLayer: tileLayerComponents_) {
         const TileLayerType tileLayerType = tileLayer->GetTileLayerType();
-        if (tileLayerType != miningComponent_->GetLayerType())
-        {
+        if (tileLayerType != miningComponent_->GetLayerType()) {
             continue;
         }
         // Accumulate progress
         // 积累进度
-        const MiningRangeData* rangeData = miningComponent_->GetMiningRangeData();
-        if (rangeData == nullptr)
-        {
+        const MiningRangeData *rangeData = miningComponent_->GetMiningRangeData();
+        if (rangeData == nullptr) {
             break;
         }
         miningComponent_->AddProgress(
             miningComponent_->GetEfficiency() / rangeData->GetMaxHardness() * delta);
-        if (miningComponent_->GetProgress() >= 1.0F)
-        {
+        if (miningComponent_->GetProgress() >= 1.0F) {
             ProcessMiningComplete(tileLayer, tileLayerType);
         }
         break;
     }
 }
 
-void glimmer::MiningSystem::ProcessMiningComplete(const TileLayerComponent* tileLayer, TileLayerType tileLayerType) const
-{
-    WorldContext* worldContext = GetWorldContext();
-    const MiningRangeData* miningRangeData = miningComponent_->GetMiningRangeData();
-    if (miningRangeData == nullptr)
-    {
+void glimmer::MiningSystem::ProcessMiningComplete(const TileLayerComponent *tileLayer,
+                                                  TileLayerType tileLayerType) const {
+    WorldContext *worldContext = GetWorldContext();
+    const MiningRangeData *miningRangeData = miningComponent_->GetMiningRangeData();
+    if (miningRangeData == nullptr) {
         return;
     }
     const size_t pointsCount = miningRangeData->GetPointsCount();
     LogCat::i("Mining complete, processing ", pointsCount, " mining points");
-    for (size_t i = 0; i < pointsCount; i++)
-    {
-        const MiningRangeDataPoint* point = miningRangeData->GetPoint(i);
-        if (point == nullptr)
-        {
+    for (size_t i = 0; i < pointsCount; i++) {
+        const MiningRangeDataPoint *point = miningRangeData->GetPoint(i);
+        if (point == nullptr) {
             continue;
         }
         uint16_t broken = BreakTile({
@@ -452,8 +382,7 @@ void glimmer::MiningSystem::ProcessMiningComplete(const TileLayerComponent* tile
             point->GetHeight(),
             TileResourceManager::GetAirResourceRef(tileLayerType)
         });
-        if (broken > 0)
-        {
+        if (broken > 0) {
             LogCat::i("Broken tiles at position (", point->GetTileTopLeftPosition().x, ",",
                       point->GetTileTopLeftPosition().y, "): ", broken);
         }
@@ -463,14 +392,11 @@ void glimmer::MiningSystem::ProcessMiningComplete(const TileLayerComponent* tile
     miningComponent_->ClearMiningRangeData();
 }
 
-void glimmer::MiningSystem::Render(SDL_Renderer* renderer)
-{
-    const WorldContext* worldContext = GetWorldContext();
-    const AppContext* appContext = worldContext->GetAppContext();
-    if (!cacheTexture_)
-    {
-        for (uint8_t i = 0; i < 10; i++)
-        {
+void glimmer::MiningSystem::Render(SDL_Renderer *renderer) {
+    const WorldContext *worldContext = GetWorldContext();
+    const AppContext *appContext = worldContext->GetAppContext();
+    if (!cacheTexture_) {
+        for (uint8_t i = 0; i < 10; i++) {
             ResourceRef resourceRef;
             resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
             resourceRef.SetResourceType(RESOURCE_TEXTURE);
@@ -485,36 +411,31 @@ void glimmer::MiningSystem::Render(SDL_Renderer* renderer)
         cacheTexture_ = true;
         return;
     }
-    if (!miningComponent_->IsEnable())
-    {
+    if (!miningComponent_->IsEnable()) {
         return;
     }
-    const MiningRangeData* miningRangeData = miningComponent_->GetMiningRangeData();
-    if (miningRangeData == nullptr)
-    {
+    const MiningRangeData *miningRangeData = miningComponent_->GetMiningRangeData();
+    if (miningRangeData == nullptr) {
         return;
     }
     float zoom = cameraComponent_->GetZoom();
     size_t pointsCount = miningRangeData->GetPointsCount();
-    for (size_t i = 0; i < pointsCount; i++)
-    {
-        const MiningRangeDataPoint* point = miningRangeData->GetPoint(i);
-        if (point == nullptr)
-        {
+    for (size_t i = 0; i < pointsCount; i++) {
+        const MiningRangeDataPoint *point = miningRangeData->GetPoint(i);
+        if (point == nullptr) {
             continue;
         }
         RenderDiggingPoint(renderer, point, zoom);
     }
 }
 
-uint8_t glimmer::MiningSystem::GetExecutionOrder()
-{
+uint8_t glimmer::MiningSystem::GetExecutionOrder() {
     return EXECUTION_ORDER_DIGGING;
 }
 
-void glimmer::MiningSystem::RenderDiggingPoint(SDL_Renderer* renderer, const MiningRangeDataPoint* point, const float zoom) const
-{
-    const TileVector2D& tileTopLeftPosition = point->GetTileTopLeftPosition();
+void glimmer::MiningSystem::RenderDiggingPoint(SDL_Renderer *renderer, const MiningRangeDataPoint *point,
+                                               const float zoom) const {
+    const TileVector2D &tileTopLeftPosition = point->GetTileTopLeftPosition();
     const WorldVector2D tileTopLeftPositionWorld = CoordinateTransformer::TileToWorld({
         tileTopLeftPosition.x, tileTopLeftPosition.y
     });
@@ -530,19 +451,16 @@ void glimmer::MiningSystem::RenderDiggingPoint(SDL_Renderer* renderer, const Min
         ScreenVector2D.x - w * 0.5F, ScreenVector2D.y - h * 0.5F, w,
         h
     };
-    auto& crackTextureResult = textureResultList_[crackIndex];
-    if (crackTextureResult == nullptr)
-    {
+    auto &crackTextureResult = textureResultList_[crackIndex];
+    if (crackTextureResult == nullptr) {
         return;
     }
-    SDL_Texture* texture = crackTextureResult->GetResource();
-    if (texture != nullptr)
-    {
+    SDL_Texture *texture = crackTextureResult->GetResource();
+    if (texture != nullptr) {
         SDL_RenderTexture(renderer, texture, nullptr, &dstRect);
     }
 }
 
-glimmer::GameSystemType glimmer::MiningSystem::GetGameSystemType() const
-{
+glimmer::GameSystemType glimmer::MiningSystem::GetGameSystemType() const {
     return GameSystemType::DiggingSystem;
 }

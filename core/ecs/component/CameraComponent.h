@@ -31,14 +31,12 @@
 #include "core/math/ScreenVector2D.h"
 #include "core/math/WorldVector2D.h"
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * Camera component, used to control the game view
      * 相机组件，用于控制游戏视图
      */
-    class CameraComponent : public GameComponent
-    {
+    class CameraComponent : public GameComponent {
         /**
          * Size: Camera size (pixel coordinates)
          * Size 相机尺寸（像素坐标）
@@ -59,7 +57,7 @@ namespace glimmer
          * @param worldPos worldPos 世界坐标
          * @return 是否在相机视口内
          */
-        [[nodiscard]] bool IsPointInViewport(const WorldVector2D& cameraPosition, const WorldVector2D& worldPos) const;
+        [[nodiscard]] bool IsPointInViewport(const WorldVector2D &cameraPosition, const WorldVector2D &worldPos) const;
 
         /**
          * Is rect in viewport
@@ -68,7 +66,7 @@ namespace glimmer
          * @param rect
          * @return
          */
-        [[nodiscard]] bool IsRectInViewport(const WorldVector2D& cameraPosition, const SDL_FRect* rect) const;
+        [[nodiscard]] bool IsRectInViewport(const WorldVector2D &cameraPosition, const SDL_FRect *rect) const;
 
 
         /**
@@ -76,7 +74,7 @@ namespace glimmer
          * 设置尺寸
          * @param size Size 尺寸
          */
-        void SetSize(const ScreenVector2D& size);
+        void SetSize(const ScreenVector2D &size);
 
         /**
          * Get Size

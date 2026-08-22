@@ -27,10 +27,8 @@
 #pragma once
 #include <cstdint>
 
-namespace glimmer
-{
-    enum class TerrainResultType :uint8_t
-    {
+namespace glimmer {
+    enum class TerrainResultType :uint8_t {
         AIR,
         WATER,
         SOLID,

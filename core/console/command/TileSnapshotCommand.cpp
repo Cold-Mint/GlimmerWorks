@@ -36,79 +36,63 @@
 #include "core/context/AppContext.h"
 #include "fmt/xchar.h"
 
-void glimmer::TileSnapshotCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
-{
-    if (suggestionsTree == nullptr)
-    {
+void glimmer::TileSnapshotCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
+    if (suggestionsTree == nullptr) {
         return;
     }
     suggestionsTree->AddChild("inspector");
     suggestionsTree->AddChild("info")->AddChild(X_DYNAMIC_SUGGESTIONS_NAME)->AddChild(Y_DYNAMIC_SUGGESTIONS_NAME);
 }
 
-glimmer::TileSnapshotCommand::TileSnapshotCommand(AppContext* appContext)
-    : Command(appContext)
-{
+glimmer::TileSnapshotCommand::TileSnapshotCommand(AppContext *appContext)
+    : Command(appContext) {
 }
 
-const std::string& glimmer::TileSnapshotCommand::GetName() const
-{
+const std::string &glimmer::TileSnapshotCommand::GetName() const {
     return TILE_SNAPSHOT_COMMAND_NAME;
 }
 
-bool glimmer::TileSnapshotCommand::RequiresWorldContext() const
-{
+bool glimmer::TileSnapshotCommand::RequiresWorldContext() const {
     return true;
 }
 
-void glimmer::TileSnapshotCommand::PutCommandStructure(const CommandArgs* commandArgs,
-                                                       std::vector<std::string>* strings)
-{
-    if (commandArgs == nullptr || strings == nullptr)
-    {
+void glimmer::TileSnapshotCommand::PutCommandStructure(const CommandArgs *commandArgs,
+                                                       std::vector<std::string> *strings) {
+    if (commandArgs == nullptr || strings == nullptr) {
         return;
     }
     strings->emplace_back("[operation:string]");
-    if (commandArgs->GetSize() >= 2)
-    {
+    if (commandArgs->GetSize() >= 2) {
         std::string operation = commandArgs->AsString(1);
-        if (operation == "info")
-        {
+        if (operation == "info") {
             strings->emplace_back("[x:int]");
             strings->emplace_back("[y:int]");
         }
     }
 }
 
-bool glimmer::TileSnapshotCommand::ExecuteInspector(const AppContext* appContext,
-                                                    const std::function<void(const std::string& text)>& onMessageRef,
-                                                    const LangsResources* langsResources)
-{
-    CommandHookManager* commandHookManager = appContext->GetConsoleContext()->GetCommandHookManager();
-    if (commandHookManager == nullptr)
-    {
+bool glimmer::TileSnapshotCommand::ExecuteInspector(const AppContext *appContext,
+                                                    const std::function<void(const std::string &text)> &onMessageRef,
+                                                    const LangsResources *langsResources) {
+    CommandHookManager *commandHookManager = appContext->GetConsoleContext()->GetCommandHookManager();
+    if (commandHookManager == nullptr) {
         onMessageRef(langsResources->cmdHookManagerNotFound);
         return false;
     }
-    if (commandHookManager->Contains(TILE_SNAPSHOT_INSPECTOR_ID))
-    {
-        if (commandHookManager->Unregister(TILE_SNAPSHOT_INSPECTOR_ID))
-        {
+    if (commandHookManager->Contains(TILE_SNAPSHOT_INSPECTOR_ID)) {
+        if (commandHookManager->Unregister(TILE_SNAPSHOT_INSPECTOR_ID)) {
             onMessageRef(langsResources->tileSnapshotInspectorDisable);
             return true;
         }
         onMessageRef(langsResources->tileSnapshotInspectorDisableFail);
-    }
-    else
-    {
+    } else {
         auto commandHookEntry = std::make_unique<CommandHookEntry>();
         commandHookEntry->hookId = TILE_SNAPSHOT_INSPECTOR_ID;
         commandHookEntry->scope = CommandHookScope::SESSION;
         commandHookEntry->code = SDL_BUTTON_LEFT;
         commandHookEntry->command = TILE_SNAPSHOT_COMMAND_NAME + " info ~ ~";
         commandHookEntry->eventType = SDL_EVENT_MOUSE_BUTTON_DOWN;
-        if (commandHookManager->Register(std::move(commandHookEntry)))
-        {
+        if (commandHookManager->Register(std::move(commandHookEntry))) {
             onMessageRef(langsResources->tileSnapshotInspectorEnable);
             return true;
         }
@@ -117,13 +101,11 @@ bool glimmer::TileSnapshotCommand::ExecuteInspector(const AppContext* appContext
     return false;
 }
 
-bool glimmer::TileSnapshotCommand::ExecuteInfo(const CommandSender* commandSender, const CommandArgs* commandArgs,
+bool glimmer::TileSnapshotCommand::ExecuteInfo(const CommandSender *commandSender, const CommandArgs *commandArgs,
                                                int size,
-                                               const std::function<void(const std::string& text)>& onMessageRef,
-                                               const LangsResources* langsResources, const WorldContext* worldContext)
-{
-    if (size < 4)
-    {
+                                               const std::function<void(const std::string &text)> &onMessageRef,
+                                               const LangsResources *langsResources, const WorldContext *worldContext) {
+    if (size < 4) {
         onMessageRef(fmt::format(
             fmt::runtime(langsResources->insufficientParameterLength),
             4, size));
@@ -135,42 +117,36 @@ bool glimmer::TileSnapshotCommand::ExecuteInfo(const CommandSender* commandSende
         commandArgs->AsCoordinate(
             3, commandSenderPosition.y)));
     const auto chunkVertex = Chunk::TileCoordinatesToChunkVertexCoordinates(tileVector2D);
-    Chunk* chunk = worldContext->GetChunkManager()->GetChunk(chunkVertex);
-    if (chunk == nullptr)
-    {
+    Chunk *chunk = worldContext->GetChunkManager()->GetChunk(chunkVertex);
+    if (chunk == nullptr) {
         onMessageRef(fmt::format(fmt::runtime(langsResources->chunkHasNotBeenLoadedYet), tileVector2D.x,
                                  tileVector2D.y));
         return false;
     }
     const auto chunkRelative = Chunk::TileCoordinatesToChunkRelativeCoordinates(tileVector2D);
-    std::vector<TileSnapshot*> tileSnapshotVectorPtr = chunk->GetTopVisibleTileSnapshots(
+    std::vector<TileSnapshot *> tileSnapshotVectorPtr = chunk->GetTopVisibleTileSnapshots(
         std::byte{std::to_underlying(TileLayerType::Ground)}
         | std::byte{std::to_underlying(TileLayerType::BackGround)},
         chunkRelative.y << CHUNK_SHIFT | chunkRelative.x);
     auto tileSnapshotSize = tileSnapshotVectorPtr.size();
-    if (tileSnapshotSize == 0)
-    {
+    if (tileSnapshotSize == 0) {
         onMessageRef(fmt::format(fmt::runtime(langsResources->tileSnapshotsDoesNotExist), tileVector2D.x,
                                  tileVector2D.y));
         return false;
     }
 
     std::stringstream stringStream;
-    for (int i = 0; i < tileSnapshotSize; i++)
-    {
-        TileSnapshot* tileSnapshot = tileSnapshotVectorPtr.at(i);
-        if (tileSnapshot == nullptr)
-        {
+    for (int i = 0; i < tileSnapshotSize; i++) {
+        TileSnapshot *tileSnapshot = tileSnapshotVectorPtr.at(i);
+        if (tileSnapshot == nullptr) {
             continue;
         }
-        const Tile* tile = tileSnapshot->GetTile();
-        if (tile == nullptr)
-        {
+        const Tile *tile = tileSnapshot->GetTile();
+        if (tile == nullptr) {
             continue;
         }
-        const TileStateMessage* tileStateMessage = tileSnapshot->GetTileState();
-        if (tileStateMessage == nullptr)
-        {
+        const TileStateMessage *tileStateMessage = tileSnapshot->GetTileState();
+        if (tileStateMessage == nullptr) {
             continue;
         }
         int32_t offsetX = tileStateMessage->offset().x();
@@ -190,41 +166,34 @@ bool glimmer::TileSnapshotCommand::ExecuteInfo(const CommandSender* commandSende
     return true;
 }
 
-bool glimmer::TileSnapshotCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                                           const std::function<void(const std::string& text)>* onMessage)
-{
-    const AppContext* appContext = GetAppContext();
-    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
-    {
+bool glimmer::TileSnapshotCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                                           const std::function<void(const std::string &text)> *onMessage) {
+    const AppContext *appContext = GetAppContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr) {
         return false;
     }
-    const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    WorldContext* worldContext = GetWorldContext();
-    if (worldContext == nullptr)
-    {
+    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
+    WorldContext *worldContext = GetWorldContext();
+    if (worldContext == nullptr) {
         onMessageRef(appContext->GetLangsResources()->worldContextIsNull);
         return false;
     }
-    const LangsResources* langsResources = appContext->GetLangsResources();
-    if (langsResources == nullptr)
-    {
+    const LangsResources *langsResources = appContext->GetLangsResources();
+    if (langsResources == nullptr) {
         return false;
     }
     const int size = commandArgs->GetSize();
-    if (size < 2)
-    {
+    if (size < 2) {
         onMessageRef(fmt::format(
             fmt::runtime(langsResources->insufficientParameterLength),
             2, size));
         return false;
     }
     std::string operation = commandArgs->AsString(1);
-    if (operation == "inspector")
-    {
+    if (operation == "inspector") {
         return ExecuteInspector(appContext, onMessageRef, langsResources);
     }
-    if (operation == "info")
-    {
+    if (operation == "info") {
         return ExecuteInfo(commandSender, commandArgs, size, onMessageRef, langsResources, worldContext);
     }
     return false;

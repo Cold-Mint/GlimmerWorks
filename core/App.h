@@ -30,18 +30,16 @@
 #include "context/AppContext.h"
 
 
-namespace glimmer
-{
-    class App
-    {
+namespace glimmer {
+    class App {
         bool initSDLSuccess_ = false;
         bool initSDLMixSuccess_ = false;
         bool initSDLTtfSuccess_ = false;
         uint64_t lastTime_ = 0;
-        SDL_Renderer* renderer_ = nullptr;
-        AppContext* appContext_ = nullptr;
-        SDL_Window* window = nullptr;
-        MIX_Mixer* mixer_ = nullptr;
+        SDL_Renderer *renderer_ = nullptr;
+        AppContext *appContext_ = nullptr;
+        SDL_Window *window = nullptr;
+        MIX_Mixer *mixer_ = nullptr;
         std::string fontData_;
 
 
@@ -53,14 +51,14 @@ namespace glimmer
 
         bool InitAudio();
 
-        static bool CheckWindowSizeChange(WindowContext* windowContext, const int& windowWidth,
-                                          const int& windowHeight);
+        static bool CheckWindowSizeChange(WindowContext *windowContext, const int &windowWidth,
+                                          const int &windowHeight);
 
-        void HandleWindowSizeChange(const int& windowWidth, const int& windowHeight) const;
+        void HandleWindowSizeChange(const int &windowWidth, const int &windowHeight) const;
 
         [[nodiscard]] float CalculateTargetFrameTime(uint64_t frameStart, uint64_t lastInputTime) const;
 
-        bool CheckConfigChange(uint64_t& configFingerprint) const;
+        bool CheckConfigChange(uint64_t &configFingerprint) const;
 
         void NotifyFrameStart() const;
 
@@ -71,7 +69,7 @@ namespace glimmer
     public:
         ~App();
 
-        explicit App(AppContext* appContext);
+        explicit App(AppContext *appContext);
 
         bool Init();
 

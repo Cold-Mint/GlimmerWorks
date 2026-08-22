@@ -27,8 +27,7 @@
 #include "AreaMarkerComponent.h"
 
 
-GameComponentTypeMessage glimmer::AreaMarkerComponent::GetComponentTypeStatic()
-{
+GameComponentTypeMessage glimmer::AreaMarkerComponent::GetComponentTypeStatic() {
     return COMPONENT_AREA_MARKER;
 }
 

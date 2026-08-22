@@ -32,38 +32,31 @@
 #include "RmlUi/Debugger/Debugger.h"
 #if  !defined(NDEBUG)
 
-void glimmer::RmlDebugCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
-{
+void glimmer::RmlDebugCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
     suggestionsTree->AddChild(BOOL_TOGGLE_DYNAMIC_SUGGESTIONS_NAME);
 }
 
-glimmer::RmlDebugCommand::RmlDebugCommand(AppContext* appContext) : Command(appContext)
-{
+glimmer::RmlDebugCommand::RmlDebugCommand(AppContext *appContext) : Command(appContext) {
 }
 
-const std::string& glimmer::RmlDebugCommand::GetName() const
-{
+const std::string &glimmer::RmlDebugCommand::GetName() const {
     return RML_DEBUG_COMMAND_NAME;
 }
 
-bool glimmer::RmlDebugCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                                       const std::function<void(const std::string& text)>* onMessage)
-{
-    const AppContext* appContext = GetAppContext();
-    if (appContext == nullptr)
-    {
+bool glimmer::RmlDebugCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                                       const std::function<void(const std::string &text)> *onMessage) {
+    const AppContext *appContext = GetAppContext();
+    if (appContext == nullptr) {
         return false;
     }
-    const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    const LangsResources* langsResources = appContext->GetLangsResources();
-    if (langsResources == nullptr)
-    {
+    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
+    const LangsResources *langsResources = appContext->GetLangsResources();
+    if (langsResources == nullptr) {
         return false;
     }
 
     const int size = commandArgs->GetSize();
-    if (size < 2)
-    {
+    if (size < 2) {
         onMessageRef(fmt::format(
             fmt::runtime(langsResources->insufficientParameterLength),
             2, size));
@@ -71,12 +64,9 @@ bool glimmer::RmlDebugCommand::Execute(const CommandSender* commandSender, const
     }
 
     const BoolOrToggle value = commandArgs->AsBoolOrToggle(1);
-    if (value == BoolOrToggle::TOGGLE)
-    {
+    if (value == BoolOrToggle::TOGGLE) {
         Rml::Debugger::SetVisible(!Rml::Debugger::IsVisible());
-    }
-    else
-    {
+    } else {
         Rml::Debugger::SetVisible(value == BoolOrToggle::TRUE);
     }
     return true;

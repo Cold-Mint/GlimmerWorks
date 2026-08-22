@@ -27,14 +27,12 @@
 #pragma once
 #include "core/ecs/GameSystem.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class MagnetComponent;
     class WorldVector2D;
     class ItemContainer;
 
-    class MagnetSystem : public GameSystem
-    {
+    class MagnetSystem : public GameSystem {
         uint32_t transform2DComponentCount_ = 0;
         uint32_t magnetComponentCount_ = 0;
         uint32_t magneticComponentCount_ = 0;
@@ -50,14 +48,14 @@ namespace glimmer
         std::vector<GameEntityID> magneticEntities_;
 
         bool ProcessMagneticEntity(GameEntityID magneticEntity,
-                                   MagnetComponent* magnet,
-                                   const WorldVector2D& magnetPos,
-                                   ItemContainer* itemContainer);
+                                   MagnetComponent *magnet,
+                                   const WorldVector2D &magnetPos,
+                                   ItemContainer *itemContainer);
 
         void ProcessMagnetEntity(GameEntityID magnetEntity);
 
     public:
-        explicit MagnetSystem(WorldContext* worldContext);
+        explicit MagnetSystem(WorldContext *worldContext);
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 

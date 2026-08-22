@@ -28,12 +28,10 @@
 #include "Item.h"
 #include "core/mod/resourcePack/TextureResourceResult.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class AppContext;
 
-    class MaterialItem : public Item
-    {
+    class MaterialItem : public Item {
         std::string id_;
         std::string name_;
         std::optional<std::string> description_;
@@ -43,29 +41,29 @@ namespace glimmer
     public:
         explicit MaterialItem(std::string id, std::string name, std::optional<std::string> description,
                               std::shared_ptr<TextureResourceResult> iconResult,
-                              const std::vector<ItemTagResource>& tags,
-                              const ResourceRef& resourceRef, ResourceRef  textureResourceRef);
+                              const std::vector<ItemTagResource> &tags,
+                              const ResourceRef &resourceRef, ResourceRef textureResourceRef);
 
-        static std::unique_ptr<MaterialItem> FromItemResource(const AppContext* appContext,
-                                                              const MaterialItemResource* itemResource,
-                                                              const ResourceRef& resourceRef);
+        static std::unique_ptr<MaterialItem> FromItemResource(const AppContext *appContext,
+                                                              const MaterialItemResource *itemResource,
+                                                              const ResourceRef &resourceRef);
 
-        [[nodiscard]] const ResourceRef* GetIconResourceRef() const override;
+        [[nodiscard]] const ResourceRef *GetIconResourceRef() const override;
 
-        [[nodiscard]] const std::string& GetId() const override;
+        [[nodiscard]] const std::string &GetId() const override;
 
-        [[nodiscard]] const std::string& GetName() const override;
+        [[nodiscard]] const std::string &GetName() const override;
 
-        [[nodiscard]] const std::optional<std::string>& GetDescription() const override;
+        [[nodiscard]] const std::optional<std::string> &GetDescription() const override;
 
-        [[nodiscard]] const AbilityConfig* GetAbilityConfig() const override;
+        [[nodiscard]] const AbilityConfig *GetAbilityConfig() const override;
 
         void Reduce(unsigned value) override;
 
-        [[nodiscard]] SDL_Texture* GetIcon() const override;
+        [[nodiscard]] SDL_Texture *GetIcon() const override;
 
-        bool OnUse(bool mouseLeft, WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
-            std::unordered_set<AbilityType>& popupAbility) override;
+        bool OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user, const AbilityConfig *abilityConfig,
+                   std::unordered_set<AbilityType> &popupAbility) override;
 
         [[nodiscard]] std::unique_ptr<Item> Clone() const override;
     };

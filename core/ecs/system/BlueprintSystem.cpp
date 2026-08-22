@@ -32,17 +32,14 @@
 #include "core/math/CoordinateTransformer.h"
 #include "core/world/WorldContext.h"
 
-std::vector<bool> glimmer::BlueprintSystem::CheckRectPlacementValidity(const Tile* tile, const TileVector2D& leftBottom,
-                                                                       const WorldVector2D& playerPosition,
+std::vector<bool> glimmer::BlueprintSystem::CheckRectPlacementValidity(const Tile *tile, const TileVector2D &leftBottom,
+                                                                       const WorldVector2D &playerPosition,
                                                                        const uint8_t tileWidth,
-                                                                       const uint8_t tileHeight) const
-{
+                                                                       const uint8_t tileHeight) const {
     std::vector result(tileHeight * tileWidth + 1, false);
     bool sum = true;
-    for (int x = 0; x < tileWidth; ++x)
-    {
-        for (int y = 0; y < tileHeight; ++y)
-        {
+    for (int x = 0; x < tileWidth; ++x) {
+        for (int y = 0; y < tileHeight; ++y) {
             TileVector2D point = {x + leftBottom.x, y + leftBottom.y};
             const int index = y * tileWidth + x;
 
@@ -55,120 +52,96 @@ std::vector<bool> glimmer::BlueprintSystem::CheckRectPlacementValidity(const Til
     return result;
 }
 
-bool glimmer::BlueprintSystem::IsPointBlocked(const TileVector2D& point) const
-{
-    for (const auto& [x, y, w, h] : blockRects_)
-    {
+bool glimmer::BlueprintSystem::IsPointBlocked(const TileVector2D &point) const {
+    for (const auto &[x, y, w, h]: blockRects_) {
         if (point.x >= x && point.x < x + w &&
-            point.y >= y && point.y < y + h)
-        {
+            point.y >= y && point.y < y + h) {
             return true;
         }
     }
     return false;
 }
 
-bool glimmer::BlueprintSystem::CheckSinglePointValidity(const Tile* tile, const TileVector2D& point,
-                                                        const WorldVector2D& playerPosition) const
-{
+bool glimmer::BlueprintSystem::CheckSinglePointValidity(const Tile *tile, const TileVector2D &point,
+                                                        const WorldVector2D &playerPosition) const {
     if (point.y > WORLD_MAX_Y || point.y < WORLD_MIN_Y ||
-        point.x > WORLD_MAX_X || point.x < WORLD_MIN_X)
-    {
+        point.x > WORLD_MAX_X || point.x < WORLD_MIN_X) {
         return false;
     }
 
-    if (tile->GetLayerType() == TileLayerType::Ground && IsPointBlocked(point))
-    {
+    if (tile->GetLayerType() == TileLayerType::Ground && IsPointBlocked(point)) {
         return false;
     }
 
-    const Tile* currentTile = tileLayerComponent_->GetTile(tile->GetLayerType(), point);
-    if (currentTile == nullptr)
-    {
+    const Tile *currentTile = tileLayerComponent_->GetTile(tile->GetLayerType(), point);
+    if (currentTile == nullptr) {
         return false;
     }
 
     WorldVector2D worldCenter = CoordinateTransformer::TileToWorld(point) +
-        WorldVector2D{HALF_TILE_SIZE, HALF_TILE_SIZE};
-    if (worldCenter.Distance(playerPosition) / TILE_SIZE > TILE_PLACE_RANGE)
-    {
+                                WorldVector2D{HALF_TILE_SIZE, HALF_TILE_SIZE};
+    if (worldCenter.Distance(playerPosition) / TILE_SIZE > TILE_PLACE_RANGE) {
         return false;
     }
 
-    if (!currentTile->IsOverwritable())
-    {
+    if (!currentTile->IsOverwritable()) {
         return false;
     }
 
     return true;
 }
 
-void glimmer::BlueprintSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
-{
-    EntityManager* entityManager = GetEntityManager();
-    const EntityShortCut* entityShortCut = GetEntityShortCut();
-    if (gameComponentType == COMPONENT_TILE_LAYER)
-    {
+void glimmer::BlueprintSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) {
+    EntityManager *entityManager = GetEntityManager();
+    const EntityShortCut *entityShortCut = GetEntityShortCut();
+    if (gameComponentType == COMPONENT_TILE_LAYER) {
         auto tileLayerEntities = entityManager->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
-        if (!tileLayerEntities.empty())
-        {
+        if (!tileLayerEntities.empty()) {
             tileLayerComponent_ = entityManager->GetComponent<TileLayerComponent>(tileLayerEntities[0]);
         }
     }
-    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
-    {
+    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr) {
         cameraComponent_ = entityShortCut->GetCameraComponent();
     }
-    if (gameComponentType == COMPONENT_TRANSFORM_2D)
-    {
-        if (cameraTransform2DComponent_ == nullptr)
-        {
+    if (gameComponentType == COMPONENT_TRANSFORM_2D) {
+        if (cameraTransform2DComponent_ == nullptr) {
             cameraTransform2DComponent_ = entityShortCut->GetCameraTransform2DComponent();
         }
         transform2DCount_ = count;
     }
-    if (gameComponentType == COMPONENT_BLUEPRINT && blueprintComponent_ == nullptr)
-    {
+    if (gameComponentType == COMPONENT_BLUEPRINT && blueprintComponent_ == nullptr) {
         blueprintComponent_ = entityShortCut->GetBlueprintComponent();
     }
-    if (gameComponentType == COMPONENT_MINING && miningComponent_ == nullptr)
-    {
+    if (gameComponentType == COMPONENT_MINING && miningComponent_ == nullptr) {
         miningComponent_ = entityShortCut->GetMiningComponent();
-        if (miningComponent_ == nullptr)
-        {
+        if (miningComponent_ == nullptr) {
             LogCat::e(std::source_location::current(), "miningComponent_ == nullptr");
         }
     }
-    if (gameComponentType == COMPONENT_PLAYER && WorldContext::IsEmptyEntityId(player))
-    {
+    if (gameComponentType == COMPONENT_PLAYER && WorldContext::IsEmptyEntityId(player)) {
         player = entityShortCut->GetPlayer();
         playerComponent_ = entityManager->GetComponent<PlayerComponent>(player);
-        if (playerComponent_ == nullptr)
-        {
+        if (playerComponent_ == nullptr) {
             LogCat::e(std::source_location::current(), "playerComponent_ == nullptr");
         }
     }
-    if (gameComponentType == COMPONENT_TILE_PLACEMENT_FORBIDDEN_ZONE)
-    {
+    if (gameComponentType == COMPONENT_TILE_PLACEMENT_FORBIDDEN_ZONE) {
         tilePlacementForbiddenZoneCount_ = count;
     }
-    if (transform2DCount_ > 0 && tilePlacementForbiddenZoneCount_ > 0)
-    {
+    if (transform2DCount_ > 0 && tilePlacementForbiddenZoneCount_ > 0) {
         entities_ = entityManager->GetEntityIDWithComponents({
             COMPONENT_TILE_PLACEMENT_FORBIDDEN_ZONE, COMPONENT_TRANSFORM_2D
         });
     }
 }
 
-uint8_t glimmer::BlueprintSystem::GetExecutionOrder()
-{
+uint8_t glimmer::BlueprintSystem::GetExecutionOrder() {
     return EXECUTION_ORDER_BLUEPRINT;
 }
 
-glimmer::BlueprintSystem::BlueprintSystem(WorldContext* worldContext)
+glimmer::BlueprintSystem::BlueprintSystem(WorldContext *worldContext)
     : GameSystem(worldContext),
-      preloadColors_(worldContext->GetAppContext()->GetGraphicsContext()->GetPreloadColors())
-{
+      preloadColors_(worldContext->GetAppContext()->GetGraphicsContext()->GetPreloadColors()) {
     WatchComponent(COMPONENT_TILE_LAYER);
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_TRANSFORM_2D);
@@ -179,28 +152,23 @@ glimmer::BlueprintSystem::BlueprintSystem(WorldContext* worldContext)
     Init();
 }
 
-void glimmer::BlueprintSystem::UpdateBlockRects()
-{
-    EntityManager* entityManager = GetEntityManager();
+void glimmer::BlueprintSystem::UpdateBlockRects() {
+    EntityManager *entityManager = GetEntityManager();
     blockRects_.clear();
-    if (entities_.empty())
-    {
+    if (entities_.empty()) {
         return;
     }
-    for (uint32_t entity : entities_)
-    {
+    for (uint32_t entity: entities_) {
         auto transform2DComponent = entityManager->GetComponent<Transform2DComponent>(entity);
-        if (transform2DComponent == nullptr)
-        {
+        if (transform2DComponent == nullptr) {
             continue;
         }
         auto tilePlacementForbiddenZone = entityManager->GetComponent<TilePlacementForbiddenZoneComponent>(entity);
-        if (tilePlacementForbiddenZone == nullptr)
-        {
+        if (tilePlacementForbiddenZone == nullptr) {
             continue;
         }
         const TileVector2D originTileVector2D =
-            CoordinateTransformer::WorldToTile(transform2DComponent->GetPosition());
+                CoordinateTransformer::WorldToTile(transform2DComponent->GetPosition());
         const int startX = originTileVector2D.x + tilePlacementForbiddenZone->GetOffsetX();
         const int startY = originTileVector2D.y + tilePlacementForbiddenZone->GetOffsetY();
         blockRects_.push_back({
@@ -209,53 +177,44 @@ void glimmer::BlueprintSystem::UpdateBlockRects()
     }
 }
 
-glimmer::TileVector2D glimmer::BlueprintSystem::SetupHeldTileInfo(const TileVector2D& focusPosition,
-                                                                  const WorldVector2D& focusWorldTilePos,
-                                                                  const WorldVector2D& playerPosition,
-                                                                  uint8_t& tileWidth,
-                                                                  uint8_t& tileHeight,
-                                                                  TileVector2D& tileAnchor)
-{
+glimmer::TileVector2D glimmer::BlueprintSystem::SetupHeldTileInfo(const TileVector2D &focusPosition,
+                                                                  const WorldVector2D &focusWorldTilePos,
+                                                                  const WorldVector2D &playerPosition,
+                                                                  uint8_t &tileWidth,
+                                                                  uint8_t &tileHeight,
+                                                                  TileVector2D &tileAnchor) {
     TileVector2D leftBottom = {0, 0};
-    if (playerComponent_ == nullptr)
-    {
+    if (playerComponent_ == nullptr) {
         return leftBottom;
     }
-    Item* item = playerComponent_->GetItem();
-    if (item == nullptr)
-    {
+    Item *item = playerComponent_->GetItem();
+    if (item == nullptr) {
         return leftBottom;
     }
-    const ItemStackModule* itemStackModule = item->GetStackModule();
-    if (itemStackModule == nullptr)
-    {
+    const ItemStackModule *itemStackModule = item->GetStackModule();
+    if (itemStackModule == nullptr) {
         return leftBottom;
     }
-    if (itemStackModule->GetAmount() <= 0)
-    {
+    if (itemStackModule->GetAmount() <= 0) {
         return leftBottom;
     }
-    auto tileItem = dynamic_cast<TileItem*>(item);
-    if (tileItem == nullptr)
-    {
+    auto tileItem = dynamic_cast<TileItem *>(item);
+    if (tileItem == nullptr) {
         return leftBottom;
     }
     heldTile_ = tileItem->GetTile();
-    if (heldTile_ == nullptr)
-    {
+    if (heldTile_ == nullptr) {
         return leftBottom;
     }
-    const TileDimensions* tileDimensions = heldTile_->GetDimensions();
-    if (tileDimensions == nullptr)
-    {
+    const TileDimensions *tileDimensions = heldTile_->GetDimensions();
+    if (tileDimensions == nullptr) {
         return leftBottom;
     }
     tileWidth = tileDimensions->GetTileWidth();
     tileHeight = tileDimensions->GetTileHeight();
     tileAnchor = *tileDimensions->GetTileAnchor();
     bool atLeft = focusWorldTilePos.x < playerPosition.x;
-    if (atLeft && tileDimensions->IsAllowDirAdjustAnchor())
-    {
+    if (atLeft && tileDimensions->IsAllowDirAdjustAnchor()) {
         tileAnchor.x = tileWidth - 1 - tileAnchor.x;
     }
     leftBottom.x = focusPosition.x - tileAnchor.x;
@@ -263,17 +222,15 @@ glimmer::TileVector2D glimmer::BlueprintSystem::SetupHeldTileInfo(const TileVect
     return leftBottom;
 }
 
-SDL_FRect glimmer::BlueprintSystem::CalculateRenderQuad(const TileVector2D& focusPosition,
-                                                        const TileVector2D& topLeftVector,
+SDL_FRect glimmer::BlueprintSystem::CalculateRenderQuad(const TileVector2D &focusPosition,
+                                                        const TileVector2D &topLeftVector,
                                                         uint8_t tileWidth,
-                                                        uint8_t tileHeight) const
-{
+                                                        uint8_t tileHeight) const {
     SDL_FRect renderQuad;
     const float zoom = cameraComponent_->GetZoom();
     renderQuad.w = static_cast<float>(tileWidth) * TILE_SIZE * zoom;
     renderQuad.h = static_cast<float>(tileHeight) * TILE_SIZE * zoom;
-    if (heldTile_ == nullptr)
-    {
+    if (heldTile_ == nullptr) {
         const ScreenVector2D focusWorldTileCamera = CoordinateTransformer::WorldToScreen(
             cameraTransform2DComponent_->GetPosition(),
             CoordinateTransformer::TileToWorld({focusPosition.x, focusPosition.y}),
@@ -292,29 +249,23 @@ SDL_FRect glimmer::BlueprintSystem::CalculateRenderQuad(const TileVector2D& focu
     return renderQuad;
 }
 
-void glimmer::BlueprintSystem::RenderBlueprintTexture(SDL_Renderer* renderer, const SDL_FRect& renderQuad) const
-{
-    if (heldTile_ == nullptr)
-    {
+void glimmer::BlueprintSystem::RenderBlueprintTexture(SDL_Renderer *renderer, const SDL_FRect &renderQuad) const {
+    if (heldTile_ == nullptr) {
         return;
     }
-    const TileBlueprintData* tileBlueprintData = heldTile_->GetBlueprintData();
-    if (tileBlueprintData == nullptr)
-    {
+    const TileBlueprintData *tileBlueprintData = heldTile_->GetBlueprintData();
+    if (tileBlueprintData == nullptr) {
         return;
     }
-    if (!tileBlueprintData->EnableBlueprint())
-    {
+    if (!tileBlueprintData->EnableBlueprint()) {
         return;
     }
     std::shared_ptr<TextureResourceResult> blueprintTextureResourceResult = tileBlueprintData->GetBlueprintTexture();
-    if (blueprintTextureResourceResult == nullptr)
-    {
+    if (blueprintTextureResourceResult == nullptr) {
         return;
     }
-    SDL_Texture* blueprintTexture = blueprintTextureResourceResult->GetResource();
-    if (blueprintTexture == nullptr)
-    {
+    SDL_Texture *blueprintTexture = blueprintTextureResourceResult->GetResource();
+    if (blueprintTexture == nullptr) {
         return;
     }
     Uint8 originalAlpha = 255;
@@ -324,25 +275,20 @@ void glimmer::BlueprintSystem::RenderBlueprintTexture(SDL_Renderer* renderer, co
     SDL_SetTextureAlphaMod(blueprintTexture, originalAlpha);
 }
 
-void glimmer::BlueprintSystem::RenderBlueprintMask(SDL_Renderer* renderer, const std::vector<bool>& checkRectResult,
-                                                   const TileVector2D& leftBottom, const uint8_t tileWidth) const
-{
-    if (heldTile_ == nullptr)
-    {
+void glimmer::BlueprintSystem::RenderBlueprintMask(SDL_Renderer *renderer, const std::vector<bool> &checkRectResult,
+                                                   const TileVector2D &leftBottom, const uint8_t tileWidth) const {
+    if (heldTile_ == nullptr) {
         return;
     }
-    const TileBlueprintData* tileBlueprintData = heldTile_->GetBlueprintData();
-    if (tileBlueprintData == nullptr)
-    {
+    const TileBlueprintData *tileBlueprintData = heldTile_->GetBlueprintData();
+    if (tileBlueprintData == nullptr) {
         return;
     }
-    if (!tileBlueprintData->EnableBlueprintMask())
-    {
+    if (!tileBlueprintData->EnableBlueprintMask()) {
         return;
     }
     const float zoom = cameraComponent_->GetZoom();
-    for (int i = 0; i < static_cast<int>(checkRectResult.size()) - 1; i++)
-    {
+    for (int i = 0; i < static_cast<int>(checkRectResult.size()) - 1; i++) {
         int relX = i % tileWidth;
         int relY = i / tileWidth;
         TileVector2D currTile = {leftBottom.x + relX, leftBottom.y + relY};
@@ -354,19 +300,15 @@ void glimmer::BlueprintSystem::RenderBlueprintMask(SDL_Renderer* renderer, const
         indicatorRenderQuad.h = TILE_SIZE * zoom;
         indicatorRenderQuad.x = tileScreenPos.x - indicatorRenderQuad.w * 0.5f;
         indicatorRenderQuad.y = tileScreenPos.y - indicatorRenderQuad.h * 0.5f;
-        if (checkRectResult[i])
-        {
-            if (!tileBlueprintData->DrawValidBlueprintColor())
-            {
+        if (checkRectResult[i]) {
+            if (!tileBlueprintData->DrawValidBlueprintColor()) {
                 continue;
             }
             SDL_SetRenderDrawColor(renderer, preloadColors_->blueprint.validColor.r,
                                    preloadColors_->blueprint.validColor.g,
                                    preloadColors_->blueprint.validColor.b,
                                    preloadColors_->blueprint.validColor.a);
-        }
-        else
-        {
+        } else {
             SDL_SetRenderDrawColor(renderer, preloadColors_->blueprint.invalidColor.r,
                                    preloadColors_->blueprint.invalidColor.g,
                                    preloadColors_->blueprint.invalidColor.b,
@@ -376,21 +318,18 @@ void glimmer::BlueprintSystem::RenderBlueprintMask(SDL_Renderer* renderer, const
     }
 }
 
-void glimmer::BlueprintSystem::Render(SDL_Renderer* renderer)
-{
-    const WorldContext* worldContext = GetWorldContext();
-    EntityManager* entityManager = GetEntityManager();
+void glimmer::BlueprintSystem::Render(SDL_Renderer *renderer) {
+    const WorldContext *worldContext = GetWorldContext();
+    EntityManager *entityManager = GetEntityManager();
     if (worldContext == nullptr || entityManager == nullptr || cameraComponent_ == nullptr || blueprintComponent_ ==
         nullptr ||
         cameraTransform2DComponent_ == nullptr ||
         tileLayerComponent_ == nullptr ||
         playerComponent_ == nullptr ||
-        miningComponent_ == nullptr)
-    {
+        miningComponent_ == nullptr) {
         return;
     }
-    if (WorldContext::IsEmptyEntityId(player))
-    {
+    if (WorldContext::IsEmptyEntityId(player)) {
         return;
     }
     heldTile_ = nullptr;
@@ -399,7 +338,7 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer* renderer)
     uint8_t tileWidth = 1;
     uint8_t tileHeight = 1;
     TileVector2D tileAnchor = {0, 0};
-    const TileVector2D& focusPosition = tileLayerComponent_->GetFocusPosition();
+    const TileVector2D &focusPosition = tileLayerComponent_->GetFocusPosition();
     const WorldVector2D focusWorldTilePos = CoordinateTransformer::TileToWorld(focusPosition);
     auto transform2DComponent = entityManager->GetComponent<Transform2DComponent>(player);
     WorldVector2D playerPosition = transform2DComponent->GetPosition();
@@ -414,19 +353,16 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer* renderer)
                            preloadColors_->game.focusTileBorderColor.b,
                            preloadColors_->game.focusTileBorderColor.a);
     SDL_RenderRect(renderer, &renderQuad);
-    if (heldTile_ == nullptr)
-    {
+    if (heldTile_ == nullptr) {
         blueprintComponent_->SetCanPlace(false);
         AppContext::RestoreColorRenderer(renderer);
         return;
     }
-    if (!miningComponent_->IsEnable())
-    {
+    if (!miningComponent_->IsEnable()) {
         RenderBlueprintTexture(renderer, renderQuad);
         std::vector<bool> checkRectResult = CheckRectPlacementValidity(heldTile_, leftBottom, playerPosition, tileWidth,
                                                                        tileHeight);
-        if (checkRectResult.empty())
-        {
+        if (checkRectResult.empty()) {
             blueprintComponent_->SetCanPlace(false);
             AppContext::RestoreColorRenderer(renderer);
             return;
@@ -437,7 +373,6 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer* renderer)
     AppContext::RestoreColorRenderer(renderer);
 }
 
-glimmer::GameSystemType glimmer::BlueprintSystem::GetGameSystemType() const
-{
+glimmer::GameSystemType glimmer::BlueprintSystem::GetGameSystemType() const {
     return GameSystemType::BlueprintSystem;
 }

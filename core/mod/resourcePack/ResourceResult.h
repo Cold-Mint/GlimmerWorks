@@ -28,56 +28,49 @@
 #include "ResourcePack.h"
 #include "core/log/LogCat.h"
 
-namespace glimmer
-{
-    template <typename T>
-    class ResourceResult
-    {
-        const ResourcePack* resourcePack_ = nullptr;
-        T* resource_ = nullptr;
+namespace glimmer {
+    template<typename T>
+    class ResourceResult {
+        const ResourcePack *resourcePack_ = nullptr;
+        T *resource_ = nullptr;
 
     protected:
         virtual ~ResourceResult() = default;
 
     public:
-        void SetResourcePack(const ResourcePack* resourcePack);
+        void SetResourcePack(const ResourcePack *resourcePack);
 
-        [[nodiscard]] const ResourcePack* GetResourcePack() const;
+        [[nodiscard]] const ResourcePack *GetResourcePack() const;
 
         virtual void DestroyResource() = 0;
 
-        void SetResource(T* resource);
+        void SetResource(T *resource);
 
-        [[nodiscard]] T* GetResource() const;
+        [[nodiscard]] T *GetResource() const;
     };
 
-    template <typename T>
-    void ResourceResult<T>::SetResource(T* resource)
-    {
+    template<typename T>
+    void ResourceResult<T>::SetResource(T *resource) {
         resource_ = resource;
     }
 
-    template <typename T>
-    void ResourceResult<T>::SetResourcePack(const ResourcePack* resourcePack)
-    {
-        if (resourcePack == nullptr)
-        {
+    template<typename T>
+    void ResourceResult<T>::SetResourcePack(const ResourcePack *resourcePack) {
+        if (resourcePack == nullptr) {
             LogCat::e(std::source_location::current(), "resourcePack == nullptr");
             return;
         }
         resourcePack_ = resourcePack;
     }
 
-    template <typename T>
-    const ResourcePack* ResourceResult<T>::GetResourcePack() const
-    {
+    template<typename T>
+    const ResourcePack *ResourceResult<T>::GetResourcePack() const {
         return resourcePack_;
     }
 
 
-    template <typename T>
-    T* ResourceResult<T>::GetResource() const
-    {
+    template<typename T>
+    T *ResourceResult<T>::GetResource() const {
         return resource_;
     }
 }

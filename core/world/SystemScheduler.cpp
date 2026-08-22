@@ -62,66 +62,51 @@
 #include "core/ecs/system/AndroidControlSystem.h"
 #endif
 
-glimmer::SystemScheduler::SystemScheduler(WorldContext* worldContext) : worldContext_(worldContext)
-{
-    EntityManager* entityManager = worldContext_->GetEntityManager();
-    if (entityManager != nullptr)
-    {
+glimmer::SystemScheduler::SystemScheduler(WorldContext *worldContext) : worldContext_(worldContext) {
+    EntityManager *entityManager = worldContext_->GetEntityManager();
+    if (entityManager != nullptr) {
         onComponentCountChangedId_ = entityManager->RegisterOnComponentCountChanged(
-            [this](GameComponentTypeMessage type, uint32_t count)
-            {
+            [this](GameComponentTypeMessage type, uint32_t count) {
                 OnWatchedComponentChanged(type, count);
             });
     }
 }
 
-glimmer::SystemScheduler::~SystemScheduler()
-{
-    if (onComponentCountChangedId_ != 0 && worldContext_ != nullptr)
-    {
-        EntityManager* entityManager = worldContext_->GetEntityManager();
-        if (entityManager != nullptr)
-        {
+glimmer::SystemScheduler::~SystemScheduler() {
+    if (onComponentCountChangedId_ != 0 && worldContext_ != nullptr) {
+        EntityManager *entityManager = worldContext_->GetEntityManager();
+        if (entityManager != nullptr) {
             entityManager->UnRegisterOnComponentCountChanged(onComponentCountChangedId_);
         }
     }
 }
 
-void glimmer::SystemScheduler::PushGuiSystemType(GameSystemType systemType)
-{
+void glimmer::SystemScheduler::PushGuiSystemType(GameSystemType systemType) {
     activeSystemStack_.emplace(systemType);
 }
 
-void glimmer::SystemScheduler::PushPersistentGuiSystem(GameSystemType systemType)
-{
+void glimmer::SystemScheduler::PushPersistentGuiSystem(GameSystemType systemType) {
     persistentGuiSystemCount_++;
     activeSystemStack_.emplace(systemType);
 }
 
-void glimmer::SystemScheduler::PopGuiSystemType()
-{
-    if (activeSystemStack_.size() > persistentGuiSystemCount_)
-    {
+void glimmer::SystemScheduler::PopGuiSystemType() {
+    if (activeSystemStack_.size() > persistentGuiSystemCount_) {
         activeSystemStack_.pop();
     }
 }
 
-glimmer::GameSystemType glimmer::SystemScheduler::GetTopGuiSystemType() const
-{
-    if (activeSystemStack_.empty())
-    {
+glimmer::GameSystemType glimmer::SystemScheduler::GetTopGuiSystemType() const {
+    if (activeSystemStack_.empty()) {
         return GameSystemType::None;
     }
     return activeSystemStack_.top();
 }
 
-std::vector<glimmer::GameSystemType> glimmer::SystemScheduler::GetAllActiveSystemType() const
-{
+std::vector<glimmer::GameSystemType> glimmer::SystemScheduler::GetAllActiveSystemType() const {
     std::vector<GameSystemType> result;
-    for (auto& activeSystem : activeSystems_)
-    {
-        if (activeSystem == nullptr)
-        {
+    for (auto &activeSystem: activeSystems_) {
+        if (activeSystem == nullptr) {
             continue;
         }
         result.emplace_back(activeSystem->GetGameSystemType());
@@ -130,60 +115,45 @@ std::vector<glimmer::GameSystemType> glimmer::SystemScheduler::GetAllActiveSyste
 }
 
 void glimmer::SystemScheduler::OnWatchedComponentChanged(const GameComponentTypeMessage type,
-                                                         const uint32_t count)
-{
+                                                         const uint32_t count) {
     onComponentCountChangeBuffer_[type] = count;
 }
 
-bool glimmer::SystemScheduler::HasAnyModalGuiOpen() const
-{
+bool glimmer::SystemScheduler::HasAnyModalGuiOpen() const {
     return activeSystemStack_.size() > persistentGuiSystemCount_;
 }
 
-glimmer::GameSystem* glimmer::SystemScheduler::GetGameSystem(GameSystemType type) const
-{
-    for (const auto& system : activeSystems_)
-    {
-        if (system && system->GetGameSystemType() == type)
-        {
+glimmer::GameSystem *glimmer::SystemScheduler::GetGameSystem(GameSystemType type) const {
+    for (const auto &system: activeSystems_) {
+        if (system && system->GetGameSystemType() == type) {
             return system.get();
         }
     }
-    for (const auto& system : inactiveSystems_)
-    {
-        if (system && system->GetGameSystemType() == type)
-        {
+    for (const auto &system: inactiveSystems_) {
+        if (system && system->GetGameSystemType() == type) {
             return system.get();
         }
     }
     return nullptr;
 }
 
-bool glimmer::SystemScheduler::HandleEvent(const SDL_Event& event)
-{
-    if (!worldContext_->IsRuning())
-    {
+bool glimmer::SystemScheduler::HandleEvent(const SDL_Event &event) {
+    if (!worldContext_->IsRuning()) {
         return false;
     }
 
-    if (event.type == SDL_EVENT_KEY_DOWN)
-    {
+    if (event.type == SDL_EVENT_KEY_DOWN) {
         auto iterator = scancodeToSystemType_.find(event.key.scancode);
-        if (iterator != scancodeToSystemType_.end())
-        {
-            if (HasAnyModalGuiOpen())
-            {
+        if (iterator != scancodeToSystemType_.end()) {
+            if (HasAnyModalGuiOpen()) {
                 auto scancodeIterator = systemTypeToScancode_.find(activeSystemStack_.top());
-                if (scancodeIterator != systemTypeToScancode_.end() && scancodeIterator->second == event.key.scancode)
-                {
+                if (scancodeIterator != systemTypeToScancode_.end() && scancodeIterator->second == event.key.scancode) {
                     //Shortcut keys to the corresponding system types.
                     //按下了顶部显示的GUi系统快捷键，关闭当前系统。
                     PopGuiSystemType();
                     return true;
                 }
-            }
-            else
-            {
+            } else {
                 //If Gui's presentation is not available, then open a new one.
                 //没有Gui正在展示，那么打开新的。
                 PushGuiSystemType(iterator->second);
@@ -192,63 +162,49 @@ bool glimmer::SystemScheduler::HandleEvent(const SDL_Event& event)
         }
     }
     bool handled = false;
-    for (auto& system : activeSystems_)
-    {
-        if (system == nullptr)
-        {
+    for (auto &system: activeSystems_) {
+        if (system == nullptr) {
             continue;
         }
 
-        if (system->HandleEvent(event))
-        {
+        if (system->HandleEvent(event)) {
             handled = true;
         }
     }
     return handled;
 }
 
-void glimmer::SystemScheduler::Update(const float delta) const
-{
-    if (!worldContext_->IsRuning())
-    {
+void glimmer::SystemScheduler::Update(const float delta) const {
+    if (!worldContext_->IsRuning()) {
         return;
     }
-    for (auto& system : activeSystems_)
-    {
-        if (system == nullptr)
-        {
+    for (auto &system: activeSystems_) {
+        if (system == nullptr) {
             continue;
         }
         system->Update(delta);
     }
 }
 
-bool glimmer::SystemScheduler::OnBackPressed()
-{
-    if (activeSystemStack_.size() > persistentGuiSystemCount_)
-    {
+bool glimmer::SystemScheduler::OnBackPressed() {
+    if (activeSystemStack_.size() > persistentGuiSystemCount_) {
         activeSystemStack_.pop();
         return true;
     }
     bool handled = false;
-    for (const auto& system : activeSystems_)
-    {
-        if (system == nullptr)
-        {
+    for (const auto &system: activeSystems_) {
+        if (system == nullptr) {
             continue;
         }
-        if (system->OnBackPressed())
-        {
+        if (system->OnBackPressed()) {
             handled = true;
         }
     }
     return handled;
 }
 
-void glimmer::SystemScheduler::Render(SDL_Renderer* renderer) const
-{
-    for (const std::unique_ptr<GameSystem>& system : activeSystems_)
-    {
+void glimmer::SystemScheduler::Render(SDL_Renderer *renderer) const {
+    for (const std::unique_ptr<GameSystem> &system: activeSystems_) {
 #if  defined(NDEBUG)
         system->Render(renderer);
 #else
@@ -258,8 +214,7 @@ void glimmer::SystemScheduler::Render(SDL_Renderer* renderer) const
         SDL_Color newColor;
         SDL_GetRenderDrawColor(renderer, &newColor.r, &newColor.g, &newColor.b, &newColor.a);
         if (oldColor.a != newColor.a || oldColor.r != newColor.r || oldColor.g != newColor.g || oldColor.b != newColor.
-            b)
-        {
+            b) {
             LogCat::e(std::source_location::current(), "The color of the renderer has been changed by the game system.",
                       std::to_underlying(system->GetGameSystemType()),
                       " invoke AppContext::RestoreColorRenderer(renderer);");
@@ -269,49 +224,38 @@ void glimmer::SystemScheduler::Render(SDL_Renderer* renderer) const
     }
 }
 
-void glimmer::SystemScheduler::LoadDocuments(IDocumentRegistry* documentRegistry) const
-{
-    for (auto guiGameSystem : guiGameSystems_)
-    {
+void glimmer::SystemScheduler::LoadDocuments(IDocumentRegistry *documentRegistry) const {
+    for (auto guiGameSystem: guiGameSystems_) {
         guiGameSystem->LoadDocuments(documentRegistry);
     }
 }
 
-void glimmer::SystemScheduler::OnCreateDataModels(IDocumentRegistry* documentRegistry) const
-{
-    for (auto guiGameSystem : guiGameSystems_)
-    {
+void glimmer::SystemScheduler::OnCreateDataModels(IDocumentRegistry *documentRegistry) const {
+    for (auto guiGameSystem: guiGameSystems_) {
         guiGameSystem->OnCreateDataModels(documentRegistry);
     }
 }
 
 void glimmer::SystemScheduler::NotifySystemsOfComponentChange(const GameComponentTypeMessage gameComponentType,
-                                                              const uint32_t count) const
-{
+                                                              const uint32_t count) const {
     NotifyActiveSystems(gameComponentType, count);
     NotifyInactiveSystems(gameComponentType, count);
 }
 
 void glimmer::SystemScheduler::NotifyActiveSystems(const GameComponentTypeMessage gameComponentType,
-                                                   const uint32_t count) const
-{
-    if (activeSystems_.empty())
-    {
+                                                   const uint32_t count) const {
+    if (activeSystems_.empty()) {
         LogCat::w(std::source_location::current(), "activeSystems_.empty()");
         return;
     }
-    for (auto& system : activeSystems_)
-    {
-        if (system == nullptr)
-        {
+    for (auto &system: activeSystems_) {
+        if (system == nullptr) {
             continue;
         }
-        if (!system->IsWatchingComponent(gameComponentType))
-        {
+        if (!system->IsWatchingComponent(gameComponentType)) {
             continue;
         }
-        if (count == 0)
-        {
+        if (count == 0) {
             system->RemoveActiveWatchComponent(gameComponentType);
         }
         system->OnWatchedComponentChanged(gameComponentType, count);
@@ -319,21 +263,16 @@ void glimmer::SystemScheduler::NotifyActiveSystems(const GameComponentTypeMessag
 }
 
 void glimmer::SystemScheduler::NotifyInactiveSystems(const GameComponentTypeMessage gameComponentType,
-                                                     const uint32_t count) const
-{
-    if (inactiveSystems_.empty())
-    {
+                                                     const uint32_t count) const {
+    if (inactiveSystems_.empty()) {
         LogCat::w(std::source_location::current(), "inactiveSystems_.empty()");
         return;
     }
-    for (auto& system : inactiveSystems_)
-    {
-        if (system == nullptr)
-        {
+    for (auto &system: inactiveSystems_) {
+        if (system == nullptr) {
             continue;
         }
-        if (!system->IsWatchingComponent(gameComponentType))
-        {
+        if (!system->IsWatchingComponent(gameComponentType)) {
             continue;
         }
         system->AddActiveWatchComponent(gameComponentType);
@@ -341,37 +280,29 @@ void glimmer::SystemScheduler::NotifyInactiveSystems(const GameComponentTypeMess
     }
 }
 
-void glimmer::SystemScheduler::OnFrameStart()
-{
-    std::queue<GameSystem*> toActivate;
-    std::queue<GameSystem*> toDeactivate;
+void glimmer::SystemScheduler::OnFrameStart() {
+    std::queue<GameSystem *> toActivate;
+    std::queue<GameSystem *> toDeactivate;
     bool changed = false;
-    for (auto& buffer : onComponentCountChangeBuffer_)
-    {
+    for (auto &buffer: onComponentCountChangeBuffer_) {
         const GameComponentTypeMessage gameComponentType = buffer.first;
         const uint32_t count = buffer.second;
         NotifySystemsOfComponentChange(gameComponentType, count);
     }
-    for (auto& system : inactiveSystems_)
-    {
-        if (system == nullptr)
-        {
+    for (auto &system: inactiveSystems_) {
+        if (system == nullptr) {
             continue;
         }
-        if (system->IsAllWatchComponentsReady() && system->CanActive())
-        {
+        if (system->IsAllWatchComponentsReady() && system->CanActive()) {
             toActivate.emplace(system.get());
             changed = true;
         }
     }
-    for (auto& system : activeSystems_)
-    {
-        if (system == nullptr)
-        {
+    for (auto &system: activeSystems_) {
+        if (system == nullptr) {
             continue;
         }
-        if (!system->IsAllWatchComponentsReady() || !system->CanActive())
-        {
+        if (!system->IsAllWatchComponentsReady() || !system->CanActive()) {
             toDeactivate.emplace(system.get());
             changed = true;
         }
@@ -379,39 +310,31 @@ void glimmer::SystemScheduler::OnFrameStart()
     onComponentCountChangeBuffer_.clear();
     MoveSystemsToActive(toActivate);
     MoveSystemsToInactive(toDeactivate);
-    if (changed)
-    {
+    if (changed) {
         std::ranges::stable_sort(activeSystems_,
-                                 [](const std::unique_ptr<GameSystem>& systemA,
-                                    const std::unique_ptr<GameSystem>& systemB)
-                                 {
+                                 [](const std::unique_ptr<GameSystem> &systemA,
+                                    const std::unique_ptr<GameSystem> &systemB) {
                                      return systemA->GetExecutionOrder() < systemB->GetExecutionOrder();
                                  });
     }
-    for (auto& system : activeSystems_)
-    {
-        if (system == nullptr)
-        {
+    for (auto &system: activeSystems_) {
+        if (system == nullptr) {
             continue;
         }
         system->OnFrameStart();
     }
 }
 
-void glimmer::SystemScheduler::MoveSystemsToActive(std::queue<GameSystem*>& toActivate)
-{
-    while (!toActivate.empty())
-    {
-        const GameSystem* system = toActivate.front();
+void glimmer::SystemScheduler::MoveSystemsToActive(std::queue<GameSystem *> &toActivate) {
+    while (!toActivate.empty()) {
+        const GameSystem *system = toActivate.front();
         toActivate.pop();
         auto it = std::ranges::find_if(inactiveSystems_,
-                                       [system](auto& inactiveSystem) { return inactiveSystem.get() == system; });
-        if (it == inactiveSystems_.end())
-        {
+                                       [system](auto &inactiveSystem) { return inactiveSystem.get() == system; });
+        if (it == inactiveSystems_.end()) {
             continue;
         }
-        if (GameSystem* systemPtr = it->get(); systemPtr != nullptr)
-        {
+        if (GameSystem *systemPtr = it->get(); systemPtr != nullptr) {
             systemPtr->OnActivationChanged(true);
         }
         activeSystems_.emplace_back(std::move(*it));
@@ -419,20 +342,16 @@ void glimmer::SystemScheduler::MoveSystemsToActive(std::queue<GameSystem*>& toAc
     }
 }
 
-void glimmer::SystemScheduler::MoveSystemsToInactive(std::queue<GameSystem*>& toDeactivate)
-{
-    while (!toDeactivate.empty())
-    {
-        const GameSystem* system = toDeactivate.front();
+void glimmer::SystemScheduler::MoveSystemsToInactive(std::queue<GameSystem *> &toDeactivate) {
+    while (!toDeactivate.empty()) {
+        const GameSystem *system = toDeactivate.front();
         toDeactivate.pop();
         auto it = std::ranges::find_if(activeSystems_,
-                                       [system](auto& activeSystem) { return activeSystem.get() == system; });
-        if (it == activeSystems_.end())
-        {
+                                       [system](auto &activeSystem) { return activeSystem.get() == system; });
+        if (it == activeSystems_.end()) {
             continue;
         }
-        if (GameSystem* systemPtr = it->get(); systemPtr != nullptr)
-        {
+        if (GameSystem *systemPtr = it->get(); systemPtr != nullptr) {
             systemPtr->OnActivationChanged(false);
         }
         inactiveSystems_.emplace_back(std::move(*it));
@@ -440,8 +359,7 @@ void glimmer::SystemScheduler::MoveSystemsToInactive(std::queue<GameSystem*>& to
     }
 }
 
-void glimmer::SystemScheduler::InitSystem()
-{
+void glimmer::SystemScheduler::InitSystem() {
     allowRegisterSystem_ = true;
     RegisterSystem(std::make_unique<CameraSystem>(worldContext_));
     RegisterSystem(std::make_unique<PlayerControlSystem>(worldContext_));
@@ -480,26 +398,20 @@ void glimmer::SystemScheduler::InitSystem()
     PushPersistentGuiSystem(GameSystemType::ItemToolTipSystem);
 }
 
-void glimmer::SystemScheduler::OnConfigChanged(const Config* config) const
-{
-    for (const auto& activeSystem : activeSystems_)
-    {
+void glimmer::SystemScheduler::OnConfigChanged(const Config *config) const {
+    for (const auto &activeSystem: activeSystems_) {
         activeSystem->OnConfigChanged(config);
     }
-    for (const auto& inactiveSystem : inactiveSystems_)
-    {
+    for (const auto &inactiveSystem: inactiveSystems_) {
         inactiveSystem->OnConfigChanged(config);
     }
 }
 
-void glimmer::SystemScheduler::RegisterSystem(std::unique_ptr<GameSystem> system)
-{
-    if (allowRegisterSystem_)
-    {
+void glimmer::SystemScheduler::RegisterSystem(std::unique_ptr<GameSystem> system) {
+    if (allowRegisterSystem_) {
 #if  !defined(NDEBUG)
-        auto guiGameSystem = dynamic_cast<GuiGameSystem*>(system.get());
-        if (guiGameSystem != nullptr)
-        {
+        auto guiGameSystem = dynamic_cast<GuiGameSystem *>(system.get());
+        if (guiGameSystem != nullptr) {
             LogCat::e(std::source_location::current(), "You should use RegisterGuiSystem instead of RegisterSystem.");
             return;
         }
@@ -509,20 +421,16 @@ void glimmer::SystemScheduler::RegisterSystem(std::unique_ptr<GameSystem> system
     }
 }
 
-void glimmer::SystemScheduler::RegisterGuiSystem(std::unique_ptr<GuiGameSystem> system)
-{
-    if (allowRegisterSystem_)
-    {
+void glimmer::SystemScheduler::RegisterGuiSystem(std::unique_ptr<GuiGameSystem> system) {
+    if (allowRegisterSystem_) {
         system->LockWatchComponent();
         inactiveSystems_.emplace_back(std::move(system));
-        auto& guiGameSystemUniquePtr = inactiveSystems_.back();
-        guiGameSystems_.emplace_back(dynamic_cast<GuiGameSystem*>(guiGameSystemUniquePtr.get()));
-        if (auto* guiStackGameSystem = dynamic_cast<GuiStackGameSystem*>(guiGameSystemUniquePtr.get());
-            guiStackGameSystem != nullptr)
-        {
+        auto &guiGameSystemUniquePtr = inactiveSystems_.back();
+        guiGameSystems_.emplace_back(dynamic_cast<GuiGameSystem *>(guiGameSystemUniquePtr.get()));
+        if (auto *guiStackGameSystem = dynamic_cast<GuiStackGameSystem *>(guiGameSystemUniquePtr.get());
+            guiStackGameSystem != nullptr) {
             const SDL_Scancode hotKey = guiStackGameSystem->GetHotKey();
-            if (hotKey != SDL_SCANCODE_UNKNOWN)
-            {
+            if (hotKey != SDL_SCANCODE_UNKNOWN) {
                 GameSystemType gameSystemType = guiStackGameSystem->GetGameSystemType();
                 scancodeToSystemType_[hotKey] = gameSystemType;
                 systemTypeToScancode_[gameSystemType] = hotKey;
@@ -531,14 +439,11 @@ void glimmer::SystemScheduler::RegisterGuiSystem(std::unique_ptr<GuiGameSystem> 
     }
 }
 
-void glimmer::SystemScheduler::OnWindowSizeChanged(const int& width, const int& height) const
-{
-    for (auto& activeSystem : activeSystems_)
-    {
+void glimmer::SystemScheduler::OnWindowSizeChanged(const int &width, const int &height) const {
+    for (auto &activeSystem: activeSystems_) {
         activeSystem->OnWindowSizeChanged(width, height);
     }
-    for (auto& inactiveSystem : inactiveSystems_)
-    {
+    for (auto &inactiveSystem: inactiveSystems_) {
         inactiveSystem->OnWindowSizeChanged(width, height);
     }
 }

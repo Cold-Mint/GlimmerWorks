@@ -35,16 +35,14 @@
 #include "src/core/game_component_type.pb.h"
 #include "src/saves/component.pb.h"
 
-namespace glimmer
-{
-    class EntityManager
-    {
+namespace glimmer {
+    class EntityManager {
         GameEntityID entityIndex_ = GAME_ENTITY_ID_INVALID;
-        std::unordered_map<GameEntityID, std::unique_ptr<GameEntity>> entityMap_;
-        std::unordered_map<GameEntityID, std::unordered_set<GameComponentTypeMessage>> entityToGameComponentType_;
-        std::unordered_map<ComponentFingerprint, std::unique_ptr<GameComponent>> components_;
+        std::unordered_map<GameEntityID, std::unique_ptr<GameEntity> > entityMap_;
+        std::unordered_map<GameEntityID, std::unordered_set<GameComponentTypeMessage> > entityToGameComponentType_;
+        std::unordered_map<ComponentFingerprint, std::unique_ptr<GameComponent> > components_;
         std::unordered_map<GameComponentTypeMessage, uint32_t> componentCount_;
-        std::vector<std::pair<uint32_t, std::function<void(GameComponentTypeMessage, uint32_t)>>>
+        std::vector<std::pair<uint32_t, std::function<void(GameComponentTypeMessage, uint32_t)> > >
         onComponentCountChanged_;
         uint32_t onComponentCountChangedId_ = 0;
 
@@ -53,8 +51,8 @@ namespace glimmer
                                                             GameComponentTypeMessage typeMessage);
 
     public:
-
         void Clear();
+
         /**
          * CreateEntity
          * 创建实体
@@ -67,12 +65,12 @@ namespace glimmer
 
 
         [[nodiscard]] uint32_t RegisterOnComponentCountChanged(
-            const std::function<void(GameComponentTypeMessage, uint32_t)>& onComponentCountChanged);
+            const std::function<void(GameComponentTypeMessage, uint32_t)> &onComponentCountChanged);
 
         void UnRegisterOnComponentCountChanged(uint32_t id);
 
 
-        std::vector<GameComponent*> GetAllComponent(GameEntityID gameEntityId);
+        std::vector<GameComponent *> GetAllComponent(GameEntityID gameEntityId);
 
 
         /**
@@ -103,8 +101,8 @@ namespace glimmer
          * @param args Args 参数列表
          * @return
          */
-        template <typename TComponent, typename... Args>
-        TComponent* AddComponent(GameEntityID gameEntityId, Args&&... args);
+        template<typename TComponent, typename... Args>
+        TComponent *AddComponent(GameEntityID gameEntityId, Args &&... args);
 
 
         /**
@@ -132,14 +130,14 @@ namespace glimmer
          * @param resourceRef
          * @return
          */
-        bool SetResourceRef(GameEntityID gameEntityId, const ResourceRef& resourceRef);
+        bool SetResourceRef(GameEntityID gameEntityId, const ResourceRef &resourceRef);
 
-        const ResourceRef* GetResourceRef(GameEntityID gameEntityId);
+        const ResourceRef *GetResourceRef(GameEntityID gameEntityId);
 
         bool IsPersistable(GameEntityID gameEntityId);
 
-        template <typename TComponent>
-        TComponent* GetComponent(GameEntityID gameEntityId);
+        template<typename TComponent>
+        TComponent *GetComponent(GameEntityID gameEntityId);
 
 
         /**
@@ -160,7 +158,7 @@ namespace glimmer
          * @return
          */
         std::vector<GameEntityID> GetEntityIDWithComponents(
-            const std::vector<GameComponentTypeMessage>& gameComponentTypeMessages) const;
+            const std::vector<GameComponentTypeMessage> &gameComponentTypeMessages) const;
 
         /**
          * RecoveryComponent
@@ -170,19 +168,17 @@ namespace glimmer
          * @param componentMessage componentMessage 组件消息
          * @return
          */
-        void RecoveryComponent(WorldContext* worldContext, GameEntityID gameEntityId,
-                               const ComponentMessage& componentMessage);
+        void RecoveryComponent(WorldContext *worldContext, GameEntityID gameEntityId,
+                               const ComponentMessage &componentMessage);
     };
 
-    template <typename TComponent, typename... Args>
-    TComponent* EntityManager::AddComponent(GameEntityID gameEntityId, Args&&... args)
-    {
+    template<typename TComponent, typename... Args>
+    TComponent *EntityManager::AddComponent(GameEntityID gameEntityId, Args &&... args) {
 #if  !defined(NDEBUG)
         // Only in the debugging mode, check if any components are attached to empty entities.
         //仅在调试模式检查是否有向空实体挂载组件。
         const auto entityIterator = entityMap_.find(gameEntityId);
-        if (entityIterator == entityMap_.end())
-        {
+        if (entityIterator == entityMap_.end()) {
             assert(false);
             return nullptr;
         }
@@ -190,57 +186,47 @@ namespace glimmer
         const GameComponentTypeMessage typeMessage = TComponent::GetComponentTypeStatic();
         auto componentFingerprint = GenComponentFingerprint(gameEntityId, typeMessage);
         const auto componentIterator = components_.find(componentFingerprint);
-        if (componentIterator == components_.end())
-        {
+        if (componentIterator == components_.end()) {
             auto gameComponentPtr = std::make_unique<TComponent>(std::forward<Args>(args)...);
-            if (gameComponentPtr == nullptr)
-            {
+            if (gameComponentPtr == nullptr) {
                 return nullptr;
             }
-            TComponent* ptr = gameComponentPtr.get();
+            TComponent *ptr = gameComponentPtr.get();
             components_.emplace(componentFingerprint, std::move(gameComponentPtr));
             auto entityToGameComponentTypeIterator = entityToGameComponentType_.find(gameEntityId);
-            if (entityToGameComponentTypeIterator == entityToGameComponentType_.end())
-            {
+            if (entityToGameComponentTypeIterator == entityToGameComponentType_.end()) {
                 entityToGameComponentType_.emplace(gameEntityId,
                                                    std::unordered_set{typeMessage});
-            }
-            else
-            {
+            } else {
                 entityToGameComponentTypeIterator->second.insert(typeMessage);
             }
             auto [it, inserted] = componentCount_.try_emplace(typeMessage, 0U);
             const uint32_t count = ++it->second;
-            for (auto& callBack : onComponentCountChanged_)
-            {
+            for (auto &callBack: onComponentCountChanged_) {
                 callBack.second(typeMessage, count);
             }
             LogCat::d("Component added: entityId=", gameEntityId, ", type=", static_cast<int>(typeMessage));
             return ptr;
         }
-        const std::unique_ptr<GameComponent>& gameComponentPtr = componentIterator->second;
-        if (gameComponentPtr == nullptr)
-        {
+        const std::unique_ptr<GameComponent> &gameComponentPtr = componentIterator->second;
+        if (gameComponentPtr == nullptr) {
             return nullptr;
         }
-        return static_cast<TComponent*>(gameComponentPtr.get());
+        return static_cast<TComponent *>(gameComponentPtr.get());
     }
 
-    template <typename TComponent>
-    TComponent* EntityManager::GetComponent(GameEntityID gameEntityId)
-    {
+    template<typename TComponent>
+    TComponent *EntityManager::GetComponent(GameEntityID gameEntityId) {
         const GameComponentTypeMessage typeMessage = TComponent::GetComponentTypeStatic();
         auto componentFingerprint = GenComponentFingerprint(gameEntityId, typeMessage);
         const auto componentIterator = components_.find(componentFingerprint);
-        if (componentIterator == components_.end())
-        {
+        if (componentIterator == components_.end()) {
             return nullptr;
         }
-        const std::unique_ptr<GameComponent>& uniquePtr = componentIterator->second;
-        if (uniquePtr == nullptr)
-        {
+        const std::unique_ptr<GameComponent> &uniquePtr = componentIterator->second;
+        if (uniquePtr == nullptr) {
             return nullptr;
         }
-        return static_cast<TComponent*>(uniquePtr.get());
+        return static_cast<TComponent *>(uniquePtr.get());
     }
 }

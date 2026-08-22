@@ -31,55 +31,53 @@
 #include "core/console/Command.h"
 #include "core/inventory/ItemContainer.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class Item;
     class ItemContainerComponent;
 
-    class GiveCommand final : public Command
-    {
-        void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
+    class GiveCommand final : public Command {
+        void InitSuggestions(NodeTree<std::string> *suggestionsTree) override;
 
-        static void TrySetItemAmount(const CommandArgs* commandArgs, Item* item);
+        static void TrySetItemAmount(const CommandArgs *commandArgs, Item *item);
 
-        template <typename Callback>
-        [[nodiscard]] std::optional<ItemContainerComponent*> TryGetPlayerItemContainer(
-            const WorldContext* worldContext,
-            const Callback& onMessage) const;
+        template<typename Callback>
+        [[nodiscard]] std::optional<ItemContainerComponent *> TryGetPlayerItemContainer(
+            const WorldContext *worldContext,
+            const Callback &onMessage) const;
 
-        template <typename Callback>
-        [[nodiscard]] bool GiveTileItem(const AppContext* appContext,
-                                        const WorldContext* worldContext,
-                                        const CommandArgs* commandArgs,
-                                        const Callback& onMessage) const;
+        template<typename Callback>
+        [[nodiscard]] bool GiveTileItem(const AppContext *appContext,
+                                        const WorldContext *worldContext,
+                                        const CommandArgs *commandArgs,
+                                        const Callback &onMessage) const;
 
-        template <typename Callback>
-        [[nodiscard]] bool GiveComposableItem(const AppContext* appContext,
-                                              WorldContext* worldContext,
-                                              const CommandArgs* commandArgs,
-                                              const Callback& onMessage) const;
+        template<typename Callback>
+        [[nodiscard]] bool GiveComposableItem(const AppContext *appContext,
+                                              WorldContext *worldContext,
+                                              const CommandArgs *commandArgs,
+                                              const Callback &onMessage) const;
 
-        template <typename Callback>
-        [[nodiscard]] bool GiveAbilityItem(const AppContext* appContext,
-                                           const WorldContext* worldContext,
-                                           const CommandArgs* commandArgs,
-                                           const Callback& onMessage) const;
+        template<typename Callback>
+        [[nodiscard]] bool GiveAbilityItem(const AppContext *appContext,
+                                           const WorldContext *worldContext,
+                                           const CommandArgs *commandArgs,
+                                           const Callback &onMessage) const;
 
-        template <typename Callback>
-        [[nodiscard]] bool GiveMaterialItem(const AppContext* appContext,
-                                            const WorldContext* worldContext,
-                                            const CommandArgs* commandArgs,
-                                            const Callback& onMessage) const;
+        template<typename Callback>
+        [[nodiscard]] bool GiveMaterialItem(const AppContext *appContext,
+                                            const WorldContext *worldContext,
+                                            const CommandArgs *commandArgs,
+                                            const Callback &onMessage) const;
 
     public:
-        explicit GiveCommand(AppContext* appContext);
+        explicit GiveCommand(AppContext *appContext);
 
-        void PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) override;
+        void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
 
-        bool Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                     const std::function<void(const std::string& text)>* onMessage) override;
+        bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                     const std::function<void(const std::string &text)> *onMessage) override;
 
-        [[nodiscard]] const std::string& GetName() const override;
+        [[nodiscard]] const std::string &GetName() const override;
 
         [[nodiscard]] bool RequiresCheatEnabled() const override;
 

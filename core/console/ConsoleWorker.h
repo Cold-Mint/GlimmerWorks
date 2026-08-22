@@ -35,26 +35,24 @@
 #include "CommandRequest.h"
 #include "CommandResponse.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class AppContext;
 
-    class ConsoleWorker
-    {
+    class ConsoleWorker {
         std::jthread thread_;
         std::mutex commandMutex_;
         std::condition_variable conditionVariable_;
-        CommandManager* commandManager_ = nullptr;
-        AppContext* appContext_ = nullptr;
-        std::queue<std::unique_ptr<CommandRequest>> taskCommandRequestQueue_;
-        std::stack<std::unique_ptr<std::function<void(const std::string& text)>>> onMessageStack_;
-        std::unordered_map<uint32_t, std::unique_ptr<CommandResponse>> responseMap_;
+        CommandManager *commandManager_ = nullptr;
+        AppContext *appContext_ = nullptr;
+        std::queue<std::unique_ptr<CommandRequest> > taskCommandRequestQueue_;
+        std::stack<std::unique_ptr<std::function<void(const std::string &text)> > > onMessageStack_;
+        std::unordered_map<uint32_t, std::unique_ptr<CommandResponse> > responseMap_;
         uint32_t commandId_ = 0;
 
         void WorkLoop(std::stop_token stopToken);
 
     public:
-        ConsoleWorker(CommandManager* commandManager, AppContext* appContext);
+        ConsoleWorker(CommandManager *commandManager, AppContext *appContext);
 
         [[nodiscard]] std::unique_ptr<CommandResponse> TakeCommandResponse(uint32_t id);
 
@@ -66,12 +64,12 @@ namespace glimmer
          * @param commandSender commandSender 命令发送者
          * @return Return 0. Creation failed. 返回0创建失败
          */
-        uint32_t CreateRequest(const std::string& command, CommandSender* commandSender);
+        uint32_t CreateRequest(const std::string &command, CommandSender *commandSender);
 
         void PopOnMessage();
 
         void Stop();
 
-        void PushOnMessage(std::unique_ptr<std::function<void(const std::string& text)>> onMessage);
+        void PushOnMessage(std::unique_ptr<std::function<void(const std::string &text)> > onMessage);
     };
 }

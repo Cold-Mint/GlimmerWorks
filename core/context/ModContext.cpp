@@ -45,8 +45,7 @@ glimmer::ModContext::ModContext() = default;
 
 glimmer::ModContext::~ModContext() = default;
 
-void glimmer::ModContext::Init(VirtualFileSystem* vfs, const LangsResources* langsResources)
-{
+void glimmer::ModContext::Init(VirtualFileSystem *vfs, const LangsResources *langsResources) {
     LogCat::i("Initializing ModContext");
 
     LogCat::d("Creating ContributorManager");
@@ -129,105 +128,85 @@ void glimmer::ModContext::Init(VirtualFileSystem* vfs, const LangsResources* lan
     LogCat::i("ModContext initialization completed");
 }
 
-glimmer::DataPackManager* glimmer::ModContext::GetDataPackManager() const
-{
+glimmer::DataPackManager *glimmer::ModContext::GetDataPackManager() const {
     return dataPackManager_.get();
 }
 
-glimmer::StringManager* glimmer::ModContext::GetStringManager() const
-{
+glimmer::StringManager *glimmer::ModContext::GetStringManager() const {
     return stringManager_.get();
 }
 
-glimmer::TileResourceManager* glimmer::ModContext::GetTileResourceManager() const
-{
+glimmer::TileResourceManager *glimmer::ModContext::GetTileResourceManager() const {
     return tileResourceManager_.get();
 }
 
-glimmer::BiomesManager* glimmer::ModContext::GetBiomesManager() const
-{
+glimmer::BiomesManager *glimmer::ModContext::GetBiomesManager() const {
     return biomesManager_.get();
 }
 
-glimmer::BiomeDecoratorManager* glimmer::ModContext::GetBiomeDecoratorManager() const
-{
+glimmer::BiomeDecoratorManager *glimmer::ModContext::GetBiomeDecoratorManager() const {
     return biomeDecoratorManager_.get();
 }
 
-glimmer::BiomeDecoratorResourcesManager* glimmer::ModContext::GetBiomeDecoratorResourcesManager() const
-{
+glimmer::BiomeDecoratorResourcesManager *glimmer::ModContext::GetBiomeDecoratorResourcesManager() const {
     return biomeDecoratorResourcesManager_.get();
 }
 
-glimmer::AbilityItemManager* glimmer::ModContext::GetAbilityItemManager() const
-{
+glimmer::AbilityItemManager *glimmer::ModContext::GetAbilityItemManager() const {
     return abilityItemManager_.get();
 }
 
-glimmer::ComposableItemManager* glimmer::ModContext::GetComposableItemManager() const
-{
+glimmer::ComposableItemManager *glimmer::ModContext::GetComposableItemManager() const {
     return composableItemManager_.get();
 }
 
-glimmer::MaterialItemManager* glimmer::ModContext::GetMaterialItemManager() const
-{
+glimmer::MaterialItemManager *glimmer::ModContext::GetMaterialItemManager() const {
     return materialItemManager_.get();
 }
 
 
-glimmer::RecipeManager* glimmer::ModContext::GetRecipeManager() const
-{
+glimmer::RecipeManager *glimmer::ModContext::GetRecipeManager() const {
     return recipeManager_.get();
 }
 
-glimmer::MobManager* glimmer::ModContext::GetMobManager() const
-{
+glimmer::MobManager *glimmer::ModContext::GetMobManager() const {
     return mobManager_.get();
 }
 
-glimmer::StructureManager* glimmer::ModContext::GetStructureManager() const
-{
+glimmer::StructureManager *glimmer::ModContext::GetStructureManager() const {
     return structureManager_.get();
 }
 
-glimmer::StructureGeneratorManager* glimmer::ModContext::GetStructureGeneratorManager() const
-{
+glimmer::StructureGeneratorManager *glimmer::ModContext::GetStructureGeneratorManager() const {
     return structureGeneratorManager_.get();
 }
 
-glimmer::StructurePlacementConditionsProcessorManager*
-glimmer::ModContext::GetStructurePlacementConditionsProcessorManager() const
-{
+glimmer::StructurePlacementConditionsProcessorManager *
+glimmer::ModContext::GetStructurePlacementConditionsProcessorManager() const {
     return structurePlacementConditionsProcessorManager_.get();
 }
 
-glimmer::StructurePlacementConditionsResourceManager* glimmer::ModContext::
-GetStructurePlacementConditionsResourceManager() const
-{
+glimmer::StructurePlacementConditionsResourceManager *glimmer::ModContext::
+GetStructurePlacementConditionsResourceManager() const {
     return structurePlacementConditionsResourceManager_.get();
 }
 
-glimmer::LootTableManager* glimmer::ModContext::GetLootTableManager() const
-{
+glimmer::LootTableManager *glimmer::ModContext::GetLootTableManager() const {
     return lootTableManager_.get();
 }
 
-glimmer::InitialInventoryManager* glimmer::ModContext::GetInitialInventoryManager() const
-{
+glimmer::InitialInventoryManager *glimmer::ModContext::GetInitialInventoryManager() const {
     return initialInventoryManager_.get();
 }
 
-glimmer::ContributorManager* glimmer::ModContext::GetContributorManager() const
-{
+glimmer::ContributorManager *glimmer::ModContext::GetContributorManager() const {
     return contributorManager_.get();
 }
 
-glimmer::TomlTemplateExpander* glimmer::ModContext::GetTomlTemplateExpander() const
-{
+glimmer::TomlTemplateExpander *glimmer::ModContext::GetTomlTemplateExpander() const {
     return tomlTemplateExpander_.get();
 }
 
-glimmer::ShapeManager* glimmer::ModContext::GetShapeManager() const
-{
+glimmer::ShapeManager *glimmer::ModContext::GetShapeManager() const {
     return shapeManager_.get();
 }

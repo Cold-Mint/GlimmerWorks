@@ -29,24 +29,22 @@
 #include "core/context/AppContext.h"
 #include "toml11/types.hpp"
 
-namespace glimmer
-{
-    class ConfigSuggestions final : public DynamicSuggestions
-    {
-        toml::value* configValue_;
+namespace glimmer {
+    class ConfigSuggestions final : public DynamicSuggestions {
+        toml::value *configValue_;
         std::vector<std::string> suggestions_;
 
-        static void ParseTable(const toml::value::table_type& table,
-                               std::vector<std::string>& fields,
-                               const std::string& prefix = "");
+        static void ParseTable(const toml::value::table_type &table,
+                               std::vector<std::string> &fields,
+                               const std::string &prefix = "");
 
     public:
-        explicit ConfigSuggestions(const AppContext* appContext);
+        explicit ConfigSuggestions(const AppContext *appContext);
 
-        bool Match(const std::string& keyword, const std::string& param) override;
+        bool Match(const std::string &keyword, const std::string &param) override;
 
         [[nodiscard]] std::string GetId() const override;
 
-        const std::vector<std::string>& GetSuggestions(const std::optional<std::string>& param) override;
+        const std::vector<std::string> &GetSuggestions(const std::optional<std::string> &param) override;
     };
 }

@@ -31,10 +31,8 @@
 #include "core/context/AppContext.h"
 #include "fmt/color.h"
 
-void glimmer::VFSCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
-{
-    if (suggestionsTree == nullptr)
-    {
+void glimmer::VFSCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
+    if (suggestionsTree == nullptr) {
         return;
     }
     //List all the mount points
@@ -51,50 +49,39 @@ void glimmer::VFSCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree
     suggestionsTree->AddChild("readFile");
 }
 
-glimmer::VFSCommand::VFSCommand(AppContext* appContext)
-    : Command(appContext)
-{
+glimmer::VFSCommand::VFSCommand(AppContext *appContext)
+    : Command(appContext) {
 }
 
-const std::string& glimmer::VFSCommand::GetName() const
-{
+const std::string &glimmer::VFSCommand::GetName() const {
     return VFS_COMMAND_NAME;
 }
 
-void glimmer::VFSCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
-{
-    if (commandArgs == nullptr || strings == nullptr)
-    {
+void glimmer::VFSCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
+    if (commandArgs == nullptr || strings == nullptr) {
         return;
     }
     strings->emplace_back("[operation type:string]");
     strings->emplace_back("[path:string]");
-    if (commandArgs->GetSize() > 1)
-    {
+    if (commandArgs->GetSize() > 1) {
         const std::string type = commandArgs->AsString(1);
-        if (type == "readFile")
-        {
+        if (type == "readFile") {
             strings->emplace_back("[message type:string]");
         }
     }
 }
 
-glimmer::NodeTree<std::string>* glimmer::VFSCommand::GetSuggestionsTree(const CommandArgs* commandArgs)
-{
-    if (commandArgs == nullptr)
-    {
+glimmer::NodeTree<std::string> *glimmer::VFSCommand::GetSuggestionsTree(const CommandArgs *commandArgs) {
+    if (commandArgs == nullptr) {
         return &GetPrivateSuggestionsTree();
     }
-    if (commandArgs->GetSize() > 1)
-    {
+    if (commandArgs->GetSize() > 1) {
         auto type = commandArgs->AsString(1);
-        if (type == "readFile" || type == "actualPath" || type == "exists")
-        {
+        if (type == "readFile" || type == "actualPath" || type == "exists") {
             //Attach dynamic suggestion parameters to the second-level tree
             //为第二层树附加动态建议参数
             int size = GetPrivateSuggestionsTree().GetSize();
-            for (int i = 0; i < size; i++)
-            {
+            for (int i = 0; i < size; i++) {
                 auto child = GetPrivateSuggestionsTree().GetChild(i);
                 child->ClearChildren();
                 child->AddChild(
@@ -107,51 +94,41 @@ glimmer::NodeTree<std::string>* glimmer::VFSCommand::GetSuggestionsTree(const Co
 }
 
 
-bool glimmer::VFSCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                                  const std::function<void(const std::string& text)>* onMessage)
-{
-    const AppContext* appContext = GetAppContext();
-    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
-    {
+bool glimmer::VFSCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                                  const std::function<void(const std::string &text)> *onMessage) {
+    const AppContext *appContext = GetAppContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr) {
         return false;
     }
-    const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
+    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
     const int size = commandArgs->GetSize();
-    if (size < 2)
-    {
+    if (size < 2) {
         onMessageRef(fmt::format(
             fmt::runtime(appContext->GetLangsResources()->insufficientParameterLength),
             2, size));
         return false;
     }
-    const VirtualFileSystem* virtualFileSystem = appContext->GetVirtualFileSystem();
+    const VirtualFileSystem *virtualFileSystem = appContext->GetVirtualFileSystem();
     const auto type = commandArgs->AsString(1);
-    if (type == "listMount")
-    {
+    if (type == "listMount") {
         onMessageRef(virtualFileSystem->ListMounts());
         return true;
     }
-    if (size > 2 && type == "actualPath")
-    {
+    if (size > 2 && type == "actualPath") {
         auto actualPathArg = commandArgs->AsString(2);
         auto actualPath = virtualFileSystem->GetActualPath(actualPathArg);
         onMessageRef(actualPath.value_or(appContext->GetLangsResources()->getActualPathError));
         return true;
     }
-    if (size > 2 && type == "exists")
-    {
-        if (const std::filesystem::path existsPath = commandArgs->AsString(2); virtualFileSystem->Exists(existsPath))
-        {
+    if (size > 2 && type == "exists") {
+        if (const std::filesystem::path existsPath = commandArgs->AsString(2); virtualFileSystem->Exists(existsPath)) {
             onMessageRef("true");
-        }
-        else
-        {
+        } else {
             onMessageRef("false");
         }
         return true;
     }
-    if (size > 2 && type == "readFile")
-    {
+    if (size > 2 && type == "readFile") {
         auto readFilePath = commandArgs->AsString(2);
         auto fileContent = virtualFileSystem->ReadFileAsString(readFilePath);
         onMessageRef(fileContent.value_or("null"));

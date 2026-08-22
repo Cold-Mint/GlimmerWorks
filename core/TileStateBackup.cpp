@@ -26,63 +26,51 @@
  */
 #include "TileStateBackup.h"
 
-void glimmer::TileStateBackup::SetResourceRef(const ResourceRef& resourceRef)
-{
+void glimmer::TileStateBackup::SetResourceRef(const ResourceRef &resourceRef) {
     resourceRef_ = resourceRef;
 }
 
-void glimmer::TileStateBackup::SetWidth(const uint8_t width)
-{
+void glimmer::TileStateBackup::SetWidth(const uint8_t width) {
     width_ = width;
 }
 
-void glimmer::TileStateBackup::SetHeight(const uint8_t height)
-{
+void glimmer::TileStateBackup::SetHeight(const uint8_t height) {
     height_ = height;
 }
 
-void glimmer::TileStateBackup::SetOffset(const Vector2DI& offset)
-{
+void glimmer::TileStateBackup::SetOffset(const Vector2DI &offset) {
     offset_ = offset;
 }
 
-const glimmer::ResourceRef& glimmer::TileStateBackup::GetResourceRef() const
-{
+const glimmer::ResourceRef &glimmer::TileStateBackup::GetResourceRef() const {
     return resourceRef_;
 }
 
-void glimmer::TileStateBackup::ReadOffsetMessage(const Vector2DIMessage& message)
-{
+void glimmer::TileStateBackup::ReadOffsetMessage(const Vector2DIMessage &message) {
     offset_.ReadVector2DIMessage(message);
 }
 
-void glimmer::TileStateBackup::WriteOffsetMessage(Vector2DIMessage& message) const
-{
+void glimmer::TileStateBackup::WriteOffsetMessage(Vector2DIMessage &message) const {
     offset_.WriteVector2DIMessage(message);
 }
 
-void glimmer::TileStateBackup::ReadResourceRefMessage(const ResourceRefMessage& message)
-{
+void glimmer::TileStateBackup::ReadResourceRefMessage(const ResourceRefMessage &message) {
     resourceRef_.ReadResourceRefMessage(message);
 }
 
-void glimmer::TileStateBackup::WriteResourceRefMessage(ResourceRefMessage message) const
-{
+void glimmer::TileStateBackup::WriteResourceRefMessage(ResourceRefMessage message) const {
     resourceRef_.WriteResourceRefMessage(message);
 }
 
 
-glimmer::Vector2DI glimmer::TileStateBackup::GetOffset() const
-{
+glimmer::Vector2DI glimmer::TileStateBackup::GetOffset() const {
     return offset_;
 }
 
-uint8_t glimmer::TileStateBackup::GetHeight() const
-{
+uint8_t glimmer::TileStateBackup::GetHeight() const {
     return height_;
 }
 
-uint8_t glimmer::TileStateBackup::GetWidth() const
-{
+uint8_t glimmer::TileStateBackup::GetWidth() const {
     return width_;
 }

@@ -33,51 +33,42 @@
 #include "core/ecs/component/Transform2DComponent.h"
 
 
-void glimmer::PhysicsSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, const uint32_t count)
-{
-    EntityManager* entityManager = GetEntityManager();
-    if (gameComponentType == COMPONENT_RIGID_BODY_2D)
-    {
+void glimmer::PhysicsSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType,
+                                                       const uint32_t count) {
+    EntityManager *entityManager = GetEntityManager();
+    if (gameComponentType == COMPONENT_RIGID_BODY_2D) {
         rigidBody2dCount_ = count;
     }
-    if (gameComponentType == COMPONENT_TRANSFORM_2D)
-    {
+    if (gameComponentType == COMPONENT_TRANSFORM_2D) {
         transform2dCount_ = count;
     }
-    if (rigidBody2dCount_ > 0 && transform2dCount_ > 0)
-    {
+    if (rigidBody2dCount_ > 0 && transform2dCount_ > 0) {
         entities_.clear();
         entities_ = entityManager->GetEntityIDWithComponents({COMPONENT_RIGID_BODY_2D, COMPONENT_TRANSFORM_2D});
     }
 }
 
-glimmer::PhysicsSystem::PhysicsSystem(WorldContext* worldContext) : GameSystem(worldContext)
-{
+glimmer::PhysicsSystem::PhysicsSystem(WorldContext *worldContext) : GameSystem(worldContext) {
     WatchComponent(COMPONENT_RIGID_BODY_2D);
     WatchComponent(COMPONENT_TRANSFORM_2D);
     Init();
 }
 
-void glimmer::PhysicsSystem::Update(const float delta)
-{
-    WorldContext* worldContext = GetWorldContext();
-    EntityManager* entityManager = GetEntityManager();
+void glimmer::PhysicsSystem::Update(const float delta) {
+    WorldContext *worldContext = GetWorldContext();
+    EntityManager *entityManager = GetEntityManager();
     const b2WorldId worldId_ = worldContext->GetWorldId();
     accumulator_ += delta;
-    while (accumulator_ >= FIXED_TIME_STEP)
-    {
+    while (accumulator_ >= FIXED_TIME_STEP) {
         b2World_Step(worldId_, FIXED_TIME_STEP, 4);
         accumulator_ -= FIXED_TIME_STEP;
     }
-    for (GameEntityID entityId : entities_)
-    {
-        const RigidBody2DComponent* rigidBody2dComponent = entityManager->GetComponent<RigidBody2DComponent>(entityId);
-        if (rigidBody2dComponent == nullptr)
-        {
+    for (GameEntityID entityId: entities_) {
+        const RigidBody2DComponent *rigidBody2dComponent = entityManager->GetComponent<RigidBody2DComponent>(entityId);
+        if (rigidBody2dComponent == nullptr) {
             continue;
         }
-        if (!rigidBody2dComponent->IsReady() || !rigidBody2dComponent->IsEnabled())
-        {
+        if (!rigidBody2dComponent->IsReady() || !rigidBody2dComponent->IsEnabled()) {
             continue;
         }
         auto transform = entityManager->GetComponent<Transform2DComponent>(entityId);
@@ -87,7 +78,6 @@ void glimmer::PhysicsSystem::Update(const float delta)
     }
 }
 
-glimmer::GameSystemType glimmer::PhysicsSystem::GetGameSystemType() const
-{
+glimmer::GameSystemType glimmer::PhysicsSystem::GetGameSystemType() const {
     return GameSystemType::PhysicsSystem;
 }

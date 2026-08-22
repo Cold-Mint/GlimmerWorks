@@ -28,23 +28,21 @@
 #include <cstdint>
 #include <string>
 
-namespace glimmer
-{
+namespace glimmer {
     class CommandSender;
 
-    class CommandRequest
-    {
+    class CommandRequest {
         uint32_t id_ = 0;
         std::string command_;
-        CommandSender* commandSender_ = nullptr;
+        CommandSender *commandSender_ = nullptr;
 
     public:
-        CommandRequest(uint32_t id, std::string_view command, CommandSender* commandSender);
+        CommandRequest(uint32_t id, std::string_view command, CommandSender *commandSender);
 
         [[nodiscard]] uint32_t GetId() const;
 
-        [[nodiscard]] const std::string& GetCommand() const;
+        [[nodiscard]] const std::string &GetCommand() const;
 
-        [[nodiscard]] const CommandSender* GetCommandSender() const;
+        [[nodiscard]] const CommandSender *GetCommandSender() const;
     };
 }

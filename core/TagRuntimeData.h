@@ -30,10 +30,8 @@
 
 #include "SDL3/SDL_render.h"
 
-namespace glimmer
-{
-    class TagRuntimeData
-    {
+namespace glimmer {
+    class TagRuntimeData {
         /**
          * text
          * 显示的文本
@@ -64,9 +62,9 @@ namespace glimmer
     public:
         [[nodiscard]] uint16_t GetRequiredWeight() const;
 
-        void SetPositiveTexture(const std::shared_ptr<SDL_Texture>& positiveTexture);
+        void SetPositiveTexture(const std::shared_ptr<SDL_Texture> &positiveTexture);
 
-        void SetNegativeTexture(const std::shared_ptr<SDL_Texture>& negativeTexture);
+        void SetNegativeTexture(const std::shared_ptr<SDL_Texture> &negativeTexture);
 
         void SetActualValue(uint16_t actualValue);
 
@@ -80,14 +78,14 @@ namespace glimmer
 
         [[nodiscard]] uint16_t GetActualValue() const;
 
-        [[nodiscard]] SDL_Texture* GetPositiveTexture() const;
+        [[nodiscard]] SDL_Texture *GetPositiveTexture() const;
 
-        [[nodiscard]] SDL_Texture* GetNegativeTexture() const;
+        [[nodiscard]] SDL_Texture *GetNegativeTexture() const;
 
         void SetRequiredWeight(uint16_t requiredWeight);
 
         void SetText(std::string_view text);
 
-        [[nodiscard]] const std::string& GetText() const;
+        [[nodiscard]] const std::string &GetText() const;
     };
 }

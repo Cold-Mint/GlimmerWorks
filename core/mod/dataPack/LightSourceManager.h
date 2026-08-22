@@ -36,7 +36,7 @@
 namespace glimmer {
     class LightSourceManager {
         std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<
-            LightSourceResource>, TransparentStringHash, std::equal_to<>>, TransparentStringHash, std::equal_to<>>
+            LightSourceResource>, TransparentStringHash, std::equal_to<> >, TransparentStringHash, std::equal_to<> >
         lightSourceMap_
                 {};
 

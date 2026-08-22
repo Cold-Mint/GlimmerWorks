@@ -26,32 +26,26 @@
  */
 #include "TileLightResourceData.h"
 
-const glimmer::ResourceRef* glimmer::TileLightResourceData::GetLightSourceResource() const
-{
+const glimmer::ResourceRef *glimmer::TileLightResourceData::GetLightSourceResource() const {
     return &lightSource_;
 }
 
-const glimmer::ResourceRef* glimmer::TileLightResourceData::GetSideLightMaskResource() const
-{
+const glimmer::ResourceRef *glimmer::TileLightResourceData::GetSideLightMaskResource() const {
     return &sideLightMask_;
 }
 
-const glimmer::ResourceRef* glimmer::TileLightResourceData::GetBackLightMaskResource() const
-{
+const glimmer::ResourceRef *glimmer::TileLightResourceData::GetBackLightMaskResource() const {
     return &backLightMask_;
 }
 
-void glimmer::TileLightResourceData::SetLightSource(const ResourceRef& lightSource)
-{
+void glimmer::TileLightResourceData::SetLightSource(const ResourceRef &lightSource) {
     this->lightSource_ = lightSource;
 }
 
-void glimmer::TileLightResourceData::SetSideLightMask(const ResourceRef& sideLightMask)
-{
+void glimmer::TileLightResourceData::SetSideLightMask(const ResourceRef &sideLightMask) {
     this->sideLightMask_ = sideLightMask;
 }
 
-void glimmer::TileLightResourceData::SetBackLightMask(const ResourceRef& backLightMask)
-{
+void glimmer::TileLightResourceData::SetBackLightMask(const ResourceRef &backLightMask) {
     this->backLightMask_ = backLightMask;
 }

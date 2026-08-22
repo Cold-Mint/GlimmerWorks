@@ -29,34 +29,28 @@
 #include "src/saves/command_history.pb.h"
 
 
-glimmer::CommandHistoryManager::CommandHistoryManager(const std::filesystem::path& runtimePath,
-                                                      VirtualFileSystem* virtualFileSystem) : virtualFileSystem_(
-    virtualFileSystem)
-{
+glimmer::CommandHistoryManager::CommandHistoryManager(const std::filesystem::path &runtimePath,
+                                                      VirtualFileSystem *virtualFileSystem) : virtualFileSystem_(
+    virtualFileSystem) {
     commandHistoryPath_ = runtimePath / "command_history.bin";
 }
 
-void glimmer::CommandHistoryManager::Save() const
-{
-    (void)virtualFileSystem_->WriteFile(commandHistoryPath_, commandHistoryMessage_.SerializeAsString());
+void glimmer::CommandHistoryManager::Save() const {
+    (void) virtualFileSystem_->WriteFile(commandHistoryPath_, commandHistoryMessage_.SerializeAsString());
 }
 
-CommandHistoryMessage* glimmer::CommandHistoryManager::GetCommandHistoryMessage()
-{
+CommandHistoryMessage *glimmer::CommandHistoryManager::GetCommandHistoryMessage() {
     return &commandHistoryMessage_;
 }
 
 
-void glimmer::CommandHistoryManager::Read()
-{
-    if (!virtualFileSystem_->Exists(commandHistoryPath_))
-    {
+void glimmer::CommandHistoryManager::Read() {
+    if (!virtualFileSystem_->Exists(commandHistoryPath_)) {
         return;
     }
     const auto text = virtualFileSystem_->ReadFileAsString(commandHistoryPath_);
-    if (!text.has_value())
-    {
+    if (!text.has_value()) {
         return;
     }
-    (void)commandHistoryMessage_.ParseFromString(text.value());
+    (void) commandHistoryMessage_.ParseFromString(text.value());
 }

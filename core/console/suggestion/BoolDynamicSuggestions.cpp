@@ -29,28 +29,23 @@
 #include "core/Constants.h"
 
 
-glimmer::BoolDynamicSuggestions::BoolDynamicSuggestions()
-{
+glimmer::BoolDynamicSuggestions::BoolDynamicSuggestions() {
     suggestions_.emplace_back("true");
     suggestions_.emplace_back("false");
 }
 
-std::string glimmer::BoolDynamicSuggestions::GetId() const
-{
+std::string glimmer::BoolDynamicSuggestions::GetId() const {
     return BOOL_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-const std::vector<std::string>& glimmer::BoolDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
-{
+const std::vector<std::string> &
+glimmer::BoolDynamicSuggestions::GetSuggestions(const std::optional<std::string> &param) {
     return suggestions_;
 }
 
-bool glimmer::BoolDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
-{
-    for (auto& suggestion : suggestions_)
-    {
-        if (suggestion == keyword)
-        {
+bool glimmer::BoolDynamicSuggestions::Match(const std::string &keyword, const std::string &param) {
+    for (auto &suggestion: suggestions_) {
+        if (suggestion == keyword) {
             return true;
         }
     }

@@ -30,38 +30,36 @@
 #include "core/ecs/GuiGameSystem.h"
 #include "core/rmi/dataModel/ItemSlotDataModel.h"
 
-namespace glimmer
-{
-    class HotBarGUISystem : public GuiGameSystem
-    {
-        Rml::DataModelConstructor* constructor_ = nullptr;
+namespace glimmer {
+    class HotBarGUISystem : public GuiGameSystem {
+        Rml::DataModelConstructor *constructor_ = nullptr;
         std::vector<ItemSlotDataModel> itemSlots_;
-        std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>> callback_;
-        ItemToolTipComponent* itemToolTipComponent_ = nullptr;
-        ItemContainer* itemContainer_ = nullptr;
+        std::shared_ptr<std::function<void(uint8_t, Item *, ContainerChangeType)> > callback_;
+        ItemToolTipComponent *itemToolTipComponent_ = nullptr;
+        ItemContainer *itemContainer_ = nullptr;
 
-        ItemSlotDataModel* GetItemSlotDataModel(uint8_t index);
+        ItemSlotDataModel *GetItemSlotDataModel(uint8_t index);
 
         void UpdateSelectedSlot(uint8_t beforeIndex, uint8_t nextIndex);
 
-        void OnItemHover(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+        void OnItemHover(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
-        void OnItemOut(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+        void OnItemOut(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
     public:
-        explicit HotBarGUISystem(WorldContext* worldContext);
+        explicit HotBarGUISystem(WorldContext *worldContext);
 
         ~HotBarGUISystem() override;
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
-        void LoadDocuments(IDocumentRegistry* documentRegistry) override;
+        void LoadDocuments(IDocumentRegistry *documentRegistry) override;
 
-        void OnCreateDataModels(IDocumentRegistry* documentRegistry) override;
+        void OnCreateDataModels(IDocumentRegistry *documentRegistry) override;
 
         void LoadInitialHotbarItems();
 
-        bool HandleEvent(const SDL_Event& event) override;
+        bool HandleEvent(const SDL_Event &event) override;
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };

@@ -34,29 +34,24 @@
 #include "fmt/xchar.h"
 
 
-glimmer::DebugOverlay::DebugOverlay(AppContext* context)
+glimmer::DebugOverlay::DebugOverlay(AppContext *context)
     : Scene(context), resourcePackManager_(context->GetResourcePackManager()),
-      preloadColors_(context->GetGraphicsContext()->GetPreloadColors()), langsResources_(context->GetLangsResources())
-{
+      preloadColors_(context->GetGraphicsContext()->GetPreloadColors()), langsResources_(context->GetLangsResources()) {
     LogCat::i("Creating DebugOverlay");
     Init();
 }
 
-void glimmer::DebugOverlay::Update(const float delta)
-{
-    if (!displayDebugPanel_)
-    {
+void glimmer::DebugOverlay::Update(const float delta) {
+    if (!displayDebugPanel_) {
         return;
     }
-    if (delta <= 0.0F)
-    {
+    if (delta <= 0.0F) {
         return;
     }
     fpsAccumTime_ += delta;
     fpsFrameCount_ += 1;
     constexpr float kFpsUpdateInterval = 1.0F;
-    if (fpsAccumTime_ >= kFpsUpdateInterval)
-    {
+    if (fpsAccumTime_ >= kFpsUpdateInterval) {
         fps_ = static_cast<float>(fpsFrameCount_) / fpsAccumTime_;
         frameTimeMs_ = fpsAccumTime_ / static_cast<float>(fpsFrameCount_) * 1000.0F;
         // Average time consumption per frame (ms) 平均每帧耗时(ms)
@@ -65,29 +60,23 @@ void glimmer::DebugOverlay::Update(const float delta)
     }
 }
 
-void glimmer::DebugOverlay::Render(SDL_Renderer* renderer)
-{
-    if (!displayDebugPanel_)
-    {
+void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
+    if (!displayDebugPanel_) {
         return;
     }
 
     //Draw the SDL screen coordinates
     //绘制SDL屏幕坐标
     const auto labelSpacing = static_cast<int>(50 * uiScale_);
-    for (int x = 0; x <= windowWidth_; x += labelSpacing)
-    {
-        SDL_Texture* texture = nullptr;
+    for (int x = 0; x <= windowWidth_; x += labelSpacing) {
+        SDL_Texture *texture = nullptr;
         auto textureIterator = numberTextureMap_.find(x);
-        if (textureIterator == numberTextureMap_.end())
-        {
+        if (textureIterator == numberTextureMap_.end()) {
             std::shared_ptr<SDL_Texture> texturePtr = resourcePackManager_->CreateStringTexture(
                 std::to_string(x), &preloadColors_->textColor);
             numberTextureMap_[x] = texturePtr;
             texture = texturePtr.get();
-        }
-        else
-        {
+        } else {
             texture = textureIterator->second.get();
         }
         SDL_FRect dst = {
@@ -96,19 +85,15 @@ void glimmer::DebugOverlay::Render(SDL_Renderer* renderer)
         };
         SDL_RenderTexture(renderer, texture, nullptr, &dst);
     }
-    for (int y = 0; y <= windowHeight_; y += labelSpacing)
-    {
-        SDL_Texture* texture = nullptr;
+    for (int y = 0; y <= windowHeight_; y += labelSpacing) {
+        SDL_Texture *texture = nullptr;
         auto textureIterator = numberTextureMap_.find(y);
-        if (textureIterator == numberTextureMap_.end())
-        {
+        if (textureIterator == numberTextureMap_.end()) {
             std::shared_ptr<SDL_Texture> texturePtr = resourcePackManager_->CreateStringTexture(
                 std::to_string(y), &preloadColors_->textColor);
             numberTextureMap_[y] = texturePtr;
             texture = texturePtr.get();
-        }
-        else
-        {
+        } else {
             texture = textureIterator->second.get();
         }
         SDL_FRect dst = {
@@ -119,17 +104,14 @@ void glimmer::DebugOverlay::Render(SDL_Renderer* renderer)
     }
     std::string fpsString = fmt::format(fmt::runtime(langsResources_->fpsInfo), fps_, frameTimeMs_);
     const uint64_t fpsFingerprint = StringUtils::StringToUint64(fpsString);
-    SDL_Texture* texture = nullptr;
+    SDL_Texture *texture = nullptr;
     auto fpsIterator = fpsTextures_.find(fpsFingerprint);
-    if (fpsIterator == fpsTextures_.end())
-    {
+    if (fpsIterator == fpsTextures_.end()) {
         std::shared_ptr<SDL_Texture> texturePtr = resourcePackManager_->CreateStringTexture(
             fpsString, &preloadColors_->textColor);
         fpsTextures_[fpsFingerprint] = texturePtr;
         texture = texturePtr.get();
-    }
-    else
-    {
+    } else {
         texture = fpsIterator->second.get();
     }
     SDL_FRect fpsRect = {
@@ -141,14 +123,12 @@ void glimmer::DebugOverlay::Render(SDL_Renderer* renderer)
     SDL_RenderTexture(renderer, texture, nullptr, &fpsRect);
 }
 
-void glimmer::DebugOverlay::OnConfigChanged(const Config* config)
-{
+void glimmer::DebugOverlay::OnConfigChanged(const Config *config) {
     displayDebugPanel_ = config->debug.displayDebugPanel;
     uiScale_ = config->window.uiScale;
 }
 
-void glimmer::DebugOverlay::OnWindowSizeChanged(const int& width, const int& height)
-{
+void glimmer::DebugOverlay::OnWindowSizeChanged(const int &width, const int &height) {
     windowWidth_ = width;
     windowHeight_ = height;
 }

@@ -30,38 +30,31 @@
 #include "core/context/AppContext.h"
 
 
-void glimmer::HelpCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
-{
+void glimmer::HelpCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
     //There is no need to achieve it.
     //无需实现。
 }
 
-glimmer::HelpCommand::HelpCommand(AppContext* appContext) : Command(appContext)
-{
+glimmer::HelpCommand::HelpCommand(AppContext *appContext) : Command(appContext) {
 }
 
-const std::string& glimmer::HelpCommand::GetName() const
-{
+const std::string &glimmer::HelpCommand::GetName() const {
     return HELP_COMMAND_NAME;
 }
 
-bool glimmer::HelpCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                                   const std::function<void(const std::string& text)>* onMessage)
-{
-    const AppContext* appContext = GetAppContext();
-    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
-    {
+bool glimmer::HelpCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                                   const std::function<void(const std::string &text)> *onMessage) {
+    const AppContext *appContext = GetAppContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr) {
         return false;
     }
-    const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    const ConsoleContext* consoleContext = appContext->GetConsoleContext();
-    if (consoleContext == nullptr)
-    {
+    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
+    const ConsoleContext *consoleContext = appContext->GetConsoleContext();
+    if (consoleContext == nullptr) {
         return false;
     }
-    CommandManager* commandManager = consoleContext->GetCommandManager();
-    if (commandManager == nullptr)
-    {
+    CommandManager *commandManager = consoleContext->GetCommandManager();
+    if (commandManager == nullptr) {
         return false;
     }
     onMessageRef(commandManager->GetHelpText(appContext->GetLangsResources()));

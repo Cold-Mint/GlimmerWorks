@@ -35,7 +35,7 @@
 namespace glimmer {
     class LightMaskManager {
         std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<LightMaskResource>,
-            TransparentStringHash, std::equal_to<>>, TransparentStringHash, std::equal_to<>>
+            TransparentStringHash, std::equal_to<> >, TransparentStringHash, std::equal_to<> >
         lightMaskMap_
                 {};
 

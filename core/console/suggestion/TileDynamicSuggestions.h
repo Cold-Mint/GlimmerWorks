@@ -28,19 +28,17 @@
 #include "DynamicSuggestions.h"
 #include "core/mod/dataPack/TileResourceManager.h"
 
-namespace glimmer
-{
-    class TileDynamicSuggestions final : public DynamicSuggestions
-    {
-        TileResourceManager* tileManager_ = nullptr;
+namespace glimmer {
+    class TileDynamicSuggestions final : public DynamicSuggestions {
+        TileResourceManager *tileManager_ = nullptr;
 
     public:
-        explicit TileDynamicSuggestions(TileResourceManager* tileManager);
+        explicit TileDynamicSuggestions(TileResourceManager *tileManager);
 
         [[nodiscard]] std::string GetId() const override;
 
-        bool Match(const std::string& keyword, const std::string& param) override;
+        bool Match(const std::string &keyword, const std::string &param) override;
 
-        const std::vector<std::string>& GetSuggestions(const std::optional<std::string>& param) override;
+        const std::vector<std::string> &GetSuggestions(const std::optional<std::string> &param) override;
     };
 }

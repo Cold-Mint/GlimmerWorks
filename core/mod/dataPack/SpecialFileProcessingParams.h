@@ -29,10 +29,8 @@
 
 #include "core/Config.h"
 
-namespace glimmer
-{
-    struct SpecialFileProcessingParams
-    {
+namespace glimmer {
+    struct SpecialFileProcessingParams {
         bool enableSignVerify;
         std::filesystem::path publicPath;
         std::filesystem::path signPath;

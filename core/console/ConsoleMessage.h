@@ -27,10 +27,8 @@
 #pragma once
 #include <string>
 
-namespace glimmer
-{
-    struct ConsoleMessage
-    {
+namespace glimmer {
+    struct ConsoleMessage {
         std::string message;
     };
 }

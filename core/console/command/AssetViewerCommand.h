@@ -31,29 +31,27 @@
 #include <map>
 #include <memory>
 
-namespace glimmer
-{
+namespace glimmer {
     class AppContext;
 
-    class AssetViewerCommand final : public Command
-    {
-        std::map<std::string, std::unique_ptr<IAssetEnumerator>, std::less<>> assetEnumerators_;
+    class AssetViewerCommand final : public Command {
+        std::map<std::string, std::unique_ptr<IAssetEnumerator>, std::less<> > assetEnumerators_;
 
-        void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
+        void InitSuggestions(NodeTree<std::string> *suggestionsTree) override;
 
         void AddAssetEnumerator(std::unique_ptr<IAssetEnumerator> assetEnumeratorPtr);
 
     public:
-        explicit AssetViewerCommand(AppContext* appContext);
+        explicit AssetViewerCommand(AppContext *appContext);
 
-        [[nodiscard]] const std::string& GetName() const override;
+        [[nodiscard]] const std::string &GetName() const override;
 
         [[nodiscard]] bool RequiresWorldContext() const override;
 
-        void PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) override;
+        void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
 
-        bool Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                     const std::function<void(const std::string& text)>* onMessage) override;
+        bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                     const std::function<void(const std::string &text)> *onMessage) override;
     };
 }
 #endif

@@ -31,62 +31,51 @@
 #include "core/ecs/MobEntityCreator.h"
 #include "core/ecs/component/RigidBody2DComponent.h"
 
-void glimmer::SummonCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
-{
-    if (suggestionsTree == nullptr)
-    {
+void glimmer::SummonCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
+    if (suggestionsTree == nullptr) {
         return;
     }
     suggestionsTree->AddChild(X_DYNAMIC_SUGGESTIONS_NAME)->AddChild(Y_DYNAMIC_SUGGESTIONS_NAME)->AddChild(
         MOB_DYNAMIC_SUGGESTIONS_NAME);
 }
 
-glimmer::SummonCommand::SummonCommand(AppContext* appContext) : Command(appContext)
-{
+glimmer::SummonCommand::SummonCommand(AppContext *appContext) : Command(appContext) {
 }
 
-bool glimmer::SummonCommand::RequiresWorldContext() const
-{
+bool glimmer::SummonCommand::RequiresWorldContext() const {
     return true;
 }
 
-bool glimmer::SummonCommand::RequiresCheatEnabled() const
-{
+bool glimmer::SummonCommand::RequiresCheatEnabled() const {
     return true;
 }
 
-bool glimmer::SummonCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                                     const std::function<void(const std::string& text)>* onMessage)
-{
-    const AppContext* appContext = GetAppContext();
-    WorldContext* worldContext = GetWorldContext();
-    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
-    {
+bool glimmer::SummonCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                                     const std::function<void(const std::string &text)> *onMessage) {
+    const AppContext *appContext = GetAppContext();
+    WorldContext *worldContext = GetWorldContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr) {
         return false;
     }
-    const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    if (worldContext == nullptr)
-    {
+    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
+    if (worldContext == nullptr) {
         onMessageRef(appContext->GetLangsResources()->worldContextIsNull);
         return false;
     }
     const size_t size = commandArgs->GetSize();
-    if (size < 1)
-    {
+    if (size < 1) {
         onMessageRef(fmt::format(
             fmt::runtime(appContext->GetLangsResources()->insufficientParameterLength),
             1, size));
         return false;
     }
     auto resourceRefOptional = commandArgs->AsResourceRef(3, RESOURCE_MOB);
-    if (!resourceRefOptional.has_value())
-    {
+    if (!resourceRefOptional.has_value()) {
         return false;
     }
-    ResourceRef& resourceRef = resourceRefOptional.value();
-    MobResource* mobResource = appContext->GetResourceLocator()->FindMob(&resourceRef);
-    if (mobResource == nullptr)
-    {
+    ResourceRef &resourceRef = resourceRefOptional.value();
+    MobResource *mobResource = appContext->GetResourceLocator()->FindMob(&resourceRef);
+    if (mobResource == nullptr) {
         return false;
     }
     const WorldVector2D commandSenderPosition = commandSender->GetPosition();
@@ -102,15 +91,12 @@ bool glimmer::SummonCommand::Execute(const CommandSender* commandSender, const C
     return true;
 }
 
-const std::string& glimmer::SummonCommand::GetName() const
-{
+const std::string &glimmer::SummonCommand::GetName() const {
     return SUMMON_COMMAND_NAME;
 }
 
-void glimmer::SummonCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
-{
-    if (strings == nullptr)
-    {
+void glimmer::SummonCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
+    if (strings == nullptr) {
         return;
     }
     strings->emplace_back("[x:int]");

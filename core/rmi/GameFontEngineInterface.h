@@ -27,10 +27,8 @@
 #pragma once
 #include "FontEngineDefault/FontEngineInterfaceDefault.h"
 
-namespace glimmer
-{
-    class GameFontEngineInterface : public Rml::FontEngineInterfaceDefault
-    {
+namespace glimmer {
+    class GameFontEngineInterface : public Rml::FontEngineInterfaceDefault {
         //On-demand coverage method.
         //按需覆盖方法。
     };

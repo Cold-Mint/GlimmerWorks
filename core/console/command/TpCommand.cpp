@@ -33,73 +33,60 @@
 #include "box2d/box2d.h"
 #include "fmt/color.h"
 
-void glimmer::TpCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
-{
-    if (suggestionsTree == nullptr)
-    {
+void glimmer::TpCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
+    if (suggestionsTree == nullptr) {
         return;
     }
     suggestionsTree->AddChild(X_DYNAMIC_SUGGESTIONS_NAME)->AddChild(Y_DYNAMIC_SUGGESTIONS_NAME);
 }
 
-glimmer::TpCommand::TpCommand(AppContext* appContext) : Command(appContext)
-{
+glimmer::TpCommand::TpCommand(AppContext *appContext) : Command(appContext) {
 }
 
-const std::string& glimmer::TpCommand::GetName() const
-{
+const std::string &glimmer::TpCommand::GetName() const {
     return TP_COMMAND_NAME;
 }
 
-void glimmer::TpCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
-{
-    if (strings == nullptr)
-    {
+void glimmer::TpCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
+    if (strings == nullptr) {
         return;
     }
     strings->emplace_back("[x:int]");
     strings->emplace_back("[y:int]");
 }
 
-bool glimmer::TpCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                                 const std::function<void(const std::string& text)>* onMessage)
-{
-    AppContext* appContext = GetAppContext();
-    WorldContext* worldContext = GetWorldContext();
-    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
-    {
+bool glimmer::TpCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                                 const std::function<void(const std::string &text)> *onMessage) {
+    AppContext *appContext = GetAppContext();
+    WorldContext *worldContext = GetWorldContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr) {
         return false;
     }
-    const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    const LangsResources* langsResources = appContext->GetLangsResources();
-    if (langsResources == nullptr)
-    {
+    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
+    const LangsResources *langsResources = appContext->GetLangsResources();
+    if (langsResources == nullptr) {
         return false;
     }
-    if (worldContext == nullptr)
-    {
+    if (worldContext == nullptr) {
         onMessageRef(langsResources->worldContextIsNull);
         return false;
     }
 
     const size_t size = commandArgs->GetSize();
-    if (size < 2)
-    {
+    if (size < 2) {
         onMessageRef(fmt::format(
             fmt::runtime(langsResources->insufficientParameterLength),
             2, size));
         return false;
     }
     auto playerEntity = worldContext->GetEntityShortCut()->GetPlayer();
-    if (WorldContext::IsEmptyEntityId(playerEntity))
-    {
+    if (WorldContext::IsEmptyEntityId(playerEntity)) {
         onMessageRef(langsResources->cantFindObject);
         return false;
     }
     const WorldVector2D commandSenderPosition = commandSender->GetPosition();
     auto rigidBody2DComponent = worldContext->GetEntityManager()->GetComponent<RigidBody2DComponent>(playerEntity);
-    if (rigidBody2DComponent && rigidBody2DComponent->IsReady())
-    {
+    if (rigidBody2DComponent && rigidBody2DComponent->IsReady()) {
         b2Vec2 newPos = Box2DUtils::ToMeters({
             commandArgs->AsCoordinate(1, commandSenderPosition.x),
             commandArgs->AsCoordinate(2, commandSenderPosition.y)
@@ -114,12 +101,10 @@ bool glimmer::TpCommand::Execute(const CommandSender* commandSender, const Comma
     return true;
 }
 
-bool glimmer::TpCommand::RequiresWorldContext() const
-{
+bool glimmer::TpCommand::RequiresWorldContext() const {
     return true;
 }
 
-bool glimmer::TpCommand::RequiresCheatEnabled() const
-{
+bool glimmer::TpCommand::RequiresCheatEnabled() const {
     return true;
 }

@@ -29,10 +29,8 @@
 
 #include "RmlUi/Core/DataModelHandle.h"
 
-namespace glimmer
-{
-    struct CommandSuggestions
-    {
+namespace glimmer {
+    struct CommandSuggestions {
         std::string message;
         std::string prefix;
         std::string keyword;

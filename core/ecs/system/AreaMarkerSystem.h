@@ -31,27 +31,25 @@
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/world/PreloadColors.h"
 
-namespace glimmer
-{
-    class AreaMarkerSystem : public GameSystem
-    {
-        AreaMarkerComponent* areaMarkerComponent_ = nullptr;
-        AppContext* appContext_ = nullptr;
-        PreloadColors* preloadColors_ = nullptr;
-        CameraComponent* cameraComponent_ = nullptr;
-        ResourcePackManager* resourcePackManager_ = nullptr;
-        Transform2DComponent* cameraTransform2DComponent_ = nullptr;
+namespace glimmer {
+    class AreaMarkerSystem : public GameSystem {
+        AreaMarkerComponent *areaMarkerComponent_ = nullptr;
+        AppContext *appContext_ = nullptr;
+        PreloadColors *preloadColors_ = nullptr;
+        CameraComponent *cameraComponent_ = nullptr;
+        ResourcePackManager *resourcePackManager_ = nullptr;
+        Transform2DComponent *cameraTransform2DComponent_ = nullptr;
         uint64_t areaMarkerTipFingerprint_ = 0;
         std::shared_ptr<SDL_Texture> areaMarkerTipTexture_ = nullptr;
 
     public:
-        explicit AreaMarkerSystem(WorldContext* worldContext);
+        explicit AreaMarkerSystem(WorldContext *worldContext);
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
         void Update(float delta) override;
 
-        void Render(SDL_Renderer* renderer) override;
+        void Render(SDL_Renderer *renderer) override;
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
 

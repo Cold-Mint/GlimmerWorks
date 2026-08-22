@@ -34,66 +34,50 @@
 #include "core/log/LogCat.h"
 
 
-void glimmer::ConsoleWorker::WorkLoop(std::stop_token stopToken)
-{
+void glimmer::ConsoleWorker::WorkLoop(std::stop_token stopToken) {
     LogCat::i("ConsoleWorker thread started");
-    while (!stopToken.stop_requested())
-    {
+    while (!stopToken.stop_requested()) {
         std::unique_lock lock(commandMutex_);
-        conditionVariable_.wait(lock, [this, &stopToken]
-        {
+        conditionVariable_.wait(lock, [this, &stopToken] {
             return !taskCommandRequestQueue_.empty() || stopToken.stop_requested();
         });
         lock.unlock();
-        if (stopToken.stop_requested())
-        {
+        if (stopToken.stop_requested()) {
             break;
         }
-        if (onMessageStack_.empty())
-        {
+        if (onMessageStack_.empty()) {
             continue;
         }
-        if (taskCommandRequestQueue_.empty())
-        {
+        if (taskCommandRequestQueue_.empty()) {
             continue;
         }
 
         auto commandRequest = std::move(taskCommandRequestQueue_.front());
         taskCommandRequestQueue_.pop();
-        const std::function<void(const std::string& text)>* currentCallback = onMessageStack_.top().get();
-        if (commandRequest == nullptr || commandManager_ == nullptr || currentCallback == nullptr)
-        {
+        const std::function<void(const std::string &text)> *currentCallback = onMessageStack_.top().get();
+        if (commandRequest == nullptr || commandManager_ == nullptr || currentCallback == nullptr) {
             continue;
         }
 
         auto commandResponse = std::make_unique<CommandResponse>();
-        const std::string& command = commandRequest->GetCommand();
+        const std::string &command = commandRequest->GetCommand();
         const CommandArgs args(command);
         LogCat::i("Executing command: ", command);
-        if (Command* cmd = commandManager_->GetCommand(args.AsString(0)); cmd == nullptr)
-        {
+        if (Command *cmd = commandManager_->GetCommand(args.AsString(0)); cmd == nullptr) {
             LogCat::w(std::source_location::current(), "Command not found: ", args.AsString(0));
             commandResponse->SetCommandResult(CommandResult::NotFound, command);
-        }
-        else if (!commandManager_->CanExecuteCommand(cmd))
-        {
+        } else if (!commandManager_->CanExecuteCommand(cmd)) {
             LogCat::w(std::source_location::current(), "Command cannot execute: ", args.AsString(0));
-            const LangsResources* langsResources = appContext_ != nullptr ? appContext_->GetLangsResources() : nullptr;
-            if (langsResources != nullptr)
-            {
-                if (cmd->RequiresWorldContext())
-                {
+            const LangsResources *langsResources = appContext_ != nullptr ? appContext_->GetLangsResources() : nullptr;
+            if (langsResources != nullptr) {
+                if (cmd->RequiresWorldContext()) {
                     (*currentCallback)(langsResources->worldContextIsNull);
-                }
-                else if (cmd->RequiresCheatEnabled())
-                {
+                } else if (cmd->RequiresCheatEnabled()) {
                     (*currentCallback)(langsResources->cheatsNotAllowed);
                 }
             }
             commandResponse->SetCommandResult(CommandResult::Failure, command);
-        }
-        else
-        {
+        } else {
             const bool success = cmd->Execute(
                 commandRequest->GetCommandSender(),
                 &args,
@@ -110,18 +94,15 @@ void glimmer::ConsoleWorker::WorkLoop(std::stop_token stopToken)
     LogCat::i("ConsoleWorker thread stopped");
 }
 
-glimmer::ConsoleWorker::ConsoleWorker(CommandManager* commandManager, AppContext* appContext)
-    : commandManager_(commandManager), appContext_(appContext)
-{
-    thread_ = std::jthread([this](const std::stop_token& stopToken) { this->WorkLoop(stopToken); });
+glimmer::ConsoleWorker::ConsoleWorker(CommandManager *commandManager, AppContext *appContext)
+    : commandManager_(commandManager), appContext_(appContext) {
+    thread_ = std::jthread([this](const std::stop_token &stopToken) { this->WorkLoop(stopToken); });
 }
 
-std::unique_ptr<glimmer::CommandResponse> glimmer::ConsoleWorker::TakeCommandResponse(const uint32_t id)
-{
+std::unique_ptr<glimmer::CommandResponse> glimmer::ConsoleWorker::TakeCommandResponse(const uint32_t id) {
     std::lock_guard lock(commandMutex_);
     const auto iterator = responseMap_.find(id);
-    if (iterator == responseMap_.end())
-    {
+    if (iterator == responseMap_.end()) {
         return nullptr;
     }
     std::unique_ptr<CommandResponse> result = std::move(iterator->second);
@@ -129,10 +110,8 @@ std::unique_ptr<glimmer::CommandResponse> glimmer::ConsoleWorker::TakeCommandRes
     return result;
 }
 
-uint32_t glimmer::ConsoleWorker::CreateRequest(const std::string& command, CommandSender* commandSender)
-{
-    if (command.empty() || commandSender == nullptr)
-    {
+uint32_t glimmer::ConsoleWorker::CreateRequest(const std::string &command, CommandSender *commandSender) {
+    if (command.empty() || commandSender == nullptr) {
         return 0;
     }
     std::lock_guard lock(commandMutex_);
@@ -145,24 +124,20 @@ uint32_t glimmer::ConsoleWorker::CreateRequest(const std::string& command, Comma
     return id;
 }
 
-void glimmer::ConsoleWorker::PopOnMessage()
-{
+void glimmer::ConsoleWorker::PopOnMessage() {
     std::lock_guard lock(commandMutex_);
-    if (!onMessageStack_.empty())
-    {
+    if (!onMessageStack_.empty()) {
         onMessageStack_.pop();
     }
     conditionVariable_.notify_one();
 }
 
-void glimmer::ConsoleWorker::Stop()
-{
+void glimmer::ConsoleWorker::Stop() {
     thread_.request_stop();
     conditionVariable_.notify_one();
 }
 
-void glimmer::ConsoleWorker::PushOnMessage(std::unique_ptr<std::function<void(const std::string& text)>> onMessage)
-{
+void glimmer::ConsoleWorker::PushOnMessage(std::unique_ptr<std::function<void(const std::string &text)> > onMessage) {
     std::lock_guard lock(commandMutex_);
     onMessageStack_.push(std::move(onMessage));
     conditionVariable_.notify_one();

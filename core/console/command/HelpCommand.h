@@ -27,21 +27,19 @@
 #pragma once
 #include "core/console/Command.h"
 
-namespace glimmer
-{
-    class HelpCommand final : public Command
-    {
-        void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
+namespace glimmer {
+    class HelpCommand final : public Command {
+        void InitSuggestions(NodeTree<std::string> *suggestionsTree) override;
 
     public:
-        explicit HelpCommand(AppContext* appContext);
+        explicit HelpCommand(AppContext *appContext);
 
         ~HelpCommand() override = default;
 
-        [[nodiscard]] const std::string& GetName() const override;
+        [[nodiscard]] const std::string &GetName() const override;
 
 
-        bool Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                     const std::function<void(const std::string& text)>* onMessage) override;
+        bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                     const std::function<void(const std::string &text)> *onMessage) override;
     };
 }

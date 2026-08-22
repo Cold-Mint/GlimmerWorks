@@ -34,7 +34,7 @@ namespace glimmer {
         WorldVector2D position_;
 
     public:
-        explicit FlowingTextCreator(WorldContext *worldContext, const std::string &text, const WorldVector2D& position);
+        explicit FlowingTextCreator(WorldContext *worldContext, const std::string &text, const WorldVector2D &position);
 
         void LoadTemplateComponents(uint32_t id) override;
     };

@@ -35,19 +35,16 @@
 #include "core/world/WorldContext.h"
 #include "fmt/xchar.h"
 
-void glimmer::TagCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
-{
-    if (suggestionsTree == nullptr)
-    {
+void glimmer::TagCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
+    if (suggestionsTree == nullptr) {
         return;
     }
     suggestionsTree->AddChild("hand");
     suggestionsTree->AddChild("inventory");
 }
 
-void glimmer::TagCommand::WriteTag(const std::string& tagItem, std::stringstream& stringStream,
-                                   StringManager* stringManager, const ItemTagResource& itemTagResource)
-{
+void glimmer::TagCommand::WriteTag(const std::string &tagItem, std::stringstream &stringStream,
+                                   StringManager *stringManager, const ItemTagResource &itemTagResource) {
     uint64_t cachedTagId = itemTagResource.cachedTagId;
     auto tagTranslate = stringManager->GetTagTranslate(cachedTagId);
     stringStream << fmt::format(fmt::runtime(tagItem), itemTagResource.name,
@@ -55,23 +52,17 @@ void glimmer::TagCommand::WriteTag(const std::string& tagItem, std::stringstream
                                 cachedTagId, itemTagResource.value);
 }
 
-std::string glimmer::TagCommand::BuildTagListString(const std::string& tagItem, StringManager* stringManager,
-                                                    const std::vector<const ItemTagResource*>& tagList)
-{
+std::string glimmer::TagCommand::BuildTagListString(const std::string &tagItem, StringManager *stringManager,
+                                                    const std::vector<const ItemTagResource *> &tagList) {
     std::stringstream stringStream;
     bool first = true;
-    for (auto tag : tagList)
-    {
-        if (tag == nullptr)
-        {
+    for (auto tag: tagList) {
+        if (tag == nullptr) {
             continue;
         }
-        if (first)
-        {
+        if (first) {
             first = false;
-        }
-        else
-        {
+        } else {
             stringStream << '\n';
         }
         WriteTag(tagItem, stringStream, stringManager, *tag);
@@ -80,78 +71,63 @@ std::string glimmer::TagCommand::BuildTagListString(const std::string& tagItem, 
 }
 
 
-glimmer::TagCommand::TagCommand(AppContext* appContext) : Command(appContext)
-{
+glimmer::TagCommand::TagCommand(AppContext *appContext) : Command(appContext) {
 }
 
-bool glimmer::TagCommand::RequiresWorldContext() const
-{
+bool glimmer::TagCommand::RequiresWorldContext() const {
     return true;
 }
 
-const std::string& glimmer::TagCommand::GetName() const
-{
+const std::string &glimmer::TagCommand::GetName() const {
     return TAG_COMMAND_NAME;
 }
 
-void glimmer::TagCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
-{
-    if (strings == nullptr)
-    {
+void glimmer::TagCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
+    if (strings == nullptr) {
         return;
     }
     strings->emplace_back("[type:string]");
 }
 
-template <typename MessageCallback>
-bool glimmer::TagCommand::ExecuteHand([[maybe_unused]] const CommandSender* commandSender,
-                                      const WorldContext* worldContext,
-                                      MessageCallback&& onMessageRef,
-                                      const AppContext* appContext, const LangsResources* langsResources)
-{
-    const EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
-    if (entityShortCut == nullptr)
-    {
+template<typename MessageCallback>
+bool glimmer::TagCommand::ExecuteHand([[maybe_unused]] const CommandSender *commandSender,
+                                      const WorldContext *worldContext,
+                                      MessageCallback &&onMessageRef,
+                                      const AppContext *appContext, const LangsResources *langsResources) {
+    const EntityShortCut *entityShortCut = worldContext->GetEntityShortCut();
+    if (entityShortCut == nullptr) {
         return false;
     }
-    EntityManager* entityManager = worldContext->GetEntityManager();
-    if (entityManager == nullptr)
-    {
+    EntityManager *entityManager = worldContext->GetEntityManager();
+    if (entityManager == nullptr) {
         return false;
     }
     auto plyerEntity = entityShortCut->GetPlayer();
-    if (WorldContext::IsEmptyEntityId(plyerEntity))
-    {
+    if (WorldContext::IsEmptyEntityId(plyerEntity)) {
         return false;
     }
     auto playerComponent = entityManager->GetComponent<PlayerComponent>(plyerEntity);
-    if (playerComponent == nullptr)
-    {
+    if (playerComponent == nullptr) {
         return false;
     }
     auto item = playerComponent->GetItem();
-    if (item == nullptr)
-    {
+    if (item == nullptr) {
         return false;
     }
-    StringManager* stringManager = appContext->GetModContext()->GetStringManager();
-    const ItemTagModule* itemTagModule = item->GetTagModule();
-    if (itemTagModule == nullptr)
-    {
+    StringManager *stringManager = appContext->GetModContext()->GetStringManager();
+    const ItemTagModule *itemTagModule = item->GetTagModule();
+    if (itemTagModule == nullptr) {
         return false;
     }
-    const std::vector<uint64_t>& tagList = itemTagModule->GetTags();
-    if (tagList.empty())
-    {
+    const std::vector<uint64_t> &tagList = itemTagModule->GetTags();
+    if (tagList.empty()) {
         onMessageRef(langsResources->tagCannotFound);
         return true;
     }
-    std::vector<const ItemTagResource*> itemTagResourceList;
-    for (uint64_t tag : tagList)
-    {
-        const ItemTagResource* itemTagResource = itemTagModule->GetItemTagResource(tag);
-        if (itemTagResource == nullptr)
-        {
+    std::vector<const ItemTagResource *> itemTagResourceList;
+    for (uint64_t tag: tagList) {
+        const ItemTagResource *itemTagResource = itemTagModule->GetItemTagResource(tag);
+        if (itemTagResource == nullptr) {
             continue;
         }
         itemTagResourceList.emplace_back(itemTagResource);
@@ -160,31 +136,26 @@ bool glimmer::TagCommand::ExecuteHand([[maybe_unused]] const CommandSender* comm
     return true;
 }
 
-template <typename MessageCallback>
-bool glimmer::TagCommand::ExecuteInventory([[maybe_unused]] const CommandSender* commandSender,
-                                           const WorldContext* worldContext,
-                                           MessageCallback&& onMessageRef,
-                                           const AppContext* appContext, const LangsResources* langsResources)
-{
-    const EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
-    if (entityShortCut == nullptr)
-    {
+template<typename MessageCallback>
+bool glimmer::TagCommand::ExecuteInventory([[maybe_unused]] const CommandSender *commandSender,
+                                           const WorldContext *worldContext,
+                                           MessageCallback &&onMessageRef,
+                                           const AppContext *appContext, const LangsResources *langsResources) {
+    const EntityShortCut *entityShortCut = worldContext->GetEntityShortCut();
+    if (entityShortCut == nullptr) {
         return false;
     }
-    const ItemContainerComponent* itemContainerComponent = entityShortCut->GetItemContainerComponent();
-    if (itemContainerComponent == nullptr)
-    {
+    const ItemContainerComponent *itemContainerComponent = entityShortCut->GetItemContainerComponent();
+    if (itemContainerComponent == nullptr) {
         return false;
     }
-    ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
-    if (itemContainer == nullptr)
-    {
+    ItemContainer *itemContainer = itemContainerComponent->GetItemContainer();
+    if (itemContainer == nullptr) {
         return false;
     }
-    const std::vector<const ItemTagResource*>& totalTags = itemContainer->GetTotalTags();
-    StringManager* stringManager = appContext->GetModContext()->GetStringManager();
-    if (totalTags.empty())
-    {
+    const std::vector<const ItemTagResource *> &totalTags = itemContainer->GetTotalTags();
+    StringManager *stringManager = appContext->GetModContext()->GetStringManager();
+    if (totalTags.empty()) {
         onMessageRef(langsResources->tagCannotFound);
         return true;
     }
@@ -192,40 +163,33 @@ bool glimmer::TagCommand::ExecuteInventory([[maybe_unused]] const CommandSender*
     return true;
 }
 
-bool glimmer::TagCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                                  const std::function<void(const std::string& text)>* onMessage)
-{
-    const AppContext* appContext = GetAppContext();
-    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
-    {
+bool glimmer::TagCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                                  const std::function<void(const std::string &text)> *onMessage) {
+    const AppContext *appContext = GetAppContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr) {
         return false;
     }
-    const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    const LangsResources* langsResources = appContext->GetLangsResources();
-    if (langsResources == nullptr)
-    {
+    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
+    const LangsResources *langsResources = appContext->GetLangsResources();
+    if (langsResources == nullptr) {
         return false;
     }
-    if (int size = commandArgs->GetSize(); size < 2)
-    {
+    if (int size = commandArgs->GetSize(); size < 2) {
         onMessageRef(fmt::format(
             fmt::runtime(langsResources->insufficientParameterLength),
             2, size));
         return false;
     }
-    const WorldContext* worldContext = GetWorldContext();
-    if (worldContext == nullptr)
-    {
+    const WorldContext *worldContext = GetWorldContext();
+    if (worldContext == nullptr) {
         onMessageRef(appContext->GetLangsResources()->worldContextIsNull);
         return false;
     }
     const std::string type = commandArgs->AsString(1);
-    if (type == "hand")
-    {
+    if (type == "hand") {
         return ExecuteHand(commandSender, worldContext, onMessageRef, appContext, langsResources);
     }
-    if (type == "inventory")
-    {
+    if (type == "inventory") {
         return ExecuteInventory(commandSender, worldContext, onMessageRef, appContext, langsResources);
     }
     return false;

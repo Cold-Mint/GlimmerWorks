@@ -33,97 +33,79 @@
 #include "core/log/LogCat.h"
 #include "core/Constants.h"
 
-glimmer::PauseSystem::PauseSystem(WorldContext* worldContext) : GuiGameSystem(worldContext)
-{
+glimmer::PauseSystem::PauseSystem(WorldContext *worldContext) : GuiGameSystem(worldContext) {
     WatchComponent(COMPONENT_PAUSE);
     Init();
 }
 
-void glimmer::PauseSystem::TogglePause() const
-{
-    WorldContext* worldContext = GetWorldContext();
-    if (worldContext == nullptr)
-    {
+void glimmer::PauseSystem::TogglePause() const {
+    WorldContext *worldContext = GetWorldContext();
+    if (worldContext == nullptr) {
         LogCat::w(std::source_location::current(), "Cannot toggle pause system: worldContext is nullptr");
         return;
     }
     bool newValue = !worldContext->IsRuning();
     worldContext->SetRuning(newValue);
-    if (elementDocument_ == nullptr)
-    {
+    if (elementDocument_ == nullptr) {
         LogCat::w(std::source_location::current(), "Cannot toggle pause system: elementDocument_ is nullptr");
         return;
     }
-    if (newValue)
-    {
+    if (newValue) {
         elementDocument_->Hide();
-    }
-    else
-    {
+    } else {
         elementDocument_->Show();
     }
 }
 
-bool glimmer::PauseSystem::HandleEvent(const SDL_Event& event)
-{
-    if (event.type == SDL_EVENT_KEY_DOWN && event.key.scancode == SDL_SCANCODE_ESCAPE)
-    {
+bool glimmer::PauseSystem::HandleEvent(const SDL_Event &event) {
+    if (event.type == SDL_EVENT_KEY_DOWN && event.key.scancode == SDL_SCANCODE_ESCAPE) {
         TogglePause();
         return true;
     }
     return false;
 }
 
-bool glimmer::PauseSystem::OnBackPressed()
-{
+bool glimmer::PauseSystem::OnBackPressed() {
     TogglePause();
     return true;
 }
 
-void glimmer::PauseSystem::OnResumeButtonClick(Rml::DataModelHandle handle, Rml::Event& event,
-                                               const Rml::VariantList& args)
-{
+void glimmer::PauseSystem::OnResumeButtonClick(Rml::DataModelHandle handle, Rml::Event &event,
+                                               const Rml::VariantList &args) {
     TogglePause();
 }
 
-void glimmer::PauseSystem::OnSaveAndExitButtonClick(Rml::DataModelHandle handle, Rml::Event& event,
-                                                    const Rml::VariantList& args)
-{
-    WorldContext* worldContext = GetWorldContext();
-    if (worldContext == nullptr)
-    {
+void glimmer::PauseSystem::OnSaveAndExitButtonClick(Rml::DataModelHandle handle, Rml::Event &event,
+                                                    const Rml::VariantList &args) {
+    WorldContext *worldContext = GetWorldContext();
+    if (worldContext == nullptr) {
         LogCat::w(std::source_location::current(), "Cannot save pause system: worldContext is nullptr");
         return;
     }
     worldContext->SetRuning(false);
     worldContext->SaveGame();
-    const AppContext* appContext = worldContext->GetAppContext();
-    if (appContext == nullptr)
-    {
+    const AppContext *appContext = worldContext->GetAppContext();
+    if (appContext == nullptr) {
         LogCat::w(std::source_location::current(), "Cannot save pause system: appContext is nullptr");
         return;
     }
     appContext->SetRandomSlogan();
-    MainThreadDispatcher* mainThreadDispatcher = appContext->GetMainThreadDispatcher();
-    if (mainThreadDispatcher == nullptr)
-    {
+    MainThreadDispatcher *mainThreadDispatcher = appContext->GetMainThreadDispatcher();
+    if (mainThreadDispatcher == nullptr) {
         LogCat::w(std::source_location::current(), "Cannot save pause system: mainThreadDispatcher is nullptr");
         return;
     }
-    SceneManager* sceneManager = appContext->GetSceneManager();
-    if (sceneManager == nullptr)
-    {
+    SceneManager *sceneManager = appContext->GetSceneManager();
+    if (sceneManager == nullptr) {
         LogCat::w(std::source_location::current(), "Cannot save pause system: sceneManager is nullptr");
         return;
     }
-    mainThreadDispatcher->PostToNextMainFrame([sceneManager]
-    {
+    mainThreadDispatcher->PostToNextMainFrame([sceneManager] {
         sceneManager->PopScene();
     });
 }
 
-void glimmer::PauseSystem::LoadDocuments(IDocumentRegistry* documentRegistry)
-{
+void glimmer::PauseSystem::LoadDocuments(IDocumentRegistry *documentRegistry) {
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
@@ -132,31 +114,26 @@ void glimmer::PauseSystem::LoadDocuments(IDocumentRegistry* documentRegistry)
     elementDocument_->Hide();
 }
 
-void glimmer::PauseSystem::OnCreateDataModels(IDocumentRegistry* documentRegistry)
-{
-    Rml::DataModelConstructor* constructor = documentRegistry->CreateDataModel("pause_system");
-    if (constructor == nullptr)
-    {
+void glimmer::PauseSystem::OnCreateDataModels(IDocumentRegistry *documentRegistry) {
+    Rml::DataModelConstructor *constructor = documentRegistry->CreateDataModel("pause_system");
+    if (constructor == nullptr) {
         LogCat::e(std::source_location::current(), "Failed to create pause_system data model");
         return;
     }
 
     constructor->BindEventCallback("on_resume_button_click",
-                                   [this](Rml::DataModelHandle handle, Rml::Event& event,
-                                          const Rml::VariantList& args)
-                                   {
+                                   [this](Rml::DataModelHandle handle, Rml::Event &event,
+                                          const Rml::VariantList &args) {
                                        OnResumeButtonClick(handle, event, args);
                                    });
 
     constructor->BindEventCallback("on_save_and_exit_button_click",
-                                   [this](Rml::DataModelHandle handle, Rml::Event& event,
-                                          const Rml::VariantList& args)
-                                   {
+                                   [this](Rml::DataModelHandle handle, Rml::Event &event,
+                                          const Rml::VariantList &args) {
                                        OnSaveAndExitButtonClick(handle, event, args);
                                    });
 }
 
-glimmer::GameSystemType glimmer::PauseSystem::GetGameSystemType() const
-{
+glimmer::GameSystemType glimmer::PauseSystem::GetGameSystemType() const {
     return GameSystemType::PauseSystem;
 }

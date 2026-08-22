@@ -28,62 +28,51 @@
 
 #include "core/world/WorldContext.h"
 
-std::optional<glimmer::StructureInfo> glimmer::TreeStructureGenerator::Generate(WorldContext* worldContext,
-    const TileVector2D& startPosition, IStructureResource* structureResource)
-{
-    if (structureResource == nullptr || worldContext == nullptr)
-    {
+std::optional<glimmer::StructureInfo> glimmer::TreeStructureGenerator::Generate(WorldContext *worldContext,
+    const TileVector2D &startPosition, IStructureResource *structureResource) {
+    if (structureResource == nullptr || worldContext == nullptr) {
         return std::nullopt;
     }
-    ChunkGenerator* chunkGenerator = worldContext->GetChunkGenerator();
-    if (chunkGenerator == nullptr)
-    {
+    ChunkGenerator *chunkGenerator = worldContext->GetChunkGenerator();
+    if (chunkGenerator == nullptr) {
         return std::nullopt;
     }
-    auto treeStructureResource = dynamic_cast<TreeStructureResource*>(structureResource);
-    ResourceRef& trunkRef = treeStructureResource->data.at(treeStructureResource->trunkDataIndex);
-    ResourceRef& leafRef = treeStructureResource->data.at(treeStructureResource->leafDataIndex);
+    auto treeStructureResource = dynamic_cast<TreeStructureResource *>(structureResource);
+    ResourceRef &trunkRef = treeStructureResource->data.at(treeStructureResource->trunkDataIndex);
+    ResourceRef &leafRef = treeStructureResource->data.at(treeStructureResource->leafDataIndex);
     auto structureInfo = StructureInfo();
     int trunkHeight = treeStructureResource->trunkHeightMin + static_cast<uint8_t>(chunkGenerator->
-        GetHumidity(startPosition) *
-        static_cast<float>(treeStructureResource->trunkHeightMax - treeStructureResource->trunkHeightMin));
+                          GetHumidity(startPosition) *
+                          static_cast<float>(treeStructureResource->trunkHeightMax - treeStructureResource->
+                                             trunkHeightMin));
     auto trunkTileLayer = static_cast<TileLayerType>(treeStructureResource->trunkTileLayer);
-    for (int y = 0; y < trunkHeight; ++y)
-    {
-        for (int x = 0; x < treeStructureResource->trunkWidth; ++x)
-        {
+    for (int y = 0; y < trunkHeight; ++y) {
+        for (int x = 0; x < treeStructureResource->trunkWidth; ++x) {
             structureInfo.SetTile(trunkTileLayer, TileVector2D(x, y), trunkRef);
         }
     }
-    if (treeStructureResource->hasLeaves)
-    {
+    if (treeStructureResource->hasLeaves) {
         auto leafTileLayer = static_cast<TileLayerType>(treeStructureResource->leafTileLayer);
         uint8_t leafRadius = treeStructureResource->leafRadius;
-        for (int i = 0; i < treeStructureResource->leafClusterCount; ++i)
-        {
+        for (int i = 0; i < treeStructureResource->leafClusterCount; ++i) {
             int clusterY = trunkHeight - i * treeStructureResource->leafVerticalSpacing;
             AddLeafCluster(structureInfo, leafTileLayer, leafRadius, clusterY,
-                          treeStructureResource->trunkWidth, leafRef);
+                           treeStructureResource->trunkWidth, leafRef);
         }
     }
     return structureInfo;
 }
 
-glimmer::StructureGeneratorType glimmer::TreeStructureGenerator::GetStructureGeneratorType() const
-{
+glimmer::StructureGeneratorType glimmer::TreeStructureGenerator::GetStructureGeneratorType() const {
     return StructureGeneratorType::Tree;
 }
 
-void glimmer::TreeStructureGenerator::AddLeafCluster(StructureInfo& structureInfo, TileLayerType leafTileLayer,
-                                                      uint8_t leafRadius, int clusterY, int trunkWidth,
-                                                      ResourceRef& leafRef)
-{
-    for (int x = -leafRadius; x <= leafRadius; ++x)
-    {
-        for (int y = -leafRadius; y <= leafRadius; ++y)
-        {
-            if (x * x + y * y > leafRadius * leafRadius || y < 0)
-            {
+void glimmer::TreeStructureGenerator::AddLeafCluster(StructureInfo &structureInfo, TileLayerType leafTileLayer,
+                                                     uint8_t leafRadius, int clusterY, int trunkWidth,
+                                                     ResourceRef &leafRef) {
+    for (int x = -leafRadius; x <= leafRadius; ++x) {
+        for (int y = -leafRadius; y <= leafRadius; ++y) {
+            if (x * x + y * y > leafRadius * leafRadius || y < 0) {
                 continue;
             }
             structureInfo.SetTile(leafTileLayer,

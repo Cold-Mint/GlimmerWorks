@@ -29,39 +29,30 @@
 #include "core/log/LogCat.h"
 #include "fmt/xchar.h"
 
-void glimmer::PlayerTechnologyHandler::ResetTechnologyMap()
-{
+void glimmer::PlayerTechnologyHandler::ResetTechnologyMap() {
     technologyMap_.clear();
     technologyMap_[RecipeGroup::None] = 1;
     LogCat::i("Technology map reset");
 }
 
-void glimmer::PlayerTechnologyHandler::SetTechnology(RecipeGroup recipeGroup, uint8_t technologyLevel)
-{
+void glimmer::PlayerTechnologyHandler::SetTechnology(RecipeGroup recipeGroup, uint8_t technologyLevel) {
     auto iterator = technologyMap_.find(recipeGroup);
-    if (iterator == technologyMap_.end())
-    {
+    if (iterator == technologyMap_.end()) {
         technologyMap_[recipeGroup] = technologyLevel;
-    }
-    else
-    {
-        if (technologyLevel > iterator->second)
-        {
+    } else {
+        if (technologyLevel > iterator->second) {
             technologyMap_[recipeGroup] = technologyLevel;
         }
     }
 }
 
-const std::unordered_map<glimmer::RecipeGroup, uint8_t>& glimmer::PlayerTechnologyHandler::GetTechnologyMap() const
-{
+const std::unordered_map<glimmer::RecipeGroup, uint8_t> &glimmer::PlayerTechnologyHandler::GetTechnologyMap() const {
     return technologyMap_;
 }
 
-std::string glimmer::PlayerTechnologyHandler::ListTechnology(const std::string& technologyItem) const
-{
+std::string glimmer::PlayerTechnologyHandler::ListTechnology(const std::string &technologyItem) const {
     std::stringstream ss;
-    for (auto& [recipeGroup, techLevel] : technologyMap_)
-    {
+    for (auto &[recipeGroup, techLevel]: technologyMap_) {
         ss << fmt::format(
             fmt::runtime(technologyItem),
             std::to_underlying(recipeGroup), static_cast<int>(techLevel));

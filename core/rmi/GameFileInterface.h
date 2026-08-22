@@ -28,21 +28,20 @@
 #include "core/vfs/VirtualFileSystem.h"
 #include "RmlUi/Core/FileInterface.h"
 
-namespace glimmer
-{
-    class GameFileInterface : public Rml::FileInterface
-    {
-        VirtualFileSystem* virtualFileSystem_ = nullptr;
-        std::unordered_map<uint64_t,std::unique_ptr<std::istream>> streamMap_;
+namespace glimmer {
+    class GameFileInterface : public Rml::FileInterface {
+        VirtualFileSystem *virtualFileSystem_ = nullptr;
+        std::unordered_map<uint64_t, std::unique_ptr<std::istream> > streamMap_;
         uint64_t indexFileHandle_ = 0;
-    public:
-        explicit GameFileInterface(VirtualFileSystem* virtualFileSystem);
 
-        Rml::FileHandle Open(const Rml::String& path) override;
+    public:
+        explicit GameFileInterface(VirtualFileSystem *virtualFileSystem);
+
+        Rml::FileHandle Open(const Rml::String &path) override;
 
         void Close(Rml::FileHandle file) override;
 
-        size_t Read(void* buffer, size_t size, Rml::FileHandle file) override;
+        size_t Read(void *buffer, size_t size, Rml::FileHandle file) override;
 
         bool Seek(Rml::FileHandle file, long offset, int origin) override;
 
@@ -50,7 +49,7 @@ namespace glimmer
 
         size_t Length(Rml::FileHandle file) override;
 
-        bool LoadFile(const Rml::String& path, Rml::String& out_data) override;
+        bool LoadFile(const Rml::String &path, Rml::String &out_data) override;
 
         ~GameFileInterface() override;
     };

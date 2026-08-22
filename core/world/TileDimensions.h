@@ -27,10 +27,8 @@
 #pragma once
 #include "core/math/TileVector2D.h"
 
-namespace glimmer
-{
-    class TileDimensions
-    {
+namespace glimmer {
+    class TileDimensions {
         uint8_t tileWidth_ = 1;
         uint8_t tileHeight_ = 1;
         bool allowDirAdjustAnchor_ = true;
@@ -43,7 +41,7 @@ namespace glimmer
 
         [[nodiscard]] bool IsAllowDirAdjustAnchor() const;
 
-        [[nodiscard]] const TileVector2D* GetTileAnchor() const;
+        [[nodiscard]] const TileVector2D *GetTileAnchor() const;
 
         void SetTileWidth(uint8_t tileWidth);
 
@@ -51,6 +49,6 @@ namespace glimmer
 
         void SetAllowDirAdjustAnchor(bool allowDirAdjustAnchor);
 
-        void SetTileAnchor(const TileVector2D& tileAnchor);
+        void SetTileAnchor(const TileVector2D &tileAnchor);
     };
 }

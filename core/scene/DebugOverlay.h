@@ -29,8 +29,7 @@
 #include "Scene.h"
 #include "core/mod/resourcePack/ResourcePackManager.h"
 
-namespace glimmer
-{
+namespace glimmer {
     struct LangsResources;
     /**
      * Debug the overlay layer
@@ -38,8 +37,7 @@ namespace glimmer
      * It can be displayed on any scene. Display frps, screen coordinates and other information.
      * 可以显示在任意场景上。显示frps，屏幕坐标等信息。
      */
-    class DebugOverlay : public Scene
-    {
+    class DebugOverlay : public Scene {
         float fps_ = 0.0F;
         float frameTimeMs_ = 0.0F;
         float fpsAccumTime_ = 0.0F;
@@ -48,22 +46,22 @@ namespace glimmer
         int windowWidth_ = 0;
         int windowHeight_ = 0;
         float uiScale_ = 0.0F;
-        std::unordered_map<int, std::shared_ptr<SDL_Texture>> numberTextureMap_;
-        std::unordered_map<uint64_t, std::shared_ptr<SDL_Texture>> fpsTextures_;
-        ResourcePackManager* resourcePackManager_ = nullptr;
-        PreloadColors* preloadColors_ = nullptr;
-        LangsResources* langsResources_ = nullptr;
+        std::unordered_map<int, std::shared_ptr<SDL_Texture> > numberTextureMap_;
+        std::unordered_map<uint64_t, std::shared_ptr<SDL_Texture> > fpsTextures_;
+        ResourcePackManager *resourcePackManager_ = nullptr;
+        PreloadColors *preloadColors_ = nullptr;
+        LangsResources *langsResources_ = nullptr;
 
     public:
-        explicit DebugOverlay(AppContext* context);
+        explicit DebugOverlay(AppContext *context);
 
         void Update(float delta) override;
 
-        void Render(SDL_Renderer* renderer) override;
+        void Render(SDL_Renderer *renderer) override;
 
-        void OnConfigChanged(const Config* config) override;
+        void OnConfigChanged(const Config *config) override;
 
-        void OnWindowSizeChanged(const int& width, const int& height) override;
+        void OnWindowSizeChanged(const int &width, const int &height) override;
 
         ~DebugOverlay() override = default;
     };

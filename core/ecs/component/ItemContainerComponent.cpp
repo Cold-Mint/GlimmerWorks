@@ -29,40 +29,33 @@
 #include "core/world/WorldContext.h"
 
 
-glimmer::ItemContainerComponent::ItemContainerComponent()
-{
+glimmer::ItemContainerComponent::ItemContainerComponent() {
     itemContainer_ = std::make_unique<ItemContainer>();
 }
 
 
-glimmer::ItemContainer* glimmer::ItemContainerComponent::GetItemContainer() const
-{
+glimmer::ItemContainer *glimmer::ItemContainerComponent::GetItemContainer() const {
     return itemContainer_.get();
 }
 
-std::optional<std::string> glimmer::ItemContainerComponent::Serialize()
-{
+std::optional<std::string> glimmer::ItemContainerComponent::Serialize() {
     ItemContainerMessage itemContainerMessage;
     itemContainer_->ToMessage(itemContainerMessage);
     return itemContainerMessage.SerializeAsString();
 }
 
 
-void glimmer::ItemContainerComponent::Deserialize(WorldContext* worldContext, const std::string& data)
-{
+void glimmer::ItemContainerComponent::Deserialize(WorldContext *worldContext, const std::string &data) {
     ItemContainerMessage itemContainerMessage;
-    if (itemContainerMessage.ParseFromString(data))
-    {
+    if (itemContainerMessage.ParseFromString(data)) {
         itemContainer_->FromMessage(worldContext, itemContainerMessage);
     }
 }
 
-GameComponentTypeMessage glimmer::ItemContainerComponent::GetComponentTypeStatic()
-{
+GameComponentTypeMessage glimmer::ItemContainerComponent::GetComponentTypeStatic() {
     return COMPONENT_ITEM_CONTAINER;
 }
 
-GameComponentTypeMessage glimmer::ItemContainerComponent::GetComponentType()
-{
+GameComponentTypeMessage glimmer::ItemContainerComponent::GetComponentType() {
     return GetComponentTypeStatic();
 }

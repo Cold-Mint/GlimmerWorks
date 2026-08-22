@@ -32,18 +32,15 @@
 #include "toml11/parser.hpp"
 
 
-glimmer::ResourcePack::ResourcePack(std::filesystem::path path, const VirtualFileSystem* virtualFileSystem,
-                                    const toml::spec& tomlVersion) : path_(std::move(path)),
+glimmer::ResourcePack::ResourcePack(std::filesystem::path path, const VirtualFileSystem *virtualFileSystem,
+                                    const toml::spec &tomlVersion) : path_(std::move(path)),
                                                                      virtualFileSystem_(virtualFileSystem), manifest_(),
-                                                                     tomlVersion_(tomlVersion)
-{
+                                                                     tomlVersion_(tomlVersion) {
 }
 
-bool glimmer::ResourcePack::LoadManifest()
-{
+bool glimmer::ResourcePack::LoadManifest() {
     const auto contentOptional = virtualFileSystem_->ReadFileAsString(path_ / MANIFEST_FILE_NAME);
-    if (!contentOptional.has_value())
-    {
+    if (!contentOptional.has_value()) {
         return false;
     }
     const toml::value value = toml::parse_str(contentOptional.value(),
@@ -54,12 +51,10 @@ bool glimmer::ResourcePack::LoadManifest()
     return true;
 }
 
-const glimmer::ResourcePackManifest& glimmer::ResourcePack::GetManifest() const
-{
+const glimmer::ResourcePackManifest &glimmer::ResourcePack::GetManifest() const {
     return manifest_;
 }
 
-const std::filesystem::path& glimmer::ResourcePack::GetPath() const
-{
+const std::filesystem::path &glimmer::ResourcePack::GetPath() const {
     return path_;
 }

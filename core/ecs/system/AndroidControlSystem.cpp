@@ -44,8 +44,7 @@ namespace glimmer {
         return x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h;
     }
 
-    glimmer::GameSystemType glimmer::AndroidControlSystem::GetGameSystemType()
-    {
+    glimmer::GameSystemType glimmer::AndroidControlSystem::GetGameSystemType() {
         return GameSystemType::AndroidControlSystem;
     }
 
@@ -69,7 +68,7 @@ namespace glimmer {
     }
 
     bool AndroidControlSystem::HandleEvent(const SDL_Event &event) {
-        const WorldContext* worldContext = GetWorldContext();
+        const WorldContext *worldContext = GetWorldContext();
         const AppContext *appContext = worldContext->GetAppContext();
         if (appContext == nullptr) {
             return false;
@@ -97,13 +96,10 @@ namespace glimmer {
                 if (newType != currentType) {
                     if (currentType != ButtonType::None) {
                         if (currentType == ButtonType::Left) {
-
                             SendKeyEvent(SDLK_A, false);
                         } else if (currentType == ButtonType::Right) {
-
                             SendKeyEvent(SDLK_D, false);
                         } else if (currentType == ButtonType::Jump) {
-
                             SendKeyEvent(SDLK_SPACE, false);
                         }
                     }
@@ -111,13 +107,10 @@ namespace glimmer {
                     if (newType != ButtonType::None) {
                         activeTouches[fingerId] = newType;
                         if (newType == ButtonType::Left) {
-
                             SendKeyEvent(SDLK_A, true);
                         } else if (newType == ButtonType::Right) {
-
                             SendKeyEvent(SDLK_D, true);
                         } else if (newType == ButtonType::Jump) {
-
                             SendKeyEvent(SDLK_SPACE, true);
                         }
                     } else {
@@ -131,13 +124,10 @@ namespace glimmer {
                 if (activeTouches.contains(fingerId)) {
                     ButtonType type = activeTouches[fingerId];
                     if (type == ButtonType::Left) {
-
                         SendKeyEvent(SDLK_A, false);
                     } else if (type == ButtonType::Right) {
-
                         SendKeyEvent(SDLK_D, false);
                     } else if (type == ButtonType::Jump) {
-
                         SendKeyEvent(SDLK_SPACE, false);
                     }
                     activeTouches.erase(fingerId);
@@ -155,7 +145,7 @@ namespace glimmer {
         if (renderer == nullptr) {
             return;
         }
-        const WorldContext* worldContext = GetWorldContext();
+        const WorldContext *worldContext = GetWorldContext();
         const AppContext *appContext = worldContext->GetAppContext();
         if (appContext == nullptr) {
             return;

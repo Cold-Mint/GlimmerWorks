@@ -28,16 +28,14 @@
 #include "core/ecs/GameComponent.h"
 #include "core/inventory/ItemContainer.h"
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * Item container component
      * 物品容器组件
      * Add it to a game object to give the game object the ability to hold items.
      * 将其添加到一个游戏对象上，使游戏对象拥有持有物品的能力。
      */
-    class ItemContainerComponent : public GameComponent
-    {
+    class ItemContainerComponent : public GameComponent {
         std::unique_ptr<ItemContainer> itemContainer_ = nullptr;
 
     public:
@@ -48,11 +46,11 @@ namespace glimmer
          * 获取物品容器
          * @return
          */
-        [[nodiscard]] ItemContainer* GetItemContainer() const;
+        [[nodiscard]] ItemContainer *GetItemContainer() const;
 
         [[nodiscard]] std::optional<std::string> Serialize() override;
 
-        void Deserialize(WorldContext* worldContext, const std::string& data) override;
+        void Deserialize(WorldContext *worldContext, const std::string &data) override;
 
         [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 

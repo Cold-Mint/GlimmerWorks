@@ -28,32 +28,26 @@
 
 #include <utility>
 
-void glimmer::CraftPreview::SetCount(uint8_t count)
-{
+void glimmer::CraftPreview::SetCount(uint8_t count) {
     count_ = count;
 }
 
-const std::string& glimmer::CraftPreview::GetName()
-{
+const std::string &glimmer::CraftPreview::GetName() {
     return name_;
 }
 
-void glimmer::CraftPreview::SetName(std::string_view name)
-{
+void glimmer::CraftPreview::SetName(std::string_view name) {
     name_ = name;
 }
 
-uint8_t glimmer::CraftPreview::GetCount() const
-{
+uint8_t glimmer::CraftPreview::GetCount() const {
     return count_;
 }
 
-std::shared_ptr<SDL_Texture> glimmer::CraftPreview::GetTexture()
-{
+std::shared_ptr<SDL_Texture> glimmer::CraftPreview::GetTexture() {
     return texture_;
 }
 
-void glimmer::CraftPreview::SetTexture(std::shared_ptr<SDL_Texture> texture)
-{
+void glimmer::CraftPreview::SetTexture(std::shared_ptr<SDL_Texture> texture) {
     texture_ = std::move(texture);
 }

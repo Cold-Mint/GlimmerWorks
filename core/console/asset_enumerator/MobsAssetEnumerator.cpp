@@ -28,20 +28,16 @@
 #if  !defined(NDEBUG)
 #include "core/context/AppContext.h"
 
-std::string_view glimmer::MobsAssetEnumerator::GetAssetType() const
-{
+std::string_view glimmer::MobsAssetEnumerator::GetAssetType() const {
     return assetName;
 }
 
-std::optional<std::string> glimmer::MobsAssetEnumerator::ListAsset(const AppContext* appContext)
-{
-    if (appContext == nullptr)
-    {
+std::optional<std::string> glimmer::MobsAssetEnumerator::ListAsset(const AppContext *appContext) {
+    if (appContext == nullptr) {
         return std::nullopt;
     }
-    const MobManager* mobManager = appContext->GetModContext()->GetMobManager();
-    if (mobManager == nullptr)
-    {
+    const MobManager *mobManager = appContext->GetModContext()->GetMobManager();
+    if (mobManager == nullptr) {
         return std::nullopt;
     }
     return mobManager->ListString();

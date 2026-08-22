@@ -31,18 +31,15 @@
 #include "core/utils/StringUtils.h"
 
 
-glimmer::RenderInterfaceSDL3::RenderInterfaceSDL3(SDL_Renderer* renderer, ResourcePackManager* resourcePackManager,
-                                                  ResourceLocator* resourceLocator) : RenderInterface_SDL(renderer)
-{
+glimmer::RenderInterfaceSDL3::RenderInterfaceSDL3(SDL_Renderer *renderer, ResourcePackManager *resourcePackManager,
+                                                  ResourceLocator *resourceLocator) : RenderInterface_SDL(renderer) {
     resourcePackManager_ = resourcePackManager;
     resourceLocator_ = resourceLocator;
 }
 
-Rml::TextureHandle glimmer::RenderInterfaceSDL3::LoadTexture(Rml::Vector2i& texture_dimensions,
-                                                             const Rml::String& source)
-{
-    if (!source.starts_with(TEXTURE_PREFIX))
-    {
+Rml::TextureHandle glimmer::RenderInterfaceSDL3::LoadTexture(Rml::Vector2i &texture_dimensions,
+                                                             const Rml::String &source) {
+    if (!source.starts_with(TEXTURE_PREFIX)) {
         LogCat::e(std::source_location::current(),
                   "Only textures with the loading path starting with \'", TEXTURE_PREFIX, "\' are supported. source=",
                   source);
@@ -50,22 +47,19 @@ Rml::TextureHandle glimmer::RenderInterfaceSDL3::LoadTexture(Rml::Vector2i& text
     }
     const std::string id = source.substr(TEXTURE_PREFIX.size());
     const std::optional<ResourceRef> resourceRefOptional = ResourceRef::ParseFromId(id, RESOURCE_TEXTURE);
-    if (!resourceRefOptional.has_value())
-    {
+    if (!resourceRefOptional.has_value()) {
         LogCat::w(std::source_location::current(), "!resourceRefOptional.has_value()");
         return {};
     }
     const std::shared_ptr<TextureResourceResult> textureResourceResult = resourceLocator_->FindTexture(
         &resourceRefOptional.value());
-    if (textureResourceResult == nullptr)
-    {
+    if (textureResourceResult == nullptr) {
         LogCat::w(std::source_location::current(), "textureResourceResult == nullptr");
         return {};
     }
-    SDL_Texture* sdlTexture = textureResourceResult->GetResource();
+    SDL_Texture *sdlTexture = textureResourceResult->GetResource();
     const auto textureHandle = reinterpret_cast<Rml::TextureHandle>(sdlTexture);
-    if (sdlTexture == nullptr)
-    {
+    if (sdlTexture == nullptr) {
         LogCat::w(std::source_location::current(), "sdlTexture == nullptr");
         return {};
     }
@@ -74,8 +68,7 @@ Rml::TextureHandle glimmer::RenderInterfaceSDL3::LoadTexture(Rml::Vector2i& text
     return textureHandle;
 }
 
-void glimmer::RenderInterfaceSDL3::ReleaseTexture(Rml::TextureHandle texture_handle)
-{
+void glimmer::RenderInterfaceSDL3::ReleaseTexture(Rml::TextureHandle texture_handle) {
     textureMap_.erase(texture_handle);
 }
 

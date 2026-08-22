@@ -40,35 +40,29 @@
 #include "core/world/WorldContext.h"
 #include "core/world/generator/TileLayerType.h"
 
-void glimmer::ItemTooltipSystem::OnItemChanged(const Item* item)
-{
+void glimmer::ItemTooltipSystem::OnItemChanged(const Item *item) {
     itemTooltipDataModel_.tooltipName = item->GetName();
-    const auto& description = item->GetDescription();
+    const auto &description = item->GetDescription();
     itemTooltipDataModel_.tooltipDesc = description.has_value() ? *description : "";
     itemTooltipDataModel_.abilityTips.clear();
 
-    const LangsResources* langsResources = appContext_ != nullptr ? appContext_->GetLangsResources() : nullptr;
-    const AbilityConfig* abilityConfig = item->GetAbilityConfig();
+    const LangsResources *langsResources = appContext_ != nullptr ? appContext_->GetLangsResources() : nullptr;
+    const AbilityConfig *abilityConfig = item->GetAbilityConfig();
 
-    if (abilityConfig != nullptr && langsResources != nullptr)
-    {
+    if (abilityConfig != nullptr && langsResources != nullptr) {
         if ((std::byte{abilityConfig->mineAbleLayer} & std::byte{std::to_underlying(TileLayerType::Ground)}) !=
-            std::byte{0})
-        {
+            std::byte{0}) {
             itemTooltipDataModel_.abilityTips.push_back({langsResources->canMineBlockTip, true});
         }
         if ((std::byte{abilityConfig->mineAbleLayer} & std::byte{std::to_underlying(TileLayerType::BackGround)}) !=
-            std::byte{0})
-        {
+            std::byte{0}) {
             itemTooltipDataModel_.abilityTips.push_back({langsResources->canMineWallTip, true});
         }
-        if (abilityConfig->enablePrecisionMining)
-        {
+        if (abilityConfig->enablePrecisionMining) {
             itemTooltipDataModel_.abilityTips.push_back({langsResources->precisionMiningTip, true});
         }
         const float miningEfficiency = abilityConfig->miningEfficiency;
-        if (miningEfficiency != 0.0F)
-        {
+        if (miningEfficiency != 0.0F) {
             itemTooltipDataModel_.abilityTips.push_back({
                 fmt::format(
                     fmt::runtime(langsResources->efficiencyTip),
@@ -78,8 +72,7 @@ void glimmer::ItemTooltipSystem::OnItemChanged(const Item* item)
             });
         }
         const int chainMiningRadius = abilityConfig->chainMiningRadius;
-        if (chainMiningRadius != 0)
-        {
+        if (chainMiningRadius != 0) {
             itemTooltipDataModel_.abilityTips.push_back({
                 fmt::format(
                     fmt::runtime(langsResources->chainMiningTip),
@@ -89,9 +82,8 @@ void glimmer::ItemTooltipSystem::OnItemChanged(const Item* item)
             });
         }
     }
-    const ItemLockModule* itemLockModule = item->GetLockModule();
-    if (itemLockModule != nullptr && itemLockModule->IsLocked() && langsResources != nullptr)
-    {
+    const ItemLockModule *itemLockModule = item->GetLockModule();
+    if (itemLockModule != nullptr && itemLockModule->IsLocked() && langsResources != nullptr) {
         itemTooltipDataModel_.abilityTips.push_back({langsResources->lockedTip, false});
     }
     dataModelHandle_.DirtyVariable("tooltip_name");
@@ -99,50 +91,41 @@ void glimmer::ItemTooltipSystem::OnItemChanged(const Item* item)
     dataModelHandle_.DirtyVariable("ability_tips");
 }
 
-glimmer::ItemTooltipSystem::ItemTooltipSystem(WorldContext* worldContext)
-    : GuiGameSystem(worldContext)
-{
+glimmer::ItemTooltipSystem::ItemTooltipSystem(WorldContext *worldContext)
+    : GuiGameSystem(worldContext) {
     WatchComponent(COMPONENT_ITEM_TOOL_TIP);
     appContext_ = worldContext != nullptr ? worldContext->GetAppContext() : nullptr;
     Init();
 }
 
-void glimmer::ItemTooltipSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
-{
-    if (gameComponentType == COMPONENT_ITEM_TOOL_TIP)
-    {
+void glimmer::ItemTooltipSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) {
+    if (gameComponentType == COMPONENT_ITEM_TOOL_TIP) {
         itemToolTipComponent_ = GetEntityShortCut()->GetItemToolTipComponent();
-        if (itemToolTipComponent_ == nullptr)
-        {
+        if (itemToolTipComponent_ == nullptr) {
             LogCat::e(std::source_location::current(), "itemToolTipComponent_ == nullptr");
         }
     }
 }
 
-glimmer::GameSystemType glimmer::ItemTooltipSystem::GetGameSystemType() const
-{
+glimmer::GameSystemType glimmer::ItemTooltipSystem::GetGameSystemType() const {
     return GameSystemType::ItemToolTipSystem;
 }
 
-void glimmer::ItemTooltipSystem::LoadDocuments(IDocumentRegistry* documentRegistry)
-{
+void glimmer::ItemTooltipSystem::LoadDocuments(IDocumentRegistry *documentRegistry) {
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
     resourceRef.SetResourceKey("tooltip/tooltip");
     document_ = documentRegistry->LoadSingleDocument(&resourceRef);
     SetElementDocument(document_);
-    if (document_ != nullptr)
-    {
+    if (document_ != nullptr) {
         document_->Hide();
     }
 }
 
-void glimmer::ItemTooltipSystem::OnCreateDataModels(IDocumentRegistry* documentRegistry)
-{
-    Rml::DataModelConstructor* constructor = documentRegistry->CreateDataModel("tooltip");
-    if (constructor == nullptr)
-    {
+void glimmer::ItemTooltipSystem::OnCreateDataModels(IDocumentRegistry *documentRegistry) {
+    Rml::DataModelConstructor *constructor = documentRegistry->CreateDataModel("tooltip");
+    if (constructor == nullptr) {
         return;
     }
     constructor->Bind("tooltip_name", &itemTooltipDataModel_.tooltipName);
@@ -150,26 +133,22 @@ void glimmer::ItemTooltipSystem::OnCreateDataModels(IDocumentRegistry* documentR
     constructor->Bind("tooltip_left", &itemTooltipDataModel_.tooltipLeft);
     constructor->Bind("tooltip_top", &itemTooltipDataModel_.tooltipTop);
 
-    if (auto linkStruct = constructor->RegisterStruct<AbilityTipDataModel>())
-    {
+    if (auto linkStruct = constructor->RegisterStruct<AbilityTipDataModel>()) {
         linkStruct.RegisterMember("tip_text", &AbilityTipDataModel::tipText);
         linkStruct.RegisterMember("is_positive", &AbilityTipDataModel::isPositive);
-        constructor->RegisterArray<std::vector<AbilityTipDataModel>>();
+        constructor->RegisterArray<std::vector<AbilityTipDataModel> >();
     }
     constructor->Bind("ability_tips", &itemTooltipDataModel_.abilityTips);
 
     dataModelHandle_ = constructor->GetModelHandle();
 }
 
-void glimmer::ItemTooltipSystem::Update(float delta)
-{
-    if (itemToolTipComponent_ == nullptr || document_ == nullptr)
-    {
+void glimmer::ItemTooltipSystem::Update(float delta) {
+    if (itemToolTipComponent_ == nullptr || document_ == nullptr) {
         return;
     }
-    const Item* item = itemToolTipComponent_->GetItem();
-    if (item == nullptr)
-    {
+    const Item *item = itemToolTipComponent_->GetItem();
+    if (item == nullptr) {
         document_->Hide();
         return;
     }
@@ -181,8 +160,7 @@ void glimmer::ItemTooltipSystem::Update(float delta)
     itemTooltipDataModel_.tooltipTop = fmt::format("{}px", mouseY + offset);
     dataModelHandle_.DirtyVariable("tooltip_left");
     dataModelHandle_.DirtyVariable("tooltip_top");
-    if (currentItem_ != item)
-    {
+    if (currentItem_ != item) {
         OnItemChanged(item);
         currentItem_ = item;
         //Jump to the next frame for display to prevent position flickering.

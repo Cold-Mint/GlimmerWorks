@@ -31,7 +31,8 @@
 #include "SDL3/SDL_mouse.h"
 
 
-std::unordered_map<std::string, uint8_t, glimmer::TransparentStringHash, std::equal_to<>> glimmer::MouseButtonUtils::stringToMouseButtonMap_ = {
+std::unordered_map<std::string, uint8_t, glimmer::TransparentStringHash, std::equal_to<> >
+glimmer::MouseButtonUtils::stringToMouseButtonMap_ = {
     {"left", SDL_BUTTON_LEFT},
     {"middle", SDL_BUTTON_MIDDLE},
     {"right", SDL_BUTTON_RIGHT},

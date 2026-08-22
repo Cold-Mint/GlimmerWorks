@@ -32,24 +32,22 @@
 #include "core/mod/Resource.h"
 #include "core/rmi/dataModel/ItemSlotDataModel.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class InventoryDragListener;
 
-    class InventoryGUISystem : public GuiStackGameSystem
-    {
-        Rml::ElementDocument* elementDocument_ = nullptr;
-        Rml::DataModelConstructor* constructor_ = nullptr;
-        ItemToolTipComponent* itemToolTipComponent_ = nullptr;
+    class InventoryGUISystem : public GuiStackGameSystem {
+        Rml::ElementDocument *elementDocument_ = nullptr;
+        Rml::DataModelConstructor *constructor_ = nullptr;
+        ItemToolTipComponent *itemToolTipComponent_ = nullptr;
         std::vector<ItemSlotDataModel> itemSlots_;
         std::vector<ItemSlotDataModel> recipeSlots_;
-        std::vector<RecipeResource*> unlockedRecipes_;
-        std::vector<std::unique_ptr<Item>> recipeOutputItems_;
-        std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>> callback_;
-        ItemContainer* itemContainer_ = nullptr;
+        std::vector<RecipeResource *> unlockedRecipes_;
+        std::vector<std::unique_ptr<Item> > recipeOutputItems_;
+        std::shared_ptr<std::function<void(uint8_t, Item *, ContainerChangeType)> > callback_;
+        ItemContainer *itemContainer_ = nullptr;
         std::unique_ptr<InventoryDragListener> dragListener_;
 
-        ItemSlotDataModel* GetItemSlotDataModel(uint8_t index);
+        ItemSlotDataModel *GetItemSlotDataModel(uint8_t index);
 
         void LoadInitialItems();
 
@@ -57,22 +55,22 @@ namespace glimmer
 
         void SetupDragAndDrop();
 
-        void OnRecipeClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+        void OnRecipeClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
-        void OnItemHover(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+        void OnItemHover(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
-        void OnItemOut(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+        void OnItemOut(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
-        void OnRecipeHover(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+        void OnRecipeHover(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
     public:
         ~InventoryGUISystem() override;
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
-        explicit InventoryGUISystem(WorldContext* worldContext);
+        explicit InventoryGUISystem(WorldContext *worldContext);
 
-        void OnCreateDataModels(IDocumentRegistry* documentRegistry) override;
+        void OnCreateDataModels(IDocumentRegistry *documentRegistry) override;
 
         void OnActivationChanged(bool activeStatus) override;
 
@@ -80,6 +78,6 @@ namespace glimmer
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
 
-        void LoadDocuments(IDocumentRegistry* documentRegistry) override;
+        void LoadDocuments(IDocumentRegistry *documentRegistry) override;
     };
 }

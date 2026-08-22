@@ -27,12 +27,10 @@
 #include "ItemAbility.h"
 
 
-glimmer::ItemAbility::ItemAbility(const AbilityConfig& abilityConfig)
-    : abilityConfig_(abilityConfig)
-{
+glimmer::ItemAbility::ItemAbility(const AbilityConfig &abilityConfig)
+    : abilityConfig_(abilityConfig) {
 }
 
-const glimmer::AbilityConfig* glimmer::ItemAbility::GetAbilityConfig() const
-{
+const glimmer::AbilityConfig *glimmer::ItemAbility::GetAbilityConfig() const {
     return &abilityConfig_;
 }

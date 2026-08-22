@@ -27,10 +27,8 @@
 #pragma once
 #include <cstdint>
 
-namespace glimmer
-{
-    class TileMiningData
-    {
+namespace glimmer {
+    class TileMiningData {
         float hardness_ = 1.0F;
         float minMiningEfficiency_ = 0.0F;
         bool allowChainMining_ = false;
@@ -38,7 +36,7 @@ namespace glimmer
         uint32_t unitDigCost_ = 1;
 
     public:
-        [[nodiscard]] const float& GetHardness() const;
+        [[nodiscard]] const float &GetHardness() const;
 
         [[nodiscard]] bool IsBreakable() const;
 

@@ -27,18 +27,15 @@
 #include "StructureGeneratorManager.h"
 
 void glimmer::StructureGeneratorManager::RegisterStructureGenerator(
-    std::unique_ptr<IStructureGenerator> structureGenerator)
-{
+    std::unique_ptr<IStructureGenerator> structureGenerator) {
     const StructureGeneratorType type = structureGenerator->GetStructureGeneratorType();
     structureGeneratorMap_.emplace(type, std::move(structureGenerator));
 }
 
-std::optional<glimmer::StructureInfo> glimmer::StructureGeneratorManager::Generate(WorldContext* worldContext,
-    const TileVector2D& structuralOrigin, IStructureResource* structureResource)
-{
+std::optional<glimmer::StructureInfo> glimmer::StructureGeneratorManager::Generate(WorldContext *worldContext,
+    const TileVector2D &structuralOrigin, IStructureResource *structureResource) {
     const auto type = static_cast<StructureGeneratorType>(structureResource->generatorId);
-    if (!structureGeneratorMap_.contains(type))
-    {
+    if (!structureGeneratorMap_.contains(type)) {
         return std::nullopt;
     }
     return structureGeneratorMap_[type]->Generate(worldContext, structuralOrigin, structureResource);

@@ -29,10 +29,8 @@
 #include "core/mod/resourcePack/AudioResourceResult.h"
 #include "core/mod/resourcePack/TextureResourceResult.h"
 
-namespace glimmer
-{
-    class TileResourceData
-    {
+namespace glimmer {
+    class TileResourceData {
         std::shared_ptr<TextureResourceResult> textureResult_ = nullptr;
         std::shared_ptr<AudioResourceResult> breakSFXResult_ = nullptr;
         std::shared_ptr<AudioResourceResult> placeSFXResult_ = nullptr;
@@ -40,24 +38,24 @@ namespace glimmer
         ResourceRef textureRef_;
 
     public:
-        [[nodiscard]] TextureResourceResult* GetTexture() const;
+        [[nodiscard]] TextureResourceResult *GetTexture() const;
 
-        [[nodiscard]] AudioResourceResult* GetBreakSFX() const;
+        [[nodiscard]] AudioResourceResult *GetBreakSFX() const;
 
-        [[nodiscard]] AudioResourceResult* GetPlaceSFX() const;
+        [[nodiscard]] AudioResourceResult *GetPlaceSFX() const;
 
-        [[nodiscard]] const ResourceRef* GetTextureRef() const;
+        [[nodiscard]] const ResourceRef *GetTextureRef() const;
 
-        [[nodiscard]] const std::vector<ItemTagResource>& GetTags() const;
+        [[nodiscard]] const std::vector<ItemTagResource> &GetTags() const;
 
-        void SetTexture(const std::shared_ptr<TextureResourceResult>& textureResult);
+        void SetTexture(const std::shared_ptr<TextureResourceResult> &textureResult);
 
-        void SetTextureRef(const ResourceRef& textureRef);
+        void SetTextureRef(const ResourceRef &textureRef);
 
-        void SetBreakSFX(const std::shared_ptr<AudioResourceResult>& breakSFXResult);
+        void SetBreakSFX(const std::shared_ptr<AudioResourceResult> &breakSFXResult);
 
-        void SetPlaceSFX(const std::shared_ptr<AudioResourceResult>& placeSFXResult);
+        void SetPlaceSFX(const std::shared_ptr<AudioResourceResult> &placeSFXResult);
 
-        void SetTags(const std::vector<ItemTagResource>& tags);
+        void SetTags(const std::vector<ItemTagResource> &tags);
     };
 }

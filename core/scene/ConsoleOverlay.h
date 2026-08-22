@@ -35,27 +35,25 @@
 #include "RmlUi/Core/Elements/ElementFormControlInput.h"
 
 
-namespace glimmer
-{
+namespace glimmer {
     class CommandHistoryManager;
     class CommandManager;
     class ConsoleWorker;
 
-    class ConsoleOverlay : public Scene
-    {
-        Rml::ElementDocument* consoleDocument_ = nullptr;
-        ConsoleWorker* consoleWorker_ = nullptr;
-        CommandManager* commandManager_ = nullptr;
-        DynamicSuggestionsManager* dynamicSuggestionsManager_ = nullptr;
+    class ConsoleOverlay : public Scene {
+        Rml::ElementDocument *consoleDocument_ = nullptr;
+        ConsoleWorker *consoleWorker_ = nullptr;
+        CommandManager *commandManager_ = nullptr;
+        DynamicSuggestionsManager *dynamicSuggestionsManager_ = nullptr;
         std::vector<ConsoleMessage> consoleMessages_;
         std::vector<CommandStructure> commandStructure_;
         std::vector<CommandSuggestions> commandSuggestions_;
         std::string consolePlaceholder_;
         Rml::DataModelHandle consoleModelHandle_;
-        Rml::ElementFormControlInput* consoleInputElement_ = nullptr;
-        Rml::Element* suggestionListElement_ = nullptr;
+        Rml::ElementFormControlInput *consoleInputElement_ = nullptr;
+        Rml::Element *suggestionListElement_ = nullptr;
         CommandArgs commandArgs_ = CommandArgs("");
-        CommandHistoryMessage* commandHistoryMessage_ = nullptr;
+        CommandHistoryMessage *commandHistoryMessage_ = nullptr;
         int tokenIndex_ = 0;
         int selectedSuggestionIndex_ = -1;
 
@@ -74,15 +72,15 @@ namespace glimmer
          * 搜索命令历史并更新自动补全占位符。
          * @param text The current input text (including the leading '/').
          */
-        void UpdateCommandPlaceholder(const std::string& text);
+        void UpdateCommandPlaceholder(const std::string &text);
 
         void ShowConsole();
 
         void HideConsole() const;
 
-        void OnSuggestClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+        void OnSuggestClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
-        void OnSuggestHover(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+        void OnSuggestHover(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
         void ScrollToSelectedSuggestion() const;
 
@@ -94,12 +92,12 @@ namespace glimmer
 
         void NavigateSuggestions(int direction);
 
-        void ApplySuggestion(const std::string& message);
+        void ApplySuggestion(const std::string &message);
 
-        void OnConsoleChange(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+        void OnConsoleChange(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
     public:
-        explicit ConsoleOverlay(AppContext* context);
+        explicit ConsoleOverlay(AppContext *context);
 
         void LoadDocuments() override;
 
@@ -107,6 +105,6 @@ namespace glimmer
 
         bool OnBackPressed() override;
 
-        bool HandleEvent(const SDL_Event& event) override;
+        bool HandleEvent(const SDL_Event &event) override;
     };
 }

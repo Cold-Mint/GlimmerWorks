@@ -27,10 +27,8 @@
 #pragma once
 #include <string>
 
-namespace glimmer
-{
-    struct SaveItem
-    {
+namespace glimmer {
+    struct SaveItem {
         std::string name;
         std::string prefix;
         std::string keyword;

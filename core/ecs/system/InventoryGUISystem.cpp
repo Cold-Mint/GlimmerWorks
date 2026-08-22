@@ -283,13 +283,13 @@ void glimmer::InventoryGUISystem::SetupDragAndDrop() {
         return;
     }
 
-    Rml::ElementDocument* document = GetElementDocument();
+    Rml::ElementDocument *document = GetElementDocument();
     if (document == nullptr) {
         LogCat::e(std::source_location::current(), "document is nullptr, cannot setup drag and drop");
         return;
     }
 
-    Rml::Element* container = document->GetElementById("item_container");
+    Rml::Element *container = document->GetElementById("item_container");
     if (container == nullptr) {
         container = document->GetFirstChild();
         while (container != nullptr && !container->IsClassSet("item_container")) {

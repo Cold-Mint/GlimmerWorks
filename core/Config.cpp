@@ -30,11 +30,9 @@
 #include "log/LogCat.h"
 #include "toml11/find.hpp"
 
-template <>
-struct toml::from<glimmer::AudioTrack>
-{
-    static glimmer::AudioTrack from_toml(const value& v)
-    {
+template<>
+struct toml::from<glimmer::AudioTrack> {
+    static glimmer::AudioTrack from_toml(const value &v) {
         glimmer::AudioTrack track{};
         track.trackCount = toml::find<int>(v, "track_count");
         track.type = static_cast<glimmer::AudioType>(toml::find<int>(v, "type"));
@@ -44,11 +42,9 @@ struct toml::from<glimmer::AudioTrack>
 };
 
 
-template <>
-struct toml::from<glimmer::CommandHookResource>
-{
-    static glimmer::CommandHookResource from_toml(const value& v)
-    {
+template<>
+struct toml::from<glimmer::CommandHookResource> {
+    static glimmer::CommandHookResource from_toml(const value &v) {
         glimmer::CommandHookResource commandHookResource{};
         commandHookResource.hookId = toml::find<std::string>(v, "hook_id");
         commandHookResource.command = toml::find<std::string>(v, "command");
@@ -60,45 +56,37 @@ struct toml::from<glimmer::CommandHookResource>
 };
 
 
-uint64_t glimmer::Config::GetFingerprint() const
-{
+uint64_t glimmer::Config::GetFingerprint() const {
     return fingerprint_;
 }
 
-void glimmer::Config::SetConfigValue(std::unique_ptr<toml::value> configValue)
-{
-    if (configValue_ == nullptr)
-    {
+void glimmer::Config::SetConfigValue(std::unique_ptr<toml::value> configValue) {
+    if (configValue_ == nullptr) {
         configValue_ = std::move(configValue);
         return;
     }
     LogCat::e(std::source_location::current(), "The toml configuration data cannot be set repeatedly.");
 }
 
-toml::value* glimmer::Config::GetConfigValue() const
-{
-    if (configValue_ == nullptr)
-    {
+toml::value *glimmer::Config::GetConfigValue() const {
+    if (configValue_ == nullptr) {
         LogCat::w(std::source_location::current(), "The toml configuration data cannot be found.");
         return nullptr;
     }
     return configValue_.get();
 }
 
-bool glimmer::Config::ReloadConfig()
-{
-    if (configValue_ == nullptr)
-    {
+bool glimmer::Config::ReloadConfig() {
+    if (configValue_ == nullptr) {
         LogCat::w(std::source_location::current(), "configValue_ == nullptr");
         return false;
     }
-    const toml::value* valuePtr = configValue_.get();
-    if (valuePtr == nullptr)
-    {
+    const toml::value *valuePtr = configValue_.get();
+    if (valuePtr == nullptr) {
         LogCat::w(std::source_location::current(), "valuePtr == nullptr");
         return false;
     }
-    const toml::value& tomlRef = *valuePtr;
+    const toml::value &tomlRef = *valuePtr;
     configVersion = toml::find<int>(tomlRef, "config_version");
     window.height = toml::find<int>(tomlRef, "window", "height");
     window.width = toml::find<int>(tomlRef, "window", "width");
@@ -113,13 +101,12 @@ bool glimmer::Config::ReloadConfig()
     mods.loadOnlyVerified = toml::find<bool>(tomlRef, "mods", "load_only_verified");
     mods.dataPackPath = toml::find<std::string>(tomlRef, "mods", "data_pack_path");
     mods.resourcePackPath = toml::find<std::string>(tomlRef, "mods", "resource_pack_path");
-    mods.enabledDataPack = toml::find<std::vector<std::string>>(tomlRef, "mods", "enabled_data_pack");
-    mods.enabledResourcePack = toml::find<std::vector<std::string>>(tomlRef, "mods", "enabled_resource_pack");
+    mods.enabledDataPack = toml::find<std::vector<std::string> >(tomlRef, "mods", "enabled_data_pack");
+    mods.enabledResourcePack = toml::find<std::vector<std::string> >(tomlRef, "mods", "enabled_resource_pack");
     world.preloadChunkRadius = toml::find<float>(tomlRef, "world", "preload_chunk_radius");
     world.preloadStructureRadius = toml::find<float>(tomlRef, "world", "preload_structure_radius");
     world.preloadLightingRadius = toml::find<float>(tomlRef, "world", "preload_lighting_radius");
-    if (world.preloadLightingRadius > world.preloadChunkRadius)
-    {
+    if (world.preloadLightingRadius > world.preloadChunkRadius) {
         world.preloadLightingRadius = world.preloadChunkRadius;
     }
     world.chunkSpawnCleanInterval = toml::find<float>(tomlRef, "world", "chunk_spawn_clean_interval");
@@ -134,13 +121,13 @@ bool glimmer::Config::ReloadConfig()
     audio.channels = toml::find<int>(tomlRef, "audio", "channels");
     audio.masterVolume = toml::find<float>(tomlRef, "audio", "master_volume");
     audio.freq = toml::find<int>(tomlRef, "audio", "freq");
-    audio.track = toml::find<std::vector<AudioTrack>>(tomlRef, "audio", "track");
+    audio.track = toml::find<std::vector<AudioTrack> >(tomlRef, "audio", "track");
     audio.format = toml::find<std::string>(tomlRef, "audio", "format");
     console.maxHistoryEntries = toml::find<uint16_t>(tomlRef, "console", "max_history_entries");
     runtimePath = toml::find<std::string>(tomlRef, "runtime_path");
     command.locateMaxRadiusSearchChunks = toml::find<uint16_t>(tomlRef, "command",
                                                                "locate_max_radius_search_chunks");
-    commandHooks = toml::find<std::vector<CommandHookResource>>(tomlRef, "command_hooks");
+    commandHooks = toml::find<std::vector<CommandHookResource> >(tomlRef, "command_hooks");
     anim.chunkFadeinDuration = toml::find<float>(tomlRef, "animation", "chunk_fadein_duration");
     anim.chunkFadeInFrom = toml::find<float>(tomlRef, "animation", "chunk_fadein_from");
     anim.chunkFadeInTo = toml::find<float>(tomlRef, "animation", "chunk_fadein_to");

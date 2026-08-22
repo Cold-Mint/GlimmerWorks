@@ -30,22 +30,19 @@
 
 #include "core/Constants.h"
 
-glimmer::TileDynamicSuggestions::TileDynamicSuggestions(TileResourceManager* tileManager)
-    : tileManager_(tileManager)
-{
+glimmer::TileDynamicSuggestions::TileDynamicSuggestions(TileResourceManager *tileManager)
+    : tileManager_(tileManager) {
 }
 
-std::string glimmer::TileDynamicSuggestions::GetId() const
-{
+std::string glimmer::TileDynamicSuggestions::GetId() const {
     return TILE_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-bool glimmer::TileDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
-{
+bool glimmer::TileDynamicSuggestions::Match(const std::string &keyword, const std::string &param) {
     return std::ranges::contains(tileManager_->GetTileIDList(), keyword);
 }
 
-const std::vector<std::string>& glimmer::TileDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
-{
+const std::vector<std::string> &
+glimmer::TileDynamicSuggestions::GetSuggestions(const std::optional<std::string> &param) {
     return tileManager_->GetTileIDList();
 }

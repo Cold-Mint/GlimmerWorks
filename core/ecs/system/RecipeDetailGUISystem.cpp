@@ -33,8 +33,7 @@
 #include "core/world/SystemScheduler.h"
 #include "core/world/WorldContext.h"
 
-void glimmer::RecipeDetailGUISystem::LoadRecipeDetail()
-{
+void glimmer::RecipeDetailGUISystem::LoadRecipeDetail() {
     investedItems_.clear();
     tagProgress_.clear();
     itemChoices_.clear();
@@ -42,87 +41,70 @@ void glimmer::RecipeDetailGUISystem::LoadRecipeDetail()
     canCraft_ = false;
     craftCount_ = 1;
     maxCraftCount_ = 1;
-    if (currentRecipe_ == nullptr)
-    {
+    if (currentRecipe_ == nullptr) {
         LogCat::w(std::source_location::current(), "currentRecipe_ == nullptr");
         return;
     }
 
-    WorldContext* worldContext = GetWorldContext();
-    if (worldContext == nullptr)
-    {
+    WorldContext *worldContext = GetWorldContext();
+    if (worldContext == nullptr) {
         LogCat::w(std::source_location::current(), "worldContext == nullptr");
         return;
     }
 
-    AppContext* appContext = worldContext->GetAppContext();
-    if (appContext == nullptr)
-    {
+    AppContext *appContext = worldContext->GetAppContext();
+    if (appContext == nullptr) {
         LogCat::w(std::source_location::current(), "appContext == nullptr");
         return;
     }
-    ModContext* modContext = appContext->GetModContext();
-    if (modContext == nullptr)
-    {
+    ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
         LogCat::w(std::source_location::current(), "modContext == nullptr");
         return;
     }
-    StringManager* stringManager = modContext->GetStringManager();
-    if (stringManager == nullptr)
-    {
+    StringManager *stringManager = modContext->GetStringManager();
+    if (stringManager == nullptr) {
         LogCat::w(std::source_location::current(), "stringManager == nullptr");
         return;
     }
-    ResourceLocator* resourceLocator = appContext->GetResourceLocator();
-    if (resourceLocator == nullptr)
-    {
+    ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+    if (resourceLocator == nullptr) {
         LogCat::w(std::source_location::current(), "resourceLocator == nullptr");
         return;
     }
     auto outputItem = resourceLocator->FindItem(worldContext, currentRecipe_->output);
-    if (outputItem == nullptr)
-    {
+    if (outputItem == nullptr) {
         LogCat::w(std::source_location::current(), "outputItem == nullptr");
         return;
     }
     outputName_ = outputItem->GetName();
-    const ResourceRef* iconRef = outputItem->GetIconResourceRef();
-    if (iconRef == nullptr)
-    {
+    const ResourceRef *iconRef = outputItem->GetIconResourceRef();
+    if (iconRef == nullptr) {
         outputImage_ = "";
-    }
-    else
-    {
+    } else {
         outputImage_ = StringUtils::MakeTextureUrl(
             Resource::GenerateId(iconRef->GetPackageId(), iconRef->GetResourceKey()));
     }
-    const ItemStackModule* stackModule = outputItem->GetStackModule();
-    if (stackModule == nullptr)
-    {
+    const ItemStackModule *stackModule = outputItem->GetStackModule();
+    if (stackModule == nullptr) {
         LogCat::w(std::source_location::current(), "stackModule == nullptr");
         return;
     }
     outputAmount_ = static_cast<int>(currentRecipe_->output.amount);
-    if (uint8_t maxStack = stackModule->GetMaxStack(); maxStack > 0 && outputAmount_ > 0)
-    {
+    if (uint8_t maxStack = stackModule->GetMaxStack(); maxStack > 0 && outputAmount_ > 0) {
         maxCraftCount_ = static_cast<int>(maxStack) / outputAmount_;
-        if (maxCraftCount_ < 1)
-        {
+        if (maxCraftCount_ < 1) {
             maxCraftCount_ = 1;
         }
     }
     outputCount_ = outputAmount_ * craftCount_;
     tagProgress_.reserve(currentRecipe_->input.size());
     originalRequiredWeights_.reserve(currentRecipe_->input.size());
-    for (const auto& requiredTag : currentRecipe_->input)
-    {
+    for (const auto &requiredTag: currentRecipe_->input) {
         TagProgressDataModel tp;
-        if (auto optional = stringManager->GetTagTranslate(requiredTag.cachedTagId); optional.has_value())
-        {
+        if (auto optional = stringManager->GetTagTranslate(requiredTag.cachedTagId); optional.has_value()) {
             tp.tagName = optional.value();
-        }
-        else
-        {
+        } else {
             tp.tagName = requiredTag.requiredTag;
         }
         tp.requiredWeight = static_cast<int>(requiredTag.requiredWeight);
@@ -132,84 +114,68 @@ void glimmer::RecipeDetailGUISystem::LoadRecipeDetail()
         originalRequiredWeights_.push_back(tp.requiredWeight);
         tagProgress_.push_back(std::move(tp));
     }
-    if (itemContainer_ != nullptr)
-    {
+    if (itemContainer_ != nullptr) {
         std::unordered_set<uint64_t> requiredTagIds;
-        for (const auto& requiredTag : currentRecipe_->input)
-        {
+        for (const auto &requiredTag: currentRecipe_->input) {
             requiredTagIds.insert(requiredTag.cachedTagId);
         }
 
         uint8_t capacity = itemContainer_->GetCapacity();
-        for (uint8_t i = 0; i < capacity; ++i)
-        {
-            const Item* item = itemContainer_->GetItem(i);
-            if (item == nullptr)
-            {
+        for (uint8_t i = 0; i < capacity; ++i) {
+            const Item *item = itemContainer_->GetItem(i);
+            if (item == nullptr) {
                 continue;
             }
-            const ItemLockModule* lockModule = item->GetLockModule();
-            if (lockModule != nullptr && lockModule->IsLocked())
-            {
+            const ItemLockModule *lockModule = item->GetLockModule();
+            if (lockModule != nullptr && lockModule->IsLocked()) {
                 continue;
             }
-            const ItemTagModule* tagModule = item->GetTagModule();
-            if (tagModule == nullptr)
-            {
+            const ItemTagModule *tagModule = item->GetTagModule();
+            if (tagModule == nullptr) {
                 continue;
             }
-            const std::vector<uint64_t>& tags = tagModule->GetTags();
+            const std::vector<uint64_t> &tags = tagModule->GetTags();
 
             std::stringstream tagInfoStringStream;
             bool tagInfoStringStreamEmpty = true;
             bool hasAnyRequiredTag = false;
-            for (uint64_t tagId : tags)
-            {
-                if (requiredTagIds.find(tagId) == requiredTagIds.end())
-                {
+            for (uint64_t tagId: tags) {
+                if (requiredTagIds.find(tagId) == requiredTagIds.end()) {
                     continue;
                 }
-                const ItemTagResource* tagRes = tagModule->GetItemTagResource(tagId);
-                if (tagRes == nullptr)
-                {
+                const ItemTagResource *tagRes = tagModule->GetItemTagResource(tagId);
+                if (tagRes == nullptr) {
                     continue;
                 }
                 hasAnyRequiredTag = true;
-                if (!tagInfoStringStreamEmpty)
-                {
+                if (!tagInfoStringStreamEmpty) {
                     tagInfoStringStream << ",";
                 }
 
-                if (auto optional = stringManager->GetTagTranslate(tagRes->cachedTagId); optional.has_value())
-                {
+                if (auto optional = stringManager->GetTagTranslate(tagRes->cachedTagId); optional.has_value()) {
                     tagInfoStringStream << optional.value();
-                }
-                else
-                {
+                } else {
                     tagInfoStringStream << tagRes->name;
                 }
-                if (tagRes->value > 1)
-                {
+                if (tagRes->value > 1) {
                     tagInfoStringStream << "+" << tagRes->value;
                 }
                 tagInfoStringStreamEmpty = false;
             }
-            if (!hasAnyRequiredTag)
-            {
+            if (!hasAnyRequiredTag) {
                 continue;
             }
 
             RecipeItemChoiceDataModel choice;
             choice.inventoryIndex = static_cast<int>(i);
             choice.name = item->GetName();
-            const ResourceRef* iconRef = item->GetIconResourceRef();
-            if (iconRef != nullptr)
-            {
+            const ResourceRef *iconRef = item->GetIconResourceRef();
+            if (iconRef != nullptr) {
                 choice.image = StringUtils::MakeTextureUrl(
                     Resource::GenerateId(iconRef->GetPackageId(), iconRef->GetResourceKey()));
             }
             choice.tagInfo = tagInfoStringStream.str();
-            const ItemStackModule* stackModule = item->GetStackModule();
+            const ItemStackModule *stackModule = item->GetStackModule();
             choice.backpackAmount = stackModule != nullptr ? static_cast<int>(stackModule->GetAmount()) : 1;
             choice.investedAmount = 0;
             itemChoices_.push_back(std::move(choice));
@@ -217,234 +183,184 @@ void glimmer::RecipeDetailGUISystem::LoadRecipeDetail()
     }
 
     UpdateTagDisplayWeights();
-    if (constructor_ != nullptr)
-    {
+    if (constructor_ != nullptr) {
         constructor_->GetModelHandle().DirtyAllVariables();
     }
 }
 
-void glimmer::RecipeDetailGUISystem::UpdateTagProgress()
-{
-    if (currentRecipe_ == nullptr || itemContainer_ == nullptr)
-    {
+void glimmer::RecipeDetailGUISystem::UpdateTagProgress() {
+    if (currentRecipe_ == nullptr || itemContainer_ == nullptr) {
         return;
     }
-    for (size_t i = 0; i < tagProgress_.size() && i < currentRecipe_->input.size(); ++i)
-    {
-        RequiredTag& requiredTag = currentRecipe_->input[i];
+    for (size_t i = 0; i < tagProgress_.size() && i < currentRecipe_->input.size(); ++i) {
+        RequiredTag &requiredTag = currentRecipe_->input[i];
         const uint64_t tagId = requiredTag.cachedTagId;
         int currentWeight = 0;
-        for (const auto& [slotIndex, investedCount] : investedItems_)
-        {
-            const Item* item = itemContainer_->GetItem(slotIndex);
-            if (item == nullptr)
-            {
+        for (const auto &[slotIndex, investedCount]: investedItems_) {
+            const Item *item = itemContainer_->GetItem(slotIndex);
+            if (item == nullptr) {
                 continue;
             }
-            const ItemTagModule* tagModule = item->GetTagModule();
-            if (tagModule == nullptr || !tagModule->HasTag(tagId))
-            {
+            const ItemTagModule *tagModule = item->GetTagModule();
+            if (tagModule == nullptr || !tagModule->HasTag(tagId)) {
                 continue;
             }
-            const ItemTagResource* tagRes = tagModule->GetItemTagResource(tagId);
-            if (tagRes == nullptr)
-            {
+            const ItemTagResource *tagRes = tagModule->GetItemTagResource(tagId);
+            if (tagRes == nullptr) {
                 continue;
             }
             currentWeight += static_cast<int>(tagRes->value) * static_cast<int>(investedCount);
         }
-        TagProgressDataModel& tagProgressDataModel = tagProgress_[i];
+        TagProgressDataModel &tagProgressDataModel = tagProgress_[i];
         tagProgressDataModel.currentWeight = currentWeight;
         const int scaledRequired = tagProgressDataModel.requiredWeight;
-        if (requiredTag.exactMatch)
-        {
+        if (requiredTag.exactMatch) {
             tagProgressDataModel.satisfied = currentWeight == scaledRequired;
-        }
-        else
-        {
+        } else {
             tagProgressDataModel.satisfied = currentWeight >= scaledRequired;
         }
         int percent = 0;
-        if (scaledRequired > 0)
-        {
+        if (scaledRequired > 0) {
             percent = currentWeight * 100 / scaledRequired;
-            if (percent > 100)
-            {
+            if (percent > 100) {
                 percent = 100;
             }
-            if (percent < 0)
-            {
+            if (percent < 0) {
                 percent = 0;
             }
         }
         tagProgressDataModel.progressWidth = std::to_string(percent) + "%";
     }
-    if (constructor_ != nullptr)
-    {
+    if (constructor_ != nullptr) {
         constructor_->GetModelHandle().DirtyVariable("tag_progress");
         constructor_->GetModelHandle().DirtyVariable("item_choices");
     }
 }
 
-void glimmer::RecipeDetailGUISystem::UpdateTagDisplayWeights()
-{
-    for (size_t i = 0; i < tagProgress_.size() && i < originalRequiredWeights_.size(); ++i)
-    {
+void glimmer::RecipeDetailGUISystem::UpdateTagDisplayWeights() {
+    for (size_t i = 0; i < tagProgress_.size() && i < originalRequiredWeights_.size(); ++i) {
         tagProgress_[i].requiredWeight = originalRequiredWeights_[i] * craftCount_;
     }
-    if (constructor_ != nullptr)
-    {
+    if (constructor_ != nullptr) {
         constructor_->GetModelHandle().DirtyVariable("tag_progress");
     }
 }
 
-void glimmer::RecipeDetailGUISystem::UpdateCanCraft()
-{
+void glimmer::RecipeDetailGUISystem::UpdateCanCraft() {
     canCraft_ = true;
-    for (const auto& tagProgress : tagProgress_)
-    {
-        if (!tagProgress.satisfied)
-        {
+    for (const auto &tagProgress: tagProgress_) {
+        if (!tagProgress.satisfied) {
             canCraft_ = false;
             break;
         }
     }
 
-    if (constructor_ != nullptr)
-    {
+    if (constructor_ != nullptr) {
         constructor_->GetModelHandle().DirtyVariable("can_craft");
     }
 }
 
-void glimmer::RecipeDetailGUISystem::ExecuteCraftBatch(int count)
-{
-    if (!canCraft_ || currentRecipe_ == nullptr || itemContainer_ == nullptr || count <= 0)
-    {
+void glimmer::RecipeDetailGUISystem::ExecuteCraftBatch(int count) {
+    if (!canCraft_ || currentRecipe_ == nullptr || itemContainer_ == nullptr || count <= 0) {
         return;
     }
-    WorldContext* worldContext = GetWorldContext();
-    if (worldContext == nullptr)
-    {
+    WorldContext *worldContext = GetWorldContext();
+    if (worldContext == nullptr) {
         return;
     }
-    for (const auto& [slotIndex, investedCount] : investedItems_)
-    {
-        (void)itemContainer_->TakeItem(slotIndex, investedCount * count);
+    for (const auto &[slotIndex, investedCount]: investedItems_) {
+        (void) itemContainer_->TakeItem(slotIndex, investedCount * count);
     }
     investedItems_.clear();
-    ResourceLocator* resourceLocator = worldContext->GetAppContext()->GetResourceLocator();
-    if (resourceLocator != nullptr)
-    {
+    ResourceLocator *resourceLocator = worldContext->GetAppContext()->GetResourceLocator();
+    if (resourceLocator != nullptr) {
         auto outputItem = resourceLocator->FindItem(worldContext, currentRecipe_->output);
-        if (outputItem != nullptr)
-        {
-            const ItemStackModule* stackModule = outputItem->GetStackModule();
-            if (stackModule != nullptr)
-            {
-                const_cast<ItemStackModule*>(stackModule)->SetAmount(
+        if (outputItem != nullptr) {
+            const ItemStackModule *stackModule = outputItem->GetStackModule();
+            if (stackModule != nullptr) {
+                const_cast<ItemStackModule *>(stackModule)->SetAmount(
                     static_cast<uint8_t>(outputAmount_ * count));
             }
-            (void)itemContainer_->AddItem(std::move(outputItem));
+            (void) itemContainer_->AddItem(std::move(outputItem));
         }
     }
-    if (systemScheduler_ != nullptr)
-    {
+    if (systemScheduler_ != nullptr) {
         systemScheduler_->PopGuiSystemType();
     }
 }
 
-void glimmer::RecipeDetailGUISystem::AutoFill()
-{
-    if (currentRecipe_ == nullptr || itemContainer_ == nullptr)
-    {
+void glimmer::RecipeDetailGUISystem::AutoFill() {
+    if (currentRecipe_ == nullptr || itemContainer_ == nullptr) {
         return;
     }
     ResetInvestment();
 
-    struct Candidate
-    {
+    struct Candidate {
         int choiceIndex;
         int tagValue;
     };
 
-    for (size_t tagIdx = 0; tagIdx < tagProgress_.size() && tagIdx < currentRecipe_->input.size(); ++tagIdx)
-    {
+    for (size_t tagIdx = 0; tagIdx < tagProgress_.size() && tagIdx < currentRecipe_->input.size(); ++tagIdx) {
         const uint64_t tagId = currentRecipe_->input[tagIdx].cachedTagId;
         const int scaledRequired = tagProgress_[tagIdx].requiredWeight;
         int needed = scaledRequired - tagProgress_[tagIdx].currentWeight;
-        if (needed <= 0)
-        {
+        if (needed <= 0) {
             continue;
         }
         const bool exactMatch = currentRecipe_->input[tagIdx].exactMatch;
 
         std::vector<Candidate> candidates;
-        for (size_t ci = 0; ci < itemChoices_.size(); ++ci)
-        {
-            const auto& choice = itemChoices_[ci];
-            const Item* item = itemContainer_->GetItem(choice.inventoryIndex);
-            if (item == nullptr)
-            {
+        for (size_t ci = 0; ci < itemChoices_.size(); ++ci) {
+            const auto &choice = itemChoices_[ci];
+            const Item *item = itemContainer_->GetItem(choice.inventoryIndex);
+            if (item == nullptr) {
                 continue;
             }
-            const ItemTagModule* tagModule = item->GetTagModule();
-            if (tagModule == nullptr || !tagModule->HasTag(tagId))
-            {
+            const ItemTagModule *tagModule = item->GetTagModule();
+            if (tagModule == nullptr || !tagModule->HasTag(tagId)) {
                 continue;
             }
-            const ItemTagResource* tagRes = tagModule->GetItemTagResource(tagId);
-            if (tagRes == nullptr)
-            {
+            const ItemTagResource *tagRes = tagModule->GetItemTagResource(tagId);
+            if (tagRes == nullptr) {
                 continue;
             }
             int available = choice.backpackAmount - choice.investedAmount;
-            if (available <= 0)
-            {
+            if (available <= 0) {
                 continue;
             }
             candidates.push_back({static_cast<int>(ci), static_cast<int>(tagRes->value)});
         }
 
         std::sort(candidates.begin(), candidates.end(),
-                  [](const Candidate& a, const Candidate& b)
-                  {
+                  [](const Candidate &a, const Candidate &b) {
                       return a.tagValue > b.tagValue;
                   });
 
-        for (const auto& cand : candidates)
-        {
-            if (needed <= 0)
-            {
+        for (const auto &cand: candidates) {
+            if (needed <= 0) {
                 break;
             }
-            auto& choice = itemChoices_[cand.choiceIndex];
+            auto &choice = itemChoices_[cand.choiceIndex];
             const int slotIndex = choice.inventoryIndex;
             int available = choice.backpackAmount - choice.investedAmount;
-            if (available <= 0)
-            {
+            if (available <= 0) {
                 continue;
             }
             int unitsNeeded = (needed + cand.tagValue - 1) / cand.tagValue;
-            if (unitsNeeded > available)
-            {
+            if (unitsNeeded > available) {
                 unitsNeeded = available;
             }
-            if (unitsNeeded <= 0)
-            {
+            if (unitsNeeded <= 0) {
                 continue;
             }
-            if (exactMatch)
-            {
+            if (exactMatch) {
                 int overflow = unitsNeeded * cand.tagValue - needed;
-                if (overflow >= cand.tagValue)
-                {
+                if (overflow >= cand.tagValue) {
                     continue;
                 }
-                if (overflow > 0)
-                {
+                if (overflow > 0) {
                     unitsNeeded -= (overflow + cand.tagValue - 1) / cand.tagValue;
-                    if (unitsNeeded <= 0)
-                    {
+                    if (unitsNeeded <= 0) {
                         continue;
                     }
                 }
@@ -457,32 +373,27 @@ void glimmer::RecipeDetailGUISystem::AutoFill()
 
     UpdateTagProgress();
     UpdateCanCraft();
-    if (constructor_ != nullptr)
-    {
+    if (constructor_ != nullptr) {
         constructor_->GetModelHandle().DirtyAllVariables();
     }
 }
 
-void glimmer::RecipeDetailGUISystem::ResetInvestment()
-{
+void glimmer::RecipeDetailGUISystem::ResetInvestment() {
     investedItems_.clear();
-    for (auto& choice : itemChoices_)
-    {
+    for (auto &choice: itemChoices_) {
         choice.investedAmount = 0;
     }
     UpdateTagProgress();
     UpdateCanCraft();
-    if (constructor_ != nullptr)
-    {
+    if (constructor_ != nullptr) {
         constructor_->GetModelHandle().DirtyAllVariables();
     }
 }
 
 glimmer::RecipeDetailGUISystem::~RecipeDetailGUISystem() = default;
 
-glimmer::RecipeDetailGUISystem::RecipeDetailGUISystem(WorldContext* worldContext)
-    : GuiStackGameSystem(worldContext)
-{
+glimmer::RecipeDetailGUISystem::RecipeDetailGUISystem(WorldContext *worldContext)
+    : GuiStackGameSystem(worldContext) {
     WatchComponent(COMPONENT_ITEM_CONTAINER);
     WatchComponent(COMPONENT_RECIPE_SELECTION);
     Init();
@@ -490,58 +401,47 @@ glimmer::RecipeDetailGUISystem::RecipeDetailGUISystem(WorldContext* worldContext
 }
 
 void glimmer::RecipeDetailGUISystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType,
-                                                               uint32_t count)
-{
-    if (gameComponentType == COMPONENT_ITEM_CONTAINER && itemContainer_ == nullptr)
-    {
-        const EntityShortCut* entityShortCut = GetEntityShortCut();
-        if (entityShortCut == nullptr)
-        {
+                                                               uint32_t count) {
+    if (gameComponentType == COMPONENT_ITEM_CONTAINER && itemContainer_ == nullptr) {
+        const EntityShortCut *entityShortCut = GetEntityShortCut();
+        if (entityShortCut == nullptr) {
             return;
         }
-        const ItemContainerComponent* itemContainerComponent = entityShortCut->GetItemContainerComponent();
-        if (itemContainerComponent == nullptr)
-        {
+        const ItemContainerComponent *itemContainerComponent = entityShortCut->GetItemContainerComponent();
+        if (itemContainerComponent == nullptr) {
             return;
         }
         itemContainer_ = itemContainerComponent->GetItemContainer();
-    }
-    else if (gameComponentType == COMPONENT_RECIPE_SELECTION)
-    {
-        const EntityShortCut* entityShortCut = GetEntityShortCut();
-        if (entityShortCut == nullptr)
-        {
+    } else if (gameComponentType == COMPONENT_RECIPE_SELECTION) {
+        const EntityShortCut *entityShortCut = GetEntityShortCut();
+        if (entityShortCut == nullptr) {
             return;
         }
         recipeSelectionComponent_ = entityShortCut->GetRecipeSelectionComponent();
     }
 }
 
-void glimmer::RecipeDetailGUISystem::OnCreateDataModels(IDocumentRegistry* documentRegistry)
-{
+void glimmer::RecipeDetailGUISystem::OnCreateDataModels(IDocumentRegistry *documentRegistry) {
     constructor_ = documentRegistry->CreateDataModel("recipe_detail");
-    if (constructor_ == nullptr)
-    {
+    if (constructor_ == nullptr) {
         return;
     }
-    if (auto tagStruct = constructor_->RegisterStruct<TagProgressDataModel>())
-    {
+    if (auto tagStruct = constructor_->RegisterStruct<TagProgressDataModel>()) {
         tagStruct.RegisterMember("tagName", &TagProgressDataModel::tagName);
         tagStruct.RegisterMember("requiredWeight", &TagProgressDataModel::requiredWeight);
         tagStruct.RegisterMember("currentWeight", &TagProgressDataModel::currentWeight);
         tagStruct.RegisterMember("satisfied", &TagProgressDataModel::satisfied);
         tagStruct.RegisterMember("progressWidth", &TagProgressDataModel::progressWidth);
-        constructor_->RegisterArray<std::vector<TagProgressDataModel>>();
+        constructor_->RegisterArray<std::vector<TagProgressDataModel> >();
     }
-    if (auto choiceStruct = constructor_->RegisterStruct<RecipeItemChoiceDataModel>())
-    {
+    if (auto choiceStruct = constructor_->RegisterStruct<RecipeItemChoiceDataModel>()) {
         choiceStruct.RegisterMember("inventoryIndex", &RecipeItemChoiceDataModel::inventoryIndex);
         choiceStruct.RegisterMember("image", &RecipeItemChoiceDataModel::image);
         choiceStruct.RegisterMember("name", &RecipeItemChoiceDataModel::name);
         choiceStruct.RegisterMember("tagInfo", &RecipeItemChoiceDataModel::tagInfo);
         choiceStruct.RegisterMember("investedAmount", &RecipeItemChoiceDataModel::investedAmount);
         choiceStruct.RegisterMember("backpackAmount", &RecipeItemChoiceDataModel::backpackAmount);
-        constructor_->RegisterArray<std::vector<RecipeItemChoiceDataModel>>();
+        constructor_->RegisterArray<std::vector<RecipeItemChoiceDataModel> >();
     }
     constructor_->Bind("tag_progress", &tagProgress_);
     constructor_->Bind("item_choices", &itemChoices_);
@@ -563,32 +463,25 @@ void glimmer::RecipeDetailGUISystem::OnCreateDataModels(IDocumentRegistry* docum
     constructor_->BindEventCallback("on_item_decrease", &RecipeDetailGUISystem::OnItemDecrease, this);
 }
 
-void glimmer::RecipeDetailGUISystem::OnActivationChanged(bool activeStatus)
-{
+void glimmer::RecipeDetailGUISystem::OnActivationChanged(bool activeStatus) {
     GuiStackGameSystem::OnActivationChanged(activeStatus);
-    if (activeStatus)
-    {
+    if (activeStatus) {
         currentRecipe_ = recipeSelectionComponent_->GetRecipeResource();
         LoadRecipeDetail();
-    }
-    else
-    {
+    } else {
         investedItems_.clear();
     }
 }
 
-SDL_Scancode glimmer::RecipeDetailGUISystem::GetHotKey() const
-{
+SDL_Scancode glimmer::RecipeDetailGUISystem::GetHotKey() const {
     return SDL_SCANCODE_UNKNOWN;
 }
 
-glimmer::GameSystemType glimmer::RecipeDetailGUISystem::GetGameSystemType() const
-{
+glimmer::GameSystemType glimmer::RecipeDetailGUISystem::GetGameSystemType() const {
     return GameSystemType::RecipeDetailGUISystem;
 }
 
-void glimmer::RecipeDetailGUISystem::LoadDocuments(IDocumentRegistry* documentRegistry)
-{
+void glimmer::RecipeDetailGUISystem::LoadDocuments(IDocumentRegistry *documentRegistry) {
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
@@ -596,108 +489,85 @@ void glimmer::RecipeDetailGUISystem::LoadDocuments(IDocumentRegistry* documentRe
     SetAndHideElementDocument(documentRegistry->LoadSingleDocument(&resourceRef));
 }
 
-void glimmer::RecipeDetailGUISystem::OnBackClick(Rml::DataModelHandle handle, Rml::Event& event,
-                                                 const Rml::VariantList& args)
-{
+void glimmer::RecipeDetailGUISystem::OnBackClick(Rml::DataModelHandle handle, Rml::Event &event,
+                                                 const Rml::VariantList &args) {
     ResetInvestment();
-    if (systemScheduler_ != nullptr)
-    {
+    if (systemScheduler_ != nullptr) {
         systemScheduler_->PopGuiSystemType();
     }
 }
 
-void glimmer::RecipeDetailGUISystem::OnCraftClick(Rml::DataModelHandle handle, Rml::Event& event,
-                                                  const Rml::VariantList& args)
-{
+void glimmer::RecipeDetailGUISystem::OnCraftClick(Rml::DataModelHandle handle, Rml::Event &event,
+                                                  const Rml::VariantList &args) {
     ExecuteCraftBatch(craftCount_);
 }
 
-void glimmer::RecipeDetailGUISystem::OnAutoFillClick(Rml::DataModelHandle handle, Rml::Event& event,
-                                                     const Rml::VariantList& args)
-{
+void glimmer::RecipeDetailGUISystem::OnAutoFillClick(Rml::DataModelHandle handle, Rml::Event &event,
+                                                     const Rml::VariantList &args) {
     AutoFill();
 }
 
-void glimmer::RecipeDetailGUISystem::OnCraftCountIncrease(Rml::DataModelHandle handle, Rml::Event& event,
-                                                          const Rml::VariantList& args)
-{
-    if (craftCount_ >= maxCraftCount_)
-    {
+void glimmer::RecipeDetailGUISystem::OnCraftCountIncrease(Rml::DataModelHandle handle, Rml::Event &event,
+                                                          const Rml::VariantList &args) {
+    if (craftCount_ >= maxCraftCount_) {
         craftCount_ = 1;
-    }
-    else
-    {
+    } else {
         craftCount_++;
     }
     UpdateTagDisplayWeights();
     UpdateTagProgress();
     UpdateCanCraft();
     outputCount_ = outputAmount_ * craftCount_;
-    if (constructor_ != nullptr)
-    {
+    if (constructor_ != nullptr) {
         constructor_->GetModelHandle().DirtyVariable("output_count");
         constructor_->GetModelHandle().DirtyVariable("craft_count");
     }
 }
 
-void glimmer::RecipeDetailGUISystem::OnCraftCountDecrease(Rml::DataModelHandle handle, Rml::Event& event,
-                                                          const Rml::VariantList& args)
-{
-    if (craftCount_ <= 1)
-    {
+void glimmer::RecipeDetailGUISystem::OnCraftCountDecrease(Rml::DataModelHandle handle, Rml::Event &event,
+                                                          const Rml::VariantList &args) {
+    if (craftCount_ <= 1) {
         craftCount_ = maxCraftCount_;
-    }
-    else
-    {
+    } else {
         craftCount_--;
     }
     UpdateTagDisplayWeights();
     UpdateTagProgress();
     UpdateCanCraft();
     outputCount_ = outputAmount_ * craftCount_;
-    if (constructor_ != nullptr)
-    {
+    if (constructor_ != nullptr) {
         constructor_->GetModelHandle().DirtyVariable("output_count");
         constructor_->GetModelHandle().DirtyVariable("craft_count");
     }
 }
 
-void glimmer::RecipeDetailGUISystem::OnResetClick(Rml::DataModelHandle handle, Rml::Event& event,
-                                                  const Rml::VariantList& args)
-{
+void glimmer::RecipeDetailGUISystem::OnResetClick(Rml::DataModelHandle handle, Rml::Event &event,
+                                                  const Rml::VariantList &args) {
     ResetInvestment();
 }
 
-void glimmer::RecipeDetailGUISystem::OnItemIncrease(Rml::DataModelHandle handle, Rml::Event& event,
-                                                    const Rml::VariantList& args)
-{
-    if (args.empty())
-    {
+void glimmer::RecipeDetailGUISystem::OnItemIncrease(Rml::DataModelHandle handle, Rml::Event &event,
+                                                    const Rml::VariantList &args) {
+    if (args.empty()) {
         return;
     }
     int inventoryIndex = args[0].Get<int>();
     // 查找对应的 itemChoice
-    RecipeItemChoiceDataModel* choice = nullptr;
-    for (auto& c : itemChoices_)
-    {
-        if (c.inventoryIndex == inventoryIndex)
-        {
+    RecipeItemChoiceDataModel *choice = nullptr;
+    for (auto &c: itemChoices_) {
+        if (c.inventoryIndex == inventoryIndex) {
             choice = &c;
             break;
         }
     }
-    if (choice == nullptr)
-    {
+    if (choice == nullptr) {
         return;
     }
     auto slotIndex = static_cast<uint8_t>(inventoryIndex);
-    if (choice->investedAmount >= choice->backpackAmount)
-    {
+    if (choice->investedAmount >= choice->backpackAmount) {
         choice->investedAmount = 0;
         investedItems_.erase(slotIndex);
-    }
-    else
-    {
+    } else {
         choice->investedAmount++;
         investedItems_[slotIndex]++;
     }
@@ -705,45 +575,34 @@ void glimmer::RecipeDetailGUISystem::OnItemIncrease(Rml::DataModelHandle handle,
     UpdateCanCraft();
 }
 
-void glimmer::RecipeDetailGUISystem::OnItemDecrease(Rml::DataModelHandle handle, Rml::Event& event,
-                                                    const Rml::VariantList& args)
-{
-    if (args.empty())
-    {
+void glimmer::RecipeDetailGUISystem::OnItemDecrease(Rml::DataModelHandle handle, Rml::Event &event,
+                                                    const Rml::VariantList &args) {
+    if (args.empty()) {
         return;
     }
     int inventoryIndex = args[0].Get<int>();
-    RecipeItemChoiceDataModel* choice = nullptr;
-    for (auto& c : itemChoices_)
-    {
-        if (c.inventoryIndex == inventoryIndex)
-        {
+    RecipeItemChoiceDataModel *choice = nullptr;
+    for (auto &c: itemChoices_) {
+        if (c.inventoryIndex == inventoryIndex) {
             choice = &c;
             break;
         }
     }
-    if (choice == nullptr)
-    {
+    if (choice == nullptr) {
         return;
     }
     auto slotIndex = static_cast<uint8_t>(inventoryIndex);
-    if (choice->investedAmount <= 0)
-    {
+    if (choice->investedAmount <= 0) {
         choice->investedAmount = choice->backpackAmount;
         investedItems_[slotIndex] = static_cast<uint8_t>(choice->backpackAmount);
-    }
-    else
-    {
+    } else {
         choice->investedAmount--;
         auto it = investedItems_.find(slotIndex);
-        if (it != investedItems_.end())
-        {
-            if (it->second > 0)
-            {
+        if (it != investedItems_.end()) {
+            if (it->second > 0) {
                 it->second--;
             }
-            if (it->second == 0)
-            {
+            if (it->second == 0) {
                 investedItems_.erase(it);
             }
         }

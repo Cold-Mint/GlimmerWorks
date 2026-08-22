@@ -29,18 +29,15 @@
 #include "core/Constants.h"
 #include "core/utils/MouseButtonUtils.h"
 
-std::string glimmer::MouseButtonDynamicSuggestions::GetId() const
-{
+std::string glimmer::MouseButtonDynamicSuggestions::GetId() const {
     return MOUSE_BUTTON_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-const std::vector<std::string>& glimmer::MouseButtonDynamicSuggestions::GetSuggestions(
-    const std::optional<std::string>& param)
-{
+const std::vector<std::string> &glimmer::MouseButtonDynamicSuggestions::GetSuggestions(
+    const std::optional<std::string> &param) {
     return MouseButtonUtils::GetAllMouseButtonKeys();
 }
 
-bool glimmer::MouseButtonDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
-{
+bool glimmer::MouseButtonDynamicSuggestions::Match(const std::string &keyword, const std::string &param) {
     return MouseButtonUtils::ContainsKey(keyword);
 }

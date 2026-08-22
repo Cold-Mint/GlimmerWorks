@@ -28,41 +28,39 @@
 #include "GameSystem.h"
 #include "IDocumentRegistry.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class WorldScene;
     /**
      * The Gui system provides several methods for registering rml documents and data models in the scene.
      * Gui系统，提供了一些方法，用于向场景注册rml文档和数据模型
      */
-    class GuiGameSystem : public GameSystem
-    {
-        Rml::ElementDocument* elementDocument_ = nullptr;
+    class GuiGameSystem : public GameSystem {
+        Rml::ElementDocument *elementDocument_ = nullptr;
 
     protected:
-        void SetElementDocument(Rml::ElementDocument* document);
+        void SetElementDocument(Rml::ElementDocument *document);
 
-        Rml::ElementDocument* GetElementDocument() const;
+        Rml::ElementDocument *GetElementDocument() const;
 
     public:
-        explicit GuiGameSystem(WorldContext* worldContext);
+        explicit GuiGameSystem(WorldContext *worldContext);
 
         /**
          * Load the document
          * 加载文档
          * @param documentRegistry
          */
-        virtual void LoadDocuments(IDocumentRegistry* documentRegistry) = 0;
+        virtual void LoadDocuments(IDocumentRegistry *documentRegistry) = 0;
 
         uint8_t GetExecutionOrder() override;
 
-        void Render(SDL_Renderer* renderer) final;
+        void Render(SDL_Renderer *renderer) final;
 
         /**
          * OnCreateDataModels
          * 当创建数据模型时
          * @param documentRegistry
          */
-        virtual void OnCreateDataModels(IDocumentRegistry* documentRegistry);
+        virtual void OnCreateDataModels(IDocumentRegistry *documentRegistry);
     };
 }

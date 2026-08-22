@@ -33,24 +33,22 @@
 #include "core/mod/Resource.h"
 #include "core/utils/TransparentStringHash.h"
 
-namespace glimmer
-{
-    class RecipeManager
-    {
+namespace glimmer {
+    class RecipeManager {
         std::unordered_map<std::string, std::unordered_map<
-                               std::string, std::unique_ptr<RecipeResource>, TransparentStringHash, std::equal_to<>>,
-                           TransparentStringHash, std::equal_to<>>
+                std::string, std::unique_ptr<RecipeResource>, TransparentStringHash, std::equal_to<> >,
+            TransparentStringHash, std::equal_to<> >
         recipeMap_
-            {};
+                {};
 
         /**
          *An array for quick query, where the Key represents the recipe group and the Value represents the collection of recipe resources.
          * 用于快速查询的数组，Key为配方组，Value为配方资源集合。
          */
-        std::unordered_map<RecipeGroup, std::vector<RecipeResource*>> recipeGroupMap_;
+        std::unordered_map<RecipeGroup, std::vector<RecipeResource *> > recipeGroupMap_;
 
-        static bool IsRecipeSatisfied(const RecipeResource* recipe,
-                                      const std::unordered_map<uint64_t, uint8_t>& tagValueMap);
+        static bool IsRecipeSatisfied(const RecipeResource *recipe,
+                                      const std::unordered_map<uint64_t, uint8_t> &tagValueMap);
 
     public:
         /**
@@ -61,7 +59,7 @@ namespace glimmer
          * @param recipeResource recipeResource 配方资源
          * @return
          */
-        RecipeResource* RegisterRecipe(std::unique_ptr<RecipeResource> recipeResource);
+        RecipeResource *RegisterRecipe(std::unique_ptr<RecipeResource> recipeResource);
 
 
         /**
@@ -70,12 +68,12 @@ namespace glimmer
          */
         void PreSortRecipes();
 
-        std::vector<RecipeResource*> FindUnlockedRecipes(std::unordered_map<RecipeGroup, uint8_t> technologyMap,
-                                                         const std::vector<const ItemTagResource*>& totalTagVector)
+        std::vector<RecipeResource *> FindUnlockedRecipes(std::unordered_map<RecipeGroup, uint8_t> technologyMap,
+                                                          const std::vector<const ItemTagResource *> &totalTagVector)
         const;
 
 
-        [[nodiscard]] RecipeResource* FindRecipeResource(const std::string& packId, const std::string& key);
+        [[nodiscard]] RecipeResource *FindRecipeResource(const std::string &packId, const std::string &key);
 
         std::vector<std::string> GetRecipeResourceList() const;
 

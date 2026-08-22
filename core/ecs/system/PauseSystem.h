@@ -30,27 +30,24 @@
 #include "RmlUi/Core/Event.h"
 #include "RmlUi/Core/DataModelHandle.h"
 
-namespace glimmer
-{
-
-    class PauseSystem : public GuiGameSystem
-    {
+namespace glimmer {
+    class PauseSystem : public GuiGameSystem {
         Rml::ElementDocument *elementDocument_ = nullptr;
 
         void TogglePause() const;
 
     public:
-        void OnResumeButtonClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+        void OnResumeButtonClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
-        void OnSaveAndExitButtonClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+        void OnSaveAndExitButtonClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
         void LoadDocuments(IDocumentRegistry *documentRegistry) override;
 
         void OnCreateDataModels(IDocumentRegistry *documentRegistry) override;
 
-        explicit PauseSystem(WorldContext* worldContext);
+        explicit PauseSystem(WorldContext *worldContext);
 
-        bool HandleEvent(const SDL_Event& event) override;
+        bool HandleEvent(const SDL_Event &event) override;
 
         bool OnBackPressed() override;
 

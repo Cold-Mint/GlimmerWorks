@@ -31,15 +31,13 @@
 #include "ItemContainer.h"
 #include "core/math/IAllocStrategy.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class AbilityItem;
     /**
      * ComposableItem
      * 可组合的物品
      */
-    class ComposableItem : public Item
-    {
+    class ComposableItem : public Item {
         std::shared_ptr<ItemContainer> itemContainer_ = nullptr;
         std::string id_;
         std::string name_;
@@ -48,8 +46,8 @@ namespace glimmer
         AbilityConfig totalAbilityConfig_;
         uint32_t maxDurability_;
         bool unbreakable_;
-        std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>> callback_ = nullptr;
-        std::shared_ptr<IAllocStrategy<uint32_t>> allocStrategyPtr_ = nullptr;
+        std::shared_ptr<std::function<void(uint8_t, Item *, ContainerChangeType)> > callback_ = nullptr;
+        std::shared_ptr<IAllocStrategy<uint32_t> > allocStrategyPtr_ = nullptr;
         ResourceRef iconResourceRef_;
 
         void AddCallback();
@@ -59,42 +57,42 @@ namespace glimmer
     public:
         ~ComposableItem() override;
 
-        explicit ComposableItem(const ComposableItemCreateParams& params);
+        explicit ComposableItem(const ComposableItemCreateParams &params);
 
-        static std::unique_ptr<ComposableItem> FromItemResource(WorldContext* worldContext,
-                                                                const ComposableItemResource* itemResource,
-                                                                const ResourceRef& resourceRef);
+        static std::unique_ptr<ComposableItem> FromItemResource(WorldContext *worldContext,
+                                                                const ComposableItemResource *itemResource,
+                                                                const ResourceRef &resourceRef);
 
-        void ReadItemMessage(WorldContext* worldContext, const ItemMessage& itemMessage) override;
+        void ReadItemMessage(WorldContext *worldContext, const ItemMessage &itemMessage) override;
 
-        void WriteItemMessage(ItemMessage& itemMessage) const override;
+        void WriteItemMessage(ItemMessage &itemMessage) const override;
 
         void Reduce(unsigned value) override;
 
-        [[nodiscard]] const std::string& GetId() const override;
+        [[nodiscard]] const std::string &GetId() const override;
 
-        [[nodiscard]] const std::string& GetName() const override;
+        [[nodiscard]] const std::string &GetName() const override;
 
-        [[nodiscard]] const std::optional<std::string>& GetDescription() const override;
+        [[nodiscard]] const std::optional<std::string> &GetDescription() const override;
 
-        [[nodiscard]] SDL_Texture* GetIcon() const override;
+        [[nodiscard]] SDL_Texture *GetIcon() const override;
 
         void SwapItem(uint8_t index,
-                      ItemContainer* otherContainer,
+                      ItemContainer *otherContainer,
                       uint8_t otherIndex) const;
 
         [[nodiscard]] std::unique_ptr<Item> ReplaceItem(uint8_t index, std::unique_ptr<Item> item) const;
 
-        [[nodiscard]] uint8_t RemoveItemAbility(const std::string& id, uint8_t amount) const;
+        [[nodiscard]] uint8_t RemoveItemAbility(const std::string &id, uint8_t amount) const;
 
-        [[nodiscard]] const AbilityConfig* GetAbilityConfig() const override;
+        [[nodiscard]] const AbilityConfig *GetAbilityConfig() const override;
 
-        bool OnUse(bool mouseLeft, WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
-            std::unordered_set<AbilityType>& popupAbility) override;
+        bool OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user, const AbilityConfig *abilityConfig,
+                   std::unordered_set<AbilityType> &popupAbility) override;
 
-        [[nodiscard]] const ResourceRef* GetIconResourceRef() const override;
+        [[nodiscard]] const ResourceRef *GetIconResourceRef() const override;
 
-        [[nodiscard]] ItemContainer* GetItemContainer() const;
+        [[nodiscard]] ItemContainer *GetItemContainer() const;
 
         [[nodiscard]] std::unique_ptr<Item> Clone() const override;
 

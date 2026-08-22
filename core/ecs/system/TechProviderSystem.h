@@ -27,10 +27,8 @@
 #pragma once
 #include "core/ecs/GameSystem.h"
 
-namespace glimmer
-{
-    class TechProviderSystem final : public GameSystem
-    {
+namespace glimmer {
+    class TechProviderSystem final : public GameSystem {
         uint32_t transform2DCount_ = 0;
         uint32_t techProviderCount_ = 0;
         std::vector<GameEntityID> techProviderEntities_;
@@ -38,7 +36,7 @@ namespace glimmer
         bool changed = false;
 
     public:
-        explicit TechProviderSystem(WorldContext* worldContext);
+        explicit TechProviderSystem(WorldContext *worldContext);
 
         void OnActivationChanged(bool activeStatus) override;
 

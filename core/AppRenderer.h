@@ -27,12 +27,10 @@
 #pragma once
 #include "context/AppContext.h"
 
-namespace glimmer
-{
-    class AppRenderer
-    {
-        AppContext* appContext_ = nullptr;
-        SDL_Renderer* renderer_ = nullptr;
+namespace glimmer {
+    class AppRenderer {
+        AppContext *appContext_ = nullptr;
+        SDL_Renderer *renderer_ = nullptr;
 
         void RenderUiMessage(int windowHeight, uint64_t frameStart, float deltaTime) const;
 
@@ -45,9 +43,9 @@ namespace glimmer
         void RenderDebug() const;
 
     public:
-        AppRenderer(AppContext* appContext, SDL_Renderer* renderer);
+        AppRenderer(AppContext *appContext, SDL_Renderer *renderer);
 
-        void RenderFrame(const RmlContext* rmlContext, int windowWidth, int windowHeight, uint64_t frameStart,
+        void RenderFrame(const RmlContext *rmlContext, int windowWidth, int windowHeight, uint64_t frameStart,
                          float deltaTime) const;
     };
 }

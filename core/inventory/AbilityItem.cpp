@@ -33,12 +33,11 @@
 #include "core/log/LogCat.h"
 
 
-glimmer::ItemAbility* glimmer::AbilityItem::GetItemAbility() const
-{
+glimmer::ItemAbility *glimmer::AbilityItem::GetItemAbility() const {
     return itemAbility_.get();
 }
 
-glimmer::AbilityItem::AbilityItem(const AbilityItemCreateParams& params) : id_(params.GetId()),
+glimmer::AbilityItem::AbilityItem(const AbilityItemCreateParams &params) : id_(params.GetId()),
                                                                            name_(params.GetName()),
                                                                            description_(params.GetDescription()),
                                                                            iconResult_(params.GetIconResult()),
@@ -46,45 +45,39 @@ glimmer::AbilityItem::AbilityItem(const AbilityItemCreateParams& params) : id_(p
                                                                            maxDurability_(params.GetMaxDurability()),
                                                                            unbreakable_(params.IsUnbreakable()),
                                                                            canUseAlone_(params.IsCanUseAlone()),
-                                                                           iconResourceRef_(params.GetIconResourceRef())
-{
+                                                                           iconResourceRef_(
+                                                                               params.GetIconResourceRef()) {
     SetTags(params.GetTags());
     SetResourceRef(params.GetResourceRef());
-    if (ItemDurabilityModule* itemDurabilityModule = GetMutableDurabilityModule(); itemDurabilityModule != nullptr)
-    {
+    if (ItemDurabilityModule *itemDurabilityModule = GetMutableDurabilityModule(); itemDurabilityModule != nullptr) {
         // Sync durability settings to the base class ItemDurabilityModule
         // 将耐久度设置同步到基类ItemDurabilityModule，确保存档载入时耐久度回调能正确工作
         itemDurabilityModule->SetMaxDurability(maxDurability_);
         itemDurabilityModule->SetUnbreakable(unbreakable_);
     }
-    if (itemAbility_ == nullptr)
-    {
+    if (itemAbility_ == nullptr) {
         LogCat::e(std::source_location::current(), "itemAbility is nullptr");
         return;
     }
 }
 
-std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(const AppContext* appContext,
-                                                                             const AbilityItemResource* itemResource,
-                                                                             const ResourceRef& resourceRef)
-{
+std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(const AppContext *appContext,
+                                                                             const AbilityItemResource *itemResource,
+                                                                             const ResourceRef &resourceRef) {
     std::string name = Resource::GenerateId(itemResource->packId, itemResource->resourceId);
-    if (const auto nameRes = appContext->GetResourceLocator()->FindString(&itemResource->name); nameRes != nullptr)
-    {
+    if (const auto nameRes = appContext->GetResourceLocator()->FindString(&itemResource->name); nameRes != nullptr) {
         name = nameRes->value;
     }
     std::optional<std::string> description;
     if (auto descriptionRes = appContext->GetResourceLocator()->FindString(&itemResource->description); descriptionRes
-        != nullptr)
-    {
+        != nullptr) {
         description = descriptionRes->value;
     }
 
     const auto itemAbility =
-        ItemAbilityFactory::CreateItemAbility(static_cast<AbilityType>(itemResource->ability),
-                                              itemResource->abilityConfig);
-    if (itemAbility == nullptr)
-    {
+            ItemAbilityFactory::CreateItemAbility(static_cast<AbilityType>(itemResource->ability),
+                                                  itemResource->abilityConfig);
+    if (itemAbility == nullptr) {
         return nullptr;
     }
 
@@ -102,56 +95,45 @@ std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(con
     return std::make_unique<AbilityItem>(params);
 }
 
-const glimmer::AbilityConfig* glimmer::AbilityItem::GetAbilityConfig() const
-{
-    if (itemAbility_ == nullptr)
-    {
+const glimmer::AbilityConfig *glimmer::AbilityItem::GetAbilityConfig() const {
+    if (itemAbility_ == nullptr) {
         return nullptr;
     }
     return itemAbility_->GetAbilityConfig();
 }
 
-bool glimmer::AbilityItem::OnUse(const bool mouseLeft, WorldContext* worldContext, uint32_t user,
-                                 const AbilityConfig* abilityConfig, std::unordered_set<AbilityType>& popupAbility)
-{
-    if (canUseAlone_)
-    {
+bool glimmer::AbilityItem::OnUse(const bool mouseLeft, WorldContext *worldContext, uint32_t user,
+                                 const AbilityConfig *abilityConfig, std::unordered_set<AbilityType> &popupAbility) {
+    if (canUseAlone_) {
         return itemAbility_->OnUse(mouseLeft, worldContext, user, abilityConfig, popupAbility);
     }
     return false;
 }
 
 
-const std::string& glimmer::AbilityItem::GetId() const
-{
+const std::string &glimmer::AbilityItem::GetId() const {
     return id_;
 }
 
-const std::string& glimmer::AbilityItem::GetName() const
-{
+const std::string &glimmer::AbilityItem::GetName() const {
     return name_;
 }
 
-const std::optional<std::string>& glimmer::AbilityItem::GetDescription() const
-{
+const std::optional<std::string> &glimmer::AbilityItem::GetDescription() const {
     return description_;
 }
 
-SDL_Texture* glimmer::AbilityItem::GetIcon() const
-{
-    if (iconResult_ == nullptr)
-    {
+SDL_Texture *glimmer::AbilityItem::GetIcon() const {
+    if (iconResult_ == nullptr) {
         return nullptr;
     }
     return iconResult_->GetResource();
 }
 
-const glimmer::ResourceRef* glimmer::AbilityItem::GetIconResourceRef() const
-{
+const glimmer::ResourceRef *glimmer::AbilityItem::GetIconResourceRef() const {
     return &iconResourceRef_;
 }
 
-std::unique_ptr<glimmer::Item> glimmer::AbilityItem::Clone() const
-{
+std::unique_ptr<glimmer::Item> glimmer::AbilityItem::Clone() const {
     return std::make_unique<AbilityItem>(*this);
 }

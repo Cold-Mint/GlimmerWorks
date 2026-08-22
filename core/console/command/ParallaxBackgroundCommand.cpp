@@ -33,14 +33,11 @@
 #include "fmt/xchar.h"
 
 
-glimmer::ParallaxBackgroundCommand::ParallaxBackgroundCommand(AppContext* appContext) : Command(appContext)
-{
+glimmer::ParallaxBackgroundCommand::ParallaxBackgroundCommand(AppContext *appContext) : Command(appContext) {
 }
 
-void glimmer::ParallaxBackgroundCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
-{
-    if (suggestionsTree == nullptr)
-    {
+void glimmer::ParallaxBackgroundCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
+    if (suggestionsTree == nullptr) {
         return;
     }
     suggestionsTree->AddChild("clear");
@@ -49,82 +46,67 @@ void glimmer::ParallaxBackgroundCommand::InitSuggestions(NodeTree<std::string>* 
 }
 
 
-const std::string& glimmer::ParallaxBackgroundCommand::GetName() const
-{
+const std::string &glimmer::ParallaxBackgroundCommand::GetName() const {
     return PARALLAX_BACKGROUND_COMMAND_NAME;
 }
 
-bool glimmer::ParallaxBackgroundCommand::RequiresWorldContext() const
-{
+bool glimmer::ParallaxBackgroundCommand::RequiresWorldContext() const {
     return true;
 }
 
-void glimmer::ParallaxBackgroundCommand::PutCommandStructure(const CommandArgs* commandArgs,
-                                                             std::vector<std::string>* strings)
-{
-    if (commandArgs == nullptr || strings == nullptr)
-    {
+void glimmer::ParallaxBackgroundCommand::PutCommandStructure(const CommandArgs *commandArgs,
+                                                             std::vector<std::string> *strings) {
+    if (commandArgs == nullptr || strings == nullptr) {
         return;
     }
     strings->emplace_back("[operation:string]");
 }
 
-bool glimmer::ParallaxBackgroundCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                                                 const std::function<void(const std::string& text)>* onMessage)
-{
-    AppContext* appContext = GetAppContext();
-    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
-    {
+bool glimmer::ParallaxBackgroundCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                                                 const std::function<void(const std::string &text)> *onMessage) {
+    AppContext *appContext = GetAppContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr) {
         return false;
     }
-    const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    const WorldContext* worldContext = GetWorldContext();
-    if (worldContext == nullptr)
-    {
+    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
+    const WorldContext *worldContext = GetWorldContext();
+    if (worldContext == nullptr) {
         onMessageRef(appContext->GetLangsResources()->worldContextIsNull);
         return false;
     }
-    const LangsResources* langsResources = appContext->GetLangsResources();
-    if (langsResources == nullptr)
-    {
+    const LangsResources *langsResources = appContext->GetLangsResources();
+    if (langsResources == nullptr) {
         return false;
     }
     const int size = commandArgs->GetSize();
-    if (size < 2)
-    {
+    if (size < 2) {
         onMessageRef(fmt::format(
             fmt::runtime(langsResources->insufficientParameterLength),
             2, size));
         return false;
     }
     std::string operation = commandArgs->AsString(1);
-    EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
-    if (entityShortCut == nullptr)
-    {
+    EntityShortCut *entityShortCut = worldContext->GetEntityShortCut();
+    if (entityShortCut == nullptr) {
         return false;
     }
-    ParallaxBackgroundComponent* parallaxBackgroundComponent = entityShortCut
-        ->
-        GetParallaxBackgroundComponent();
-    if (parallaxBackgroundComponent == nullptr)
-    {
+    ParallaxBackgroundComponent *parallaxBackgroundComponent = entityShortCut
+            ->
+            GetParallaxBackgroundComponent();
+    if (parallaxBackgroundComponent == nullptr) {
         return false;
     }
-    if (operation == "clear")
-    {
+    if (operation == "clear") {
         parallaxBackgroundComponent->ClearTexture();
         onMessageRef(langsResources->parallaxBackgroundClear);
         return true;
     }
-    if (operation == "set")
-    {
-        const ResourceLocator* resourceLocator = appContext->GetResourceLocator();
-        if (resourceLocator == nullptr)
-        {
+    if (operation == "set") {
+        const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+        if (resourceLocator == nullptr) {
             return false;
         }
-        if (size < 3)
-        {
+        if (size < 3) {
             onMessageRef(fmt::format(
                 fmt::runtime(langsResources->insufficientParameterLength),
                 3, size));
@@ -132,29 +114,25 @@ bool glimmer::ParallaxBackgroundCommand::Execute(const CommandSender* commandSen
         }
         const std::optional<ResourceRef> texturesResourceRefOptional = commandArgs->AsResourceRef(
             2, RESOURCE_TEXTURE);
-        if (!texturesResourceRefOptional.has_value())
-        {
+        if (!texturesResourceRefOptional.has_value()) {
             return false;
         }
         parallaxBackgroundComponent->SetTextureResourceRef(texturesResourceRefOptional.value());
         onMessageRef(langsResources->parallaxBackgroundSet);
         return true;
     }
-    if (operation == "get")
-    {
-        const ResourceLocator* resourceLocator = appContext->GetResourceLocator();
-        if (resourceLocator == nullptr)
-        {
+    if (operation == "get") {
+        const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+        if (resourceLocator == nullptr) {
             return false;
         }
-        const SDL_Texture* texture = parallaxBackgroundComponent->GetTexture(resourceLocator);
-        if (texture == nullptr)
-        {
+        const SDL_Texture *texture = parallaxBackgroundComponent->GetTexture(resourceLocator);
+        if (texture == nullptr) {
             onMessageRef(langsResources->parallaxBackgroundNone);
             return false;
         }
 
-        const ResourceRef& resourceRef = parallaxBackgroundComponent->GetTextureResourceRef();
+        const ResourceRef &resourceRef = parallaxBackgroundComponent->GetTextureResourceRef();
         onMessageRef(fmt::format(
             fmt::runtime(langsResources->parallaxBackgroundGet),
             Resource::GenerateId(resourceRef.GetPackageId(), resourceRef.GetResourceKey())));

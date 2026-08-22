@@ -38,8 +38,7 @@
 #include "core/utils/MouseButtonUtils.h"
 #include "core/utils/ScanCodeUtils.h"
 
-void glimmer::InputCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
-{
+void glimmer::InputCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
     auto keySuggestion = suggestionsTree->AddChild("key");
     keySuggestion->AddChild("down")->AddChild(SCAN_KEY_DYNAMIC_SUGGESTIONS_NAME);
     keySuggestion->AddChild("up")->AddChild(SCAN_KEY_DYNAMIC_SUGGESTIONS_NAME);
@@ -49,74 +48,56 @@ void glimmer::InputCommand::InitSuggestions(NodeTree<std::string>* suggestionsTr
     mouseSuggestion->AddChild("scroll");
 }
 
-glimmer::InputCommand::InputCommand(AppContext* appContext) : Command(appContext)
-{
+glimmer::InputCommand::InputCommand(AppContext *appContext) : Command(appContext) {
 }
 
-const std::string& glimmer::InputCommand::GetName() const
-{
+const std::string &glimmer::InputCommand::GetName() const {
     return INPUT_COMMAND_NAME;
 }
 
-void glimmer::InputCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
-{
-    if (commandArgs == nullptr || strings == nullptr)
-    {
+void glimmer::InputCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
+    if (commandArgs == nullptr || strings == nullptr) {
         return;
     }
     strings->emplace_back("[action_type:string]");
 
     const int size = commandArgs->GetSize();
-    if (size > 1)
-    {
+    if (size > 1) {
         const std::string action_type = commandArgs->AsString(0);
 
-        if (action_type == "text")
-        {
+        if (action_type == "text") {
             strings->emplace_back("[text:string]");
-        }
-        else if (action_type == "click" || action_type == "move")
-        {
+        } else if (action_type == "click" || action_type == "move") {
             strings->emplace_back("[x:number]");
             strings->emplace_back("[y:number]");
-        }
-        else if (action_type == "key")
-        {
+        } else if (action_type == "key") {
             strings->emplace_back("[key:string]");
-        }
-        else
-        {
+        } else {
             strings->emplace_back("[action:string]");
-            if (size > 1)
-            {
+            if (size > 1) {
                 strings->emplace_back("[param1:string|number]");
             }
-            if (size > 2)
-            {
+            if (size > 2) {
                 strings->emplace_back("[param2:string|number]");
             }
         }
     }
 }
 
-bool glimmer::InputCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                                    const std::function<void(const std::string& text)>* onMessage)
-{
-    const AppContext* appContext = GetAppContext();
-    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
-    {
+bool glimmer::InputCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                                    const std::function<void(const std::string &text)> *onMessage) {
+    const AppContext *appContext = GetAppContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr) {
         return false;
     }
-    const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    const LangsResources* langsResources = appContext->GetLangsResources();
-    if (langsResources == nullptr)
-    {
+    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
+    const LangsResources *langsResources = appContext->GetLangsResources();
+    if (langsResources == nullptr) {
         return false;
     }
 
     const int size = commandArgs->GetSize();
-    if (size < 3)
-    {
+    if (size < 3) {
         onMessageRef(fmt::format(
             fmt::runtime(langsResources->insufficientParameterLength),
             3, size));
@@ -126,10 +107,8 @@ bool glimmer::InputCommand::Execute(const CommandSender* commandSender, const Co
     std::string device = commandArgs->AsString(1);
     std::string action = commandArgs->AsString(2);
 
-    if (device == "key")
-    {
-        if (size < 4)
-        {
+    if (device == "key") {
+        if (size < 4) {
             onMessageRef(fmt::format(
                 fmt::runtime(langsResources->insufficientParameterLength),
                 4, size));
@@ -138,46 +117,37 @@ bool glimmer::InputCommand::Execute(const CommandSender* commandSender, const Co
         std::string keyName = commandArgs->AsString(3);
 
         const SDL_Scancode scancode = ScanCodeUtils::StringToScanCode(keyName);
-        if (scancode == SDL_SCANCODE_UNKNOWN)
-        {
+        if (scancode == SDL_SCANCODE_UNKNOWN) {
             onMessageRef("Unknown key name: " + keyName);
             return false;
         }
 
         SDL_Event event{};
-        if (action == "down")
-        {
+        if (action == "down") {
             event.type = SDL_EVENT_KEY_DOWN;
             event.key.scancode = scancode;
             event.key.key = SDL_GetKeyFromScancode(scancode, SDL_GetModState(), false);
             event.key.repeat = false;
             SDL_PushEvent(&event);
             onMessageRef("Simulated key down: " + keyName);
-        }
-        else if (action == "up")
-        {
+        } else if (action == "up") {
             event.type = SDL_EVENT_KEY_UP;
             event.key.scancode = scancode;
             event.key.key = SDL_GetKeyFromScancode(scancode, SDL_GetModState(), false);
             event.key.repeat = false;
             SDL_PushEvent(&event);
             onMessageRef("Simulated key up: " + keyName);
-        }
-        else
-        {
+        } else {
             onMessageRef("Unknown key action: " + action);
             return false;
         }
         return true;
     }
 
-    if (device == "mouse")
-    {
+    if (device == "mouse") {
         SDL_Event event{};
-        if (action == "click")
-        {
-            if (size < 4)
-            {
+        if (action == "click") {
+            if (size < 4) {
                 onMessageRef(fmt::format(
                     fmt::runtime(langsResources->insufficientParameterLength),
                     4, size));
@@ -186,8 +156,7 @@ bool glimmer::InputCommand::Execute(const CommandSender* commandSender, const Co
             std::string buttonStr = commandArgs->AsString(3);
             int x = 0, y = 0;
             bool hasPosition = size >= 6;
-            if (hasPosition)
-            {
+            if (hasPosition) {
                 x = std::stoi(commandArgs->AsString(4));
                 y = std::stoi(commandArgs->AsString(5));
 
@@ -199,36 +168,28 @@ bool glimmer::InputCommand::Execute(const CommandSender* commandSender, const Co
 
             event.type = SDL_EVENT_MOUSE_BUTTON_DOWN;
             event.button.button = MouseButtonUtils::StringToMouseButton(buttonStr);
-            if (hasPosition)
-            {
+            if (hasPosition) {
                 event.button.x = static_cast<float>(x);
                 event.button.y = static_cast<float>(y);
             }
             SDL_PushEvent(&event);
 
             event.type = SDL_EVENT_MOUSE_BUTTON_UP;
-            if (hasPosition)
-            {
+            if (hasPosition) {
                 event.button.x = static_cast<float>(x);
                 event.button.y = static_cast<float>(y);
             }
             SDL_PushEvent(&event);
 
-            if (hasPosition)
-            {
+            if (hasPosition) {
                 onMessageRef(
                     "Simulated mouse click: " + buttonStr + " button at (" + std::to_string(x) + ", " +
                     std::to_string(y) + ")");
-            }
-            else
-            {
+            } else {
                 onMessageRef("Simulated mouse click: " + buttonStr + " button");
             }
-        }
-        else if (action == "down")
-        {
-            if (size < 4)
-            {
+        } else if (action == "down") {
+            if (size < 4) {
                 onMessageRef(fmt::format(
                     fmt::runtime(langsResources->insufficientParameterLength),
                     4, size));
@@ -236,12 +197,9 @@ bool glimmer::InputCommand::Execute(const CommandSender* commandSender, const Co
             }
             std::string buttonStr = commandArgs->AsString(3);
             int button = SDL_BUTTON_LEFT;
-            if (buttonStr == "right")
-            {
+            if (buttonStr == "right") {
                 button = SDL_BUTTON_RIGHT;
-            }
-            else if (buttonStr == "middle")
-            {
+            } else if (buttonStr == "middle") {
                 button = SDL_BUTTON_MIDDLE;
             }
 
@@ -249,11 +207,8 @@ bool glimmer::InputCommand::Execute(const CommandSender* commandSender, const Co
             event.button.button = button;
             SDL_PushEvent(&event);
             onMessageRef("Simulated mouse down: " + buttonStr + " button");
-        }
-        else if (action == "up")
-        {
-            if (size < 4)
-            {
+        } else if (action == "up") {
+            if (size < 4) {
                 onMessageRef(fmt::format(
                     fmt::runtime(langsResources->insufficientParameterLength),
                     4, size));
@@ -261,12 +216,9 @@ bool glimmer::InputCommand::Execute(const CommandSender* commandSender, const Co
             }
             std::string buttonStr = commandArgs->AsString(3);
             int button = SDL_BUTTON_LEFT;
-            if (buttonStr == "right")
-            {
+            if (buttonStr == "right") {
                 button = SDL_BUTTON_RIGHT;
-            }
-            else if (buttonStr == "middle")
-            {
+            } else if (buttonStr == "middle") {
                 button = SDL_BUTTON_MIDDLE;
             }
 
@@ -274,11 +226,8 @@ bool glimmer::InputCommand::Execute(const CommandSender* commandSender, const Co
             event.button.button = button;
             SDL_PushEvent(&event);
             onMessageRef("Simulated mouse up: " + buttonStr + " button");
-        }
-        else if (action == "move")
-        {
-            if (size < 5)
-            {
+        } else if (action == "move") {
+            if (size < 5) {
                 onMessageRef(fmt::format(
                     fmt::runtime(langsResources->insufficientParameterLength),
                     5, size));
@@ -292,11 +241,8 @@ bool glimmer::InputCommand::Execute(const CommandSender* commandSender, const Co
             event.motion.y = static_cast<float>(y);
             SDL_PushEvent(&event);
             onMessageRef("Simulated mouse move: (" + std::to_string(x) + ", " + std::to_string(y) + ")");
-        }
-        else if (action == "scroll")
-        {
-            if (size < 4)
-            {
+        } else if (action == "scroll") {
+            if (size < 4) {
                 onMessageRef(fmt::format(
                     fmt::runtime(langsResources->insufficientParameterLength),
                     4, size));
@@ -309,9 +255,7 @@ bool glimmer::InputCommand::Execute(const CommandSender* commandSender, const Co
             event.wheel.y = static_cast<float>(scrollY);
             SDL_PushEvent(&event);
             onMessageRef("Simulated mouse scroll: " + std::to_string(scrollY));
-        }
-        else
-        {
+        } else {
             onMessageRef("Unknown mouse action: " + action);
             return false;
         }

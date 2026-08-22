@@ -29,13 +29,11 @@
 #include "StructureInfo.h"
 #include "core/mod/Resource.h"
 
-namespace glimmer
-{
-    class IStructureGenerator
-    {
-
+namespace glimmer {
+    class IStructureGenerator {
     public:
         virtual ~IStructureGenerator() = default;
+
         /**
          *
          * 生成结构
@@ -44,8 +42,8 @@ namespace glimmer
          * @param structureResource
          * @return
          */
-        virtual std::optional<StructureInfo> Generate(WorldContext* worldContext, const TileVector2D& startPosition,
-                                                      IStructureResource* structureResource) = 0;
+        virtual std::optional<StructureInfo> Generate(WorldContext *worldContext, const TileVector2D &startPosition,
+                                                      IStructureResource *structureResource) = 0;
 
         /**
          * Get the structure generator ID

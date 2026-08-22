@@ -26,32 +26,26 @@
  */
 #include "TechProviderComponent.h"
 
-glimmer::RecipeGroup glimmer::TechProviderComponent::GetRecipeGroup() const
-{
+glimmer::RecipeGroup glimmer::TechProviderComponent::GetRecipeGroup() const {
     return recipeGroup_;
 }
 
-uint8_t glimmer::TechProviderComponent::GetTechnologyLevel() const
-{
+uint8_t glimmer::TechProviderComponent::GetTechnologyLevel() const {
     return technologyLevel_;
 }
 
-void glimmer::TechProviderComponent::SetTechnologyLevel(const uint8_t level)
-{
+void glimmer::TechProviderComponent::SetTechnologyLevel(const uint8_t level) {
     technologyLevel_ = level;
 }
 
-void glimmer::TechProviderComponent::SetRecipeGroup(const RecipeGroup group)
-{
+void glimmer::TechProviderComponent::SetRecipeGroup(const RecipeGroup group) {
     recipeGroup_ = group;
 }
 
-GameComponentTypeMessage glimmer::TechProviderComponent::GetComponentTypeStatic()
-{
+GameComponentTypeMessage glimmer::TechProviderComponent::GetComponentTypeStatic() {
     return COMPONENT_TECH_PROVIDER;
 }
 
-GameComponentTypeMessage glimmer::TechProviderComponent::GetComponentType()
-{
+GameComponentTypeMessage glimmer::TechProviderComponent::GetComponentType() {
     return GetComponentTypeStatic();
 }

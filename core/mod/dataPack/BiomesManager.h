@@ -33,13 +33,11 @@
 #include "core/mod/Resource.h"
 
 
-namespace glimmer
-{
+namespace glimmer {
     struct BiomeResource;
 
-    class BiomesManager : public BaseResManager<BiomeResource>
-    {
-        std::vector<BiomeResource*> biomeVector_{};
+    class BiomesManager : public BaseResManager<BiomeResource> {
+        std::vector<BiomeResource *> biomeVector_{};
 
     public:
         /**
@@ -52,9 +50,9 @@ namespace glimmer
          */
         static float CalculateBiomeScoreDelta(float targetValue, float actualValue, float strictness);
 
-        [[nodiscard]] std::span<BiomeResource*> GetBiomeVector();
+        [[nodiscard]] std::span<BiomeResource *> GetBiomeVector();
 
-        void OnRegister(BiomeResource* resource) override;
+        void OnRegister(BiomeResource *resource) override;
 
         /**
          * Find Best Biome
@@ -67,7 +65,7 @@ namespace glimmer
          * @param surfaceProximity SurfaceProximity 地表贴近度
          * @return
          */
-        BiomeResource* FindBestBiome(float humidity, float temperature, float weirdness, float erosion,
+        BiomeResource *FindBestBiome(float humidity, float temperature, float weirdness, float erosion,
                                      float elevation, float surfaceProximity) const;
     };
 }

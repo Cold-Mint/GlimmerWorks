@@ -32,17 +32,15 @@
 #include "SceneManager.h"
 #include "core/rmi/dataModel/CreateWorldDataModel.h"
 
-namespace glimmer
-{
-    class CreateWorldScene : public Scene
-    {
-        void OnCreateWorldClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+namespace glimmer {
+    class CreateWorldScene : public Scene {
+        void OnCreateWorldClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
-        void OnBackClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+        void OnBackClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
-        void OnRandomSeedClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+        void OnRandomSeedClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
-        void OnRandomNameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+        void OnRandomNameClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
         void RandomizeWorld();
 
@@ -52,13 +50,13 @@ namespace glimmer
 
         Rml::DataModelHandle modelHandle_;
         CreateWorldDataModel createWorldDataModel_;
-        SceneManager* sceneManager_ = nullptr;
-        MainThreadDispatcher* mainThreadDispatcher_ = nullptr;
+        SceneManager *sceneManager_ = nullptr;
+        MainThreadDispatcher *mainThreadDispatcher_ = nullptr;
 
     public:
         float uiScale_ = 1.0F;
 
-        explicit CreateWorldScene(AppContext* context);
+        explicit CreateWorldScene(AppContext *context);
 
         void OnCreateDataModels() override;
 
@@ -68,7 +66,7 @@ namespace glimmer
 
         void CreateWorld() const;
 
-        void OnConfigChanged(const Config* config) override;
+        void OnConfigChanged(const Config *config) override;
 
         [[nodiscard]] std::optional<std::string> RandomName() const;
 

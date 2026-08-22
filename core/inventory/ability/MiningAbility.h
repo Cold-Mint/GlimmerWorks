@@ -29,21 +29,19 @@
 #include "ItemAbility.h"
 #include "MiningRangeData.h"
 
-namespace glimmer
-{
-    class MiningAbility : public ItemAbility
-    {
+namespace glimmer {
+    class MiningAbility : public ItemAbility {
         MiningRangeData miningRangeData_;
 
     public:
-        explicit MiningAbility(const AbilityConfig& abilityConfig);
+        explicit MiningAbility(const AbilityConfig &abilityConfig);
 
         ~MiningAbility() override = default;
 
         [[nodiscard]] AbilityType GetAbilityType() const override;
 
-        bool OnUse(bool mouseLeft, WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
-            std::unordered_set<AbilityType>& popupAbility) override;
+        bool OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user, const AbilityConfig *abilityConfig,
+                   std::unordered_set<AbilityType> &popupAbility) override;
 
         [[nodiscard]] std::unique_ptr<ItemAbility> Clone() const override;
     };

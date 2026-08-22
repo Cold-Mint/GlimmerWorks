@@ -39,59 +39,48 @@
 #include "core/scene/MainThreadDispatcher.h"
 #include "core/Constants.h"
 
-void glimmer::SceneCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
-{
+void glimmer::SceneCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
     suggestionsTree->AddChild("push")->AddChild(SCENE_DYNAMIC_SUGGESTIONS_NAME);
     suggestionsTree->AddChild("replace")->AddChild(SCENE_DYNAMIC_SUGGESTIONS_NAME);
     suggestionsTree->AddChild("pop")->AddChild(SCENE_DYNAMIC_SUGGESTIONS_NAME);
     suggestionsTree->AddChild("list");
 }
 
-glimmer::SceneCommand::SceneCommand(AppContext* appContext) : Command(appContext)
-{
+glimmer::SceneCommand::SceneCommand(AppContext *appContext) : Command(appContext) {
 }
 
-const std::string& glimmer::SceneCommand::GetName() const
-{
+const std::string &glimmer::SceneCommand::GetName() const {
     return SCENE_COMMAND_NAME;
 }
 
-void glimmer::SceneCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
-{
-    if (commandArgs == nullptr || strings == nullptr)
-    {
+void glimmer::SceneCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
+    if (commandArgs == nullptr || strings == nullptr) {
         return;
     }
     strings->emplace_back("[action:string]");
     const int size = commandArgs->GetSize();
-    if (size > 1)
-    {
+    if (size > 1) {
         const std::string action = commandArgs->AsString(1);
-        if (action != "list")
-        {
+        if (action != "list") {
             strings->emplace_back("[sceneName:string]");
         }
     }
 }
 
-bool glimmer::SceneCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                                    const std::function<void(const std::string& text)>* onMessage)
-{
-    AppContext* appContext = GetAppContext();
-    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
-    {
+bool glimmer::SceneCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                                    const std::function<void(const std::string &text)> *onMessage) {
+    AppContext *appContext = GetAppContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr) {
         return false;
     }
-    const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    const LangsResources* langsResources = appContext->GetLangsResources();
-    if (langsResources == nullptr)
-    {
+    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
+    const LangsResources *langsResources = appContext->GetLangsResources();
+    if (langsResources == nullptr) {
         return false;
     }
 
     const int size = commandArgs->GetSize();
-    if (size < 2)
-    {
+    if (size < 2) {
         onMessageRef(fmt::format(
             fmt::runtime(langsResources->insufficientParameterLength),
             2, size));
@@ -99,70 +88,51 @@ bool glimmer::SceneCommand::Execute(const CommandSender* commandSender, const Co
     }
 
     const std::string action = commandArgs->AsString(1);
-    SceneManager* sceneManager = appContext->GetSceneManager();
-    if (sceneManager == nullptr)
-    {
+    SceneManager *sceneManager = appContext->GetSceneManager();
+    if (sceneManager == nullptr) {
         return false;
     }
-    if (action == "list")
-    {
+    if (action == "list") {
         onMessageRef("Available scenes:");
         onMessageRef("Scene stack count: " + std::to_string(sceneManager->GetSceneCount()));
         return true;
     }
 
-    if (action == "pop")
-    {
-        appContext->GetMainThreadDispatcher()->PostToNextMainFrame([sceneManager]
-        {
+    if (action == "pop") {
+        appContext->GetMainThreadDispatcher()->PostToNextMainFrame([sceneManager] {
             sceneManager->PopScene();
         });
         onMessageRef("Scene pop scheduled for next frame");
         return true;
     }
 
-    if (size < 3)
-    {
+    if (size < 3) {
         onMessageRef(fmt::format(
             fmt::runtime(langsResources->insufficientParameterLength),
             3, size));
         return false;
     }
     const std::string sceneName = commandArgs->AsString(2);
-    if (action == "push")
-    {
-        MainThreadDispatcher* dispatcher = appContext->GetMainThreadDispatcher();
+    if (action == "push") {
+        MainThreadDispatcher *dispatcher = appContext->GetMainThreadDispatcher();
 
-        if (sceneName == SCENE_NAME_MAIN)
-        {
-            dispatcher->PostToNextMainFrame([appContext, sceneManager]
-            {
+        if (sceneName == SCENE_NAME_MAIN) {
+            dispatcher->PostToNextMainFrame([appContext, sceneManager] {
                 sceneManager->PushScene(std::make_unique<MainScene>(appContext));
             });
-        }
-        else if (sceneName == SCENE_NAME_SPLASH)
-        {
-            dispatcher->PostToNextMainFrame([appContext, sceneManager]
-            {
+        } else if (sceneName == SCENE_NAME_SPLASH) {
+            dispatcher->PostToNextMainFrame([appContext, sceneManager] {
                 sceneManager->PushScene(std::make_unique<SplashScene>(appContext));
             });
-        }
-        else if (sceneName == SCENE_NAME_SAVED_GAMES)
-        {
-            dispatcher->PostToNextMainFrame([appContext, sceneManager]
-            {
+        } else if (sceneName == SCENE_NAME_SAVED_GAMES) {
+            dispatcher->PostToNextMainFrame([appContext, sceneManager] {
                 sceneManager->PushScene(std::make_unique<SavedGamesScene>(appContext));
             });
-        }
-        else if (sceneName == SCENE_NAME_CREATE_WORLD)
-        {
-            dispatcher->PostToNextMainFrame([appContext, sceneManager]
-            {
+        } else if (sceneName == SCENE_NAME_CREATE_WORLD) {
+            dispatcher->PostToNextMainFrame([appContext, sceneManager] {
                 sceneManager->PushScene(std::make_unique<CreateWorldScene>(appContext));
             });
-        }
-        else
-        {
+        } else {
             onMessageRef("Unknown scene: " + sceneName);
             return false;
         }
@@ -170,40 +140,26 @@ bool glimmer::SceneCommand::Execute(const CommandSender* commandSender, const Co
         return true;
     }
 
-    if (action == "replace")
-    {
-        MainThreadDispatcher* dispatcher = appContext->GetMainThreadDispatcher();
+    if (action == "replace") {
+        MainThreadDispatcher *dispatcher = appContext->GetMainThreadDispatcher();
 
-        if (sceneName == SCENE_NAME_MAIN)
-        {
-            dispatcher->PostToNextMainFrame([appContext, sceneManager]
-            {
+        if (sceneName == SCENE_NAME_MAIN) {
+            dispatcher->PostToNextMainFrame([appContext, sceneManager] {
                 sceneManager->ReplaceScene(std::make_unique<MainScene>(appContext));
             });
-        }
-        else if (sceneName == SCENE_NAME_SPLASH)
-        {
-            dispatcher->PostToNextMainFrame([appContext, sceneManager]
-            {
+        } else if (sceneName == SCENE_NAME_SPLASH) {
+            dispatcher->PostToNextMainFrame([appContext, sceneManager] {
                 sceneManager->ReplaceScene(std::make_unique<SplashScene>(appContext));
             });
-        }
-        else if (sceneName == SCENE_NAME_SAVED_GAMES)
-        {
-            dispatcher->PostToNextMainFrame([appContext, sceneManager]
-            {
+        } else if (sceneName == SCENE_NAME_SAVED_GAMES) {
+            dispatcher->PostToNextMainFrame([appContext, sceneManager] {
                 sceneManager->ReplaceScene(std::make_unique<SavedGamesScene>(appContext));
             });
-        }
-        else if (sceneName == SCENE_NAME_CREATE_WORLD)
-        {
-            dispatcher->PostToNextMainFrame([appContext, sceneManager]
-            {
+        } else if (sceneName == SCENE_NAME_CREATE_WORLD) {
+            dispatcher->PostToNextMainFrame([appContext, sceneManager] {
                 sceneManager->ReplaceScene(std::make_unique<CreateWorldScene>(appContext));
             });
-        }
-        else
-        {
+        } else {
             onMessageRef("Unknown scene: " + sceneName);
             return false;
         }

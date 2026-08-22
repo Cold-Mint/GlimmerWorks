@@ -30,36 +30,30 @@
 #include "IAllocStrategy.h"
 #include "core/utils/RandomUtils.h"
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * 随机分配
      * @tparam T
      */
-    template <typename T>
-    class RandomAllocStrategy : public IAllocStrategy<T>
-    {
+    template<typename T>
+    class RandomAllocStrategy : public IAllocStrategy<T> {
     public:
-        void Allocate(std::vector<IAllocatable<T>*>& items, T total) override;
+        void Allocate(std::vector<IAllocatable<T> *> &items, T total) override;
 
         [[nodiscard]] AllocStrategyTypeMessage GetStrategyType() const override;
     };
 
-    template <typename T>
-    void RandomAllocStrategy<T>::Allocate(std::vector<IAllocatable<T>*>& items, T total)
-    {
+    template<typename T>
+    void RandomAllocStrategy<T>::Allocate(std::vector<IAllocatable<T> *> &items, T total) {
         T remaining = total;
-        while (remaining > T{})
-        {
-            std::vector<IAllocatable<T>*> valid;
-            for (auto item : items)
-            {
+        while (remaining > T{}) {
+            std::vector<IAllocatable<T> *> valid;
+            for (auto item: items) {
                 if (item->GetRemaining() > T{})
                     valid.push_back(item);
             }
 
-            if (valid.empty())
-            {
+            if (valid.empty()) {
                 break;
             }
             auto target = valid[RandomUtils::Random<int>(0, static_cast<int>(valid.size()) - 1)];
@@ -72,9 +66,8 @@ namespace glimmer
         }
     }
 
-    template <typename T>
-    AllocStrategyTypeMessage RandomAllocStrategy<T>::GetStrategyType() const
-    {
+    template<typename T>
+    AllocStrategyTypeMessage RandomAllocStrategy<T>::GetStrategyType() const {
         return ALLOC_STRATEGY_RANDOM;
     }
 }

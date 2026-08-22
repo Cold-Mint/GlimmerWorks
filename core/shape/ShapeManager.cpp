@@ -50,17 +50,14 @@ glimmer::IShapeResource *glimmer::ShapeManager::Register(std::unique_ptr<IShapeR
 }
 
 glimmer::IShapeResource *glimmer::ShapeManager::FindShape(const std::string &packId, const std::string &resourceId) {
-
     const auto packIt = shapeMap_.find(packId);
     if (packIt == shapeMap_.end()) {
-
         return nullptr;
     }
 
     auto &keyMap = packIt->second;
     const auto keyIt = keyMap.find(resourceId);
     if (keyIt == keyMap.end()) {
-
         return nullptr;
     }
 

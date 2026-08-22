@@ -33,10 +33,8 @@
 class Vector2DIMessage;
 using Vector2DIFingerprint = uint64_t;
 
-namespace glimmer
-{
-    struct Vector2DI : Vector2DIBase<Vector2DI>
-    {
+namespace glimmer {
+    struct Vector2DI : Vector2DIBase<Vector2DI> {
         //Inherit all the constructors of the parent class.
         //继承父类的所有构造函数。
         using Vector2DIBase::Vector2DIBase;

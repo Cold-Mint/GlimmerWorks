@@ -33,8 +33,7 @@
 #include "core/inventory/ability/AbilityType.h"
 #include "core/utils/TransparentStringHash.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class RigidBody2DComponent;
     class AudioManager;
     class CameraComponent;
@@ -47,12 +46,11 @@ namespace glimmer
      * The player control system processes the player's input control and realizes the WASD mobile camera function
      * 玩家控制系统，处理玩家的输入控制，实现WASD移动相机功能
      */
-    class PlayerControlSystem final : public GameSystem
-    {
-        AudioManager* audioManager_ = nullptr;
+    class PlayerControlSystem final : public GameSystem {
+        AudioManager *audioManager_ = nullptr;
         std::shared_ptr<AudioResourceResult> dropItemSFXResult_ = nullptr;
-        CameraComponent* cameraComponent_ = nullptr;
-        Transform2DComponent* cameraTransform2DComponent_ = nullptr;
+        CameraComponent *cameraComponent_ = nullptr;
+        Transform2DComponent *cameraTransform2DComponent_ = nullptr;
         GameEntityID playerEntityID_ = GAME_ENTITY_ID_INVALID;
         std::unordered_set<AbilityType> popupAbility_;
         /**
@@ -60,7 +58,7 @@ namespace glimmer
         * 检查玩家是否在地面上
         * @return If the player is on the ground, return true; otherwise, return false 如果玩家在地面上则返回true，否则返回false
         */
-        bool OnGround(const PlayerComponent* playerControlComponent) const;
+        bool OnGround(const PlayerComponent *playerControlComponent) const;
 
         /**
          * DropItem
@@ -68,7 +66,7 @@ namespace glimmer
          * @param itemContainer
          * @param index
          */
-        void DropItem(const ItemContainer* itemContainer, uint8_t index) const;
+        void DropItem(const ItemContainer *itemContainer, uint8_t index) const;
 
         /**
          * UseItem
@@ -76,36 +74,36 @@ namespace glimmer
          * @param mouseLeft
          * @param item
          */
-        bool UseItem(bool mouseLeft, Item* item);
+        bool UseItem(bool mouseLeft, Item *item);
 
-        static void UpdateFlying(float delta, const PlayerInputHandler* playerInputHandler,
-                                 Transform2DComponent* transform2DComponent);
+        static void UpdateFlying(float delta, const PlayerInputHandler *playerInputHandler,
+                                 Transform2DComponent *transform2DComponent);
 
-        void UpdateGroundedMovement(PlayerInputHandler* playerInputHandler, const PlayerComponent* playerComponent,
-                                    const RigidBody2DComponent* rigidBody2DComponent) const;
+        void UpdateGroundedMovement(PlayerInputHandler *playerInputHandler, const PlayerComponent *playerComponent,
+                                    const RigidBody2DComponent *rigidBody2DComponent) const;
 
-        static void UpdateJump(const PlayerComponent* playerComponent, PlayerInputHandler* playerInputHandler,
-                               const RigidBody2DComponent* rigidBody2DComponent,
-                               bool isGrounded, const b2MassData& massData);
+        static void UpdateJump(const PlayerComponent *playerComponent, PlayerInputHandler *playerInputHandler,
+                               const RigidBody2DComponent *rigidBody2DComponent,
+                               bool isGrounded, const b2MassData &massData);
 
-        static void ClampHorizontalSpeed(const RigidBody2DComponent* rigidBody2DComponent,
-                                         const PlayerComponent* playerComponent, const b2Vec2& currentVel);
+        static void ClampHorizontalSpeed(const RigidBody2DComponent *rigidBody2DComponent,
+                                         const PlayerComponent *playerComponent, const b2Vec2 &currentVel);
 
-        void CheckDropItem(PlayerInputHandler* playerInputHandler, const ItemContainer* itemContainer) const;
+        void CheckDropItem(PlayerInputHandler *playerInputHandler, const ItemContainer *itemContainer) const;
 
-        static void HandleMouseButton(const SDL_Event& event, PlayerInputHandler* playerInputHandler);
+        static void HandleMouseButton(const SDL_Event &event, PlayerInputHandler *playerInputHandler);
 
-        void HandleHorizontalInput(const SDL_Event& event, PlayerComponent* playerComponent,
-                                   PlayerInputHandler* playerInputHandler, bool pressed) const;
+        void HandleHorizontalInput(const SDL_Event &event, PlayerComponent *playerComponent,
+                                   PlayerInputHandler *playerInputHandler, bool pressed) const;
 
-        static void HandleVerticalInput(const SDL_Event& event, PlayerInputHandler* playerInputHandler, bool pressed);
+        static void HandleVerticalInput(const SDL_Event &event, PlayerInputHandler *playerInputHandler, bool pressed);
 
-        void UpdatePlayerFacing(PlayerComponent* playerComponent, const PlayerInputHandler* playerInputHandler) const;
+        void UpdatePlayerFacing(PlayerComponent *playerComponent, const PlayerInputHandler *playerInputHandler) const;
 
-        static void HandleKeyAction(const SDL_Event& event, PlayerInputHandler* playerInputHandler, bool pressed);
+        static void HandleKeyAction(const SDL_Event &event, PlayerInputHandler *playerInputHandler, bool pressed);
 
     public:
-        explicit PlayerControlSystem(WorldContext* worldContext);
+        explicit PlayerControlSystem(WorldContext *worldContext);
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
@@ -113,6 +111,6 @@ namespace glimmer
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
 
-        bool HandleEvent(const SDL_Event& event) override;
+        bool HandleEvent(const SDL_Event &event) override;
     };
 }

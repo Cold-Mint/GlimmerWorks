@@ -29,16 +29,14 @@
 
 #include "core/world/structure/IStructureConditionProcessor.h"
 
-namespace glimmer
-{
-    class StructurePlacementConditionsProcessorManager
-    {
-        std::unordered_map<StructureConditionProcessorType, std::unique_ptr<IStructureConditionProcessor>>
+namespace glimmer {
+    class StructurePlacementConditionsProcessorManager {
+        std::unordered_map<StructureConditionProcessorType, std::unique_ptr<IStructureConditionProcessor> >
         conditionProcessors_;
 
     public:
         void AddConditionProcessor(std::unique_ptr<IStructureConditionProcessor> structureConditionProcessor);
 
-        IStructureConditionProcessor* FindConditionProcessors(StructureConditionProcessorType processorType);
+        IStructureConditionProcessor *FindConditionProcessors(StructureConditionProcessorType processorType);
     };
 }

@@ -27,16 +27,14 @@
 #pragma once
 #include "core/console/Command.h"
 
-namespace glimmer
-{
-    class LicenseCommand final : public Command
-    {
+namespace glimmer {
+    class LicenseCommand final : public Command {
     public:
-        explicit LicenseCommand(AppContext* appContext);
+        explicit LicenseCommand(AppContext *appContext);
 
-        bool Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                     const std::function<void(const std::string& text)>* onMessage) override;
+        bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                     const std::function<void(const std::string &text)> *onMessage) override;
 
-        [[nodiscard]] const std::string& GetName() const override;
+        [[nodiscard]] const std::string &GetName() const override;
     };
 }

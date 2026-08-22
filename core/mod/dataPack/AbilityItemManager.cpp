@@ -28,9 +28,8 @@
 
 #include "core/inventory/ability/AbilityType.h"
 
-glimmer::AbilityItemResource* glimmer::AbilityItemManager::OnNotFound(const std::string_view packId,
-                                                                      const std::string_view key)
-{
+glimmer::AbilityItemResource *glimmer::AbilityItemManager::OnNotFound(const std::string_view packId,
+                                                                      const std::string_view key) {
     auto abilityItemResource = std::make_unique<AbilityItemResource>();
     abilityItemResource->packId = packId;
     abilityItemResource->resourceId = key;

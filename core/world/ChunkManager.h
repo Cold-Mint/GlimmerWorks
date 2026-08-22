@@ -35,8 +35,7 @@
 #include "core/math/Vector2DIHash.h"
 #include "generator/Chunk.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class WorldContext;
     class Tile;
 
@@ -45,15 +44,14 @@ namespace glimmer
      * 区块管理器，负责区块的加载、卸载、保存、光照和tile实例池。
      * 从 WorldContext 拆分而来。
      */
-    class ChunkManager
-    {
+    class ChunkManager {
         uint32_t chunkSnapshot_ = 0;
         uint32_t lastChunkSnapshot_ = UINT32_MAX;
         std::unordered_map<TileVector2D, std::unique_ptr<Chunk>, Vector2DIHash> chunks_;
-        std::unordered_map<TileVector2D, Chunk*, Vector2DIHash> chunksCache_;
+        std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> chunksCache_;
         std::unique_ptr<LightBuffer> lightBuffer_ = nullptr;
         std::unique_ptr<TileInstancePool> tileInstancePool_;
-        WorldContext* worldContext_ = nullptr;
+        WorldContext *worldContext_ = nullptr;
 
         /**
          * OnChunkTileChange
@@ -63,20 +61,20 @@ namespace glimmer
          * @param layerType layerType 图层类型
          * @param index index 索引
          */
-        void OnChunkTileChange(Chunk* chunk, const std::shared_ptr<Tile>& tile, TileLayerType layerType,
+        void OnChunkTileChange(Chunk *chunk, const std::shared_ptr<Tile> &tile, TileLayerType layerType,
                                int index) const;
 
-        void UpdateTileLight(const Chunk* chunk, TileLayerType layerType, int index) const;
+        void UpdateTileLight(const Chunk *chunk, TileLayerType layerType, int index) const;
 
         /**
          * Update the lighting for the entire chunk.
          * 更新整个区块的光照。
          * @param chunk
          */
-        void UpdateChunkLight(const Chunk* chunk) const;
+        void UpdateChunkLight(const Chunk *chunk) const;
 
     public:
-        explicit ChunkManager(WorldContext* worldContext);
+        explicit ChunkManager(WorldContext *worldContext);
 
         ~ChunkManager();
 
@@ -92,7 +90,7 @@ namespace glimmer
          * 卸载区块
          * @param position position 位置
          */
-        void UnloadChunkAt(const TileVector2D& position);
+        void UnloadChunkAt(const TileVector2D &position);
 
         /**
          * GetChunk
@@ -100,14 +98,14 @@ namespace glimmer
          * @param chunkVertex chunkVertex 区块顶点位置
          * @return
          */
-        [[nodiscard]] Chunk* GetChunk(const TileVector2D& chunkVertex);
+        [[nodiscard]] Chunk *GetChunk(const TileVector2D &chunkVertex);
 
         /**
          * GetChunks
          * 获取区块
          * @return
          */
-        [[nodiscard]] std::unordered_map<TileVector2D, Chunk*, Vector2DIHash>* GetAllChunks();
+        [[nodiscard]] std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> *GetAllChunks();
 
         /**
          * Determine whether a block at a certain position has been loaded
@@ -132,8 +130,8 @@ namespace glimmer
          */
         [[nodiscard]] static bool ChunkIsOutOfBounds(TileVector2D position);
 
-        [[nodiscard]] LightBuffer* GetLightingBuffer() const;
+        [[nodiscard]] LightBuffer *GetLightingBuffer() const;
 
-        [[nodiscard]] TileInstancePool* GetTileInstancePool() const;
+        [[nodiscard]] TileInstancePool *GetTileInstancePool() const;
     };
 }

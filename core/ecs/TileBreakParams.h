@@ -28,13 +28,11 @@
 #include "core/world/BreakSource.h"
 #include "core/world/WorldContext.h"
 
-namespace glimmer
-{
-    struct TileBreakParams
-    {
+namespace glimmer {
+    struct TileBreakParams {
         BreakSource breakSource = BreakSource::Unknown;
-        WorldContext* worldContext = nullptr;
-        const TileLayerComponent* tileLayerComponent = nullptr;
+        WorldContext *worldContext = nullptr;
+        const TileLayerComponent *tileLayerComponent = nullptr;
         TileVector2D topLeftVector;
         bool precisionMining = false;
         bool isPlaceMode = false;

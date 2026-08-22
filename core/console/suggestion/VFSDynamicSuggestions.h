@@ -28,20 +28,18 @@
 #include "DynamicSuggestions.h"
 #include "core/vfs/VirtualFileSystem.h"
 
-namespace glimmer
-{
-    class VFSDynamicSuggestions final : public DynamicSuggestions
-    {
-        VirtualFileSystem* virtualFileSystem_ = nullptr;
+namespace glimmer {
+    class VFSDynamicSuggestions final : public DynamicSuggestions {
+        VirtualFileSystem *virtualFileSystem_ = nullptr;
         std::vector<std::string> suggestions_;
 
     public:
-        explicit VFSDynamicSuggestions(VirtualFileSystem* virtualFileSystem);
+        explicit VFSDynamicSuggestions(VirtualFileSystem *virtualFileSystem);
 
         [[nodiscard]] std::string GetId() const override;
 
-        bool Match(const std::string& keyword, const std::string& param) override;
+        bool Match(const std::string &keyword, const std::string &param) override;
 
-        const std::vector<std::string>& GetSuggestions(const std::optional<std::string>& param) override;
+        const std::vector<std::string> &GetSuggestions(const std::optional<std::string> &param) override;
     };
 }

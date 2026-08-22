@@ -31,24 +31,22 @@
 #include "core/console/Command.h"
 #include "core/mod/Resource.h"
 
-namespace glimmer
-{
+namespace glimmer {
     struct RecipeResource;
 
-    class UnlockedRecipesCommand final : public Command
-    {
+    class UnlockedRecipesCommand final : public Command {
     public:
-        explicit UnlockedRecipesCommand(AppContext* appContext);
+        explicit UnlockedRecipesCommand(AppContext *appContext);
 
         [[nodiscard]] bool RequiresWorldContext() const override;
 
-        [[nodiscard]] const std::string& GetName() const override;
+        [[nodiscard]] const std::string &GetName() const override;
 
-        bool Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                     const std::function<void(const std::string& text)>* onMessage) override;
+        bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                     const std::function<void(const std::string &text)> *onMessage) override;
 
-        static void WriteRecipe(const std::string& recipesItem, std::stringstream& stringStream,
-                                const RecipeResource* recipe);
+        static void WriteRecipe(const std::string &recipesItem, std::stringstream &stringStream,
+                                const RecipeResource *recipe);
     };
 }
 #endif

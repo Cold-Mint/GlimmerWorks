@@ -33,8 +33,7 @@
 #include "core/inventory/ComposableItem.h"
 #include "core/inventory/Item.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class WorldContext;
     class AudioResourceResult;
     class AudioManager;
@@ -45,26 +44,25 @@ namespace glimmer
      * 玩家上下文，负责玩家初始化、物品回调处理和物品破坏效果。
      * 从 WorldContext 拆分而来。
      */
-    class PlayerContext
-    {
-        std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>> itemCallback_;
+    class PlayerContext {
+        std::shared_ptr<std::function<void(uint8_t, Item *, ContainerChangeType)> > itemCallback_;
         std::shared_ptr<AudioResourceResult> itemBreakSFXResult_ = nullptr;
-        AudioManager* audioManager_ = nullptr;
-        WorldContext* worldContext_ = nullptr;
+        AudioManager *audioManager_ = nullptr;
+        WorldContext *worldContext_ = nullptr;
 
-        [[nodiscard]] uint32_t CreateOrLoadPlayer(const ResourceRef& resourceRef) const;
+        [[nodiscard]] uint32_t CreateOrLoadPlayer(const ResourceRef &resourceRef) const;
 
         void InitPlayerInventory(uint32_t playerEntity) const;
 
-        void OnPlayerItemChanged(const ItemContainer* itemContainer, uint8_t index, Item* item,
-                                 ContainerChangeType changeType, PlayerComponent* playerComponent) const;
+        void OnPlayerItemChanged(const ItemContainer *itemContainer, uint8_t index, Item *item,
+                                 ContainerChangeType changeType, PlayerComponent *playerComponent) const;
 
-        void HandleItemBreak(Item* item, PlayerComponent* playerComponent) const;
+        void HandleItemBreak(Item *item, PlayerComponent *playerComponent) const;
 
-        void DropComposableItemAbilities(const ComposableItem* composableItem) const;
+        void DropComposableItemAbilities(const ComposableItem *composableItem) const;
 
     public:
-        explicit PlayerContext(WorldContext* worldContext);
+        explicit PlayerContext(WorldContext *worldContext);
 
         ~PlayerContext();
 
@@ -74,6 +72,6 @@ namespace glimmer
      * This method will load the player data from the disk and then supplement the player's components after the loading process.
      * 这个方法将从磁盘加载玩家数据，并在加载后补充玩家的组件。
      */
-        void InitPlayer(const ResourceRef& resourceRef);
+        void InitPlayer(const ResourceRef &resourceRef);
     };
 }

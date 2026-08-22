@@ -30,26 +30,24 @@
 #include "SDL3/SDL_render.h"
 #include "tweeny/tween.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class ResourcePackManager;
 
-    class FloatingTextComponent : public GameComponent
-    {
+    class FloatingTextComponent : public GameComponent {
         std::string text_;
         float alpha_ = 0.0F;
         tweeny::tween<float> tween_;
         uint64_t expireTime_ = 0;
         std::shared_ptr<SDL_Texture> texture_ = nullptr;
-        ResourcePackManager* resourcePackManager_ = nullptr;
-        PreloadColors* preloadColors_ = nullptr;
+        ResourcePackManager *resourcePackManager_ = nullptr;
+        PreloadColors *preloadColors_ = nullptr;
 
     public:
-        explicit FloatingTextComponent(const AppContext* appContext);
+        explicit FloatingTextComponent(const AppContext *appContext);
 
-        void SetText(const std::string& text);
+        void SetText(const std::string &text);
 
-        tweeny::tween<float>& GetTween();
+        tweeny::tween<float> &GetTween();
 
         [[nodiscard]] uint64_t GetExpireTime() const;
 
@@ -58,9 +56,9 @@ namespace glimmer
 
         [[nodiscard]] float GetAlpha() const;
 
-        [[nodiscard]] std::string& GetText();
+        [[nodiscard]] std::string &GetText();
 
-        [[nodiscard]] SDL_Texture* GetTexture() const;
+        [[nodiscard]] SDL_Texture *GetTexture() const;
 
         [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 

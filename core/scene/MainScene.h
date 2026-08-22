@@ -28,10 +28,8 @@
 #include "Scene.h"
 #include "core/rmi/dataModel/MainSceneDataModel.h"
 
-namespace glimmer
-{
-    class MainScene : public Scene
-    {
+namespace glimmer {
+    class MainScene : public Scene {
         MainSceneDataModel mainSceneDataModel_;
         float uiScale_ = 1.0F;
         int windowWidth_ = 0;
@@ -39,17 +37,17 @@ namespace glimmer
         float backgroundTargetSecond_ = 0;
         float backgroundAnimTimer_ = 0;
         ResourceRef nextBackgroundResourceRef_;
-        VirtualFileSystem* virtualFileSystem_ = nullptr;
+        VirtualFileSystem *virtualFileSystem_ = nullptr;
         int backgroundIndex_ = 0;
         uint64_t resourcePackId_ = 0;
         Rml::DataModelHandle mainModelHandle_;
         std::filesystem::path textureFolder_;
 
-        void OnStartGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+        void OnStartGameClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
-        void OnExitGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+        void OnExitGameClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
-        void OnLinkClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+        void OnLinkClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
         /**
          * Switch to the next background frame
@@ -60,7 +58,7 @@ namespace glimmer
         void SetBackgroundIndex(int index);
 
     public:
-        explicit MainScene(AppContext* context);
+        explicit MainScene(AppContext *context);
 
         void LoadDocuments() override;
 
@@ -68,9 +66,9 @@ namespace glimmer
 
         void OnCreateDataModels() override;
 
-        void OnConfigChanged(const Config* config) override;
+        void OnConfigChanged(const Config *config) override;
 
-        void OnWindowSizeChanged(const int& width, const int& height) override;
+        void OnWindowSizeChanged(const int &width, const int &height) override;
 
         bool OnBackPressed() override;
 

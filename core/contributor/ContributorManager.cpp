@@ -28,8 +28,7 @@
 
 #include "src/core/resource_type.pb.h"
 
-glimmer::ContributorManager::ContributorManager()
-{
+glimmer::ContributorManager::ContributorManager() {
     auto coldMintContributor = std::make_unique<Contributor>();
     coldMintContributor->uuid = DEV_UUID_COLD_MINT;
     coldMintContributor->name = DEV_NAME_COLO_MINT;
@@ -42,14 +41,12 @@ glimmer::ContributorManager::ContributorManager()
     Register(std::move(coldMintContributor));
 }
 
-glimmer::Contributor* glimmer::ContributorManager::Register(std::unique_ptr<Contributor> contributor)
-{
-    auto& contributorPtr = contributors[contributor->uuid];
+glimmer::Contributor *glimmer::ContributorManager::Register(std::unique_ptr<Contributor> contributor) {
+    auto &contributorPtr = contributors[contributor->uuid];
     contributorPtr = std::move(contributor);
     return contributorPtr.get();
 }
 
-glimmer::Contributor* glimmer::ContributorManager::Find(const std::string& uuid) const
-{
+glimmer::Contributor *glimmer::ContributorManager::Find(const std::string &uuid) const {
     return contributors.find(uuid)->second.get();
 }

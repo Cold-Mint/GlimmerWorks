@@ -33,123 +33,97 @@
 #include "core/world/WorldContext.h"
 #include "fmt/xchar.h"
 
-void glimmer::FlyCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
-{
-    if (suggestionsTree == nullptr)
-    {
+void glimmer::FlyCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
+    if (suggestionsTree == nullptr) {
         return;
     }
     suggestionsTree->AddChild(BOOL_TOGGLE_DYNAMIC_SUGGESTIONS_NAME);
 }
 
-glimmer::FlyCommand::FlyCommand(AppContext* appContext) : Command(appContext)
-{
+glimmer::FlyCommand::FlyCommand(AppContext *appContext) : Command(appContext) {
 }
 
-const std::string& glimmer::FlyCommand::GetName() const
-{
+const std::string &glimmer::FlyCommand::GetName() const {
     return FLY_COMMAND_NAME;
 }
 
-bool glimmer::FlyCommand::RequiresWorldContext() const
-{
+bool glimmer::FlyCommand::RequiresWorldContext() const {
     return true;
 }
 
-bool glimmer::FlyCommand::RequiresCheatEnabled() const
-{
+bool glimmer::FlyCommand::RequiresCheatEnabled() const {
     return true;
 }
 
-void glimmer::FlyCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
-{
-    if (strings == nullptr)
-    {
+void glimmer::FlyCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
+    if (strings == nullptr) {
         return;
     }
     strings->emplace_back("[enable:bool]");
 }
 
-bool glimmer::FlyCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                                  const std::function<void(const std::string& text)>* onMessage)
-{
-    const AppContext* appContext = GetAppContext();
-    const WorldContext* worldContext = GetWorldContext();
-    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
-    {
+bool glimmer::FlyCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                                  const std::function<void(const std::string &text)> *onMessage) {
+    const AppContext *appContext = GetAppContext();
+    const WorldContext *worldContext = GetWorldContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr) {
         return false;
     }
-    const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    const LangsResources* langsResources = appContext->GetLangsResources();
-    if (langsResources == nullptr)
-    {
+    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
+    const LangsResources *langsResources = appContext->GetLangsResources();
+    if (langsResources == nullptr) {
         return false;
     }
-    if (worldContext == nullptr)
-    {
+    if (worldContext == nullptr) {
         onMessageRef(langsResources->worldContextIsNull);
         return false;
     }
     int size = commandArgs->GetSize();
-    if (size < 2)
-    {
+    if (size < 2) {
         onMessageRef(fmt::format(
             fmt::runtime(langsResources->insufficientParameterLength),
             2, size));
         return false;
     }
-    EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
-    if (entityShortCut == nullptr)
-    {
+    EntityShortCut *entityShortCut = worldContext->GetEntityShortCut();
+    if (entityShortCut == nullptr) {
         return false;
     }
-    EntityManager* entityManager = worldContext->GetEntityManager();
-    if (entityManager == nullptr)
-    {
+    EntityManager *entityManager = worldContext->GetEntityManager();
+    if (entityManager == nullptr) {
         return false;
     }
     auto playerId = entityShortCut->GetPlayer();
-    if (WorldContext::IsEmptyEntityId(playerId))
-    {
+    if (WorldContext::IsEmptyEntityId(playerId)) {
         return false;
     }
-    if (WorldContext::IsEmptyEntityId(playerId))
-    {
+    if (WorldContext::IsEmptyEntityId(playerId)) {
         return false;
     }
     auto playerComponent = entityManager->GetComponent<PlayerComponent>(playerId);
-    if (playerComponent == nullptr)
-    {
+    if (playerComponent == nullptr) {
         return false;
     }
-    PlayerCapabilityHandler* capabilityHandler = playerComponent->GetCapabilityHandler();
-    if (capabilityHandler == nullptr)
-    {
+    PlayerCapabilityHandler *capabilityHandler = playerComponent->GetCapabilityHandler();
+    if (capabilityHandler == nullptr) {
         return false;
     }
     BoolOrToggle boolOrToggle = commandArgs->AsBoolOrToggle(1);
     bool newValue = boolOrToggle == BoolOrToggle::TRUE;
-    if (boolOrToggle == BoolOrToggle::TOGGLE)
-    {
+    if (boolOrToggle == BoolOrToggle::TOGGLE) {
         newValue = !capabilityHandler->IsFlying();
     }
-    if (newValue)
-    {
+    if (newValue) {
         auto rigidBody2DComponent = entityManager->GetComponent<RigidBody2DComponent>(playerId);
-        if (rigidBody2DComponent != nullptr)
-        {
+        if (rigidBody2DComponent != nullptr) {
             rigidBody2DComponent->Disable();
         }
         onMessageRef(langsResources->flyEnable);
-    }
-    else
-    {
+    } else {
         auto transform2DComponent = entityManager->GetComponent<Transform2DComponent>(playerId);
-        if (transform2DComponent != nullptr)
-        {
+        if (transform2DComponent != nullptr) {
             auto rigidBody2DComponent = entityManager->GetComponent<RigidBody2DComponent>(playerId);
-            if (rigidBody2DComponent && rigidBody2DComponent->IsReady())
-            {
+            if (rigidBody2DComponent && rigidBody2DComponent->IsReady()) {
                 rigidBody2DComponent->Enable();
                 b2Vec2 newPos = Box2DUtils::ToMeters(transform2DComponent->GetPosition());
                 b2BodyId bodyId = rigidBody2DComponent->GetBodyId();

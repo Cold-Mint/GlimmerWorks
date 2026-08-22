@@ -29,34 +29,28 @@
 #include "core/log/LogCat.h"
 
 glimmer::StructureConditionProcessorType glimmer::HeightStructureConditionProcessor::
-GetStructureConditionProcessorType()
-{
+GetStructureConditionProcessorType() {
     return StructureConditionProcessorType::Height;
 }
 
-std::bitset<CHUNK_AREA> glimmer::HeightStructureConditionProcessor::Match(TerrainResult* terrainResult,
-                                                                          const IStructurePlacementConditionsResource*
-                                                                          placementConditionsResource)
-{
-    const auto heightStructureConditions = dynamic_cast<const HeightStructureConditionsResource*>(
+std::bitset<CHUNK_AREA> glimmer::HeightStructureConditionProcessor::Match(TerrainResult *terrainResult,
+                                                                          const IStructurePlacementConditionsResource *
+                                                                          placementConditionsResource) {
+    const auto heightStructureConditions = dynamic_cast<const HeightStructureConditionsResource *>(
         placementConditionsResource);
     std::bitset<CHUNK_AREA> result;
-    if (heightStructureConditions == nullptr)
-    {
+    if (heightStructureConditions == nullptr) {
         return result;
     }
     const float maxHeightPercent = heightStructureConditions->maxHeightPercent;
     const float minHeightPercent = heightStructureConditions->minHeightPercent;
     TileVector2D position = terrainResult->GetPosition();
     int matchedTileCount = 0;
-    for (int localX = 0; localX < CHUNK_SIZE; localX++)
-    {
-        for (int localY = 0; localY < CHUNK_SIZE; localY++)
-        {
+    for (int localX = 0; localX < CHUNK_SIZE; localX++) {
+        for (int localY = 0; localY < CHUNK_SIZE; localY++) {
             int globalY = localY + position.y;
             float percent = static_cast<float>(globalY) / WORLD_MAX_Y;
-            if (percent >= minHeightPercent && percent <= maxHeightPercent)
-            {
+            if (percent >= minHeightPercent && percent <= maxHeightPercent) {
                 int tileIndex = localX + localY * CHUNK_SIZE;
                 result[tileIndex] = true;
                 matchedTileCount++;

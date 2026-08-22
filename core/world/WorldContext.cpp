@@ -51,126 +51,101 @@
 #include "src/saves/entity_item.pb.h"
 
 
-bool glimmer::WorldContext::IsDragMode() const
-{
+bool glimmer::WorldContext::IsDragMode() const {
     return dragMode_;
 }
 
-void glimmer::WorldContext::SetDragMode(const bool dragMode)
-{
+void glimmer::WorldContext::SetDragMode(const bool dragMode) {
     dragMode_ = dragMode;
 }
 
-glimmer::EntityManager* glimmer::WorldContext::GetEntityManager() const
-{
-    if (entityManager_ == nullptr)
-    {
+glimmer::EntityManager *glimmer::WorldContext::GetEntityManager() const {
+    if (entityManager_ == nullptr) {
         LogCat::w(std::source_location::current(), "entityManager is nullptr");
         return nullptr;
     }
     return entityManager_.get();
 }
 
-glimmer::EntityShortCut* glimmer::WorldContext::GetEntityShortCut() const
-{
-    if (entityShortCut_ == nullptr)
-    {
+glimmer::EntityShortCut *glimmer::WorldContext::GetEntityShortCut() const {
+    if (entityShortCut_ == nullptr) {
         LogCat::w(std::source_location::current(), "entityShortCut is nullptr");
         return nullptr;
     }
     return entityShortCut_.get();
 }
 
-bool glimmer::WorldContext::IsRuning() const
-{
+bool glimmer::WorldContext::IsRuning() const {
     return running;
 }
 
-void glimmer::WorldContext::SetRuning(const bool run)
-{
+void glimmer::WorldContext::SetRuning(const bool run) {
     running = run;
 }
 
-glimmer::Saves* glimmer::WorldContext::GetSaves() const
-{
-    if (saves_ == nullptr)
-    {
+glimmer::Saves *glimmer::WorldContext::GetSaves() const {
+    if (saves_ == nullptr) {
         LogCat::w(std::source_location::current(), "saves is nullptr");
         return nullptr;
     }
     return saves_;
 }
 
-glimmer::MapManifest* glimmer::WorldContext::GetMapManifest() const
-{
+glimmer::MapManifest *glimmer::WorldContext::GetMapManifest() const {
     return mapManifest_;
 }
 
-glimmer::ChunkGenerator* glimmer::WorldContext::GetChunkGenerator() const
-{
+glimmer::ChunkGenerator *glimmer::WorldContext::GetChunkGenerator() const {
     return chunkGenerator_.get();
 }
 
-glimmer::ChunkLoader* glimmer::WorldContext::GetChunkLoader() const
-{
+glimmer::ChunkLoader *glimmer::WorldContext::GetChunkLoader() const {
     return chunkLoader_.get();
 }
 
-glimmer::AppContext* glimmer::WorldContext::GetAppContext() const
-{
+glimmer::AppContext *glimmer::WorldContext::GetAppContext() const {
     return appContext_;
 }
 
-b2WorldId glimmer::WorldContext::GetWorldId() const
-{
+b2WorldId glimmer::WorldContext::GetWorldId() const {
     return worldId_;
 }
 
-int glimmer::WorldContext::GetWorldSeed() const
-{
+int glimmer::WorldContext::GetWorldSeed() const {
     return worldSeed_;
 }
 
-bool glimmer::WorldContext::IsEmptyEntityId(const uint32_t id)
-{
+bool glimmer::WorldContext::IsEmptyEntityId(const uint32_t id) {
     return id == GAME_ENTITY_ID_INVALID;
 }
 
 
-glimmer::ChunkManager* glimmer::WorldContext::GetChunkManager() const
-{
-    if (chunkManager_ == nullptr)
-    {
+glimmer::ChunkManager *glimmer::WorldContext::GetChunkManager() const {
+    if (chunkManager_ == nullptr) {
         LogCat::w(std::source_location::current(), "chunkManager is nullptr");
         return nullptr;
     }
     return chunkManager_.get();
 }
 
-glimmer::TerrainManager* glimmer::WorldContext::GetTerrainManager() const
-{
-    if (terrainManager_ == nullptr)
-    {
+glimmer::TerrainManager *glimmer::WorldContext::GetTerrainManager() const {
+    if (terrainManager_ == nullptr) {
         LogCat::w(std::source_location::current(), "terrainManager is nullptr");
         return nullptr;
     }
     return terrainManager_.get();
 }
 
-glimmer::SystemScheduler* glimmer::WorldContext::GetSystemScheduler() const
-{
-    if (systemScheduler_ == nullptr)
-    {
+glimmer::SystemScheduler *glimmer::WorldContext::GetSystemScheduler() const {
+    if (systemScheduler_ == nullptr) {
         LogCat::w(std::source_location::current(), "SystemScheduler is nullptr");
         return nullptr;
     }
     return systemScheduler_.get();
 }
 
-glimmer::PlayerContext* glimmer::WorldContext::GetPlayerContext() const
-{
-    if (playerContext_ == nullptr)
-    {
+glimmer::PlayerContext *glimmer::WorldContext::GetPlayerContext() const {
+    if (playerContext_ == nullptr) {
         LogCat::w(std::source_location::current(), "playerContext is nullptr");
         return nullptr;
     }
@@ -178,23 +153,19 @@ glimmer::PlayerContext* glimmer::WorldContext::GetPlayerContext() const
 }
 
 
-void glimmer::WorldContext::SaveEntity(EntityItemMessage* entityItemMessage, const GameEntityID entityId) const
-{
+void glimmer::WorldContext::SaveEntity(EntityItemMessage *entityItemMessage, const GameEntityID entityId) const {
     LogCat::d("SaveEntity: entityId=", entityId);
     entityItemMessage->mutable_gameentity()->set_id(entityId);
-    const ResourceRef* resourceRef = entityManager_->GetResourceRef(entityId);
-    if (resourceRef != nullptr)
-    {
+    const ResourceRef *resourceRef = entityManager_->GetResourceRef(entityId);
+    if (resourceRef != nullptr) {
         resourceRef->WriteResourceRefMessage(*entityItemMessage->mutable_resourceref());
     }
-    std::vector<GameComponent*> components = entityManager_->GetAllComponent(entityId);
+    std::vector<GameComponent *> components = entityManager_->GetAllComponent(entityId);
     auto mutableComponents = entityItemMessage->mutable_components();
-    for (auto& componentItem : components)
-    {
+    for (auto &componentItem: components) {
         auto stringOptional = componentItem->Serialize();
-        if (stringOptional.has_value())
-        {
-            ComponentMessage* componentMessage = mutableComponents->Add();
+        if (stringOptional.has_value()) {
+            ComponentMessage *componentMessage = mutableComponents->Add();
             componentMessage->set_type(componentItem->GetComponentType());
             componentMessage->set_data(stringOptional.value());
         }
@@ -202,25 +173,21 @@ void glimmer::WorldContext::SaveEntity(EntityItemMessage* entityItemMessage, con
     LogCat::d("SaveEntity completed: entityId=", entityId, ", components=", components.size());
 }
 
-void glimmer::WorldContext::SaveGame()
-{
-    if (saving_)
-    {
+void glimmer::WorldContext::SaveGame() {
+    if (saving_) {
         LogCat::w(std::source_location::current(), "Save already in progress, ignoring");
         return;
     }
     LogCat::i("Starting game save: ", mapManifest_->name);
     saving_ = true;
-    const Saves* saves = GetSaves();
-    if (saves == nullptr)
-    {
+    const Saves *saves = GetSaves();
+    if (saves == nullptr) {
         LogCat::e(std::source_location::current(), "saves is nullptr");
         saving_ = false;
         return;
     }
     auto mapManifestMessageData = saves->ReadMapManifest();
-    if (!mapManifestMessageData.has_value())
-    {
+    if (!mapManifestMessageData.has_value()) {
         LogCat::w(std::source_location::current(), "Failed to read map manifest");
         saving_ = false;
         return;
@@ -230,31 +197,26 @@ void glimmer::WorldContext::SaveGame()
         mapManifestMessageData->totalplaytime() + (endTime - startTime_));
     mapManifestMessageData->set_lastplayedtime(endTime);
     mapManifestMessageData->set_entityidindex(entityManager_->GetEntityIndex());
-    if (!saves->WriteMapManifest(mapManifestMessageData.value()))
-    {
+    if (!saves->WriteMapManifest(mapManifestMessageData.value())) {
         LogCat::w(std::source_location::current(), "Failed to write map manifest");
         saving_ = false;
         return;
     }
     auto player = entityShortCut_->GetPlayer();
-    if (!IsEmptyEntityId(player) && entityManager_->IsPersistable(player))
-    {
+    if (!IsEmptyEntityId(player) && entityManager_->IsPersistable(player)) {
         PlayerMessage playerMessage;
         SaveEntity(playerMessage.mutable_entity(), player);
-        (void)saves->WritePlayer(playerMessage);
+        (void) saves->WritePlayer(playerMessage);
         LogCat::i("Player saved");
-    }
-    else
-    {
+    } else {
         LogCat::d("Player save skipped: isEmpty=", IsEmptyEntityId(player), ", persistable=",
                   entityManager_->IsPersistable(player));
     }
 
     auto allChunks = chunkManager_->GetAllChunks();
     int chunkCount = 0;
-    for (const auto& pos : *allChunks | std::views::keys)
-    {
-        (void)chunkManager_->SaveChunk(pos);
+    for (const auto &pos: *allChunks | std::views::keys) {
+        (void) chunkManager_->SaveChunk(pos);
         chunkCount++;
     }
     LogCat::i("Game save completed, chunks saved: ", chunkCount);
@@ -262,25 +224,21 @@ void glimmer::WorldContext::SaveGame()
 }
 
 
-glimmer::LightBuffer* glimmer::WorldContext::GetLightingBuffer() const
-{
+glimmer::LightBuffer *glimmer::WorldContext::GetLightingBuffer() const {
     return chunkManager_->GetLightingBuffer();
 }
 
-glimmer::TileInstancePool* glimmer::WorldContext::GetTileInstancePool() const
-{
+glimmer::TileInstancePool *glimmer::WorldContext::GetTileInstancePool() const {
     return chunkManager_->GetTileInstancePool();
 }
 
 
-glimmer::WorldContext::~WorldContext()
-{
+glimmer::WorldContext::~WorldContext() {
     LogCat::i("Destroying WorldContext: worldName=", mapManifest_ ? mapManifest_->name : "unknown");
     playerContext_.reset();
     systemScheduler_.reset();
     LogCat::d("PlayerContext and SystemScheduler released");
-    if (entityManager_)
-    {
+    if (entityManager_) {
         entityManager_->Clear();
     }
     chunkManager_.reset();
@@ -288,16 +246,15 @@ glimmer::WorldContext::~WorldContext()
     LogCat::d("EntityManager cleared, ChunkManager and TerrainManager released");
     b2DestroyWorld(worldId_);
     worldId_ = b2_nullWorldId;
-    if (appContext_)
-    {
+    if (appContext_) {
         appContext_->GetConsoleContext()->GetCommandManager()->UnbindWorldContext();
     }
     LogCat::i("WorldContext destroyed");
 }
 
-glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapManifest, Saves* saves) :
-    worldSeed_(mapManifest->seed), saves_(saves), mapManifest_(mapManifest), appContext_(appContext)
-{
+glimmer::WorldContext::WorldContext(AppContext *appContext, MapManifest *mapManifest,
+                                    Saves *saves) : worldSeed_(mapManifest->seed), saves_(saves),
+                                                    mapManifest_(mapManifest), appContext_(appContext) {
     LogCat::i("Creating WorldContext, world name: ", mapManifest->name, ", seed: ", worldSeed_);
     b2WorldDef worldDef = b2DefaultWorldDef();
     worldDef.gravity = b2Vec2(0.0F, -10.0F);
@@ -308,7 +265,7 @@ glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapMani
     entityManager_->SetEntityIndex(mapManifest_->entityIDIndex);
     chunkLoader_ = std::make_unique<ChunkLoader>(this, saves);
     chunkGenerator_ = std::make_unique<ChunkGenerator>(this, worldSeed_);
-    auto* commandManager = appContext->GetConsoleContext()->GetCommandManager();
+    auto *commandManager = appContext->GetConsoleContext()->GetCommandManager();
     commandManager->BindWorldContext(this);
     commandManager->SetAllowCheats(mapManifest->allowCheats);
     startTime_ = TimeUtils::GetCurrentTimeMs();
@@ -338,7 +295,7 @@ glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapMani
                                    RESOURCE_MOB);
     playerContext_->InitPlayer(playerResourceRef);
     auto itemContainerPtr = entityManager_->
-        GetComponent<ItemContainerComponent>(entityShortCut_->GetPlayer());
+            GetComponent<ItemContainerComponent>(entityShortCut_->GetPlayer());
     entityShortCut_->SetItemContainerComponent(itemContainerPtr);
     entityShortCut_->SetItemToolTipComponent(
         entityManager_->AddComponent<ItemToolTipComponent>(entityManager_->AddEntity()));

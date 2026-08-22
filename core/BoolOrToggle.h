@@ -27,10 +27,8 @@
 #pragma once
 #include <cstdint>
 
-namespace glimmer
-{
-    enum class BoolOrToggle : uint8_t
-    {
+namespace glimmer {
+    enum class BoolOrToggle : uint8_t {
         TRUE, FALSE, TOGGLE
     };
 }

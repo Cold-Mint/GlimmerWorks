@@ -35,76 +35,64 @@
 #include "RmlUi/Core/Context.h"
 
 
-glimmer::AppEventLoop::AppEventLoop(AppContext* appContext, Uint64& lastInputTime) :
-    appContext_(appContext), rmlContext_(appContext->GetRmlContext()->GetRmlContext()),
-    lastInputTime_(lastInputTime)
-{
+glimmer::AppEventLoop::AppEventLoop(AppContext *appContext, Uint64 &lastInputTime) : appContext_(appContext),
+    rmlContext_(appContext->GetRmlContext()->GetRmlContext()),
+    lastInputTime_(lastInputTime) {
 }
 
-int glimmer::AppEventLoop::SdlModToRmlModifier(const SDL_Keymod sdl_mod)
-{
+int glimmer::AppEventLoop::SdlModToRmlModifier(const SDL_Keymod sdl_mod) {
     int mask = 0;
-    if (sdl_mod & SDL_KMOD_CTRL)
-    {
+    if (sdl_mod & SDL_KMOD_CTRL) {
         mask |= Rml::Input::KM_CTRL;
     }
-    if (sdl_mod & SDL_KMOD_SHIFT)
-    {
+    if (sdl_mod & SDL_KMOD_SHIFT) {
         mask |= Rml::Input::KM_SHIFT;
     }
-    if (sdl_mod & SDL_KMOD_ALT)
-    {
+    if (sdl_mod & SDL_KMOD_ALT) {
         mask |= Rml::Input::KM_ALT;
     }
-    if (sdl_mod & SDL_KMOD_GUI)
-    {
+    if (sdl_mod & SDL_KMOD_GUI) {
         mask |= Rml::Input::KM_META;
     }
-    if (sdl_mod & SDL_KMOD_CAPS)
-    {
+    if (sdl_mod & SDL_KMOD_CAPS) {
         mask |= Rml::Input::KM_CAPSLOCK;
     }
-    if (sdl_mod & SDL_KMOD_NUM)
-    {
+    if (sdl_mod & SDL_KMOD_NUM) {
         mask |= Rml::Input::KM_NUMLOCK;
     }
     return mask;
 }
 
-void glimmer::AppEventLoop::SendEventToRML(const SDL_Event& event) const
-{
-    if (rmlContext_ == nullptr)
-    {
+void glimmer::AppEventLoop::SendEventToRML(const SDL_Event &event) const {
+    if (rmlContext_ == nullptr) {
         return;
     }
 
     int modState = SdlModToRmlModifier(SDL_GetModState());
-    switch (event.type)
-    {
-    case SDL_EVENT_MOUSE_MOTION:
-        rmlContext_->ProcessMouseMove(
-            static_cast<int>(event.motion.x),
-            static_cast<int>(event.motion.y),
-            modState
-        );
-        break;
-    case SDL_EVENT_MOUSE_BUTTON_DOWN:
-        //event.button.button - 1 Here, -1 is because the index of the left mouse button in SDL is 1. And in RML, the condition index == 0 is used to determine a click event.
-        //event.button.button - 1 其中-1是因为SDL的按钮左键index为1。而rml内判断index==0为click事件。
-        rmlContext_->ProcessMouseButtonDown(
-            event.button.button - 1,
-            modState
-        );
-        break;
+    switch (event.type) {
+        case SDL_EVENT_MOUSE_MOTION:
+            rmlContext_->ProcessMouseMove(
+                static_cast<int>(event.motion.x),
+                static_cast<int>(event.motion.y),
+                modState
+            );
+            break;
+        case SDL_EVENT_MOUSE_BUTTON_DOWN:
+            //event.button.button - 1 Here, -1 is because the index of the left mouse button in SDL is 1. And in RML, the condition index == 0 is used to determine a click event.
+            //event.button.button - 1 其中-1是因为SDL的按钮左键index为1。而rml内判断index==0为click事件。
+            rmlContext_->ProcessMouseButtonDown(
+                event.button.button - 1,
+                modState
+            );
+            break;
 
-    case SDL_EVENT_MOUSE_BUTTON_UP:
-        rmlContext_->ProcessMouseButtonUp(
-            event.button.button - 1,
-            modState
-        );
-        break;
-    case SDL_EVENT_MOUSE_WHEEL:
-        {
+        case SDL_EVENT_MOUSE_BUTTON_UP:
+            rmlContext_->ProcessMouseButtonUp(
+                event.button.button - 1,
+                modState
+            );
+            break;
+        case SDL_EVENT_MOUSE_WHEEL: {
             Rml::Vector2f delta{
                 (event.wheel.x),
                 (-event.wheel.y)
@@ -112,40 +100,37 @@ void glimmer::AppEventLoop::SendEventToRML(const SDL_Event& event) const
             rmlContext_->ProcessMouseWheel(delta, modState);
             break;
         }
-    case SDL_EVENT_KEY_DOWN:
+        case SDL_EVENT_KEY_DOWN:
 
-        rmlContext_->ProcessKeyDown(
-            RmlSDL::ConvertKey(static_cast<int>(event.key.key)),
-            modState
-        );
-        break;
+            rmlContext_->ProcessKeyDown(
+                RmlSDL::ConvertKey(static_cast<int>(event.key.key)),
+                modState
+            );
+            break;
 
-    case SDL_EVENT_KEY_UP:
-        rmlContext_->ProcessKeyUp(
-            RmlSDL::ConvertKey(static_cast<int>(event.key.key)),
-            modState
-        );
-        break;
-    case SDL_EVENT_TEXT_INPUT:
-        rmlContext_->ProcessTextInput(event.text.text);
-        break;
+        case SDL_EVENT_KEY_UP:
+            rmlContext_->ProcessKeyUp(
+                RmlSDL::ConvertKey(static_cast<int>(event.key.key)),
+                modState
+            );
+            break;
+        case SDL_EVENT_TEXT_INPUT:
+            rmlContext_->ProcessTextInput(event.text.text);
+            break;
 
-    case SDL_EVENT_WINDOW_MOUSE_LEAVE:
-        rmlContext_->ProcessMouseLeave();
-        break;
-    default:
-        break;
+        case SDL_EVENT_WINDOW_MOUSE_LEAVE:
+            rmlContext_->ProcessMouseLeave();
+            break;
+        default:
+            break;
     }
 }
 
-void glimmer::AppEventLoop::ProcessEvents(const uint64_t frameStart) const
-{
+void glimmer::AppEventLoop::ProcessEvents(const uint64_t frameStart) const {
     SDL_Event event;
-    while (SDL_PollEvent(&event))
-    {
+    while (SDL_PollEvent(&event)) {
         lastInputTime_ = frameStart;
-        if (HandleSystemEvent(event))
-        {
+        if (HandleSystemEvent(event)) {
             continue;
         }
         HandleCommandHooks(event);
@@ -154,17 +139,13 @@ void glimmer::AppEventLoop::ProcessEvents(const uint64_t frameStart) const
     }
 }
 
-bool glimmer::AppEventLoop::HandleSystemEvent(const SDL_Event& event) const
-{
+bool glimmer::AppEventLoop::HandleSystemEvent(const SDL_Event &event) const {
     auto sceneManager = appContext_->GetSceneManager();
 #ifdef __ANDROID__
-    if (event.type == SDL_EVENT_KEY_DOWN && event.key.key == SDLK_AC_BACK)
-    {
+    if (event.type == SDL_EVENT_KEY_DOWN && event.key.key == SDLK_AC_BACK) {
         LogCat::i("Back button pressed (Android)");
-        if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
-        {
-            if (!topScene->OnBackPressed())
-            {
+        if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
+            if (!topScene->OnBackPressed()) {
                 LogCat::i("Back button: popping scene");
                 sceneManager->PopScene();
             }
@@ -172,38 +153,31 @@ bool glimmer::AppEventLoop::HandleSystemEvent(const SDL_Event& event) const
         return true;
     }
 #else
-    if (event.type == SDL_EVENT_KEY_DOWN && event.key.scancode == SDL_SCANCODE_ESCAPE && !event.key.repeat)
-    {
+    if (event.type == SDL_EVENT_KEY_DOWN && event.key.scancode == SDL_SCANCODE_ESCAPE && !event.key.repeat) {
         LogCat::i("Escape key pressed");
         bool handled = false;
-        const auto& overlayScenes = sceneManager->GetOverlayScenes();
-        for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
-        {
-            if (overlayScene->OnBackPressed())
-            {
+        const auto &overlayScenes = sceneManager->GetOverlayScenes();
+        for (const auto overlayScene: std::ranges::reverse_view(overlayScenes)) {
+            if (overlayScene->OnBackPressed()) {
                 handled = true;
                 break;
             }
         }
-        Scene* topScene = sceneManager->GetTopScene();
-        if (!handled && topScene != nullptr && !topScene->OnBackPressed())
-        {
+        Scene *topScene = sceneManager->GetTopScene();
+        if (!handled && topScene != nullptr && !topScene->OnBackPressed()) {
             LogCat::i("Escape key: popping scene");
             sceneManager->PopScene();
         }
         return true;
     }
 #endif
-    if (event.type == SDL_EVENT_QUIT)
-    {
+    if (event.type == SDL_EVENT_QUIT) {
         LogCat::i("Quit event received");
-        const auto& overlayScenes = sceneManager->GetOverlayScenes();
-        for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
-        {
+        const auto &overlayScenes = sceneManager->GetOverlayScenes();
+        for (const auto overlayScene: std::ranges::reverse_view(overlayScenes)) {
             overlayScene->OnWindowClose();
         }
-        if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
-        {
+        if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
             topScene->OnWindowClose();
         }
         appContext_->ExitApp();
@@ -212,11 +186,9 @@ bool glimmer::AppEventLoop::HandleSystemEvent(const SDL_Event& event) const
     return false;
 }
 
-void glimmer::AppEventLoop::HandleCommandHooks(const SDL_Event& event) const
-{
+void glimmer::AppEventLoop::HandleCommandHooks(const SDL_Event &event) const {
     auto commandHookManager = appContext_->GetConsoleContext()->GetCommandHookManager();
-    if (commandHookManager == nullptr)
-    {
+    if (commandHookManager == nullptr) {
         return;
     }
     uint16_t code = 0;
@@ -224,68 +196,52 @@ void glimmer::AppEventLoop::HandleCommandHooks(const SDL_Event& event) const
     bool isKey = false;
     bool useMouse = false;
 
-    if (type == SDL_EVENT_KEY_DOWN || type == SDL_EVENT_KEY_UP)
-    {
+    if (type == SDL_EVENT_KEY_DOWN || type == SDL_EVENT_KEY_UP) {
         code = event.key.scancode;
         isKey = true;
-    }
-    else if (type == SDL_EVENT_MOUSE_BUTTON_DOWN || type == SDL_EVENT_MOUSE_BUTTON_UP)
-    {
+    } else if (type == SDL_EVENT_MOUSE_BUTTON_DOWN || type == SDL_EVENT_MOUSE_BUTTON_UP) {
         code = event.button.button;
         useMouse = true;
-    }
-    else
-    {
+    } else {
         return;
     }
 
-    const std::vector<CommandHookEntry*>& commandHookEntry =
-        commandHookManager->GetCommandHookVector(CommandHookEntry::GetKey(type, code));
-    if (commandHookEntry.empty())
-    {
+    const std::vector<CommandHookEntry *> &commandHookEntry =
+            commandHookManager->GetCommandHookVector(CommandHookEntry::GetKey(type, code));
+    if (commandHookEntry.empty()) {
         return;
     }
 
     auto consoleWorker = appContext_->GetConsoleContext()->GetConsoleWorker();
     auto commandManager = appContext_->GetConsoleContext()->GetCommandManager();
-    for (const auto& commandHook : commandHookEntry)
-    {
-        if (isKey && commandHook->keyRepeat != event.key.repeat)
-        {
+    for (const auto &commandHook: commandHookEntry) {
+        if (isKey && commandHook->keyRepeat != event.key.repeat) {
             continue;
         }
-        if (useMouse)
-        {
+        if (useMouse) {
             consoleWorker->CreateRequest(commandHook->command,
                                          commandManager->GetMouseCommandSender());
-        }
-        else
-        {
+        } else {
             consoleWorker->CreateRequest(commandHook->command,
                                          commandManager->GetDefaultCommandSender());
         }
     }
 }
 
-void glimmer::AppEventLoop::DispatchEventToScene(const SDL_Event& event) const
-{
+void glimmer::AppEventLoop::DispatchEventToScene(const SDL_Event &event) const {
     const auto sceneManager = appContext_->GetSceneManager();
-    const auto& overlayScenes = sceneManager->GetOverlayScenes();
+    const auto &overlayScenes = sceneManager->GetOverlayScenes();
     bool handled = false;
-    for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
-    {
-        if (overlayScene->HandleEvent(event))
-        {
+    for (const auto overlayScene: std::ranges::reverse_view(overlayScenes)) {
+        if (overlayScene->HandleEvent(event)) {
             handled = true;
             break;
         }
     }
-    if (handled)
-    {
+    if (handled) {
         return;
     }
-    if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
-    {
-         topScene->HandleEvent(event);
+    if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
+        topScene->HandleEvent(event);
     }
 }

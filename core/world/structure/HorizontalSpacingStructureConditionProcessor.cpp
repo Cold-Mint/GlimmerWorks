@@ -27,35 +27,30 @@
 #include "HorizontalSpacingStructureConditionProcessor.h"
 
 glimmer::StructureConditionProcessorType glimmer::HorizontalSpacingStructureConditionProcessor::
-GetStructureConditionProcessorType()
-{
+GetStructureConditionProcessorType() {
     return StructureConditionProcessorType::HorizontalSpacing;
 }
 
-std::bitset<CHUNK_AREA> glimmer::HorizontalSpacingStructureConditionProcessor::Match(TerrainResult* terrainResult,
-    const IStructurePlacementConditionsResource* placementConditionsResource)
-{
-    const auto horizontalSpacingStructureConditions = dynamic_cast<const HorizontalSpacingStructureConditionsResource*>(
+std::bitset<CHUNK_AREA> glimmer::HorizontalSpacingStructureConditionProcessor::Match(TerrainResult *terrainResult,
+    const IStructurePlacementConditionsResource *placementConditionsResource) {
+    const auto horizontalSpacingStructureConditions = dynamic_cast<const HorizontalSpacingStructureConditionsResource *>
+    (
         placementConditionsResource);
     int minDistance = horizontalSpacingStructureConditions->minDistance;
-    if (minDistance <= 0)
-    {
+    if (minDistance <= 0) {
         minDistance = 4;
     }
     std::bitset<CHUNK_AREA> result;
-    for (int y = 0; y < CHUNK_SIZE; ++y)
-    {
+    for (int y = 0; y < CHUNK_SIZE; ++y) {
         int globalX0 = terrainResult->GetPosition().x;
         int remainder = globalX0 % minDistance;
-        if (remainder < 0)
-        {
+        if (remainder < 0) {
             //Fix negative numbers
             //修复负数
             remainder += minDistance;
         }
         int x0 = remainder == 0 ? 0 : minDistance - remainder;
-        for (int x = x0; x < CHUNK_SIZE; x += minDistance)
-        {
+        for (int x = x0; x < CHUNK_SIZE; x += minDistance) {
             result.set(y * CHUNK_SIZE + x);
         }
     }

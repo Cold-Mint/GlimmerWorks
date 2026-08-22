@@ -43,43 +43,35 @@
 #include "fmt/xchar.h"
 #include "RmlUi/Core/Elements/ElementFormControlInput.h"
 
-glimmer::SavedGamesScene::SavedGamesScene(AppContext* context)
+glimmer::SavedGamesScene::SavedGamesScene(AppContext *context)
     : Scene(context),
       langsResources_(context->GetLangsResources()), savesManager_(context->GetSavesManager()),
-      sceneManager_(context->GetSceneManager()), mainThreadDispatcher(context->GetMainThreadDispatcher())
-{
-    if (savesManager_ == nullptr)
-    {
+      sceneManager_(context->GetSceneManager()), mainThreadDispatcher(context->GetMainThreadDispatcher()) {
+    if (savesManager_ == nullptr) {
         LogCat::w(std::source_location::current(), "savesManager_ == nullptr");
         return;
     }
-    if (sceneManager_ == nullptr)
-    {
+    if (sceneManager_ == nullptr) {
         LogCat::w(std::source_location::current(), "sceneManager_ == nullptr");
         return;
     }
-    if (mainThreadDispatcher == nullptr)
-    {
+    if (mainThreadDispatcher == nullptr) {
         LogCat::w(std::source_location::current(), "mainThreadDispatcher == nullptr");
         return;
     }
     Init();
 }
 
-void glimmer::SavedGamesScene::UpdateSaveItems()
-{
+void glimmer::SavedGamesScene::UpdateSaveItems() {
     savedGamesDataModel_.saveItems.clear();
-    if (savesManager_ == nullptr)
-    {
+    if (savesManager_ == nullptr) {
         return;
     }
-    const auto& keyword = savedGamesDataModel_.searchKeyword;
+    const auto &keyword = savedGamesDataModel_.searchKeyword;
     const auto indices = savesManager_->FilterByKeyword(keyword);
-    for (const size_t i : indices)
-    {
-        const MapManifest* manifest = savesManager_->GetMapManifest(i);
-        if (manifest == nullptr)
-        {
+    for (const size_t i: indices) {
+        const MapManifest *manifest = savesManager_->GetMapManifest(i);
+        if (manifest == nullptr) {
             continue;
         }
         SaveItem item;
@@ -89,14 +81,11 @@ void glimmer::SavedGamesScene::UpdateSaveItems()
         item.index = static_cast<int>(savedGamesDataModel_.saveItems.size());
         item.originalIndex = static_cast<int>(i);
         item.selected = item.index == savedGamesDataModel_.selectedSaveIndex;
-        if (keyword.empty())
-        {
+        if (keyword.empty()) {
             item.prefix = StringUtils::MakeRawText(manifest->name);
             item.keyword.clear();
             item.suffix.clear();
-        }
-        else
-        {
+        } else {
             std::string lowerName = manifest->name;
             std::ranges::transform(lowerName, lowerName.begin(),
                                    [](unsigned char c) { return std::tolower(c); });
@@ -104,14 +93,11 @@ void glimmer::SavedGamesScene::UpdateSaveItems()
             std::ranges::transform(lowerKeyword, lowerKeyword.begin(),
                                    [](unsigned char c) { return std::tolower(c); });
             size_t keywordIndex = lowerName.find(lowerKeyword);
-            if (keywordIndex == std::string::npos)
-            {
+            if (keywordIndex == std::string::npos) {
                 item.prefix = StringUtils::MakeRawText(manifest->name);
                 item.keyword.clear();
                 item.suffix.clear();
-            }
-            else
-            {
+            } else {
                 auto fullView = std::string_view(manifest->name);
                 item.prefix = StringUtils::MakeRawText(fullView.substr(0, keywordIndex));
                 item.suffix = StringUtils::MakeRawText(fullView.substr(keywordIndex + keyword.size()));
@@ -122,99 +108,81 @@ void glimmer::SavedGamesScene::UpdateSaveItems()
     }
 }
 
-void glimmer::SavedGamesScene::OnLoadClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args)
-{
+void glimmer::SavedGamesScene::OnLoadClick(Rml::DataModelHandle handle, Rml::Event &event,
+                                           const Rml::VariantList &args) {
     int listIndex = savedGamesDataModel_.selectedSaveIndex;
-    if (savesManager_ == nullptr)
-    {
+    if (savesManager_ == nullptr) {
         LogCat::w(std::source_location::current(), "savesManager_ == nullptr");
         return;
     }
-    if (listIndex < 0 || listIndex >= static_cast<int>(savedGamesDataModel_.saveItems.size()))
-    {
+    if (listIndex < 0 || listIndex >= static_cast<int>(savedGamesDataModel_.saveItems.size())) {
         LogCat::w(std::source_location::current(), "invalid index");
         return;
     }
     int originalIndex = savedGamesDataModel_.saveItems[listIndex].originalIndex;
-    Saves* saves = savesManager_->GetSave(originalIndex);
-    MapManifest* manifest = savesManager_->GetMapManifest(originalIndex);
-    if (saves == nullptr || manifest == nullptr)
-    {
+    Saves *saves = savesManager_->GetSave(originalIndex);
+    MapManifest *manifest = savesManager_->GetMapManifest(originalIndex);
+    if (saves == nullptr || manifest == nullptr) {
         LogCat::w(std::source_location::current(), "saves or manifest is nullptr");
         return;
     }
-    mainThreadDispatcher->PostToNextMainFrame([this, manifest, saves]
-    {
+    mainThreadDispatcher->PostToNextMainFrame([this, manifest, saves] {
         sceneManager_->PushScene(std::make_unique<WorldScene>(
             GetAppContext(), std::make_unique<WorldContext>(GetAppContext(), manifest, saves)));
     });
 }
 
-void glimmer::SavedGamesScene::OnDeleteClick(Rml::DataModelHandle handle, Rml::Event& event,
-                                             const Rml::VariantList& args)
-{
+void glimmer::SavedGamesScene::OnDeleteClick(Rml::DataModelHandle handle, Rml::Event &event,
+                                             const Rml::VariantList &args) {
     int listIndex = savedGamesDataModel_.selectedSaveIndex;
-    if (savesManager_ == nullptr)
-    {
+    if (savesManager_ == nullptr) {
         LogCat::w(std::source_location::current(), "savesManager_ == nullptr");
         return;
     }
-    if (listIndex < 0 || listIndex >= static_cast<int>(savedGamesDataModel_.saveItems.size()))
-    {
+    if (listIndex < 0 || listIndex >= static_cast<int>(savedGamesDataModel_.saveItems.size())) {
         LogCat::w(std::source_location::current(), "invalid index");
         return;
     }
     int originalIndex = savedGamesDataModel_.saveItems[listIndex].originalIndex;
-    if (savesManager_->DeleteSave(originalIndex))
-    {
+    if (savesManager_->DeleteSave(originalIndex)) {
         UpdateSaveItems();
         SetSelectedSaveIndex(-1);
         handle.DirtyVariable("save_items");
         handle.DirtyVariable("has_valid_selection");
     }
-    if (savesManager_->GetSavesListSize() == 0)
-    {
-        if (mainThreadDispatcher == nullptr)
-        {
+    if (savesManager_->GetSavesListSize() == 0) {
+        if (mainThreadDispatcher == nullptr) {
             return;
         }
-        mainThreadDispatcher->PostToNextMainFrame([this]
-        {
+        mainThreadDispatcher->PostToNextMainFrame([this] {
             sceneManager_->ReplaceScene(std::make_unique<CreateWorldScene>(GetAppContext()));
         });
     }
 }
 
-void glimmer::SavedGamesScene::OnBackClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args)
-{
-    if (mainThreadDispatcher == nullptr)
-    {
+void glimmer::SavedGamesScene::OnBackClick(Rml::DataModelHandle handle, Rml::Event &event,
+                                           const Rml::VariantList &args) {
+    if (mainThreadDispatcher == nullptr) {
         return;
     }
-    mainThreadDispatcher->PostToNextMainFrame([this]
-    {
+    mainThreadDispatcher->PostToNextMainFrame([this] {
         sceneManager_->PopScene();
     });
 }
 
-void glimmer::SavedGamesScene::OnNewGameClick(Rml::DataModelHandle handle, Rml::Event& event,
-                                              const Rml::VariantList& args)
-{
-    if (mainThreadDispatcher == nullptr)
-    {
+void glimmer::SavedGamesScene::OnNewGameClick(Rml::DataModelHandle handle, Rml::Event &event,
+                                              const Rml::VariantList &args) {
+    if (mainThreadDispatcher == nullptr) {
         return;
     }
-    mainThreadDispatcher->PostToNextMainFrame([this]
-    {
+    mainThreadDispatcher->PostToNextMainFrame([this] {
         sceneManager_->PushScene(std::make_unique<CreateWorldScene>(GetAppContext()));
     });
 }
 
-void glimmer::SavedGamesScene::OnSearchChange(Rml::DataModelHandle handle, Rml::Event& event,
-                                              const Rml::VariantList& args)
-{
-    if (searchInputElement_ == nullptr)
-    {
+void glimmer::SavedGamesScene::OnSearchChange(Rml::DataModelHandle handle, Rml::Event &event,
+                                              const Rml::VariantList &args) {
+    if (searchInputElement_ == nullptr) {
         LogCat::w(std::source_location::current(), "searchInputElement_ == nullptr");
         return;
     }
@@ -226,17 +194,14 @@ void glimmer::SavedGamesScene::OnSearchChange(Rml::DataModelHandle handle, Rml::
     handle.DirtyVariable("has_valid_selection");
 }
 
-void glimmer::SavedGamesScene::OnSaveSelect(Rml::DataModelHandle handle, Rml::Event& event,
-                                            const Rml::VariantList& args)
-{
-    if (args.empty())
-    {
+void glimmer::SavedGamesScene::OnSaveSelect(Rml::DataModelHandle handle, Rml::Event &event,
+                                            const Rml::VariantList &args) {
+    if (args.empty()) {
         LogCat::w(std::source_location::current(), "args.empty()");
         return;
     }
     int index = args[0].Get<int>();
-    if (index < 0 || index >= static_cast<int>(savedGamesDataModel_.saveItems.size()))
-    {
+    if (index < 0 || index >= static_cast<int>(savedGamesDataModel_.saveItems.size())) {
         LogCat::w(std::source_location::current(), "invalid index");
         return;
     }
@@ -245,17 +210,14 @@ void glimmer::SavedGamesScene::OnSaveSelect(Rml::DataModelHandle handle, Rml::Ev
     handle.DirtyVariable("has_valid_selection");
 }
 
-void glimmer::SavedGamesScene::OnSaveDblclick(Rml::DataModelHandle handle, Rml::Event& event,
-                                              const Rml::VariantList& args)
-{
-    if (args.empty())
-    {
+void glimmer::SavedGamesScene::OnSaveDblclick(Rml::DataModelHandle handle, Rml::Event &event,
+                                              const Rml::VariantList &args) {
+    if (args.empty()) {
         LogCat::w(std::source_location::current(), "args.empty()");
         return;
     }
     int index = args[0].Get<int>();
-    if (index < 0 || index >= static_cast<int>(savedGamesDataModel_.saveItems.size()))
-    {
+    if (index < 0 || index >= static_cast<int>(savedGamesDataModel_.saveItems.size())) {
         LogCat::w(std::source_location::current(), "invalid index");
         return;
     }
@@ -264,19 +226,14 @@ void glimmer::SavedGamesScene::OnSaveDblclick(Rml::DataModelHandle handle, Rml::
 }
 
 
-void glimmer::SavedGamesScene::NavigateSaveSelection(int direction)
-{
-    if (savedGamesDataModel_.saveItems.empty())
-    {
+void glimmer::SavedGamesScene::NavigateSaveSelection(int direction) {
+    if (savedGamesDataModel_.saveItems.empty()) {
         return;
     }
     int newIndex = savedGamesDataModel_.selectedSaveIndex + direction;
-    if (newIndex < 0)
-    {
+    if (newIndex < 0) {
         newIndex = static_cast<int>(savedGamesDataModel_.saveItems.size()) - 1;
-    }
-    else if (newIndex >= static_cast<int>(savedGamesDataModel_.saveItems.size()))
-    {
+    } else if (newIndex >= static_cast<int>(savedGamesDataModel_.saveItems.size())) {
         newIndex = 0;
     }
     SetSelectedSaveIndex(newIndex);
@@ -285,21 +242,17 @@ void glimmer::SavedGamesScene::NavigateSaveSelection(int direction)
     ScrollToSelectedSave();
 }
 
-void glimmer::SavedGamesScene::ScrollToSelectedSave() const
-{
-    if (saveListElement_ == nullptr || savedGamesDataModel_.selectedSaveIndex < 0)
-    {
+void glimmer::SavedGamesScene::ScrollToSelectedSave() const {
+    if (saveListElement_ == nullptr || savedGamesDataModel_.selectedSaveIndex < 0) {
         return;
     }
     Rml::ElementList saveItems;
     saveListElement_->QuerySelectorAll(saveItems, ".save_item");
-    if (savedGamesDataModel_.selectedSaveIndex >= static_cast<int>(saveItems.size()))
-    {
+    if (savedGamesDataModel_.selectedSaveIndex >= static_cast<int>(saveItems.size())) {
         return;
     }
-    Rml::Element* selectedElement = saveItems[savedGamesDataModel_.selectedSaveIndex];
-    if (selectedElement == nullptr)
-    {
+    Rml::Element *selectedElement = saveItems[savedGamesDataModel_.selectedSaveIndex];
+    if (selectedElement == nullptr) {
         return;
     }
     const float containerHeight = saveListElement_->GetClientHeight();
@@ -311,31 +264,25 @@ void glimmer::SavedGamesScene::ScrollToSelectedSave() const
     saveListElement_->SetScrollTop(targetScrollTop);
 }
 
-void glimmer::SavedGamesScene::SetSelectedSaveIndex(int index)
-{
+void glimmer::SavedGamesScene::SetSelectedSaveIndex(int index) {
     savedGamesDataModel_.selectedSaveIndex = index;
     savedGamesDataModel_.hasValidSelection = index >= 0 && index < static_cast<int>(savedGamesDataModel_.saveItems.
-        size());
-    for (auto& item : savedGamesDataModel_.saveItems)
-    {
+                                                 size());
+    for (auto &item: savedGamesDataModel_.saveItems) {
         item.selected = item.index == savedGamesDataModel_.selectedSaveIndex;
     }
 }
 
-void glimmer::SavedGamesScene::OnResumeScene()
-{
+void glimmer::SavedGamesScene::OnResumeScene() {
     Scene::OnResumeScene();
     UpdateSaveItems();
     savedGamesDataModelHandle_.DirtyVariable("save_items");
 }
 
-void glimmer::SavedGamesScene::OnCreateDataModels()
-{
-    Rml::DataModelConstructor* constructor = CreateDataModel("saved_games_scene");
-    if (constructor != nullptr)
-    {
-        if (auto saveItemStruct = constructor->RegisterStruct<SaveItem>())
-        {
+void glimmer::SavedGamesScene::OnCreateDataModels() {
+    Rml::DataModelConstructor *constructor = CreateDataModel("saved_games_scene");
+    if (constructor != nullptr) {
+        if (auto saveItemStruct = constructor->RegisterStruct<SaveItem>()) {
             saveItemStruct.RegisterMember("name", &SaveItem::name);
             saveItemStruct.RegisterMember("suffix", &SaveItem::suffix);
             saveItemStruct.RegisterMember("keyword", &SaveItem::keyword);
@@ -344,7 +291,7 @@ void glimmer::SavedGamesScene::OnCreateDataModels()
             saveItemStruct.RegisterMember("selected", &SaveItem::selected);
             saveItemStruct.RegisterMember("allow_cheats", &SaveItem::allowCheats);
             saveItemStruct.RegisterMember("last_played_time", &SaveItem::lastPlayedTime);
-            constructor->RegisterArray<std::vector<SaveItem>>();
+            constructor->RegisterArray<std::vector<SaveItem> >();
         }
         constructor->Bind("save_items", &savedGamesDataModel_.saveItems);
         constructor->Bind("search_keyword", &savedGamesDataModel_.searchKeyword);
@@ -388,62 +335,53 @@ void glimmer::SavedGamesScene::OnCreateDataModels()
     }
 }
 
-void glimmer::SavedGamesScene::LoadDocuments()
-{
+void glimmer::SavedGamesScene::LoadDocuments() {
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
     resourceRef.SetResourceKey("saves/saves");
-    Rml::ElementDocument* elementDocument = LoadSingleDocument(&resourceRef);
-    Rml::Element* searchInput = elementDocument->GetElementById("search_input");
-    if (searchInput == nullptr)
-    {
+    Rml::ElementDocument *elementDocument = LoadSingleDocument(&resourceRef);
+    Rml::Element *searchInput = elementDocument->GetElementById("search_input");
+    if (searchInput == nullptr) {
         LogCat::e(std::source_location::current(), "searchInput== nullptr");
         return;
     }
-    searchInputElement_ = rmlui_dynamic_cast<Rml::ElementFormControlInput*>(searchInput);
-    if (searchInputElement_ == nullptr)
-    {
+    searchInputElement_ = rmlui_dynamic_cast<Rml::ElementFormControlInput *>(searchInput);
+    if (searchInputElement_ == nullptr) {
         LogCat::e(std::source_location::current(), "searchInputElement== nullptr");
     }
     saveListElement_ = elementDocument->GetElementById("save_list");
-    if (saveListElement_ == nullptr)
-    {
+    if (saveListElement_ == nullptr) {
         LogCat::e(std::source_location::current(), "saveListElement== nullptr");
     }
 }
 
-void glimmer::SavedGamesScene::OnWindowSizeChanged(const int& width, const int& height)
-{
+void glimmer::SavedGamesScene::OnWindowSizeChanged(const int &width, const int &height) {
     windowWidth_ = width;
     windowHeight_ = height;
 }
 
-bool glimmer::SavedGamesScene::HandleEvent(const SDL_Event& event)
-{
-    if (event.type == SDL_EVENT_KEY_DOWN && !event.key.repeat)
-    {
-        switch (event.key.scancode)
-        {
-        case SDL_SCANCODE_UP:
-            NavigateSaveSelection(-1);
-            return true;
-        case SDL_SCANCODE_DOWN:
-            NavigateSaveSelection(1);
-            return true;
-        case SDL_SCANCODE_RETURN:
-            if (savedGamesDataModel_.selectedSaveIndex >= 0 &&
-                savedGamesDataModel_.selectedSaveIndex < static_cast<int>(savedGamesDataModel_.saveItems.size()))
-            {
-                Rml::VariantList saveArgs;
-                saveArgs.emplace_back(savedGamesDataModel_.selectedSaveIndex);
-                Rml::Event tempEvent;
-                OnLoadClick(savedGamesDataModelHandle_, tempEvent, saveArgs);
+bool glimmer::SavedGamesScene::HandleEvent(const SDL_Event &event) {
+    if (event.type == SDL_EVENT_KEY_DOWN && !event.key.repeat) {
+        switch (event.key.scancode) {
+            case SDL_SCANCODE_UP:
+                NavigateSaveSelection(-1);
                 return true;
-            }
-            break;
-        default:
-            break;
+            case SDL_SCANCODE_DOWN:
+                NavigateSaveSelection(1);
+                return true;
+            case SDL_SCANCODE_RETURN:
+                if (savedGamesDataModel_.selectedSaveIndex >= 0 &&
+                    savedGamesDataModel_.selectedSaveIndex < static_cast<int>(savedGamesDataModel_.saveItems.size())) {
+                    Rml::VariantList saveArgs;
+                    saveArgs.emplace_back(savedGamesDataModel_.selectedSaveIndex);
+                    Rml::Event tempEvent;
+                    OnLoadClick(savedGamesDataModelHandle_, tempEvent, saveArgs);
+                    return true;
+                }
+                break;
+            default:
+                break;
         }
     }
     return Scene::HandleEvent(event);

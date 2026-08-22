@@ -26,39 +26,32 @@
  */
 #include "BiomeStructureConditionProcessor.h"
 
-glimmer::StructureConditionProcessorType glimmer::BiomeStructureConditionProcessor::GetStructureConditionProcessorType()
-{
+glimmer::StructureConditionProcessorType
+glimmer::BiomeStructureConditionProcessor::GetStructureConditionProcessorType() {
     return StructureConditionProcessorType::Biome;
 }
 
-std::bitset<CHUNK_AREA> glimmer::BiomeStructureConditionProcessor::Match(TerrainResult* terrainResult,
-                                                                         const IStructurePlacementConditionsResource*
-                                                                         placementConditionsResource)
-{
-    const auto biomeStructurePlacementConditions = dynamic_cast<const BiomeStructurePlacementConditionsResource*>(
+std::bitset<CHUNK_AREA> glimmer::BiomeStructureConditionProcessor::Match(TerrainResult *terrainResult,
+                                                                         const IStructurePlacementConditionsResource *
+                                                                         placementConditionsResource) {
+    const auto biomeStructurePlacementConditions = dynamic_cast<const BiomeStructurePlacementConditionsResource *>(
         placementConditionsResource);
     std::bitset<CHUNK_AREA> result;
-    if (biomeStructurePlacementConditions == nullptr)
-    {
+    if (biomeStructurePlacementConditions == nullptr) {
         return result;
     }
-    const std::unordered_set<std::string>& biomeSet = biomeStructurePlacementConditions->GetCachedBiomeIds();
-    if (biomeSet.empty())
-    {
+    const std::unordered_set<std::string> &biomeSet = biomeStructurePlacementConditions->GetCachedBiomeIds();
+    if (biomeSet.empty()) {
         return result;
     }
     int matchedTileCount = 0;
-    for (int localX = 0; localX < CHUNK_SIZE; localX++)
-    {
-        for (int localY = 0; localY < CHUNK_SIZE; localY++)
-        {
-            const TerrainTileResult& self = terrainResult->QueryTerrain(localX, localY);
-            if (self.terrainType != TerrainResultType::SOLID || self.biomeResource == nullptr)
-            {
+    for (int localX = 0; localX < CHUNK_SIZE; localX++) {
+        for (int localY = 0; localY < CHUNK_SIZE; localY++) {
+            const TerrainTileResult &self = terrainResult->QueryTerrain(localX, localY);
+            if (self.terrainType != TerrainResultType::SOLID || self.biomeResource == nullptr) {
                 continue;
             }
-            if (biomeSet.contains(Resource::GenerateId(*self.biomeResource)))
-            {
+            if (biomeSet.contains(Resource::GenerateId(*self.biomeResource))) {
                 const int tileIndex = localY * CHUNK_SIZE + localX;
                 result[tileIndex] = true;
                 matchedTileCount++;

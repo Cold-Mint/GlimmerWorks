@@ -28,21 +28,17 @@
 
 #include "core/context/AppContext.h"
 
-glimmer::ExitCommand::ExitCommand(AppContext* appContext) : Command(appContext)
-{
+glimmer::ExitCommand::ExitCommand(AppContext *appContext) : Command(appContext) {
 }
 
-const std::string& glimmer::ExitCommand::GetName() const
-{
+const std::string &glimmer::ExitCommand::GetName() const {
     return EXIT_COMMAND_NAME;
 }
 
-bool glimmer::ExitCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-    const std::function<void(const std::string& text)>* onMessage)
-{
-    const AppContext* appContext = GetAppContext();
-    if (appContext == nullptr)
-    {
+bool glimmer::ExitCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                                   const std::function<void(const std::string &text)> *onMessage) {
+    const AppContext *appContext = GetAppContext();
+    if (appContext == nullptr) {
         return false;
     }
     appContext->ExitApp();

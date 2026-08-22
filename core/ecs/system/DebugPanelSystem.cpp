@@ -44,20 +44,16 @@
 #include "fmt/xchar.h"
 
 
-void glimmer::DebugPanelSystem::RenderDebugText(SDL_Renderer* renderer, int windowW, const std::string& text, float y,
-                                                const Color& textColor, SDL_Color textBGColor)
-{
+void glimmer::DebugPanelSystem::RenderDebugText(SDL_Renderer *renderer, int windowW, const std::string &text, float y,
+                                                const Color &textColor, SDL_Color textBGColor) {
     const uint64_t stringFingerprint = StringUtils::StringToUint64(text);
     auto iterator = textures_.find(stringFingerprint);
-    SDL_Texture* texture = nullptr;
-    if (iterator == textures_.end())
-    {
+    SDL_Texture *texture = nullptr;
+    if (iterator == textures_.end()) {
         const std::shared_ptr<SDL_Texture> texturePtr = resourcePackManager_->CreateStringTexture(text, &textColor);
         textures_[stringFingerprint] = texturePtr;
         texture = texturePtr.get();
-    }
-    else
-    {
+    } else {
         texture = iterator->second.get();
     }
     SDL_FRect dst{
@@ -72,9 +68,8 @@ void glimmer::DebugPanelSystem::RenderDebugText(SDL_Renderer* renderer, int wind
     SDL_RenderTexture(renderer, texture, nullptr, &dst);
 }
 
-void glimmer::DebugPanelSystem::RenderCrosshairToEdge(SDL_Renderer* renderer, float screenX, float screenY) const
-{
-    const WorldContext* worldContext = GetWorldContext();
+void glimmer::DebugPanelSystem::RenderCrosshairToEdge(SDL_Renderer *renderer, float screenX, float screenY) const {
+    const WorldContext *worldContext = GetWorldContext();
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(renderer, 255, 230, 0, 200);
 
@@ -90,9 +85,8 @@ void glimmer::DebugPanelSystem::RenderCrosshairToEdge(SDL_Renderer* renderer, fl
 }
 
 
-void glimmer::DebugPanelSystem::RenderChunkBounds(SDL_Renderer* renderer, const CameraComponent* cameraComponent,
-                                                  const WorldVector2D& cameraPosition)
-{
+void glimmer::DebugPanelSystem::RenderChunkBounds(SDL_Renderer *renderer, const CameraComponent *cameraComponent,
+                                                  const WorldVector2D &cameraPosition) {
     //Calculate the size of each block(World Coordinates)
     //计算每个区块的尺寸（世界坐标）
     auto viewportRect = CoordinateTransformer::GetViewportRect(cameraPosition, cameraComponent->GetSize(),
@@ -102,21 +96,19 @@ void glimmer::DebugPanelSystem::RenderChunkBounds(SDL_Renderer* renderer, const 
     int minChunkY = static_cast<int>(floorf(viewportRect.y / chunkWorldSize));
     int maxChunkX = static_cast<int>(floorf((viewportRect.x + viewportRect.w) / chunkWorldSize));
     int maxChunkY = static_cast<int>(floorf((viewportRect.y + viewportRect.h) / chunkWorldSize));
-    for (int chunkX = minChunkX; chunkX <= maxChunkX; ++chunkX)
-    {
-        for (int chunkY = minChunkY; chunkY <= maxChunkY; ++chunkY)
-        {
+    for (int chunkX = minChunkX; chunkX <= maxChunkX; ++chunkX) {
+        for (int chunkY = minChunkY; chunkY <= maxChunkY; ++chunkY) {
             WorldVector2D chunkWorldPos{
                 static_cast<float>(chunkX) * chunkWorldSize - HALF_TILE_SIZE,
                 static_cast<float>(chunkY) * chunkWorldSize - HALF_TILE_SIZE
             };
             ScreenVector2D screenPos =
-                CoordinateTransformer::WorldToScreen(
-                    cameraPosition,
-                    chunkWorldPos,
-                    cameraComponent->GetSize(),
-                    cameraComponent->GetZoom()
-                );
+                    CoordinateTransformer::WorldToScreen(
+                        cameraPosition,
+                        chunkWorldPos,
+                        cameraComponent->GetSize(),
+                        cameraComponent->GetZoom()
+                    );
             float pixelSize = chunkWorldSize * cameraComponent->GetZoom();
             SDL_SetRenderDrawColor(renderer, 0, 255, 255, 180);
             SDL_FRect rect{
@@ -137,33 +129,26 @@ void glimmer::DebugPanelSystem::RenderChunkBounds(SDL_Renderer* renderer, const 
     }
 }
 
-bool glimmer::DebugPanelSystem::CanActive() const
-{
+bool glimmer::DebugPanelSystem::CanActive() const {
     return displayDebugPanel_;
 }
 
-void glimmer::DebugPanelSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
-{
-    const EntityShortCut* entityShortCut = GetEntityShortCut();
-    EntityManager* entityManager = GetEntityManager();
-    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
-    {
+void glimmer::DebugPanelSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) {
+    const EntityShortCut *entityShortCut = GetEntityShortCut();
+    EntityManager *entityManager = GetEntityManager();
+    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr) {
         cameraComponent_ = entityShortCut->GetCameraComponent();
     }
-    if (gameComponentType == COMPONENT_TRANSFORM_2D && cameraTransform2DComponent_ == nullptr)
-    {
+    if (gameComponentType == COMPONENT_TRANSFORM_2D && cameraTransform2DComponent_ == nullptr) {
         cameraTransform2DComponent_ = entityShortCut->GetCameraTransform2DComponent();
     }
-    if (gameComponentType == COMPONENT_TILE_LAYER)
-    {
+    if (gameComponentType == COMPONENT_TILE_LAYER) {
         tileLayerComponents_.clear();
         auto tileLayerEntities = entityManager->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
         std::sort(tileLayerEntities.begin(), tileLayerEntities.end());
-        for (GameEntityID tileLayerEntity : tileLayerEntities)
-        {
+        for (GameEntityID tileLayerEntity: tileLayerEntities) {
             auto tileLayerComponent = entityManager->GetComponent<TileLayerComponent>(tileLayerEntity);
-            if (tileLayerComponent == nullptr)
-            {
+            if (tileLayerComponent == nullptr) {
                 continue;
             }
             tileLayerComponents_.emplace_back(tileLayerComponent);
@@ -172,12 +157,11 @@ void glimmer::DebugPanelSystem::OnWatchedComponentChanged(GameComponentTypeMessa
 }
 
 
-glimmer::DebugPanelSystem::DebugPanelSystem(WorldContext* worldContext) : GameSystem(worldContext)
-{
+glimmer::DebugPanelSystem::DebugPanelSystem(WorldContext *worldContext) : GameSystem(worldContext) {
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_TILE_LAYER);
-    WorldContext* worldContextPtr = GetWorldContext();
+    WorldContext *worldContextPtr = GetWorldContext();
     appContext_ = worldContextPtr->GetAppContext();
     preloadColors_ = appContext_->GetGraphicsContext()->GetPreloadColors();
     langsResources_ = appContext_->GetLangsResources();
@@ -185,26 +169,21 @@ glimmer::DebugPanelSystem::DebugPanelSystem(WorldContext* worldContext) : GameSy
     Init();
 }
 
-void glimmer::DebugPanelSystem::OnConfigChanged(const Config* config)
-{
+void glimmer::DebugPanelSystem::OnConfigChanged(const Config *config) {
     displayDebugPanel_ = config->debug.displayDebugPanel;
 }
 
-void glimmer::DebugPanelSystem::OnActivationChanged(bool activeStatus)
-{
-    if (!activeStatus)
-    {
+void glimmer::DebugPanelSystem::OnActivationChanged(bool activeStatus) {
+    if (!activeStatus) {
         textures_.clear();
     }
 }
 
 
-void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
-{
-    WorldContext* worldContext = GetWorldContext();
+void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
+    WorldContext *worldContext = GetWorldContext();
     if (cameraComponent_ == nullptr || cameraTransform2DComponent_ == nullptr || appContext_ == nullptr ||
-        tileLayerComponents_.empty())
-    {
+        tileLayerComponents_.empty()) {
         return;
     }
     float yOffset = 0.0F;
@@ -213,8 +192,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
 
     RenderChunkBounds(renderer, cameraComponent_, cameraTransform2DComponent_->GetPosition());
 
-    if (!inPointInViewport)
-    {
+    if (!inPointInViewport) {
         //Do not display the tile debugging information that is outside the screen.
         //不要显示在屏幕之外的瓦片调试信息。
         AppContext::RestoreColorRenderer(renderer);
@@ -222,7 +200,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
     }
     int windowHeight = appContext_->GetWindowContext()->GetWindowHeight();
     int windowWidth = appContext_->GetWindowContext()->GetWindowWidth();
-    ChunkGenerator* chunkGenerator = worldContext->GetChunkGenerator();
+    ChunkGenerator *chunkGenerator = worldContext->GetChunkGenerator();
     constexpr float lineSpacing = 20.0F;
     float totalLines = 1.0F + static_cast<float>(tileLayerComponents_.size());
     float totalTextHeight = totalLines * lineSpacing;
@@ -237,15 +215,13 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
     RenderDebugText(renderer, windowWidth, mouseText, yOffset,
                     appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextColor,
                     appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextBGColor.
-                                 ToSDLColor());
+                    ToSDLColor());
     yOffset += lineSpacing;
     bool firstLayer = true;
     TileVector2D tileCoord = CoordinateTransformer::WorldToTile(mousePosition_);
-    for (auto tileLayerComponent : tileLayerComponents_)
-    {
+    for (auto tileLayerComponent: tileLayerComponents_) {
         TileVector2D chunkRelative = Chunk::TileCoordinatesToChunkRelativeCoordinates(tileCoord);
-        if (firstLayer)
-        {
+        if (firstLayer) {
             float elevation = ChunkGenerator::GetElevation(tileCoord.y);
             std::string tileDebugInfo = fmt::format(
                 fmt::runtime(appContext_->GetLangsResources()->tileDebugInfo),
@@ -260,19 +236,17 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
             RenderDebugText(renderer, windowWidth, tileDebugInfo, yOffset,
                             appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextColor,
                             appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextBGColor.
-                                         ToSDLColor());
+                            ToSDLColor());
             yOffset += lineSpacing;
             firstLayer = false;
         }
 
         auto tile = tileLayerComponent->GetSelfLayerTile(tileCoord);
-        if (tile == nullptr)
-        {
+        if (tile == nullptr) {
             continue;
         }
-        const TileMiningData* miningData = tile->GetMiningData();
-        if (miningData == nullptr)
-        {
+        const TileMiningData *miningData = tile->GetMiningData();
+        if (miningData == nullptr) {
             continue;
         }
         std::string tileResDebugInfo = fmt::format(
@@ -282,12 +256,11 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
         RenderDebugText(renderer, windowWidth, tileResDebugInfo, yOffset,
                         appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextColor,
                         appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextBGColor.
-                                     ToSDLColor());
+                        ToSDLColor());
         yOffset += lineSpacing;
     }
-    if (const Color* finalLightColor = worldContext->GetLightingBuffer()->GetFinalLightColor(tileCoord); finalLightColor
-        == nullptr)
-    {
+    if (const Color *finalLightColor = worldContext->GetLightingBuffer()->GetFinalLightColor(tileCoord); finalLightColor
+        == nullptr) {
         std::string totalLight = fmt::format(
             fmt::runtime(appContext_->GetLangsResources()->totalLight),
             -1, -1, -1, -1
@@ -295,10 +268,8 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
         RenderDebugText(renderer, windowWidth, totalLight, yOffset,
                         appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextColor,
                         appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextBGColor.
-                                     ToSDLColor());
-    }
-    else
-    {
+                        ToSDLColor());
+    } else {
         std::string totalLight = fmt::format(
             fmt::runtime(appContext_->GetLangsResources()->totalLight),
             finalLightColor->a, finalLightColor->r, finalLightColor->g, finalLightColor->b
@@ -306,7 +277,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
         RenderDebugText(renderer, windowWidth, totalLight, yOffset,
                         appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextColor,
                         appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextBGColor.
-                                     ToSDLColor());
+                        ToSDLColor());
     }
 
     // Draw Chunk Grid in Bottom-Left
@@ -315,8 +286,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
     int playerTileX = static_cast<int>(std::floor(mousePosition_.x / TILE_SIZE));
     int playerTileY = static_cast<int>(std::floor(mousePosition_.y / TILE_SIZE));
 
-    auto getChunkIndex = [](const int tileCoord)
-    {
+    auto getChunkIndex = [](const int tileCoord) {
         return static_cast<int>(std::floor(static_cast<float>(tileCoord) / CHUNK_SIZE));
     };
 
@@ -333,8 +303,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
     // 绘制已加载的区块（蓝色）
     SDL_SetRenderDrawColor(renderer, 100, 149, 237, 128);
 
-    for (const auto& [pos, chunk] : chunksPtr)
-    {
+    for (const auto &[pos, chunk]: chunksPtr) {
         int chunkIndexX = pos.x >> CHUNK_SHIFT;
         int chunkIndexY = pos.y >> CHUNK_SHIFT;
 
@@ -369,10 +338,8 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
 
     SDL_SetRenderDrawColor(renderer, 255, 165, 0, 255); // Orange
 
-    for (int cy = startChunkY; cy <= endChunkY; ++cy)
-    {
-        for (int cx = startChunkX; cx <= endChunkX; ++cx)
-        {
+    for (int cy = startChunkY; cy <= endChunkY; ++cy) {
+        for (int cx = startChunkX; cx <= endChunkX; ++cx) {
             float drawX = gridCenterX + static_cast<float>(cx - playerChunkX) * cellSize;
             float drawY = gridCenterY + static_cast<float>(playerChunkY - cy) * cellSize;
 
@@ -392,14 +359,12 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
     std::string chunkText = fmt::format(fmt::runtime(langsResources_->debugChunkInfo), playerChunkX, playerChunkY,
                                         visibleChunkCount, chunksPtr.size());
     uint64_t chunkTextFingerprint = StringUtils::StringToUint64(chunkText);
-    if (chunkTextFingerprint != chunkTextFingerprint_)
-    {
+    if (chunkTextFingerprint != chunkTextFingerprint_) {
         chunkTextTexture_ = resourcePackManager_->CreateStringTexture(
             chunkText, &preloadColors_->debugColor.debugPanelTextColor);
         chunkTextFingerprint_ = chunkTextFingerprint;
     }
-    if (chunkTextTexture_ != nullptr)
-    {
+    if (chunkTextTexture_ != nullptr) {
         SDL_FRect dst = {
             48.0F,
             static_cast<float>(windowHeight) - static_cast<float>(chunkTextTexture_->h) - 8.0F,
@@ -416,18 +381,14 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
     AppContext::RestoreColorRenderer(renderer);
 }
 
-bool glimmer::DebugPanelSystem::HandleEvent(const SDL_Event& event)
-{
-    if (cameraComponent_ == nullptr)
-    {
+bool glimmer::DebugPanelSystem::HandleEvent(const SDL_Event &event) {
+    if (cameraComponent_ == nullptr) {
         return false;
     }
-    if (cameraTransform2DComponent_ == nullptr)
-    {
+    if (cameraTransform2DComponent_ == nullptr) {
         return false;
     }
-    if (event.type == SDL_EVENT_MOUSE_MOTION)
-    {
+    if (event.type == SDL_EVENT_MOUSE_MOTION) {
         mousePosition_ = CoordinateTransformer::ScreenToWorld(
             cameraTransform2DComponent_->GetPosition(),
             ScreenVector2D{
@@ -443,8 +404,7 @@ uint8_t glimmer::DebugPanelSystem::GetExecutionOrder() {
     return EXECUTION_ORDER_DEBUG_PANEL;
 }
 
-glimmer::GameSystemType glimmer::DebugPanelSystem::GetGameSystemType() const
-{
+glimmer::GameSystemType glimmer::DebugPanelSystem::GetGameSystemType() const {
     return GameSystemType::DebugPanelSystem;
 }
 

@@ -39,141 +39,121 @@
 using enum glimmer::TileAnchorType;
 
 
-glimmer::TilePhysicsType glimmer::Tile::GetTilePhysicsType() const
-{
+glimmer::TilePhysicsType glimmer::Tile::GetTilePhysicsType() const {
     return physicsType_;
 }
 
-const std::string& glimmer::Tile::GetId() const
-{
+const std::string &glimmer::Tile::GetId() const {
     return id_;
 }
 
-bool glimmer::Tile::IsOverwritable() const
-{
+bool glimmer::Tile::IsOverwritable() const {
     return isOverwritable_;
 }
 
-bool glimmer::Tile::IsWorkBlock() const
-{
+bool glimmer::Tile::IsWorkBlock() const {
     return technologyLevel_ > 0;
 }
 
-const std::string& glimmer::Tile::GetName() const
-{
+const std::string &glimmer::Tile::GetName() const {
     return name_;
 }
 
-glimmer::TileLayerType glimmer::Tile::GetLayerType() const
-{
+glimmer::TileLayerType glimmer::Tile::GetLayerType() const {
     return layerType_;
 }
 
-const std::optional<std::string>& glimmer::Tile::GetDescription() const
-{
+const std::optional<std::string> &glimmer::Tile::GetDescription() const {
     return description_;
 }
 
 glimmer::TileVector2D glimmer::Tile::CalculateTileAnchor(const TileAnchorType tileAnchorType, const uint8_t tileWidth,
                                                          const uint8_t tileHeight,
-                                                         const Vector2DIResource& customTileAnchor)
-{
+                                                         const Vector2DIResource &customTileAnchor) {
     TileVector2D result = TileVector2D(0, 0);
-    switch (tileAnchorType)
-    {
-    case TopLeft:
-        result.x = 0;
-        result.y = tileHeight - 1;
-        break;
-    case TopCenter:
-        result.x = tileWidth / 2;
-        result.y = tileHeight - 1;
-        break;
-    case TopRight:
-        result.x = tileWidth - 1;
-        result.y = tileHeight - 1;
-        break;
-    case CenterLeft:
-        result.x = 0;
-        result.y = tileHeight / 2;
-        break;
-    case Center:
-        result.x = tileWidth / 2;
-        result.y = tileHeight / 2;
-        break;
-    case CenterRight:
-        result.x = tileWidth - 1;
-        result.y = tileHeight / 2;
-        break;
-    case BottomLeft:
-        result.x = 0;
-        result.y = 0;
-        break;
-    case BottomCenter:
-        result.x = tileWidth / 2;
-        result.y = 0;
-        break;
-    case BottomRight:
-        result.x = tileWidth - 1;
-        result.y = 0;
-        break;
-    case Custom:
-        result.x = customTileAnchor.x;
-        result.y = customTileAnchor.y;
-        break;
-    default:
-        result.x = 0;
-        result.y = tileHeight - 1;
-        break;
+    switch (tileAnchorType) {
+        case TopLeft:
+            result.x = 0;
+            result.y = tileHeight - 1;
+            break;
+        case TopCenter:
+            result.x = tileWidth / 2;
+            result.y = tileHeight - 1;
+            break;
+        case TopRight:
+            result.x = tileWidth - 1;
+            result.y = tileHeight - 1;
+            break;
+        case CenterLeft:
+            result.x = 0;
+            result.y = tileHeight / 2;
+            break;
+        case Center:
+            result.x = tileWidth / 2;
+            result.y = tileHeight / 2;
+            break;
+        case CenterRight:
+            result.x = tileWidth - 1;
+            result.y = tileHeight / 2;
+            break;
+        case BottomLeft:
+            result.x = 0;
+            result.y = 0;
+            break;
+        case BottomCenter:
+            result.x = tileWidth / 2;
+            result.y = 0;
+            break;
+        case BottomRight:
+            result.x = tileWidth - 1;
+            result.y = 0;
+            break;
+        case Custom:
+            result.x = customTileAnchor.x;
+            result.y = customTileAnchor.y;
+            break;
+        default:
+            result.x = 0;
+            result.y = tileHeight - 1;
+            break;
     }
 
-    if (result.x < 0)
-    {
+    if (result.x < 0) {
         result.x = 0;
     }
-    if (result.y < 0)
-    {
+    if (result.y < 0) {
         result.y = 0;
     }
-    if (result.x >= tileWidth)
-    {
+    if (result.x >= tileWidth) {
         result.x = tileWidth - 1;
     }
-    if (result.y >= tileHeight)
-    {
+    if (result.y >= tileHeight) {
         result.y = tileHeight - 1;
     }
     return result;
 }
 
-std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext* appContext,
-                                                               const TileResource* tileResource)
-{
-    if (appContext == nullptr)
-    {
+std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext *appContext,
+                                                               const TileResource *tileResource) {
+    if (appContext == nullptr) {
         return nullptr;
     }
-    const ResourceLocator* resourceLocator = appContext->GetResourceLocator();
-    if (resourceLocator == nullptr)
-    {
+    const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+    if (resourceLocator == nullptr) {
         return nullptr;
     }
     auto tile = std::make_unique<Tile>();
     tile->id_ = Resource::GenerateId(*tileResource);
-    const StringResource* nameStringResource = resourceLocator->FindString(
+    const StringResource *nameStringResource = resourceLocator->FindString(
         &tileResource->name);
-    if (nameStringResource == nullptr)
-    {
+    if (nameStringResource == nullptr) {
         tile->name_ = tile->id_;
-    }
-    else
-    {
+    } else {
         tile->name_ = nameStringResource->value;
     }
-    const StringResource* descriptionStringResource = resourceLocator->FindString(
+    const StringResource *descriptionStringResource = resourceLocator->FindString(
         &tileResource->description);
-    if (descriptionStringResource != nullptr)
-    {
+    if (descriptionStringResource != nullptr) {
         tile->description_ = descriptionStringResource->value;
     }
     tile->lootData_.SetCustomLootTable(tileResource->customLootTable);
@@ -188,32 +168,25 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext*
     tile->isOverwritable_ = tileResource->isOverwritable;
     tile->lootData_.SetCanDropLoot(tileResource->canDropLoot);
     uint8_t tileHeight = tileResource->tileHeight;
-    if (tileHeight > CHUNK_SIZE)
-    {
+    if (tileHeight > CHUNK_SIZE) {
         tileHeight = CHUNK_SIZE;
     }
-    if (tileHeight == 0)
-    {
+    if (tileHeight == 0) {
         tileHeight = 1;
     }
     tile->dimensions_.SetTileHeight(tileHeight);
     uint8_t tileWidth = tileResource->tileWidth;
-    if (tileWidth > CHUNK_SIZE)
-    {
+    if (tileWidth > CHUNK_SIZE) {
         tileWidth = CHUNK_SIZE;
     }
-    if (tileWidth == 0)
-    {
+    if (tileWidth == 0) {
         tileWidth = 1;
     }
     tile->dimensions_.SetTileWidth(tileWidth);
-    if (tileResource->autoHardnessScale)
-    {
+    if (tileResource->autoHardnessScale) {
         tile->miningData_.SetHardness(
             static_cast<float>(tileWidth) * static_cast<float>(tileHeight) * tileResource->unitHardness);
-    }
-    else
-    {
+    } else {
         tile->miningData_.SetHardness(tileResource->unitHardness);
     }
     tile->technologyLevel_ = tileResource->technologyLevel;
@@ -223,7 +196,7 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext*
                                                         tileHeight,
                                                         tileResource->customTileAnchor));
     tile->dimensions_.SetAllowDirAdjustAnchor(tileResource->allowDirAdjustAnchor);
-    const std::shared_ptr<TextureResourceResult>& textureResult = resourceLocator->FindTexture(
+    const std::shared_ptr<TextureResourceResult> &textureResult = resourceLocator->FindTexture(
         &tileResource->texture);
     tile->resourceData_.SetTextureRef(tileResource->texture);
     tile->resourceData_.SetTexture(textureResult);
@@ -232,8 +205,7 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext*
     tile->blueprintData_.SetDrawValidBlueprintColor(tileResource->drawValidBlueprintColor);
     tile->blueprintData_.SetBlueprintTexture(resourceLocator->FindTextureRaw(
         &tileResource->blueprintTexture));
-    if (tile->blueprintData_.GetBlueprintTexture() == nullptr)
-    {
+    if (tile->blueprintData_.GetBlueprintTexture() == nullptr) {
         tile->blueprintData_.SetBlueprintTexture(textureResult);
     }
     tile->lootData_.SetLootScaleBySize(tileResource->lootScaleBySize);
@@ -245,18 +217,15 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext*
     return tile;
 }
 
-void glimmer::Tile::OnPlace(const WorldContext* worldContext, PlaceSourceMessage placeSource,
-                            const TileVector2D& position)
-{
-    EntityManager* entityManager = worldContext->GetEntityManager();
-    if (entityManager == nullptr)
-    {
+void glimmer::Tile::OnPlace(const WorldContext *worldContext, PlaceSourceMessage placeSource,
+                            const TileVector2D &position) {
+    EntityManager *entityManager = worldContext->GetEntityManager();
+    if (entityManager == nullptr) {
         return;
     }
     const Vector2DIFingerprint fingerprint = position.GetFingerprint();
     auto gameEntityIterator = gameEntities_.find(fingerprint);
-    if (gameEntityIterator != gameEntities_.end())
-    {
+    if (gameEntityIterator != gameEntities_.end()) {
 #if  !defined(NDEBUG)
         LogCat::e(std::source_location::current(),
                   "Before generating a new entity, it is necessary to ensure that there are no other entities at the current location.");
@@ -265,8 +234,7 @@ void glimmer::Tile::OnPlace(const WorldContext* worldContext, PlaceSourceMessage
         return;
 #endif
     }
-    if (IsWorkBlock())
-    {
+    if (IsWorkBlock()) {
         GameEntityID entity = entityManager->AddEntity();
         const auto transform2dComponent = entityManager->AddComponent<Transform2DComponent>(entity);
         transform2dComponent->SetPosition(CoordinateTransformer::TileToWorld(position));
@@ -277,83 +245,67 @@ void glimmer::Tile::OnPlace(const WorldContext* worldContext, PlaceSourceMessage
     }
 }
 
-void glimmer::Tile::OnBreak(const WorldContext* worldContext, BreakSource breakSource, const TileVector2D& position)
-{
-    if (breakSource == BreakSource::ChunkLoad || breakSource == BreakSource::ChunkGenerate)
-    {
+void glimmer::Tile::OnBreak(const WorldContext *worldContext, BreakSource breakSource, const TileVector2D &position) {
+    if (breakSource == BreakSource::ChunkLoad || breakSource == BreakSource::ChunkGenerate) {
         return;
     }
-    EntityManager* entityManager = worldContext->GetEntityManager();
-    if (entityManager == nullptr)
-    {
+    EntityManager *entityManager = worldContext->GetEntityManager();
+    if (entityManager == nullptr) {
         return;
     }
     const Vector2DIFingerprint fingerprint = position.GetFingerprint();
     auto gameEntityIterator = gameEntities_.find(fingerprint);
-    if (gameEntityIterator == gameEntities_.end())
-    {
+    if (gameEntityIterator == gameEntities_.end()) {
         return;
     }
     entityManager->RemoveEntity(gameEntityIterator->second);
     gameEntities_.erase(gameEntityIterator);
 }
 
-glimmer::TileResourceData* glimmer::Tile::GetMutableResourceData()
-{
+glimmer::TileResourceData *glimmer::Tile::GetMutableResourceData() {
     return &resourceData_;
 }
 
-const glimmer::TileResourceData* glimmer::Tile::GetResourceData() const
-{
+const glimmer::TileResourceData *glimmer::Tile::GetResourceData() const {
     return &resourceData_;
 }
 
-glimmer::TileBlueprintData* glimmer::Tile::GetMutableBlueprintData()
-{
+glimmer::TileBlueprintData *glimmer::Tile::GetMutableBlueprintData() {
     return &blueprintData_;
 }
 
-const glimmer::TileBlueprintData* glimmer::Tile::GetBlueprintData() const
-{
+const glimmer::TileBlueprintData *glimmer::Tile::GetBlueprintData() const {
     return &blueprintData_;
 }
 
-glimmer::TileDimensions* glimmer::Tile::GetMutableDimensions()
-{
+glimmer::TileDimensions *glimmer::Tile::GetMutableDimensions() {
     return &dimensions_;
 }
 
-const glimmer::TileDimensions* glimmer::Tile::GetDimensions() const
-{
+const glimmer::TileDimensions *glimmer::Tile::GetDimensions() const {
     return &dimensions_;
 }
 
-glimmer::TileMiningData* glimmer::Tile::GetMutableMiningData()
-{
+glimmer::TileMiningData *glimmer::Tile::GetMutableMiningData() {
     return &miningData_;
 }
 
-const glimmer::TileMiningData* glimmer::Tile::GetMiningData() const
-{
+const glimmer::TileMiningData *glimmer::Tile::GetMiningData() const {
     return &miningData_;
 }
 
-glimmer::TileLootData* glimmer::Tile::GetMutableLootData()
-{
+glimmer::TileLootData *glimmer::Tile::GetMutableLootData() {
     return &lootData_;
 }
 
-const glimmer::TileLootData* glimmer::Tile::GetLootData() const
-{
+const glimmer::TileLootData *glimmer::Tile::GetLootData() const {
     return &lootData_;
 }
 
-glimmer::TileLightResourceData* glimmer::Tile::GetMutableLightResourceData()
-{
+glimmer::TileLightResourceData *glimmer::Tile::GetMutableLightResourceData() {
     return &lightData_;
 }
 
-const glimmer::TileLightResourceData* glimmer::Tile::GetLightResourceData() const
-{
+const glimmer::TileLightResourceData *glimmer::Tile::GetLightResourceData() const {
     return &lightData_;
 }

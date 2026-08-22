@@ -28,12 +28,10 @@
 
 #include "core/Constants.h"
 
-namespace glimmer
-{
-    SDL_FRect CoordinateTransformer::GetViewportRect(const WorldVector2D& cameraPosition,
-                                                     const ScreenVector2D& cameraSize,
-                                                     float zoom)
-    {
+namespace glimmer {
+    SDL_FRect CoordinateTransformer::GetViewportRect(const WorldVector2D &cameraPosition,
+                                                     const ScreenVector2D &cameraSize,
+                                                     float zoom) {
         const float scaledWidth = cameraSize.x / zoom;
         const float scaledHeight = cameraSize.y / zoom;
         return {
@@ -44,11 +42,10 @@ namespace glimmer
         };
     }
 
-    ScreenVector2D CoordinateTransformer::WorldToScreen(const WorldVector2D& cameraPosition,
-                                                        const WorldVector2D& worldPosition,
-                                                        const ScreenVector2D& cameraSize,
-                                                        float zoom)
-    {
+    ScreenVector2D CoordinateTransformer::WorldToScreen(const WorldVector2D &cameraPosition,
+                                                        const WorldVector2D &worldPosition,
+                                                        const ScreenVector2D &cameraSize,
+                                                        float zoom) {
         const float offsetX = (worldPosition.x - cameraPosition.x) * zoom;
         const float offsetY = (worldPosition.y - cameraPosition.y) * zoom;
         return {
@@ -57,35 +54,31 @@ namespace glimmer
         };
     }
 
-    WorldVector2D CoordinateTransformer::ScreenToWorld(const WorldVector2D& cameraPosition,
-                                                       const ScreenVector2D& screenPosition,
-                                                       const ScreenVector2D& cameraSize,
-                                                       float zoom)
-    {
+    WorldVector2D CoordinateTransformer::ScreenToWorld(const WorldVector2D &cameraPosition,
+                                                       const ScreenVector2D &screenPosition,
+                                                       const ScreenVector2D &cameraSize,
+                                                       float zoom) {
         return {
             cameraPosition.x + (screenPosition.x - cameraSize.x * 0.5F) / zoom,
             cameraPosition.y + (cameraSize.y * 0.5F - screenPosition.y) / zoom
         };
     }
 
-    WorldVector2D CoordinateTransformer::TileToWorld(const TileVector2D& tilePos)
-    {
+    WorldVector2D CoordinateTransformer::TileToWorld(const TileVector2D &tilePos) {
         return {
             static_cast<float>(tilePos.x) * TILE_SIZE,
             static_cast<float>(tilePos.y) * TILE_SIZE
         };
     }
 
-    TileVector2D CoordinateTransformer::WorldToTile(const WorldVector2D& worldPos)
-    {
+    TileVector2D CoordinateTransformer::WorldToTile(const WorldVector2D &worldPos) {
         return {
             static_cast<int>(std::floor(worldPos.x / TILE_SIZE + 0.5F)),
             static_cast<int>(std::floor(worldPos.y / TILE_SIZE + 0.5F))
         };
     }
 
-    ScreenVector2D CoordinateTransformer::DesignToScreen(const DesignVector2D& designPos, float uiScale)
-    {
+    ScreenVector2D CoordinateTransformer::DesignToScreen(const DesignVector2D &designPos, float uiScale) {
         return {
             designPos.x * uiScale,
             designPos.y * uiScale

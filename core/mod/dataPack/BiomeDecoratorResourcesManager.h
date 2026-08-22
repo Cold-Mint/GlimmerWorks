@@ -30,9 +30,7 @@
 #include "core/mod/Resource.h"
 
 
-namespace glimmer
-{
-    class BiomeDecoratorResourcesManager : public BaseResManager<IBiomeDecoratorResource>
-    {
+namespace glimmer {
+    class BiomeDecoratorResourcesManager : public BaseResManager<IBiomeDecoratorResource> {
     };
 }

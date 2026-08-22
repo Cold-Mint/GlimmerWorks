@@ -27,37 +27,31 @@
 #include "BiomesManager.h"
 
 float glimmer::BiomesManager::CalculateBiomeScoreDelta(const float targetValue, const float actualValue,
-                                                       const float strictness)
-{
+                                                       const float strictness) {
     const float diff = targetValue - actualValue;
     return diff * diff * strictness;
 }
 
-std::span<glimmer::BiomeResource*> glimmer::BiomesManager::GetBiomeVector()
-{
+std::span<glimmer::BiomeResource *> glimmer::BiomesManager::GetBiomeVector() {
     return biomeVector_;
 }
 
-void glimmer::BiomesManager::OnRegister(BiomeResource* resource)
-{
+void glimmer::BiomesManager::OnRegister(BiomeResource *resource) {
     biomeVector_.emplace_back(resource);
 }
 
-glimmer::BiomeResource* glimmer::BiomesManager::FindBestBiome(const float humidity, const float temperature,
+glimmer::BiomeResource *glimmer::BiomesManager::FindBestBiome(const float humidity, const float temperature,
                                                               const float weirdness,
                                                               const float erosion, const float elevation,
-                                                              const float surfaceProximity) const
-{
-    if (biomeVector_.empty())
-    {
+                                                              const float surfaceProximity) const {
+    if (biomeVector_.empty()) {
         return nullptr;
     }
 
-    BiomeResource* bestBiome = nullptr;
+    BiomeResource *bestBiome = nullptr;
     float bestDistance = std::numeric_limits<float>::max();
 
-    for (auto& biome : biomeVector_)
-    {
+    for (auto &biome: biomeVector_) {
         const float scoreHumidity = CalculateBiomeScoreDelta(biome->humidity, humidity, biome->strictnessHumidity);
         const float scoreTemperature = CalculateBiomeScoreDelta(biome->temperature, temperature,
                                                                 biome->strictnessTemperature);
@@ -67,9 +61,8 @@ glimmer::BiomeResource* glimmer::BiomesManager::FindBestBiome(const float humidi
         const float scoreSurfaceProximity = CalculateBiomeScoreDelta(biome->surfaceProximity, surfaceProximity,
                                                                      biome->strictnessSurfaceProximity);
         const float totalDistance = scoreHumidity + scoreTemperature + scoreWeirdness + scoreErosion + scoreElevation +
-            scoreSurfaceProximity;
-        if (totalDistance < bestDistance)
-        {
+                                    scoreSurfaceProximity;
+        if (totalDistance < bestDistance) {
             bestDistance = totalDistance;
             bestBiome = biome;
         }

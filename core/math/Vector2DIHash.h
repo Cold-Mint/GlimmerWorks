@@ -28,15 +28,12 @@
 
 #include "Vector2DI.h"
 
-namespace glimmer
-{
-    struct Vector2DIHash
-    {
-        template <typename TVec>
-        size_t operator()(const TVec& v) const noexcept
-        {
+namespace glimmer {
+    struct Vector2DIHash {
+        template<typename TVec>
+        size_t operator()(const TVec &v) const noexcept {
             return static_cast<uint64_t>(static_cast<uint32_t>(v.x)) << 32
-                | static_cast<uint32_t>(v.y);
+                   | static_cast<uint32_t>(v.y);
         }
     };
 }

@@ -30,11 +30,9 @@
 #include "src/core/alloc_strategy_type.pb.h"
 #include "IAllocatable.h"
 
-namespace glimmer
-{
-    template <typename T>
-    class IAllocStrategy
-    {
+namespace glimmer {
+    template<typename T>
+    class IAllocStrategy {
     public:
         virtual ~IAllocStrategy() = default;
 
@@ -45,7 +43,7 @@ namespace glimmer
          * @param total 期望扣除的数量
          */
         virtual void Allocate(
-            std::vector<IAllocatable<T>*>& items,
+            std::vector<IAllocatable<T> *> &items,
             T total
         ) = 0;
 

@@ -32,69 +32,59 @@
 #include "core/utils/ColorUtils.h"
 #include "core/world/WorldContext.h"
 
-glimmer::DebugMultiMapSystem::DebugMultiMapSystem(WorldContext* worldContext) : GameSystem(worldContext)
-{
+glimmer::DebugMultiMapSystem::DebugMultiMapSystem(WorldContext *worldContext) : GameSystem(worldContext) {
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_TRANSFORM_2D);
     Init();
 }
 
-glimmer::GameSystemType glimmer::DebugMultiMapSystem::GetGameSystemType() const
-{
+glimmer::GameSystemType glimmer::DebugMultiMapSystem::GetGameSystemType() const {
     return GameSystemType::DebugMultiMapSystem;
 }
 
-glimmer::Color glimmer::DebugMultiMapSystem::GetTileDebugColor(const TileVector2D& tile) const
-{
-    const WorldContext* worldContext = GetWorldContext();
+glimmer::Color glimmer::DebugMultiMapSystem::GetTileDebugColor(const TileVector2D &tile) const {
+    const WorldContext *worldContext = GetWorldContext();
     auto color = Color(0, 0, 0, 0);
-    const AppContext* appContext = worldContext->GetAppContext();
-    if (appContext == nullptr)
-    {
+    const AppContext *appContext = worldContext->GetAppContext();
+    if (appContext == nullptr) {
         return color;
     }
-    const Config* config = appContext->GetConfig();
-    if (config == nullptr)
-    {
+    const Config *config = appContext->GetConfig();
+    if (config == nullptr) {
         return color;
     }
     auto debugColor = appContext->GetGraphicsContext()->GetPreloadColors()->debugColor;
     float elevation = ChunkGenerator::GetElevation(tile.x);
-    ChunkGenerator* chunkGenerator = worldContext->GetChunkGenerator();
+    ChunkGenerator *chunkGenerator = worldContext->GetChunkGenerator();
     std::vector<Color> activeColors;
 
-    if (config->debug.displayElevationMap)
-    {
+    if (config->debug.displayElevationMap) {
         activeColors.emplace_back(
             ColorUtils::LinearInterpolateColor(debugColor.elevationMapFrom, debugColor.elevationMapTo, elevation)
         );
     }
-    if (config->debug.displayTempMap)
-    {
+    if (config->debug.displayTempMap) {
         activeColors.emplace_back(
             ColorUtils::LinearInterpolateColor(debugColor.tempMapFrom, debugColor.tempMapTo,
-                                  chunkGenerator->GetTemperature(tile, elevation))
+                                               chunkGenerator->GetTemperature(tile, elevation))
         );
     }
-    if (config->debug.displayHumidityMap)
-    {
+    if (config->debug.displayHumidityMap) {
         activeColors.emplace_back(
             ColorUtils::LinearInterpolateColor(debugColor.humidityMapFrom, debugColor.humidityMapTo,
-                                  chunkGenerator->GetHumidity(tile))
+                                               chunkGenerator->GetHumidity(tile))
         );
     }
-    if (config->debug.displayErosionMap)
-    {
+    if (config->debug.displayErosionMap) {
         activeColors.emplace_back(
             ColorUtils::LinearInterpolateColor(debugColor.erosionMapFrom, debugColor.erosionMapTo,
-                                  chunkGenerator->GetErosion(tile))
+                                               chunkGenerator->GetErosion(tile))
         );
     }
-    if (config->debug.displayWeirdnessMap)
-    {
+    if (config->debug.displayWeirdnessMap) {
         activeColors.emplace_back(
             ColorUtils::LinearInterpolateColor(debugColor.weirdnessMapFrom, debugColor.weirdnessMapTo,
-                                  chunkGenerator->GetWeirdness(tile))
+                                               chunkGenerator->GetWeirdness(tile))
         );
     }
     return ColorUtils::AverageColors(activeColors);
@@ -104,30 +94,25 @@ uint8_t glimmer::DebugMultiMapSystem::GetExecutionOrder() {
     return EXECUTION_ORDER_DEBUG_MAP;
 }
 
-void glimmer::DebugMultiMapSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
-{
-    const EntityShortCut* entityShortCut = GetEntityShortCut();
+void glimmer::DebugMultiMapSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType,
+                                                             uint32_t count) {
+    const EntityShortCut *entityShortCut = GetEntityShortCut();
 
-    if (gameComponentType == COMPONENT_TRANSFORM_2D && cameraTransform2DComponent_ == nullptr)
-    {
+    if (gameComponentType == COMPONENT_TRANSFORM_2D && cameraTransform2DComponent_ == nullptr) {
         cameraTransform2DComponent_ = entityShortCut->GetCameraTransform2DComponent();
     }
-    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
-    {
+    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr) {
         cameraComponent_ = entityShortCut->GetCameraComponent();
     }
 }
 
-void glimmer::DebugMultiMapSystem::Render(SDL_Renderer* renderer)
-{
-    const WorldContext* worldContext = GetWorldContext();
-    if (worldContext == nullptr)
-    {
+void glimmer::DebugMultiMapSystem::Render(SDL_Renderer *renderer) {
+    const WorldContext *worldContext = GetWorldContext();
+    if (worldContext == nullptr) {
         return;
     }
-    const AppContext* appContext = worldContext->GetAppContext();
-    if (appContext == nullptr)
-    {
+    const AppContext *appContext = worldContext->GetAppContext();
+    if (appContext == nullptr) {
         return;
     }
     auto viewportRect = CoordinateTransformer::GetViewportRect(cameraTransform2DComponent_->GetPosition(),
@@ -140,10 +125,8 @@ void glimmer::DebugMultiMapSystem::Render(SDL_Renderer* renderer)
         viewportRect.y + viewportRect.h + TILE_SIZE
     });
 
-    for (int x = topLeft.x; x < bottomRight.x; x++)
-    {
-        for (int y = topLeft.y; y < bottomRight.y; y++)
-        {
+    for (int x = topLeft.x; x < bottomRight.x; x++) {
+        for (int y = topLeft.y; y < bottomRight.y; y++) {
             const TileVector2D tileVector2D = {x, y};
             const WorldVector2D worldTilePos = CoordinateTransformer::TileToWorld(tileVector2D);
             const ScreenVector2D screenPos = CoordinateTransformer::WorldToScreen(

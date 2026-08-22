@@ -31,18 +31,14 @@
 #include "ability/NoneAbility.h"
 
 std::shared_ptr<glimmer::ItemAbility> glimmer::ItemAbilityFactory::CreateItemAbility(const AbilityType abilityType,
-    const AbilityConfig& abilityConfig)
-{
-    if (abilityType == AbilityType::None)
-    {
+    const AbilityConfig &abilityConfig) {
+    if (abilityType == AbilityType::None) {
         return std::make_shared<NoneAbility>(abilityConfig);
     }
-    if (abilityType == AbilityType::Mining)
-    {
+    if (abilityType == AbilityType::Mining) {
         return std::make_shared<MiningAbility>(abilityConfig);
     }
-    if (abilityType == AbilityType::AreaMarker)
-    {
+    if (abilityType == AbilityType::AreaMarker) {
         return std::make_shared<AreaMarkerAbility>(abilityConfig);
     }
     return nullptr;

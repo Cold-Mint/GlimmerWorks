@@ -29,40 +29,30 @@
 #include <stdexcept>
 #include <utility>
 
-glimmer::CoordinateDynamicSuggestions::CoordinateDynamicSuggestions(std::string id) : id_(std::move(id))
-{
+glimmer::CoordinateDynamicSuggestions::CoordinateDynamicSuggestions(std::string id) : id_(std::move(id)) {
     suggestions_.emplace_back("~");
 }
 
-std::string glimmer::CoordinateDynamicSuggestions::GetId() const
-{
+std::string glimmer::CoordinateDynamicSuggestions::GetId() const {
     return id_;
 }
 
-const std::vector<std::string>& glimmer::CoordinateDynamicSuggestions::GetSuggestions(
-    const std::optional<std::string>& param)
-{
+const std::vector<std::string> &glimmer::CoordinateDynamicSuggestions::GetSuggestions(
+    const std::optional<std::string> &param) {
     return suggestions_;
 }
 
 
-bool glimmer::CoordinateDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
-{
-    if (!keyword.empty() && keyword[0] == '~')
-    {
+bool glimmer::CoordinateDynamicSuggestions::Match(const std::string &keyword, const std::string &param) {
+    if (!keyword.empty() && keyword[0] == '~') {
         return true;
     }
-    try
-    {
+    try {
         std::stoi(keyword);
         return true;
-    }
-    catch (const std::invalid_argument&)
-    {
+    } catch (const std::invalid_argument &) {
         return false;
-    }
-    catch (const std::out_of_range&)
-    {
+    } catch (const std::out_of_range &) {
         return false;
     }
 }

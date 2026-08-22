@@ -26,58 +26,47 @@
  */
 #include "TilePlacementConfig.h"
 
-void glimmer::TilePlacementConfig::SetTileWidth(const uint8_t tileWidth)
-{
+void glimmer::TilePlacementConfig::SetTileWidth(const uint8_t tileWidth) {
     tileWidth_ = tileWidth;
 }
 
-void glimmer::TilePlacementConfig::SetTileHeight(const uint8_t tileHeight)
-{
+void glimmer::TilePlacementConfig::SetTileHeight(const uint8_t tileHeight) {
     tileHeight_ = tileHeight;
 }
 
-void glimmer::TilePlacementConfig::SetPlaceMode(bool placeMode)
-{
+void glimmer::TilePlacementConfig::SetPlaceMode(bool placeMode) {
     isPlaceMode_ = placeMode;
 }
 
-void glimmer::TilePlacementConfig::SetResourceRef(const ResourceRef& resourceRef)
-{
+void glimmer::TilePlacementConfig::SetResourceRef(const ResourceRef &resourceRef) {
     resourceRef_ = resourceRef;
 }
 
-void glimmer::TilePlacementConfig::SetBreakSource(const BreakSource& breakSource)
-{
+void glimmer::TilePlacementConfig::SetBreakSource(const BreakSource &breakSource) {
     breakSource_ = breakSource;
 }
 
-void glimmer::TilePlacementConfig::WriteResourceRefMessage(ResourceRefMessage& message) const
-{
+void glimmer::TilePlacementConfig::WriteResourceRefMessage(ResourceRefMessage &message) const {
     resourceRef_.WriteResourceRefMessage(message);
 }
 
 
-glimmer::BreakSource glimmer::TilePlacementConfig::GetBreakSource() const
-{
+glimmer::BreakSource glimmer::TilePlacementConfig::GetBreakSource() const {
     return breakSource_;
 }
 
-const glimmer::ResourceRef& glimmer::TilePlacementConfig::GetResourceRef() const
-{
+const glimmer::ResourceRef &glimmer::TilePlacementConfig::GetResourceRef() const {
     return resourceRef_;
 }
 
-bool glimmer::TilePlacementConfig::IsPlaceMode() const
-{
+bool glimmer::TilePlacementConfig::IsPlaceMode() const {
     return isPlaceMode_;
 }
 
-uint8_t glimmer::TilePlacementConfig::GetTileWidth() const
-{
+uint8_t glimmer::TilePlacementConfig::GetTileWidth() const {
     return tileWidth_;
 }
 
-uint8_t glimmer::TilePlacementConfig::GetTileHeight() const
-{
+uint8_t glimmer::TilePlacementConfig::GetTileHeight() const {
     return tileHeight_;
 }

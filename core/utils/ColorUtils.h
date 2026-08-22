@@ -30,10 +30,8 @@
 #include "core/math/Color.h"
 
 
-namespace glimmer
-{
-    class ColorUtils
-    {
+namespace glimmer {
+    class ColorUtils {
     public:
         /**
        * Obtain linear interpolated color value between two colors.
@@ -43,7 +41,7 @@ namespace glimmer
        * @param percent 插值系数，取值范围0~1；0返回from原色，1返回to原色，中间数值为两者混合过渡色
        * @return 线性插值计算后的混合颜色结果
        */
-        static Color LinearInterpolateColor(const Color& from, const Color& to, float percent);
+        static Color LinearInterpolateColor(const Color &from, const Color &to, float percent);
 
         /**
          * AverageColors
@@ -51,7 +49,7 @@ namespace glimmer
          * @param colors
          * @return
          */
-        static Color AverageColors(const std::vector<Color>& colors);
+        static Color AverageColors(const std::vector<Color> &colors);
 
 
         /**
@@ -61,6 +59,6 @@ namespace glimmer
          * @param secondColor
          * @return
          */
-        static Color AdditiveBlend(const Color& firstColor, const Color& secondColor);
+        static Color AdditiveBlend(const Color &firstColor, const Color &secondColor);
     };
 }

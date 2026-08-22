@@ -27,11 +27,9 @@
 #pragma once
 #include "BaseResManager.h"
 
-namespace glimmer
-{
-    class AbilityItemManager : public BaseResManager<AbilityItemResource>
-    {
+namespace glimmer {
+    class AbilityItemManager : public BaseResManager<AbilityItemResource> {
     public:
-        AbilityItemResource* OnNotFound(std::string_view packId, std::string_view key) override;
+        AbilityItemResource *OnNotFound(std::string_view packId, std::string_view key) override;
     };
 }

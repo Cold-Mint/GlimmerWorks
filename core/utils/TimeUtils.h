@@ -31,10 +31,8 @@
 
 #include "core/LangsResources.h"
 
-namespace glimmer
-{
-    class TimeUtils
-    {
+namespace glimmer {
+    class TimeUtils {
     public:
         /**
          *Get the current time (in milliseconds) since Unix Epoch (1970-01-01 00:00:00 UTC)
@@ -51,7 +49,7 @@ namespace glimmer
          * @param ms
          * @return
          */
-        [[nodiscard]] static std::string TimeFormatDuration(const LangsResources* langsResources, uint64_t ms);
+        [[nodiscard]] static std::string TimeFormatDuration(const LangsResources *langsResources, uint64_t ms);
 
         /**
          * Format Time

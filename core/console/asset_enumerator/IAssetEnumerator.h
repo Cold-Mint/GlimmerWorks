@@ -29,18 +29,16 @@
 #include <optional>
 #include <string>
 
-namespace glimmer
-{
+namespace glimmer {
     class AppContext;
 
-    class IAssetEnumerator
-    {
+    class IAssetEnumerator {
     public:
         virtual ~IAssetEnumerator() = default;
 
         [[nodiscard]] virtual std::string_view GetAssetType() const = 0;
 
-        [[nodiscard]] virtual std::optional<std::string> ListAsset(const AppContext* appContext) = 0;
+        [[nodiscard]] virtual std::optional<std::string> ListAsset(const AppContext *appContext) = 0;
     };
 }
 #endif

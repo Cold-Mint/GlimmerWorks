@@ -31,8 +31,7 @@
 #include "AbilityType.h"
 #include "core/mod/Resource.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class AppContext;
     class WorldContext;
     class GameEntity;
@@ -41,22 +40,21 @@ namespace glimmer
      * Item Ability
      * 物品能力
      */
-    class ItemAbility
-    {
+    class ItemAbility {
         AbilityConfig abilityConfig_;
 
     public:
-        explicit ItemAbility(const AbilityConfig& abilityConfig);
+        explicit ItemAbility(const AbilityConfig &abilityConfig);
 
         virtual ~ItemAbility() = default;
 
         [[nodiscard]] virtual AbilityType GetAbilityType() const = 0;
 
-        [[nodiscard]] const AbilityConfig* GetAbilityConfig() const;
+        [[nodiscard]] const AbilityConfig *GetAbilityConfig() const;
 
-        virtual bool OnUse(bool mouseLeft, WorldContext* worldContext, uint32_t user,
-                           const AbilityConfig* abilityConfig,
-                            std::unordered_set<AbilityType>& popupAbility) = 0;
+        virtual bool OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user,
+                           const AbilityConfig *abilityConfig,
+                           std::unordered_set<AbilityType> &popupAbility) = 0;
 
         [[nodiscard]] virtual std::unique_ptr<ItemAbility> Clone() const = 0;
     };

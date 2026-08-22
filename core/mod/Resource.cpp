@@ -31,53 +31,42 @@
 #include "core/utils/RandomUtils.h"
 #include "core/utils/StringUtils.h"
 
-std::string glimmer::Resource::GenerateId(const std::string& packId, const std::string& key)
-{
+std::string glimmer::Resource::GenerateId(const std::string &packId, const std::string &key) {
     return packId + ":" + key;
 }
 
-std::string glimmer::Resource::GenerateId(const Resource& resource)
-{
+std::string glimmer::Resource::GenerateId(const Resource &resource) {
     return GenerateId(resource.packId, resource.resourceId);
 }
 
-glimmer::Color glimmer::FixedColorResource::ToColor() const
-{
+glimmer::Color glimmer::FixedColorResource::ToColor() const {
     return Color{r, g, b, a};
 }
 
-const std::unordered_set<std::string>& glimmer::BiomeStructurePlacementConditionsResource::GetCachedBiomeIds() const
-{
+const std::unordered_set<std::string> &glimmer::BiomeStructurePlacementConditionsResource::GetCachedBiomeIds() const {
     return cachedBiomeIds_;
 }
 
-void glimmer::BiomeStructurePlacementConditionsResource::RefreshCache()
-{
+void glimmer::BiomeStructurePlacementConditionsResource::RefreshCache() {
     cachedBiomeIds_.clear();
-    for (auto& ref : targetBiomes)
-    {
+    for (auto &ref: targetBiomes) {
         cachedBiomeIds_.insert(GenerateId(ref.GetPackageId(), ref.GetResourceKey()));
     }
 }
 
 
-glimmer::Color glimmer::ColorResource::ToColor() const
-{
+glimmer::Color glimmer::ColorResource::ToColor() const {
     return Color{r, g, b, a};
 }
 
-void glimmer::ItemTagResource::MakeCachedTag()
-{
-    if (cachedTagId == 0)
-    {
+void glimmer::ItemTagResource::MakeCachedTag() {
+    if (cachedTagId == 0) {
         cachedTagId = StringUtils::StringToUint64(name);
     }
 }
 
-FastNoiseLite* glimmer::MineralBiomeDecoratorResource::GetFastNoiseLite(const int seed)
-{
-    if (fastNoiseLite_ == nullptr)
-    {
+FastNoiseLite *glimmer::MineralBiomeDecoratorResource::GetFastNoiseLite(const int seed) {
+    if (fastNoiseLite_ == nullptr) {
         fastNoiseLite_ = std::make_unique<FastNoiseLite>();
     }
     fastNoiseLite_->SetSeed(seed + seedOffset);
@@ -86,66 +75,55 @@ FastNoiseLite* glimmer::MineralBiomeDecoratorResource::GetFastNoiseLite(const in
     return fastNoiseLite_.get();
 }
 
-void glimmer::LootResource::TryRollSingleLoot(uint32_t totalWeight, const LootResource* lootResource,
-                                              std::vector<ItemMessage>& itemMessageList)
-{
+void glimmer::LootResource::TryRollSingleLoot(uint32_t totalWeight, const LootResource *lootResource,
+                                              std::vector<ItemMessage> &itemMessageList) {
     auto rollsRandomValue = RandomUtils::Random<uint32_t>(0, totalWeight - 1);
-    if (rollsRandomValue <= lootResource->empty_weight)
-    {
+    if (rollsRandomValue <= lootResource->empty_weight) {
         return;
     }
     uint32_t currentWeight = 0;
-    for (auto& pool : lootResource->pool)
-    {
+    for (auto &pool: lootResource->pool) {
         currentWeight += pool.weight;
-        if (rollsRandomValue > currentWeight)
-        {
+        if (rollsRandomValue > currentWeight) {
             continue;
         }
         ItemMessage itemMessage;
         const auto randomValue = RandomUtils::Random<uint32_t>(pool.min, pool.max);
         itemMessage.set_amount(randomValue);
-        ResourceRefMessage& resourceRefMessage = *itemMessage.mutable_itemresourceref();
+        ResourceRefMessage &resourceRefMessage = *itemMessage.mutable_itemresourceref();
         pool.item.WriteResourceRefMessage(resourceRefMessage);
         itemMessageList.push_back(itemMessage);
         break;
     }
 }
 
-std::vector<ItemMessage> glimmer::LootResource::GetLootItems(const LootResource* lootResource)
-{
+std::vector<ItemMessage> glimmer::LootResource::GetLootItems(const LootResource *lootResource) {
     uint32_t totalWeight = lootResource->empty_weight;
     uint32_t totalPoolWeight = 0;
-    for (auto& pool : lootResource->pool)
-    {
+    for (auto &pool: lootResource->pool) {
         totalWeight += pool.weight;
         totalPoolWeight += pool.weight;
     }
     std::vector<ItemMessage> itemMessageList = {};
-    for (auto& mandatory : lootResource->mandatory)
-    {
+    for (auto &mandatory: lootResource->mandatory) {
         ItemMessage itemMessage;
         const auto randomValue = RandomUtils::Random<uint32_t>(mandatory.min, mandatory.max);
         itemMessage.set_amount(randomValue);
-        ResourceRefMessage& resourceRefMessage = *itemMessage.mutable_itemresourceref();
+        ResourceRefMessage &resourceRefMessage = *itemMessage.mutable_itemresourceref();
         mandatory.item.WriteResourceRefMessage(resourceRefMessage);
         itemMessageList.emplace_back(itemMessage);
     }
 
-    if (totalPoolWeight > 0)
-    {
-        for (int r = 0; r < lootResource->rolls; r++)
-        {
+    if (totalPoolWeight > 0) {
+        for (int r = 0; r < lootResource->rolls; r++) {
             TryRollSingleLoot(totalWeight, lootResource, itemMessageList);
         }
     }
     return itemMessageList;
 }
 
-void glimmer::RequiredTag::MakeCachedTag()
-{
-    if (cachedTagId == 0)
-    {
+void glimmer::RequiredTag::MakeCachedTag() {
+    if (cachedTagId == 0) {
         cachedTagId = StringUtils::StringToUint64(requiredTag);
     }
 }

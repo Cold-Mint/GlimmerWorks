@@ -28,37 +28,30 @@
 
 #include "component/FloatingTextComponent.h"
 
-glimmer::FlowingTextCreator::FlowingTextCreator(WorldContext* worldContext, const std::string& text,
-                                                const WorldVector2D& position) : IEntityCreator(worldContext),
-    text_(text), position_(position)
-{
+glimmer::FlowingTextCreator::FlowingTextCreator(WorldContext *worldContext, const std::string &text,
+                                                const WorldVector2D &position) : IEntityCreator(worldContext),
+    text_(text), position_(position) {
 }
 
-void glimmer::FlowingTextCreator::LoadTemplateComponents(uint32_t id)
-{
-    const WorldContext* worldContext = GetWorldContext();
-    if (worldContext == nullptr)
-    {
+void glimmer::FlowingTextCreator::LoadTemplateComponents(uint32_t id) {
+    const WorldContext *worldContext = GetWorldContext();
+    if (worldContext == nullptr) {
         return;
     }
-    AppContext* appContext = worldContext->GetAppContext();
-    if (appContext == nullptr)
-    {
+    AppContext *appContext = worldContext->GetAppContext();
+    if (appContext == nullptr) {
         return;
     }
-    EntityManager* entityManager = worldContext->GetEntityManager();
-    if (entityManager == nullptr)
-    {
+    EntityManager *entityManager = worldContext->GetEntityManager();
+    if (entityManager == nullptr) {
         return;
     }
     if (auto transform2dComponent = entityManager->AddComponent<Transform2DComponent>(id); transform2dComponent !=
-        nullptr)
-    {
+        nullptr) {
         transform2dComponent->SetPosition(position_);
     }
     auto floatingTextComponent = entityManager->AddComponent<FloatingTextComponent>(id, appContext);
-    if (floatingTextComponent != nullptr)
-    {
+    if (floatingTextComponent != nullptr) {
         floatingTextComponent->SetText(text_);
     }
 }

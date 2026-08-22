@@ -33,15 +33,14 @@
 
 
 std::optional<std::filesystem::path> glimmer::StdFileProvider::GetFullPath(
-    const std::filesystem::path& relativePath) const
-{
+    const std::filesystem::path &relativePath) const {
     std::filesystem::path fullPath = root_ / relativePath;
     auto absFull = std::filesystem::weakly_canonical(std::filesystem::absolute(fullPath));
     auto absRoot = std::filesystem::weakly_canonical(std::filesystem::absolute(root_));
     const std::string fullStr = absFull.string();
     if (const std::string rootStr = absRoot.string(); !(fullStr == rootStr || fullStr.starts_with(
-        rootStr + std::string(1, std::filesystem::path::preferred_separator))))
-    {
+                                                            rootStr + std::string(
+                                                                1, std::filesystem::path::preferred_separator)))) {
         LogCat::e(std::source_location::current(), "Access to unmounted directories is prohibited. fullPath(", fullPath,
                   ")rootPath(", rootStr, ")");
         return std::nullopt;
@@ -50,96 +49,77 @@ std::optional<std::filesystem::path> glimmer::StdFileProvider::GetFullPath(
 }
 
 glimmer::StdFileProvider::StdFileProvider(std::string rootPath)
-    : root_(std::move(rootPath))
-{
+    : root_(std::move(rootPath)) {
 }
 
-bool glimmer::StdFileProvider::DeleteFileOrFolder(const std::filesystem::path& path)
-{
+bool glimmer::StdFileProvider::DeleteFileOrFolder(const std::filesystem::path &path) {
     const std::optional<std::filesystem::path> fullPathOptional = GetFullPath(path);
-    if (!fullPathOptional.has_value())
-    {
+    if (!fullPathOptional.has_value()) {
         return false;
     }
-    const std::filesystem::path& fullPath = fullPathOptional.value();
-    if (IsFile(path))
-    {
+    const std::filesystem::path &fullPath = fullPathOptional.value();
+    if (IsFile(path)) {
         return std::filesystem::remove(fullPath);
     }
     return std::filesystem::remove_all(fullPath) > 0;
 }
 
-std::unique_ptr<std::istream> glimmer::StdFileProvider::ReadStream(const std::filesystem::path& path)
-{
+std::unique_ptr<std::istream> glimmer::StdFileProvider::ReadStream(const std::filesystem::path &path) {
     const std::optional<std::filesystem::path> fullPathOptional = GetFullPath(path);
-    if (!fullPathOptional.has_value())
-    {
+    if (!fullPathOptional.has_value()) {
         return nullptr;
     }
-    const std::filesystem::path& fullPath = fullPathOptional.value();
-    if (!std::filesystem::exists(fullPath) || !std::filesystem::is_regular_file(fullPath))
-    {
+    const std::filesystem::path &fullPath = fullPathOptional.value();
+    if (!std::filesystem::exists(fullPath) || !std::filesystem::is_regular_file(fullPath)) {
         return nullptr;
     }
     auto file = std::make_unique<std::ifstream>(fullPath, std::ios::binary);
-    if (!file->is_open())
-    {
+    if (!file->is_open()) {
         return nullptr;
     }
     return file;
 }
 
-std::vector<std::filesystem::path> glimmer::StdFileProvider::ListFile(const std::filesystem::path& path, bool recursive)
-{
+std::vector<std::filesystem::path>
+glimmer::StdFileProvider::ListFile(const std::filesystem::path &path, bool recursive) {
     std::vector<std::filesystem::path> result;
     const std::optional<std::filesystem::path> fullPathOptional = GetFullPath(path);
-    if (!fullPathOptional.has_value())
-    {
+    if (!fullPathOptional.has_value()) {
         return result;
     }
-    const std::filesystem::path& dir = fullPathOptional.value();
+    const std::filesystem::path &dir = fullPathOptional.value();
     std::error_code errorCode;
     if (!std::filesystem::exists(dir, errorCode) ||
-        !std::filesystem::is_directory(dir, errorCode))
-    {
+        !std::filesystem::is_directory(dir, errorCode)) {
         return result;
     }
-    if (recursive)
-    {
+    if (recursive) {
         for (std::filesystem::recursive_directory_iterator it(dir, errorCode), end;
              it != end;
-             it.increment(errorCode))
-        {
-            if (errorCode.value() != 0)
-            {
+             it.increment(errorCode)) {
+            if (errorCode.value() != 0) {
                 continue;
             }
 
             const auto relative =
-                std::filesystem::relative(it->path(), root_, errorCode);
+                    std::filesystem::relative(it->path(), root_, errorCode);
 
-            if (errorCode.value() == 0)
-            {
+            if (errorCode.value() == 0) {
                 result.push_back(relative);
             }
         }
-    }
-    else
-    {
+    } else {
         for (std::filesystem::directory_iterator it(dir, errorCode), end;
              it != end;
-             it.increment(errorCode))
-        {
-            if (errorCode.value() != 0)
-            {
+             it.increment(errorCode)) {
+            if (errorCode.value() != 0) {
                 continue;
             }
 
             const auto relative =
-                std::filesystem::relative(it->path(), root_, errorCode);
+                    std::filesystem::relative(it->path(), root_, errorCode);
 
-            if (errorCode.value() == 0)
-            {
+            if (errorCode.value() == 0) {
                 result.push_back(relative);
             }
         }
@@ -147,68 +127,56 @@ std::vector<std::filesystem::path> glimmer::StdFileProvider::ListFile(const std:
     return result;
 }
 
-std::optional<std::filesystem::path> glimmer::StdFileProvider::GetParentPath(const std::filesystem::path& path) const
-{
+std::optional<std::filesystem::path> glimmer::StdFileProvider::GetParentPath(const std::filesystem::path &path) const {
     return std::filesystem::path(path).parent_path();
 }
 
-std::optional<std::filesystem::path> glimmer::StdFileProvider::GetActualPath(const std::filesystem::path& path) const
-{
+std::optional<std::filesystem::path> glimmer::StdFileProvider::GetActualPath(const std::filesystem::path &path) const {
     return std::filesystem::path(root_) / path;
 }
 
 
-bool glimmer::StdFileProvider::CreateFolder(const std::filesystem::path& path)
-{
+bool glimmer::StdFileProvider::CreateFolder(const std::filesystem::path &path) {
     const std::optional<std::filesystem::path> fullPathOptional = GetFullPath(path);
-    if (!fullPathOptional.has_value())
-    {
+    if (!fullPathOptional.has_value()) {
         return false;
     }
-    const std::filesystem::path& fullPath = fullPathOptional.value();
+    const std::filesystem::path &fullPath = fullPathOptional.value();
     std::error_code errorCode;
     std::filesystem::create_directories(fullPath, errorCode);
     return errorCode.value() == 0;
 }
 
-std::string_view glimmer::StdFileProvider::GetFileProviderName() const
-{
+std::string_view glimmer::StdFileProvider::GetFileProviderName() const {
     return name_;
 }
 
-std::optional<std::string> glimmer::StdFileProvider::GetFileOrFolderName(const std::filesystem::path& path) const
-{
+std::optional<std::string> glimmer::StdFileProvider::GetFileOrFolderName(const std::filesystem::path &path) const {
     return std::filesystem::path(path).filename().string();
 }
 
-bool glimmer::StdFileProvider::Exists(const std::filesystem::path& path)
-{
+bool glimmer::StdFileProvider::Exists(const std::filesystem::path &path) {
     const std::optional<std::filesystem::path> fullPathOptional = GetFullPath(path);
-    if (!fullPathOptional.has_value())
-    {
+    if (!fullPathOptional.has_value()) {
         return false;
     }
     return std::filesystem::exists(fullPathOptional.value());
 }
 
-bool glimmer::StdFileProvider::IsFile(const std::filesystem::path& path)
-{
+bool glimmer::StdFileProvider::IsFile(const std::filesystem::path &path) {
     const std::optional<std::filesystem::path> fullPathOptional = GetFullPath(path);
-    if (!fullPathOptional.has_value())
-    {
+    if (!fullPathOptional.has_value()) {
         return false;
     }
     return std::filesystem::is_regular_file(fullPathOptional.value());
 }
 
-bool glimmer::StdFileProvider::WriteFile(const std::filesystem::path& path, const std::string& content) const
-{
+bool glimmer::StdFileProvider::WriteFile(const std::filesystem::path &path, const std::string &content) const {
     const std::optional<std::filesystem::path> fullPathOptional = GetFullPath(path);
-    if (!fullPathOptional.has_value())
-    {
+    if (!fullPathOptional.has_value()) {
         return false;
     }
-    const std::filesystem::path& fullPath = fullPathOptional.value();
+    const std::filesystem::path &fullPath = fullPathOptional.value();
     std::filesystem::create_directories(fullPath.parent_path());
     std::ofstream file(fullPath, std::ios::binary);
     if (!file) return false;

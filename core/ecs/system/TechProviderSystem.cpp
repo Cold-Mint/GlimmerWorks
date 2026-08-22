@@ -30,82 +30,66 @@
 #include "core/ecs/component/TechProviderComponent.h"
 #include "core/world/WorldContext.h"
 
-glimmer::TechProviderSystem::TechProviderSystem(WorldContext* worldContext)
-    : GameSystem(worldContext)
-{
+glimmer::TechProviderSystem::TechProviderSystem(WorldContext *worldContext)
+    : GameSystem(worldContext) {
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_TECH_PROVIDER);
     WatchComponent(COMPONENT_PLAYER);
     Init();
 }
 
-void glimmer::TechProviderSystem::OnActivationChanged(bool activeStatus)
-{
-    EntityManager* entityManager = GetEntityManager();
-    if (!activeStatus)
-    {
-        if (WorldContext::IsEmptyEntityId(player_))
-        {
+void glimmer::TechProviderSystem::OnActivationChanged(bool activeStatus) {
+    EntityManager *entityManager = GetEntityManager();
+    if (!activeStatus) {
+        if (WorldContext::IsEmptyEntityId(player_)) {
             return;
         }
         auto playerComponent = entityManager->GetComponent<PlayerComponent>(player_);
-        if (playerComponent == nullptr)
-        {
+        if (playerComponent == nullptr) {
             return;
         }
-        PlayerTechnologyHandler* playerTechnologyHandler = playerComponent->GetTechnologyHandler();
-        if (playerTechnologyHandler == nullptr)
-        {
+        PlayerTechnologyHandler *playerTechnologyHandler = playerComponent->GetTechnologyHandler();
+        if (playerTechnologyHandler == nullptr) {
             return;
         }
         playerTechnologyHandler->ResetTechnologyMap();
     }
 }
 
-void glimmer::TechProviderSystem::OnFrameStart()
-{
-    EntityManager* entityManager = GetEntityManager();
-    if (!changed)
-    {
+void glimmer::TechProviderSystem::OnFrameStart() {
+    EntityManager *entityManager = GetEntityManager();
+    if (!changed) {
         return;
     }
-    if (WorldContext::IsEmptyEntityId(player_))
-    {
+    if (WorldContext::IsEmptyEntityId(player_)) {
         return;
     }
     auto playerTransform2DComponent = entityManager->GetComponent<Transform2DComponent>(player_);
-    if (playerTransform2DComponent == nullptr)
-    {
+    if (playerTransform2DComponent == nullptr) {
         return;
     }
     auto playerComponent = entityManager->GetComponent<PlayerComponent>(player_);
-    if (playerComponent == nullptr)
-    {
+    if (playerComponent == nullptr) {
         return;
     }
-    PlayerTechnologyHandler* playerTechnologyHandler = playerComponent->GetTechnologyHandler();
-    if (playerTechnologyHandler == nullptr)
-    {
+    PlayerTechnologyHandler *playerTechnologyHandler = playerComponent->GetTechnologyHandler();
+    if (playerTechnologyHandler == nullptr) {
         return;
     }
     playerTechnologyHandler->ResetTechnologyMap();
-    for (GameEntityID techProviderEntity : techProviderEntities_)
-    {
+    for (GameEntityID techProviderEntity: techProviderEntities_) {
         auto providerTransform2DComponent = entityManager->GetComponent<Transform2DComponent>(
             techProviderEntity);
-        if (providerTransform2DComponent == nullptr)
-        {
+        if (providerTransform2DComponent == nullptr) {
             continue;
         }
         if (playerTransform2DComponent->GetPosition().Distance(
-            providerTransform2DComponent->GetPosition()) / TILE_SIZE > WORK_STATION_RANGE)
-        {
+                providerTransform2DComponent->GetPosition()) / TILE_SIZE > WORK_STATION_RANGE) {
             continue;
         }
         auto techProviderComponent = entityManager->GetComponent<TechProviderComponent>(
             techProviderEntity);
-        if (techProviderComponent == nullptr)
-        {
+        if (techProviderComponent == nullptr) {
             continue;
         }
         playerTechnologyHandler->SetTechnology(techProviderComponent->GetRecipeGroup(),
@@ -114,24 +98,20 @@ void glimmer::TechProviderSystem::OnFrameStart()
     changed = false;
 }
 
-void glimmer::TechProviderSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
-{
-    EntityShortCut* entityShortCut = GetEntityShortCut();
-    EntityManager* entityManager = GetEntityManager();
-    if (gameComponentType == COMPONENT_TRANSFORM_2D)
-    {
+void glimmer::TechProviderSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType,
+                                                            uint32_t count) {
+    EntityShortCut *entityShortCut = GetEntityShortCut();
+    EntityManager *entityManager = GetEntityManager();
+    if (gameComponentType == COMPONENT_TRANSFORM_2D) {
         transform2DCount_ = count;
     }
-    if (gameComponentType == COMPONENT_PLAYER)
-    {
+    if (gameComponentType == COMPONENT_PLAYER) {
         player_ = entityShortCut->GetPlayer();
     }
-    if (gameComponentType == COMPONENT_TECH_PROVIDER)
-    {
+    if (gameComponentType == COMPONENT_TECH_PROVIDER) {
         techProviderCount_ = count;
     }
-    if (transform2DCount_ > 0 && techProviderCount_ > 0)
-    {
+    if (transform2DCount_ > 0 && techProviderCount_ > 0) {
         techProviderEntities_.clear();
         techProviderEntities_ = entityManager->GetEntityIDWithComponents({
             COMPONENT_TRANSFORM_2D, COMPONENT_TECH_PROVIDER
@@ -141,7 +121,6 @@ void glimmer::TechProviderSystem::OnWatchedComponentChanged(GameComponentTypeMes
 }
 
 
-glimmer::GameSystemType glimmer::TechProviderSystem::GetGameSystemType() const
-{
+glimmer::GameSystemType glimmer::TechProviderSystem::GetGameSystemType() const {
     return GameSystemType::TeachProviderSystem;
 }

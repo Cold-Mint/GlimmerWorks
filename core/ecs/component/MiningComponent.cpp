@@ -28,122 +28,99 @@
 
 #include <utility>
 
-bool glimmer::MiningComponent::IsEnable() const
-{
+bool glimmer::MiningComponent::IsEnable() const {
     return enable_;
 }
 
-void glimmer::MiningComponent::SetEnable(const bool enable)
-{
+void glimmer::MiningComponent::SetEnable(const bool enable) {
     enable_ = enable;
 }
 
-void glimmer::MiningComponent::SetMiningRangeData(const MiningRangeData& miningRangeData)
-{
+void glimmer::MiningComponent::SetMiningRangeData(const MiningRangeData &miningRangeData) {
     miningRangeData_ = miningRangeData;
     hasMiningRangeData_ = true;
 }
 
-void glimmer::MiningComponent::ClearMiningRangeData()
-{
+void glimmer::MiningComponent::ClearMiningRangeData() {
     hasMiningRangeData_ = false;
     hasStartPosition_ = false;
 }
 
-const glimmer::MiningRangeData* glimmer::MiningComponent::GetMiningRangeData() const
-{
+const glimmer::MiningRangeData *glimmer::MiningComponent::GetMiningRangeData() const {
     return hasMiningRangeData_ ? &miningRangeData_ : nullptr;
 }
 
-void glimmer::MiningComponent::SetStartPosition(TileVector2D startPosition)
-{
+void glimmer::MiningComponent::SetStartPosition(TileVector2D startPosition) {
     startPosition_ = std::move(startPosition);
     hasStartPosition_ = true;
 }
 
-const glimmer::TileVector2D& glimmer::MiningComponent::GetStartPosition() const
-{
+const glimmer::TileVector2D &glimmer::MiningComponent::GetStartPosition() const {
     return startPosition_;
 }
 
-bool glimmer::MiningComponent::HasStartPosition() const
-{
+bool glimmer::MiningComponent::HasStartPosition() const {
     return hasStartPosition_;
 }
 
-float glimmer::MiningComponent::GetProgress() const
-{
+float glimmer::MiningComponent::GetProgress() const {
     return progress_;
 }
 
-void glimmer::MiningComponent::SetLayerType(const TileLayerType tileLayerType)
-{
+void glimmer::MiningComponent::SetLayerType(const TileLayerType tileLayerType) {
     layerType_ = tileLayerType;
 }
 
-glimmer::TileLayerType glimmer::MiningComponent::GetLayerType() const
-{
+glimmer::TileLayerType glimmer::MiningComponent::GetLayerType() const {
     return layerType_;
 }
 
-void glimmer::MiningComponent::SetChainMiningRadius(const int chainMiningRadius)
-{
+void glimmer::MiningComponent::SetChainMiningRadius(const int chainMiningRadius) {
     chainMiningRadius_ = chainMiningRadius;
 }
 
-int glimmer::MiningComponent::GetChainMiningRadius() const
-{
+int glimmer::MiningComponent::GetChainMiningRadius() const {
     return chainMiningRadius_;
 }
 
-void glimmer::MiningComponent::SetProgress(const float progress)
-{
+void glimmer::MiningComponent::SetProgress(const float progress) {
     progress_ = progress;
 }
 
-void glimmer::MiningComponent::SetPrecisionMining(bool precisionMining)
-{
+void glimmer::MiningComponent::SetPrecisionMining(bool precisionMining) {
     precisionMining_ = precisionMining;
 }
 
-bool glimmer::MiningComponent::IsPrecisionMining() const
-{
+bool glimmer::MiningComponent::IsPrecisionMining() const {
     return precisionMining_;
 }
 
-void glimmer::MiningComponent::AddProgress(float progress)
-{
+void glimmer::MiningComponent::AddProgress(float progress) {
     progress_ += progress;
 }
 
-void glimmer::MiningComponent::SetEfficiency(float efficiency)
-{
+void glimmer::MiningComponent::SetEfficiency(float efficiency) {
     efficiency_ = efficiency;
 }
 
-float glimmer::MiningComponent::GetEfficiency() const
-{
+float glimmer::MiningComponent::GetEfficiency() const {
     return efficiency_;
 }
 
-void glimmer::MiningComponent::MarkActive()
-{
+void glimmer::MiningComponent::MarkActive() {
     activeSignal_ = true;
 }
 
-bool glimmer::MiningComponent::CheckAndResetActive()
-{
+bool glimmer::MiningComponent::CheckAndResetActive() {
     const bool active = activeSignal_;
     activeSignal_ = false;
     return active;
 }
 
-GameComponentTypeMessage glimmer::MiningComponent::GetComponentTypeStatic()
-{
+GameComponentTypeMessage glimmer::MiningComponent::GetComponentTypeStatic() {
     return COMPONENT_MINING;
 }
 
-GameComponentTypeMessage glimmer::MiningComponent::GetComponentType()
-{
+GameComponentTypeMessage glimmer::MiningComponent::GetComponentType() {
     return GetComponentTypeStatic();
 }

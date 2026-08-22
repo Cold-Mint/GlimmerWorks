@@ -49,30 +49,24 @@
 #include "core/console/asset_enumerator/RecipesAssetEnumerator.h"
 #include "core/context/AppContext.h"
 
-void glimmer::AssetViewerCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
-{
-    if (suggestionsTree == nullptr)
-    {
+void glimmer::AssetViewerCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
+    if (suggestionsTree == nullptr) {
         return;
     }
-    for (const auto& enumerator : assetEnumerators_ | std::views::values)
-    {
+    for (const auto &enumerator: assetEnumerators_ | std::views::values) {
         suggestionsTree->AddChild(std::string(enumerator->GetAssetType()));
     }
 }
 
-void glimmer::AssetViewerCommand::AddAssetEnumerator(std::unique_ptr<IAssetEnumerator> assetEnumeratorPtr)
-{
-    if (assetEnumeratorPtr == nullptr)
-    {
+void glimmer::AssetViewerCommand::AddAssetEnumerator(std::unique_ptr<IAssetEnumerator> assetEnumeratorPtr) {
+    if (assetEnumeratorPtr == nullptr) {
         return;
     }
     assetEnumerators_.try_emplace(assetEnumeratorPtr->GetAssetType(), std::move(assetEnumeratorPtr));
 }
 
-glimmer::AssetViewerCommand::AssetViewerCommand(AppContext* appContext)
-    : Command(appContext)
-{
+glimmer::AssetViewerCommand::AssetViewerCommand(AppContext *appContext)
+    : Command(appContext) {
     AddAssetEnumerator(std::make_unique<StringAssetEnumerator>());
     AddAssetEnumerator(std::make_unique<TextureAssetEnumerator>());
     AddAssetEnumerator(std::make_unique<TileAssetEnumerator>());
@@ -92,49 +86,40 @@ glimmer::AssetViewerCommand::AssetViewerCommand(AppContext* appContext)
     AddAssetEnumerator(std::make_unique<RecipesAssetEnumerator>());
 }
 
-const std::string& glimmer::AssetViewerCommand::GetName() const
-{
+const std::string &glimmer::AssetViewerCommand::GetName() const {
     return ASSET_VIEWER_COMMAND_NAME;
 }
 
-bool glimmer::AssetViewerCommand::RequiresWorldContext() const
-{
+bool glimmer::AssetViewerCommand::RequiresWorldContext() const {
     return false;
 }
 
 void glimmer::AssetViewerCommand::
-PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
-{
-    if (strings == nullptr)
-    {
+PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
+    if (strings == nullptr) {
         return;
     }
     strings->emplace_back("[asset type:string]");
 }
 
 
-bool glimmer::AssetViewerCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                                          const std::function<void(const std::string& text)>* onMessage)
-{
-    const AppContext* appContext = GetAppContext();
-    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
-    {
+bool glimmer::AssetViewerCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                                          const std::function<void(const std::string &text)> *onMessage) {
+    const AppContext *appContext = GetAppContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr) {
         return false;
     }
-    const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
+    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
     const auto type = commandArgs->AsString(1);
-    if (auto it = assetEnumerators_.find(type); it != assetEnumerators_.end())
-    {
-        if (auto result = it->second->ListAsset(appContext); result.has_value())
-        {
+    if (auto it = assetEnumerators_.find(type); it != assetEnumerators_.end()) {
+        if (auto result = it->second->ListAsset(appContext); result.has_value()) {
             onMessageRef(result.value());
             return true;
         }
         return false;
     }
-    const LangsResources* langsResources = appContext->GetLangsResources();
-    if (langsResources == nullptr)
-    {
+    const LangsResources *langsResources = appContext->GetLangsResources();
+    if (langsResources == nullptr) {
         return false;
     }
     onMessageRef(langsResources->unknownAssetType);

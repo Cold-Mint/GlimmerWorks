@@ -30,8 +30,7 @@
 #include <cmath>
 
 
-glimmer::Color glimmer::ColorUtils::LinearInterpolateColor(const Color& from, const Color& to, const float percent)
-{
+glimmer::Color glimmer::ColorUtils::LinearInterpolateColor(const Color &from, const Color &to, const float percent) {
     const float blend_ratio = std::clamp(percent, 0.0F, 1.0F);
     const auto r = static_cast<uint8_t>(static_cast<float>(from.r) + static_cast<float>(to.r - from.r) * blend_ratio);
     const auto g = static_cast<uint8_t>(static_cast<float>(from.g) + static_cast<float>(to.g - from.g) * blend_ratio);
@@ -40,18 +39,15 @@ glimmer::Color glimmer::ColorUtils::LinearInterpolateColor(const Color& from, co
     return {r, g, b, a};
 }
 
-glimmer::Color glimmer::ColorUtils::AverageColors(const std::vector<Color>& colors)
-{
-    if (colors.empty())
-    {
+glimmer::Color glimmer::ColorUtils::AverageColors(const std::vector<Color> &colors) {
+    if (colors.empty()) {
         return {0, 0, 0, 0};
     }
     int totalR = 0;
     int totalG = 0;
     int totalB = 0;
     int totalA = 0;
-    for (const auto& color : colors)
-    {
+    for (const auto &color: colors) {
         totalR += color.r;
         totalG += color.g;
         totalB += color.b;
@@ -66,8 +62,7 @@ glimmer::Color glimmer::ColorUtils::AverageColors(const std::vector<Color>& colo
     return {r, g, b, a};
 }
 
-glimmer::Color glimmer::ColorUtils::AdditiveBlend(const Color& firstColor, const Color& secondColor)
-{
+glimmer::Color glimmer::ColorUtils::AdditiveBlend(const Color &firstColor, const Color &secondColor) {
     Color result{};
     result.r = static_cast<uint8_t>(std::min(255, static_cast<int>(firstColor.r) + secondColor.r));
     result.g = static_cast<uint8_t>(std::min(255, static_cast<int>(firstColor.g) + secondColor.g));

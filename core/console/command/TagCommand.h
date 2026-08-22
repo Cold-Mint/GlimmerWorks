@@ -29,42 +29,40 @@
 #include "core/console/Command.h"
 #include "core/mod/Resource.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class StringManager;
     struct LangsResources;
 
-    class TagCommand final : public Command
-    {
-        void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
-        
-        static void WriteTag(const std::string& tagItem, std::stringstream& stringStream, StringManager* stringManager,
-                             const ItemTagResource& itemTagResource);
+    class TagCommand final : public Command {
+        void InitSuggestions(NodeTree<std::string> *suggestionsTree) override;
 
-        static std::string BuildTagListString(const std::string& tagItem, StringManager* stringManager,
-                                              const std::vector<const ItemTagResource*>& tagList);
+        static void WriteTag(const std::string &tagItem, std::stringstream &stringStream, StringManager *stringManager,
+                             const ItemTagResource &itemTagResource);
 
-        template <typename MessageCallback>
-        static bool ExecuteHand(const CommandSender* commandSender, const WorldContext* worldContext,
-                                MessageCallback&& onMessageRef,
-                                const AppContext* appContext, const LangsResources* langsResources);
+        static std::string BuildTagListString(const std::string &tagItem, StringManager *stringManager,
+                                              const std::vector<const ItemTagResource *> &tagList);
 
-        template <typename MessageCallback>
-        static bool ExecuteInventory(const CommandSender* commandSender, const WorldContext* worldContext,
-                                     MessageCallback&& onMessageRef,
-                                     const AppContext* appContext, const LangsResources* langsResources);
+        template<typename MessageCallback>
+        static bool ExecuteHand(const CommandSender *commandSender, const WorldContext *worldContext,
+                                MessageCallback &&onMessageRef,
+                                const AppContext *appContext, const LangsResources *langsResources);
+
+        template<typename MessageCallback>
+        static bool ExecuteInventory(const CommandSender *commandSender, const WorldContext *worldContext,
+                                     MessageCallback &&onMessageRef,
+                                     const AppContext *appContext, const LangsResources *langsResources);
 
     public:
-        explicit TagCommand(AppContext* appContext);
+        explicit TagCommand(AppContext *appContext);
 
         [[nodiscard]] bool RequiresWorldContext() const override;
 
-        [[nodiscard]] const std::string& GetName() const override;
+        [[nodiscard]] const std::string &GetName() const override;
 
-        void PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) override;
+        void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
 
-        bool Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                     const std::function<void(const std::string& text)>* onMessage) override;
+        bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                     const std::function<void(const std::string &text)> *onMessage) override;
     };
 }
 #endif

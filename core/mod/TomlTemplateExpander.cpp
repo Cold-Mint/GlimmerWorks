@@ -38,67 +38,54 @@
 #include "core/log/LogCat.h"
 
 
-void glimmer::TomlTemplateExpander::Register(std::unique_ptr<ITemplateCommand> command)
-{
-    if (command == nullptr)
-    {
+void glimmer::TomlTemplateExpander::Register(std::unique_ptr<ITemplateCommand> command) {
+    if (command == nullptr) {
         return;
     }
     commandMap_[command->GetCommandName()] = std::move(command);
 }
 
-std::string glimmer::TomlTemplateExpander::Expand(const std::vector<std::filesystem::path>& templateSearchPath,
-                                                  const std::string& inputText,
-                                                  const VirtualFileSystem* virtualFileSystem) const
-{
-    if (templateSearchPath.empty())
-    {
+std::string glimmer::TomlTemplateExpander::Expand(const std::vector<std::filesystem::path> &templateSearchPath,
+                                                  const std::string &inputText,
+                                                  const VirtualFileSystem *virtualFileSystem) const {
+    if (templateSearchPath.empty()) {
         return inputText;
     }
     std::stringstream inputStringStream(inputText);
     std::stringstream output;
     std::string line;
-    std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<>> variables = {};
-    while (std::getline(inputStringStream, line))
-    {
-        if (line.starts_with("#@"))
-        {
+    std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<> > variables = {};
+    while (std::getline(inputStringStream, line)) {
+        if (line.starts_with("#@")) {
             std::string commandLine = line.substr(2);
             size_t openParen = commandLine.find('(');
-            if (openParen == std::string::npos)
-            {
+            if (openParen == std::string::npos) {
                 output << line << '\n';
                 continue;
             }
 
             std::string cmdName = commandLine.substr(0, openParen);
             auto it = commandMap_.find(cmdName);
-            if (it == commandMap_.end())
-            {
+            if (it == commandMap_.end()) {
                 continue;
             }
-            ITemplateCommand* cmd = it->second.get();
+            ITemplateCommand *cmd = it->second.get();
             size_t closeParen = commandLine.find(')', openParen);
             std::string argsStr;
-            if (closeParen != std::string::npos)
-            {
+            if (closeParen != std::string::npos) {
                 argsStr = commandLine.substr(openParen + 1, closeParen - openParen - 1);
             }
             std::vector<std::string> args;
             std::istringstream argsIss(argsStr);
             std::string arg;
-            while (std::getline(argsIss, arg, ','))
-            {
+            while (std::getline(argsIss, arg, ',')) {
                 args.push_back(arg);
             }
             auto result = cmd->Execute(templateSearchPath, variables, args, virtualFileSystem);
-            if (result.has_value())
-            {
+            if (result.has_value()) {
                 output << *result << '\n';
             }
-        }
-        else
-        {
+        } else {
             output << line << '\n';
         }
     }
@@ -106,10 +93,7 @@ std::string glimmer::TomlTemplateExpander::Expand(const std::vector<std::filesys
     return output.str();
 #else
     std::string str = output.str();
-    if (str.contains('{') && str.contains('}'))
-    {
-
-
+    if (str.contains('{') && str.contains('}')) {
         assert(false);
     }
     return str;

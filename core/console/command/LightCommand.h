@@ -28,51 +28,49 @@
 #if  !defined(NDEBUG)
 #include "core/console/Command.h"
 
-namespace glimmer
-{
+namespace glimmer {
     enum class TileLayerType : uint8_t;
     class LightMask;
     class TileLightData;
     class TileVector2D;
     struct LangsResources;
 
-    class LightCommand final : public Command
-    {
-        static bool ExecuteInspector(AppContext* appContext,
-                                     const std::function<void(const std::string& text)>& onMessageRef,
-                                     const LangsResources* langsResources);
+    class LightCommand final : public Command {
+        static bool ExecuteInspector(AppContext *appContext,
+                                     const std::function<void(const std::string &text)> &onMessageRef,
+                                     const LangsResources *langsResources);
 
-        static bool ExecuteInfo(const CommandSender* commandSender, const CommandArgs* commandArgs, int size,
-                                const std::function<void(const std::string& text)>& onMessageRef,
-                                const LangsResources* langsResources, WorldContext* worldContext);
+        static bool ExecuteInfo(const CommandSender *commandSender, const CommandArgs *commandArgs, int size,
+                                const std::function<void(const std::string &text)> &onMessageRef,
+                                const LangsResources *langsResources, WorldContext *worldContext);
 
-        static std::string BuildLightContributionString(const TileLightData* lightData,
-                                                        const LangsResources* langsResources);
+        static std::string BuildLightContributionString(const TileLightData *lightData,
+                                                        const LangsResources *langsResources);
 
-        static std::string BuildLightSourceString(const TileLightData* lightData,
-                                                  const LangsResources* langsResources,
-                                                  const TileVector2D& tileVector2D);
+        static std::string BuildLightSourceString(const TileLightData *lightData,
+                                                  const LangsResources *langsResources,
+                                                  const TileVector2D &tileVector2D);
 
-        static std::string BuildLightMaskString(const TileLightData* lightData,
-                                                const LangsResources* langsResources);
+        static std::string BuildLightMaskString(const TileLightData *lightData,
+                                                const LangsResources *langsResources);
 
-        static void AppendMaskList(std::stringstream& stream,
-                                   const std::unordered_map<TileLayerType, std::unique_ptr<LightMask>>* masks,
-                                   bool isSide, const LangsResources* langsResources);
+        static void AppendMaskList(std::stringstream &stream,
+                                   const std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > *masks,
+                                   bool isSide, const LangsResources *langsResources);
 
-        void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
+        void InitSuggestions(NodeTree<std::string> *suggestionsTree) override;
 
     public:
-        explicit LightCommand(AppContext* appContext);
+        explicit LightCommand(AppContext *appContext);
 
         [[nodiscard]] bool RequiresWorldContext() const override;
 
-        [[nodiscard]] const std::string& GetName() const override;
+        [[nodiscard]] const std::string &GetName() const override;
 
-        void PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) override;
+        void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
 
-        bool Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                     const std::function<void(const std::string& text)>* onMessage) override;
+        bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                     const std::function<void(const std::string &text)> *onMessage) override;
     };
 }
 #endif

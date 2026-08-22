@@ -28,59 +28,47 @@
 
 #include "core/log/LogCat.h"
 
-const glimmer::ResourceRef& glimmer::Item::GetResourceRef() const
-{
+const glimmer::ResourceRef &glimmer::Item::GetResourceRef() const {
     return resourceRef_;
 }
 
-void glimmer::Item::SetResourceRef(const ResourceRef& resourceRef)
-{
+void glimmer::Item::SetResourceRef(const ResourceRef &resourceRef) {
     resourceRef_ = resourceRef;
 }
 
-glimmer::ItemDurabilityModule* glimmer::Item::GetMutableDurabilityModule()
-{
+glimmer::ItemDurabilityModule *glimmer::Item::GetMutableDurabilityModule() {
     return &itemDurabilityModule_;
 }
 
-glimmer::ItemStackModule* glimmer::Item::GetMutableStackModule()
-{
+glimmer::ItemStackModule *glimmer::Item::GetMutableStackModule() {
     return &itemStackModule_;
 }
 
-glimmer::ItemTagModule* glimmer::Item::GetMutableTagModule()
-{
+glimmer::ItemTagModule *glimmer::Item::GetMutableTagModule() {
     return &itemTagModule_;
 }
 
-glimmer::ItemLockModule* glimmer::Item::GetMutableLockModule()
-{
+glimmer::ItemLockModule *glimmer::Item::GetMutableLockModule() {
     return &itemLockModule_;
 }
 
-void glimmer::Item::SetTags(const std::vector<ItemTagResource>& tags)
-{
-    if (ItemTagModule* itemTagModule = GetMutableTagModule(); itemTagModule != nullptr)
-    {
+void glimmer::Item::SetTags(const std::vector<ItemTagResource> &tags) {
+    if (ItemTagModule *itemTagModule = GetMutableTagModule(); itemTagModule != nullptr) {
         itemTagModule->SetTags(tags);
     }
 }
 
-void glimmer::Item::SetMaxStack(const uint8_t maxStack)
-{
+void glimmer::Item::SetMaxStack(const uint8_t maxStack) {
     itemStackModule_.SetMaxStack(maxStack);
 }
 
-void glimmer::Item::SetUnbreakable(const bool unbreakable)
-{
+void glimmer::Item::SetUnbreakable(const bool unbreakable) {
     itemDurabilityModule_.SetUnbreakable(unbreakable);
 }
 
-void glimmer::Item::ReadItemMessage(WorldContext* worldContext, const ItemMessage& itemMessage)
-{
+void glimmer::Item::ReadItemMessage(WorldContext *worldContext, const ItemMessage &itemMessage) {
     uint8_t amount = itemMessage.amount();
-    if (amount == 0)
-    {
+    if (amount == 0) {
         amount = 1;
     }
     itemStackModule_.SetAmount(amount);
@@ -89,10 +77,8 @@ void glimmer::Item::ReadItemMessage(WorldContext* worldContext, const ItemMessag
     resourceRef_.ReadResourceRefMessage(itemMessage.itemresourceref());
 }
 
-void glimmer::Item::WriteItemMessage(ItemMessage& itemMessage) const
-{
-    if (resourceRef_.GetResourceType() == RESOURCE_NONE)
-    {
+void glimmer::Item::WriteItemMessage(ItemMessage &itemMessage) const {
+    if (resourceRef_.GetResourceType() == RESOURCE_NONE) {
 #if  !defined(NDEBUG)
         assert(false);
 #endif
@@ -103,32 +89,26 @@ void glimmer::Item::WriteItemMessage(ItemMessage& itemMessage) const
     resourceRef_.WriteResourceRefMessage(*itemMessage.mutable_itemresourceref());
 }
 
-const glimmer::ItemDurabilityModule* glimmer::Item::GetDurabilityModule() const
-{
+const glimmer::ItemDurabilityModule *glimmer::Item::GetDurabilityModule() const {
     return &itemDurabilityModule_;
 }
 
-const glimmer::ItemStackModule* glimmer::Item::GetStackModule() const
-{
+const glimmer::ItemStackModule *glimmer::Item::GetStackModule() const {
     return &itemStackModule_;
 }
 
-const glimmer::ItemTagModule* glimmer::Item::GetTagModule() const
-{
+const glimmer::ItemTagModule *glimmer::Item::GetTagModule() const {
     return &itemTagModule_;
 }
 
-const glimmer::ItemLockModule* glimmer::Item::GetLockModule() const
-{
+const glimmer::ItemLockModule *glimmer::Item::GetLockModule() const {
     return &itemLockModule_;
 }
 
-unsigned glimmer::Item::GetRemaining() const
-{
+unsigned glimmer::Item::GetRemaining() const {
     return itemDurabilityModule_.GetMaxDurability() - itemDurabilityModule_.GetUsedDurability();
 }
 
-void glimmer::Item::Reduce(const unsigned value)
-{
+void glimmer::Item::Reduce(const unsigned value) {
     itemDurabilityModule_.AddUsedDurability(value);
 }

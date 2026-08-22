@@ -33,8 +33,7 @@
 #include "RmlUi/Core/RenderBox.h"
 
 bool glimmer::DecoratorNinePatchTexture::Initialise(Rml::Texture texture, float edgeTop, float edgeRight,
-                                                    float edgeBottom, float edgeLeft)
-{
+                                                    float edgeBottom, float edgeLeft) {
     edgeTop_ = edgeTop;
     edgeRight_ = edgeRight;
     edgeBottom_ = edgeBottom;
@@ -43,15 +42,14 @@ bool glimmer::DecoratorNinePatchTexture::Initialise(Rml::Texture texture, float 
     return textureIndex >= 0;
 }
 
-Rml::DecoratorDataHandle glimmer::DecoratorNinePatchTexture::GenerateElementData(Rml::Element* element,
-    Rml::BoxArea paint_area) const
-{
+Rml::DecoratorDataHandle glimmer::DecoratorNinePatchTexture::GenerateElementData(Rml::Element *element,
+    Rml::BoxArea paint_area) const {
     const Rml::Texture texture = GetTexture();
     const Rml::Vector2f textureDimensions(texture.GetDimensions());
     if (textureDimensions.x <= 0 || textureDimensions.y <= 0)
         return INVALID_DECORATORDATAHANDLE;
 
-    const auto& computed = element->GetComputedValues();
+    const auto &computed = element->GetComputedValues();
     const Rml::RenderBox renderBox = element->GetRenderBox(paint_area);
     const Rml::Vector2f surfaceOffset = renderBox.GetFillOffset();
     const Rml::Vector2f surfaceDimensions = renderBox.GetFillSize();
@@ -80,20 +78,15 @@ Rml::DecoratorDataHandle glimmer::DecoratorNinePatchTexture::GenerateElementData
 
     // 如果元素太小，按比例缩小角落
     const Rml::Vector2f surfaceCenterSize = surfacePos[2] - surfacePos[1];
-    for (int i = 0; i < 2; i++)
-    {
-        if (surfaceCenterSize[i] < 0.0f)
-        {
+    for (int i = 0; i < 2; i++) {
+        if (surfaceCenterSize[i] < 0.0f) {
             const float topLeftSize = surfacePos[1][i] - surfacePos[0][i];
             const float bottomRightSize = surfacePos[3][i] - surfacePos[2][i];
             const float total = topLeftSize + bottomRightSize;
-            if (total > 0.0f)
-            {
+            if (total > 0.0f) {
                 surfacePos[1][i] = topLeftSize / total * surfaceDimensions[i];
                 surfacePos[2][i] = surfacePos[1][i];
-            }
-            else
-            {
+            } else {
                 surfacePos[1][i] = surfaceDimensions[i] * 0.5f;
                 surfacePos[2][i] = surfacePos[1][i];
             }
@@ -101,7 +94,7 @@ Rml::DecoratorDataHandle glimmer::DecoratorNinePatchTexture::GenerateElementData
     }
 
     // 偏移
-    for (Rml::Vector2f& pos : surfacePos)
+    for (Rml::Vector2f &pos: surfacePos)
         pos += surfaceOffset;
 
     // 取整
@@ -114,15 +107,13 @@ Rml::DecoratorDataHandle glimmer::DecoratorNinePatchTexture::GenerateElementData
 
     // 生成顶点: 4x4 网格
     Rml::Mesh mesh;
-    Rml::Vector<Rml::Vertex>& vertices = mesh.vertices;
-    Rml::Vector<int>& indices = mesh.indices;
+    Rml::Vector<Rml::Vertex> &vertices = mesh.vertices;
+    Rml::Vector<int> &indices = mesh.indices;
 
     vertices.resize(4 * 4);
-    for (int y = 0; y < 4; y++)
-    {
-        for (int x = 0; x < 4; x++)
-        {
-            Rml::Vertex& vertex = vertices[y * 4 + x];
+    for (int y = 0; y < 4; y++) {
+        for (int x = 0; x < 4; x++) {
+            Rml::Vertex &vertex = vertices[y * 4 + x];
             vertex.colour = quadColour;
             vertex.position = {surfacePos[x].x, surfacePos[y].y};
             vertex.tex_coord = {texPosX[x], texPosY[y]};
@@ -132,8 +123,7 @@ Rml::DecoratorDataHandle glimmer::DecoratorNinePatchTexture::GenerateElementData
     // 9个矩形区域，每个2个三角形，每个三角形3个索引
     indices.resize(9 * 2 * 3);
     constexpr int topLeftIndices[9] = {0, 1, 2, 4, 5, 6, 8, 9, 10};
-    for (int rect = 0; rect < 9; rect++)
-    {
+    for (int rect = 0; rect < 9; rect++) {
         const int i = rect * 6;
         const int tl = topLeftIndices[rect];
         indices[i] = tl;
@@ -144,18 +134,16 @@ Rml::DecoratorDataHandle glimmer::DecoratorNinePatchTexture::GenerateElementData
         indices[i + 5] = tl + 5;
     }
 
-    auto* data = new Rml::Geometry(element->GetRenderManager()->MakeGeometry(std::move(mesh)));
+    auto *data = new Rml::Geometry(element->GetRenderManager()->MakeGeometry(std::move(mesh)));
     return reinterpret_cast<Rml::DecoratorDataHandle>(data);
 }
 
-void glimmer::DecoratorNinePatchTexture::ReleaseElementData(Rml::DecoratorDataHandle element_data) const
-{
-    delete reinterpret_cast<Rml::Geometry*>(element_data);
+void glimmer::DecoratorNinePatchTexture::ReleaseElementData(Rml::DecoratorDataHandle element_data) const {
+    delete reinterpret_cast<Rml::Geometry *>(element_data);
 }
 
-void glimmer::DecoratorNinePatchTexture::RenderElement(Rml::Element* element,
-                                                       const Rml::DecoratorDataHandle element_data) const
-{
-    auto* data = reinterpret_cast<Rml::Geometry*>(element_data);
+void glimmer::DecoratorNinePatchTexture::RenderElement(Rml::Element *element,
+                                                       const Rml::DecoratorDataHandle element_data) const {
+    auto *data = reinterpret_cast<Rml::Geometry *>(element_data);
     data->Render(element->GetAbsoluteOffset(Rml::BoxArea::Border), GetTexture());
 }

@@ -37,39 +37,33 @@
 #include "core/world/WorldContext.h"
 #include "fmt/xchar.h"
 
-void glimmer::UnlockedRecipesCommand::WriteRecipe(const std::string& recipesItem, std::stringstream& stringStream,
-                                                  const RecipeResource* recipe)
-{
-    if (recipe == nullptr)
-    {
+void glimmer::UnlockedRecipesCommand::WriteRecipe(const std::string &recipesItem, std::stringstream &stringStream,
+                                                  const RecipeResource *recipe) {
+    if (recipe == nullptr) {
         return;
     }
 
-    const auto& output = recipe->output;
+    const auto &output = recipe->output;
     std::string outputStr = fmt::format("{} x{}",
                                         Resource::GenerateId(output.item.GetPackageId(), output.item.GetResourceKey()),
                                         output.amount);
 
     std::string recipeGroupStr;
-    switch (static_cast<RecipeGroup>(recipe->recipeGroup))
-    {
-        using enum RecipeGroup;
-    case None: recipeGroupStr = "None";
-        break;
-    case CraftTable: recipeGroupStr = "CraftTable";
-        break;
-    case Furnace: recipeGroupStr = "Furnace";
-        break;
-    default:
-        if (recipe->recipeGroup >= 65)
-        {
-            recipeGroupStr = fmt::format("Custom{}", recipe->recipeGroup - 64);
-        }
-        else
-        {
-            recipeGroupStr = fmt::format("Unknown({})", static_cast<int>(recipe->recipeGroup));
-        }
-        break;
+    switch (static_cast<RecipeGroup>(recipe->recipeGroup)) {
+            using enum RecipeGroup;
+        case None: recipeGroupStr = "None";
+            break;
+        case CraftTable: recipeGroupStr = "CraftTable";
+            break;
+        case Furnace: recipeGroupStr = "Furnace";
+            break;
+        default:
+            if (recipe->recipeGroup >= 65) {
+                recipeGroupStr = fmt::format("Custom{}", recipe->recipeGroup - 64);
+            } else {
+                recipeGroupStr = fmt::format("Unknown({})", static_cast<int>(recipe->recipeGroup));
+            }
+            break;
     }
 
     stringStream << fmt::format(fmt::runtime(recipesItem),
@@ -79,100 +73,80 @@ void glimmer::UnlockedRecipesCommand::WriteRecipe(const std::string& recipesItem
                                 recipeGroupStr);
 }
 
-glimmer::UnlockedRecipesCommand::UnlockedRecipesCommand(AppContext* appContext)
-    : Command(appContext)
-{
+glimmer::UnlockedRecipesCommand::UnlockedRecipesCommand(AppContext *appContext)
+    : Command(appContext) {
 }
 
-bool glimmer::UnlockedRecipesCommand::RequiresWorldContext() const
-{
+bool glimmer::UnlockedRecipesCommand::RequiresWorldContext() const {
     return true;
 }
 
-const std::string& glimmer::UnlockedRecipesCommand::GetName() const
-{
+const std::string &glimmer::UnlockedRecipesCommand::GetName() const {
     return UNLOCKED_RECIPES_COMMAND_NAME;
 }
 
 
-bool glimmer::UnlockedRecipesCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                                              const std::function<void(const std::string& text)>* onMessage)
-{
-    const AppContext* appContext = GetAppContext();
-    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
-    {
+bool glimmer::UnlockedRecipesCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                                              const std::function<void(const std::string &text)> *onMessage) {
+    const AppContext *appContext = GetAppContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr) {
         return false;
     }
-    const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    const LangsResources* langsResources = appContext->GetLangsResources();
-    if (langsResources == nullptr)
-    {
+    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
+    const LangsResources *langsResources = appContext->GetLangsResources();
+    if (langsResources == nullptr) {
         return false;
     }
-    const WorldContext* worldContext = GetWorldContext();
-    if (worldContext == nullptr)
-    {
+    const WorldContext *worldContext = GetWorldContext();
+    if (worldContext == nullptr) {
         onMessageRef(langsResources->worldContextIsNull);
         return false;
     }
-    const RecipeManager* recipeManager = appContext->GetModContext()->GetRecipeManager();
-    if (recipeManager == nullptr)
-    {
+    const RecipeManager *recipeManager = appContext->GetModContext()->GetRecipeManager();
+    if (recipeManager == nullptr) {
         return false;
     }
-    const EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
-    if (entityShortCut == nullptr)
-    {
+    const EntityShortCut *entityShortCut = worldContext->GetEntityShortCut();
+    if (entityShortCut == nullptr) {
         return false;
     }
-    EntityManager* entityManager = worldContext->GetEntityManager();
-    if (entityManager == nullptr)
-    {
+    EntityManager *entityManager = worldContext->GetEntityManager();
+    if (entityManager == nullptr) {
         return false;
     }
     auto plyerEntity = entityShortCut->GetPlayer();
-    if (WorldContext::IsEmptyEntityId(plyerEntity))
-    {
+    if (WorldContext::IsEmptyEntityId(plyerEntity)) {
         return false;
     }
     auto playerComponent = entityManager->GetComponent<PlayerComponent>(plyerEntity);
-    if (playerComponent == nullptr)
-    {
+    if (playerComponent == nullptr) {
         return false;
     }
-    const ItemContainerComponent* itemContainerComponent = entityShortCut->GetItemContainerComponent();
-    if (itemContainerComponent == nullptr)
-    {
+    const ItemContainerComponent *itemContainerComponent = entityShortCut->GetItemContainerComponent();
+    if (itemContainerComponent == nullptr) {
         return false;
     }
-    ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
-    if (itemContainer == nullptr)
-    {
+    ItemContainer *itemContainer = itemContainerComponent->GetItemContainer();
+    if (itemContainer == nullptr) {
         return false;
     }
-    const PlayerTechnologyHandler* playerTechnologyHandler = playerComponent->GetTechnologyHandler();
-    if (playerTechnologyHandler == nullptr)
-    {
+    const PlayerTechnologyHandler *playerTechnologyHandler = playerComponent->GetTechnologyHandler();
+    if (playerTechnologyHandler == nullptr) {
         return false;
     }
     auto unlockedRecipes = recipeManager->FindUnlockedRecipes(playerTechnologyHandler->GetTechnologyMap(),
                                                               itemContainer->GetTotalTags());
-    if (unlockedRecipes.empty())
-    {
+    if (unlockedRecipes.empty()) {
         onMessageRef(langsResources->noUnlockedRecipes);
         return true;
     }
 
     std::stringstream stringStream;
     bool first = true;
-    for (const auto& recipe : unlockedRecipes)
-    {
-        if (first)
-        {
+    for (const auto &recipe: unlockedRecipes) {
+        if (first) {
             first = false;
-        }
-        else
-        {
+        } else {
             stringStream << '\n';
         }
         WriteRecipe(langsResources->recipesItem, stringStream, recipe);

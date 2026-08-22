@@ -28,20 +28,16 @@
 #if  !defined(NDEBUG)
 #include "core/context/AppContext.h"
 
-std::string_view glimmer::LightMaskAssetEnumerator::GetAssetType() const
-{
+std::string_view glimmer::LightMaskAssetEnumerator::GetAssetType() const {
     return assetName;
 }
 
-std::optional<std::string> glimmer::LightMaskAssetEnumerator::ListAsset(const AppContext* appContext)
-{
-    if (appContext == nullptr)
-    {
+std::optional<std::string> glimmer::LightMaskAssetEnumerator::ListAsset(const AppContext *appContext) {
+    if (appContext == nullptr) {
         return std::nullopt;
     }
-    const LightMaskManager* lightMaskManager = appContext->GetGraphicsContext()->GetLightMaskManager();
-    if (lightMaskManager == nullptr)
-    {
+    const LightMaskManager *lightMaskManager = appContext->GetGraphicsContext()->GetLightMaskManager();
+    if (lightMaskManager == nullptr) {
         return std::nullopt;
     }
     return lightMaskManager->ListLightMaskResource();

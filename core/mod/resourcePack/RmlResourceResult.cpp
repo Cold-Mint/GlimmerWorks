@@ -26,14 +26,12 @@
  */
 #include "RmlResourceResult.h"
 
-void glimmer::RmlResourceResult::SetPath(const std::filesystem::path& rmlPath)
-{
+void glimmer::RmlResourceResult::SetPath(const std::filesystem::path &rmlPath) {
     rmlPath_ = rmlPath;
     SetResource(&rmlPath_);
 }
 
-void glimmer::RmlResourceResult::DestroyResource()
-{
+void glimmer::RmlResourceResult::DestroyResource() {
     //The variable "rmlPath" is a member variable and does not require manual release.
     //rmlPath是成员变量，无需手动释放。
 }

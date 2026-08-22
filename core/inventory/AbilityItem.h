@@ -29,10 +29,8 @@
 #include "Item.h"
 #include "ability/ItemAbility.h"
 
-namespace glimmer
-{
-    class AbilityItem : public Item
-    {
+namespace glimmer {
+    class AbilityItem : public Item {
         std::string id_;
         std::string name_;
         std::optional<std::string> description_;
@@ -44,28 +42,28 @@ namespace glimmer
         ResourceRef iconResourceRef_;
 
     public:
-        explicit AbilityItem(const AbilityItemCreateParams& params);
+        explicit AbilityItem(const AbilityItemCreateParams &params);
 
-        static std::unique_ptr<AbilityItem> FromItemResource(const AppContext* appContext,
-                                                             const AbilityItemResource* itemResource,
-                                                             const ResourceRef& resourceRef);
+        static std::unique_ptr<AbilityItem> FromItemResource(const AppContext *appContext,
+                                                             const AbilityItemResource *itemResource,
+                                                             const ResourceRef &resourceRef);
 
-        [[nodiscard]] const std::string& GetId() const override;
+        [[nodiscard]] const std::string &GetId() const override;
 
-        [[nodiscard]] const std::string& GetName() const override;
+        [[nodiscard]] const std::string &GetName() const override;
 
-        [[nodiscard]] const std::optional<std::string>& GetDescription() const override;
+        [[nodiscard]] const std::optional<std::string> &GetDescription() const override;
 
-        [[nodiscard]] SDL_Texture* GetIcon() const override;
+        [[nodiscard]] SDL_Texture *GetIcon() const override;
 
-        [[nodiscard]] const ResourceRef* GetIconResourceRef() const override;
+        [[nodiscard]] const ResourceRef *GetIconResourceRef() const override;
 
-        [[nodiscard]] ItemAbility* GetItemAbility() const;
+        [[nodiscard]] ItemAbility *GetItemAbility() const;
 
-        [[nodiscard]] const AbilityConfig* GetAbilityConfig() const override;
+        [[nodiscard]] const AbilityConfig *GetAbilityConfig() const override;
 
-        bool OnUse(bool mouseLeft, WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
-            std::unordered_set<AbilityType>& popupAbility) override;
+        bool OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user, const AbilityConfig *abilityConfig,
+                   std::unordered_set<AbilityType> &popupAbility) override;
 
         [[nodiscard]] std::unique_ptr<Item> Clone() const override;
     };

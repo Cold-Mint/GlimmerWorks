@@ -32,43 +32,36 @@
 
 
 glimmer::AreaMarkerAbility::AreaMarkerAbility(
-    const AbilityConfig& abilityConfigMessage) : ItemAbility(
-    abilityConfigMessage)
-{
+    const AbilityConfig &abilityConfigMessage) : ItemAbility(
+    abilityConfigMessage) {
 }
 
-glimmer::AbilityType glimmer::AreaMarkerAbility::GetAbilityType() const
-{
+glimmer::AbilityType glimmer::AreaMarkerAbility::GetAbilityType() const {
     return AbilityType::AreaMarker;
 }
 
-bool glimmer::AreaMarkerAbility::OnUse(bool mouseLeft, WorldContext* worldContext, uint32_t user,
-                                       const AbilityConfig* abilityConfig,
-                                       std::unordered_set<AbilityType>& popupAbility)
-{
-    if (mouseLeft)
-    {
+bool glimmer::AreaMarkerAbility::OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user,
+                                       const AbilityConfig *abilityConfig,
+                                       std::unordered_set<AbilityType> &popupAbility) {
+    if (mouseLeft) {
         return false;
     }
     auto entityManager = worldContext->GetEntityManager();
     auto tileLayerEntityList = entityManager->GetEntityIDWithComponents({COMPONENT_TILE_LAYER, COMPONENT_AREA_MARKER});
-    if (tileLayerEntityList.empty())
-    {
+    if (tileLayerEntityList.empty()) {
         return false;
     }
     const uint32_t gameEntity = tileLayerEntityList[0];
     const auto tileLayerComponent = entityManager->GetComponent<TileLayerComponent>(
         gameEntity);
     auto areaMarkerComponent = entityManager->GetComponent<AreaMarkerComponent>(gameEntity);
-    if (tileLayerComponent == nullptr || areaMarkerComponent == nullptr)
-    {
+    if (tileLayerComponent == nullptr || areaMarkerComponent == nullptr) {
         return false;
     }
     areaMarkerComponent->SetPoint(tileLayerComponent->GetFocusPosition());
     return true;
 }
 
-std::unique_ptr<glimmer::ItemAbility> glimmer::AreaMarkerAbility::Clone() const
-{
+std::unique_ptr<glimmer::ItemAbility> glimmer::AreaMarkerAbility::Clone() const {
     return std::make_unique<AreaMarkerAbility>(*this);
 }

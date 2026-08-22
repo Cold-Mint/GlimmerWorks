@@ -32,20 +32,17 @@
 #ifdef __ANDROID__
 #include <android/log.h>
 #endif
-constexpr const char* COLOR_RESET = "\o{33}[0m";
-constexpr const char* COLOR_INFO = "\o{33}[32m";
-constexpr const char* COLOR_DEBUG = "\o{33}[36m";
-constexpr const char* COLOR_WARN = "\o{33}[33m";
-constexpr const char* COLOR_ERROR = "\o{33}[31m";
+constexpr const char *COLOR_RESET = "\o{33}[0m";
+constexpr const char *COLOR_INFO = "\o{33}[32m";
+constexpr const char *COLOR_DEBUG = "\o{33}[36m";
+constexpr const char *COLOR_WARN = "\o{33}[33m";
+constexpr const char *COLOR_ERROR = "\o{33}[31m";
 
-namespace glimmer
-{
-    class LogCat
-    {
+namespace glimmer {
+    class LogCat {
     public:
-        template <typename... Args>
-        static void i([[maybe_unused]] Args&&... args)
-        {
+        template<typename... Args>
+        static void i([[maybe_unused]] Args &&... args) {
 #if  !defined(NDEBUG)
 #ifdef __ANDROID__
             std::ostringstream oss;
@@ -59,9 +56,8 @@ namespace glimmer
 #endif
         }
 
-        template <typename... Args>
-        static void d([[maybe_unused]] Args&&... args)
-        {
+        template<typename... Args>
+        static void d([[maybe_unused]] Args &&... args) {
 #if  !defined(NDEBUG)
 #ifdef __ANDROID__
             std::ostringstream oss;
@@ -75,14 +71,13 @@ namespace glimmer
 #endif
         }
 
-        template <typename... Args>
-        static void w([[maybe_unused]] const std::source_location sourceLocation, [[maybe_unused]] Args&&... args)
-        {
+        template<typename... Args>
+        static void w([[maybe_unused]] const std::source_location sourceLocation, [[maybe_unused]] Args &&... args) {
 #if  !defined(NDEBUG)
 #ifdef __ANDROID__
             std::ostringstream oss;
             oss << "[w] At " << sourceLocation.file_name() << ":" << sourceLocation.line() <<
-                sourceLocation.file_name() << " ";
+                    sourceLocation.file_name() << " ";
             (oss << ... << args);
             __android_log_print(ANDROID_LOG_WARN, "GlimmerWorks", "%s", oss.str().c_str());
 #else
@@ -95,13 +90,12 @@ namespace glimmer
         }
 
 
-        template <typename... Args>
-        static void e(const std::source_location sourceLocation, Args&&... args)
-        {
+        template<typename... Args>
+        static void e(const std::source_location sourceLocation, Args &&... args) {
 #ifdef __ANDROID__
             std::ostringstream oss;
             oss << "[e] At " << sourceLocation.file_name() << ":" << sourceLocation.line() <<
-                sourceLocation.file_name() << " ";
+                    sourceLocation.file_name() << " ";
             (oss << ... << args);
             __android_log_print(ANDROID_LOG_ERROR, "GlimmerWorks", "%s", oss.str().c_str());
 #else

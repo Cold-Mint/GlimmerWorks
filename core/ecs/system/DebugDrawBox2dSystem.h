@@ -30,50 +30,48 @@
 #include "box2d/types.h"
 #include <numbers>
 
-namespace glimmer
-{
+namespace glimmer {
     constexpr float kScale = 30.0F; // 1 meter = 30 pixels （游戏单位缩放）
     constexpr int kCircleSegments = 24; // 圆形分段数
     constexpr float kPi = std::numbers::pi_v<float>;
 
-    class DebugDrawBox2dSystem : public GameSystem
-    {
-        CameraComponent* cameraComponent_ = nullptr;
-        Transform2DComponent* cameraTransform2DComponent_ = nullptr;
+    class DebugDrawBox2dSystem : public GameSystem {
+        CameraComponent *cameraComponent_ = nullptr;
+        Transform2DComponent *cameraTransform2DComponent_ = nullptr;
         uint32_t transform2DCount_ = 0;
         uint32_t rayCast2DCount_ = 0;
         std::vector<GameEntityID> entities_;
         bool displayBox2dShape_ = false;
 
     public:
-        explicit DebugDrawBox2dSystem(WorldContext* worldContext);
+        explicit DebugDrawBox2dSystem(WorldContext *worldContext);
 
-        void OnConfigChanged(const Config* config) override;
+        void OnConfigChanged(const Config *config) override;
 
-        static void b2DrawPolygonFcn(const b2Vec2* b2_vec2, int i, b2HexColor b2_hex_color, void* p);
+        static void b2DrawPolygonFcn(const b2Vec2 *b2_vec2, int i, b2HexColor b2_hex_color, void *p);
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
-        static void b2DrawSolidPolygonFcn(b2Transform transform, const b2Vec2* vertices, int vertexCount, float radius,
-                                          b2HexColor color, void* context);
+        static void b2DrawSolidPolygonFcn(b2Transform transform, const b2Vec2 *vertices, int vertexCount, float radius,
+                                          b2HexColor color, void *context);
 
-        static void b2DrawCircleFcn(b2Vec2 center, float radius, b2HexColor color, void* context);
+        static void b2DrawCircleFcn(b2Vec2 center, float radius, b2HexColor color, void *context);
 
-        static void b2DrawSolidCircleFcn(b2Transform transform, float radius, b2HexColor color, void* context);
+        static void b2DrawSolidCircleFcn(b2Transform transform, float radius, b2HexColor color, void *context);
 
-        static void b2DrawSolidCapsuleFcn(b2Vec2 b2_vec2, b2Vec2 b2_vec3, float x, b2HexColor b2_hex_color, void* p);
+        static void b2DrawSolidCapsuleFcn(b2Vec2 b2_vec2, b2Vec2 b2_vec3, float x, b2HexColor b2_hex_color, void *p);
 
-        static void b2DrawSegmentFcn(b2Vec2 b2_vec2, b2Vec2 b2_vec3, b2HexColor b2_hex_color, void* p);
+        static void b2DrawSegmentFcn(b2Vec2 b2_vec2, b2Vec2 b2_vec3, b2HexColor b2_hex_color, void *p);
 
-        static void b2DrawTransformFcn(b2Transform transform, void* context);
+        static void b2DrawTransformFcn(b2Transform transform, void *context);
 
-        static void b2DrawPointFcn(b2Vec2 p, float size, b2HexColor color, void* context);
+        static void b2DrawPointFcn(b2Vec2 p, float size, b2HexColor color, void *context);
 
-        static void b2DrawStringFcn(b2Vec2 p, const char* s, b2HexColor color, void* context);
+        static void b2DrawStringFcn(b2Vec2 p, const char *s, b2HexColor color, void *context);
 
         bool CanActive() const override;
 
-        void Render(SDL_Renderer* renderer) override;
+        void Render(SDL_Renderer *renderer) override;
 
         uint8_t GetExecutionOrder() override;
 

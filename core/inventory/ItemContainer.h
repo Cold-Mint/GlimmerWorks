@@ -33,19 +33,17 @@
 #include "Item.h"
 #include "src/saves/item_container.pb.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class Item;
 
-    class ItemContainer
-    {
-        std::vector<std::unique_ptr<Item>> items_;
+    class ItemContainer {
+        std::vector<std::unique_ptr<Item> > items_;
         std::unordered_map<uint64_t, ItemTagResource> tagToValue_;
-        std::vector<const ItemTagResource*> totalTagVector_;
+        std::vector<const ItemTagResource *> totalTagVector_;
         bool needRefreshTag_ = true;
         uint8_t selectIndex_ = 0;
-        std::vector<std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>>> onContentChanged_;
-        std::vector<std::shared_ptr<std::function<void(uint8_t)>>> onSelectIndexChanged_;
+        std::vector<std::shared_ptr<std::function<void(uint8_t, Item *, ContainerChangeType)> > > onContentChanged_;
+        std::vector<std::shared_ptr<std::function<void(uint8_t)> > > onSelectIndexChanged_;
 
         /**
          * Binding Item Event
@@ -53,29 +51,29 @@ namespace glimmer
          * @param index
          * @param item
          */
-        void BindItemEvent(uint8_t index, std::unique_ptr<Item>& item);
+        void BindItemEvent(uint8_t index, std::unique_ptr<Item> &item);
 
         /**
          * Unbinding Item Incident
          * 解绑物品事件
          * @param item
          */
-        static void UnBindItemEvent(Item* item);
+        static void UnBindItemEvent(Item *item);
 
-        void InvokeOnContentChanged(uint8_t index, Item* item, ContainerChangeType containerChange);
+        void InvokeOnContentChanged(uint8_t index, Item *item, ContainerChangeType containerChange);
 
         void InvokeOnSelectIndexChanged(uint8_t index) const;
 
-        void CacheItemTag(Item* item);
+        void CacheItemTag(Item *item);
 
         void RefreshTotalTags();
 
     public:
-        std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>> AddOnContentChanged(
-            const std::function<void(uint8_t, Item*, ContainerChangeType)>& onContentChanged);
+        std::shared_ptr<std::function<void(uint8_t, Item *, ContainerChangeType)> > AddOnContentChanged(
+            const std::function<void(uint8_t, Item *, ContainerChangeType)> &onContentChanged);
 
-        std::shared_ptr<std::function<void(uint8_t)>> AddOnSelectIndexChanged(
-            const std::function<void(uint8_t)>& onSelectIndexChanged);
+        std::shared_ptr<std::function<void(uint8_t)> > AddOnSelectIndexChanged(
+            const std::function<void(uint8_t)> &onSelectIndexChanged);
 
         /**
          * Set the capacity of the item container.
@@ -85,10 +83,10 @@ namespace glimmer
         void Resize(uint8_t capacity);
 
         void RemoveOnContentChanged(
-            const std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>>& onContentChanged);
+            const std::shared_ptr<std::function<void(uint8_t, Item *, ContainerChangeType)> > &onContentChanged);
 
         void RemoveOnSelectIndexChanged(
-            const std::shared_ptr<std::function<void(uint8_t)>>& onSelectIndexChanged);
+            const std::shared_ptr<std::function<void(uint8_t)> > &onSelectIndexChanged);
 
         /**
          * SetSelectIndex
@@ -118,9 +116,9 @@ namespace glimmer
          * @param item
          * @return A return value of -1 indicates that the item is not within the container. 返回-1,则表示不在容器内。
          */
-        [[nodiscard]] int FindIndex(const Item* item) const;
+        [[nodiscard]] int FindIndex(const Item *item) const;
 
-        const std::vector<const ItemTagResource*>& GetTotalTags();
+        const std::vector<const ItemTagResource *> &GetTotalTags();
 
         bool HasTag(uint64_t tag);
 
@@ -130,7 +128,7 @@ namespace glimmer
          * @param item  itemStackModule 物品
          * @return 返回0表示可完全添加
          */
-        [[nodiscard]] uint8_t GetRemainingItemAmountAfterAdd(const Item* item) const;
+        [[nodiscard]] uint8_t GetRemainingItemAmountAfterAdd(const Item *item) const;
 
         /**
          * ReplaceItem
@@ -174,7 +172,7 @@ namespace glimmer
          * @param index
          * @return
          */
-        [[nodiscard]] Item* GetItem(uint8_t index) const;
+        [[nodiscard]] Item *GetItem(uint8_t index) const;
 
         /**
          * GetCapacity
@@ -208,11 +206,11 @@ namespace glimmer
          * @param otherIndex Target index in other container
          * @return true if successful
          */
-        bool SwapItem(uint8_t index, ItemContainer* otherContainer, uint8_t otherIndex);
+        bool SwapItem(uint8_t index, ItemContainer *otherContainer, uint8_t otherIndex);
 
-        void FromMessage(WorldContext* worldContext, const ItemContainerMessage& message);
+        void FromMessage(WorldContext *worldContext, const ItemContainerMessage &message);
 
-        void ToMessage(ItemContainerMessage& message) const;
+        void ToMessage(ItemContainerMessage &message) const;
 
         void ResetItems();
 

@@ -32,12 +32,10 @@
 #include "toml11/types.hpp"
 #include "fmt/color.h"
 
-namespace glimmer
-{
+namespace glimmer {
     struct LangsResources;
 
-    enum class ConfigType
-    {
+    enum class ConfigType {
         TYPE_STRING,
         TYPE_ARRAY,
         TYPE_TABLE,
@@ -46,26 +44,23 @@ namespace glimmer
         TYPE_BOOLEAN
     };
 
-    class ConfigCommand final : public Command
-    {
-        Config* config_ = nullptr;
-        toml::value* configValue_ = nullptr;
-        VirtualFileSystem* virtualFileSystem_ = nullptr;
+    class ConfigCommand final : public Command {
+        Config *config_ = nullptr;
+        toml::value *configValue_ = nullptr;
+        VirtualFileSystem *virtualFileSystem_ = nullptr;
 
-        void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
+        void InitSuggestions(NodeTree<std::string> *suggestionsTree) override;
 
-        void UpdateSetSuggestions(const CommandArgs* commandArgs);
+        void UpdateSetSuggestions(const CommandArgs *commandArgs);
 
-        static bool ExecuteCommit(const VirtualFileSystem* virtualFileSystem, Config* config,
-                                  const toml::value* configValue, const LangsResources* langsResources,
-                                  const std::function<void(const std::string& text)>& onMessageRef);
+        static bool ExecuteCommit(const VirtualFileSystem *virtualFileSystem, Config *config,
+                                  const toml::value *configValue, const LangsResources *langsResources,
+                                  const std::function<void(const std::string &text)> &onMessageRef);
 
-        template <typename F>
-        static bool ExecuteGet(int size, const CommandArgs* commandArgs, const LangsResources* langsResources,
-                               const ConfigCommand* command, F&& onMessageRef)
-        {
-            if (size < 3)
-            {
+        template<typename F>
+        static bool ExecuteGet(int size, const CommandArgs *commandArgs, const LangsResources *langsResources,
+                               const ConfigCommand *command, F &&onMessageRef) {
+            if (size < 3) {
                 onMessageRef(fmt::format(
                     fmt::runtime(langsResources->insufficientParameterLength),
                     3, size));
@@ -75,12 +70,10 @@ namespace glimmer
             return true;
         }
 
-        template <typename F>
-        static bool ExecuteSet(int size, const CommandArgs* commandArgs, const LangsResources* langsResources,
-                               Config* config, const ConfigCommand* command, F&& onMessageRef)
-        {
-            if (size < 4)
-            {
+        template<typename F>
+        static bool ExecuteSet(int size, const CommandArgs *commandArgs, const LangsResources *langsResources,
+                               Config *config, const ConfigCommand *command, F &&onMessageRef) {
+            if (size < 4) {
                 onMessageRef(fmt::format(
                     fmt::runtime(langsResources->insufficientParameterLength),
                     4, size));
@@ -89,17 +82,14 @@ namespace glimmer
 
             std::string parameterName = commandArgs->AsString(2);
             std::string value = commandArgs->AsString(3);
-            if (command->GetParameterType(parameterName) == ConfigType::TYPE_BOOLEAN && value == TOGGLE_KEY_WORD)
-            {
+            if (command->GetParameterType(parameterName) == ConfigType::TYPE_BOOLEAN && value == TOGGLE_KEY_WORD) {
                 const std::string oldValue = command->GetValue(parameterName);
                 value = oldValue == "true" ? "false" : "true";
             }
-            if (config == nullptr)
-            {
+            if (config == nullptr) {
                 return false;
             }
-            if (command->SetValue(parameterName, value))
-            {
+            if (command->SetValue(parameterName, value)) {
                 config->ReloadConfig();
                 onMessageRef(fmt::format(fmt::runtime(langsResources->configurationUpdate),
                                          parameterName, value));
@@ -108,23 +98,23 @@ namespace glimmer
         }
 
     public:
-        explicit ConfigCommand(AppContext* appContext);
+        explicit ConfigCommand(AppContext *appContext);
 
         ~ConfigCommand() override = default;
 
-        [[nodiscard]] const std::string& GetName() const override;
+        [[nodiscard]] const std::string &GetName() const override;
 
-        void PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) override;
+        void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
 
-        [[nodiscard]] NodeTree<std::string>* GetSuggestionsTree(const CommandArgs* commandArgs) override;
+        [[nodiscard]] NodeTree<std::string> *GetSuggestionsTree(const CommandArgs *commandArgs) override;
 
-        bool Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                     const std::function<void(const std::string& text)>* onMessage) override;
+        bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                     const std::function<void(const std::string &text)> *onMessage) override;
 
-        [[nodiscard]] ConfigType GetParameterType(const std::string& parameterName) const;
+        [[nodiscard]] ConfigType GetParameterType(const std::string &parameterName) const;
 
-        [[nodiscard]] std::string GetValue(const std::string& parameterName) const;
+        [[nodiscard]] std::string GetValue(const std::string &parameterName) const;
 
-        [[nodiscard]] bool SetValue(const std::string& parameterName, const std::string& value) const;
+        [[nodiscard]] bool SetValue(const std::string &parameterName, const std::string &value) const;
     };
 }

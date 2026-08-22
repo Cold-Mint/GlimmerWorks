@@ -29,21 +29,18 @@
 #include "core/Constants.h"
 #include "core/context/AppContext.h"
 
-glimmer::LicenseCommand::LicenseCommand(AppContext* appContext) : Command(appContext)
-{
+glimmer::LicenseCommand::LicenseCommand(AppContext *appContext) : Command(appContext) {
 }
 
-bool glimmer::LicenseCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                                      const std::function<void(const std::string& text)>* onMessage)
-{
-    const AppContext* appContext = GetAppContext();
-    if (appContext == nullptr)
-    {
+bool glimmer::LicenseCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                                      const std::function<void(const std::string &text)> *onMessage) {
+    const AppContext *appContext = GetAppContext();
+    if (appContext == nullptr) {
         return false;
     }
-    const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    if (const auto licenseText = appContext->GetVirtualFileSystem()->ReadFileAsString("LICENSE"); licenseText.has_value())
-    {
+    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
+    if (const auto licenseText = appContext->GetVirtualFileSystem()->ReadFileAsString("LICENSE"); licenseText.
+        has_value()) {
         onMessageRef(licenseText.value());
         return true;
     }
@@ -52,7 +49,6 @@ bool glimmer::LicenseCommand::Execute(const CommandSender* commandSender, const 
     return false;
 }
 
-const std::string& glimmer::LicenseCommand::GetName() const
-{
+const std::string &glimmer::LicenseCommand::GetName() const {
     return LICENSE_COMMAND_NAME;
 }

@@ -36,16 +36,14 @@
 #include "core/Constants.h"
 #include "fmt/color.h"
 
-std::string glimmer::StringUtils::ToSafeSaveName(const std::string& utf8Str)
-{
+std::string glimmer::StringUtils::ToSafeSaveName(const std::string &utf8Str) {
     std::ostringstream oss;
     oss << "save_";
     oss << StringToUint64Blake3(utf8Str);
     return oss.str();
 }
 
-uint64_t glimmer::StringUtils::StringToUint64Blake3(const std::string& string)
-{
+uint64_t glimmer::StringUtils::StringToUint64Blake3(const std::string &string) {
     blake3_hasher hasher;
     blake3_hasher_init(&hasher);
     blake3_hasher_update(&hasher, string.data(), string.size());
@@ -56,100 +54,79 @@ uint64_t glimmer::StringUtils::StringToUint64Blake3(const std::string& string)
     return res;
 }
 
-bool glimmer::StringUtils::IsInteger(const std::string& str)
-{
-    if (str.empty())
-    {
+bool glimmer::StringUtils::IsInteger(const std::string &str) {
+    if (str.empty()) {
         return false;
     }
 
     size_t checkStart = 0;
-    if (str[0] == '-')
-    {
-        if (str.size() == 1)
-        {
+    if (str[0] == '-') {
+        if (str.size() == 1) {
             return false;
         }
         checkStart = 1;
     }
-    for (size_t i = checkStart; i < str.size(); ++i)
-    {
+    for (size_t i = checkStart; i < str.size(); ++i) {
         auto c = static_cast<unsigned char>(str[i]);
-        if (!std::isdigit(c))
-        {
+        if (!std::isdigit(c)) {
             return false;
         }
     }
     return true;
 }
 
-uint64_t glimmer::StringUtils::StringToUint64(const std::string& string)
-{
+uint64_t glimmer::StringUtils::StringToUint64(const std::string &string) {
     return std::hash<std::string>{}(string);
 }
 
-std::span<const std::byte> glimmer::StringUtils::StringToByteData(const std::string_view string)
-{
+std::span<const std::byte> glimmer::StringUtils::StringToByteData(const std::string_view string) {
     return {
-        reinterpret_cast<const std::byte*>(string.data()), string.size()
+        reinterpret_cast<const std::byte *>(string.data()), string.size()
     };
 }
 
-std::string glimmer::StringUtils::MakeRawText(const std::string_view string)
-{
-    if (string.empty())
-    {
+std::string glimmer::StringUtils::MakeRawText(const std::string_view string) {
+    if (string.empty()) {
         return "";
     }
-    if (string.starts_with(RAW_TEXT_PREFIX))
-    {
+    if (string.starts_with(RAW_TEXT_PREFIX)) {
         return std::string(string);
     }
     return fmt::format("{}{}", RAW_TEXT_PREFIX, string);
 }
 
-std::string glimmer::StringUtils::MakeTextureUrl(const std::string_view resourceKey)
-{
-    if (resourceKey.empty())
-    {
+std::string glimmer::StringUtils::MakeTextureUrl(const std::string_view resourceKey) {
+    if (resourceKey.empty()) {
         return "";
     }
-    if (resourceKey.starts_with(TEXTURE_PREFIX))
-    {
+    if (resourceKey.starts_with(TEXTURE_PREFIX)) {
         return std::string(resourceKey);
     }
     return fmt::format("{}{}", TEXTURE_PREFIX, resourceKey);
 }
 
-std::optional<std::string> glimmer::StringUtils::StreamToString(const std::istream* stream)
-{
-    if (!stream)
-    {
+std::optional<std::string> glimmer::StringUtils::StreamToString(const std::istream *stream) {
+    if (!stream) {
         return std::nullopt;
     }
-    if (stream->fail())
-    {
+    if (stream->fail()) {
         return std::nullopt;
     }
     std::ostringstream oss;
     oss << stream->rdbuf();
-    if (oss.fail())
-    {
+    if (oss.fail()) {
         return std::nullopt;
     }
     return oss.str();
 }
 
 
-void glimmer::StringUtils::ReplaceAll(std::string& str, const std::string_view from, const std::string_view to)
-{
-    if (from.empty())
-    {
+void glimmer::StringUtils::ReplaceAll(std::string &str, const std::string_view from, const std::string_view to) {
+    if (from.empty()) {
         return;
     }
     size_t start_pos = 0;
-    while ((start_pos = str.find(from, start_pos)) != std::string::npos)
-    {
+    while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
         str.replace(start_pos, from.length(), to);
         start_pos += to.length();
     }

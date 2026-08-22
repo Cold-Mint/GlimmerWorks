@@ -28,29 +28,31 @@
 #if  !defined(NDEBUG)
 #include "core/console/Command.h"
 
-namespace glimmer
-{
+namespace glimmer {
     struct LangsResources;
 
-    class TileSnapshotCommand final : public Command
-    {
-        static bool ExecuteInspector(const AppContext* appContext,
-                                     const std::function<void(const std::string& text)>& onMessageRef,
-                                     const LangsResources* langsResources);
+    class TileSnapshotCommand final : public Command {
+        static bool ExecuteInspector(const AppContext *appContext,
+                                     const std::function<void(const std::string &text)> &onMessageRef,
+                                     const LangsResources *langsResources);
 
-        static bool ExecuteInfo(const CommandSender* commandSender, const CommandArgs* commandArgs, int size,
-                                const std::function<void(const std::string& text)>& onMessageRef,
-                                const LangsResources* langsResources, const WorldContext* worldContext);
+        static bool ExecuteInfo(const CommandSender *commandSender, const CommandArgs *commandArgs, int size,
+                                const std::function<void(const std::string &text)> &onMessageRef,
+                                const LangsResources *langsResources, const WorldContext *worldContext);
 
-        void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
+        void InitSuggestions(NodeTree<std::string> *suggestionsTree) override;
 
     public:
-        explicit TileSnapshotCommand(AppContext* appContext);
-        [[nodiscard]] const std::string& GetName() const override;
+        explicit TileSnapshotCommand(AppContext *appContext);
+
+        [[nodiscard]] const std::string &GetName() const override;
+
         [[nodiscard]] bool RequiresWorldContext() const override;
-        void PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) override;
-        bool Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                     const std::function<void(const std::string& text)>* onMessage) override;
+
+        void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
+
+        bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                     const std::function<void(const std::string &text)> *onMessage) override;
     };
 }
 #endif

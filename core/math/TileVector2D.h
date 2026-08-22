@@ -27,10 +27,8 @@
 #pragma once
 #include "Vector2DIBase.h"
 
-namespace glimmer
-{
-    class TileVector2D final : public Vector2DIBase<TileVector2D>
-    {
+namespace glimmer {
+    class TileVector2D final : public Vector2DIBase<TileVector2D> {
         //Inherit all the constructors of the parent class.
         //继承父类的所有构造函数。
         using Vector2DIBase::Vector2DIBase;

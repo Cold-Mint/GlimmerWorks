@@ -34,105 +34,85 @@
 #include "core/math/CoordinateTransformer.h"
 
 
-glimmer::MiningAbility::MiningAbility(const AbilityConfig& abilityConfig) : ItemAbility(
-    abilityConfig)
-{
+glimmer::MiningAbility::MiningAbility(const AbilityConfig &abilityConfig) : ItemAbility(
+    abilityConfig) {
 }
 
-glimmer::AbilityType glimmer::MiningAbility::GetAbilityType() const
-{
+glimmer::AbilityType glimmer::MiningAbility::GetAbilityType() const {
     return AbilityType::Mining;
 }
 
-bool glimmer::MiningAbility::OnUse(const bool mouseLeft, WorldContext* worldContext, uint32_t user,
-                                   const AbilityConfig* abilityConfig, std::unordered_set<AbilityType>& popupAbility)
-{
-    if (!mouseLeft)
-    {
+bool glimmer::MiningAbility::OnUse(const bool mouseLeft, WorldContext *worldContext, uint32_t user,
+                                   const AbilityConfig *abilityConfig, std::unordered_set<AbilityType> &popupAbility) {
+    if (!mouseLeft) {
         return false;
     }
     popupAbility.emplace(GetAbilityType());
-    if (abilityConfig == nullptr)
-    {
+    if (abilityConfig == nullptr) {
         return false;
     }
-    if (abilityConfig->mineAbleLayer == 0)
-    {
+    if (abilityConfig->mineAbleLayer == 0) {
         return false;
     }
-    EntityManager* entityManager = worldContext->GetEntityManager();
-    if (entityManager == nullptr)
-    {
+    EntityManager *entityManager = worldContext->GetEntityManager();
+    if (entityManager == nullptr) {
         return false;
     }
     auto playerEntity = worldContext->GetEntityShortCut()->GetPlayer();
-    if (WorldContext::IsEmptyEntityId(playerEntity))
-    {
+    if (WorldContext::IsEmptyEntityId(playerEntity)) {
         return false;
     }
     auto playerTransform = entityManager->GetComponent<Transform2DComponent>(playerEntity);
-    if (playerTransform == nullptr)
-    {
+    if (playerTransform == nullptr) {
         return false;
     }
-    EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
-    if (entityShortCut == nullptr)
-    {
+    EntityShortCut *entityShortCut = worldContext->GetEntityShortCut();
+    if (entityShortCut == nullptr) {
         return false;
     }
     const WorldVector2D playerWorldPos = playerTransform->GetPosition();
-    MiningComponent* miningComponent = entityShortCut->GetMiningComponent();
-    if (miningComponent == nullptr)
-    {
+    MiningComponent *miningComponent = entityShortCut->GetMiningComponent();
+    if (miningComponent == nullptr) {
         return false;
     }
     auto tileLayerEntities = entityManager->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
     std::sort(tileLayerEntities.begin(), tileLayerEntities.end());
-    for (const auto& gameEntity : tileLayerEntities)
-    {
+    for (const auto &gameEntity: tileLayerEntities) {
         auto tileLayerComponent = entityManager->GetComponent<TileLayerComponent>(
             gameEntity);
-        if (tileLayerComponent == nullptr)
-        {
+        if (tileLayerComponent == nullptr) {
             continue;
         }
         const TileLayerType layerType = tileLayerComponent->GetTileLayerType();
-        if (abilityConfig->mineAbleLayer & std::to_underlying(layerType))
-        {
-            const TileVector2D& tileVector2D = tileLayerComponent->GetFocusPosition();
+        if (abilityConfig->mineAbleLayer & std::to_underlying(layerType)) {
+            const TileVector2D &tileVector2D = tileLayerComponent->GetFocusPosition();
             if ((CoordinateTransformer::TileToWorld(tileVector2D) + WorldVector2D{HALF_TILE_SIZE, HALF_TILE_SIZE}).
                 Distance(playerWorldPos) / TILE_SIZE > abilityConfig
-                ->miningRange)
-            {
+                ->miningRange) {
                 continue;
             }
-            const Tile* tile = tileLayerComponent->GetSelfLayerTile(
+            const Tile *tile = tileLayerComponent->GetSelfLayerTile(
                 tileVector2D);
-            if (tile == nullptr)
-            {
+            if (tile == nullptr) {
                 continue;
             }
-            const TileMiningData* tileMiningData = tile->GetMiningData();
-            if (tileMiningData == nullptr)
-            {
+            const TileMiningData *tileMiningData = tile->GetMiningData();
+            if (tileMiningData == nullptr) {
                 continue;
             }
-            if (!tileMiningData->IsBreakable())
-            {
+            if (!tileMiningData->IsBreakable()) {
                 continue;
             }
-            if (!miningComponent->HasStartPosition() || miningComponent->GetStartPosition() != tileVector2D)
-            {
+            if (!miningComponent->HasStartPosition() || miningComponent->GetStartPosition() != tileVector2D) {
                 //Change the starting point of the excavation and recalculate the progress.
                 //挖掘起点改变，重新计算进度。
                 miningRangeData_.Reset();
                 miningComponent->SetChainMiningRadius(abilityConfig->chainMiningRadius);
                 miningRangeData_.
-                    CalculateChainMining(tileLayerComponent, tileVector2D, abilityConfig->chainMiningRadius);
+                        CalculateChainMining(tileLayerComponent, tileVector2D, abilityConfig->chainMiningRadius);
                 miningComponent->SetPrecisionMining(abilityConfig->enablePrecisionMining);
                 size_t pointCount = miningRangeData_.GetPointsCount();
-                if (pointCount == 0)
-                {
+                if (pointCount == 0) {
                     //If no exploitable tiles are found, then calculate the default excavation range.
                     //如果没有发现可挖掘的瓦片，那么计算默认的挖掘范围。
                     miningRangeData_.CalculateMining(tileLayerComponent, tileVector2D);
@@ -145,8 +125,7 @@ bool glimmer::MiningAbility::OnUse(const bool mouseLeft, WorldContext* worldCont
             //efficiency
             //工具效率
             miningComponent->SetLayerType(layerType);
-            if (miningRangeData_.GetPointsCount() > 0)
-            {
+            if (miningRangeData_.GetPointsCount() > 0) {
                 //If there are any exploitable tiles, then activate the mining module.
                 //如果有可挖掘的瓦片，那么激活挖掘组建。
                 miningComponent->MarkActive();
@@ -164,7 +143,6 @@ bool glimmer::MiningAbility::OnUse(const bool mouseLeft, WorldContext* worldCont
 }
 
 
-std::unique_ptr<glimmer::ItemAbility> glimmer::MiningAbility::Clone() const
-{
+std::unique_ptr<glimmer::ItemAbility> glimmer::MiningAbility::Clone() const {
     return std::make_unique<MiningAbility>(*this);
 }

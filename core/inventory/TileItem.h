@@ -29,35 +29,33 @@
 
 #include "core/world/Tile.h"
 
-namespace glimmer
-{
-    class TileItem : public Item
-    {
+namespace glimmer {
+    class TileItem : public Item {
         std::shared_ptr<Tile> tile_;
-        const TileResourceData* tileResourceData_;
-        const TileDimensions* tileDimensions_;
+        const TileResourceData *tileResourceData_;
+        const TileDimensions *tileDimensions_;
 
     public:
         ~TileItem() override = default;
 
-        explicit TileItem(const std::shared_ptr<Tile>& tile, const ResourceRef& resourceRef);
+        explicit TileItem(const std::shared_ptr<Tile> &tile, const ResourceRef &resourceRef);
 
-        [[nodiscard]] const std::string& GetId() const override;
+        [[nodiscard]] const std::string &GetId() const override;
 
-        [[nodiscard]] const std::string& GetName() const override;
+        [[nodiscard]] const std::string &GetName() const override;
 
-        [[nodiscard]] const std::optional<std::string>& GetDescription() const override;
+        [[nodiscard]] const std::optional<std::string> &GetDescription() const override;
 
-        [[nodiscard]] const Tile* GetTile() const;
+        [[nodiscard]] const Tile *GetTile() const;
 
-        bool OnUse(bool mouseLeft, WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
-            std::unordered_set<AbilityType>& popupAbility) override;
+        bool OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user, const AbilityConfig *abilityConfig,
+                   std::unordered_set<AbilityType> &popupAbility) override;
 
-        [[nodiscard]] SDL_Texture* GetIcon() const override;
+        [[nodiscard]] SDL_Texture *GetIcon() const override;
 
-        [[nodiscard]] const ResourceRef* GetIconResourceRef() const override;
+        [[nodiscard]] const ResourceRef *GetIconResourceRef() const override;
 
-        [[nodiscard]] const AbilityConfig* GetAbilityConfig() const override;
+        [[nodiscard]] const AbilityConfig *GetAbilityConfig() const override;
 
         [[nodiscard]] std::unique_ptr<Item> Clone() const override;
     };

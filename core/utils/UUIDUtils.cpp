@@ -35,8 +35,7 @@
 
 #include "RandomUtils.h"
 
-std::string glimmer::UUIDUtils::Generate()
-{
+std::string glimmer::UUIDUtils::Generate() {
     std::array data{
         RandomUtils::Random<uint32_t>(0, 0xFFFFFFFF),
         RandomUtils::Random<uint32_t>(0, 0xFFFFFFFF),
@@ -46,10 +45,10 @@ std::string glimmer::UUIDUtils::Generate()
     data[1] = data[1] & 0xFFFF0FFF | 0x00004000;
     data[2] = data[2] & 0x3FFFFFFF | 0x80000000;
     return std::format("{:08x}-{:04x}-{:04x}-{:04x}-{:04x}-{:08x}",
-        data[0],
-        static_cast<uint16_t>(data[1] >> 16),
-        static_cast<uint16_t>(data[1] & 0xFFFF),
-        static_cast<uint16_t>(data[2] >> 16),
-        static_cast<uint16_t>(data[2] & 0xFFFF),
-        data[3]);
+                       data[0],
+                       static_cast<uint16_t>(data[1] >> 16),
+                       static_cast<uint16_t>(data[1] & 0xFFFF),
+                       static_cast<uint16_t>(data[2] >> 16),
+                       static_cast<uint16_t>(data[2] & 0xFFFF),
+                       data[3]);
 }

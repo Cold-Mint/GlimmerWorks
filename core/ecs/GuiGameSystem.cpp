@@ -26,13 +26,11 @@
  */
 #include "GuiGameSystem.h"
 
-void glimmer::GuiGameSystem::SetElementDocument(Rml::ElementDocument* document)
-{
+void glimmer::GuiGameSystem::SetElementDocument(Rml::ElementDocument *document) {
     elementDocument_ = document;
 }
 
-Rml::ElementDocument* glimmer::GuiGameSystem::GetElementDocument() const
-{
+Rml::ElementDocument *glimmer::GuiGameSystem::GetElementDocument() const {
     return elementDocument_;
 }
 

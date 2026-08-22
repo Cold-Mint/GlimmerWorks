@@ -28,17 +28,15 @@
 #include <string>
 #include "CommandResult.h"
 
-namespace glimmer
-{
-    class CommandResponse
-    {
+namespace glimmer {
+    class CommandResponse {
         CommandResult commandResult_ = CommandResult::Failure;
         std::string command_;
 
     public:
         void SetCommandResult(CommandResult commandResult, std::string_view command);
 
-        [[nodiscard]] const std::string& GetCommand() const;
+        [[nodiscard]] const std::string &GetCommand() const;
 
         [[nodiscard]] CommandResult GetCommandResult() const;
     };

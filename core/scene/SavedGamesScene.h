@@ -33,39 +33,37 @@
 #include "core/rmi/dataModel/SavedGamesDataModel.h"
 #include "RmlUi/Core/Elements/ElementFormControlInput.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class SavesManager;
     struct MapManifest;
 
-    class SavedGamesScene : public Scene
-    {
-        LangsResources* langsResources_ = nullptr;
+    class SavedGamesScene : public Scene {
+        LangsResources *langsResources_ = nullptr;
         int windowWidth_ = 0;
         int windowHeight_ = 0;
         SavedGamesDataModel savedGamesDataModel_;
-        SavesManager* savesManager_ = nullptr;
-        MainThreadDispatcher* mainThreadDispatcher = nullptr;
-        SceneManager* sceneManager_ = nullptr;
-        Rml::ElementFormControlInput* searchInputElement_ = nullptr;
-        Rml::Element* saveListElement_ = nullptr;
+        SavesManager *savesManager_ = nullptr;
+        MainThreadDispatcher *mainThreadDispatcher = nullptr;
+        SceneManager *sceneManager_ = nullptr;
+        Rml::ElementFormControlInput *searchInputElement_ = nullptr;
+        Rml::Element *saveListElement_ = nullptr;
         Rml::DataModelHandle savedGamesDataModelHandle_;
 
         void UpdateSaveItems();
 
-        void OnLoadClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+        void OnLoadClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
-        void OnDeleteClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+        void OnDeleteClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
-        void OnBackClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+        void OnBackClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
-        void OnNewGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+        void OnNewGameClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
-        void OnSearchChange(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+        void OnSearchChange(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
-        void OnSaveSelect(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+        void OnSaveSelect(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
-        void OnSaveDblclick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+        void OnSaveDblclick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
         void NavigateSaveSelection(int direction);
 
@@ -80,11 +78,11 @@ namespace glimmer
 
         void LoadDocuments() override;
 
-        bool HandleEvent(const SDL_Event& event) override;
+        bool HandleEvent(const SDL_Event &event) override;
 
-        explicit SavedGamesScene(AppContext* context);
+        explicit SavedGamesScene(AppContext *context);
 
-        void OnWindowSizeChanged(const int& width, const int& height) override;
+        void OnWindowSizeChanged(const int &width, const int &height) override;
 
         ~SavedGamesScene() override = default;
     };

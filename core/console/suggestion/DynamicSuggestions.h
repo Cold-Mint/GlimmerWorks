@@ -29,17 +29,15 @@
 #include <string>
 #include <vector>
 
-namespace glimmer
-{
-    class DynamicSuggestions
-    {
+namespace glimmer {
+    class DynamicSuggestions {
     public:
         virtual ~DynamicSuggestions();
 
         [[nodiscard]] virtual std::string GetId() const = 0;
 
-        virtual const std::vector<std::string>& GetSuggestions(const std::optional<std::string>& param) = 0;
+        virtual const std::vector<std::string> &GetSuggestions(const std::optional<std::string> &param) = 0;
 
-        virtual bool Match(const std::string& keyword, const std::string& param) = 0;
+        virtual bool Match(const std::string &keyword, const std::string &param) = 0;
     };
 }

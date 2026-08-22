@@ -29,10 +29,8 @@
 
 #include "SaveItem.h"
 
-namespace glimmer
-{
-    struct SavedGamesDataModel
-    {
+namespace glimmer {
+    struct SavedGamesDataModel {
         std::vector<SaveItem> saveItems;
         int selectedSaveIndex = -1;
         bool hasValidSelection = false;

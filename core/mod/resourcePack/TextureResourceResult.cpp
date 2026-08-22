@@ -26,21 +26,17 @@
  */
 #include "TextureResourceResult.h"
 
-void glimmer::TextureResourceResult::SetTexturePath(const std::filesystem::path& texturePath)
-{
+void glimmer::TextureResourceResult::SetTexturePath(const std::filesystem::path &texturePath) {
     texturePath_ = texturePath;
 }
 
-const std::filesystem::path& glimmer::TextureResourceResult::GetTexturePath()
-{
+const std::filesystem::path &glimmer::TextureResourceResult::GetTexturePath() {
     return texturePath_;
 }
 
-void glimmer::TextureResourceResult::DestroyResource()
-{
-    SDL_Texture* resource = GetResource();
-    if (resource == nullptr)
-    {
+void glimmer::TextureResourceResult::DestroyResource() {
+    SDL_Texture *resource = GetResource();
+    if (resource == nullptr) {
         return;
     }
     SDL_DestroyTexture(resource);

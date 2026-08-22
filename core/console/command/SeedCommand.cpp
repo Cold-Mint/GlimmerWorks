@@ -27,33 +27,27 @@
 #include "SeedCommand.h"
 #include "core/world/WorldContext.h"
 
-glimmer::SeedCommand::SeedCommand(AppContext* ctx)
-    : Command(ctx)
-{
+glimmer::SeedCommand::SeedCommand(AppContext *ctx)
+    : Command(ctx) {
 }
 
-bool glimmer::SeedCommand::RequiresWorldContext() const
-{
+bool glimmer::SeedCommand::RequiresWorldContext() const {
     return true;
 }
 
-bool glimmer::SeedCommand::RequiresCheatEnabled() const
-{
+bool glimmer::SeedCommand::RequiresCheatEnabled() const {
     return true;
 }
 
-bool glimmer::SeedCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                                   const std::function<void(const std::string& text)>* onMessage)
-{
-    const AppContext* appContext = GetAppContext();
-    if (appContext == nullptr)
-    {
+bool glimmer::SeedCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                                   const std::function<void(const std::string &text)> *onMessage) {
+    const AppContext *appContext = GetAppContext();
+    if (appContext == nullptr) {
         return false;
     }
-    const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    const WorldContext* worldContext = GetWorldContext();
-    if (worldContext == nullptr)
-    {
+    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
+    const WorldContext *worldContext = GetWorldContext();
+    if (worldContext == nullptr) {
         onMessageRef(appContext->GetLangsResources()->worldContextIsNull);
         return false;
     }
@@ -61,7 +55,6 @@ bool glimmer::SeedCommand::Execute(const CommandSender* commandSender, const Com
     return true;
 }
 
-const std::string& glimmer::SeedCommand::GetName() const
-{
+const std::string &glimmer::SeedCommand::GetName() const {
     return SEED_COMMAND_NAME;
 }

@@ -30,48 +30,40 @@
 #include "core/context/AppContext.h"
 #include "fmt/xchar.h"
 
-void glimmer::PlayCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
-{
+void glimmer::PlayCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
     suggestionsTree->AddChild(AUDIO_TRACK_DYNAMIC_SUGGESTIONS_NAME);
 }
 
-glimmer::PlayCommand::PlayCommand(AppContext* appContext) : Command(appContext),
-                                                            audioManager_(appContext->GetAudioContext()->GetAudioManager())
-{
+glimmer::PlayCommand::PlayCommand(AppContext *appContext) : Command(appContext),
+                                                            audioManager_(
+                                                                appContext->GetAudioContext()->GetAudioManager()) {
 }
 
-const std::string& glimmer::PlayCommand::GetName() const
-{
+const std::string &glimmer::PlayCommand::GetName() const {
     return PLAY_COMMAND_NAME;
 }
 
-void glimmer::PlayCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
-{
-    if (strings == nullptr)
-    {
+void glimmer::PlayCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
+    if (strings == nullptr) {
         return;
     }
     strings->emplace_back("[audio_track:string]");
     strings->emplace_back("[path:string]");
 }
 
-bool glimmer::PlayCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                                   const std::function<void(const std::string& text)>* onMessage)
-{
-    const AppContext* appContext = GetAppContext();
-    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
-    {
+bool glimmer::PlayCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                                   const std::function<void(const std::string &text)> *onMessage) {
+    const AppContext *appContext = GetAppContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr) {
         return false;
     }
-    const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    const LangsResources* langsResources = appContext->GetLangsResources();
-    if (langsResources == nullptr)
-    {
+    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
+    const LangsResources *langsResources = appContext->GetLangsResources();
+    if (langsResources == nullptr) {
         return false;
     }
     int size = commandArgs->GetSize();
-    if (size < 3)
-    {
+    if (size < 3) {
         onMessageRef(fmt::format(
             fmt::runtime(langsResources->insufficientParameterLength),
             3, size));
@@ -79,24 +71,20 @@ bool glimmer::PlayCommand::Execute(const CommandSender* commandSender, const Com
     }
     const std::string audioTrack = commandArgs->AsString(1);
     AudioType audioType = AudioType::AMBIENT;
-    if (audioTrack == AUDIO_TRACK_BGM)
-    {
+    if (audioTrack == AUDIO_TRACK_BGM) {
         audioType = AudioType::BGM;
     }
     const auto resourceRef = commandArgs->AsResourceRef(2, RESOURCE_AUDIO);
-    if (!resourceRef.has_value())
-    {
+    if (!resourceRef.has_value()) {
         return false;
     }
     const std::shared_ptr<AudioResourceResult> audioResourceResult = appContext->GetResourceLocator()->FindAudio(
         &resourceRef.value());
-    if (audioResourceResult == nullptr)
-    {
+    if (audioResourceResult == nullptr) {
         return false;
     }
-    MIX_Audio* audio = audioResourceResult->GetResource();
-    if (audio == nullptr)
-    {
+    MIX_Audio *audio = audioResourceResult->GetResource();
+    if (audio == nullptr) {
         return false;
     }
     audioManager_->ForcePlayReplace(audioType, audio, 0);

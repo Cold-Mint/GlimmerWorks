@@ -31,14 +31,13 @@
 #include "SDL3/SDL_pixels.h"
 
 
-namespace glimmer
-{
-    struct Color : IFingerprintable
-    {
+namespace glimmer {
+    struct Color : IFingerprintable {
         uint8_t r = 0;
         uint8_t g = 0;
         uint8_t b = 0;
         uint8_t a = 0;
+
         [[nodiscard]] uint64_t GetFingerprint() const override;
 
         [[nodiscard]] SDL_Color ToSDLColor() const;

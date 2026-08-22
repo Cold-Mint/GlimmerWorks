@@ -29,16 +29,14 @@
 #include "core/log/LogCat.h"
 #include "core/mod/ResourceLocator.h"
 
-glimmer::AudioContext::AudioContext()
-{
+glimmer::AudioContext::AudioContext() {
     audioManager_ = std::make_unique<AudioManager>();
     LogCat::i("AudioContext created");
 }
 
 glimmer::AudioContext::~AudioContext() = default;
 
-void glimmer::AudioContext::LoadMainMenuBGM(const ResourceLocator* resourceLocator)
-{
+void glimmer::AudioContext::LoadMainMenuBGM(const ResourceLocator *resourceLocator) {
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_AUDIO);
@@ -46,21 +44,17 @@ void glimmer::AudioContext::LoadMainMenuBGM(const ResourceLocator* resourceLocat
     mainMenuBGM_ = resourceLocator->FindAudio(&resourceRef);
 }
 
-void glimmer::AudioContext::PlayMainMenuBGM() const
-{
-    if (audioManager_ == nullptr || mainMenuBGM_ == nullptr)
-    {
+void glimmer::AudioContext::PlayMainMenuBGM() const {
+    if (audioManager_ == nullptr || mainMenuBGM_ == nullptr) {
         return;
     }
-    MIX_Audio* audio = mainMenuBGM_->GetResource();
-    if (audio == nullptr)
-    {
+    MIX_Audio *audio = mainMenuBGM_->GetResource();
+    if (audio == nullptr) {
         return;
     }
     audioManager_->ForcePlayReplace(AudioType::BGM, audio, -1);
 }
 
-glimmer::AudioManager* glimmer::AudioContext::GetAudioManager() const
-{
+glimmer::AudioManager *glimmer::AudioContext::GetAudioManager() const {
     return audioManager_.get();
 }

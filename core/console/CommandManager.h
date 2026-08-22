@@ -36,45 +36,45 @@
 #include "core/LangsResources.h"
 #include "core/utils/TransparentStringHash.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class DynamicSuggestionsManager;
     class EntityManager;
     class EntityShortCut;
 
-    class CommandManager
-    {
-        std::unordered_map<std::string, std::unique_ptr<Command>, TransparentStringHash, std::equal_to<>> commandMap_{};
+    class CommandManager {
+        std::unordered_map<std::string, std::unique_ptr<Command>, TransparentStringHash, std::equal_to<> > commandMap_
+                {};
         CommandSender defaultCommandSender_;
         CommandSender mouseCommandSender_;
         CommandEnvironment commandEnvironment_{};
-        EntityManager* entityManager_ = nullptr;
-        EntityShortCut* entityShortCut_ = nullptr;
+        EntityManager *entityManager_ = nullptr;
+        EntityShortCut *entityShortCut_ = nullptr;
 
-        [[nodiscard]] std::vector<std::string> GetCommandNameSuggestions(const std::string& keyWord) const;
+        [[nodiscard]] std::vector<std::string> GetCommandNameSuggestions(const std::string &keyWord) const;
 
-        static std::vector<std::string> CollectMatchingSuggestions(const std::vector<std::string>& suggestions,
-                                                                   const std::string& keyWord);
+        static std::vector<std::string> CollectMatchingSuggestions(const std::vector<std::string> &suggestions,
+                                                                   const std::string &keyWord);
 
-        static NodeTree<std::string>* FindNextNodeTree(const DynamicSuggestionsManager* dynamicSuggestionsManager,
-                                                       NodeTree<std::string>* nextNodeTree, const std::string& keyWord);
+        static NodeTree<std::string> *FindNextNodeTree(const DynamicSuggestionsManager *dynamicSuggestionsManager,
+                                                       NodeTree<std::string> *nextNodeTree, const std::string &keyWord);
 
-        static bool TryExpandDynamicSuggestion(const DynamicSuggestionsManager* dynamicSuggestionsManager,
-                                               const std::string& child,
-                                               std::vector<std::string>& children,
-                                               std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>&
+        static bool TryExpandDynamicSuggestion(const DynamicSuggestionsManager *dynamicSuggestionsManager,
+                                               const std::string &child,
+                                               std::vector<std::string> &children,
+                                               std::unordered_set<std::string, TransparentStringHash, std::equal_to<> >
+                                               &
                                                expandedSet);
 
     public:
         void RegisterCommand(std::unique_ptr<Command> command);
 
-        Command* GetCommand(const std::string& name) const;
+        Command *GetCommand(const std::string &name) const;
 
-        [[nodiscard]] CommandSender* GetDefaultCommandSender();
+        [[nodiscard]] CommandSender *GetDefaultCommandSender();
 
-        [[nodiscard]] CommandSender* GetMouseCommandSender();
+        [[nodiscard]] CommandSender *GetMouseCommandSender();
 
-        void BindWorldContext(WorldContext* worldContext);
+        void BindWorldContext(WorldContext *worldContext);
 
         void UnbindWorldContext();
 
@@ -90,7 +90,7 @@ namespace glimmer
          * 获取命令环境。
          * @return 命令环境
          */
-        [[nodiscard]] const CommandEnvironment& GetCommandEnvironment() const;
+        [[nodiscard]] const CommandEnvironment &GetCommandEnvironment() const;
 
         /**
          * Whether the command can be executed under the current environment.
@@ -98,12 +98,12 @@ namespace glimmer
          * @param command 命令
          * @return 是否可以执行
          */
-        [[nodiscard]] bool CanExecuteCommand(const Command* command) const;
+        [[nodiscard]] bool CanExecuteCommand(const Command *command) const;
 
-        [[nodiscard]] std::string GetHelpText(const LangsResources* langsResources);
+        [[nodiscard]] std::string GetHelpText(const LangsResources *langsResources);
 
-        std::vector<std::string> GetSuggestions(const DynamicSuggestionsManager* dynamicSuggestionsManager,
-                                                const CommandArgs& commandArgs, int tokenIndex) const;
+        std::vector<std::string> GetSuggestions(const DynamicSuggestionsManager *dynamicSuggestionsManager,
+                                                const CommandArgs &commandArgs, int tokenIndex) const;
 
         /**
          * Get Command Structure
@@ -111,7 +111,7 @@ namespace glimmer
          * @param commandArgs commandArgs 命令参数
          * @return
          */
-        std::vector<std::string> GetCommandStructure(const CommandArgs* commandArgs) const;
+        std::vector<std::string> GetCommandStructure(const CommandArgs *commandArgs) const;
 
         /**
          * Extended suggestions
@@ -120,7 +120,7 @@ namespace glimmer
          * @param nextNodeTree Fully expand the dynamic suggestions of the nodes. 将节点的动态建议完全展开。
          * @return The expanded list of suggestions 展开后的建议列表
          */
-        static std::vector<std::string> ExtendSuggestions(const DynamicSuggestionsManager* dynamicSuggestionsManager,
-                                                          const NodeTree<std::string>* nextNodeTree);
+        static std::vector<std::string> ExtendSuggestions(const DynamicSuggestionsManager *dynamicSuggestionsManager,
+                                                          const NodeTree<std::string> *nextNodeTree);
     };
 }

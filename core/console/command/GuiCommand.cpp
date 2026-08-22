@@ -30,19 +30,15 @@
 #include "core/context/AppContext.h"
 #include "fmt/xchar.h"
 
-glimmer::GuiCommand::GuiCommand(AppContext* appContext) : Command(appContext)
-{
+glimmer::GuiCommand::GuiCommand(AppContext *appContext) : Command(appContext) {
 }
 
-const std::string& glimmer::GuiCommand::GetName() const
-{
+const std::string &glimmer::GuiCommand::GetName() const {
     return GUI_COMMAND_NAME;
 }
 
-void glimmer::GuiCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
-{
-    if (commandArgs == nullptr || strings == nullptr)
-    {
+void glimmer::GuiCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
+    if (commandArgs == nullptr || strings == nullptr) {
         return;
     }
     strings->emplace_back("[find|click|list|focus]");
@@ -50,24 +46,20 @@ void glimmer::GuiCommand::PutCommandStructure(const CommandArgs* commandArgs, st
     strings->emplace_back("[text:string]");
 }
 
-bool glimmer::GuiCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                                  const std::function<void(const std::string& text)>* onMessage)
-{
-    AppContext* appContext = GetAppContext();
-    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
-    {
+bool glimmer::GuiCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                                  const std::function<void(const std::string &text)> *onMessage) {
+    AppContext *appContext = GetAppContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr) {
         return false;
     }
-    const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    const LangsResources* langsResources = appContext->GetLangsResources();
-    if (langsResources == nullptr)
-    {
+    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
+    const LangsResources *langsResources = appContext->GetLangsResources();
+    if (langsResources == nullptr) {
         return false;
     }
 
     const int size = commandArgs->GetSize();
-    if (size < 2)
-    {
+    if (size < 2) {
         onMessageRef(fmt::format(
             fmt::runtime(langsResources->insufficientParameterLength),
             2, size));
@@ -75,10 +67,9 @@ bool glimmer::GuiCommand::Execute(const CommandSender* commandSender, const Comm
     }
 
     std::string action = commandArgs->AsString(1);
-    SceneManager* sceneManager = appContext->GetSceneManager();
+    SceneManager *sceneManager = appContext->GetSceneManager();
 
-    if (action == "list")
-    {
+    if (action == "list") {
         onMessageRef("GUI commands:");
         onMessageRef("  - gui find <id|attr:name=value|text:content>: Find element");
         onMessageRef("  - gui text <id|attr:name=value|text:content> <text>: Set text to input");
@@ -90,15 +81,13 @@ bool glimmer::GuiCommand::Execute(const CommandSender* commandSender, const Comm
         return true;
     }
 
-    if (action == "inspect")
-    {
+    if (action == "inspect") {
         onMessageRef("Inspecting all elements:");
 
-        std::function<void(Rml::Element *, int, const std::function<void(const std::string&)> &)>
-        inspectElement;
-        inspectElement = [&](Rml::Element* element, int depth,
-                             const std::function<void(const std::string&)>& msg) -> void
-        {
+        std::function<void(Rml::Element *, int, const std::function<void(const std::string &)> &)>
+                inspectElement;
+        inspectElement = [&](Rml::Element *element, int depth,
+                             const std::function<void(const std::string &)> &msg) -> void {
             if (element == nullptr) return;
             std::string indent(depth * 2, ' ');
             std::string tag = element->GetTagName().c_str();
@@ -107,54 +96,45 @@ bool glimmer::GuiCommand::Execute(const CommandSender* commandSender, const Comm
             msg(indent + "- <" + tag + ">: " + inner);
 
             int childCount = element->GetNumChildren();
-            for (int i = 0; i < childCount; ++i)
-            {
-                Rml::Element* child = element->GetChild(i);
+            for (int i = 0; i < childCount; ++i) {
+                Rml::Element *child = element->GetChild(i);
                 inspectElement(child, depth + 1, msg);
             }
         };
 
-        auto inspectScene = [&](Scene* scene, const std::string& sceneName)
-        {
-            if (scene == nullptr)
-            {
+        auto inspectScene = [&](Scene *scene, const std::string &sceneName) {
+            if (scene == nullptr) {
                 onMessageRef("  Scene " + sceneName + " is null");
                 return;
             }
 
-            const auto& docs = scene->GetAllDocuments();
+            const auto &docs = scene->GetAllDocuments();
             onMessageRef("  Scene " + sceneName + ": " + std::to_string(docs.size()) + " documents");
 
-            for (size_t i = 0; i < docs.size(); ++i)
-            {
-                Rml::ElementDocument* doc = docs[i];
+            for (size_t i = 0; i < docs.size(); ++i) {
+                Rml::ElementDocument *doc = docs[i];
                 onMessageRef("    Document " + std::to_string(i) + ": " +
-                    std::string(doc->GetSourceURL().c_str()));
+                             std::string(doc->GetSourceURL().c_str()));
                 inspectElement(doc, 3, onMessageRef);
             }
         };
 
-        const auto& overlayScenes = sceneManager->GetOverlayScenes();
+        const auto &overlayScenes = sceneManager->GetOverlayScenes();
         onMessageRef("  Overlay scenes count: " + std::to_string(overlayScenes.size()));
-        for (size_t i = 0; i < overlayScenes.size(); ++i)
-        {
+        for (size_t i = 0; i < overlayScenes.size(); ++i) {
             inspectScene(overlayScenes[i], "Overlay " + std::to_string(i));
         }
 
-        if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
-        {
+        if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
             inspectScene(topScene, "Top Scene");
-        }
-        else
-        {
+        } else {
             onMessageRef("  Top Scene is null");
         }
 
         return true;
     }
 
-    if (size < 3)
-    {
+    if (size < 3) {
         onMessageRef(fmt::format(
             fmt::runtime(langsResources->insufficientParameterLength),
             3, size));
@@ -163,97 +143,77 @@ bool glimmer::GuiCommand::Execute(const CommandSender* commandSender, const Comm
 
     std::string elementSpec = commandArgs->AsString(2);
 
-    Rml::Element* targetElement = nullptr;
+    Rml::Element *targetElement = nullptr;
     std::string foundBy = "";
     std::string attrName = "";
     std::string attrValue = "";
 
-    auto findInScenes = [&](const std::function<Rml::Element * (Scene*)>& finder) -> bool
-    {
-        const auto& overlayScenes = sceneManager->GetOverlayScenes();
-        for (const auto overlayScene : overlayScenes)
-        {
-            if (overlayScene != nullptr)
-            {
+    auto findInScenes = [&](const std::function<Rml::Element *(Scene *)> &finder) -> bool {
+        const auto &overlayScenes = sceneManager->GetOverlayScenes();
+        for (const auto overlayScene: overlayScenes) {
+            if (overlayScene != nullptr) {
                 targetElement = finder(overlayScene);
-                if (targetElement != nullptr)
-                {
+                if (targetElement != nullptr) {
                     return true;
                 }
             }
         }
-        if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
-        {
+        if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
             targetElement = finder(topScene);
-            if (targetElement != nullptr)
-            {
+            if (targetElement != nullptr) {
                 return true;
             }
         }
         return false;
     };
 
-    if (elementSpec.starts_with("attr:"))
-    {
+    if (elementSpec.starts_with("attr:")) {
         std::string attrPart = elementSpec.substr(5);
         size_t eqPos = attrPart.find('=');
-        if (eqPos != std::string::npos)
-        {
+        if (eqPos != std::string::npos) {
             attrName = attrPart.substr(0, eqPos);
             attrValue = attrPart.substr(eqPos + 1);
-            findInScenes([&](Scene* scene)
-            {
+            findInScenes([&](Scene *scene) {
                 return scene->FindElementByAttribute(attrName, attrValue);
             });
             foundBy = "attribute " + attrName + "=" + attrValue;
         }
-    }
-    else if (elementSpec.starts_with("text:"))
-    {
+    } else if (elementSpec.starts_with("text:")) {
         std::string textContent = elementSpec.substr(5);
-        findInScenes([&](Scene* scene)
-        {
+        findInScenes([&](Scene *scene) {
             return scene->FindElementByText(textContent);
         });
         foundBy = "text '" + textContent + "'";
-    }
-    else
-    {
-        findInScenes([&](Scene* scene)
-        {
+    } else {
+        findInScenes([&](Scene *scene) {
             return scene->FindElementById(elementSpec);
         });
         foundBy = "id '" + elementSpec + "'";
     }
 
-    if (targetElement == nullptr)
-    {
+    if (targetElement == nullptr) {
         onMessageRef("Element not found by " + foundBy);
         return false;
     }
 
-    if (action == "find")
-    {
+    if (action == "find") {
         onMessageRef("Found element by " + foundBy);
         onMessageRef("  - Tag: " + std::string(targetElement->GetTagName()));
 
         auto value = targetElement->GetAttribute<Rml::String>("value", "");
-        if (!value.empty())
-        {
+        if (!value.empty()) {
             onMessageRef("  - Value: " + std::string(value));
         }
 
         Rml::String innerRml = targetElement->GetInnerRML();
-        if (!innerRml.empty())
-        {
+        if (!innerRml.empty()) {
             onMessageRef("  - InnerRML: " + std::string(innerRml));
         }
 
         return true;
     }
 
-    if (action == "position")
-    {
+    if (action == "position") {
         Rml::Vector2f pos = targetElement->GetAbsoluteOffset(Rml::BoxArea::Content);
         int x = static_cast<int>(pos.x);
         int y = static_cast<int>(pos.y);
@@ -272,8 +232,7 @@ bool glimmer::GuiCommand::Execute(const CommandSender* commandSender, const Comm
             "  - Click command: input mouse click left " + std::to_string(centerX) + " " + std::to_string(centerY));
         return true;
     }
-    if (action == "click")
-    {
+    if (action == "click") {
         Rml::Vector2f pos = targetElement->GetAbsoluteOffset(Rml::BoxArea::Content);
         int x = static_cast<int>(pos.x);
         int y = static_cast<int>(pos.y);
@@ -282,9 +241,8 @@ bool glimmer::GuiCommand::Execute(const CommandSender* commandSender, const Comm
         int centerX = x + width / 2;
         int centerY = y + height / 2;
 
-        MainThreadDispatcher* dispatcher = appContext->GetMainThreadDispatcher();
-        dispatcher->PostToNextMainFrame([centerX, centerY]()
-        {
+        MainThreadDispatcher *dispatcher = appContext->GetMainThreadDispatcher();
+        dispatcher->PostToNextMainFrame([centerX, centerY]() {
             SDL_Event moveEvent{};
             moveEvent.type = SDL_EVENT_MOUSE_MOTION;
             moveEvent.motion.x = static_cast<float>(centerX);
@@ -312,8 +270,7 @@ bool glimmer::GuiCommand::Execute(const CommandSender* commandSender, const Comm
         return true;
     }
 
-    if (action == "focus")
-    {
+    if (action == "focus") {
         targetElement->Focus();
         onMessageRef("Focused on element by " + foundBy);
         return true;

@@ -30,10 +30,8 @@
 #include <string_view>
 #include "SDL3/SDL_render.h"
 
-namespace glimmer
-{
-    class CraftPreview
-    {
+namespace glimmer {
+    class CraftPreview {
         std::shared_ptr<SDL_Texture> texture_;
         uint8_t count_ = 1;
         std::string name_;
@@ -41,7 +39,7 @@ namespace glimmer
     public:
         void SetCount(uint8_t count);
 
-        [[nodiscard]] const std::string& GetName();
+        [[nodiscard]] const std::string &GetName();
 
         void SetName(std::string_view name);
 

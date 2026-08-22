@@ -27,10 +27,8 @@
 #pragma once
 #include <string>
 
-namespace glimmer
-{
-    struct CommandStructure
-    {
+namespace glimmer {
+    struct CommandStructure {
         std::string message;
         bool selected = false;
     };

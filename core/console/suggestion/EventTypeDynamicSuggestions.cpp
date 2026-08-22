@@ -29,18 +29,15 @@
 #include "core/Constants.h"
 #include "core/utils/EventTypeUtils.h"
 
-std::string glimmer::EventTypeDynamicSuggestions::GetId() const
-{
+std::string glimmer::EventTypeDynamicSuggestions::GetId() const {
     return EVENT_TYPE_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-bool glimmer::EventTypeDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
-{
+bool glimmer::EventTypeDynamicSuggestions::Match(const std::string &keyword, const std::string &param) {
     return EventTypeUtils::ContainsKey(keyword);
 }
 
-const std::vector<std::string>& glimmer::EventTypeDynamicSuggestions::GetSuggestions(
-    const std::optional<std::string>& param)
-{
+const std::vector<std::string> &glimmer::EventTypeDynamicSuggestions::GetSuggestions(
+    const std::optional<std::string> &param) {
     return EventTypeUtils::GetAllEventTypeKeys();
 }

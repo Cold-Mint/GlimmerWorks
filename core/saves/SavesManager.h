@@ -87,6 +87,6 @@ namespace glimmer {
          * @param keyword Search keyword (empty string returns all indices)
          * @return Vector of matching save indices
          */
-        [[nodiscard]] std::vector<size_t> FilterByKeyword(const std::string& keyword) const;
+        [[nodiscard]] std::vector<size_t> FilterByKeyword(const std::string &keyword) const;
     };
 }

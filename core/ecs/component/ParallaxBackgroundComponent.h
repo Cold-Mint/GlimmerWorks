@@ -31,10 +31,8 @@
 #include "SDL3/SDL_render.h"
 
 
-namespace glimmer
-{
-    class ParallaxBackgroundComponent : public GameComponent
-    {
+namespace glimmer {
+    class ParallaxBackgroundComponent : public GameComponent {
         std::shared_ptr<TextureResourceResult> textureResourceResult_ = nullptr;
         ResourceRef textureResourceRef_;
         uint64_t textureResourceFingerprint_ = 0;
@@ -45,12 +43,12 @@ namespace glimmer
 
         [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
 
-        void SetTextureResourceRef(const ResourceRef& textureResourceRef);
+        void SetTextureResourceRef(const ResourceRef &textureResourceRef);
 
-        ResourceRef& GetTextureResourceRef();
+        ResourceRef &GetTextureResourceRef();
 
         void ClearTexture();
 
-        SDL_Texture* GetTexture(const ResourceLocator* resourceLocator);
+        SDL_Texture *GetTexture(const ResourceLocator *resourceLocator);
     };
 }

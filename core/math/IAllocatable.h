@@ -25,15 +25,13 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-namespace glimmer
-{
+namespace glimmer {
     /**
      * Capable of being allocated a certain quantity.
      * 可分配数量的对象抽象接口
      */
-    template <typename T>
-    class IAllocatable
-    {
+    template<typename T>
+    class IAllocatable {
     public:
         virtual ~IAllocatable() = default;
 

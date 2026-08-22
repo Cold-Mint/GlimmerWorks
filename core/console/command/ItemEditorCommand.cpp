@@ -35,304 +35,226 @@
 #include "fmt/xchar.h"
 #include <sstream>
 
-glimmer::ItemEditorCommand::ItemEditorCommand(AppContext* appContext)
-    : Command(appContext)
-{
+glimmer::ItemEditorCommand::ItemEditorCommand(AppContext *appContext)
+    : Command(appContext) {
 }
 
-bool glimmer::ItemEditorCommand::RequiresWorldContext() const
-{
+bool glimmer::ItemEditorCommand::RequiresWorldContext() const {
     return true;
 }
 
-bool glimmer::ItemEditorCommand::RequiresCheatEnabled() const
-{
+bool glimmer::ItemEditorCommand::RequiresCheatEnabled() const {
     return true;
 }
 
 
-void glimmer::ItemEditorCommand::AddSuggestionsValue(NodeTree<std::string>* suggestionsTree, bool setMode)
-{
+void glimmer::ItemEditorCommand::AddSuggestionsValue(NodeTree<std::string> *suggestionsTree, bool setMode) {
     suggestionsTree->AddChild("used_durability");
     auto durabilityStrategy = suggestionsTree->AddChild("durability_strategy");
-    if (setMode)
-    {
+    if (setMode) {
         durabilityStrategy->AddChild(ALLOC_STRATEGY_TYPE_DYNAMIC_SUGGESTIONS_NAME);
     }
     suggestionsTree->AddChild("amount");
     auto locked = suggestionsTree->AddChild("locked");
-    if (setMode)
-    {
+    if (setMode) {
         locked->AddChild(BOOL_DYNAMIC_SUGGESTIONS_NAME);
     }
-    if (!setMode)
-    {
+    if (!setMode) {
         suggestionsTree->AddChild("unbreakable");
     }
 }
 
-void glimmer::ItemEditorCommand::SetItemAttribute(const std::string& attribute, Item* item, const std::string& value)
-{
-    if (attribute == "used_durability")
-    {
-        if (ItemDurabilityModule* itemDurabilityModule = item->GetMutableDurabilityModule(); itemDurabilityModule !=
-            nullptr)
-        {
+void glimmer::ItemEditorCommand::SetItemAttribute(const std::string &attribute, Item *item, const std::string &value) {
+    if (attribute == "used_durability") {
+        if (ItemDurabilityModule *itemDurabilityModule = item->GetMutableDurabilityModule(); itemDurabilityModule !=
+            nullptr) {
             itemDurabilityModule->SetUsedDurability(std::stoi(value));
         }
-    }
-    else if (attribute == "durability_strategy")
-    {
-        auto composableItem = dynamic_cast<ComposableItem*>(item);
-        if (composableItem != nullptr)
-        {
-            if (value == ALLOC_STR_STRATEGY_FORWARD)
-            {
+    } else if (attribute == "durability_strategy") {
+        auto composableItem = dynamic_cast<ComposableItem *>(item);
+        if (composableItem != nullptr) {
+            if (value == ALLOC_STR_STRATEGY_FORWARD) {
                 composableItem->SetAllocStrategyType(ALLOC_STRATEGY_FORWARD);
-            }
-            else if (value == ALLOC_STR_STRATEGY_BACKWARD)
-            {
+            } else if (value == ALLOC_STR_STRATEGY_BACKWARD) {
                 composableItem->SetAllocStrategyType(ALLOC_STRATEGY_BACKWARD);
-            }
-            else if (value == ALLOC_STR_STRATEGY_BALANCE)
-            {
+            } else if (value == ALLOC_STR_STRATEGY_BALANCE) {
                 composableItem->SetAllocStrategyType(ALLOC_STRATEGY_BALANCE);
-            }
-            else if (value == ALLOC_STR_STRATEGY_RANDOM)
-            {
+            } else if (value == ALLOC_STR_STRATEGY_RANDOM) {
                 composableItem->SetAllocStrategyType(ALLOC_STRATEGY_RANDOM);
             }
         }
-    }
-    else if (attribute == "amount")
-    {
-        if (ItemStackModule* itemStackModule = item->GetMutableStackModule(); itemStackModule != nullptr)
-        {
+    } else if (attribute == "amount") {
+        if (ItemStackModule *itemStackModule = item->GetMutableStackModule(); itemStackModule != nullptr) {
             itemStackModule->SetAmount(std::stoi(value));
         }
-    }
-    else if (attribute == "locked")
-    {
-        if (ItemLockModule* itemLockModule = item->GetMutableLockModule(); itemLockModule != nullptr)
-        {
-            if (value == "true")
-            {
+    } else if (attribute == "locked") {
+        if (ItemLockModule *itemLockModule = item->GetMutableLockModule(); itemLockModule != nullptr) {
+            if (value == "true") {
                 itemLockModule->Lock();
-            }
-            else
-            {
+            } else {
                 itemLockModule->Unlock();
             }
         }
     }
 }
 
-std::string glimmer::ItemEditorCommand::GetItemAttribute(const std::string& attribute, Item* item)
-{
+std::string glimmer::ItemEditorCommand::GetItemAttribute(const std::string &attribute, Item *item) {
     std::stringstream value;
-    if (attribute == "used_durability")
-    {
-        if (const ItemDurabilityModule* itemDurabilityModule = item->GetDurabilityModule(); itemDurabilityModule !=
-            nullptr)
-        {
+    if (attribute == "used_durability") {
+        if (const ItemDurabilityModule *itemDurabilityModule = item->GetDurabilityModule(); itemDurabilityModule !=
+            nullptr) {
             value << itemDurabilityModule->GetUsedDurability();
         }
-    }
-    else if (attribute == "durability_strategy")
-    {
-        auto composableItem = dynamic_cast<ComposableItem*>(item);
-        if (composableItem != nullptr)
-        {
-            switch (composableItem->GetAllocStrategyType())
-            {
-            case ALLOC_STRATEGY_FORWARD:
-                value << ALLOC_STR_STRATEGY_FORWARD;
-                break;
-            case ALLOC_STRATEGY_BACKWARD:
-                value << ALLOC_STR_STRATEGY_BACKWARD;
-                break;
-            case ALLOC_STRATEGY_BALANCE:
-                value << ALLOC_STR_STRATEGY_BALANCE;
-                break;
-            case ALLOC_STRATEGY_RANDOM:
-                value << ALLOC_STR_STRATEGY_RANDOM;
-                break;
-            case AllocStrategyTypeMessage_INT_MIN_SENTINEL_DO_NOT_USE_:
-            case AllocStrategyTypeMessage_INT_MAX_SENTINEL_DO_NOT_USE_:
-                break;
+    } else if (attribute == "durability_strategy") {
+        auto composableItem = dynamic_cast<ComposableItem *>(item);
+        if (composableItem != nullptr) {
+            switch (composableItem->GetAllocStrategyType()) {
+                case ALLOC_STRATEGY_FORWARD:
+                    value << ALLOC_STR_STRATEGY_FORWARD;
+                    break;
+                case ALLOC_STRATEGY_BACKWARD:
+                    value << ALLOC_STR_STRATEGY_BACKWARD;
+                    break;
+                case ALLOC_STRATEGY_BALANCE:
+                    value << ALLOC_STR_STRATEGY_BALANCE;
+                    break;
+                case ALLOC_STRATEGY_RANDOM:
+                    value << ALLOC_STR_STRATEGY_RANDOM;
+                    break;
+                case AllocStrategyTypeMessage_INT_MIN_SENTINEL_DO_NOT_USE_:
+                case AllocStrategyTypeMessage_INT_MAX_SENTINEL_DO_NOT_USE_:
+                    break;
             }
         }
-    }
-    else if (attribute == "amount")
-    {
-        if (const ItemStackModule* itemStackModule = item->GetMutableStackModule(); itemStackModule != nullptr)
-        {
+    } else if (attribute == "amount") {
+        if (const ItemStackModule *itemStackModule = item->GetMutableStackModule(); itemStackModule != nullptr) {
             value << static_cast<uint32_t>(itemStackModule->GetAmount());
         }
-    }
-    else if (attribute == "max_durability")
-    {
-        if (const ItemDurabilityModule* itemDurabilityModule = item->GetDurabilityModule(); itemDurabilityModule !=
-            nullptr)
-        {
+    } else if (attribute == "max_durability") {
+        if (const ItemDurabilityModule *itemDurabilityModule = item->GetDurabilityModule(); itemDurabilityModule !=
+            nullptr) {
             value << itemDurabilityModule->GetMaxDurability();
         }
-    }
-    else if (attribute == "max_stack")
-    {
-        if (const ItemStackModule* itemStackModule = item->GetMutableStackModule(); itemStackModule != nullptr)
-        {
+    } else if (attribute == "max_stack") {
+        if (const ItemStackModule *itemStackModule = item->GetMutableStackModule(); itemStackModule != nullptr) {
             value << static_cast<uint32_t>(itemStackModule->GetMaxStack());
         }
-    }
-    else if (attribute == "locked")
-    {
-        if (const ItemLockModule* itemLockModule = item->GetLockModule(); itemLockModule != nullptr)
-        {
+    } else if (attribute == "locked") {
+        if (const ItemLockModule *itemLockModule = item->GetLockModule(); itemLockModule != nullptr) {
             value << itemLockModule->IsLocked();
         }
-    }
-    else if (attribute == "unbreakable")
-    {
-        if (const ItemDurabilityModule* itemDurabilityModule = item->GetDurabilityModule(); itemDurabilityModule !=
-            nullptr)
-        {
+    } else if (attribute == "unbreakable") {
+        if (const ItemDurabilityModule *itemDurabilityModule = item->GetDurabilityModule(); itemDurabilityModule !=
+            nullptr) {
             value << itemDurabilityModule->IsUnbreakable();
         }
     }
     return value.str();
 }
 
-template <typename MessageCallback>
-glimmer::Item* glimmer::ItemEditorCommand::GetPlayerHeldItem(const WorldContext* worldContext,
-                                                             const LangsResources* langsResources,
-                                                             MessageCallback&& onMessageRef)
-{
-    const EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
-    if (entityShortCut == nullptr)
-    {
+template<typename MessageCallback>
+glimmer::Item *glimmer::ItemEditorCommand::GetPlayerHeldItem(const WorldContext *worldContext,
+                                                             const LangsResources *langsResources,
+                                                             MessageCallback &&onMessageRef) {
+    const EntityShortCut *entityShortCut = worldContext->GetEntityShortCut();
+    if (entityShortCut == nullptr) {
         return nullptr;
     }
-    EntityManager* entityManager = worldContext->GetEntityManager();
-    if (entityManager == nullptr)
-    {
+    EntityManager *entityManager = worldContext->GetEntityManager();
+    if (entityManager == nullptr) {
         return nullptr;
     }
     auto playerId = entityShortCut->GetPlayer();
-    if (WorldContext::IsEmptyEntityId(playerId))
-    {
+    if (WorldContext::IsEmptyEntityId(playerId)) {
         return nullptr;
     }
     auto playerComponent = entityManager->GetComponent<PlayerComponent>(playerId);
-    if (playerComponent == nullptr)
-    {
+    if (playerComponent == nullptr) {
         onMessageRef(langsResources->playerDoesNotExist);
         return nullptr;
     }
     auto item = playerComponent->GetItem();
-    if (item == nullptr)
-    {
+    if (item == nullptr) {
         onMessageRef(langsResources->itemEditorHoldItem);
         return nullptr;
     }
     return item;
 }
 
-void glimmer::ItemEditorCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
-{
-    NodeTree<std::string>* getSuggestionsTree = suggestionsTree->AddChild("get");
+void glimmer::ItemEditorCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
+    NodeTree<std::string> *getSuggestionsTree = suggestionsTree->AddChild("get");
     AddSuggestionsValue(getSuggestionsTree, false);
     getSuggestionsTree->AddChild("max_durability");
     getSuggestionsTree->AddChild("max_stack");
     AddSuggestionsValue(suggestionsTree->AddChild("set"), true);
 }
 
-const std::string& glimmer::ItemEditorCommand::GetName() const
-{
+const std::string &glimmer::ItemEditorCommand::GetName() const {
     return ITEM_EDITOR_COMMAND_NAME;
 }
 
-void glimmer::ItemEditorCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
-{
-    if (commandArgs == nullptr || strings == nullptr)
-    {
+void glimmer::ItemEditorCommand::PutCommandStructure(const CommandArgs *commandArgs,
+                                                     std::vector<std::string> *strings) {
+    if (commandArgs == nullptr || strings == nullptr) {
         return;
     }
     strings->emplace_back("[operation_type:string]");
     strings->emplace_back("[attribute:string]");
     int size = commandArgs->GetSize();
-    if (size > 1)
-    {
+    if (size > 1) {
         const std::string operationType = commandArgs->AsString(1);
-        if (operationType == "set" && size > 2)
-        {
+        if (operationType == "set" && size > 2) {
             const std::string attribute = commandArgs->AsString(2);
-            if (attribute == "used_durability")
-            {
+            if (attribute == "used_durability") {
                 strings->emplace_back("[number:uint]");
-            }
-            else if (attribute == "durability_strategy")
-            {
+            } else if (attribute == "durability_strategy") {
                 strings->emplace_back("[type:string]");
-            }
-            else if (attribute == "locked")
-            {
+            } else if (attribute == "locked") {
                 strings->emplace_back("[locked:bool]");
-            }
-            else if (attribute == "amount")
-            {
+            } else if (attribute == "amount") {
                 strings->emplace_back("[number:uint]");
             }
         }
     }
 }
 
-bool glimmer::ItemEditorCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                                         const std::function<void(const std::string& text)>* onMessage)
-{
-    AppContext* appContext = GetAppContext();
-    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
-    {
+bool glimmer::ItemEditorCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                                         const std::function<void(const std::string &text)> *onMessage) {
+    AppContext *appContext = GetAppContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr) {
         return false;
     }
-    const WorldContext* worldContext = GetWorldContext();
-    const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    if (worldContext == nullptr)
-    {
+    const WorldContext *worldContext = GetWorldContext();
+    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
+    if (worldContext == nullptr) {
         onMessageRef(appContext->GetLangsResources()->worldContextIsNull);
         return false;
     }
-    const LangsResources* langsResources = appContext->GetLangsResources();
-    if (langsResources == nullptr)
-    {
+    const LangsResources *langsResources = appContext->GetLangsResources();
+    if (langsResources == nullptr) {
         return false;
     }
     const int size = commandArgs->GetSize();
-    if (size < 2)
-    {
+    if (size < 2) {
         onMessageRef(fmt::format(
             fmt::runtime(langsResources->insufficientParameterLength),
             2, size));
         return false;
     }
-    Item* item = GetPlayerHeldItem(worldContext, langsResources, onMessageRef);
-    if (item == nullptr)
-    {
+    Item *item = GetPlayerHeldItem(worldContext, langsResources, onMessageRef);
+    if (item == nullptr) {
         return false;
     }
     std::string operation = commandArgs->AsString(1);
-    if (operation == "get")
-    {
+    if (operation == "get") {
         const std::string attribute = commandArgs->AsString(2);
         const std::string value = GetItemAttribute(attribute, item);
         onMessageRef(fmt::format(fmt::runtime(langsResources->itemEditorReadAttr), item->GetName(), attribute,
                                  value));
         return true;
     }
-    if (operation == "set")
-    {
-        if (size < 3)
-        {
+    if (operation == "set") {
+        if (size < 3) {
             onMessageRef(fmt::format(
                 fmt::runtime(langsResources->insufficientParameterLength),
                 3, size));
@@ -340,8 +262,7 @@ bool glimmer::ItemEditorCommand::Execute(const CommandSender* commandSender, con
         }
         std::string value = commandArgs->AsString(3);
         const std::string attribute = commandArgs->AsString(2);
-        appContext->GetMainThreadDispatcher()->PostToNextMainFrame([attribute, item, value]
-        {
+        appContext->GetMainThreadDispatcher()->PostToNextMainFrame([attribute, item, value] {
             SetItemAttribute(attribute, item, value);
         });
 

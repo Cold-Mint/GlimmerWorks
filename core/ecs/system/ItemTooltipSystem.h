@@ -29,32 +29,30 @@
 #include "core/ecs/GuiGameSystem.h"
 #include "core/rmi/dataModel/ItemTooltipDataModel.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class Item;
     class AppContext;
 
-    class ItemTooltipSystem : public GuiGameSystem
-    {
+    class ItemTooltipSystem : public GuiGameSystem {
         Rml::DataModelHandle dataModelHandle_ = nullptr;
         ItemTooltipDataModel itemTooltipDataModel_;
-        ItemToolTipComponent* itemToolTipComponent_ = nullptr;
-        const Item* currentItem_ = nullptr;
-        Rml::ElementDocument* document_ = nullptr;
-        AppContext* appContext_ = nullptr;
+        ItemToolTipComponent *itemToolTipComponent_ = nullptr;
+        const Item *currentItem_ = nullptr;
+        Rml::ElementDocument *document_ = nullptr;
+        AppContext *appContext_ = nullptr;
 
-        void OnItemChanged(const Item* item);
+        void OnItemChanged(const Item *item);
 
     public:
-        explicit ItemTooltipSystem(WorldContext* worldContext);
+        explicit ItemTooltipSystem(WorldContext *worldContext);
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
 
-        void LoadDocuments(IDocumentRegistry* documentRegistry) override;
+        void LoadDocuments(IDocumentRegistry *documentRegistry) override;
 
-        void OnCreateDataModels(IDocumentRegistry* documentRegistry) override;
+        void OnCreateDataModels(IDocumentRegistry *documentRegistry) override;
 
         void Update(float delta) override;
     };

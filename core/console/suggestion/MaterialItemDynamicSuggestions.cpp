@@ -27,23 +27,19 @@
 #include "MaterialItemDynamicSuggestions.h"
 
 
-glimmer::MaterialItemDynamicSuggestions::MaterialItemDynamicSuggestions(MaterialItemManager* materialItemManager) :
-    materialItemManager_(materialItemManager)
-{
+glimmer::MaterialItemDynamicSuggestions::MaterialItemDynamicSuggestions(
+    MaterialItemManager *materialItemManager) : materialItemManager_(materialItemManager) {
 }
 
-std::string glimmer::MaterialItemDynamicSuggestions::GetId() const
-{
+std::string glimmer::MaterialItemDynamicSuggestions::GetId() const {
     return MATERIAL_ITEM_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-bool glimmer::MaterialItemDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
-{
+bool glimmer::MaterialItemDynamicSuggestions::Match(const std::string &keyword, const std::string &param) {
     return std::ranges::contains(materialItemManager_->List(), keyword);
 }
 
-const std::vector<std::string>& glimmer::MaterialItemDynamicSuggestions::GetSuggestions(
-    const std::optional<std::string>& param)
-{
+const std::vector<std::string> &glimmer::MaterialItemDynamicSuggestions::GetSuggestions(
+    const std::optional<std::string> &param) {
     return materialItemManager_->List();
 }

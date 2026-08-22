@@ -27,15 +27,13 @@
 #pragma once
 #include "DynamicSuggestions.h"
 
-namespace glimmer
-{
-    class EventTypeDynamicSuggestions final : public DynamicSuggestions
-    {
+namespace glimmer {
+    class EventTypeDynamicSuggestions final : public DynamicSuggestions {
     public:
         [[nodiscard]] std::string GetId() const override;
 
-        bool Match(const std::string& keyword, const std::string& param) override;
+        bool Match(const std::string &keyword, const std::string &param) override;
 
-        const std::vector<std::string>& GetSuggestions(const std::optional<std::string>& param) override;
+        const std::vector<std::string> &GetSuggestions(const std::optional<std::string> &param) override;
     };
 }

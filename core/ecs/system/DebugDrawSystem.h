@@ -29,8 +29,8 @@
 
 namespace glimmer {
     class DebugDrawSystem : public GameSystem {
-        CameraComponent* cameraComponent_ = nullptr;
-        Transform2DComponent* cameraTransform2DComponent_ = nullptr;
+        CameraComponent *cameraComponent_ = nullptr;
+        Transform2DComponent *cameraTransform2DComponent_ = nullptr;
         uint32_t debugDrawCount = 0;
         uint32_t transform2DCount = 0;
         std::vector<GameEntityID> entities_;

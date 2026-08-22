@@ -33,91 +33,74 @@
 #include "core/world/WorldContext.h"
 #include "fmt/xchar.h"
 
-void glimmer::TechnologyCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
-{
-    if (suggestionsTree == nullptr)
-    {
+void glimmer::TechnologyCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
+    if (suggestionsTree == nullptr) {
         return;
     }
     suggestionsTree->AddChild("list");
 }
 
-glimmer::TechnologyCommand::TechnologyCommand(AppContext* appContext)
-    : Command(appContext)
-{
+glimmer::TechnologyCommand::TechnologyCommand(AppContext *appContext)
+    : Command(appContext) {
 }
 
-const std::string& glimmer::TechnologyCommand::GetName() const
-{
+const std::string &glimmer::TechnologyCommand::GetName() const {
     return TECHNOLOGY_COMMAND_NAME;
 }
 
-bool glimmer::TechnologyCommand::RequiresWorldContext() const
-{
+bool glimmer::TechnologyCommand::RequiresWorldContext() const {
     return true;
 }
 
-void glimmer::TechnologyCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
-{
-    if (strings == nullptr)
-    {
+void glimmer::TechnologyCommand::PutCommandStructure(const CommandArgs *commandArgs,
+                                                     std::vector<std::string> *strings) {
+    if (strings == nullptr) {
         return;
     }
     strings->emplace_back("[list:string]");
 }
 
-bool glimmer::TechnologyCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                                         const std::function<void(const std::string& text)>* onMessage)
-{
-    const AppContext* appContext = GetAppContext();
-    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
-    {
+bool glimmer::TechnologyCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                                         const std::function<void(const std::string &text)> *onMessage) {
+    const AppContext *appContext = GetAppContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr) {
         return false;
     }
-    const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    const LangsResources* langsResources = appContext->GetLangsResources();
-    if (langsResources == nullptr)
-    {
+    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
+    const LangsResources *langsResources = appContext->GetLangsResources();
+    if (langsResources == nullptr) {
         return false;
     }
-    if (int size = commandArgs->GetSize(); size < 2)
-    {
+    if (int size = commandArgs->GetSize(); size < 2) {
         onMessageRef(fmt::format(
             fmt::runtime(langsResources->insufficientParameterLength),
             2, size));
         return false;
     }
-    const WorldContext* worldContext = GetWorldContext();
-    if (worldContext == nullptr)
-    {
+    const WorldContext *worldContext = GetWorldContext();
+    if (worldContext == nullptr) {
         onMessageRef(appContext->GetLangsResources()->worldContextIsNull);
         return false;
     }
-    if (const std::string type = commandArgs->AsString(1); type == "list")
-    {
-        const EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
-        if (entityShortCut == nullptr)
-        {
+    if (const std::string type = commandArgs->AsString(1); type == "list") {
+        const EntityShortCut *entityShortCut = worldContext->GetEntityShortCut();
+        if (entityShortCut == nullptr) {
             return false;
         }
-        EntityManager* entityManager = worldContext->GetEntityManager();
-        if (entityManager == nullptr)
-        {
+        EntityManager *entityManager = worldContext->GetEntityManager();
+        if (entityManager == nullptr) {
             return false;
         }
         auto plyerEntity = entityShortCut->GetPlayer();
-        if (WorldContext::IsEmptyEntityId(plyerEntity))
-        {
+        if (WorldContext::IsEmptyEntityId(plyerEntity)) {
             return false;
         }
         const auto playerComponent = entityManager->GetComponent<PlayerComponent>(plyerEntity);
-        if (playerComponent == nullptr)
-        {
+        if (playerComponent == nullptr) {
             return false;
         }
-        const PlayerTechnologyHandler* playerTechnologyHandler = playerComponent->GetTechnologyHandler();
-        if (playerTechnologyHandler == nullptr)
-        {
+        const PlayerTechnologyHandler *playerTechnologyHandler = playerComponent->GetTechnologyHandler();
+        if (playerTechnologyHandler == nullptr) {
             return false;
         }
         onMessageRef(playerTechnologyHandler->ListTechnology(langsResources->technologyItem));

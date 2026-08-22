@@ -30,22 +30,21 @@
 #include "core/math/Color.h"
 
 
-namespace glimmer
-{
-    class DebugMultiMapSystem : public GameSystem
-    {
-        CameraComponent* cameraComponent_ = nullptr;
-        Transform2DComponent* cameraTransform2DComponent_ = nullptr;
-        Color GetTileDebugColor(const TileVector2D& tile) const;
+namespace glimmer {
+    class DebugMultiMapSystem : public GameSystem {
+        CameraComponent *cameraComponent_ = nullptr;
+        Transform2DComponent *cameraTransform2DComponent_ = nullptr;
+
+        Color GetTileDebugColor(const TileVector2D &tile) const;
 
     public:
         uint8_t GetExecutionOrder() override;
 
-        void Render(SDL_Renderer* renderer) override;
+        void Render(SDL_Renderer *renderer) override;
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
-        explicit DebugMultiMapSystem(WorldContext* worldContext);
+        explicit DebugMultiMapSystem(WorldContext *worldContext);
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };

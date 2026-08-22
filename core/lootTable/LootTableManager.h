@@ -29,9 +29,7 @@
 #include "core/mod/Resource.h"
 #include "core/mod/dataPack/BaseResManager.h"
 
-namespace glimmer
-{
-    class LootTableManager : public BaseResManager<LootResource>
-    {
+namespace glimmer {
+    class LootTableManager : public BaseResManager<LootResource> {
     };
 }

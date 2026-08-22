@@ -29,26 +29,22 @@
 #include <algorithm>
 #include "core/Constants.h"
 
-glimmer::AllocStrategyTypeDynamicSuggestions::AllocStrategyTypeDynamicSuggestions()
-{
+glimmer::AllocStrategyTypeDynamicSuggestions::AllocStrategyTypeDynamicSuggestions() {
     suggestions_.emplace_back(ALLOC_STR_STRATEGY_BACKWARD);
     suggestions_.emplace_back(ALLOC_STR_STRATEGY_FORWARD);
     suggestions_.emplace_back(ALLOC_STR_STRATEGY_BALANCE);
     suggestions_.emplace_back(ALLOC_STR_STRATEGY_RANDOM);
 }
 
-std::string glimmer::AllocStrategyTypeDynamicSuggestions::GetId() const
-{
+std::string glimmer::AllocStrategyTypeDynamicSuggestions::GetId() const {
     return ALLOC_STRATEGY_TYPE_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-const std::vector<std::string>& glimmer::AllocStrategyTypeDynamicSuggestions::GetSuggestions(
-    const std::optional<std::string>& param)
-{
+const std::vector<std::string> &glimmer::AllocStrategyTypeDynamicSuggestions::GetSuggestions(
+    const std::optional<std::string> &param) {
     return suggestions_;
 }
 
-bool glimmer::AllocStrategyTypeDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
-{
+bool glimmer::AllocStrategyTypeDynamicSuggestions::Match(const std::string &keyword, const std::string &param) {
     return std::ranges::contains(suggestions_, keyword);
 }

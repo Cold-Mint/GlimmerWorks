@@ -37,15 +37,13 @@
 #include "core/world/TileResourceData.h"
 #include "SDL3/SDL_render.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class WorldContext;
     /**
      * 物品类
      */
 
-    class Item : public IAllocatable<uint32_t>
-    {
+    class Item : public IAllocatable<uint32_t> {
         friend class ItemContainer;
         friend class GiveCommand;
         friend class ItemEditorCommand;
@@ -56,19 +54,19 @@ namespace glimmer
         ItemTagModule itemTagModule_;
 
     protected:
-        [[nodiscard]] const ResourceRef& GetResourceRef() const;
+        [[nodiscard]] const ResourceRef &GetResourceRef() const;
 
-        void SetResourceRef(const ResourceRef& resourceRef);
+        void SetResourceRef(const ResourceRef &resourceRef);
 
-        [[nodiscard]] ItemDurabilityModule* GetMutableDurabilityModule();
+        [[nodiscard]] ItemDurabilityModule *GetMutableDurabilityModule();
 
-        [[nodiscard]] ItemStackModule* GetMutableStackModule();
+        [[nodiscard]] ItemStackModule *GetMutableStackModule();
 
-        [[nodiscard]] ItemTagModule* GetMutableTagModule();
+        [[nodiscard]] ItemTagModule *GetMutableTagModule();
 
-        [[nodiscard]] ItemLockModule* GetMutableLockModule();
+        [[nodiscard]] ItemLockModule *GetMutableLockModule();
 
-        void SetTags(const std::vector<ItemTagResource>& tags);
+        void SetTags(const std::vector<ItemTagResource> &tags);
 
         void SetMaxStack(uint8_t maxStack);
 
@@ -77,53 +75,53 @@ namespace glimmer
     public:
         ~Item() override = default;
 
-        virtual void ReadItemMessage(WorldContext* worldContext, const ItemMessage& itemMessage);
+        virtual void ReadItemMessage(WorldContext *worldContext, const ItemMessage &itemMessage);
 
-        virtual void WriteItemMessage(ItemMessage& itemMessage) const;
+        virtual void WriteItemMessage(ItemMessage &itemMessage) const;
 
-        [[nodiscard]] const ItemDurabilityModule* GetDurabilityModule() const;
+        [[nodiscard]] const ItemDurabilityModule *GetDurabilityModule() const;
 
-        [[nodiscard]] const ItemStackModule* GetStackModule() const;
+        [[nodiscard]] const ItemStackModule *GetStackModule() const;
 
-        [[nodiscard]] const ItemTagModule* GetTagModule() const;
+        [[nodiscard]] const ItemTagModule *GetTagModule() const;
 
-        [[nodiscard]] const ItemLockModule* GetLockModule() const;
+        [[nodiscard]] const ItemLockModule *GetLockModule() const;
 
         /**
           * GetId
           * 获取id
           * @return
           */
-        [[nodiscard]] virtual const std::string& GetId() const = 0;
+        [[nodiscard]] virtual const std::string &GetId() const = 0;
 
         /**
          * GetName
          * 获取物品名称
          * @return
          */
-        [[nodiscard]] virtual const std::string& GetName() const = 0;
+        [[nodiscard]] virtual const std::string &GetName() const = 0;
 
         /**
          * GetDescription
          * 获取描述
          * @return
          */
-        [[nodiscard]] virtual const std::optional<std::string>& GetDescription() const = 0;
+        [[nodiscard]] virtual const std::optional<std::string> &GetDescription() const = 0;
 
         /**
          * Variable configuration for obtaining items
          * 获取物品的变量配置
          * @return
          */
-        [[nodiscard]] virtual const AbilityConfig* GetAbilityConfig() const = 0;
+        [[nodiscard]] virtual const AbilityConfig *GetAbilityConfig() const = 0;
 
         /**
          * 获取图标
          * @return
          */
-        [[nodiscard]] virtual SDL_Texture* GetIcon() const = 0;
+        [[nodiscard]] virtual SDL_Texture *GetIcon() const = 0;
 
-        [[nodiscard]] virtual const ResourceRef* GetIconResourceRef() const = 0;
+        [[nodiscard]] virtual const ResourceRef *GetIconResourceRef() const = 0;
 
         /**
          * OnUse
@@ -135,9 +133,9 @@ namespace glimmer
          * @param popupAbility The ability to pop up 需要弹出的能力
          * @return  Whether this event has been consumed or not. If it returns true, it will not be passed on to the hands; if it returns false, it will be handed over to the hands for processing. 是否消费了此事件，如果返回true，那么不会传递到手上，如果返回false那么交给手处理。
          */
-        virtual bool OnUse(bool mouseLeft, WorldContext* worldContext, uint32_t user,
-                           const AbilityConfig* abilityConfig,
-                           std::unordered_set<AbilityType>& popupAbility) = 0;
+        virtual bool OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user,
+                           const AbilityConfig *abilityConfig,
+                           std::unordered_set<AbilityType> &popupAbility) = 0;
 
         /**
          * Get the remaining durability.

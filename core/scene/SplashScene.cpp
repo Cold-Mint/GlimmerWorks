@@ -31,16 +31,14 @@
 #include "core/log/LogCat.h"
 #include "SDL3/SDL_timer.h"
 
-glimmer::SplashScene::SplashScene(AppContext* context)
-    : Scene(context)
-{
+glimmer::SplashScene::SplashScene(AppContext *context)
+    : Scene(context) {
     LogCat::i("Creating SplashScene, duration: 2000ms");
     nextSceneTime_ = SDL_GetTicks() + 2000;
     Init();
 }
 
-void glimmer::SplashScene::LoadDocuments()
-{
+void glimmer::SplashScene::LoadDocuments() {
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
@@ -48,23 +46,18 @@ void glimmer::SplashScene::LoadDocuments()
     LoadSingleDocument(&resourceRef);
 }
 
-void glimmer::SplashScene::Update(float delta)
-{
-    if (!sceneJumped_ && SDL_GetTicks() >= nextSceneTime_)
-    {
+void glimmer::SplashScene::Update(float delta) {
+    if (!sceneJumped_ && SDL_GetTicks() >= nextSceneTime_) {
         sceneJumped_ = true;
-        AppContext* appContext = GetAppContext();
-        if (appContext == nullptr)
-        {
+        AppContext *appContext = GetAppContext();
+        if (appContext == nullptr) {
             return;
         }
-        SceneManager* sceneManager = appContext->GetSceneManager();
-        if (sceneManager == nullptr)
-        {
+        SceneManager *sceneManager = appContext->GetSceneManager();
+        if (sceneManager == nullptr) {
             return;
         }
-        appContext->GetMainThreadDispatcher()->PostToNextMainFrame([appContext, sceneManager]
-        {
+        appContext->GetMainThreadDispatcher()->PostToNextMainFrame([appContext, sceneManager] {
             sceneManager->ReplaceScene(std::make_unique<MainScene>(appContext));
         });
     }

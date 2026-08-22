@@ -40,7 +40,6 @@ namespace glimmer {
         std::unordered_map<uint64_t, std::weak_ptr<Tile> > tileInstanceMap_;
 
     public:
-
         ~TileInstancePool();
 
         std::shared_ptr<Tile> CreateTile(const AppContext *appContext,

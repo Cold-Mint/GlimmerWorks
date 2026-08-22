@@ -30,10 +30,8 @@
 #include <map>
 #include <memory>
 
-namespace glimmer
-{
-    class AndroidControlSystem : public GameSystem
-    {
+namespace glimmer {
+    class AndroidControlSystem : public GameSystem {
         std::shared_ptr<SDL_Texture> leftTexture = nullptr;
         std::shared_ptr<SDL_Texture> rightTexture = nullptr;
         std::shared_ptr<SDL_Texture> jumpTexture = nullptr;
@@ -45,8 +43,7 @@ namespace glimmer
         SDL_FRect rightRect{};
         SDL_FRect jumpRect{};
 
-        enum class ButtonType
-        {
+        enum class ButtonType {
             None,
             Left,
             Right,
@@ -56,13 +53,13 @@ namespace glimmer
         std::map<SDL_FingerID, ButtonType> activeTouches;
 
     public:
-        AndroidControlSystem(WorldContext* worldContext);
+        AndroidControlSystem(WorldContext *worldContext);
 
-        bool HandleEvent(const SDL_Event& event) override;
+        bool HandleEvent(const SDL_Event &event) override;
 
         void Update(float delta) override;
 
-        void Render(SDL_Renderer* renderer) override;
+        void Render(SDL_Renderer *renderer) override;
 
         uint8_t GetRenderOrder() override;
 

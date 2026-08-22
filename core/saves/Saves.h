@@ -39,9 +39,9 @@ namespace glimmer {
         VirtualFileSystem *virtualFileSystem_;
         std::function<void(const MapManifestMessage &)> onMapManifestChanged_;
 
-        [[nodiscard]] std::filesystem::path ToChunkPath(const TileVector2D& position) const;
+        [[nodiscard]] std::filesystem::path ToChunkPath(const TileVector2D &position) const;
 
-        [[nodiscard]] std::filesystem::path ToChunkEntityPath(const TileVector2D& position) const;
+        [[nodiscard]] std::filesystem::path ToChunkEntityPath(const TileVector2D &position) const;
 
         [[nodiscard]] std::filesystem::path ToPlayerPath() const;
 
@@ -62,7 +62,7 @@ namespace glimmer {
          * 获取存档路径
          * @return path 存档路径
          */
-        [[nodiscard]] const std::filesystem::path& GetPath() const;
+        [[nodiscard]] const std::filesystem::path &GetPath() const;
 
         /**
          * Check whether the block file at the specified location exists.
@@ -70,7 +70,7 @@ namespace glimmer {
          * @param position
          * @return
          */
-        [[nodiscard]] bool ChunkExists(const TileVector2D& position) const;
+        [[nodiscard]] bool ChunkExists(const TileVector2D &position) const;
 
         /**
          * Check whether the specified entity file exists.
@@ -78,17 +78,18 @@ namespace glimmer {
          * @param position
          * @return
          */
-        [[nodiscard]] bool EntityExists(const TileVector2D& position) const;
+        [[nodiscard]] bool EntityExists(const TileVector2D &position) const;
 
-        [[nodiscard]] std::optional<ChunkMessage> ReadChunk(const TileVector2D& position) const;
+        [[nodiscard]] std::optional<ChunkMessage> ReadChunk(const TileVector2D &position) const;
 
-        [[nodiscard]] bool WriteChunk(const TileVector2D& position, const ChunkMessage &chunkMessage) const;
+        [[nodiscard]] bool WriteChunk(const TileVector2D &position, const ChunkMessage &chunkMessage) const;
 
-        [[nodiscard]] std::optional<ChunkEntityMessage> ReadChunkEntity(const TileVector2D& position) const;
+        [[nodiscard]] std::optional<ChunkEntityMessage> ReadChunkEntity(const TileVector2D &position) const;
 
-        [[nodiscard]] bool WriteChunkEntity(const TileVector2D& position, const ChunkEntityMessage &chunkEntityMessage) const;
+        [[nodiscard]] bool WriteChunkEntity(const TileVector2D &position,
+                                            const ChunkEntityMessage &chunkEntityMessage) const;
 
-        [[nodiscard]] bool DeleteChunkEntity(const TileVector2D& position) const;
+        [[nodiscard]] bool DeleteChunkEntity(const TileVector2D &position) const;
 
         [[nodiscard]] bool WritePlayer(const PlayerMessage &playerMessage) const;
 

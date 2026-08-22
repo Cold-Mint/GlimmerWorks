@@ -28,12 +28,10 @@
 #include "core/ecs/EntityManager.h"
 #include "core/saves/Saves.h"
 
-namespace glimmer
-{
-    class ChunkLoader
-    {
-        Saves* saves_ = nullptr;
-        WorldContext* worldContext_ = nullptr;
+namespace glimmer {
+    class ChunkLoader {
+        Saves *saves_ = nullptr;
+        WorldContext *worldContext_ = nullptr;
 
         /**
          * Load entity from saves
@@ -43,7 +41,7 @@ namespace glimmer
         void LoadEntityFromSaves(TileVector2D position) const;
 
     public:
-        ChunkLoader(WorldContext* worldContext, Saves* saves);
+        ChunkLoader(WorldContext *worldContext, Saves *saves);
 
         /**
          * Load block from saves
@@ -58,6 +56,6 @@ namespace glimmer
         * @param entityItemMessage
         * @return
         */
-        [[nodiscard]] GameEntityID RecoveryEntity(const EntityItemMessage& entityItemMessage) const;
+        [[nodiscard]] GameEntityID RecoveryEntity(const EntityItemMessage &entityItemMessage) const;
     };
 }

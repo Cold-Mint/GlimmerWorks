@@ -36,8 +36,7 @@ void glimmer::ItemEditorComponent::AddSlotEntity(const GameEntityID id) {
     slotEntities.push_back(id);
 }
 
-GameComponentTypeMessage glimmer::ItemEditorComponent::GetComponentTypeStatic()
-{
+GameComponentTypeMessage glimmer::ItemEditorComponent::GetComponentTypeStatic() {
     return COMPONENT_ITEM_EDITOR;
 }
 

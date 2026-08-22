@@ -34,21 +34,17 @@
 #include "fmt/xchar.h"
 #include "suggestion/DynamicSuggestionsManager.h"
 
-void glimmer::CommandManager::RegisterCommand(std::unique_ptr<Command> command)
-{
-    const std::string& name = command->GetName();
+void glimmer::CommandManager::RegisterCommand(std::unique_ptr<Command> command) {
+    const std::string &name = command->GetName();
     command->Initialize();
     commandMap_[name] = std::move(command);
     LogCat::i("Command registered: ", name);
 }
 
-glimmer::Command* glimmer::CommandManager::GetCommand(const std::string& name) const
-{
-    if (const auto it = commandMap_.find(name); it != commandMap_.end())
-    {
-        Command* command = it->second.get();
-        if (!CanExecuteCommand(command))
-        {
+glimmer::Command *glimmer::CommandManager::GetCommand(const std::string &name) const {
+    if (const auto it = commandMap_.find(name); it != commandMap_.end()) {
+        Command *command = it->second.get();
+        if (!CanExecuteCommand(command)) {
             return nullptr;
         }
         return command;
@@ -56,23 +52,19 @@ glimmer::Command* glimmer::CommandManager::GetCommand(const std::string& name) c
     return nullptr;
 }
 
-glimmer::CommandSender* glimmer::CommandManager::GetDefaultCommandSender()
-{
+glimmer::CommandSender *glimmer::CommandManager::GetDefaultCommandSender() {
     defaultCommandSender_.SetPosition({0, 0});
-    if (entityShortCut_ == nullptr || entityManager_ == nullptr)
-    {
+    if (entityShortCut_ == nullptr || entityManager_ == nullptr) {
         LogCat::w(std::source_location::current(), "entityShortCut_ == nullptr || entityManager_ == nullptr");
         return &defaultCommandSender_;
     }
     const GameEntityID player = entityShortCut_->GetPlayer();
-    if (WorldContext::IsEmptyEntityId(player))
-    {
+    if (WorldContext::IsEmptyEntityId(player)) {
         LogCat::w(std::source_location::current(), "WorldContext::IsEmptyEntityId(player)");
         return &defaultCommandSender_;
     }
     auto transform2dComponent = entityManager_->GetComponent<Transform2DComponent>(player);
-    if (transform2dComponent == nullptr)
-    {
+    if (transform2dComponent == nullptr) {
         LogCat::w(std::source_location::current(), "transform2dComponent == nullptr");
         return &defaultCommandSender_;
     }
@@ -80,21 +72,15 @@ glimmer::CommandSender* glimmer::CommandManager::GetDefaultCommandSender()
     return &defaultCommandSender_;
 }
 
-glimmer::CommandSender* glimmer::CommandManager::GetMouseCommandSender()
-{
-    if (commandEnvironment_.worldContext == nullptr)
-    {
+glimmer::CommandSender *glimmer::CommandManager::GetMouseCommandSender() {
+    if (commandEnvironment_.worldContext == nullptr) {
         mouseCommandSender_.SetPosition({0, 0});
-    }
-    else
-    {
-        const EntityShortCut* entityShortCut = commandEnvironment_.worldContext->GetEntityShortCut();
-        const CameraComponent* cameraComponent = entityShortCut->GetCameraComponent();
-        if (cameraComponent != nullptr)
-        {
-            const Transform2DComponent* transform2DComponent = entityShortCut->GetCameraTransform2DComponent();
-            if (transform2DComponent != nullptr)
-            {
+    } else {
+        const EntityShortCut *entityShortCut = commandEnvironment_.worldContext->GetEntityShortCut();
+        const CameraComponent *cameraComponent = entityShortCut->GetCameraComponent();
+        if (cameraComponent != nullptr) {
+            const Transform2DComponent *transform2DComponent = entityShortCut->GetCameraTransform2DComponent();
+            if (transform2DComponent != nullptr) {
                 float mouseX = 0;
                 float mouseY = 0;
                 SDL_GetMouseState(&mouseX, &mouseY);
@@ -108,26 +94,21 @@ glimmer::CommandSender* glimmer::CommandManager::GetMouseCommandSender()
     return &mouseCommandSender_;
 }
 
-void glimmer::CommandManager::BindWorldContext(WorldContext* worldContext)
-{
+void glimmer::CommandManager::BindWorldContext(WorldContext *worldContext) {
     commandEnvironment_.worldContext = worldContext;
     entityManager_ = worldContext->GetEntityManager();
-    if (entityManager_ == nullptr)
-    {
+    if (entityManager_ == nullptr) {
         LogCat::e(std::source_location::current(), "entityManager_ == nullptr");
         return;
     }
     entityShortCut_ = worldContext->GetEntityShortCut();
-    if (entityShortCut_ == nullptr)
-    {
+    if (entityShortCut_ == nullptr) {
         LogCat::e(std::source_location::current(), "entityShortCut_ == nullptr");
         return;
     }
     int bindCount = 0;
-    for (const auto& command : commandMap_ | std::views::values)
-    {
-        if (command->RequiresWorldContext())
-        {
+    for (const auto &command: commandMap_ | std::views::values) {
+        if (command->RequiresWorldContext()) {
             command->BindWorldContext(worldContext);
             bindCount++;
         }
@@ -135,16 +116,13 @@ void glimmer::CommandManager::BindWorldContext(WorldContext* worldContext)
     LogCat::i("World context bound, commands bound: ", bindCount);
 }
 
-void glimmer::CommandManager::UnbindWorldContext()
-{
+void glimmer::CommandManager::UnbindWorldContext() {
     commandEnvironment_.Reset();
     entityManager_ = nullptr;
     entityShortCut_ = nullptr;
     int unbindCount = 0;
-    for (const auto& command : commandMap_ | std::views::values)
-    {
-        if (command->RequiresWorldContext())
-        {
+    for (const auto &command: commandMap_ | std::views::values) {
+        if (command->RequiresWorldContext()) {
             command->UnBindWorldContext();
             unbindCount++;
         }
@@ -152,62 +130,49 @@ void glimmer::CommandManager::UnbindWorldContext()
     LogCat::i("World context unbound, commands unbound: ", unbindCount);
 }
 
-void glimmer::CommandManager::SetAllowCheats(const bool allowCheats)
-{
+void glimmer::CommandManager::SetAllowCheats(const bool allowCheats) {
     commandEnvironment_.allowCheats = allowCheats;
 }
 
-const glimmer::CommandEnvironment& glimmer::CommandManager::GetCommandEnvironment() const
-{
+const glimmer::CommandEnvironment &glimmer::CommandManager::GetCommandEnvironment() const {
     return commandEnvironment_;
 }
 
-bool glimmer::CommandManager::CanExecuteCommand(const Command* command) const
-{
-    if (command == nullptr)
-    {
+bool glimmer::CommandManager::CanExecuteCommand(const Command *command) const {
+    if (command == nullptr) {
         return false;
     }
-    if (command->RequiresWorldContext() && commandEnvironment_.worldContext == nullptr)
-    {
+    if (command->RequiresWorldContext() && commandEnvironment_.worldContext == nullptr) {
         return false;
     }
-    if (command->RequiresCheatEnabled() && !commandEnvironment_.allowCheats)
-    {
+    if (command->RequiresCheatEnabled() && !commandEnvironment_.allowCheats) {
         return false;
     }
     return true;
 }
 
-std::string glimmer::CommandManager::GetHelpText(const LangsResources* langsResources)
-{
+std::string glimmer::CommandManager::GetHelpText(const LangsResources *langsResources) {
     std::stringstream stringStream;
     stringStream << fmt::format(
         fmt::runtime(langsResources->commandInfo),
         commandMap_.size());
-    for (const auto& [name, command] : commandMap_)
-    {
+    for (const auto &[name, command]: commandMap_) {
         stringStream << '\n';
         stringStream << name;
     }
     return stringStream.str();
 }
 
-std::vector<std::string> glimmer::CommandManager::GetCommandNameSuggestions(const std::string& keyWord) const
-{
+std::vector<std::string> glimmer::CommandManager::GetCommandNameSuggestions(const std::string &keyWord) const {
     std::vector<std::string> results;
-    for (const auto& [commandStr, command] : commandMap_)
-    {
-        if (commandStr == keyWord)
-        {
+    for (const auto &[commandStr, command]: commandMap_) {
+        if (commandStr == keyWord) {
             continue;
         }
-        if (!CanExecuteCommand(command.get()))
-        {
+        if (!CanExecuteCommand(command.get())) {
             continue;
         }
-        if (commandStr.contains(keyWord))
-        {
+        if (commandStr.contains(keyWord)) {
             results.push_back(commandStr);
         }
     }
@@ -215,72 +180,59 @@ std::vector<std::string> glimmer::CommandManager::GetCommandNameSuggestions(cons
 }
 
 std::vector<std::string> glimmer::CommandManager::CollectMatchingSuggestions(
-    const std::vector<std::string>& suggestions,
-    const std::string& keyWord)
-{
+    const std::vector<std::string> &suggestions,
+    const std::string &keyWord) {
     std::vector<std::string> results;
-    for (const auto& suggestion : suggestions)
-    {
-        if (suggestion == keyWord)
-        {
+    for (const auto &suggestion: suggestions) {
+        if (suggestion == keyWord) {
             continue;
         }
-        if (suggestion.contains(keyWord))
-        {
+        if (suggestion.contains(keyWord)) {
             results.push_back(suggestion);
         }
     }
     return results;
 }
 
-glimmer::NodeTree<std::string>* glimmer::CommandManager::FindNextNodeTree(
-    const DynamicSuggestionsManager* dynamicSuggestionsManager,
-    NodeTree<std::string>* nextNodeTree, const std::string& keyWord)
-{
-    if (nextNodeTree == nullptr)
-    {
+glimmer::NodeTree<std::string> *glimmer::CommandManager::FindNextNodeTree(
+    const DynamicSuggestionsManager *dynamicSuggestionsManager,
+    NodeTree<std::string> *nextNodeTree, const std::string &keyWord) {
+    if (nextNodeTree == nullptr) {
         return nullptr;
     }
 
     const int nextNodeTreeSize = nextNodeTree->GetSize();
-    NodeTree<std::string>* dynamicTree = nullptr;
+    NodeTree<std::string> *dynamicTree = nullptr;
 
-    for (int c = 0; c < nextNodeTreeSize; c++)
-    {
-        NodeTree<std::string>* node = nextNodeTree->GetChild(c);
-        if (node == nullptr)
-        {
+    for (int c = 0; c < nextNodeTreeSize; c++) {
+        NodeTree<std::string> *node = nextNodeTree->GetChild(c);
+        if (node == nullptr) {
             continue;
         }
 
         auto data = node->Data();
-        if (!data.has_value())
-        {
+        if (!data.has_value()) {
             continue;
         }
 
-        const std::string& dataValue = data.value();
-        if (dataValue == keyWord)
-        {
+        const std::string &dataValue = data.value();
+        if (dataValue == keyWord) {
             return node;
         }
 
-        if (!dataValue.starts_with('&'))
-        {
+        if (!dataValue.starts_with('&')) {
             continue;
         }
 
         auto pos = dataValue.find(':');
         std::string dynName = dataValue.substr(0, pos);
-        DynamicSuggestions* dynamicSuggestions = dynamicSuggestionsManager->GetSuggestions(dynName);
-        if (dynamicSuggestions == nullptr)
-        {
+        DynamicSuggestions *dynamicSuggestions = dynamicSuggestionsManager->GetSuggestions(dynName);
+        if (dynamicSuggestions == nullptr) {
             continue;
         }
 
         const std::string param = pos == std::string::npos ? "" : dataValue.substr(pos + 1);
-        if (dynamicSuggestions->Match(keyWord, param))
-        {
+        if (dynamicSuggestions->Match(keyWord, param)) {
             dynamicTree = node;
         }
     }
@@ -289,18 +241,15 @@ glimmer::NodeTree<std::string>* glimmer::CommandManager::FindNextNodeTree(
 }
 
 bool glimmer::CommandManager::TryExpandDynamicSuggestion(
-    const DynamicSuggestionsManager* dynamicSuggestionsManager, const std::string& child,
-    std::vector<std::string>& children,
-    std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& expandedSet)
-{
-    if (!child.starts_with('&'))
-    {
+    const DynamicSuggestionsManager *dynamicSuggestionsManager, const std::string &child,
+    std::vector<std::string> &children,
+    std::unordered_set<std::string, TransparentStringHash, std::equal_to<> > &expandedSet) {
+    if (!child.starts_with('&')) {
         return false;
     }
 
     auto [it, inserted] = expandedSet.insert(child);
-    if (!inserted)
-    {
+    if (!inserted) {
 #if defined(NDEBUG)
         return true;
 #else
@@ -311,14 +260,12 @@ bool glimmer::CommandManager::TryExpandDynamicSuggestion(
     auto pos = child.find(':');
     std::string dynName = child.substr(0, pos);
     auto dyn = dynamicSuggestionsManager->GetSuggestions(dynName);
-    if (dyn == nullptr)
-    {
+    if (dyn == nullptr) {
         return false;
     }
 
     std::optional<std::string> param = std::nullopt;
-    if (pos != std::string::npos)
-    {
+    if (pos != std::string::npos) {
         param = child.substr(pos + 1);
     }
 
@@ -328,52 +275,42 @@ bool glimmer::CommandManager::TryExpandDynamicSuggestion(
 }
 
 std::vector<std::string> glimmer::CommandManager::GetSuggestions(
-    const DynamicSuggestionsManager* dynamicSuggestionsManager, const CommandArgs& commandArgs,
-    const int tokenIndex) const
-{
-    if (tokenIndex == -1 || tokenIndex == 0)
-    {
+    const DynamicSuggestionsManager *dynamicSuggestionsManager, const CommandArgs &commandArgs,
+    const int tokenIndex) const {
+    if (tokenIndex == -1 || tokenIndex == 0) {
         return GetCommandNameSuggestions(commandArgs.AsString(0));
     }
 
     const std::string commandName = commandArgs.AsString(0);
-    Command* command = GetCommand(commandName);
-    if (command == nullptr)
-    {
+    Command *command = GetCommand(commandName);
+    if (command == nullptr) {
         return {};
     }
 
-    NodeTree<std::string>* nextNodeTree = command->GetSuggestionsTree(&commandArgs);
-    for (int index = 1; index < tokenIndex; index++)
-    {
+    NodeTree<std::string> *nextNodeTree = command->GetSuggestionsTree(&commandArgs);
+    for (int index = 1; index < tokenIndex; index++) {
         nextNodeTree = FindNextNodeTree(dynamicSuggestionsManager, nextNodeTree, commandArgs.AsString(index));
-        if (nextNodeTree == nullptr)
-        {
+        if (nextNodeTree == nullptr) {
             return {};
         }
     }
-    if (nextNodeTree == nullptr)
-    {
+    if (nextNodeTree == nullptr) {
         return {};
     }
     const std::vector<std::string> suggestions = ExtendSuggestions(dynamicSuggestionsManager, nextNodeTree);
     return CollectMatchingSuggestions(suggestions, commandArgs.AsString(tokenIndex));
 }
 
-std::vector<std::string> glimmer::CommandManager::GetCommandStructure(const CommandArgs* commandArgs) const
-{
-    if (commandArgs == nullptr)
-    {
+std::vector<std::string> glimmer::CommandManager::GetCommandStructure(const CommandArgs *commandArgs) const {
+    if (commandArgs == nullptr) {
         return {};
     }
-    if (const int size = commandArgs->GetSize(); size == 0)
-    {
+    if (const int size = commandArgs->GetSize(); size == 0) {
         return {"[command name:string]"};
     }
     std::string commandName = commandArgs->AsString(0);
-    Command* command = GetCommand(commandName);
-    if (command == nullptr)
-    {
+    Command *command = GetCommand(commandName);
+    if (command == nullptr) {
         return {commandName};
     }
     std::vector<std::string> results;
@@ -383,19 +320,16 @@ std::vector<std::string> glimmer::CommandManager::GetCommandStructure(const Comm
 }
 
 std::vector<std::string> glimmer::CommandManager::ExtendSuggestions(
-    const DynamicSuggestionsManager* dynamicSuggestionsManager, const NodeTree<std::string>* nextNodeTree)
-{
+    const DynamicSuggestionsManager *dynamicSuggestionsManager, const NodeTree<std::string> *nextNodeTree) {
     std::vector<std::string> children = nextNodeTree->GetAllChildren();
     std::vector<std::string> result;
-    std::unordered_set<std::string, TransparentStringHash, std::equal_to<>> expandedSet;
+    std::unordered_set<std::string, TransparentStringHash, std::equal_to<> > expandedSet;
 
     size_t i = 0;
-    while (i < children.size())
-    {
-        const std::string& child = children[i];
+    while (i < children.size()) {
+        const std::string &child = children[i];
         const bool isExpanded = TryExpandDynamicSuggestion(dynamicSuggestionsManager, child, children, expandedSet);
-        if (!isExpanded)
-        {
+        if (!isExpanded) {
             result.emplace_back(child);
         }
         ++i;

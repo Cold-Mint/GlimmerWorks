@@ -36,14 +36,12 @@
 #include "core/world/WorldContext.h"
 
 ComponentFingerprint glimmer::EntityManager::GenComponentFingerprint(const GameEntityID gameEntityId,
-                                                                     const GameComponentTypeMessage typeMessage)
-{
+                                                                     const GameComponentTypeMessage typeMessage) {
     const auto rawType = static_cast<std::uint32_t>(typeMessage);
     return static_cast<std::uint64_t>(gameEntityId) << 32 | rawType;
 }
 
-void glimmer::EntityManager::Clear()
-{
+void glimmer::EntityManager::Clear() {
     entityMap_.clear();
     entityToGameComponentType_.clear();
     components_.clear();
@@ -51,13 +49,10 @@ void glimmer::EntityManager::Clear()
     onComponentCountChanged_.clear();
 }
 
-GameEntityID glimmer::EntityManager::AddEntity(GameEntityID gameEntityId)
-{
-    if (gameEntityId == GAME_ENTITY_ID_INVALID)
-    {
+GameEntityID glimmer::EntityManager::AddEntity(GameEntityID gameEntityId) {
+    if (gameEntityId == GAME_ENTITY_ID_INVALID) {
         ++entityIndex_;
-        if (entityIndex_ == GAME_ENTITY_ID_INVALID)
-        {
+        if (entityIndex_ == GAME_ENTITY_ID_INVALID) {
             //It is prohibited to use illegal IDs.
             //禁止占用非法ID。
             ++entityIndex_;
@@ -71,53 +66,43 @@ GameEntityID glimmer::EntityManager::AddEntity(GameEntityID gameEntityId)
     return gameEntityId;
 }
 
-std::vector<GameEntityID> glimmer::EntityManager::GetAllEntityIDs() const
-{
+std::vector<GameEntityID> glimmer::EntityManager::GetAllEntityIDs() const {
     std::vector<GameEntityID> entityIds;
     entityIds.reserve(entityMap_.size());
-    for (auto& entity : entityMap_)
-    {
+    for (auto &entity: entityMap_) {
         entityIds.emplace_back(entity.first);
     }
     return entityIds;
 }
 
 uint32_t glimmer::EntityManager::RegisterOnComponentCountChanged(
-    const std::function<void(GameComponentTypeMessage, uint32_t)>& onComponentCountChanged)
-{
+    const std::function<void(GameComponentTypeMessage, uint32_t)> &onComponentCountChanged) {
     ++onComponentCountChangedId_;
-    std::pair<uint32_t, std::function<void(GameComponentTypeMessage, uint32_t)>> pair;
+    std::pair<uint32_t, std::function<void(GameComponentTypeMessage, uint32_t)> > pair;
     pair.first = onComponentCountChangedId_;
     pair.second = onComponentCountChanged;
     onComponentCountChanged_.emplace_back(pair);
     return onComponentCountChangedId_;
 }
 
-void glimmer::EntityManager::UnRegisterOnComponentCountChanged(uint32_t id)
-{
+void glimmer::EntityManager::UnRegisterOnComponentCountChanged(uint32_t id) {
     auto it = std::remove_if(onComponentCountChanged_.begin(), onComponentCountChanged_.end(),
-                             [id](const auto& item)
-                             {
+                             [id](const auto &item) {
                                  return item.first == id;
                              });
     onComponentCountChanged_.erase(it, onComponentCountChanged_.end());
 }
 
-std::vector<glimmer::GameComponent*> glimmer::EntityManager::GetAllComponent(const GameEntityID gameEntityId)
-{
-    std::vector<GameComponent*> components;
+std::vector<glimmer::GameComponent *> glimmer::EntityManager::GetAllComponent(const GameEntityID gameEntityId) {
+    std::vector<GameComponent *> components;
     auto entityToGameComponentTypeIterator = entityToGameComponentType_.find(gameEntityId);
-    if (entityToGameComponentTypeIterator != entityToGameComponentType_.end())
-    {
-        for (auto componentTypeMessage : entityToGameComponentTypeIterator->second)
-        {
+    if (entityToGameComponentTypeIterator != entityToGameComponentType_.end()) {
+        for (auto componentTypeMessage: entityToGameComponentTypeIterator->second) {
             auto componentFingerprint = GenComponentFingerprint(gameEntityId, componentTypeMessage);
             const auto componentIterator = components_.find(componentFingerprint);
-            if (componentIterator != components_.end())
-            {
-                std::unique_ptr<GameComponent>& component = componentIterator->second;
-                if (component == nullptr)
-                {
+            if (componentIterator != components_.end()) {
+                std::unique_ptr<GameComponent> &component = componentIterator->second;
+                if (component == nullptr) {
                     continue;
                 }
                 components.emplace_back(component.get());
@@ -128,43 +113,34 @@ std::vector<glimmer::GameComponent*> glimmer::EntityManager::GetAllComponent(con
     return components;
 }
 
-uint32_t glimmer::EntityManager::GetComponentCount(const GameComponentTypeMessage componentType)
-{
+uint32_t glimmer::EntityManager::GetComponentCount(const GameComponentTypeMessage componentType) {
     const auto iterator = componentCount_.find(componentType);
-    if (iterator == componentCount_.end())
-    {
+    if (iterator == componentCount_.end()) {
         return 0;
     }
     return iterator->second;
 }
 
-void glimmer::EntityManager::RemoveEntity(const GameEntityID gameEntityId)
-{
+void glimmer::EntityManager::RemoveEntity(const GameEntityID gameEntityId) {
     LogCat::d("Entity removing: id=", gameEntityId);
     entityMap_.erase(gameEntityId);
     auto entityToGameComponentTypeIterator = entityToGameComponentType_.find(gameEntityId);
-    if (entityToGameComponentTypeIterator != entityToGameComponentType_.end())
-    {
+    if (entityToGameComponentTypeIterator != entityToGameComponentType_.end()) {
         int componentCount = 0;
-        for (auto componentTypeMessage : entityToGameComponentTypeIterator->second)
-        {
+        for (auto componentTypeMessage: entityToGameComponentTypeIterator->second) {
             auto componentFingerprint = GenComponentFingerprint(gameEntityId, componentTypeMessage);
             const auto componentIterator = components_.find(componentFingerprint);
-            if (componentIterator != components_.end())
-            {
+            if (componentIterator != components_.end()) {
                 components_.erase(componentIterator);
                 componentCount++;
                 auto componentCountIterator = componentCount_.find(componentTypeMessage);
-                if (componentCountIterator != componentCount_.end())
-                {
+                if (componentCountIterator != componentCount_.end()) {
                     --componentCountIterator->second;
                     const uint32_t newCount = componentCountIterator->second;
-                    if (newCount == 0)
-                    {
+                    if (newCount == 0) {
                         componentCount_.erase(componentCountIterator);
                     }
-                    for (auto& callBack : onComponentCountChanged_)
-                    {
+                    for (auto &callBack: onComponentCountChanged_) {
                         callBack.second(componentTypeMessage, newCount);
                     }
                 }
@@ -175,29 +151,24 @@ void glimmer::EntityManager::RemoveEntity(const GameEntityID gameEntityId)
     entityIndex_++;
 }
 
-void glimmer::EntityManager::SetEntityIndex(const GameEntityID entityIndex)
-{
+void glimmer::EntityManager::SetEntityIndex(const GameEntityID entityIndex) {
     entityIndex_ = entityIndex;
 }
 
-GameEntityID glimmer::EntityManager::GetEntityIndex() const
-{
+GameEntityID glimmer::EntityManager::GetEntityIndex() const {
     return entityIndex_;
 }
 
 
 void glimmer::EntityManager::RemoveComponent(const GameEntityID gameEntityId,
-                                             const GameComponentTypeMessage typeMessage)
-{
+                                             const GameComponentTypeMessage typeMessage) {
     auto componentFingerprint = GenComponentFingerprint(gameEntityId, typeMessage);
     const auto componentIterator = components_.find(componentFingerprint);
-    if (componentIterator == components_.end())
-    {
+    if (componentIterator == components_.end()) {
         return;
     }
-    const auto& componentPtr = componentIterator->second;
-    if (componentPtr == nullptr)
-    {
+    const auto &componentPtr = componentIterator->second;
+    if (componentPtr == nullptr) {
         //Remove the invalid pointers.
         //移除失效的指针。
         components_.erase(componentIterator);
@@ -207,108 +178,88 @@ void glimmer::EntityManager::RemoveComponent(const GameEntityID gameEntityId,
     components_.erase(componentIterator);
     LogCat::d("Component removed: entityId=", gameEntityId, ", type=", static_cast<int>(typeMessage));
     auto entityToGameComponentTypeIterator = entityToGameComponentType_.find(gameEntityId);
-    if (entityToGameComponentTypeIterator != entityToGameComponentType_.end())
-    {
-        auto& unorderedSet = entityToGameComponentTypeIterator->second;
+    if (entityToGameComponentTypeIterator != entityToGameComponentType_.end()) {
+        auto &unorderedSet = entityToGameComponentTypeIterator->second;
         unorderedSet.erase(typeMessage);
-        if (unorderedSet.empty())
-        {
+        if (unorderedSet.empty()) {
             entityToGameComponentType_.erase(entityToGameComponentTypeIterator);
         }
     }
     const auto countIterator = componentCount_.find(typeMessage);
-    if (countIterator != componentCount_.end())
-    {
+    if (countIterator != componentCount_.end()) {
         --countIterator->second;
         const uint32_t newCount = countIterator->second;
         // When the count reaches zero, invalid keys in the hash table will be cleared.
         // 计数归零则清理哈希表无效键
-        if (newCount == 0)
-        {
+        if (newCount == 0) {
             componentCount_.erase(countIterator);
         }
-        for (auto& callBack : onComponentCountChanged_)
-        {
+        for (auto &callBack: onComponentCountChanged_) {
             callBack.second(typeMessage, newCount);
         }
     }
 }
 
-bool glimmer::EntityManager::SetPersistable(const GameEntityID gameEntityId, const bool persistable)
-{
+bool glimmer::EntityManager::SetPersistable(const GameEntityID gameEntityId, const bool persistable) {
     auto iterator = entityMap_.find(gameEntityId);
-    if (iterator == entityMap_.end())
-    {
+    if (iterator == entityMap_.end()) {
         return false;
     }
     iterator->second->SetPersistable(persistable);
     return true;
 }
 
-bool glimmer::EntityManager::SetResourceRef(const GameEntityID gameEntityId, const ResourceRef& resourceRef)
-{
+bool glimmer::EntityManager::SetResourceRef(const GameEntityID gameEntityId, const ResourceRef &resourceRef) {
     auto iterator = entityMap_.find(gameEntityId);
-    if (iterator == entityMap_.end())
-    {
+    if (iterator == entityMap_.end()) {
         return false;
     }
     iterator->second->SetResourceRef(resourceRef);
     return true;
 }
 
-const glimmer::ResourceRef* glimmer::EntityManager::GetResourceRef(const GameEntityID gameEntityId)
-{
+const glimmer::ResourceRef *glimmer::EntityManager::GetResourceRef(const GameEntityID gameEntityId) {
     auto iterator = entityMap_.find(gameEntityId);
-    if (iterator == entityMap_.end())
-    {
+    if (iterator == entityMap_.end()) {
         return nullptr;
     }
     return &iterator->second->GetResourceRef();
 }
 
-bool glimmer::EntityManager::IsPersistable(const GameEntityID gameEntityId)
-{
+bool glimmer::EntityManager::IsPersistable(const GameEntityID gameEntityId) {
     auto iterator = entityMap_.find(gameEntityId);
-    if (iterator == entityMap_.end())
-    {
+    if (iterator == entityMap_.end()) {
         return false;
     }
     return iterator->second->IsPersistable();
 }
 
-bool glimmer::EntityManager::HasComponent(GameEntityID gameEntityId, const GameComponentTypeMessage typeMessage) const
-{
+bool glimmer::EntityManager::HasComponent(GameEntityID gameEntityId, const GameComponentTypeMessage typeMessage) const {
     return components_.contains(GenComponentFingerprint(gameEntityId, typeMessage));
 }
 
 std::vector<GameEntityID> glimmer::EntityManager::GetEntityIDWithComponents(
-    const std::vector<GameComponentTypeMessage>& targetComponentType) const
-{
+    const std::vector<GameComponentTypeMessage> &targetComponentType) const {
     std::vector<GameEntityID> result;
     const size_t number = targetComponentType.size();
-    for (auto& entityToGameComponentType : entityToGameComponentType_)
-    {
-        const std::unordered_set<GameComponentTypeMessage>& gameComponentTypeMessageSet = entityToGameComponentType.
-            second;
-        if (gameComponentTypeMessageSet.size() < number)
-        {
+    for (auto &entityToGameComponentType: entityToGameComponentType_) {
+        const std::unordered_set<GameComponentTypeMessage> &gameComponentTypeMessageSet = entityToGameComponentType.
+                second;
+        if (gameComponentTypeMessageSet.size() < number) {
             //If the number of elements in the Set is less than the number we are looking for, then skip this Set.
             //如果Set内的数量比我们要查找的数量少，那么跳过这个Set。
             continue;
         }
         bool missComponent = false;
-        for (auto targetComponent : targetComponentType)
-        {
-            if (!gameComponentTypeMessageSet.contains(targetComponent))
-            {
+        for (auto targetComponent: targetComponentType) {
+            if (!gameComponentTypeMessageSet.contains(targetComponent)) {
                 //Found the missing component.
                 //发现缺失的组件。
                 missComponent = true;
                 break;
             }
         }
-        if (missComponent)
-        {
+        if (missComponent) {
             continue;
         }
         result.push_back(entityToGameComponentType.first);
@@ -316,30 +267,27 @@ std::vector<GameEntityID> glimmer::EntityManager::GetEntityIDWithComponents(
     return result;
 }
 
-void glimmer::EntityManager::RecoveryComponent(WorldContext* worldContext, GameEntityID gameEntityId,
-                                               const ComponentMessage& componentMessage)
-{
+void glimmer::EntityManager::RecoveryComponent(WorldContext *worldContext, GameEntityID gameEntityId,
+                                               const ComponentMessage &componentMessage) {
     //Note: Within this method, this part of the code only includes components that can be serialized. That is, components that override the Serialize() method.
     //注意：在这个方法内，这部分代码只写可被序列化的组件。即覆盖了Serialize()方法的组件。
-    GameComponent* gameComponent = nullptr;
-    switch (componentMessage.type())
-    {
-    case COMPONENT_DROPPED_ITEM:
-        gameComponent = AddComponent<DroppedItemComponent>(gameEntityId);
-        break;
-    case COMPONENT_ITEM_CONTAINER:
-        gameComponent = AddComponent<ItemContainerComponent>(gameEntityId);
-        break;
-    case COMPONENT_TRANSFORM_2D:
-        gameComponent = AddComponent<Transform2DComponent>(gameEntityId);
-        break;
-    default:
-        LogCat::w(std::source_location::current(), "Irrecoverable component type ",
-                  std::to_underlying(componentMessage.type()));
-        return;
+    GameComponent *gameComponent = nullptr;
+    switch (componentMessage.type()) {
+        case COMPONENT_DROPPED_ITEM:
+            gameComponent = AddComponent<DroppedItemComponent>(gameEntityId);
+            break;
+        case COMPONENT_ITEM_CONTAINER:
+            gameComponent = AddComponent<ItemContainerComponent>(gameEntityId);
+            break;
+        case COMPONENT_TRANSFORM_2D:
+            gameComponent = AddComponent<Transform2DComponent>(gameEntityId);
+            break;
+        default:
+            LogCat::w(std::source_location::current(), "Irrecoverable component type ",
+                      std::to_underlying(componentMessage.type()));
+            return;
     }
-    if (gameComponent == nullptr)
-    {
+    if (gameComponent == nullptr) {
         LogCat::w(std::source_location::current(), "When restoring the component, an empty object was returned. ");
         return;
     }

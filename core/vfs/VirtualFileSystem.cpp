@@ -31,19 +31,15 @@
 
 #include "core/utils/StringUtils.h"
 
-void glimmer::VirtualFileSystem::Mount(std::unique_ptr<IFileProvider> provider)
-{
+void glimmer::VirtualFileSystem::Mount(std::unique_ptr<IFileProvider> provider) {
     fileProviders_.emplace_back(std::move(provider));
 }
 
-std::string glimmer::VirtualFileSystem::ListMounts() const
-{
+std::string glimmer::VirtualFileSystem::ListMounts() const {
     std::stringstream result;
     bool hasContent = false;
-    for (const auto& provider : fileProviders_)
-    {
-        if (hasContent)
-        {
+    for (const auto &provider: fileProviders_) {
+        if (hasContent) {
             result << "\n";
         }
         result << provider->GetFileProviderName();
@@ -52,60 +48,46 @@ std::string glimmer::VirtualFileSystem::ListMounts() const
     return result.str();
 }
 
-bool glimmer::VirtualFileSystem::Exists(const std::filesystem::path& path) const
-{
-    for (const auto& provider : fileProviders_)
-    {
-        if (provider->Exists(path))
-        {
+bool glimmer::VirtualFileSystem::Exists(const std::filesystem::path &path) const {
+    for (const auto &provider: fileProviders_) {
+        if (provider->Exists(path)) {
             return true;
         }
     }
     return false;
 }
 
-bool glimmer::VirtualFileSystem::CreateFolder(const std::filesystem::path& path) const
-{
-    for (const auto& provider : fileProviders_)
-    {
-        if (provider->CreateFolder(path))
-        {
+bool glimmer::VirtualFileSystem::CreateFolder(const std::filesystem::path &path) const {
+    for (const auto &provider: fileProviders_) {
+        if (provider->CreateFolder(path)) {
             return true;
         }
     }
     return false;
 }
 
-bool glimmer::VirtualFileSystem::IsFile(const std::filesystem::path& path) const
-{
-    for (const auto& provider : fileProviders_)
-    {
-        if (provider->IsFile(path))
-        {
+bool glimmer::VirtualFileSystem::IsFile(const std::filesystem::path &path) const {
+    for (const auto &provider: fileProviders_) {
+        if (provider->IsFile(path)) {
             return true;
         }
     }
     return false;
 }
 
-std::optional<std::string> glimmer::VirtualFileSystem::GetFileOrFolderName(const std::filesystem::path& path) const
-{
-    for (const auto& provider : fileProviders_)
-    {
-        if (auto fileName = provider->GetFileOrFolderName(path); fileName.has_value())
-        {
+std::optional<std::string> glimmer::VirtualFileSystem::GetFileOrFolderName(const std::filesystem::path &path) const {
+    for (const auto &provider: fileProviders_) {
+        if (auto fileName = provider->GetFileOrFolderName(path); fileName.has_value()) {
             return fileName;
         }
     }
     return std::nullopt;
 }
 
-std::optional<std::filesystem::path> glimmer::VirtualFileSystem::GetParentPath(const std::filesystem::path& path) const
-{
-    for (const auto& provider : fileProviders_)
-    {
-        if (auto parentPath = provider->GetParentPath(path); parentPath.has_value())
-        {
+std::optional<std::filesystem::path>
+glimmer::VirtualFileSystem::GetParentPath(const std::filesystem::path &path) const {
+    for (const auto &provider: fileProviders_) {
+        if (auto parentPath = provider->GetParentPath(path); parentPath.has_value()) {
             return parentPath;
         }
     }
@@ -113,74 +95,58 @@ std::optional<std::filesystem::path> glimmer::VirtualFileSystem::GetParentPath(c
 }
 
 
-bool glimmer::VirtualFileSystem::WriteFile(const std::filesystem::path& path, const std::string& content) const
-{
-    return std::ranges::any_of(fileProviders_, [&](const auto& provider)
-    {
+bool glimmer::VirtualFileSystem::WriteFile(const std::filesystem::path &path, const std::string &content) const {
+    return std::ranges::any_of(fileProviders_, [&](const auto &provider) {
         return provider->WriteFile(path, content);
     });
 }
 
-std::unique_ptr<std::istream> glimmer::VirtualFileSystem::ReadFileAsStream(const std::filesystem::path& path) const
-{
-    for (const auto& provider : fileProviders_)
-    {
-        if (std::unique_ptr<std::istream> stream = provider->ReadStream(path); stream != nullptr)
-        {
+std::unique_ptr<std::istream> glimmer::VirtualFileSystem::ReadFileAsStream(const std::filesystem::path &path) const {
+    for (const auto &provider: fileProviders_) {
+        if (std::unique_ptr<std::istream> stream = provider->ReadStream(path); stream != nullptr) {
             return stream;
         }
     }
     return nullptr;
 }
 
-std::optional<std::string> glimmer::VirtualFileSystem::ReadFileAsString(const std::filesystem::path& path) const
-{
+std::optional<std::string> glimmer::VirtualFileSystem::ReadFileAsString(const std::filesystem::path &path) const {
     const std::unique_ptr<std::istream> streamUniquePtr = ReadFileAsStream(path);
-    if (streamUniquePtr == nullptr)
-    {
+    if (streamUniquePtr == nullptr) {
         return std::nullopt;
     }
     const auto stream = streamUniquePtr.get();
-    if (stream == nullptr)
-    {
+    if (stream == nullptr) {
         return std::nullopt;
     }
     return StringUtils::StreamToString(stream);
 }
 
 
-std::vector<std::filesystem::path> glimmer::VirtualFileSystem::ListFile(const std::filesystem::path& path,
-                                                                        const bool recursive) const
-{
-    for (const auto& provider : fileProviders_)
-    {
-        if (auto content = provider->ListFile(path, recursive); !content.empty())
-        {
+std::vector<std::filesystem::path> glimmer::VirtualFileSystem::ListFile(const std::filesystem::path &path,
+                                                                        const bool recursive) const {
+    for (const auto &provider: fileProviders_) {
+        if (auto content = provider->ListFile(path, recursive); !content.empty()) {
             return content;
         }
     }
     return {};
 }
 
-bool glimmer::VirtualFileSystem::DeleteFileOrFolder(const std::filesystem::path& path) const
-{
-    for (const auto& provider : fileProviders_)
-    {
-        if (provider->DeleteFileOrFolder(path))
-        {
+bool glimmer::VirtualFileSystem::DeleteFileOrFolder(const std::filesystem::path &path) const {
+    for (const auto &provider: fileProviders_) {
+        if (provider->DeleteFileOrFolder(path)) {
             return true;
         }
     }
     return false;
 }
 
-std::optional<std::filesystem::path> glimmer::VirtualFileSystem::GetActualPath(const std::filesystem::path& path) const
-{
-    for (const auto& provider : fileProviders_)
-    {
+std::optional<std::filesystem::path>
+glimmer::VirtualFileSystem::GetActualPath(const std::filesystem::path &path) const {
+    for (const auto &provider: fileProviders_) {
         auto actualPath = provider->GetActualPath(path);
-        if (actualPath.has_value())
-        {
+        if (actualPath.has_value()) {
             return actualPath;
         }
     }

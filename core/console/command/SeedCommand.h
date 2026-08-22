@@ -27,20 +27,18 @@
 #pragma once
 #include "core/console/Command.h"
 
-namespace glimmer
-{
-    class SeedCommand final : public Command
-    {
+namespace glimmer {
+    class SeedCommand final : public Command {
     public:
-        explicit SeedCommand(AppContext* appContext);
+        explicit SeedCommand(AppContext *appContext);
 
         [[nodiscard]] bool RequiresWorldContext() const override;
 
         [[nodiscard]] bool RequiresCheatEnabled() const override;
 
-        bool Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                     const std::function<void(const std::string& text)>* onMessage) override;
+        bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                     const std::function<void(const std::string &text)> *onMessage) override;
 
-        [[nodiscard]] const std::string& GetName() const override;
+        [[nodiscard]] const std::string &GetName() const override;
     };
 }

@@ -36,11 +36,10 @@
 #include <locale>
 #endif
 
-std::string glimmer::LanguageUtils::getLanguage()
-{
+std::string glimmer::LanguageUtils::getLanguage() {
 #ifdef __ANDROID__
-    JNIEnv* env = (JNIEnv*)SDL_GetAndroidJNIEnv();
-    jobject activity = (jobject)SDL_GetAndroidActivity();
+    JNIEnv *env = (JNIEnv *) SDL_GetAndroidJNIEnv();
+    jobject activity = (jobject) SDL_GetAndroidActivity();
     jclass localeClass = env->FindClass("java/util/Locale");
     jmethodID getDefaultMethod = env->GetStaticMethodID(localeClass, "getDefault", "()Ljava/util/Locale;");
     jobject defaultLocale = env->CallStaticObjectMethod(localeClass, getDefaultMethod);
@@ -48,11 +47,11 @@ std::string glimmer::LanguageUtils::getLanguage()
     jmethodID getLanguageMethod = env->GetMethodID(localeClass, "getLanguage", "()Ljava/lang/String;");
     jmethodID getCountryMethod = env->GetMethodID(localeClass, "getCountry", "()Ljava/lang/String;");
 
-    jstring languageJ = (jstring)env->CallObjectMethod(defaultLocale, getLanguageMethod);
-    jstring countryJ = (jstring)env->CallObjectMethod(defaultLocale, getCountryMethod);
+    jstring languageJ = (jstring) env->CallObjectMethod(defaultLocale, getLanguageMethod);
+    jstring countryJ = (jstring) env->CallObjectMethod(defaultLocale, getCountryMethod);
 
-    const char* languageC = env->GetStringUTFChars(languageJ, nullptr);
-    const char* countryC = env->GetStringUTFChars(countryJ, nullptr);
+    const char *languageC = env->GetStringUTFChars(languageJ, nullptr);
+    const char *countryC = env->GetStringUTFChars(countryJ, nullptr);
 
     std::string result = std::string(languageC) + "_" + std::string(countryC);
 
@@ -62,8 +61,7 @@ std::string glimmer::LanguageUtils::getLanguage()
 #elif defined(_WIN32) || defined(_WIN64)
     // 获取用户首选 UI 语言 ID (LANGID)，若失败则用系统区域 ID (LCID)
     LCID localeId = GetUserDefaultUILanguage(); // 注意：返回值是 LANGID，但可隐式转为 LCID
-    if (localeId == 0)
-    {
+    if (localeId == 0) {
         localeId = GetSystemDefaultLCID();
     }
 
@@ -75,35 +73,26 @@ std::string glimmer::LanguageUtils::getLanguage()
     std::wstring langCode;
     std::wstring countryCode;
 
-    if (langLen > 0)
-    {
+    if (langLen > 0) {
         langCode.resize(langLen); // 长度包含终止符
-        if (GetLocaleInfoW(localeId, LOCALE_SISO639LANGNAME, &langCode[0], langLen) == 0)
-        {
+        if (GetLocaleInfoW(localeId, LOCALE_SISO639LANGNAME, &langCode[0], langLen) == 0) {
             langCode = L"en";
         }
-    }
-    else
-    {
+    } else {
         langCode = L"en";
     }
 
-    if (countryLen > 0)
-    {
+    if (countryLen > 0) {
         countryCode.resize(countryLen);
-        if (GetLocaleInfoW(localeId, LOCALE_SISO3166CTRYNAME, &countryCode[0], countryLen) == 0)
-        {
+        if (GetLocaleInfoW(localeId, LOCALE_SISO3166CTRYNAME, &countryCode[0], countryLen) == 0) {
             countryCode = L"US";
         }
-    }
-    else
-    {
+    } else {
         countryCode = L"US";
     }
 
     // 辅助 lambda：将 std::wstring 转换为 UTF-8 std::string
-    auto WideToUtf8 = [](const std::wstring& wstr) -> std::string
-    {
+    auto WideToUtf8 = [](const std::wstring &wstr) -> std::string {
         if (wstr.empty()) return {};
         int len = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
         if (len <= 0) return {};
@@ -120,11 +109,9 @@ std::string glimmer::LanguageUtils::getLanguage()
     return langStr + "_" + countryStr;
 #else
     //linux
-    if (const char* langEnv = getenv("LANG"); langEnv != nullptr)
-    {
+    if (const char *langEnv = getenv("LANG"); langEnv != nullptr) {
         auto language = std::string(langEnv);
-        if (language.size() >= 5)
-        {
+        if (language.size() >= 5) {
             language = language.substr(0, 5);
         }
         return language;

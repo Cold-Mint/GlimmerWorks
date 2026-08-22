@@ -52,19 +52,17 @@
 #include "toml11/spec.hpp"
 #include "toml11/types.hpp"
 
-namespace glimmer
-{
+namespace glimmer {
     struct SpecialFileProcessingParams;
     class TileResourceManager;
     class StringManager;
 
-    class DataPack
-    {
+    class DataPack {
         std::filesystem::path rootPath_;
         DataPackManifest manifest_;
         toml::spec tomlVersion_;
-        const VirtualFileSystem* virtualFileSystem_;
-        const TomlTemplateExpander* tomlTemplateExpander_;
+        const VirtualFileSystem *virtualFileSystem_;
+        const TomlTemplateExpander *tomlTemplateExpander_;
         PackVerifyState packVerifyState_ = PackVerifyState::Unsigned;
 
 
@@ -75,7 +73,7 @@ namespace glimmer
          * @return The expanded path 展开后的路径
          */
         [[nodiscard]] std::vector<std::filesystem::path> GetActuallyTemplateSearchPath(
-            const std::filesystem::path& path) const;
+            const std::filesystem::path &path) const;
 
         /**
          * GetDataType
@@ -83,113 +81,113 @@ namespace glimmer
          * @param fileName fileName 文件名
          * @return
          */
-        static std::optional<std::string> GetDataType(const std::string& fileName);
+        static std::optional<std::string> GetDataType(const std::string &fileName);
 
 
-        [[nodiscard]] int LoadStringResourceFromFile(const std::filesystem::path& path,
-                                                     StringManager* stringManager) const;
+        [[nodiscard]] int LoadStringResourceFromFile(const std::filesystem::path &path,
+                                                     StringManager *stringManager) const;
 
-        void LoadLootTableResourceFromFile(const toml::value& value,
-                                           LootTableManager* lootTableManager) const;
-
-
-        void LoadInitialInventoryResourceFromFile(const toml::value& value,
-                                                  InitialInventoryManager* lootTableManager) const;
+        void LoadLootTableResourceFromFile(const toml::value &value,
+                                           LootTableManager *lootTableManager) const;
 
 
-        void LoadStructureResourceFromFile(const toml::value& value,
-                                           StructureManager* structureManager,
+        void LoadInitialInventoryResourceFromFile(const toml::value &value,
+                                                  InitialInventoryManager *lootTableManager) const;
+
+
+        void LoadStructureResourceFromFile(const toml::value &value,
+                                           StructureManager *structureManager,
                                            StructureGeneratorType structureGeneratorType) const;
 
-        void LoadTileResourceFromFile(const toml::value& value, TileResourceManager* tileManager) const;
+        void LoadTileResourceFromFile(const toml::value &value, TileResourceManager *tileManager) const;
 
-        void LoadBiomeResourceFromFile(const toml::value& value, BiomesManager* biomesManager) const;
+        void LoadBiomeResourceFromFile(const toml::value &value, BiomesManager *biomesManager) const;
 
-        void LoadComposableItemResourceFromFile(const toml::value& value, ComposableItemManager* itemManager) const;
+        void LoadComposableItemResourceFromFile(const toml::value &value, ComposableItemManager *itemManager) const;
 
-        void LoadAbilityItemResourceFromFile(const toml::value& value, AbilityItemManager* itemManager) const;
+        void LoadAbilityItemResourceFromFile(const toml::value &value, AbilityItemManager *itemManager) const;
 
-        void LoadMaterialItemResourceResourceFromFile(const toml::value& value, MaterialItemManager* itemManager) const;
+        void LoadMaterialItemResourceResourceFromFile(const toml::value &value, MaterialItemManager *itemManager) const;
 
-        void LoadContributorResourceFromFile(const toml::value& value,
-                                             ContributorManager* contributorManager) const;
+        void LoadContributorResourceFromFile(const toml::value &value,
+                                             ContributorManager *contributorManager) const;
 
-        void LoadMobResourceFromFile(const toml::value& value, MobManager* mobManager) const;
+        void LoadMobResourceFromFile(const toml::value &value, MobManager *mobManager) const;
 
-        void LoadShapeResourceFromFile(const toml::value& value, ShapeManager* shapeManager,
+        void LoadShapeResourceFromFile(const toml::value &value, ShapeManager *shapeManager,
                                        ShapeType type) const;
 
-        void LoadFixedColorResourceFromFile(const toml::value& value,
-                                            FixedColorManager* fixedColorManager) const;
+        void LoadFixedColorResourceFromFile(const toml::value &value,
+                                            FixedColorManager *fixedColorManager) const;
 
-        void LoadLightMaskResourceFromFile(const toml::value& value,
-                                           LightMaskManager* lightMaskManager) const;
+        void LoadLightMaskResourceFromFile(const toml::value &value,
+                                           LightMaskManager *lightMaskManager) const;
 
-        void LoadLightSourceResourceFromFile(const toml::value& value,
-                                             LightSourceManager* lightSourceManager) const;
+        void LoadLightSourceResourceFromFile(const toml::value &value,
+                                             LightSourceManager *lightSourceManager) const;
 
-        void LoadBiomeDecoratorResourceFromFile(const toml::value& value,
-                                                BiomeDecoratorResourcesManager* biomeDecoratorManager,
+        void LoadBiomeDecoratorResourceFromFile(const toml::value &value,
+                                                BiomeDecoratorResourcesManager *biomeDecoratorManager,
                                                 BiomeDecoratorType type) const;
 
-        void LoadStructurePlacementConditionsResourceFromFile(const toml::value& value,
-                                                              StructurePlacementConditionsResourceManager*
+        void LoadStructurePlacementConditionsResourceFromFile(const toml::value &value,
+                                                              StructurePlacementConditionsResourceManager *
                                                               structurePlacementConditionsResourceManager,
                                                               StructureConditionProcessorType processorType) const;
 
-        void LoadRecipeResourceFromFile(const toml::value& value, RecipeManager* recipeManager) const;
+        void LoadRecipeResourceFromFile(const toml::value &value, RecipeManager *recipeManager) const;
 
         [[nodiscard]]
         static std::optional<std::string> ExtractLanguageFromFileName(std::string_view fileName);
 
-        bool ProcessPublicKeyFile(const std::filesystem::path& path, SpecialFileProcessingParams& params) const;
+        bool ProcessPublicKeyFile(const std::filesystem::path &path, SpecialFileProcessingParams &params) const;
 
-        bool ProcessSignatureFile(const std::filesystem::path& path, SpecialFileProcessingParams& params) const;
+        bool ProcessSignatureFile(const std::filesystem::path &path, SpecialFileProcessingParams &params) const;
 
-        static std::optional<std::vector<char>> ReadFileContent(std::istream* stream);
+        static std::optional<std::vector<char> > ReadFileContent(std::istream *stream);
 
-        static void ComputeFileHash(const std::vector<char>& fileBuffer, std::vector<uint8_t>& allHashData);
+        static void ComputeFileHash(const std::vector<char> &fileBuffer, std::vector<uint8_t> &allHashData);
 
-        int LoadResourceByType(const std::string& dataType, const std::string& file,
-                               const std::string& content, const ModContext* modContext,
-                               const GraphicsContext* graphicsContext) const;
+        int LoadResourceByType(const std::string &dataType, const std::string &file,
+                               const std::string &content, const ModContext *modContext,
+                               const GraphicsContext *graphicsContext) const;
 
-        int LoadLanguageFiles(const std::vector<std::filesystem::path>& defaultLanguageFiles,
-                              const std::vector<std::filesystem::path>& targetLanguageFiles,
-                              const ModContext* modContext) const;
+        int LoadLanguageFiles(const std::vector<std::filesystem::path> &defaultLanguageFiles,
+                              const std::vector<std::filesystem::path> &targetLanguageFiles,
+                              const ModContext *modContext) const;
 
         static PackVerifyState VerifySignature(bool findPublicKey, bool findSignature,
-                                               const std::vector<uint8_t>& publicKey,
-                                               const std::vector<uint8_t>& signature,
-                                               const std::vector<uint8_t>& allHashData);
+                                               const std::vector<uint8_t> &publicKey,
+                                               const std::vector<uint8_t> &signature,
+                                               const std::vector<uint8_t> &allHashData);
 
-        bool ProcessSpecialFiles(const std::filesystem::path& path,
-                                 SpecialFileProcessingParams& params) const;
+        bool ProcessSpecialFiles(const std::filesystem::path &path,
+                                 SpecialFileProcessingParams &params) const;
 
-        int ProcessFile(const std::filesystem::path& file, const AppContext* appContext,
-                        SpecialFileProcessingParams& specialFileProcessingParams,
-                        std::vector<std::filesystem::path>& defaultLanguageFiles,
-                        std::vector<std::filesystem::path>& targetLanguageFiles,
-                        std::vector<uint8_t>& allHashData) const;
+        int ProcessFile(const std::filesystem::path &file, const AppContext *appContext,
+                        SpecialFileProcessingParams &specialFileProcessingParams,
+                        std::vector<std::filesystem::path> &defaultLanguageFiles,
+                        std::vector<std::filesystem::path> &targetLanguageFiles,
+                        std::vector<uint8_t> &allHashData) const;
 
-        static bool ProcessLanguageFile(const std::filesystem::path& file,
+        static bool ProcessLanguageFile(const std::filesystem::path &file,
                                         std::string_view dataType,
                                         std::string_view fileName,
-                                        std::vector<std::filesystem::path>& defaultLanguageFiles,
-                                        std::vector<std::filesystem::path>& targetLanguageFiles,
-                                        const AppContext* appContext);
+                                        std::vector<std::filesystem::path> &defaultLanguageFiles,
+                                        std::vector<std::filesystem::path> &targetLanguageFiles,
+                                        const AppContext *appContext);
 
     public:
-        explicit DataPack(std::filesystem::path path, const VirtualFileSystem* virtualFileSystem,
-                          const TomlTemplateExpander* tomlTemplateExpander,
-                          const toml::spec& tomlVersion);
+        explicit DataPack(std::filesystem::path path, const VirtualFileSystem *virtualFileSystem,
+                          const TomlTemplateExpander *tomlTemplateExpander,
+                          const toml::spec &tomlVersion);
 
         bool LoadManifest();
 
         [[nodiscard]] PackVerifyState GetPackVerifyState() const;
 
-        [[nodiscard]] bool LoadPack(AppContext* appContext);
+        [[nodiscard]] bool LoadPack(AppContext *appContext);
 
-        [[nodiscard]] const DataPackManifest& GetManifest() const;
+        [[nodiscard]] const DataPackManifest &GetManifest() const;
     };
 }

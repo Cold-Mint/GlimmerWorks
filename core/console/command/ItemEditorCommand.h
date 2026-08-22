@@ -29,34 +29,32 @@
 #include "core/inventory/Item.h"
 #include "core/LangsResources.h"
 
-namespace glimmer
-{
-    class ItemEditorCommand final : public Command
-    {
-        static void AddSuggestionsValue(NodeTree<std::string>* suggestionsTree, bool setMode);
+namespace glimmer {
+    class ItemEditorCommand final : public Command {
+        static void AddSuggestionsValue(NodeTree<std::string> *suggestionsTree, bool setMode);
 
-        static void SetItemAttribute(const std::string& attribute, Item* item, const std::string& value);
+        static void SetItemAttribute(const std::string &attribute, Item *item, const std::string &value);
 
-        static std::string GetItemAttribute(const std::string& attribute, Item* item);
+        static std::string GetItemAttribute(const std::string &attribute, Item *item);
 
-        template <typename MessageCallback>
-        static Item* GetPlayerHeldItem(const WorldContext* worldContext, const LangsResources* langsResources,
-                                       MessageCallback&& onMessageRef);
+        template<typename MessageCallback>
+        static Item *GetPlayerHeldItem(const WorldContext *worldContext, const LangsResources *langsResources,
+                                       MessageCallback &&onMessageRef);
 
-        void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
+        void InitSuggestions(NodeTree<std::string> *suggestionsTree) override;
 
     public:
-        explicit ItemEditorCommand(AppContext* appContext);
+        explicit ItemEditorCommand(AppContext *appContext);
 
         [[nodiscard]] bool RequiresWorldContext() const override;
 
         [[nodiscard]] bool RequiresCheatEnabled() const override;
 
-        [[nodiscard]] const std::string& GetName() const override;
+        [[nodiscard]] const std::string &GetName() const override;
 
-        void PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) override;
+        void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
 
-        bool Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                     const std::function<void(const std::string& text)>* onMessage) override;
+        bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                     const std::function<void(const std::string &text)> *onMessage) override;
     };
 }

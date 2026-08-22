@@ -32,10 +32,8 @@
 #include "TileVector2D.h"
 #include "WorldVector2D.h"
 
-namespace glimmer
-{
-    class CoordinateTransformer final
-    {
+namespace glimmer {
+    class CoordinateTransformer final {
     public:
         /**
          * Get the camera viewport rectangle (in world coordinates)
@@ -45,8 +43,8 @@ namespace glimmer
          * @param zoom The camera zoom factor 相机缩放比例
          * @return SDL_FRect Viewport rectangle in world coordinates 视口矩形（世界坐标）
          */
-        [[nodiscard]] static SDL_FRect GetViewportRect(const WorldVector2D& cameraPosition,
-                                                       const ScreenVector2D& cameraSize,
+        [[nodiscard]] static SDL_FRect GetViewportRect(const WorldVector2D &cameraPosition,
+                                                       const ScreenVector2D &cameraSize,
                                                        float zoom);
 
         /**
@@ -58,9 +56,9 @@ namespace glimmer
          * @param zoom The camera zoom factor 相机缩放比例
          * @return ScreenVector2D Screen position in pixels 屏幕坐标（像素）
          */
-        [[nodiscard]] static ScreenVector2D WorldToScreen(const WorldVector2D& cameraPosition,
-                                                          const WorldVector2D& worldPosition,
-                                                          const ScreenVector2D& cameraSize,
+        [[nodiscard]] static ScreenVector2D WorldToScreen(const WorldVector2D &cameraPosition,
+                                                          const WorldVector2D &worldPosition,
+                                                          const ScreenVector2D &cameraSize,
                                                           float zoom);
 
         /**
@@ -72,9 +70,9 @@ namespace glimmer
          * @param zoom The camera zoom factor 相机缩放比例
          * @return WorldVector2D World position 世界坐标
          */
-        [[nodiscard]] static WorldVector2D ScreenToWorld(const WorldVector2D& cameraPosition,
-                                                         const ScreenVector2D& screenPosition,
-                                                         const ScreenVector2D& cameraSize,
+        [[nodiscard]] static WorldVector2D ScreenToWorld(const WorldVector2D &cameraPosition,
+                                                         const ScreenVector2D &screenPosition,
+                                                         const ScreenVector2D &cameraSize,
                                                          float zoom);
 
         /**
@@ -83,7 +81,7 @@ namespace glimmer
          * @param tilePos TileVector2D Tile coordinates 瓦片坐标
          * @return WorldVector2D World coordinates (top-left corner of the tile) 世界坐标（瓦片左上角）
          */
-        [[nodiscard]] static WorldVector2D TileToWorld(const TileVector2D& tilePos);
+        [[nodiscard]] static WorldVector2D TileToWorld(const TileVector2D &tilePos);
 
         /**
          * World coordinates to tile coordinates
@@ -91,7 +89,7 @@ namespace glimmer
          * @param worldPos WorldVector2D World coordinates 世界坐标
          * @return TileVector2D Tile coordinates 瓦片坐标
          */
-        [[nodiscard]] static TileVector2D WorldToTile(const WorldVector2D& worldPos);
+        [[nodiscard]] static TileVector2D WorldToTile(const WorldVector2D &worldPos);
 
         /**
          * Design coordinates to camera coordinates
@@ -100,6 +98,6 @@ namespace glimmer
          * @param uiScale UI scale factor UI缩放比例
          * @return ScreenVector2D Camera coordinates 相机坐标
          */
-        [[nodiscard]] static ScreenVector2D DesignToScreen(const DesignVector2D& designPos, float uiScale);
+        [[nodiscard]] static ScreenVector2D DesignToScreen(const DesignVector2D &designPos, float uiScale);
     };
 }

@@ -32,25 +32,23 @@
 #include "core/ecs/PlayerTechnologyHandler.h"
 #include "src/core/game_component_type.pb.h"
 
-namespace glimmer
-{
-    class PlayerComponent final : public MobComponent
-    {
+namespace glimmer {
+    class PlayerComponent final : public MobComponent {
         PlayerInputHandler inputHandler_;
         PlayerCapabilityHandler capabilityHandler_;
         PlayerTechnologyHandler technologyHandler_;
-        Item* item_ = nullptr;
+        Item *item_ = nullptr;
 
     public:
-        void SetItem(Item* item);
+        void SetItem(Item *item);
 
-        [[nodiscard]] Item* GetItem() const;
+        [[nodiscard]] Item *GetItem() const;
 
-        [[nodiscard]] PlayerInputHandler* GetInputHandler();
+        [[nodiscard]] PlayerInputHandler *GetInputHandler();
 
-        [[nodiscard]] PlayerCapabilityHandler* GetCapabilityHandler();
+        [[nodiscard]] PlayerCapabilityHandler *GetCapabilityHandler();
 
-        [[nodiscard]] PlayerTechnologyHandler* GetTechnologyHandler();
+        [[nodiscard]] PlayerTechnologyHandler *GetTechnologyHandler();
 
         [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 

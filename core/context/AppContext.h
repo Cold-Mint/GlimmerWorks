@@ -46,10 +46,8 @@
 #include "core/scene/MainThreadDispatcher.h"
 #include "core/scene/SceneManager.h"
 
-namespace glimmer
-{
-    class AppContext
-    {
+namespace glimmer {
+    class AppContext {
         std::string language_;
         std::unique_ptr<WindowContext> windowContext_ = nullptr;
         std::unique_ptr<Config> config_ = nullptr;
@@ -70,9 +68,9 @@ namespace glimmer
         std::unique_ptr<toml::value> langsValue_ = nullptr;
         bool initSuccess_ = false;
 
-        void LoadLanguage(const std::string& data);
+        void LoadLanguage(const std::string &data);
 
-        static std::string GetTimeFileName(const std::string& prefix = "screenshot", const std::string& ext = ".png");
+        static std::string GetTimeFileName(const std::string &prefix = "screenshot", const std::string &ext = ".png");
 
     public:
         AppContext();
@@ -81,9 +79,9 @@ namespace glimmer
 
         [[nodiscard]] bool InitSuccess() const;
 
-        [[nodiscard]] WindowContext* GetWindowContext() const;
+        [[nodiscard]] WindowContext *GetWindowContext() const;
 
-        [[nodiscard]] const toml::spec& GetTomlVersion() const;
+        [[nodiscard]] const toml::spec &GetTomlVersion() const;
 
         void LoadMainMenuBGM() const;
 
@@ -91,44 +89,44 @@ namespace glimmer
 
         void SetRandomSlogan() const;
 
-        static void RestoreColorRenderer(SDL_Renderer* sdlRenderer);
+        static void RestoreColorRenderer(SDL_Renderer *sdlRenderer);
 
-        [[nodiscard]] ModContext* GetModContext() const;
+        [[nodiscard]] ModContext *GetModContext() const;
 
-        [[nodiscard]] ConsoleContext* GetConsoleContext() const;
+        [[nodiscard]] ConsoleContext *GetConsoleContext() const;
 
-        [[nodiscard]] GraphicsContext* GetGraphicsContext() const;
+        [[nodiscard]] GraphicsContext *GetGraphicsContext() const;
 
-        [[nodiscard]] AudioContext* GetAudioContext() const;
+        [[nodiscard]] AudioContext *GetAudioContext() const;
 
-        [[nodiscard]] RmlContext* GetRmlContext() const;
+        [[nodiscard]] RmlContext *GetRmlContext() const;
 
-        [[nodiscard]] MainThreadDispatcher* GetMainThreadDispatcher() const;
+        [[nodiscard]] MainThreadDispatcher *GetMainThreadDispatcher() const;
 
-        [[nodiscard]] Config* GetConfig() const;
+        [[nodiscard]] Config *GetConfig() const;
 
-        [[nodiscard]] toml::value* GetLanguageValue() const;
+        [[nodiscard]] toml::value *GetLanguageValue() const;
 
-        [[nodiscard]] LangsResources* GetLangsResources() const;
+        [[nodiscard]] LangsResources *GetLangsResources() const;
 
-        [[nodiscard]] ResourcePackManager* GetResourcePackManager() const;
+        [[nodiscard]] ResourcePackManager *GetResourcePackManager() const;
 
-        [[nodiscard]] ResourceLocator* GetResourceLocator() const;
+        [[nodiscard]] ResourceLocator *GetResourceLocator() const;
 
-        [[nodiscard]] VirtualFileSystem* GetVirtualFileSystem() const;
+        [[nodiscard]] VirtualFileSystem *GetVirtualFileSystem() const;
 
-        [[nodiscard]] SceneManager* GetSceneManager() const;
+        [[nodiscard]] SceneManager *GetSceneManager() const;
 
-        [[nodiscard]] SavesManager* GetSavesManager() const;
+        [[nodiscard]] SavesManager *GetSavesManager() const;
 
-        [[nodiscard]] const std::string& GetLanguage() const;
+        [[nodiscard]] const std::string &GetLanguage() const;
 
-        void AddUIMessage(const std::string& string);
+        void AddUIMessage(const std::string &string);
 
-        std::vector<GameUIMessage>& GetGameUIMessages();
+        std::vector<GameUIMessage> &GetGameUIMessages();
 
         void ExitApp() const;
 
-        void CreateScreenshot(const std::function<void(const std::string& text)>* onMessage) const;
+        void CreateScreenshot(const std::function<void(const std::string &text)> *onMessage) const;
     };
 }

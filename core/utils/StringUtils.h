@@ -30,10 +30,8 @@
 #include <optional>
 #include <span>
 
-namespace glimmer
-{
-    class StringUtils
-    {
+namespace glimmer {
+    class StringUtils {
     public:
         /**
          * Convert any UTF-8 string to a cross-platform secure archive directory name (in English + numbers)
@@ -41,7 +39,7 @@ namespace glimmer
          * @param utf8Str
          * @return
          */
-        static std::string ToSafeSaveName(const std::string& utf8Str);
+        static std::string ToSafeSaveName(const std::string &utf8Str);
 
 
         /**
@@ -50,7 +48,7 @@ namespace glimmer
          * @param string string 字符串
          * @return Return the fixed hash value. 返回固定的哈希值。
          */
-        static uint64_t StringToUint64Blake3(const std::string& string);
+        static uint64_t StringToUint64Blake3(const std::string &string);
 
         /**
          * Check if the input string is an integer
@@ -58,7 +56,7 @@ namespace glimmer
          * @param str
          * @return
          */
-        static bool IsInteger(const std::string& str);
+        static bool IsInteger(const std::string &str);
 
         /**
          * String to hash value
@@ -69,7 +67,7 @@ namespace glimmer
          * @param string
          * @return
          */
-        static uint64_t StringToUint64(const std::string& string);
+        static uint64_t StringToUint64(const std::string &string);
 
         /**
          * String to byte data
@@ -101,8 +99,8 @@ namespace glimmer
          * @param stream
          * @return
          */
-        static std::optional<std::string> StreamToString(const std::istream* stream);
+        static std::optional<std::string> StreamToString(const std::istream *stream);
 
-        static void ReplaceAll(std::string& str, std::string_view from, std::string_view to);
+        static void ReplaceAll(std::string &str, std::string_view from, std::string_view to);
     };
 }

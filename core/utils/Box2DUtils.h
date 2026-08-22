@@ -62,6 +62,6 @@ namespace glimmer {
          * @param vector2D vector2D Vector2D
          * @return b2Vec2 b2Vec2
          */
-        static b2Vec2 ToMeters(const WorldVector2D& vector2D);
+        static b2Vec2 ToMeters(const WorldVector2D &vector2D);
     };
 }

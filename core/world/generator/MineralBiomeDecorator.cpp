@@ -31,44 +31,37 @@
 #include "ChunkGenerator.h"
 
 
-void glimmer::MineralBiomeDecorator::DecorationImp(WorldContext* worldContext, TerrainResult* terrainResult,
-                                                   MineralBiomeDecoratorResource* decoratorResource,
-                                                   BiomeResource* biomeResource,
+void glimmer::MineralBiomeDecorator::DecorationImp(WorldContext *worldContext, TerrainResult *terrainResult,
+                                                   MineralBiomeDecoratorResource *decoratorResource,
+                                                   BiomeResource *biomeResource,
                                                    std::unordered_map<TileLayerType, std::array<ResourceRef,
-                                                                          CHUNK_AREA>>* tilesRefMap)
-{
-    const FastNoiseLite* noiseLite = decoratorResource->GetFastNoiseLite(GetWorldSeed());
-    if (noiseLite == nullptr)
-    {
+                                                       CHUNK_AREA> > *tilesRefMap) {
+    const FastNoiseLite *noiseLite = decoratorResource->GetFastNoiseLite(GetWorldSeed());
+    if (noiseLite == nullptr) {
         return;
     }
     const float heightRange = decoratorResource->maxSpawnElevation - decoratorResource->minSpawnElevation;
-    if (heightRange <= 0.0001F)
-    {
+    if (heightRange <= 0.0001F) {
         return;
     }
-    std::array<ResourceRef, CHUNK_AREA>& targetLayer = tilesRefMap->at(
+    std::array<ResourceRef, CHUNK_AREA> &targetLayer = tilesRefMap->at(
         static_cast<TileLayerType>(decoratorResource->layerType));
-    for (int localX = 0; localX < CHUNK_SIZE; localX++)
-    {
-        for (int localY = 0; localY < CHUNK_SIZE; localY++)
-        {
+    for (int localX = 0; localX < CHUNK_SIZE; localX++) {
+        for (int localY = 0; localY < CHUNK_SIZE; localY++) {
             const int idx = localY * CHUNK_SIZE + localX;
             const TileVector2D absolutePosition = terrainResult->GetPosition() + TileVector2D(localX, localY);
             float elevation = ChunkGenerator::GetElevation(absolutePosition.y);
-            if (elevation > decoratorResource->maxSpawnElevation || elevation < decoratorResource->minSpawnElevation)
-            {
+            if (elevation > decoratorResource->maxSpawnElevation || elevation < decoratorResource->minSpawnElevation) {
                 continue;
             }
-            const TerrainTileResult& self = terrainResult->QueryTerrain(localX, localY);
-            if (self.terrainType != TerrainResultType::SOLID || self.biomeResource != biomeResource)
-            {
+            const TerrainTileResult &self = terrainResult->QueryTerrain(localX, localY);
+            if (self.terrainType != TerrainResultType::SOLID || self.biomeResource != biomeResource) {
                 continue;
             }
             const float normalizedOreNoise = (noiseLite->GetNoise(
-                static_cast<float>(absolutePosition.x),
-                static_cast<float>(absolutePosition.y)
-            ) + 1.0F) * 0.5F;
+                                                  static_cast<float>(absolutePosition.x),
+                                                  static_cast<float>(absolutePosition.y)
+                                              ) + 1.0F) * 0.5F;
             const float elevationRatio = (elevation - decoratorResource->minSpawnElevation) / heightRange;
             float currentSpawnThreshold = decoratorResource->invertOreSpawnByDepth
                                               ? std::lerp(
@@ -82,15 +75,13 @@ void glimmer::MineralBiomeDecorator::DecorationImp(WorldContext* worldContext, T
                                                   elevationRatio
                                               );
 
-            if (normalizedOreNoise > currentSpawnThreshold)
-            {
+            if (normalizedOreNoise > currentSpawnThreshold) {
                 targetLayer[idx] = decoratorResource->ore;
             }
         }
     }
 }
 
-glimmer::BiomeDecoratorType glimmer::MineralBiomeDecorator::GetBiomeDecoratorType()
-{
+glimmer::BiomeDecoratorType glimmer::MineralBiomeDecorator::GetBiomeDecoratorType() {
     return BiomeDecoratorType::MINERAL;
 }

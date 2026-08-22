@@ -26,12 +26,10 @@
  */
 #include "StructureManager.h"
 
-void glimmer::StructureManager::OnRegister(IStructureResource* resource)
-{
+void glimmer::StructureManager::OnRegister(IStructureResource *resource) {
     structureVector_.emplace_back(resource);
 }
 
-const std::vector<glimmer::IStructureResource*>& glimmer::StructureManager::GetAll()
-{
+const std::vector<glimmer::IStructureResource *> &glimmer::StructureManager::GetAll() {
     return structureVector_;
 }

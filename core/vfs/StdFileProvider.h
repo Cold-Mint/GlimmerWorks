@@ -30,14 +30,12 @@
 
 #include "FileProvider.h"
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * File provider implemented based on the standard library
      * 基于标准库实现的文件提供者
      */
-    class StdFileProvider : public IFileProvider
-    {
+    class StdFileProvider : public IFileProvider {
         std::filesystem::path root_;
         std::string name_ = "std_file_provider";
 
@@ -47,37 +45,37 @@ namespace glimmer
          * @param relativePath relativePath 相对路径
          * @return
          */
-        [[nodiscard]] std::optional<std::filesystem::path> GetFullPath(const std::filesystem::path& relativePath) const;
+        [[nodiscard]] std::optional<std::filesystem::path> GetFullPath(const std::filesystem::path &relativePath) const;
 
     public:
         ~StdFileProvider() override = default;
 
         explicit StdFileProvider(std::string rootPath);
 
-        [[nodiscard]] bool DeleteFileOrFolder(const std::filesystem::path& path) override;
+        [[nodiscard]] bool DeleteFileOrFolder(const std::filesystem::path &path) override;
 
-        [[nodiscard]] std::unique_ptr<std::istream> ReadStream(const std::filesystem::path& path) override;
+        [[nodiscard]] std::unique_ptr<std::istream> ReadStream(const std::filesystem::path &path) override;
 
         [[nodiscard]] std::vector<std::filesystem::path>
-        ListFile(const std::filesystem::path& path, bool recursive) override;
+        ListFile(const std::filesystem::path &path, bool recursive) override;
 
         [[nodiscard]] std::optional<std::filesystem::path>
-        GetParentPath(const std::filesystem::path& path) const override;
+        GetParentPath(const std::filesystem::path &path) const override;
 
         [[nodiscard]] std::optional<std::filesystem::path>
-        GetActualPath(const std::filesystem::path& path) const override;
+        GetActualPath(const std::filesystem::path &path) const override;
 
-        [[nodiscard]] bool CreateFolder(const std::filesystem::path& path) override;
+        [[nodiscard]] bool CreateFolder(const std::filesystem::path &path) override;
 
         [[nodiscard]] std::string_view GetFileProviderName() const override;
 
 
-        [[nodiscard]] std::optional<std::string> GetFileOrFolderName(const std::filesystem::path& path) const override;
+        [[nodiscard]] std::optional<std::string> GetFileOrFolderName(const std::filesystem::path &path) const override;
 
-        [[nodiscard]] bool Exists(const std::filesystem::path& path) override;
+        [[nodiscard]] bool Exists(const std::filesystem::path &path) override;
 
-        [[nodiscard]] bool IsFile(const std::filesystem::path& path) override;
+        [[nodiscard]] bool IsFile(const std::filesystem::path &path) override;
 
-        [[nodiscard]] bool WriteFile(const std::filesystem::path& path, const std::string& content) const override;
+        [[nodiscard]] bool WriteFile(const std::filesystem::path &path, const std::string &content) const override;
     };
 }

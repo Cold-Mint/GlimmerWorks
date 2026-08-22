@@ -28,36 +28,34 @@
 #include "core/console/Command.h"
 #include "core/world/generator/TileLayerType.h"
 
-namespace glimmer
-{
+namespace glimmer {
     struct TileResource;
     class Chunk;
 
-    class PlaceCommand final : public Command
-    {
-        void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
+    class PlaceCommand final : public Command {
+        void InitSuggestions(NodeTree<std::string> *suggestionsTree) override;
 
-        static void PlaceTileAt(Chunk* chunk, TileLayerType tileLayerType, int index,
-                                const ResourceRef& resourceRef, const TileResource* tileResource, int x, int y);
+        static void PlaceTileAt(Chunk *chunk, TileLayerType tileLayerType, int index,
+                                const ResourceRef &resourceRef, const TileResource *tileResource, int x, int y);
 
-        static void PlaceTileAtWithSize(Chunk* chunk, TileLayerType tileLayerType, int index,
-                                        const ResourceRef& resourceRef, const TileResource* tileResource);
+        static void PlaceTileAtWithSize(Chunk *chunk, TileLayerType tileLayerType, int index,
+                                        const ResourceRef &resourceRef, const TileResource *tileResource);
 
-        static bool ExecuteStructure(const CommandArgs* commandArgs, const CommandSender* commandSender,
-                                     WorldContext* worldContext);
+        static bool ExecuteStructure(const CommandArgs *commandArgs, const CommandSender *commandSender,
+                                     WorldContext *worldContext);
 
     public:
-        explicit PlaceCommand(AppContext* appContext);
+        explicit PlaceCommand(AppContext *appContext);
 
-        [[nodiscard]] const std::string& GetName() const override;
+        [[nodiscard]] const std::string &GetName() const override;
 
-        void PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) override;
+        void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
 
         [[nodiscard]] bool RequiresWorldContext() const override;
 
         [[nodiscard]] bool RequiresCheatEnabled() const override;
 
-        bool Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                     const std::function<void(const std::string& text)>* onMessage) override;
+        bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                     const std::function<void(const std::string &text)> *onMessage) override;
     };
 }

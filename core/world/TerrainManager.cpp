@@ -31,29 +31,23 @@
 #include "core/world/WorldContext.h"
 #include "generator/ChunkGenerator.h"
 
-glimmer::TerrainManager::TerrainManager(WorldContext* worldContext) : worldContext_(worldContext)
-{
+glimmer::TerrainManager::TerrainManager(WorldContext *worldContext) : worldContext_(worldContext) {
 }
 
-glimmer::TerrainResult* glimmer::TerrainManager::GetTerrainData(const TileVector2D& position)
-{
-    if (auto it = terrainTileData_.find(position); it != terrainTileData_.end())
-    {
+glimmer::TerrainResult *glimmer::TerrainManager::GetTerrainData(const TileVector2D &position) {
+    if (auto it = terrainTileData_.find(position); it != terrainTileData_.end()) {
         return it->second.get();
     }
     return nullptr;
 }
 
-glimmer::TerrainResult* glimmer::TerrainManager::GetOrCreateTerrainData(const TileVector2D& position)
-{
-    if (auto it = terrainTileData_.find(position); it != terrainTileData_.end())
-    {
+glimmer::TerrainResult *glimmer::TerrainManager::GetOrCreateTerrainData(const TileVector2D &position) {
+    if (auto it = terrainTileData_.find(position); it != terrainTileData_.end()) {
         return it->second.get();
     }
 
     auto terrainResult = worldContext_->GetChunkGenerator()->GenerateTerrain(position);
-    if (terrainResult == nullptr)
-    {
+    if (terrainResult == nullptr) {
         return nullptr;
     }
     auto terrainPtr = terrainResult.get();
@@ -62,26 +56,21 @@ glimmer::TerrainResult* glimmer::TerrainManager::GetOrCreateTerrainData(const Ti
     return terrainPtr;
 }
 
-std::unordered_map<glimmer::TileVector2D, glimmer::TerrainResult*, glimmer::Vector2DIHash>*
-glimmer::TerrainManager::GetTerrainResults()
-{
+std::unordered_map<glimmer::TileVector2D, glimmer::TerrainResult *, glimmer::Vector2DIHash> *
+glimmer::TerrainManager::GetTerrainResults() {
     return &terrainTileDataCache_;
 }
 
-void glimmer::TerrainManager::LoadTerrainAt(TileVector2D position)
-{
-    if (processedTerrainTiles_.contains(position))
-    {
+void glimmer::TerrainManager::LoadTerrainAt(TileVector2D position) {
+    if (processedTerrainTiles_.contains(position)) {
         return;
     }
     worldContext_->GetChunkGenerator()->GenerateStructure(position);
     processedTerrainTiles_.emplace(position);
 }
 
-void glimmer::TerrainManager::UnloadTerrainAt(TileVector2D position)
-{
-    if (!processedTerrainTiles_.contains(position))
-    {
+void glimmer::TerrainManager::UnloadTerrainAt(TileVector2D position) {
+    if (!processedTerrainTiles_.contains(position)) {
         return;
     }
     processedTerrainTiles_.erase(position);

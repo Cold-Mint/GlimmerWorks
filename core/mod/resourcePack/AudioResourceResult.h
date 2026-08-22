@@ -28,10 +28,8 @@
 #include "ResourceResult.h"
 #include "SDL3_mixer/SDL_mixer.h"
 
-namespace glimmer
-{
-    class AudioResourceResult : public ResourceResult<MIX_Audio>
-    {
+namespace glimmer {
+    class AudioResourceResult : public ResourceResult<MIX_Audio> {
     public:
         void DestroyResource() override;
     };

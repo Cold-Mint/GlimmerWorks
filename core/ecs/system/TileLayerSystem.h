@@ -28,35 +28,33 @@
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/component/TileLayerComponent.h"
 
-namespace glimmer
-{
+namespace glimmer {
     enum class TileLayerType : uint8_t;
 
-    class TileLayerSystem final : public GameSystem
-    {
-        CameraComponent* cameraComponent_ = nullptr;
-        Transform2DComponent* cameraTransform2DComponent_ = nullptr;
-        std::vector<TileLayerComponent*> tileLayerComponents_;
+    class TileLayerSystem final : public GameSystem {
+        CameraComponent *cameraComponent_ = nullptr;
+        Transform2DComponent *cameraTransform2DComponent_ = nullptr;
+        std::vector<TileLayerComponent *> tileLayerComponents_;
 #if  !defined(NDEBUG)
         bool lightEnabled_ = false;
 #endif
-        bool ShouldDrawTile(const Color* finalLightColor) const;
+        bool ShouldDrawTile(const Color *finalLightColor) const;
 
-        void RenderTileSnapshot(SDL_Renderer* renderer, const TileSnapshot* tileSnapshot,
-                                const TileVector2D& tileCoord, Uint8 alpha,
-                                const Color* finalLightColor,
-                                std::unordered_set<uint64_t>& drawnTiles) const;
+        void RenderTileSnapshot(SDL_Renderer *renderer, const TileSnapshot *tileSnapshot,
+                                const TileVector2D &tileCoord, Uint8 alpha,
+                                const Color *finalLightColor,
+                                std::unordered_set<uint64_t> &drawnTiles) const;
 
     public:
-        explicit TileLayerSystem(WorldContext* worldContext);
+        explicit TileLayerSystem(WorldContext *worldContext);
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
-        void Render(SDL_Renderer* renderer) override;
+        void Render(SDL_Renderer *renderer) override;
 
         uint8_t GetExecutionOrder() override;
 
-        void OnConfigChanged(const Config* config) override;
+        void OnConfigChanged(const Config *config) override;
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };

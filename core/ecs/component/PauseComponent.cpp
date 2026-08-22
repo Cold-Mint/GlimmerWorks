@@ -28,12 +28,10 @@
 
 #include "core/Constants.h"
 
-GameComponentTypeMessage glimmer::PauseComponent::GetComponentTypeStatic()
-{
+GameComponentTypeMessage glimmer::PauseComponent::GetComponentTypeStatic() {
     return COMPONENT_PAUSE;
 }
 
-GameComponentTypeMessage glimmer::PauseComponent::GetComponentType()
-{
+GameComponentTypeMessage glimmer::PauseComponent::GetComponentType() {
     return GetComponentTypeStatic();
 }

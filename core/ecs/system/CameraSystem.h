@@ -28,25 +28,23 @@
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/component/CameraComponent.h"
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * The camera system handles the logic of the camera and its interaction with the world coordinates
      * 相机系统，处理相机的逻辑和与世界坐标的联动
      */
-    class CameraSystem final : public GameSystem
-    {
-        AppContext* appContext_ = nullptr;
-        CameraComponent* cameraComponent_ = nullptr;
+    class CameraSystem final : public GameSystem {
+        AppContext *appContext_ = nullptr;
+        CameraComponent *cameraComponent_ = nullptr;
 
     public:
-        explicit CameraSystem(WorldContext* worldContext);
+        explicit CameraSystem(WorldContext *worldContext);
 
-        void OnConfigChanged(const Config* config) override;
+        void OnConfigChanged(const Config *config) override;
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
-        void OnWindowSizeChanged(const int& width, const int& height) override;
+        void OnWindowSizeChanged(const int &width, const int &height) override;
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };

@@ -26,32 +26,26 @@
  */
 #include "SelectedItemRuntimeData.h"
 
-void glimmer::SelectedItemRuntimeData::SetItem(Item* item)
-{
+void glimmer::SelectedItemRuntimeData::SetItem(Item *item) {
     item_ = item;
 }
 
-glimmer::Item* glimmer::SelectedItemRuntimeData::GetItem() const
-{
+glimmer::Item *glimmer::SelectedItemRuntimeData::GetItem() const {
     return item_;
 }
 
-uint8_t glimmer::SelectedItemRuntimeData::GetSlotIndex() const
-{
+uint8_t glimmer::SelectedItemRuntimeData::GetSlotIndex() const {
     return slotIndex_;
 }
 
-uint8_t glimmer::SelectedItemRuntimeData::GetSelectedAmount() const
-{
+uint8_t glimmer::SelectedItemRuntimeData::GetSelectedAmount() const {
     return selectedAmount_;
 }
 
-void glimmer::SelectedItemRuntimeData::SetSelectedAmount(const uint8_t selectedAmount)
-{
+void glimmer::SelectedItemRuntimeData::SetSelectedAmount(const uint8_t selectedAmount) {
     selectedAmount_ = selectedAmount;
 }
 
-void glimmer::SelectedItemRuntimeData::SetSlotIndex(const uint8_t slotIndex)
-{
+void glimmer::SelectedItemRuntimeData::SetSlotIndex(const uint8_t slotIndex) {
     slotIndex_ = slotIndex;
 }

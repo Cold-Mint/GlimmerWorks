@@ -36,7 +36,7 @@
 namespace glimmer {
     class FixedColorManager {
         std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<FixedColorResource>,
-            TransparentStringHash, std::equal_to<>>, TransparentStringHash, std::equal_to<>>
+            TransparentStringHash, std::equal_to<> >, TransparentStringHash, std::equal_to<> >
         fixedColorMap_
                 {};
 

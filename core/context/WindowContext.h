@@ -29,12 +29,10 @@
 #include "SDL3/SDL_render.h"
 #include "SDL3/SDL_video.h"
 
-namespace glimmer
-{
-    class WindowContext
-    {
-        SDL_Window* window_ = nullptr;
-        SDL_Renderer* renderer_ = nullptr;
+namespace glimmer {
+    class WindowContext {
+        SDL_Window *window_ = nullptr;
+        SDL_Renderer *renderer_ = nullptr;
         int windowWidth_ = 0;
         int windowHeight_ = 0;
         bool isRunning_ = true;
@@ -44,17 +42,17 @@ namespace glimmer
 
         ~WindowContext() = default;
 
-        void SetWindow(SDL_Window* window);
+        void SetWindow(SDL_Window *window);
 
-        void SetRenderer(SDL_Renderer* renderer);
+        void SetRenderer(SDL_Renderer *renderer);
 
         void SetWindowWidth(int width);
 
         void SetWindowHeight(int height);
 
-        void SetWindowTitle(const char* title) const;
+        void SetWindowTitle(const char *title) const;
 
-        [[nodiscard]] SDL_Renderer* GetRenderer() const;
+        [[nodiscard]] SDL_Renderer *GetRenderer() const;
 
         [[nodiscard]] int GetWindowWidth() const;
 

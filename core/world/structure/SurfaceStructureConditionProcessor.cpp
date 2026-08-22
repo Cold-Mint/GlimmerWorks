@@ -27,30 +27,24 @@
 #include "SurfaceStructureConditionProcessor.h"
 
 glimmer::StructureConditionProcessorType glimmer::SurfaceStructureConditionProcessor::
-GetStructureConditionProcessorType()
-{
+GetStructureConditionProcessorType() {
     return StructureConditionProcessorType::Surface;
 }
 
-std::bitset<CHUNK_AREA> glimmer::SurfaceStructureConditionProcessor::Match(TerrainResult* terrainResult,
-                                                                           const IStructurePlacementConditionsResource*
-                                                                           placementConditionsResource)
-{
+std::bitset<CHUNK_AREA> glimmer::SurfaceStructureConditionProcessor::Match(TerrainResult *terrainResult,
+                                                                           const IStructurePlacementConditionsResource *
+                                                                           placementConditionsResource) {
     std::bitset<CHUNK_AREA> result;
-    for (int localX = 0; localX < CHUNK_SIZE; localX++)
-    {
-        for (int localY = 0; localY < CHUNK_SIZE; localY++)
-        {
-            const TerrainTileResult& self = terrainResult->QueryTerrain(localX, localY);
-            if (self.terrainType != TerrainResultType::SOLID)
-            {
+    for (int localX = 0; localX < CHUNK_SIZE; localX++) {
+        for (int localY = 0; localY < CHUNK_SIZE; localY++) {
+            const TerrainTileResult &self = terrainResult->QueryTerrain(localX, localY);
+            if (self.terrainType != TerrainResultType::SOLID) {
                 //Not solid tiles.
                 //不是固体瓦片。
                 continue;
             }
-            const TerrainTileResult& up = terrainResult->QueryTerrain(localX, localY + 1);
-            if (up.terrainType != TerrainResultType::AIR)
-            {
+            const TerrainTileResult &up = terrainResult->QueryTerrain(localX, localY + 1);
+            if (up.terrainType != TerrainResultType::AIR) {
                 // The tiles above are not air.
                 //上方的瓦片不是空气。
                 continue;

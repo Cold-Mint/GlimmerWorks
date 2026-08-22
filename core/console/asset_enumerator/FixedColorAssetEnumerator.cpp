@@ -28,20 +28,16 @@
 #if  !defined(NDEBUG)
 #include "core/context/AppContext.h"
 
-std::string_view glimmer::FixedColorAssetEnumerator::GetAssetType() const
-{
+std::string_view glimmer::FixedColorAssetEnumerator::GetAssetType() const {
     return assetName;
 }
 
-std::optional<std::string> glimmer::FixedColorAssetEnumerator::ListAsset(const AppContext* appContext)
-{
-    if (appContext == nullptr)
-    {
+std::optional<std::string> glimmer::FixedColorAssetEnumerator::ListAsset(const AppContext *appContext) {
+    if (appContext == nullptr) {
         return std::nullopt;
     }
-    const FixedColorManager* fixedColorManager = appContext->GetGraphicsContext()->GetFixedColorManager();
-    if (fixedColorManager == nullptr)
-    {
+    const FixedColorManager *fixedColorManager = appContext->GetGraphicsContext()->GetFixedColorManager();
+    if (fixedColorManager == nullptr) {
         return std::nullopt;
     }
     return fixedColorManager->ListFixedColorResources();

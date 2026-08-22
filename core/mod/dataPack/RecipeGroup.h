@@ -27,10 +27,8 @@
 #pragma once
 #include <cstdint>
 
-namespace glimmer
-{
-    enum class RecipeGroup : uint8_t
-    {
+namespace glimmer {
+    enum class RecipeGroup : uint8_t {
         //A recipe set that can be unlocked without using any work blocks.
         //不用任何工作方块就能解锁的配方组。
         None = 0,

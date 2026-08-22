@@ -29,51 +29,39 @@
 #include "core/world/SystemScheduler.h"
 #include "core/world/WorldContext.h"
 
-void glimmer::GuiStackGameSystem::SetAndHideElementDocument(Rml::ElementDocument* document)
-{
+void glimmer::GuiStackGameSystem::SetAndHideElementDocument(Rml::ElementDocument *document) {
     SetElementDocument(document);
-    if (document != nullptr)
-    {
+    if (document != nullptr) {
         document->Hide();
     }
 }
 
-glimmer::GuiStackGameSystem::GuiStackGameSystem(WorldContext* worldContext) : GuiGameSystem(worldContext)
-{
+glimmer::GuiStackGameSystem::GuiStackGameSystem(WorldContext *worldContext) : GuiGameSystem(worldContext) {
 }
 
-void glimmer::GuiStackGameSystem::OnActivationChanged(bool activeStatus)
-{
-    Rml::ElementDocument* elementDocument = GetElementDocument();
-    if (elementDocument == nullptr)
-    {
+void glimmer::GuiStackGameSystem::OnActivationChanged(bool activeStatus) {
+    Rml::ElementDocument *elementDocument = GetElementDocument();
+    if (elementDocument == nullptr) {
         return;
     }
-    if (activeStatus)
-    {
+    if (activeStatus) {
         elementDocument->Show();
-    }
-    else
-    {
+    } else {
         elementDocument->Hide();
     }
 }
 
-SDL_Scancode glimmer::GuiStackGameSystem::GetHotKey() const
-{
+SDL_Scancode glimmer::GuiStackGameSystem::GetHotKey() const {
     return hotKey_;
 }
 
-bool glimmer::GuiStackGameSystem::CanActive() const
-{
-    const WorldContext* worldContext = GetWorldContext();
-    if (worldContext == nullptr)
-    {
+bool glimmer::GuiStackGameSystem::CanActive() const {
+    const WorldContext *worldContext = GetWorldContext();
+    if (worldContext == nullptr) {
         return false;
     }
-    const SystemScheduler* systemScheduler = worldContext->GetSystemScheduler();
-    if (systemScheduler == nullptr)
-    {
+    const SystemScheduler *systemScheduler = worldContext->GetSystemScheduler();
+    if (systemScheduler == nullptr) {
         return false;
     }
     return systemScheduler->GetTopGuiSystemType() == GetGameSystemType();

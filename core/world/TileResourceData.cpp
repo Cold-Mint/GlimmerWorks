@@ -27,64 +27,51 @@
 #include "TileResourceData.h"
 
 
-glimmer::TextureResourceResult* glimmer::TileResourceData::GetTexture() const
-{
-    if (textureResult_ == nullptr)
-    {
+glimmer::TextureResourceResult *glimmer::TileResourceData::GetTexture() const {
+    if (textureResult_ == nullptr) {
         return nullptr;
     }
     return textureResult_.get();
 }
 
-glimmer::AudioResourceResult* glimmer::TileResourceData::GetBreakSFX() const
-{
-    if (breakSFXResult_ == nullptr)
-    {
+glimmer::AudioResourceResult *glimmer::TileResourceData::GetBreakSFX() const {
+    if (breakSFXResult_ == nullptr) {
         return nullptr;
     }
     return breakSFXResult_.get();
 }
 
-glimmer::AudioResourceResult* glimmer::TileResourceData::GetPlaceSFX() const
-{
-    if (placeSFXResult_ == nullptr)
-    {
+glimmer::AudioResourceResult *glimmer::TileResourceData::GetPlaceSFX() const {
+    if (placeSFXResult_ == nullptr) {
         return nullptr;
     }
     return placeSFXResult_.get();
 }
 
-const glimmer::ResourceRef* glimmer::TileResourceData::GetTextureRef() const
-{
+const glimmer::ResourceRef *glimmer::TileResourceData::GetTextureRef() const {
     return &textureRef_;
 }
 
-const std::vector<glimmer::ItemTagResource>& glimmer::TileResourceData::GetTags() const
-{
+const std::vector<glimmer::ItemTagResource> &glimmer::TileResourceData::GetTags() const {
     return tags_;
 }
 
-void glimmer::TileResourceData::SetTexture(const std::shared_ptr<TextureResourceResult>& textureResult)
-{
+void glimmer::TileResourceData::SetTexture(const std::shared_ptr<TextureResourceResult> &textureResult) {
     this->textureResult_ = textureResult;
 }
 
-void glimmer::TileResourceData::SetTextureRef(const ResourceRef& textureRef)
-{
+void glimmer::TileResourceData::SetTextureRef(const ResourceRef &textureRef) {
     this->textureRef_ = textureRef;
 }
 
-void glimmer::TileResourceData::SetBreakSFX(const std::shared_ptr<AudioResourceResult>& breakSFXResult)
-{
+void glimmer::TileResourceData::SetBreakSFX(const std::shared_ptr<AudioResourceResult> &breakSFXResult) {
     this->breakSFXResult_ = breakSFXResult;
 }
 
-void glimmer::TileResourceData::SetPlaceSFX(const std::shared_ptr<AudioResourceResult>& placeSFXResult)
-{
+void glimmer::TileResourceData::SetPlaceSFX(const std::shared_ptr<AudioResourceResult> &placeSFXResult) {
     this->placeSFXResult_ = placeSFXResult;
 }
 
-void glimmer::TileResourceData::SetTags(const std::vector<ItemTagResource>& tags)
-{
+void glimmer::TileResourceData::SetTags(const std::vector<ItemTagResource> &tags) {
     this->tags_ = tags;
 }

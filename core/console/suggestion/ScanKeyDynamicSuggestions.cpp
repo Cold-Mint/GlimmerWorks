@@ -29,18 +29,15 @@
 #include "core/Constants.h"
 #include "core/utils/ScanCodeUtils.h"
 
-std::string glimmer::ScanKeyDynamicSuggestions::GetId() const
-{
+std::string glimmer::ScanKeyDynamicSuggestions::GetId() const {
     return SCAN_KEY_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-const std::vector<std::string>& glimmer::ScanKeyDynamicSuggestions::GetSuggestions(
-    const std::optional<std::string>& param)
-{
+const std::vector<std::string> &glimmer::ScanKeyDynamicSuggestions::GetSuggestions(
+    const std::optional<std::string> &param) {
     return ScanCodeUtils::GetAllScanCodeKeys();
 }
 
-bool glimmer::ScanKeyDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
-{
+bool glimmer::ScanKeyDynamicSuggestions::Match(const std::string &keyword, const std::string &param) {
     return ScanCodeUtils::ContainsKey(keyword);
 }

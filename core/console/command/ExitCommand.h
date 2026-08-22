@@ -27,16 +27,14 @@
 #pragma once
 #include "core/console/Command.h"
 
-namespace glimmer
-{
-    class ExitCommand final : public Command
-    {
+namespace glimmer {
+    class ExitCommand final : public Command {
     public:
-        explicit ExitCommand(AppContext* appContext);
+        explicit ExitCommand(AppContext *appContext);
 
-        [[nodiscard]] const std::string& GetName() const override;
+        [[nodiscard]] const std::string &GetName() const override;
 
-        bool Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-            const std::function<void(const std::string& text)>* onMessage) override;
+        bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                     const std::function<void(const std::string &text)> *onMessage) override;
     };
 }

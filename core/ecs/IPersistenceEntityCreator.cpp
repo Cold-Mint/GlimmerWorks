@@ -27,26 +27,22 @@
 #include "IPersistenceEntityCreator.h"
 
 
-void glimmer::IPersistenceEntityCreator::RecoveryAllComponent(WorldContext* worldContext, GameEntityID gameEntityId,
-                                                              const EntityItemMessage& entityItemMessage)
-{
-    EntityManager* entityManager = worldContext->GetEntityManager();
-    if (entityManager == nullptr)
-    {
+void glimmer::IPersistenceEntityCreator::RecoveryAllComponent(WorldContext *worldContext, GameEntityID gameEntityId,
+                                                              const EntityItemMessage &entityItemMessage) {
+    EntityManager *entityManager = worldContext->GetEntityManager();
+    if (entityManager == nullptr) {
         return;
     }
     const int componentSize = entityItemMessage.components_size();
-    for (int i = 0; i < componentSize; i++)
-    {
+    for (int i = 0; i < componentSize; i++) {
         entityManager->RecoveryComponent(worldContext, gameEntityId, entityItemMessage.components(i));
     }
 }
 
-glimmer::IPersistenceEntityCreator::IPersistenceEntityCreator(WorldContext* worldContext) : worldContext_(worldContext)
-{
+glimmer::IPersistenceEntityCreator::IPersistenceEntityCreator(WorldContext *worldContext) : worldContext_(
+    worldContext) {
 }
 
-glimmer::WorldContext* glimmer::IPersistenceEntityCreator::GetWorldContext() const
-{
+glimmer::WorldContext *glimmer::IPersistenceEntityCreator::GetWorldContext() const {
     return worldContext_;
 }

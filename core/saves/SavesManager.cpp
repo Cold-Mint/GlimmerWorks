@@ -34,12 +34,9 @@
 #include "src/saves/map_manifest.pb.h"
 
 
-void glimmer::SavesManager::AddSaves(std::unique_ptr<Saves> saves)
-{
+void glimmer::SavesManager::AddSaves(std::unique_ptr<Saves> saves) {
     auto mapManifestMessage = saves->ReadMapManifest();
-    if (!mapManifestMessage.has_value())
-    {
-
+    if (!mapManifestMessage.has_value()) {
         return;
     }
     auto mapManifest = std::make_unique<MapManifest>();
@@ -47,43 +44,34 @@ void glimmer::SavesManager::AddSaves(std::unique_ptr<Saves> saves)
     size_t index = manifestList_.size();
     manifestList_.push_back(std::move(mapManifest));
     saveList_.push_back(std::move(saves));
-    saveList_.back()->SetOnMapManifestChanged([this, index](const MapManifestMessage& msg)
-    {
-        if (index < manifestList_.size())
-        {
+    saveList_.back()->SetOnMapManifestChanged([this, index](const MapManifestMessage &msg) {
+        if (index < manifestList_.size()) {
             manifestList_[index]->FromMessage(msg);
         }
     });
 }
 
-glimmer::SavesManager::SavesManager(VirtualFileSystem* virtualFileSystem)
-    : virtualFileSystem_(virtualFileSystem)
-{
+glimmer::SavesManager::SavesManager(VirtualFileSystem *virtualFileSystem)
+    : virtualFileSystem_(virtualFileSystem) {
 }
 
-glimmer::Saves* glimmer::SavesManager::GetSave(const size_t index) const
-{
+glimmer::Saves *glimmer::SavesManager::GetSave(const size_t index) const {
     return saveList_[index].get();
 }
 
-glimmer::MapManifest* glimmer::SavesManager::GetMapManifest(const size_t index) const
-{
+glimmer::MapManifest *glimmer::SavesManager::GetMapManifest(const size_t index) const {
     return manifestList_[index].get();
 }
 
-bool glimmer::SavesManager::DeleteSave(const size_t index)
-{
-    if (index >= saveList_.size())
-    {
+bool glimmer::SavesManager::DeleteSave(const size_t index) {
+    if (index >= saveList_.size()) {
         return false;
     }
     auto save = saveList_[index].get();
-    if (save == nullptr)
-    {
+    if (save == nullptr) {
         return false;
     }
-    if (virtualFileSystem_->DeleteFileOrFolder(save->GetPath()))
-    {
+    if (virtualFileSystem_->DeleteFileOrFolder(save->GetPath())) {
         saveList_.erase(saveList_.begin() + static_cast<long>(index));
         manifestList_.erase(manifestList_.begin() + static_cast<long>(index));
         return true;
@@ -91,82 +79,64 @@ bool glimmer::SavesManager::DeleteSave(const size_t index)
     return false;
 }
 
-glimmer::Saves* glimmer::SavesManager::Create(const std::filesystem::path& runtimePath, MapManifest& manifest)
-{
+glimmer::Saves *glimmer::SavesManager::Create(const std::filesystem::path &runtimePath, MapManifest &manifest) {
     std::filesystem::path path = runtimePath / "saves" / StringUtils::ToSafeSaveName(manifest.name);
-    if (!virtualFileSystem_->Exists(path))
-    {
+    if (!virtualFileSystem_->Exists(path)) {
         bool createFolder = virtualFileSystem_->CreateFolder(path);
-        if (!createFolder)
-        {
-
+        if (!createFolder) {
             return nullptr;
         }
     }
     auto save = std::make_unique<Saves>(path, virtualFileSystem_);
     MapManifestMessage manifestMessage;
     manifest.ToMessage(manifestMessage);
-    if (!save->WriteMapManifest(manifestMessage))
-    {
-
+    if (!save->WriteMapManifest(manifestMessage)) {
         return nullptr;
     }
     AddSaves(std::move(save));
     return GetSave(saveList_.size() - 1);
 }
 
-void glimmer::SavesManager::LoadAllSaves(const std::filesystem::path& runtimePath)
-{
+void glimmer::SavesManager::LoadAllSaves(const std::filesystem::path &runtimePath) {
     saveList_.clear();
     for (const std::vector<std::filesystem::path> array = virtualFileSystem_->ListFile(runtimePath / "saves", false);
-         const auto& item : array)
-    {
+         const auto &item: array) {
         AddSaves(std::make_unique<Saves>(item, virtualFileSystem_));
     }
 }
 
-size_t glimmer::SavesManager::GetSavesListSize() const
-{
+size_t glimmer::SavesManager::GetSavesListSize() const {
     return saveList_.size();
 }
 
-std::vector<size_t> glimmer::SavesManager::FilterByKeyword(const std::string& keyword) const
-{
+std::vector<size_t> glimmer::SavesManager::FilterByKeyword(const std::string &keyword) const {
     std::vector<size_t> result;
-    if (keyword.empty())
-    {
-        for (size_t i = 0; i < saveList_.size(); ++i)
-        {
+    if (keyword.empty()) {
+        for (size_t i = 0; i < saveList_.size(); ++i) {
             result.push_back(i);
         }
-    }
-    else
-    {
+    } else {
         std::string lowerKeyword = keyword;
         std::ranges::transform(lowerKeyword, lowerKeyword.begin(),
                                [](unsigned char c) { return std::tolower(c); });
 
-        for (size_t i = 0; i < saveList_.size(); ++i)
-        {
-            const auto* manifest = manifestList_[i].get();
-            if (manifest == nullptr)
-            {
+        for (size_t i = 0; i < saveList_.size(); ++i) {
+            const auto *manifest = manifestList_[i].get();
+            if (manifest == nullptr) {
                 continue;
             }
             std::string lowerName = manifest->name;
             std::ranges::transform(lowerName, lowerName.begin(),
                                    [](unsigned char c) { return std::tolower(c); });
-            if (lowerName.find(lowerKeyword) != std::string::npos)
-            {
+            if (lowerName.find(lowerKeyword) != std::string::npos) {
                 result.push_back(i);
             }
         }
     }
     std::ranges::sort(result, [this](size_t a, size_t b) {
-        const auto* manifestA = manifestList_[a].get();
-        const auto* manifestB = manifestList_[b].get();
-        if (manifestA == nullptr || manifestB == nullptr)
-        {
+        const auto *manifestA = manifestList_[a].get();
+        const auto *manifestB = manifestList_[b].get();
+        if (manifestA == nullptr || manifestB == nullptr) {
             return false;
         }
         return manifestA->lastPlayedTime > manifestB->lastPlayedTime;

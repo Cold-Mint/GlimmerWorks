@@ -27,20 +27,18 @@
 #pragma once
 #include "inventory/Item.h"
 
-namespace glimmer
-{
-    class SelectedItemRuntimeData
-    {
-        Item* item_ = nullptr;
+namespace glimmer {
+    class SelectedItemRuntimeData {
+        Item *item_ = nullptr;
         uint8_t slotIndex_ = 0;
         //selectedAmount
         //选中的数量
         uint8_t selectedAmount_ = 0;
 
     public:
-        void SetItem(Item* item);
+        void SetItem(Item *item);
 
-        [[nodiscard]] Item* GetItem() const;
+        [[nodiscard]] Item *GetItem() const;
 
         [[nodiscard]] uint8_t GetSlotIndex() const;
 

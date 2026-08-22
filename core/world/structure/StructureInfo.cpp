@@ -27,8 +27,8 @@
 #include "StructureInfo.h"
 
 
-void glimmer::StructureInfo::SetTile(const TileLayerType tileLayer, const TileVector2D& position, const ResourceRef& resourceRef)
-{
+void glimmer::StructureInfo::SetTile(const TileLayerType tileLayer, const TileVector2D &position,
+                                     const ResourceRef &resourceRef) {
     structureMap_[tileLayer][position] = resourceRef;
     if (first_) {
         minPosition_ = position;
@@ -50,8 +50,9 @@ void glimmer::StructureInfo::SetTile(const TileLayerType tileLayer, const TileVe
     }
 }
 
-const std::unordered_map<glimmer::TileLayerType, std::unordered_map<glimmer::TileVector2D, glimmer::ResourceRef, glimmer::
-                                                                    Vector2DIHash> > &glimmer::StructureInfo::GetStructureMap() const {
+const std::unordered_map<glimmer::TileLayerType, std::unordered_map<glimmer::TileVector2D, glimmer::ResourceRef,
+    glimmer::
+    Vector2DIHash> > &glimmer::StructureInfo::GetStructureMap() const {
     return structureMap_;
 }
 

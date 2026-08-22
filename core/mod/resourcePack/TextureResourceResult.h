@@ -28,16 +28,14 @@
 #include "ResourceResult.h"
 #include "SDL3/SDL_render.h"
 
-namespace glimmer
-{
-    class TextureResourceResult : public ResourceResult<SDL_Texture>
-    {
+namespace glimmer {
+    class TextureResourceResult : public ResourceResult<SDL_Texture> {
         std::filesystem::path texturePath_;
 
     public:
-        void SetTexturePath(const std::filesystem::path& texturePath);
+        void SetTexturePath(const std::filesystem::path &texturePath);
 
-        const std::filesystem::path& GetTexturePath();
+        const std::filesystem::path &GetTexturePath();
 
         void DestroyResource() override;
     };

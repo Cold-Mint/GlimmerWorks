@@ -28,34 +28,28 @@
 
 #include <utility>
 
-glimmer::ChunkTask::ChunkTask(const ChunkType chunkType, const TileVector2D& chunkVertexCoordinates)
-    : chunkType_(chunkType), chunkVertexCoordinates_(chunkVertexCoordinates)
-{
+glimmer::ChunkTask::ChunkTask(const ChunkType chunkType, const TileVector2D &chunkVertexCoordinates)
+    : chunkType_(chunkType), chunkVertexCoordinates_(chunkVertexCoordinates) {
 }
 
-glimmer::ChunkType glimmer::ChunkTask::GetChunkType() const
-{
+glimmer::ChunkType glimmer::ChunkTask::GetChunkType() const {
     return chunkType_;
 }
 
-uint32_t glimmer::ChunkTask::GetDistance() const
-{
+uint32_t glimmer::ChunkTask::GetDistance() const {
     return distance_;
 }
 
-void glimmer::ChunkTask::SetOrigin(const TileVector2D& origin)
-{
+void glimmer::ChunkTask::SetOrigin(const TileVector2D &origin) {
     distance_ = origin.DistanceSquared(chunkVertexCoordinates_);
 }
 
 
-const glimmer::TileVector2D& glimmer::ChunkTask::GetChunkVertexCoordinates() const
-{
+const glimmer::TileVector2D &glimmer::ChunkTask::GetChunkVertexCoordinates() const {
     return chunkVertexCoordinates_;
 }
 
-uint64_t glimmer::ChunkTask::GetFingerprint() const
-{
+uint64_t glimmer::ChunkTask::GetFingerprint() const {
     const uint64_t type = static_cast<uint64_t>(std::to_underlying(chunkType_)) & 0x3ULL;
     const uint64_t x = static_cast<uint64_t>(chunkVertexCoordinates_.x) & 0x7FFFFFFFULL;
     const uint64_t y = static_cast<uint64_t>(chunkVertexCoordinates_.y) & 0x7FFFFFFFULL;

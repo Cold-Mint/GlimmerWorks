@@ -29,27 +29,22 @@
 #include "core/log/LogCat.h"
 #include "core/context/AppContext.h"
 
-std::string_view glimmer::ComposableItemsAssetEnumerator::GetAssetType() const
-{
+std::string_view glimmer::ComposableItemsAssetEnumerator::GetAssetType() const {
     return assetName;
 }
 
-std::optional<std::string> glimmer::ComposableItemsAssetEnumerator::ListAsset(const AppContext* appContext)
-{
-    if (appContext == nullptr)
-    {
+std::optional<std::string> glimmer::ComposableItemsAssetEnumerator::ListAsset(const AppContext *appContext) {
+    if (appContext == nullptr) {
         LogCat::w(std::source_location::current(), "appContext is nullptr");
         return std::nullopt;
     }
-    const ModContext* modContext = appContext->GetModContext();
-    if (modContext == nullptr)
-    {
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
         LogCat::w(std::source_location::current(), "modContext is nullptr");
         return std::nullopt;
     }
-    const ComposableItemManager* itemManager = modContext->GetComposableItemManager();
-    if (itemManager == nullptr)
-    {
+    const ComposableItemManager *itemManager = modContext->GetComposableItemManager();
+    if (itemManager == nullptr) {
         LogCat::w(std::source_location::current(), "itemManager is nullptr");
         return std::nullopt;
     }

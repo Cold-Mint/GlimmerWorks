@@ -27,15 +27,12 @@
 #include "MobManager.h"
 
 
-void glimmer::MobManager::OnRegister(MobResource* resource)
-{
-    if (resource->isPlayer)
-    {
+void glimmer::MobManager::OnRegister(MobResource *resource) {
+    if (resource->isPlayer) {
         playerMobsResource_.emplace_back(resource);
     }
 }
 
-std::span<const glimmer::MobResource* const> glimmer::MobManager::GetPlayerResourceList() const
-{
+std::span<const glimmer::MobResource * const> glimmer::MobManager::GetPlayerResourceList() const {
     return playerMobsResource_;
 }

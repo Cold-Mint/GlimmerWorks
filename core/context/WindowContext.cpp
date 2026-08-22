@@ -28,52 +28,42 @@
 
 #include <SDL3/SDL.h>
 
-void glimmer::WindowContext::SetWindow(SDL_Window* window)
-{
+void glimmer::WindowContext::SetWindow(SDL_Window *window) {
     window_ = window;
 }
 
-void glimmer::WindowContext::SetRenderer(SDL_Renderer* renderer)
-{
+void glimmer::WindowContext::SetRenderer(SDL_Renderer *renderer) {
     renderer_ = renderer;
 }
 
-void glimmer::WindowContext::SetWindowWidth(int width)
-{
+void glimmer::WindowContext::SetWindowWidth(int width) {
     windowWidth_ = width;
 }
 
-void glimmer::WindowContext::SetWindowHeight(int height)
-{
+void glimmer::WindowContext::SetWindowHeight(int height) {
     windowHeight_ = height;
 }
 
-void glimmer::WindowContext::SetWindowTitle(const char* title) const
-{
+void glimmer::WindowContext::SetWindowTitle(const char *title) const {
     SDL_SetWindowTitle(window_, title);
 }
 
-SDL_Renderer* glimmer::WindowContext::GetRenderer() const
-{
+SDL_Renderer *glimmer::WindowContext::GetRenderer() const {
     return renderer_;
 }
 
-int glimmer::WindowContext::GetWindowWidth() const
-{
+int glimmer::WindowContext::GetWindowWidth() const {
     return windowWidth_;
 }
 
-int glimmer::WindowContext::GetWindowHeight() const
-{
+int glimmer::WindowContext::GetWindowHeight() const {
     return windowHeight_;
 }
 
-bool glimmer::WindowContext::IsRunning() const
-{
+bool glimmer::WindowContext::IsRunning() const {
     return isRunning_;
 }
 
-void glimmer::WindowContext::Exit()
-{
+void glimmer::WindowContext::Exit() {
     isRunning_ = false;
 }

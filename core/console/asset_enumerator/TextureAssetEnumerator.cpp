@@ -29,20 +29,16 @@
 #include "core/mod/resourcePack/ResourcePackManager.h"
 #include "core/context/AppContext.h"
 
-std::string_view glimmer::TextureAssetEnumerator::GetAssetType() const
-{
+std::string_view glimmer::TextureAssetEnumerator::GetAssetType() const {
     return assetName;
 }
 
-std::optional<std::string> glimmer::TextureAssetEnumerator::ListAsset(const AppContext* appContext)
-{
-    if (appContext == nullptr)
-    {
+std::optional<std::string> glimmer::TextureAssetEnumerator::ListAsset(const AppContext *appContext) {
+    if (appContext == nullptr) {
         return std::nullopt;
     }
-    const ResourcePackManager* resourcePackManager = appContext->GetResourcePackManager();
-    if (resourcePackManager == nullptr)
-    {
+    const ResourcePackManager *resourcePackManager = appContext->GetResourcePackManager();
+    if (resourcePackManager == nullptr) {
         return std::nullopt;
     }
     return resourcePackManager->ListTextureCache();

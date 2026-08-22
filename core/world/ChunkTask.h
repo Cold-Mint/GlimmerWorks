@@ -36,13 +36,13 @@ namespace glimmer {
         uint32_t distance_ = 0;
 
     public:
-        ChunkTask(ChunkType chunkType, const TileVector2D& chunkVertexCoordinates);
+        ChunkTask(ChunkType chunkType, const TileVector2D &chunkVertexCoordinates);
 
         [[nodiscard]] ChunkType GetChunkType() const;
 
         [[nodiscard]] uint32_t GetDistance() const;
 
-        void SetOrigin(const TileVector2D& origin);
+        void SetOrigin(const TileVector2D &origin);
 
         [[nodiscard]] const TileVector2D &GetChunkVertexCoordinates() const;
 

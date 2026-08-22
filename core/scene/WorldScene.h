@@ -30,21 +30,19 @@
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_render.h>
 
-namespace glimmer
-{
+namespace glimmer {
     class PauseSystem;
 
-    class WorldScene : public Scene
-    {
+    class WorldScene : public Scene {
         std::unique_ptr<WorldContext> worldContext_;
-        SystemScheduler* systemScheduler_;
+        SystemScheduler *systemScheduler_;
 
     public:
-        explicit WorldScene(AppContext* context, std::unique_ptr<WorldContext> worldContext);
+        explicit WorldScene(AppContext *context, std::unique_ptr<WorldContext> worldContext);
 
         void OnFrameStart() override;
 
-        bool HandleEvent(const SDL_Event& event) override;
+        bool HandleEvent(const SDL_Event &event) override;
 
         bool OnBackPressed() override;
 
@@ -52,11 +50,11 @@ namespace glimmer
 
         void Update(float delta) override;
 
-        void OnWindowSizeChanged(const int& width, const int& height) override;
+        void OnWindowSizeChanged(const int &width, const int &height) override;
 
-        void OnConfigChanged(const Config* config) override;
+        void OnConfigChanged(const Config *config) override;
 
-        void Render(SDL_Renderer* renderer) override;
+        void Render(SDL_Renderer *renderer) override;
 
         void LoadDocuments() override;
 

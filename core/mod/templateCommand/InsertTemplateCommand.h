@@ -28,17 +28,17 @@
 #include "core/mod/ITemplateCommand.h"
 
 
-namespace glimmer
-{
-    class InsertTemplateCommand : public ITemplateCommand
-    {
+namespace glimmer {
+    class InsertTemplateCommand : public ITemplateCommand {
         static constexpr std::string_view insert = "insert_template";
 
     public:
-        [[nodiscard]] std::optional<std::string> Execute(const std::vector<std::filesystem::path>& templateSearchPath,
-            std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<>>& variable,
-            std::vector<std::string>& args, const VirtualFileSystem* virtualFileSystem) override;
+        [[nodiscard]] std::optional<std::string> Execute(const std::vector<std::filesystem::path> &templateSearchPath,
+                                                         std::unordered_map<std::string, std::string,
+                                                             TransparentStringHash, std::equal_to<> > &variable,
+                                                         std::vector<std::string> &args,
+                                                         const VirtualFileSystem *virtualFileSystem) override;
 
-        [[nodiscard]] const std::string_view& GetCommandName() const override;
+        [[nodiscard]] const std::string_view &GetCommandName() const override;
     };
 }

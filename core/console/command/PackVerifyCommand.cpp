@@ -30,87 +30,72 @@
 #include "core/context/AppContext.h"
 #include "fmt/xchar.h"
 
-void glimmer::PackVerifyCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
-{
-    if (suggestionsTree == nullptr)
-    {
+void glimmer::PackVerifyCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
+    if (suggestionsTree == nullptr) {
         return;
     }
     suggestionsTree->AddChild(DATA_PACK_SUGGESTIONS_NAME);
 }
 
-glimmer::PackVerifyCommand::PackVerifyCommand(AppContext* appContext) : Command(appContext)
-{
+glimmer::PackVerifyCommand::PackVerifyCommand(AppContext *appContext) : Command(appContext) {
 }
 
 void glimmer::PackVerifyCommand::
-PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
-{
-    if (strings == nullptr)
-    {
+PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
+    if (strings == nullptr) {
         return;
     }
     strings->emplace_back("[pack_id:string]");
 }
 
-bool glimmer::PackVerifyCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                                         const std::function<void(const std::string& text)>* onMessage)
-{
-    const AppContext* appContext = GetAppContext();
-    if (appContext == nullptr)
-    {
+bool glimmer::PackVerifyCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                                         const std::function<void(const std::string &text)> *onMessage) {
+    const AppContext *appContext = GetAppContext();
+    if (appContext == nullptr) {
         return false;
     }
-    const Config* config = appContext->GetConfig();
-    if (config == nullptr)
-    {
+    const Config *config = appContext->GetConfig();
+    if (config == nullptr) {
         return false;
     }
-    const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    const LangsResources* langsResources = appContext->GetLangsResources();
-    if (langsResources == nullptr)
-    {
+    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
+    const LangsResources *langsResources = appContext->GetLangsResources();
+    if (langsResources == nullptr) {
         return false;
     }
-    if (!config->mods.enableSignVerify)
-    {
+    if (!config->mods.enableSignVerify) {
         onMessageRef(langsResources->notEnabledSignVerify);
     }
-    if (int size = commandArgs->GetSize(); size < 2)
-    {
+    if (int size = commandArgs->GetSize(); size < 2) {
         onMessageRef(fmt::format(
             fmt::runtime(langsResources->insufficientParameterLength),
             2, size));
         return false;
     }
-    DataPackManager* dataPackManager = appContext->GetModContext()->GetDataPackManager();
-    if (dataPackManager == nullptr)
-    {
+    DataPackManager *dataPackManager = appContext->GetModContext()->GetDataPackManager();
+    if (dataPackManager == nullptr) {
         return false;
     }
     std::string packId = commandArgs->AsString(1);
-    if (!dataPackManager->Contains(packId))
-    {
+    if (!dataPackManager->Contains(packId)) {
         onMessageRef(langsResources->dataPackageCannotBeFound);
         return false;
     }
     using enum PackVerifyState;
-    switch (dataPackManager->GetPackVerifyState(packId))
-    {
-    case Unsigned:
-        onMessageRef(langsResources->unsignedPackage);
-        break;
-    case VerifiedSuccess:
-        onMessageRef(langsResources->signatureVerificationSuccessful);
-        break;
-    case VerifiedFailed:
-        onMessageRef(langsResources->signatureVerificationFailed);
-        break;
+    switch (dataPackManager->GetPackVerifyState(packId)) {
+        case Unsigned:
+            onMessageRef(langsResources->unsignedPackage);
+            break;
+        case VerifiedSuccess:
+            onMessageRef(langsResources->signatureVerificationSuccessful);
+            break;
+        case VerifiedFailed:
+            onMessageRef(langsResources->signatureVerificationFailed);
+            break;
     }
     return true;
 }
 
-const std::string& glimmer::PackVerifyCommand::GetName() const
-{
+const std::string &glimmer::PackVerifyCommand::GetName() const {
     return PACK_VERIFY_COMMAND_NAME;
 }

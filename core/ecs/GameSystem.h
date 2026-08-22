@@ -34,22 +34,20 @@
 #include "SDL3/SDL_render.h"
 #include "src/core/game_component_type.pb.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class Scene;
     class WorldContext;
     class Config;
 
-    class GameSystem
-    {
+    class GameSystem {
         std::unordered_set<GameComponentTypeMessage> watchComponents_;
         std::unordered_set<GameComponentTypeMessage> activeWatchComponents_;
 
         bool lockWatchComponents_ = false;
         bool initSubclassFinish_ = false;
-        WorldContext* worldContext_ = nullptr;
-        EntityManager* entityManager_ = nullptr;
-        EntityShortCut* entityShortCut_ = nullptr;
+        WorldContext *worldContext_ = nullptr;
+        EntityManager *entityManager_ = nullptr;
+        EntityShortCut *entityShortCut_ = nullptr;
 #if  !defined(NDEBUG)
         float initTimeOut_ = 0.0F;
 #endif
@@ -57,11 +55,11 @@ namespace glimmer
     protected:
         void WatchComponent(GameComponentTypeMessage gameComponentType);
 
-        [[nodiscard]] WorldContext* GetWorldContext() const;
+        [[nodiscard]] WorldContext *GetWorldContext() const;
 
-        [[nodiscard]] EntityManager* GetEntityManager() const;
+        [[nodiscard]] EntityManager *GetEntityManager() const;
 
-        [[nodiscard]] EntityShortCut* GetEntityShortCut() const;
+        [[nodiscard]] EntityShortCut *GetEntityShortCut() const;
 
         /**
         * Initialize the system after construction.
@@ -72,7 +70,7 @@ namespace glimmer
     public:
         virtual ~GameSystem() = default;
 
-        explicit GameSystem(WorldContext* worldContext);
+        explicit GameSystem(WorldContext *worldContext);
 
 
         /**
@@ -113,11 +111,11 @@ namespace glimmer
 
         [[nodiscard]] bool IsWatchingComponent(GameComponentTypeMessage gameComponentType) const;
 
-        virtual bool HandleEvent(const SDL_Event& event);
+        virtual bool HandleEvent(const SDL_Event &event);
 
-        virtual void OnConfigChanged(const Config* config);
+        virtual void OnConfigChanged(const Config *config);
 
-        virtual void OnWindowSizeChanged(const int& width, const int& height);
+        virtual void OnWindowSizeChanged(const int &width, const int &height);
 
         virtual bool OnBackPressed();
 
@@ -134,6 +132,6 @@ namespace glimmer
        */
         virtual uint8_t GetExecutionOrder();
 
-        virtual void Render(SDL_Renderer* renderer);
+        virtual void Render(SDL_Renderer *renderer);
     };
 }

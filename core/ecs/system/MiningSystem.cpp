@@ -210,11 +210,8 @@ static bool CheckMiningEfficiency(const glimmer::Tile *tile, const glimmer::Abil
     return true;
 }
 
-void glimmer::MiningSystem::ProcessSingleTile(const TileBreakParams &params,
-                                              const TileVector2D &currentVector,
-                                              Item *item,
-                                              const bool isCenter,
-                                              uint8_t &sum) {
+void glimmer::MiningSystem::ProcessSingleTile(const TileBreakParams &params, const TileVector2D &currentVector,
+                                              Item *item, Item *emptyHandAutoUseItem, bool isCenter, uint8_t &sum) {
     const AppContext *appContext = params.worldContext->GetAppContext();
     EntityManager *entityManager = params.worldContext->GetEntityManager();
     const auto currentTile = params.tileLayerComponent->GetSelfLayerTileShared(currentVector);
@@ -239,12 +236,21 @@ void glimmer::MiningSystem::ProcessSingleTile(const TileBreakParams &params,
     if (isCenter && !params.isPlaceMode) {
         PlayBreakSFX(appContext, currentTile.get());
     }
-
-    if (abilityConfigPtr != nullptr) {
-        const AbilityConfig abilityConfigCopy = *abilityConfigPtr;
-        if (!CheckMiningEfficiency(currentTile.get(), &abilityConfigCopy)) {
+    if (abilityConfigPtr == nullptr) {
+        //If the held item is not a combinable item and does not have the ability to be configured, then obtain the player's "hand" and use the hand's ability configuration.
+        //如果手持的物品，不是可组合物品，没有能力配置，那么获取玩家的"手"，使用手的能力配置。
+        //For example, when holding coal, use "hand" to dig blocks. But when holding a piece of paper (such as a manuscript), use the paper to dig.
+        //例如手持煤炭时，使用"手"来挖掘方块，而手持稿子，这类可组合物品时，则使用稿子挖掘。
+        abilityConfigPtr = emptyHandAutoUseItem->GetAbilityConfig();
+        if (abilityConfigPtr == nullptr) {
+            //The "hands" of the players are not combinable items either, so they are not allowed to drop (usually modified by third-party data packages).
+            //玩家的"手"也不是可组合物品，那么禁止掉落。（通常由第三方数据包修改）
             return;
         }
+    }
+    const AbilityConfig abilityConfigCopy = *abilityConfigPtr;
+    if (!CheckMiningEfficiency(currentTile.get(), &abilityConfigCopy)) {
+        return;
     }
     const TileLootData *tileLootData = currentTile->GetLootData();
     if (tileLootData == nullptr) {
@@ -291,6 +297,7 @@ uint16_t glimmer::MiningSystem::BreakTile(const TileBreakParams &params) {
     for (int x = 0; x < params.tileWidth; x++) {
         for (int y = 0; y < params.tileHeight; y++) {
             ProcessSingleTile(params, TileVector2D(params.topLeftVector.x + x, params.topLeftVector.y - y), item,
+                              playerComponent->GetEmptyHandAutoUseItem(),
                               x == centerX && y == centerY, sum);
         }
     }

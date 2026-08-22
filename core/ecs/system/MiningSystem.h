@@ -90,7 +90,7 @@ namespace glimmer {
 
         static void ProcessSingleTile(const TileBreakParams &params,
                                       const TileVector2D &currentVector,
-                                      Item *item,
+                                      Item *item, Item *emptyHandAutoUseItem,
                                       bool isCenter,
                                       uint8_t &sum);
 

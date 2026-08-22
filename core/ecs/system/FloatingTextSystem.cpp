@@ -32,139 +32,114 @@
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/world/WorldContext.h"
 
-void glimmer::FloatingTextSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
-{
-    const EntityShortCut* entityShortCut = GetEntityShortCut();
-    EntityManager* entityManager = GetEntityManager();
-    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
-    {
+void glimmer::FloatingTextSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType,
+                                                            uint32_t count) {
+    const EntityShortCut *entityShortCut = GetEntityShortCut();
+    EntityManager *entityManager = GetEntityManager();
+    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr) {
         cameraComponent_ = entityShortCut->GetCameraComponent();
     }
-    if (gameComponentType == COMPONENT_TRANSFORM_2D)
-    {
+    if (gameComponentType == COMPONENT_TRANSFORM_2D) {
         cameraTransform2DComponent_ = entityShortCut->GetCameraTransform2DComponent();
         transform2DCount_ = count;
     }
-    if (gameComponentType == COMPONENT_FLOATING_TEXT)
-    {
+    if (gameComponentType == COMPONENT_FLOATING_TEXT) {
         floatingTextCount_ = count;
     }
-    if (transform2DCount_ > 0 && floatingTextCount_ > 0)
-    {
+    if (transform2DCount_ > 0 && floatingTextCount_ > 0) {
         entities_ = entityManager->GetEntityIDWithComponents({COMPONENT_TRANSFORM_2D, COMPONENT_FLOATING_TEXT});
     }
 }
 
-glimmer::FloatingTextSystem::FloatingTextSystem(WorldContext* worldContext) : GameSystem(worldContext)
-{
+glimmer::FloatingTextSystem::FloatingTextSystem(WorldContext *worldContext) : GameSystem(worldContext) {
     WatchComponent(COMPONENT_FLOATING_TEXT);
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_TRANSFORM_2D);
     Init();
 }
 
-void glimmer::FloatingTextSystem::Update(float delta)
-{
-    const WorldContext* worldContext = GetWorldContext();
-    EntityManager* entityManager = GetEntityManager();
-    if (worldContext == nullptr)
-    {
+void glimmer::FloatingTextSystem::Update(float delta) {
+    const WorldContext *worldContext = GetWorldContext();
+    EntityManager *entityManager = GetEntityManager();
+    if (worldContext == nullptr) {
         return;
     }
-    if (cameraComponent_ == nullptr)
-    {
+    if (cameraComponent_ == nullptr) {
         return;
     }
-    if (cameraTransform2DComponent_ == nullptr)
-    {
+    if (cameraTransform2DComponent_ == nullptr) {
         return;
     }
-    if (entities_.empty())
-    {
+    if (entities_.empty()) {
         return;
     }
+    const auto frames = static_cast<int32_t>(delta * normalTargetFps_);
     uint64_t now = SDL_GetTicks();
-    for (const GameEntityID floatingTextEntity : entities_)
-    {
+    for (const GameEntityID floatingTextEntity: entities_) {
         auto floatingTextComponent = entityManager->GetComponent<FloatingTextComponent>(
             floatingTextEntity);
-        const Transform2DComponent* transform2DComponent = entityManager->GetComponent<Transform2DComponent>(
+        const Transform2DComponent *transform2DComponent = entityManager->GetComponent<Transform2DComponent>(
             floatingTextEntity);
-        if (floatingTextComponent == nullptr || transform2DComponent == nullptr)
-        {
+        if (floatingTextComponent == nullptr || transform2DComponent == nullptr) {
             continue;
         }
         if (!cameraComponent_->
-            IsPointInViewport(cameraTransform2DComponent_->GetPosition(), transform2DComponent->GetPosition()))
-        {
+            IsPointInViewport(cameraTransform2DComponent_->GetPosition(), transform2DComponent->GetPosition())) {
             continue;
         }
-        auto& tween = floatingTextComponent->GetTween();
-        tween.step(static_cast<int32_t>(delta));
+        auto &tween = floatingTextComponent->GetTween();
+        tween.step(frames);
         floatingTextComponent->SetAlpha(fabs(tween.peek()));
-        if (now > floatingTextComponent->GetExpireTime())
-        {
+        if (now > floatingTextComponent->GetExpireTime()) {
             entityManager->RemoveEntity(floatingTextEntity);
         }
     }
 }
 
-void glimmer::FloatingTextSystem::Render(SDL_Renderer* renderer)
-{
-    const WorldContext* worldContext = GetWorldContext();
-    EntityManager* entityManager = GetEntityManager();
-    if (worldContext == nullptr)
-    {
+void glimmer::FloatingTextSystem::Render(SDL_Renderer *renderer) {
+    const WorldContext *worldContext = GetWorldContext();
+    EntityManager *entityManager = GetEntityManager();
+    if (worldContext == nullptr) {
         return;
     }
-    const AppContext* appContext = worldContext->GetAppContext();
-    if (appContext == nullptr)
-    {
+    const AppContext *appContext = worldContext->GetAppContext();
+    if (appContext == nullptr) {
         return;
     }
-    if (cameraComponent_ == nullptr)
-    {
+    if (cameraComponent_ == nullptr) {
         return;
     }
-    if (cameraTransform2DComponent_ == nullptr)
-    {
+    if (cameraTransform2DComponent_ == nullptr) {
         return;
     }
-    if (entities_.empty())
-    {
+    if (entities_.empty()) {
         return;
     }
-    for (const GameEntityID floatingText : entities_)
-    {
+    for (const GameEntityID floatingText: entities_) {
         auto floatingTextComponent = entityManager->GetComponent<FloatingTextComponent>(
             floatingText);
-        const Transform2DComponent* transform2DComponent = entityManager->GetComponent<Transform2DComponent>(
+        const Transform2DComponent *transform2DComponent = entityManager->GetComponent<Transform2DComponent>(
             floatingText);
-        if (floatingTextComponent == nullptr || transform2DComponent == nullptr)
-        {
+        if (floatingTextComponent == nullptr || transform2DComponent == nullptr) {
             continue;
         }
         if (!cameraComponent_->
-            IsPointInViewport(cameraTransform2DComponent_->GetPosition(), transform2DComponent->GetPosition()))
-        {
+            IsPointInViewport(cameraTransform2DComponent_->GetPosition(), transform2DComponent->GetPosition())) {
             continue;
         }
         ScreenVector2D camera2D = CoordinateTransformer::WorldToScreen(cameraTransform2DComponent_->GetPosition(),
                                                                        transform2DComponent->GetPosition(),
                                                                        cameraComponent_->GetSize(),
                                                                        cameraComponent_->GetZoom());
-        std::string& text = floatingTextComponent->GetText();
-        if (text.empty())
-        {
+        std::string &text = floatingTextComponent->GetText();
+        if (text.empty()) {
             continue;
         }
-        if (floatingTextComponent->GetAlpha() <= 0.01F)
-        {
+        if (floatingTextComponent->GetAlpha() <= 0.01F) {
             continue;
         }
-        SDL_Texture* texture = floatingTextComponent->GetTexture();
-        if (texture != nullptr)
-        {
+        SDL_Texture *texture = floatingTextComponent->GetTexture();
+        if (texture != nullptr) {
             SDL_FRect dst = {
                 camera2D.x,
                 camera2D.y,
@@ -178,11 +153,14 @@ void glimmer::FloatingTextSystem::Render(SDL_Renderer* renderer)
     }
 }
 
+void glimmer::FloatingTextSystem::OnConfigChanged(const Config *config) {
+    normalTargetFps_ = config->window.normalTargetFps;
+}
+
 uint8_t glimmer::FloatingTextSystem::GetExecutionOrder() {
     return EXECUTION_ORDER_FLOATING_TEXT;
 }
 
-glimmer::GameSystemType glimmer::FloatingTextSystem::GetGameSystemType() const
-{
+glimmer::GameSystemType glimmer::FloatingTextSystem::GetGameSystemType() const {
     return GameSystemType::FloatingTextSystem;
 }

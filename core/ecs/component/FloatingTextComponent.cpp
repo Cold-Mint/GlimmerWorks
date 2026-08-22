@@ -38,9 +38,21 @@ glimmer::FloatingTextComponent::FloatingTextComponent(const AppContext *appConte
       resourcePackManager_(appContext->GetResourcePackManager()),
       preloadColors_(appContext->GetGraphicsContext()->GetPreloadColors()),
       tween_(tweeny::from(0.0f)
-          .to(1.0f).during(200U)
-          .to(1.0f).during(2000U)
-          .to(0.0f).during(300U)
+          .to(1.0f).during([&] {
+              const Config* config = appContext->GetConfig();
+              const float fps = config != nullptr ? config->window.normalTargetFps : 60.0F;
+              return static_cast<uint32_t>(fps * 0.2F);
+          }())
+          .to(1.0f).during([&] {
+              const Config* config = appContext->GetConfig();
+              const float fps = config != nullptr ? config->window.normalTargetFps : 60.0F;
+              return static_cast<uint32_t>(fps * 2.0F);
+          }())
+          .to(0.0f).during([&] {
+              const Config* config = appContext->GetConfig();
+              const float fps = config != nullptr ? config->window.normalTargetFps : 60.0F;
+              return static_cast<uint32_t>(fps * 0.3F);
+          }())
           .build()) {
 }
 

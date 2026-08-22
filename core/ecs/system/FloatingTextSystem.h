@@ -28,24 +28,25 @@
 #include "core/ecs/GameSystem.h"
 
 
-namespace glimmer
-{
-    class FloatingTextSystem : public GameSystem
-    {
-        CameraComponent* cameraComponent_ = nullptr;
-        Transform2DComponent* cameraTransform2DComponent_ = nullptr;
+namespace glimmer {
+    class FloatingTextSystem : public GameSystem {
+        CameraComponent *cameraComponent_ = nullptr;
+        Transform2DComponent *cameraTransform2DComponent_ = nullptr;
         std::vector<GameEntityID> entities_;
         uint32_t transform2DCount_ = 0;
         uint32_t floatingTextCount_ = 0;
+        float normalTargetFps_ = 60;
 
     public:
-        explicit FloatingTextSystem(WorldContext* worldContext);
+        explicit FloatingTextSystem(WorldContext *worldContext);
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
         void Update(float delta) override;
 
-        void Render(SDL_Renderer* renderer) override;
+        void Render(SDL_Renderer *renderer) override;
+
+        void OnConfigChanged(const Config *config) override;
 
         uint8_t GetExecutionOrder() override;
 

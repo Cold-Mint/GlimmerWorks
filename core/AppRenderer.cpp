@@ -25,23 +25,19 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "AppRenderer.h"
-#include "log/LogCat.h"
 #include "scene/SceneManager.h"
 #include "GameUIMessage.h"
 #include <cassert>
 
 
-glimmer::AppRenderer::AppRenderer(AppContext* appContext, SDL_Renderer* renderer) :
-    appContext_(appContext),
-    renderer_(renderer)
-{
+glimmer::AppRenderer::AppRenderer(AppContext *appContext, SDL_Renderer *renderer) : appContext_(appContext),
+    renderer_(renderer) {
 }
 
-void glimmer::AppRenderer::RenderFrame(const RmlContext* rmlContext, const int windowWidth, const int windowHeight, const uint64_t frameStart,
-    const float deltaTime) const
-{
-    if (windowWidth <= 0 || windowHeight <= 0)
-    {
+void glimmer::AppRenderer::RenderFrame(const RmlContext *rmlContext, const int windowWidth, const int windowHeight,
+                                       const uint64_t frameStart,
+                                       const float deltaTime) const {
+    if (windowWidth <= 0 || windowHeight <= 0) {
         return;
     }
     SDL_RenderClear(renderer_);
@@ -55,33 +51,27 @@ void glimmer::AppRenderer::RenderFrame(const RmlContext* rmlContext, const int w
     SDL_RenderPresent(renderer_);
 }
 
-void glimmer::AppRenderer::RenderScenes() const
-{
+void glimmer::AppRenderer::RenderScenes() const {
     auto sceneManager = appContext_->GetSceneManager();
-    if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
-    {
+    if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
         topScene->Render(renderer_);
     }
 }
 
-void glimmer::AppRenderer::RenderOverlays() const
-{
+void glimmer::AppRenderer::RenderOverlays() const {
     auto sceneManager = appContext_->GetSceneManager();
-    const auto& overlayScenes = sceneManager->GetOverlayScenes();
-    for (const auto overlay : overlayScenes)
-    {
+    const auto &overlayScenes = sceneManager->GetOverlayScenes();
+    for (const auto overlay: overlayScenes) {
         overlay->Render(renderer_);
     }
 }
 
-void glimmer::AppRenderer::RenderRelease() const
-{
+void glimmer::AppRenderer::RenderRelease() const {
     RenderScenes();
     RenderOverlays();
 }
 
-void glimmer::AppRenderer::RenderDebug() const
-{
+void glimmer::AppRenderer::RenderDebug() const {
     SDL_Color oldColor;
     SDL_GetRenderDrawColor(renderer_, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
 
@@ -90,77 +80,68 @@ void glimmer::AppRenderer::RenderDebug() const
     SDL_Color newColor;
     SDL_GetRenderDrawColor(renderer_, &newColor.r, &newColor.g, &newColor.b, &newColor.a);
     if (oldColor.a != newColor.a || oldColor.r != newColor.r ||
-        oldColor.g != newColor.g || oldColor.b != newColor.b)
-    {
+        oldColor.g != newColor.g || oldColor.b != newColor.b) {
         assert(false);
     }
     auto sceneManager = appContext_->GetSceneManager();
-    const auto& overlayScenes = sceneManager->GetOverlayScenes();
-    for (const auto overlay : overlayScenes)
-    {
+    const auto &overlayScenes = sceneManager->GetOverlayScenes();
+    for (const auto overlay: overlayScenes) {
         SDL_GetRenderDrawColor(renderer_, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
         overlay->Render(renderer_);
         SDL_Color overlayColor;
         SDL_GetRenderDrawColor(renderer_, &overlayColor.r, &overlayColor.g, &overlayColor.b, &overlayColor.a);
         if (oldColor.a != overlayColor.a || oldColor.r != overlayColor.r ||
-            oldColor.g != overlayColor.g || oldColor.b != overlayColor.b)
-        {
+            oldColor.g != overlayColor.g || oldColor.b != overlayColor.b) {
             assert(false);
         }
     }
 }
 
 void glimmer::AppRenderer::RenderUiMessage(const int windowHeight, const uint64_t frameStart,
-                                           const float deltaTime) const
-{
-    auto& uiMessages = appContext_->GetGameUIMessages();
-    if (uiMessages.empty())
-    {
+                                           const float deltaTime) const {
+    auto &uiMessages = appContext_->GetGameUIMessages();
+    if (uiMessages.empty()) {
         return;
     }
     std::erase_if(uiMessages,
-                  [frameStart](const GameUIMessage& msg)
-                  {
+                  [frameStart](const GameUIMessage &msg) {
                       return msg.GetExpireTime() <= frameStart;
                   });
 
     constexpr float padding = 16.0F;
     constexpr float spacing = 6.0F;
 
+    const Config *config = appContext_->GetConfig();
+    const float targetFps = config != nullptr ? config->window.normalTargetFps : 60.0F;
+    const auto frames = static_cast<int32_t>(deltaTime * targetFps);
+
     float totalHeight = 0.0F;
 
-    for (auto& msg : uiMessages)
-    {
-        auto& tween = msg.GetTween();
-        tween.step(static_cast<int32_t>(deltaTime));
+    for (auto &msg: uiMessages) {
+        auto &tween = msg.GetTween();
+        tween.step(frames);
         const float peekResult = tween.peek();
         msg.SetAlpha(peekResult);
-        if (peekResult <= 0.01F)
-        {
+        if (peekResult <= 0.01F) {
             continue;
         }
-        const SDL_Texture* sdlTexture = msg.GetTexture();
-        if (sdlTexture == nullptr)
-        {
+        const SDL_Texture *sdlTexture = msg.GetTexture();
+        if (sdlTexture == nullptr) {
             continue;
         }
         totalHeight += static_cast<float>(sdlTexture->h) + spacing;
     }
 
-    if (!uiMessages.empty() && totalHeight > 0.0F)
-    {
+    if (!uiMessages.empty() && totalHeight > 0.0F) {
         totalHeight -= spacing;
     }
     float startY = static_cast<float>(windowHeight) - totalHeight - padding;
-    for (auto& msg : uiMessages)
-    {
-        if (msg.GetAlpha() <= 0.01F)
-        {
+    for (auto &msg: uiMessages) {
+        if (msg.GetAlpha() <= 0.01F) {
             continue;
         }
-        SDL_Texture* sdlTexture = msg.GetTexture();
-        if (sdlTexture == nullptr)
-        {
+        SDL_Texture *sdlTexture = msg.GetTexture();
+        if (sdlTexture == nullptr) {
             continue;
         }
         SDL_SetTextureAlphaMod(sdlTexture, static_cast<Uint8>(msg.GetAlpha() * 255));

@@ -400,10 +400,11 @@ void glimmer::AppContext::AddUIMessage(const std::string &string) {
     if (resourcePackManager_ == nullptr) {
         return;
     }
+    const float targetFps = config_ != nullptr ? config_->window.normalTargetFps : 60.0F;
 
-    mainThreadDispatcher_->PostToNextMainFrame([this, string] {
+    mainThreadDispatcher_->PostToNextMainFrame([this, string, targetFps] {
         gameUIMessages_.emplace_back(resourcePackManager_.get(), string, SDL_GetTicks(),
-                                     &graphicsContext_->GetPreloadColors()->textColor);
+                                     &graphicsContext_->GetPreloadColors()->textColor, targetFps);
     });
 }
 

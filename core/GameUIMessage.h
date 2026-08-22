@@ -47,7 +47,8 @@ namespace glimmer
         std::shared_ptr<SDL_Texture> texture_;
 
     public:
-        GameUIMessage(ResourcePackManager* resourcePackManager, std::string text, uint64_t now, const Color* color);
+        GameUIMessage(ResourcePackManager* resourcePackManager, std::string text, uint64_t now, const Color* color,
+                      float targetFps);
 
         [[nodiscard]] uint64_t GetCreateTime() const;
 

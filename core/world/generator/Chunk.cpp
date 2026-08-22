@@ -34,46 +34,38 @@
 #include "core/world/WorldContext.h"
 #include "src/saves/tile_state.pb.h"
 
-void glimmer::Chunk::AddBodyId(b2BodyId bodyId)
-{
+void glimmer::Chunk::AddBodyId(b2BodyId bodyId) {
     attachedBodies_.emplace_back(bodyId);
 }
 
-float glimmer::Chunk::GetChunkFadeAlpha() const
-{
+float glimmer::Chunk::GetChunkFadeAlpha() const {
     return chunkFadeAlpha_;
 }
 
-const std::vector<b2BodyId>& glimmer::Chunk::GetAttachedBodies()
-{
+const std::vector<b2BodyId> &glimmer::Chunk::GetAttachedBodies() {
     return attachedBodies_;
 }
 
-void glimmer::Chunk::ClearAttachedBodies()
-{
+void glimmer::Chunk::ClearAttachedBodies() {
     attachedBodies_.clear();
 }
 
 size_t glimmer::Chunk::AddReplaceTileCallback(
-    const std::function<void(Chunk* chunk, TileLayerType layerType, int index, std::shared_ptr<Tile> oldTile, std::
-                             shared_ptr<Tile> newTile)>& callBack)
-{
+    const std::function<void(Chunk *chunk, TileLayerType layerType, int index, std::shared_ptr<Tile> oldTile, std::
+                             shared_ptr<Tile> newTile)> &callBack) {
     replaceTileCallback_.emplace_back(callBack);
     return replaceTileCallback_.size() - 1;
 }
 
-bool glimmer::Chunk::RemoveReplaceTileCallback(const long index)
-{
-    if (replaceTileCallback_.size() <= index)
-    {
+bool glimmer::Chunk::RemoveReplaceTileCallback(const long index) {
+    if (replaceTileCallback_.size() <= index) {
         return false;
     }
     replaceTileCallback_.erase(replaceTileCallback_.begin() + index);
     return true;
 }
 
-glimmer::TileVector2D glimmer::Chunk::TileCoordinatesToChunkVertexCoordinates(const TileVector2D& tileVector2d)
-{
+glimmer::TileVector2D glimmer::Chunk::TileCoordinatesToChunkVertexCoordinates(const TileVector2D &tileVector2d) {
     return {
         tileVector2d.x & CHUNK_ALIGN,
         tileVector2d.y & CHUNK_ALIGN
@@ -81,8 +73,7 @@ glimmer::TileVector2D glimmer::Chunk::TileCoordinatesToChunkVertexCoordinates(co
 }
 
 
-glimmer::TileVector2D glimmer::Chunk::TileCoordinatesToChunkRelativeCoordinates(const TileVector2D& tileVector2d)
-{
+glimmer::TileVector2D glimmer::Chunk::TileCoordinatesToChunkRelativeCoordinates(const TileVector2D &tileVector2d) {
     return {
         tileVector2d.x & CHUNK_MASK,
         tileVector2d.y & CHUNK_MASK
@@ -90,18 +81,15 @@ glimmer::TileVector2D glimmer::Chunk::TileCoordinatesToChunkRelativeCoordinates(
 }
 
 bool glimmer::Chunk::CommitTileState(const BreakSource breakSource, const TileLayerType layerType, const int index,
-                                     const bool fallback)
-{
-    if (index < 0 || index >= CHUNK_AREA)
-    {
+                                     const bool fallback) {
+    if (index < 0 || index >= CHUNK_AREA) {
         return false;
     }
     TileVector2D tileVector2D;
     tileVector2D.x = (index & CHUNK_MASK) + position_.x;
     tileVector2D.y = (index >> CHUNK_SHIFT) + position_.y;
-    const TileStateMessage* tileStateMessage = GetTileState(layerType, index);
-    if (tileStateMessage == nullptr)
-    {
+    const TileStateMessage *tileStateMessage = GetTileState(layerType, index);
+    if (tileStateMessage == nullptr) {
         return false;
     }
     //Check if it is necessary to rebuild the tiles.
@@ -111,54 +99,41 @@ bool glimmer::Chunk::CommitTileState(const BreakSource breakSource, const TileLa
     const uint64_t fingerprint = resourceRef.GetFingerprint();
     bool rebuildTile = false;
     auto iterator = tileFingerprint_.find(layerType);
-    if (iterator == tileFingerprint_.end())
-    {
+    if (iterator == tileFingerprint_.end()) {
         rebuildTile = true;
-    }
-    else
-    {
+    } else {
         rebuildTile = iterator->second[index] != fingerprint;
     }
-    if (rebuildTile)
-    {
-        if (worldContext_ == nullptr)
-        {
+    if (rebuildTile) {
+        if (worldContext_ == nullptr) {
             return false;
         }
-        const AppContext* appContext = worldContext_->GetAppContext();
-        if (appContext == nullptr)
-        {
+        const AppContext *appContext = worldContext_->GetAppContext();
+        if (appContext == nullptr) {
             return false;
         }
 
-        const ResourceLocator* resourceLocator = appContext->GetResourceLocator();
-        if (resourceLocator == nullptr)
-        {
+        const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+        if (resourceLocator == nullptr) {
             return false;
         }
-        const TileResource* tileResource = nullptr;
-        if (fallback)
-        {
+        const TileResource *tileResource = nullptr;
+        if (fallback) {
             tileResource = resourceLocator->FindTileFallback(&resourceRef, layerType);
-        }
-        else
-        {
+        } else {
             tileResource = resourceLocator->FindTileRaw(&resourceRef);
         }
-        if (tileResource == nullptr)
-        {
+        if (tileResource == nullptr) {
             return false;
         }
-        TileInstancePool* tileInstancePool = worldContext_->GetTileInstancePool();
-        if (tileInstancePool == nullptr)
-        {
+        TileInstancePool *tileInstancePool = worldContext_->GetTileInstancePool();
+        if (tileInstancePool == nullptr) {
             return false;
         }
 
         const std::shared_ptr<Tile> newTile = tileInstancePool->CreateTile(appContext, tileResource,
                                                                            fingerprint);
-        if (newTile == nullptr)
-        {
+        if (newTile == nullptr) {
             return false;
         }
         std::shared_ptr<Tile> oldTile = nullptr;
@@ -170,9 +145,8 @@ bool glimmer::Chunk::CommitTileState(const BreakSource breakSource, const TileLa
         auto [tileFingerprintIterator, tileFingerprintInserted] = tileFingerprint_.try_emplace(layerType);
         tileFingerprintIterator->second[index] = fingerprint;
         auto [tileSnapshotIterator,tileSnapshotInserted] = tileSnapshots_.try_emplace(layerType);
-        std::unique_ptr<TileSnapshot>& tileSnapshotPtr = tileSnapshotIterator->second[index];
-        if (tileSnapshotPtr == nullptr)
-        {
+        std::unique_ptr<TileSnapshot> &tileSnapshotPtr = tileSnapshotIterator->second[index];
+        if (tileSnapshotPtr == nullptr) {
             tileSnapshotPtr = std::make_unique<TileSnapshot>();
         }
         tileSnapshotPtr->SetTile(newTile.get());
@@ -182,54 +156,34 @@ bool glimmer::Chunk::CommitTileState(const BreakSource breakSource, const TileLa
     return true;
 }
 
-TileStateMessage* glimmer::Chunk::GetTileState(const TileLayerType layerType, const uint8_t index) const
-{
+TileStateMessage *glimmer::Chunk::GetTileState(const TileLayerType layerType, const uint8_t index) const {
     const auto it = tileState_.find(layerType);
-    if (it == tileState_.end())
-    {
+    if (it == tileState_.end()) {
         return nullptr;
     }
     return it->second[index].get();
 }
 
 
-void glimmer::Chunk::InvokeReplaceTileCallback(Chunk* chunk, const TileLayerType layerType, const int index,
-                                               const std::shared_ptr<Tile>& oldTile,
-                                               const std::shared_ptr<Tile>& newTile) const
-{
-    for (auto& replaceTileCallback : replaceTileCallback_)
-    {
+void glimmer::Chunk::InvokeReplaceTileCallback(Chunk *chunk, const TileLayerType layerType, const int index,
+                                               const std::shared_ptr<Tile> &oldTile,
+                                               const std::shared_ptr<Tile> &newTile) const {
+    for (auto &replaceTileCallback: replaceTileCallback_) {
         replaceTileCallback(chunk, layerType, index, oldTile, newTile);
     }
 }
 
-glimmer::Chunk::Chunk(WorldContext* worldContext, const TileVector2D& pos,
-                      const AnimConfig& animConfig)
-    : position_(pos), worldContext_(worldContext),
-      chunkFadeInTween_(tweeny::from(animConfig.chunkFadeInFrom)
-                            .to(animConfig.chunkFadeInTo)
-                            .during(static_cast<uint32_t>(animConfig.chunkFadeinDuration * 1000))
-                            .via(tweeny::easing::cubicOut)
-                            .build()),
-      chunkFadeAlpha_(animConfig.chunkFadeInFrom)
-{
-}
 
-
-void glimmer::Chunk::UpdateFadeInAnimation(const float delta)
-{
-    if (chunkFadeInTween_.progress() < 1.0f)
-    {
-        chunkFadeInTween_.step(static_cast<int32_t>(delta));
+void glimmer::Chunk::UpdateFadeInAnimation() {
+    if (chunkFadeInTween_.progress() < 1.0f) {
+        chunkFadeInTween_.step(1);
         chunkFadeAlpha_ = chunkFadeInTween_.peek();
     }
 }
 
-TileStateMessage* glimmer::Chunk::GetOrCreateTileState(const TileLayerType layerType, const int index)
-{
-    TileStateMessage* tileStateMessage = GetTileState(layerType, index);
-    if (tileStateMessage == nullptr)
-    {
+TileStateMessage *glimmer::Chunk::GetOrCreateTileState(const TileLayerType layerType, const int index) {
+    TileStateMessage *tileStateMessage = GetTileState(layerType, index);
+    if (tileStateMessage == nullptr) {
         auto tileState = std::make_unique<TileStateMessage>();
         auto [tileStateIterator, tileStateInserted] = tileState_.try_emplace(layerType);
         tileStateIterator->second[index] = std::move(tileState);
@@ -238,61 +192,49 @@ TileStateMessage* glimmer::Chunk::GetOrCreateTileState(const TileLayerType layer
     return tileStateMessage;
 }
 
-glimmer::TileVector2D glimmer::Chunk::GetPosition() const
-{
+glimmer::TileVector2D glimmer::Chunk::GetPosition() const {
     return position_;
 }
 
-const glimmer::Tile* glimmer::Chunk::GetTile(const TileLayerType layerType, const uint8_t index) const
-{
+const glimmer::Tile *glimmer::Chunk::GetTile(const TileLayerType layerType, const uint8_t index) const {
     const auto it = tiles_.find(layerType);
-    if (it == tiles_.end())
-    {
+    if (it == tiles_.end()) {
         return nullptr;
     }
     return it->second[index].get();
 }
 
-std::shared_ptr<glimmer::Tile> glimmer::Chunk::GetTileShared(TileLayerType layerType, uint8_t index) const
-{
+std::shared_ptr<glimmer::Tile> glimmer::Chunk::GetTileShared(TileLayerType layerType, uint8_t index) const {
     const auto it = tiles_.find(layerType);
-    if (it == tiles_.end())
-    {
+    if (it == tiles_.end()) {
         return nullptr;
     }
     return it->second[index];
 }
 
-std::vector<glimmer::TileSnapshot*> glimmer::Chunk::GetTopVisibleTileSnapshots(const std::byte layerFilter,
-                                                                               const uint8_t index) const
-{
+std::vector<glimmer::TileSnapshot *> glimmer::Chunk::GetTopVisibleTileSnapshots(const std::byte layerFilter,
+    const uint8_t index) const {
     const int intIndex = index;
-    if (intIndex >= CHUNK_AREA)
-    {
+    if (intIndex >= CHUNK_AREA) {
         return {};
     }
-    std::vector<TileSnapshot*> topVisibleTileSnapshots;
-    for (int i = 0; i < TILE_LAYER_TYPE_COUNT; i++)
-    {
+    std::vector<TileSnapshot *> topVisibleTileSnapshots;
+    for (int i = 0; i < TILE_LAYER_TYPE_COUNT; i++) {
         auto layer = static_cast<std::byte>(1 << i);
-        if ((layerFilter & layer) != std::byte{0})
-        {
+        if ((layerFilter & layer) != std::byte{0}) {
             auto tileLayerType = static_cast<TileLayerType>(layer);
             auto iterator = tileSnapshots_.find(tileLayerType);
-            if (iterator == tileSnapshots_.end())
-            {
+            if (iterator == tileSnapshots_.end()) {
                 continue;
             }
 
-            const std::array<std::unique_ptr<TileSnapshot>, CHUNK_AREA>& tileArray = iterator->second;
-            const std::unique_ptr<TileSnapshot>& tileSnapshot = tileArray[intIndex];
-            if (tileSnapshot == nullptr)
-            {
+            const std::array<std::unique_ptr<TileSnapshot>, CHUNK_AREA> &tileArray = iterator->second;
+            const std::unique_ptr<TileSnapshot> &tileSnapshot = tileArray[intIndex];
+            if (tileSnapshot == nullptr) {
                 continue;
             }
-            TileSnapshot* tileSnapshotPtr = tileSnapshot.get();
-            if (tileSnapshotPtr == nullptr)
-            {
+            TileSnapshot *tileSnapshotPtr = tileSnapshot.get();
+            if (tileSnapshotPtr == nullptr) {
                 continue;
             }
             topVisibleTileSnapshots.emplace_back(tileSnapshotPtr);
@@ -302,21 +244,18 @@ std::vector<glimmer::TileSnapshot*> glimmer::Chunk::GetTopVisibleTileSnapshots(c
 }
 
 
-void glimmer::Chunk::ReadChunkMessage(const ChunkMessage& chunkMessage)
-{
+void glimmer::Chunk::ReadChunkMessage(const ChunkMessage &chunkMessage) {
     position_.ReadVector2DIMessage(chunkMessage.position());
     tiles_.clear();
     tileState_.clear();
-    auto& map = chunkMessage.tilestates();
-    for (const auto& mapPair : map)
-    {
+    auto &map = chunkMessage.tilestates();
+    for (const auto &mapPair: map) {
         const auto layerType = static_cast<TileLayerType>(mapPair.first);
-        const TileStateArrayMessage& tileData = mapPair.second;
+        const TileStateArrayMessage &tileData = mapPair.second;
         auto tileResourceRefSize = tileData.tilestatemessage_size();
         std::array<std::unique_ptr<Tile>, CHUNK_AREA> value;
-        for (int i = 0; i < tileResourceRefSize; i++)
-        {
-            auto& tileStateMessage = tileData.tilestatemessage(i);
+        for (int i = 0; i < tileResourceRefSize; i++) {
+            auto &tileStateMessage = tileData.tilestatemessage(i);
             auto tileStatePtr = GetOrCreateTileState(layerType, i);
             tileStatePtr->CopyFrom(tileStateMessage);
             CommitTileState(BreakSource::ChunkLoad, layerType, i, true);
@@ -326,19 +265,15 @@ void glimmer::Chunk::ReadChunkMessage(const ChunkMessage& chunkMessage)
 
 
 void glimmer::Chunk::WriteTileStatesToMessage(
-    const std::array<std::unique_ptr<TileStateMessage>, CHUNK_AREA>& tileStates,
-    TileStateArrayMessage& layerMessage)
-{
+    const std::array<std::unique_ptr<TileStateMessage>, CHUNK_AREA> &tileStates,
+    TileStateArrayMessage &layerMessage) {
     layerMessage.mutable_tilestatemessage()->Reserve(CHUNK_AREA);
-    for (int y = 0; y < CHUNK_SIZE; y++)
-    {
-        for (int x = 0; x < CHUNK_SIZE; x++)
-        {
+    for (int y = 0; y < CHUNK_SIZE; y++) {
+        for (int x = 0; x < CHUNK_SIZE; x++) {
             const int index = y << CHUNK_SHIFT | x;
-            const TileStateMessage* tileStateMessage = tileStates[index].get();
-            auto* modifiableTileStateMessage = layerMessage.add_tilestatemessage();
-            if (tileStateMessage == nullptr)
-            {
+            const TileStateMessage *tileStateMessage = tileStates[index].get();
+            auto *modifiableTileStateMessage = layerMessage.add_tilestatemessage();
+            if (tileStateMessage == nullptr) {
                 continue;
             }
             modifiableTileStateMessage->CopyFrom(*tileStateMessage);
@@ -346,24 +281,30 @@ void glimmer::Chunk::WriteTileStatesToMessage(
     }
 }
 
-void glimmer::Chunk::WriteChunkMessage(ChunkMessage& chunkMessage)
-{
+glimmer::Chunk::Chunk(WorldContext *worldContext, const TileVector2D &pos, const Config *config) : position_(pos),
+    worldContext_(worldContext),
+    chunkFadeInTween_(tweeny::from(config->anim.chunkFadeInFrom)
+        .to(config->anim.chunkFadeInTo)
+        .during(static_cast<uint32_t>(config->anim.chunkFadeinDuration * config->window.normalTargetFps))
+        .via(tweeny::easing::cubicOut)
+        .build()),
+    chunkFadeAlpha_(config->anim.chunkFadeInFrom) {
+}
+
+void glimmer::Chunk::WriteChunkMessage(ChunkMessage &chunkMessage) {
     position_.WriteVector2DIMessage(*chunkMessage.mutable_position());
     chunkMessage.clear_tilestates();
-    for (const auto& [layerType, tileArray] : tileState_)
-    {
-        auto& tileData =
-            (*chunkMessage.mutable_tilestates())[std::to_underlying(layerType)];
+    for (const auto &[layerType, tileArray]: tileState_) {
+        auto &tileData =
+                (*chunkMessage.mutable_tilestates())[std::to_underlying(layerType)];
         WriteTileStatesToMessage(tileArray, tileData);
     }
 }
 
-glimmer::WorldVector2D glimmer::Chunk::GetStartWorldPosition() const
-{
+glimmer::WorldVector2D glimmer::Chunk::GetStartWorldPosition() const {
     return CoordinateTransformer::TileToWorld(position_);
 }
 
-glimmer::WorldVector2D glimmer::Chunk::GetEndWorldPosition() const
-{
+glimmer::WorldVector2D glimmer::Chunk::GetEndWorldPosition() const {
     return CoordinateTransformer::TileToWorld(position_ + TileVector2D(CHUNK_SIZE, CHUNK_SIZE));
 }

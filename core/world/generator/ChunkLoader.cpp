@@ -29,44 +29,36 @@
 #include "Chunk.h"
 #include "core/ecs/DroppedItemCreator.h"
 #include "core/ecs/MobEntityCreator.h"
-#include "core/ecs/component/DroppedItemComponent.h"
 #include "core/ecs/component/MagnetComponent.h"
 #include "core/ecs/component/RigidBody2DComponent.h"
 #include "core/log/LogCat.h"
 #include "core/world/WorldContext.h"
 
 
-void glimmer::ChunkLoader::LoadEntityFromSaves(TileVector2D position) const
-{
-    if (saves_->EntityExists(position))
-    {
+void glimmer::ChunkLoader::LoadEntityFromSaves(TileVector2D position) const {
+    if (saves_->EntityExists(position)) {
         auto chunkEntityMessageOptional = saves_->ReadChunkEntity(position);
-        if (chunkEntityMessageOptional.has_value())
-        {
-            ChunkEntityMessage& chunkEntityMessage = chunkEntityMessageOptional.value();
+        if (chunkEntityMessageOptional.has_value()) {
+            ChunkEntityMessage &chunkEntityMessage = chunkEntityMessageOptional.value();
             int entitySize = chunkEntityMessage.entities_size();
-            for (int i = 0; i < entitySize; i++)
-            {
-                (void)RecoveryEntity(chunkEntityMessage.entities(i));
+            for (int i = 0; i < entitySize; i++) {
+                (void) RecoveryEntity(chunkEntityMessage.entities(i));
             }
         }
     }
 }
 
-glimmer::ChunkLoader::ChunkLoader(WorldContext* worldContext, Saves* saves) : saves_(saves), worldContext_(worldContext)
-{
+glimmer::ChunkLoader::ChunkLoader(WorldContext *worldContext, Saves *saves) : saves_(saves),
+                                                                              worldContext_(worldContext) {
 }
 
-GameEntityID glimmer::ChunkLoader::RecoveryEntity(const EntityItemMessage& entityItemMessage) const
-{
+GameEntityID glimmer::ChunkLoader::RecoveryEntity(const EntityItemMessage &entityItemMessage) const {
     const auto id = entityItemMessage.gameentity().id();
     worldContext_->GetEntityManager()->AddEntity(id);
-    if (entityItemMessage.has_resourceref())
-    {
-        const ResourceRefMessage& resourceRefMessage = entityItemMessage.resourceref();
+    if (entityItemMessage.has_resourceref()) {
+        const ResourceRefMessage &resourceRefMessage = entityItemMessage.resourceref();
         const uint32_t resourceType = resourceRefMessage.resourcetype();
-        if (resourceType == RESOURCE_MOB)
-        {
+        if (resourceType == RESOURCE_MOB) {
             ResourceRef resourceRef{};
             resourceRef.ReadResourceRefMessage(resourceRefMessage);
             MobEntityCreator mobEntityCreator{worldContext_};
@@ -74,8 +66,7 @@ GameEntityID glimmer::ChunkLoader::RecoveryEntity(const EntityItemMessage& entit
             mobEntityCreator.MergeEntityItemMessage(id, entityItemMessage);
         }
 
-        if (resourceType == RESOURCE_DROPPED_ITEM)
-        {
+        if (resourceType == RESOURCE_DROPPED_ITEM) {
             ResourceRef resourceRef{};
             resourceRef.ReadResourceRefMessage(resourceRefMessage);
             DroppedItemCreator droppedItemCreator{worldContext_};
@@ -87,35 +78,25 @@ GameEntityID glimmer::ChunkLoader::RecoveryEntity(const EntityItemMessage& entit
 }
 
 
-std::unique_ptr<glimmer::Chunk> glimmer::ChunkLoader::LoadChunkFromSaves(TileVector2D position) const
-{
-    if (worldContext_ == nullptr)
-    {
+std::unique_ptr<glimmer::Chunk> glimmer::ChunkLoader::LoadChunkFromSaves(TileVector2D position) const {
+    if (worldContext_ == nullptr) {
         return nullptr;
     }
-    const AppContext* appContext = worldContext_->GetAppContext();
-    if (appContext == nullptr)
-    {
+    const AppContext *appContext = worldContext_->GetAppContext();
+    if (appContext == nullptr) {
         return nullptr;
     }
-    const Config* config = appContext->GetConfig();
-    if (config == nullptr)
-    {
+    const Config *config = appContext->GetConfig();
+    if (config == nullptr) {
         return nullptr;
     }
-    if (saves_->ChunkExists(position))
-    {
-        if (const auto chunkMessage = saves_->ReadChunk(position); chunkMessage.has_value())
-        {
+    if (saves_->ChunkExists(position)) {
+        if (const auto chunkMessage = saves_->ReadChunk(position); chunkMessage.has_value()) {
             LogCat::i("Loading chunk from saves at: (", position.x, ",", position.y, ")");
-            auto chunk = std::make_unique<Chunk>(worldContext_, position, config->anim);
+            auto chunk = std::make_unique<Chunk>(worldContext_, position, config);
             chunk.get()->ReadChunkMessage(chunkMessage.value());
             LoadEntityFromSaves(position);
             return chunk;
-        }
-        else
-        {
-            LogCat::w(std::source_location::current(), "Chunk exists but failed to read: (", position.x, ",", position.y, ")");
         }
     }
     return nullptr;

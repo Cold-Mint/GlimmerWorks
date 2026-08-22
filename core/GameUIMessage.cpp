@@ -31,59 +31,49 @@
 #include "tweeny/tweeny.h"
 #include "utils/StringUtils.h"
 
-glimmer::GameUIMessage::GameUIMessage(ResourcePackManager* resourcePackManager, std::string text, const uint64_t now,
-                                      const Color* color) : text_(std::move(text)),
-                                                            createTime_(now),
-                                                            expireTime_(now + 2500),
-                                                            tween_(tweeny::from(0.0F)
-                                                                   .to(1.0F).during(200U)
-                                                                   .to(1.0F).during(2000U)
-                                                                   .to(0.0F).during(300U)
-                                                                   .build())
-{
+glimmer::GameUIMessage::GameUIMessage(ResourcePackManager *resourcePackManager, std::string text, const uint64_t now,
+                                      const Color *color, const float targetFps) : text_(std::move(text)),
+    createTime_(now),
+    expireTime_(now + 2500),
+    tween_(tweeny::from(0.0F)
+        .to(1.0F).during(static_cast<uint32_t>(targetFps * 0.2F))
+        .to(1.0F).during(static_cast<uint32_t>(targetFps * 2.0F))
+        .to(0.0F).during(static_cast<uint32_t>(targetFps * 0.3F))
+        .build()) {
     texture_ = resourcePackManager->CreateStringTexture(text_, color);
 }
 
-uint64_t glimmer::GameUIMessage::GetCreateTime() const
-{
+uint64_t glimmer::GameUIMessage::GetCreateTime() const {
     return createTime_;
 }
 
-void glimmer::GameUIMessage::SetAlpha(const float alpha)
-{
+void glimmer::GameUIMessage::SetAlpha(const float alpha) {
     alpha_ = alpha;
 }
 
-std::string glimmer::GameUIMessage::GetText() const
-{
+std::string glimmer::GameUIMessage::GetText() const {
     return text_;
 }
 
-float glimmer::GameUIMessage::GetAlpha() const
-{
+float glimmer::GameUIMessage::GetAlpha() const {
     return alpha_;
 }
 
-SDL_Texture* glimmer::GameUIMessage::GetTexture() const
-{
-    if (texture_ == nullptr)
-    {
+SDL_Texture *glimmer::GameUIMessage::GetTexture() const {
+    if (texture_ == nullptr) {
         return nullptr;
     }
     return texture_.get();
 }
 
-tweeny::tween<float>& glimmer::GameUIMessage::GetTween()
-{
+tweeny::tween<float> &glimmer::GameUIMessage::GetTween() {
     return tween_;
 }
 
-uint64_t glimmer::GameUIMessage::GetExpireTime() const
-{
+uint64_t glimmer::GameUIMessage::GetExpireTime() const {
     return expireTime_;
 }
 
-uint64_t glimmer::GameUIMessage::GetFingerprint() const
-{
+uint64_t glimmer::GameUIMessage::GetFingerprint() const {
     return StringUtils::StringToUint64(text_);
 }

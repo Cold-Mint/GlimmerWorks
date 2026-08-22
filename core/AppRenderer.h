@@ -32,7 +32,7 @@ namespace glimmer {
         AppContext *appContext_ = nullptr;
         SDL_Renderer *renderer_ = nullptr;
 
-        void RenderUiMessage(int windowHeight, uint64_t frameStart, float deltaTime) const;
+        void RenderUiMessage(int windowHeight, uint64_t frameStart) const;
 
         void RenderScenes() const;
 

@@ -46,9 +46,62 @@ void glimmer::AppRenderer::RenderFrame(const RmlContext *rmlContext, const int w
 #else
     RenderDebug();
 #endif
-    RenderUiMessage(windowHeight, frameStart, deltaTime);
+    RenderUiMessage(windowHeight, frameStart);
     rmlContext->RenderContext();
     SDL_RenderPresent(renderer_);
+}
+
+void glimmer::AppRenderer::RenderUiMessage(int windowHeight, uint64_t frameStart) const {
+    auto &uiMessages = appContext_->GetGameUIMessages();
+    if (uiMessages.empty()) {
+        return;
+    }
+    std::erase_if(uiMessages,
+                  [frameStart](const GameUIMessage &msg) {
+                      return msg.GetExpireTime() <= frameStart;
+                  });
+
+    constexpr float padding = 16.0F;
+    constexpr float spacing = 6.0F;
+    float totalHeight = 0.0F;
+    for (auto &msg: uiMessages) {
+        auto &tween = msg.GetTween();
+        tween.step(1);
+        const float peekResult = tween.peek();
+        msg.SetAlpha(peekResult);
+        if (peekResult <= 0.01F) {
+            continue;
+        }
+        const SDL_Texture *sdlTexture = msg.GetTexture();
+        if (sdlTexture == nullptr) {
+            continue;
+        }
+        totalHeight += static_cast<float>(sdlTexture->h) + spacing;
+    }
+
+    if (!uiMessages.empty() && totalHeight > 0.0F) {
+        totalHeight -= spacing;
+    }
+    float startY = static_cast<float>(windowHeight) - totalHeight - padding;
+    for (auto &msg: uiMessages) {
+        if (msg.GetAlpha() <= 0.01F) {
+            continue;
+        }
+        SDL_Texture *sdlTexture = msg.GetTexture();
+        if (sdlTexture == nullptr) {
+            continue;
+        }
+        SDL_SetTextureAlphaMod(sdlTexture, static_cast<Uint8>(msg.GetAlpha() * 255));
+        const SDL_FRect dst = {
+            padding,
+            startY,
+            static_cast<float>(sdlTexture->w),
+            static_cast<float>(sdlTexture->h)
+        };
+
+        SDL_RenderTexture(renderer_, sdlTexture, nullptr, &dst);
+        startY += static_cast<float>(sdlTexture->h) + spacing;
+    }
 }
 
 void glimmer::AppRenderer::RenderScenes() const {
@@ -94,65 +147,5 @@ void glimmer::AppRenderer::RenderDebug() const {
             oldColor.g != overlayColor.g || oldColor.b != overlayColor.b) {
             assert(false);
         }
-    }
-}
-
-void glimmer::AppRenderer::RenderUiMessage(const int windowHeight, const uint64_t frameStart,
-                                           const float deltaTime) const {
-    auto &uiMessages = appContext_->GetGameUIMessages();
-    if (uiMessages.empty()) {
-        return;
-    }
-    std::erase_if(uiMessages,
-                  [frameStart](const GameUIMessage &msg) {
-                      return msg.GetExpireTime() <= frameStart;
-                  });
-
-    constexpr float padding = 16.0F;
-    constexpr float spacing = 6.0F;
-
-    const Config *config = appContext_->GetConfig();
-    const float targetFps = config != nullptr ? config->window.normalTargetFps : 60.0F;
-    const auto frames = static_cast<int32_t>(deltaTime * targetFps);
-
-    float totalHeight = 0.0F;
-
-    for (auto &msg: uiMessages) {
-        auto &tween = msg.GetTween();
-        tween.step(frames);
-        const float peekResult = tween.peek();
-        msg.SetAlpha(peekResult);
-        if (peekResult <= 0.01F) {
-            continue;
-        }
-        const SDL_Texture *sdlTexture = msg.GetTexture();
-        if (sdlTexture == nullptr) {
-            continue;
-        }
-        totalHeight += static_cast<float>(sdlTexture->h) + spacing;
-    }
-
-    if (!uiMessages.empty() && totalHeight > 0.0F) {
-        totalHeight -= spacing;
-    }
-    float startY = static_cast<float>(windowHeight) - totalHeight - padding;
-    for (auto &msg: uiMessages) {
-        if (msg.GetAlpha() <= 0.01F) {
-            continue;
-        }
-        SDL_Texture *sdlTexture = msg.GetTexture();
-        if (sdlTexture == nullptr) {
-            continue;
-        }
-        SDL_SetTextureAlphaMod(sdlTexture, static_cast<Uint8>(msg.GetAlpha() * 255));
-        const SDL_FRect dst = {
-            padding,
-            startY,
-            static_cast<float>(sdlTexture->w),
-            static_cast<float>(sdlTexture->h)
-        };
-
-        SDL_RenderTexture(renderer_, sdlTexture, nullptr, &dst);
-        startY += static_cast<float>(sdlTexture->h) + spacing;
     }
 }

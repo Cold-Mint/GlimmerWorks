@@ -33,27 +33,28 @@
 #include "tweeny/tweeny.h"
 
 
-glimmer::FloatingTextComponent::FloatingTextComponent(const AppContext *appContext)
-    : expireTime_(SDL_GetTicks() + 25000),
-      resourcePackManager_(appContext->GetResourcePackManager()),
-      preloadColors_(appContext->GetGraphicsContext()->GetPreloadColors()),
-      tween_(tweeny::from(0.0F)
-          .to(1.0F).during([&] {
-              const Config *config = appContext->GetConfig();
-              const float fps = config != nullptr ? config->window.normalTargetFps : 60.0F;
-              return static_cast<uint32_t>(fps * 0.2F);
-          }())
-          .to(1.0f).during([&] {
-              const Config *config = appContext->GetConfig();
-              const float fps = config != nullptr ? config->window.normalTargetFps : 60.0F;
-              return static_cast<uint32_t>(fps * 2.0F);
-          }())
-          .to(0.0f).during([&] {
-              const Config *config = appContext->GetConfig();
-              const float fps = config != nullptr ? config->window.normalTargetFps : 60.0F;
-              return static_cast<uint32_t>(fps * 0.3F);
-          }())
-          .build()) {
+glimmer::FloatingTextComponent::FloatingTextComponent(const AppContext *appContext,
+                                                      float normalTargetFps) : expireTime_(SDL_GetTicks() + 25000),
+                                                                               resourcePackManager_(
+                                                                                   appContext->
+                                                                                   GetResourcePackManager()),
+                                                                               preloadColors_(
+                                                                                   appContext->GetGraphicsContext()->
+                                                                                   GetPreloadColors()),
+                                                                               tween_(tweeny::from(0.0F)
+                                                                                   .to(1.0F).during([&] {
+                                                                                       return static_cast<uint32_t>(
+                                                                                           normalTargetFps * 0.2F);
+                                                                                   }())
+                                                                                   .to(1.0F).during([&] {
+                                                                                       return static_cast<uint32_t>(
+                                                                                           normalTargetFps * 2.0F);
+                                                                                   }())
+                                                                                   .to(0.0F).during([&] {
+                                                                                       return static_cast<uint32_t>(
+                                                                                           normalTargetFps * 0.3F);
+                                                                                   }())
+                                                                                   .build()) {
 }
 
 void glimmer::FloatingTextComponent::SetText(const std::string &text) {

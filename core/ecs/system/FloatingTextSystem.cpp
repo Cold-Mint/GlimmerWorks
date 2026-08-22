@@ -73,7 +73,6 @@ void glimmer::FloatingTextSystem::Update(float delta) {
     if (entities_.empty()) {
         return;
     }
-    const auto frames = static_cast<int32_t>(delta * normalTargetFps_);
     uint64_t now = SDL_GetTicks();
     for (const GameEntityID floatingTextEntity: entities_) {
         auto floatingTextComponent = entityManager->GetComponent<FloatingTextComponent>(
@@ -88,7 +87,7 @@ void glimmer::FloatingTextSystem::Update(float delta) {
             continue;
         }
         auto &tween = floatingTextComponent->GetTween();
-        tween.step(frames);
+        tween.step(1);
         floatingTextComponent->SetAlpha(fabs(tween.peek()));
         if (now > floatingTextComponent->GetExpireTime()) {
             entityManager->RemoveEntity(floatingTextEntity);

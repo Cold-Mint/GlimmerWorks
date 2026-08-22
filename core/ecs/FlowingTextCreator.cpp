@@ -50,7 +50,8 @@ void glimmer::FlowingTextCreator::LoadTemplateComponents(uint32_t id) {
         nullptr) {
         transform2dComponent->SetPosition(position_);
     }
-    auto floatingTextComponent = entityManager->AddComponent<FloatingTextComponent>(id, appContext);
+    auto floatingTextComponent = entityManager->AddComponent<FloatingTextComponent>(
+        id, appContext, appContext->GetConfig()->window.normalTargetFps);
     if (floatingTextComponent != nullptr) {
         floatingTextComponent->SetText(text_);
     }

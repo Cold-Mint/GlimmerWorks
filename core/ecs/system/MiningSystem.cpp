@@ -192,16 +192,12 @@ void glimmer::MiningSystem::PlayBreakSFX(const AppContext *appContext, const Til
 }
 
 
-static bool CheckMiningEfficiency(const glimmer::Tile *tile, const glimmer::Item *item) {
-    if (item == nullptr) {
-        return true;
-    }
+static bool CheckMiningEfficiency(const glimmer::Tile *tile, const glimmer::AbilityConfig *abilityConfig) {
     const glimmer::TileMiningData *tileMiningData = tile->GetMiningData();
     if (tileMiningData == nullptr) {
         glimmer::LogCat::w(std::source_location::current(), "tileMiningData == nullptr");
         return true;
     }
-    const glimmer::AbilityConfig *abilityConfig = item->GetAbilityConfig();
     if (abilityConfig == nullptr) {
         glimmer::LogCat::w(std::source_location::current(), "abilityConfig == nullptr");
         return true;
@@ -238,12 +234,17 @@ void glimmer::MiningSystem::ProcessSingleTile(const TileBreakParams &params,
         return;
     }
     sum++;
+    const AbilityConfig *abilityConfigPtr = item->GetAbilityConfig();
     ApplyItemDurability(item, currentTile.get(), isCenter);
     if (isCenter && !params.isPlaceMode) {
         PlayBreakSFX(appContext, currentTile.get());
     }
-    if (!CheckMiningEfficiency(currentTile.get(), item)) {
-        return;
+
+    if (abilityConfigPtr != nullptr) {
+        const AbilityConfig abilityConfigCopy = *abilityConfigPtr;
+        if (!CheckMiningEfficiency(currentTile.get(), &abilityConfigCopy)) {
+            return;
+        }
     }
     const TileLootData *tileLootData = currentTile->GetLootData();
     if (tileLootData == nullptr) {

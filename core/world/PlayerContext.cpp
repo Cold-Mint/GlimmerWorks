@@ -185,30 +185,13 @@ void glimmer::PlayerContext::OnPlayerItemChanged(const ItemContainer *itemContai
     if (index != itemContainer->GetSelectIndex()) {
         return;
     }
-    if (changeType == ContainerChangeType::STACK_DESTROY) {
-        playerComponent->SetItem(nullptr);
-        return;
-    }
-    if (item == nullptr) {
-        playerComponent->SetItem(nullptr);
-        return;
-    }
-    const ItemStackModule *itemStackModule = item->GetStackModule();
-    if (itemStackModule == nullptr) {
-        playerComponent->SetItem(nullptr);
-        return;
-    }
-    if (const uint8_t amount = itemStackModule->GetAmount(); amount == 0) {
-        playerComponent->SetItem(nullptr);
-        return;
-    }
-    const ItemDurabilityModule *itemDurabilityModule = item->GetDurabilityModule();
-    if (itemDurabilityModule == nullptr) {
-        playerComponent->SetItem(nullptr);
-        return;
-    }
-    if (!itemDurabilityModule->IsUnbreakable() && item->GetRemaining() == 0) {
+    if (changeType == ContainerChangeType::STACK_DURABILITY_EXHAUSTED) {
         HandleItemBreak(item, playerComponent);
+        playerComponent->SetItem(nullptr);
+        return;
+    }
+    if (changeType == ContainerChangeType::STACK_AMOUNT_EXHAUSTED || changeType == ContainerChangeType::STACK_DESTROY) {
+        playerComponent->SetItem(nullptr);
         return;
     }
     playerComponent->SetItem(item);

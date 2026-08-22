@@ -43,7 +43,7 @@ void glimmer::ItemContainer::BindItemEvent(uint8_t index, std::unique_ptr<Item> 
                 InvokeOnContentChanged(index, item.get(), changeType);
                 if (amount == 0) {
                     UnBindItemEvent(item.get());
-                    InvokeOnContentChanged(index, item.get(), ContainerChangeType::STACK_DESTROY);
+                    InvokeOnContentChanged(index, item.get(), ContainerChangeType::STACK_AMOUNT_EXHAUSTED);
                     item.reset();
                 }
             });
@@ -56,7 +56,7 @@ void glimmer::ItemContainer::BindItemEvent(uint8_t index, std::unique_ptr<Item> 
                 InvokeOnContentChanged(index, item.get(), changeType);
                 if (usedDurability >= maxDurability) {
                     UnBindItemEvent(item.get());
-                    InvokeOnContentChanged(index, item.get(), ContainerChangeType::STACK_DESTROY);
+                    InvokeOnContentChanged(index, item.get(), ContainerChangeType::STACK_DURABILITY_EXHAUSTED);
                     item.reset();
                 }
             });

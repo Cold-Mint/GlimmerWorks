@@ -214,7 +214,9 @@ void glimmer::InventoryGUISystem::OnWatchedComponentChanged(GameComponentTypeMes
                 LogCat::w(std::source_location::current(), "dataModel == nullptr");
                 return;
             }
-            if (changeType == ContainerChangeType::STACK_DESTROY) {
+            if (changeType == ContainerChangeType::STACK_DESTROY ||
+                changeType == ContainerChangeType::STACK_AMOUNT_EXHAUSTED ||
+                changeType == ContainerChangeType::STACK_DURABILITY_EXHAUSTED) {
                 dataModel->image = "";
                 dataModel->amount = 0;
                 dataModel->durability = -1;

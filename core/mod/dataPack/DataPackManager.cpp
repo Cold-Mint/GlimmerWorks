@@ -69,7 +69,7 @@ bool glimmer::DataPackManager::CheckDependencyVersion(const std::vector<PackDepe
 
 glimmer::DataPackManager::DataPackManager(VirtualFileSystem *virtualFilesystem,
                                           TomlTemplateExpander *tomlTemplateExpander) : virtualFileSystem_(
-    virtualFilesystem), tomlTemplateExpander_(tomlTemplateExpander) {
+        virtualFilesystem), tomlTemplateExpander_(tomlTemplateExpander) {
 }
 
 bool glimmer::DataPackManager::IsDependencySatisfied(const std::string &pack1Id, const std::string &pack2Id) {

@@ -57,8 +57,18 @@ namespace glimmer {
          */
         STACK_CREATE,
         /**
-         * The item has been deleted (when the quantity is zero or the durability is exhausted)
-         * 物品被删除（数量为0或者耐久耗尽时）
+         * The item amount has been exhausted (amount reached zero).
+         * 物品数量耗尽（数量为零时）
+         */
+        STACK_AMOUNT_EXHAUSTED,
+        /**
+         * The item durability has been exhausted (used durability reached max).
+         * 物品耐久耗尽（已用耐久达到上限时）
+         */
+        STACK_DURABILITY_EXHAUSTED,
+        /**
+         * The item has been removed from the container by external operations (e.g. replacement, take, reset).
+         * 物品被外部操作从容器中移除（如替换、取走、重置）
          */
         STACK_DESTROY,
     };

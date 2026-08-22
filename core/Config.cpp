@@ -115,9 +115,6 @@ bool glimmer::Config::ReloadConfig()
     mods.resourcePackPath = toml::find<std::string>(tomlRef, "mods", "resource_pack_path");
     mods.enabledDataPack = toml::find<std::vector<std::string>>(tomlRef, "mods", "enabled_data_pack");
     mods.enabledResourcePack = toml::find<std::vector<std::string>>(tomlRef, "mods", "enabled_resource_pack");
-    mods.supportedTextureFormats = toml::find<std::vector<
-        std::string>>(tomlRef, "mods", "supported_texture_formats");
-    mods.supportedAudioFormats = toml::find<std::vector<std::string>>(tomlRef, "mods", "supported_audio_formats");
     world.preloadChunkRadius = toml::find<float>(tomlRef, "world", "preload_chunk_radius");
     world.preloadStructureRadius = toml::find<float>(tomlRef, "world", "preload_structure_radius");
     world.preloadLightingRadius = toml::find<float>(tomlRef, "world", "preload_lighting_radius");

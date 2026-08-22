@@ -85,8 +85,6 @@ namespace glimmer
         std::string resourcePackPath;
         std::vector<std::string> enabledDataPack;
         std::vector<std::string> enabledResourcePack;
-        std::vector<std::string> supportedTextureFormats;
-        std::vector<std::string> supportedAudioFormats;
     };
 
     struct Debug

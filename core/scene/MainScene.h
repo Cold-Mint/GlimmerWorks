@@ -37,7 +37,6 @@ namespace glimmer
         int windowWidth_ = 0;
         int windowHeight_ = 0;
         float backgroundTargetSecond_ = 0;
-        std::vector<std::string> supportedTextureFormats_ = {};
         float backgroundAnimTimer_ = 0;
         ResourceRef nextBackgroundResourceRef_;
         VirtualFileSystem* virtualFileSystem_ = nullptr;

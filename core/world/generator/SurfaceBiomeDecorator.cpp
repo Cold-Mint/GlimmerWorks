@@ -36,6 +36,8 @@ void glimmer::SurfaceBiomeDecorator::DecorationImp(WorldContext *worldContext, T
                                                        CHUNK_AREA> > *tilesRefMap) {
     std::array<ResourceRef, CHUNK_AREA> &targetLayer = tilesRefMap->at(
         static_cast<TileLayerType>(decoratorResource->layerType));
+    const bool airValid = decoratorResource->openAirTile.IsValid();
+    const bool waterValid = decoratorResource->underwaterTile.IsValid();
     for (int localX = 0; localX < CHUNK_SIZE; localX++) {
         for (int localY = 0; localY < CHUNK_SIZE; localY++) {
             const int idx = localY * CHUNK_SIZE + localX;
@@ -51,13 +53,13 @@ void glimmer::SurfaceBiomeDecorator::DecorationImp(WorldContext *worldContext, T
                 continue;
             }
             const TerrainTileResult &up = terrainResult->QueryTerrain(localX, localY + 1);
-            if (decoratorResource->allowAir && up.terrainType == TerrainResultType::AIR) {
-                targetLayer[idx] = decoratorResource->tile;
+            if (airValid && up.terrainType == TerrainResultType::AIR) {
+                targetLayer[idx] = decoratorResource->openAirTile;
                 continue;
             }
 
-            if (decoratorResource->allowWater && up.terrainType == TerrainResultType::WATER) {
-                targetLayer[idx] = decoratorResource->tile;
+            if (waterValid && up.terrainType == TerrainResultType::WATER) {
+                targetLayer[idx] = decoratorResource->underwaterTile;
             }
         }
     }

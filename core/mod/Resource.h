@@ -536,12 +536,10 @@ namespace glimmer {
 
     //@genNextLine(SurfaceBiomeDecoratorResource|表面生物群系装饰器)
     struct SurfaceBiomeDecoratorResource : IBiomeDecoratorResource {
-        //@genNextLine(tile|瓦片)
-        ResourceRef tile;
-        //@genNextLine(allowAir|允许上方为空气)
-        bool allowAir = true;
-        //@genNextLine(allowWater|允许上方为液体)
-        bool allowWater = false;
+        //@genNextLine(openAirTile|露天瓦片（上方为空气时使用）)
+        ResourceRef openAirTile = {};
+        //@genNextLine(underwaterTile|水下瓦片（上方为液体时使用）)
+        ResourceRef underwaterTile = {};
     };
 
     /**

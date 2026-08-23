@@ -349,7 +349,8 @@ void glimmer::DataPack::LoadBiomeDecoratorResourceFromFile(const toml::value &va
             auto surfaceBiomeDecoratorResource = std::make_unique<SurfaceBiomeDecoratorResource>(
                 toml::get<SurfaceBiomeDecoratorResource>(value));
             surfaceBiomeDecoratorResource->packId = manifest_.id;
-            surfaceBiomeDecoratorResource->tile.SetSelfPackageId(manifest_.id);
+            surfaceBiomeDecoratorResource->openAirTile.SetSelfPackageId(manifest_.id);
+            surfaceBiomeDecoratorResource->underwaterTile.SetSelfPackageId(manifest_.id);
             surfaceBiomeDecoratorResource->biomeDecoratorType = std::to_underlying(type);
             biomeDecoratorManager->Register(std::move(surfaceBiomeDecoratorResource));
             break;

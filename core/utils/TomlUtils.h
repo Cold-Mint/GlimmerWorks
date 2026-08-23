@@ -600,12 +600,11 @@ namespace toml {
     struct from<glimmer::SurfaceBiomeDecoratorResource> {
         static glimmer::SurfaceBiomeDecoratorResource from_toml(const value &v) {
             glimmer::SurfaceBiomeDecoratorResource r;
-            r.allowAir = toml::find_or<bool>(v, "allow_air", true);
-            r.allowWater = toml::find_or<bool>(v, "allow_water", false);
             r.biomeDecoratorType = toml::find_or<uint8_t>(v, "biome_decorator_type", 0);
             r.layerType = toml::find_or<uint8_t>(v, "layer_type", 0);
+            r.openAirTile = toml::find_or<glimmer::ResourceRef>(v, "open_air_tile", {});
             r.resourceId = toml::find<std::string>(v, "resource_id");
-            r.tile = toml::find<glimmer::ResourceRef>(v, "tile");
+            r.underwaterTile = toml::find_or<glimmer::ResourceRef>(v, "underwater_tile", {});
             return r;
         }
     };

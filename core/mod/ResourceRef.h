@@ -88,6 +88,13 @@ namespace glimmer {
 
         void SetResourceKey(std::string_view resourceKey);
 
+        /**
+         *Is it legal (not empty)
+         * 是否合法（不是空的）
+         * @return
+         */
+        [[nodiscard]] bool IsValid() const;
+
         [[nodiscard]] uint64_t GetFingerprint() const override;
 
         [[nodiscard]] std::string GetResourceKey() const;

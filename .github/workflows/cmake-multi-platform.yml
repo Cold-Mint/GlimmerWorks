@@ -132,14 +132,15 @@ jobs:
         run: ctest --build-config ${{ matrix.build_type }}
       - name: Pack
         working-directory: ${{ steps.strings.outputs.build-output-dir }}
-        run: cpack -C ${{ matrix.build_type }}
+        shell: bash
+        run: |
+          rm -rf dist/Release
+          cpack -C ${{ matrix.build_type }}
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
         with:
           name: GlimmerWorks-Package-${{ matrix.os }}
-          path: |
-            ${{ steps.strings.outputs.build-output-dir }}/dist/Release/*.7z
-            ${{ steps.strings.outputs.build-output-dir }}/dist/Release/*.tar.zst
+          path: ${{ runner.os == 'Linux' && format('{0}/dist/Release/*.tar.zst', steps.strings.outputs.build-output-dir) || format('{0}/dist/Release/*.7z', steps.strings.outputs.build-output-dir) }}
           archive: false
 
   release:

@@ -226,6 +226,7 @@ FetchContent_MakeAvailable(toml11)
 FetchContent_Declare(
         glimmerWorksProtobuf
         GIT_REPOSITORY "https://github.com/Cold-Mint/GlimmerWorksProtobuf"
+        GIT_TAG ${COLD-MINT_GLIMMERWORKSPROTOBUF_VERSION}
         EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(glimmerWorksProtobuf)
@@ -1120,6 +1121,7 @@ FetchContent_Declare(
         VanillaDataPack
         GIT_REPOSITORY "https://github.com/Cold-Mint/GlimmerworksData"
         SOURCE_DIR "${CMAKE_BINARY_DIR}/mods/data_packs/glimmerworks"
+        GIT_TAG ${COLD-MINT_GLIMMERWORKSDATA_VERSION}
 )
 
 FetchContent_GetProperties(VanillaDataPack)
@@ -1131,6 +1133,7 @@ FetchContent_Declare(
         VanillaResourcePack
         GIT_REPOSITORY "https://github.com/Cold-Mint/GlimmerworksAssets"
         SOURCE_DIR "${CMAKE_BINARY_DIR}/mods/resource_packs/glimmerworks_res"
+        GIT_TAG ${COLD-MINT_GLIMMERWORKSASSETS_VERSION}
 )
 
 FetchContent_GetProperties(VanillaResourcePack)

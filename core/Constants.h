@@ -237,7 +237,7 @@ static constexpr int CHUNK_ALIGN = ~CHUNK_MASK;
  */
 static constexpr int CHUNK_SHIFT = 4; // Since CHUNK_SIZE = 16 = 2^4
 static constexpr int SKY_HEIGHT = 64;
-static constexpr int WORLD_MAX_Y = 512;
+static constexpr int WORLD_MAX_Y = 320;
 static constexpr int WORLD_MIN_Y = 0;
 static constexpr int WORLD_MIN_X = -29984;
 static constexpr int WORLD_MAX_X = 29984;

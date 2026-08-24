@@ -269,7 +269,7 @@ void glimmer::RecipeDetailGUISystem::ExecuteCraftBatch(int count) {
         return;
     }
     for (const auto &[slotIndex, investedCount]: investedItems_) {
-        (void) itemContainer_->TakeItem(slotIndex, investedCount * count);
+        (void) itemContainer_->TakeItem(slotIndex, investedCount);
     }
     investedItems_.clear();
     ResourceLocator *resourceLocator = worldContext->GetAppContext()->GetResourceLocator();

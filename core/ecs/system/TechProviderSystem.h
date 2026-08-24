@@ -26,6 +26,7 @@
  */
 #pragma once
 #include "core/ecs/GameSystem.h"
+#include "core/math/WorldVector2D.h"
 
 namespace glimmer {
     class TechProviderSystem final : public GameSystem {
@@ -34,6 +35,7 @@ namespace glimmer {
         std::vector<GameEntityID> techProviderEntities_;
         GameEntityID player_ = 0;
         bool changed = false;
+        WorldVector2D lastPlayerPosition_{};
 
     public:
         explicit TechProviderSystem(WorldContext *worldContext);

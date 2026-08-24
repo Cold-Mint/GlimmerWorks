@@ -58,9 +58,6 @@ void glimmer::TechProviderSystem::OnActivationChanged(bool activeStatus) {
 
 void glimmer::TechProviderSystem::OnFrameStart() {
     EntityManager *entityManager = GetEntityManager();
-    if (!changed) {
-        return;
-    }
     if (WorldContext::IsEmptyEntityId(player_)) {
         return;
     }
@@ -68,6 +65,16 @@ void glimmer::TechProviderSystem::OnFrameStart() {
     if (playerTransform2DComponent == nullptr) {
         return;
     }
+    if (!changed) {
+        //移动超过 1 个图块，才需要更新科技
+        if (playerTransform2DComponent->GetPosition().DistanceSquared(lastPlayerPosition_) >=
+            TILE_SIZE * TILE_SIZE) {
+            changed = true;
+        } else {
+            return;
+        }
+    }
+    lastPlayerPosition_ = playerTransform2DComponent->GetPosition();
     auto playerComponent = entityManager->GetComponent<PlayerComponent>(player_);
     if (playerComponent == nullptr) {
         return;

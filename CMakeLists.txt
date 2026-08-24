@@ -65,6 +65,31 @@ set(SDL_HIDAPI OFF)
 set(SDL_SENSOR OFF)
 set(SDL_POWER OFF)
 set(SDL_VIRTUAL_JOYSTICK OFF)
+# Disable SDL3 tests, examples, and test library
+# 禁用SDL3测试、示例和测试库
+set(SDL_TEST_LIBRARY OFF)
+set(SDL_TESTS OFF)
+set(SDL_EXAMPLES OFF)
+set(SDL_INSTALL_TESTS OFF)
+set(SDL_INSTALL_CPACK OFF)
+# Disable additional unused SDL3 subsystems
+# 禁用其他未使用的SDL3子系统
+set(SDL_DIALOG OFF)
+set(SDL_PROCESS OFF)
+set(SDL_STORAGE OFF)
+set(SDL_TIME OFF)
+set(SDL_LOCALE OFF)
+set(SDL_IPC OFF)
+set(SDL_PIPE OFF)
+set(SDL_LDAP OFF)
+set(SDL_IPV6 OFF)
+set(SDL_VULKAN OFF)
+set(SDL_OPENGLES OFF)
+set(SDL_OFFSCREEN OFF)
+set(SDL_DUMMYVIDEO OFF)
+set(SDL_KMSDRM OFF)
+set(SDL_DIRECTFB OFF)
+set(SDL_ROCKCHIP OFF)
 set(SDL_X11 ${X11_SUPPORT})
 set(SDL_X11_SHARED ${X11_SUPPORT})
 set(SDL_X11_XCURSOR ${X11_SUPPORT})
@@ -91,6 +116,12 @@ set(SDLMIXER_WAVPACK OFF)
 set(SDLMIXER_VORBIS_STB ON)
 set(SDLMIXER_VORBIS_VORBISFILE OFF)
 set(SDLMIXER_VORBIS_TREMOR OFF)
+# Disable SDL_mixer tests, examples, and install
+# 禁用SDL_mixer测试、示例和安装
+set(SDLMIXER_TESTS OFF)
+set(SDLMIXER_EXAMPLES OFF)
+set(SDLMIXER_INSTALL OFF)
+set(SDLMIXER_INSTALL_CPACK OFF)
 set(SDLIMAGE_BACKEND_WIC OFF)
 set(SDLIMAGE_BACKEND_IMAGEIO OFF)
 set(SDLIMAGE_ANI OFF)
@@ -124,6 +155,18 @@ set(SDLIMAGE_WEBP_SAVE OFF)
 set(SDLIMAGE_BACKEND_STB ON)
 set(SDLIMAGE_PNG_SAVE ON)
 set(SDLIMAGE_PNG ON)
+# Disable SDL_image tests, samples, and install
+# 禁用SDL_image测试、示例和安装
+set(SDLIMAGE_SAMPLES OFF)
+set(SDLIMAGE_TESTS OFF)
+set(SDLIMAGE_TESTS_INSTALL OFF)
+
+# SDL_ttf options
+# SDL_ttf选项：禁用HarfBuzz（复杂文字shaping）和PlutoSVG（彩色emoji）
+set(SDLTTF_HARFBUZZ OFF)
+set(SDLTTF_PLUTOSVG OFF)
+set(SDLTTF_SAMPLES OFF)
+set(SDLTTF_TESTS OFF)
 
 set(FMT_TEST OFF)
 set(FMT_FUZZ OFF)
@@ -149,6 +192,7 @@ FetchContent_Declare(
         SDL
         GIT_REPOSITORY "https://github.com/libsdl-org/SDL"
         GIT_TAG ${LIBSDL-ORG_SDL_VERSION}
+        GIT_SHALLOW TRUE
         EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(SDL)
@@ -162,6 +206,7 @@ FetchContent_Declare(
         SDL_image
         GIT_REPOSITORY "https://github.com/libsdl-org/SDL_image"
         GIT_TAG ${LIBSDL-ORG_SDL_IMAGE_VERSION}
+        GIT_SHALLOW TRUE
         EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(SDL_image)
@@ -171,6 +216,7 @@ FetchContent_Declare(
         SDL_ttf
         GIT_REPOSITORY "https://github.com/libsdl-org/SDL_ttf"
         GIT_TAG ${LIBSDL-ORG_SDL_TTF_VERSION}
+        GIT_SHALLOW TRUE
         EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(SDL_ttf)
@@ -179,6 +225,7 @@ FetchContent_Declare(
         SDL_mixer
         GIT_REPOSITORY "https://github.com/libsdl-org/SDL_mixer"
         GIT_TAG ${LIBSDL-ORG_SDL_MIXER_VERSION}
+        GIT_SHALLOW TRUE
         EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(SDL_mixer)
@@ -187,6 +234,7 @@ FetchContent_Declare(
         tweeny
         GIT_REPOSITORY "https://github.com/mobius3/tweeny"
         GIT_TAG ${MOBIUS3_TWEENY_VERSION}
+        GIT_SHALLOW TRUE
         EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(tweeny)
@@ -195,6 +243,7 @@ FetchContent_Declare(
         fmt
         GIT_REPOSITORY "https://github.com/fmtlib/fmt"
         GIT_TAG ${FMTLIB_FMT_VERSION}
+        GIT_SHALLOW TRUE
         EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(fmt)
@@ -203,6 +252,7 @@ FetchContent_Declare(
         fastNoiseLite
         GIT_REPOSITORY "https://github.com/Auburn/FastNoiseLite"
         GIT_TAG ${AUBURN_FASTNOISELITE_VERSION}
+        GIT_SHALLOW TRUE
         EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(fastNoiseLite)
@@ -211,6 +261,7 @@ FetchContent_Declare(
         box2d
         GIT_REPOSITORY "https://github.com/erincatto/box2d"
         GIT_TAG ${ERINCATTO_BOX2D_VERSION}
+        GIT_SHALLOW TRUE
         EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(box2d)
@@ -219,14 +270,36 @@ FetchContent_Declare(
         toml11
         GIT_REPOSITORY "https://github.com/ToruNiina/toml11"
         GIT_TAG ${TORUNIINA_TOML11_VERSION}
+        GIT_SHALLOW TRUE
         EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(toml11)
+
+# Protobuf slimming options (must be set before glimmerWorksProtobuf pulls in protobuf)
+# Protobuf瘦身选项（必须在glimmerWorksProtobuf引入protobuf之前设置）
+set(protobuf_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(protobuf_BUILD_CONFORMANCE OFF CACHE BOOL "" FORCE)
+set(protobuf_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+# Note: protobuf_BUILD_LIBUPB must stay ON because libprotoc's upb_generator
+# requires the generated descriptor.upb.h from upb_generators.cmake.
+# 注意：protobuf_BUILD_LIBUPB 必须保持 ON，因为 libprotoc 的 upb_generator
+# 依赖 upb_generators.cmake 生成的 descriptor.upb.h。
+set(protobuf_WITH_ZLIB OFF CACHE BOOL "" FORCE)
+set(protobuf_DISABLE_RTTI ON CACHE BOOL "" FORCE)
+set(protobuf_BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+# Disable protobuf install to avoid export-set errors with FetchContent-fetched absl.
+# 禁用protobuf安装，避免FetchContent获取的absl导致导出集错误。
+set(protobuf_INSTALL OFF CACHE BOOL "" FORCE)
+# utf8_range install(EXPORT) also fails for the same reason; disable it too.
+# utf8_range的install(EXPORT)因同样原因失败，一并禁用。
+set(utf8_range_ENABLE_INSTALL OFF CACHE BOOL "" FORCE)
+set(utf8_range_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
 
 FetchContent_Declare(
         glimmerWorksProtobuf
         GIT_REPOSITORY "https://github.com/Cold-Mint/GlimmerWorksProtobuf"
         GIT_TAG ${COLD-MINT_GLIMMERWORKSPROTOBUF_VERSION}
+        GIT_SHALLOW TRUE
         EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(glimmerWorksProtobuf)
@@ -236,6 +309,7 @@ FetchContent_Declare(
         blake3
         GIT_REPOSITORY "https://github.com/BLAKE3-team/BLAKE3"
         GIT_TAG ${BLAKE3-TEAM_BLAKE3_VERSION}
+        GIT_SHALLOW TRUE
         SOURCE_SUBDIR c
         EXCLUDE_FROM_ALL
 )
@@ -245,14 +319,24 @@ FetchContent_Declare(
         monoCypher
         GIT_REPOSITORY "https://github.com/LoupVaillant/Monocypher"
         GIT_TAG ${LOUPVAILLANT_MONOCYPHER_VERSION}
+        GIT_SHALLOW TRUE
         EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(monoCypher)
+
+set(RMLUI_SAMPLES OFF)
+set(RMLUI_LUA_BINDINGS OFF)
+set(RMLUI_LOTTIE_PLUGIN OFF)
+set(RMLUI_SVG_PLUGIN OFF)
+set(RMLUI_HARFBUZZ_SAMPLE OFF)
+set(RMLUI_TRACY_PROFILING OFF)
+set(RMLUI_WARNINGS_AS_ERRORS OFF)
 
 FetchContent_Declare(
         rmlUi
         GIT_REPOSITORY "https://github.com/mikke89/RmlUi"
         GIT_TAG ${MIKKE89_RMLUI_VERSION}
+        GIT_SHALLOW TRUE
         EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(rmlUi)
@@ -1122,6 +1206,7 @@ FetchContent_Declare(
         GIT_REPOSITORY "https://github.com/Cold-Mint/GlimmerworksData"
         SOURCE_DIR "${CMAKE_BINARY_DIR}/mods/data_packs/glimmerworks"
         GIT_TAG ${COLD-MINT_GLIMMERWORKSDATA_VERSION}
+        GIT_SHALLOW TRUE
 )
 
 FetchContent_GetProperties(VanillaDataPack)
@@ -1134,6 +1219,7 @@ FetchContent_Declare(
         GIT_REPOSITORY "https://github.com/Cold-Mint/GlimmerworksAssets"
         SOURCE_DIR "${CMAKE_BINARY_DIR}/mods/resource_packs/glimmerworks_res"
         GIT_TAG ${COLD-MINT_GLIMMERWORKSASSETS_VERSION}
+        GIT_SHALLOW TRUE
 )
 
 FetchContent_GetProperties(VanillaResourcePack)

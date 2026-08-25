@@ -10,12 +10,6 @@ if (NOT DEFINED ENV{GITHUB_ACTIONS})
     include("${CMAKE_CURRENT_SOURCE_DIR}/config.cmake")
 endif ()
 
-if (MSVC)
-    # 禁用警告
-    add_compile_options(/wd4834)
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-endif ()
-
 if (NOT EXISTS ${PACK_SIGNER_EXE})
     message(FATAL_ERROR "The file pointed to by PACK_SIGNER_EXE does not exist.")
 endif ()

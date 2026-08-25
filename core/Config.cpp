@@ -26,6 +26,8 @@
  */
 #include "Config.h"
 
+#include <algorithm>
+
 #include "CommandHookManager.h"
 #include "log/LogCat.h"
 #include "toml11/find.hpp"
@@ -132,6 +134,16 @@ bool glimmer::Config::ReloadConfig() {
     anim.chunkFadeInFrom = toml::find<float>(tomlRef, "animation", "chunk_fadein_from");
     anim.chunkFadeInTo = toml::find<float>(tomlRef, "animation", "chunk_fadein_to");
     biomeBgm.debounceSeconds = toml::find<float>(tomlRef, "biome_bgm", "debounce_seconds");
+    //GPU lighting pass tuning; all keys are optional and fall back to the
+    //LightingConfig defaults so older config files keep working.
+    //GPU 光照通道调参；所有键均可选，缺省时回退到 LightingConfig 默认值，
+    //因此旧版配置文件仍可正常工作。
+    lighting.fullBrightAlpha = std::clamp(
+        toml::find_or<float>(tomlRef, "lighting", "full_bright_alpha", lighting.fullBrightAlpha), 1.0F, 255.0F);
+    lighting.minVisibility = std::clamp(
+        toml::find_or<float>(tomlRef, "lighting", "min_visibility", lighting.minVisibility), 0.0F, 1.0F);
+    lighting.tintStrength = std::clamp(
+        toml::find_or<float>(tomlRef, "lighting", "tint_strength", lighting.tintStrength), 0.0F, 1.0F);
 #if  !defined(NDEBUG)
     debug.displayDebugPanel = toml::find<bool>(tomlRef, "debug", "display_debug_panel");
     debug.displayBox2dShape = toml::find<bool>(tomlRef, "debug", "display_box2d_shape");

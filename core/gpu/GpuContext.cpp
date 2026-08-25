@@ -259,6 +259,30 @@ glimmer::GpuTexture *glimmer::GpuContext::CreateTargetTexture(const Uint32 width
     return new GpuTexture(device_, texture, static_cast<int>(width), static_cast<int>(height));
 }
 
+glimmer::GpuTexture *glimmer::GpuContext::CreateSampledTexture(const Uint32 width, const Uint32 height,
+                                                               const SDL_GPUTextureFormat format) const {
+    if (device_ == nullptr || width == 0 || height == 0 || format == SDL_GPU_TEXTUREFORMAT_INVALID) {
+        LogCat::w(std::source_location::current(), "invalid CreateSampledTexture arguments");
+        return nullptr;
+    }
+    SDL_GPUTextureCreateInfo textureCreateInfo = {};
+    textureCreateInfo.type = SDL_GPU_TEXTURETYPE_2D;
+    textureCreateInfo.format = format;
+    textureCreateInfo.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER;
+    textureCreateInfo.width = width;
+    textureCreateInfo.height = height;
+    textureCreateInfo.layer_count_or_depth = 1;
+    textureCreateInfo.num_levels = 1;
+    textureCreateInfo.sample_count = SDL_GPU_SAMPLECOUNT_1;
+    textureCreateInfo.props = 0;
+    SDL_GPUTexture *texture = SDL_CreateGPUTexture(device_, &textureCreateInfo);
+    if (texture == nullptr) {
+        LogCat::w(std::source_location::current(), "SDL_CreateGPUTexture(sampled) failed: ", SDL_GetError());
+        return nullptr;
+    }
+    return new GpuTexture(device_, texture, static_cast<int>(width), static_cast<int>(height));
+}
+
 SDL_Surface *glimmer::GpuContext::ReadbackTexture(SDL_GPUTexture *texture, const Uint32 width,
                                                   const Uint32 height, const SDL_PixelFormat pixelFormat) const {
     if (device_ == nullptr || texture == nullptr || width == 0 || height == 0 ||

@@ -26,6 +26,8 @@
  */
 #include "GpuRenderer.h"
 
+#include <algorithm>
+
 #include "GpuShaderCompiler.h"
 #include "RenderQueue.h"
 #include "core/Constants.h"
@@ -40,6 +42,7 @@ namespace {
     constexpr const char *SHADER_NAME_GAME_FRAG = "game";
     constexpr const char *SHADER_NAME_UI_FRAG = "ui";
     constexpr const char *SHADER_NAME_GLOBAL_FRAG = "global";
+    constexpr const char *SHADER_NAME_LIGHTING_FRAG = "lighting";
     constexpr const char *SHADER_EXTENSION_VERT = "vert";
     constexpr const char *SHADER_EXTENSION_FRAG = "frag";
 
@@ -83,6 +86,72 @@ void main() {
     out_color = texture(inputTexture, in_uv) * in_color;
 }
 )";
+
+    /**
+     * Embedded fallback lighting fragment shader (used only when the resource
+     * packs do not provide shaders/@core/lighting.frag).
+     * 内嵌兜底光照片元着色器（仅当材质包未提供 shaders/@core/lighting.frag 时使用）。
+     *
+     * 2D physically based lighting (Lambertian diffuse): the output of this
+     * pass is blended onto the game layer with multiplicative blending
+     * (DST_COLOR), so every scene pixel becomes albedo * irradiance, which
+     * conserves energy (the multiplier never exceeds 1) and tints surfaces
+     * by the light hue like a physical color filter.
+     * 2D 基于物理的光照（朗伯漫反射）：本通道的输出通过乘法混合（DST_COLOR）
+     * 作用到 game 层，因此每个场景像素变为 反照率 × 辐照度，既能量守恒
+     * （系数永不超过 1），又像物理滤色片一样用光色对表面染色。
+     */
+    constexpr const char *DEFAULT_LIGHTING_FRAG = R"(#version 450
+layout(location = 0) in vec2 in_uv;
+layout(location = 1) in vec4 in_color;
+layout(location = 0) out vec4 out_color;
+
+// Per-tile light map written by the lighting system: rgb = light hue, a = intensity.
+// 光照系统写入的逐瓦片光照贴图：rgb = 光色，a = 强度。
+layout(set = 2, binding = 0) uniform sampler2D lightMap;
+
+// Must match glimmer::LightMapParams (std140 layout).
+// 必须与 glimmer::LightMapParams 一致（std140 布局）。
+layout(set = 3, binding = 0) uniform LightingUniform {
+    vec2 u_lightMapOrigin;
+    vec2 u_lightMapSize;
+    vec2 u_cameraTopLeftTile;
+    vec2 u_viewportTiles;
+    float u_fullBright;
+    float u_minVisibility;
+    float u_tintStrength;
+    float u_padding;
+};
+
+void main() {
+    // Screen UV -> continuous tile coordinate. World +Y points up while the
+    // screen +Y points down, hence the negated y component.
+    // 屏幕 UV -> 连续瓦片坐标。世界 Y 轴向上而屏幕 Y 轴向下，因此 y 分量取负。
+    vec2 tilePos = u_cameraTopLeftTile + vec2(in_uv.x, -in_uv.y) * u_viewportTiles;
+    // +0.5 aligns the sample with tile centers so the linear sampler
+    // interpolates smoothly across tile borders (no more blocky light spots).
+    // +0.5 将采样点对齐到瓦片中心，使线性采样器在瓦片边界平滑插值
+    // （消除方块状光斑）。
+    vec2 lightUv = (tilePos - u_lightMapOrigin + 0.5) / u_lightMapSize;
+    vec4 light = texture(lightMap, lightUv);
+
+    // Visibility term: u_fullBright intensity counts as fully lit, anything
+    // below fades smoothly towards the ambient floor.
+    // 可见度项：u_fullBright 强度视为全亮，低于它的区域向环境光下限平滑过渡。
+    float visibility = clamp(light.a / max(u_fullBright, 1e-4), 0.0, 1.0);
+    float luminance = mix(u_minVisibility, 1.0, visibility);
+
+    // Normalized light hue (dominant channel = 1) so tinting never darkens.
+    // 归一化光色（主通道 = 1），保证染色本身不会变暗。
+    float hueMax = max(max(light.r, light.g), light.b);
+    vec3 hue = hueMax > 1e-4 ? light.rgb / hueMax : vec3(1.0);
+
+    // Lambertian irradiance multiplier: outgoing = albedo * E.
+    // 朗伯辐照系数：出射光 = 反照率 × 辐照度。
+    vec3 multiplier = luminance * mix(vec3(1.0), hue, u_tintStrength);
+    out_color = vec4(multiplier, 1.0);
+}
+)";
 }
 
 glimmer::GpuRenderer::~GpuRenderer() {
@@ -91,7 +160,7 @@ glimmer::GpuRenderer::~GpuRenderer() {
 
 SDL_GPUGraphicsPipeline *glimmer::GpuRenderer::CreateSpritePipeline(SDL_GPUShader *vertexShader,
                                                                     SDL_GPUShader *fragmentShader,
-                                                                    const bool enableBlend) const {
+                                                                    const SpriteBlendMode blendMode) const {
     SDL_GPUVertexBufferDescription vertexBufferDescription = {};
     vertexBufferDescription.slot = 0;
     vertexBufferDescription.pitch = sizeof(SpriteVertex);
@@ -112,17 +181,36 @@ SDL_GPUGraphicsPipeline *glimmer::GpuRenderer::CreateSpritePipeline(SDL_GPUShade
     attributes[2].format = SDL_GPU_VERTEXELEMENTFORMAT_UBYTE4_NORM;
     attributes[2].offset = offsetof(SpriteVertex, r);
 
-    //Standard alpha blending, equivalent to SDL_BLENDMODE_BLEND.
-    //标准 alpha 混合，等价于 SDL_BLENDMODE_BLEND。
     SDL_GPUColorTargetDescription colorTarget = {};
     colorTarget.format = gpuContext_->GetSwapchainFormat();
-    colorTarget.blend_state.enable_blend = enableBlend;
-    colorTarget.blend_state.alpha_blend_op = SDL_GPU_BLENDOP_ADD;
-    colorTarget.blend_state.color_blend_op = SDL_GPU_BLENDOP_ADD;
-    colorTarget.blend_state.src_color_blendfactor = SDL_GPU_BLENDFACTOR_SRC_ALPHA;
-    colorTarget.blend_state.dst_color_blendfactor = SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
-    colorTarget.blend_state.src_alpha_blendfactor = SDL_GPU_BLENDFACTOR_SRC_ALPHA;
-    colorTarget.blend_state.dst_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
+    switch (blendMode) {
+        case SpriteBlendMode::Alpha:
+            //Standard alpha blending, equivalent to SDL_BLENDMODE_BLEND.
+            //标准 alpha 混合，等价于 SDL_BLENDMODE_BLEND。
+            colorTarget.blend_state.enable_blend = true;
+            colorTarget.blend_state.alpha_blend_op = SDL_GPU_BLENDOP_ADD;
+            colorTarget.blend_state.color_blend_op = SDL_GPU_BLENDOP_ADD;
+            colorTarget.blend_state.src_color_blendfactor = SDL_GPU_BLENDFACTOR_SRC_ALPHA;
+            colorTarget.blend_state.dst_color_blendfactor = SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
+            colorTarget.blend_state.src_alpha_blendfactor = SDL_GPU_BLENDFACTOR_SRC_ALPHA;
+            colorTarget.blend_state.dst_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
+            break;
+        case SpriteBlendMode::Multiply:
+            //Multiplicative blending: result.rgb = dst.rgb * src.rgb, the
+            //destination alpha is preserved. Used by the lighting pass.
+            //乘法混合：result.rgb = dst.rgb * src.rgb，保留目标 alpha。光照通道使用。
+            colorTarget.blend_state.enable_blend = true;
+            colorTarget.blend_state.alpha_blend_op = SDL_GPU_BLENDOP_ADD;
+            colorTarget.blend_state.color_blend_op = SDL_GPU_BLENDOP_ADD;
+            colorTarget.blend_state.src_color_blendfactor = SDL_GPU_BLENDFACTOR_DST_COLOR;
+            colorTarget.blend_state.dst_color_blendfactor = SDL_GPU_BLENDFACTOR_ZERO;
+            colorTarget.blend_state.src_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ZERO;
+            colorTarget.blend_state.dst_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ONE;
+            break;
+        case SpriteBlendMode::None:
+            colorTarget.blend_state.enable_blend = false;
+            break;
+    }
 
     SDL_GPUGraphicsPipelineCreateInfo pipelineInfo = {};
     pipelineInfo.vertex_shader = vertexShader;
@@ -189,27 +277,37 @@ bool glimmer::GpuRenderer::Init(GpuContext *gpuContext, ResourcePackManager *res
                                              SDL_GPU_SHADERSTAGE_FRAGMENT, 1, 0, DEFAULT_PASSTHROUGH_FRAG);
     SDL_GPUShader *globalFragShader = loadShader(SHADER_NAME_GLOBAL_FRAG, SHADER_EXTENSION_FRAG,
                                                  SDL_GPU_SHADERSTAGE_FRAGMENT, 1, 0, DEFAULT_PASSTHROUGH_FRAG);
+    //The lighting shader samples the light map (1 sampler) and receives the
+    //LightMapParams uniform block (1 fragment uniform buffer).
+    //光照着色器采样光照贴图（1 个采样器）并接收 LightMapParams
+    //uniform 块（1 个片元 uniform 缓冲）。
+    SDL_GPUShader *lightingFragShader = loadShader(SHADER_NAME_LIGHTING_FRAG, SHADER_EXTENSION_FRAG,
+                                                   SDL_GPU_SHADERSTAGE_FRAGMENT, 1, 1, DEFAULT_LIGHTING_FRAG);
     if (vertexShader == nullptr || spriteFragShader == nullptr || gameFragShader == nullptr ||
-        uiFragShader == nullptr || globalFragShader == nullptr) {
+        uiFragShader == nullptr || globalFragShader == nullptr || lightingFragShader == nullptr) {
         LogCat::e(std::source_location::current(), "Failed to compile sprite shaders");
         if (vertexShader != nullptr) SDL_ReleaseGPUShader(device_, vertexShader);
         if (spriteFragShader != nullptr) SDL_ReleaseGPUShader(device_, spriteFragShader);
         if (gameFragShader != nullptr) SDL_ReleaseGPUShader(device_, gameFragShader);
         if (uiFragShader != nullptr) SDL_ReleaseGPUShader(device_, uiFragShader);
         if (globalFragShader != nullptr) SDL_ReleaseGPUShader(device_, globalFragShader);
+        if (lightingFragShader != nullptr) SDL_ReleaseGPUShader(device_, lightingFragShader);
         return false;
     }
 
-    pipeline_ = CreateSpritePipeline(vertexShader, spriteFragShader, true);
-    gamePipeline_ = CreateSpritePipeline(vertexShader, gameFragShader, true);
-    uiPipeline_ = CreateSpritePipeline(vertexShader, uiFragShader, true);
-    globalPipeline_ = CreateSpritePipeline(vertexShader, globalFragShader, false);
+    pipeline_ = CreateSpritePipeline(vertexShader, spriteFragShader, SpriteBlendMode::Alpha);
+    gamePipeline_ = CreateSpritePipeline(vertexShader, gameFragShader, SpriteBlendMode::Alpha);
+    uiPipeline_ = CreateSpritePipeline(vertexShader, uiFragShader, SpriteBlendMode::Alpha);
+    globalPipeline_ = CreateSpritePipeline(vertexShader, globalFragShader, SpriteBlendMode::None);
+    lightingPipeline_ = CreateSpritePipeline(vertexShader, lightingFragShader, SpriteBlendMode::Multiply);
     SDL_ReleaseGPUShader(device_, vertexShader);
     SDL_ReleaseGPUShader(device_, spriteFragShader);
     SDL_ReleaseGPUShader(device_, gameFragShader);
     SDL_ReleaseGPUShader(device_, uiFragShader);
     SDL_ReleaseGPUShader(device_, globalFragShader);
-    if (pipeline_ == nullptr || gamePipeline_ == nullptr || uiPipeline_ == nullptr || globalPipeline_ == nullptr) {
+    SDL_ReleaseGPUShader(device_, lightingFragShader);
+    if (pipeline_ == nullptr || gamePipeline_ == nullptr || uiPipeline_ == nullptr || globalPipeline_ == nullptr ||
+        lightingPipeline_ == nullptr) {
         LogCat::e(std::source_location::current(), "Failed to create sprite pipelines");
         Shutdown();
         return false;
@@ -309,6 +407,13 @@ void glimmer::GpuRenderer::Shutdown() {
         compositeLayerTexture_.reset();
         uiLayerTexture_.reset();
         gameLayerTexture_.reset();
+        lightMapTexture_.reset();
+        lightMapPixels_.clear();
+        lightMapPixels_.shrink_to_fit();
+        lightMapWidth_ = 0;
+        lightMapHeight_ = 0;
+        lightMapPending_ = false;
+        lightMapDirty_ = false;
         if (unitQuadBuffer_ != nullptr) {
             SDL_ReleaseGPUBuffer(device_, unitQuadBuffer_);
             unitQuadBuffer_ = nullptr;
@@ -318,6 +423,10 @@ void glimmer::GpuRenderer::Shutdown() {
             vertexBuffer_ = nullptr;
         }
         vertexBufferCapacity_ = 0;
+        if (lightingPipeline_ != nullptr) {
+            SDL_ReleaseGPUGraphicsPipeline(device_, lightingPipeline_);
+            lightingPipeline_ = nullptr;
+        }
         if (globalPipeline_ != nullptr) {
             SDL_ReleaseGPUGraphicsPipeline(device_, globalPipeline_);
             globalPipeline_ = nullptr;
@@ -471,27 +580,14 @@ void glimmer::GpuRenderer::DrawLayerQuad(SDL_GPUGraphicsPipeline *pipeline, cons
     SDL_DrawGPUPrimitives(renderPass_, 6, 1, 0, 0);
 }
 
-void glimmer::GpuRenderer::FlushQueue(RenderQueue &queue) {
-    if (!frameActive_) {
-        return;
-    }
-    //Sort layer by layer (ascending), then by depth inside each layer;
-    //commands with equal keys keep their submission order.
-    //逐层排序（升序），层内再按 depth 排序；排序键相等的命令保持提交顺序。
-    queue.Sort();
-    const std::vector<RenderCommand> &commands = queue.GetCommands();
-    if (commands.empty()) {
-        EndActivePass();
-        return;
-    }
+void glimmer::GpuRenderer::ExpandCommands(const RenderCommand *commands, const size_t count,
+                                          std::vector<SpriteVertex> &vertices, std::vector<DrawRun> &runs) const {
     //Expand every command into two triangles and group consecutive commands
     //sharing the same texture into draw runs.
     //把每个命令展开为两个三角形，并把共享同一纹理的连续命令归入绘制段。
-    std::vector<SpriteVertex> vertices;
-    vertices.reserve(commands.size() * 6);
-    std::vector<DrawRun> runs;
     SDL_GPUTexture *currentTexture = nullptr;
-    for (const RenderCommand &command: commands) {
+    for (size_t i = 0; i < count; ++i) {
+        const RenderCommand &command = commands[i];
         SDL_GPUTexture *commandTexture = command.texture != nullptr
                                              ? command.texture->GetGpuTexture()
                                              : (whiteTexture_ != nullptr ? whiteTexture_->GetGpuTexture() : nullptr);
@@ -514,8 +610,168 @@ void glimmer::GpuRenderer::FlushQueue(RenderQueue &queue) {
         vertices.push_back(bottomLeft);
         runs.back().vertexCount += 6;
     }
+}
+
+void glimmer::GpuRenderer::SetLightMap(const int width, const int height, const Uint8 *rgbaPixels,
+                                       const LightMapParams &params) {
+    if (width <= 0 || height <= 0) {
+        return;
+    }
+    lightMapPending_ = true;
+    lightMapParams_ = params;
+    if (rgbaPixels == nullptr) {
+        //Reuse the GPU texture contents from the previous frame (the camera
+        //moved within the same tile area and the light data did not change).
+        //复用上一帧的 GPU 纹理内容（相机在同一瓦片区域内移动且光照数据未变化）。
+        return;
+    }
+    const size_t dataSize = static_cast<size_t>(width) * static_cast<size_t>(height) * 4;
+    if (lightMapPixels_.size() != dataSize) {
+        lightMapPixels_.resize(dataSize);
+    }
+    SDL_memcpy(lightMapPixels_.data(), rgbaPixels, dataSize);
+    lightMapWidth_ = width;
+    lightMapHeight_ = height;
+    lightMapDirty_ = true;
+}
+
+bool glimmer::GpuRenderer::EnsureLightMapUploaded() {
+    if (!lightMapDirty_) {
+        return lightMapTexture_ != nullptr && lightMapTexture_->IsValid();
+    }
+    lightMapDirty_ = false;
+    if (lightMapTexture_ == nullptr || lightMapTexture_->w != lightMapWidth_ ||
+        lightMapTexture_->h != lightMapHeight_) {
+        //The old texture is released here; SDL defers the actual destruction
+        //until in-flight frames no longer reference it.
+        //此处释放旧纹理；SDL 会将实际销毁延迟到在途帧不再引用它之后。
+        lightMapTexture_.reset();
+        lightMapTexture_.reset(gpuContext_->CreateSampledTexture(static_cast<Uint32>(lightMapWidth_),
+                                                                 static_cast<Uint32>(lightMapHeight_),
+                                                                 SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM));
+        if (lightMapTexture_ == nullptr) {
+            LogCat::w(std::source_location::current(), "Failed to create light map texture");
+            return false;
+        }
+    }
+    const Uint32 dataSize = static_cast<Uint32>(lightMapPixels_.size());
+    SDL_GPUTransferBufferCreateInfo transferBufferCreateInfo = {};
+    transferBufferCreateInfo.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD;
+    transferBufferCreateInfo.size = dataSize;
+    transferBufferCreateInfo.props = 0;
+    SDL_GPUTransferBuffer *transferBuffer = SDL_CreateGPUTransferBuffer(device_, &transferBufferCreateInfo);
+    if (transferBuffer == nullptr) {
+        LogCat::w(std::source_location::current(), "SDL_CreateGPUTransferBuffer(light map) failed: ", SDL_GetError());
+        return false;
+    }
+    void *mapped = SDL_MapGPUTransferBuffer(device_, transferBuffer, false);
+    if (mapped == nullptr) {
+        SDL_ReleaseGPUTransferBuffer(device_, transferBuffer);
+        LogCat::w(std::source_location::current(), "SDL_MapGPUTransferBuffer(light map) failed: ", SDL_GetError());
+        return false;
+    }
+    SDL_memcpy(mapped, lightMapPixels_.data(), dataSize);
+    SDL_UnmapGPUTransferBuffer(device_, transferBuffer);
+    SDL_GPUCopyPass *copyPass = SDL_BeginGPUCopyPass(commandBuffer_);
+    if (copyPass == nullptr) {
+        SDL_ReleaseGPUTransferBuffer(device_, transferBuffer);
+        LogCat::w(std::source_location::current(), "SDL_BeginGPUCopyPass(light map) failed: ", SDL_GetError());
+        return false;
+    }
+    SDL_GPUTextureTransferInfo transferInfo = {};
+    transferInfo.transfer_buffer = transferBuffer;
+    transferInfo.offset = 0;
+    transferInfo.pixels_per_row = static_cast<Uint32>(lightMapWidth_);
+    transferInfo.rows_per_layer = static_cast<Uint32>(lightMapHeight_);
+    SDL_GPUTextureRegion textureRegion = {};
+    textureRegion.texture = lightMapTexture_->GetGpuTexture();
+    textureRegion.mip_level = 0;
+    textureRegion.layer = 0;
+    textureRegion.x = 0;
+    textureRegion.y = 0;
+    textureRegion.w = static_cast<Uint32>(lightMapWidth_);
+    textureRegion.h = static_cast<Uint32>(lightMapHeight_);
+    textureRegion.d = 1;
+    SDL_UploadToGPUTexture(copyPass, &transferInfo, &textureRegion, false);
+    SDL_EndGPUCopyPass(copyPass);
+    //Safe to release right after the copy pass is enqueued; SDL defers
+    //destruction until the command buffer completes.
+    //拷贝通道入队后即可安全释放；SDL 会将销毁延迟到命令缓冲完成。
+    SDL_ReleaseGPUTransferBuffer(device_, transferBuffer);
+    return true;
+}
+
+void glimmer::GpuRenderer::DrawLightingQuad() {
+    if (renderPass_ == nullptr || lightingPipeline_ == nullptr || lightMapTexture_ == nullptr ||
+        !lightMapTexture_->IsValid()) {
+        return;
+    }
+    SDL_BindGPUGraphicsPipeline(renderPass_, lightingPipeline_);
+    const float viewSize[2] = {1.0F, 1.0F};
+    SDL_PushGPUVertexUniformData(commandBuffer_, 0, viewSize, sizeof(viewSize));
+    SDL_PushGPUFragmentUniformData(commandBuffer_, 0, &lightMapParams_, sizeof(LightMapParams));
+    SDL_GPUBufferBinding vertexBufferBinding = {};
+    vertexBufferBinding.buffer = unitQuadBuffer_;
+    vertexBufferBinding.offset = 0;
+    SDL_BindGPUVertexBuffers(renderPass_, 0, &vertexBufferBinding, 1);
+    //The linear sampler turns the per-tile light map into smooth per-pixel
+    //gradients (bilinear interpolation across tile borders).
+    //线性采样器把逐瓦片光照贴图变成平滑的逐像素渐变（跨瓦片双线性插值）。
+    SDL_GPUTextureSamplerBinding textureBinding = {};
+    textureBinding.texture = lightMapTexture_->GetGpuTexture();
+    textureBinding.sampler = gpuContext_->GetLinearSampler();
+    SDL_BindGPUFragmentSamplers(renderPass_, 0, &textureBinding, 1);
+    SDL_DrawGPUPrimitives(renderPass_, 6, 1, 0, 0);
+}
+
+void glimmer::GpuRenderer::FlushQueue(RenderQueue &queue) {
+    //Consume the light map request even when the frame is inactive so a
+    //stale request never leaks into the next frame.
+    //即使帧未激活也消费光照贴图请求，避免过期请求泄漏到下一帧。
+    const bool lightingRequested = lightMapPending_;
+    lightMapPending_ = false;
+    if (!frameActive_) {
+        return;
+    }
+    //Sort layer by layer (ascending), then by depth inside each layer;
+    //commands with equal keys keep their submission order.
+    //逐层排序（升序），层内再按 depth 排序；排序键相等的命令保持提交顺序。
+    queue.Sort();
+    const std::vector<RenderCommand> &commands = queue.GetCommands();
+    if (commands.empty()) {
+        EndActivePass();
+        return;
+    }
+    //When lighting is active, the queue is split at the RenderLayer::Lighting
+    //boundary: world content is drawn first, then the lighting multiply quad,
+    //then debug/overlay content (which must stay unshaded).
+    //光照激活时，队列在 RenderLayer::Lighting 边界处拆分：先绘制世界内容，
+    //然后绘制光照乘法四边形，最后绘制调试/覆盖层内容（它们必须保持无光照）。
+    size_t splitIndex = commands.size();
+    if (lightingRequested) {
+        const auto splitIterator = std::upper_bound(commands.begin(), commands.end(), RenderLayer::Lighting,
+                                                    [](const RenderLayer layer, const RenderCommand &command) {
+                                                        return layer < command.layer;
+                                                    });
+        splitIndex = static_cast<size_t>(std::distance(commands.begin(), splitIterator));
+    }
+    std::vector<SpriteVertex> vertices;
+    vertices.reserve(commands.size() * 6);
+    std::vector<DrawRun> worldRuns;
+    std::vector<DrawRun> overlayRuns;
+    ExpandCommands(commands.data(), splitIndex, vertices, worldRuns);
+    ExpandCommands(commands.data() + splitIndex, commands.size() - splitIndex, vertices, overlayRuns);
     EndActivePass();
+    //Upload the light map while no render pass is active (copy passes cannot
+    //be recorded inside a render pass).
+    //在没有活动渲染通道时上传光照贴图（拷贝通道无法在渲染通道内记录）。
+    const bool lightingReady = lightingRequested && EnsureLightMapUploaded();
     if (vertices.empty()) {
+        if (lightingReady) {
+            EnsureRenderPass(false);
+            DrawLightingQuad();
+            EndActivePass();
+        }
         return;
     }
     //Grow the GPU vertex buffer once if the batch does not fit.
@@ -593,12 +849,37 @@ void glimmer::GpuRenderer::FlushQueue(RenderQueue &queue) {
             vertexBufferBinding.buffer = vertexBuffer_;
             vertexBufferBinding.offset = 0;
             SDL_BindGPUVertexBuffers(renderPass_, 0, &vertexBufferBinding, 1);
-            for (const DrawRun &run: runs) {
+            for (const DrawRun &run: worldRuns) {
                 SDL_GPUTextureSamplerBinding textureBinding = {};
                 textureBinding.texture = run.texture;
                 textureBinding.sampler = gpuContext_->GetNearestSampler();
                 SDL_BindGPUFragmentSamplers(renderPass_, 0, &textureBinding, 1);
                 SDL_DrawGPUPrimitives(renderPass_, run.vertexCount, 1, run.firstVertex, 0);
+            }
+            if (lightingReady) {
+                DrawLightingQuad();
+                if (!overlayRuns.empty()) {
+                    //Restore the sprite pipeline state for the overlay batch.
+                    //为覆盖层批次恢复精灵管线状态。
+                    SDL_BindGPUGraphicsPipeline(renderPass_, pipeline_);
+                    SDL_PushGPUVertexUniformData(commandBuffer_, 0, viewSize, sizeof(viewSize));
+                    SDL_BindGPUVertexBuffers(renderPass_, 0, &vertexBufferBinding, 1);
+                    for (const DrawRun &run: overlayRuns) {
+                        SDL_GPUTextureSamplerBinding textureBinding = {};
+                        textureBinding.texture = run.texture;
+                        textureBinding.sampler = gpuContext_->GetNearestSampler();
+                        SDL_BindGPUFragmentSamplers(renderPass_, 0, &textureBinding, 1);
+                        SDL_DrawGPUPrimitives(renderPass_, run.vertexCount, 1, run.firstVertex, 0);
+                    }
+                }
+            } else {
+                for (const DrawRun &run: overlayRuns) {
+                    SDL_GPUTextureSamplerBinding textureBinding = {};
+                    textureBinding.texture = run.texture;
+                    textureBinding.sampler = gpuContext_->GetNearestSampler();
+                    SDL_BindGPUFragmentSamplers(renderPass_, 0, &textureBinding, 1);
+                    SDL_DrawGPUPrimitives(renderPass_, run.vertexCount, 1, run.firstVertex, 0);
+                }
             }
         }
     }

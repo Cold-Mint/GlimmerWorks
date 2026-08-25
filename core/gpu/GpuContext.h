@@ -144,6 +144,24 @@ namespace glimmer {
                                                       SDL_GPUTextureFormat format) const;
 
         /**
+         * Create an empty sampled-only texture (SAMPLER usage, no pixel data
+         * uploaded). Intended for dynamic textures whose contents are
+         * refreshed from CPU memory every frame (e.g. the tile light map),
+         * the actual upload happens through a copy pass on the frame
+         * command buffer.
+         * 创建空的仅采样纹理（SAMPLER 用途，不上传像素数据）。
+         * 用于每帧从 CPU 内存刷新内容的动态纹理（例如瓦片光照贴图），
+         * 实际上传通过帧命令缓冲上的拷贝通道完成。
+         * @param width width 纹理宽度（像素，必须 > 0）
+         * @param height height 纹理高度（像素，必须 > 0）
+         * @param format format 纹理格式（例如 SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM）
+         * @return A new GpuTexture (caller owns it), nullptr on failure.
+         * 新的 GpuTexture（调用方拥有所有权），失败返回 nullptr。
+         */
+        [[nodiscard]] GpuTexture *CreateSampledTexture(Uint32 width, Uint32 height,
+                                                       SDL_GPUTextureFormat format) const;
+
+        /**
          * Download the full contents of a GPU texture into a new SDL_Surface.
          * Blocks until the GPU has finished the copy.
          * 将 GPU 纹理的全部内容下载到新的 SDL_Surface。

@@ -40,6 +40,15 @@ namespace glimmer {
     class LightBuffer {
         std::unordered_map<const TileVector2D, std::unique_ptr<TileLightData>, Vector2DIHash> tileLightData_;
 
+        /**
+         * Monotonic counter bumped by every mutating operation. The renderer
+         * compares it frame to frame to know when the cached light map
+         * texture must be rebuilt (dirty tracking).
+         * 每次修改操作都会递增的单调计数器。渲染器逐帧比较它，
+         * 以判断缓存的光照贴图纹理是否需要重建（脏标记跟踪）。
+         */
+        uint64_t revision_ = 0;
+
         TraverseAction ClearLightStepCallback(const LightSource *lightSourcePtr,
                                               TileVector2D current,
                                               TileVector2D next, bool centerOfCircle, TileLayerType layerType,
@@ -76,5 +85,14 @@ namespace glimmer {
         void ClearLightSource(TileVector2D position, TileLayerType layerType);
 
         const Color *GetFinalLightColor(TileVector2D position);
+
+        /**
+         * @return The current revision counter. Any change to the buffered
+         * light data (sources, masks, contributions) increments it.
+         * 当前修订计数器。任何对光照缓冲数据（光源、遮罩、贡献）的修改都会使其递增。
+         */
+        [[nodiscard]] uint64_t GetRevision() const {
+            return revision_;
+        }
     };
 }

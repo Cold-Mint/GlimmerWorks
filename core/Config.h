@@ -102,6 +102,35 @@ namespace glimmer {
         bool enable;
     };
 
+    /**
+     * GPU lighting pass tuning (applied by the lighting fragment shader,
+     * see shaders/@core/lighting.frag). Available in all build types.
+     * GPU 光照通道调参（由光照片元着色器应用，见 shaders/@core/lighting.frag）。
+     * 所有构建类型均可用。
+     */
+    struct LightingConfig {
+        /**
+         * Light alpha (0..255) that maps to full brightness on screen.
+         * Lights at/above this value render at full intensity; lower values
+         * widen the smooth falloff band around light sources.
+         * 映射为全亮的光照 alpha（0..255）。达到/超过该值的光照以全强度渲染；
+         * 调小该值会加宽光源周围的平滑衰减带。
+         */
+        float fullBrightAlpha = 12.0F;
+        /**
+         * Minimum visibility floor (0..1) for pixels without any light,
+         * keeps entities faintly visible in complete darkness.
+         * 完全无光像素的最低可见度（0..1），让实体在全黑环境中隐约可见。
+         */
+        float minVisibility = 0.05F;
+        /**
+         * Light hue tint strength (0..1): 0 = neutral gray lighting,
+         * 1 = full hue filtering.
+         * 光色染色强度（0..1）：0 = 中性灰光照，1 = 完整色相过滤。
+         */
+        float tintStrength = 0.6F;
+    };
+
     struct Console {
         uint16_t maxHistoryEntries = 100;
     };
@@ -158,6 +187,7 @@ namespace glimmer {
         BiomeBGMConfig biomeBgm{};
         CommandConfig command{};
         MainMenuBackground mainMenuBackground{};
+        LightingConfig lighting{};
         int configVersion = 1;
         std::string runtimePath;
         std::vector<CommandHookResource> commandHooks;

@@ -177,6 +177,7 @@ void glimmer::LightBuffer::SetSideLightMask(const TileVector2D position, TileLay
                                                             });
         lightPropagationTraverser.PropagateSingleRay(lightContribution->GetRayIndex());
     }
+    ++revision_;
 }
 
 void glimmer::LightBuffer::SetBackLightMask(const TileVector2D position, const TileLayerType layerType,
@@ -189,6 +190,7 @@ void glimmer::LightBuffer::SetBackLightMask(const TileVector2D position, const T
     const auto &tileLightDataPtr = tileLightDataIterator->second;
     tileLightDataPtr->SetBackLightMask(layerType, std::move(backLightMask));
     tileLightDataPtr->RecalculateLight();
+    ++revision_;
 }
 
 void glimmer::LightBuffer::ClearSideLightMask(const TileVector2D &position, TileLayerType layerType) {
@@ -222,6 +224,7 @@ void glimmer::LightBuffer::ClearSideLightMask(const TileVector2D &position, Tile
                                                             });
         lightPropagationTraverser.PropagateSingleRay(lightContribution->GetRayIndex());
     }
+    ++revision_;
 }
 
 void glimmer::LightBuffer::ClearBackLightMask(const TileVector2D &position, const TileLayerType layerType) {
@@ -235,6 +238,7 @@ void glimmer::LightBuffer::ClearBackLightMask(const TileVector2D &position, cons
     }
     tileLightDataPtr->ClearBackLightMask(layerType);
     tileLightDataPtr->RecalculateLight();
+    ++revision_;
 }
 
 
@@ -248,6 +252,7 @@ void glimmer::LightBuffer::ClearSideLightMaskOnly(const TileVector2D &position, 
         return;
     }
     tileLightDataPtr->ClearSideLightMask(layerType);
+    ++revision_;
 }
 
 void glimmer::LightBuffer::ClearBackLightMaskOnly(const TileVector2D &position, TileLayerType layerType) {
@@ -261,6 +266,7 @@ void glimmer::LightBuffer::ClearBackLightMaskOnly(const TileVector2D &position, 
     }
     tileLightDataPtr->ClearBackLightMask(layerType);
     tileLightDataPtr->RecalculateLight();
+    ++revision_;
 }
 
 void glimmer::LightBuffer::ClearTileLightData(const TileVector2D &position) {
@@ -283,6 +289,7 @@ void glimmer::LightBuffer::ClearTileLightData(const TileVector2D &position) {
         }
     }
     tileLightData_.erase(position);
+    ++revision_;
 }
 
 const glimmer::TileLightData *glimmer::LightBuffer::GetTileLightData(const TileVector2D &position) const {
@@ -321,6 +328,7 @@ void glimmer::LightBuffer::SetLightSource(const TileVector2D position, const Til
         tileLightDataIt = tileLightData_.find(position);
     }
     tileLightDataIt->second->SetLightSource(layerType, std::move(lightSource));
+    ++revision_;
 }
 
 void glimmer::LightBuffer::ClearLightSource(const TileVector2D position, const TileLayerType layerType) {
@@ -348,6 +356,7 @@ void glimmer::LightBuffer::ClearLightSource(const TileVector2D position, const T
                                                         });
     lightPropagationTraverser.PropagateAllRays();
     tileLightDataPtr->ClearLightSource(layerType);
+    ++revision_;
 }
 
 const glimmer::Color *glimmer::LightBuffer::GetFinalLightColor(const TileVector2D position) {

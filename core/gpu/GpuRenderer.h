@@ -27,6 +27,7 @@
 #pragma once
 
 #include <memory>
+#include <vector>
 
 #include "GpuContext.h"
 #include "GpuTexture.h"
@@ -37,6 +38,65 @@ namespace glimmer {
     class RenderQueue;
     class ResourcePackManager;
     struct Mods;
+
+    /**
+     * LightMapParams
+     * 光照贴图参数
+     *
+     * Uniform block consumed by the lighting fragment shader
+     * (shaders/@core/lighting.frag, set = 3, binding = 0). The layout must
+     * match the GLSL std140 declaration exactly (4 vec2 slots followed by
+     * 4 floats, 48 bytes total).
+     * 光照片元着色器（shaders/@core/lighting.frag，set = 3，binding = 0）
+     * 消费的 uniform 块。布局必须与 GLSL std140 声明完全一致
+     * （4 个 vec2 槽位后跟 4 个 float，共 48 字节）。
+     */
+    struct LightMapParams {
+        /**
+         * Tile coordinate stored in light map texel (0,0) (left/top edge of
+         * the covered area, in tile units).
+         * 光照贴图 texel(0,0) 存储的瓦片坐标（覆盖区域的左/上边缘，瓦片单位）。
+         */
+        float lightMapOriginX = 0.0F;
+        float lightMapOriginY = 0.0F;
+        /**
+         * Light map texture size in texels (1 texel = 1 tile).
+         * 光照贴图纹理尺寸（texel，1 texel = 1 瓦片）。
+         */
+        float lightMapSizeX = 1.0F;
+        float lightMapSizeY = 1.0F;
+        /**
+         * Fractional tile coordinate at the screen's top-left corner.
+         * 屏幕左上角的小数瓦片坐标。
+         */
+        float cameraTopLeftTileX = 0.0F;
+        float cameraTopLeftTileY = 0.0F;
+        /**
+         * Viewport size in tiles.
+         * 视口尺寸（瓦片单位）。
+         */
+        float viewportTilesX = 1.0F;
+        float viewportTilesY = 1.0F;
+        /**
+         * Light intensity (0..1, light alpha / 255) that maps to full
+         * brightness; lower values brighten dim areas.
+         * 映射为全亮的光照强度（0..1，光照 alpha / 255）；值越小暗区越亮。
+         */
+        float fullBright = 0.05F;
+        /**
+         * Minimum visibility floor applied to pixels with no light at all
+         * (keeps entities faintly visible in darkness).
+         * 完全无光像素应用的最低可见度下限（让实体在黑暗中保持隐约可见）。
+         */
+        float minVisibility = 0.05F;
+        /**
+         * Light hue tint strength, 0 = neutral gray lighting,
+         * 1 = full hue filtering.
+         * 光色染色强度，0 = 中性灰光照，1 = 完整色相过滤。
+         */
+        float tintStrength = 0.6F;
+        float padding = 0.0F;
+    };
 
     /**
      * GpuRenderer
@@ -92,6 +152,29 @@ namespace glimmer {
             Uint32 vertexCount = 0;
         };
 
+        /**
+         * Blend configuration of a sprite-style pipeline.
+         * 精灵风格管线的混合配置。
+         */
+        enum class SpriteBlendMode : uint8_t {
+            /**
+             * Standard alpha blending (src.a / 1-src.a).
+             * 标准 alpha 混合（src.a / 1-src.a）。
+             */
+            Alpha,
+            /**
+             * Multiplicative blending (dst.rgb * src.rgb), used by the
+             * lighting pass to modulate the game layer.
+             * 乘法混合（dst.rgb * src.rgb），光照通道用它调制 game 层。
+             */
+            Multiply,
+            /**
+             * Blending disabled (source overwrites destination).
+             * 禁用混合（源直接覆盖目标）。
+             */
+            None
+        };
+
         static constexpr Uint32 INITIAL_VERTEX_CAPACITY = 65536;
 
         GpuContext *gpuContext_ = nullptr;
@@ -100,11 +183,33 @@ namespace glimmer {
         SDL_GPUGraphicsPipeline *gamePipeline_ = nullptr;
         SDL_GPUGraphicsPipeline *uiPipeline_ = nullptr;
         SDL_GPUGraphicsPipeline *globalPipeline_ = nullptr;
+        SDL_GPUGraphicsPipeline *lightingPipeline_ = nullptr;
         std::unique_ptr<GpuTexture> whiteTexture_ = nullptr;
 
         std::unique_ptr<GpuTexture> gameLayerTexture_ = nullptr;
         std::unique_ptr<GpuTexture> uiLayerTexture_ = nullptr;
         std::unique_ptr<GpuTexture> compositeLayerTexture_ = nullptr;
+
+        /**
+         * Per-tile light map texture (1 texel = 1 tile) sampled by the
+         * lighting pass, plus its CPU-side staging copy and shader params.
+         * 光照通道采样的逐瓦片光照贴图纹理（1 texel = 1 瓦片），
+         * 以及对应的 CPU 暂存副本与着色器参数。
+         */
+        std::unique_ptr<GpuTexture> lightMapTexture_ = nullptr;
+        std::vector<Uint8> lightMapPixels_;
+        int lightMapWidth_ = 0;
+        int lightMapHeight_ = 0;
+        LightMapParams lightMapParams_{};
+        /**
+         * lightMapPending_: a lighting system provided light map data this
+         * frame (consumed by FlushQueue). lightMapDirty_: the staging pixels
+         * changed and must be re-uploaded to the GPU texture.
+         * lightMapPending_：光照系统本帧提供了光照贴图数据（由 FlushQueue 消费）。
+         * lightMapDirty_：暂存像素已变化，需要重新上传到 GPU 纹理。
+         */
+        bool lightMapPending_ = false;
+        bool lightMapDirty_ = false;
 
         SDL_GPUBuffer *vertexBuffer_ = nullptr;
         Uint32 vertexBufferCapacity_ = 0;
@@ -129,12 +234,47 @@ namespace glimmer {
          * 创建精灵风格的图形管线（共享顶点输入布局）。
          * @param vertexShader vertexShader 顶点着色器
          * @param fragmentShader fragmentShader 片元着色器
-         * @param enableBlend enableBlend 是否启用标准 alpha 混合
+         * @param blendMode blendMode 混合模式（alpha / 乘法 / 禁用）
          * @return The pipeline on success, nullptr on failure.
          * 成功返回管线，失败返回 nullptr。
          */
         SDL_GPUGraphicsPipeline *CreateSpritePipeline(SDL_GPUShader *vertexShader, SDL_GPUShader *fragmentShader,
-                                                      bool enableBlend) const;
+                                                      SpriteBlendMode blendMode) const;
+
+        /**
+         * Expand a range of sorted render commands into batch vertices and
+         * texture-grouped draw runs (appended to the output vectors, so two
+         * ranges can share one vertex buffer upload).
+         * 把一段已排序的渲染命令展开为批处理顶点与按纹理分组的绘制段
+         * （追加到输出向量，因此两段范围可以共享一次顶点缓冲上传）。
+         * @param commands commands 命令数组起始地址
+         * @param count count 命令数量
+         * @param vertices vertices 顶点输出向量（追加）
+         * @param runs runs 绘制段输出向量（追加）
+         */
+        void ExpandCommands(const RenderCommand *commands, size_t count, std::vector<SpriteVertex> &vertices,
+                            std::vector<DrawRun> &runs) const;
+
+        /**
+         * Create/recreate the light map texture when its size changed and
+         * upload the staging pixels through a copy pass on the frame command
+         * buffer. Must be called while no render pass is active.
+         * 当光照贴图尺寸变化时创建/重建纹理，并通过帧命令缓冲上的拷贝通道
+         * 上传暂存像素。必须在没有活动渲染通道时调用。
+         * @return true if the GPU light map is valid and up to date.
+         * GPU 光照贴图有效且为最新时返回 true。
+         */
+        bool EnsureLightMapUploaded();
+
+        /**
+         * Draw the full-screen lighting quad: samples the light map with the
+         * linear sampler and multiplies everything drawn so far by the
+         * computed light multiplier (Multiply blend pipeline). Must be
+         * called inside an active render pass on the game layer.
+         * 绘制全屏光照四边形：用线性采样器采样光照贴图，并把计算出的光照系数
+         * 乘法混合到已绘制内容上（乘法混合管线）。必须在 game 层的活动渲染通道内调用。
+         */
+        void DrawLightingQuad();
 
         /**
          * Recreate the offscreen layer textures when the swapchain size changed.
@@ -214,11 +354,35 @@ namespace glimmer {
          * Sort the render queue (layer ascending, then depth ascending),
          * expand every command into batch vertices, upload them and draw them
          * into the game layer, then end the game layer render pass.
+         * When a lighting system provided a light map this frame (see
+         * SetLightMap), the queue is split at the RenderLayer::Lighting
+         * boundary and a full-screen multiply-blended lighting quad is drawn
+         * between the two batches, so world content (Background..Lighting)
+         * is shaded while debug/overlay content stays untouched.
          * 对渲染队列排序（层升序，然后 depth 升序），把每个命令展开为批处理
          * 顶点，上传并绘制进 game 层，然后结束 game 层渲染通道。
+         * 当光照系统在本帧提供了光照贴图（见 SetLightMap）时，队列会在
+         * RenderLayer::Lighting 边界处拆分为两批，并在两批之间绘制一个
+         * 全屏乘法混合的光照四边形，使世界内容（Background..Lighting）
+         * 被着色，而调试/覆盖层内容不受影响。
          * @param queue queue 本帧填充完毕的渲染队列
          */
         void FlushQueue(RenderQueue &queue);
+
+        /**
+         * Provide this frame's light map (called by the lighting system after
+         * BeginFrame and before FlushQueue). The params are consumed every
+         * frame; the pixels are only re-uploaded when they change (pass
+         * nullptr to reuse the previous GPU texture contents with new params).
+         * 提供本帧的光照贴图（由光照系统在 BeginFrame 之后、FlushQueue 之前调用）。
+         * 参数每帧都会生效；像素仅在变化时重新上传（传 nullptr 可沿用
+         * GPU 纹理中已有的内容，仅更新参数）。
+         * @param width width 光照贴图宽度（texel = 瓦片）
+         * @param height height 光照贴图高度（texel = 瓦片）
+         * @param rgbaPixels rgbaPixels RGBA8 像素（width*height*4 字节），nullptr 表示复用
+         * @param params params 光照片元着色器的 uniform 参数
+         */
+        void SetLightMap(int width, int height, const Uint8 *rgbaPixels, const LightMapParams &params);
 
         /**
          * @return The offscreen ui layer texture that RmlUi must render into.

@@ -25,8 +25,8 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "core/Config.h"
-#include "core/LangsResources.h"
+#include "core/config/Config.h"
+#include "core/utils/LangsResources.h"
 #include "core/console/Command.h"
 #include "core/vfs/VirtualFileSystem.h"
 #include "toml11/types.hpp"

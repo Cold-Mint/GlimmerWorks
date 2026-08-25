@@ -29,7 +29,7 @@
 #include <string>
 
 #include "fmt/xchar.h"
-#include "core/LangsResources.h"
+#include "core/utils/LangsResources.h"
 #include "core/context/AppContext.h"
 #include "core/scene/MainScene.h"
 #include "core/scene/SplashScene.h"
@@ -37,7 +37,7 @@
 #include "core/scene/CreateWorldScene.h"
 #include "core/scene/SceneManager.h"
 #include "core/scene/MainThreadDispatcher.h"
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 
 void glimmer::SceneCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
     suggestionsTree->AddChild("push")->AddChild(SCENE_DYNAMIC_SUGGESTIONS_NAME);

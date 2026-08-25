@@ -29,7 +29,7 @@
 #include <unordered_set>
 
 #include "TraverseAction.h"
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 #include "core/math/TileVector2D.h"
 #include "core/math/Vector2DIHash.h"
 

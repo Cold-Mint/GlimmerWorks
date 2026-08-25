@@ -28,7 +28,7 @@
 #include <cmath>
 #include <numbers>
 
-#include "core/IFingerprintable.h"
+#include "core/utils/IFingerprintable.h"
 #include "src/core/vector2di.pb.h"
 
 namespace glimmer {

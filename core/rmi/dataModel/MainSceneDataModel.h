@@ -27,7 +27,7 @@
 #pragma once
 #include <vector>
 
-#include "core/Hyperlink.h"
+#include "core/ui/Hyperlink.h"
 #include "core/utils/StringUtils.h"
 
 namespace glimmer {

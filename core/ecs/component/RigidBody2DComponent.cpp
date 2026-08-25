@@ -29,7 +29,7 @@
 #include "core/log/LogCat.h"
 #include "core/utils/Box2DUtils.h"
 #include "box2d/box2d.h"
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 #include "core/shape/ShapeType.h"
 
 

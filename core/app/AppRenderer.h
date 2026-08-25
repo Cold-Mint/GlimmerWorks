@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,10 +24,39 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "CommandHookEntry.h"
+#pragma once
+#include "core/context/AppContext.h"
+#include "core/gpu/GpuRenderer.h"
+#include "core/gpu/RenderQueue.h"
 
-uint32_t glimmer::CommandHookEntry::GetKey(const SDL_EventType eventType, const uint16_t code) {
-    const uint32_t type_part = static_cast<uint32_t>(eventType) << 16U;
-    const uint32_t code_part = code;
-    return type_part | code_part;
+namespace glimmer {
+    /**
+     * AppRenderer
+     * 应用渲染器
+     *
+     * Drives one frame of rendering: clears the per-frame RenderQueue, lets
+     * the scenes/overlays/UI messages submit their commands, then has the
+     * GpuRenderer flush the sorted queue into the game layer, renders RmlUi
+     * into the ui layer and composites everything to the swapchain.
+     * 驱动一帧的渲染：清空每帧的 RenderQueue，让场景/覆盖层/UI 消息提交
+     * 命令，然后由 GpuRenderer 把排好序的队列冲刷进 game 层，将 RmlUi
+     * 渲染进 ui 层，最后把全部内容合成到交换链。
+     */
+    class AppRenderer {
+        AppContext *appContext_ = nullptr;
+        GpuRenderer *renderer_ = nullptr;
+        RenderQueue renderQueue_;
+
+        void RenderUiMessage(int windowHeight, uint64_t frameStart);
+
+        void RenderScenes();
+
+        void RenderOverlays();
+
+    public:
+        AppRenderer(AppContext *appContext, GpuRenderer *renderer);
+
+        void RenderFrame(const RmlContext *rmlContext, int windowWidth, int windowHeight, uint64_t frameStart,
+                         float deltaTime);
+    };
 }

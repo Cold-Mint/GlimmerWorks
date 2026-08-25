@@ -24,28 +24,49 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "SelectedItemRuntimeData.h"
+#include "core/world/TilePlacementConfig.h"
 
-void glimmer::SelectedItemRuntimeData::SetItem(Item *item) {
-    item_ = item;
+void glimmer::TilePlacementConfig::SetTileWidth(const uint8_t tileWidth) {
+    tileWidth_ = tileWidth;
 }
 
-glimmer::Item *glimmer::SelectedItemRuntimeData::GetItem() const {
-    return item_;
+void glimmer::TilePlacementConfig::SetTileHeight(const uint8_t tileHeight) {
+    tileHeight_ = tileHeight;
 }
 
-uint8_t glimmer::SelectedItemRuntimeData::GetSlotIndex() const {
-    return slotIndex_;
+void glimmer::TilePlacementConfig::SetPlaceMode(bool placeMode) {
+    isPlaceMode_ = placeMode;
 }
 
-uint8_t glimmer::SelectedItemRuntimeData::GetSelectedAmount() const {
-    return selectedAmount_;
+void glimmer::TilePlacementConfig::SetResourceRef(const ResourceRef &resourceRef) {
+    resourceRef_ = resourceRef;
 }
 
-void glimmer::SelectedItemRuntimeData::SetSelectedAmount(const uint8_t selectedAmount) {
-    selectedAmount_ = selectedAmount;
+void glimmer::TilePlacementConfig::SetBreakSource(const BreakSource &breakSource) {
+    breakSource_ = breakSource;
 }
 
-void glimmer::SelectedItemRuntimeData::SetSlotIndex(const uint8_t slotIndex) {
-    slotIndex_ = slotIndex;
+void glimmer::TilePlacementConfig::WriteResourceRefMessage(ResourceRefMessage &message) const {
+    resourceRef_.WriteResourceRefMessage(message);
+}
+
+
+glimmer::BreakSource glimmer::TilePlacementConfig::GetBreakSource() const {
+    return breakSource_;
+}
+
+const glimmer::ResourceRef &glimmer::TilePlacementConfig::GetResourceRef() const {
+    return resourceRef_;
+}
+
+bool glimmer::TilePlacementConfig::IsPlaceMode() const {
+    return isPlaceMode_;
+}
+
+uint8_t glimmer::TilePlacementConfig::GetTileWidth() const {
+    return tileWidth_;
+}
+
+uint8_t glimmer::TilePlacementConfig::GetTileHeight() const {
+    return tileHeight_;
 }

@@ -28,7 +28,7 @@
 
 #include <algorithm>
 
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 
 glimmer::MobDynamicSuggestions::MobDynamicSuggestions(MobManager *mobManager) : mobManager_(mobManager) {
 }

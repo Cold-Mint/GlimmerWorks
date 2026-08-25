@@ -26,7 +26,7 @@
  */
 #include "HelpCommand.h"
 
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 #include "core/context/AppContext.h"
 
 

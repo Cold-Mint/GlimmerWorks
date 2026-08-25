@@ -29,7 +29,7 @@
 #include <algorithm>
 #include "CreateWorldScene.h"
 #include "WorldScene.h"
-#include "core/Config.h"
+#include "core/config/Config.h"
 #include "core/saves/MapManifest.h"
 #include "core/saves/SavesManager.h"
 #include "core/saves/Saves.h"

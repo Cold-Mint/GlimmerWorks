@@ -33,7 +33,7 @@
 #include "core/utils/Box2DUtils.h"
 #include "core/ecs/component/RigidBody2DComponent.h"
 #include "box2d/box2d.h"
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 #include "core/ecs/DroppedItemCreator.h"
 #include "core/ecs/component/ItemContainerComponent.h"
 #include "core/ecs/component/PlayerComponent.h"

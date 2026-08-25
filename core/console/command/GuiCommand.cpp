@@ -26,7 +26,7 @@
  */
 #include "GuiCommand.h"
 
-#include "core/LangsResources.h"
+#include "core/utils/LangsResources.h"
 #include "core/context/AppContext.h"
 #include "fmt/xchar.h"
 

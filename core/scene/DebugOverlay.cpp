@@ -27,7 +27,7 @@
 #if  !defined(NDEBUG)
 #include "DebugOverlay.h"
 
-#include "core/Config.h"
+#include "core/config/Config.h"
 #include "core/context/AppContext.h"
 #include "core/log/LogCat.h"
 #include "core/utils/StringUtils.h"

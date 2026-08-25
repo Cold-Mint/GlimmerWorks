@@ -26,7 +26,7 @@
  */
 #include "ChunkSystem.h"
 
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 #include "core/world/WorldContext.h"
 #include "core/world/ChunkManager.h"
 #include "core/world/TerrainManager.h"

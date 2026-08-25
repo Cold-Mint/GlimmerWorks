@@ -33,7 +33,7 @@
 #include <sstream>
 
 #include "blake3.h"
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 #include "fmt/color.h"
 
 std::string glimmer::StringUtils::ToSafeSaveName(const std::string &utf8Str) {

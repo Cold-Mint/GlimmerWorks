@@ -122,13 +122,17 @@ void glimmer::AreaMarkerSystem::Render(RenderQueue *queue) {
         rect.y = std::min(camMin.y, camMax.y);
         rect.w = std::abs(camMax.x - camMin.x);
         rect.h = std::abs(camMax.y - camMin.y);
-        const SDL_Color fillColor = {areaMarkerFullColor.r,
-                                     areaMarkerFullColor.g, areaMarkerFullColor.b,
-                                     areaMarkerFullColor.a};
+        const SDL_Color fillColor = {
+            areaMarkerFullColor.r,
+            areaMarkerFullColor.g, areaMarkerFullColor.b,
+            areaMarkerFullColor.a
+        };
         queue->FillRect(RenderLayer::TileOverlay, 0.0F, &rect, fillColor);
-        const SDL_Color borderColor = {areaMarkerBorderColor.r,
-                                       areaMarkerBorderColor.g, areaMarkerBorderColor.b,
-                                       areaMarkerBorderColor.a};
+        const SDL_Color borderColor = {
+            areaMarkerBorderColor.r,
+            areaMarkerBorderColor.g, areaMarkerBorderColor.b,
+            areaMarkerBorderColor.a
+        };
         queue->DrawRect(RenderLayer::TileOverlay, 0.0F, &rect, borderColor);
 
         std::string areaMarkerTip = fmt::format(fmt::runtime(appContext_->GetLangsResources()->areaMarkerTip),

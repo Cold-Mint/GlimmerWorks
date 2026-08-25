@@ -26,7 +26,7 @@
  */
 #pragma once
 #include "ChunkType.h"
-#include "core/IFingerprintable.h"
+#include "core/utils/IFingerprintable.h"
 #include "core/ecs/component/TileLayerComponent.h"
 
 namespace glimmer {

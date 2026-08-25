@@ -35,7 +35,7 @@
 #include "component/ParallaxBackgroundComponent.h"
 #include "component/RecipeSelectionComponent.h"
 #include "component/Transform2DComponent.h"
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 
 namespace glimmer {
     class EntityShortCut {

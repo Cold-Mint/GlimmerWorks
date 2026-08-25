@@ -24,30 +24,10 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
-#include <SDL3/SDL.h>
+#include "core/console/hook/CommandHookEntry.h"
 
-#include "context/AppContext.h"
-
-namespace glimmer {
-    class AppEventLoop {
-        AppContext *appContext_ = nullptr;
-        Rml::Context *rmlContext_ = nullptr;
-        Uint64 &lastInputTime_;
-
-        static int SdlModToRmlModifier(SDL_Keymod sdl_mod);
-
-        void SendEventToRML(const SDL_Event &event) const;
-
-        [[nodiscard]] bool HandleSystemEvent(const SDL_Event &event) const;
-
-        void HandleCommandHooks(const SDL_Event &event) const;
-
-        void DispatchEventToScene(const SDL_Event &event) const;
-
-    public:
-        AppEventLoop(AppContext *appContext, Uint64 &lastInputTime);
-
-        void ProcessEvents(uint64_t frameStart) const;
-    };
+uint32_t glimmer::CommandHookEntry::GetKey(const SDL_EventType eventType, const uint16_t code) {
+    const uint32_t type_part = static_cast<uint32_t>(eventType) << 16U;
+    const uint32_t code_part = code;
+    return type_part | code_part;
 }

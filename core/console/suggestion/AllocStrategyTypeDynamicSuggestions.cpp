@@ -27,7 +27,7 @@
 #include "AllocStrategyTypeDynamicSuggestions.h"
 
 #include <algorithm>
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 
 glimmer::AllocStrategyTypeDynamicSuggestions::AllocStrategyTypeDynamicSuggestions() {
     suggestions_.emplace_back(ALLOC_STR_STRATEGY_BACKWARD);

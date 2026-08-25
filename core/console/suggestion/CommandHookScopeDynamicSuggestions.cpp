@@ -26,7 +26,7 @@
  */
 #include "CommandHookScopeDynamicSuggestions.h"
 
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 
 glimmer::CommandHookScopeDynamicSuggestions::CommandHookScopeDynamicSuggestions() {
     suggestions_.emplace_back(SESSION_KEY_WORD);

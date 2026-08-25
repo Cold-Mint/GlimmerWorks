@@ -24,11 +24,11 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "CommandHookManager.h"
+#include "core/console/hook/CommandHookManager.h"
 
-#include "utils/EventTypeUtils.h"
-#include "utils/ScanCodeUtils.h"
-#include "utils/UUIDUtils.h"
+#include "core/utils/EventTypeUtils.h"
+#include "core/utils/ScanCodeUtils.h"
+#include "core/utils/UUIDUtils.h"
 
 
 bool glimmer::CommandHookManager::Exist(const CommandHookScope scope, const uint32_t key,

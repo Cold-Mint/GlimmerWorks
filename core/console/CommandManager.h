@@ -33,7 +33,7 @@
 #include "Command.h"
 #include "CommandEnvironment.h"
 #include "CommandSender.h"
-#include "core/LangsResources.h"
+#include "core/utils/LangsResources.h"
 #include "core/utils/TransparentStringHash.h"
 
 namespace glimmer {

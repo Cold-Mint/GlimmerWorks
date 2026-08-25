@@ -26,7 +26,7 @@
  */
 #pragma once
 #include "DynamicSuggestions.h"
-#include "core/CommandHookManager.h"
+#include "core/console/hook/CommandHookManager.h"
 
 namespace glimmer {
     class CommandHookIdDynamicSuggestions final : public DynamicSuggestions {

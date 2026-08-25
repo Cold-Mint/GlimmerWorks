@@ -27,7 +27,7 @@
 #include "InsertTemplateCommand.h"
 
 #include "absl/strings/internal/cord_internal.h"
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 #include "core/utils/StringUtils.h"
 
 std::optional<std::string> glimmer::InsertTemplateCommand::Execute(

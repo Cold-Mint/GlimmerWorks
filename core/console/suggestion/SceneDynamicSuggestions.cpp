@@ -26,7 +26,7 @@
  */
 #include "SceneDynamicSuggestions.h"
 
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 
 glimmer::SceneDynamicSuggestions::SceneDynamicSuggestions() {
     sceneName_.emplace_back(SCENE_NAME_MAIN);

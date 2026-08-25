@@ -26,7 +26,7 @@
  */
 #include "RmlDebugCommand.h"
 
-#include "core/LangsResources.h"
+#include "core/utils/LangsResources.h"
 #include "core/context/AppContext.h"
 #include "fmt/xchar.h"
 #include "RmlUi/Debugger/Debugger.h"

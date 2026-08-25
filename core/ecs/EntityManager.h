@@ -30,7 +30,7 @@
 #include "EcsTypes.h"
 #include "GameComponent.h"
 #include "GameEntity.h"
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 #include "core/log/LogCat.h"
 #include "src/core/game_component_type.pb.h"
 #include "src/saves/component.pb.h"

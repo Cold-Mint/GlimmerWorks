@@ -24,49 +24,40 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "TilePlacementConfig.h"
+#pragma once
 
-void glimmer::TilePlacementConfig::SetTileWidth(const uint8_t tileWidth) {
-    tileWidth_ = tileWidth;
-}
+#include "core/mod/ResourceRef.h"
+#include "core/world/BreakSource.h"
 
-void glimmer::TilePlacementConfig::SetTileHeight(const uint8_t tileHeight) {
-    tileHeight_ = tileHeight;
-}
+namespace glimmer {
+    class TilePlacementConfig {
+        uint8_t tileWidth_ = 1;
+        uint8_t tileHeight_ = 1;
+        ResourceRef resourceRef_;
+        bool isPlaceMode_ = false;
+        BreakSource breakSource_ = BreakSource::Unknown;
 
-void glimmer::TilePlacementConfig::SetPlaceMode(bool placeMode) {
-    isPlaceMode_ = placeMode;
-}
+    public:
+        void SetTileWidth(uint8_t tileWidth);
 
-void glimmer::TilePlacementConfig::SetResourceRef(const ResourceRef &resourceRef) {
-    resourceRef_ = resourceRef;
-}
+        void SetTileHeight(uint8_t tileHeight);
 
-void glimmer::TilePlacementConfig::SetBreakSource(const BreakSource &breakSource) {
-    breakSource_ = breakSource;
-}
+        void SetPlaceMode(bool placeMode);
 
-void glimmer::TilePlacementConfig::WriteResourceRefMessage(ResourceRefMessage &message) const {
-    resourceRef_.WriteResourceRefMessage(message);
-}
+        void SetResourceRef(const ResourceRef &resourceRef);
 
+        void SetBreakSource(const BreakSource &breakSource);
 
-glimmer::BreakSource glimmer::TilePlacementConfig::GetBreakSource() const {
-    return breakSource_;
-}
+        void WriteResourceRefMessage(ResourceRefMessage &message) const;
 
-const glimmer::ResourceRef &glimmer::TilePlacementConfig::GetResourceRef() const {
-    return resourceRef_;
-}
+        [[nodiscard]] BreakSource GetBreakSource() const;
 
-bool glimmer::TilePlacementConfig::IsPlaceMode() const {
-    return isPlaceMode_;
-}
+        [[nodiscard]] const ResourceRef &GetResourceRef() const;
 
-uint8_t glimmer::TilePlacementConfig::GetTileWidth() const {
-    return tileWidth_;
-}
+        [[nodiscard]] bool IsPlaceMode() const;
 
-uint8_t glimmer::TilePlacementConfig::GetTileHeight() const {
-    return tileHeight_;
+        [[nodiscard]] uint8_t GetTileWidth() const;
+
+        [[nodiscard]] uint8_t GetTileHeight() const;
+    };
 }

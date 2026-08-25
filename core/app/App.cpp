@@ -24,28 +24,28 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "App.h"
+#include "core/app/App.h"
 #include <SDL3/SDL.h>
 
 #include <ranges>
-#include "log/LogCat.h"
-#include "Config.h"
-#include "scene/SplashScene.h"
+#include "core/log/LogCat.h"
+#include "core/config/Config.h"
+#include "core/scene/SplashScene.h"
 #if  !defined(NDEBUG)
-#include "scene/DebugOverlay.h"
+#include "core/scene/DebugOverlay.h"
 #endif
-#include "AppEventLoop.h"
-#include "AppRenderer.h"
+#include "core/app/AppEventLoop.h"
+#include "core/app/AppRenderer.h"
 #include "SDL3_ttf/SDL_ttf.h"
 #include "SDL3/SDL_init.h"
 #include "SDL3_mixer/SDL_mixer.h"
 #include "core/gpu/GpuShaderCompiler.h"
-#include "utils/ColorUtils.h"
-#include "scene/SceneManager.h"
-#include "console/ConsoleWorker.h"
-#include "CommandHookManager.h"
+#include "core/utils/ColorUtils.h"
+#include "core/scene/SceneManager.h"
+#include "core/console/ConsoleWorker.h"
+#include "core/console/hook/CommandHookManager.h"
 #include "RmlUi/Core/Context.h"
-#include "scene/ConsoleOverlay.h"
+#include "core/scene/ConsoleOverlay.h"
 
 
 bool glimmer::App::InitSDL() {

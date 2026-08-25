@@ -26,7 +26,7 @@
  */
 #include "GiveCommand.h"
 
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 #include "core/ecs/component/ItemContainerComponent.h"
 #include "core/inventory/AbilityItem.h"
 #include "core/inventory/ComposableItem.h"

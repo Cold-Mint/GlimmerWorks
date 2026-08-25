@@ -24,12 +24,12 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "Config.h"
+#include "core/config/Config.h"
 
 #include <algorithm>
 
-#include "CommandHookManager.h"
-#include "log/LogCat.h"
+#include "core/console/hook/CommandHookManager.h"
+#include "core/log/LogCat.h"
 #include "toml11/find.hpp"
 
 template<>

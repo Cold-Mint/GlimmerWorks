@@ -29,7 +29,7 @@
 #include <cmath>
 #include <numbers>
 
-#include "core/IFingerprintable.h"
+#include "core/utils/IFingerprintable.h"
 
 namespace glimmer {
     using Vector2DFingerprint = uint64_t;

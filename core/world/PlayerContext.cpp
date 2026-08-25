@@ -28,7 +28,7 @@
 
 #include <utility>
 
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 #include "core/ecs/DroppedItemCreator.h"
 #include "core/ecs/EntityManager.h"
 #include "core/ecs/EntityShortCut.h"

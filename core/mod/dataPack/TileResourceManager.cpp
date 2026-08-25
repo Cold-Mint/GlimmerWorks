@@ -28,7 +28,7 @@
 
 #include <utility>
 
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 #include "core/world/generator/TileLayerType.h"
 #include "core/world/generator/TilePhysicsType.h"
 

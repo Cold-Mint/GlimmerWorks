@@ -27,7 +27,7 @@
 #if  !defined(NDEBUG)
 #include "TagCommand.h"
 
-#include "core/LangsResources.h"
+#include "core/utils/LangsResources.h"
 #include "core/ecs/EntityShortCut.h"
 #include "core/mod/dataPack/StringManager.h"
 #include "core/ecs/component/PlayerComponent.h"

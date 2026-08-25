@@ -29,7 +29,7 @@
 
 #include <sstream>
 
-#include "core/LangsResources.h"
+#include "core/utils/LangsResources.h"
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/mod/dataPack/RecipeGroup.h"
 #include "core/mod/dataPack/RecipeManager.h"

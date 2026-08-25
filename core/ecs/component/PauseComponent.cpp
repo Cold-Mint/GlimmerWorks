@@ -26,7 +26,7 @@
  */
 #include "PauseComponent.h"
 
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 
 GameComponentTypeMessage glimmer::PauseComponent::GetComponentTypeStatic() {
     return COMPONENT_PAUSE;

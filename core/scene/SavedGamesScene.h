@@ -29,7 +29,7 @@
 #include "MainThreadDispatcher.h"
 #include "Scene.h"
 #include "SceneManager.h"
-#include "core/LangsResources.h"
+#include "core/utils/LangsResources.h"
 #include "core/rmi/dataModel/SavedGamesDataModel.h"
 #include "RmlUi/Core/Elements/ElementFormControlInput.h"
 

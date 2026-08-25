@@ -26,7 +26,7 @@
  */
 #include "EventTypeDynamicSuggestions.h"
 
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 #include "core/utils/EventTypeUtils.h"
 
 std::string glimmer::EventTypeDynamicSuggestions::GetId() const {

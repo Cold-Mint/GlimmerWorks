@@ -26,7 +26,7 @@
  */
 #include "DebugDrawSystem.h"
 
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 #include "core/gpu/RenderQueue.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/ecs/component/DebugDrawComponent.h"

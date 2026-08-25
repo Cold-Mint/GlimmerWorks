@@ -26,7 +26,7 @@
  */
 #include "FloatingTextSystem.h"
 
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/ecs/component/FloatingTextComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"

@@ -32,7 +32,7 @@
 #include "AudioResourceResult.h"
 #include "ResourcePack.h"
 #include "TextureResourceResult.h"
-#include "core/Config.h"
+#include "core/config/Config.h"
 #include "core/context/AppContext.h"
 #include "core/log/LogCat.h"
 #include "core/scene/MainThreadDispatcher.h"

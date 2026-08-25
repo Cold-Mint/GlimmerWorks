@@ -32,7 +32,7 @@
 #include "core/console/CommandManager.h"
 #include "core/console/ConsoleWorker.h"
 #include "core/console/LocalConsoleInput.h"
-#include "core/CommandHookManager.h"
+#include "core/console/hook/CommandHookManager.h"
 #include "core/console/suggestion/DynamicSuggestionsManager.h"
 
 namespace glimmer {

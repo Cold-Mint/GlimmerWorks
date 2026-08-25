@@ -36,7 +36,7 @@
 #include "MobManager.h"
 #include "RecipeManager.h"
 #include "StructureManager.h"
-#include "core/Config.h"
+#include "core/config/Config.h"
 #include "core/context/GraphicsContext.h"
 #include "core/context/ModContext.h"
 #include "core/mod/PackManifest.h"

@@ -31,9 +31,9 @@
 #include <string>
 #include <vector>
 
-#include "core/LangsResources.h"
-#include "core/Config.h"
-#include "core/GameUIMessage.h"
+#include "core/utils/LangsResources.h"
+#include "core/config/Config.h"
+#include "core/ui/GameUIMessage.h"
 #include "core/saves/SavesManager.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/mod/resourcePack/ResourcePackManager.h"

@@ -30,7 +30,7 @@
 #include <utility>
 #include "core/math/CoordinateTransformer.h"
 
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 #include "core/gpu/RenderQueue.h"
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/ecs/component/TileLayerComponent.h"

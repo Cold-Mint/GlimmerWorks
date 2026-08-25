@@ -27,7 +27,7 @@
 #pragma once
 #include <cstdint>
 
-#include "core/IFingerprintable.h"
+#include "core/utils/IFingerprintable.h"
 #include "SDL3/SDL_pixels.h"
 
 

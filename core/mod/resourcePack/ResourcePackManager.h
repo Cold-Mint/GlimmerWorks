@@ -40,7 +40,7 @@
 #include "core/gpu/GpuContext.h"
 #include "core/gpu/GpuTexture.h"
 #include "core/vfs/VirtualFileSystem.h"
-#include "core/Config.h"
+#include "core/config/Config.h"
 #include "core/mod/ResourceLocator.h"
 #include "SDL3_mixer/SDL_mixer.h"
 #include "SDL3_ttf/SDL_ttf.h"

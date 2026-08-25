@@ -26,7 +26,7 @@
  */
 #include "MagneticComponent.h"
 
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 
 void glimmer::MagneticComponent::SetType(uint16_t type) {
     type_ = type;

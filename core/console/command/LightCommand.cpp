@@ -27,7 +27,7 @@
 #if  !defined(NDEBUG)
 #include "LightCommand.h"
 
-#include "core/LangsResources.h"
+#include "core/utils/LangsResources.h"
 #include "fmt/xchar.h"
 #include "core/context/AppContext.h"
 #include "core/world/WorldContext.h"

@@ -27,7 +27,7 @@
 #if  !defined(NDEBUG)
 #include "TechnologyCommand.h"
 
-#include "core/LangsResources.h"
+#include "core/utils/LangsResources.h"
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/context/AppContext.h"
 #include "core/world/WorldContext.h"

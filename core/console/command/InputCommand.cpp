@@ -29,9 +29,9 @@
 #include <string>
 
 #include "fmt/xchar.h"
-#include "core/LangsResources.h"
+#include "core/utils/LangsResources.h"
 #include "core/context/AppContext.h"
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 
 #include <SDL3/SDL.h>
 

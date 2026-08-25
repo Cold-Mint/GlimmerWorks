@@ -24,12 +24,12 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "GameUIMessage.h"
+#include "core/ui/GameUIMessage.h"
 
 #include <utility>
 
 #include "tweeny/tweeny.h"
-#include "utils/StringUtils.h"
+#include "core/utils/StringUtils.h"
 
 glimmer::GameUIMessage::GameUIMessage(ResourcePackManager *resourcePackManager, std::string text, const uint64_t now,
                                       const Color *color, const float targetFps) : text_(std::move(text)),

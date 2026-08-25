@@ -24,9 +24,9 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "AppRenderer.h"
-#include "scene/SceneManager.h"
-#include "GameUIMessage.h"
+#include "core/app/AppRenderer.h"
+#include "core/scene/SceneManager.h"
+#include "core/ui/GameUIMessage.h"
 
 
 glimmer::AppRenderer::AppRenderer(AppContext *appContext, GpuRenderer *renderer) : appContext_(appContext),

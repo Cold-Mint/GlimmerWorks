@@ -26,7 +26,7 @@
  */
 #include "TileLightData.h"
 
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 #include "core/utils/LightUtils.h"
 #include "src/core/vector2d.pb.h"
 

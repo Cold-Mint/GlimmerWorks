@@ -26,7 +26,7 @@
  */
 #include "LicenseCommand.h"
 
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 #include "core/context/AppContext.h"
 
 glimmer::LicenseCommand::LicenseCommand(AppContext *appContext) : Command(appContext) {

@@ -26,7 +26,7 @@
  */
 #include "ScanKeyDynamicSuggestions.h"
 
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 #include "core/utils/ScanCodeUtils.h"
 
 std::string glimmer::ScanKeyDynamicSuggestions::GetId() const {

@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
+ * 
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -25,38 +25,55 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "context/AppContext.h"
-#include "core/gpu/GpuRenderer.h"
-#include "core/gpu/RenderQueue.h"
+#include <SDL3/SDL.h>
+
+#include "core/context/AppContext.h"
+
 
 namespace glimmer {
-    /**
-     * AppRenderer
-     * 应用渲染器
-     *
-     * Drives one frame of rendering: clears the per-frame RenderQueue, lets
-     * the scenes/overlays/UI messages submit their commands, then has the
-     * GpuRenderer flush the sorted queue into the game layer, renders RmlUi
-     * into the ui layer and composites everything to the swapchain.
-     * 驱动一帧的渲染：清空每帧的 RenderQueue，让场景/覆盖层/UI 消息提交
-     * 命令，然后由 GpuRenderer 把排好序的队列冲刷进 game 层，将 RmlUi
-     * 渲染进 ui 层，最后把全部内容合成到交换链。
-     */
-    class AppRenderer {
+    class App {
+        bool initSDLSuccess_ = false;
+        bool initSDLMixSuccess_ = false;
+        bool initSDLTtfSuccess_ = false;
+        uint64_t lastTime_ = 0;
+        std::unique_ptr<GpuContext> gpuContext_ = nullptr;
+        std::unique_ptr<GpuRenderer> gpuRenderer_ = nullptr;
         AppContext *appContext_ = nullptr;
-        GpuRenderer *renderer_ = nullptr;
-        RenderQueue renderQueue_;
+        SDL_Window *window = nullptr;
+        MIX_Mixer *mixer_ = nullptr;
+        std::string fontData_;
 
-        void RenderUiMessage(int windowHeight, uint64_t frameStart);
 
-        void RenderScenes();
+        bool InitSDL();
 
-        void RenderOverlays();
+        bool InitWindowAndRenderer();
+
+        [[nodiscard]] bool InitFont() const;
+
+        bool InitAudio();
+
+        static bool CheckWindowSizeChange(WindowContext *windowContext, const int &windowWidth,
+                                          const int &windowHeight);
+
+        void HandleWindowSizeChange(const int &windowWidth, const int &windowHeight) const;
+
+        [[nodiscard]] float CalculateTargetFrameTime(uint64_t frameStart, uint64_t lastInputTime) const;
+
+        bool CheckConfigChange(uint64_t &configFingerprint) const;
+
+        void NotifyFrameStart() const;
+
+        void UpdateScenes(float deltaTime) const;
+
+        void InitScenesAndConsole() const;
 
     public:
-        AppRenderer(AppContext *appContext, GpuRenderer *renderer);
+        ~App();
 
-        void RenderFrame(const RmlContext *rmlContext, int windowWidth, int windowHeight, uint64_t frameStart,
-                         float deltaTime);
+        explicit App(AppContext *appContext);
+
+        bool Init();
+
+        void Run() const;
     };
 }

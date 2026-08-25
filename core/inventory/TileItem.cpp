@@ -29,7 +29,7 @@
 #include "core/world/WorldContext.h"
 #include "core/ecs/component/TileLayerComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 
 #include "core/ecs/system/MiningSystem.h"
 

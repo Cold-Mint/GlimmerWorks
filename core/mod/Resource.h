@@ -32,7 +32,7 @@
 #include <vector>
 
 #include "ResourceRef.h"
-#include "core/Box2dFilter.h"
+#include "core/ecs/Box2dFilter.h"
 #include "core/lootTable/LootEntry.h"
 #include "core/math/Color.h"
 #include "core/utils/TransparentStringHash.h"

@@ -25,7 +25,7 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "Box2DUtils.h"
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 
 float glimmer::Box2DUtils::ToPixels(const float meters) { return meters * KSCALE; }
 

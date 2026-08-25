@@ -27,7 +27,7 @@
 #include "ParallaxBackgroundSystem.h"
 
 #include "core/gpu/RenderQueue.h"
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 #include "core/ecs/component/ParallaxBackgroundComponent.h"
 #include "core/world/WorldContext.h"
 

@@ -27,7 +27,7 @@
 #pragma once
 #include "core/console/Command.h"
 #include "core/inventory/Item.h"
-#include "core/LangsResources.h"
+#include "core/utils/LangsResources.h"
 
 namespace glimmer {
     class ItemEditorCommand final : public Command {

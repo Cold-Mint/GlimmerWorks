@@ -27,8 +27,8 @@
 #if  !defined(NDEBUG)
 #include "AssetViewerCommand.h"
 
-#include "core/Constants.h"
-#include "core/LangsResources.h"
+#include "core/config/Constants.h"
+#include "core/utils/LangsResources.h"
 
 #include "core/console/asset_enumerator/StringAssetEnumerator.h"
 #include "core/console/asset_enumerator/TextureAssetEnumerator.h"

@@ -29,7 +29,7 @@
 
 #include <utility>
 
-#include "core/LangsResources.h"
+#include "core/utils/LangsResources.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/world/WorldContext.h"
 #include "core/world/ChunkManager.h"

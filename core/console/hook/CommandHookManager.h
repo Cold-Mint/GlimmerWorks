@@ -29,8 +29,8 @@
 #include <unordered_map>
 #include <vector>
 
-#include "CommandHookEntry.h"
-#include "Config.h"
+#include "core/console/hook/CommandHookEntry.h"
+#include "core/config/Config.h"
 
 
 namespace glimmer {

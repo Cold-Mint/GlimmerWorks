@@ -24,40 +24,28 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
+#include "core/inventory/SelectedItemRuntimeData.h"
 
-#include "mod/ResourceRef.h"
-#include "world/BreakSource.h"
+void glimmer::SelectedItemRuntimeData::SetItem(Item *item) {
+    item_ = item;
+}
 
-namespace glimmer {
-    class TilePlacementConfig {
-        uint8_t tileWidth_ = 1;
-        uint8_t tileHeight_ = 1;
-        ResourceRef resourceRef_;
-        bool isPlaceMode_ = false;
-        BreakSource breakSource_ = BreakSource::Unknown;
+glimmer::Item *glimmer::SelectedItemRuntimeData::GetItem() const {
+    return item_;
+}
 
-    public:
-        void SetTileWidth(uint8_t tileWidth);
+uint8_t glimmer::SelectedItemRuntimeData::GetSlotIndex() const {
+    return slotIndex_;
+}
 
-        void SetTileHeight(uint8_t tileHeight);
+uint8_t glimmer::SelectedItemRuntimeData::GetSelectedAmount() const {
+    return selectedAmount_;
+}
 
-        void SetPlaceMode(bool placeMode);
+void glimmer::SelectedItemRuntimeData::SetSelectedAmount(const uint8_t selectedAmount) {
+    selectedAmount_ = selectedAmount;
+}
 
-        void SetResourceRef(const ResourceRef &resourceRef);
-
-        void SetBreakSource(const BreakSource &breakSource);
-
-        void WriteResourceRefMessage(ResourceRefMessage &message) const;
-
-        [[nodiscard]] BreakSource GetBreakSource() const;
-
-        [[nodiscard]] const ResourceRef &GetResourceRef() const;
-
-        [[nodiscard]] bool IsPlaceMode() const;
-
-        [[nodiscard]] uint8_t GetTileWidth() const;
-
-        [[nodiscard]] uint8_t GetTileHeight() const;
-    };
+void glimmer::SelectedItemRuntimeData::SetSlotIndex(const uint8_t slotIndex) {
+    slotIndex_ = slotIndex;
 }

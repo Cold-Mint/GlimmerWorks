@@ -27,7 +27,7 @@
 #pragma once
 #include <SDL3/SDL_events.h>
 
-#include "core/Config.h"
+#include "core/config/Config.h"
 #include "core/context/RmlContext.h"
 #include "core/ecs/IDocumentRegistry.h"
 #include "core/gpu/RenderQueue.h"

@@ -27,14 +27,14 @@
 #include "RenderInterfaceSDL3.h"
 
 #include "core/log/LogCat.h"
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 #include "core/utils/StringUtils.h"
 
 
 glimmer::RenderInterfaceSDL3::RenderInterfaceSDL3(SDL_GPUDevice *device, SDL_Window *window,
                                                   ResourcePackManager *resourcePackManager,
                                                   ResourceLocator *resourceLocator) : RenderInterface_SDL_GPU(
-        device, window) {
+    device, window) {
     resourcePackManager_ = resourcePackManager;
     resourceLocator_ = resourceLocator;
 }

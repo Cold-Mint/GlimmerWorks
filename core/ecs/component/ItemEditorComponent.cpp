@@ -26,7 +26,7 @@
  */
 #include "ItemEditorComponent.h"
 
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 
 void glimmer::ItemEditorComponent::Reserve(const size_t size) {
     slotEntities.reserve(size);

@@ -28,7 +28,7 @@
 
 #include <utility>
 
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 #include "core/world/Tile.h"
 #include "core/math/Vector2DI.h"
 #include "core/world/generator/Chunk.h"

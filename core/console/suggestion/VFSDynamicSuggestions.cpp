@@ -26,7 +26,7 @@
  */
 #include "VFSDynamicSuggestions.h"
 
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 
 glimmer::VFSDynamicSuggestions::VFSDynamicSuggestions(VirtualFileSystem *virtualFileSystem) : virtualFileSystem_(
     virtualFileSystem) {

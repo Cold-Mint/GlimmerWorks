@@ -390,25 +390,25 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/monocypher-src/src/monocypher.c"
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Platform_SDL.cpp"
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL_GPU.cpp"
-        core/App.cpp
-        core/AppEventLoop.cpp
+        core/app/App.cpp
+        core/app/AppEventLoop.cpp
         core/mod/dataPack/BaseResManager.cpp
         core/mod/dataPack/AbilityItemManager.cpp
         core/mod/dataPack/MaterialItemManager.cpp
         core/mod/dataPack/ComposableItemManager.cpp
-        core/AppRenderer.cpp
-        core/BoolOrToggle.cpp
-        core/Box2dFilter.cpp
-        core/CommandHookEntry.cpp
-        core/CommandHookManager.cpp
-        core/Config.cpp
-        core/GameUIMessage.cpp
-        core/Hyperlink.cpp
-        core/IFingerprintable.cpp
-        core/SelectedItemRuntimeData.cpp
-        core/TagRuntimeData.cpp
-        core/TilePlacementConfig.cpp
-        core/TileStateBackup.cpp
+        core/app/AppRenderer.cpp
+        core/utils/BoolOrToggle.cpp
+        core/ecs/Box2dFilter.cpp
+        core/console/hook/CommandHookEntry.cpp
+        core/console/hook/CommandHookManager.cpp
+        core/config/Config.cpp
+        core/ui/GameUIMessage.cpp
+        core/ui/Hyperlink.cpp
+        core/utils/IFingerprintable.cpp
+        core/inventory/SelectedItemRuntimeData.cpp
+        core/inventory/TagRuntimeData.cpp
+        core/world/TilePlacementConfig.cpp
+        core/world/TileStateBackup.cpp
         core/console/Command.cpp
         core/console/CommandArgs.cpp
         core/console/CommandHistoryManager.cpp
@@ -762,28 +762,28 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/monocypher-src/src/monocypher.h"
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Platform_SDL.h"
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL_GPU.h"
-        core/App.h
+        core/app/App.h
         core/mod/dataPack/ComposableItemManager.h
         core/mod/dataPack/MaterialItemManager.h
         core/mod/dataPack/AbilityItemManager.h
         core/mod/dataPack/BaseResManager.h
-        core/AppEventLoop.h
-        core/AppRenderer.h
-        core/BoolOrToggle.h
-        core/Box2dFilter.h
-        core/CommandHookEntry.h
-        core/CommandHookManager.h
-        core/CommandHookScope.h
-        core/Config.h
-        core/Constants.h
-        core/GameUIMessage.h
-        core/Hyperlink.h
-        core/IFingerprintable.h
-        core/LangsResources.h
-        core/SelectedItemRuntimeData.h
-        core/TagRuntimeData.h
-        core/TilePlacementConfig.h
-        core/TileStateBackup.h
+        core/app/AppEventLoop.h
+        core/app/AppRenderer.h
+        core/utils/BoolOrToggle.h
+        core/ecs/Box2dFilter.h
+        core/console/hook/CommandHookEntry.h
+        core/console/hook/CommandHookManager.h
+        core/console/hook/CommandHookScope.h
+        core/config/Config.h
+        core/config/Constants.h
+        core/ui/GameUIMessage.h
+        core/ui/Hyperlink.h
+        core/utils/IFingerprintable.h
+        core/utils/LangsResources.h
+        core/inventory/SelectedItemRuntimeData.h
+        core/inventory/TagRuntimeData.h
+        core/world/TilePlacementConfig.h
+        core/world/TileStateBackup.h
         core/console/Command.h
         core/console/CommandArgs.h
         core/console/CommandEnvironment.h

@@ -31,7 +31,7 @@
 #include "core/scene/MainThreadDispatcher.h"
 #include "core/context/AppContext.h"
 #include "core/log/LogCat.h"
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 
 glimmer::PauseSystem::PauseSystem(WorldContext *worldContext) : GuiGameSystem(worldContext) {
     WatchComponent(COMPONENT_PAUSE);

@@ -24,44 +24,4 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
-#include <memory>
-#include <string>
-
-#include "math/Color.h"
-#include "mod/resourcePack/ResourcePackManager.h"
-#include "core/gpu/GpuTexture.h"
-#include "tweeny/tween.h"
-
-namespace glimmer {
-    class GameUIMessage : IFingerprintable {
-        std::string text_;
-        uint64_t createTime_;
-        uint64_t expireTime_;
-
-        float alpha_ = 0.0F;
-
-        tweeny::tween<float> tween_;
-        std::shared_ptr<GpuTexture> texture_;
-
-    public:
-        GameUIMessage(ResourcePackManager *resourcePackManager, std::string text, uint64_t now, const Color *color,
-                      float targetFps);
-
-        [[nodiscard]] uint64_t GetCreateTime() const;
-
-        void SetAlpha(float alpha);
-
-        [[nodiscard]] std::string GetText() const;
-
-        [[nodiscard]] float GetAlpha() const;
-
-        [[nodiscard]] GpuTexture *GetTexture() const;
-
-        [[nodiscard]] tweeny::tween<float> &GetTween();
-
-        [[nodiscard]] uint64_t GetExpireTime() const;
-
-        [[nodiscard]] uint64_t GetFingerprint() const override;
-    };
-}
+#include "core/utils/IFingerprintable.h"

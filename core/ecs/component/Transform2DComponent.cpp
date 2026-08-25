@@ -26,7 +26,7 @@
  */
 #include "Transform2DComponent.h"
 
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 #include "src/saves/transform2d.pb.h"
 #include "core/math/WorldVector2D.h"
 

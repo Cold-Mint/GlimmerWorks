@@ -29,7 +29,7 @@
 
 #include "core/ecs/GameComponent.h"
 #include "core/ecs/GameEntity.h"
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 #include "core/ecs/EcsTypes.h"
 
 namespace glimmer {

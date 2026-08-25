@@ -30,7 +30,7 @@
 #include "CommandResult.h"
 #include "core/console/CommandRequest.h"
 #include "core/context/AppContext.h"
-#include "core/LangsResources.h"
+#include "core/utils/LangsResources.h"
 #include "core/log/LogCat.h"
 
 

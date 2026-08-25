@@ -301,15 +301,19 @@ void glimmer::BlueprintSystem::RenderBlueprintMask(RenderQueue *queue, const std
             if (!tileBlueprintData->DrawValidBlueprintColor()) {
                 continue;
             }
-            maskColor = {preloadColors_->blueprint.validColor.r,
-                         preloadColors_->blueprint.validColor.g,
-                         preloadColors_->blueprint.validColor.b,
-                         preloadColors_->blueprint.validColor.a};
+            maskColor = {
+                preloadColors_->blueprint.validColor.r,
+                preloadColors_->blueprint.validColor.g,
+                preloadColors_->blueprint.validColor.b,
+                preloadColors_->blueprint.validColor.a
+            };
         } else {
-            maskColor = {preloadColors_->blueprint.invalidColor.r,
-                         preloadColors_->blueprint.invalidColor.g,
-                         preloadColors_->blueprint.invalidColor.b,
-                         preloadColors_->blueprint.invalidColor.a};
+            maskColor = {
+                preloadColors_->blueprint.invalidColor.r,
+                preloadColors_->blueprint.invalidColor.g,
+                preloadColors_->blueprint.invalidColor.b,
+                preloadColors_->blueprint.invalidColor.a
+            };
         }
         queue->FillRect(RenderLayer::Effect, 0.0F, &indicatorRenderQuad, maskColor);
     }
@@ -345,10 +349,12 @@ void glimmer::BlueprintSystem::Render(RenderQueue *queue) {
     blueprintComponent_->SetTopLeftVector(topLeftVector);
     SDL_FRect renderQuad = CalculateRenderQuad(focusPosition, topLeftVector, tileWidth, tileHeight);
 
-    const SDL_Color focusTileBorderColor = {preloadColors_->game.focusTileBorderColor.r,
-                                            preloadColors_->game.focusTileBorderColor.g,
-                                            preloadColors_->game.focusTileBorderColor.b,
-                                            preloadColors_->game.focusTileBorderColor.a};
+    const SDL_Color focusTileBorderColor = {
+        preloadColors_->game.focusTileBorderColor.r,
+        preloadColors_->game.focusTileBorderColor.g,
+        preloadColors_->game.focusTileBorderColor.b,
+        preloadColors_->game.focusTileBorderColor.a
+    };
     queue->DrawRect(RenderLayer::Effect, 0.0F, &renderQuad, focusTileBorderColor);
     if (heldTile_ == nullptr) {
         blueprintComponent_->SetCanPlace(false);

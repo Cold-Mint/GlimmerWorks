@@ -28,7 +28,7 @@
 
 #include <utility>
 
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 #include "core/ecs/EntityManager.h"
 #include "core/ecs/EntityShortCut.h"
 #include "core/ecs/component/Transform2DComponent.h"

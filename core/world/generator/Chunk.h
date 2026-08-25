@@ -31,7 +31,7 @@
 #include "src/saves/chunk.pb.h"
 #include "box2d/id.h"
 #include "core/ecs/component/TileLayerComponent.h"
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 #include "core/math/WorldVector2D.h"
 #include "core/world/Tile.h"
 

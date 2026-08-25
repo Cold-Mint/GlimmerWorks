@@ -31,7 +31,7 @@
 #include "CreateWorldScene.h"
 #include "SavedGamesScene.h"
 #include "fmt/xchar.h"
-#include "core/Config.h"
+#include "core/config/Config.h"
 
 #include <SDL3/SDL.h>
 

@@ -26,7 +26,7 @@
  */
 #include "TpCommand.h"
 
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 #include "core/ecs/component/RigidBody2DComponent.h"
 #include "core/utils/Box2DUtils.h"
 #include "core/world/WorldContext.h"

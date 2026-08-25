@@ -26,8 +26,8 @@
  */
 #include "Light2DSystem.h"
 
-#include "core/Config.h"
-#include "core/Constants.h"
+#include "core/config/Config.h"
+#include "core/config/Constants.h"
 #include "core/context/AppContext.h"
 #include "core/context/WindowContext.h"
 #include "core/gpu/GpuRenderer.h"

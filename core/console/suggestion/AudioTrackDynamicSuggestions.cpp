@@ -29,7 +29,7 @@
 #include <algorithm>
 #include <ranges>
 
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 
 glimmer::AudioTrackDynamicSuggestions::AudioTrackDynamicSuggestions() {
     suggestions_.emplace_back(AUDIO_TRACK_BGM);

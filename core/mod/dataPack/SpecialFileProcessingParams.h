@@ -27,7 +27,7 @@
 #pragma once
 #include <filesystem>
 
-#include "core/Config.h"
+#include "core/config/Config.h"
 
 namespace glimmer {
     struct SpecialFileProcessingParams {

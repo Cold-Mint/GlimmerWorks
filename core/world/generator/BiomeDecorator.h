@@ -28,7 +28,7 @@
 
 #include "Chunk.h"
 #include "TerrainResult.h"
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 #include "core/mod/Resource.h"
 #include "core/mod/ResourceRef.h"
 

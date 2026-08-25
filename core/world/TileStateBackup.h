@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,8 +24,40 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "Box2dFilter.h"
+#pragma once
+#include "core/math/Vector2DI.h"
+#include "core/mod/ResourceRef.h"
 
-b2QueryFilter glimmer::Box2dFilter::Tob2QueryFilter() const {
-    return {categoryBits, maskBits};
+namespace glimmer {
+    class TileStateBackup {
+        ResourceRef resourceRef_;
+        uint8_t width_ = 1;
+        uint8_t height_ = 1;
+        Vector2DI offset_;
+
+    public:
+        void SetResourceRef(const ResourceRef &resourceRef);
+
+        void SetWidth(uint8_t width);
+
+        void SetHeight(uint8_t height);
+
+        void SetOffset(const Vector2DI &offset);
+
+        [[nodiscard]] const ResourceRef &GetResourceRef() const;
+
+        void ReadOffsetMessage(const Vector2DIMessage &message);
+
+        void WriteOffsetMessage(Vector2DIMessage &message) const;
+
+        void ReadResourceRefMessage(const ResourceRefMessage &message);
+
+        void WriteResourceRefMessage(ResourceRefMessage message) const;
+
+        [[nodiscard]] Vector2DI GetOffset() const;
+
+        [[nodiscard]] uint8_t GetHeight() const;
+
+        [[nodiscard]] uint8_t GetWidth() const;
+    };
 }

@@ -26,7 +26,7 @@
  */
 #include "SystemInterfaceSDL3.h"
 
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 #include "core/log/LogCat.h"
 #include "toml11/find.hpp"
 

@@ -26,7 +26,7 @@
  */
 #include "EchoCommand.h"
 
-#include "core/LangsResources.h"
+#include "core/utils/LangsResources.h"
 #include "fmt/xchar.h"
 #include "core/context/AppContext.h"
 

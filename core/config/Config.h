@@ -28,7 +28,7 @@
 #include <string>
 #include <vector>
 
-#include "mod/resourcePack/AudioType.h"
+#include "core/mod/resourcePack/AudioType.h"
 #include "toml11/types.hpp"
 
 

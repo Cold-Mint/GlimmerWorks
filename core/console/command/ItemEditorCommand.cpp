@@ -26,7 +26,7 @@
  */
 #include "ItemEditorCommand.h"
 
-#include "core/LangsResources.h"
+#include "core/utils/LangsResources.h"
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/inventory/ComposableItem.h"
 #include "core/inventory/Item.h"

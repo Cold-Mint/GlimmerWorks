@@ -28,7 +28,7 @@
 
 #include "toml11/find.hpp"
 
-#include "core/Box2dFilter.h"
+#include "core/ecs/Box2dFilter.h"
 #include "core/contributor/Contributor.h"
 #include "core/lootTable/LootEntry.h"
 #include "core/mod/PackManifest.h"

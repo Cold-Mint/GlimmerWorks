@@ -26,7 +26,7 @@
  */
 #if  !defined(NDEBUG)
 #include "BiomeScoreCommand.h"
-#include "core/LangsResources.h"
+#include "core/utils/LangsResources.h"
 #include "core/math/CoordinateTransformer.h"
 #include "fmt/xchar.h"
 #include "core/context/AppContext.h"

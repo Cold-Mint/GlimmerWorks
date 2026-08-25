@@ -26,7 +26,7 @@
  */
 #include "DataPackDynamicSuggestions.h"
 
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 
 glimmer::DataPackDynamicSuggestions::DataPackDynamicSuggestions(DataPackManager *dataPackManager) : dataPackManager_(
     dataPackManager) {

@@ -26,7 +26,7 @@
  */
 #include "StringManager.h"
 
-#include "core/LangsResources.h"
+#include "core/utils/LangsResources.h"
 
 
 glimmer::StringManager::StringManager() {

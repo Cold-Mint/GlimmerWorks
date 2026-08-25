@@ -31,7 +31,7 @@
 
 #include "MainScene.h"
 #include "WorldScene.h"
-#include "core/Config.h"
+#include "core/config/Config.h"
 #include "core/log/LogCat.h"
 #include "core/saves/Saves.h"
 #include "core/saves/SavesManager.h"

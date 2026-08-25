@@ -31,7 +31,7 @@
 #include <optional>
 
 #include "core/mod/ResourceRef.h"
-#include "core/BoolOrToggle.h"
+#include "core/utils/BoolOrToggle.h"
 
 namespace glimmer {
     class CommandArgs {

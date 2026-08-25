@@ -31,7 +31,7 @@
 #include "blake3.h"
 #include "monocypher-ed25519.h"
 #include "SpecialFileProcessingParams.h"
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 
 #include "StringManager.h"
 #include "TileResourceManager.h"

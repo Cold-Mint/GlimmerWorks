@@ -25,55 +25,43 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <SDL3/SDL.h>
+#include <memory>
+#include <string>
 
-#include "context/AppContext.h"
-
+#include "core/math/Color.h"
+#include "core/mod/resourcePack/ResourcePackManager.h"
+#include "core/gpu/GpuTexture.h"
+#include "tweeny/tween.h"
 
 namespace glimmer {
-    class App {
-        bool initSDLSuccess_ = false;
-        bool initSDLMixSuccess_ = false;
-        bool initSDLTtfSuccess_ = false;
-        uint64_t lastTime_ = 0;
-        std::unique_ptr<GpuContext> gpuContext_ = nullptr;
-        std::unique_ptr<GpuRenderer> gpuRenderer_ = nullptr;
-        AppContext *appContext_ = nullptr;
-        SDL_Window *window = nullptr;
-        MIX_Mixer *mixer_ = nullptr;
-        std::string fontData_;
+    class GameUIMessage : IFingerprintable {
+        std::string text_;
+        uint64_t createTime_;
+        uint64_t expireTime_;
 
+        float alpha_ = 0.0F;
 
-        bool InitSDL();
-
-        bool InitWindowAndRenderer();
-
-        [[nodiscard]] bool InitFont() const;
-
-        bool InitAudio();
-
-        static bool CheckWindowSizeChange(WindowContext *windowContext, const int &windowWidth,
-                                          const int &windowHeight);
-
-        void HandleWindowSizeChange(const int &windowWidth, const int &windowHeight) const;
-
-        [[nodiscard]] float CalculateTargetFrameTime(uint64_t frameStart, uint64_t lastInputTime) const;
-
-        bool CheckConfigChange(uint64_t &configFingerprint) const;
-
-        void NotifyFrameStart() const;
-
-        void UpdateScenes(float deltaTime) const;
-
-        void InitScenesAndConsole() const;
+        tweeny::tween<float> tween_;
+        std::shared_ptr<GpuTexture> texture_;
 
     public:
-        ~App();
+        GameUIMessage(ResourcePackManager *resourcePackManager, std::string text, uint64_t now, const Color *color,
+                      float targetFps);
 
-        explicit App(AppContext *appContext);
+        [[nodiscard]] uint64_t GetCreateTime() const;
 
-        bool Init();
+        void SetAlpha(float alpha);
 
-        void Run() const;
+        [[nodiscard]] std::string GetText() const;
+
+        [[nodiscard]] float GetAlpha() const;
+
+        [[nodiscard]] GpuTexture *GetTexture() const;
+
+        [[nodiscard]] tweeny::tween<float> &GetTween();
+
+        [[nodiscard]] uint64_t GetExpireTime() const;
+
+        [[nodiscard]] uint64_t GetFingerprint() const override;
     };
 }

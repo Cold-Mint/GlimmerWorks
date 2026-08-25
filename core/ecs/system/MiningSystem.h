@@ -28,8 +28,8 @@
 #include <memory>
 #include <vector>
 
-#include "core/TilePlacementConfig.h"
-#include "core/TileStateBackup.h"
+#include "core/world/TilePlacementConfig.h"
+#include "core/world/TileStateBackup.h"
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/TileBreakParams.h"
 #include "core/ecs/component/TileLayerComponent.h"

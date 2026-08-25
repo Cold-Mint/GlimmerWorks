@@ -26,7 +26,7 @@
  */
 #include <fstream>
 
-#include "core/App.h"
+#include "core/app/App.h"
 #include "core/log/LogCat.h"
 #include "core/context/AppContext.h"
 #include "fmt/args.h"

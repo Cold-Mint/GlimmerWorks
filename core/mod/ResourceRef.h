@@ -28,8 +28,8 @@
 //@genCode
 #include <string>
 
-#include "core/Constants.h"
-#include "core/IFingerprintable.h"
+#include "core/config/Constants.h"
+#include "core/utils/IFingerprintable.h"
 #include "src/core/resource_ref.pb.h"
 
 namespace glimmer {

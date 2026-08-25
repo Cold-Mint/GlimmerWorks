@@ -26,7 +26,7 @@
  */
 #include "BooleanToggleDynamicSuggestions.h"
 
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 
 glimmer::BooleanToggleDynamicSuggestions::BooleanToggleDynamicSuggestions() {
     suggestions_.emplace_back("true");

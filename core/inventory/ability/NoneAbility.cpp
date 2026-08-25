@@ -26,7 +26,7 @@
  */
 #include "NoneAbility.h"
 
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 
 glimmer::NoneAbility::NoneAbility(const AbilityConfig &abilityConfigMessage)
     : ItemAbility(abilityConfigMessage) {

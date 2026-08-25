@@ -29,7 +29,7 @@
 #include <cstdint>
 #include <string>
 
-#include "core/LangsResources.h"
+#include "core/utils/LangsResources.h"
 
 namespace glimmer {
     class TimeUtils {

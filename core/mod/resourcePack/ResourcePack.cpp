@@ -26,7 +26,7 @@
  */
 #include "ResourcePack.h"
 
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 #include "core/utils/StringUtils.h"
 #include "core/utils/TomlUtils.h"
 #include "toml11/parser.hpp"

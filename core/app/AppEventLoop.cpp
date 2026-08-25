@@ -24,11 +24,11 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "AppEventLoop.h"
-#include "scene/SceneManager.h"
-#include "console/ConsoleWorker.h"
-#include "console/CommandManager.h"
-#include "CommandHookManager.h"
+#include "core/app/AppEventLoop.h"
+#include "core/scene/SceneManager.h"
+#include "core/console/ConsoleWorker.h"
+#include "core/console/CommandManager.h"
+#include "core/console/hook/CommandHookManager.h"
 #include <ranges>
 #include "core/log/LogCat.h"
 

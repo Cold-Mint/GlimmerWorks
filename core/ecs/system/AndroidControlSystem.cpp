@@ -33,9 +33,9 @@
 #include "AndroidControlSystem.h"
 #include "core/context/AppContext.h"
 #include "core/world/WorldContext.h"
-#include "core/Config.h"
+#include "core/config/Config.h"
 #include "core/log/LogCat.h"
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
 
@@ -198,11 +198,11 @@ namespace glimmer {
                            jumpActive && jumpPressedTexture ? jumpPressedTexture.get() : jumpTexture.get(),
                            nullptr, &jumpRect);
 #if  !defined(NDEBUG)
-        const SDL_Color debugBorderColor = {255, 0, 0, 255};
-        queue->DrawRect(RenderLayer::Overlay, 0.0F, &leftRect, debugBorderColor);
-        queue->DrawRect(RenderLayer::Overlay, 0.0F, &rightRect, debugBorderColor);
-        queue->DrawRect(RenderLayer::Overlay, 0.0F, &jumpRect, debugBorderColor);
+const SDL_Color debugBorderColor = {255, 0, 0, 255};
+queue->DrawRect(RenderLayer::Overlay, 0.0F, &leftRect, debugBorderColor);
+queue->DrawRect(RenderLayer::Overlay, 0.0F, &rightRect, debugBorderColor);
+queue->DrawRect(RenderLayer::Overlay, 0.0F, &jumpRect, debugBorderColor);
 #endif
-    }
+}
 }
 #endif

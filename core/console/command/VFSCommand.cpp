@@ -27,7 +27,7 @@
 #if  !defined(NDEBUG)
 #include "VFSCommand.h"
 
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 #include "core/context/AppContext.h"
 #include "fmt/color.h"
 

@@ -26,7 +26,7 @@
  */
 #include "CoordinateTransformer.h"
 
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 
 namespace glimmer {
     SDL_FRect CoordinateTransformer::GetViewportRect(const WorldVector2D &cameraPosition,

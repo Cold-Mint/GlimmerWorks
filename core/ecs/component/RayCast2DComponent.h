@@ -26,8 +26,8 @@
  */
 #pragma once
 #include "box2d/id.h"
-#include "core/Box2dFilter.h"
-#include "core/Constants.h"
+#include "core/ecs/Box2dFilter.h"
+#include "core/config/Constants.h"
 #include "core/ecs/GameComponent.h"
 #include "core/math/WorldVector2D.h"
 

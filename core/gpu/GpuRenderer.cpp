@@ -30,7 +30,7 @@
 
 #include "GpuShaderCompiler.h"
 #include "RenderQueue.h"
-#include "core/Constants.h"
+#include "core/config/Constants.h"
 #include "core/log/LogCat.h"
 #include "core/mod/resourcePack/ResourcePackManager.h"
 

@@ -115,13 +115,13 @@ bool glimmer::App::InitWindowAndRenderer() {
         return false;
     }
     GpuShaderCompiler::Init();
-    spriteRenderer_ = std::make_unique<SpriteRenderer>();
-    if (!spriteRenderer_->Init(gpuContext_.get(), resourcePackManager, config->mods)) {
-        LogCat::e(std::source_location::current(), "SpriteRenderer init failed");
+    gpuRenderer_ = std::make_unique<GpuRenderer>();
+    if (!gpuRenderer_->Init(gpuContext_.get(), resourcePackManager, config->mods)) {
+        LogCat::e(std::source_location::current(), "GpuRenderer init failed");
         return false;
     }
-    windowContext->SetRenderer(spriteRenderer_.get());
-    LogCat::i("SpriteRenderer created successfully");
+    windowContext->SetRenderer(gpuRenderer_.get());
+    LogCat::i("GpuRenderer created successfully");
     RmlContext *rmlContext = appContext_->GetRmlContext();
     if (rmlContext == nullptr) {
         LogCat::e(std::source_location::current(), "RmlContext is nullptr");
@@ -263,7 +263,6 @@ bool glimmer::App::InitAudio() {
     audioManager->SetMasterVolume(config->audio.masterVolume);
     LogCat::i("Master volume set to: ", config->audio.masterVolume);
 
-    AppContext::RestoreColorRenderer(spriteRenderer_.get());
     LogCat::i("InitAudio completed successfully");
     return true;
 }
@@ -284,7 +283,7 @@ bool glimmer::App::CheckWindowSizeChange(WindowContext *windowContext, const int
 }
 
 glimmer::App::~App() {
-    spriteRenderer_.reset();
+    gpuRenderer_.reset();
     gpuContext_.reset();
     GpuShaderCompiler::Shutdown();
     if (initSDLMixSuccess_) {
@@ -333,7 +332,7 @@ void glimmer::App::Run() const {
 
     LogCat::i("Creating event loop and renderer");
     AppEventLoop eventLoop(appContext_, lastInputTime);
-    AppRenderer renderer(appContext_, spriteRenderer_.get());
+    AppRenderer renderer(appContext_, gpuRenderer_.get());
 
     WindowContext *windowContext = appContext_->GetWindowContext();
     if (windowContext == nullptr) {

@@ -40,7 +40,7 @@ namespace glimmer {
 #endif
         bool ShouldDrawTile(const Color *finalLightColor) const;
 
-        void RenderTileSnapshot(SpriteRenderer *renderer, const TileSnapshot *tileSnapshot,
+        void RenderTileSnapshot(RenderQueue *queue, const TileSnapshot *tileSnapshot,
                                 const TileVector2D &tileCoord, Uint8 alpha,
                                 const Color *finalLightColor,
                                 std::unordered_set<uint64_t> &drawnTiles) const;
@@ -50,7 +50,7 @@ namespace glimmer {
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
-        void Render(SpriteRenderer *renderer) override;
+        void Render(RenderQueue *queue) override;
 
         uint8_t GetExecutionOrder() override;
 

@@ -27,16 +27,15 @@
 #include "AppRenderer.h"
 #include "scene/SceneManager.h"
 #include "GameUIMessage.h"
-#include <cassert>
 
 
-glimmer::AppRenderer::AppRenderer(AppContext *appContext, SpriteRenderer *renderer) : appContext_(appContext),
+glimmer::AppRenderer::AppRenderer(AppContext *appContext, GpuRenderer *renderer) : appContext_(appContext),
     renderer_(renderer) {
 }
 
 void glimmer::AppRenderer::RenderFrame(const RmlContext *rmlContext, const int windowWidth, const int windowHeight,
                                        const uint64_t frameStart,
-                                       const float deltaTime) const {
+                                       const float deltaTime) {
     if (windowWidth <= 0 || windowHeight <= 0 || renderer_ == nullptr) {
         return;
     }
@@ -45,13 +44,16 @@ void glimmer::AppRenderer::RenderFrame(const RmlContext *rmlContext, const int w
         return;
     }
     renderer_->BeginFrame(windowContext->GetWindow());
-#if  defined(NDEBUG)
-    RenderRelease();
-#else
-    RenderDebug();
-#endif
+    //Collect this frame's render commands, then flush them in one sorted
+    //batch: scene systems, overlay scenes and UI messages all submit into
+    //the shared layered queue.
+    //收集本帧的渲染命令，然后以一个排好序的批次冲刷：场景系统、覆盖场景
+    //和 UI 消息都提交到共享的分层队列中。
+    renderQueue_.Clear();
+    RenderScenes();
+    RenderOverlays();
     RenderUiMessage(windowHeight, frameStart);
-    renderer_->EndFrame();
+    renderer_->FlushQueue(renderQueue_);
     GpuTexture *uiTarget = renderer_->GetUiTargetTexture();
     rmlContext->RenderContext(renderer_->GetCommandBuffer(),
                               uiTarget != nullptr ? uiTarget->GetGpuTexture() : nullptr,
@@ -62,7 +64,7 @@ void glimmer::AppRenderer::RenderFrame(const RmlContext *rmlContext, const int w
     }
 }
 
-void glimmer::AppRenderer::RenderUiMessage(int windowHeight, uint64_t frameStart) const {
+void glimmer::AppRenderer::RenderUiMessage(int windowHeight, uint64_t frameStart) {
     auto &uiMessages = appContext_->GetGameUIMessages();
     if (uiMessages.empty()) {
         return;
@@ -109,50 +111,22 @@ void glimmer::AppRenderer::RenderUiMessage(int windowHeight, uint64_t frameStart
             static_cast<float>(texture->h)
         };
         const auto alpha = static_cast<Uint8>(msg.GetAlpha() * 255);
-        renderer_->DrawTexture(texture, nullptr, &dst, {255, 255, 255, alpha});
+        renderQueue_.DrawTexture(RenderLayer::Overlay, 0.0F, texture, nullptr, &dst, {255, 255, 255, alpha});
         startY += static_cast<float>(texture->h) + spacing;
     }
 }
 
-void glimmer::AppRenderer::RenderScenes() const {
+void glimmer::AppRenderer::RenderScenes() {
     auto sceneManager = appContext_->GetSceneManager();
     if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
-        topScene->Render(renderer_);
+        topScene->Render(&renderQueue_);
     }
 }
 
-void glimmer::AppRenderer::RenderOverlays() const {
+void glimmer::AppRenderer::RenderOverlays() {
     auto sceneManager = appContext_->GetSceneManager();
     const auto &overlayScenes = sceneManager->GetOverlayScenes();
     for (const auto overlay: overlayScenes) {
-        overlay->Render(renderer_);
-    }
-}
-
-void glimmer::AppRenderer::RenderRelease() const {
-    RenderScenes();
-    RenderOverlays();
-}
-
-void glimmer::AppRenderer::RenderDebug() const {
-    const SDL_Color oldColor = renderer_->GetDrawColor();
-
-    RenderScenes();
-
-    const SDL_Color newColor = renderer_->GetDrawColor();
-    if (oldColor.a != newColor.a || oldColor.r != newColor.r ||
-        oldColor.g != newColor.g || oldColor.b != newColor.b) {
-        assert(false);
-    }
-    auto sceneManager = appContext_->GetSceneManager();
-    const auto &overlayScenes = sceneManager->GetOverlayScenes();
-    for (const auto overlay: overlayScenes) {
-        const SDL_Color overlayOldColor = renderer_->GetDrawColor();
-        overlay->Render(renderer_);
-        const SDL_Color overlayColor = renderer_->GetDrawColor();
-        if (overlayOldColor.a != overlayColor.a || overlayOldColor.r != overlayColor.r ||
-            overlayOldColor.g != overlayColor.g || overlayOldColor.b != overlayColor.b) {
-            assert(false);
-        }
+        overlay->Render(&renderQueue_);
     }
 }

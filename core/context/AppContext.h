@@ -100,8 +100,6 @@ namespace glimmer {
 
         void SetRandomSlogan() const;
 
-        static void RestoreColorRenderer(SpriteRenderer *renderer);
-
         [[nodiscard]] ModContext *GetModContext() const;
 
         [[nodiscard]] ConsoleContext *GetConsoleContext() const;
@@ -150,10 +148,10 @@ namespace glimmer {
          * 所有渲染（包括 RmlUi）完成之后、帧提交之前调用；返回 true 表示
          * 帧已被提交，调用方不得再次提交。
          * @param gpuContext gpuContext GPU 上下文
-         * @param renderer renderer 精灵渲染器
+         * @param renderer renderer GPU 渲染器
          * @return true if a screenshot was captured (and the frame submitted).
          * 捕获了截图（并提交了帧）时返回 true。
          */
-        bool ProcessPendingScreenshot(GpuContext *gpuContext, SpriteRenderer *renderer);
+        bool ProcessPendingScreenshot(GpuContext *gpuContext, GpuRenderer *renderer);
     };
 }

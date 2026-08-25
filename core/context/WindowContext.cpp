@@ -36,7 +36,7 @@ void glimmer::WindowContext::SetGpuContext(GpuContext *gpuContext) {
     gpuContext_ = gpuContext;
 }
 
-void glimmer::WindowContext::SetRenderer(SpriteRenderer *renderer) {
+void glimmer::WindowContext::SetRenderer(GpuRenderer *renderer) {
     renderer_ = renderer;
 }
 
@@ -60,7 +60,7 @@ glimmer::GpuContext *glimmer::WindowContext::GetGpuContext() const {
     return gpuContext_;
 }
 
-glimmer::SpriteRenderer *glimmer::WindowContext::GetRenderer() const {
+glimmer::GpuRenderer *glimmer::WindowContext::GetRenderer() const {
     return renderer_;
 }
 

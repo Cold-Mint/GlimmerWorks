@@ -60,7 +60,7 @@ namespace glimmer {
 
         void Update(float delta) override;
 
-        void Render(SpriteRenderer *renderer) override;
+        void Render(RenderQueue *queue) override;
 
         uint8_t GetRenderOrder() override;
 

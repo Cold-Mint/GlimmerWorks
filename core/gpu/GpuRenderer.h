@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+ * Copyright (C) 2025-2026  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
- * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
+ * 版权(C) 2025-2026  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
  * 该许可证的第3版，或者（由你选择）任何后续版本。
@@ -27,42 +27,39 @@
 #pragma once
 
 #include <memory>
-#include <vector>
 
 #include "GpuContext.h"
 #include "GpuTexture.h"
+#include "RenderCommand.h"
 #include "SDL3/SDL_pixels.h"
-#include "SDL3/SDL_rect.h"
 
 namespace glimmer {
+    class RenderQueue;
     class ResourcePackManager;
     struct Mods;
 
     /**
-     * Flip flags for DrawTextureRotated (replaces SDL_FlipMode).
-     * DrawTextureRotated 使用的翻转标志（替代 SDL_FlipMode）。
-     */
-    enum FlipFlags : Uint8 {
-        FLIP_NONE = 0,
-        FLIP_HORIZONTAL = 1,
-        FLIP_VERTICAL = 2
-    };
-
-    /**
-     * SpriteRenderer
-     * 精灵（纹理）绘制工具
+     * GpuRenderer
+     * GPU 渲染器
      *
-     * Immediate-mode style 2D texture renderer built on SDL_GPU. It batches
-     * quads grouped by texture into a single dynamic vertex buffer and draws
-     * them with the sprite pipeline.
-     * 基于 SDL_GPU 的立即模式风格 2D 纹理渲染器。它将按纹理分组的四边形
-     * 批处理进单个动态顶点缓冲，并使用精灵管线绘制。
+     * Frame-level renderer built on SDL_GPU. It owns the graphics pipelines,
+     * the dynamic vertex buffer and the offscreen layer textures, and draws
+     * the contents of a RenderQueue (see FlushQueue). It replaces the old
+     * immediate-mode SpriteRenderer: instead of accumulating vertices on
+     * every draw call, game systems record RenderCommands into a RenderQueue
+     * and the renderer consumes the whole sorted queue once per frame.
+     * 基于 SDL_GPU 的帧级渲染器。它持有图形管线、动态顶点缓冲和离屏层纹理，
+     * 并绘制 RenderQueue 的内容（见 FlushQueue）。它替代了旧的立即模式
+     * SpriteRenderer：游戏系统不再在每次绘制调用时累积顶点，而是把
+     * RenderCommand 记录进 RenderQueue，由渲染器每帧一次性消费整个
+     * 排好序的队列。
      *
      * Layered rendering (shaders are loaded from the enabled resource packs,
      * directory shaders/@core/):
      * 分层渲染（着色器从已启用的材质包加载，目录为 shaders/@core/）：
-     *   1. All sprite/geometry draws go into the offscreen game layer.
-     *      所有精灵/几何绘制进入离屏 game 层。
+     *   1. All queued commands are drawn into the offscreen game layer,
+     *      layer by layer (see RenderLayer).
+     *      队列中的所有命令逐层（见 RenderLayer）绘制进离屏 game 层。
      *   2. RmlUi draws into the offscreen ui layer (see GetUiTargetTexture).
      *      RmlUi 绘制到离屏 ui 层（见 GetUiTargetTexture）。
      *   3. CompositeToSwapchain() applies the "game" shader to the game layer
@@ -72,34 +69,19 @@ namespace glimmer {
      *      CompositeToSwapchain() 对 game 层应用 "game" 着色器、对 ui 层应用
      *      "ui" 着色器，二者混合进合成层，再对其应用 "global" 着色器输出到交换链。
      *
-     * Coordinate system: pixel coordinates with a top-left origin (+Y down).
-     * 坐标系：左上角原点、+Y 向下的像素坐标。
-     *
      * Typical frame flow (driven by AppRenderer):
      * 典型帧流程（由 AppRenderer 驱动）：
      *   BeginFrame(window)          -> acquire swapchain, clear game/ui layers
-     *   DrawTexture/FillRect/...    -> accumulate batches (draw color applies)
-     *   EndFrame()                  -> upload batches, draw into game layer
+     *   (systems submit commands into the RenderQueue)
+     *   （各系统向 RenderQueue 提交命令）
+     *   FlushQueue(queue)           -> sort, upload and draw into the game layer
+     *   （排序、上传并绘制进 game 层）
      *   (RmlUi renders into the ui layer on the same command buffer)
+     *   （RmlUi 在同一命令缓冲上渲染进 ui 层）
      *   CompositeToSwapchain()      -> game/ui/global shader passes
      *   SubmitFrame()               -> submit the command buffer
      */
-    class SpriteRenderer {
-        /**
-         * Single vertex of a sprite quad: position (pixels), uv, color.
-         * 精灵四边形的单个顶点：位置（像素）、uv、颜色。
-         */
-        struct SpriteVertex {
-            float x = 0.0F;
-            float y = 0.0F;
-            float u = 0.0F;
-            float v = 0.0F;
-            Uint8 r = 255;
-            Uint8 g = 255;
-            Uint8 b = 255;
-            Uint8 a = 255;
-        };
-
+    class GpuRenderer {
         /**
          * A contiguous run of vertices sharing the same texture.
          * 共享同一纹理的一段连续顶点。
@@ -136,10 +118,11 @@ namespace glimmer {
         SDL_GPUTexture *currentTarget_ = nullptr;
         bool frameActive_ = false;
 
-        std::vector<SpriteVertex> vertices_;
-        std::vector<DrawRun> runs_;
-        SDL_GPUTexture *currentTexture_ = nullptr;
-        SDL_Color drawColor_ = {0, 0, 0, 255};
+        /**
+         * Clear color of the game layer (the world background).
+         * game 层的清屏颜色（世界背景色）。
+         */
+        SDL_Color clearColor_ = {0, 0, 0, 255};
 
         /**
          * Create a sprite-style graphics pipeline (shared vertex input layout).
@@ -164,7 +147,7 @@ namespace glimmer {
         /**
          * Begin a render pass on the current target if none is active.
          * 若没有活动通道，则在当前目标上开始一个渲染通道。
-         * @param clear clear 为 true 时用当前 drawColor 清屏，否则保留已有内容
+         * @param clear clear 为 true 时用当前 clearColor 清屏，否则保留已有内容
          */
         void EnsureRenderPass(bool clear);
 
@@ -183,25 +166,14 @@ namespace glimmer {
          */
         void DrawLayerQuad(SDL_GPUGraphicsPipeline *pipeline, const GpuTexture *source);
 
-        /**
-         * Append a textured quad (6 vertices) to the current batch.
-         * 向当前批次追加一个带纹理的四边形（6 个顶点）。
-         * @param texture texture 采样纹理（nullptr 时使用内置白色纹理）
-         * @param positions positions 4 个角点（左上、右上、左下、右下，像素坐标）
-         * @param uvs uvs 4 个角点对应的纹理坐标
-         * @param color color 顶点颜色（调色/透明度调制）
-         */
-        void AppendQuad(SDL_GPUTexture *texture, const SDL_FPoint positions[4], const SDL_FPoint uvs[4],
-                        const SDL_Color &color);
-
     public:
-        SpriteRenderer() = default;
+        GpuRenderer() = default;
 
-        ~SpriteRenderer();
+        ~GpuRenderer();
 
-        SpriteRenderer(const SpriteRenderer &) = delete;
+        GpuRenderer(const GpuRenderer &) = delete;
 
-        SpriteRenderer &operator=(const SpriteRenderer &) = delete;
+        GpuRenderer &operator=(const GpuRenderer &) = delete;
 
         /**
          * Compile the shaders (loaded from the enabled resource packs, with
@@ -226,25 +198,27 @@ namespace glimmer {
         /**
          * Begin a new frame: acquire a command buffer and the swapchain
          * texture, (re)create the layer textures if needed, clear the ui layer
-         * and begin the game layer pass with the current draw color.
+         * and begin the game layer pass with the clear color.
          * 开始新帧：获取命令缓冲和交换链纹理，必要时重建层纹理，
-         * 清除 ui 层并用当前 drawColor 开始 game 层通道。
+         * 清除 ui 层并用清屏颜色开始 game 层通道。
          * @param window window 目标窗口
          * @return true if a swapchain texture was acquired and drawing is
-         * possible, false if the window is minimized/unavailable (drawing
-         * calls become no-ops but the other frame functions must still be
-         * called).
+         * possible, false if the window is minimized/unavailable (frame
+         * functions become no-ops but must still be called).
          * 成功获取交换链纹理返回 true；窗口最小化等情况返回 false
-         * （此时绘制调用为空操作，但仍必须调用其他帧函数）。
+         * （此时帧函数为空操作，但仍必须被调用）。
          */
         bool BeginFrame(SDL_Window *window);
 
         /**
-         * Upload all pending batches, draw them into the game layer and end the
-         * game layer render pass.
-         * 上传所有待处理批次、绘制进 game 层并结束 game 层渲染通道。
+         * Sort the render queue (layer ascending, then depth ascending),
+         * expand every command into batch vertices, upload them and draw them
+         * into the game layer, then end the game layer render pass.
+         * 对渲染队列排序（层升序，然后 depth 升序），把每个命令展开为批处理
+         * 顶点，上传并绘制进 game 层，然后结束 game 层渲染通道。
+         * @param queue queue 本帧填充完毕的渲染队列
          */
-        void EndFrame();
+        void FlushQueue(RenderQueue &queue);
 
         /**
          * @return The offscreen ui layer texture that RmlUi must render into.
@@ -288,73 +262,16 @@ namespace glimmer {
         [[nodiscard]] Uint32 GetSwapchainHeight() const;
 
         /**
-         * Set the draw color used by Clear/FillRect/DrawRect/DrawLine/DrawPoint
-         * (replaces SDL_SetRenderDrawColor).
-         * 设置 Clear/FillRect/DrawRect/DrawLine/DrawPoint 使用的绘制颜色
-         * （替代 SDL_SetRenderDrawColor）。
+         * Set the clear color of the game layer (the world background color
+         * visible where nothing is drawn).
+         * 设置 game 层的清屏颜色（未绘制任何内容处可见的世界背景色）。
          */
-        void SetDrawColor(SDL_Color color);
+        void SetClearColor(SDL_Color color);
 
         /**
-         * @return The current draw color (replaces SDL_GetRenderDrawColor).
-         * 当前绘制颜色（替代 SDL_GetRenderDrawColor）。
+         * @return The current game layer clear color.
+         * 当前 game 层清屏颜色。
          */
-        [[nodiscard]] SDL_Color GetDrawColor() const;
-
-        /**
-         * Draw a texture region to a destination rectangle
-         * (replaces SDL_RenderTexture).
-         * 将纹理区域绘制到目标矩形（替代 SDL_RenderTexture）。
-         * @param texture texture 要绘制的纹理
-         * @param src src 源矩形（像素，nullptr 表示整个纹理）
-         * @param dst dst 目标矩形（像素，nullptr 表示 (0,0,纹理宽,纹理高)）
-         * @param mod mod 颜色调制（替代 SDL_SetTextureColorMod/AlphaMod）
-         */
-        void DrawTexture(const GpuTexture *texture, const SDL_FRect *src, const SDL_FRect *dst,
-                         const SDL_Color &mod = {255, 255, 255, 255});
-
-        /**
-         * Draw a texture region rotated around a center point, with optional
-         * flipping (replaces SDL_RenderTextureRotated).
-         * 将纹理区域绕中心点旋转绘制，可选翻转（替代 SDL_RenderTextureRotated）。
-         * @param texture texture 要绘制的纹理
-         * @param src src 源矩形（像素，nullptr 表示整个纹理）
-         * @param dst dst 目标矩形（像素）
-         * @param angleDegrees angleDegrees 顺时针角度（度）
-         * @param center center 旋转中心（像素，nullptr 表示 dst 中心）
-         * @param flip flip FLIP_HORIZONTAL/FLIP_VERTICAL 的按位或
-         * @param mod mod 颜色调制
-         */
-        void DrawTextureRotated(const GpuTexture *texture, const SDL_FRect *src, const SDL_FRect *dst,
-                                double angleDegrees, const SDL_FPoint *center, Uint8 flip,
-                                const SDL_Color &mod = {255, 255, 255, 255});
-
-        /**
-         * Fill a rectangle with the current draw color
-         * (replaces SDL_RenderFillRect).
-         * 用当前绘制颜色填充矩形（替代 SDL_RenderFillRect）。
-         */
-        void FillRect(const SDL_FRect *rect);
-
-        /**
-         * Draw a 1-pixel rectangle outline with the current draw color
-         * (replaces SDL_RenderRect).
-         * 用当前绘制颜色绘制 1 像素矩形边框（替代 SDL_RenderRect）。
-         */
-        void DrawRect(const SDL_FRect *rect);
-
-        /**
-         * Draw a 1-pixel line with the current draw color
-         * (replaces SDL_RenderLine).
-         * 用当前绘制颜色绘制 1 像素线段（替代 SDL_RenderLine）。
-         */
-        void DrawLine(float x1, float y1, float x2, float y2);
-
-        /**
-         * Draw a single pixel with the current draw color
-         * (replaces SDL_RenderPoint).
-         * 用当前绘制颜色绘制单个像素（替代 SDL_RenderPoint）。
-         */
-        void DrawPoint(float x, float y);
+        [[nodiscard]] SDL_Color GetClearColor() const;
     };
 }

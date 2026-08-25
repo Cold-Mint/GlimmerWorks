@@ -26,7 +26,7 @@
  */
 #pragma once
 #include "Scene.h"
-#include "core/gpu/SpriteRenderer.h"
+#include "core/gpu/RenderQueue.h"
 #include "core/world/WorldContext.h"
 #include <SDL3/SDL_events.h>
 
@@ -54,7 +54,7 @@ namespace glimmer {
 
         void OnConfigChanged(const Config *config) override;
 
-        void Render(SpriteRenderer *renderer) override;
+        void Render(RenderQueue *queue) override;
 
         void LoadDocuments() override;
 

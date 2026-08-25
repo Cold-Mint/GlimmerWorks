@@ -44,7 +44,7 @@ namespace glimmer {
 
         uint8_t GetExecutionOrder() override;
 
-        void Render(SpriteRenderer *renderer) override;
+        void Render(RenderQueue *queue) override;
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };

@@ -90,9 +90,9 @@ namespace glimmer {
                                       uint8_t tileWidth,
                                       uint8_t tileHeight) const;
 
-        void RenderBlueprintTexture(SpriteRenderer *renderer, const SDL_FRect &renderQuad) const;
+        void RenderBlueprintTexture(RenderQueue *queue, const SDL_FRect &renderQuad) const;
 
-        void RenderBlueprintMask(SpriteRenderer *renderer, const std::vector<bool> &checkRectResult,
+        void RenderBlueprintMask(RenderQueue *queue, const std::vector<bool> &checkRectResult,
                                  const TileVector2D &leftBottom, uint8_t tileWidth) const;
 
     public:
@@ -102,7 +102,7 @@ namespace glimmer {
 
         uint8_t GetExecutionOrder() override;
 
-        void Render(SpriteRenderer *renderer) override;
+        void Render(RenderQueue *queue) override;
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };

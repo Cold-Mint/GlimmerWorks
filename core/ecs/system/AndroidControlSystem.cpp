@@ -141,8 +141,8 @@ namespace glimmer {
     void AndroidControlSystem::Update(float delta) {
     }
 
-    void AndroidControlSystem::Render(SpriteRenderer *renderer) {
-        if (renderer == nullptr) {
+    void AndroidControlSystem::Render(RenderQueue *queue) {
+        if (queue == nullptr) {
             return;
         }
         const WorldContext *worldContext = GetWorldContext();
@@ -188,19 +188,21 @@ namespace glimmer {
             if (type == ButtonType::Jump) jumpActive = true;
         }
 
-        renderer->DrawTexture(leftActive && leftPressedTexture ? leftPressedTexture.get() : leftTexture.get(),
-                              nullptr, &leftRect);
-        renderer->DrawTexture(rightActive && rightPressedTexture ? rightPressedTexture.get() : rightTexture.get(),
-                              nullptr, &rightRect);
-        renderer->DrawTexture(jumpActive && jumpPressedTexture ? jumpPressedTexture.get() : jumpTexture.get(),
-                              nullptr, &jumpRect);
+        queue->DrawTexture(RenderLayer::Overlay, 0.0F,
+                           leftActive && leftPressedTexture ? leftPressedTexture.get() : leftTexture.get(),
+                           nullptr, &leftRect);
+        queue->DrawTexture(RenderLayer::Overlay, 0.0F,
+                           rightActive && rightPressedTexture ? rightPressedTexture.get() : rightTexture.get(),
+                           nullptr, &rightRect);
+        queue->DrawTexture(RenderLayer::Overlay, 0.0F,
+                           jumpActive && jumpPressedTexture ? jumpPressedTexture.get() : jumpTexture.get(),
+                           nullptr, &jumpRect);
 #if  !defined(NDEBUG)
-renderer->SetDrawColor({255, 0, 0, 255});
-renderer->DrawRect(&leftRect);
-renderer->DrawRect(&rightRect);
-renderer->DrawRect(&jumpRect);
+        const SDL_Color debugBorderColor = {255, 0, 0, 255};
+        queue->DrawRect(RenderLayer::Overlay, 0.0F, &leftRect, debugBorderColor);
+        queue->DrawRect(RenderLayer::Overlay, 0.0F, &rightRect, debugBorderColor);
+        queue->DrawRect(RenderLayer::Overlay, 0.0F, &jumpRect, debugBorderColor);
 #endif
-AppContext::RestoreColorRenderer (renderer);
     }
 }
 #endif

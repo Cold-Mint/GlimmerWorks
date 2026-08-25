@@ -95,7 +95,7 @@ void glimmer::FloatingTextSystem::Update(float delta) {
     }
 }
 
-void glimmer::FloatingTextSystem::Render(SpriteRenderer *renderer) {
+void glimmer::FloatingTextSystem::Render(RenderQueue *queue) {
     const WorldContext *worldContext = GetWorldContext();
     EntityManager *entityManager = GetEntityManager();
     if (worldContext == nullptr) {
@@ -146,8 +146,8 @@ void glimmer::FloatingTextSystem::Render(SpriteRenderer *renderer) {
                 static_cast<float>(texture->h)
             };
 
-            renderer->DrawTexture(texture, nullptr, &dst,
-                                  {255, 255, 255, static_cast<Uint8>(floatingTextComponent->GetAlpha() * 255)});
+            queue->DrawTexture(RenderLayer::Effect, 0.0F, texture, nullptr, &dst,
+                               {255, 255, 255, static_cast<Uint8>(floatingTextComponent->GetAlpha() * 255)});
         }
     }
 }

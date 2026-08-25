@@ -32,7 +32,7 @@ namespace glimmer {
     public:
         explicit ParallaxBackgroundSystem(WorldContext *worldContext);
 
-        void Render(SpriteRenderer *renderer) override;
+        void Render(RenderQueue *queue) override;
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
 

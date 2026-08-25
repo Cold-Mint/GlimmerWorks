@@ -84,7 +84,7 @@ bool glimmer::TileLayerSystem::ShouldDrawTile(const Color *finalLightColor) cons
     return true;
 }
 
-void glimmer::TileLayerSystem::RenderTileSnapshot(SpriteRenderer *renderer, const TileSnapshot *tileSnapshot,
+void glimmer::TileLayerSystem::RenderTileSnapshot(RenderQueue *queue, const TileSnapshot *tileSnapshot,
                                                   const TileVector2D &tileCoord, Uint8 alpha,
                                                   const Color *finalLightColor,
                                                   std::unordered_set<uint64_t> &drawnTiles) const {
@@ -135,10 +135,10 @@ void glimmer::TileLayerSystem::RenderTileSnapshot(SpriteRenderer *renderer, cons
     if (texture == nullptr) {
         return;
     }
-    renderer->DrawTexture(texture, nullptr, &renderQuad, {255, 255, 255, alpha});
+    queue->DrawTexture(RenderLayer::Tile, 0.0F, texture, nullptr, &renderQuad, {255, 255, 255, alpha});
 }
 
-void glimmer::TileLayerSystem::Render(SpriteRenderer *renderer) {
+void glimmer::TileLayerSystem::Render(RenderQueue *queue) {
     WorldContext *worldContext = GetWorldContext();
     if (worldContext == nullptr) {
         return;
@@ -193,10 +193,9 @@ void glimmer::TileLayerSystem::Render(SpriteRenderer *renderer) {
         }
         const Color *finalLightColor = worldContext->GetLightingBuffer()->GetFinalLightColor(tileCoord);
         for (const auto &tileSnapshot: tileList) {
-            RenderTileSnapshot(renderer, tileSnapshot, tileCoord, alpha, finalLightColor, drawnTiles);
+            RenderTileSnapshot(queue, tileSnapshot, tileCoord, alpha, finalLightColor, drawnTiles);
         }
     }
-    AppContext::RestoreColorRenderer(renderer);
 }
 
 uint8_t glimmer::TileLayerSystem::GetExecutionOrder() {

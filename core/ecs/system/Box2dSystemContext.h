@@ -28,17 +28,17 @@
 
 namespace glimmer {
     class WorldContext;
-    class SpriteRenderer;
+    class RenderQueue;
 
     class Box2dSystemContext {
         WorldContext *worldContext_ = nullptr;
-        SpriteRenderer *renderer_ = nullptr;
+        RenderQueue *renderQueue_ = nullptr;
 
     public:
-        Box2dSystemContext(WorldContext *worldContext, SpriteRenderer *renderer);
+        Box2dSystemContext(WorldContext *worldContext, RenderQueue *renderQueue);
 
         [[nodiscard]] WorldContext *GetWorldContext() const;
 
-        [[nodiscard]] SpriteRenderer *GetRenderer() const;
+        [[nodiscard]] RenderQueue *GetRenderQueue() const;
     };
 }

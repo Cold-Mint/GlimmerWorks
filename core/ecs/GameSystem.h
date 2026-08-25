@@ -31,7 +31,7 @@
 #include "EntityShortCut.h"
 #include "GameSystemType.h"
 #include "SDL3/SDL_events.h"
-#include "core/gpu/SpriteRenderer.h"
+#include "core/gpu/RenderQueue.h"
 #include "src/core/game_component_type.pb.h"
 
 namespace glimmer {
@@ -132,6 +132,14 @@ namespace glimmer {
        */
         virtual uint8_t GetExecutionOrder();
 
-        virtual void Render(SpriteRenderer *renderer);
+        /**
+         * Submit this system's render commands into the layered render queue.
+         * Nothing is drawn during this call; GpuRenderer flushes the sorted
+         * queue once per frame.
+         * 将本系统的渲染命令提交到分层渲染队列。调用期间不会进行任何绘制；
+         * GpuRenderer 每帧冲刷一次排好序的队列。
+         * @param queue
+         */
+        virtual void Render(RenderQueue *queue);
     };
 }

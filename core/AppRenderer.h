@@ -26,26 +26,37 @@
  */
 #pragma once
 #include "context/AppContext.h"
+#include "core/gpu/GpuRenderer.h"
+#include "core/gpu/RenderQueue.h"
 
 namespace glimmer {
+    /**
+     * AppRenderer
+     * 应用渲染器
+     *
+     * Drives one frame of rendering: clears the per-frame RenderQueue, lets
+     * the scenes/overlays/UI messages submit their commands, then has the
+     * GpuRenderer flush the sorted queue into the game layer, renders RmlUi
+     * into the ui layer and composites everything to the swapchain.
+     * 驱动一帧的渲染：清空每帧的 RenderQueue，让场景/覆盖层/UI 消息提交
+     * 命令，然后由 GpuRenderer 把排好序的队列冲刷进 game 层，将 RmlUi
+     * 渲染进 ui 层，最后把全部内容合成到交换链。
+     */
     class AppRenderer {
         AppContext *appContext_ = nullptr;
-        SpriteRenderer *renderer_ = nullptr;
+        GpuRenderer *renderer_ = nullptr;
+        RenderQueue renderQueue_;
 
-        void RenderUiMessage(int windowHeight, uint64_t frameStart) const;
+        void RenderUiMessage(int windowHeight, uint64_t frameStart);
 
-        void RenderScenes() const;
+        void RenderScenes();
 
-        void RenderOverlays() const;
-
-        void RenderRelease() const;
-
-        void RenderDebug() const;
+        void RenderOverlays();
 
     public:
-        AppRenderer(AppContext *appContext, SpriteRenderer *renderer);
+        AppRenderer(AppContext *appContext, GpuRenderer *renderer);
 
         void RenderFrame(const RmlContext *rmlContext, int windowWidth, int windowHeight, uint64_t frameStart,
-                         float deltaTime) const;
+                         float deltaTime);
     };
 }

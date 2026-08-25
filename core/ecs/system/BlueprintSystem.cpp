@@ -249,7 +249,7 @@ SDL_FRect glimmer::BlueprintSystem::CalculateRenderQuad(const TileVector2D &focu
     return renderQuad;
 }
 
-void glimmer::BlueprintSystem::RenderBlueprintTexture(SpriteRenderer *renderer, const SDL_FRect &renderQuad) const {
+void glimmer::BlueprintSystem::RenderBlueprintTexture(RenderQueue *queue, const SDL_FRect &renderQuad) const {
     if (heldTile_ == nullptr) {
         return;
     }
@@ -268,10 +268,10 @@ void glimmer::BlueprintSystem::RenderBlueprintTexture(SpriteRenderer *renderer, 
     if (blueprintTexture == nullptr) {
         return;
     }
-    renderer->DrawTexture(blueprintTexture, nullptr, &renderQuad, {255, 255, 255, 128});
+    queue->DrawTexture(RenderLayer::Effect, 0.0F, blueprintTexture, nullptr, &renderQuad, {255, 255, 255, 128});
 }
 
-void glimmer::BlueprintSystem::RenderBlueprintMask(SpriteRenderer *renderer, const std::vector<bool> &checkRectResult,
+void glimmer::BlueprintSystem::RenderBlueprintMask(RenderQueue *queue, const std::vector<bool> &checkRectResult,
                                                    const TileVector2D &leftBottom, const uint8_t tileWidth) const {
     if (heldTile_ == nullptr) {
         return;
@@ -296,25 +296,26 @@ void glimmer::BlueprintSystem::RenderBlueprintMask(SpriteRenderer *renderer, con
         indicatorRenderQuad.h = TILE_SIZE * zoom;
         indicatorRenderQuad.x = tileScreenPos.x - indicatorRenderQuad.w * 0.5f;
         indicatorRenderQuad.y = tileScreenPos.y - indicatorRenderQuad.h * 0.5f;
+        SDL_Color maskColor;
         if (checkRectResult[i]) {
             if (!tileBlueprintData->DrawValidBlueprintColor()) {
                 continue;
             }
-            renderer->SetDrawColor({preloadColors_->blueprint.validColor.r,
-                                    preloadColors_->blueprint.validColor.g,
-                                    preloadColors_->blueprint.validColor.b,
-                                    preloadColors_->blueprint.validColor.a});
+            maskColor = {preloadColors_->blueprint.validColor.r,
+                         preloadColors_->blueprint.validColor.g,
+                         preloadColors_->blueprint.validColor.b,
+                         preloadColors_->blueprint.validColor.a};
         } else {
-            renderer->SetDrawColor({preloadColors_->blueprint.invalidColor.r,
-                                    preloadColors_->blueprint.invalidColor.g,
-                                    preloadColors_->blueprint.invalidColor.b,
-                                    preloadColors_->blueprint.invalidColor.a});
+            maskColor = {preloadColors_->blueprint.invalidColor.r,
+                         preloadColors_->blueprint.invalidColor.g,
+                         preloadColors_->blueprint.invalidColor.b,
+                         preloadColors_->blueprint.invalidColor.a};
         }
-        renderer->FillRect(&indicatorRenderQuad);
+        queue->FillRect(RenderLayer::Effect, 0.0F, &indicatorRenderQuad, maskColor);
     }
 }
 
-void glimmer::BlueprintSystem::Render(SpriteRenderer *renderer) {
+void glimmer::BlueprintSystem::Render(RenderQueue *queue) {
     const WorldContext *worldContext = GetWorldContext();
     EntityManager *entityManager = GetEntityManager();
     if (worldContext == nullptr || entityManager == nullptr || cameraComponent_ == nullptr || blueprintComponent_ ==
@@ -344,29 +345,26 @@ void glimmer::BlueprintSystem::Render(SpriteRenderer *renderer) {
     blueprintComponent_->SetTopLeftVector(topLeftVector);
     SDL_FRect renderQuad = CalculateRenderQuad(focusPosition, topLeftVector, tileWidth, tileHeight);
 
-    renderer->SetDrawColor({preloadColors_->game.focusTileBorderColor.r,
-                            preloadColors_->game.focusTileBorderColor.g,
-                            preloadColors_->game.focusTileBorderColor.b,
-                            preloadColors_->game.focusTileBorderColor.a});
-    renderer->DrawRect(&renderQuad);
+    const SDL_Color focusTileBorderColor = {preloadColors_->game.focusTileBorderColor.r,
+                                            preloadColors_->game.focusTileBorderColor.g,
+                                            preloadColors_->game.focusTileBorderColor.b,
+                                            preloadColors_->game.focusTileBorderColor.a};
+    queue->DrawRect(RenderLayer::Effect, 0.0F, &renderQuad, focusTileBorderColor);
     if (heldTile_ == nullptr) {
         blueprintComponent_->SetCanPlace(false);
-        AppContext::RestoreColorRenderer(renderer);
         return;
     }
     if (!miningComponent_->IsEnable()) {
-        RenderBlueprintTexture(renderer, renderQuad);
+        RenderBlueprintTexture(queue, renderQuad);
         std::vector<bool> checkRectResult = CheckRectPlacementValidity(heldTile_, leftBottom, playerPosition, tileWidth,
                                                                        tileHeight);
         if (checkRectResult.empty()) {
             blueprintComponent_->SetCanPlace(false);
-            AppContext::RestoreColorRenderer(renderer);
             return;
         }
-        RenderBlueprintMask(renderer, checkRectResult, leftBottom, tileWidth);
+        RenderBlueprintMask(queue, checkRectResult, leftBottom, tileWidth);
         blueprintComponent_->SetCanPlace(checkRectResult[checkRectResult.size() - 1]);
     }
-    AppContext::RestoreColorRenderer(renderer);
 }
 
 glimmer::GameSystemType glimmer::BlueprintSystem::GetGameSystemType() const {

@@ -42,7 +42,7 @@ uint8_t glimmer::GuiGameSystem::GetExecutionOrder() {
     return EXECUTION_ORDER_GUI_SYSTEM;
 }
 
-void glimmer::GuiGameSystem::Render(SpriteRenderer *renderer) {
+void glimmer::GuiGameSystem::Render(RenderQueue *queue) {
     //The GUI system does not have rendering functions.
     //Gui系统不拥有渲染函数。
 }

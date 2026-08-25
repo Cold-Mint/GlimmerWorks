@@ -31,7 +31,7 @@
 #include "core/math/CoordinateTransformer.h"
 
 #include "core/Constants.h"
-#include "core/gpu/SpriteRenderer.h"
+#include "core/gpu/RenderQueue.h"
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/ecs/component/TileLayerComponent.h"
 #include "core/world/TileInstancePool.h"
@@ -45,7 +45,7 @@
 #include "fmt/xchar.h"
 
 
-void glimmer::DebugPanelSystem::RenderDebugText(SpriteRenderer *renderer, int windowW, const std::string &text, float y,
+void glimmer::DebugPanelSystem::RenderDebugText(RenderQueue *queue, int windowW, const std::string &text, float y,
                                                 const Color &textColor, SDL_Color textBGColor) {
     const uint64_t stringFingerprint = StringUtils::StringToUint64(text);
     auto iterator = textures_.find(stringFingerprint);
@@ -63,28 +63,27 @@ void glimmer::DebugPanelSystem::RenderDebugText(SpriteRenderer *renderer, int wi
         static_cast<float>(texture->w),
         static_cast<float>(texture->h)
     };
-    renderer->SetDrawColor({textBGColor.r, textBGColor.g, textBGColor.b, textBGColor.a});
-    renderer->FillRect(&dst);
-    renderer->DrawTexture(texture, nullptr, &dst);
+    queue->FillRect(RenderLayer::Overlay, 0.0F, &dst, textBGColor);
+    queue->DrawTexture(RenderLayer::Overlay, 0.0F, texture, nullptr, &dst);
 }
 
-void glimmer::DebugPanelSystem::RenderCrosshairToEdge(SpriteRenderer *renderer, float screenX, float screenY) const {
+void glimmer::DebugPanelSystem::RenderCrosshairToEdge(RenderQueue *queue, float screenX, float screenY) const {
     const WorldContext *worldContext = GetWorldContext();
-    renderer->SetDrawColor({255, 230, 0, 200});
+    const SDL_Color crosshairColor = {255, 230, 0, 200};
 
     SDL_FRect hLine = {
         0.0F, screenY, static_cast<float>(worldContext->GetAppContext()->GetWindowContext()->GetWindowWidth()), 1.0F
     };
-    renderer->FillRect(&hLine);
+    queue->FillRect(RenderLayer::Overlay, 0.0F, &hLine, crosshairColor);
 
     SDL_FRect vLine = {
         screenX, 0.0F, 1.0F, static_cast<float>(worldContext->GetAppContext()->GetWindowContext()->GetWindowHeight())
     };
-    renderer->FillRect(&vLine);
+    queue->FillRect(RenderLayer::Overlay, 0.0F, &vLine, crosshairColor);
 }
 
 
-void glimmer::DebugPanelSystem::RenderChunkBounds(SpriteRenderer *renderer, const CameraComponent *cameraComponent,
+void glimmer::DebugPanelSystem::RenderChunkBounds(RenderQueue *queue, const CameraComponent *cameraComponent,
                                                   const WorldVector2D &cameraPosition) {
     //Calculate the size of each block(World Coordinates)
     //计算每个区块的尺寸（世界坐标）
@@ -109,7 +108,7 @@ void glimmer::DebugPanelSystem::RenderChunkBounds(SpriteRenderer *renderer, cons
                         cameraComponent->GetZoom()
                     );
             float pixelSize = chunkWorldSize * cameraComponent->GetZoom();
-            renderer->SetDrawColor({0, 255, 255, 180});
+            const SDL_Color chunkBorderColor = {0, 255, 255, 180};
             SDL_FRect rect{
                 screenPos.x,
                 screenPos.y - pixelSize,
@@ -123,7 +122,7 @@ void glimmer::DebugPanelSystem::RenderChunkBounds(SpriteRenderer *renderer, cons
                 rect.w,
                 rect.h
             };
-            renderer->DrawRect(&outline);
+            queue->DrawRect(RenderLayer::Overlay, 0.0F, &outline, chunkBorderColor);
         }
     }
 }
@@ -179,7 +178,7 @@ void glimmer::DebugPanelSystem::OnActivationChanged(bool activeStatus) {
 }
 
 
-void glimmer::DebugPanelSystem::Render(SpriteRenderer *renderer) {
+void glimmer::DebugPanelSystem::Render(RenderQueue *queue) {
     WorldContext *worldContext = GetWorldContext();
     if (cameraComponent_ == nullptr || cameraTransform2DComponent_ == nullptr || appContext_ == nullptr ||
         tileLayerComponents_.empty()) {
@@ -189,12 +188,11 @@ void glimmer::DebugPanelSystem::Render(SpriteRenderer *renderer) {
     bool inPointInViewport = cameraComponent_->IsPointInViewport(cameraTransform2DComponent_->GetPosition(),
                                                                  mousePosition_);
 
-    RenderChunkBounds(renderer, cameraComponent_, cameraTransform2DComponent_->GetPosition());
+    RenderChunkBounds(queue, cameraComponent_, cameraTransform2DComponent_->GetPosition());
 
     if (!inPointInViewport) {
         //Do not display the tile debugging information that is outside the screen.
         //不要显示在屏幕之外的瓦片调试信息。
-        AppContext::RestoreColorRenderer(renderer);
         return;
     }
     int windowHeight = appContext_->GetWindowContext()->GetWindowHeight();
@@ -211,7 +209,7 @@ void glimmer::DebugPanelSystem::Render(SpriteRenderer *renderer) {
         fmt::runtime(appContext_->GetLangsResources()->mousePosition),
         mousePosition_.x, mousePosition_.y, ScreenVector2D.x, ScreenVector2D.y
     );
-    RenderDebugText(renderer, windowWidth, mouseText, yOffset,
+    RenderDebugText(queue, windowWidth, mouseText, yOffset,
                     appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextColor,
                     appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextBGColor.
                     ToSDLColor());
@@ -232,7 +230,7 @@ void glimmer::DebugPanelSystem::Render(SpriteRenderer *renderer) {
                 elevation,
                 chunkGenerator->GetWeirdness(tileCoord)
             );
-            RenderDebugText(renderer, windowWidth, tileDebugInfo, yOffset,
+            RenderDebugText(queue, windowWidth, tileDebugInfo, yOffset,
                             appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextColor,
                             appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextBGColor.
                             ToSDLColor());
@@ -252,7 +250,7 @@ void glimmer::DebugPanelSystem::Render(SpriteRenderer *renderer) {
             fmt::runtime(appContext_->GetLangsResources()->tileResDebugInfo),
             std::to_underlying(tile->GetLayerType()), tile->GetId(), miningData->GetHardness(), tile->GetName()
         );
-        RenderDebugText(renderer, windowWidth, tileResDebugInfo, yOffset,
+        RenderDebugText(queue, windowWidth, tileResDebugInfo, yOffset,
                         appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextColor,
                         appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextBGColor.
                         ToSDLColor());
@@ -264,7 +262,7 @@ void glimmer::DebugPanelSystem::Render(SpriteRenderer *renderer) {
             fmt::runtime(appContext_->GetLangsResources()->totalLight),
             -1, -1, -1, -1
         );
-        RenderDebugText(renderer, windowWidth, totalLight, yOffset,
+        RenderDebugText(queue, windowWidth, totalLight, yOffset,
                         appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextColor,
                         appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextBGColor.
                         ToSDLColor());
@@ -273,7 +271,7 @@ void glimmer::DebugPanelSystem::Render(SpriteRenderer *renderer) {
             fmt::runtime(appContext_->GetLangsResources()->totalLight),
             finalLightColor->a, finalLightColor->r, finalLightColor->g, finalLightColor->b
         );
-        RenderDebugText(renderer, windowWidth, totalLight, yOffset,
+        RenderDebugText(queue, windowWidth, totalLight, yOffset,
                         appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextColor,
                         appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextBGColor.
                         ToSDLColor());
@@ -298,7 +296,7 @@ void glimmer::DebugPanelSystem::Render(SpriteRenderer *renderer) {
 
     // Draw Loaded Chunks (Blue)
     // 绘制已加载的区块（蓝色）
-    renderer->SetDrawColor({100, 149, 237, 128});
+    const SDL_Color loadedChunkColor = {100, 149, 237, 128};
 
     for (const auto &[pos, chunk]: chunksPtr) {
         int chunkIndexX = pos.x >> CHUNK_SHIFT;
@@ -308,14 +306,14 @@ void glimmer::DebugPanelSystem::Render(SpriteRenderer *renderer) {
         float drawY = gridCenterY + static_cast<float>(playerChunkY - chunkIndexY) * cellSize;
 
         SDL_FRect rect = {drawX, drawY, cellSize - 1.0F, cellSize - 1.0F};
-        renderer->FillRect(&rect);
+        queue->FillRect(RenderLayer::Overlay, 0.0F, &rect, loadedChunkColor);
     }
 
     // Draw Current Chunk (Red)
     // 绘制当前区块（红色）
-    renderer->SetDrawColor({255, 69, 0, 200});
+    const SDL_Color currentChunkColor = {255, 69, 0, 200};
     SDL_FRect playerRect = {gridCenterX, gridCenterY, cellSize - 1.0F, cellSize - 1.0F};
-    renderer->FillRect(&playerRect);
+    queue->FillRect(RenderLayer::Overlay, 0.0F, &playerRect, currentChunkColor);
 
     // Draw Visible Chunks (Orange)
     // 绘制可见区块（橙色）【修改Y轴计算：cy - playerChunkY → playerChunkY - cy】
@@ -333,7 +331,7 @@ void glimmer::DebugPanelSystem::Render(SpriteRenderer *renderer) {
 
     visibleChunkCount = (endChunkX - startChunkX + 1) * (endChunkY - startChunkY + 1);
 
-    renderer->SetDrawColor({255, 165, 0, 255}); // Orange
+    const SDL_Color visibleChunkColor = {255, 165, 0, 255}; // Orange
 
     for (int cy = startChunkY; cy <= endChunkY; ++cy) {
         for (int cx = startChunkX; cx <= endChunkX; ++cx) {
@@ -341,13 +339,13 @@ void glimmer::DebugPanelSystem::Render(SpriteRenderer *renderer) {
             float drawY = gridCenterY + static_cast<float>(playerChunkY - cy) * cellSize;
 
             SDL_FRect top = {drawX, drawY, cellSize, 1.0F};
-            renderer->FillRect(&top);
+            queue->FillRect(RenderLayer::Overlay, 0.0F, &top, visibleChunkColor);
             SDL_FRect bottom = {drawX, drawY + cellSize - 1.0F, cellSize, 1.0F};
-            renderer->FillRect(&bottom);
+            queue->FillRect(RenderLayer::Overlay, 0.0F, &bottom, visibleChunkColor);
             SDL_FRect left = {drawX, drawY, 1.0F, cellSize};
-            renderer->FillRect(&left);
+            queue->FillRect(RenderLayer::Overlay, 0.0F, &left, visibleChunkColor);
             SDL_FRect right = {drawX + cellSize - 1.0F, drawY, 1.0F, cellSize};
-            renderer->FillRect(&right);
+            queue->FillRect(RenderLayer::Overlay, 0.0F, &right, visibleChunkColor);
         }
     }
 
@@ -368,14 +366,13 @@ void glimmer::DebugPanelSystem::Render(SpriteRenderer *renderer) {
             static_cast<float>(chunkTextTexture_->w),
             static_cast<float>(chunkTextTexture_->h)
         };
-        renderer->DrawTexture(chunkTextTexture_.get(), nullptr, &dst);
+        queue->DrawTexture(RenderLayer::Overlay, 0.0F, chunkTextTexture_.get(), nullptr, &dst);
     }
     glimmer::ScreenVector2D screenPos = CoordinateTransformer::WorldToScreen(cameraTransform2DComponent_->GetPosition(),
                                                                              mousePosition_,
                                                                              cameraComponent_->GetSize(),
                                                                              cameraComponent_->GetZoom());
-    RenderCrosshairToEdge(renderer, screenPos.x, screenPos.y);
-    AppContext::RestoreColorRenderer(renderer);
+    RenderCrosshairToEdge(queue, screenPos.x, screenPos.y);
 }
 
 bool glimmer::DebugPanelSystem::HandleEvent(const SDL_Event &event) {

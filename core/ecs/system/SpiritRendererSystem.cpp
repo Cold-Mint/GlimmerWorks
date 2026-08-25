@@ -61,7 +61,7 @@ glimmer::SpiritRendererSystem::SpiritRendererSystem(WorldContext *worldContext) 
     Init();
 }
 
-void glimmer::SpiritRendererSystem::Render(SpriteRenderer *renderer) {
+void glimmer::SpiritRendererSystem::Render(RenderQueue *queue) {
     const WorldContext *worldContext = GetWorldContext();
     EntityManager *entityManager = GetEntityManager();
     if (worldContext == nullptr) {
@@ -117,7 +117,9 @@ void glimmer::SpiritRendererSystem::Render(SpriteRenderer *renderer) {
             if (spiritRendererComponent->IsFlipV()) {
                 flip = flip | glimmer::FLIP_VERTICAL;
             }
-            renderer->DrawTextureRotated(
+            queue->DrawTextureRotated(
+                RenderLayer::Entity,
+                0.0F,
                 sdlTexture,
                 nullptr,
                 &dstrect,

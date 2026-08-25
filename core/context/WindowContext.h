@@ -27,14 +27,14 @@
 #pragma once
 
 #include "core/gpu/GpuContext.h"
-#include "core/gpu/SpriteRenderer.h"
+#include "core/gpu/GpuRenderer.h"
 #include "SDL3/SDL_video.h"
 
 namespace glimmer {
     class WindowContext {
         SDL_Window *window_ = nullptr;
         GpuContext *gpuContext_ = nullptr;
-        SpriteRenderer *renderer_ = nullptr;
+        GpuRenderer *renderer_ = nullptr;
         int windowWidth_ = 0;
         int windowHeight_ = 0;
         bool isRunning_ = true;
@@ -48,7 +48,7 @@ namespace glimmer {
 
         void SetGpuContext(GpuContext *gpuContext);
 
-        void SetRenderer(SpriteRenderer *renderer);
+        void SetRenderer(GpuRenderer *renderer);
 
         void SetWindowWidth(int width);
 
@@ -60,7 +60,7 @@ namespace glimmer {
 
         [[nodiscard]] GpuContext *GetGpuContext() const;
 
-        [[nodiscard]] SpriteRenderer *GetRenderer() const;
+        [[nodiscard]] GpuRenderer *GetRenderer() const;
 
         [[nodiscard]] int GetWindowWidth() const;
 

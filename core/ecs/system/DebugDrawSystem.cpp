@@ -27,7 +27,7 @@
 #include "DebugDrawSystem.h"
 
 #include "core/Constants.h"
-#include "core/gpu/SpriteRenderer.h"
+#include "core/gpu/RenderQueue.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/ecs/component/DebugDrawComponent.h"
 #include "core/world/WorldContext.h"
@@ -60,7 +60,7 @@ glimmer::DebugDrawSystem::DebugDrawSystem(WorldContext *worldContext) : GameSyst
     Init();
 }
 
-void glimmer::DebugDrawSystem::Render(SpriteRenderer *renderer) {
+void glimmer::DebugDrawSystem::Render(RenderQueue *queue) {
     EntityManager *entityManager = GetEntityManager();
     if (cameraComponent_ == nullptr) {
         return;
@@ -85,9 +85,8 @@ void glimmer::DebugDrawSystem::Render(SpriteRenderer *renderer) {
             cameraTransform2DComponent_->GetPosition(), worldPositionComponent->GetPosition(),
             cameraComponent_->GetSize(), cameraComponent_->GetZoom());
 
-        const SDL_Color oldColor = renderer->GetDrawColor();
         const auto color = debugDrawComponent->GetColor();
-        renderer->SetDrawColor({color.r, color.g, color.b, color.a});
+        const SDL_Color drawColor = {color.r, color.g, color.b, color.a};
 
         SDL_FRect renderQuad;
         const WorldVector2D worldVector2D = debugDrawComponent->GetSize();
@@ -98,8 +97,7 @@ void glimmer::DebugDrawSystem::Render(SpriteRenderer *renderer) {
         renderQuad.h = h;
         renderQuad.x = ScreenVector2D.x - w * 0.5F;
         renderQuad.y = ScreenVector2D.y - h * 0.5F;
-        renderer->FillRect(&renderQuad);
-        renderer->SetDrawColor(oldColor);
+        queue->FillRect(RenderLayer::Debug, 0.0F, &renderQuad, drawColor);
     }
 }
 

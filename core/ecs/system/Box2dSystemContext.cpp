@@ -27,14 +27,14 @@
 #include "Box2dSystemContext.h"
 
 glimmer::Box2dSystemContext::Box2dSystemContext(WorldContext *worldContext,
-                                                SpriteRenderer *renderer) : worldContext_(worldContext),
-                                                                          renderer_(renderer) {
+                                                RenderQueue *renderQueue) : worldContext_(worldContext),
+                                                                            renderQueue_(renderQueue) {
 }
 
 glimmer::WorldContext *glimmer::Box2dSystemContext::GetWorldContext() const {
     return worldContext_;
 }
 
-glimmer::SpriteRenderer *glimmer::Box2dSystemContext::GetRenderer() const {
-    return renderer_;
+glimmer::RenderQueue *glimmer::Box2dSystemContext::GetRenderQueue() const {
+    return renderQueue_;
 }

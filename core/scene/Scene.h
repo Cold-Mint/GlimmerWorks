@@ -30,7 +30,7 @@
 #include "core/Config.h"
 #include "core/context/RmlContext.h"
 #include "core/ecs/IDocumentRegistry.h"
-#include "core/gpu/SpriteRenderer.h"
+#include "core/gpu/RenderQueue.h"
 #include "RmlUi/Core/DataModelHandle.h"
 
 
@@ -101,9 +101,11 @@ namespace glimmer {
         /**
          * Render
          * 渲染
-         * @param renderer
+         * Submit the scene's render commands into the layered render queue.
+         * 将场景的渲染命令提交到分层渲染队列。
+         * @param queue
          */
-        virtual void Render(SpriteRenderer *renderer);
+        virtual void Render(RenderQueue *queue);
 
         /**
          * Called when the frame begins

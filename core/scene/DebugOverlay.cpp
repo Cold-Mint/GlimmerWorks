@@ -60,7 +60,7 @@ void glimmer::DebugOverlay::Update(const float delta) {
     }
 }
 
-void glimmer::DebugOverlay::Render(SpriteRenderer *renderer) {
+void glimmer::DebugOverlay::Render(RenderQueue *queue) {
     if (!displayDebugPanel_) {
         return;
     }
@@ -83,7 +83,7 @@ void glimmer::DebugOverlay::Render(SpriteRenderer *renderer) {
             static_cast<float>(x) + 2.0f * uiScale_, 2.0f * uiScale_, static_cast<float>(texture->w) * uiScale_,
             static_cast<float>(texture->h) * uiScale_
         };
-        renderer->DrawTexture(texture, nullptr, &dst);
+        queue->DrawTexture(RenderLayer::Overlay, 0.0F, texture, nullptr, &dst);
     }
     for (int y = 0; y <= windowHeight_; y += labelSpacing) {
         GpuTexture *texture = nullptr;
@@ -100,7 +100,7 @@ void glimmer::DebugOverlay::Render(SpriteRenderer *renderer) {
             2.0f * uiScale_, static_cast<float>(y) + 2.0f * uiScale_, static_cast<float>(texture->w) * uiScale_,
             static_cast<float>(texture->h) * uiScale_
         };
-        renderer->DrawTexture(texture, nullptr, &dst);
+        queue->DrawTexture(RenderLayer::Overlay, 0.0F, texture, nullptr, &dst);
     }
     std::string fpsString = fmt::format(fmt::runtime(langsResources_->fpsInfo), fps_, frameTimeMs_);
     const uint64_t fpsFingerprint = StringUtils::StringToUint64(fpsString);
@@ -120,7 +120,7 @@ void glimmer::DebugOverlay::Render(SpriteRenderer *renderer) {
         texture->w * uiScale_,
         texture->h * uiScale_
     };
-    renderer->DrawTexture(texture, nullptr, &fpsRect);
+    queue->DrawTexture(RenderLayer::Overlay, 0.0F, texture, nullptr, &fpsRect);
 }
 
 void glimmer::DebugOverlay::OnConfigChanged(const Config *config) {

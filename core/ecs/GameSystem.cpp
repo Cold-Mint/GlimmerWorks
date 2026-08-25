@@ -152,7 +152,7 @@ uint8_t glimmer::GameSystem::GetExecutionOrder() {
     return 0;
 }
 
-void glimmer::GameSystem::Render(SpriteRenderer *renderer) {
-    //Here, it is drawn using SDL.
-    //在这里使用SDL绘制。
+void glimmer::GameSystem::Render(RenderQueue *queue) {
+    //Submit render commands into the layered render queue here.
+    //在这里向分层渲染队列提交渲染命令。
 }

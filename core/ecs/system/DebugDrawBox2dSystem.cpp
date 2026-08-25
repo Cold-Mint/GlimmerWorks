@@ -28,7 +28,7 @@
 #include "DebugDrawBox2dSystem.h"
 
 #include "Box2dSystemContext.h"
-#include "core/gpu/SpriteRenderer.h"
+#include "core/gpu/RenderQueue.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/utils/Box2DUtils.h"
 #include "core/world/WorldContext.h"
@@ -67,17 +67,17 @@ void glimmer::DebugDrawBox2dSystem::OnConfigChanged(const Config *config) {
 }
 
 /**
- * Set the SDL Renderer Draw Color
- * 设置 SDL 渲染器绘制颜色
- * @param renderer SDL Renderer 渲染器
+ * Convert a b2HexColor to an SDL_Color for queue submission.
+ * 将 b2HexColor 转换为用于队列提交的 SDL_Color。
  * @param color b2HexColor color 颜色（b2HexColor 格式）
  * @param alpha Alpha value (default: 255) 透明度（默认：255）
+ * @return SDL_Color（RGB 来自 b2HexColor，A 为 alpha）
  */
-static void SetSDLColor(glimmer::SpriteRenderer *renderer, b2HexColor color, Uint8 alpha = 255) {
+static SDL_Color ToSDLColor(b2HexColor color, Uint8 alpha = 255) {
     Uint8 r = color >> 16 & 0xFF;
     Uint8 g = color >> 8 & 0xFF;
     Uint8 b = color & 0xFF;
-    renderer->SetDrawColor({r, g, b, alpha});
+    return {r, g, b, alpha};
 }
 
 /**
@@ -137,31 +137,35 @@ static b2Vec2 TransformBox2DVertex(b2Transform transform, const b2Vec2 &localVer
 }
 
 /**
- * 兼容SDL3：绘制实心圆（逐点扫描实现）
- * @param renderer SDL渲染器
+ * 向渲染队列提交实心圆（逐点扫描实现，Debug 层）
+ * @param queue 渲染队列
  * @param centerX 圆心X坐标（像素）
  * @param centerY 圆心Y坐标（像素）
  * @param radius 半径（像素）
+ * @param color 填充颜色
  */
-static void SDL_RenderFillCircle_Compat(glimmer::SpriteRenderer *renderer, float centerX, float centerY, float radius) {
+static void QueueFillCircle(glimmer::RenderQueue *queue, float centerX, float centerY, float radius,
+                            const SDL_Color &color) {
     // 中点圆算法绘制实心圆
     int r = static_cast<int>(radius);
     for (int y = -r; y <= r; y++) {
         for (int x = -r; x <= r; x++) {
             if (x * x + y * y <= r * r) {
-                renderer->DrawPoint(centerX + x, centerY + y);
+                queue->DrawPoint(glimmer::RenderLayer::Debug, 0.0F, centerX + x, centerY + y, color);
             }
         }
     }
 }
 
 /**
- * 兼容SDL3：绘制带圆角的实心矩形（逐点扫描实现）
- * @param renderer SDL渲染器
+ * 向渲染队列提交带圆角的实心矩形（逐点扫描实现，Debug 层）
+ * @param queue 渲染队列
  * @param rect 矩形区域（像素）
  * @param radius 圆角半径（像素）
+ * @param color 填充颜色
  */
-static void SDL_RenderFillRectRounded_Compat(glimmer::SpriteRenderer *renderer, const SDL_FRect *rect, float radius) {
+static void QueueFillRectRounded(glimmer::RenderQueue *queue, const SDL_FRect *rect, float radius,
+                                 const SDL_Color &color) {
     // 安全约束：radius不能超过矩形短边的一半，否则内部子矩形会出现负尺寸/绘制错乱
     const float maxRadius = fminf(rect->w, rect->h) * 0.5F;
     if (radius > maxRadius) {
@@ -169,7 +173,7 @@ static void SDL_RenderFillRectRounded_Compat(glimmer::SpriteRenderer *renderer, 
     }
     if (radius <= 0) {
         // 无圆角时直接绘制普通矩形
-        renderer->FillRect(rect);
+        queue->FillRect(glimmer::RenderLayer::Debug, 0.0F, rect, color);
         return;
     }
 
@@ -180,7 +184,7 @@ static void SDL_RenderFillRectRounded_Compat(glimmer::SpriteRenderer *renderer, 
         rect->w - 2 * radius,
         rect->h
     };
-    renderer->FillRect(&mainRect);
+    queue->FillRect(glimmer::RenderLayer::Debug, 0.0F, &mainRect, color);
 
     // 2. 绘制左右侧矩形条（不含上下角）
     SDL_FRect sideRect1 = {
@@ -189,7 +193,7 @@ static void SDL_RenderFillRectRounded_Compat(glimmer::SpriteRenderer *renderer, 
         radius,
         rect->h - 2 * radius
     };
-    renderer->FillRect(&sideRect1);
+    queue->FillRect(glimmer::RenderLayer::Debug, 0.0F, &sideRect1, color);
 
     SDL_FRect sideRect2 = {
         rect->x + rect->w - radius,
@@ -197,39 +201,45 @@ static void SDL_RenderFillRectRounded_Compat(glimmer::SpriteRenderer *renderer, 
         radius,
         rect->h - 2 * radius
     };
-    renderer->FillRect(&sideRect2);
+    queue->FillRect(glimmer::RenderLayer::Debug, 0.0F, &sideRect2, color);
 
     // 3. 绘制四个圆角（实心圆的1/4）——仅覆盖对应象限
-    SDL_RenderFillCircle_Compat(renderer, rect->x + radius, rect->y + radius, radius); // 左上
-    SDL_RenderFillCircle_Compat(renderer, rect->x + rect->w - radius, rect->y + radius, radius); // 右上
-    SDL_RenderFillCircle_Compat(renderer, rect->x + radius, rect->y + rect->h - radius, radius); // 左下
-    SDL_RenderFillCircle_Compat(renderer, rect->x + rect->w - radius, rect->y + rect->h - radius, radius); // 右下
+    QueueFillCircle(queue, rect->x + radius, rect->y + radius, radius, color); // 左上
+    QueueFillCircle(queue, rect->x + rect->w - radius, rect->y + radius, radius, color); // 右上
+    QueueFillCircle(queue, rect->x + radius, rect->y + rect->h - radius, radius, color); // 左下
+    QueueFillCircle(queue, rect->x + rect->w - radius, rect->y + rect->h - radius, radius, color); // 右下
 }
 
 /**
- * 兼容SDL3：绘制带圆角的矩形边框（逐线绘制实现）
- * @param renderer SDL渲染器
+ * 向渲染队列提交带圆角的矩形边框（逐线绘制实现，Debug 层）
+ * @param queue 渲染队列
  * @param rect 矩形区域（像素）
  * @param radius 圆角半径（像素）
+ * @param color 边框颜色
  */
-static void SDL_RenderRectRounded_Compat(glimmer::SpriteRenderer *renderer, const SDL_FRect *rect, float radius) {
+static void QueueRectRounded(glimmer::RenderQueue *queue, const SDL_FRect *rect, float radius,
+                             const SDL_Color &color) {
     // 安全约束：radius不能超过矩形短边的一半
     const float maxRadius = fminf(rect->w, rect->h) * 0.5F;
     if (radius > maxRadius) {
         radius = maxRadius;
     }
     if (radius <= 0) {
-        renderer->DrawRect(rect);
+        queue->DrawRect(glimmer::RenderLayer::Debug, 0.0F, rect, color);
         return;
     }
 
     // 绘制直线部分
     // 上下边
-    renderer->DrawLine(rect->x + radius, rect->y, rect->x + rect->w - radius, rect->y);
-    renderer->DrawLine(rect->x + radius, rect->y + rect->h, rect->x + rect->w - radius, rect->y + rect->h);
+    queue->DrawLine(glimmer::RenderLayer::Debug, 0.0F, rect->x + radius, rect->y, rect->x + rect->w - radius, rect->y,
+                    color);
+    queue->DrawLine(glimmer::RenderLayer::Debug, 0.0F, rect->x + radius, rect->y + rect->h,
+                    rect->x + rect->w - radius, rect->y + rect->h, color);
     // 左右边
-    renderer->DrawLine(rect->x, rect->y + radius, rect->x, rect->y + rect->h - radius);
-    renderer->DrawLine(rect->x + rect->w, rect->y + radius, rect->x + rect->w, rect->y + rect->h - radius);
+    queue->DrawLine(glimmer::RenderLayer::Debug, 0.0F, rect->x, rect->y + radius, rect->x, rect->y + rect->h - radius,
+                    color);
+    queue->DrawLine(glimmer::RenderLayer::Debug, 0.0F, rect->x + rect->w, rect->y + radius, rect->x + rect->w,
+                    rect->y + rect->h - radius, color);
 
     // 绘制圆角弧线（简化版：用线段模拟）
     constexpr int segments = 16;
@@ -243,7 +253,7 @@ static void SDL_RenderRectRounded_Compat(glimmer::SpriteRenderer *renderer, cons
         float y1 = rect->y + radius + radius * sinf(a1);
         float x2 = rect->x + radius + radius * cosf(a2);
         float y2 = rect->y + radius + radius * sinf(a2);
-        renderer->DrawLine(x1, y1, x2, y2);
+        queue->DrawLine(glimmer::RenderLayer::Debug, 0.0F, x1, y1, x2, y2, color);
     }
 
     // 右上圆角
@@ -254,7 +264,7 @@ static void SDL_RenderRectRounded_Compat(glimmer::SpriteRenderer *renderer, cons
         float y1 = rect->y + radius + radius * sinf(a1);
         float x2 = rect->x + rect->w - radius + radius * cosf(a2);
         float y2 = rect->y + radius + radius * sinf(a2);
-        renderer->DrawLine(x1, y1, x2, y2);
+        queue->DrawLine(glimmer::RenderLayer::Debug, 0.0F, x1, y1, x2, y2, color);
     }
 
     // 左下圆角
@@ -265,7 +275,7 @@ static void SDL_RenderRectRounded_Compat(glimmer::SpriteRenderer *renderer, cons
         float y1 = rect->y + rect->h - radius + radius * sinf(a1);
         float x2 = rect->x + radius + radius * cosf(a2);
         float y2 = rect->y + rect->h - radius + radius * sinf(a2);
-        renderer->DrawLine(x1, y1, x2, y2);
+        queue->DrawLine(glimmer::RenderLayer::Debug, 0.0F, x1, y1, x2, y2, color);
     }
 
     // 右下圆角
@@ -276,7 +286,7 @@ static void SDL_RenderRectRounded_Compat(glimmer::SpriteRenderer *renderer, cons
         float y1 = rect->y + rect->h - radius + radius * sinf(a1);
         float x2 = rect->x + rect->w - radius + radius * cosf(a2);
         float y2 = rect->y + rect->h - radius + radius * sinf(a2);
-        renderer->DrawLine(x1, y1, x2, y2);
+        queue->DrawLine(glimmer::RenderLayer::Debug, 0.0F, x1, y1, x2, y2, color);
     }
 }
 
@@ -295,9 +305,8 @@ void glimmer::DebugDrawBox2dSystem::b2DrawPolygonFcn(
     }
     const auto box2dSystemContext = static_cast<Box2dSystemContext *>(context);
     const WorldContext *worldContext = box2dSystemContext->GetWorldContext();
-    SpriteRenderer *sdlRenderer = box2dSystemContext->GetRenderer();
-    SetSDLColor(sdlRenderer, color);
-    const SDL_Color oldColor = sdlRenderer->GetDrawColor();
+    RenderQueue *queue = box2dSystemContext->GetRenderQueue();
+    const SDL_Color lineColor = ToSDLColor(color);
 
     for (int i = 0; i < vertexCount; ++i) {
         const b2Vec2 &v1 = vertices[i];
@@ -305,11 +314,8 @@ void glimmer::DebugDrawBox2dSystem::b2DrawPolygonFcn(
         ScreenVector2D p1 = ConvertBox2DToScreen(worldContext, v1);
         ScreenVector2D p2 = ConvertBox2DToScreen(worldContext, v2);
 
-        sdlRenderer->DrawLine(p1.x, p1.y, p2.x, p2.y);
+        queue->DrawLine(RenderLayer::Debug, 0.0F, p1.x, p1.y, p2.x, p2.y, lineColor);
     }
-
-    // 恢复原始颜色
-    sdlRenderer->SetDrawColor(oldColor);
 }
 
 /**
@@ -334,7 +340,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
             box2dBorderColor;
     Color box2dFullColor = worldContext->GetAppContext()->GetGraphicsContext()->GetPreloadColors()->debugColor.
             box2dFullColor;
-    SpriteRenderer *sdlRenderer = box2dSystemContext->GetRenderer();
+    RenderQueue *queue = box2dSystemContext->GetRenderQueue();
     EntityShortCut *entityShortCut = worldContext->GetEntityShortCut();
     if (entityShortCut == nullptr) {
         return;
@@ -349,7 +355,6 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
         return;
     }
 
-    const SDL_Color oldColor = sdlRenderer->GetDrawColor();
     const float zoom = cameraComponent->GetZoom();
     const WorldVector2D cameraPos = cameraTransform2D->GetPosition();
     const ScreenVector2D cameraSize = cameraComponent->GetSize();
@@ -376,11 +381,11 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
     renderQuad.y = minSy;
     renderQuad.w = maxSx - minSx;
     renderQuad.h = maxSy - minSy;
-    sdlRenderer->SetDrawColor({box2dFullColor.r, box2dFullColor.g, box2dFullColor.b, box2dFullColor.a});
     // 关键修复3：radius正确缩放：米 × KSCALE × zoom → 屏幕像素；旧代码 kScale=30 与位置缩放不匹配
     float radiusPx = ConvertBox2DRadiusToScreenPx(radius, zoom);
-    SDL_RenderFillRectRounded_Compat(sdlRenderer, &renderQuad, radiusPx);
-    sdlRenderer->SetDrawColor({box2dBorderColor.r, box2dBorderColor.g, box2dBorderColor.b, box2dBorderColor.a});
+    const SDL_Color fillColor = {box2dFullColor.r, box2dFullColor.g, box2dFullColor.b, box2dFullColor.a};
+    QueueFillRectRounded(queue, &renderQuad, radiusPx, fillColor);
+    const SDL_Color borderColor = {box2dBorderColor.r, box2dBorderColor.g, box2dBorderColor.b, box2dBorderColor.a};
     for (int i = 0; i < 3; ++i) {
         SDL_FRect border = {
             renderQuad.x - static_cast<float>(i),
@@ -388,11 +393,8 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
             renderQuad.w + static_cast<float>(i * 2),
             renderQuad.h + static_cast<float>(i * 2)
         };
-        SDL_RenderRectRounded_Compat(sdlRenderer, &border, radiusPx);
+        QueueRectRounded(queue, &border, radiusPx, borderColor);
     }
-
-    // 恢复原绘制颜色
-    sdlRenderer->SetDrawColor(oldColor);
 }
 
 /**
@@ -406,12 +408,9 @@ void glimmer::DebugDrawBox2dSystem::b2DrawCircleFcn(
     }
     const auto box2dSystemContext = static_cast<Box2dSystemContext *>(context);
     const WorldContext *worldContext = box2dSystemContext->GetWorldContext();
-    SpriteRenderer *sdlRenderer = box2dSystemContext->GetRenderer();
+    RenderQueue *queue = box2dSystemContext->GetRenderQueue();
 
-    // 保存原始颜色
-    const SDL_Color oldColor = sdlRenderer->GetDrawColor();
-
-    SetSDLColor(sdlRenderer, color);
+    const SDL_Color lineColor = ToSDLColor(color);
     ScreenVector2D centerViewport = ConvertBox2DToScreen(worldContext, center);
     const float zoom = GetCameraZoom(worldContext);
     float radiusPx = ConvertBox2DRadiusToScreenPx(radius, zoom);
@@ -423,11 +422,8 @@ void glimmer::DebugDrawBox2dSystem::b2DrawCircleFcn(
         const float y1 = centerViewport.y + radiusPx * sinf(a1);
         const float x2 = centerViewport.x + radiusPx * cosf(a2);
         const float y2 = centerViewport.y + radiusPx * sinf(a2);
-        sdlRenderer->DrawLine(x1, y1, x2, y2);
+        queue->DrawLine(RenderLayer::Debug, 0.0F, x1, y1, x2, y2, lineColor);
     }
-
-    // 恢复原始颜色
-    sdlRenderer->SetDrawColor(oldColor);
 }
 
 /**
@@ -441,13 +437,8 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidCircleFcn(
     }
     const auto box2dSystemContext = static_cast<Box2dSystemContext *>(context);
     const WorldContext *worldContext = box2dSystemContext->GetWorldContext();
-    SpriteRenderer *sdlRenderer = box2dSystemContext->GetRenderer();
+    RenderQueue *queue = box2dSystemContext->GetRenderQueue();
 
-    // 保存原始颜色
-    const SDL_Color oldColor = sdlRenderer->GetDrawColor();
-
-    // 设置半透明填充色
-    SetSDLColor(sdlRenderer, color, 150);
     const b2Vec2 center = transform.p;
     // 转换圆心到视口坐标
     ScreenVector2D centerViewport = ConvertBox2DToScreen(worldContext, center);
@@ -455,11 +446,11 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidCircleFcn(
     const float zoom = GetCameraZoom(worldContext);
     float radiusPx = ConvertBox2DRadiusToScreenPx(radius, zoom);
 
-    // 绘制实心圆 - 替换为兼容实现
-    SDL_RenderFillCircle_Compat(sdlRenderer, centerViewport.x, centerViewport.y, radiusPx);
+    // 绘制实心圆（半透明填充）
+    QueueFillCircle(queue, centerViewport.x, centerViewport.y, radiusPx, ToSDLColor(color, 150));
 
     // 绘制圆边框（增强视觉）
-    SetSDLColor(sdlRenderer, color, 255);
+    const SDL_Color lineColor = ToSDLColor(color, 255);
     constexpr float step = 2.0F * kPi / kCircleSegments;
     for (int i = 0; i < kCircleSegments; ++i) {
         const float a1 = static_cast<float>(i) * step;
@@ -468,11 +459,8 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidCircleFcn(
         const float y1 = centerViewport.y + radiusPx * sinf(a1);
         const float x2 = centerViewport.x + radiusPx * cosf(a2);
         const float y2 = centerViewport.y + radiusPx * sinf(a2);
-        sdlRenderer->DrawLine(x1, y1, x2, y2);
+        queue->DrawLine(RenderLayer::Debug, 0.0F, x1, y1, x2, y2, lineColor);
     }
-
-    // 恢复原始颜色
-    sdlRenderer->SetDrawColor(oldColor);
 }
 
 /**
@@ -486,20 +474,16 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidCapsuleFcn(
     }
     const auto box2dSystemContext = static_cast<Box2dSystemContext *>(context);
     const WorldContext *worldContext = box2dSystemContext->GetWorldContext();
-    SpriteRenderer *sdlRenderer = box2dSystemContext->GetRenderer();
+    RenderQueue *queue = box2dSystemContext->GetRenderQueue();
 
-    // 保存原始颜色
-    const SDL_Color oldColor = sdlRenderer->GetDrawColor();
-
-    SetSDLColor(sdlRenderer, color);
-
+    const SDL_Color lineColor = ToSDLColor(color);
 
     // 1. 绘制胶囊中心线
     ScreenVector2D vp1 = ConvertBox2DToScreen(worldContext, p1);
     ScreenVector2D vp2 = ConvertBox2DToScreen(worldContext, p2);
-    sdlRenderer->DrawLine(vp1.x, vp1.y, vp2.x, vp2.y);
+    queue->DrawLine(RenderLayer::Debug, 0.0F, vp1.x, vp1.y, vp2.x, vp2.y, lineColor);
 
-    // 2. 绘制两端圆形（实心）- 替换为兼容实现
+    // 2. 绘制两端圆形（实心）
     const float zoom = GetCameraZoom(worldContext);
     float radiusPx = ConvertBox2DRadiusToScreenPx(radius, zoom);
     for (int j = 0; j < 2; ++j) {
@@ -507,7 +491,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidCapsuleFcn(
         ScreenVector2D cvp = ConvertBox2DToScreen(worldContext, c);
 
         // 填充圆形
-        SDL_RenderFillCircle_Compat(sdlRenderer, cvp.x, cvp.y, radiusPx);
+        QueueFillCircle(queue, cvp.x, cvp.y, radiusPx, lineColor);
 
         // 绘制圆形边框
         constexpr float step = 2.0F * kPi / kCircleSegments;
@@ -518,12 +502,9 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidCapsuleFcn(
             const float y1 = cvp.y + radiusPx * sinf(a1);
             const float x2 = cvp.x + radiusPx * cosf(a2);
             const float y2 = cvp.y + radiusPx * sinf(a2);
-            sdlRenderer->DrawLine(x1, y1, x2, y2);
+            queue->DrawLine(RenderLayer::Debug, 0.0F, x1, y1, x2, y2, lineColor);
         }
     }
-
-    // 恢复原始颜色
-    sdlRenderer->SetDrawColor(oldColor);
 }
 
 /**
@@ -537,19 +518,12 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSegmentFcn(
     }
     const auto box2dSystemContext = static_cast<Box2dSystemContext *>(context);
     const WorldContext *worldContext = box2dSystemContext->GetWorldContext();
-    SpriteRenderer *sdlRenderer = box2dSystemContext->GetRenderer();
+    RenderQueue *queue = box2dSystemContext->GetRenderQueue();
 
-    // 保存原始颜色
-    const SDL_Color oldColor = sdlRenderer->GetDrawColor();
-
-    SetSDLColor(sdlRenderer, color);
     // 转换线段端点到视口坐标
     ScreenVector2D vp1 = ConvertBox2DToScreen(worldContext, p1);
     ScreenVector2D vp2 = ConvertBox2DToScreen(worldContext, p2);
-    sdlRenderer->DrawLine(vp1.x, vp1.y, vp2.x, vp2.y);
-
-    // 恢复原始颜色
-    sdlRenderer->SetDrawColor(oldColor);
+    queue->DrawLine(RenderLayer::Debug, 0.0F, vp1.x, vp1.y, vp2.x, vp2.y, ToSDLColor(color));
 }
 
 /**
@@ -562,10 +536,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawTransformFcn(b2Transform transform, vo
     }
     const auto box2dSystemContext = static_cast<Box2dSystemContext *>(context);
     const WorldContext *worldContext = box2dSystemContext->GetWorldContext();
-    SpriteRenderer *sdlRenderer = box2dSystemContext->GetRenderer();
-
-    // 保存原始颜色
-    const SDL_Color oldColor = sdlRenderer->GetDrawColor();
+    RenderQueue *queue = box2dSystemContext->GetRenderQueue();
 
     const b2Vec2 &p = transform.p;
     b2Vec2 xAxis = {p.x + 0.4f * transform.q.c, p.y + 0.4f * transform.q.s};
@@ -577,14 +548,12 @@ void glimmer::DebugDrawBox2dSystem::b2DrawTransformFcn(b2Transform transform, vo
     ScreenVector2D yAxisViewport = ConvertBox2DToScreen(worldContext, yAxis);
 
     // X轴（红色）
-    sdlRenderer->SetDrawColor({255, 0, 0, 255});
-    sdlRenderer->DrawLine(pViewport.x, pViewport.y, xAxisViewport.x, xAxisViewport.y);
+    queue->DrawLine(RenderLayer::Debug, 0.0F, pViewport.x, pViewport.y, xAxisViewport.x, xAxisViewport.y,
+                    {255, 0, 0, 255});
 
     // Y轴（绿色）
-    sdlRenderer->SetDrawColor({0, 255, 0, 255});
-    sdlRenderer->DrawLine(pViewport.x, pViewport.y, yAxisViewport.x, yAxisViewport.y);
-    // 恢复原始颜色
-    sdlRenderer->SetDrawColor(oldColor);
+    queue->DrawLine(RenderLayer::Debug, 0.0F, pViewport.x, pViewport.y, yAxisViewport.x, yAxisViewport.y,
+                    {0, 255, 0, 255});
 }
 
 /**
@@ -598,22 +567,15 @@ void glimmer::DebugDrawBox2dSystem::b2DrawPointFcn(
     }
     const auto box2dSystemContext = static_cast<Box2dSystemContext *>(context);
     const WorldContext *worldContext = box2dSystemContext->GetWorldContext();
-    SpriteRenderer *sdlRenderer = box2dSystemContext->GetRenderer();
+    RenderQueue *queue = box2dSystemContext->GetRenderQueue();
 
-    // 保存原始颜色
-    const SDL_Color oldColor = sdlRenderer->GetDrawColor();
-
-    SetSDLColor(sdlRenderer, color);
     // 转换点坐标到视口
     ScreenVector2D pViewport = ConvertBox2DToScreen(worldContext, p);
     // 点大小转换为屏幕像素（米 → 16 × zoom）
     const float zoom = GetCameraZoom(worldContext);
     float sizePx = ConvertBox2DRadiusToScreenPx(size, zoom);
     const SDL_FRect rect = {(pViewport.x - sizePx / 2), (pViewport.y - sizePx / 2), sizePx, sizePx};
-    sdlRenderer->FillRect(&rect); // 填充点（更醒目）
-
-    // 恢复原始颜色
-    sdlRenderer->SetDrawColor(oldColor);
+    queue->FillRect(RenderLayer::Debug, 0.0F, &rect, ToSDLColor(color)); // 填充点（更醒目）
 }
 
 /**
@@ -628,7 +590,7 @@ bool glimmer::DebugDrawBox2dSystem::CanActive() const {
     return displayBox2dShape_;
 }
 
-void glimmer::DebugDrawBox2dSystem::Render(SpriteRenderer *renderer) {
+void glimmer::DebugDrawBox2dSystem::Render(RenderQueue *queue) {
     EntityManager *entityManager = GetEntityManager();
     WorldContext *worldContext = GetWorldContext();
     if (entityManager == nullptr) {
@@ -640,7 +602,7 @@ void glimmer::DebugDrawBox2dSystem::Render(SpriteRenderer *renderer) {
     if (cameraTransform2DComponent_ == nullptr) {
         return;
     }
-    auto box2dSystemContext = Box2dSystemContext(worldContext, renderer);
+    auto box2dSystemContext = Box2dSystemContext(worldContext, queue);
     b2DebugDraw debugDraw = b2DefaultDebugDraw();
     debugDraw.DrawPolygonFcn = b2DrawPolygonFcn;
     debugDraw.DrawSolidPolygonFcn = b2DrawSolidPolygonFcn;
@@ -665,13 +627,7 @@ void glimmer::DebugDrawBox2dSystem::Render(SpriteRenderer *renderer) {
         if (transform2dComponent == nullptr) {
             continue;
         }
-        if (rayComp->IsHit()) {
-            renderer->SetDrawColor({255, 0, 0,
-                                    255});
-        } else {
-            renderer->SetDrawColor({0, 0, 255,
-                                    255});
-        }
+        const SDL_Color rayColor = rayComp->IsHit() ? SDL_Color{255, 0, 0, 255} : SDL_Color{0, 0, 255, 255};
         WorldVector2D startPosition = transform2dComponent->GetPosition() + rayComp->
                                       GetOrigin();
         const ScreenVector2D origin = CoordinateTransformer::WorldToScreen(cameraTransform2DComponent_->GetPosition(),
@@ -681,9 +637,8 @@ void glimmer::DebugDrawBox2dSystem::Render(SpriteRenderer *renderer) {
                                                                         startPosition + rayComp->GetTranslation(),
                                                                         cameraComponent_->GetSize(),
                                                                         cameraComponent_->GetZoom());
-        renderer->DrawLine(origin.x, origin.y, end.x, end.y);
+        queue->DrawLine(RenderLayer::Debug, 0.0F, origin.x, origin.y, end.x, end.y, rayColor);
     }
-    AppContext::RestoreColorRenderer(renderer);
 }
 
 uint8_t glimmer::DebugDrawBox2dSystem::GetExecutionOrder() {

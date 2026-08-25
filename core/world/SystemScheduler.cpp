@@ -203,22 +203,9 @@ bool glimmer::SystemScheduler::OnBackPressed() {
     return handled;
 }
 
-void glimmer::SystemScheduler::Render(SpriteRenderer *renderer) const {
+void glimmer::SystemScheduler::Render(RenderQueue *queue) const {
     for (const std::unique_ptr<GameSystem> &system: activeSystems_) {
-#if  defined(NDEBUG)
-        system->Render(renderer);
-#else
-        SDL_Color oldColor = renderer->GetDrawColor();
-        system->Render(renderer);
-        SDL_Color newColor = renderer->GetDrawColor();
-        if (oldColor.a != newColor.a || oldColor.r != newColor.r || oldColor.g != newColor.g || oldColor.b != newColor.
-            b) {
-            LogCat::e(std::source_location::current(), "The color of the renderer has been changed by the game system.",
-                      std::to_underlying(system->GetGameSystemType()),
-                      " invoke AppContext::RestoreColorRenderer(renderer);");
-            assert(false);
-        }
-#endif
+        system->Render(queue);
     }
 }
 

@@ -52,16 +52,16 @@ namespace glimmer {
         ResourcePackManager *resourcePackManager_ = nullptr;
         std::unordered_map<uint64_t, std::shared_ptr<GpuTexture> > textures_;
 
-        void RenderDebugText(SpriteRenderer *renderer, int windowW, const std::string &text, float y,
+        void RenderDebugText(RenderQueue *queue, int windowW, const std::string &text, float y,
                              const Color &textColor, SDL_Color textBGColor);
 
-        void RenderCrosshairToEdge(SpriteRenderer *renderer, float screenX, float screenY) const;
+        void RenderCrosshairToEdge(RenderQueue *queue, float screenX, float screenY) const;
 
         /**
          * RenderChunkBounds
          * 渲染区块边界
          */
-        static void RenderChunkBounds(SpriteRenderer *renderer, const CameraComponent *cameraComponent,
+        static void RenderChunkBounds(RenderQueue *queue, const CameraComponent *cameraComponent,
                                       const WorldVector2D &cameraPosition);
 
     public:
@@ -75,7 +75,7 @@ namespace glimmer {
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
-        void Render(SpriteRenderer *renderer) override;
+        void Render(RenderQueue *queue) override;
 
         bool HandleEvent(const SDL_Event &event) override;
 

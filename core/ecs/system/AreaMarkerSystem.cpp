@@ -70,7 +70,7 @@ void glimmer::AreaMarkerSystem::Update(const float delta) {
     }
 }
 
-void glimmer::AreaMarkerSystem::Render(SpriteRenderer *renderer) {
+void glimmer::AreaMarkerSystem::Render(RenderQueue *queue) {
     if (appContext_ == nullptr) {
         return;
     }
@@ -122,14 +122,14 @@ void glimmer::AreaMarkerSystem::Render(SpriteRenderer *renderer) {
         rect.y = std::min(camMin.y, camMax.y);
         rect.w = std::abs(camMax.x - camMin.x);
         rect.h = std::abs(camMax.y - camMin.y);
-        renderer->SetDrawColor({areaMarkerFullColor.r,
-                                areaMarkerFullColor.g, areaMarkerFullColor.b,
-                                areaMarkerFullColor.a});
-        renderer->FillRect(&rect);
-        renderer->SetDrawColor({areaMarkerBorderColor.r,
-                                areaMarkerBorderColor.g, areaMarkerBorderColor.b,
-                                areaMarkerBorderColor.a});
-        renderer->DrawRect(&rect);
+        const SDL_Color fillColor = {areaMarkerFullColor.r,
+                                     areaMarkerFullColor.g, areaMarkerFullColor.b,
+                                     areaMarkerFullColor.a};
+        queue->FillRect(RenderLayer::TileOverlay, 0.0F, &rect, fillColor);
+        const SDL_Color borderColor = {areaMarkerBorderColor.r,
+                                       areaMarkerBorderColor.g, areaMarkerBorderColor.b,
+                                       areaMarkerBorderColor.a};
+        queue->DrawRect(RenderLayer::TileOverlay, 0.0F, &rect, borderColor);
 
         std::string areaMarkerTip = fmt::format(fmt::runtime(appContext_->GetLangsResources()->areaMarkerTip),
                                                 tileWidth, tileHeight, tileArea);
@@ -149,9 +149,8 @@ void glimmer::AreaMarkerSystem::Render(SpriteRenderer *renderer) {
             static_cast<float>(areaMarkerTipTexture_->w),
             static_cast<float>(areaMarkerTipTexture_->h)
         };
-        renderer->DrawTexture(areaMarkerTipTexture_.get(), nullptr, &rectCenter);
+        queue->DrawTexture(RenderLayer::TileOverlay, 0.0F, areaMarkerTipTexture_.get(), nullptr, &rectCenter);
     }
-    AppContext::RestoreColorRenderer(renderer);
 }
 
 glimmer::GameSystemType glimmer::AreaMarkerSystem::GetGameSystemType() const {

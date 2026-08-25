@@ -89,7 +89,7 @@ void glimmer::DroppedItemSystem::Update(float delta) {
     }
 }
 
-void glimmer::DroppedItemSystem::Render(SpriteRenderer *renderer) {
+void glimmer::DroppedItemSystem::Render(RenderQueue *queue) {
     EntityManager *entityManager = GetEntityManager();
     if (cameraComponent_ == nullptr || cameraTransform2DComponent_ == nullptr) {
         return;
@@ -124,7 +124,7 @@ void glimmer::DroppedItemSystem::Render(SpriteRenderer *renderer) {
                 size
             };
 
-            renderer->DrawTexture(icon, nullptr, &dstRect);
+            queue->DrawTexture(RenderLayer::GroundItem, 0.0F, icon, nullptr, &dstRect);
         }
     }
 }

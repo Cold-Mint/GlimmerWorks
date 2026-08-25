@@ -463,7 +463,7 @@ static SDL_PixelFormat MapSwapchainFormatToPixelFormat(const SDL_GPUTextureForma
     }
 }
 
-bool glimmer::AppContext::ProcessPendingScreenshot(GpuContext *gpuContext, SpriteRenderer *renderer) {
+bool glimmer::AppContext::ProcessPendingScreenshot(GpuContext *gpuContext, GpuRenderer *renderer) {
     if (!pendingScreenshot_.has_value()) {
         return false;
     }
@@ -675,12 +675,6 @@ void glimmer::AppContext::SetRandomSlogan() const {
         const int idx = RandomUtils::Random(0, static_cast<int>(slogans.size()) - 1);
         const std::string &random_str = slogans[idx];
         windowContext_->SetWindowTitle(random_str.c_str());
-    }
-}
-
-void glimmer::AppContext::RestoreColorRenderer(SpriteRenderer *renderer) {
-    if (renderer != nullptr) {
-        renderer->SetDrawColor({0, 0, 0, 255});
     }
 }
 

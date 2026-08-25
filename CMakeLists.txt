@@ -570,9 +570,10 @@ target_sources(GlimmerWorks
         core/ecs/system/PhysicsSystem.cpp
         core/ecs/system/PlayerControlSystem.cpp
         core/gpu/GpuContext.cpp
+        core/gpu/GpuRenderer.cpp
         core/gpu/GpuShaderCompiler.cpp
         core/gpu/GpuTexture.cpp
-        core/gpu/SpriteRenderer.cpp
+        core/gpu/RenderQueue.cpp
         core/ecs/system/RayCast2DSystem.cpp
         core/ecs/system/SpiritRendererSystem.cpp
         core/ecs/system/TechProviderSystem.cpp
@@ -949,9 +950,12 @@ target_sources(GlimmerWorks
         core/ecs/system/PauseSystem.h
         core/ecs/system/PhysicsSystem.h
         core/gpu/GpuContext.h
+        core/gpu/GpuRenderer.h
         core/gpu/GpuShaderCompiler.h
         core/gpu/GpuTexture.h
-        core/gpu/SpriteRenderer.h
+        core/gpu/RenderCommand.h
+        core/gpu/RenderLayer.h
+        core/gpu/RenderQueue.h
         core/ecs/system/RayCast2DSystem.h
         core/ecs/system/SpiritRendererSystem.h
         core/ecs/system/TechProviderSystem.h

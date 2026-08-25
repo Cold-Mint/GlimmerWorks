@@ -400,7 +400,7 @@ void glimmer::MiningSystem::ProcessMiningComplete(const TileLayerComponent *tile
     miningComponent_->ClearMiningRangeData();
 }
 
-void glimmer::MiningSystem::Render(SpriteRenderer *renderer) {
+void glimmer::MiningSystem::Render(RenderQueue *queue) {
     const WorldContext *worldContext = GetWorldContext();
     const AppContext *appContext = worldContext->GetAppContext();
     if (!cacheTexture_) {
@@ -433,7 +433,7 @@ void glimmer::MiningSystem::Render(SpriteRenderer *renderer) {
         if (point == nullptr) {
             continue;
         }
-        RenderDiggingPoint(renderer, point, zoom);
+        RenderDiggingPoint(queue, point, zoom);
     }
 }
 
@@ -441,7 +441,7 @@ uint8_t glimmer::MiningSystem::GetExecutionOrder() {
     return EXECUTION_ORDER_DIGGING;
 }
 
-void glimmer::MiningSystem::RenderDiggingPoint(SpriteRenderer *renderer, const MiningRangeDataPoint *point,
+void glimmer::MiningSystem::RenderDiggingPoint(RenderQueue *queue, const MiningRangeDataPoint *point,
                                                const float zoom) const {
     const TileVector2D &tileTopLeftPosition = point->GetTileTopLeftPosition();
     const WorldVector2D tileTopLeftPositionWorld = CoordinateTransformer::TileToWorld({
@@ -465,7 +465,7 @@ void glimmer::MiningSystem::RenderDiggingPoint(SpriteRenderer *renderer, const M
     }
     GpuTexture *texture = crackTextureResult->GetResource();
     if (texture != nullptr) {
-        renderer->DrawTexture(texture, nullptr, &dstRect);
+        queue->DrawTexture(RenderLayer::TileOverlay, 0.0F, texture, nullptr, &dstRect);
     }
 }
 

@@ -37,7 +37,7 @@
 
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/GuiGameSystem.h"
-#include "core/gpu/SpriteRenderer.h"
+#include "core/gpu/RenderQueue.h"
 #include "core/scene/WorldScene.h"
 #include "src/core/game_component_type.pb.h"
 
@@ -123,7 +123,7 @@ namespace glimmer {
 
         bool OnBackPressed();
 
-        void Render(SpriteRenderer *renderer) const;
+        void Render(RenderQueue *queue) const;
 
         void LoadDocuments(IDocumentRegistry *documentRegistry) const;
 

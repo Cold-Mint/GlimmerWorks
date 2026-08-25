@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+ * Copyright (C) 2025-2026  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
- * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
+ * 版权(C) 2025-2026  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
  * 该许可证的第3版，或者（由你选择）任何后续版本。
@@ -24,12 +24,10 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "SpriteRenderer.h"
-
-#include <cmath>
+#include "GpuRenderer.h"
 
 #include "GpuShaderCompiler.h"
-#include "core/Config.h"
+#include "RenderQueue.h"
 #include "core/Constants.h"
 #include "core/log/LogCat.h"
 #include "core/mod/resourcePack/ResourcePackManager.h"
@@ -87,13 +85,13 @@ void main() {
 )";
 }
 
-glimmer::SpriteRenderer::~SpriteRenderer() {
+glimmer::GpuRenderer::~GpuRenderer() {
     Shutdown();
 }
 
-SDL_GPUGraphicsPipeline *glimmer::SpriteRenderer::CreateSpritePipeline(SDL_GPUShader *vertexShader,
-                                                                       SDL_GPUShader *fragmentShader,
-                                                                       const bool enableBlend) const {
+SDL_GPUGraphicsPipeline *glimmer::GpuRenderer::CreateSpritePipeline(SDL_GPUShader *vertexShader,
+                                                                    SDL_GPUShader *fragmentShader,
+                                                                    const bool enableBlend) const {
     SDL_GPUVertexBufferDescription vertexBufferDescription = {};
     vertexBufferDescription.slot = 0;
     vertexBufferDescription.pitch = sizeof(SpriteVertex);
@@ -149,8 +147,8 @@ SDL_GPUGraphicsPipeline *glimmer::SpriteRenderer::CreateSpritePipeline(SDL_GPUSh
     return pipeline;
 }
 
-bool glimmer::SpriteRenderer::Init(GpuContext *gpuContext, ResourcePackManager *resourcePackManager,
-                                   const Mods &mods) {
+bool glimmer::GpuRenderer::Init(GpuContext *gpuContext, ResourcePackManager *resourcePackManager,
+                                const Mods &mods) {
     if (gpuContext == nullptr || gpuContext->GetDevice() == nullptr) {
         LogCat::w(std::source_location::current(), "gpuContext is nullptr or not initialized");
         return false;
@@ -301,11 +299,11 @@ bool glimmer::SpriteRenderer::Init(GpuContext *gpuContext, ResourcePackManager *
         Shutdown();
         return false;
     }
-    LogCat::i("SpriteRenderer initialized");
+    LogCat::i("GpuRenderer initialized");
     return true;
 }
 
-void glimmer::SpriteRenderer::Shutdown() {
+void glimmer::GpuRenderer::Shutdown() {
     if (device_ != nullptr) {
         whiteTexture_.reset();
         compositeLayerTexture_.reset();
@@ -341,7 +339,7 @@ void glimmer::SpriteRenderer::Shutdown() {
     gpuContext_ = nullptr;
 }
 
-bool glimmer::SpriteRenderer::EnsureLayerTextures() {
+bool glimmer::GpuRenderer::EnsureLayerTextures() {
     if (gameLayerTexture_ != nullptr && uiLayerTexture_ != nullptr && compositeLayerTexture_ != nullptr &&
         gameLayerTexture_->w == static_cast<int>(swapchainWidth_) &&
         gameLayerTexture_->h == static_cast<int>(swapchainHeight_)) {
@@ -366,7 +364,7 @@ bool glimmer::SpriteRenderer::EnsureLayerTextures() {
     return true;
 }
 
-bool glimmer::SpriteRenderer::BeginFrame(SDL_Window *window) {
+bool glimmer::GpuRenderer::BeginFrame(SDL_Window *window) {
     if (device_ == nullptr) {
         return false;
     }
@@ -391,9 +389,6 @@ bool glimmer::SpriteRenderer::BeginFrame(SDL_Window *window) {
         return false;
     }
     frameActive_ = true;
-    vertices_.clear();
-    runs_.clear();
-    currentTexture_ = nullptr;
     if (!EnsureLayerTextures()) {
         frameActive_ = false;
         return false;
@@ -420,7 +415,7 @@ bool glimmer::SpriteRenderer::BeginFrame(SDL_Window *window) {
     return true;
 }
 
-void glimmer::SpriteRenderer::EnsureRenderPass(const bool clear) {
+void glimmer::GpuRenderer::EnsureRenderPass(const bool clear) {
     if (renderPass_ != nullptr || !frameActive_ || currentTarget_ == nullptr) {
         return;
     }
@@ -430,10 +425,10 @@ void glimmer::SpriteRenderer::EnsureRenderPass(const bool clear) {
     colorTargetInfo.layer_or_depth_plane = 0;
     colorTargetInfo.load_op = clear ? SDL_GPU_LOADOP_CLEAR : SDL_GPU_LOADOP_LOAD;
     colorTargetInfo.clear_color = {
-        static_cast<float>(drawColor_.r) / 255.0F,
-        static_cast<float>(drawColor_.g) / 255.0F,
-        static_cast<float>(drawColor_.b) / 255.0F,
-        static_cast<float>(drawColor_.a) / 255.0F
+        static_cast<float>(clearColor_.r) / 255.0F,
+        static_cast<float>(clearColor_.g) / 255.0F,
+        static_cast<float>(clearColor_.b) / 255.0F,
+        static_cast<float>(clearColor_.a) / 255.0F
     };
     colorTargetInfo.store_op = SDL_GPU_STOREOP_STORE;
     colorTargetInfo.cycle = false;
@@ -443,14 +438,14 @@ void glimmer::SpriteRenderer::EnsureRenderPass(const bool clear) {
     }
 }
 
-void glimmer::SpriteRenderer::EndActivePass() {
+void glimmer::GpuRenderer::EndActivePass() {
     if (renderPass_ != nullptr) {
         SDL_EndGPURenderPass(renderPass_);
         renderPass_ = nullptr;
     }
 }
 
-void glimmer::SpriteRenderer::DrawLayerQuad(SDL_GPUGraphicsPipeline *pipeline, const GpuTexture *source) {
+void glimmer::GpuRenderer::DrawLayerQuad(SDL_GPUGraphicsPipeline *pipeline, const GpuTexture *source) {
     if (renderPass_ == nullptr || pipeline == nullptr || source == nullptr || !source->IsValid()) {
         return;
     }
@@ -476,7 +471,145 @@ void glimmer::SpriteRenderer::DrawLayerQuad(SDL_GPUGraphicsPipeline *pipeline, c
     SDL_DrawGPUPrimitives(renderPass_, 6, 1, 0, 0);
 }
 
-void glimmer::SpriteRenderer::CompositeToSwapchain() {
+void glimmer::GpuRenderer::FlushQueue(RenderQueue &queue) {
+    if (!frameActive_) {
+        return;
+    }
+    //Sort layer by layer (ascending), then by depth inside each layer;
+    //commands with equal keys keep their submission order.
+    //逐层排序（升序），层内再按 depth 排序；排序键相等的命令保持提交顺序。
+    queue.Sort();
+    const std::vector<RenderCommand> &commands = queue.GetCommands();
+    if (commands.empty()) {
+        EndActivePass();
+        return;
+    }
+    //Expand every command into two triangles and group consecutive commands
+    //sharing the same texture into draw runs.
+    //把每个命令展开为两个三角形，并把共享同一纹理的连续命令归入绘制段。
+    std::vector<SpriteVertex> vertices;
+    vertices.reserve(commands.size() * 6);
+    std::vector<DrawRun> runs;
+    SDL_GPUTexture *currentTexture = nullptr;
+    for (const RenderCommand &command: commands) {
+        SDL_GPUTexture *commandTexture = command.texture != nullptr
+                                             ? command.texture->GetGpuTexture()
+                                             : (whiteTexture_ != nullptr ? whiteTexture_->GetGpuTexture() : nullptr);
+        if (commandTexture == nullptr) {
+            continue;
+        }
+        if (currentTexture != commandTexture) {
+            currentTexture = commandTexture;
+            runs.push_back({commandTexture, static_cast<Uint32>(vertices.size()), 0});
+        }
+        const SpriteVertex &topLeft = command.corners[0];
+        const SpriteVertex &topRight = command.corners[1];
+        const SpriteVertex &bottomLeft = command.corners[2];
+        const SpriteVertex &bottomRight = command.corners[3];
+        vertices.push_back(topLeft);
+        vertices.push_back(topRight);
+        vertices.push_back(bottomLeft);
+        vertices.push_back(topRight);
+        vertices.push_back(bottomRight);
+        vertices.push_back(bottomLeft);
+        runs.back().vertexCount += 6;
+    }
+    EndActivePass();
+    if (vertices.empty()) {
+        return;
+    }
+    //Grow the GPU vertex buffer once if the batch does not fit.
+    //批次放不下时一次性扩充 GPU 顶点缓冲。
+    if (vertices.size() > vertexBufferCapacity_) {
+        Uint32 newCapacity = vertexBufferCapacity_ == 0 ? INITIAL_VERTEX_CAPACITY : vertexBufferCapacity_;
+        while (newCapacity < vertices.size()) {
+            newCapacity *= 2;
+        }
+        SDL_GPUBufferCreateInfo bufferCreateInfo = {};
+        bufferCreateInfo.usage = SDL_GPU_BUFFERUSAGE_VERTEX;
+        bufferCreateInfo.size = newCapacity * sizeof(SpriteVertex);
+        bufferCreateInfo.props = 0;
+        SDL_GPUBuffer *newBuffer = SDL_CreateGPUBuffer(device_, &bufferCreateInfo);
+        if (newBuffer == nullptr) {
+            LogCat::w(std::source_location::current(), "Failed to grow vertex buffer: ", SDL_GetError());
+        } else {
+            SDL_ReleaseGPUBuffer(device_, vertexBuffer_);
+            vertexBuffer_ = newBuffer;
+            vertexBufferCapacity_ = newCapacity;
+        }
+    }
+    if (vertexBuffer_ == nullptr || vertices.size() > vertexBufferCapacity_) {
+        //The buffer could not be grown large enough; skip this batch rather
+        //than overflowing the GPU buffer.
+        //缓冲无法扩充到足够大；跳过本批次以避免溢出 GPU 缓冲。
+        return;
+    }
+    const Uint32 dataSize = static_cast<Uint32>(vertices.size() * sizeof(SpriteVertex));
+    SDL_GPUTransferBufferCreateInfo transferBufferCreateInfo = {};
+    transferBufferCreateInfo.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD;
+    transferBufferCreateInfo.size = dataSize;
+    transferBufferCreateInfo.props = 0;
+    SDL_GPUTransferBuffer *transferBuffer = SDL_CreateGPUTransferBuffer(device_, &transferBufferCreateInfo);
+    if (transferBuffer == nullptr) {
+        LogCat::w(std::source_location::current(), "SDL_CreateGPUTransferBuffer failed: ", SDL_GetError());
+        return;
+    }
+    void *mapped = SDL_MapGPUTransferBuffer(device_, transferBuffer, false);
+    if (mapped == nullptr) {
+        SDL_ReleaseGPUTransferBuffer(device_, transferBuffer);
+        LogCat::w(std::source_location::current(), "SDL_MapGPUTransferBuffer failed: ", SDL_GetError());
+        return;
+    }
+    SDL_memcpy(mapped, vertices.data(), dataSize);
+    SDL_UnmapGPUTransferBuffer(device_, transferBuffer);
+    SDL_GPUCopyPass *copyPass = SDL_BeginGPUCopyPass(commandBuffer_);
+    if (copyPass != nullptr) {
+        SDL_GPUTransferBufferLocation location = {};
+        location.transfer_buffer = transferBuffer;
+        location.offset = 0;
+        SDL_GPUBufferRegion region = {};
+        region.buffer = vertexBuffer_;
+        region.offset = 0;
+        region.size = dataSize;
+        SDL_UploadToGPUBuffer(copyPass, &location, &region, false);
+        SDL_EndGPUCopyPass(copyPass);
+        EnsureRenderPass(false);
+        if (renderPass_ != nullptr) {
+            SDL_BindGPUGraphicsPipeline(renderPass_, pipeline_);
+            SDL_GPUViewport viewport = {};
+            viewport.x = 0.0F;
+            viewport.y = 0.0F;
+            viewport.w = static_cast<float>(swapchainWidth_);
+            viewport.h = static_cast<float>(swapchainHeight_);
+            viewport.min_depth = 0.0F;
+            viewport.max_depth = 1.0F;
+            SDL_SetGPUViewport(renderPass_, &viewport);
+            const float viewSize[2] = {
+                static_cast<float>(swapchainWidth_),
+                static_cast<float>(swapchainHeight_)
+            };
+            SDL_PushGPUVertexUniformData(commandBuffer_, 0, viewSize, sizeof(viewSize));
+            SDL_GPUBufferBinding vertexBufferBinding = {};
+            vertexBufferBinding.buffer = vertexBuffer_;
+            vertexBufferBinding.offset = 0;
+            SDL_BindGPUVertexBuffers(renderPass_, 0, &vertexBufferBinding, 1);
+            for (const DrawRun &run: runs) {
+                SDL_GPUTextureSamplerBinding textureBinding = {};
+                textureBinding.texture = run.texture;
+                textureBinding.sampler = gpuContext_->GetNearestSampler();
+                SDL_BindGPUFragmentSamplers(renderPass_, 0, &textureBinding, 1);
+                SDL_DrawGPUPrimitives(renderPass_, run.vertexCount, 1, run.firstVertex, 0);
+            }
+        }
+    }
+    //Safe to release right after the copy pass is enqueued; SDL defers
+    //destruction until the command buffer completes.
+    //拷贝通道入队后即可安全释放；SDL 会将销毁延迟到命令缓冲完成。
+    SDL_ReleaseGPUTransferBuffer(device_, transferBuffer);
+    EndActivePass();
+}
+
+void glimmer::GpuRenderer::CompositeToSwapchain() {
     if (!frameActive_) {
         return;
     }
@@ -501,103 +634,11 @@ void glimmer::SpriteRenderer::CompositeToSwapchain() {
     currentTarget_ = nullptr;
 }
 
-glimmer::GpuTexture *glimmer::SpriteRenderer::GetUiTargetTexture() const {
+glimmer::GpuTexture *glimmer::GpuRenderer::GetUiTargetTexture() const {
     return uiLayerTexture_.get();
 }
 
-void glimmer::SpriteRenderer::EndFrame() {
-    if (!frameActive_) {
-        return;
-    }
-    //Upload and draw any pending geometry.
-    //上传并绘制所有待处理的几何数据。
-    if (!vertices_.empty()) {
-        EndActivePass();
-        const Uint32 dataSize = static_cast<Uint32>(vertices_.size() * sizeof(SpriteVertex));
-        if (vertices_.size() > vertexBufferCapacity_) {
-            Uint32 newCapacity = vertexBufferCapacity_ == 0 ? INITIAL_VERTEX_CAPACITY : vertexBufferCapacity_;
-            while (newCapacity < vertices_.size()) {
-                newCapacity *= 2;
-            }
-            SDL_GPUBufferCreateInfo bufferCreateInfo = {};
-            bufferCreateInfo.usage = SDL_GPU_BUFFERUSAGE_VERTEX;
-            bufferCreateInfo.size = newCapacity * sizeof(SpriteVertex);
-            bufferCreateInfo.props = 0;
-            SDL_GPUBuffer *newBuffer = SDL_CreateGPUBuffer(device_, &bufferCreateInfo);
-            if (newBuffer == nullptr) {
-                LogCat::w(std::source_location::current(), "Failed to grow vertex buffer: ", SDL_GetError());
-            } else {
-                SDL_ReleaseGPUBuffer(device_, vertexBuffer_);
-                vertexBuffer_ = newBuffer;
-                vertexBufferCapacity_ = newCapacity;
-            }
-        }
-        if (vertexBuffer_ != nullptr) {
-            SDL_GPUTransferBufferCreateInfo transferBufferCreateInfo = {};
-            transferBufferCreateInfo.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD;
-            transferBufferCreateInfo.size = dataSize;
-            transferBufferCreateInfo.props = 0;
-            SDL_GPUTransferBuffer *transferBuffer = SDL_CreateGPUTransferBuffer(device_, &transferBufferCreateInfo);
-            if (transferBuffer != nullptr) {
-                void *mapped = SDL_MapGPUTransferBuffer(device_, transferBuffer, false);
-                if (mapped != nullptr) {
-                    SDL_memcpy(mapped, vertices_.data(), dataSize);
-                    SDL_UnmapGPUTransferBuffer(device_, transferBuffer);
-                    SDL_GPUCopyPass *copyPass = SDL_BeginGPUCopyPass(commandBuffer_);
-                    if (copyPass != nullptr) {
-                        SDL_GPUTransferBufferLocation location = {};
-                        location.transfer_buffer = transferBuffer;
-                        location.offset = 0;
-                        SDL_GPUBufferRegion region = {};
-                        region.buffer = vertexBuffer_;
-                        region.offset = 0;
-                        region.size = dataSize;
-                        SDL_UploadToGPUBuffer(copyPass, &location, &region, false);
-                        SDL_EndGPUCopyPass(copyPass);
-                        EnsureRenderPass(false);
-                        if (renderPass_ != nullptr) {
-                            SDL_BindGPUGraphicsPipeline(renderPass_, pipeline_);
-                            SDL_GPUViewport viewport = {};
-                            viewport.x = 0.0F;
-                            viewport.y = 0.0F;
-                            viewport.w = static_cast<float>(swapchainWidth_);
-                            viewport.h = static_cast<float>(swapchainHeight_);
-                            viewport.min_depth = 0.0F;
-                            viewport.max_depth = 1.0F;
-                            SDL_SetGPUViewport(renderPass_, &viewport);
-                            const float viewSize[2] = {
-                                static_cast<float>(swapchainWidth_),
-                                static_cast<float>(swapchainHeight_)
-                            };
-                            SDL_PushGPUVertexUniformData(commandBuffer_, 0, viewSize, sizeof(viewSize));
-                            SDL_GPUBufferBinding vertexBufferBinding = {};
-                            vertexBufferBinding.buffer = vertexBuffer_;
-                            vertexBufferBinding.offset = 0;
-                            SDL_BindGPUVertexBuffers(renderPass_, 0, &vertexBufferBinding, 1);
-                            for (const DrawRun &run: runs_) {
-                                SDL_GPUTextureSamplerBinding textureBinding = {};
-                                textureBinding.texture = run.texture;
-                                textureBinding.sampler = gpuContext_->GetNearestSampler();
-                                SDL_BindGPUFragmentSamplers(renderPass_, 0, &textureBinding, 1);
-                                SDL_DrawGPUPrimitives(renderPass_, run.vertexCount, 1, run.firstVertex, 0);
-                            }
-                        }
-                    }
-                }
-                //Safe to release right after the copy pass is enqueued; SDL
-                //defers destruction until the command buffer completes.
-                //拷贝通道入队后即可安全释放；SDL 会将销毁延迟到命令缓冲完成。
-                SDL_ReleaseGPUTransferBuffer(device_, transferBuffer);
-            }
-        }
-        vertices_.clear();
-        runs_.clear();
-        currentTexture_ = nullptr;
-    }
-    EndActivePass();
-}
-
-bool glimmer::SpriteRenderer::SubmitFrame() {
+bool glimmer::GpuRenderer::SubmitFrame() {
     if (commandBuffer_ == nullptr) {
         return false;
     }
@@ -611,241 +652,26 @@ bool glimmer::SpriteRenderer::SubmitFrame() {
     return result;
 }
 
-SDL_GPUCommandBuffer *glimmer::SpriteRenderer::GetCommandBuffer() const {
+SDL_GPUCommandBuffer *glimmer::GpuRenderer::GetCommandBuffer() const {
     return commandBuffer_;
 }
 
-SDL_GPUTexture *glimmer::SpriteRenderer::GetSwapchainTexture() const {
+SDL_GPUTexture *glimmer::GpuRenderer::GetSwapchainTexture() const {
     return swapchainTexture_;
 }
 
-Uint32 glimmer::SpriteRenderer::GetSwapchainWidth() const {
+Uint32 glimmer::GpuRenderer::GetSwapchainWidth() const {
     return swapchainWidth_;
 }
 
-Uint32 glimmer::SpriteRenderer::GetSwapchainHeight() const {
+Uint32 glimmer::GpuRenderer::GetSwapchainHeight() const {
     return swapchainHeight_;
 }
 
-void glimmer::SpriteRenderer::SetDrawColor(const SDL_Color color) {
-    drawColor_ = color;
+void glimmer::GpuRenderer::SetClearColor(const SDL_Color color) {
+    clearColor_ = color;
 }
 
-SDL_Color glimmer::SpriteRenderer::GetDrawColor() const {
-    return drawColor_;
-}
-
-void glimmer::SpriteRenderer::AppendQuad(SDL_GPUTexture *texture, const SDL_FPoint positions[4],
-                                         const SDL_FPoint uvs[4], const SDL_Color &color) {
-    if (!frameActive_ || renderPass_ == nullptr) {
-        return;
-    }
-    if (vertices_.size() + 6 > vertexBufferCapacity_) {
-        //Flush pending geometry before growing the CPU batch.
-        //在扩充 CPU 批次之前先刷新待处理的几何数据。
-        EndFrame();
-        EnsureRenderPass(false);
-        if (renderPass_ == nullptr) {
-            return;
-        }
-    }
-    if (currentTexture_ != texture) {
-        currentTexture_ = texture;
-        runs_.push_back({texture, static_cast<Uint32>(vertices_.size()), 0});
-    }
-    const SpriteVertex topLeft = {
-        positions[0].x, positions[0].y, uvs[0].x, uvs[0].y, color.r, color.g, color.b, color.a
-    };
-    const SpriteVertex topRight = {
-        positions[1].x, positions[1].y, uvs[1].x, uvs[1].y, color.r, color.g, color.b, color.a
-    };
-    const SpriteVertex bottomLeft = {
-        positions[2].x, positions[2].y, uvs[2].x, uvs[2].y, color.r, color.g, color.b, color.a
-    };
-    const SpriteVertex bottomRight = {
-        positions[3].x, positions[3].y, uvs[3].x, uvs[3].y, color.r, color.g, color.b, color.a
-    };
-    vertices_.push_back(topLeft);
-    vertices_.push_back(topRight);
-    vertices_.push_back(bottomLeft);
-    vertices_.push_back(topRight);
-    vertices_.push_back(bottomRight);
-    vertices_.push_back(bottomLeft);
-    runs_.back().vertexCount += 6;
-}
-
-void glimmer::SpriteRenderer::DrawTexture(const GpuTexture *texture, const SDL_FRect *src, const SDL_FRect *dst,
-                                          const SDL_Color &mod) {
-    if (texture == nullptr || !texture->IsValid()) {
-        return;
-    }
-    const float textureWidth = static_cast<float>(texture->w);
-    const float textureHeight = static_cast<float>(texture->h);
-    SDL_FRect dstRect;
-    if (dst == nullptr) {
-        dstRect = {0.0F, 0.0F, textureWidth, textureHeight};
-    } else {
-        dstRect = *dst;
-    }
-    if (dstRect.w <= 0.0F || dstRect.h <= 0.0F) {
-        return;
-    }
-    float u0 = 0.0F;
-    float v0 = 0.0F;
-    float u1 = 1.0F;
-    float v1 = 1.0F;
-    if (src != nullptr) {
-        u0 = src->x / textureWidth;
-        v0 = src->y / textureHeight;
-        u1 = (src->x + src->w) / textureWidth;
-        v1 = (src->y + src->h) / textureHeight;
-    }
-    const SDL_FPoint positions[4] = {
-        {dstRect.x, dstRect.y},
-        {dstRect.x + dstRect.w, dstRect.y},
-        {dstRect.x, dstRect.y + dstRect.h},
-        {dstRect.x + dstRect.w, dstRect.y + dstRect.h}
-    };
-    const SDL_FPoint uvs[4] = {
-        {u0, v0},
-        {u1, v0},
-        {u0, v1},
-        {u1, v1}
-    };
-    AppendQuad(texture->GetGpuTexture(), positions, uvs, mod);
-}
-
-void glimmer::SpriteRenderer::DrawTextureRotated(const GpuTexture *texture, const SDL_FRect *src,
-                                                 const SDL_FRect *dst, const double angleDegrees,
-                                                 const SDL_FPoint *center, const Uint8 flip, const SDL_Color &mod) {
-    if (texture == nullptr || !texture->IsValid() || dst == nullptr) {
-        return;
-    }
-    if (dst->w <= 0.0F || dst->h <= 0.0F) {
-        return;
-    }
-    const float textureWidth = static_cast<float>(texture->w);
-    const float textureHeight = static_cast<float>(texture->h);
-    float u0 = 0.0F;
-    float v0 = 0.0F;
-    float u1 = 1.0F;
-    float v1 = 1.0F;
-    if (src != nullptr) {
-        u0 = src->x / textureWidth;
-        v0 = src->y / textureHeight;
-        u1 = (src->x + src->w) / textureWidth;
-        v1 = (src->y + src->h) / textureHeight;
-    }
-    SDL_FPoint positions[4] = {
-        {dst->x, dst->y},
-        {dst->x + dst->w, dst->y},
-        {dst->x, dst->y + dst->h},
-        {dst->x + dst->w, dst->y + dst->h}
-    };
-    if (angleDegrees != 0.0) {
-        SDL_FPoint rotationCenter;
-        if (center == nullptr) {
-            rotationCenter = {dst->x + dst->w * 0.5F, dst->y + dst->h * 0.5F};
-        } else {
-            rotationCenter = {dst->x + center->x, dst->y + center->y};
-        }
-        //Positive angles rotate clockwise (SDL_RenderTextureRotated semantics,
-        //+Y points down in screen space).
-        //正角度顺时针旋转（SDL_RenderTextureRotated 语义，屏幕空间 +Y 向下）。
-        const double radians = angleDegrees * (3.14159265358979323846 / 180.0);
-        const auto cosValue = static_cast<float>(std::cos(radians));
-        const auto sinValue = static_cast<float>(std::sin(radians));
-        for (auto &position: positions) {
-            const float dx = position.x - rotationCenter.x;
-            const float dy = position.y - rotationCenter.y;
-            position.x = rotationCenter.x + dx * cosValue - dy * sinValue;
-            position.y = rotationCenter.y + dx * sinValue + dy * cosValue;
-        }
-    }
-    SDL_FPoint uvs[4] = {
-        {u0, v0},
-        {u1, v0},
-        {u0, v1},
-        {u1, v1}
-    };
-    if ((flip & FLIP_HORIZONTAL) != 0) {
-        std::swap(uvs[0].x, uvs[1].x);
-        std::swap(uvs[2].x, uvs[3].x);
-    }
-    if ((flip & FLIP_VERTICAL) != 0) {
-        std::swap(uvs[0].y, uvs[2].y);
-        std::swap(uvs[1].y, uvs[3].y);
-    }
-    AppendQuad(texture->GetGpuTexture(), positions, uvs, mod);
-}
-
-void glimmer::SpriteRenderer::FillRect(const SDL_FRect *rect) {
-    if (rect == nullptr || whiteTexture_ == nullptr) {
-        return;
-    }
-    if (rect->w <= 0.0F || rect->h <= 0.0F) {
-        return;
-    }
-    const SDL_FPoint positions[4] = {
-        {rect->x, rect->y},
-        {rect->x + rect->w, rect->y},
-        {rect->x, rect->y + rect->h},
-        {rect->x + rect->w, rect->y + rect->h}
-    };
-    const SDL_FPoint uvs[4] = {
-        {0.0F, 0.0F},
-        {1.0F, 0.0F},
-        {0.0F, 1.0F},
-        {1.0F, 1.0F}
-    };
-    AppendQuad(whiteTexture_->GetGpuTexture(), positions, uvs, drawColor_);
-}
-
-void glimmer::SpriteRenderer::DrawRect(const SDL_FRect *rect) {
-    if (rect == nullptr) {
-        return;
-    }
-    const SDL_FRect top = {rect->x, rect->y, rect->w, 1.0F};
-    const SDL_FRect bottom = {rect->x, rect->y + rect->h - 1.0F, rect->w, 1.0F};
-    const SDL_FRect left = {rect->x, rect->y + 1.0F, 1.0F, rect->h - 2.0F};
-    const SDL_FRect right = {rect->x + rect->w - 1.0F, rect->y + 1.0F, 1.0F, rect->h - 2.0F};
-    FillRect(&top);
-    FillRect(&bottom);
-    FillRect(&left);
-    FillRect(&right);
-}
-
-void glimmer::SpriteRenderer::DrawLine(const float x1, const float y1, const float x2, const float y2) {
-    const float dx = x2 - x1;
-    const float dy = y2 - y1;
-    const float length = std::sqrt(dx * dx + dy * dy);
-    if (length <= 0.0F) {
-        DrawPoint(x1, y1);
-        return;
-    }
-    //A 1-pixel thick quad perpendicular to the line direction.
-    //垂直于线段方向的 1 像素宽四边形。
-    const float nx = -dy / length * 0.5F;
-    const float ny = dx / length * 0.5F;
-    const SDL_FPoint positions[4] = {
-        {x1 + nx, y1 + ny},
-        {x1 - nx, y1 - ny},
-        {x2 + nx, y2 + ny},
-        {x2 - nx, y2 - ny}
-    };
-    const SDL_FPoint uvs[4] = {
-        {0.0F, 0.0F},
-        {1.0F, 0.0F},
-        {0.0F, 1.0F},
-        {1.0F, 1.0F}
-    };
-    if (whiteTexture_ == nullptr) {
-        return;
-    }
-    AppendQuad(whiteTexture_->GetGpuTexture(), positions, uvs, drawColor_);
-}
-
-void glimmer::SpriteRenderer::DrawPoint(const float x, const float y) {
-    const SDL_FRect rect = {x, y, 1.0F, 1.0F};
-    FillRect(&rect);
+SDL_Color glimmer::GpuRenderer::GetClearColor() const {
+    return clearColor_;
 }

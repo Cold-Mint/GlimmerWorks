@@ -68,6 +68,12 @@ namespace glimmer {
         float chunkFadeInTo = 1.0F;
     };
 
+    struct BiomeBGMConfig {
+        // Player must stay in a different biome this long before the BGM switches.
+        // 玩家须在新生物群系连续停留该时长后才会切换 BGM。
+        float debounceSeconds = 3.0F;
+    };
+
     struct CommandConfig {
         uint16_t locateMaxRadiusSearchChunks = 2048;
     };
@@ -149,6 +155,7 @@ namespace glimmer {
         Audio audio{};
         Console console{};
         AnimConfig anim{};
+        BiomeBGMConfig biomeBgm{};
         CommandConfig command{};
         MainMenuBackground mainMenuBackground{};
         int configVersion = 1;

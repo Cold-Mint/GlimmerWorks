@@ -62,6 +62,16 @@ namespace glimmer {
          */
         MIX_Track *GetFreeTrack(AudioType type);
 
+        /**
+         * Assign audio to a track and start playback, optionally fading in.
+         * 将音频绑定到音轨并开始播放，可选淡入。
+         * @param track target track / 目标音轨
+         * @param audio audio file / 音频文件
+         * @param loopsNumber loop count / 循环次数
+         * @param fadeInMs fade-in duration in ms (<= 0 = no fade) / 淡入时长（毫秒，<=0 为不淡入）
+         */
+        static void PlayOnTrack(MIX_Track *track, MIX_Audio *audio, int loopsNumber, int fadeInMs);
+
     public:
         explicit AudioManager();
 
@@ -102,6 +112,40 @@ namespace glimmer {
          * @param loopsNumber
          */
         void ForcePlayReplace(AudioType audioType, MIX_Audio *audio, int loopsNumber);
+
+        /**
+         * TryPlayFreeFade
+         * 尝试使用空闲音轨播放，并在 fadeInMs 毫秒内淡入。
+         * 无空闲音轨时不播放（与 TryPlayFree 一致）。
+         * @param audioType track type / 音轨类型
+         * @param audio audio file / 音频文件
+         * @param loopsNumber loop count / 循环次数
+         * @param fadeInMs fade-in duration in ms (<= 0 = no fade, behaves like TryPlayFree) / 淡入时长（毫秒，<=0 退化为 TryPlayFree）
+         */
+        void TryPlayFreeFade(AudioType audioType, MIX_Audio *audio, int loopsNumber, int fadeInMs);
+
+        /**
+         * ForcePlayReplaceFade
+         * 强制播放并替换，带淡入/淡出。
+         * 有空闲音轨时：淡出该类型其它正在播放的音轨（交叉淡变），并在空闲音轨上淡入新音频；
+         * 无空闲音轨时：立即停止首个音轨以复用，并淡入新音频（同一条音轨无法同时淡出与淡入）。
+         * Cross-fades when a free track is available; otherwise stops the first track immediately
+         * and fades in the new audio (a single track cannot fade out and in at the same time).
+         * @param audioType track type / 音轨类型
+         * @param audio audio file / 音频文件
+         * @param loopsNumber loop count / 循环次数
+         * @param fadeInMs fade-in duration in ms (<= 0 = no fade) / 淡入时长（毫秒，<=0 为不淡入）
+         * @param fadeOutMs fade-out duration in ms (<= 0 = immediate stop; only used when a free track exists) / 淡出时长（毫秒，<=0 为立即停止；仅在有空闲音轨可交叉淡变时生效）
+         */
+        void ForcePlayReplaceFade(AudioType audioType, MIX_Audio *audio, int loopsNumber, int fadeInMs, int fadeOutMs);
+
+        /**
+         * FadeOut
+         * 在 fadeOutMs 毫秒内淡出并停止某类型的所有音轨。
+         * @param type track type / 音轨类型
+         * @param fadeOutMs fade-out duration in ms (<= 0 = immediate stop) / 淡出时长（毫秒，<=0 为立即停止）
+         */
+        void FadeOut(AudioType type, int fadeOutMs);
 
         /**
          * Create track

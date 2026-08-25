@@ -131,6 +131,7 @@ bool glimmer::Config::ReloadConfig() {
     anim.chunkFadeinDuration = toml::find<float>(tomlRef, "animation", "chunk_fadein_duration");
     anim.chunkFadeInFrom = toml::find<float>(tomlRef, "animation", "chunk_fadein_from");
     anim.chunkFadeInTo = toml::find<float>(tomlRef, "animation", "chunk_fadein_to");
+    biomeBgm.debounceSeconds = toml::find<float>(tomlRef, "biome_bgm", "debounce_seconds");
 #if  !defined(NDEBUG)
     debug.displayDebugPanel = toml::find<bool>(tomlRef, "debug", "display_debug_panel");
     debug.displayBox2dShape = toml::find<bool>(tomlRef, "debug", "display_box2d_shape");

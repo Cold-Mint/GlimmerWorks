@@ -33,11 +33,25 @@
 
 namespace glimmer {
     class BiomeBGMSystem final : public GameSystem {
+        // Fallback debounce used only when the runtime config is unavailable.
+        // The authoritative value lives in config.toml ([biome_bgm].debounce_seconds).
+        // 仅在运行时配置不可用时使用的防抖回退值。
+        // 权威值位于 config.toml（[biome_bgm].debounce_seconds）。
+        static constexpr float kDefaultBiomeBGMDebounceSeconds = 3.0F;
+
         BiomeResource *biomeResource_ = nullptr;
+        // Candidate biome the player is lingering in; committed once the debounce timer elapses.
+        // 玩家正在停留的候选生物群系；防抖计时结束后正式切换。
+        BiomeResource *candidateBiomeResource_ = nullptr;
+        float candidateTimeAccumulator_ = 0.0F;
         std::shared_ptr<AudioResourceResult> audioResult_ = nullptr;
         Transform2DComponent *playerTransform2DComponent_ = nullptr;
         AudioManager *audioManager_ = nullptr;
         ResourceLocator *resourceLocator_ = nullptr;
+
+        // Loads the biome's BGM, starts playback, pops a toast, and commits biomeResource_.
+        // 加载生物群系 BGM、开始播放、弹出弹幕并提交 biomeResource_。
+        void SwitchToBiome(BiomeResource *biomeResource);
 
     public:
         explicit BiomeBGMSystem(WorldContext *worldContext);

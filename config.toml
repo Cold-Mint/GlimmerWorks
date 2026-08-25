@@ -151,6 +151,13 @@ chunk_fadein_duration = 0.2
 chunk_fadein_from = 0.0
 chunk_fadein_to = 1.0
 
+[biome_bgm]
+# Player must stay in a different biome this long before the BGM switches.
+# Filters out brief crossings such as a single jump across a tile boundary (unit: seconds).
+# 玩家须在新生物群系连续停留该时长后才会切换 BGM，
+# 用于过滤短暂跨越（如单次跳跃跨过瓦片边界）造成的频繁切换（单位：秒）。
+debounce_seconds = 3.0
+
 [command]
 # Number of chunks traversed in the positive/negative X direction when using the `locate biome` command.
 # 使用 locate biome 命令时，沿 X 轴正 / 负方向遍历的区块数量。

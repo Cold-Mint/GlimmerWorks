@@ -133,3 +133,58 @@ void glimmer::AudioManager::ForcePlayReplace(const AudioType audioType, MIX_Audi
     MIX_PlayTrack(track, props);
     SDL_DestroyProperties(props);
 }
+
+void glimmer::AudioManager::PlayOnTrack(MIX_Track *track, MIX_Audio *audio, const int loopsNumber, const int fadeInMs) {
+    MIX_SetTrackAudio(track, audio);
+    const SDL_PropertiesID props = SDL_CreateProperties();
+    SDL_SetNumberProperty(props, MIX_PROP_PLAY_LOOPS_NUMBER, loopsNumber);
+    if (fadeInMs > 0) {
+        SDL_SetNumberProperty(props, MIX_PROP_PLAY_FADE_IN_MILLISECONDS_NUMBER, static_cast<Sint64>(fadeInMs));
+        SDL_SetFloatProperty(props, MIX_PROP_PLAY_FADE_IN_START_GAIN_FLOAT, 0.0F);
+    }
+    MIX_PlayTrack(track, props);
+    SDL_DestroyProperties(props);
+}
+
+void glimmer::AudioManager::TryPlayFreeFade(const AudioType audioType, MIX_Audio *audio, const int loopsNumber,
+                                            const int fadeInMs) {
+    if (audio == nullptr) {
+        return;
+    }
+    MIX_Track *track = GetFreeTrack(audioType);
+    if (track == nullptr) {
+        return;
+    }
+    PlayOnTrack(track, audio, loopsNumber, fadeInMs);
+}
+
+void glimmer::AudioManager::FadeOut(const AudioType type, const int fadeOutMs) {
+    if (mixer_ == nullptr) {
+        return;
+    }
+    const Sint64 ms = fadeOutMs > 0 ? static_cast<Sint64>(fadeOutMs) : 0;
+    MIX_StopTag(mixer_, AudioTypeToTag(type), ms);
+}
+
+void glimmer::AudioManager::ForcePlayReplaceFade(const AudioType audioType, MIX_Audio *audio, const int loopsNumber,
+                                                 const int fadeInMs, const int fadeOutMs) {
+    if (audio == nullptr) {
+        return;
+    }
+    MIX_Track *track = GetFreeTrack(audioType);
+    if (track == nullptr) {
+        // No free track: reuse the first track. Stop it immediately so it can be reused now;
+        // a fade-out here would block reuse until the fade completes (which needs a stop callback).
+        auto &tracks = track_[audioType];
+        if (tracks.empty()) {
+            return;
+        }
+        track = tracks[0];
+        MIX_StopTrack(track, 0);
+    } else if (mixer_ != nullptr && fadeOutMs > 0) {
+        // Free track available: cross-fade by fading out the other playing tracks of this type.
+        // The free track isn't playing, so the tag stop leaves it untouched and ready for the new audio.
+        MIX_StopTag(mixer_, AudioTypeToTag(audioType), static_cast<Sint64>(fadeOutMs));
+    }
+    PlayOnTrack(track, audio, loopsNumber, fadeInMs);
+}

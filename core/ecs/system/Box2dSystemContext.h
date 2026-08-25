@@ -25,20 +25,20 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "SDL3/SDL_render.h"
 
 namespace glimmer {
     class WorldContext;
+    class SpriteRenderer;
 
     class Box2dSystemContext {
         WorldContext *worldContext_ = nullptr;
-        SDL_Renderer *renderer_ = nullptr;
+        SpriteRenderer *renderer_ = nullptr;
 
     public:
-        Box2dSystemContext(WorldContext *worldContext, SDL_Renderer *renderer);
+        Box2dSystemContext(WorldContext *worldContext, SpriteRenderer *renderer);
 
         [[nodiscard]] WorldContext *GetWorldContext() const;
 
-        [[nodiscard]] SDL_Renderer *GetRenderer() const;
+        [[nodiscard]] SpriteRenderer *GetRenderer() const;
     };
 }

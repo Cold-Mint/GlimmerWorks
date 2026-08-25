@@ -34,10 +34,10 @@
 #include <vector>
 
 #include <SDL3/SDL_events.h>
-#include <SDL3/SDL_render.h>
 
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/GuiGameSystem.h"
+#include "core/gpu/SpriteRenderer.h"
 #include "core/scene/WorldScene.h"
 #include "src/core/game_component_type.pb.h"
 
@@ -123,7 +123,7 @@ namespace glimmer {
 
         bool OnBackPressed();
 
-        void Render(SDL_Renderer *renderer) const;
+        void Render(SpriteRenderer *renderer) const;
 
         void LoadDocuments(IDocumentRegistry *documentRegistry) const;
 

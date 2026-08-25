@@ -35,7 +35,7 @@
 #include "ability/AbilityType.h"
 #include "core/math/IAllocatable.h"
 #include "core/world/TileResourceData.h"
-#include "SDL3/SDL_render.h"
+#include "core/gpu/GpuTexture.h"
 
 namespace glimmer {
     class WorldContext;
@@ -119,7 +119,7 @@ namespace glimmer {
          * 获取图标
          * @return
          */
-        [[nodiscard]] virtual SDL_Texture *GetIcon() const = 0;
+        [[nodiscard]] virtual GpuTexture *GetIcon() const = 0;
 
         [[nodiscard]] virtual const ResourceRef *GetIconResourceRef() const = 0;
 

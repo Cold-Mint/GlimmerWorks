@@ -38,8 +38,8 @@
 #include "AppRenderer.h"
 #include "SDL3_ttf/SDL_ttf.h"
 #include "SDL3/SDL_init.h"
-#include "SDL3/SDL_render.h"
 #include "SDL3_mixer/SDL_mixer.h"
+#include "core/gpu/GpuShaderCompiler.h"
 #include "utils/ColorUtils.h"
 #include "scene/SceneManager.h"
 #include "console/ConsoleWorker.h"
@@ -101,27 +101,29 @@ bool glimmer::App::InitWindowAndRenderer() {
         return false;
     }
     windowContext->SetWindow(window);
-    LogCat::i("Creating renderer");
-    renderer_ = SDL_CreateRenderer(window, nullptr);
-    if (renderer_ == nullptr) {
-        LogCat::e(std::source_location::current(), "renderer_ is nullptr");
+    LogCat::i("Creating GPU context");
+    gpuContext_ = std::make_unique<GpuContext>();
+    if (!gpuContext_->Init(window, config->window.vSync)) {
+        LogCat::e(std::source_location::current(), "GpuContext init failed");
         return false;
     }
-#if  !defined(NDEBUG)
-    const SDL_PropertiesID rendererProperties = SDL_GetRendererProperties(renderer_);
-    const char *driverName = SDL_GetStringProperty(rendererProperties, SDL_PROP_RENDERER_NAME_STRING, nullptr);
-    LogCat::i("driverName = ", driverName);
-#endif
-    LogCat::i("Renderer created successfully");
-    SDL_SetRenderVSync(renderer_, config->window.vSync);
-    windowContext->SetRenderer(renderer_);
+    windowContext->SetGpuContext(gpuContext_.get());
+    LogCat::i("GPU context created successfully");
+    GpuShaderCompiler::Init();
+    spriteRenderer_ = std::make_unique<SpriteRenderer>();
+    if (!spriteRenderer_->Init(gpuContext_.get())) {
+        LogCat::e(std::source_location::current(), "SpriteRenderer init failed");
+        return false;
+    }
+    windowContext->SetRenderer(spriteRenderer_.get());
+    LogCat::i("SpriteRenderer created successfully");
     RmlContext *rmlContext = appContext_->GetRmlContext();
     if (rmlContext == nullptr) {
         LogCat::e(std::source_location::current(), "RmlContext is nullptr");
         return false;
     }
     LogCat::i("Initializing RmlContext");
-    rmlContext->Init(appContext_->GetVirtualFileSystem(), renderer_, appContext_->GetResourcePackManager(),
+    rmlContext->Init(appContext_->GetVirtualFileSystem(), gpuContext_.get(), appContext_->GetResourcePackManager(),
                      appContext_->GetResourceLocator(), appContext_->GetLanguageValue(), window,
                      config->window.width,
                      config->window.height);
@@ -131,11 +133,8 @@ bool glimmer::App::InitWindowAndRenderer() {
         LogCat::e(std::source_location::current(), "ResourcePackManager is nullptr");
         return false;
     }
-    resourcePackManager->SetRenderer(renderer_, appContext_->GetGraphicsContext()->GetPreloadColors());
-    LogCat::i("ResourcePackManager renderer set");
-
-    SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
-    SDL_SetDefaultTextureScaleMode(renderer_, SDL_SCALEMODE_PIXELART);
+    resourcePackManager->SetGpuContext(gpuContext_.get(), appContext_->GetGraphicsContext()->GetPreloadColors());
+    LogCat::i("ResourcePackManager GPU context set");
     LogCat::i("InitWindowAndRenderer completed successfully");
     return true;
 }
@@ -264,7 +263,7 @@ bool glimmer::App::InitAudio() {
     audioManager->SetMasterVolume(config->audio.masterVolume);
     LogCat::i("Master volume set to: ", config->audio.masterVolume);
 
-    AppContext::RestoreColorRenderer(renderer_);
+    AppContext::RestoreColorRenderer(spriteRenderer_.get());
     LogCat::i("InitAudio completed successfully");
     return true;
 }
@@ -285,6 +284,9 @@ bool glimmer::App::CheckWindowSizeChange(WindowContext *windowContext, const int
 }
 
 glimmer::App::~App() {
+    spriteRenderer_.reset();
+    gpuContext_.reset();
+    GpuShaderCompiler::Shutdown();
     if (initSDLMixSuccess_) {
         MIX_Quit();
     }
@@ -331,7 +333,7 @@ void glimmer::App::Run() const {
 
     LogCat::i("Creating event loop and renderer");
     AppEventLoop eventLoop(appContext_, lastInputTime);
-    AppRenderer renderer(appContext_, renderer_);
+    AppRenderer renderer(appContext_, spriteRenderer_.get());
 
     WindowContext *windowContext = appContext_->GetWindowContext();
     if (windowContext == nullptr) {

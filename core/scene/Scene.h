@@ -26,11 +26,11 @@
  */
 #pragma once
 #include <SDL3/SDL_events.h>
-#include <SDL3/SDL_render.h>
 
 #include "core/Config.h"
 #include "core/context/RmlContext.h"
 #include "core/ecs/IDocumentRegistry.h"
+#include "core/gpu/SpriteRenderer.h"
 #include "RmlUi/Core/DataModelHandle.h"
 
 
@@ -103,7 +103,7 @@ namespace glimmer {
          * 渲染
          * @param renderer
          */
-        virtual void Render(SDL_Renderer *renderer);
+        virtual void Render(SpriteRenderer *renderer);
 
         /**
          * Called when the frame begins

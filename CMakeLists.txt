@@ -83,7 +83,9 @@ set(SDL_IPC OFF)
 set(SDL_PIPE OFF)
 set(SDL_LDAP OFF)
 set(SDL_IPV6 OFF)
-set(SDL_VULKAN OFF)
+# SDL_GPU requires the Vulkan backend on Linux/Android/Windows (SPIRV path)
+# SDL_GPU 在 Linux/Android/Windows 上依赖 Vulkan 后端（SPIRV 路径）
+set(SDL_VULKAN ON)
 set(SDL_OPENGLES OFF)
 set(SDL_OFFSCREEN OFF)
 set(SDL_DUMMYVIDEO OFF)
@@ -324,6 +326,45 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(monoCypher)
 
+# SPIRV-Headers (required by SPIRV-Tools)
+# SPIRV-Headers（SPIRV-Tools 依赖）
+FetchContent_Declare(
+        spirv-headers
+        GIT_REPOSITORY "https://github.com/KhronosGroup/SPIRV-Headers"
+        GIT_TAG ${KHRONOSGROUP_SPIRV_HEADERS_VERSION}
+        GIT_SHALLOW TRUE
+        EXCLUDE_FROM_ALL
+)
+FetchContent_MakeAvailable(spirv-headers)
+
+FetchContent_Declare(
+        spirv-tools
+        GIT_REPOSITORY "https://github.com/KhronosGroup/SPIRV-Tools"
+        GIT_TAG ${KHRONOSGROUP_SPIRV_TOOLS_VERSION}
+        GIT_SHALLOW TRUE
+        EXCLUDE_FROM_ALL
+)
+set(SPIRV_SKIP_TESTS ON CACHE BOOL "" FORCE)
+set(SPIRV_SKIP_EXECUTABLES ON CACHE BOOL "" FORCE)
+set(SPIRV_WERROR OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(spirv-tools)
+
+# glslang compiles the GLSL shaders in shaders/ to SPIR-V at runtime
+# glslang 在运行时将 shaders/ 目录中的 GLSL 着色器编译为 SPIR-V
+FetchContent_Declare(
+        glslang
+        GIT_REPOSITORY "https://github.com/KhronosGroup/glslang"
+        GIT_TAG ${KHRONOSGROUP_GLSLANG_VERSION}
+        GIT_SHALLOW TRUE
+        EXCLUDE_FROM_ALL
+)
+set(GLSLANG_BUILD_SHARED OFF CACHE BOOL "" FORCE)
+set(GLSLANG_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLSLANG_ENABLE_HLSL OFF CACHE BOOL "" FORCE)
+set(GLSLANG_ENABLE_ANGLE OFF CACHE BOOL "" FORCE)
+set(ENABLE_OPT ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(glslang)
+
 set(RMLUI_SAMPLES OFF)
 set(RMLUI_LUA_BINDINGS OFF)
 set(RMLUI_LOTTIE_PLUGIN OFF)
@@ -354,7 +395,7 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/monocypher-src/src/optional/monocypher-ed25519.c"
         "${CMAKE_BINARY_DIR}/_deps/monocypher-src/src/monocypher.c"
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Platform_SDL.cpp"
-        "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL.cpp"
+        "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL_GPU.cpp"
         core/App.cpp
         core/AppEventLoop.cpp
         core/mod/dataPack/BaseResManager.cpp
@@ -534,6 +575,10 @@ target_sources(GlimmerWorks
         core/ecs/system/PauseSystem.cpp
         core/ecs/system/PhysicsSystem.cpp
         core/ecs/system/PlayerControlSystem.cpp
+        core/gpu/GpuContext.cpp
+        core/gpu/GpuShaderCompiler.cpp
+        core/gpu/GpuTexture.cpp
+        core/gpu/SpriteRenderer.cpp
         core/ecs/system/RayCast2DSystem.cpp
         core/ecs/system/SpiritRendererSystem.cpp
         core/ecs/system/TechProviderSystem.cpp
@@ -721,7 +766,7 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/monocypher-src/src/optional/monocypher-ed25519.h"
         "${CMAKE_BINARY_DIR}/_deps/monocypher-src/src/monocypher.h"
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Platform_SDL.h"
-        "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL.h"
+        "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL_GPU.h"
         core/App.h
         core/mod/dataPack/ComposableItemManager.h
         core/mod/dataPack/MaterialItemManager.h
@@ -909,6 +954,10 @@ target_sources(GlimmerWorks
         core/ecs/system/ParallaxBackgroundSystem.h
         core/ecs/system/PauseSystem.h
         core/ecs/system/PhysicsSystem.h
+        core/gpu/GpuContext.h
+        core/gpu/GpuShaderCompiler.h
+        core/gpu/GpuTexture.h
+        core/gpu/SpriteRenderer.h
         core/ecs/system/RayCast2DSystem.h
         core/ecs/system/SpiritRendererSystem.h
         core/ecs/system/TechProviderSystem.h
@@ -1115,9 +1164,9 @@ target_compile_definitions(GlimmerWorks PRIVATE
 )
 
 if (ANDROID)
-    target_link_libraries(GlimmerWorks PRIVATE ${ANDROID_LOG_LIB} android SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks::proto toml11::toml11 BLAKE3::blake3 RmlUi::RmlUi RmlUi::Debugger)
+    target_link_libraries(GlimmerWorks PRIVATE ${ANDROID_LOG_LIB} android SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks::proto toml11::toml11 BLAKE3::blake3 RmlUi::RmlUi RmlUi::Debugger glslang::glslang glslang::SPIRV glslang::glslang-default-resource-limits SPIRV-Tools-opt)
 else ()
-    target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks::proto toml11::toml11 BLAKE3::blake3 RmlUi::RmlUi RmlUi::Debugger)
+    target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks::proto toml11::toml11 BLAKE3::blake3 RmlUi::RmlUi RmlUi::Debugger glslang::glslang glslang::SPIRV glslang::glslang-default-resource-limits SPIRV-Tools-opt)
 endif ()
 
 
@@ -1183,6 +1232,11 @@ endif ()
 
 file(COPY "${CMAKE_SOURCE_DIR}/core_langs/"
         DESTINATION "${CMAKE_BINARY_DIR}/langs/")
+
+# GLSL shaders compiled to SPIR-V at runtime by glslang
+# GLSL 着色器，运行时由 glslang 编译为 SPIR-V
+file(COPY "${CMAKE_SOURCE_DIR}/shaders/"
+        DESTINATION "${CMAKE_BINARY_DIR}/shaders/")
 if (CMAKE_BUILD_TYPE MATCHES "^Debug$")
     file(GLOB_RECURSE DEBUG_LANG_FILES "${CMAKE_SOURCE_DIR}/core_langs_debug/*")
 
@@ -1258,6 +1312,8 @@ install(TARGETS GlimmerWorks RUNTIME DESTINATION .)
 install(FILES "${CMAKE_SOURCE_DIR}/${CONFIG_FILE_NAME}" DESTINATION .)
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/core_langs/"
         DESTINATION "langs")
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/shaders/"
+        DESTINATION "shaders")
 install(DIRECTORY "${CMAKE_BINARY_DIR}/mods/"
         DESTINATION "mods"
         PATTERN ".*" EXCLUDE

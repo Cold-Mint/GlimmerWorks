@@ -123,7 +123,7 @@ const std::optional<std::string> &glimmer::AbilityItem::GetDescription() const {
     return description_;
 }
 
-SDL_Texture *glimmer::AbilityItem::GetIcon() const {
+glimmer::GpuTexture *glimmer::AbilityItem::GetIcon() const {
     if (iconResult_ == nullptr) {
         return nullptr;
     }

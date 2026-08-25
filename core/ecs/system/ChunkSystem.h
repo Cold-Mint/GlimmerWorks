@@ -28,6 +28,7 @@
 
 #include "core/ecs/GameSystem.h"
 #include "core/world/ChunkTask.h"
+#include "SDL3/SDL_rect.h"
 
 namespace glimmer {
     class Transform2DComponent;

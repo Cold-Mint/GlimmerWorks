@@ -29,6 +29,7 @@
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/component/CameraComponent.h"
 #include "core/ecs/component/TileLayerComponent.h"
+#include "core/gpu/GpuTexture.h"
 
 namespace glimmer {
     class Transform2DComponent;
@@ -44,23 +45,23 @@ namespace glimmer {
         std::vector<TileLayerComponent *> tileLayerComponents_;
         AppContext *appContext_ = nullptr;
         bool displayDebugPanel_ = false;
-        std::shared_ptr<SDL_Texture> chunkTextTexture_ = nullptr;
+        std::shared_ptr<GpuTexture> chunkTextTexture_ = nullptr;
         uint64_t chunkTextFingerprint_ = 0;
         PreloadColors *preloadColors_ = nullptr;
         LangsResources *langsResources_ = nullptr;
         ResourcePackManager *resourcePackManager_ = nullptr;
-        std::unordered_map<uint64_t, std::shared_ptr<SDL_Texture> > textures_;
+        std::unordered_map<uint64_t, std::shared_ptr<GpuTexture> > textures_;
 
-        void RenderDebugText(SDL_Renderer *renderer, int windowW, const std::string &text, float y,
+        void RenderDebugText(SpriteRenderer *renderer, int windowW, const std::string &text, float y,
                              const Color &textColor, SDL_Color textBGColor);
 
-        void RenderCrosshairToEdge(SDL_Renderer *renderer, float screenX, float screenY) const;
+        void RenderCrosshairToEdge(SpriteRenderer *renderer, float screenX, float screenY) const;
 
         /**
          * RenderChunkBounds
          * 渲染区块边界
          */
-        static void RenderChunkBounds(SDL_Renderer *renderer, const CameraComponent *cameraComponent,
+        static void RenderChunkBounds(SpriteRenderer *renderer, const CameraComponent *cameraComponent,
                                       const WorldVector2D &cameraPosition);
 
     public:
@@ -74,7 +75,7 @@ namespace glimmer {
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
-        void Render(SDL_Renderer *renderer) override;
+        void Render(SpriteRenderer *renderer) override;
 
         bool HandleEvent(const SDL_Event &event) override;
 

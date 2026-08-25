@@ -25,17 +25,18 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "RmlUi_Renderer_SDL.h"
+#include "RmlUi_Renderer_SDL_GPU.h"
 #include "core/mod/resourcePack/ResourcePackManager.h"
 
 namespace glimmer {
-    class RenderInterfaceSDL3 : public RenderInterface_SDL {
+    class RenderInterfaceSDL3 : public RenderInterface_SDL_GPU {
         ResourcePackManager *resourcePackManager_ = nullptr;
         ResourceLocator *resourceLocator_ = nullptr;
         std::unordered_map<uint64_t, std::shared_ptr<TextureResourceResult> > textureMap_;
 
     public:
-        explicit RenderInterfaceSDL3(SDL_Renderer *renderer, ResourcePackManager *resourcePackManager,
+        explicit RenderInterfaceSDL3(SDL_GPUDevice *device, SDL_Window *window,
+                                     ResourcePackManager *resourcePackManager,
                                      ResourceLocator *resourceLocator);
 
         Rml::TextureHandle LoadTexture(Rml::Vector2i &texture_dimensions, const Rml::String &source) override;

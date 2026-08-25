@@ -315,7 +315,7 @@ const std::optional<std::string> &glimmer::ComposableItem::GetDescription() cons
     return description_;
 }
 
-SDL_Texture *glimmer::ComposableItem::GetIcon() const {
+glimmer::GpuTexture *glimmer::ComposableItem::GetIcon() const {
     if (iconResult_ == nullptr) {
         return nullptr;
     }

@@ -40,7 +40,7 @@ namespace glimmer {
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
-        void Render(SDL_Renderer *renderer) override;
+        void Render(SpriteRenderer *renderer) override;
 
         uint8_t GetExecutionOrder() override;
 

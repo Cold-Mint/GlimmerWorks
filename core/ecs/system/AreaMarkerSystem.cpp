@@ -70,7 +70,7 @@ void glimmer::AreaMarkerSystem::Update(const float delta) {
     }
 }
 
-void glimmer::AreaMarkerSystem::Render(SDL_Renderer *renderer) {
+void glimmer::AreaMarkerSystem::Render(SpriteRenderer *renderer) {
     if (appContext_ == nullptr) {
         return;
     }
@@ -122,14 +122,14 @@ void glimmer::AreaMarkerSystem::Render(SDL_Renderer *renderer) {
         rect.y = std::min(camMin.y, camMax.y);
         rect.w = std::abs(camMax.x - camMin.x);
         rect.h = std::abs(camMax.y - camMin.y);
-        SDL_SetRenderDrawColor(renderer, areaMarkerFullColor.r,
-                               areaMarkerFullColor.g, areaMarkerFullColor.b,
-                               areaMarkerFullColor.a);
-        SDL_RenderFillRect(renderer, &rect);
-        SDL_SetRenderDrawColor(renderer, areaMarkerBorderColor.r,
-                               areaMarkerBorderColor.g, areaMarkerBorderColor.b,
-                               areaMarkerBorderColor.a);
-        SDL_RenderRect(renderer, &rect);
+        renderer->SetDrawColor({areaMarkerFullColor.r,
+                                areaMarkerFullColor.g, areaMarkerFullColor.b,
+                                areaMarkerFullColor.a});
+        renderer->FillRect(&rect);
+        renderer->SetDrawColor({areaMarkerBorderColor.r,
+                                areaMarkerBorderColor.g, areaMarkerBorderColor.b,
+                                areaMarkerBorderColor.a});
+        renderer->DrawRect(&rect);
 
         std::string areaMarkerTip = fmt::format(fmt::runtime(appContext_->GetLangsResources()->areaMarkerTip),
                                                 tileWidth, tileHeight, tileArea);
@@ -149,7 +149,7 @@ void glimmer::AreaMarkerSystem::Render(SDL_Renderer *renderer) {
             static_cast<float>(areaMarkerTipTexture_->w),
             static_cast<float>(areaMarkerTipTexture_->h)
         };
-        SDL_RenderTexture(renderer, areaMarkerTipTexture_.get(), nullptr, &rectCenter);
+        renderer->DrawTexture(areaMarkerTipTexture_.get(), nullptr, &rectCenter);
     }
     AppContext::RestoreColorRenderer(renderer);
 }

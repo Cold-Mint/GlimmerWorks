@@ -54,7 +54,7 @@ namespace glimmer {
 
         [[nodiscard]] const std::optional<std::string> &GetDescription() const override;
 
-        [[nodiscard]] SDL_Texture *GetIcon() const override;
+        [[nodiscard]] GpuTexture *GetIcon() const override;
 
         [[nodiscard]] const ResourceRef *GetIconResourceRef() const override;
 

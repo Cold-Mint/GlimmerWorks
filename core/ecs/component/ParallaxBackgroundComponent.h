@@ -28,7 +28,7 @@
 #include <memory>
 #include "core/ecs/GameComponent.h"
 #include "core/mod/ResourceLocator.h"
-#include "SDL3/SDL_render.h"
+#include "core/gpu/GpuTexture.h"
 
 
 namespace glimmer {
@@ -49,6 +49,6 @@ namespace glimmer {
 
         void ClearTexture();
 
-        SDL_Texture *GetTexture(const ResourceLocator *resourceLocator);
+        GpuTexture *GetTexture(const ResourceLocator *resourceLocator);
     };
 }

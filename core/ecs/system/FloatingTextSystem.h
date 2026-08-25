@@ -44,7 +44,7 @@ namespace glimmer {
 
         void Update(float delta) override;
 
-        void Render(SDL_Renderer *renderer) override;
+        void Render(SpriteRenderer *renderer) override;
 
         void OnConfigChanged(const Config *config) override;
 

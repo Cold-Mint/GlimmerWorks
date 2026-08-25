@@ -249,7 +249,7 @@ SDL_FRect glimmer::BlueprintSystem::CalculateRenderQuad(const TileVector2D &focu
     return renderQuad;
 }
 
-void glimmer::BlueprintSystem::RenderBlueprintTexture(SDL_Renderer *renderer, const SDL_FRect &renderQuad) const {
+void glimmer::BlueprintSystem::RenderBlueprintTexture(SpriteRenderer *renderer, const SDL_FRect &renderQuad) const {
     if (heldTile_ == nullptr) {
         return;
     }
@@ -264,18 +264,14 @@ void glimmer::BlueprintSystem::RenderBlueprintTexture(SDL_Renderer *renderer, co
     if (blueprintTextureResourceResult == nullptr) {
         return;
     }
-    SDL_Texture *blueprintTexture = blueprintTextureResourceResult->GetResource();
+    GpuTexture *blueprintTexture = blueprintTextureResourceResult->GetResource();
     if (blueprintTexture == nullptr) {
         return;
     }
-    Uint8 originalAlpha = 255;
-    SDL_GetTextureAlphaMod(blueprintTexture, &originalAlpha);
-    SDL_SetTextureAlphaMod(blueprintTexture, 128);
-    SDL_RenderTexture(renderer, blueprintTexture, nullptr, &renderQuad);
-    SDL_SetTextureAlphaMod(blueprintTexture, originalAlpha);
+    renderer->DrawTexture(blueprintTexture, nullptr, &renderQuad, {255, 255, 255, 128});
 }
 
-void glimmer::BlueprintSystem::RenderBlueprintMask(SDL_Renderer *renderer, const std::vector<bool> &checkRectResult,
+void glimmer::BlueprintSystem::RenderBlueprintMask(SpriteRenderer *renderer, const std::vector<bool> &checkRectResult,
                                                    const TileVector2D &leftBottom, const uint8_t tileWidth) const {
     if (heldTile_ == nullptr) {
         return;
@@ -304,21 +300,21 @@ void glimmer::BlueprintSystem::RenderBlueprintMask(SDL_Renderer *renderer, const
             if (!tileBlueprintData->DrawValidBlueprintColor()) {
                 continue;
             }
-            SDL_SetRenderDrawColor(renderer, preloadColors_->blueprint.validColor.r,
-                                   preloadColors_->blueprint.validColor.g,
-                                   preloadColors_->blueprint.validColor.b,
-                                   preloadColors_->blueprint.validColor.a);
+            renderer->SetDrawColor({preloadColors_->blueprint.validColor.r,
+                                    preloadColors_->blueprint.validColor.g,
+                                    preloadColors_->blueprint.validColor.b,
+                                    preloadColors_->blueprint.validColor.a});
         } else {
-            SDL_SetRenderDrawColor(renderer, preloadColors_->blueprint.invalidColor.r,
-                                   preloadColors_->blueprint.invalidColor.g,
-                                   preloadColors_->blueprint.invalidColor.b,
-                                   preloadColors_->blueprint.invalidColor.a);
+            renderer->SetDrawColor({preloadColors_->blueprint.invalidColor.r,
+                                    preloadColors_->blueprint.invalidColor.g,
+                                    preloadColors_->blueprint.invalidColor.b,
+                                    preloadColors_->blueprint.invalidColor.a});
         }
-        SDL_RenderFillRect(renderer, &indicatorRenderQuad);
+        renderer->FillRect(&indicatorRenderQuad);
     }
 }
 
-void glimmer::BlueprintSystem::Render(SDL_Renderer *renderer) {
+void glimmer::BlueprintSystem::Render(SpriteRenderer *renderer) {
     const WorldContext *worldContext = GetWorldContext();
     EntityManager *entityManager = GetEntityManager();
     if (worldContext == nullptr || entityManager == nullptr || cameraComponent_ == nullptr || blueprintComponent_ ==
@@ -348,11 +344,11 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer *renderer) {
     blueprintComponent_->SetTopLeftVector(topLeftVector);
     SDL_FRect renderQuad = CalculateRenderQuad(focusPosition, topLeftVector, tileWidth, tileHeight);
 
-    SDL_SetRenderDrawColor(renderer, preloadColors_->game.focusTileBorderColor.r,
-                           preloadColors_->game.focusTileBorderColor.g,
-                           preloadColors_->game.focusTileBorderColor.b,
-                           preloadColors_->game.focusTileBorderColor.a);
-    SDL_RenderRect(renderer, &renderQuad);
+    renderer->SetDrawColor({preloadColors_->game.focusTileBorderColor.r,
+                            preloadColors_->game.focusTileBorderColor.g,
+                            preloadColors_->game.focusTileBorderColor.b,
+                            preloadColors_->game.focusTileBorderColor.a});
+    renderer->DrawRect(&renderQuad);
     if (heldTile_ == nullptr) {
         blueprintComponent_->SetCanPlace(false);
         AppContext::RestoreColorRenderer(renderer);

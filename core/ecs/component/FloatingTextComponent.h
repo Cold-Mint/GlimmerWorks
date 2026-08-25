@@ -27,7 +27,7 @@
 #pragma once
 #include "core/ecs/GameComponent.h"
 #include "core/world/PreloadColors.h"
-#include "SDL3/SDL_render.h"
+#include "core/gpu/GpuTexture.h"
 #include "tweeny/tween.h"
 
 namespace glimmer {
@@ -38,7 +38,7 @@ namespace glimmer {
         float alpha_ = 0.0F;
         tweeny::tween<float> tween_;
         uint64_t expireTime_ = 0;
-        std::shared_ptr<SDL_Texture> texture_ = nullptr;
+        std::shared_ptr<GpuTexture> texture_ = nullptr;
         ResourcePackManager *resourcePackManager_ = nullptr;
         PreloadColors *preloadColors_ = nullptr;
 
@@ -58,7 +58,7 @@ namespace glimmer {
 
         [[nodiscard]] std::string &GetText();
 
-        [[nodiscard]] SDL_Texture *GetTexture() const;
+        [[nodiscard]] GpuTexture *GetTexture() const;
 
         [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 

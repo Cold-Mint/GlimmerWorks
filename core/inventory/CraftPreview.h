@@ -28,11 +28,11 @@
 #include <memory>
 #include <string>
 #include <string_view>
-#include "SDL3/SDL_render.h"
+#include "core/gpu/GpuTexture.h"
 
 namespace glimmer {
     class CraftPreview {
-        std::shared_ptr<SDL_Texture> texture_;
+        std::shared_ptr<GpuTexture> texture_;
         uint8_t count_ = 1;
         std::string name_;
 
@@ -45,8 +45,8 @@ namespace glimmer {
 
         [[nodiscard]] uint8_t GetCount() const;
 
-        std::shared_ptr<SDL_Texture> GetTexture();
+        std::shared_ptr<GpuTexture> GetTexture();
 
-        void SetTexture(std::shared_ptr<SDL_Texture> texture);
+        void SetTexture(std::shared_ptr<GpuTexture> texture);
     };
 }

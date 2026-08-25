@@ -54,7 +54,7 @@ namespace glimmer {
 
         uint8_t GetExecutionOrder() override;
 
-        void Render(SDL_Renderer *renderer) final;
+        void Render(SpriteRenderer *renderer) final;
 
         /**
          * OnCreateDataModels

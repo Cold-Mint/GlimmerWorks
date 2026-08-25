@@ -139,7 +139,7 @@ bool glimmer::TileItem::OnUse(bool mouseLeft, WorldContext *worldContext, uint32
 }
 
 
-SDL_Texture *glimmer::TileItem::GetIcon() const {
+glimmer::GpuTexture *glimmer::TileItem::GetIcon() const {
     if (tileResourceData_ == nullptr) {
         return nullptr;
     }

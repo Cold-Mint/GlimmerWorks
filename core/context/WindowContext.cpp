@@ -32,7 +32,11 @@ void glimmer::WindowContext::SetWindow(SDL_Window *window) {
     window_ = window;
 }
 
-void glimmer::WindowContext::SetRenderer(SDL_Renderer *renderer) {
+void glimmer::WindowContext::SetGpuContext(GpuContext *gpuContext) {
+    gpuContext_ = gpuContext;
+}
+
+void glimmer::WindowContext::SetRenderer(SpriteRenderer *renderer) {
     renderer_ = renderer;
 }
 
@@ -48,7 +52,15 @@ void glimmer::WindowContext::SetWindowTitle(const char *title) const {
     SDL_SetWindowTitle(window_, title);
 }
 
-SDL_Renderer *glimmer::WindowContext::GetRenderer() const {
+SDL_Window *glimmer::WindowContext::GetWindow() const {
+    return window_;
+}
+
+glimmer::GpuContext *glimmer::WindowContext::GetGpuContext() const {
+    return gpuContext_;
+}
+
+glimmer::SpriteRenderer *glimmer::WindowContext::GetRenderer() const {
     return renderer_;
 }
 

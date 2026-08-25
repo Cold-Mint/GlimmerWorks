@@ -42,7 +42,6 @@
 #include "toml11/parser.hpp"
 #include "toml11/spec.hpp"
 #include "core/utils/TomlUtils.h"
-#include "SDL3/SDL_render.h"
 #include "SDL3_mixer/SDL_mixer.h"
 #include "core/world/PreloadColors.h"
 
@@ -68,7 +67,7 @@ bool glimmer::ResourcePackManager::IsResourcePackEnabled(const ResourcePack &pac
 }
 
 std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourcePackManager::CreateTextureResult(
-    SDL_Texture *texture,
+    GpuTexture *texture,
     const ResourcePack *resourcePack,
     const std::string &path) {
     auto textureResourceResult = std::make_unique<TextureResourceResult>();
@@ -105,7 +104,7 @@ std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourcePackManager::Tr
         return nullptr;
     }
 
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer_, surface);
+    GpuTexture *texture = gpuContext_->CreateTextureFromSurface(surface);
     SDL_DestroySurface(surface);
     if (texture == nullptr) {
         return nullptr;
@@ -116,7 +115,7 @@ std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourcePackManager::Tr
 std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourcePackManager::ImplLoadTextureFromFile(
     const std::string &path,
     const Mods &modConfig) {
-    if (renderer_ == nullptr || path.empty()) {
+    if (gpuContext_ == nullptr || path.empty()) {
         return nullptr;
     }
     const auto cache = textureCache_.find(path);
@@ -230,8 +229,8 @@ void glimmer::ResourcePackManager::SetMixer(MIX_Mixer *mixer) {
     mixer_ = mixer;
 }
 
-void glimmer::ResourcePackManager::SetRenderer(SDL_Renderer *renderer, const PreloadColors *preloadColors) {
-    renderer_ = renderer;
+void glimmer::ResourcePackManager::SetGpuContext(GpuContext *gpuContext, const PreloadColors *preloadColors) {
+    gpuContext_ = gpuContext;
     if (preloadColors == nullptr) {
         LogCat::w(std::source_location::current(), "preloadColors is nullptr, fallback textures not created");
         return;
@@ -239,7 +238,7 @@ void glimmer::ResourcePackManager::SetRenderer(SDL_Renderer *renderer, const Pre
     errorTexture_ = CreateTexture(preloadColors->error.accentColor, preloadColors->error.baseColor);
     accessDeniedTexture_ = CreateTexture(preloadColors->accessDenied.accentColor,
                                          preloadColors->accessDenied.baseColor);
-    LogCat::i("Renderer set, fallback textures created");
+    LogCat::i("GPU context set, fallback textures created");
 }
 
 int glimmer::ResourcePackManager::Scan(const std::string &resourcePackPathString,
@@ -350,9 +349,9 @@ std::unique_ptr<glimmer::RmlResourceResult> glimmer::ResourcePackManager::GetRml
 }
 
 
-std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::CreateStringTexture(const std::string &string,
-                                                                               const Color *color, int wrapWidth) {
-    if (renderer_ == nullptr || string.empty() || color == nullptr) {
+std::shared_ptr<glimmer::GpuTexture> glimmer::ResourcePackManager::CreateStringTexture(const std::string &string,
+    const Color *color, int wrapWidth) {
+    if (gpuContext_ == nullptr || string.empty() || color == nullptr) {
         return nullptr;
     }
     uint64_t stringFingerprint = StringUtils::StringToUint64(string);
@@ -375,18 +374,18 @@ std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::CreateStringTexture(c
         return nullptr;
     }
 
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer_, surface);
+    GpuTexture *texture = gpuContext_->CreateTextureFromSurface(surface);
     SDL_DestroySurface(surface);
     if (texture == nullptr) {
         return nullptr;
     }
-    auto deleter = [this,totalFingerprint](SDL_Texture *sdlTexture) {
-        if (sdlTexture != nullptr) {
-            SDL_DestroyTexture(sdlTexture);
+    auto deleter = [this,totalFingerprint](GpuTexture *gpuTexture) {
+        if (gpuTexture != nullptr) {
+            delete gpuTexture;
         }
         stringTextureCache_.erase(totalFingerprint);
     };
-    std::shared_ptr<SDL_Texture> texturePtr(texture, std::move(deleter));
+    std::shared_ptr<GpuTexture> texturePtr(texture, std::move(deleter));
     stringTextureCache_[totalFingerprint] = texturePtr;
     return texturePtr;
 }
@@ -444,7 +443,7 @@ glimmer::ColorResource *glimmer::ResourcePackManager::LoadColorResFromFile(const
 
 std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourcePackManager::CreateTexture(const Color &accent,
     const Color &base) const {
-    if (renderer_ == nullptr) {
+    if (gpuContext_ == nullptr) {
         return nullptr;
     }
 
@@ -470,8 +469,7 @@ std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourcePackManager::Cr
             *reinterpret_cast<Uint32 *>(pixel) = color;
         }
     }
-    SDL_Texture *texture =
-            SDL_CreateTextureFromSurface(renderer_, surface);
+    GpuTexture *texture = gpuContext_->CreateTextureFromSurface(surface);
     SDL_DestroySurface(surface);
     auto textureResourceResult = std::make_unique<TextureResourceResult>();
     textureResourceResult->SetResource(texture);

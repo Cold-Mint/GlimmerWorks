@@ -91,7 +91,7 @@ void glimmer::MaterialItem::Reduce(unsigned value) {
 }
 
 
-SDL_Texture *glimmer::MaterialItem::GetIcon() const {
+glimmer::GpuTexture *glimmer::MaterialItem::GetIcon() const {
     if (iconResult_ == nullptr) {
         return nullptr;
     }

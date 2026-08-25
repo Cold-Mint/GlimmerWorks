@@ -27,17 +27,18 @@
 #pragma once
 #ifdef __ANDROID__
 #include "core/ecs/GameSystem.h"
+#include "core/gpu/GpuTexture.h"
 #include <map>
 #include <memory>
 
 namespace glimmer {
     class AndroidControlSystem : public GameSystem {
-        std::shared_ptr<SDL_Texture> leftTexture = nullptr;
-        std::shared_ptr<SDL_Texture> rightTexture = nullptr;
-        std::shared_ptr<SDL_Texture> jumpTexture = nullptr;
-        std::shared_ptr<SDL_Texture> leftPressedTexture = nullptr;
-        std::shared_ptr<SDL_Texture> rightPressedTexture = nullptr;
-        std::shared_ptr<SDL_Texture> jumpPressedTexture = nullptr;
+        std::shared_ptr<GpuTexture> leftTexture = nullptr;
+        std::shared_ptr<GpuTexture> rightTexture = nullptr;
+        std::shared_ptr<GpuTexture> jumpTexture = nullptr;
+        std::shared_ptr<GpuTexture> leftPressedTexture = nullptr;
+        std::shared_ptr<GpuTexture> rightPressedTexture = nullptr;
+        std::shared_ptr<GpuTexture> jumpPressedTexture = nullptr;
 
         SDL_FRect leftRect{};
         SDL_FRect rightRect{};
@@ -59,7 +60,7 @@ namespace glimmer {
 
         void Update(float delta) override;
 
-        void Render(SDL_Renderer *renderer) override;
+        void Render(SpriteRenderer *renderer) override;
 
         uint8_t GetRenderOrder() override;
 

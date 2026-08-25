@@ -31,8 +31,10 @@
 #include "core/utils/StringUtils.h"
 
 
-glimmer::RenderInterfaceSDL3::RenderInterfaceSDL3(SDL_Renderer *renderer, ResourcePackManager *resourcePackManager,
-                                                  ResourceLocator *resourceLocator) : RenderInterface_SDL(renderer) {
+glimmer::RenderInterfaceSDL3::RenderInterfaceSDL3(SDL_GPUDevice *device, SDL_Window *window,
+                                                  ResourcePackManager *resourcePackManager,
+                                                  ResourceLocator *resourceLocator) : RenderInterface_SDL_GPU(
+        device, window) {
     resourcePackManager_ = resourcePackManager;
     resourceLocator_ = resourceLocator;
 }
@@ -57,13 +59,13 @@ Rml::TextureHandle glimmer::RenderInterfaceSDL3::LoadTexture(Rml::Vector2i &text
         LogCat::w(std::source_location::current(), "textureResourceResult == nullptr");
         return {};
     }
-    SDL_Texture *sdlTexture = textureResourceResult->GetResource();
-    const auto textureHandle = reinterpret_cast<Rml::TextureHandle>(sdlTexture);
-    if (sdlTexture == nullptr) {
-        LogCat::w(std::source_location::current(), "sdlTexture == nullptr");
+    GpuTexture *gpuTexture = textureResourceResult->GetResource();
+    if (gpuTexture == nullptr || !gpuTexture->IsValid()) {
+        LogCat::w(std::source_location::current(), "gpuTexture == nullptr");
         return {};
     }
-    texture_dimensions = {sdlTexture->w, sdlTexture->h};
+    const auto textureHandle = reinterpret_cast<Rml::TextureHandle>(gpuTexture->GetGpuTexture());
+    texture_dimensions = {gpuTexture->w, gpuTexture->h};
     textureMap_[textureHandle] = textureResourceResult;
     return textureHandle;
 }

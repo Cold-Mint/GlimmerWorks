@@ -85,7 +85,7 @@ std::string &glimmer::FloatingTextComponent::GetText() {
     return text_;
 }
 
-SDL_Texture *glimmer::FloatingTextComponent::GetTexture() const {
+glimmer::GpuTexture *glimmer::FloatingTextComponent::GetTexture() const {
     if (texture_ == nullptr) {
         return nullptr;
     }

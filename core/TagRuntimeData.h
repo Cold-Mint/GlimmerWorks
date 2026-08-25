@@ -28,7 +28,7 @@
 #include <memory>
 #include <string>
 
-#include "SDL3/SDL_render.h"
+#include "core/gpu/GpuTexture.h"
 
 namespace glimmer {
     class TagRuntimeData {
@@ -56,15 +56,15 @@ namespace glimmer {
          */
         bool exactMatch_ = true;
 
-        std::shared_ptr<SDL_Texture> positiveTexture_ = nullptr;
-        std::shared_ptr<SDL_Texture> negativeTexture_ = nullptr;
+        std::shared_ptr<GpuTexture> positiveTexture_ = nullptr;
+        std::shared_ptr<GpuTexture> negativeTexture_ = nullptr;
 
     public:
         [[nodiscard]] uint16_t GetRequiredWeight() const;
 
-        void SetPositiveTexture(const std::shared_ptr<SDL_Texture> &positiveTexture);
+        void SetPositiveTexture(const std::shared_ptr<GpuTexture> &positiveTexture);
 
-        void SetNegativeTexture(const std::shared_ptr<SDL_Texture> &negativeTexture);
+        void SetNegativeTexture(const std::shared_ptr<GpuTexture> &negativeTexture);
 
         void SetActualValue(uint16_t actualValue);
 
@@ -78,9 +78,9 @@ namespace glimmer {
 
         [[nodiscard]] uint16_t GetActualValue() const;
 
-        [[nodiscard]] SDL_Texture *GetPositiveTexture() const;
+        [[nodiscard]] GpuTexture *GetPositiveTexture() const;
 
-        [[nodiscard]] SDL_Texture *GetNegativeTexture() const;
+        [[nodiscard]] GpuTexture *GetNegativeTexture() const;
 
         void SetRequiredWeight(uint16_t requiredWeight);
 

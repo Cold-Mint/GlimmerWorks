@@ -26,9 +26,9 @@
  */
 #pragma once
 #include "Scene.h"
+#include "core/gpu/SpriteRenderer.h"
 #include "core/world/WorldContext.h"
 #include <SDL3/SDL_events.h>
-#include <SDL3/SDL_render.h>
 
 namespace glimmer {
     class PauseSystem;
@@ -54,7 +54,7 @@ namespace glimmer {
 
         void OnConfigChanged(const Config *config) override;
 
-        void Render(SDL_Renderer *renderer) override;
+        void Render(SpriteRenderer *renderer) override;
 
         void LoadDocuments() override;
 

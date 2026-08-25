@@ -27,6 +27,7 @@
 #if  !defined(NDEBUG)
 #include "DebugMultiMapSystem.h"
 
+#include "core/gpu/SpriteRenderer.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/context/AppContext.h"
 #include "core/utils/ColorUtils.h"
@@ -106,7 +107,7 @@ void glimmer::DebugMultiMapSystem::OnWatchedComponentChanged(GameComponentTypeMe
     }
 }
 
-void glimmer::DebugMultiMapSystem::Render(SDL_Renderer *renderer) {
+void glimmer::DebugMultiMapSystem::Render(SpriteRenderer *renderer) {
     const WorldContext *worldContext = GetWorldContext();
     if (worldContext == nullptr) {
         return;
@@ -139,8 +140,8 @@ void glimmer::DebugMultiMapSystem::Render(SDL_Renderer *renderer) {
             renderQuad.y = screenPos.y - renderQuad.h * 0.5F;
             SDL_FRect dstRect = {renderQuad.x, renderQuad.y, renderQuad.w, renderQuad.h};
             const Color color = GetTileDebugColor(tileVector2D);
-            SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-            SDL_RenderFillRect(renderer, &dstRect);
+            renderer->SetDrawColor({color.r, color.g, color.b, color.a});
+            renderer->FillRect(&dstRect);
         }
     }
 

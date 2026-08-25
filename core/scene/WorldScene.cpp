@@ -98,7 +98,7 @@ void glimmer::WorldScene::OnConfigChanged(const Config *config) {
     }
 }
 
-void glimmer::WorldScene::Render(SDL_Renderer *renderer) {
+void glimmer::WorldScene::Render(SpriteRenderer *renderer) {
     if (systemScheduler_ != nullptr) {
         systemScheduler_->Render(renderer);
     }

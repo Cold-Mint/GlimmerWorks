@@ -60,7 +60,7 @@ namespace glimmer {
 
         void Reduce(unsigned value) override;
 
-        [[nodiscard]] SDL_Texture *GetIcon() const override;
+        [[nodiscard]] GpuTexture *GetIcon() const override;
 
         bool OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user, const AbilityConfig *abilityConfig,
                    std::unordered_set<AbilityType> &popupAbility) override;

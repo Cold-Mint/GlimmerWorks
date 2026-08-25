@@ -26,7 +26,7 @@
  */
 #include "ParallaxBackgroundSystem.h"
 
-#include "SDL3/SDL.h"
+#include "core/gpu/SpriteRenderer.h"
 #include "core/Constants.h"
 #include "core/ecs/component/ParallaxBackgroundComponent.h"
 #include "core/world/WorldContext.h"
@@ -36,7 +36,7 @@ glimmer::ParallaxBackgroundSystem::ParallaxBackgroundSystem(WorldContext *worldC
     Init();
 }
 
-void glimmer::ParallaxBackgroundSystem::Render(SDL_Renderer *renderer) {
+void glimmer::ParallaxBackgroundSystem::Render(SpriteRenderer *renderer) {
     WorldContext *worldContext = GetWorldContext();
     EntityShortCut *entityShortCut = GetEntityShortCut();
 
@@ -55,7 +55,7 @@ void glimmer::ParallaxBackgroundSystem::Render(SDL_Renderer *renderer) {
     if (parallaxBackgroundComponent == nullptr) {
         return;
     }
-    SDL_Texture *texture = parallaxBackgroundComponent->GetTexture(resourceLocator);
+    GpuTexture *texture = parallaxBackgroundComponent->GetTexture(resourceLocator);
     if (texture == nullptr) {
         return;
     }
@@ -65,7 +65,7 @@ void glimmer::ParallaxBackgroundSystem::Render(SDL_Renderer *renderer) {
         static_cast<float>(appContext->GetWindowContext()->GetWindowWidth()),
         static_cast<float>(appContext->GetWindowContext()->GetWindowHeight()),
     };
-    SDL_RenderTexture(renderer, texture, nullptr, &destRect);
+    renderer->DrawTexture(texture, nullptr, &destRect);
 }
 
 glimmer::GameSystemType glimmer::ParallaxBackgroundSystem::GetGameSystemType() const {

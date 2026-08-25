@@ -72,7 +72,7 @@ namespace glimmer {
 
         bool CanActive() const override;
 
-        void Render(SDL_Renderer *renderer) override;
+        void Render(SpriteRenderer *renderer) override;
 
         uint8_t GetExecutionOrder() override;
 

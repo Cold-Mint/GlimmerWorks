@@ -84,7 +84,7 @@ bool glimmer::TileLayerSystem::ShouldDrawTile(const Color *finalLightColor) cons
     return true;
 }
 
-void glimmer::TileLayerSystem::RenderTileSnapshot(SDL_Renderer *renderer, const TileSnapshot *tileSnapshot,
+void glimmer::TileLayerSystem::RenderTileSnapshot(SpriteRenderer *renderer, const TileSnapshot *tileSnapshot,
                                                   const TileVector2D &tileCoord, Uint8 alpha,
                                                   const Color *finalLightColor,
                                                   std::unordered_set<uint64_t> &drawnTiles) const {
@@ -131,16 +131,14 @@ void glimmer::TileLayerSystem::RenderTileSnapshot(SDL_Renderer *renderer, const 
     if (textureResourceResult == nullptr) {
         return;
     }
-    SDL_Texture *texture = textureResourceResult->GetResource();
+    GpuTexture *texture = textureResourceResult->GetResource();
     if (texture == nullptr) {
         return;
     }
-    SDL_SetTextureAlphaMod(texture, alpha);
-    SDL_RenderTexture(renderer, texture, nullptr, &renderQuad);
-    SDL_SetTextureAlphaMod(texture, 255);
+    renderer->DrawTexture(texture, nullptr, &renderQuad, {255, 255, 255, alpha});
 }
 
-void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
+void glimmer::TileLayerSystem::Render(SpriteRenderer *renderer) {
     WorldContext *worldContext = GetWorldContext();
     if (worldContext == nullptr) {
         return;

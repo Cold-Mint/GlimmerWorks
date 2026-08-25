@@ -95,7 +95,7 @@ void glimmer::FloatingTextSystem::Update(float delta) {
     }
 }
 
-void glimmer::FloatingTextSystem::Render(SDL_Renderer *renderer) {
+void glimmer::FloatingTextSystem::Render(SpriteRenderer *renderer) {
     const WorldContext *worldContext = GetWorldContext();
     EntityManager *entityManager = GetEntityManager();
     if (worldContext == nullptr) {
@@ -137,7 +137,7 @@ void glimmer::FloatingTextSystem::Render(SDL_Renderer *renderer) {
         if (floatingTextComponent->GetAlpha() <= 0.01F) {
             continue;
         }
-        SDL_Texture *texture = floatingTextComponent->GetTexture();
+        GpuTexture *texture = floatingTextComponent->GetTexture();
         if (texture != nullptr) {
             SDL_FRect dst = {
                 camera2D.x,
@@ -146,8 +146,8 @@ void glimmer::FloatingTextSystem::Render(SDL_Renderer *renderer) {
                 static_cast<float>(texture->h)
             };
 
-            SDL_SetTextureAlphaMod(texture, static_cast<Uint8>(floatingTextComponent->GetAlpha() * 255));
-            SDL_RenderTexture(renderer, texture, nullptr, &dst);
+            renderer->DrawTexture(texture, nullptr, &dst,
+                                  {255, 255, 255, static_cast<Uint8>(floatingTextComponent->GetAlpha() * 255)});
         }
     }
 }

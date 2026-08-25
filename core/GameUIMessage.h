@@ -30,7 +30,7 @@
 
 #include "math/Color.h"
 #include "mod/resourcePack/ResourcePackManager.h"
-#include "SDL3/SDL_render.h"
+#include "core/gpu/GpuTexture.h"
 #include "tweeny/tween.h"
 
 namespace glimmer {
@@ -42,7 +42,7 @@ namespace glimmer {
         float alpha_ = 0.0F;
 
         tweeny::tween<float> tween_;
-        std::shared_ptr<SDL_Texture> texture_;
+        std::shared_ptr<GpuTexture> texture_;
 
     public:
         GameUIMessage(ResourcePackManager *resourcePackManager, std::string text, uint64_t now, const Color *color,
@@ -56,7 +56,7 @@ namespace glimmer {
 
         [[nodiscard]] float GetAlpha() const;
 
-        [[nodiscard]] SDL_Texture *GetTexture() const;
+        [[nodiscard]] GpuTexture *GetTexture() const;
 
         [[nodiscard]] tweeny::tween<float> &GetTween();
 

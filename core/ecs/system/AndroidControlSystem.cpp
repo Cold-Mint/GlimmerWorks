@@ -141,7 +141,7 @@ namespace glimmer {
     void AndroidControlSystem::Update(float delta) {
     }
 
-    void AndroidControlSystem::Render(SDL_Renderer *renderer) {
+    void AndroidControlSystem::Render(SpriteRenderer *renderer) {
         if (renderer == nullptr) {
             return;
         }
@@ -188,17 +188,17 @@ namespace glimmer {
             if (type == ButtonType::Jump) jumpActive = true;
         }
 
-        SDL_RenderTexture(renderer, leftActive && leftPressedTexture ? leftPressedTexture.get() : leftTexture.get(),
-                          nullptr, &leftRect);
-        SDL_RenderTexture(renderer, rightActive && rightPressedTexture ? rightPressedTexture.get() : rightTexture.get(),
-                          nullptr, &rightRect);
-        SDL_RenderTexture(renderer, jumpActive && jumpPressedTexture ? jumpPressedTexture.get() : jumpTexture.get(),
-                          nullptr, &jumpRect);
+        renderer->DrawTexture(leftActive && leftPressedTexture ? leftPressedTexture.get() : leftTexture.get(),
+                              nullptr, &leftRect);
+        renderer->DrawTexture(rightActive && rightPressedTexture ? rightPressedTexture.get() : rightTexture.get(),
+                              nullptr, &rightRect);
+        renderer->DrawTexture(jumpActive && jumpPressedTexture ? jumpPressedTexture.get() : jumpTexture.get(),
+                              nullptr, &jumpRect);
 #if  !defined(NDEBUG)
-SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-SDL_RenderRect(renderer, &leftRect);
-SDL_RenderRect(renderer, &rightRect);
-SDL_RenderRect(renderer, &jumpRect);
+renderer->SetDrawColor({255, 0, 0, 255});
+renderer->DrawRect(&leftRect);
+renderer->DrawRect(&rightRect);
+renderer->DrawRect(&jumpRect);
 #endif
 AppContext::RestoreColorRenderer (renderer);
     }

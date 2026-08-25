@@ -36,7 +36,8 @@ namespace glimmer {
         bool initSDLMixSuccess_ = false;
         bool initSDLTtfSuccess_ = false;
         uint64_t lastTime_ = 0;
-        SDL_Renderer *renderer_ = nullptr;
+        std::unique_ptr<GpuContext> gpuContext_ = nullptr;
+        std::unique_ptr<SpriteRenderer> spriteRenderer_ = nullptr;
         AppContext *appContext_ = nullptr;
         SDL_Window *window = nullptr;
         MIX_Mixer *mixer_ = nullptr;

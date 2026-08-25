@@ -152,7 +152,7 @@ uint8_t glimmer::GameSystem::GetExecutionOrder() {
     return 0;
 }
 
-void glimmer::GameSystem::Render(SDL_Renderer *renderer) {
+void glimmer::GameSystem::Render(SpriteRenderer *renderer) {
     //Here, it is drawn using SDL.
     //在这里使用SDL绘制。
 }

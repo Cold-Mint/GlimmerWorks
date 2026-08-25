@@ -59,7 +59,7 @@ float glimmer::GameUIMessage::GetAlpha() const {
     return alpha_;
 }
 
-SDL_Texture *glimmer::GameUIMessage::GetTexture() const {
+glimmer::GpuTexture *glimmer::GameUIMessage::GetTexture() const {
     if (texture_ == nullptr) {
         return nullptr;
     }

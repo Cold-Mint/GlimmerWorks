@@ -96,7 +96,7 @@ namespace glimmer {
 
         void ProcessMiningComplete(const TileLayerComponent *tileLayer, TileLayerType tileLayerType) const;
 
-        void RenderDiggingPoint(SDL_Renderer *renderer, const MiningRangeDataPoint *point, float zoom) const;
+        void RenderDiggingPoint(SpriteRenderer *renderer, const MiningRangeDataPoint *point, float zoom) const;
 
     public:
         static uint16_t BreakTile(const TileBreakParams &params);
@@ -107,7 +107,7 @@ namespace glimmer {
 
         void Update(float delta) override;
 
-        void Render(SDL_Renderer *renderer) override;
+        void Render(SpriteRenderer *renderer) override;
 
         uint8_t GetExecutionOrder() override;
 

@@ -26,10 +26,10 @@
  */
 #pragma once
 #include "ResourceResult.h"
-#include "SDL3/SDL_render.h"
+#include "core/gpu/GpuTexture.h"
 
 namespace glimmer {
-    class TextureResourceResult : public ResourceResult<SDL_Texture> {
+    class TextureResourceResult : public ResourceResult<GpuTexture> {
         std::filesystem::path texturePath_;
 
     public:

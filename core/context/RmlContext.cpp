@@ -87,7 +87,7 @@ Rml::Context *glimmer::RmlContext::GetRmlContext() const {
     return context_;
 }
 
-bool glimmer::RmlContext::Init(VirtualFileSystem *virtualFileSystem, SDL_Renderer *renderer,
+bool glimmer::RmlContext::Init(VirtualFileSystem *virtualFileSystem, GpuContext *gpuContext,
                                ResourcePackManager *resourcePackManager, ResourceLocator *resourceLocator,
                                toml::value *langsValuePtr,
                                SDL_Window *window, int width, int height) {
@@ -96,7 +96,8 @@ bool glimmer::RmlContext::Init(VirtualFileSystem *virtualFileSystem, SDL_Rendere
     systemInterfaceSDL3_ = std::make_unique<SystemInterfaceSDL3>(langsValuePtr);
     systemInterfaceSDL3_->SetWindow(window);
     Rml::SetSystemInterface(systemInterfaceSDL3_.get());
-    renderInterfaceSDL3_ = std::make_unique<RenderInterfaceSDL3>(renderer, resourcePackManager, resourceLocator);
+    renderInterfaceSDL3_ = std::make_unique<RenderInterfaceSDL3>(gpuContext->GetDevice(), window,
+                                                                 resourcePackManager, resourceLocator);
     Rml::SetRenderInterface(renderInterfaceSDL3_.get());
     gameFileInterface_ = std::make_unique<GameFileInterface>(virtualFileSystem);
     Rml::SetFileInterface(gameFileInterface_.get());
@@ -154,11 +155,14 @@ void glimmer::RmlContext::UpdateContext() const {
     context_->Update();
 }
 
-void glimmer::RmlContext::RenderContext() const {
-    if (context_ == nullptr) {
+void glimmer::RmlContext::RenderContext(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUTexture *swapchainTexture,
+                                        const Uint32 width, const Uint32 height) const {
+    if (context_ == nullptr || commandBuffer == nullptr || swapchainTexture == nullptr) {
         return;
     }
+    renderInterfaceSDL3_->BeginFrame(commandBuffer, swapchainTexture, width, height);
     context_->Render();
+    renderInterfaceSDL3_->EndFrame();
 }
 
 
@@ -166,5 +170,8 @@ glimmer::RmlContext::RmlContext() = default;
 
 glimmer::RmlContext::~RmlContext() {
     LogCat::d("Destroy rmlContext");
+    if (renderInterfaceSDL3_ != nullptr) {
+        renderInterfaceSDL3_->Shutdown();
+    }
     Rml::Shutdown();
 }

@@ -61,7 +61,7 @@ glimmer::SpiritRendererSystem::SpiritRendererSystem(WorldContext *worldContext) 
     Init();
 }
 
-void glimmer::SpiritRendererSystem::Render(SDL_Renderer *renderer) {
+void glimmer::SpiritRendererSystem::Render(SpriteRenderer *renderer) {
     const WorldContext *worldContext = GetWorldContext();
     EntityManager *entityManager = GetEntityManager();
     if (worldContext == nullptr) {
@@ -93,7 +93,7 @@ void glimmer::SpiritRendererSystem::Render(SDL_Renderer *renderer) {
         if (transform2DComponent == nullptr) {
             continue;
         }
-        SDL_Texture *sdlTexture = spiritRendererComponent->GetTexture(resourceLocator);
+        GpuTexture *sdlTexture = spiritRendererComponent->GetTexture(resourceLocator);
         WorldVector2D worldVector2d = transform2DComponent->GetPosition() + spiritRendererComponent->GetPosition();
         SDL_FRect worldVectorRect = {
             worldVector2d.x,
@@ -109,16 +109,15 @@ void glimmer::SpiritRendererSystem::Render(SDL_Renderer *renderer) {
                 ScreenVector2D.x, ScreenVector2D.y, static_cast<float>(sdlTexture->w) * zoom,
                 static_cast<float>(sdlTexture->h) * zoom
             };
-            SDL_FlipMode flip = SDL_FLIP_NONE;
+            Uint8 flip = glimmer::FLIP_NONE;
 
             if (spiritRendererComponent->IsFlipH()) {
-                flip = static_cast<SDL_FlipMode>(flip | SDL_FLIP_HORIZONTAL);
+                flip = flip | glimmer::FLIP_HORIZONTAL;
             }
             if (spiritRendererComponent->IsFlipV()) {
-                flip = static_cast<SDL_FlipMode>(flip | SDL_FLIP_VERTICAL);
+                flip = flip | glimmer::FLIP_VERTICAL;
             }
-            SDL_RenderTextureRotated(
-                renderer,
+            renderer->DrawTextureRotated(
                 sdlTexture,
                 nullptr,
                 &dstrect,

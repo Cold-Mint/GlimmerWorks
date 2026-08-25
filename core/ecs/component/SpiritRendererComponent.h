@@ -29,7 +29,7 @@
 #include "core/math/WorldVector2D.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/mod/ResourceRef.h"
-#include "SDL3/SDL_render.h"
+#include "core/gpu/GpuTexture.h"
 
 namespace glimmer {
     class SpiritRendererComponent : public GameComponent {
@@ -52,7 +52,7 @@ namespace glimmer {
 
         void SetFlipV(bool flipV);
 
-        [[nodiscard]] SDL_Texture *GetTexture(const ResourceLocator *resourceLocator);
+        [[nodiscard]] GpuTexture *GetTexture(const ResourceLocator *resourceLocator);
 
         void SetPosition(const WorldVector2D &position);
 

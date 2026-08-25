@@ -289,7 +289,7 @@ void glimmer::Scene::Update(float delta) {
 #endif
 }
 
-void glimmer::Scene::Render(SDL_Renderer *renderer) {
+void glimmer::Scene::Render(SpriteRenderer *renderer) {
     // Intentionally empty default implementation for base class
 }
 

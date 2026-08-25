@@ -35,10 +35,10 @@ const std::filesystem::path &glimmer::TextureResourceResult::GetTexturePath() {
 }
 
 void glimmer::TextureResourceResult::DestroyResource() {
-    SDL_Texture *resource = GetResource();
+    GpuTexture *resource = GetResource();
     if (resource == nullptr) {
         return;
     }
-    SDL_DestroyTexture(resource);
+    delete resource;
     SetResource(nullptr);
 }

@@ -75,7 +75,7 @@ namespace glimmer {
 
         [[nodiscard]] const std::optional<std::string> &GetDescription() const override;
 
-        [[nodiscard]] SDL_Texture *GetIcon() const override;
+        [[nodiscard]] GpuTexture *GetIcon() const override;
 
         void SwapItem(uint8_t index,
                       ItemContainer *otherContainer,

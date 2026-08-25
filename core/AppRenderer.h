@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -30,7 +30,7 @@
 namespace glimmer {
     class AppRenderer {
         AppContext *appContext_ = nullptr;
-        SDL_Renderer *renderer_ = nullptr;
+        SpriteRenderer *renderer_ = nullptr;
 
         void RenderUiMessage(int windowHeight, uint64_t frameStart) const;
 
@@ -43,7 +43,7 @@ namespace glimmer {
         void RenderDebug() const;
 
     public:
-        AppRenderer(AppContext *appContext, SDL_Renderer *renderer);
+        AppRenderer(AppContext *appContext, SpriteRenderer *renderer);
 
         void RenderFrame(const RmlContext *rmlContext, int windowWidth, int windowHeight, uint64_t frameStart,
                          float deltaTime) const;

@@ -60,7 +60,7 @@ void glimmer::DebugOverlay::Update(const float delta) {
     }
 }
 
-void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
+void glimmer::DebugOverlay::Render(SpriteRenderer *renderer) {
     if (!displayDebugPanel_) {
         return;
     }
@@ -69,10 +69,10 @@ void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
     //绘制SDL屏幕坐标
     const auto labelSpacing = static_cast<int>(50 * uiScale_);
     for (int x = 0; x <= windowWidth_; x += labelSpacing) {
-        SDL_Texture *texture = nullptr;
+        GpuTexture *texture = nullptr;
         auto textureIterator = numberTextureMap_.find(x);
         if (textureIterator == numberTextureMap_.end()) {
-            std::shared_ptr<SDL_Texture> texturePtr = resourcePackManager_->CreateStringTexture(
+            std::shared_ptr<GpuTexture> texturePtr = resourcePackManager_->CreateStringTexture(
                 std::to_string(x), &preloadColors_->textColor);
             numberTextureMap_[x] = texturePtr;
             texture = texturePtr.get();
@@ -83,13 +83,13 @@ void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
             static_cast<float>(x) + 2.0f * uiScale_, 2.0f * uiScale_, static_cast<float>(texture->w) * uiScale_,
             static_cast<float>(texture->h) * uiScale_
         };
-        SDL_RenderTexture(renderer, texture, nullptr, &dst);
+        renderer->DrawTexture(texture, nullptr, &dst);
     }
     for (int y = 0; y <= windowHeight_; y += labelSpacing) {
-        SDL_Texture *texture = nullptr;
+        GpuTexture *texture = nullptr;
         auto textureIterator = numberTextureMap_.find(y);
         if (textureIterator == numberTextureMap_.end()) {
-            std::shared_ptr<SDL_Texture> texturePtr = resourcePackManager_->CreateStringTexture(
+            std::shared_ptr<GpuTexture> texturePtr = resourcePackManager_->CreateStringTexture(
                 std::to_string(y), &preloadColors_->textColor);
             numberTextureMap_[y] = texturePtr;
             texture = texturePtr.get();
@@ -100,14 +100,14 @@ void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
             2.0f * uiScale_, static_cast<float>(y) + 2.0f * uiScale_, static_cast<float>(texture->w) * uiScale_,
             static_cast<float>(texture->h) * uiScale_
         };
-        SDL_RenderTexture(renderer, texture, nullptr, &dst);
+        renderer->DrawTexture(texture, nullptr, &dst);
     }
     std::string fpsString = fmt::format(fmt::runtime(langsResources_->fpsInfo), fps_, frameTimeMs_);
     const uint64_t fpsFingerprint = StringUtils::StringToUint64(fpsString);
-    SDL_Texture *texture = nullptr;
+    GpuTexture *texture = nullptr;
     auto fpsIterator = fpsTextures_.find(fpsFingerprint);
     if (fpsIterator == fpsTextures_.end()) {
-        std::shared_ptr<SDL_Texture> texturePtr = resourcePackManager_->CreateStringTexture(
+        std::shared_ptr<GpuTexture> texturePtr = resourcePackManager_->CreateStringTexture(
             fpsString, &preloadColors_->textColor);
         fpsTextures_[fpsFingerprint] = texturePtr;
         texture = texturePtr.get();
@@ -120,7 +120,7 @@ void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
         texture->w * uiScale_,
         texture->h * uiScale_
     };
-    SDL_RenderTexture(renderer, texture, nullptr, &fpsRect);
+    renderer->DrawTexture(texture, nullptr, &fpsRect);
 }
 
 void glimmer::DebugOverlay::OnConfigChanged(const Config *config) {

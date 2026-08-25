@@ -52,7 +52,7 @@ glimmer::Light2DSystem::Light2DSystem(WorldContext *worldContext) : GameSystem(w
     Init();
 }
 
-void glimmer::Light2DSystem::Render(SDL_Renderer *renderer) {
+void glimmer::Light2DSystem::Render(SpriteRenderer *renderer) {
     WorldContext *worldContext = GetWorldContext();
     if (worldContext == nullptr) {
         return;
@@ -105,11 +105,11 @@ void glimmer::Light2DSystem::Render(SDL_Renderer *renderer) {
             if (finalLightColor->a == 0) {
                 continue;
             }
-            SDL_SetRenderDrawColor(renderer, finalLightColor->r,
-                                   finalLightColor->g,
-                                   finalLightColor->b,
-                                   finalLightColor->a);
-            SDL_RenderFillRect(renderer, &dstRect);
+            renderer->SetDrawColor({finalLightColor->r,
+                                    finalLightColor->g,
+                                    finalLightColor->b,
+                                    finalLightColor->a});
+            renderer->FillRect(&dstRect);
         }
     }
     AppContext::RestoreColorRenderer(renderer);

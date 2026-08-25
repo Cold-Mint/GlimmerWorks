@@ -48,7 +48,7 @@ void glimmer::SpiritRendererComponent::SetFlipV(const bool flipV) {
     flipV_ = flipV;
 }
 
-SDL_Texture *glimmer::SpiritRendererComponent::GetTexture(const ResourceLocator *resourceLocator) {
+glimmer::GpuTexture *glimmer::SpiritRendererComponent::GetTexture(const ResourceLocator *resourceLocator) {
     if (textureResult_ == nullptr) {
         textureResult_ = resourceLocator->FindTexture(&resourceRef_);
         if (textureResult_ == nullptr) {

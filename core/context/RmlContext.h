@@ -58,7 +58,7 @@ namespace glimmer {
         [[nodiscard]] Rml::Context *GetRmlContext() const;
 
     public:
-        bool Init(VirtualFileSystem *virtualFileSystem, SDL_Renderer *renderer,
+        bool Init(VirtualFileSystem *virtualFileSystem, GpuContext *gpuContext,
                   ResourcePackManager *resourcePackManager, ResourceLocator *resourceLocator,
                   toml::value *langsValuePtr, SDL_Window *window, int width, int height);
 
@@ -66,7 +66,16 @@ namespace glimmer {
 
         void UpdateContext() const;
 
-        void RenderContext() const;
+        /**
+         * Queue the RmlUi draw commands into the frame command buffer.
+         * 将 RmlUi 绘制命令排入帧命令缓冲。
+         * @param commandBuffer commandBuffer 当前帧命令缓冲（nullptr 时跳过）
+         * @param swapchainTexture swapchainTexture 当前交换链纹理（nullptr 时跳过）
+         * @param width width 交换链宽度
+         * @param height height 交换链高度
+         */
+        void RenderContext(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUTexture *swapchainTexture, Uint32 width,
+                           Uint32 height) const;
 
         RmlContext();
 

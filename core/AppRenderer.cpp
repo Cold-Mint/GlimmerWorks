@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -30,25 +30,33 @@
 #include <cassert>
 
 
-glimmer::AppRenderer::AppRenderer(AppContext *appContext, SDL_Renderer *renderer) : appContext_(appContext),
+glimmer::AppRenderer::AppRenderer(AppContext *appContext, SpriteRenderer *renderer) : appContext_(appContext),
     renderer_(renderer) {
 }
 
 void glimmer::AppRenderer::RenderFrame(const RmlContext *rmlContext, const int windowWidth, const int windowHeight,
                                        const uint64_t frameStart,
                                        const float deltaTime) const {
-    if (windowWidth <= 0 || windowHeight <= 0) {
+    if (windowWidth <= 0 || windowHeight <= 0 || renderer_ == nullptr) {
         return;
     }
-    SDL_RenderClear(renderer_);
+    WindowContext *windowContext = appContext_->GetWindowContext();
+    if (windowContext == nullptr) {
+        return;
+    }
+    renderer_->BeginFrame(windowContext->GetWindow());
 #if  defined(NDEBUG)
     RenderRelease();
 #else
     RenderDebug();
 #endif
     RenderUiMessage(windowHeight, frameStart);
-    rmlContext->RenderContext();
-    SDL_RenderPresent(renderer_);
+    renderer_->EndFrame();
+    rmlContext->RenderContext(renderer_->GetCommandBuffer(), renderer_->GetSwapchainTexture(),
+                              renderer_->GetSwapchainWidth(), renderer_->GetSwapchainHeight());
+    if (!appContext_->ProcessPendingScreenshot(windowContext->GetGpuContext(), renderer_)) {
+        renderer_->SubmitFrame();
+    }
 }
 
 void glimmer::AppRenderer::RenderUiMessage(int windowHeight, uint64_t frameStart) const {
@@ -72,11 +80,11 @@ void glimmer::AppRenderer::RenderUiMessage(int windowHeight, uint64_t frameStart
         if (peekResult <= 0.01F) {
             continue;
         }
-        const SDL_Texture *sdlTexture = msg.GetTexture();
-        if (sdlTexture == nullptr) {
+        const GpuTexture *texture = msg.GetTexture();
+        if (texture == nullptr) {
             continue;
         }
-        totalHeight += static_cast<float>(sdlTexture->h) + spacing;
+        totalHeight += static_cast<float>(texture->h) + spacing;
     }
 
     if (!uiMessages.empty() && totalHeight > 0.0F) {
@@ -87,20 +95,19 @@ void glimmer::AppRenderer::RenderUiMessage(int windowHeight, uint64_t frameStart
         if (msg.GetAlpha() <= 0.01F) {
             continue;
         }
-        SDL_Texture *sdlTexture = msg.GetTexture();
-        if (sdlTexture == nullptr) {
+        const GpuTexture *texture = msg.GetTexture();
+        if (texture == nullptr) {
             continue;
         }
-        SDL_SetTextureAlphaMod(sdlTexture, static_cast<Uint8>(msg.GetAlpha() * 255));
         const SDL_FRect dst = {
             padding,
             startY,
-            static_cast<float>(sdlTexture->w),
-            static_cast<float>(sdlTexture->h)
+            static_cast<float>(texture->w),
+            static_cast<float>(texture->h)
         };
-
-        SDL_RenderTexture(renderer_, sdlTexture, nullptr, &dst);
-        startY += static_cast<float>(sdlTexture->h) + spacing;
+        const auto alpha = static_cast<Uint8>(msg.GetAlpha() * 255);
+        renderer_->DrawTexture(texture, nullptr, &dst, {255, 255, 255, alpha});
+        startY += static_cast<float>(texture->h) + spacing;
     }
 }
 
@@ -125,13 +132,11 @@ void glimmer::AppRenderer::RenderRelease() const {
 }
 
 void glimmer::AppRenderer::RenderDebug() const {
-    SDL_Color oldColor;
-    SDL_GetRenderDrawColor(renderer_, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
+    const SDL_Color oldColor = renderer_->GetDrawColor();
 
     RenderScenes();
 
-    SDL_Color newColor;
-    SDL_GetRenderDrawColor(renderer_, &newColor.r, &newColor.g, &newColor.b, &newColor.a);
+    const SDL_Color newColor = renderer_->GetDrawColor();
     if (oldColor.a != newColor.a || oldColor.r != newColor.r ||
         oldColor.g != newColor.g || oldColor.b != newColor.b) {
         assert(false);
@@ -139,12 +144,11 @@ void glimmer::AppRenderer::RenderDebug() const {
     auto sceneManager = appContext_->GetSceneManager();
     const auto &overlayScenes = sceneManager->GetOverlayScenes();
     for (const auto overlay: overlayScenes) {
-        SDL_GetRenderDrawColor(renderer_, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
+        const SDL_Color overlayOldColor = renderer_->GetDrawColor();
         overlay->Render(renderer_);
-        SDL_Color overlayColor;
-        SDL_GetRenderDrawColor(renderer_, &overlayColor.r, &overlayColor.g, &overlayColor.b, &overlayColor.a);
-        if (oldColor.a != overlayColor.a || oldColor.r != overlayColor.r ||
-            oldColor.g != overlayColor.g || oldColor.b != overlayColor.b) {
+        const SDL_Color overlayColor = renderer_->GetDrawColor();
+        if (overlayOldColor.a != overlayColor.a || overlayOldColor.r != overlayColor.r ||
+            overlayOldColor.g != overlayColor.g || overlayOldColor.b != overlayColor.b) {
             assert(false);
         }
     }

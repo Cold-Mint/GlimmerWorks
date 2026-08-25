@@ -37,10 +37,11 @@
 
 #include "ResourcePack.h"
 #include "RmlResourceResult.h"
+#include "core/gpu/GpuContext.h"
+#include "core/gpu/GpuTexture.h"
 #include "core/vfs/VirtualFileSystem.h"
 #include "core/Config.h"
 #include "core/mod/ResourceLocator.h"
-#include "SDL3/SDL_render.h"
 #include "SDL3_mixer/SDL_mixer.h"
 #include "SDL3_ttf/SDL_ttf.h"
 #include "toml11/spec.hpp"
@@ -59,7 +60,7 @@ namespace glimmer {
         resourcePackMap_;
         TTF_Font *font_ = nullptr;
         VirtualFileSystem *virtualFileSystem_ = nullptr;
-        SDL_Renderer *renderer_ = nullptr;
+        GpuContext *gpuContext_ = nullptr;
         MIX_Mixer *mixer_ = nullptr;
         /**
          * Placeholder texture Path Set
@@ -75,7 +76,7 @@ namespace glimmer {
         std::unordered_map<std::string, std::weak_ptr<TextureResourceResult>, TransparentStringHash, std::equal_to<> >
         textureCache_;
 
-        std::unordered_map<uint64_t, std::weak_ptr<SDL_Texture> > stringTextureCache_;
+        std::unordered_map<uint64_t, std::weak_ptr<GpuTexture> > stringTextureCache_;
 
         std::unordered_map<std::string, std::weak_ptr<AudioResourceResult>, TransparentStringHash, std::equal_to<> >
         audioMixCache_;
@@ -89,7 +90,7 @@ namespace glimmer {
         std::shared_ptr<TextureResourceResult> TryLoadTextureFromPack(const std::string &path,
                                                                       const ResourcePack *resourcePack);
 
-        std::shared_ptr<TextureResourceResult> CreateTextureResult(SDL_Texture *texture,
+        std::shared_ptr<TextureResourceResult> CreateTextureResult(GpuTexture *texture,
                                                                    const ResourcePack *resourcePack,
                                                                    const std::string &path);
 
@@ -122,7 +123,7 @@ namespace glimmer {
 
         void SetMixer(MIX_Mixer *mixer);
 
-        void SetRenderer(SDL_Renderer *renderer, const PreloadColors *preloadColors);
+        void SetGpuContext(GpuContext *gpuContext, const PreloadColors *preloadColors);
 
         int Scan(const std::string &resourcePackPathString, const std::vector<std::string> &enabledResourcePack,
                  const toml::spec &tomlVersion);
@@ -133,8 +134,8 @@ namespace glimmer {
         std::unique_ptr<RmlResourceResult> GetRmlFilePath(const AppContext *appContext,
                                                           const ResourceRef *resourceRef);
 
-        std::shared_ptr<SDL_Texture> CreateStringTexture(const std::string &string, const Color *color,
-                                                         int wrapWidth = 0);
+        std::shared_ptr<GpuTexture> CreateStringTexture(const std::string &string, const Color *color,
+                                                        int wrapWidth = 0);
 
         std::string ListTextureCache() const;
 

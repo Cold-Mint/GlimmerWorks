@@ -35,6 +35,8 @@
 #include "core/ecs/component/Transform2DComponent.h"
 #include "box2d/box2d.h"
 #include "core/ecs/component/RayCast2DComponent.h"
+#include <cmath>
+#include <limits>
 
 
 void glimmer::DebugDrawBox2dSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType,
@@ -86,16 +88,51 @@ static void SetSDLColor(SDL_Renderer *renderer, b2HexColor color, Uint8 alpha = 
 static glimmer::ScreenVector2D ConvertBox2DToScreen(const glimmer::WorldContext *worldContext, const b2Vec2 &worldPos) {
     glimmer::EntityShortCut *entityShortCut = worldContext->GetEntityShortCut();
     if (entityShortCut == nullptr) {
-        return {worldPos.x * glimmer::kScale, -worldPos.y * glimmer::kScale};
+        return {worldPos.x * KSCALE, -worldPos.y * KSCALE};
     }
     const glimmer::Transform2DComponent *cameraTransform2D = entityShortCut->GetCameraTransform2DComponent();
     const glimmer::CameraComponent *cameraComponent = entityShortCut->GetCameraComponent();
     if (cameraTransform2D == nullptr || cameraComponent == nullptr) {
-        return {worldPos.x * glimmer::kScale, -worldPos.y * glimmer::kScale};
+        return {worldPos.x * KSCALE, -worldPos.y * KSCALE};
     }
     return glimmer::CoordinateTransformer::WorldToScreen(cameraTransform2D->GetPosition(),
                                                          glimmer::Box2DUtils::ToPixels(worldPos),
                                                          cameraComponent->GetSize(), cameraComponent->GetZoom());
+}
+
+/**
+ * 从WorldContext中获取当前相机zoom；fallback为1.0
+ */
+static float GetCameraZoom(const glimmer::WorldContext *worldContext) {
+    const glimmer::EntityShortCut *entityShortCut = worldContext->GetEntityShortCut();
+    if (entityShortCut == nullptr) {
+        return 1.0F;
+    }
+    const glimmer::CameraComponent *cameraComponent = entityShortCut->GetCameraComponent();
+    if (cameraComponent == nullptr) {
+        return 1.0F;
+    }
+    return cameraComponent->GetZoom();
+}
+
+/**
+ * Box2D半径(米) → 屏幕像素半径
+ * 正确缩放链：米 × KSCALE(16) → 世界像素 × zoom → 屏幕像素
+ */
+static float ConvertBox2DRadiusToScreenPx(float radiusMeters, float zoom) {
+    return radiusMeters * KSCALE * zoom;
+}
+
+/**
+ * 将Box2D的b2Transform完整应用到local顶点（旋转+平移），返回world坐标(米)
+ */
+static b2Vec2 TransformBox2DVertex(b2Transform transform, const b2Vec2 &localVertex) {
+    b2Rot q = transform.q;
+    // world_v = R(q) * local_v + transform.p (标准 2D 旋转+平移)
+    return {
+        q.c * localVertex.x - q.s * localVertex.y + transform.p.x,
+        q.s * localVertex.x + q.c * localVertex.y + transform.p.y
+    };
 }
 
 /**
@@ -124,13 +161,18 @@ static void SDL_RenderFillCircle_Compat(SDL_Renderer *renderer, float centerX, f
  * @param radius 圆角半径（像素）
  */
 static void SDL_RenderFillRectRounded_Compat(SDL_Renderer *renderer, const SDL_FRect *rect, float radius) {
+    // 安全约束：radius不能超过矩形短边的一半，否则内部子矩形会出现负尺寸/绘制错乱
+    const float maxRadius = fminf(rect->w, rect->h) * 0.5F;
+    if (radius > maxRadius) {
+        radius = maxRadius;
+    }
     if (radius <= 0) {
         // 无圆角时直接绘制普通矩形
         SDL_RenderFillRect(renderer, rect);
         return;
     }
 
-    // 1. 绘制矩形主体（去掉四个角）
+    // 1. 绘制矩形主体（去掉左右圆角带，高度保持整高）
     SDL_FRect mainRect = {
         rect->x + radius,
         rect->y,
@@ -139,6 +181,7 @@ static void SDL_RenderFillRectRounded_Compat(SDL_Renderer *renderer, const SDL_F
     };
     SDL_RenderFillRect(renderer, &mainRect);
 
+    // 2. 绘制左右侧矩形条（不含上下角）
     SDL_FRect sideRect1 = {
         rect->x,
         rect->y + radius,
@@ -155,7 +198,7 @@ static void SDL_RenderFillRectRounded_Compat(SDL_Renderer *renderer, const SDL_F
     };
     SDL_RenderFillRect(renderer, &sideRect2);
 
-    // 2. 绘制四个圆角（实心圆的1/4）
+    // 3. 绘制四个圆角（实心圆的1/4）——仅覆盖对应象限
     SDL_RenderFillCircle_Compat(renderer, rect->x + radius, rect->y + radius, radius); // 左上
     SDL_RenderFillCircle_Compat(renderer, rect->x + rect->w - radius, rect->y + radius, radius); // 右上
     SDL_RenderFillCircle_Compat(renderer, rect->x + radius, rect->y + rect->h - radius, radius); // 左下
@@ -169,6 +212,11 @@ static void SDL_RenderFillRectRounded_Compat(SDL_Renderer *renderer, const SDL_F
  * @param radius 圆角半径（像素）
  */
 static void SDL_RenderRectRounded_Compat(SDL_Renderer *renderer, const SDL_FRect *rect, float radius) {
+    // 安全约束：radius不能超过矩形短边的一半
+    const float maxRadius = fminf(rect->w, rect->h) * 0.5F;
+    if (radius > maxRadius) {
+        radius = maxRadius;
+    }
     if (radius <= 0) {
         SDL_RenderRect(renderer, rect);
         return;
@@ -303,19 +351,35 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
 
     SDL_Color oldColor;
     SDL_GetRenderDrawColor(sdlRenderer, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
-    const WorldVector2D upperLeft = Box2DUtils::ToPixels(transform.p + vertices[0]);
-    const WorldVector2D lowerRight = Box2DUtils::ToPixels(transform.p + vertices[2]);
-    const ScreenVector2D upperLeftCamera = CoordinateTransformer::WorldToScreen(
-        cameraTransform2D->GetPosition(), upperLeft, cameraComponent->GetSize(), cameraComponent->GetZoom());
-    const ScreenVector2D lowerRightCamera = CoordinateTransformer::WorldToScreen(
-        cameraTransform2D->GetPosition(), lowerRight, cameraComponent->GetSize(), cameraComponent->GetZoom());
+    const float zoom = cameraComponent->GetZoom();
+    const WorldVector2D cameraPos = cameraTransform2D->GetPosition();
+    const ScreenVector2D cameraSize = cameraComponent->GetSize();
+
+    // 关键修复1：对每个local顶点，完整应用b2Transform（旋转+平移）得到world坐标
+    // 关键修复2：使用全部4个顶点计算屏幕空间AABB，避免仅靠v0/v2假设对角顶点出错
+    float minSx = std::numeric_limits<float>::max();
+    float minSy = std::numeric_limits<float>::max();
+    float maxSx = std::numeric_limits<float>::lowest();
+    float maxSy = std::numeric_limits<float>::lowest();
+    for (int i = 0; i < vertexCount; ++i) {
+        const b2Vec2 worldV = TransformBox2DVertex(transform, vertices[i]); // 旋转+平移(米)
+        const WorldVector2D worldPxV = Box2DUtils::ToPixels(worldV); // 米→世界像素
+        const ScreenVector2D screenV = CoordinateTransformer::WorldToScreen(
+            cameraPos, worldPxV, cameraSize, zoom);
+        minSx = fminf(minSx, screenV.x);
+        minSy = fminf(minSy, screenV.y);
+        maxSx = fmaxf(maxSx, screenV.x);
+        maxSy = fmaxf(maxSy, screenV.y);
+    }
+
     SDL_FRect renderQuad;
-    renderQuad.x = upperLeftCamera.x;
-    renderQuad.y = upperLeftCamera.y;
-    renderQuad.w = lowerRightCamera.x - upperLeftCamera.x;
-    renderQuad.h = lowerRightCamera.y - upperLeftCamera.y;
+    renderQuad.x = minSx;
+    renderQuad.y = minSy;
+    renderQuad.w = maxSx - minSx;
+    renderQuad.h = maxSy - minSy;
     SDL_SetRenderDrawColor(sdlRenderer, box2dFullColor.r, box2dFullColor.g, box2dFullColor.b, box2dFullColor.a);
-    float radiusPx = radius * kScale;
+    // 关键修复3：radius正确缩放：米 × KSCALE × zoom → 屏幕像素；旧代码 kScale=30 与位置缩放不匹配
+    float radiusPx = ConvertBox2DRadiusToScreenPx(radius, zoom);
     SDL_RenderFillRectRounded_Compat(sdlRenderer, &renderQuad, radiusPx);
     SDL_SetRenderDrawColor(sdlRenderer, box2dBorderColor.r, box2dBorderColor.g, box2dBorderColor.b, box2dBorderColor.a);
     for (int i = 0; i < 3; ++i) {
@@ -351,7 +415,8 @@ void glimmer::DebugDrawBox2dSystem::b2DrawCircleFcn(
 
     SetSDLColor(sdlRenderer, color);
     ScreenVector2D centerViewport = ConvertBox2DToScreen(worldContext, center);
-    float radiusPx = radius * kScale;
+    const float zoom = GetCameraZoom(worldContext);
+    float radiusPx = ConvertBox2DRadiusToScreenPx(radius, zoom);
     constexpr float step = 2.0F * kPi / kCircleSegments;
     for (int i = 0; i < kCircleSegments; ++i) {
         const float a1 = static_cast<float>(i) * step;
@@ -389,8 +454,9 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidCircleFcn(
     const b2Vec2 center = transform.p;
     // 转换圆心到视口坐标
     ScreenVector2D centerViewport = ConvertBox2DToScreen(worldContext, center);
-    // 半径转换为像素
-    float radiusPx = radius * kScale;
+    // 半径转换为屏幕像素（正确缩放：米 × 16 × zoom）
+    const float zoom = GetCameraZoom(worldContext);
+    float radiusPx = ConvertBox2DRadiusToScreenPx(radius, zoom);
 
     // 绘制实心圆 - 替换为兼容实现
     SDL_RenderFillCircle_Compat(sdlRenderer, centerViewport.x, centerViewport.y, radiusPx);
@@ -438,7 +504,8 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidCapsuleFcn(
     SDL_RenderLine(sdlRenderer, vp1.x, vp1.y, vp2.x, vp2.y);
 
     // 2. 绘制两端圆形（实心）- 替换为兼容实现
-    float radiusPx = radius * kScale;
+    const float zoom = GetCameraZoom(worldContext);
+    float radiusPx = ConvertBox2DRadiusToScreenPx(radius, zoom);
     for (int j = 0; j < 2; ++j) {
         b2Vec2 c = (j == 0 ? p1 : p2);
         ScreenVector2D cvp = ConvertBox2DToScreen(worldContext, c);
@@ -546,8 +613,9 @@ void glimmer::DebugDrawBox2dSystem::b2DrawPointFcn(
     SetSDLColor(sdlRenderer, color);
     // 转换点坐标到视口
     ScreenVector2D pViewport = ConvertBox2DToScreen(worldContext, p);
-    // 点大小转换为像素
-    float sizePx = size * kScale;
+    // 点大小转换为屏幕像素（米 → 16 × zoom）
+    const float zoom = GetCameraZoom(worldContext);
+    float sizePx = ConvertBox2DRadiusToScreenPx(size, zoom);
     const SDL_FRect rect = {(pViewport.x - sizePx / 2), (pViewport.y - sizePx / 2), sizePx, sizePx};
     SDL_RenderFillRect(sdlRenderer, &rect); // 填充点（更醒目）
 

@@ -29,6 +29,7 @@
 #include "core/ecs/GameSystem.h"
 #include "box2d/types.h"
 #include <numbers>
+#include "core/Constants.h"
 
 namespace glimmer {
     constexpr float kScale = 30.0F; // 1 meter = 30 pixels （游戏单位缩放）

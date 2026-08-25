@@ -1,6 +1,6 @@
 #Variable definitions are generated through GlimmerWorksCli. Please do not edit them.
 #The dependencies of the repository can be defined through comments.
-#Last updated date: 2026-08-24 13:53:07
+#Last updated date: 2026-08-25 11:43:51
 #libsdl-org/SDL@latest
 #libsdl-org/SDL-release-3.4.14
 set(LIBSDL-ORG_SDL_VERSION "147a8ee32dbf9ac02f3794964490687b6bbda1bc")
@@ -44,8 +44,8 @@ set(MIKKE89_RMLUI_VERSION "2230d1a6e8e0848ed87a5761e2a5160b2a175ba4")
 #Cold-Mint/GlimmerworksAssets-v0.0.2-b1
 set(COLD-MINT_GLIMMERWORKSASSETS_VERSION "25a4bd99e4f005e06415d8a942e89b5a656b1b53")
 #Cold-Mint/GlimmerworksData@latest
-#Cold-Mint/GlimmerworksData-v0.0.2-b1
-set(COLD-MINT_GLIMMERWORKSDATA_VERSION "2badc7dfe3cde6971ed11bcf3e55c1d2f13095b9")
+#Cold-Mint/GlimmerworksData-v0.0.2
+set(COLD-MINT_GLIMMERWORKSDATA_VERSION "c0c78abbffce5c675b4bedff487c82fc8fdd6c3b")
 #Cold-Mint/GlimmerWorksProtobuf@latest
 #Cold-Mint/GlimmerWorksProtobuf-v0.0.2-b1
 set(COLD-MINT_GLIMMERWORKSPROTOBUF_VERSION "d49e7826a4d68887069a786162131bbb7acc7c6f")

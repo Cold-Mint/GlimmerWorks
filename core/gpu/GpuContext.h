@@ -129,6 +129,21 @@ namespace glimmer {
         [[nodiscard]] GpuTexture *CreateTextureFromSurface(SDL_Surface *surface) const;
 
         /**
+         * Create an offscreen render-target texture (COLOR_TARGET | SAMPLER).
+         * Used for layer compositing (game/ui layers) and full-screen
+         * post-processing.
+         * 创建离屏渲染目标纹理（COLOR_TARGET | SAMPLER）。
+         * 用于分层合成（game/ui 层）与全屏后处理。
+         * @param width width 纹理宽度（像素，必须 > 0）
+         * @param height height 纹理高度（像素，必须 > 0）
+         * @param format format 纹理格式（通常与交换链格式一致）
+         * @return A new GpuTexture (caller owns it), nullptr on failure.
+         * 新的 GpuTexture（调用方拥有所有权），失败返回 nullptr。
+         */
+        [[nodiscard]] GpuTexture *CreateTargetTexture(Uint32 width, Uint32 height,
+                                                      SDL_GPUTextureFormat format) const;
+
+        /**
          * Download the full contents of a GPU texture into a new SDL_Surface.
          * Blocks until the GPU has finished the copy.
          * 将 GPU 纹理的全部内容下载到新的 SDL_Surface。

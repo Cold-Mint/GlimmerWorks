@@ -109,9 +109,14 @@ bool glimmer::App::InitWindowAndRenderer() {
     }
     windowContext->SetGpuContext(gpuContext_.get());
     LogCat::i("GPU context created successfully");
+    ResourcePackManager *resourcePackManager = appContext_->GetResourcePackManager();
+    if (resourcePackManager == nullptr) {
+        LogCat::e(std::source_location::current(), "ResourcePackManager is nullptr");
+        return false;
+    }
     GpuShaderCompiler::Init();
     spriteRenderer_ = std::make_unique<SpriteRenderer>();
-    if (!spriteRenderer_->Init(gpuContext_.get())) {
+    if (!spriteRenderer_->Init(gpuContext_.get(), resourcePackManager, config->mods)) {
         LogCat::e(std::source_location::current(), "SpriteRenderer init failed");
         return false;
     }
@@ -123,16 +128,11 @@ bool glimmer::App::InitWindowAndRenderer() {
         return false;
     }
     LogCat::i("Initializing RmlContext");
-    rmlContext->Init(appContext_->GetVirtualFileSystem(), gpuContext_.get(), appContext_->GetResourcePackManager(),
+    rmlContext->Init(appContext_->GetVirtualFileSystem(), gpuContext_.get(), resourcePackManager,
                      appContext_->GetResourceLocator(), appContext_->GetLanguageValue(), window,
                      config->window.width,
                      config->window.height);
     LogCat::i("RmlContext initialized successfully");
-    ResourcePackManager *resourcePackManager = appContext_->GetResourcePackManager();
-    if (resourcePackManager == nullptr) {
-        LogCat::e(std::source_location::current(), "ResourcePackManager is nullptr");
-        return false;
-    }
     resourcePackManager->SetGpuContext(gpuContext_.get(), appContext_->GetGraphicsContext()->GetPreloadColors());
     LogCat::i("ResourcePackManager GPU context set");
     LogCat::i("InitWindowAndRenderer completed successfully");

@@ -1232,11 +1232,6 @@ endif ()
 
 file(COPY "${CMAKE_SOURCE_DIR}/core_langs/"
         DESTINATION "${CMAKE_BINARY_DIR}/langs/")
-
-# GLSL shaders compiled to SPIR-V at runtime by glslang
-# GLSL 着色器，运行时由 glslang 编译为 SPIR-V
-file(COPY "${CMAKE_SOURCE_DIR}/shaders/"
-        DESTINATION "${CMAKE_BINARY_DIR}/shaders/")
 if (CMAKE_BUILD_TYPE MATCHES "^Debug$")
     file(GLOB_RECURSE DEBUG_LANG_FILES "${CMAKE_SOURCE_DIR}/core_langs_debug/*")
 
@@ -1312,8 +1307,6 @@ install(TARGETS GlimmerWorks RUNTIME DESTINATION .)
 install(FILES "${CMAKE_SOURCE_DIR}/${CONFIG_FILE_NAME}" DESTINATION .)
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/core_langs/"
         DESTINATION "langs")
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/shaders/"
-        DESTINATION "shaders")
 install(DIRECTORY "${CMAKE_BINARY_DIR}/mods/"
         DESTINATION "mods"
         PATTERN ".*" EXCLUDE

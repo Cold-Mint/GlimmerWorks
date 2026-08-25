@@ -35,6 +35,9 @@
 #include "SDL3/SDL_rect.h"
 
 namespace glimmer {
+    class ResourcePackManager;
+    struct Mods;
+
     /**
      * Flip flags for DrawTextureRotated (replaces SDL_FlipMode).
      * DrawTextureRotated 使用的翻转标志（替代 SDL_FlipMode）。
@@ -51,21 +54,34 @@ namespace glimmer {
      *
      * Immediate-mode style 2D texture renderer built on SDL_GPU. It batches
      * quads grouped by texture into a single dynamic vertex buffer and draws
-     * them with the sprite pipeline (shaders/sprite.vert + shaders/sprite.frag).
+     * them with the sprite pipeline.
      * 基于 SDL_GPU 的立即模式风格 2D 纹理渲染器。它将按纹理分组的四边形
-     * 批处理进单个动态顶点缓冲，并使用精灵管线（shaders/sprite.vert +
-     * shaders/sprite.frag）绘制。
+     * 批处理进单个动态顶点缓冲，并使用精灵管线绘制。
      *
-     * Coordinate system: pixel coordinates with a top-left origin (+Y down),
-     * identical to the old SDL_Renderer based code.
-     * 坐标系：左上角原点、+Y 向下的像素坐标，与旧的 SDL_Renderer 代码一致。
+     * Layered rendering (shaders are loaded from the enabled resource packs,
+     * directory shaders/@core/):
+     * 分层渲染（着色器从已启用的材质包加载，目录为 shaders/@core/）：
+     *   1. All sprite/geometry draws go into the offscreen game layer.
+     *      所有精灵/几何绘制进入离屏 game 层。
+     *   2. RmlUi draws into the offscreen ui layer (see GetUiTargetTexture).
+     *      RmlUi 绘制到离屏 ui 层（见 GetUiTargetTexture）。
+     *   3. CompositeToSwapchain() applies the "game" shader to the game layer
+     *      and the "ui" shader to the ui layer, blends both into the composite
+     *      layer, then applies the "global" shader to produce the final image
+     *      on the swapchain.
+     *      CompositeToSwapchain() 对 game 层应用 "game" 着色器、对 ui 层应用
+     *      "ui" 着色器，二者混合进合成层，再对其应用 "global" 着色器输出到交换链。
+     *
+     * Coordinate system: pixel coordinates with a top-left origin (+Y down).
+     * 坐标系：左上角原点、+Y 向下的像素坐标。
      *
      * Typical frame flow (driven by AppRenderer):
      * 典型帧流程（由 AppRenderer 驱动）：
-     *   BeginFrame(window)          -> acquire command buffer + swapchain, clear
+     *   BeginFrame(window)          -> acquire swapchain, clear game/ui layers
      *   DrawTexture/FillRect/...    -> accumulate batches (draw color applies)
-     *   EndFrame()                  -> upload batches, draw, end render pass
-     *   (RmlUi renders afterwards on the same command buffer)
+     *   EndFrame()                  -> upload batches, draw into game layer
+     *   (RmlUi renders into the ui layer on the same command buffer)
+     *   CompositeToSwapchain()      -> game/ui/global shader passes
      *   SubmitFrame()               -> submit the command buffer
      */
     class SpriteRenderer {
@@ -99,16 +115,25 @@ namespace glimmer {
         GpuContext *gpuContext_ = nullptr;
         SDL_GPUDevice *device_ = nullptr;
         SDL_GPUGraphicsPipeline *pipeline_ = nullptr;
+        SDL_GPUGraphicsPipeline *gamePipeline_ = nullptr;
+        SDL_GPUGraphicsPipeline *uiPipeline_ = nullptr;
+        SDL_GPUGraphicsPipeline *globalPipeline_ = nullptr;
         std::unique_ptr<GpuTexture> whiteTexture_ = nullptr;
+
+        std::unique_ptr<GpuTexture> gameLayerTexture_ = nullptr;
+        std::unique_ptr<GpuTexture> uiLayerTexture_ = nullptr;
+        std::unique_ptr<GpuTexture> compositeLayerTexture_ = nullptr;
 
         SDL_GPUBuffer *vertexBuffer_ = nullptr;
         Uint32 vertexBufferCapacity_ = 0;
+        SDL_GPUBuffer *unitQuadBuffer_ = nullptr;
 
         SDL_GPUCommandBuffer *commandBuffer_ = nullptr;
         SDL_GPUTexture *swapchainTexture_ = nullptr;
         Uint32 swapchainWidth_ = 0;
         Uint32 swapchainHeight_ = 0;
         SDL_GPURenderPass *renderPass_ = nullptr;
+        SDL_GPUTexture *currentTarget_ = nullptr;
         bool frameActive_ = false;
 
         std::vector<SpriteVertex> vertices_;
@@ -117,11 +142,46 @@ namespace glimmer {
         SDL_Color drawColor_ = {0, 0, 0, 255};
 
         /**
-         * Begin a render pass on the swapchain if none is active.
-         * 若没有活动通道，则在交换链上开始一个渲染通道。
+         * Create a sprite-style graphics pipeline (shared vertex input layout).
+         * 创建精灵风格的图形管线（共享顶点输入布局）。
+         * @param vertexShader vertexShader 顶点着色器
+         * @param fragmentShader fragmentShader 片元着色器
+         * @param enableBlend enableBlend 是否启用标准 alpha 混合
+         * @return The pipeline on success, nullptr on failure.
+         * 成功返回管线，失败返回 nullptr。
+         */
+        SDL_GPUGraphicsPipeline *CreateSpritePipeline(SDL_GPUShader *vertexShader, SDL_GPUShader *fragmentShader,
+                                                      bool enableBlend) const;
+
+        /**
+         * Recreate the offscreen layer textures when the swapchain size changed.
+         * 交换链尺寸变化时重建离屏层纹理。
+         * @return true if all layer textures are valid.
+         * 所有层纹理有效时返回 true。
+         */
+        bool EnsureLayerTextures();
+
+        /**
+         * Begin a render pass on the current target if none is active.
+         * 若没有活动通道，则在当前目标上开始一个渲染通道。
          * @param clear clear 为 true 时用当前 drawColor 清屏，否则保留已有内容
          */
         void EnsureRenderPass(bool clear);
+
+        /**
+         * End the active render pass (if any).
+         * 结束当前活动的渲染通道（若有）。
+         */
+        void EndActivePass();
+
+        /**
+         * Draw a full-screen quad sampling a layer texture with a layer pipeline.
+         * Must be called inside an active render pass.
+         * 用分层管线绘制一个采样层纹理的全屏四边形。必须在活动渲染通道内调用。
+         * @param pipeline pipeline 使用的管线
+         * @param source source 源层纹理
+         */
+        void DrawLayerQuad(SDL_GPUGraphicsPipeline *pipeline, const GpuTexture *source);
 
         /**
          * Append a textured quad (6 vertices) to the current batch.
@@ -144,44 +204,69 @@ namespace glimmer {
         SpriteRenderer &operator=(const SpriteRenderer &) = delete;
 
         /**
-         * Compile the sprite shaders, create the graphics pipeline and the
-         * built-in white texture used for geometry drawing.
-         * 编译精灵着色器、创建图形管线和用于几何绘制的内置白色纹理。
+         * Compile the shaders (loaded from the enabled resource packs, with
+         * embedded pass-through fallbacks), create the graphics pipelines, the
+         * built-in white texture and the full-screen unit quad buffer.
+         * 编译着色器（从已启用的材质包加载，缺失时使用内嵌的 pass-through
+         * 兜底），创建图形管线、内置白色纹理和全屏单位四边形缓冲。
          * @param gpuContext gpuContext 已初始化的 GPU 上下文
+         * @param resourcePackManager resourcePackManager 材质包管理器（提供着色器源码）
+         * @param mods mods 模组配置（决定启用哪些材质包）
          * @return true on success, false on failure (error is logged).
          * 成功返回 true，失败返回 false（错误会记录日志）。
          */
-        bool Init(GpuContext *gpuContext);
+        bool Init(GpuContext *gpuContext, ResourcePackManager *resourcePackManager, const Mods &mods);
 
         /**
-         * Release the pipeline, vertex buffer and white texture.
-         * 释放管线、顶点缓冲和白色纹理。
+         * Release the pipelines, buffers, white texture and layer textures.
+         * 释放管线、缓冲、白色纹理和层纹理。
          */
         void Shutdown();
 
         /**
          * Begin a new frame: acquire a command buffer and the swapchain
-         * texture, then clear the screen with the current draw color.
-         * 开始新帧：获取命令缓冲和交换链纹理，然后用当前 drawColor 清屏。
+         * texture, (re)create the layer textures if needed, clear the ui layer
+         * and begin the game layer pass with the current draw color.
+         * 开始新帧：获取命令缓冲和交换链纹理，必要时重建层纹理，
+         * 清除 ui 层并用当前 drawColor 开始 game 层通道。
          * @param window window 目标窗口
          * @return true if a swapchain texture was acquired and drawing is
          * possible, false if the window is minimized/unavailable (drawing
-         * calls become no-ops but EndFrame/SubmitFrame must still be called).
+         * calls become no-ops but the other frame functions must still be
+         * called).
          * 成功获取交换链纹理返回 true；窗口最小化等情况返回 false
-         * （此时绘制调用为空操作，但仍必须调用 EndFrame/SubmitFrame）。
+         * （此时绘制调用为空操作，但仍必须调用其他帧函数）。
          */
         bool BeginFrame(SDL_Window *window);
 
         /**
-         * Upload all pending batches, draw them and end the render pass.
-         * 上传所有待处理批次、绘制并结束渲染通道。
+         * Upload all pending batches, draw them into the game layer and end the
+         * game layer render pass.
+         * 上传所有待处理批次、绘制进 game 层并结束 game 层渲染通道。
          */
         void EndFrame();
 
         /**
+         * @return The offscreen ui layer texture that RmlUi must render into.
+         * RmlUi 必须渲染到的离屏 ui 层纹理。
+         */
+        [[nodiscard]] GpuTexture *GetUiTargetTexture() const;
+
+        /**
+         * Apply the game shader to the game layer and the ui shader to the ui
+         * layer, blend both into the composite layer, then apply the global
+         * shader to draw the final image onto the swapchain. Records the
+         * passes but does NOT submit the command buffer.
+         * 对 game 层应用 game 着色器、对 ui 层应用 ui 着色器并混合进合成层，
+         * 再对其应用 global 着色器把最终画面绘制到交换链。
+         * 仅记录通道，不提交命令缓冲。
+         */
+        void CompositeToSwapchain();
+
+        /**
          * Submit the frame command buffer (presents the swapchain texture).
          * 提交帧命令缓冲（呈现交换链纹理）。
-         * @return the submitted command buffer's fence-less submit result.
+         * @return the submitted command buffer's submit result.
          * 提交是否成功。
          */
         bool SubmitFrame();
@@ -193,8 +278,8 @@ namespace glimmer {
         [[nodiscard]] SDL_GPUCommandBuffer *GetCommandBuffer() const;
 
         /**
-         * @return The current swapchain texture (for RmlUi / screenshots).
-         * 当前交换链纹理（供 RmlUi / 截图使用）。
+         * @return The current swapchain texture (for screenshots).
+         * 当前交换链纹理（供截图使用）。
          */
         [[nodiscard]] SDL_GPUTexture *GetSwapchainTexture() const;
 

@@ -52,8 +52,11 @@ void glimmer::AppRenderer::RenderFrame(const RmlContext *rmlContext, const int w
 #endif
     RenderUiMessage(windowHeight, frameStart);
     renderer_->EndFrame();
-    rmlContext->RenderContext(renderer_->GetCommandBuffer(), renderer_->GetSwapchainTexture(),
+    GpuTexture *uiTarget = renderer_->GetUiTargetTexture();
+    rmlContext->RenderContext(renderer_->GetCommandBuffer(),
+                              uiTarget != nullptr ? uiTarget->GetGpuTexture() : nullptr,
                               renderer_->GetSwapchainWidth(), renderer_->GetSwapchainHeight());
+    renderer_->CompositeToSwapchain();
     if (!appContext_->ProcessPendingScreenshot(windowContext->GetGpuContext(), renderer_)) {
         renderer_->SubmitFrame();
     }

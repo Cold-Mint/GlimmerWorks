@@ -134,6 +134,22 @@ namespace glimmer {
         std::unique_ptr<RmlResourceResult> GetRmlFilePath(const AppContext *appContext,
                                                           const ResourceRef *resourceRef);
 
+        /**
+         * Load GLSL shader source code from the enabled resource packs.
+         * 从已启用的材质包中加载 GLSL 着色器源码。
+         * The file is looked up at shaders/<packageId>/<key>.<extension> inside
+         * each enabled resource pack (first match wins).
+         * 文件查找路径为每个已启用材质包内的 shaders/<packageId>/<key>.<extension>（首个命中生效）。
+         * @param packageId packageId 包ID（如 @core）
+         * @param key key 着色器名（如 game、ui、global、sprite）
+         * @param extension extension 扩展名（"vert" 或 "frag"）
+         * @param modConfig modConfig 模组配置（提供已启用的材质包列表）
+         * @return The shader source code, std::nullopt if not found.
+         * 着色器源码；找不到时返回 std::nullopt。
+         */
+        std::optional<std::string> LoadShaderSource(const std::string &packageId, const std::string &key,
+                                                    const std::string &extension, const Mods &modConfig);
+
         std::shared_ptr<GpuTexture> CreateStringTexture(const std::string &string, const Color *color,
                                                         int wrapWidth = 0);
 

@@ -349,6 +349,33 @@ std::unique_ptr<glimmer::RmlResourceResult> glimmer::ResourcePackManager::GetRml
 }
 
 
+std::optional<std::string> glimmer::ResourcePackManager::LoadShaderSource(const std::string &packageId,
+                                                                          const std::string &key,
+                                                                          const std::string &extension,
+                                                                          const Mods &modConfig) {
+    if (packageId.empty() || key.empty() || extension.empty()) {
+        return std::nullopt;
+    }
+    for (const auto &packId: modConfig.enabledResourcePack) {
+        auto it = resourcePackMap_.find(packId);
+        if (it == resourcePackMap_.end()) {
+            continue;
+        }
+        const ResourcePack *pack = it->second.get();
+        std::filesystem::path shaderPath = pack->GetPath() / "shaders" / packageId / (key + "." + extension);
+        if (!virtualFileSystem_->Exists(shaderPath)) {
+            continue;
+        }
+        auto source = virtualFileSystem_->ReadFileAsString(shaderPath);
+        if (source.has_value()) {
+            LogCat::i("Loaded shader: ", shaderPath.string());
+        }
+        return source;
+    }
+    return std::nullopt;
+}
+
+
 std::shared_ptr<glimmer::GpuTexture> glimmer::ResourcePackManager::CreateStringTexture(const std::string &string,
     const Color *color, int wrapWidth) {
     if (gpuContext_ == nullptr || string.empty() || color == nullptr) {

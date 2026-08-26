@@ -27,44 +27,16 @@
 #pragma once
 
 #include <SDL3/SDL_stdinc.h>
-
-#include "RenderLayer.h"
-#include "SpriteVertex.h"
+#include <SDL3/SDL_gpu.h>
 
 namespace glimmer {
-    class GpuTexture;
-
     /**
-     * Flip flags for RenderQueue::DrawTextureRotated (replaces SDL_FlipMode).
-     * RenderQueue::DrawTextureRotated 使用的翻转标志（替代 SDL_FlipMode）。
+     * A contiguous run of vertices sharing the same texture.
+     * 共享同一纹理的一段连续顶点。
      */
-    enum FlipFlags : Uint8 {
-        FLIP_NONE = 0,
-        FLIP_HORIZONTAL = 1,
-        FLIP_VERTICAL = 2
-    };
-
-    /**
-     * RenderCommand
-     * 渲染命令
-     *
-     * One textured (or plain colored) quad submitted to the RenderQueue.
-     * The four corners are stored in top-left, top-right, bottom-left,
-     * bottom-right order and are expanded into two triangles (6 vertices)
-     * when the queue is flushed by GpuRenderer.
-     * 提交到 RenderQueue 的一个带纹理（或纯色）四边形。四个角点按左上、
-     * 右上、左下、右下顺序存储，GpuRenderer 冲刷队列时展开为两个三角形
-     * （6 个顶点）。
-     *
-     * A command whose texture is nullptr renders plain colored geometry
-     * using the renderer's built-in white texture (rects/lines/points).
-     * texture 为 nullptr 的命令使用渲染器内置的白色纹理绘制纯色几何图形
-     * （矩形/线/点）。
-     */
-    struct RenderCommand {
-        const GpuTexture *texture = nullptr;
-        SpriteVertex corners[4] = {};
-        RenderLayer layer = RenderLayer::Background;
-        float depth = 0.0F;
+    struct DrawRun {
+        SDL_GPUTexture *texture = nullptr;
+        Uint32 firstVertex = 0;
+        Uint32 vertexCount = 0;
     };
 }

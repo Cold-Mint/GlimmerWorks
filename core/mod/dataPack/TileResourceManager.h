@@ -30,27 +30,10 @@
 #include <unordered_map>
 #include <functional>
 
+#include "CoreTileResourceParams.h"
 #include "core/mod/Resource.h"
-#include "core/world/generator/TileLayerType.h"
 
 namespace glimmer {
-    enum class TilePhysicsType : uint8_t;
-
-    struct CoreTileResourceParams {
-        std::string resourceId;
-        TilePhysicsType physicsType;
-        TileLayerType layerType;
-        float unitHardness;
-        std::string nameKey;
-        std::string textureKey;
-        std::string lightSourceKey;
-        std::string sideLightMaskKey;
-        std::string backLightMaskKey;
-        bool isOverwritable;
-        bool canDropLoot;
-        std::optional<std::string> descriptionKey;
-    };
-
     class TileResourceManager {
         std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<TileResource>,
                 TransparentStringHash, std::equal_to<> >,

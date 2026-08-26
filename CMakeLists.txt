@@ -988,14 +988,17 @@ target_sources(GlimmerWorks
         core/ecs/system/ParallaxBackgroundSystem.h
         core/ecs/system/PauseSystem.h
         core/ecs/system/PhysicsSystem.h
+        core/gpu/DrawRun.h
         core/gpu/GpuContext.h
         core/gpu/GpuRenderer.h
         core/gpu/GpuShaderCache.h
         core/gpu/GpuShaderCompiler.h
         core/gpu/GpuTexture.h
+        core/gpu/LightMapParams.h
         core/gpu/RenderCommand.h
         core/gpu/RenderLayer.h
         core/gpu/RenderQueue.h
+        core/gpu/SpriteVertex.h
         core/ecs/system/RayCast2DSystem.h
         core/ecs/system/SpiritRendererSystem.h
         core/ecs/system/TechProviderSystem.h
@@ -1056,6 +1059,7 @@ target_sources(GlimmerWorks
         core/mod/dataPack/BiomeDecoratorResourcesManager.h
         core/mod/dataPack/BiomeDecoratorType.h
         core/mod/dataPack/BiomesManager.h
+        core/mod/dataPack/CoreTileResourceParams.h
         core/mod/dataPack/DataPack.h
         core/mod/dataPack/DataPackManager.h
         core/mod/dataPack/FixedColorManager.h

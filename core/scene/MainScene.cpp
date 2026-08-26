@@ -42,7 +42,7 @@
 
 glimmer::MainScene::MainScene(AppContext *context)
     : Scene(context) {
-    context->PlayMainMenuBGM();
+    context->GetAudioContext()->PlayMainMenuBGM();
     context->SetRandomSlogan();
     virtualFileSystem_ = context->GetVirtualFileSystem();
     const ResourceLocator *resourceLocator = context->GetResourceLocator();

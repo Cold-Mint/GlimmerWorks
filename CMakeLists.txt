@@ -392,6 +392,19 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL_GPU.cpp"
         core/app/App.cpp
         core/app/AppEventLoop.cpp
+        core/context/tasks/IAppContextInitTask.cpp
+        core/context/SystemBucket.cpp
+        core/context/tasks/InitConfigTask.cpp
+        core/context/tasks/InitConsoleContextTask.cpp
+        core/context/tasks/InitCoreContextsTask.cpp
+        core/context/tasks/InitDataPackTask.cpp
+        core/context/tasks/InitLangsTask.cpp
+        core/context/tasks/InitModContextTask.cpp
+        core/context/tasks/InitResourceLocatorTask.cpp
+        core/context/tasks/InitResourcePackTask.cpp
+        core/context/tasks/InitRmlContextTask.cpp
+        core/context/tasks/InitSavesManagerTask.cpp
+        core/context/tasks/InitVFSTask.cpp
         core/mod/dataPack/BaseResManager.cpp
         core/mod/dataPack/AbilityItemManager.cpp
         core/mod/dataPack/MaterialItemManager.cpp
@@ -763,6 +776,19 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Platform_SDL.h"
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL_GPU.h"
         core/app/App.h
+        core/context/tasks/IAppContextInitTask.h
+        core/context/tasks/InitConfigTask.h
+        core/context/tasks/InitConsoleContextTask.h
+        core/context/tasks/InitCoreContextsTask.h
+        core/context/tasks/InitDataPackTask.h
+        core/context/tasks/InitVFSTask.h
+        core/context/tasks/InitLangsTask.h
+        core/context/tasks/InitModContextTask.h
+        core/context/tasks/InitResourceLocatorTask.h
+        core/context/tasks/InitResourcePackTask.h
+        core/context/tasks/InitRmlContextTask.h
+        core/context/tasks/InitSavesManagerTask.h
+        core/context/SystemBucket.h
         core/mod/dataPack/ComposableItemManager.h
         core/mod/dataPack/MaterialItemManager.h
         core/mod/dataPack/AbilityItemManager.h

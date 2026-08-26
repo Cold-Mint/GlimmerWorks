@@ -129,7 +129,7 @@ bool glimmer::App::InitWindowAndRenderer() {
     }
     LogCat::i("Initializing RmlContext");
     rmlContext->Init(appContext_->GetVirtualFileSystem(), gpuContext_.get(), resourcePackManager,
-                     appContext_->GetResourceLocator(), appContext_->GetLanguageValue(), window,
+                     appContext_->GetResourceLocator(), appContext_->GetLangsValue(), window,
                      config->window.width,
                      config->window.height);
     LogCat::i("RmlContext initialized successfully");
@@ -239,12 +239,17 @@ bool glimmer::App::InitAudio() {
     }
     resourcePackManager->SetMixer(mixer_);
     LogCat::i("Loading main menu BGM");
-    appContext_->LoadMainMenuBGM();
-    const AudioContext *audioContext = appContext_->GetAudioContext();
+    AudioContext *audioContext = appContext_->GetAudioContext();
     if (audioContext == nullptr) {
         LogCat::e(std::source_location::current(), "audioContext is nullptr");
         return false;
     }
+    ResourceLocator *resourceLocator = appContext_->GetResourceLocator();
+    if (resourceLocator == nullptr) {
+        LogCat::e(std::source_location::current(), "resourceLocator is nullptr");
+        return false;
+    }
+    audioContext->LoadMainMenuBGM(resourceLocator);
     AudioManager *audioManager = audioContext->GetAudioManager();
     if (audioManager == nullptr) {
         LogCat::e(std::source_location::current(), "audioManager is nullptr");

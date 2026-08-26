@@ -43,9 +43,11 @@
 #include "GraphicsContext.h"
 #include "AudioContext.h"
 #include "RmlContext.h"
+#include "SystemBucket.h"
 #include "WindowContext.h"
 #include "core/scene/MainThreadDispatcher.h"
 #include "core/scene/SceneManager.h"
+#include "tasks/IAppContextInitTask.h"
 
 namespace glimmer {
     class AppContext {
@@ -58,45 +60,23 @@ namespace glimmer {
             const std::function<void(const std::string &text)> *onMessage = nullptr;
         };
 
-        std::string language_;
-        std::unique_ptr<WindowContext> windowContext_ = nullptr;
-        std::unique_ptr<Config> config_ = nullptr;
-        std::unique_ptr<SceneManager> sceneManager_ = nullptr;
-        std::unique_ptr<VirtualFileSystem> virtualFileSystem_ = nullptr;
-        std::unique_ptr<ResourcePackManager> resourcePackManager_ = nullptr;
-        std::unique_ptr<ResourceLocator> resourceLocator_ = nullptr;
-        std::unique_ptr<LangsResources> langsResources_ = nullptr;
-        std::unique_ptr<SavesManager> savesManager_ = nullptr;
-        std::unique_ptr<ModContext> modContext_ = nullptr;
-        std::unique_ptr<RmlContext> rmlContext_ = nullptr;
-        std::unique_ptr<ConsoleContext> consoleContext_ = nullptr;
-        std::unique_ptr<GraphicsContext> graphicsContext_ = nullptr;
-        std::unique_ptr<AudioContext> audioContext_ = nullptr;
-        std::unique_ptr<MainThreadDispatcher> mainThreadDispatcher_ = nullptr;
         std::vector<GameUIMessage> gameUIMessages_;
         mutable std::optional<PendingScreenshot> pendingScreenshot_;
-        toml::spec tomlVersion_ = toml::spec::v(1, 1, 0);
-        std::unique_ptr<toml::value> langsValue_ = nullptr;
-        bool initSuccess_ = false;
+        SystemBucket systemBucket_;
+        std::vector<std::unique_ptr<IAppContextInitTask> > initTasks_;
 
-        void LoadLanguage(const std::string &data);
+        void RegisterInitTask(std::unique_ptr<IAppContextInitTask> initTask);
 
         static std::string GetTimeFileName(const std::string &prefix = "screenshot", const std::string &ext = ".png");
 
     public:
         AppContext();
 
-        ~AppContext();
-
-        [[nodiscard]] bool InitSuccess() const;
+        bool InitSystem();
 
         [[nodiscard]] WindowContext *GetWindowContext() const;
 
-        [[nodiscard]] const toml::spec &GetTomlVersion() const;
-
-        void LoadMainMenuBGM() const;
-
-        void PlayMainMenuBGM() const;
+        [[nodiscard]] const toml::spec *GetTomlVersion() const;
 
         void SetRandomSlogan() const;
 
@@ -114,7 +94,7 @@ namespace glimmer {
 
         [[nodiscard]] Config *GetConfig() const;
 
-        [[nodiscard]] toml::value *GetLanguageValue() const;
+        [[nodiscard]] toml::value *GetLangsValue() const;
 
         [[nodiscard]] LangsResources *GetLangsResources() const;
 

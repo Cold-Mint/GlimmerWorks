@@ -459,7 +459,7 @@ glimmer::ColorResource *glimmer::ResourcePackManager::LoadColorResFromFile(const
             continue;
         }
 
-        const toml::value value = toml::parse_str(data.value(), appContext->GetTomlVersion());
+        const toml::value value = toml::parse_str(data.value(), *appContext->GetTomlVersion());
         colorCache_[fingPrint] = std::make_unique<ColorResource>(
             toml::get<ColorResource>(value)
         );

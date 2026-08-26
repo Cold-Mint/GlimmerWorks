@@ -29,14 +29,22 @@
 #include <random>
 
 #include "core/log/LogCat.h"
-#include "core/utils/LanguageUtils.h"
 #include "core/utils/RandomUtils.h"
 #include "core/utils/StringUtils.h"
-#include "core/vfs/StdFileProvider.h"
 #include "fmt/xchar.h"
 #include "SDL3_image/SDL_image.h"
-#include "toml11/find.hpp"
-#include "toml11/parser.hpp"
+#include "tasks/InitConfigTask.h"
+#include "tasks/InitConsoleContextTask.h"
+#include "tasks/InitCoreContextsTask.h"
+#include "tasks/InitDataPackTask.h"
+#include "tasks/InitLangsTask.h"
+#include "tasks/InitModContextTask.h"
+#include "tasks/InitResourceLocatorTask.h"
+#include "tasks/InitResourcePackTask.h"
+#include "tasks/InitRmlContextTask.h"
+#include "tasks/InitSavesManagerTask.h"
+#include "tasks/InitVFSTask.h"
+
 #ifdef __ANDROID__
 #include <jni.h>
 #include <android/asset_manager.h>
@@ -45,135 +53,8 @@
 #endif
 
 
-void glimmer::AppContext::LoadLanguage(const std::string &data) {
-    auto tomlValue = toml::parse_str(data, tomlVersion_);
-    langsResources_->savedGames = find<std::string>(tomlValue, "saved_games");
-    langsResources_->commandInfo = find<std::string>(tomlValue, "command_info");
-    langsResources_->awakeBodyCount = find<std::string>(tomlValue, "awake_body_count");
-    langsResources_->getActualPathError = find<std::string>(tomlValue, "get_actual_path_error");
-    langsResources_->unknownAssetType = find<std::string>(tomlValue, "unknown_asset_type");
-    langsResources_->unknownCommandParameters = find<std::string>(tomlValue, "unknown_command_parameters");
-    langsResources_->worldContextIsNull = find<std::string>(tomlValue, "world_context_is_null");
-    langsResources_->cheatsNotAllowed = find<std::string>(tomlValue, "cheats_not_allowed");
-    langsResources_->insufficientParameterLength = find<std::string>(tomlValue, "insufficient_parameter_length");
-    langsResources_->configurationUpdate = find<std::string>(tomlValue, "configuration_update");
-    langsResources_->itemIdNotFound = find<std::string>(tomlValue, "item_id_not_found");
-    langsResources_->lootTableNotFound = find<std::string>(tomlValue, "loot_table_not_found");
-    langsResources_->itemContainerIsNull = find<std::string>(tomlValue, "item_container_is_null");
-    langsResources_->composableItemIsNull = find<std::string>(tomlValue, "composable_item_is_null");
-    langsResources_->itemResourceIsNull = find<std::string>(tomlValue, "item_resource_is_null");
-    langsResources_->tileResourceIsNull = find<std::string>(tomlValue, "tile_resource_is_null");
-    langsResources_->failedToLoadLicense = find<std::string>(tomlValue, "failed_to_load_license");
-    langsResources_->cantFindObject = find<std::string>(tomlValue, "cant_find_object");
-    langsResources_->teleportEntity = find<std::string>(tomlValue, "teleport_entity");
-    langsResources_->screenshotSavedSuccess = find<std::string>(tomlValue, "screenshot_saved_success");
-    langsResources_->screenshotSavedFailed = find<std::string>(tomlValue, "screenshot_saved_failed");
-    langsResources_->areaMarkerTip = find<std::string>(tomlValue, "area_marker_tip");
-    langsResources_->efficiencyTip = find<std::string>(tomlValue, "efficiency_tip");
-    langsResources_->precisionMiningTip = find<std::string>(tomlValue, "precision_mining_tip");
-    langsResources_->canMineBlockTip = find<std::string>(tomlValue, "can_mine_block_tip");
-    langsResources_->canMineWallTip = find<std::string>(tomlValue, "can_mine_wall_tip");
-    langsResources_->chainMiningTip = find<std::string>(tomlValue, "chain_mining_tip");
-    langsResources_->flyEnable = find<std::string>(tomlValue, "fly_enable");
-    langsResources_->flyDisable = find<std::string>(tomlValue, "fly_disable");
-    langsResources_->tileDebugInfo = find<std::string>(tomlValue, "tile_debug_info");
-    langsResources_->tileResDebugInfo = find<std::string>(tomlValue, "tile_res_debug_info");
-    langsResources_->mousePosition = find<std::string>(tomlValue, "mouse_position");
-    langsResources_->totalLight = find<std::string>(tomlValue, "total_light");
-    langsResources_->noBiomeWasFound = find<std::string>(tomlValue, "no_biome_was_found");
-    langsResources_->biomeHasFound = find<std::string>(tomlValue, "biome_has_found");
-    langsResources_->configurationCommitSuccess = find<std::string>(tomlValue, "configuration_commit_success");
-    langsResources_->configurationCommitFail = find<std::string>(tomlValue, "configuration_commit_fail");
-    langsResources_->scancodeUnknown = find<std::string>(tomlValue, "scancode_unknown");
-    langsResources_->hookCreateDuplicate = find<std::string>(tomlValue, "hook_create_duplicate");
-    langsResources_->hookAddDuplicate = find<std::string>(tomlValue, "hook_add_duplicate");
-    langsResources_->hookAddSuccess = find<std::string>(tomlValue, "hook_add_success");
-    langsResources_->hookRemoveSuccess = find<std::string>(tomlValue, "hook_remove_success");
-    langsResources_->hookIdNotExist = find<std::string>(tomlValue, "hook_id_not_exist");
-    langsResources_->hookInfo = find<std::string>(tomlValue, "hook_info");
-    langsResources_->lightInfo = find<std::string>(tomlValue, "light_info");
-    langsResources_->lightContributionInfo = find<std::string>(tomlValue, "light_contribution_info");
-    langsResources_->lightSourceInfo = find<std::string>(tomlValue, "light_source_info");
-    langsResources_->lightMaskInfo = find<std::string>(tomlValue, "light_mask_info");
-    langsResources_->notIncludeLighting = find<std::string>(tomlValue, "not_include_lighting");
-    langsResources_->scancodeHookNotFound = find<std::string>(tomlValue, "scancode_hook_not_found");
-    langsResources_->scancodeHookFoundCount = find<std::string>(tomlValue, "scancode_hook_found_count");
-    langsResources_->worldNamePrefix = find<std::vector<std::string> >(tomlValue, "world_name_prefix");
-    langsResources_->worldNameSuffix = find<std::vector<std::string> >(tomlValue, "world_name_suffix");
-    langsResources_->slogans = find<std::vector<std::string> >(tomlValue, "slogans");
-    langsResources_->cmdHookManagerNotFound = find<std::string>(tomlValue, "cmd_hook_manager_not_found");
-    langsResources_->lightingInspectorEnable = find<std::string>(tomlValue, "lighting_inspector_enable");
-    langsResources_->lightingInspectorDisable = find<std::string>(tomlValue, "lighting_inspector_disable");
-    langsResources_->lightingInspectorEnableFail = find<std::string>(tomlValue, "lighting_inspector_enable_fail");
-    langsResources_->lightingInspectorDisableFail = find<std::string>(tomlValue, "lighting_inspector_disable_fail");
-    langsResources_->tileNameAir = find<std::string>(tomlValue, STRING_TILE_AIR_NAME);
-    langsResources_->tileNameAirWall = find<std::string>(tomlValue, STRING_TILE_AIR_WALL_NAME);
-    langsResources_->tileNameError = find<std::string>(tomlValue, STRING_TILE_ERROR_NAME);
-    langsResources_->tileNameErrorWall = find<std::string>(tomlValue, STRING_TILE_ERROR_WALL_NAME);
-    langsResources_->tileNameAccessDenied = find<std::string>(tomlValue, STRING_TILE_ACCESS_DENIED_NAME);
-    langsResources_->tileNameAccessDeniedWall = find<std::string>(tomlValue, STRING_TILE_ACCESS_DENIED_WALL_NAME);
-    langsResources_->tileNameBedrock = find<std::string>(tomlValue, STRING_TILE_BEDROCK_NAME);
-    langsResources_->tileNameVoidWall = find<std::string>(tomlValue, STRING_TILE_VOID_WALL_NAME);
-    langsResources_->tileDescriptionVoidWall = find<std::string>(tomlValue, STRING_TILE_VOID_WALL_DESCRIPTION);
-    langsResources_->tileNameWater = find<std::string>(tomlValue, STRING_TILE_WATER_NAME);
-    langsResources_->tileDescriptionAir = find<std::string>(tomlValue, STRING_TILE_AIR_DESCRIPTION);
-    langsResources_->tileDescriptionAirWall = find<std::string>(tomlValue, STRING_TILE_AIR_WALL_DESCRIPTION);
-    langsResources_->tileDescriptionError = find<std::string>(tomlValue, STRING_TILE_ERROR_DESCRIPTION);
-    langsResources_->tileDescriptionErrorWall = find<std::string>(tomlValue, STRING_TILE_ERROR_WALL_DESCRIPTION);
-    langsResources_->tileDescriptionAccessDenied = find<
-        std::string>(tomlValue, STRING_TILE_ACCESS_DENIED_DESCRIPTION);
-    langsResources_->tileDescriptionAccessDeniedWall = find<std::string>(
-        tomlValue, STRING_TILE_ACCESS_DENIED_WALL_DESCRIPTION);
-    langsResources_->tileDescriptionBedrock = find<std::string>(tomlValue, STRING_TILE_BEDROCK_DESCRIPTION);
-    langsResources_->parallaxBackgroundClear = find<std::string>(tomlValue, "parallax_background_clear");
-    langsResources_->parallaxBackgroundSet = find<std::string>(tomlValue, "parallax_background_set");
-    langsResources_->parallaxBackgroundGet = find<std::string>(tomlValue, "parallax_background_get");
-    langsResources_->parallaxBackgroundNone = find<std::string>(tomlValue, "parallax_background_none");
-    langsResources_->biomeTemperatureInfo = find<std::string>(tomlValue, "biome_temperature_info");
-    langsResources_->biomeHumidityInfo = find<std::string>(tomlValue, "biome_humidity_info");
-    langsResources_->biomeElevationInfo = find<std::string>(tomlValue, "biome_elevation_info");
-    langsResources_->biomeWeirdnessInfo = find<std::string>(tomlValue, "biome_weirdness_info");
-    langsResources_->biomeErosionInfo = find<std::string>(tomlValue, "biome_erosion_info");
-    langsResources_->biomeSurfaceProximityInfo = find<std::string>(tomlValue, "biome_surface_proximity_info");
-    langsResources_->biomeTotalScore = find<std::string>(tomlValue, "biome_total_score");
-    langsResources_->biomeScoreInspectorEnable = find<std::string>(tomlValue, "biome_score_inspector_enable");
-    langsResources_->biomeScoreInspectorDisable = find<std::string>(tomlValue, "biome_score_inspector_disable");
-    langsResources_->biomeScoreInspectorEnableFail = find<
-        std::string>(tomlValue, "biome_score_inspector_enable_fail");
-    langsResources_->biomeScoreInspectorDisableFail = find<
-        std::string>(tomlValue, "biome_score_inspector_disable_fail");
-    langsResources_->notEnabledSignVerify = find<std::string>(tomlValue, "not_enabled_sign_verify");
-    langsResources_->unsignedPackage = find<std::string>(tomlValue, "unsigned");
-    langsResources_->signatureVerificationSuccessful = find<
-        std::string>(tomlValue, "signature_verification_successful");
-    langsResources_->signatureVerificationFailed = find<std::string>(tomlValue, "signature_verification_failed");
-    langsResources_->dataPackageCannotBeFound = find<std::string>(tomlValue, "data_package_cannot_be_found");
-    langsResources_->tileSnapshotInfo = find<std::string>(tomlValue, "tile_snapshot_info");
-    langsResources_->tileSnapshotInspectorEnable = find<std::string>(tomlValue, "tile_snapshot_inspector_enable");
-    langsResources_->tileSnapshotInspectorDisable = find<std::string>(tomlValue, "tile_snapshot_inspector_disable");
-    langsResources_->tileSnapshotInspectorEnableFail = find<std::string>(
-        tomlValue, "tile_snapshot_inspector_enable_fail");
-    langsResources_->tileSnapshotInspectorDisableFail = find<
-        std::string>(tomlValue, "tile_snapshot_inspector_disable_fail");
-    langsResources_->chunkHasNotBeenLoadedYet = find<std::string>(tomlValue, "chunk_has_not_been_loaded_yet");
-    langsResources_->tileSnapshotsDoesNotExist = find<std::string>(tomlValue, "tile_snapshots_does_not_exist");
-    langsResources_->itemEditorHoldItem = find<std::string>(tomlValue, "item_editor_hold_item");
-    langsResources_->itemEditorReadAttr = find<std::string>(tomlValue, "item_editor_read_attr");
-    langsResources_->itemEditorSetAttr = find<std::string>(tomlValue, "item_editor_set_attr");
-    langsResources_->playerDoesNotExist = find<std::string>(tomlValue, "player_does_not_exist");
-    langsResources_->technologyItem = find<std::string>(tomlValue, "technology_item");
-    langsResources_->tagItem = find<std::string>(tomlValue, "tag_item");
-    langsResources_->tagCannotFound = find<std::string>(tomlValue, "tag_cannot_found");
-    langsResources_->noUnlockedRecipes = find<std::string>(tomlValue, "no_unlocked_recipes");
-    langsResources_->recipesItem = find<std::string>(tomlValue, "recipes_item");
-    langsResources_->debugChunkInfo = find<std::string>(tomlValue, "debug_chunk_info");
-    langsResources_->fpsInfo = find<std::string>(tomlValue, "fps_info");
-    langsResources_->lockedTip = find<std::string>(tomlValue, "locked_tip");
-    langsResources_->timeH = find<std::string>(tomlValue, "time_h");
-    langsResources_->timeM = find<std::string>(tomlValue, "time_m");
-    langsResources_->timeS = find<std::string>(tomlValue, "time_s");
-    langsResources_->savesDescription = find<std::string>(tomlValue, "saves_description");
-    langsValue_ = std::make_unique<toml::value>(tomlValue);
+void glimmer::AppContext::RegisterInitTask(std::unique_ptr<IAppContextInitTask> initTask) {
+    initTasks_.emplace_back(std::move(initTask));
 }
 
 std::string glimmer::AppContext::GetTimeFileName(const std::string &prefix, const std::string &ext) {
@@ -189,204 +70,56 @@ std::string glimmer::AppContext::GetTimeFileName(const std::string &prefix, cons
     oss << prefix << "_"
             << std::put_time(&tm, "%Y%m%d_%H%M%S")
             << ext;
-
     return oss.str();
 }
 
 glimmer::AppContext::AppContext() {
-    windowContext_ = std::make_unique<WindowContext>();
-    mainThreadDispatcher_ = std::make_unique<MainThreadDispatcher>();
-    virtualFileSystem_ = std::make_unique<VirtualFileSystem>();
-    VirtualFileSystem *virtualFileSystemPtr = virtualFileSystem_.get();
-#ifdef __ANDROID__
-    auto env = static_cast<JNIEnv *>(SDL_GetAndroidJNIEnv());
-    if (env == nullptr) {
-        initSuccess_ = false;
-        LogCat::e(std::source_location::current(), "env is nullptr");
-        return;
-    }
-    auto activity = static_cast<jobject>(SDL_GetAndroidActivity());
-    if (activity == nullptr) {
-        initSuccess_ = false;
-        LogCat::e(std::source_location::current(), "activity is nullptr");
-        return;
-    }
-    jclass activityClass = env->GetObjectClass(activity);
-    if (activityClass == nullptr) {
-        LogCat::e(std::source_location::current(), "activityClass is nullptr");
-        return;
-    }
-    jmethodID getAssetsMethod = env->
-            GetMethodID(activityClass, "getAssets", "()Landroid/content/res/AssetManager;");
-    if (getAssetsMethod == nullptr) {
-        LogCat::e(std::source_location::current(), "getAssetsMethod is nullptr");
-        return;
-    }
-    jobject assetManagerJava = env->CallObjectMethod(activity, getAssetsMethod);
-    if (assetManagerJava == nullptr) {
-        LogCat::e(std::source_location::current(), "assetManagerJava is nullptr");
-        return;
-    }
-    AAssetManager *assetManager = AAssetManager_fromJava(env, assetManagerJava);
-    if (assetManager == nullptr) {
-        LogCat::e(std::source_location::current(), "assetManager is nullptr");
-        return;
-    }
-    auto assetsProvider = std::make_unique<AndroidAssetsFileProvider>(assetManager);
-    std::optional<std::string> indexTomlOptional = assetsProvider->ReadFile("index.toml");
-    if (!indexTomlOptional.has_tomlValue()) {
-        LogCat::e(std::source_location::current(), "assetManager is nullptr");
-        return;
-    }
-    const toml::tomlValue tomlValue = toml::parse_str(indexTomlOptional.tomlValue(), tomlVersion_);
-    auto assetsEntry = toml::get<std::vector<AndroidAssetEntry> >(tomltomlValue);
-    assetsProvider->SetAssetEntryData(assetsEntry);
-    jmethodID getDataDirMethod = env->GetMethodID(activityClass, "getFilesDir", "()Ljava/io/File;");
-    if (getDataDirMethod == nullptr) {
-        LogCat::e(std::source_location::current(), "getDataDirMethod is nullptr");
-        return;
-    }
-    jobject dataDirFile = env->CallObjectMethod(activity, getDataDirMethod);
-    if (dataDirFile == nullptr) {
-        LogCat::e(std::source_location::current(), "dataDirFile is nullptr");
-        return;
-    }
-    jclass fileClass = env->GetObjectClass(dataDirFile);
-    if (fileClass == nullptr) {
-        LogCat::e(std::source_location::current(), "fileClass is nullptr");
-        return;
-    }
-    jmethodID getAbsolutePathMethod = env->GetMethodID(fileClass, "getAbsolutePath", "()Ljava/lang/String;");
-    if (getAbsolutePathMethod == nullptr) {
-        LogCat::e(std::source_location::current(), "getAbsolutePathMethod is nullptr");
-        return;
-    }
-    auto absolutePathJStr = static_cast<jstring>(env->CallObjectMethod(dataDirFile, getAbsolutePathMethod));
-    if (!absolutePathJStr) {
-        LogCat::e(std::source_location::current(), "absolutePathJStr is nullptr");
-        return;
-    }
-    const char *absolutePathCStr = env->GetStringUTFChars(absolutePathJStr, nullptr);
-    if (!absolutePathCStr) {
-        LogCat::e(std::source_location::current(), "absolutePathCStr is nullptr");
-        return;
-    }
-    std::string dataDirPath(absolutePathCStr);
-    env->ReleaseStringUTFChars(absolutePathJStr, absolutePathCStr);
-    virtualFileSystem_->Mount(std::make_unique<StdFileProvider>(dataDirPath + "/assets"));
-    virtualFileSystem_->Mount(std::unique_ptr<IFileProvider>(std::move(assetsProvider)));
-#else
-    virtualFileSystem_->Mount(
-        std::make_unique<StdFileProvider>(std::filesystem::current_path().string()));
-#endif
-    language_ = LanguageUtils::getLanguage();
-    std::filesystem::path langFile = "langs" / std::filesystem::path(language_);
-    langFile.replace_extension("toml");
-    if (!virtualFileSystem_->Exists(langFile)) {
-        LogCat::w(std::source_location::current(), "langFile not exist");
-        langFile = "langs/default.toml";
-    }
-    const auto langData = virtualFileSystem_->ReadFileAsString(langFile);
-    if (!langData.has_value()) {
-        LogCat::e(std::source_location::current(), "langData not has value");
-        return;
-    }
-    langsResources_ = std::make_unique<LangsResources>();
-    LoadLanguage(langData.value());
-    audioContext_ = std::make_unique<AudioContext>();
-    graphicsContext_ = std::make_unique<GraphicsContext>();
-    sceneManager_ = std::make_unique<SceneManager>();
-    config_ = std::make_unique<Config>();
-    const std::optional<std::string> configData = virtualFileSystem_->ReadFileAsString(CONFIG_FILE_NAME);
-    if (!configData.has_value()) {
-        LogCat::e(std::source_location::current(), "configData not has value");
-        return;
-    }
-    config_->SetConfigValue(
-        std::make_unique<toml::value>(toml::value(toml::parse_str(configData.value(), tomlVersion_))));
-    config_->ReloadConfig();
-    savesManager_ = std::make_unique<SavesManager>(virtualFileSystemPtr);
-    savesManager_->LoadAllSaves(config_->runtimePath);
-    rmlContext_ = std::make_unique<RmlContext>();
-    modContext_ = std::make_unique<ModContext>();
-    modContext_->Init(virtualFileSystemPtr, langsResources_.get());
-    if (modContext_ == nullptr) {
-        LogCat::e(std::source_location::current(), "modContext_ is nullptr");
-        return;
-    }
-    consoleContext_ = std::make_unique<ConsoleContext>();
-    if (!consoleContext_->Init(this, virtualFileSystemPtr, config_->runtimePath,
-                               config_->console.maxHistoryEntries)) {
-        LogCat::e(std::source_location::current(), "init consoleContext fail.");
-        return;
-    }
-
-    DataPackManager *dataPackManager = modContext_->GetDataPackManager();
-    if (dataPackManager == nullptr) {
-        LogCat::e(std::source_location::current(), "dataPackManager is nullptr");
-        return;
-    }
-    if (dataPackManager->Scan(this, tomlVersion_) == 0) {
-        LogCat::e(std::source_location::current(), "The data package cannot be found.");
-        return;
-    }
-    RecipeManager *recipeManager = modContext_->GetRecipeManager();
-    if (recipeManager == nullptr) {
-        LogCat::e(std::source_location::current(), "recipeManager is nullptr");
-        return;
-    }
-    recipeManager->PreSortRecipes();
-    resourcePackManager_ = std::make_unique<ResourcePackManager>(virtualFileSystemPtr);
-    if (resourcePackManager_ == nullptr) {
-        LogCat::e(std::source_location::current(), "resourcePackManager_ is nullptr");
-        return;
-    }
-    if (resourcePackManager_->Scan(config_->mods.resourcePackPath, config_->mods.enabledResourcePack,
-                                   tomlVersion_) == 0) {
-        LogCat::e(std::source_location::current(), "The resource package cannot be found.");
-        return;
-    }
-    const MobManager *mobManager = modContext_->GetMobManager();
-    if (mobManager == nullptr) {
-        LogCat::e(std::source_location::current(), "mobManager is nullptr");
-        return;
-    }
-    if (const size_t number = mobManager->GetPlayerResourceList().size(); number == 0) {
-        LogCat::e(std::source_location::current(), "At least one player resource is required.");
-        return;
-    }
-    resourceLocator_ = std::make_unique<ResourceLocator>(this);
-    graphicsContext_->Init(resourceLocator_.get());
-    initSuccess_ = true;
-    LogCat::i("AppContext initialization completed successfully");
+    RegisterInitTask(std::make_unique<InitVFSTask>());
+    RegisterInitTask(std::make_unique<InitLangsTask>());
+    RegisterInitTask(std::make_unique<InitCoreContextsTask>());
+    RegisterInitTask(std::make_unique<InitConfigTask>());
+    RegisterInitTask(std::make_unique<InitSavesManagerTask>());
+    RegisterInitTask(std::make_unique<InitRmlContextTask>());
+    RegisterInitTask(std::make_unique<InitModContextTask>());
+    RegisterInitTask(std::make_unique<InitConsoleContextTask>(this));
+    RegisterInitTask(std::make_unique<InitDataPackTask>(this));
+    RegisterInitTask(std::make_unique<InitResourcePackTask>());
+    RegisterInitTask(std::make_unique<InitResourceLocatorTask>(this));
 }
 
-void glimmer::AppContext::LoadMainMenuBGM() const {
-    audioContext_->LoadMainMenuBGM(resourceLocator_.get());
+bool glimmer::AppContext::InitSystem() {
+    bool success = true;
+    std::stack<IAppContextInitTask *> initTaskStack;
+    SystemBucket *systemBucketPtr = &systemBucket_;
+    for (auto &initTask: initTasks_) {
+        IAppContextInitTask *initTaskPtr = initTask.get();
+        if (initTaskPtr == nullptr) {
+            continue;
+        }
+        if (initTaskPtr->Run(systemBucketPtr)) {
+            initTaskStack.push(initTaskPtr);
+        } else {
+            success = false;
+            break;
+        }
+    }
+    if (success) {
+        LogCat::i("AppContext initialization completed successfully");
+        return true;
+    }
+    while (!initTaskStack.empty()) {
+        initTaskStack.top()->Rollback(systemBucketPtr);
+        initTaskStack.pop();
+    }
+    return false;
 }
 
-void glimmer::AppContext::PlayMainMenuBGM() const {
-    audioContext_->PlayMainMenuBGM();
-}
-
-const toml::spec &glimmer::AppContext::GetTomlVersion() const {
-    return tomlVersion_;
-}
-
-glimmer::AppContext::~AppContext() {
-    sceneManager_->ClearScenes();
-}
-
-bool glimmer::AppContext::InitSuccess() const {
-    return initSuccess_;
+const toml::spec *glimmer::AppContext::GetTomlVersion() const {
+    return systemBucket_.GetTomlVersion();
 }
 
 glimmer::WindowContext *glimmer::AppContext::GetWindowContext() const {
-    if (windowContext_ == nullptr) {
-        LogCat::w(std::source_location::current(), "windowContext is nullptr");
-        return nullptr;
-    }
-    return windowContext_.get();
+    return systemBucket_.GetWindowContext();
 }
 
 void glimmer::AppContext::AddUIMessage(const std::string &string) {
@@ -397,14 +130,26 @@ void glimmer::AppContext::AddUIMessage(const std::string &string) {
             return;
         }
     }
-    if (resourcePackManager_ == nullptr) {
+    ResourcePackManager *resourcePackManager = systemBucket_.GetResourcePackManager();
+    if (resourcePackManager == nullptr) {
         return;
     }
-    const float targetFps = config_ != nullptr ? config_->window.normalTargetFps : 60.0F;
-
-    mainThreadDispatcher_->PostToNextMainFrame([this, string, targetFps] {
-        gameUIMessages_.emplace_back(resourcePackManager_.get(), string, SDL_GetTicks(),
-                                     &graphicsContext_->GetPreloadColors()->textColor, targetFps);
+    GraphicsContext *graphicsContext = systemBucket_.GetGraphicsContext();
+    if (graphicsContext == nullptr) {
+        return;
+    }
+    const Config *config = systemBucket_.GetConfig();
+    if (config == nullptr) {
+        return;
+    }
+    MainThreadDispatcher *mainThreadDispatcher = systemBucket_.GetMainThreadDispatcher();
+    if (mainThreadDispatcher == nullptr) {
+        return;
+    }
+    const float targetFps = config != nullptr ? config->window.normalTargetFps : 60.0F;
+    mainThreadDispatcher->PostToNextMainFrame([this, string, targetFps, resourcePackManager, graphicsContext] {
+        gameUIMessages_.emplace_back(resourcePackManager, string, SDL_GetTicks(),
+                                     &graphicsContext->GetPreloadColors()->textColor, targetFps);
     });
 }
 
@@ -413,11 +158,20 @@ std::vector<glimmer::GameUIMessage> &glimmer::AppContext::GetGameUIMessages() {
 }
 
 void glimmer::AppContext::ExitApp() const {
-    consoleContext_->StopConsoleWorker();
-    if (config_->console.maxHistoryEntries > 0) {
-        consoleContext_->SaveCommandHistory();
+    if (const ConsoleContext *consoleContext = systemBucket_.GetConsoleContext(); consoleContext != nullptr) {
+        consoleContext->StopConsoleWorker();
+        if (const Config *config = systemBucket_.GetConfig();
+            config != nullptr && config->console.maxHistoryEntries > 0) {
+            consoleContext->SaveCommandHistory();
+        }
     }
-    windowContext_->Exit();
+    SceneManager *sceneManager = systemBucket_.GetSceneManager();
+    if (sceneManager != nullptr) {
+        sceneManager->ClearScenes();
+    }
+    if (WindowContext *windowContext = systemBucket_.GetWindowContext(); windowContext != nullptr) {
+        windowContext->Exit();
+    }
 }
 
 void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::string &text)> *onMessage) const {
@@ -425,20 +179,32 @@ void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::s
         return;
     }
     const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
-    if (windowContext_->GetGpuContext() == nullptr || windowContext_->GetRenderer() == nullptr) {
+    const WindowContext *windowContext = systemBucket_.GetWindowContext();
+    if (windowContext == nullptr) {
+        return;
+    }
+    const auto config = systemBucket_.GetConfig();
+    if (config == nullptr) {
+        return;
+    }
+    const VirtualFileSystem *virtualFileSystem = systemBucket_.GetVirtualFileSystem();
+    if (virtualFileSystem == nullptr) {
+        return;
+    }
+    if (windowContext->GetGpuContext() == nullptr || windowContext->GetRenderer() == nullptr) {
         onMessageRef(fmt::format(
             fmt::runtime(GetLangsResources()->screenshotSavedFailed),
             "GPU context is null failed"));
         return;
     }
-    const std::filesystem::path screenshotsFolder = std::filesystem::path(config_->runtimePath) / "screenshots";
-    if (!virtualFileSystem_->Exists(screenshotsFolder) && !virtualFileSystem_->CreateFolder(screenshotsFolder)) {
+    const std::filesystem::path screenshotsFolder = std::filesystem::path(config->runtimePath) / "screenshots";
+    if (!virtualFileSystem->Exists(screenshotsFolder) && !virtualFileSystem->CreateFolder(screenshotsFolder)) {
         onMessageRef(fmt::format(
             fmt::runtime(GetLangsResources()->screenshotSavedFailed),
             "CreateFolder failed"));
         return;
     }
-    const auto actualPath = virtualFileSystem_->GetActualPath(
+    const auto actualPath = virtualFileSystem->GetActualPath(
         screenshotsFolder / GetTimeFileName());
     if (!actualPath.has_value()) {
         onMessageRef(fmt::format(
@@ -552,132 +318,80 @@ bool glimmer::AppContext::ProcessPendingScreenshot(GpuContext *gpuContext, GpuRe
 }
 
 glimmer::ModContext *glimmer::AppContext::GetModContext() const {
-    if (modContext_ == nullptr) {
-        LogCat::w(std::source_location::current(), "modContext is null");
-        return nullptr;
-    }
-    return modContext_.get();
+    return systemBucket_.GetModContext();
 }
 
 glimmer::ConsoleContext *glimmer::AppContext::GetConsoleContext() const {
-    if (consoleContext_ == nullptr) {
-        LogCat::w(std::source_location::current(), "consoleContext is null");
-        return nullptr;
-    }
-    return consoleContext_.get();
+    return systemBucket_.GetConsoleContext();
 }
 
 glimmer::GraphicsContext *glimmer::AppContext::GetGraphicsContext() const {
-    if (graphicsContext_ == nullptr) {
-        LogCat::w(std::source_location::current(), "graphicsContext is null");
-        return nullptr;
-    }
-    return graphicsContext_.get();
+    return systemBucket_.GetGraphicsContext();
 }
 
 glimmer::AudioContext *glimmer::AppContext::GetAudioContext() const {
-    if (audioContext_ == nullptr) {
-        LogCat::w(std::source_location::current(), "audioContext is null");
-        return nullptr;
-    }
-    return audioContext_.get();
+    return systemBucket_.GetAudioContext();
 }
 
 glimmer::RmlContext *glimmer::AppContext::GetRmlContext() const {
-    if (rmlContext_ == nullptr) {
-        LogCat::w(std::source_location::current(), "rmlContext is null");
-        return nullptr;
-    }
-    return rmlContext_.get();
+    return systemBucket_.GetRmlContext();
 }
 
 glimmer::MainThreadDispatcher *glimmer::AppContext::GetMainThreadDispatcher() const {
-    if (mainThreadDispatcher_ == nullptr) {
-        LogCat::w(std::source_location::current(), "mainThreadDispatcher is null");
-        return nullptr;
-    }
-    return mainThreadDispatcher_.get();
+    return systemBucket_.GetMainThreadDispatcher();
 }
 
 glimmer::Config *glimmer::AppContext::GetConfig() const {
-    if (config_ == nullptr) {
-        LogCat::w(std::source_location::current(), "config is null");
-        return nullptr;
-    }
-    return config_.get();
+    return systemBucket_.GetConfig();
 }
 
-toml::value *glimmer::AppContext::GetLanguageValue() const {
-    if (langsValue_ == nullptr) {
-        LogCat::w(std::source_location::current(), "langsValue is null");
-        return nullptr;
-    }
-    return langsValue_.get();
+toml::value *glimmer::AppContext::GetLangsValue() const {
+    return systemBucket_.GetLangsValue();
 }
 
 glimmer::LangsResources *glimmer::AppContext::GetLangsResources() const {
-    if (langsResources_ == nullptr) {
-        LogCat::w(std::source_location::current(), "langsResources is null");
-        return nullptr;
-    }
-    return langsResources_.get();
+    return systemBucket_.GetLangsResources();
 }
 
 glimmer::ResourcePackManager *glimmer::AppContext::GetResourcePackManager() const {
-    if (resourcePackManager_ == nullptr) {
-        LogCat::w(std::source_location::current(), "resourcePackManager is null");
-        return nullptr;
-    }
-    return resourcePackManager_.get();
+    return systemBucket_.GetResourcePackManager();
 }
 
 glimmer::ResourceLocator *glimmer::AppContext::GetResourceLocator() const {
-    if (resourceLocator_ == nullptr) {
-        LogCat::w(std::source_location::current(), "resourceLocator is null");
-        return nullptr;
-    }
-    return resourceLocator_.get();
+    return systemBucket_.GetResourceLocator();
 }
 
 glimmer::VirtualFileSystem *glimmer::AppContext::GetVirtualFileSystem() const {
-    if (virtualFileSystem_ == nullptr) {
-        LogCat::w(std::source_location::current(), "virtualFileSystem is null");
-        return nullptr;
-    }
-    return virtualFileSystem_.get();
+    return systemBucket_.GetVirtualFileSystem();
 }
 
 glimmer::SceneManager *glimmer::AppContext::GetSceneManager() const {
-    if (sceneManager_ == nullptr) {
-        LogCat::w(std::source_location::current(), "sceneManager is null");
-        return nullptr;
-    }
-    return sceneManager_.get();
+    return systemBucket_.GetSceneManager();
 }
 
 glimmer::SavesManager *glimmer::AppContext::GetSavesManager() const {
-    if (savesManager_ == nullptr) {
-        LogCat::w(std::source_location::current(), "savesManager is null");
-        return nullptr;
-    }
-    return savesManager_.get();
+    return systemBucket_.GetSavesManager();
 }
 
 void glimmer::AppContext::SetRandomSlogan() const {
-    if (langsResources_ == nullptr) {
-        windowContext_->SetWindowTitle(PROJECT_NAME.c_str());
+    const WindowContext *windowContext = systemBucket_.GetWindowContext();
+    if (windowContext == nullptr) {
         return;
     }
-    const std::vector<std::string> &slogans = langsResources_->slogans;
-    if (slogans.empty()) {
-        windowContext_->SetWindowTitle(PROJECT_NAME.c_str());
+    const LangsResources *langsResources = systemBucket_.GetLangsResources();
+    if (langsResources == nullptr) {
+        windowContext->SetWindowTitle(PROJECT_NAME.c_str());
+        return;
+    }
+    if (const std::vector<std::string> &slogans = langsResources->slogans; slogans.empty()) {
+        windowContext->SetWindowTitle(PROJECT_NAME.c_str());
     } else {
         const int idx = RandomUtils::Random(0, static_cast<int>(slogans.size()) - 1);
         const std::string &random_str = slogans[idx];
-        windowContext_->SetWindowTitle(random_str.c_str());
+        windowContext->SetWindowTitle(random_str.c_str());
     }
 }
 
 const std::string &glimmer::AppContext::GetLanguage() const {
-    return language_;
+    return systemBucket_.GetLanguage();
 }

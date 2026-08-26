@@ -26,32 +26,14 @@
  */
 #include "GpuShaderCache.h"
 
-#include <cctype>
-#include <cstdint>
 #include <system_error>
 
 #include "blake3.h"
 #include "core/log/LogCat.h"
 #include "core/mod/ResourceRef.h"
+#include "core/utils/StringUtils.h"
 #include "core/vfs/VirtualFileSystem.h"
 #include "src/cache/shader_cache.pb.h"
-
-namespace {
-    /**
-     * Replace characters that are unsafe in file names with '_'.
-     * 把文件名中不安全的字符替换为 '_'。
-     */
-    std::string SanitizeFileName(const std::string &name) {
-        std::string result = name;
-        for (char &c: result) {
-            const auto uc = static_cast<unsigned char>(c);
-            if (std::isalnum(uc) == 0 && c != '.' && c != '_' && c != '-') {
-                c = '_';
-            }
-        }
-        return result;
-    }
-}
 
 glimmer::GpuShaderCache::GpuShaderCache(VirtualFileSystem *virtualFileSystem,
                                         const std::filesystem::path &cachePath)
@@ -59,8 +41,8 @@ glimmer::GpuShaderCache::GpuShaderCache(VirtualFileSystem *virtualFileSystem,
 }
 
 std::filesystem::path glimmer::GpuShaderCache::GetCacheFilePath(const ResourceRef *resourceRef) const {
-    return cacheDir_ / SanitizeFileName(resourceRef->GetPackageId()) /
-           (SanitizeFileName(resourceRef->GetResourceKey()) + ".cache");
+    return cacheDir_ / StringUtils::SanitizeFileName(resourceRef->GetPackageId()) /
+           (StringUtils::SanitizeFileName(resourceRef->GetResourceKey()) + ".cache");
 }
 
 std::optional<int64_t> glimmer::GpuShaderCache::GetSourceMtime(const std::filesystem::path &sourcePath) const {

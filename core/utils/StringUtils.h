@@ -41,6 +41,14 @@ namespace glimmer {
          */
         static std::string ToSafeSaveName(const std::string &utf8Str);
 
+        /**
+         * Replace characters that are unsafe in file names with '_'.
+         * 把文件名中不安全的字符替换为 '_'。
+         * @param name name 原始文件名
+         * @return Sanitized file name. 过滤后的文件名。
+         */
+        static std::string SanitizeFileName(const std::string &name);
+
 
         /**
          * String to hash value

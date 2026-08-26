@@ -26,7 +26,7 @@
  */
 #include "StringUtils.h"
 
-#include <cstdint>
+#include <cctype>
 #include <cstring>
 #include <iomanip>
 #include <ios>
@@ -41,6 +41,16 @@ std::string glimmer::StringUtils::ToSafeSaveName(const std::string &utf8Str) {
     oss << "save_";
     oss << StringToUint64Blake3(utf8Str);
     return oss.str();
+}
+
+std::string glimmer::StringUtils::SanitizeFileName(const std::string &name) {
+    std::string result = name;
+    for (char &c: result) {
+        if (const auto uc = static_cast<unsigned char>(c); std::isalnum(uc) == 0 && c != '.' && c != '_' && c != '-') {
+            c = '_';
+        }
+    }
+    return result;
 }
 
 uint64_t glimmer::StringUtils::StringToUint64Blake3(const std::string &string) {

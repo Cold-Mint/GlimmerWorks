@@ -349,30 +349,43 @@ std::unique_ptr<glimmer::RmlResourceResult> glimmer::ResourcePackManager::GetRml
 }
 
 
-std::optional<std::string> glimmer::ResourcePackManager::LoadShaderSource(const std::string &packageId,
-                                                                          const std::string &key,
-                                                                          const std::string &extension,
-                                                                          const Mods &modConfig) {
-    if (packageId.empty() || key.empty() || extension.empty()) {
-        return std::nullopt;
+std::unique_ptr<glimmer::ShaderResourceResult> glimmer::ResourcePackManager::LoadShaderFromFile(
+    const AppContext *appContext, const ResourceRef *resourceRef) {
+    if (appContext == nullptr || resourceRef == nullptr) {
+        LogCat::w(std::source_location::current(), "appContext == nullptr || resourceRef == nullptr");
+        return nullptr;
     }
-    for (const auto &packId: modConfig.enabledResourcePack) {
+    if (resourceRef->GetResourceType() != RESOURCE_SHADER) {
+        LogCat::w(std::source_location::current(), "resourceRef->GetResourceType() != RESOURCE_SHADER");
+        return nullptr;
+    }
+    const Config *config = appContext->GetConfig();
+    if (config == nullptr) {
+        LogCat::w(std::source_location::current(), "config == nullptr");
+        return nullptr;
+    }
+    for (const auto &packId: config->mods.enabledResourcePack) {
         auto it = resourcePackMap_.find(packId);
         if (it == resourcePackMap_.end()) {
             continue;
         }
         const ResourcePack *pack = it->second.get();
-        std::filesystem::path shaderPath = pack->GetPath() / "shaders" / packageId / (key + "." + extension);
+        std::filesystem::path shaderPath = pack->GetPath() / "shaders" / resourceRef->GetPackageId() /
+                                           resourceRef->GetResourceKey();
         if (!virtualFileSystem_->Exists(shaderPath)) {
             continue;
         }
         auto source = virtualFileSystem_->ReadFileAsString(shaderPath);
-        if (source.has_value()) {
-            LogCat::i("Loaded shader: ", shaderPath.string());
+        if (!source.has_value()) {
+            continue;
         }
-        return source;
+        LogCat::i("Loaded shader: ", shaderPath.string());
+        auto resourceResult = std::make_unique<ShaderResourceResult>();
+        resourceResult->SetPath(shaderPath);
+        resourceResult->SetSource(std::move(source.value()));
+        return resourceResult;
     }
-    return std::nullopt;
+    return nullptr;
 }
 
 

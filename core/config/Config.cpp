@@ -127,6 +127,9 @@ bool glimmer::Config::ReloadConfig() {
     audio.format = toml::find<std::string>(tomlRef, "audio", "format");
     console.maxHistoryEntries = toml::find<uint16_t>(tomlRef, "console", "max_history_entries");
     runtimePath = toml::find<std::string>(tomlRef, "runtime_path");
+    //Optional so older config files without the key keep working.
+    //可选项，使缺少该键的旧版配置文件仍可正常工作。
+    cachePath = toml::find_or<std::string>(tomlRef, "cache_path", cachePath);
     command.locateMaxRadiusSearchChunks = toml::find<uint16_t>(tomlRef, "command",
                                                                "locate_max_radius_search_chunks");
     commandHooks = toml::find<std::vector<CommandHookResource> >(tomlRef, "command_hooks");

@@ -28,21 +28,29 @@
 
 #include <algorithm>
 
+#include "GpuShaderCache.h"
 #include "GpuShaderCompiler.h"
 #include "RenderQueue.h"
+#include "core/config/Config.h"
 #include "core/config/Constants.h"
+#include "core/context/AppContext.h"
 #include "core/log/LogCat.h"
-#include "core/mod/resourcePack/ResourcePackManager.h"
+#include "core/mod/ResourceLocator.h"
+#include "core/mod/ResourceRef.h"
+#include "core/mod/resourcePack/ShaderResourceResult.h"
 
 namespace {
-    //Shader names inside the resource packs (directory shaders/@core/).
-    //材质包内的着色器名（目录 shaders/@core/）。
+    //Shader names inside the resource packs (directory shaders/@core/). Each
+    //pipeline name doubles as its fragment shader name (e.g. pipeline "game"
+    //uses shaders/@core/game.frag); all pipelines share the "sprite" vertex shader.
+    //材质包内的着色器名（目录 shaders/@core/）。管线名同时作为其片元着色器名
+    //（如管线 "game" 使用 shaders/@core/game.frag）；所有管线共享 "sprite" 顶点着色器。
     constexpr const char *SHADER_NAME_SPRITE_VERT = "sprite";
-    constexpr const char *SHADER_NAME_SPRITE_FRAG = "sprite";
-    constexpr const char *SHADER_NAME_GAME_FRAG = "game";
-    constexpr const char *SHADER_NAME_UI_FRAG = "ui";
-    constexpr const char *SHADER_NAME_GLOBAL_FRAG = "global";
-    constexpr const char *SHADER_NAME_LIGHTING_FRAG = "lighting";
+    constexpr const char *PIPELINE_NAME_SPRITE = "sprite";
+    constexpr const char *PIPELINE_NAME_GAME = "game";
+    constexpr const char *PIPELINE_NAME_UI = "ui";
+    constexpr const char *PIPELINE_NAME_GLOBAL = "global";
+    constexpr const char *PIPELINE_NAME_LIGHTING = "lighting";
     constexpr const char *SHADER_EXTENSION_VERT = "vert";
     constexpr const char *SHADER_EXTENSION_FRAG = "frag";
 
@@ -235,83 +243,139 @@ SDL_GPUGraphicsPipeline *glimmer::GpuRenderer::CreateSpritePipeline(SDL_GPUShade
     return pipeline;
 }
 
-bool glimmer::GpuRenderer::Init(GpuContext *gpuContext, ResourcePackManager *resourcePackManager,
-                                const Mods &mods) {
-    if (gpuContext == nullptr || gpuContext->GetDevice() == nullptr) {
-        LogCat::w(std::source_location::current(), "gpuContext is nullptr or not initialized");
-        return false;
+SDL_GPUShader *glimmer::GpuRenderer::GetOrCreateShader(const std::string &key, const std::string &extension,
+                                                       const SDL_GPUShaderStage stage, const Uint32 numSamplers,
+                                                       const Uint32 numUniformBuffers, const char *fallbackSource) {
+    const std::string shaderKey = key + "." + extension;
+    if (const auto it = shaderCache_.find(shaderKey); it != shaderCache_.end()) {
+        //Already loaded: return the cached pointer without any disk IO.
+        //已加载过：直接返回缓存指针，不再进行磁盘 IO。
+        return it->second;
     }
-    if (resourcePackManager == nullptr) {
-        LogCat::w(std::source_location::current(), "resourcePackManager is nullptr");
-        return false;
-    }
-    gpuContext_ = gpuContext;
-    device_ = gpuContext->GetDevice();
-
-    //Load shader sources from the enabled resource packs; fall back to the
-    //embedded pass-through shaders when a pack does not provide them.
-    //从已启用的材质包加载着色器源码；材质包未提供时使用内嵌的 pass-through 兜底。
-    auto loadShader = [&](const std::string &key, const std::string &extension, const SDL_GPUShaderStage stage,
-                          const Uint32 numSamplers, const Uint32 numUniformBuffers,
-                          const char *fallbackSource) -> SDL_GPUShader * {
-        auto source = resourcePackManager->LoadShaderSource(RESOURCE_REF_CORE, key, extension, mods);
-        if (source.has_value()) {
-            SDL_GPUShader *shader = GpuShaderCompiler::CompileFromSource(
-                device_, source->c_str(), (key + "." + extension).c_str(), stage, numSamplers, numUniformBuffers);
+    if (resourceLocator_ != nullptr) {
+        //Locate the shader source through the ResourceLocator (RESOURCE_SHADER).
+        //通过资源定位器（RESOURCE_SHADER）查找着色器源码。
+        ResourceRef resourceRef;
+        resourceRef.SetPackageId(RESOURCE_REF_CORE);
+        resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+        resourceRef.SetResourceType(RESOURCE_SHADER);
+        resourceRef.SetResourceKey(shaderKey);
+        if (auto shaderResult = resourceLocator_->FindShader(&resourceRef); shaderResult != nullptr) {
+            SDL_GPUShader *shader = nullptr;
+            if (gpuShaderCache_ != nullptr) {
+                //Fast path: reuse the cached SPIR-V binary when the source
+                //file did not change (mtime, confirmed by blake3).
+                //快速路径：源文件未变化时复用缓存的 SPIR-V 二进制
+                //（修改时间判断，blake3 哈希确认）。
+                if (auto spirv = gpuShaderCache_->TryLoad(&resourceRef, shaderResult->GetPath(),
+                                                          shaderResult->GetSource());
+                    spirv.has_value()) {
+                    shader = GpuShaderCompiler::CreateFromSpirv(device_, spirv->data(), spirv->size(),
+                                                                shaderKey.c_str(), stage, numSamplers,
+                                                                numUniformBuffers);
+                    //If the driver rejects the cached binary, fall through and recompile.
+                    //若驱动拒绝缓存的二进制，继续向下重新编译。
+                }
+            }
+            if (shader == nullptr) {
+                const std::string debugName = shaderResult->GetPath().string();
+                if (const auto spirv = GpuShaderCompiler::CompileToSpirv(shaderResult->GetSource().c_str(),
+                                                                         debugName.c_str(), stage);
+                    !spirv.empty()) {
+                    if (gpuShaderCache_ != nullptr) {
+                        gpuShaderCache_->Store(&resourceRef, shaderResult->GetPath(), shaderResult->GetSource(),
+                                               spirv.data(), spirv.size() * sizeof(unsigned int));
+                    }
+                    shader = GpuShaderCompiler::CreateFromSpirv(device_, spirv.data(),
+                                                                spirv.size() * sizeof(unsigned int), shaderKey.c_str(),
+                                                                stage, numSamplers, numUniformBuffers);
+                }
+            }
             if (shader != nullptr) {
+                shaderCache_[shaderKey] = shader;
                 return shader;
             }
-            LogCat::w(std::source_location::current(), "Pack shader failed to compile, using fallback: ", key);
+            LogCat::w(std::source_location::current(), "Pack shader failed to compile, using fallback: ", shaderKey);
         }
-        return GpuShaderCompiler::CompileFromSource(device_, fallbackSource, (key + "(fallback)").c_str(), stage,
-                                                    numSamplers, numUniformBuffers);
-    };
+    }
+    SDL_GPUShader *fallbackShader = GpuShaderCompiler::CompileFromSource(
+        device_, fallbackSource, (shaderKey + "(fallback)").c_str(), stage, numSamplers, numUniformBuffers);
+    if (fallbackShader != nullptr) {
+        shaderCache_[shaderKey] = fallbackShader;
+    }
+    return fallbackShader;
+}
 
-    SDL_GPUShader *vertexShader = loadShader(SHADER_NAME_SPRITE_VERT, SHADER_EXTENSION_VERT,
-                                             SDL_GPU_SHADERSTAGE_VERTEX, 0, 1, DEFAULT_SPRITE_VERT);
-    SDL_GPUShader *spriteFragShader = loadShader(SHADER_NAME_SPRITE_FRAG, SHADER_EXTENSION_FRAG,
-                                                 SDL_GPU_SHADERSTAGE_FRAGMENT, 1, 0, DEFAULT_PASSTHROUGH_FRAG);
-    SDL_GPUShader *gameFragShader = loadShader(SHADER_NAME_GAME_FRAG, SHADER_EXTENSION_FRAG,
-                                               SDL_GPU_SHADERSTAGE_FRAGMENT, 1, 0, DEFAULT_PASSTHROUGH_FRAG);
-    SDL_GPUShader *uiFragShader = loadShader(SHADER_NAME_UI_FRAG, SHADER_EXTENSION_FRAG,
-                                             SDL_GPU_SHADERSTAGE_FRAGMENT, 1, 0, DEFAULT_PASSTHROUGH_FRAG);
-    SDL_GPUShader *globalFragShader = loadShader(SHADER_NAME_GLOBAL_FRAG, SHADER_EXTENSION_FRAG,
-                                                 SDL_GPU_SHADERSTAGE_FRAGMENT, 1, 0, DEFAULT_PASSTHROUGH_FRAG);
+SDL_GPUGraphicsPipeline *glimmer::GpuRenderer::GetOrCreatePipeline(const std::string &name,
+                                                                   const SpriteBlendMode blendMode,
+                                                                   const Uint32 numSamplers,
+                                                                   const Uint32 numUniformBuffers,
+                                                                   const char *fallbackFragSource) {
+    if (const auto it = pipelineCache_.find(name); it != pipelineCache_.end()) {
+        return it->second;
+    }
+    SDL_GPUShader *vertexShader = GetOrCreateShader(SHADER_NAME_SPRITE_VERT, SHADER_EXTENSION_VERT,
+                                                    SDL_GPU_SHADERSTAGE_VERTEX, 0, 1, DEFAULT_SPRITE_VERT);
+    SDL_GPUShader *fragmentShader = GetOrCreateShader(name, SHADER_EXTENSION_FRAG, SDL_GPU_SHADERSTAGE_FRAGMENT,
+                                                      numSamplers, numUniformBuffers, fallbackFragSource);
+    if (vertexShader == nullptr || fragmentShader == nullptr) {
+        LogCat::w(std::source_location::current(), "Failed to get shaders for pipeline: ", name);
+        return nullptr;
+    }
+    SDL_GPUGraphicsPipeline *pipeline = CreateSpritePipeline(vertexShader, fragmentShader, blendMode);
+    if (pipeline == nullptr) {
+        return nullptr;
+    }
+    LogCat::i("Created graphics pipeline lazily: ", name);
+    pipelineCache_[name] = pipeline;
+    return pipeline;
+}
+
+SDL_GPUGraphicsPipeline *glimmer::GpuRenderer::GetSpritePipeline() {
+    return GetOrCreatePipeline(PIPELINE_NAME_SPRITE, SpriteBlendMode::Alpha, 1, 0, DEFAULT_PASSTHROUGH_FRAG);
+}
+
+SDL_GPUGraphicsPipeline *glimmer::GpuRenderer::GetGamePipeline() {
+    return GetOrCreatePipeline(PIPELINE_NAME_GAME, SpriteBlendMode::Alpha, 1, 0, DEFAULT_PASSTHROUGH_FRAG);
+}
+
+SDL_GPUGraphicsPipeline *glimmer::GpuRenderer::GetUiPipeline() {
+    return GetOrCreatePipeline(PIPELINE_NAME_UI, SpriteBlendMode::Alpha, 1, 0, DEFAULT_PASSTHROUGH_FRAG);
+}
+
+SDL_GPUGraphicsPipeline *glimmer::GpuRenderer::GetGlobalPipeline() {
+    return GetOrCreatePipeline(PIPELINE_NAME_GLOBAL, SpriteBlendMode::None, 1, 0, DEFAULT_PASSTHROUGH_FRAG);
+}
+
+SDL_GPUGraphicsPipeline *glimmer::GpuRenderer::GetLightingPipeline() {
     //The lighting shader samples the light map (1 sampler) and receives the
     //LightMapParams uniform block (1 fragment uniform buffer).
     //光照着色器采样光照贴图（1 个采样器）并接收 LightMapParams
     //uniform 块（1 个片元 uniform 缓冲）。
-    SDL_GPUShader *lightingFragShader = loadShader(SHADER_NAME_LIGHTING_FRAG, SHADER_EXTENSION_FRAG,
-                                                   SDL_GPU_SHADERSTAGE_FRAGMENT, 1, 1, DEFAULT_LIGHTING_FRAG);
-    if (vertexShader == nullptr || spriteFragShader == nullptr || gameFragShader == nullptr ||
-        uiFragShader == nullptr || globalFragShader == nullptr || lightingFragShader == nullptr) {
-        LogCat::e(std::source_location::current(), "Failed to compile sprite shaders");
-        if (vertexShader != nullptr) SDL_ReleaseGPUShader(device_, vertexShader);
-        if (spriteFragShader != nullptr) SDL_ReleaseGPUShader(device_, spriteFragShader);
-        if (gameFragShader != nullptr) SDL_ReleaseGPUShader(device_, gameFragShader);
-        if (uiFragShader != nullptr) SDL_ReleaseGPUShader(device_, uiFragShader);
-        if (globalFragShader != nullptr) SDL_ReleaseGPUShader(device_, globalFragShader);
-        if (lightingFragShader != nullptr) SDL_ReleaseGPUShader(device_, lightingFragShader);
-        return false;
-    }
+    return GetOrCreatePipeline(PIPELINE_NAME_LIGHTING, SpriteBlendMode::Multiply, 1, 1, DEFAULT_LIGHTING_FRAG);
+}
 
-    pipeline_ = CreateSpritePipeline(vertexShader, spriteFragShader, SpriteBlendMode::Alpha);
-    gamePipeline_ = CreateSpritePipeline(vertexShader, gameFragShader, SpriteBlendMode::Alpha);
-    uiPipeline_ = CreateSpritePipeline(vertexShader, uiFragShader, SpriteBlendMode::Alpha);
-    globalPipeline_ = CreateSpritePipeline(vertexShader, globalFragShader, SpriteBlendMode::None);
-    lightingPipeline_ = CreateSpritePipeline(vertexShader, lightingFragShader, SpriteBlendMode::Multiply);
-    SDL_ReleaseGPUShader(device_, vertexShader);
-    SDL_ReleaseGPUShader(device_, spriteFragShader);
-    SDL_ReleaseGPUShader(device_, gameFragShader);
-    SDL_ReleaseGPUShader(device_, uiFragShader);
-    SDL_ReleaseGPUShader(device_, globalFragShader);
-    SDL_ReleaseGPUShader(device_, lightingFragShader);
-    if (pipeline_ == nullptr || gamePipeline_ == nullptr || uiPipeline_ == nullptr || globalPipeline_ == nullptr ||
-        lightingPipeline_ == nullptr) {
-        LogCat::e(std::source_location::current(), "Failed to create sprite pipelines");
-        Shutdown();
+bool glimmer::GpuRenderer::Init(GpuContext *gpuContext, AppContext *appContext) {
+    if (gpuContext == nullptr || gpuContext->GetDevice() == nullptr) {
+        LogCat::w(std::source_location::current(), "gpuContext is nullptr or not initialized");
         return false;
     }
+    if (appContext == nullptr) {
+        LogCat::w(std::source_location::current(), "appContext is nullptr");
+        return false;
+    }
+    gpuContext_ = gpuContext;
+    device_ = gpuContext->GetDevice();
+    resourceLocator_ = appContext->GetResourceLocator();
+    virtualFileSystem_ = appContext->GetVirtualFileSystem();
+    //Prepare the shader disk cache. Shaders and pipelines are NOT compiled
+    //here; they are created lazily on first use (see GetOrCreatePipeline).
+    //准备好着色器磁盘缓存。此处不编译着色器和管线；它们在首次使用时惰性创建
+    //（见 GetOrCreatePipeline）。
+    const Config *config = appContext->GetConfig();
+    gpuShaderCache_ = std::make_unique<GpuShaderCache>(virtualFileSystem_,
+                                                       config != nullptr ? std::filesystem::path(config->cachePath)
+                                                                         : std::filesystem::path(".cache"));
 
     SDL_GPUBufferCreateInfo bufferCreateInfo = {};
     bufferCreateInfo.usage = SDL_GPU_BUFFERUSAGE_VERTEX;
@@ -423,29 +487,23 @@ void glimmer::GpuRenderer::Shutdown() {
             vertexBuffer_ = nullptr;
         }
         vertexBufferCapacity_ = 0;
-        if (lightingPipeline_ != nullptr) {
-            SDL_ReleaseGPUGraphicsPipeline(device_, lightingPipeline_);
-            lightingPipeline_ = nullptr;
+        for (const auto &[name, pipeline]: pipelineCache_) {
+            if (pipeline != nullptr) {
+                SDL_ReleaseGPUGraphicsPipeline(device_, pipeline);
+            }
         }
-        if (globalPipeline_ != nullptr) {
-            SDL_ReleaseGPUGraphicsPipeline(device_, globalPipeline_);
-            globalPipeline_ = nullptr;
+        pipelineCache_.clear();
+        for (const auto &[key, shader]: shaderCache_) {
+            if (shader != nullptr) {
+                SDL_ReleaseGPUShader(device_, shader);
+            }
         }
-        if (uiPipeline_ != nullptr) {
-            SDL_ReleaseGPUGraphicsPipeline(device_, uiPipeline_);
-            uiPipeline_ = nullptr;
-        }
-        if (gamePipeline_ != nullptr) {
-            SDL_ReleaseGPUGraphicsPipeline(device_, gamePipeline_);
-            gamePipeline_ = nullptr;
-        }
-        if (pipeline_ != nullptr) {
-            SDL_ReleaseGPUGraphicsPipeline(device_, pipeline_);
-            pipeline_ = nullptr;
-        }
+        shaderCache_.clear();
     }
     device_ = nullptr;
     gpuContext_ = nullptr;
+    resourceLocator_ = nullptr;
+    virtualFileSystem_ = nullptr;
 }
 
 bool glimmer::GpuRenderer::EnsureLayerTextures() {
@@ -702,11 +760,15 @@ bool glimmer::GpuRenderer::EnsureLightMapUploaded() {
 }
 
 void glimmer::GpuRenderer::DrawLightingQuad() {
-    if (renderPass_ == nullptr || lightingPipeline_ == nullptr || lightMapTexture_ == nullptr ||
+    //The lighting pipeline is compiled lazily on the first frame that
+    //actually needs it.
+    //光照管线在首次真正需要它的那一帧惰性编译。
+    SDL_GPUGraphicsPipeline *lightingPipeline = GetLightingPipeline();
+    if (renderPass_ == nullptr || lightingPipeline == nullptr || lightMapTexture_ == nullptr ||
         !lightMapTexture_->IsValid()) {
         return;
     }
-    SDL_BindGPUGraphicsPipeline(renderPass_, lightingPipeline_);
+    SDL_BindGPUGraphicsPipeline(renderPass_, lightingPipeline);
     const float viewSize[2] = {1.0F, 1.0F};
     SDL_PushGPUVertexUniformData(commandBuffer_, 0, viewSize, sizeof(viewSize));
     SDL_PushGPUFragmentUniformData(commandBuffer_, 0, &lightMapParams_, sizeof(LightMapParams));
@@ -830,8 +892,12 @@ void glimmer::GpuRenderer::FlushQueue(RenderQueue &queue) {
         SDL_UploadToGPUBuffer(copyPass, &location, &region, false);
         SDL_EndGPUCopyPass(copyPass);
         EnsureRenderPass(false);
-        if (renderPass_ != nullptr) {
-            SDL_BindGPUGraphicsPipeline(renderPass_, pipeline_);
+        //The sprite pipeline is compiled lazily on the first frame that
+        //actually draws something.
+        //精灵管线在首次真正绘制内容的那一帧惰性编译。
+        SDL_GPUGraphicsPipeline *spritePipeline = GetSpritePipeline();
+        if (renderPass_ != nullptr && spritePipeline != nullptr) {
+            SDL_BindGPUGraphicsPipeline(renderPass_, spritePipeline);
             SDL_GPUViewport viewport = {};
             viewport.x = 0.0F;
             viewport.y = 0.0F;
@@ -861,7 +927,7 @@ void glimmer::GpuRenderer::FlushQueue(RenderQueue &queue) {
                 if (!overlayRuns.empty()) {
                     //Restore the sprite pipeline state for the overlay batch.
                     //为覆盖层批次恢复精灵管线状态。
-                    SDL_BindGPUGraphicsPipeline(renderPass_, pipeline_);
+                    SDL_BindGPUGraphicsPipeline(renderPass_, spritePipeline);
                     SDL_PushGPUVertexUniformData(commandBuffer_, 0, viewSize, sizeof(viewSize));
                     SDL_BindGPUVertexBuffers(renderPass_, 0, &vertexBufferBinding, 1);
                     for (const DrawRun &run: overlayRuns) {
@@ -900,8 +966,10 @@ void glimmer::GpuRenderer::CompositeToSwapchain() {
     currentTarget_ = compositeLayerTexture_->GetGpuTexture();
     EnsureRenderPass(true);
     if (renderPass_ != nullptr) {
-        DrawLayerQuad(gamePipeline_, gameLayerTexture_.get());
-        DrawLayerQuad(uiPipeline_, uiLayerTexture_.get());
+        //The layer pipelines are compiled lazily on the first composite pass.
+        //分层管线在首次合成通道时惰性编译。
+        DrawLayerQuad(GetGamePipeline(), gameLayerTexture_.get());
+        DrawLayerQuad(GetUiPipeline(), uiLayerTexture_.get());
     }
     EndActivePass();
     //Pass 2: swapchain = composite layer (global shader).
@@ -909,7 +977,7 @@ void glimmer::GpuRenderer::CompositeToSwapchain() {
     currentTarget_ = swapchainTexture_;
     EnsureRenderPass(true);
     if (renderPass_ != nullptr) {
-        DrawLayerQuad(globalPipeline_, compositeLayerTexture_.get());
+        DrawLayerQuad(GetGlobalPipeline(), compositeLayerTexture_.get());
     }
     EndActivePass();
     currentTarget_ = nullptr;

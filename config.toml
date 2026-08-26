@@ -3,6 +3,9 @@ config_version = 1
 # Runtime data storage path
 # 运行时数据存放路径
 runtime_path = "runtime"
+# Cache storage path (compiled shader binaries, etc.)
+# 缓存存放路径（编译后的着色器二进制等）
+cache_path = ".cache"
 
 [window]
 # Window width (pixels)

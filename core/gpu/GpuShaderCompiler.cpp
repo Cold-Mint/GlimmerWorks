@@ -47,9 +47,19 @@ SDL_GPUShader *glimmer::GpuShaderCompiler::CompileFromSource(SDL_GPUDevice *devi
                                                              const SDL_GPUShaderStage gpuStage,
                                                              const Uint32 numSamplers,
                                                              const Uint32 numUniformBuffers) {
-    if (device == nullptr || source == nullptr) {
-        LogCat::w(std::source_location::current(), "device or source is nullptr: ", debugName);
+    const std::vector<unsigned int> spirv = CompileToSpirv(source, debugName, gpuStage);
+    if (spirv.empty()) {
         return nullptr;
+    }
+    return CreateFromSpirv(device, spirv.data(), spirv.size() * sizeof(unsigned int), debugName, gpuStage,
+                           numSamplers, numUniformBuffers);
+}
+
+std::vector<unsigned int> glimmer::GpuShaderCompiler::CompileToSpirv(const char *source, const char *debugName,
+                                                                     const SDL_GPUShaderStage gpuStage) {
+    if (source == nullptr) {
+        LogCat::w(std::source_location::current(), "source is nullptr: ", debugName);
+        return {};
     }
     const EShLanguage shaderStage = gpuStage == SDL_GPU_SHADERSTAGE_VERTEX ? EShLangVertex : EShLangFragment;
     glslang::TShader glslShader(shaderStage);
@@ -63,19 +73,29 @@ SDL_GPUShader *glimmer::GpuShaderCompiler::CompileFromSource(SDL_GPUDevice *devi
     if (!glslShader.parse(resources, 450, false, messages)) {
         LogCat::w(std::source_location::current(), "GLSL compilation failed (", debugName, "): ",
                   glslShader.getInfoLog());
-        return nullptr;
+        return {};
     }
     glslang::SpvOptions options;
     std::vector<unsigned int> spirv;
     glslang::GlslangToSpv(*glslShader.getIntermediate(), spirv, &options);
     if (spirv.empty()) {
         LogCat::w(std::source_location::current(), "GLSL to SPIR-V conversion produced no output (", debugName, ")");
+    }
+    return spirv;
+}
+
+SDL_GPUShader *glimmer::GpuShaderCompiler::CreateFromSpirv(SDL_GPUDevice *device, const void *code,
+                                                           const size_t codeSize, const char *debugName,
+                                                           const SDL_GPUShaderStage gpuStage,
+                                                           const Uint32 numSamplers,
+                                                           const Uint32 numUniformBuffers) {
+    if (device == nullptr || code == nullptr || codeSize == 0 || codeSize % sizeof(unsigned int) != 0) {
+        LogCat::w(std::source_location::current(), "Invalid SPIR-V input (", debugName, ")");
         return nullptr;
     }
-
     SDL_GPUShaderCreateInfo shaderInfo = {};
-    shaderInfo.code_size = spirv.size() * sizeof(unsigned int);
-    shaderInfo.code = reinterpret_cast<const Uint8 *>(spirv.data());
+    shaderInfo.code_size = codeSize;
+    shaderInfo.code = static_cast<const Uint8 *>(code);
     shaderInfo.entrypoint = "main";
     shaderInfo.format = SDL_GPU_SHADERFORMAT_SPIRV;
     shaderInfo.stage = gpuStage;

@@ -27,17 +27,21 @@
 #pragma once
 
 #include <memory>
+#include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "GpuContext.h"
+#include "GpuShaderCache.h"
 #include "GpuTexture.h"
 #include "RenderCommand.h"
 #include "SDL3/SDL_pixels.h"
 
 namespace glimmer {
     class RenderQueue;
-    class ResourcePackManager;
-    struct Mods;
+    class ResourceLocator;
+    class VirtualFileSystem;
+    class AppContext;
 
     /**
      * LightMapParams
@@ -108,11 +112,14 @@ namespace glimmer {
      * immediate-mode SpriteRenderer: instead of accumulating vertices on
      * every draw call, game systems record RenderCommands into a RenderQueue
      * and the renderer consumes the whole sorted queue once per frame.
+     * Pipelines are compiled lazily on first use (never at startup), reusing
+     * disk-cached SPIR-V binaries when the shader source did not change.
      * 基于 SDL_GPU 的帧级渲染器。它持有图形管线、动态顶点缓冲和离屏层纹理，
      * 并绘制 RenderQueue 的内容（见 FlushQueue）。它替代了旧的立即模式
      * SpriteRenderer：游戏系统不再在每次绘制调用时累积顶点，而是把
      * RenderCommand 记录进 RenderQueue，由渲染器每帧一次性消费整个
-     * 排好序的队列。
+     * 排好序的队列。管线在首次使用时惰性编译（启动阶段不预编译），
+     * 着色器源码未变化时复用磁盘缓存的 SPIR-V 二进制。
      *
      * Layered rendering (shaders are loaded from the enabled resource packs,
      * directory shaders/@core/):
@@ -179,11 +186,29 @@ namespace glimmer {
 
         GpuContext *gpuContext_ = nullptr;
         SDL_GPUDevice *device_ = nullptr;
-        SDL_GPUGraphicsPipeline *pipeline_ = nullptr;
-        SDL_GPUGraphicsPipeline *gamePipeline_ = nullptr;
-        SDL_GPUGraphicsPipeline *uiPipeline_ = nullptr;
-        SDL_GPUGraphicsPipeline *globalPipeline_ = nullptr;
-        SDL_GPUGraphicsPipeline *lightingPipeline_ = nullptr;
+        ResourceLocator *resourceLocator_ = nullptr;
+        VirtualFileSystem *virtualFileSystem_ = nullptr;
+        /**
+         * Disk cache of compiled SPIR-V binaries (keyed by shader resource
+         * reference, validated via mtime/blake3). Created in Init; pipelines
+         * and shaders are compiled lazily on first use, never at startup.
+         * 编译后 SPIR-V 二进制的磁盘缓存（按着色器资源引用索引，通过
+         * 修改时间/blake3 校验）。在 Init 中创建；管线与着色器在首次使用时
+         * 惰性编译，启动阶段不预编译。
+         */
+        std::unique_ptr<GpuShaderCache> gpuShaderCache_ = nullptr;
+        /**
+         * In-memory cache of loaded shaders (key: "<name>.<ext>", e.g.
+         * "sprite.vert") and created pipelines (key: pipeline name, e.g.
+         * "sprite"/"game"/"ui"/"global"/"lighting"). Entries are created on
+         * first use and released in Shutdown.
+         * 已加载着色器的内存缓存（键："<名称>.<扩展名>"，如 "sprite.vert"）与
+         * 已创建管线的内存缓存（键：管线名，如
+         * "sprite"/"game"/"ui"/"global"/"lighting"）。条目在首次使用时创建，
+         * 在 Shutdown 中释放。
+         */
+        std::unordered_map<std::string, SDL_GPUShader *> shaderCache_;
+        std::unordered_map<std::string, SDL_GPUGraphicsPipeline *> pipelineCache_;
         std::unique_ptr<GpuTexture> whiteTexture_ = nullptr;
 
         std::unique_ptr<GpuTexture> gameLayerTexture_ = nullptr;
@@ -239,7 +264,64 @@ namespace glimmer {
          * 成功返回管线，失败返回 nullptr。
          */
         SDL_GPUGraphicsPipeline *CreateSpritePipeline(SDL_GPUShader *vertexShader, SDL_GPUShader *fragmentShader,
-                                                      SpriteBlendMode blendMode) const;
+                                                       SpriteBlendMode blendMode) const;
+
+        /**
+         * Get a shader from the in-memory cache, loading it on first use:
+         * the GLSL source is located through the ResourceLocator
+         * (RESOURCE_SHADER), a valid disk-cached SPIR-V binary is used when
+         * available, otherwise the source is compiled and the result is
+         * written to the disk cache. Falls back to the embedded pass-through
+         * source when the resource packs do not provide the shader or
+         * compilation fails.
+         * 从内存缓存获取着色器，首次使用时加载：GLSL 源码通过资源定位器
+         * （RESOURCE_SHADER）查找，存在有效的磁盘缓存 SPIR-V 时直接使用，
+         * 否则编译源码并把结果写入磁盘缓存。材质包未提供该着色器或编译失败时
+         * 回退到内嵌的 pass-through 源码。
+         * @param key key 着色器名（如 sprite、game、lighting）
+         * @param extension extension 扩展名（"vert" 或 "frag"）
+         * @param stage stage 着色器阶段
+         * @param numSamplers numSamplers 采样器数量
+         * @param numUniformBuffers numUniformBuffers uniform 缓冲数量
+         * @param fallbackSource fallbackSource 内嵌兜底 GLSL 源码
+         * @return The shader (owned by shaderCache_), nullptr on failure.
+         * 着色器（由 shaderCache_ 持有），失败返回 nullptr。
+         */
+        SDL_GPUShader *GetOrCreateShader(const std::string &key, const std::string &extension,
+                                         SDL_GPUShaderStage stage, Uint32 numSamplers, Uint32 numUniformBuffers,
+                                         const char *fallbackSource);
+
+        /**
+         * Get a pipeline from the in-memory cache, creating it (and its
+         * shaders) lazily on first use. The fragment shader shares the
+         * pipeline name (e.g. pipeline "game" uses shaders/@core/game.frag).
+         * 从内存缓存获取管线，首次使用时惰性创建管线（及其着色器）。片元着色器
+         * 与管线同名（如管线 "game" 使用 shaders/@core/game.frag）。
+         * @param name name 管线名（sprite/game/ui/global/lighting）
+         * @param blendMode blendMode 混合模式
+         * @param numSamplers numSamplers 片元着色器采样器数量
+         * @param numUniformBuffers numUniformBuffers 片元着色器 uniform 缓冲数量
+         * @param fallbackFragSource fallbackFragSource 内嵌兜底片元着色器源码
+         * @return The pipeline (owned by pipelineCache_), nullptr on failure.
+         * 管线（由 pipelineCache_ 持有），失败返回 nullptr。
+         */
+        SDL_GPUGraphicsPipeline *GetOrCreatePipeline(const std::string &name, SpriteBlendMode blendMode,
+                                                     Uint32 numSamplers, Uint32 numUniformBuffers,
+                                                     const char *fallbackFragSource);
+
+        /**
+         * Lazy accessors for the five built-in pipelines. They compile the
+         * required shaders (with disk-cache reuse) and create the pipeline on
+         * first call; subsequent calls return the cached pointer without any
+         * disk IO.
+         * 五条内置管线的惰性访问器。首次调用时编译所需着色器（复用磁盘缓存）
+         * 并创建管线；后续调用直接返回缓存指针，不再进行磁盘 IO。
+         */
+        SDL_GPUGraphicsPipeline *GetSpritePipeline();
+        SDL_GPUGraphicsPipeline *GetGamePipeline();
+        SDL_GPUGraphicsPipeline *GetUiPipeline();
+        SDL_GPUGraphicsPipeline *GetGlobalPipeline();
+        SDL_GPUGraphicsPipeline *GetLightingPipeline();
 
         /**
          * Expand a range of sorted render commands into batch vertices and
@@ -316,18 +398,20 @@ namespace glimmer {
         GpuRenderer &operator=(const GpuRenderer &) = delete;
 
         /**
-         * Compile the shaders (loaded from the enabled resource packs, with
-         * embedded pass-through fallbacks), create the graphics pipelines, the
-         * built-in white texture and the full-screen unit quad buffer.
-         * 编译着色器（从已启用的材质包加载，缺失时使用内嵌的 pass-through
-         * 兜底），创建图形管线、内置白色纹理和全屏单位四边形缓冲。
+         * Initialize the renderer: create the dynamic vertex buffer, the
+         * built-in white texture and the full-screen unit quad buffer, and
+         * prepare the shader disk cache. No shader is compiled and no
+         * graphics pipeline is created here — that happens lazily on first
+         * use (see GetSpritePipeline and friends).
+         * 初始化渲染器：创建动态顶点缓冲、内置白色纹理、全屏单位四边形缓冲，
+         * 并准备好着色器磁盘缓存。此处不编译任何着色器、不创建任何图形管线——
+         * 这些工作在首次使用时惰性进行（见 GetSpritePipeline 等）。
          * @param gpuContext gpuContext 已初始化的 GPU 上下文
-         * @param resourcePackManager resourcePackManager 材质包管理器（提供着色器源码）
-         * @param mods mods 模组配置（决定启用哪些材质包）
+         * @param appContext appContext 应用上下文（提供资源定位器、虚拟文件系统与缓存路径配置）
          * @return true on success, false on failure (error is logged).
          * 成功返回 true，失败返回 false（错误会记录日志）。
          */
-        bool Init(GpuContext *gpuContext, ResourcePackManager *resourcePackManager, const Mods &mods);
+        bool Init(GpuContext *gpuContext, AppContext *appContext);
 
         /**
          * Release the pipelines, buffers, white texture and layer textures.

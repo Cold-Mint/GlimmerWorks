@@ -116,7 +116,7 @@ bool glimmer::App::InitWindowAndRenderer() {
     }
     GpuShaderCompiler::Init();
     gpuRenderer_ = std::make_unique<GpuRenderer>();
-    if (!gpuRenderer_->Init(gpuContext_.get(), resourcePackManager, config->mods)) {
+    if (!gpuRenderer_->Init(gpuContext_.get(), appContext_)) {
         LogCat::e(std::source_location::current(), "GpuRenderer init failed");
         return false;
     }

@@ -109,6 +109,15 @@ namespace glimmer {
 
         [[nodiscard]] std::shared_ptr<AudioResourceResult> FindAudio(const ResourceRef *resourceRef) const;
 
+        /**
+         * FindShader
+         * 查找着色器资源（RESOURCE_SHADER，resourceKey 含扩展名，如 sprite.vert）
+         * @param resourceRef resourceRef 着色器引用
+         * @return The result (path + source), nullptr if not found or access denied.
+         * 查找结果（路径 + 源码）；找不到或权限受限时返回 nullptr。
+         */
+        [[nodiscard]] std::unique_ptr<ShaderResourceResult> FindShader(const ResourceRef *resourceRef) const;
+
         [[nodiscard]] std::unique_ptr<Color> FindColor(const ResourceRef *resourceRef) const;
 
         [[nodiscard]] IShapeResource *FindShape(const ResourceRef *resourceRef) const;

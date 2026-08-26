@@ -3,6 +3,17 @@ project(GlimmerWorks)
 set(CMAKE_CXX_STANDARD 26)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/versions.cmake")
+
+if (CMAKE_BUILD_TYPE MATCHES "^Debug$")
+    set(GLIMMERWORKS_PROTOBUF_TAG_ARGS "")
+    set(GLIMMERWORKS_DATA_TAG_ARGS "")
+    set(GLIMMERWORKS_ASSETS_TAG_ARGS "")
+else ()
+    set(GLIMMERWORKS_PROTOBUF_TAG_ARGS "GIT_TAG;${COLD-MINT_GLIMMERWORKSPROTOBUF_VERSION}")
+    set(GLIMMERWORKS_DATA_TAG_ARGS "GIT_TAG;${COLD-MINT_GLIMMERWORKSDATA_VERSION}")
+    set(GLIMMERWORKS_ASSETS_TAG_ARGS "GIT_TAG;${COLD-MINT_GLIMMERWORKSASSETS_VERSION}")
+endif ()
+
 if (NOT DEFINED ENV{GITHUB_ACTIONS})
     if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/config.cmake")
         message(FATAL_ERROR "The file \"config.cmake\" was not found. Please copy \"config_template.cmake\", fill in its content, rename it to \"config.cmake\", and then run it again.")
@@ -294,7 +305,7 @@ set(utf8_range_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
 FetchContent_Declare(
         glimmerWorksProtobuf
         GIT_REPOSITORY "https://github.com/Cold-Mint/GlimmerWorksProtobuf"
-        GIT_TAG ${COLD-MINT_GLIMMERWORKSPROTOBUF_VERSION}
+        ${GLIMMERWORKS_PROTOBUF_TAG_ARGS}
         GIT_SHALLOW TRUE
         EXCLUDE_FROM_ALL
 )
@@ -584,6 +595,7 @@ target_sources(GlimmerWorks
         core/ecs/system/PlayerControlSystem.cpp
         core/gpu/GpuContext.cpp
         core/gpu/GpuRenderer.cpp
+        core/gpu/GpuShaderCache.cpp
         core/gpu/GpuShaderCompiler.cpp
         core/gpu/GpuTexture.cpp
         core/gpu/RenderQueue.cpp
@@ -667,6 +679,7 @@ target_sources(GlimmerWorks
         core/mod/resourcePack/ResourcePackManager.cpp
         core/mod/resourcePack/ResourceResult.cpp
         core/mod/resourcePack/RmlResourceResult.cpp
+        core/mod/resourcePack/ShaderResourceResult.cpp
         core/mod/resourcePack/TextureResourceResult.cpp
         core/mod/templateCommand/InsertTemplateCommand.cpp
         core/mod/templateCommand/SetTemplateCommand.cpp
@@ -977,6 +990,7 @@ target_sources(GlimmerWorks
         core/ecs/system/PhysicsSystem.h
         core/gpu/GpuContext.h
         core/gpu/GpuRenderer.h
+        core/gpu/GpuShaderCache.h
         core/gpu/GpuShaderCompiler.h
         core/gpu/GpuTexture.h
         core/gpu/RenderCommand.h
@@ -1063,6 +1077,7 @@ target_sources(GlimmerWorks
         core/mod/resourcePack/ResourcePackManager.h
         core/mod/resourcePack/ResourceResult.h
         core/mod/resourcePack/RmlResourceResult.h
+        core/mod/resourcePack/ShaderResourceResult.h
         core/mod/resourcePack/TextureResourceResult.h
         core/mod/templateCommand/InsertTemplateCommand.h
         core/mod/templateCommand/SetTemplateCommand.h
@@ -1278,7 +1293,7 @@ FetchContent_Declare(
         VanillaDataPack
         GIT_REPOSITORY "https://github.com/Cold-Mint/GlimmerworksData"
         SOURCE_DIR "${CMAKE_BINARY_DIR}/mods/data_packs/glimmerworks"
-        GIT_TAG ${COLD-MINT_GLIMMERWORKSDATA_VERSION}
+        ${GLIMMERWORKS_DATA_TAG_ARGS}
         GIT_SHALLOW TRUE
 )
 
@@ -1291,7 +1306,7 @@ FetchContent_Declare(
         VanillaResourcePack
         GIT_REPOSITORY "https://github.com/Cold-Mint/GlimmerworksAssets"
         SOURCE_DIR "${CMAKE_BINARY_DIR}/mods/resource_packs/glimmerworks_res"
-        GIT_TAG ${COLD-MINT_GLIMMERWORKSASSETS_VERSION}
+        ${GLIMMERWORKS_ASSETS_TAG_ARGS}
         GIT_SHALLOW TRUE
 )
 

@@ -190,6 +190,11 @@ namespace glimmer {
         LightingConfig lighting{};
         int configVersion = 1;
         std::string runtimePath;
+        /**
+         * Cache storage path (compiled shader binaries, etc.).
+         * 缓存存放路径（编译后的着色器二进制等）。
+         */
+        std::string cachePath = ".cache";
         std::vector<CommandHookResource> commandHooks;
 #if  !defined(NDEBUG)
         LightConfig light;

@@ -67,7 +67,6 @@ namespace glimmer {
 
         void RegisterInitTask(std::unique_ptr<IAppContextInitTask> initTask);
 
-
     public:
         AppContext();
 

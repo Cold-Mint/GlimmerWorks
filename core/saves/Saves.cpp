@@ -63,9 +63,8 @@ glimmer::Saves::Saves(std::filesystem::path path, VirtualFileSystem *virtualFile
 void glimmer::Saves::SetOnMapManifestChanged(
 
 
-const std::function<void(const MapManifestMessage &)> &onMapManifestChanged
-)
- {
+    const std::function<void(const MapManifestMessage &)> &onMapManifestChanged
+) {
     onMapManifestChanged_ = onMapManifestChanged;
 }
 

@@ -593,10 +593,17 @@ target_sources(GlimmerWorks
         core/ecs/system/PauseSystem.cpp
         core/ecs/system/PhysicsSystem.cpp
         core/ecs/system/PlayerControlSystem.cpp
+        core/gpu/GpuCompositor.cpp
         core/gpu/GpuContext.cpp
+        core/gpu/GpuFrameState.cpp
+        core/gpu/GpuLayerTextures.cpp
+        core/gpu/GpuLightingPass.cpp
         core/gpu/GpuRenderer.cpp
+        core/gpu/GpuRenderPassState.cpp
         core/gpu/GpuShaderCache.cpp
         core/gpu/GpuShaderCompiler.cpp
+        core/gpu/GpuShaderPipelineManager.cpp
+        core/gpu/GpuSpriteBatcher.cpp
         core/gpu/GpuTexture.cpp
         core/gpu/RenderQueue.cpp
         core/ecs/system/RayCast2DSystem.cpp
@@ -989,15 +996,23 @@ target_sources(GlimmerWorks
         core/ecs/system/PauseSystem.h
         core/ecs/system/PhysicsSystem.h
         core/gpu/DrawRun.h
+        core/gpu/GpuCompositor.h
         core/gpu/GpuContext.h
+        core/gpu/GpuFrameState.h
+        core/gpu/GpuLayerTextures.h
+        core/gpu/GpuLightingPass.h
         core/gpu/GpuRenderer.h
+        core/gpu/GpuRenderPassState.h
         core/gpu/GpuShaderCache.h
         core/gpu/GpuShaderCompiler.h
+        core/gpu/GpuShaderPipelineManager.h
+        core/gpu/GpuSpriteBatcher.h
         core/gpu/GpuTexture.h
         core/gpu/LightMapParams.h
         core/gpu/RenderCommand.h
         core/gpu/RenderLayer.h
         core/gpu/RenderQueue.h
+        core/gpu/SpriteBlendMode.h
         core/gpu/SpriteVertex.h
         core/ecs/system/RayCast2DSystem.h
         core/ecs/system/SpiritRendererSystem.h

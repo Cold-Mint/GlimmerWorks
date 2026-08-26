@@ -57,7 +57,7 @@ std::optional<int64_t> glimmer::GpuShaderCache::GetSourceMtime(const std::filesy
     if (errorCode) {
         return std::nullopt;
     }
-    return static_cast<int64_t>(fileTime.time_since_epoch().count());
+    return fileTime.time_since_epoch().count();
 }
 
 std::string glimmer::GpuShaderCache::ComputeBlake3(const std::string &source) {

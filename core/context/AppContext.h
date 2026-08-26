@@ -67,7 +67,6 @@ namespace glimmer {
 
         void RegisterInitTask(std::unique_ptr<IAppContextInitTask> initTask);
 
-        static std::string GetTimeFileName(const std::string &prefix = "screenshot", const std::string &ext = ".png");
 
     public:
         AppContext();

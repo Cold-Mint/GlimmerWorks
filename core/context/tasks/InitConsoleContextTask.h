@@ -34,8 +34,7 @@ namespace glimmer {
         AppContext *appContext_;
 
     public:
-        explicit InitConsoleContextTask(AppContext *appContext) : appContext_(appContext) {
-        }
+        explicit InitConsoleContextTask(AppContext *appContext);
 
         bool Run(SystemBucket *systemBucket) override;
 

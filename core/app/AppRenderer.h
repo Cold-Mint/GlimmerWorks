@@ -56,6 +56,15 @@ namespace glimmer {
     public:
         AppRenderer(AppContext *appContext, GpuRenderer *renderer);
 
+        /**
+         * RenderFrame
+         * 渲染一帧。
+         * @param rmlContext
+         * @param windowWidth
+         * @param windowHeight
+         * @param frameStart
+         * @param deltaTime
+         */
         void RenderFrame(const RmlContext *rmlContext, int windowWidth, int windowHeight, uint64_t frameStart,
                          float deltaTime);
     };

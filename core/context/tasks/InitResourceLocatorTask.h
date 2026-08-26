@@ -34,8 +34,7 @@ namespace glimmer {
         AppContext *appContext_;
 
     public:
-        explicit InitResourceLocatorTask(AppContext *appContext) : appContext_(appContext) {
-        }
+        explicit InitResourceLocatorTask(AppContext *appContext);
 
         bool Run(SystemBucket *systemBucket) override;
 

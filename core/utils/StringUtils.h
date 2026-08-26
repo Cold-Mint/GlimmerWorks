@@ -109,6 +109,20 @@ namespace glimmer {
          */
         static std::optional<std::string> StreamToString(const std::istream *stream);
 
+        /**
+         * Get Screenshot File Name
+         * 获取截图文件名
+         * @return
+         */
+        static std::string GetScreenshotFileName();
+
+        /**
+         * Replace all
+         * 替换全部
+         * @param str str 源字符串
+         * @param from from 要替换的字符串
+         * @param to to 替换到的字符串
+         */
         static void ReplaceAll(std::string &str, std::string_view from, std::string_view to);
     };
 }

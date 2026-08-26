@@ -30,6 +30,9 @@
 
 #include "core/log/LogCat.h"
 
+glimmer::InitResourceLocatorTask::InitResourceLocatorTask(AppContext *appContext) : appContext_(appContext) {
+}
+
 bool glimmer::InitResourceLocatorTask::Run(SystemBucket *systemBucket) {
     const ModContext *modContext = systemBucket->GetModContext();
     if (modContext == nullptr) {

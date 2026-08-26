@@ -27,6 +27,7 @@
 #include "StringUtils.h"
 
 #include <cctype>
+#include <chrono>
 #include <cstring>
 #include <iomanip>
 #include <ios>
@@ -130,6 +131,21 @@ std::optional<std::string> glimmer::StringUtils::StreamToString(const std::istre
     return oss.str();
 }
 
+std::string glimmer::StringUtils::GetScreenshotFileName() {
+    auto now = std::chrono::system_clock::now();
+    auto t = std::chrono::system_clock::to_time_t(now);
+    std::tm tm;
+#if defined(_WIN32)
+    localtime_s(&tm, &t);
+#else
+    localtime_r(&t, &tm);
+#endif
+    std::ostringstream oss;
+    oss << "screenshot_"
+            << std::put_time(&tm, "%Y%m%d_%H%M%S") << "."
+            << TEXTURE_FORMAT;
+    return oss.str();
+}
 
 void glimmer::StringUtils::ReplaceAll(std::string &str, const std::string_view from, const std::string_view to) {
     if (from.empty()) {

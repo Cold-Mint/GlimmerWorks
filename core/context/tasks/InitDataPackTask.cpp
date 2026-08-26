@@ -30,6 +30,9 @@
 
 #include "core/log/LogCat.h"
 
+glimmer::InitDataPackTask::InitDataPackTask(AppContext *appContext) : appContext_(appContext) {
+}
+
 bool glimmer::InitDataPackTask::Run(SystemBucket *systemBucket) {
     const toml::spec *tomlVersion = systemBucket->GetTomlVersion();
     if (tomlVersion == nullptr) {

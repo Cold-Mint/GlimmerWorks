@@ -30,6 +30,9 @@
 
 #include "core/log/LogCat.h"
 
+glimmer::InitConsoleContextTask::InitConsoleContextTask(AppContext *appContext) : appContext_(appContext) {
+}
+
 bool glimmer::InitConsoleContextTask::Run(SystemBucket *systemBucket) {
     VirtualFileSystem *virtualFileSystem = systemBucket->GetVirtualFileSystem();
     if (virtualFileSystem == nullptr) {

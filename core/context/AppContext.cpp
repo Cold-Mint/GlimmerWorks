@@ -57,22 +57,6 @@ void glimmer::AppContext::RegisterInitTask(std::unique_ptr<IAppContextInitTask> 
     initTasks_.emplace_back(std::move(initTask));
 }
 
-std::string glimmer::AppContext::GetTimeFileName(const std::string &prefix, const std::string &ext) {
-    auto now = std::chrono::system_clock::now();
-    auto t = std::chrono::system_clock::to_time_t(now);
-    std::tm tm;
-#if defined(_WIN32)
-    localtime_s(&tm, &t);
-#else
-    localtime_r(&t, &tm);
-#endif
-    std::ostringstream oss;
-    oss << prefix << "_"
-            << std::put_time(&tm, "%Y%m%d_%H%M%S")
-            << ext;
-    return oss.str();
-}
-
 glimmer::AppContext::AppContext() {
     RegisterInitTask(std::make_unique<InitVFSTask>());
     RegisterInitTask(std::make_unique<InitLangsTask>());
@@ -205,7 +189,7 @@ void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::s
         return;
     }
     const auto actualPath = virtualFileSystem->GetActualPath(
-        screenshotsFolder / GetTimeFileName());
+        screenshotsFolder / StringUtils::GetScreenshotFileName());
     if (!actualPath.has_value()) {
         onMessageRef(fmt::format(
             fmt::runtime(GetLangsResources()->screenshotSavedFailed),

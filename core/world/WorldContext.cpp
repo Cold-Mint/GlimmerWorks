@@ -290,7 +290,7 @@ glimmer::WorldContext::WorldContext(AppContext *appContext, MapManifest *mapMani
     LogCat::i("Core subsystems created: ChunkManager, TerrainManager, PlayerContext");
 
     ResourceRef playerResourceRef{};
-    playerResourceRef.ReadResource(*appContext->GetModContext()->GetMobManager()->GetPlayerResourceList()[0],
+    playerResourceRef.ReadResource(*appContext->GetModContext()->GetMobRegistry()->GetPlayerResourceList()[0],
                                    RESOURCE_MOB);
     playerContext_->InitPlayer(playerResourceRef);
     auto itemContainerPtr = entityManager_->

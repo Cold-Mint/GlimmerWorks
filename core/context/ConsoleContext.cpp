@@ -151,7 +151,7 @@ bool glimmer::ConsoleContext::Init(AppContext *appContext, VirtualFileSystem *vf
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
         std::make_unique<CoordinateDynamicSuggestions>(X_DYNAMIC_SUGGESTIONS_NAME));
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-        std::make_unique<MobDynamicSuggestions>(modContext->GetMobManager()));
+        std::make_unique<MobDynamicSuggestions>(modContext->GetMobRegistry()));
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<BoolDynamicSuggestions>());
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<BooleanToggleDynamicSuggestions>());
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
@@ -159,22 +159,22 @@ bool glimmer::ConsoleContext::Init(AppContext *appContext, VirtualFileSystem *vf
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
         std::make_unique<DataPackDynamicSuggestions>(modContext->GetDataPackManager()));
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-        std::make_unique<BiomeSuggestions>(modContext->GetBiomesManager()));
+        std::make_unique<BiomeSuggestions>(modContext->GetBiomeRegistry()));
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
         std::make_unique<TileDynamicSuggestions>(modContext->GetTileResourceManager()));
 
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-        std::make_unique<ComposableItemDynamicSuggestions>(modContext->GetComposableItemManager()));
+        std::make_unique<ComposableItemDynamicSuggestions>(modContext->GetComposableItemRegistry()));
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-        std::make_unique<AbilityItemDynamicSuggestions>(modContext->GetAbilityItemManager()));
+        std::make_unique<AbilityItemDynamicSuggestions>(modContext->GetAbilityItemRegistry()));
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-        std::make_unique<MaterialItemDynamicSuggestions>(modContext->GetMaterialItemManager()));
+        std::make_unique<MaterialItemDynamicSuggestions>(modContext->GetMaterialItemRegistry()));
 
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-        std::make_unique<LootSuggestions>(modContext->GetLootTableManager()));
+        std::make_unique<LootSuggestions>(modContext->GetLootTableRegistry()));
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<SceneDynamicSuggestions>());
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-        std::make_unique<StructureDynamicSuggestions>(modContext->GetStructureManager()));
+        std::make_unique<StructureDynamicSuggestions>(modContext->GetStructureRegistry()));
 
     dynamicSuggestionsManager_->
             RegisterDynamicSuggestions(std::make_unique<ConfigSuggestions>(appContext));

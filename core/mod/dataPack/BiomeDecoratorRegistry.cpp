@@ -24,12 +24,4 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
-
-#include "core/mod/Resource.h"
-#include "core/mod/dataPack/BaseResManager.h"
-
-namespace glimmer {
-    class LootTableManager : public BaseResManager<LootResource> {
-    };
-}
+#include "BiomeDecoratorRegistry.h"

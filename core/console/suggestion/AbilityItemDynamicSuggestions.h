@@ -26,14 +26,14 @@
  */
 #pragma once
 #include "DynamicSuggestions.h"
-#include "core/mod/dataPack/AbilityItemManager.h"
+#include "core/mod/dataPack/AbilityItemRegistry.h"
 
 namespace glimmer {
     class AbilityItemDynamicSuggestions final : public DynamicSuggestions {
-        AbilityItemManager *abilityItemManager_ = nullptr;
+        AbilityItemRegistry *abilityItemRegistry_ = nullptr;
 
     public:
-        explicit AbilityItemDynamicSuggestions(AbilityItemManager *abilityItemManager);
+        explicit AbilityItemDynamicSuggestions(AbilityItemRegistry *abilityItemRegistry);
 
         [[nodiscard]] std::string GetId() const override;
 

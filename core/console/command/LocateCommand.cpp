@@ -33,7 +33,7 @@
 glimmer::LocateCommand::LocateCommand(AppContext *appContext) : Command(appContext) {
 }
 
-std::optional<glimmer::TileVector2D> glimmer::LocateCommand::SearchBiomes(int tileX, const BiomesManager *biomesManager,
+std::optional<glimmer::TileVector2D> glimmer::LocateCommand::SearchBiomes(int tileX, const BiomeRegistry *biomeRegistry,
                                                                           ChunkGenerator *chunkGenerator,
                                                                           const std::string &targetBiomeId) {
     TileVector2D chunkCenter = Chunk::TileCoordinatesToChunkVertexCoordinates({tileX, 0}) + TileVector2D{
@@ -46,7 +46,7 @@ std::optional<glimmer::TileVector2D> glimmer::LocateCommand::SearchBiomes(int ti
         }
         chunkCenter.y = y;
         float elevation = ChunkGenerator::GetElevation(y);
-        BiomeResource *nowBiomeResource = biomesManager->FindBestBiome(chunkGenerator->GetHumidity(chunkCenter),
+        const BiomeResource *nowBiomeResource = biomeRegistry->FindBestBiome(chunkGenerator->GetHumidity(chunkCenter),
                                                                        chunkGenerator->GetTemperature(
                                                                            chunkCenter, elevation),
                                                                        chunkGenerator->GetWeirdness(chunkCenter),
@@ -64,21 +64,21 @@ std::optional<glimmer::TileVector2D> glimmer::LocateCommand::SearchBiomes(int ti
 }
 
 std::optional<glimmer::TileVector2D> glimmer::LocateCommand::SearchBiomeInRadius(const TileVector2D &position,
-    const BiomesManager *biomesManager,
+    const BiomeRegistry *biomeRegistry,
     ChunkGenerator *chunkGenerator,
     const std::string &targetBiomeId,
     const uint16_t maxRadiusChunks) {
-    auto target = SearchBiomes(position.x, biomesManager, chunkGenerator, targetBiomeId);
+    auto target = SearchBiomes(position.x, biomeRegistry, chunkGenerator, targetBiomeId);
     if (target.has_value()) {
         return target;
     }
     for (int searchRadius = 1; searchRadius < maxRadiusChunks; searchRadius++) {
         const int distance = searchRadius * CHUNK_SIZE;
-        target = SearchBiomes(position.x + distance, biomesManager, chunkGenerator, targetBiomeId);
+        target = SearchBiomes(position.x + distance, biomeRegistry, chunkGenerator, targetBiomeId);
         if (target.has_value()) {
             return target;
         }
-        target = SearchBiomes(position.x - distance, biomesManager, chunkGenerator, targetBiomeId);
+        target = SearchBiomes(position.x - distance, biomeRegistry, chunkGenerator, targetBiomeId);
         if (target.has_value()) {
             return target;
         }
@@ -117,7 +117,7 @@ void glimmer::LocateCommand::PutCommandStructure(const CommandArgs *commandArgs,
 static bool ExecuteBiome(const glimmer::CommandArgs *commandArgs,
                          const std::function<void(const std::string &text)> &onMessageRef,
                          glimmer::AppContext *appContext, glimmer::WorldContext *worldContext) {
-    glimmer::BiomesManager *biomesManager = appContext->GetModContext()->GetBiomesManager();
+    glimmer::BiomeRegistry *biomesManager = appContext->GetModContext()->GetBiomeRegistry();
     if (biomesManager == nullptr) {
         return false;
     }

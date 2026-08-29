@@ -33,8 +33,16 @@
 #include "google/protobuf/compiler/csharp/csharp_field_base.h"
 
 namespace glimmer {
+    /**
+     * BaseResourceRegistry
+     * 基础资源注册表
+     *
+     * Used to manage the data loaded from the data packets.
+     * 用于管理从数据包内加载的数据。
+     * @tparam ResourceType
+     */
     template<typename ResourceType>
-    class BaseResManager {
+    class BaseResourceRegistry {
         std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<ResourceType>,
                 TransparentStringHash, std::equal_to<> >,
             TransparentStringHash, std::equal_to<> > resourceMap_{};
@@ -42,7 +50,7 @@ namespace glimmer {
         std::vector<std::string> list_;
 
     public:
-        virtual ~BaseResManager() = default;
+        virtual ~BaseResourceRegistry() = default;
 
 
         ResourceType *Register(std::unique_ptr<ResourceType> resource);
@@ -86,7 +94,7 @@ namespace glimmer {
     };
 
     template<typename ResourceType>
-    ResourceType *BaseResManager<ResourceType>::Register(std::unique_ptr<ResourceType> resource) {
+    ResourceType *BaseResourceRegistry<ResourceType>::Register(std::unique_ptr<ResourceType> resource) {
         auto &slot =
                 resourceMap_[resource->packId][resource->resourceId];
         slot = std::move(resource);
@@ -97,16 +105,16 @@ namespace glimmer {
     }
 
     template<typename ResourceType>
-    void BaseResManager<ResourceType>::OnRegister(ResourceType *resource) {
+    void BaseResourceRegistry<ResourceType>::OnRegister(ResourceType *resource) {
     }
 
     template<typename ResourceType>
-    ResourceType *BaseResManager<ResourceType>::OnNotFound(std::string_view packId, std::string_view key) {
+    ResourceType *BaseResourceRegistry<ResourceType>::OnNotFound(std::string_view packId, std::string_view key) {
         return nullptr;
     }
 
     template<typename ResourceType>
-    ResourceType *BaseResManager<ResourceType>::Find(std::string_view packId, std::string_view key) {
+    ResourceType *BaseResourceRegistry<ResourceType>::Find(std::string_view packId, std::string_view key) {
         if (const auto packIt = resourceMap_.find(packId); packIt != resourceMap_.end()) {
             if (const auto keyIt = packIt->second.find(key); keyIt != packIt->second.end()) {
                 return keyIt->second.get();
@@ -116,13 +124,13 @@ namespace glimmer {
     }
 
     template<typename ResourceType>
-    const std::vector<std::string> &BaseResManager<ResourceType>::List() const {
+    const std::vector<std::string> &BaseResourceRegistry<ResourceType>::List() const {
         return list_;
     }
 
 #if  !defined(NDEBUG)
     template<typename ResourceType>
-    std::string BaseResManager<ResourceType>::ListString() const {
+    std::string BaseResourceRegistry<ResourceType>::ListString() const {
         std::ostringstream oss;
         for (const auto &[packId, keyMap]: resourceMap_) {
             for (const auto &[key, resource]: keyMap) {

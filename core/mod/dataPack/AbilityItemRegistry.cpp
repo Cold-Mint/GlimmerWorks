@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,15 +24,21 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "MobManager.h"
+#include "AbilityItemRegistry.h"
 
+#include "core/inventory/ability/AbilityType.h"
 
-void glimmer::MobManager::OnRegister(MobResource *resource) {
-    if (resource->isPlayer) {
-        playerMobsResource_.emplace_back(resource);
-    }
-}
-
-std::span<const glimmer::MobResource * const> glimmer::MobManager::GetPlayerResourceList() const {
-    return playerMobsResource_;
+glimmer::AbilityItemResource *glimmer::AbilityItemRegistry::OnNotFound(const std::string_view packId,
+                                                                       const std::string_view key) {
+    auto abilityItemResource = std::make_unique<AbilityItemResource>();
+    abilityItemResource->packId = packId;
+    abilityItemResource->resourceId = key;
+    ResourceRef resourceRef;
+    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetResourceType(RESOURCE_TEXTURE);
+    resourceRef.SetResourceKey(ERROR_TEXTURE_KEY);
+    abilityItemResource->texture = resourceRef;
+    abilityItemResource->ability = std::to_underlying(AbilityType::None);
+    abilityItemResource->missing = true;
+    return Register(std::move(abilityItemResource));
 }

@@ -27,23 +27,22 @@
 #pragma once
 #include <string>
 
-#include "BiomeDecoratorResourcesManager.h"
+#include "BiomeDecoratorRegistry.h"
 #include "BiomeDecoratorType.h"
-#include "BiomesManager.h"
+#include "BiomeRegistry.h"
 #include "FixedColorManager.h"
 #include "LightMaskManager.h"
 #include "LightSourceManager.h"
-#include "MobManager.h"
+#include "MobRegistry.h"
 #include "RecipeManager.h"
-#include "StructureManager.h"
-#include "core/config/Config.h"
+#include "StructureRegistry.h"
 #include "core/context/GraphicsContext.h"
 #include "core/context/ModContext.h"
 #include "core/mod/PackManifest.h"
 #include "core/vfs/VirtualFileSystem.h"
 #include "core/contributor/ContributorManager.h"
 #include "core/inventory/InitialInventoryManager.h"
-#include "core/lootTable/LootTableManager.h"
+#include "core/lootTable/LootTableRegistry.h"
 #include "core/mod/PackVerifyState.h"
 #include "core/mod/TomlTemplateExpander.h"
 #include "core/shape/ShapeManager.h"
@@ -88,7 +87,7 @@ namespace glimmer {
                                                      StringManager *stringManager) const;
 
         void LoadLootTableResourceFromFile(const toml::value &value,
-                                           LootTableManager *lootTableManager) const;
+                                           LootTableRegistry *lootTableRegistry) const;
 
 
         void LoadInitialInventoryResourceFromFile(const toml::value &value,
@@ -96,23 +95,25 @@ namespace glimmer {
 
 
         void LoadStructureResourceFromFile(const toml::value &value,
-                                           StructureManager *structureManager,
+                                           StructureRegistry *structureRegistry,
                                            StructureGeneratorType structureGeneratorType) const;
 
         void LoadTileResourceFromFile(const toml::value &value, TileResourceManager *tileManager) const;
 
-        void LoadBiomeResourceFromFile(const toml::value &value, BiomesManager *biomesManager) const;
+        void LoadBiomeResourceFromFile(const toml::value &value, BiomeRegistry *biomeRegistry) const;
 
-        void LoadComposableItemResourceFromFile(const toml::value &value, ComposableItemManager *itemManager) const;
+        void LoadComposableItemResourceFromFile(const toml::value &value,
+                                                ComposableItemRegistry *composableItemRegistry) const;
 
-        void LoadAbilityItemResourceFromFile(const toml::value &value, AbilityItemManager *itemManager) const;
+        void LoadAbilityItemResourceFromFile(const toml::value &value, AbilityItemRegistry *abilityItemRegistry) const;
 
-        void LoadMaterialItemResourceResourceFromFile(const toml::value &value, MaterialItemManager *itemManager) const;
+        void LoadMaterialItemResourceResourceFromFile(const toml::value &value,
+                                                      MaterialItemRegistry *materialItemRegistry) const;
 
         void LoadContributorResourceFromFile(const toml::value &value,
                                              ContributorManager *contributorManager) const;
 
-        void LoadMobResourceFromFile(const toml::value &value, MobManager *mobManager) const;
+        void LoadMobResourceFromFile(const toml::value &value, MobRegistry *mobRegistry) const;
 
         void LoadShapeResourceFromFile(const toml::value &value, ShapeManager *shapeManager,
                                        ShapeType type) const;
@@ -127,12 +128,12 @@ namespace glimmer {
                                              LightSourceManager *lightSourceManager) const;
 
         void LoadBiomeDecoratorResourceFromFile(const toml::value &value,
-                                                BiomeDecoratorResourcesManager *biomeDecoratorManager,
+                                                BiomeDecoratorRegistry *biomeDecoratorRegistry,
                                                 BiomeDecoratorType type) const;
 
         void LoadStructurePlacementConditionsResourceFromFile(const toml::value &value,
-                                                              StructurePlacementConditionsResourceManager *
-                                                              structurePlacementConditionsResourceManager,
+                                                              StructurePlacementConditionsRegistry *
+                                                              structurePlacementConditionsRegistry,
                                                               StructureConditionProcessorType processorType) const;
 
         void LoadRecipeResourceFromFile(const toml::value &value, RecipeManager *recipeManager) const;

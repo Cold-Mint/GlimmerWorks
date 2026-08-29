@@ -166,7 +166,7 @@ std::unique_ptr<glimmer::TerrainResult> glimmer::ChunkGenerator::GenerateTerrain
 
 void glimmer::ChunkGenerator::GenerateStructure(const TileVector2D &position) const {
     const AppContext *appContext = worldContext_->GetAppContext();
-    const auto &all = appContext->GetModContext()->GetStructureManager()->GetAll();
+    const auto &all = appContext->GetModContext()->GetStructureRegistry()->GetAll();
     if (all.empty()) {
         return;
     }
@@ -241,17 +241,17 @@ std::optional<std::bitset<CHUNK_AREA> > glimmer::ChunkGenerator::MatchStructureC
     if (structurePlacementConditionsProcessorManager == nullptr) {
         return std::nullopt;
     }
-    StructurePlacementConditionsResourceManager *structurePlacementConditionsResourceManager = modContext->
-            GetStructurePlacementConditionsResourceManager();
-    if (structurePlacementConditionsResourceManager == nullptr) {
+    StructurePlacementConditionsRegistry *structurePlacementConditionsRegistry = modContext->
+            GetStructurePlacementConditionsRegistry();
+    if (structurePlacementConditionsRegistry == nullptr) {
         return std::nullopt;
     }
 
     for (int i = 0; i <= endIndex; ++i) {
         auto &conditionRef = structureResource->condition[i];
         IStructurePlacementConditionsResource *structurePlacementConditionsResource =
-                structurePlacementConditionsResourceManager->Find(conditionRef.GetPackageId(),
-                                                                  conditionRef.GetResourceKey());
+                structurePlacementConditionsRegistry->Find(conditionRef.GetPackageId(),
+                                                           conditionRef.GetResourceKey());
         if (structurePlacementConditionsResource == nullptr) {
             continue;
         }
@@ -329,7 +329,7 @@ TerrainTileResult glimmer::ChunkGenerator::GetTerrainTileResult(const TileVector
     const auto weirdness = GetWeirdness(world);
     const auto erosion = GetErosion(world);
     const auto surfaceProximity = GetSurfaceProximity(firstTileTerrainY, world.y);
-    terrainTileResult.biomeResource = worldContext_->GetAppContext()->GetModContext()->GetBiomesManager()->
+    terrainTileResult.biomeResource = worldContext_->GetAppContext()->GetModContext()->GetBiomeRegistry()->
             FindBestBiome(
                 humidity, temperature, weirdness, erosion,
                 elevation, surfaceProximity);

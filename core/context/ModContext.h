@@ -28,23 +28,23 @@
 
 #include <memory>
 
-#include "core/mod/dataPack/BiomesManager.h"
+#include "core/mod/dataPack/BiomeRegistry.h"
 #include "core/mod/dataPack/TileResourceManager.h"
-#include "core/mod/dataPack/BiomeDecoratorResourcesManager.h"
-#include "core/lootTable/LootTableManager.h"
-#include "core/mod/dataPack/MobManager.h"
+#include "core/mod/dataPack/BiomeDecoratorRegistry.h"
+#include "core/lootTable/LootTableRegistry.h"
+#include "core/mod/dataPack/MobRegistry.h"
 #include "core/mod/dataPack/RecipeManager.h"
-#include "core/mod/dataPack/StructureManager.h"
+#include "core/mod/dataPack/StructureRegistry.h"
 #include "core/mod/dataPack/StringManager.h"
 #include "core/mod/dataPack/DataPackManager.h"
 #include "core/mod/TomlTemplateExpander.h"
 #include "core/mod/StructurePlacementConditionsProcessorManager.h"
 #include "core/contributor/ContributorManager.h"
 #include "core/inventory/InitialInventoryManager.h"
-#include "core/mod/dataPack/AbilityItemManager.h"
-#include "core/mod/dataPack/ComposableItemManager.h"
-#include "core/mod/dataPack/MaterialItemManager.h"
-#include "core/mod/dataPack/StructurePlacementConditionsResourceManager.h"
+#include "core/mod/dataPack/AbilityItemRegistry.h"
+#include "core/mod/dataPack/ComposableItemRegistry.h"
+#include "core/mod/dataPack/MaterialItemRegistry.h"
+#include "core/mod/dataPack/StructurePlacementConditionsRegistry.h"
 #include "core/world/generator/BiomeDecoratorManager.h"
 #include "core/world/structure/StructureGeneratorManager.h"
 #include "core/shape/ShapeManager.h"
@@ -58,20 +58,20 @@ namespace glimmer {
         std::unique_ptr<DataPackManager> dataPackManager_;
         std::unique_ptr<StringManager> stringManager_;
         std::unique_ptr<TileResourceManager> tileResourceManager_;
-        std::unique_ptr<BiomesManager> biomesManager_;
+        std::unique_ptr<BiomeRegistry> biomeRegistry_;
         std::unique_ptr<BiomeDecoratorManager> biomeDecoratorManager_;
-        std::unique_ptr<BiomeDecoratorResourcesManager> biomeDecoratorResourcesManager_;
-        std::unique_ptr<AbilityItemManager> abilityItemManager_;
-        std::unique_ptr<ComposableItemManager> composableItemManager_;
-        std::unique_ptr<MaterialItemManager> materialItemManager_;
+        std::unique_ptr<BiomeDecoratorRegistry> biomeDecoratorRegistry_;
+        std::unique_ptr<AbilityItemRegistry> abilityItemRegistry_;
+        std::unique_ptr<ComposableItemRegistry> composableItemRegistry_;
+        std::unique_ptr<MaterialItemRegistry> materialItemRegistry_;
 
         std::unique_ptr<RecipeManager> recipeManager_;
-        std::unique_ptr<MobManager> mobManager_;
-        std::unique_ptr<StructureManager> structureManager_;
+        std::unique_ptr<MobRegistry> mobRegistry_;
+        std::unique_ptr<StructureRegistry> structureRegistry_;
         std::unique_ptr<StructureGeneratorManager> structureGeneratorManager_;
         std::unique_ptr<StructurePlacementConditionsProcessorManager> structurePlacementConditionsProcessorManager_;
-        std::unique_ptr<StructurePlacementConditionsResourceManager> structurePlacementConditionsResourceManager_;
-        std::unique_ptr<LootTableManager> lootTableManager_;
+        std::unique_ptr<StructurePlacementConditionsRegistry> structurePlacementConditionsRegistry_;
+        std::unique_ptr<LootTableRegistry> lootTableRegistry_;
         std::unique_ptr<InitialInventoryManager> initialInventoryManager_;
         std::unique_ptr<ContributorManager> contributorManager_;
         std::unique_ptr<TomlTemplateExpander> tomlTemplateExpander_;
@@ -90,33 +90,33 @@ namespace glimmer {
 
         [[nodiscard]] TileResourceManager *GetTileResourceManager() const;
 
-        [[nodiscard]] BiomesManager *GetBiomesManager() const;
+        [[nodiscard]] BiomeRegistry *GetBiomeRegistry() const;
 
         [[nodiscard]] BiomeDecoratorManager *GetBiomeDecoratorManager() const;
 
-        [[nodiscard]] BiomeDecoratorResourcesManager *GetBiomeDecoratorResourcesManager() const;
+        [[nodiscard]] BiomeDecoratorRegistry *GetBiomeDecoratorRegistry() const;
 
-        [[nodiscard]] AbilityItemManager *GetAbilityItemManager() const;
+        [[nodiscard]] AbilityItemRegistry *GetAbilityItemRegistry() const;
 
-        [[nodiscard]] ComposableItemManager *GetComposableItemManager() const;
+        [[nodiscard]] ComposableItemRegistry *GetComposableItemRegistry() const;
 
-        [[nodiscard]] MaterialItemManager *GetMaterialItemManager() const;
+        [[nodiscard]] MaterialItemRegistry *GetMaterialItemRegistry() const;
 
         [[nodiscard]] RecipeManager *GetRecipeManager() const;
 
-        [[nodiscard]] MobManager *GetMobManager() const;
+        [[nodiscard]] MobRegistry *GetMobRegistry() const;
 
-        [[nodiscard]] StructureManager *GetStructureManager() const;
+        [[nodiscard]] StructureRegistry *GetStructureRegistry() const;
 
         [[nodiscard]] StructureGeneratorManager *GetStructureGeneratorManager() const;
 
         [[nodiscard]] StructurePlacementConditionsProcessorManager *
         GetStructurePlacementConditionsProcessorManager() const;
 
-        [[nodiscard]] StructurePlacementConditionsResourceManager *
-        GetStructurePlacementConditionsResourceManager() const;
+        [[nodiscard]] StructurePlacementConditionsRegistry *
+        GetStructurePlacementConditionsRegistry() const;
 
-        [[nodiscard]] LootTableManager *GetLootTableManager() const;
+        [[nodiscard]] LootTableRegistry *GetLootTableRegistry() const;
 
         [[nodiscard]] InitialInventoryManager *GetInitialInventoryManager() const;
 

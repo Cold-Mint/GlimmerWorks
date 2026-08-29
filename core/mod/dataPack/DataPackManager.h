@@ -37,7 +37,7 @@
 namespace glimmer {
     enum class PackVerifyState : uint8_t;
     class AppContext;
-    class BiomesManager;
+    class BiomeRegistry;
     class TileResourceManager;
     class StringManager;
     class DataPack;

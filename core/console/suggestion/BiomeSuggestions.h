@@ -26,15 +26,15 @@
  */
 #pragma once
 #include "DynamicSuggestions.h"
-#include "core/mod/dataPack/BiomesManager.h"
+#include "core/mod/dataPack/BiomeRegistry.h"
 
 
 namespace glimmer {
     class BiomeSuggestions final : public DynamicSuggestions {
-        BiomesManager *biomesManager_ = nullptr;
+        BiomeRegistry *biomeRegistry_ = nullptr;
 
     public:
-        explicit BiomeSuggestions(BiomesManager *biomesManager);
+        explicit BiomeSuggestions(BiomeRegistry *biomeRegistry);
 
         [[nodiscard]] std::string GetId() const override;
 

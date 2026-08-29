@@ -30,14 +30,14 @@
 
 namespace glimmer {
     class ChunkGenerator;
-    class BiomesManager;
+    class BiomeRegistry;
     class TileVector2D;
     struct LangsResources;
 
     class BiomeScoreCommand final : public Command {
         static std::string CalculateAndFormatBiomeScores(const TileVector2D &tileVector2D,
                                                          ChunkGenerator *chunkGenerator,
-                                                         BiomesManager *biomesManager,
+                                                         BiomeRegistry *biomeRegistry,
                                                          const LangsResources *langsResources);
 
         void InitSuggestions(NodeTree<std::string> *suggestionsTree) override;

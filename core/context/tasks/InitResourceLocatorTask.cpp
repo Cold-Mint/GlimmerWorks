@@ -39,12 +39,12 @@ bool glimmer::InitResourceLocatorTask::Run(SystemBucket *systemBucket) {
         LogCat::e(std::source_location::current(), "modContext is nullptr");
         return false;
     }
-    const MobManager *mobManager = modContext->GetMobManager();
-    if (mobManager == nullptr) {
+    const MobRegistry *mobRegistry = modContext->GetMobRegistry();
+    if (mobRegistry == nullptr) {
         LogCat::e(std::source_location::current(), "mobManager is nullptr");
         return false;
     }
-    if (const size_t number = mobManager->GetPlayerResourceList().size(); number == 0) {
+    if (const size_t number = mobRegistry->GetPlayerResourceList().size(); number == 0) {
         LogCat::e(std::source_location::current(), "At least one player resource is required.");
         return false;
     }

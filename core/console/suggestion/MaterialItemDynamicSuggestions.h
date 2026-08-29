@@ -26,14 +26,14 @@
  */
 #pragma once
 #include "DynamicSuggestions.h"
-#include "core/mod/dataPack/MaterialItemManager.h"
+#include "core/mod/dataPack/MaterialItemRegistry.h"
 
 namespace glimmer {
     class MaterialItemDynamicSuggestions final : public DynamicSuggestions {
-        MaterialItemManager *materialItemManager_ = nullptr;
+        MaterialItemRegistry *materialItemRegistry_ = nullptr;
 
     public:
-        explicit MaterialItemDynamicSuggestions(MaterialItemManager *materialItemManager);
+        explicit MaterialItemDynamicSuggestions(MaterialItemRegistry *materialItemRegistry);
 
         [[nodiscard]] std::string GetId() const override;
 

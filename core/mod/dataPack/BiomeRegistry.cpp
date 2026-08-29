@@ -24,23 +24,24 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "BiomesManager.h"
+#include "BiomeRegistry.h"
 
-float glimmer::BiomesManager::CalculateBiomeScoreDelta(const float targetValue, const float actualValue,
+
+float glimmer::BiomeRegistry::CalculateBiomeScoreDelta(const float targetValue, const float actualValue,
                                                        const float strictness) {
     const float diff = targetValue - actualValue;
     return diff * diff * strictness;
 }
 
-std::span<glimmer::BiomeResource *> glimmer::BiomesManager::GetBiomeVector() {
+std::span<glimmer::BiomeResource *> glimmer::BiomeRegistry::GetBiomeVector() {
     return biomeVector_;
 }
 
-void glimmer::BiomesManager::OnRegister(BiomeResource *resource) {
+void glimmer::BiomeRegistry::OnRegister(BiomeResource *resource) {
     biomeVector_.emplace_back(resource);
 }
 
-glimmer::BiomeResource *glimmer::BiomesManager::FindBestBiome(const float humidity, const float temperature,
+glimmer::BiomeResource *glimmer::BiomeRegistry::FindBestBiome(const float humidity, const float temperature,
                                                               const float weirdness,
                                                               const float erosion, const float elevation,
                                                               const float surfaceProximity) const {

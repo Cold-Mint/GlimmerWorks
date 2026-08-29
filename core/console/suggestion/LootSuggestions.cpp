@@ -30,8 +30,8 @@
 
 #include "core/config/Constants.h"
 
-glimmer::LootSuggestions::LootSuggestions(LootTableManager *lootTableManager)
-    : lootTableManager_(lootTableManager) {
+glimmer::LootSuggestions::LootSuggestions(LootTableRegistry *lootTableRegistry)
+    : lootTableRegistry_(lootTableRegistry) {
 }
 
 std::string glimmer::LootSuggestions::GetId() const {
@@ -39,10 +39,10 @@ std::string glimmer::LootSuggestions::GetId() const {
 }
 
 const std::vector<std::string> &glimmer::LootSuggestions::GetSuggestions(const std::optional<std::string> &param) {
-    return lootTableManager_->List();
+    return lootTableRegistry_->List();
 }
 
 
 bool glimmer::LootSuggestions::Match(const std::string &keyword, const std::string &param) {
-    return std::ranges::contains(lootTableManager_->List(), keyword);
+    return std::ranges::contains(lootTableRegistry_->List(), keyword);
 }

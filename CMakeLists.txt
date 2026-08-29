@@ -416,10 +416,9 @@ target_sources(GlimmerWorks
         core/context/tasks/InitRmlContextTask.cpp
         core/context/tasks/InitSavesManagerTask.cpp
         core/context/tasks/InitVFSTask.cpp
-        core/mod/dataPack/BaseResManager.cpp
-        core/mod/dataPack/AbilityItemManager.cpp
-        core/mod/dataPack/MaterialItemManager.cpp
-        core/mod/dataPack/ComposableItemManager.cpp
+        core/mod/dataPack/AbilityItemRegistry.cpp
+        core/mod/dataPack/MaterialItemRegistry.cpp
+        core/mod/dataPack/ComposableItemRegistry.cpp
         core/app/AppRenderer.cpp
         core/utils/BoolOrToggle.cpp
         core/ecs/Box2dFilter.cpp
@@ -634,7 +633,7 @@ target_sources(GlimmerWorks
         core/inventory/ability/NoneAbility.cpp
         core/log/LogCat.cpp
         core/lootTable/LootEntry.cpp
-        core/lootTable/LootTableManager.cpp
+        core/lootTable/LootTableRegistry.cpp
         core/math/BackwardAllocStrategy.cpp
         core/math/BalanceAllocStrategy.cpp
         core/math/Color.cpp
@@ -660,23 +659,23 @@ target_sources(GlimmerWorks
         core/mod/ResourceLocator.cpp
         core/mod/ResourceRef.cpp
         core/mod/StructurePlacementConditionsProcessorManager.cpp
-        core/mod/dataPack/StructurePlacementConditionsResourceManager.cpp
+        core/mod/dataPack/StructurePlacementConditionsRegistry.cpp
         core/mod/TomlTemplateExpander.cpp
-        core/mod/dataPack/BiomeDecoratorResourcesManager.cpp
+        core/mod/dataPack/BiomeDecoratorRegistry.cpp
         core/mod/dataPack/BiomeDecoratorType.cpp
-        core/mod/dataPack/BiomesManager.cpp
+        core/mod/dataPack/BiomeRegistry.cpp
         core/mod/dataPack/DataPack.cpp
         core/mod/dataPack/DataPackManager.cpp
         core/mod/dataPack/FixedColorManager.cpp
         core/mod/dataPack/LightMaskManager.cpp
         core/mod/dataPack/LightSourceManager.cpp
-        core/mod/dataPack/MobManager.cpp
+        core/mod/dataPack/MobRegistry.cpp
         core/mod/dataPack/PackDependence.cpp
         core/mod/dataPack/RecipeGroup.cpp
         core/mod/dataPack/RecipeManager.cpp
         core/mod/dataPack/SpecialFileProcessingParams.cpp
         core/mod/dataPack/StringManager.cpp
-        core/mod/dataPack/StructureManager.cpp
+        core/mod/dataPack/StructureRegistry.cpp
         core/mod/dataPack/TileResourceManager.cpp
         core/mod/resourcePack/AudioManager.cpp
         core/mod/resourcePack/AudioResourceResult.cpp
@@ -810,10 +809,9 @@ target_sources(GlimmerWorks
         core/context/tasks/InitRmlContextTask.h
         core/context/tasks/InitSavesManagerTask.h
         core/context/SystemBucket.h
-        core/mod/dataPack/ComposableItemManager.h
-        core/mod/dataPack/MaterialItemManager.h
-        core/mod/dataPack/AbilityItemManager.h
-        core/mod/dataPack/BaseResManager.h
+        core/mod/dataPack/ComposableItemRegistry.h
+        core/mod/dataPack/MaterialItemRegistry.h
+        core/mod/dataPack/AbilityItemRegistry.h
         core/app/AppEventLoop.h
         core/app/AppRenderer.h
         core/utils/BoolOrToggle.h
@@ -1034,7 +1032,7 @@ target_sources(GlimmerWorks
         core/inventory/ItemStackModule.h
         core/inventory/ItemTagModule.h
         core/inventory/MaterialItem.h
-        core/mod/dataPack/StructurePlacementConditionsResourceManager.h
+        core/mod/dataPack/StructurePlacementConditionsRegistry.h
         core/inventory/TileItem.h
         core/inventory/ability/AreaMarkerAbility.h
         core/inventory/ability/ItemAbility.h
@@ -1044,7 +1042,7 @@ target_sources(GlimmerWorks
         core/inventory/ability/NoneAbility.h
         core/log/LogCat.h
         core/lootTable/LootEntry.h
-        core/lootTable/LootTableManager.h
+        core/lootTable/LootTableRegistry.h
         core/math/BackwardAllocStrategy.h
         core/math/BalanceAllocStrategy.h
         core/math/Color.h
@@ -1072,22 +1070,22 @@ target_sources(GlimmerWorks
         core/mod/StructurePlacementConditionsProcessorManager.h
         core/ecs/system/RecipeDetailGUISystem.h
         core/mod/TomlTemplateExpander.h
-        core/mod/dataPack/BiomeDecoratorResourcesManager.h
+        core/mod/dataPack/BiomeDecoratorRegistry.h
         core/mod/dataPack/BiomeDecoratorType.h
-        core/mod/dataPack/BiomesManager.h
+        core/mod/dataPack/BiomeRegistry.h
         core/mod/dataPack/CoreTileResourceParams.h
         core/mod/dataPack/DataPack.h
         core/mod/dataPack/DataPackManager.h
         core/mod/dataPack/FixedColorManager.h
         core/mod/dataPack/LightMaskManager.h
         core/mod/dataPack/LightSourceManager.h
-        core/mod/dataPack/MobManager.h
+        core/mod/dataPack/MobRegistry.h
         core/mod/dataPack/PackDependence.h
         core/mod/dataPack/RecipeGroup.h
         core/mod/dataPack/RecipeManager.h
         core/mod/dataPack/SpecialFileProcessingParams.h
         core/mod/dataPack/StringManager.h
-        core/mod/dataPack/StructureManager.h
+        core/mod/dataPack/StructureRegistry.h
         core/mod/dataPack/TileResourceManager.h
         core/mod/resourcePack/AudioManager.h
         core/mod/resourcePack/AudioResourceResult.h

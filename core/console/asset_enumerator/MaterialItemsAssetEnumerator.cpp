@@ -36,10 +36,10 @@ std::optional<std::string> glimmer::MaterialItemsAssetEnumerator::ListAsset(cons
     if (appContext == nullptr) {
         return std::nullopt;
     }
-    const MaterialItemManager *itemManager = appContext->GetModContext()->GetMaterialItemManager();
-    if (itemManager == nullptr) {
+    const MaterialItemRegistry *materialItemRegistry = appContext->GetModContext()->GetMaterialItemRegistry();
+    if (materialItemRegistry == nullptr) {
         return std::nullopt;
     }
-    return itemManager->ListString();
+    return materialItemRegistry->ListString();
 }
 #endif

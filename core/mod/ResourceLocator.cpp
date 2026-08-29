@@ -87,28 +87,28 @@ glimmer::ResourceLocator::ResourceLocator(AppContext *appContext) : appContext_(
         LogCat::e(std::source_location::current(), "modContext == nullptr");
         return;
     }
-    lootTableManager_ = modContext->GetLootTableManager();
-    if (lootTableManager_ == nullptr) {
-        LogCat::e(std::source_location::current(), "lootTableManager_ == nullptr");
+    lootTableRegistry_ = modContext->GetLootTableRegistry();
+    if (lootTableRegistry_ == nullptr) {
+        LogCat::e(std::source_location::current(), "lootTableRegistry_ == nullptr");
         return;
     }
-    abilityItemManager_ = modContext->GetAbilityItemManager();
-    if (abilityItemManager_ == nullptr) {
+    abilityItemRegistry_ = modContext->GetAbilityItemRegistry();
+    if (abilityItemRegistry_ == nullptr) {
         LogCat::e(std::source_location::current(), "abilityItemManager_ == nullptr");
         return;
     }
-    composableItemManager_ = modContext->GetComposableItemManager();
-    if (composableItemManager_ == nullptr) {
+    composableItemRegistry_ = modContext->GetComposableItemRegistry();
+    if (composableItemRegistry_ == nullptr) {
         LogCat::e(std::source_location::current(), "composableItemManager_ == nullptr");
         return;
     }
-    materialItemManager_ = modContext->GetMaterialItemManager();
-    if (materialItemManager_ == nullptr) {
+    materialItemRegistry_ = modContext->GetMaterialItemRegistry();
+    if (materialItemRegistry_ == nullptr) {
         LogCat::e(std::source_location::current(), "materialItemManager_ == nullptr");
         return;
     }
-    mobManager_ = modContext->GetMobManager();
-    if (mobManager_ == nullptr) {
+    mobRegistry_ = modContext->GetMobRegistry();
+    if (mobRegistry_ == nullptr) {
         LogCat::e(std::source_location::current(), "mobManager_ == nullptr");
         return;
     }
@@ -127,8 +127,8 @@ glimmer::ResourceLocator::ResourceLocator(AppContext *appContext) : appContext_(
         LogCat::e(std::source_location::current(), "stringManager_ == nullptr");
         return;
     }
-    biomeDecoratorResourcesManager_ = modContext->GetBiomeDecoratorResourcesManager();
-    if (biomeDecoratorResourcesManager_ == nullptr) {
+    biomeDecoratorRegistry_ = modContext->GetBiomeDecoratorRegistry();
+    if (biomeDecoratorRegistry_ == nullptr) {
         LogCat::e(std::source_location::current(), "biomeDecoratorResourcesManager_ == nullptr");
         return;
     }
@@ -310,11 +310,11 @@ glimmer::IBiomeDecoratorResource *glimmer::ResourceLocator::FindBiomeDecorator(c
                   std::to_underlying(resourceRef->GetResourceType()), " or access permission denied");
         return nullptr;
     }
-    if (biomeDecoratorResourcesManager_ == nullptr) {
+    if (biomeDecoratorRegistry_ == nullptr) {
         LogCat::w(std::source_location::current(), "biomeDecoratorResourcesManager_ == nullptr");
         return nullptr;
     }
-    return biomeDecoratorResourcesManager_->Find(
+    return biomeDecoratorRegistry_->Find(
         resourceRef->GetPackageId(), resourceRef->GetResourceKey());
 }
 
@@ -432,11 +432,11 @@ glimmer::MobResource *glimmer::ResourceLocator::FindMob(const ResourceRef *resou
                   " or access permission denied");
         return nullptr;
     }
-    if (mobManager_ == nullptr) {
+    if (mobRegistry_ == nullptr) {
         LogCat::w(std::source_location::current(), "mobManager == nullptr");
         return nullptr;
     }
-    return mobManager_->Find(resourceRef->GetPackageId(),
+    return mobRegistry_->Find(resourceRef->GetPackageId(),
                              resourceRef->GetResourceKey());
 }
 
@@ -453,11 +453,11 @@ glimmer::ComposableItemResource *glimmer::ResourceLocator::FindComposableItem(
                   std::to_underlying(resourceRef->GetResourceType()), " or access permission denied");
         return nullptr;
     }
-    if (composableItemManager_ == nullptr) {
+    if (composableItemRegistry_ == nullptr) {
         LogCat::w(std::source_location::current(), "itemManager == nullptr");
         return nullptr;
     }
-    return composableItemManager_->Find(resourceRef->GetPackageId(),
+    return composableItemRegistry_->Find(resourceRef->GetPackageId(),
                                         resourceRef->GetResourceKey());
 }
 
@@ -473,11 +473,11 @@ glimmer::AbilityItemResource *glimmer::ResourceLocator::FindAbilityItem(
                   std::to_underlying(resourceRef->GetResourceType()), " or access permission denied");
         return nullptr;
     }
-    if (abilityItemManager_ == nullptr) {
+    if (abilityItemRegistry_ == nullptr) {
         LogCat::w(std::source_location::current(), "itemManager == nullptr");
         return nullptr;
     }
-    return abilityItemManager_->Find(resourceRef->GetPackageId(),
+    return abilityItemRegistry_->Find(resourceRef->GetPackageId(),
                                      resourceRef->GetResourceKey());
 }
 
@@ -492,11 +492,11 @@ glimmer::MaterialItemResource *glimmer::ResourceLocator::FindMaterialItem(const 
                   std::to_underlying(resourceRef->GetResourceType()), " or access permission denied");
         return nullptr;
     }
-    if (materialItemManager_ == nullptr) {
+    if (materialItemRegistry_ == nullptr) {
         LogCat::w(std::source_location::current(), "itemManager == nullptr");
         return nullptr;
     }
-    return materialItemManager_->Find(resourceRef->GetPackageId(),
+    return materialItemRegistry_->Find(resourceRef->GetPackageId(),
                                       resourceRef->GetResourceKey());
 }
 
@@ -511,11 +511,11 @@ glimmer::LootResource *glimmer::ResourceLocator::FindLoot(const ResourceRef *res
                   std::to_underlying(resourceRef->GetResourceType()), " or access permission denied");
         return nullptr;
     }
-    if (lootTableManager_ == nullptr) {
+    if (lootTableRegistry_ == nullptr) {
         LogCat::w(std::source_location::current(), "lootTableManager_ == nullptr");
         return nullptr;
     }
-    return lootTableManager_->Find(resourceRef->GetPackageId(),
+    return lootTableRegistry_->Find(resourceRef->GetPackageId(),
                                    resourceRef->GetResourceKey());
 }
 

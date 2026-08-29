@@ -26,14 +26,14 @@
  */
 #pragma once
 #include "DynamicSuggestions.h"
-#include "core/lootTable/LootTableManager.h"
+#include "core/lootTable/LootTableRegistry.h"
 
 namespace glimmer {
     class LootSuggestions final : public DynamicSuggestions {
-        LootTableManager *lootTableManager_;
+        LootTableRegistry *lootTableRegistry_ = nullptr;
 
     public:
-        explicit LootSuggestions(LootTableManager *lootTableManager);
+        explicit LootSuggestions(LootTableRegistry *lootTableRegistry);
 
         [[nodiscard]] std::string GetId() const override;
 

@@ -26,11 +26,43 @@
  */
 #pragma once
 
-#include "BaseResManager.h"
-#include "core/mod/Resource.h"
-
+#include "BaseResourceRegistry.h"
+#include <span>
+#include <vector>
 
 namespace glimmer {
-    class BiomeDecoratorResourcesManager : public BaseResManager<IBiomeDecoratorResource> {
+    struct BiomeResource;
+
+    class BiomeRegistry : public BaseResourceRegistry<BiomeResource> {
+        std::vector<BiomeResource *> biomeVector_{};
+
+    public:
+        /**
+         * calculateBiomeScoreDelta
+         * 计算群系单项差异得分
+         * @param targetValue targetValue 目标值
+         * @param actualValue actualValue 实际值
+         * @param strictness strictness 严格度系数
+         * @return
+         */
+        static float CalculateBiomeScoreDelta(float targetValue, float actualValue, float strictness);
+
+        [[nodiscard]] std::span<BiomeResource *> GetBiomeVector();
+
+        void OnRegister(BiomeResource *resource) override;
+
+        /**
+         * Find Best Biome
+         * 查找最合的生物群系
+         * @param humidity humidity 湿度
+         * @param temperature temperature 温度
+         * @param weirdness weirdness 奇异度
+         * @param erosion erosion 侵蚀度
+         * @param elevation elevation 海拔
+         * @param surfaceProximity SurfaceProximity 地表贴近度
+         * @return
+         */
+        [[nodiscard]] BiomeResource *FindBestBiome(float humidity, float temperature, float weirdness, float erosion,
+                                                   float elevation, float surfaceProximity) const;
     };
 }

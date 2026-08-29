@@ -24,12 +24,18 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
-#include "BaseResManager.h"
+#include "MaterialItemRegistry.h"
 
-namespace glimmer {
-    class AbilityItemManager : public BaseResManager<AbilityItemResource> {
-    public:
-        AbilityItemResource *OnNotFound(std::string_view packId, std::string_view key) override;
-    };
+glimmer::MaterialItemResource *glimmer::MaterialItemRegistry::OnNotFound(const std::string_view packId,
+                                                                         const std::string_view key) {
+    auto materialItemResource = std::make_unique<MaterialItemResource>();
+    materialItemResource->packId = packId;
+    materialItemResource->resourceId = key;
+    ResourceRef resourceRef;
+    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetResourceType(RESOURCE_TEXTURE);
+    resourceRef.SetResourceKey(ERROR_TEXTURE_KEY);
+    materialItemResource->texture = resourceRef;
+    materialItemResource->missing = true;
+    return Register(std::move(materialItemResource));
 }

@@ -38,11 +38,11 @@ std::optional<std::string> glimmer::BiomesAssetEnumerator::ListAsset(const AppCo
         LogCat::w(std::source_location::current(), "appContext is nullptr");
         return std::nullopt;
     }
-    const BiomesManager *biomesManager = appContext->GetModContext()->GetBiomesManager();
-    if (biomesManager == nullptr) {
+    const BiomeRegistry *biomeRegistry = appContext->GetModContext()->GetBiomeRegistry();
+    if (biomeRegistry == nullptr) {
         LogCat::w(std::source_location::current(), "biomesManager is nullptr");
         return std::nullopt;
     }
-    return biomesManager->ListString();
+    return biomeRegistry->ListString();
 }
 #endif

@@ -36,10 +36,10 @@ std::optional<std::string> glimmer::MobsAssetEnumerator::ListAsset(const AppCont
     if (appContext == nullptr) {
         return std::nullopt;
     }
-    const MobManager *mobManager = appContext->GetModContext()->GetMobManager();
-    if (mobManager == nullptr) {
+    const MobRegistry *mobRegistry = appContext->GetModContext()->GetMobRegistry();
+    if (mobRegistry == nullptr) {
         return std::nullopt;
     }
-    return mobManager->ListString();
+    return mobRegistry->ListString();
 }
 #endif

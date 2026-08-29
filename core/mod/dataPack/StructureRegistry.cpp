@@ -24,27 +24,12 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
-#include <memory>
-#include <string>
-#include <unordered_map>
-#include <functional>
+#include "StructureRegistry.h"
 
-#include "BaseResManager.h"
-#include "core/mod/Resource.h"
+void glimmer::StructureRegistry::OnRegister(IStructureResource *resource) {
+    structureVector_.emplace_back(resource);
+}
 
-namespace glimmer {
-    class MobManager : public BaseResManager<MobResource> {
-        std::vector<MobResource *> playerMobsResource_;
-
-    public:
-        void OnRegister(MobResource *resource) override;
-
-        /**
-         * FindPlayerResource
-         * 获取玩家资源列表
-         * @return
-         */
-        [[nodiscard]] std::span<const MobResource * const> GetPlayerResourceList() const;
-    };
+const std::vector<glimmer::IStructureResource *> &glimmer::StructureRegistry::GetAll() {
+    return structureVector_;
 }

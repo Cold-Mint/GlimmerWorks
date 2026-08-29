@@ -38,7 +38,6 @@
 #include "core/context/AppContext.h"
 #include "core/utils/TomlUtils.h"
 #include "core/mod/PackManifest.h"
-#include "core/lootTable/LootTableManager.h"
 #include "core/utils/StringUtils.h"
 #include "toml11/parser.hpp"
 
@@ -113,7 +112,7 @@ int glimmer::DataPack::LoadStringResourceFromFile(const std::filesystem::path &p
 
 
 void glimmer::DataPack::LoadLootTableResourceFromFile(const toml::value &value,
-                                                      LootTableManager *lootTableManager) const {
+                                                      LootTableRegistry *lootTableRegistry) const {
     auto lootResource = std::make_unique<LootResource>(toml::get<LootResource>(value));
     lootResource->packId = manifest_.id;
     for (auto &mandatory: lootResource->mandatory) {
@@ -124,7 +123,7 @@ void glimmer::DataPack::LoadLootTableResourceFromFile(const toml::value &value,
         pool.item.SetSelfPackageId(manifest_.id);
         pool.mandatory = false;
     }
-    lootTableManager->Register(std::move(lootResource));
+    lootTableRegistry->Register(std::move(lootResource));
 }
 
 void glimmer::DataPack::LoadInitialInventoryResourceFromFile(const toml::value &value,
@@ -141,7 +140,7 @@ void glimmer::DataPack::LoadInitialInventoryResourceFromFile(const toml::value &
     lootTableManager->AddResource(std::move(initialInventoryResource));
 }
 
-void glimmer::DataPack::LoadStructureResourceFromFile(const toml::value &value, StructureManager *structureManager,
+void glimmer::DataPack::LoadStructureResourceFromFile(const toml::value &value, StructureRegistry *structureRegistry,
                                                       StructureGeneratorType structureGeneratorType) const {
     std::unique_ptr<IStructureResource> structureResource;
     switch (structureGeneratorType) {
@@ -170,7 +169,7 @@ void glimmer::DataPack::LoadStructureResourceFromFile(const toml::value &value, 
     for (auto &condition: structureResource->condition) {
         condition.SetSelfPackageId(manifest_.id);
     }
-    structureManager->Register(std::move(structureResource));
+    structureRegistry->Register(std::move(structureResource));
 }
 
 void glimmer::DataPack::LoadTileResourceFromFile(const toml::value &value, TileResourceManager *tileManager) const {
@@ -194,18 +193,18 @@ void glimmer::DataPack::LoadTileResourceFromFile(const toml::value &value, TileR
     tileManager->AddResource(std::move(tileResource));
 }
 
-void glimmer::DataPack::LoadBiomeResourceFromFile(const toml::value &value, BiomesManager *biomesManager) const {
+void glimmer::DataPack::LoadBiomeResourceFromFile(const toml::value &value, BiomeRegistry *biomeRegistry) const {
     auto biomeResource = std::make_unique<BiomeResource>(toml::get<BiomeResource>(value));
     biomeResource->packId = manifest_.id;
     biomeResource->bgm.SetSelfPackageId(manifest_.id);
     for (auto &decorator: biomeResource->decors) {
         decorator.SetSelfPackageId(manifest_.id);
     }
-    biomesManager->Register(std::move(biomeResource));
+    biomeRegistry->Register(std::move(biomeResource));
 }
 
 void glimmer::DataPack::LoadComposableItemResourceFromFile(const toml::value &value,
-                                                           ComposableItemManager *itemManager) const {
+                                                           ComposableItemRegistry *composableItemRegistry) const {
     auto itemResource = std::make_unique<ComposableItemResource>(toml::get<ComposableItemResource>(value));
     itemResource->packId = manifest_.id;
     itemResource->name.SetSelfPackageId(manifest_.id);
@@ -220,11 +219,11 @@ void glimmer::DataPack::LoadComposableItemResourceFromFile(const toml::value &va
             abilityItemRef.item.SetSelfPackageId(manifest_.id);
         }
     }
-    itemManager->Register(std::move(itemResource));
+    composableItemRegistry->Register(std::move(itemResource));
 }
 
 void glimmer::DataPack::LoadAbilityItemResourceFromFile(const toml::value &value,
-                                                        AbilityItemManager *itemManager) const {
+                                                        AbilityItemRegistry *abilityItemRegistry) const {
     auto itemResource = std::make_unique<AbilityItemResource>(toml::get<AbilityItemResource>(value));
     itemResource->packId = manifest_.id;
     itemResource->name.SetSelfPackageId(manifest_.id);
@@ -233,11 +232,11 @@ void glimmer::DataPack::LoadAbilityItemResourceFromFile(const toml::value &value
     for (auto &tag: itemResource->tags) {
         tag.MakeCachedTag();
     }
-    itemManager->Register(std::move(itemResource));
+    abilityItemRegistry->Register(std::move(itemResource));
 }
 
 void glimmer::DataPack::LoadMaterialItemResourceResourceFromFile(const toml::value &value,
-                                                                 MaterialItemManager *itemManager) const {
+                                                                 MaterialItemRegistry *materialItemRegistry) const {
     auto itemResource = std::make_unique<MaterialItemResource>(toml::get<MaterialItemResource>(value));
     itemResource->packId = manifest_.id;
     itemResource->name.SetSelfPackageId(manifest_.id);
@@ -246,7 +245,7 @@ void glimmer::DataPack::LoadMaterialItemResourceResourceFromFile(const toml::val
     for (auto &tag: itemResource->tags) {
         tag.MakeCachedTag();
     }
-    itemManager->Register(std::move(itemResource));
+    materialItemRegistry->Register(std::move(itemResource));
 }
 
 void glimmer::DataPack::LoadContributorResourceFromFile(const toml::value &value,
@@ -256,7 +255,7 @@ void glimmer::DataPack::LoadContributorResourceFromFile(const toml::value &value
     contributorManager->Register(std::move(contributorResource));
 }
 
-void glimmer::DataPack::LoadMobResourceFromFile(const toml::value &value, MobManager *mobManager) const {
+void glimmer::DataPack::LoadMobResourceFromFile(const toml::value &value, MobRegistry *mobRegistry) const {
     auto mobResource = std::make_unique<MobResource>(toml::get<MobResource>(value));
     mobResource->packId = manifest_.id;
     mobResource->shape.SetSelfPackageId(manifest_.id);
@@ -266,7 +265,7 @@ void glimmer::DataPack::LoadMobResourceFromFile(const toml::value &value, MobMan
     for (auto &abilityItemRef: emptyHandAutoUseItem.abilityItemRef) {
         abilityItemRef.item.SetSelfPackageId(manifest_.id);
     }
-    mobManager->Register(std::move(mobResource));
+    mobRegistry->Register(std::move(mobResource));
 }
 
 void glimmer::DataPack::
@@ -324,7 +323,7 @@ void glimmer::DataPack::LoadLightSourceResourceFromFile(const toml::value &value
 }
 
 void glimmer::DataPack::LoadBiomeDecoratorResourceFromFile(const toml::value &value,
-                                                           BiomeDecoratorResourcesManager *biomeDecoratorManager,
+                                                           BiomeDecoratorRegistry *biomeDecoratorRegistry,
                                                            const BiomeDecoratorType type) const {
     switch (type) {
         case FILL: {
@@ -333,7 +332,7 @@ void glimmer::DataPack::LoadBiomeDecoratorResourceFromFile(const toml::value &va
             fillResource->packId = manifest_.id;
             fillResource->tile.SetSelfPackageId(manifest_.id);
             fillResource->biomeDecoratorType = std::to_underlying(type);
-            biomeDecoratorManager->Register(std::move(fillResource));
+            biomeDecoratorRegistry->Register(std::move(fillResource));
             break;
         }
         case MINERAL: {
@@ -342,7 +341,7 @@ void glimmer::DataPack::LoadBiomeDecoratorResourceFromFile(const toml::value &va
             mineralBiomeDecoratorResource->packId = manifest_.id;
             mineralBiomeDecoratorResource->ore.SetSelfPackageId(manifest_.id);
             mineralBiomeDecoratorResource->biomeDecoratorType = std::to_underlying(type);
-            biomeDecoratorManager->Register(std::move(mineralBiomeDecoratorResource));
+            biomeDecoratorRegistry->Register(std::move(mineralBiomeDecoratorResource));
             break;
         }
         case SURFACE: {
@@ -352,15 +351,15 @@ void glimmer::DataPack::LoadBiomeDecoratorResourceFromFile(const toml::value &va
             surfaceBiomeDecoratorResource->openAirTile.SetSelfPackageId(manifest_.id);
             surfaceBiomeDecoratorResource->underwaterTile.SetSelfPackageId(manifest_.id);
             surfaceBiomeDecoratorResource->biomeDecoratorType = std::to_underlying(type);
-            biomeDecoratorManager->Register(std::move(surfaceBiomeDecoratorResource));
+            biomeDecoratorRegistry->Register(std::move(surfaceBiomeDecoratorResource));
             break;
         }
     }
 }
 
 void glimmer::DataPack::LoadStructurePlacementConditionsResourceFromFile(const toml::value &value,
-                                                                         StructurePlacementConditionsResourceManager *
-                                                                         structurePlacementConditionsResourceManager,
+                                                                         StructurePlacementConditionsRegistry *
+                                                                         structurePlacementConditionsRegistry,
                                                                          StructureConditionProcessorType processorType)
 const {
     switch (processorType) {
@@ -374,7 +373,7 @@ const {
                 targetBiome.SetSelfPackageId(manifest_.id);
             }
             biomeStructurePlacementConditionsResource->RefreshCache();
-            structurePlacementConditionsResourceManager->Register(std::move(biomeStructurePlacementConditionsResource));
+            structurePlacementConditionsRegistry->Register(std::move(biomeStructurePlacementConditionsResource));
             break;
         }
         case StructureConditionProcessorType::None: {
@@ -382,7 +381,7 @@ const {
                 toml::get<NoneStructurePlacementConditionsResource>(value));
             noneStructurePlacementConditionsResource->packId = manifest_.id;
             noneStructurePlacementConditionsResource->processorId = std::to_underlying(processorType);
-            structurePlacementConditionsResourceManager->Register(std::move(noneStructurePlacementConditionsResource));
+            structurePlacementConditionsRegistry->Register(std::move(noneStructurePlacementConditionsResource));
             break;
         }
         case StructureConditionProcessorType::Height: {
@@ -390,7 +389,7 @@ const {
                 toml::get<HeightStructureConditionsResource>(value));
             heightStructureConditionsResource->packId = manifest_.id;
             heightStructureConditionsResource->processorId = std::to_underlying(processorType);
-            structurePlacementConditionsResourceManager->Register(std::move(heightStructureConditionsResource));
+            structurePlacementConditionsRegistry->Register(std::move(heightStructureConditionsResource));
             break;
         }
         case StructureConditionProcessorType::HorizontalSpacing: {
@@ -399,7 +398,7 @@ const {
                 toml::get<HorizontalSpacingStructureConditionsResource>(value));
             horizontalSpacingStructureConditionsResource->packId = manifest_.id;
             horizontalSpacingStructureConditionsResource->processorId = std::to_underlying(processorType);
-            structurePlacementConditionsResourceManager->Register(
+            structurePlacementConditionsRegistry->Register(
                 std::move(horizontalSpacingStructureConditionsResource));
             break;
         }
@@ -409,12 +408,13 @@ const {
                 toml::get<SurfaceStructurePlacementConditionsResource>(value));
             surfaceStructurePlacementConditionsResource->packId = manifest_.id;
             surfaceStructurePlacementConditionsResource->processorId = std::to_underlying(processorType);
-            structurePlacementConditionsResourceManager->Register(
+            structurePlacementConditionsRegistry->Register(
                 std::move(surfaceStructurePlacementConditionsResource));
             break;
         }
     }
 }
+
 
 void glimmer::DataPack::LoadRecipeResourceFromFile(const toml::value &value, RecipeManager *recipeManager) const {
     auto recipeResource = std::make_unique<RecipeResource>(toml::get<RecipeResource>(value));
@@ -543,32 +543,32 @@ int glimmer::DataPack::LoadResourceByType(const std::string &dataType, const std
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_BIOME) {
-        LoadBiomeResourceFromFile(value, modContext->GetBiomesManager());
+        LoadBiomeResourceFromFile(value, modContext->GetBiomeRegistry());
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_COMPOSABLE_ITEM) {
-        LoadComposableItemResourceFromFile(value, modContext->GetComposableItemManager());
+        LoadComposableItemResourceFromFile(value, modContext->GetComposableItemRegistry());
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_ABILITY_ITEM) {
-        LoadAbilityItemResourceFromFile(value, modContext->GetAbilityItemManager());
+        LoadAbilityItemResourceFromFile(value, modContext->GetAbilityItemRegistry());
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_MATERIAL_ITEM) {
-        LoadMaterialItemResourceResourceFromFile(value, modContext->GetMaterialItemManager());
+        LoadMaterialItemResourceResourceFromFile(value, modContext->GetMaterialItemRegistry());
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_LOOT_TABLE) {
-        LoadLootTableResourceFromFile(value, modContext->GetLootTableManager());
+        LoadLootTableResourceFromFile(value, modContext->GetLootTableRegistry());
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_TREE_STRUCTURE) {
-        LoadStructureResourceFromFile(value, modContext->GetStructureManager(),
+        LoadStructureResourceFromFile(value, modContext->GetStructureRegistry(),
                                       StructureGeneratorType::Tree);
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_STATIC_STRUCTURE) {
-        LoadStructureResourceFromFile(value, modContext->GetStructureManager(),
+        LoadStructureResourceFromFile(value, modContext->GetStructureRegistry(),
                                       StructureGeneratorType::Static);
         return 1;
     }
@@ -581,7 +581,7 @@ int glimmer::DataPack::LoadResourceByType(const std::string &dataType, const std
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_MOB) {
-        LoadMobResourceFromFile(value, modContext->GetMobManager());
+        LoadMobResourceFromFile(value, modContext->GetMobRegistry());
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_SHAPE_CIRCLE) {
@@ -597,17 +597,17 @@ int glimmer::DataPack::LoadResourceByType(const std::string &dataType, const std
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_DECORATOR_FILL) {
-        LoadBiomeDecoratorResourceFromFile(value, modContext->GetBiomeDecoratorResourcesManager(),
+        LoadBiomeDecoratorResourceFromFile(value, modContext->GetBiomeDecoratorRegistry(),
                                            FILL);
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_DECORATOR_MINERAL) {
-        LoadBiomeDecoratorResourceFromFile(value, modContext->GetBiomeDecoratorResourcesManager(),
+        LoadBiomeDecoratorResourceFromFile(value, modContext->GetBiomeDecoratorRegistry(),
                                            MINERAL);
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_DECORATOR_SURFACE) {
-        LoadBiomeDecoratorResourceFromFile(value, modContext->GetBiomeDecoratorResourcesManager(),
+        LoadBiomeDecoratorResourceFromFile(value, modContext->GetBiomeDecoratorRegistry(),
                                            SURFACE);
         return 1;
     }
@@ -629,25 +629,25 @@ int glimmer::DataPack::LoadResourceByType(const std::string &dataType, const std
     }
     if (dataType == DATA_FILE_TYPE_BIOME_STRUCTURE_CONDITION) {
         LoadStructurePlacementConditionsResourceFromFile(
-            value, modContext->GetStructurePlacementConditionsResourceManager(),
+            value, modContext->GetStructurePlacementConditionsRegistry(),
             StructureConditionProcessorType::Biome);
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_HEIGHT_STRUCTURE_CONDITION) {
         LoadStructurePlacementConditionsResourceFromFile(
-            value, modContext->GetStructurePlacementConditionsResourceManager(),
+            value, modContext->GetStructurePlacementConditionsRegistry(),
             StructureConditionProcessorType::Height);
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_HORIZONTAL_STRUCTURE_CONDITION) {
         LoadStructurePlacementConditionsResourceFromFile(
-            value, modContext->GetStructurePlacementConditionsResourceManager(),
+            value, modContext->GetStructurePlacementConditionsRegistry(),
             StructureConditionProcessorType::HorizontalSpacing);
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_SURFACE_STRUCTURE_CONDITION) {
         LoadStructurePlacementConditionsResourceFromFile(
-            value, modContext->GetStructurePlacementConditionsResourceManager(),
+            value, modContext->GetStructurePlacementConditionsRegistry(),
             StructureConditionProcessorType::Surface);
         return 1;
     }

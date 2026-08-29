@@ -26,7 +26,7 @@
  */
 #pragma once
 #include "core/console/Command.h"
-#include "core/mod/dataPack/BiomesManager.h"
+#include "core/mod/dataPack/BiomeRegistry.h"
 #include "core/world/generator/ChunkGenerator.h"
 
 
@@ -34,7 +34,7 @@ namespace glimmer {
     class LocateCommand final : public Command {
         void InitSuggestions(NodeTree<std::string> *suggestionsTree) override;
 
-        static std::optional<TileVector2D> SearchBiomes(int tileX, const BiomesManager *biomesManager,
+        static std::optional<TileVector2D> SearchBiomes(int tileX, const BiomeRegistry *biomeRegistry,
                                                         ChunkGenerator *chunkGenerator,
                                                         const std::string &targetBiomeId);
 
@@ -42,7 +42,7 @@ namespace glimmer {
         explicit LocateCommand(AppContext *appContext);
 
         static std::optional<TileVector2D> SearchBiomeInRadius(const TileVector2D &position,
-                                                               const BiomesManager *biomesManager,
+                                                               const BiomeRegistry *biomeRegistry,
                                                                ChunkGenerator *chunkGenerator,
                                                                const std::string &targetBiomeId,
                                                                uint16_t maxRadiusChunks);

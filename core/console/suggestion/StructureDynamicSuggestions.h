@@ -26,14 +26,14 @@
  */
 #pragma once
 #include "DynamicSuggestions.h"
-#include "core/mod/dataPack/StructureManager.h"
+#include "core/mod/dataPack/StructureRegistry.h"
 
 namespace glimmer {
     class StructureDynamicSuggestions : public DynamicSuggestions {
-        StructureManager *structureManager_ = nullptr;
+        StructureRegistry *structureRegistry_ = nullptr;
 
     public:
-        explicit StructureDynamicSuggestions(StructureManager *structureManager);
+        explicit StructureDynamicSuggestions(StructureRegistry *structureManager);
 
         [[nodiscard]] std::string GetId() const override;
 

@@ -36,10 +36,10 @@ std::optional<std::string> glimmer::StructuresAssetEnumerator::ListAsset(const A
     if (appContext == nullptr) {
         return std::nullopt;
     }
-    const StructureManager *structureManager = appContext->GetModContext()->GetStructureManager();
-    if (structureManager == nullptr) {
+    const StructureRegistry *structureRegistry = appContext->GetModContext()->GetStructureRegistry();
+    if (structureRegistry == nullptr) {
         return std::nullopt;
     }
-    return structureManager->ListString();
+    return structureRegistry->ListString();
 }
 #endif

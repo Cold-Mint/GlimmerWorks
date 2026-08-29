@@ -55,7 +55,7 @@ void glimmer::ModContext::Init(VirtualFileSystem *vfs, const LangsResources *lan
     recipeManager_ = std::make_unique<RecipeManager>();
 
     LogCat::d("Creating MobManager");
-    mobManager_ = std::make_unique<MobManager>();
+    mobRegistry_ = std::make_unique<MobRegistry>();
 
     LogCat::d("Creating TomlTemplateExpander");
     tomlTemplateExpander_ = std::make_unique<TomlTemplateExpander>();
@@ -71,7 +71,7 @@ void glimmer::ModContext::Init(VirtualFileSystem *vfs, const LangsResources *lan
     stringManager_->LoadLangsString(langsResources);
 
     LogCat::d("Creating BiomesManager");
-    biomesManager_ = std::make_unique<BiomesManager>();
+    biomeRegistry_ = std::make_unique<BiomeRegistry>();
 
     LogCat::d("Creating TileResourceManager");
     tileResourceManager_ = std::make_unique<TileResourceManager>();
@@ -87,7 +87,7 @@ void glimmer::ModContext::Init(VirtualFileSystem *vfs, const LangsResources *lan
     structurePlacementConditionsProcessorManager_->AddConditionProcessor(
         std::make_unique<BiomeStructureConditionProcessor>());
 
-    structurePlacementConditionsResourceManager_ = std::make_unique<StructurePlacementConditionsResourceManager>();
+    structurePlacementConditionsRegistry_ = std::make_unique<StructurePlacementConditionsRegistry>();
 
     LogCat::d("Creating InitialInventoryManager");
     initialInventoryManager_ = std::make_unique<InitialInventoryManager>();
@@ -99,12 +99,12 @@ void glimmer::ModContext::Init(VirtualFileSystem *vfs, const LangsResources *lan
     biomeDecoratorManager_ = std::make_unique<BiomeDecoratorManager>();
 
     LogCat::d("Creating BiomeDecoratorResourcesManager");
-    biomeDecoratorResourcesManager_ = std::make_unique<BiomeDecoratorResourcesManager>();
+    biomeDecoratorRegistry_ = std::make_unique<BiomeDecoratorRegistry>();
 
     LogCat::d("Creating ItemManager");
-    abilityItemManager_ = std::make_unique<AbilityItemManager>();
-    composableItemManager_ = std::make_unique<ComposableItemManager>();
-    materialItemManager_ = std::make_unique<MaterialItemManager>();
+    abilityItemRegistry_ = std::make_unique<AbilityItemRegistry>();
+    composableItemRegistry_ = std::make_unique<ComposableItemRegistry>();
+    materialItemRegistry_ = std::make_unique<MaterialItemRegistry>();
 
     LogCat::d("Registering biome decorators");
     biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<FillBiomeDecorator>());
@@ -112,7 +112,7 @@ void glimmer::ModContext::Init(VirtualFileSystem *vfs, const LangsResources *lan
     biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<MineralBiomeDecorator>());
 
     LogCat::d("Creating LootTableManager");
-    lootTableManager_ = std::make_unique<LootTableManager>();
+    lootTableRegistry_ = std::make_unique<LootTableRegistry>();
 
     LogCat::d("Creating StructureGeneratorManager");
     structureGeneratorManager_ = std::make_unique<StructureGeneratorManager>();
@@ -120,7 +120,7 @@ void glimmer::ModContext::Init(VirtualFileSystem *vfs, const LangsResources *lan
     structureGeneratorManager_->RegisterStructureGenerator(std::make_unique<TreeStructureGenerator>());
 
     LogCat::d("Creating StructureManager");
-    structureManager_ = std::make_unique<StructureManager>();
+    structureRegistry_ = std::make_unique<StructureRegistry>();
 
     LogCat::d("Creating ShapeManager");
     shapeManager_ = std::make_unique<ShapeManager>();
@@ -140,28 +140,28 @@ glimmer::TileResourceManager *glimmer::ModContext::GetTileResourceManager() cons
     return tileResourceManager_.get();
 }
 
-glimmer::BiomesManager *glimmer::ModContext::GetBiomesManager() const {
-    return biomesManager_.get();
+glimmer::BiomeRegistry *glimmer::ModContext::GetBiomeRegistry() const {
+    return biomeRegistry_.get();
 }
 
 glimmer::BiomeDecoratorManager *glimmer::ModContext::GetBiomeDecoratorManager() const {
     return biomeDecoratorManager_.get();
 }
 
-glimmer::BiomeDecoratorResourcesManager *glimmer::ModContext::GetBiomeDecoratorResourcesManager() const {
-    return biomeDecoratorResourcesManager_.get();
+glimmer::BiomeDecoratorRegistry *glimmer::ModContext::GetBiomeDecoratorRegistry() const {
+    return biomeDecoratorRegistry_.get();
 }
 
-glimmer::AbilityItemManager *glimmer::ModContext::GetAbilityItemManager() const {
-    return abilityItemManager_.get();
+glimmer::AbilityItemRegistry *glimmer::ModContext::GetAbilityItemRegistry() const {
+    return abilityItemRegistry_.get();
 }
 
-glimmer::ComposableItemManager *glimmer::ModContext::GetComposableItemManager() const {
-    return composableItemManager_.get();
+glimmer::ComposableItemRegistry *glimmer::ModContext::GetComposableItemRegistry() const {
+    return composableItemRegistry_.get();
 }
 
-glimmer::MaterialItemManager *glimmer::ModContext::GetMaterialItemManager() const {
-    return materialItemManager_.get();
+glimmer::MaterialItemRegistry *glimmer::ModContext::GetMaterialItemRegistry() const {
+    return materialItemRegistry_.get();
 }
 
 
@@ -169,12 +169,12 @@ glimmer::RecipeManager *glimmer::ModContext::GetRecipeManager() const {
     return recipeManager_.get();
 }
 
-glimmer::MobManager *glimmer::ModContext::GetMobManager() const {
-    return mobManager_.get();
+glimmer::MobRegistry *glimmer::ModContext::GetMobRegistry() const {
+    return mobRegistry_.get();
 }
 
-glimmer::StructureManager *glimmer::ModContext::GetStructureManager() const {
-    return structureManager_.get();
+glimmer::StructureRegistry *glimmer::ModContext::GetStructureRegistry() const {
+    return structureRegistry_.get();
 }
 
 glimmer::StructureGeneratorManager *glimmer::ModContext::GetStructureGeneratorManager() const {
@@ -186,13 +186,13 @@ glimmer::ModContext::GetStructurePlacementConditionsProcessorManager() const {
     return structurePlacementConditionsProcessorManager_.get();
 }
 
-glimmer::StructurePlacementConditionsResourceManager *glimmer::ModContext::
-GetStructurePlacementConditionsResourceManager() const {
-    return structurePlacementConditionsResourceManager_.get();
+glimmer::StructurePlacementConditionsRegistry *glimmer::ModContext::
+GetStructurePlacementConditionsRegistry() const {
+    return structurePlacementConditionsRegistry_.get();
 }
 
-glimmer::LootTableManager *glimmer::ModContext::GetLootTableManager() const {
-    return lootTableManager_.get();
+glimmer::LootTableRegistry *glimmer::ModContext::GetLootTableRegistry() const {
+    return lootTableRegistry_.get();
 }
 
 glimmer::InitialInventoryManager *glimmer::ModContext::GetInitialInventoryManager() const {

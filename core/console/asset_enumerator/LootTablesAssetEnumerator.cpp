@@ -36,10 +36,10 @@ std::optional<std::string> glimmer::LootTablesAssetEnumerator::ListAsset(const A
     if (appContext == nullptr) {
         return std::nullopt;
     }
-    const LootTableManager *lootTableManager = appContext->GetModContext()->GetLootTableManager();
-    if (lootTableManager == nullptr) {
+    const LootTableRegistry *lootTableRegistry = appContext->GetModContext()->GetLootTableRegistry();
+    if (lootTableRegistry == nullptr) {
         return std::nullopt;
     }
-    return lootTableManager->ListString();
+    return lootTableRegistry->ListString();
 }
 #endif

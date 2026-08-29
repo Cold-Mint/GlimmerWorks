@@ -29,14 +29,14 @@
 #include "ResourceRef.h"
 #include "core/math/Color.h"
 #include "core/shape/ShapeManager.h"
-#include "dataPack/AbilityItemManager.h"
-#include "dataPack/BiomeDecoratorResourcesManager.h"
-#include "dataPack/ComposableItemManager.h"
+#include "dataPack/AbilityItemRegistry.h"
+#include "dataPack/BiomeDecoratorRegistry.h"
+#include "dataPack/ComposableItemRegistry.h"
 #include "dataPack/DataPackManager.h"
 #include "dataPack/FixedColorManager.h"
 #include "dataPack/LightMaskManager.h"
 #include "dataPack/LightSourceManager.h"
-#include "dataPack/MaterialItemManager.h"
+#include "dataPack/MaterialItemRegistry.h"
 #include "dataPack/StringManager.h"
 #include "resourcePack/AudioResourceResult.h"
 #include "resourcePack/GPUPipelineResource.h"
@@ -45,9 +45,9 @@
 
 namespace glimmer {
     class TileResourceManager;
-    class MobManager;
+    class MobRegistry;
     class ItemManager;
-    class LootTableManager;
+    class LootTableRegistry;
     class WorldContext;
     enum class TileLayerType : uint8_t;
     class AppContext;
@@ -62,17 +62,17 @@ namespace glimmer {
         AppContext *appContext_ = nullptr;
         ResourcePackManager *resourcePackManager_ = nullptr;
         FixedColorManager *fixedColorManager_ = nullptr;
-        LootTableManager *lootTableManager_ = nullptr;
-        AbilityItemManager *abilityItemManager_ = nullptr;
-        ComposableItemManager *composableItemManager_ = nullptr;
-        MaterialItemManager *materialItemManager_ = nullptr;
-        MobManager *mobManager_ = nullptr;
+        LootTableRegistry *lootTableRegistry_ = nullptr;
+        AbilityItemRegistry *abilityItemRegistry_ = nullptr;
+        ComposableItemRegistry *composableItemRegistry_ = nullptr;
+        MaterialItemRegistry *materialItemRegistry_ = nullptr;
+        MobRegistry *mobRegistry_ = nullptr;
         TileResourceManager *tileResourceManager_ = nullptr;
         LightMaskManager *lightMaskManager_ = nullptr;
         LightSourceManager *lightSourceManager_ = nullptr;
         ShapeManager *shapeManager_ = nullptr;
         StringManager *stringManager_ = nullptr;
-        BiomeDecoratorResourcesManager *biomeDecoratorResourcesManager_ = nullptr;
+        BiomeDecoratorRegistry *biomeDecoratorRegistry_ = nullptr;
         DataPackManager *dataPackManager_ = nullptr;
 
         /**

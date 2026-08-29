@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+ * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
+ * 
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,18 +24,12 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "MaterialItemManager.h"
+#pragma once
 
-glimmer::MaterialItemResource *glimmer::MaterialItemManager::OnNotFound(const std::string_view packId,
-                                                                        const std::string_view key) {
-    auto materialItemResource = std::make_unique<MaterialItemResource>();
-    materialItemResource->packId = packId;
-    materialItemResource->resourceId = key;
-    ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    resourceRef.SetResourceType(RESOURCE_TEXTURE);
-    resourceRef.SetResourceKey(ERROR_TEXTURE_KEY);
-    materialItemResource->texture = resourceRef;
-    materialItemResource->missing = true;
-    return Register(std::move(materialItemResource));
+#include "core/mod/Resource.h"
+#include "core/mod/dataPack/BaseResourceRegistry.h"
+
+namespace glimmer {
+    class LootTableRegistry : public BaseResourceRegistry<LootResource> {
+    };
 }

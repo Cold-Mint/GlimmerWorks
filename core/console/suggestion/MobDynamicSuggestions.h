@@ -26,14 +26,14 @@
  */
 #pragma once
 #include "DynamicSuggestions.h"
-#include "core/mod/dataPack/MobManager.h"
+#include "core/mod/dataPack/MobRegistry.h"
 
 namespace glimmer {
     class MobDynamicSuggestions final : public DynamicSuggestions {
-        MobManager *mobManager_ = nullptr;
+        MobRegistry *mobRegistry_ = nullptr;
 
     public:
-        explicit MobDynamicSuggestions(MobManager *mobManager);
+        explicit MobDynamicSuggestions(MobRegistry *mobRegistry);
 
         [[nodiscard]] std::string GetId() const override;
 

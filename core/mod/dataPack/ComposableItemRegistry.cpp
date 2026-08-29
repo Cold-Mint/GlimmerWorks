@@ -24,4 +24,20 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "BaseResManager.h"
+#include "ComposableItemRegistry.h"
+
+glimmer::ComposableItemResource *glimmer::ComposableItemRegistry::OnNotFound(const std::string_view packId,
+                                                                             const std::string_view key) {
+    auto composableItemResource = std::make_unique<ComposableItemResource>();
+    composableItemResource->packId = packId;
+    composableItemResource->resourceId = key;
+    ResourceRef resourceRef;
+    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetResourceType(RESOURCE_TEXTURE);
+    resourceRef.SetResourceKey(ERROR_TEXTURE_KEY);
+    composableItemResource->texture = resourceRef;
+    composableItemResource->defaultAbilityList = {};
+    composableItemResource->slotSize = 0;
+    composableItemResource->missing = true;
+    return Register(std::move(composableItemResource));
+}

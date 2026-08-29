@@ -33,6 +33,7 @@
 #include "core/log/LogCat.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/mod/ResourceRef.h"
+#include "core/mod/resourcePack/GPUPipelineResource.h"
 #include "core/mod/resourcePack/ShaderResourceResult.h"
 
 
@@ -94,25 +95,38 @@ SDL_GPUShader *glimmer::GpuShaderPipelineManager::GetOrCreateShader(const std::s
 }
 
 SDL_GPUGraphicsPipeline *glimmer::GpuShaderPipelineManager::GetOrCreatePipeline(const std::string &name,
-    SpriteBlendMode blendMode, Uint32 numSamplers, Uint32 numUniformBuffers, const char *fallbackFragSource) {
+    const bool allowFallback) {
     if (const auto it = pipelineCache_.find(name); it != pipelineCache_.end()) {
         return it->second;
     }
-    SDL_GPUShader *vertexShader = GetOrCreateShader(SHADER_NAME_SPRITE_VERT, SHADER_EXTENSION_VERT,
-                                                    SDL_GPU_SHADERSTAGE_VERTEX, 0, 1, DEFAULT_SPRITE_VERT);
-    SDL_GPUShader *fragmentShader = GetOrCreateShader(name, SHADER_EXTENSION_FRAG, SDL_GPU_SHADERSTAGE_FRAGMENT,
-                                                      numSamplers, numUniformBuffers, fallbackFragSource);
-    if (vertexShader == nullptr || fragmentShader == nullptr) {
-        LogCat::w(std::source_location::current(), "Failed to get shaders for pipeline: ", name);
+    //Try to load the pipeline configuration from the core resource pack first.
+    //优先从 core 资源包加载管线配置。
+    if (resourceLocator_ != nullptr) {
+        ResourceRef resourceRef;
+        resourceRef.SetPackageId(RESOURCE_REF_CORE);
+        resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+        resourceRef.SetResourceType(RESOURCE_PIPELINE);
+        resourceRef.SetResourceKey(name);
+        if (auto pipelineResult = resourceLocator_->FindPipeline(&resourceRef)) {
+            if (const GPUPipelineResource *config = pipelineResult->GetResource()) {
+                if (SDL_GPUGraphicsPipeline *pipeline = CreatePipelineFromConfig(*config)) {
+                    LogCat::i("Created graphics pipeline from resource: ", name);
+                    pipelineCache_[name] = pipeline;
+                    return pipeline;
+                }
+            }
+        }
+    }
+    if (!allowFallback) {
+        LogCat::w(std::source_location::current(), "Pipeline resource not found and fallback disabled: ", name);
         return nullptr;
     }
-    SDL_GPUGraphicsPipeline *pipeline = CreateSpritePipeline(vertexShader, fragmentShader, blendMode);
-    if (pipeline == nullptr) {
-        return nullptr;
+    if (SDL_GPUGraphicsPipeline *pipeline = CreateFallbackPipeline()) {
+        LogCat::w(std::source_location::current(), "Created fallback pipeline for: ", name);
+        pipelineCache_[name] = pipeline;
+        return pipeline;
     }
-    LogCat::i("Created graphics pipeline lazily: ", name);
-    pipelineCache_[name] = pipeline;
-    return pipeline;
+    return nullptr;
 }
 
 SDL_GPUGraphicsPipeline *glimmer::GpuShaderPipelineManager::CreateSpritePipeline(SDL_GPUShader *vertexShader,
@@ -186,6 +200,37 @@ SDL_GPUGraphicsPipeline *glimmer::GpuShaderPipelineManager::CreateSpritePipeline
     return pipeline;
 }
 
+SDL_GPUGraphicsPipeline *glimmer::GpuShaderPipelineManager::CreatePipelineFromConfig(
+    const GPUPipelineResource &config) {
+    const std::string vertexKey = config.vertexShader.GetResourceKey();
+    const std::string vertexName = vertexKey.substr(0, vertexKey.find_last_of('.'));
+    SDL_GPUShader *vertexShader = GetOrCreateShader(vertexName, SHADER_EXTENSION_VERT,
+                                                    SDL_GPU_SHADERSTAGE_VERTEX, 0, 1, DEFAULT_SPRITE_VERT);
+    const std::string fragmentKey = config.fragmentShader.GetResourceKey();
+    const std::string fragmentName = fragmentKey.substr(0, fragmentKey.find_last_of('.'));
+    SDL_GPUShader *fragmentShader = GetOrCreateShader(fragmentName, SHADER_EXTENSION_FRAG,
+                                                      SDL_GPU_SHADERSTAGE_FRAGMENT,
+                                                      config.fragmentNumSamplers, config.fragmentNumUniformBuffers,
+                                                      DEFAULT_PASSTHROUGH_FRAG);
+    if (vertexShader == nullptr || fragmentShader == nullptr) {
+        LogCat::w(std::source_location::current(), "Failed to get shaders for pipeline config");
+        return nullptr;
+    }
+    return CreateSpritePipeline(vertexShader, fragmentShader, static_cast<SpriteBlendMode>(config.blendMode));
+}
+
+SDL_GPUGraphicsPipeline *glimmer::GpuShaderPipelineManager::CreateFallbackPipeline() {
+    SDL_GPUShader *vertexShader = GetOrCreateShader(SHADER_NAME_SPRITE_VERT, SHADER_EXTENSION_VERT,
+                                                    SDL_GPU_SHADERSTAGE_VERTEX, 0, 1, DEFAULT_SPRITE_VERT);
+    SDL_GPUShader *fragmentShader = GetOrCreateShader(SHADER_NAME_SPRITE_VERT, SHADER_EXTENSION_FRAG,
+                                                      SDL_GPU_SHADERSTAGE_FRAGMENT, 1, 0, DEFAULT_PASSTHROUGH_FRAG);
+    if (vertexShader == nullptr || fragmentShader == nullptr) {
+        LogCat::w(std::source_location::current(), "Failed to get fallback shaders");
+        return nullptr;
+    }
+    return CreateSpritePipeline(vertexShader, fragmentShader, SpriteBlendMode::Alpha);
+}
+
 glimmer::GpuShaderPipelineManager::GpuShaderPipelineManager() = default;
 
 glimmer::GpuShaderPipelineManager::~GpuShaderPipelineManager() = default;
@@ -223,21 +268,21 @@ void glimmer::GpuShaderPipelineManager::Shutdown() {
 }
 
 SDL_GPUGraphicsPipeline *glimmer::GpuShaderPipelineManager::GetSpritePipeline() {
-    return GetOrCreatePipeline(PIPELINE_NAME_SPRITE, SpriteBlendMode::Alpha, 1, 0, DEFAULT_PASSTHROUGH_FRAG);
+    return GetOrCreatePipeline(PIPELINE_NAME_SPRITE, true);
 }
 
 SDL_GPUGraphicsPipeline *glimmer::GpuShaderPipelineManager::GetGamePipeline() {
-    return GetOrCreatePipeline(PIPELINE_NAME_GAME, SpriteBlendMode::Alpha, 1, 0, DEFAULT_PASSTHROUGH_FRAG);
+    return GetOrCreatePipeline(PIPELINE_NAME_GAME, false);
 }
 
 SDL_GPUGraphicsPipeline *glimmer::GpuShaderPipelineManager::GetUiPipeline() {
-    return GetOrCreatePipeline(PIPELINE_NAME_UI, SpriteBlendMode::Alpha, 1, 0, DEFAULT_PASSTHROUGH_FRAG);
+    return GetOrCreatePipeline(PIPELINE_NAME_UI, false);
 }
 
 SDL_GPUGraphicsPipeline *glimmer::GpuShaderPipelineManager::GetGlobalPipeline() {
-    return GetOrCreatePipeline(PIPELINE_NAME_GLOBAL, SpriteBlendMode::None, 1, 0, DEFAULT_PASSTHROUGH_FRAG);
+    return GetOrCreatePipeline(PIPELINE_NAME_GLOBAL, false);
 }
 
 SDL_GPUGraphicsPipeline *glimmer::GpuShaderPipelineManager::GetLightingPipeline() {
-    return GetOrCreatePipeline(PIPELINE_NAME_LIGHTING, SpriteBlendMode::Multiply, 1, 1, DEFAULT_LIGHTING_FRAG);
+    return GetOrCreatePipeline(PIPELINE_NAME_LIGHTING, false);
 }

@@ -388,6 +388,120 @@ std::unique_ptr<glimmer::ShaderResourceResult> glimmer::ResourcePackManager::Loa
     return nullptr;
 }
 
+std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::ResourcePackManager::CreatePipelineResult(
+    const GPUPipelineResource &config,
+    const ResourcePack *resourcePack,
+    const std::string &path) {
+    auto pipelineResourceResult = std::make_unique<GPUPipelineResourceResult>();
+    pipelineResourceResult->SetResourcePack(resourcePack);
+    pipelineResourceResult->SetResource(new GPUPipelineResource(config));
+    auto deleter = [this, path](GPUPipelineResourceResult *pipelineResourceResult) {
+        if (pipelineResourceResult != nullptr) {
+            pipelineResourceResult->DestroyResource();
+            delete pipelineResourceResult;
+        }
+        pipelineCache_.erase(path);
+    };
+    std::shared_ptr<GPUPipelineResourceResult> pipelineSharedPtr(pipelineResourceResult.release(), deleter);
+    pipelineCache_[path] = pipelineSharedPtr;
+    return pipelineSharedPtr;
+}
+
+std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::ResourcePackManager::TryLoadPipelineFromPack(
+    const std::string &path,
+    const ResourcePack *resourcePack) {
+    std::filesystem::path pipelinePath = resourcePack->GetPath() / "pipelines" / path;
+    pipelinePath.replace_extension("toml");
+    if (!virtualFileSystem_->Exists(pipelinePath)) {
+        return nullptr;
+    }
+    auto data = virtualFileSystem_->ReadFileAsString(pipelinePath);
+    if (!data.has_value()) {
+        return nullptr;
+    }
+    GPUPipelineResource config;
+    try {
+        const toml::value value = toml::parse_str(data.value(), toml::spec::v(1, 0, 0));
+        config = toml::get<GPUPipelineResource>(value);
+    } catch (const std::exception &e) {
+        LogCat::w(std::source_location::current(), "Failed to parse pipeline config: ", pipelinePath.string(),
+                  ", ", e.what());
+        return nullptr;
+    }
+    if (config.vertexShader.GetResourceType() == RESOURCE_NONE) {
+        config.vertexShader.SetResourceType(RESOURCE_SHADER);
+    }
+    if (config.fragmentShader.GetResourceType() == RESOURCE_NONE) {
+        config.fragmentShader.SetResourceType(RESOURCE_SHADER);
+    }
+    if (config.vertexShader.GetResourceType() != RESOURCE_SHADER ||
+        config.vertexShader.GetResourceKey().empty()) {
+        LogCat::w(std::source_location::current(), "Pipeline config missing valid vertex shader: ",
+                  pipelinePath.string());
+        return nullptr;
+    }
+    if (config.fragmentShader.GetResourceType() != RESOURCE_SHADER ||
+        config.fragmentShader.GetResourceKey().empty()) {
+        LogCat::w(std::source_location::current(), "Pipeline config missing valid fragment shader: ",
+                  pipelinePath.string());
+        return nullptr;
+    }
+    LogCat::i("Loaded pipeline config: ", pipelinePath.string());
+    return CreatePipelineResult(config, resourcePack, path);
+}
+
+std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::ResourcePackManager::ImplLoadPipelineFromFile(
+    const std::string &path,
+    const Mods &modConfig) {
+    if (path.empty()) {
+        return nullptr;
+    }
+    const auto cache = pipelineCache_.find(path);
+    if (cache != pipelineCache_.end()) {
+        if (auto cachePipeline = cache->second.lock()) {
+            return cachePipeline;
+        }
+        pipelineCache_.erase(cache);
+    }
+    for (const auto &packId: modConfig.enabledResourcePack) {
+        auto resourcePackIterator = resourcePackMap_.find(packId);
+        if (resourcePackIterator == resourcePackMap_.end()) {
+            continue;
+        }
+        const ResourcePack *resourcePack = resourcePackIterator->second.get();
+        if (resourcePack == nullptr) {
+            continue;
+        }
+        auto result = TryLoadPipelineFromPack(path, resourcePack);
+        if (result != nullptr) {
+            return result;
+        }
+    }
+    return nullptr;
+}
+
+std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::ResourcePackManager::LoadPipelineFromFile(
+    const AppContext *appContext, const ResourceRef *resourceRef) {
+    if (appContext == nullptr || resourceRef == nullptr) {
+        LogCat::w(std::source_location::current(), "appContext == nullptr || resourceRef == nullptr");
+        return nullptr;
+    }
+    if (resourceRef->GetResourceType() != RESOURCE_PIPELINE) {
+        LogCat::w(std::source_location::current(), "resourceRef->GetResourceType() != RESOURCE_PIPELINE");
+        return nullptr;
+    }
+    std::string path = resourceRef->GetPackageId() + "/" + resourceRef->GetResourceKey();
+    MainThreadDispatcher *mainThreadDispatcher = appContext->GetMainThreadDispatcher();
+    if (mainThreadDispatcher == nullptr) {
+        return nullptr;
+    }
+    return mainThreadDispatcher->AddMainThreadTaskAwait(
+        [this, appContext, path] {
+            return ImplLoadPipelineFromFile(path, appContext->GetConfig()->mods);
+        }
+    ).get();
+}
+
 
 std::shared_ptr<glimmer::GpuTexture> glimmer::ResourcePackManager::CreateStringTexture(const std::string &string,
     const Color *color, int wrapWidth) {

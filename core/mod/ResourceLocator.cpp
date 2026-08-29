@@ -216,6 +216,25 @@ glimmer::ResourceLocator::FindShader(const ResourceRef *resourceRef) const {
     return resourcePackManager_->LoadShaderFromFile(appContext_, resourceRef);
 }
 
+std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::ResourceLocator::FindPipeline(
+    const ResourceRef *resourceRef) const {
+    if (resourceRef == nullptr) {
+        LogCat::w(std::source_location::current(), "resourceRef == nullptr");
+        return nullptr;
+    }
+    if (resourceRef->GetResourceType() != RESOURCE_PIPELINE || !ValidateAccessPermission(resourceRef)) {
+        LogCat::w(std::source_location::current(), "Type mismatch: expected RESOURCE_PIPELINE (",
+                  std::to_underlying(RESOURCE_PIPELINE), "), got ", std::to_underlying(resourceRef->GetResourceType()),
+                  " or access permission denied");
+        return nullptr;
+    }
+    if (resourcePackManager_ == nullptr) {
+        LogCat::w(std::source_location::current(), "resourcePackManager == nullptr");
+        return nullptr;
+    }
+    return resourcePackManager_->LoadPipelineFromFile(appContext_, resourceRef);
+}
+
 std::unique_ptr<glimmer::Color> glimmer::ResourceLocator::FindColor(const ResourceRef *resourceRef) const {
     if (resourceRef == nullptr) {
         LogCat::w(std::source_location::current(), "resourceRef == nullptr");

@@ -681,6 +681,7 @@ target_sources(GlimmerWorks
         core/mod/resourcePack/AudioManager.cpp
         core/mod/resourcePack/AudioResourceResult.cpp
         core/mod/resourcePack/AudioType.cpp
+        core/mod/resourcePack/GPUPipelineResource.cpp
         core/mod/resourcePack/ResourcePack.cpp
         core/mod/resourcePack/ResourcePackConfig.cpp
         core/mod/resourcePack/ResourcePackManager.cpp
@@ -1091,6 +1092,7 @@ target_sources(GlimmerWorks
         core/mod/resourcePack/AudioManager.h
         core/mod/resourcePack/AudioResourceResult.h
         core/mod/resourcePack/AudioType.h
+        core/mod/resourcePack/GPUPipelineResource.h
         core/mod/resourcePack/ResourcePack.h
         core/mod/resourcePack/ResourcePackConfig.h
         core/mod/resourcePack/ResourcePackManager.h

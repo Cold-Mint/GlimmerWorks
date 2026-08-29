@@ -25,21 +25,23 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+
 #include <filesystem>
-#include <string>
+
+#include <SDL3/SDL_stdinc.h>
+
+#include "ResourceResult.h"
+#include "core/gpu/SpriteBlendMode.h"
+#include "core/mod/Resource.h"
+#include "core/mod/ResourceRef.h"
 
 namespace glimmer {
-    class ShaderResourceResult {
-        std::filesystem::path shaderPath_;
-        std::string source_;
-
+    /**
+     * GPUPipelineResourceResult
+     * GPU 管线资源结果
+     */
+    class GPUPipelineResourceResult : public ResourceResult<GPUPipelineResource> {
     public:
-        void SetPath(const std::filesystem::path &shaderPath);
-
-        [[nodiscard]] const std::filesystem::path &GetPath() const;
-
-        void SetSource(std::string source);
-
-        [[nodiscard]] const std::string &GetSource() const;
+        void DestroyResource() override;
     };
 }

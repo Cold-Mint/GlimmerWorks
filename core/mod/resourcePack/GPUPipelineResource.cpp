@@ -24,22 +24,10 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
-#include <filesystem>
-#include <string>
+#include "GPUPipelineResource.h"
 
-namespace glimmer {
-    class ShaderResourceResult {
-        std::filesystem::path shaderPath_;
-        std::string source_;
-
-    public:
-        void SetPath(const std::filesystem::path &shaderPath);
-
-        [[nodiscard]] const std::filesystem::path &GetPath() const;
-
-        void SetSource(std::string source);
-
-        [[nodiscard]] const std::string &GetSource() const;
-    };
+void glimmer::GPUPipelineResourceResult::DestroyResource() {
+    const GPUPipelineResource *resource = GetResource();
+    delete resource;
+    SetResource(nullptr);
 }

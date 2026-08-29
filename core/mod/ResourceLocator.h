@@ -39,6 +39,7 @@
 #include "dataPack/MaterialItemManager.h"
 #include "dataPack/StringManager.h"
 #include "resourcePack/AudioResourceResult.h"
+#include "resourcePack/GPUPipelineResource.h"
 #include "resourcePack/ResourcePackManager.h"
 #include "resourcePack/TextureResourceResult.h"
 
@@ -117,6 +118,15 @@ namespace glimmer {
          * 查找结果（路径 + 源码）；找不到或权限受限时返回 nullptr。
          */
         [[nodiscard]] std::unique_ptr<ShaderResourceResult> FindShader(const ResourceRef *resourceRef) const;
+
+        /**
+         * FindPipeline
+         * 查找 GPU 管线配置资源（RESOURCE_PIPELINE）。
+         * @param resourceRef resourceRef 管线引用
+         * @return The result (configuration), nullptr if not found or access denied.
+         * 查找结果（配置）；找不到或权限受限时返回 nullptr。
+         */
+        [[nodiscard]] std::shared_ptr<GPUPipelineResourceResult> FindPipeline(const ResourceRef *resourceRef) const;
 
         [[nodiscard]] std::unique_ptr<Color> FindColor(const ResourceRef *resourceRef) const;
 

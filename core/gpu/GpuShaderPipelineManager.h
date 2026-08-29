@@ -34,6 +34,7 @@
 #include <SDL3/SDL_gpu.h>
 
 #include "SpriteBlendMode.h"
+#include "core/mod/resourcePack/GPUPipelineResource.h"
 
 namespace glimmer {
     class ResourceLocator;
@@ -45,10 +46,12 @@ namespace glimmer {
      * GPU 着色器与管线管理器
      *
      * Owns the in-memory shader/pipeline caches and the disk shader cache.
-     * Creates pipelines lazily on first request and falls back to embedded
-     * GLSL source when resource-pack shaders are missing or fail to compile.
-     * 持有内存中的着色器/管线缓存和磁盘着色器缓存。首次请求时惰性创建管线，
-     * 并在资源包着色器缺失或编译失败时回退到内嵌 GLSL 源码。
+     * Creates pipelines lazily on first request. Pipeline configurations are
+     * loaded from the core resource pack; only the sprite pipeline keeps a
+     * hardcoded fallback (one vertex + one fragment shader).
+     * 持有内存中的着色器/管线缓存和磁盘着色器缓存。首次请求时惰性创建管线。
+     * 管线配置从 core 资源包加载；只有 sprite 管线保留硬编码回退
+     * （1 个顶点着色器 + 1 个片元着色器）。
      */
     class GpuShaderPipelineManager {
         SDL_GPUDevice *device_ = nullptr;
@@ -63,13 +66,15 @@ namespace glimmer {
                                                        SDL_GPUShaderStage stage, Uint32 numSamplers,
                                                        Uint32 numUniformBuffers, const char *fallbackSource);
 
-        [[nodiscard]] SDL_GPUGraphicsPipeline *GetOrCreatePipeline(const std::string &name, SpriteBlendMode blendMode,
-                                                                   Uint32 numSamplers, Uint32 numUniformBuffers,
-                                                                   const char *fallbackFragSource);
+        [[nodiscard]] SDL_GPUGraphicsPipeline *GetOrCreatePipeline(const std::string &name, bool allowFallback);
 
         [[nodiscard]] SDL_GPUGraphicsPipeline *CreateSpritePipeline(SDL_GPUShader *vertexShader,
                                                                     SDL_GPUShader *fragmentShader,
                                                                     SpriteBlendMode blendMode) const;
+
+        [[nodiscard]] SDL_GPUGraphicsPipeline *CreatePipelineFromConfig(const GPUPipelineResource &config);
+
+        [[nodiscard]] SDL_GPUGraphicsPipeline *CreateFallbackPipeline();
 
     public:
         GpuShaderPipelineManager();

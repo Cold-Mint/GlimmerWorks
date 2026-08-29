@@ -36,6 +36,7 @@
 #include "core/utils/TransparentStringHash.h"
 
 #include "ResourcePack.h"
+#include "GPUPipelineResource.h"
 #include "RmlResourceResult.h"
 #include "ShaderResourceResult.h"
 #include "core/gpu/GpuContext.h"
@@ -49,6 +50,7 @@
 
 namespace glimmer {
     class AudioResourceResult;
+    class GPUPipelineResourceResult;
     class TextureResourceResult;
     class AppContext;
     struct PreloadColors;
@@ -85,6 +87,9 @@ namespace glimmer {
         std::unordered_map<uint64_t, std::unique_ptr<ColorResource> >
         colorCache_;
 
+        std::unordered_map<std::string, std::weak_ptr<GPUPipelineResourceResult>, TransparentStringHash, std::equal_to
+            <> > pipelineCache_;
+
 
         std::shared_ptr<TextureResourceResult> ImplLoadTextureFromFile(const std::string &path, const Mods &modConfig);
 
@@ -111,6 +116,19 @@ namespace glimmer {
                                                                const ResourceRef *resourceRef);
 
         ColorResource *LoadColorResFromFile(const AppContext *appContext, const ResourceRef *resourceRef);
+
+        std::shared_ptr<GPUPipelineResourceResult> ImplLoadPipelineFromFile(const std::string &path,
+                                                                            const Mods &modConfig);
+
+        std::shared_ptr<GPUPipelineResourceResult> TryLoadPipelineFromPack(const std::string &path,
+                                                                           const ResourcePack *resourcePack);
+
+        std::shared_ptr<GPUPipelineResourceResult> CreatePipelineResult(const GPUPipelineResource &config,
+                                                                        const ResourcePack *resourcePack,
+                                                                        const std::string &path);
+
+        std::shared_ptr<GPUPipelineResourceResult> LoadPipelineFromFile(const AppContext *appContext,
+                                                                        const ResourceRef *resourceRef);
 
         std::shared_ptr<TextureResourceResult> CreateTexture(const Color &accent,
                                                              const Color &base) const;

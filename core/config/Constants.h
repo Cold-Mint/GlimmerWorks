@@ -438,37 +438,3 @@ void main() {
     out_color = texture(inputTexture, in_uv) * in_color;
 }
 )";
-
-static constexpr const char *DEFAULT_LIGHTING_FRAG = R"(#version 450
-layout(location = 0) in vec2 in_uv;
-layout(location = 1) in vec4 in_color;
-layout(location = 0) out vec4 out_color;
-
-layout(set = 2, binding = 0) uniform sampler2D lightMap;
-
-layout(set = 3, binding = 0) uniform LightingUniform {
-    vec2 u_lightMapOrigin;
-    vec2 u_lightMapSize;
-    vec2 u_cameraTopLeftTile;
-    vec2 u_viewportTiles;
-    float u_fullBright;
-    float u_minVisibility;
-    float u_tintStrength;
-    float u_padding;
-};
-
-void main() {
-    vec2 tilePos = u_cameraTopLeftTile + vec2(in_uv.x, -in_uv.y) * u_viewportTiles;
-    vec2 lightUv = (tilePos - u_lightMapOrigin + 0.5) / u_lightMapSize;
-    vec4 light = texture(lightMap, lightUv);
-
-    float visibility = clamp(light.a / max(u_fullBright, 1e-4), 0.0, 1.0);
-    float luminance = mix(u_minVisibility, 1.0, visibility);
-
-    float hueMax = max(max(light.r, light.g), light.b);
-    vec3 hue = hueMax > 1e-4 ? light.rgb / hueMax : vec3(1.0);
-
-    vec3 multiplier = luminance * mix(vec3(1.0), hue, u_tintStrength);
-    out_color = vec4(multiplier, 1.0);
-}
-)";

@@ -26,19 +26,27 @@
  */
 #include "TextureResourceResult.h"
 
+
+void glimmer::TextureResourceResult::DestroyResourceImpl(SDL_GPUTexture *resource) {
+    if (gpuDevice_ == nullptr) {
+        return;
+    }
+    SDL_ReleaseGPUTexture(gpuDevice_, resource);
+    gpuDevice_ = nullptr;
+}
+
+glimmer::TextureResourceResult::~TextureResourceResult() {
+    DestroyResource();
+}
+
+void glimmer::TextureResourceResult::SetGpuDevice(SDL_GPUDevice *gpuDevice) {
+    gpuDevice_ = gpuDevice;
+}
+
 void glimmer::TextureResourceResult::SetTexturePath(const std::filesystem::path &texturePath) {
     texturePath_ = texturePath;
 }
 
 const std::filesystem::path &glimmer::TextureResourceResult::GetTexturePath() {
     return texturePath_;
-}
-
-void glimmer::TextureResourceResult::DestroyResource() {
-    GpuTexture *resource = GetResource();
-    if (resource == nullptr) {
-        return;
-    }
-    delete resource;
-    SetResource(nullptr);
 }

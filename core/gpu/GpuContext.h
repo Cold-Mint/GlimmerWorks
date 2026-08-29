@@ -26,6 +26,7 @@
  */
 #pragma once
 
+#include <memory>
 #include <SDL3/SDL_gpu.h>
 #include <SDL3/SDL_pixels.h>
 #include <SDL3/SDL_surface.h>
@@ -113,20 +114,6 @@ namespace glimmer {
          * 共享线性过滤采样器。
          */
         [[nodiscard]] SDL_GPUSampler *GetLinearSampler() const;
-
-        /**
-         * Upload an SDL_Surface to a new GPU texture (R8G8B8A8_UNORM).
-         * The surface is converted to ABGR8888 first so the channel order
-         * matches. This call blocks until the upload command buffer is
-         * submitted; it must be called from the thread that owns the device.
-         * 将 SDL_Surface 上传到新的 GPU 纹理（R8G8B8A8_UNORM）。
-         * 表面会先转换为 ABGR8888 以匹配通道顺序。
-         * 此调用在提交上传命令缓冲后才返回；必须从拥有设备的线程调用。
-         * @param surface surface 源表面（像素不会被修改）
-         * @return A new GpuTexture (caller owns it), nullptr on failure.
-         * 新的 GpuTexture（调用方拥有所有权），失败返回 nullptr。
-         */
-        [[nodiscard]] GpuTexture *CreateTextureFromSurface(SDL_Surface *surface) const;
 
         /**
          * Create an offscreen render-target texture (COLOR_TARGET | SAMPLER).

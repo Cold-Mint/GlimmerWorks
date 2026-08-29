@@ -29,7 +29,7 @@
 #include "core/world/WorldContext.h"
 
 
-void glimmer::SurfaceBiomeDecorator::DecorationImp(WorldContext *worldContext, TerrainResult *terrainResult,
+void glimmer::SurfaceBiomeDecorator::DecorationImpl(WorldContext *worldContext, TerrainResult *terrainResult,
                                                    SurfaceBiomeDecoratorResource *decoratorResource,
                                                    BiomeResource *biomeResource,
                                                    std::unordered_map<TileLayerType, std::array<ResourceRef,

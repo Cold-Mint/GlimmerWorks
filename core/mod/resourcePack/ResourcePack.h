@@ -27,12 +27,13 @@
 #pragma once
 
 #include "core/mod/PackManifest.h"
+#include "core/utils/IUniqueAble.h"
 #include "core/vfs/VirtualFileSystem.h"
 #include "toml11/spec.hpp"
 
 
 namespace glimmer {
-    class ResourcePack {
+    class ResourcePack : public IUniqueAble {
         std::filesystem::path path_;
         ResourcePackManifest manifest_;
         const VirtualFileSystem *virtualFileSystem_;
@@ -45,6 +46,8 @@ namespace glimmer {
         bool LoadManifest();
 
         [[nodiscard]] const ResourcePackManifest &GetManifest() const;
+
+        [[nodiscard]] uint64_t GetUniqueId() override;
 
         [[nodiscard]] const std::filesystem::path &GetPath() const;
     };

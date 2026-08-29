@@ -148,54 +148,6 @@ std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourcePackManager::Im
 std::shared_ptr<glimmer::AudioResourceResult> glimmer::ResourcePackManager::ImplLoadAudioFromFile(
     const std::string &path,
     const Mods &modConfig) {
-    if (mixer_ == nullptr || path.empty()) {
-        return nullptr;
-    }
-    const auto cacheIt = audioMixCache_.find(path);
-    if (cacheIt != audioMixCache_.end()) {
-        if (auto tex = cacheIt->second.lock()) {
-            return tex;
-        }
-    }
-
-    for (const auto &packId: modConfig.enabledResourcePack) {
-        auto it = resourcePackMap_.find(packId);
-        if (it == resourcePackMap_.end()) {
-            continue;
-        }
-
-        const ResourcePack *pack = it->second.get();
-        std::filesystem::path audioPath = pack->GetPath() / "audios" / path;
-        audioPath.replace_extension(AUDIO_FORMAT);
-        if (!virtualFileSystem_->Exists(audioPath)) {
-            continue;
-        }
-
-        auto actualAudioPath = virtualFileSystem_->GetActualPath(audioPath);
-        if (!actualAudioPath.has_value()) {
-            continue;
-        }
-        MIX_Audio *audio = MIX_LoadAudio(mixer_, actualAudioPath.value().string().c_str(), false);
-        if (audio == nullptr) {
-            continue;
-        }
-
-
-        auto audioResourceResult = std::make_unique<AudioResourceResult>();
-        audioResourceResult->SetResourcePack(pack);
-        audioResourceResult->SetResource(audio);
-        auto deleter = [this, path](AudioResourceResult *audioResourceResult) {
-            if (audioResourceResult != nullptr) {
-                audioResourceResult->DestroyResource();
-            }
-            audioMixCache_.erase(path);
-        };
-        std::shared_ptr<AudioResourceResult> audioSharedPtr(audioResourceResult.release(), deleter);
-        audioMixCache_[path] = audioSharedPtr;
-        return audioSharedPtr;
-    }
-
-    return nullptr;
 }
 
 std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourcePackManager::LoadTextureFromFile(
@@ -231,13 +183,7 @@ void glimmer::ResourcePackManager::SetMixer(MIX_Mixer *mixer) {
 
 void glimmer::ResourcePackManager::SetGpuContext(GpuContext *gpuContext, const PreloadColors *preloadColors) {
     gpuContext_ = gpuContext;
-    if (preloadColors == nullptr) {
-        LogCat::w(std::source_location::current(), "preloadColors is nullptr, fallback textures not created");
-        return;
-    }
-    errorTexture_ = CreateTexture(preloadColors->error.accentColor, preloadColors->error.baseColor);
-    accessDeniedTexture_ = CreateTexture(preloadColors->accessDenied.accentColor,
-                                         preloadColors->accessDenied.baseColor);
+
     LogCat::i("GPU context set, fallback textures created");
 }
 
@@ -392,17 +338,12 @@ std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::ResourcePackManager
     const GPUPipelineResource &config,
     const ResourcePack *resourcePack,
     const std::string &path) {
-    auto pipelineResourceResult = std::make_unique<GPUPipelineResourceResult>();
+    //---关键代码---
+    auto pipelineResourceResult = std::make_shared<GPUPipelineResourceResult>();
     pipelineResourceResult->SetResourcePack(resourcePack);
-    pipelineResourceResult->SetResource(new GPUPipelineResource(config));
-    auto deleter = [this, path](GPUPipelineResourceResult *pipelineResourceResult) {
-        if (pipelineResourceResult != nullptr) {
-            pipelineResourceResult->DestroyResource();
-            delete pipelineResourceResult;
-        }
-        pipelineCache_.erase(path);
-    };
-    std::shared_ptr<GPUPipelineResourceResult> pipelineSharedPtr(pipelineResourceResult.release(), deleter);
+    pipelineResourceResult->SetPipelineResource(std::make_unique<GPUPipelineResource>(config));
+    std::shared_ptr<GPUPipelineResourceResult> pipelineSharedPtr(pipelineResourceResult.release());
+    //---关键代码---
     pipelineCache_[path] = pipelineSharedPtr;
     return pipelineSharedPtr;
 }
@@ -597,43 +538,6 @@ glimmer::ColorResource *glimmer::ResourcePackManager::LoadColorResFromFile(const
 
 std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourcePackManager::CreateTexture(const Color &accent,
     const Color &base) const {
-    if (gpuContext_ == nullptr) {
-        return nullptr;
-    }
-
-    SDL_Surface *surface =
-            SDL_CreateSurface(TILE_SIZE, TILE_SIZE, SDL_PIXELFORMAT_RGBA32);
-    if (!surface) {
-        return nullptr;
-    }
-
-    const Uint32 accentValue = SDL_MapSurfaceRGBA(surface, accent.r, accent.g, accent.b, accent.a);
-    const Uint32 baseValue = SDL_MapSurfaceRGBA(surface, base.r, base.g, base.b, base.a);
-
-    for (int y = 0; y < TILE_SIZE; ++y) {
-        for (int x = 0; x < TILE_SIZE; ++x) {
-            const bool isAccentColor =
-                    (x < TILE_SIZE / 2 && y < TILE_SIZE / 2) ||
-                    (x >= TILE_SIZE / 2 && y >= TILE_SIZE / 2);
-            const Uint32 color = isAccentColor ? accentValue : baseValue;
-            Uint8 *pixel =
-                    static_cast<Uint8 *>(surface->pixels)
-                    + y * surface->pitch
-                    + x * 4;
-            *reinterpret_cast<Uint32 *>(pixel) = color;
-        }
-    }
-    GpuTexture *texture = gpuContext_->CreateTextureFromSurface(surface);
-    SDL_DestroySurface(surface);
-    auto textureResourceResult = std::make_unique<TextureResourceResult>();
-    textureResourceResult->SetResource(texture);
-    auto deleter = [](TextureResourceResult *textureResourceResult) {
-        if (textureResourceResult == nullptr) {
-            return;
-        }
-        textureResourceResult->DestroyResource();
-    };
-    return {textureResourceResult.release(), deleter};
 }
 
 std::string glimmer::ResourcePackManager::ListTextureCache() const {

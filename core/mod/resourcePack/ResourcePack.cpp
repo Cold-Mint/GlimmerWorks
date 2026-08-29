@@ -55,6 +55,10 @@ const glimmer::ResourcePackManifest &glimmer::ResourcePack::GetManifest() const 
     return manifest_;
 }
 
+uint64_t glimmer::ResourcePack::GetUniqueId() {
+    return StringUtils::StringToUint64(manifest_.id);
+}
+
 const std::filesystem::path &glimmer::ResourcePack::GetPath() const {
     return path_;
 }

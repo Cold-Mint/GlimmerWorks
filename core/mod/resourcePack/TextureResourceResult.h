@@ -26,17 +26,23 @@
  */
 #pragma once
 #include "ResourceResult.h"
-#include "core/gpu/GpuTexture.h"
+#include "SDL3/SDL_gpu.h"
 
 namespace glimmer {
-    class TextureResourceResult : public ResourceResult<GpuTexture> {
+    class TextureResourceResult : public ResourceResult<SDL_GPUTexture> {
         std::filesystem::path texturePath_;
+        SDL_GPUDevice *gpuDevice_ = nullptr;
+
+    protected:
+        void DestroyResourceImpl(SDL_GPUTexture *resource) override;
+
+        ~TextureResourceResult() override;
 
     public:
+        void SetGpuDevice(SDL_GPUDevice *gpuDevice);
+
         void SetTexturePath(const std::filesystem::path &texturePath);
 
         const std::filesystem::path &GetTexturePath();
-
-        void DestroyResource() override;
     };
 }

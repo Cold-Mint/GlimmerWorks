@@ -213,7 +213,7 @@ static SDL_PixelFormat MapSwapchainFormatToPixelFormat(const SDL_GPUTextureForma
     }
 }
 
-bool glimmer::AppContext::ProcessPendingScreenshot(GpuContext *gpuContext, GpuRenderer *renderer) {
+bool glimmer::AppContext::ProcessPendingScreenshot(const GpuContext *gpuContext, GpuRenderer *renderer) {
     if (!pendingScreenshot_.has_value()) {
         return false;
     }

@@ -35,7 +35,7 @@ namespace glimmer {
     using Vector2DFingerprint = uint64_t;
 
     template<typename Derived>
-    class Vector2DBase : public IFingerprintable {
+    class Vector2DBase : public IFingerprintAble {
     public:
         float x = 0.0F;
         float y = 0.0F;

@@ -25,19 +25,33 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "ResourceResult.h"
+#include "core/mod/resourcePack/BaseResourceCache.h"
 
 namespace glimmer {
-    class RmlResourceResult : public ResourceResult<std::filesystem::path> {
-        /**
-         * RML file path
-         * rml文件路径
-         */
-        std::filesystem::path rmlPath_;
+    /**
+     * TextureCache
+     * 纹理缓存
+     */
+    class TextureCache : public BaseResourceCache<TextureResourceResult> {
+        std::shared_ptr<TextureResourceResult> errorTexture_ = nullptr;
+        std::shared_ptr<TextureResourceResult> accessDeniedTexture_ = nullptr;
+
+        static std::shared_ptr<TextureResourceResult> CreateTexture(const GpuContext *gpuContext, const Color &accent,
+                                                                    const Color &base);
+
+        static SDL_GPUTexture *CreateTextureFromSurface(SDL_GPUDevice *gpuDevice, SDL_Surface *surface);
+
+    protected:
+        std::shared_ptr<TextureResourceResult> CreatePlaceholderResource(const AppContext *appContext,
+                                                                         const ResourceRef *resourceRef) override;
+
+        std::shared_ptr<TextureResourceResult> LoadResourceFromPack(AppContext *appContext,
+                                                                    const std::filesystem::path &path,
+                                                                    const ResourcePack *resourcePack) override;
 
     public:
-        ~RmlResourceResult() override;
+        ~TextureCache() noexcept override;
 
-        void SetPath(const std::filesystem::path &rmlPath);
+        void SetAppContext(const AppContext *appContext);
     };
 }

@@ -51,7 +51,7 @@ namespace glimmer {
     //
     //@endContent
 
-    class ResourceRef : public IFingerprintable {
+    class ResourceRef : public IFingerprintAble {
         std::string packId_ = RESOURCE_REF_SELF;
         ResourceTypeMessage resourceType_ = RESOURCE_NONE;
         std::string resourceKey_;

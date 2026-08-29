@@ -26,14 +26,8 @@
  */
 #pragma once
 
-#include <filesystem>
-
-#include <SDL3/SDL_stdinc.h>
-
 #include "ResourceResult.h"
-#include "core/gpu/SpriteBlendMode.h"
 #include "core/mod/Resource.h"
-#include "core/mod/ResourceRef.h"
 
 namespace glimmer {
     /**
@@ -41,7 +35,12 @@ namespace glimmer {
      * GPU 管线资源结果
      */
     class GPUPipelineResourceResult : public ResourceResult<GPUPipelineResource> {
+        std::unique_ptr<GPUPipelineResource> pipelineResource_ = nullptr;
+
     public:
-        void DestroyResource() override;
+        void SetPipelineResource(std::unique_ptr<GPUPipelineResource> pipelineResource);
+
+    protected:
+        ~GPUPipelineResourceResult() override;
     };
 }

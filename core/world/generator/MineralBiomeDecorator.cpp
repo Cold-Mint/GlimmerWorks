@@ -31,7 +31,7 @@
 #include "ChunkGenerator.h"
 
 
-void glimmer::MineralBiomeDecorator::DecorationImp(WorldContext *worldContext, TerrainResult *terrainResult,
+void glimmer::MineralBiomeDecorator::DecorationImpl(WorldContext *worldContext, TerrainResult *terrainResult,
                                                    MineralBiomeDecoratorResource *decoratorResource,
                                                    BiomeResource *biomeResource,
                                                    std::unordered_map<TileLayerType, std::array<ResourceRef,

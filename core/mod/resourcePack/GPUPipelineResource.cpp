@@ -26,8 +26,15 @@
  */
 #include "GPUPipelineResource.h"
 
-void glimmer::GPUPipelineResourceResult::DestroyResource() {
-    const GPUPipelineResource *resource = GetResource();
-    delete resource;
-    SetResource(nullptr);
+
+void glimmer::GPUPipelineResourceResult::SetPipelineResource(std::unique_ptr<GPUPipelineResource> pipelineResource) {
+    pipelineResource_ = std::move(pipelineResource);
+    if (pipelineResource_ == nullptr) {
+        return;
+    }
+    SetResource(pipelineResource_.get());
+}
+
+glimmer::GPUPipelineResourceResult::~GPUPipelineResourceResult() {
+    DestroyResource();
 }

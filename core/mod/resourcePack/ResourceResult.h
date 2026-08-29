@@ -33,16 +33,32 @@ namespace glimmer {
     class ResourceResult {
         const ResourcePack *resourcePack_ = nullptr;
         T *resource_ = nullptr;
+#if  !defined(NDEBUG)
+        //Indicates whether the resources have been securely destroyed.
+        //表示是否被安全销毁资源。
+        bool safeDestroy_ = false;
+#endif
 
     protected:
-        virtual ~ResourceResult() = default;
+        virtual ~ResourceResult();
+
+        /**
+         * Perform resource destruction
+         * 实现销毁资源。
+         */
+        virtual void DestroyResourceImpl(T *resource);
+
+        /**
+         * The subclass must call this method to release the resources!
+         * 子类必须调用这个方法来销毁资源！
+         */
+        void DestroyResource();
 
     public:
         void SetResourcePack(const ResourcePack *resourcePack);
 
         [[nodiscard]] const ResourcePack *GetResourcePack() const;
 
-        virtual void DestroyResource() = 0;
 
         void SetResource(T *resource);
 
@@ -66,6 +82,33 @@ namespace glimmer {
     template<typename T>
     const ResourcePack *ResourceResult<T>::GetResourcePack() const {
         return resourcePack_;
+    }
+
+    template<typename T>
+    ResourceResult<T>::~ResourceResult() {
+#if  !defined(NDEBUG)
+        if (!safeDestroy_) {
+            LogCat::e(std::source_location::current(),
+                      "Some resources have not been released correctly. Please implement the \"DestroyResource\" method within the destructor of the subclass.");
+        }
+#endif
+    }
+
+    template<typename T>
+    void ResourceResult<T>::DestroyResourceImpl(T *resource) {
+        //This method covers the implementation of resource destruction.
+        //覆盖这个方法实现资源销毁。
+    }
+
+    template<typename T>
+    void ResourceResult<T>::DestroyResource() {
+        T *resource = resource_;
+        if (resource == nullptr) {
+            return;
+        }
+        DestroyResourceImpl(resource);
+        resource_ = nullptr;
+        safeDestroy_ = true;
     }
 
 

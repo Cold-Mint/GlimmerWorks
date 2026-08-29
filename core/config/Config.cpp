@@ -30,6 +30,7 @@
 
 #include "core/console/hook/CommandHookManager.h"
 #include "core/log/LogCat.h"
+#include "core/utils/StringUtils.h"
 #include "toml11/find.hpp"
 
 template<>
@@ -103,8 +104,18 @@ bool glimmer::Config::ReloadConfig() {
     mods.loadOnlyVerified = toml::find<bool>(tomlRef, "mods", "load_only_verified");
     mods.dataPackPath = toml::find<std::string>(tomlRef, "mods", "data_pack_path");
     mods.resourcePackPath = toml::find<std::string>(tomlRef, "mods", "resource_pack_path");
-    mods.enabledDataPack = toml::find<std::vector<std::string> >(tomlRef, "mods", "enabled_data_pack");
-    mods.enabledResourcePack = toml::find<std::vector<std::string> >(tomlRef, "mods", "enabled_resource_pack");
+    const std::vector<std::string> enabledDataPack = toml::find<std::vector<std::string> >(
+        tomlRef, "mods", "enabled_data_pack");
+    mods.enabledDataPack.clear();
+    for (const auto &dataPack: enabledDataPack) {
+        mods.enabledDataPack.emplace_back(StringUtils::StringToUint64(dataPack));
+    }
+    const std::vector<std::string> enabledResourcePack = toml::find<std::vector<std::string> >(
+        tomlRef, "mods", "enabled_resource_pack");
+    mods.enabledResourcePack.clear();
+    for (const auto &resourcePack: enabledResourcePack) {
+        mods.enabledResourcePack.emplace_back(StringUtils::StringToUint64(resourcePack));
+    }
     world.preloadChunkRadius = toml::find<float>(tomlRef, "world", "preload_chunk_radius");
     world.preloadStructureRadius = toml::find<float>(tomlRef, "world", "preload_structure_radius");
     world.preloadLightingRadius = toml::find<float>(tomlRef, "world", "preload_lighting_radius");

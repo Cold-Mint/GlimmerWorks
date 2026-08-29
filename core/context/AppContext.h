@@ -130,6 +130,6 @@ namespace glimmer {
          * @return true if a screenshot was captured (and the frame submitted).
          * 捕获了截图（并提交了帧）时返回 true。
          */
-        bool ProcessPendingScreenshot(GpuContext *gpuContext, GpuRenderer *renderer);
+        bool ProcessPendingScreenshot(const GpuContext *gpuContext, GpuRenderer *renderer);
     };
 }

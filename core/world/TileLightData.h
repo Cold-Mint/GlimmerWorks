@@ -56,10 +56,10 @@ namespace glimmer {
         void ApplyBackLightMask(Color *finalLightColor, TileLayerType tileLayer);
 
 
-        static void SetLightMaskImp(std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > &lightMaskData,
+        static void SetLightMaskImpl(std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > &lightMaskData,
                                     TileLayerType layerType, std::unique_ptr<LightMask> lightMask);
 
-        static const LightMask *GetLightMaskImp(
+        static const LightMask *GetLightMaskImpl(
             std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > &lightMaskData,
             TileLayerType layerType);
 

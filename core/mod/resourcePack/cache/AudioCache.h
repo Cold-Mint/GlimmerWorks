@@ -25,19 +25,23 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "ResourceResult.h"
+#include "core/mod/resourcePack/BaseResourceCache.h"
 
 namespace glimmer {
-    class RmlResourceResult : public ResourceResult<std::filesystem::path> {
-        /**
-         * RML file path
-         * rml文件路径
-         */
-        std::filesystem::path rmlPath_;
+    class AudioCache : public BaseResourceCache<AudioResourceResult> {
+        MIX_Mixer *mixer_ = nullptr;
+
+    protected:
+        std::shared_ptr<AudioResourceResult> CreatePlaceholderResource(const AppContext *appContext,
+                                                                       const ResourceRef *resourceRef) override;
+
+        std::shared_ptr<AudioResourceResult> LoadResourceFromPack(AppContext *appContext,
+                                                                  const std::filesystem::path &path,
+                                                                  const ResourcePack *resourcePack) override;
 
     public:
-        ~RmlResourceResult() override;
+        void SetMixer(MIX_Mixer *mixer);
 
-        void SetPath(const std::filesystem::path &rmlPath);
+        ~AudioCache() noexcept override;
     };
 }

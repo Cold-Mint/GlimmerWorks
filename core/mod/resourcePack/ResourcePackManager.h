@@ -33,6 +33,7 @@
 #include <unordered_set>
 #include <vector>
 
+#include "BaseManager.h"
 #include "core/utils/TransparentStringHash.h"
 
 #include "ResourcePack.h"
@@ -55,126 +56,120 @@ namespace glimmer {
     class AppContext;
     struct PreloadColors;
 
-    class ResourcePackManager {
-        friend class ResourceLocator;
-
-        std::vector<std::string> packIdVector_;
-        std::unordered_map<std::string, std::unique_ptr<ResourcePack>, TransparentStringHash, std::equal_to<> >
-        resourcePackMap_;
-        TTF_Font *font_ = nullptr;
-        VirtualFileSystem *virtualFileSystem_ = nullptr;
-        GpuContext *gpuContext_ = nullptr;
-        MIX_Mixer *mixer_ = nullptr;
-        /**
-         * Placeholder texture Path Set
-         * 用于存储加载失败的纹理路径
-         */
-        std::unordered_set<std::string, TransparentStringHash, std::equal_to<> > errorTexturePathSet_{};
-
-        bool IsResourcePackAvailable(const ResourcePack &pack) const;
-
-        static bool IsResourcePackEnabled(const ResourcePack &pack,
-                                          const std::vector<std::string> &enabledResourcePack);
-
-        std::unordered_map<std::string, std::weak_ptr<TextureResourceResult>, TransparentStringHash, std::equal_to<> >
-        textureCache_;
-
-        std::unordered_map<uint64_t, std::weak_ptr<GpuTexture> > stringTextureCache_;
-
-        std::unordered_map<std::string, std::weak_ptr<AudioResourceResult>, TransparentStringHash, std::equal_to<> >
-        audioMixCache_;
-
-        std::unordered_map<uint64_t, std::unique_ptr<ColorResource> >
-        colorCache_;
-
-        std::unordered_map<std::string, std::weak_ptr<GPUPipelineResourceResult>, TransparentStringHash, std::equal_to
-            <> > pipelineCache_;
+    class ResourcePackManager : public BaseManager<ResourcePack> {
 
 
-        std::shared_ptr<TextureResourceResult> ImplLoadTextureFromFile(const std::string &path, const Mods &modConfig);
 
-        std::shared_ptr<TextureResourceResult> TryLoadTextureFromPack(const std::string &path,
-                                                                      const ResourcePack *resourcePack);
+    //     friend class ResourceLocator;
+    //
+    //     TTF_Font *font_ = nullptr;
+    //     VirtualFileSystem *virtualFileSystem_ = nullptr;
+    //     GpuContext *gpuContext_ = nullptr;
+    //
 
-        std::shared_ptr<TextureResourceResult> CreateTextureResult(GpuTexture *texture,
-                                                                   const ResourcePack *resourcePack,
-                                                                   const std::string &path);
+    //     bool IsResourcePackAvailable(const ResourcePack &pack) const;
+    //
+    //     static bool IsResourcePackEnabled(const ResourcePack &pack,
+    //                                       const std::vector<std::string> &enabledResourcePack);
+    //
+    //     std::unordered_map<std::string, std::weak_ptr<TextureResourceResult>, TransparentStringHash, std::equal_to<> >
+    //     textureCache_;
+    //
+    //     std::unordered_map<uint64_t, std::weak_ptr<GpuTexture> > stringTextureCache_;
+    //
+    //     std::unordered_map<std::string, std::weak_ptr<AudioResourceResult>, TransparentStringHash, std::equal_to<> >
+    //     audioMixCache_;
+    //
+    //     std::unordered_map<uint64_t, std::unique_ptr<ColorResource> >
+    //     colorCache_;
+    //
+    //     std::unordered_map<std::string, std::weak_ptr<GPUPipelineResourceResult>, TransparentStringHash, std::equal_to
+    //         <> > pipelineCache_;
+    //
+    //
+    //     std::shared_ptr<TextureResourceResult> ImplLoadTextureFromFile(const std::string &path, const Mods &modConfig);
+    //
+    //     std::shared_ptr<TextureResourceResult> TryLoadTextureFromPack(const std::string &path,
+    //                                                                   const ResourcePack *resourcePack);
+    //
+    //     std::shared_ptr<TextureResourceResult> CreateTextureResult(GpuTexture *texture,
+    //                                                                const ResourcePack *resourcePack,
+    //                                                                const std::string &path);
+    //
+    //     std::shared_ptr<AudioResourceResult> ImplLoadAudioFromFile(const std::string &path, const Mods &modConfig);
+    //
+    //     /**
+    //      * Load texture from file
+    //      * 从文件加载纹理
+    //      * @param appContext appContext 应用上下文环境
+    //      * @param resourceRef resourceRef 资源引用
+    //      * @return Not found, return null. 找不到返回null
+    //      */
+    //     std::shared_ptr<TextureResourceResult> LoadTextureFromFile(const AppContext *appContext,
+    //                                                                const ResourceRef *resourceRef);
+    //
+    //     std::shared_ptr<AudioResourceResult> LoadAudioFromFile(const AppContext *appContext,
+    //                                                            const ResourceRef *resourceRef);
+    //
+    //     ColorResource *LoadColorResFromFile(const AppContext *appContext, const ResourceRef *resourceRef);
+    //
+    //     std::shared_ptr<GPUPipelineResourceResult> ImplLoadPipelineFromFile(const std::string &path,
+    //                                                                         const Mods &modConfig);
+    //
+    //     std::shared_ptr<GPUPipelineResourceResult> TryLoadPipelineFromPack(const std::string &path,
+    //                                                                        const ResourcePack *resourcePack);
+    //
+    //     std::shared_ptr<GPUPipelineResourceResult> CreatePipelineResult(const GPUPipelineResource &config,
+    //                                                                     const ResourcePack *resourcePack,
+    //                                                                     const std::string &path);
+    //
+    //     std::shared_ptr<GPUPipelineResourceResult> LoadPipelineFromFile(const AppContext *appContext,
+    //                                                                     const ResourceRef *resourceRef);
+    //
+    //     std::shared_ptr<TextureResourceResult> CreateTexture(const Color &accent,
+    //                                                          const Color &base) const;
+    //
+    //
 
-        std::shared_ptr<AudioResourceResult> ImplLoadAudioFromFile(const std::string &path, const Mods &modConfig);
-
-        /**
-         * Load texture from file
-         * 从文件加载纹理
-         * @param appContext appContext 应用上下文环境
-         * @param resourceRef resourceRef 资源引用
-         * @return Not found, return null. 找不到返回null
-         */
-        std::shared_ptr<TextureResourceResult> LoadTextureFromFile(const AppContext *appContext,
-                                                                   const ResourceRef *resourceRef);
-
-        std::shared_ptr<AudioResourceResult> LoadAudioFromFile(const AppContext *appContext,
-                                                               const ResourceRef *resourceRef);
-
-        ColorResource *LoadColorResFromFile(const AppContext *appContext, const ResourceRef *resourceRef);
-
-        std::shared_ptr<GPUPipelineResourceResult> ImplLoadPipelineFromFile(const std::string &path,
-                                                                            const Mods &modConfig);
-
-        std::shared_ptr<GPUPipelineResourceResult> TryLoadPipelineFromPack(const std::string &path,
-                                                                           const ResourcePack *resourcePack);
-
-        std::shared_ptr<GPUPipelineResourceResult> CreatePipelineResult(const GPUPipelineResource &config,
-                                                                        const ResourcePack *resourcePack,
-                                                                        const std::string &path);
-
-        std::shared_ptr<GPUPipelineResourceResult> LoadPipelineFromFile(const AppContext *appContext,
-                                                                        const ResourceRef *resourceRef);
-
-        std::shared_ptr<TextureResourceResult> CreateTexture(const Color &accent,
-                                                             const Color &base) const;
-
-
-        std::shared_ptr<TextureResourceResult> errorTexture_;
-        std::shared_ptr<TextureResourceResult> accessDeniedTexture_;
-
-    public:
-        explicit ResourcePackManager(VirtualFileSystem *virtualFilesystem);
-
-        void SetMixer(MIX_Mixer *mixer);
-
-        void SetGpuContext(GpuContext *gpuContext, const PreloadColors *preloadColors);
-
-        int Scan(const std::string &resourcePackPathString, const std::vector<std::string> &enabledResourcePack,
-                 const toml::spec &tomlVersion);
-
-        std::optional<std::string> GetFontPath(const std::vector<std::string> &enabledResourcePack,
-                                               const std::string &language);
-
-        std::unique_ptr<RmlResourceResult> GetRmlFilePath(const AppContext *appContext,
-                                                          const ResourceRef *resourceRef);
-
-        /**
-         * Load a GLSL shader from the enabled resource packs by resource
-         * reference (RESOURCE_SHADER).
-         * 按资源引用（RESOURCE_SHADER）从已启用的材质包中加载 GLSL 着色器。
-         * The file is looked up at shaders/<packageId>/<resourceKey> inside
-         * each enabled resource pack (first match wins).
-         * 文件查找路径为每个已启用材质包内的 shaders/<packageId>/<resourceKey>（首个命中生效）。
-         * @param appContext appContext 应用上下文环境（提供已启用的材质包列表）
-         * @param resourceRef resourceRef 着色器资源引用（resourceKey 含扩展名，如 sprite.vert）
-         * @return The result (path + source), nullptr if not found.
-         * 查找结果（路径 + 源码）；找不到时返回 nullptr。
-         */
-        std::unique_ptr<ShaderResourceResult> LoadShaderFromFile(const AppContext *appContext,
-                                                                 const ResourceRef *resourceRef);
-
-        std::shared_ptr<GpuTexture> CreateStringTexture(const std::string &string, const Color *color,
-                                                        int wrapWidth = 0);
-
-        std::string ListTextureCache() const;
-
-        void SetFont(TTF_Font *font);
-
-        ~ResourcePackManager();
+    //
+    // public:
+    //     explicit ResourcePackManager(VirtualFileSystem *virtualFilesystem);
+    //
+    //     void SetMixer(MIX_Mixer *mixer);
+    //
+    //     void SetGpuContext(GpuContext *gpuContext, const PreloadColors *preloadColors);
+    //
+    //     int Scan(const std::string &resourcePackPathString, const std::vector<std::string> &enabledResourcePack,
+    //              const toml::spec &tomlVersion);
+    //
+    //     std::optional<std::string> GetFontPath(const std::vector<std::string> &enabledResourcePack,
+    //                                            const std::string &language);
+    //
+    //     std::unique_ptr<RmlResourceResult> GetRmlFilePath(const AppContext *appContext,
+    //                                                       const ResourceRef *resourceRef);
+    //
+    //     /**
+    //      * Load a GLSL shader from the enabled resource packs by resource
+    //      * reference (RESOURCE_SHADER).
+    //      * 按资源引用（RESOURCE_SHADER）从已启用的材质包中加载 GLSL 着色器。
+    //      * The file is looked up at shaders/<packageId>/<resourceKey> inside
+    //      * each enabled resource pack (first match wins).
+    //      * 文件查找路径为每个已启用材质包内的 shaders/<packageId>/<resourceKey>（首个命中生效）。
+    //      * @param appContext appContext 应用上下文环境（提供已启用的材质包列表）
+    //      * @param resourceRef resourceRef 着色器资源引用（resourceKey 含扩展名，如 sprite.vert）
+    //      * @return The result (path + source), nullptr if not found.
+    //      * 查找结果（路径 + 源码）；找不到时返回 nullptr。
+    //      */
+    //     std::unique_ptr<ShaderResourceResult> LoadShaderFromFile(const AppContext *appContext,
+    //                                                              const ResourceRef *resourceRef);
+    //
+    //     std::shared_ptr<GpuTexture> CreateStringTexture(const std::string &string, const Color *color,
+    //                                                     int wrapWidth = 0);
+    //
+    //     std::string ListTextureCache() const;
+    //
+    //     void SetFont(TTF_Font *font);
+    //
+    //     ~ResourcePackManager();
     };
 }

@@ -34,7 +34,7 @@
 #include "tweeny/tween.h"
 
 namespace glimmer {
-    class GameUIMessage : IFingerprintable {
+    class GameUIMessage : IFingerprintAble {
         std::string text_;
         uint64_t createTime_;
         uint64_t expireTime_;

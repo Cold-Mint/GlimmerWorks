@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -24,30 +24,4 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "GpuTexture.h"
-
-glimmer::GpuTexture::GpuTexture(SDL_GPUDevice *device, SDL_GPUTexture *texture, const int width, const int height)
-    : device_(device), texture_(texture), w(width), h(height) {
-}
-
-glimmer::GpuTexture::~GpuTexture() {
-    Destroy();
-}
-
-void glimmer::GpuTexture::Destroy() {
-    if (device_ != nullptr && texture_ != nullptr) {
-        SDL_ReleaseGPUTexture(device_, texture_);
-    }
-    texture_ = nullptr;
-    device_ = nullptr;
-    w = 0;
-    h = 0;
-}
-
-SDL_GPUTexture *glimmer::GpuTexture::GetGpuTexture() const {
-    return texture_;
-}
-
-bool glimmer::GpuTexture::IsValid() const {
-    return texture_ != nullptr;
-}
+#include "IUniqueAble.h"

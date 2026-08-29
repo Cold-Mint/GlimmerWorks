@@ -31,10 +31,13 @@ namespace glimmer {
     /**
       * Objects that can generate unique fingerprints
       * 可生成唯一指纹的对象
+      *
+      * When the member variable changes, the fingerprint will also change.
+      * 当成员变量改变指纹也会变。
       */
-    class IFingerprintable {
+    class IFingerprintAble {
     public:
-        virtual ~IFingerprintable() = default;
+        virtual ~IFingerprintAble() = default;
 
         /**
          * Get the object fingerprint. The fingerprint will change when any member variable is modified.

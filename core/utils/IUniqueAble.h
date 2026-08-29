@@ -25,19 +25,22 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "ResourceResult.h"
+#include <cstdint>
 
 namespace glimmer {
-    class RmlResourceResult : public ResourceResult<std::filesystem::path> {
-        /**
-         * RML file path
-         * rml文件路径
-         */
-        std::filesystem::path rmlPath_;
-
+    /**
+     * Indicating distinguishability, content variation, without altering the unique identifier
+     * 表示可区分的，内容变化，不会改变UniqueId
+     */
+    class IUniqueAble {
     public:
-        ~RmlResourceResult() override;
+        virtual ~IUniqueAble() = default;
 
-        void SetPath(const std::filesystem::path &rmlPath);
+        /**
+         * GetId
+         * 获取Id
+         * @return
+         */
+        [[nodiscard]] virtual uint64_t GetUniqueId() = 0;
     };
 }

@@ -25,19 +25,7 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "ResourceResult.h"
-
 namespace glimmer {
-    class RmlResourceResult : public ResourceResult<std::filesystem::path> {
-        /**
-         * RML file path
-         * rml文件路径
-         */
-        std::filesystem::path rmlPath_;
-
-    public:
-        ~RmlResourceResult() override;
-
-        void SetPath(const std::filesystem::path &rmlPath);
+    class GpuPipelineCache {
     };
 }

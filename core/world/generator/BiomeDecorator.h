@@ -56,7 +56,7 @@ namespace glimmer {
 
     template<typename ResourceT>
     class BiomeDecorator : public IBiomeDecorator {
-        virtual void DecorationImp(WorldContext *worldContext, TerrainResult *terrainResult,
+        virtual void DecorationImpl(WorldContext *worldContext, TerrainResult *terrainResult,
                                    ResourceT *decoratorResource, BiomeResource *biomeResource,
                                    std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > *tilesRefMap)
         = 0;
@@ -66,7 +66,7 @@ namespace glimmer {
                         IBiomeDecoratorResource *decoratorResource, BiomeResource *biomeResource,
                         std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > *tilesRefMap) override {
             auto *concreteResource = static_cast<ResourceT *>(decoratorResource);
-            DecorationImp(worldContext, terrainResult, concreteResource, biomeResource, tilesRefMap);
+            DecorationImpl(worldContext, terrainResult, concreteResource, biomeResource, tilesRefMap);
         }
     };
 }

@@ -392,7 +392,15 @@ if (ANDROID)
     add_library(GlimmerWorks SHARED)
 else ()
     message(STATUS "Building for Desktop → Executable")
-    add_executable(GlimmerWorks)
+    add_executable(GlimmerWorks
+            core/utils/IUniqueAble.cpp
+            core/utils/IUniqueAble.h
+            core/mod/resourcePack/cache/TextureCache.cpp
+            core/mod/resourcePack/cache/TextureCache.h
+            core/mod/resourcePack/cache/AudioCache.cpp
+            core/mod/resourcePack/cache/AudioCache.h
+            core/mod/resourcePack/cache/GpuPipelineCache.cpp
+            core/mod/resourcePack/cache/GpuPipelineCache.h)
 endif ()
 
 target_sources(GlimmerWorks
@@ -402,6 +410,8 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Platform_SDL.cpp"
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL_GPU.cpp"
         core/app/App.cpp
+        core/mod/resourcePack/BaseResourceCache.cpp
+        core/mod/resourcePack/BaseManager.cpp
         core/app/AppEventLoop.cpp
         core/context/tasks/IAppContextInitTask.cpp
         core/context/SystemBucket.cpp
@@ -796,6 +806,8 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Platform_SDL.h"
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL_GPU.h"
         core/app/App.h
+        core/mod/resourcePack/BaseResourceCache.h
+        core/mod/resourcePack/BaseManager.h
         core/context/tasks/IAppContextInitTask.h
         core/context/tasks/InitConfigTask.h
         core/context/tasks/InitConsoleContextTask.h

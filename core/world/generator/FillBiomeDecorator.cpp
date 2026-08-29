@@ -27,7 +27,7 @@
 #include "FillBiomeDecorator.h"
 
 
-void glimmer::FillBiomeDecorator::DecorationImp(WorldContext *worldContext, TerrainResult *terrainResult,
+void glimmer::FillBiomeDecorator::DecorationImpl(WorldContext *worldContext, TerrainResult *terrainResult,
                                                 FillBiomeDecoratorResource *decoratorResource,
                                                 BiomeResource *biomeResource,
                                                 std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> >

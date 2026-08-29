@@ -83,8 +83,8 @@ namespace glimmer {
         bool loadOnlyVerified;
         std::string dataPackPath;
         std::string resourcePackPath;
-        std::vector<std::string> enabledDataPack;
-        std::vector<std::string> enabledResourcePack;
+        std::vector<uint64_t> enabledDataPack;
+        std::vector<uint64_t> enabledResourcePack;
     };
 
     struct Debug {

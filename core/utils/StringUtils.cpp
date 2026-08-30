@@ -65,6 +65,15 @@ uint64_t glimmer::StringUtils::StringToUint64Blake3(const std::string &string) {
     return res;
 }
 
+std::array<uint8_t, BLAKE3_OUT_LEN> glimmer::StringUtils::StringToFullBlake3(const std::string &string) {
+    blake3_hasher hasher;
+    blake3_hasher_init(&hasher);
+    blake3_hasher_update(&hasher, string.data(), string.size());
+    std::array<uint8_t, 32> out{};
+    blake3_hasher_finalize(&hasher, out.data(), BLAKE3_OUT_LEN);
+    return out;
+}
+
 bool glimmer::StringUtils::IsInteger(const std::string &str) {
     if (str.empty()) {
         return false;

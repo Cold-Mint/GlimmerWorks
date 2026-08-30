@@ -29,7 +29,6 @@
 #include <unordered_map>
 
 #include "core/context/AppContext.h"
-#include "core/utils/TransparentStringHash.h"
 
 namespace glimmer {
     /**
@@ -41,7 +40,7 @@ namespace glimmer {
      */
     template<typename ResourceResultType>
     class BaseResourceCache {
-        std::unordered_map<std::string, std::weak_ptr<ResourceResultType>, TransparentStringHash, std::equal_to<> >
+        std::unordered_map<uint64_t, std::weak_ptr<ResourceResultType> >
         resourceCache_;
 
         /**
@@ -70,12 +69,12 @@ namespace glimmer {
         * Load resources from the resource package
         * 从资源包内加载资源
         * @param appContext
-        * @param path
+        * @param resourceRef
         * @param resourcePack
         * @return
         */
         virtual std::shared_ptr<ResourceResultType> LoadResourceFromPack(
-            AppContext *appContext, const std::filesystem::path &path,
+            AppContext *appContext, const ResourceRef *resourceRef,
             const ResourcePack *resourcePack) = 0;
 
     public:
@@ -108,10 +107,6 @@ namespace glimmer {
         if (appContext == nullptr) {
             return TryGetPlaceholder(appContext, resourceRef);
         }
-        std::filesystem::path path = std::filesystem::path(resourceRef->GetPackageId()) / resourceRef->GetResourceKey();
-        if (path.empty()) {
-            return TryGetPlaceholder(appContext, resourceRef);
-        }
         MainThreadDispatcher *mainThreadDispatcher = appContext->GetMainThreadDispatcher();
         if (mainThreadDispatcher == nullptr) {
             return TryGetPlaceholder(appContext, resourceRef, enablePlaceholder);
@@ -128,8 +123,9 @@ namespace glimmer {
         }
 
         return mainThreadDispatcher->AddMainThreadTaskAwait(
-            [this, path, enabledResourcePack, resourcePackManager, appContext] {
-                const auto cache = resourceCache_.find(path);
+            [this, enabledResourcePack, resourcePackManager, appContext, resourceRef] {
+                uint64_t fingerprint = resourceRef->GetFingerprint();
+                const auto cache = resourceCache_.find(fingerprint);
                 if (cache != resourceCache_.end()) {
                     if (auto cacheTexture = cache->second.lock()) {
                         return cacheTexture;
@@ -143,13 +139,13 @@ namespace glimmer {
                     if (resourcePack == nullptr) {
                         continue;
                     }
-                    auto result = LoadResourceFromPack(appContext, path, resourcePack);
+                    auto result = LoadResourceFromPack(appContext, resourceRef->GetResourceType(), resourcePack);
                     if (result == nullptr) {
                         continue;
                     }
                     //Establish a cache.
                     //建立缓存。
-                    resourceCache_[path] = result;
+                    resourceCache_[fingerprint] = result;
                     return result;
                 }
                 return nullptr;
@@ -176,10 +172,5 @@ namespace glimmer {
             return nullptr;
         }
         return CreatePlaceholderResource(appContext, resourceRef);
-    }
-
-    template<typename ResourceResultType>
-    void BaseResourceCache<ResourceResultType>::DeleteCachedResource(const std::string &path) {
-        resourceCache_.erase(path);
     }
 }

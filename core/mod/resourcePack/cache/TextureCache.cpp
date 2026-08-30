@@ -61,16 +61,10 @@ std::shared_ptr<glimmer::TextureResourceResult> glimmer::TextureCache::CreateTex
     }
     SDL_GPUTexture *texture = CreateTextureFromSurface(gpuDevice, surface);
     SDL_DestroySurface(surface);
-    auto textureResourceResult = std::make_unique<TextureResourceResult>();
+    auto textureResourceResult = std::make_shared<TextureResourceResult>();
     textureResourceResult->SetResource(texture);
     textureResourceResult->SetGpuDevice(gpuDevice);
-    auto deleter = [](TextureResourceResult *textureResourceResult) {
-        if (textureResourceResult == nullptr) {
-            return;
-        }
-        textureResourceResult->DestroyResource();
-    };
-    return {textureResourceResult.release(), deleter};
+    return textureResourceResult;
 }
 
 SDL_GPUTexture *glimmer::TextureCache::CreateTextureFromSurface(SDL_GPUDevice *gpuDevice, SDL_Surface *surface) {
@@ -212,8 +206,9 @@ std::shared_ptr<glimmer::TextureResourceResult> glimmer::TextureCache::CreatePla
 }
 
 std::shared_ptr<glimmer::TextureResourceResult> glimmer::TextureCache::LoadResourceFromPack(AppContext *appContext,
-    const std::filesystem::path &path, const ResourcePack *resourcePack) {
-    std::filesystem::path texturePath = resourcePack->GetPath() / "textures" / path;
+    const ResourceRef *resourceRef, const ResourcePack *resourcePack) {
+    std::filesystem::path texturePath = resourcePack->GetPath() / "textures" / resourceRef->GetPackageId() / resourceRef
+                                        ->GetResourceKey();
     texturePath.replace_extension(TEXTURE_FORMAT);
     const VirtualFileSystem *virtualFileSystem = appContext->GetVirtualFileSystem();
     if (virtualFileSystem == nullptr) {
@@ -244,14 +239,7 @@ std::shared_ptr<glimmer::TextureResourceResult> glimmer::TextureCache::LoadResou
     }
     SDL_GPUTexture *texture = CreateTextureFromSurface(gpuDevice, surface);
     SDL_DestroySurface(surface);
-    auto deleter = [](TextureResourceResult *textureResourceResult) {
-        if (textureResourceResult == nullptr) {
-            return;
-        }
-        textureResourceResult->DestroyResource();
-        delete textureResourceResult;
-    };
-    std::shared_ptr<TextureResourceResult> textureResourceResult(new TextureResourceResult(), deleter);
+    auto textureResourceResult = std::make_shared<TextureResourceResult>();
     textureResourceResult->SetResource(texture);
     textureResourceResult->SetGpuDevice(gpuDevice);
     return textureResourceResult;

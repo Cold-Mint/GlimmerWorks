@@ -63,6 +63,16 @@ namespace glimmer {
 
         [[nodiscard]] std::optional<std::string> ReadFileAsString(const std::filesystem::path &path) const;
 
+        static int64_t FileTimeTypeToInt64(const std::filesystem::file_time_type &fileTime);
+
+        /**
+         * GetMtime
+         * 获取文件修改时间
+         * @param path
+         * @return
+         */
+        [[nodiscard]] std::optional<std::filesystem::file_time_type> GetMtime(const std::filesystem::path &path) const;
+
         [[nodiscard]] virtual std::vector<std::filesystem::path>
         ListFile(const std::filesystem::path &path, bool recursive) const;
 

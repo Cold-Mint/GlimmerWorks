@@ -400,6 +400,8 @@ static constexpr float MERGE_DURATION = 0.35F;
 static constexpr int LIGHT_CONTRIBUTION_CENTER_RAY_INDEX = -1;
 static constexpr std::string TEXTURE_FORMAT = "png";
 static constexpr std::string AUDIO_FORMAT = "ogg";
+static constexpr std::string SHADER_VERT_FORMAT = "vert";
+static constexpr std::string SHADER_FRAG_FORMAT = "frag";
 
 static constexpr std::string SHADER_NAME_SPRITE_VERT = "sprite";
 static constexpr std::string PIPELINE_NAME_SPRITE = "sprite";
@@ -409,6 +411,7 @@ static constexpr std::string PIPELINE_NAME_GLOBAL = "global";
 static constexpr std::string PIPELINE_NAME_LIGHTING = "lighting";
 static constexpr std::string SHADER_EXTENSION_VERT = "vert";
 static constexpr std::string SHADER_EXTENSION_FRAG = "frag";
+static constexpr std::string SHADER_ENTRY_POINT = "main";
 
 static constexpr auto DEFAULT_SPRITE_VERT = R"(#version 450
 layout(location = 0) in vec2 in_position;

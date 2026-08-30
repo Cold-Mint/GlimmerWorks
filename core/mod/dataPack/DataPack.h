@@ -47,6 +47,7 @@
 #include "core/mod/TomlTemplateExpander.h"
 #include "core/shape/ShapeManager.h"
 #include "core/shape/ShapeType.h"
+#include "core/utils/IUniqueAble.h"
 #include "core/world/structure/StructureGeneratorType.h"
 #include "toml11/spec.hpp"
 #include "toml11/types.hpp"
@@ -56,7 +57,7 @@ namespace glimmer {
     class TileResourceManager;
     class StringManager;
 
-    class DataPack {
+    class DataPack : public IUniqueAble {
         std::filesystem::path rootPath_;
         DataPackManifest manifest_;
         toml::spec tomlVersion_;
@@ -182,6 +183,8 @@ namespace glimmer {
         explicit DataPack(std::filesystem::path path, const VirtualFileSystem *virtualFileSystem,
                           const TomlTemplateExpander *tomlTemplateExpander,
                           const toml::spec &tomlVersion);
+
+        [[nodiscard]] uint64_t GetUniqueId() const override;
 
         bool LoadManifest();
 

@@ -46,8 +46,7 @@ namespace glimmer {
                                                                          const ResourceRef *resourceRef) override;
 
         std::shared_ptr<TextureResourceResult> LoadResourceFromPack(AppContext *appContext,
-                                                                    const std::filesystem::path &path,
-                                                                    const ResourcePack *resourcePack) override;
+            const ResourceRef *resourceRef, const ResourcePack *resourcePack) override;
 
     public:
         ~TextureCache() noexcept override;

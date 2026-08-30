@@ -316,20 +316,7 @@ std::unique_ptr<glimmer::ShaderResourceResult> glimmer::ResourcePackManager::Loa
             continue;
         }
         const ResourcePack *pack = it->second.get();
-        std::filesystem::path shaderPath = pack->GetPath() / "shaders" / resourceRef->GetPackageId() /
-                                           resourceRef->GetResourceKey();
-        if (!virtualFileSystem_->Exists(shaderPath)) {
-            continue;
-        }
-        auto source = virtualFileSystem_->ReadFileAsString(shaderPath);
-        if (!source.has_value()) {
-            continue;
-        }
-        LogCat::i("Loaded shader: ", shaderPath.string());
-        auto resourceResult = std::make_unique<ShaderResourceResult>();
-        resourceResult->SetPath(shaderPath);
-        resourceResult->SetSource(std::move(source.value()));
-        return resourceResult;
+
     }
     return nullptr;
 }
@@ -339,10 +326,7 @@ std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::ResourcePackManager
     const ResourcePack *resourcePack,
     const std::string &path) {
     //---关键代码---
-    auto pipelineResourceResult = std::make_shared<GPUPipelineResourceResult>();
-    pipelineResourceResult->SetResourcePack(resourcePack);
-    pipelineResourceResult->SetPipelineResource(std::make_unique<GPUPipelineResource>(config));
-    std::shared_ptr<GPUPipelineResourceResult> pipelineSharedPtr(pipelineResourceResult.release());
+
     //---关键代码---
     pipelineCache_[path] = pipelineSharedPtr;
     return pipelineSharedPtr;
@@ -351,19 +335,11 @@ std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::ResourcePackManager
 std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::ResourcePackManager::TryLoadPipelineFromPack(
     const std::string &path,
     const ResourcePack *resourcePack) {
-    std::filesystem::path pipelinePath = resourcePack->GetPath() / "pipelines" / path;
-    pipelinePath.replace_extension("toml");
-    if (!virtualFileSystem_->Exists(pipelinePath)) {
-        return nullptr;
-    }
-    auto data = virtualFileSystem_->ReadFileAsString(pipelinePath);
-    if (!data.has_value()) {
-        return nullptr;
-    }
-    GPUPipelineResource config;
+
+
+
     try {
-        const toml::value value = toml::parse_str(data.value(), toml::spec::v(1, 0, 0));
-        config = toml::get<GPUPipelineResource>(value);
+
     } catch (const std::exception &e) {
         LogCat::w(std::source_location::current(), "Failed to parse pipeline config: ", pipelinePath.string(),
                   ", ", e.what());

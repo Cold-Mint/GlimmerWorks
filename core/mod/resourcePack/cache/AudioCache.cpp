@@ -34,14 +34,15 @@ std::shared_ptr<glimmer::AudioResourceResult> glimmer::AudioCache::CreatePlaceho
 }
 
 std::shared_ptr<glimmer::AudioResourceResult> glimmer::AudioCache::LoadResourceFromPack(AppContext *appContext,
-    const std::filesystem::path &path, const ResourcePack *resourcePack) {
-    std::filesystem::path audioPath = resourcePack->GetPath() / "audios" / path;
+    const ResourceRef *resourceRef, const ResourcePack *resourcePack) {
+    std::filesystem::path audioPath = resourcePack->GetPath() / "audios" / resourceRef->GetPackageId() / resourceRef->
+                                      GetResourceKey();
     audioPath.replace_extension(AUDIO_FORMAT);
     const VirtualFileSystem *virtualFileSystem = appContext->GetVirtualFileSystem();
     if (virtualFileSystem == nullptr) {
         return nullptr;
     }
-    auto actualAudioPath = virtualFileSystem->GetActualPath(audioPath);
+    const auto actualAudioPath = virtualFileSystem->GetActualPath(audioPath);
     if (!actualAudioPath.has_value()) {
         return nullptr;
     }
@@ -49,15 +50,10 @@ std::shared_ptr<glimmer::AudioResourceResult> glimmer::AudioCache::LoadResourceF
     if (audio == nullptr) {
         return nullptr;
     }
-    auto audioResourceResult = std::make_unique<AudioResourceResult>();
+    auto audioResourceResult = std::make_shared<AudioResourceResult>();
     audioResourceResult->SetResourcePack(resourcePack);
     audioResourceResult->SetResource(audio);
-    auto deleter = [](AudioResourceResult *audioResourceResult) {
-        if (audioResourceResult != nullptr) {
-            audioResourceResult->DestroyResource();
-        }
-    };
-    return {audioResourceResult.release(), deleter};
+    return audioResourceResult;
 }
 
 void glimmer::AudioCache::SetMixer(MIX_Mixer *mixer) {

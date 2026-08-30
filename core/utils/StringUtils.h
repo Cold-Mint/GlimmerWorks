@@ -26,9 +26,10 @@
  */
 #pragma once
 #include <string>
-#include <cstdint>
 #include <optional>
 #include <span>
+
+#include "blake3.h"
 
 namespace glimmer {
     class StringUtils {
@@ -57,6 +58,15 @@ namespace glimmer {
          * @return Return the fixed hash value. 返回固定的哈希值。
          */
         static uint64_t StringToUint64Blake3(const std::string &string);
+
+
+        /**
+         * String to complete Hash.
+         * 字符串到完整Hash。
+         * @param string
+         * @return
+         */
+        static std::array<uint8_t,BLAKE3_OUT_LEN> StringToFullBlake3(const std::string &string);
 
         /**
          * Check if the input string is an integer

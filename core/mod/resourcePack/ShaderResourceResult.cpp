@@ -26,18 +26,17 @@
  */
 #include "ShaderResourceResult.h"
 
-void glimmer::ShaderResourceResult::SetPath(const std::filesystem::path &shaderPath) {
-    shaderPath_ = shaderPath;
+void glimmer::ShaderResourceResult::DestroyResourceImpl(SDL_GPUShader *resource) {
+    if (device_ == nullptr) {
+        return;
+    }
+    SDL_ReleaseGPUShader(device_, resource);
 }
 
-const std::filesystem::path &glimmer::ShaderResourceResult::GetPath() const {
-    return shaderPath_;
+void glimmer::ShaderResourceResult::SetDevice(SDL_GPUDevice *device) {
+    device_ = device;
 }
 
-void glimmer::ShaderResourceResult::SetSource(std::string source) {
-    source_ = std::move(source);
-}
-
-const std::string &glimmer::ShaderResourceResult::GetSource() const {
-    return source_;
+glimmer::ShaderResourceResult::~ShaderResourceResult() {
+    DestroyResource();
 }

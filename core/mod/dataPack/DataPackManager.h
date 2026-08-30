@@ -56,7 +56,7 @@ namespace glimmer {
         [[nodiscard]] bool IsDataPackAvailable(const DataPack &pack) const;
 
         static bool IsDataPackEnabled(const DataPack &pack,
-                                      const std::vector<std::string> &enabledDataPack);
+                                      std::vector<uint64_t> enabledDataPack);
 
         static bool CheckDependencyVersion(const std::vector<PackDependence> &dependencies,
                                            std::string_view packId, uint32_t version);

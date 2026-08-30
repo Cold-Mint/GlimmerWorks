@@ -151,6 +151,20 @@ std::string_view glimmer::StdFileProvider::GetFileProviderName() const {
     return name_;
 }
 
+std::optional<std::filesystem::file_time_type> glimmer::StdFileProvider::GetMtime(const std::filesystem::path &path) {
+    const std::optional<std::filesystem::path> fullPathOptional = GetFullPath(path);
+    if (!fullPathOptional.has_value()) {
+        return std::nullopt;
+    }
+    const std::filesystem::path &fullPath = fullPathOptional.value();
+    std::error_code errorCode;
+    const auto fileTime = std::filesystem::last_write_time(fullPath, errorCode);
+    if (errorCode) {
+        return std::nullopt;
+    }
+    return fileTime;
+}
+
 std::optional<std::string> glimmer::StdFileProvider::GetFileOrFolderName(const std::filesystem::path &path) const {
     return std::filesystem::path(path).filename().string();
 }

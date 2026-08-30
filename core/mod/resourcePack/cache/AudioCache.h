@@ -36,8 +36,7 @@ namespace glimmer {
                                                                        const ResourceRef *resourceRef) override;
 
         std::shared_ptr<AudioResourceResult> LoadResourceFromPack(AppContext *appContext,
-                                                                  const std::filesystem::path &path,
-                                                                  const ResourcePack *resourcePack) override;
+            const ResourceRef *resourceRef, const ResourcePack *resourcePack) override;
 
     public:
         void SetMixer(MIX_Mixer *mixer);

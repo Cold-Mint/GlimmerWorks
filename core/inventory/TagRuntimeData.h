@@ -28,8 +28,6 @@
 #include <memory>
 #include <string>
 
-#include "core/gpu/GpuTexture.h"
-
 namespace glimmer {
     class TagRuntimeData {
         /**

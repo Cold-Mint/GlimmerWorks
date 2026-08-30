@@ -122,6 +122,20 @@ std::optional<std::string> glimmer::VirtualFileSystem::ReadFileAsString(const st
     return StringUtils::StreamToString(stream);
 }
 
+int64_t glimmer::VirtualFileSystem::FileTimeTypeToInt64(const std::filesystem::file_time_type &fileTime) {
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(fileTime.time_since_epoch()).count();
+}
+
+std::optional<std::filesystem::file_time_type> glimmer::VirtualFileSystem::GetMtime(
+    const std::filesystem::path &path) const {
+    for (const auto &provider: fileProviders_) {
+        if (auto mtime = provider->GetMtime(path); mtime.has_value()) {
+            return mtime;
+        }
+    }
+    return std::nullopt;
+}
+
 
 std::vector<std::filesystem::path> glimmer::VirtualFileSystem::ListFile(const std::filesystem::path &path,
                                                                         const bool recursive) const {

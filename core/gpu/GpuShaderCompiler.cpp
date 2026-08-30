@@ -28,100 +28,62 @@
 
 #include <vector>
 
+#include "GpuShaderCompileResult.h"
+#include "core/config/Constants.h"
 #include "core/log/LogCat.h"
+#include "glslang/MachineIndependent/localintermediate.h"
 #include "glslang/Public/ResourceLimits.h"
 #include "glslang/Public/ShaderLang.h"
 #include "SPIRV/GlslangToSpv.h"
 
 void glimmer::GpuShaderCompiler::Init() {
     glslang::InitializeProcess();
-    LogCat::i("GpuShaderCompiler initialized");
 }
 
 void glimmer::GpuShaderCompiler::Shutdown() {
     glslang::FinalizeProcess();
 }
 
-SDL_GPUShader *glimmer::GpuShaderCompiler::CompileFromSource(SDL_GPUDevice *device, const char *source,
-                                                             const char *debugName,
-                                                             const SDL_GPUShaderStage gpuStage,
-                                                             const Uint32 numSamplers,
-                                                             const Uint32 numUniformBuffers) {
-    const std::vector<unsigned int> spirv = CompileToSpirv(source, debugName, gpuStage);
-    if (spirv.empty()) {
+std::unique_ptr<glimmer::GpuShaderCompileResult> glimmer::GpuShaderCompiler::CompileToSpirv(const std::string &source,
+    const bool vertex) {
+    if (source.empty()) {
         return nullptr;
     }
-    return CreateFromSpirv(device, spirv.data(), spirv.size() * sizeof(unsigned int), debugName, gpuStage,
-                           numSamplers, numUniformBuffers);
-}
-
-std::vector<unsigned int> glimmer::GpuShaderCompiler::CompileToSpirv(const char *source, const char *debugName,
-                                                                     const SDL_GPUShaderStage gpuStage) {
-    if (source == nullptr) {
-        LogCat::w(std::source_location::current(), "source is nullptr: ", debugName);
-        return {};
-    }
-    const EShLanguage shaderStage = gpuStage == SDL_GPU_SHADERSTAGE_VERTEX ? EShLangVertex : EShLangFragment;
+    const EShLanguage shaderStage = vertex ? EShLangVertex : EShLangFragment;
     glslang::TShader glslShader(shaderStage);
-    const char *sources[] = {source};
+    const char *sources[] = {source.c_str()};
     glslShader.setStrings(sources, 1);
-
     const TBuiltInResource *resources = GetDefaultResources();
-    //Vulkan + SPIR-V rules are required, otherwise the generated SPIR-V is invalid for Vulkan.
-    //必须使用 Vulkan + SPIR-V 规则，否则生成的 SPIR-V 不符合 Vulkan 要求。
-    const auto messages = static_cast<EShMessages>(EShMsgSpvRules | EShMsgVulkanRules);
+    constexpr auto messages = static_cast<EShMessages>(EShMsgSpvRules | EShMsgVulkanRules);
     if (!glslShader.parse(resources, 450, false, messages)) {
-        LogCat::w(std::source_location::current(), "GLSL compilation failed (", debugName, "): ",
+        LogCat::w(std::source_location::current(), "GLSL compilation failed : ",
                   glslShader.getInfoLog());
-        return {};
+        return nullptr;
     }
     glslang::SpvOptions options;
-    std::vector<unsigned int> spirv;
-    glslang::GlslangToSpv(*glslShader.getIntermediate(), spirv, &options);
-    if (spirv.empty()) {
-        LogCat::w(std::source_location::current(), "GLSL to SPIR-V conversion produced no output (", debugName, ")");
-    }
-    return spirv;
-}
-
-SDL_GPUShader *glimmer::GpuShaderCompiler::CreateFromSpirv(SDL_GPUDevice *device, const void *code,
-                                                           const size_t codeSize, const char *debugName,
-                                                           const SDL_GPUShaderStage gpuStage,
-                                                           const Uint32 numSamplers,
-                                                           const Uint32 numUniformBuffers) {
-    if (device == nullptr || code == nullptr || codeSize == 0 || codeSize % sizeof(unsigned int) != 0) {
-        LogCat::w(std::source_location::current(), "Invalid SPIR-V input (", debugName, ")");
+    //Use TProgram for linking, reflection, and for calculating numSamplers and numUniformBuffers
+    //用TProgram做链接，反射，用于计算numSamplers和numUniformBuffers
+    glslang::TProgram program;
+    program.addShader(&glslShader);
+    if (!program.link(messages)) {
         return nullptr;
     }
-    SDL_GPUShaderCreateInfo shaderInfo = {};
-    shaderInfo.code_size = codeSize;
-    shaderInfo.code = static_cast<const Uint8 *>(code);
-    shaderInfo.entrypoint = "main";
-    shaderInfo.format = SDL_GPU_SHADERFORMAT_SPIRV;
-    shaderInfo.stage = gpuStage;
-    shaderInfo.num_samplers = numSamplers;
-    shaderInfo.num_storage_textures = 0;
-    shaderInfo.num_storage_buffers = 0;
-    shaderInfo.num_uniform_buffers = numUniformBuffers;
-    shaderInfo.props = 0;
-    SDL_GPUShader *gpuShader = SDL_CreateGPUShader(device, &shaderInfo);
-    if (gpuShader == nullptr) {
-        LogCat::w(std::source_location::current(), "SDL_CreateGPUShader failed (", debugName, "): ", SDL_GetError());
-    }
-    return gpuShader;
-}
-
-SDL_GPUShader *glimmer::GpuShaderCompiler::CompileFromFile(SDL_GPUDevice *device, const char *filePath,
-                                                           const SDL_GPUShaderStage gpuStage,
-                                                           const Uint32 numSamplers,
-                                                           const Uint32 numUniformBuffers) {
-    size_t sourceSize = 0;
-    char *source = static_cast<char *>(SDL_LoadFile(filePath, &sourceSize));
-    if (source == nullptr) {
-        LogCat::w(std::source_location::current(), "Failed to load GLSL file: ", filePath, " - ", SDL_GetError());
+    if (!program.buildReflection()) {
         return nullptr;
     }
-    SDL_GPUShader *shader = CompileFromSource(device, source, filePath, gpuStage, numSamplers, numUniformBuffers);
-    SDL_free(source);
-    return shader;
+    auto result = std::make_unique<GpuShaderCompileResult>();
+    result->SetNumUniformBuffers(static_cast<uint32_t>(program.getNumUniformBlocks()));
+    uint32_t numSamplers = 0;
+    for (int i = 0; i < program.getNumUniformVariables(); ++i) {
+        const glslang::TType *type = program.getUniformTType(i);
+        if (type == nullptr) {
+            continue;
+        }
+        if (type->getBasicType() == glslang::EbtSampler && type->isTexture()) {
+            ++numSamplers;
+        }
+    }
+    result->SetNumSamplers(numSamplers);
+    glslang::GlslangToSpv(*glslShader.getIntermediate(), result->GetMutableCode(), &options);
+    return result;
 }

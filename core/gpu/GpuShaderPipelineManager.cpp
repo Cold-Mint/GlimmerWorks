@@ -26,7 +26,6 @@
  */
 #include "GpuShaderPipelineManager.h"
 
-#include "GpuShaderCache.h"
 #include "GpuShaderCompiler.h"
 #include "SpriteVertex.h"
 #include "core/config/Constants.h"

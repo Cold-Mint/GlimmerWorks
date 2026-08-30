@@ -24,23 +24,36 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
-#include <cstdint>
+#include "GpuShaderCompileResult.h"
 
-namespace glimmer {
-    /**
-     * Indicating distinguishability, content variation, without altering the unique identifier
-     * 表示可区分的，内容变化，不会改变UniqueId
-     */
-    class IUniqueAble {
-    public:
-        virtual ~IUniqueAble() = default;
+void glimmer::GpuShaderCompileResult::SetNumSamplers(const uint32_t numSamplers) {
+    numSamplers_ = numSamplers;
+}
 
-        /**
-         * GetId
-         * 获取Id
-         * @return
-         */
-        [[nodiscard]] virtual uint64_t GetUniqueId() const = 0;
-    };
+void glimmer::GpuShaderCompileResult::SetNumUniformBuffers(const uint32_t numUniformBuffers) {
+    numUniformBuffers_ = numUniformBuffers;
+}
+
+uint32_t glimmer::GpuShaderCompileResult::GetNumSamplers() const {
+    return numSamplers_;
+}
+
+uint32_t glimmer::GpuShaderCompileResult::GetNumUniformBuffers() const {
+    return numUniformBuffers_;
+}
+
+void glimmer::GpuShaderCompileResult::SetCode(const std::vector<unsigned int> &code) {
+    code_ = code;
+}
+
+size_t glimmer::GpuShaderCompileResult::GetCodeSize() const {
+    return code_.size();
+}
+
+const std::vector<unsigned int> &glimmer::GpuShaderCompileResult::GetCode() const {
+    return code_;
+}
+
+std::vector<unsigned int> &glimmer::GpuShaderCompileResult::GetMutableCode() {
+    return code_;
 }

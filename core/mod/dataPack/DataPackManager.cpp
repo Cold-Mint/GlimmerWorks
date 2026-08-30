@@ -55,9 +55,8 @@ bool glimmer::DataPackManager::IsDataPackAvailable(const DataPack &pack) const {
     return !manifest.resPack;
 }
 
-bool glimmer::DataPackManager::IsDataPackEnabled(const DataPack &pack,
-                                                 const std::vector<std::string> &enabledDataPack) {
-    return std::ranges::find(enabledDataPack, pack.GetManifest().id) != enabledDataPack.end();
+bool glimmer::DataPackManager::IsDataPackEnabled(const DataPack &pack, std::vector<uint64_t> enabledDataPack) {
+    return std::ranges::find(enabledDataPack, pack.GetUniqueId()) != enabledDataPack.end();
 }
 
 bool glimmer::DataPackManager::CheckDependencyVersion(const std::vector<PackDependence> &dependencies,

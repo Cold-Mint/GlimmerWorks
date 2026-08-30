@@ -69,6 +69,8 @@ namespace glimmer {
 
         [[nodiscard]] std::string_view GetFileProviderName() const override;
 
+        [[nodiscard]] std::optional<std::filesystem::file_time_type>
+        GetMtime(const std::filesystem::path &path) override;
 
         [[nodiscard]] std::optional<std::string> GetFileOrFolderName(const std::filesystem::path &path) const override;
 

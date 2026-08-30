@@ -40,8 +40,6 @@ namespace glimmer {
 #endif
 
     protected:
-        virtual ~ResourceResult();
-
         /**
          * Perform resource destruction
          * 实现销毁资源。
@@ -55,6 +53,8 @@ namespace glimmer {
         void DestroyResource();
 
     public:
+        virtual ~ResourceResult();
+
         void SetResourcePack(const ResourcePack *resourcePack);
 
         [[nodiscard]] const ResourcePack *GetResourcePack() const;

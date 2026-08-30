@@ -40,7 +40,6 @@ namespace glimmer {
     public:
         void SetPipelineResource(std::unique_ptr<GPUPipelineResource> pipelineResource);
 
-    protected:
         ~GPUPipelineResourceResult() override;
     };
 }

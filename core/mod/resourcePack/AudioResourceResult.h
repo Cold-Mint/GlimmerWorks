@@ -31,8 +31,9 @@
 namespace glimmer {
     class AudioResourceResult : public ResourceResult<MIX_Audio> {
     protected:
-        ~AudioResourceResult() override;
-
         void DestroyResourceImpl(MIX_Audio *resource) override;
+
+    public:
+        ~AudioResourceResult() override;
     };
 }

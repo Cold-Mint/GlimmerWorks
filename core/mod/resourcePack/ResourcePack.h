@@ -47,7 +47,7 @@ namespace glimmer {
 
         [[nodiscard]] const ResourcePackManifest &GetManifest() const;
 
-        [[nodiscard]] uint64_t GetUniqueId() override;
+        [[nodiscard]] uint64_t GetUniqueId() const override;
 
         [[nodiscard]] const std::filesystem::path &GetPath() const;
     };

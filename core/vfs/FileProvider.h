@@ -111,6 +111,15 @@ namespace glimmer {
         [[nodiscard]] virtual std::vector<std::filesystem::path> ListFile(
             const std::filesystem::path &path, bool recursive) = 0;
 
+        /**
+         * Obtain the modification time of the file
+         * 获取文件的修改时间
+         * @param path
+         * @return
+         */
+        [[nodiscard]] virtual std::optional<std::filesystem::file_time_type>
+        GetMtime(const std::filesystem::path &path);
+
         [[nodiscard]] virtual std::optional<std::filesystem::path> GetParentPath(
             const std::filesystem::path &path) const = 0;
 

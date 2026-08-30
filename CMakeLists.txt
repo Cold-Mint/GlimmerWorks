@@ -392,15 +392,7 @@ if (ANDROID)
     add_library(GlimmerWorks SHARED)
 else ()
     message(STATUS "Building for Desktop → Executable")
-    add_executable(GlimmerWorks
-            core/utils/IUniqueAble.cpp
-            core/utils/IUniqueAble.h
-            core/mod/resourcePack/cache/TextureCache.cpp
-            core/mod/resourcePack/cache/TextureCache.h
-            core/mod/resourcePack/cache/AudioCache.cpp
-            core/mod/resourcePack/cache/AudioCache.h
-            core/mod/resourcePack/cache/GpuPipelineCache.cpp
-            core/mod/resourcePack/cache/GpuPipelineCache.h)
+    add_executable(GlimmerWorks)
 endif ()
 
 target_sources(GlimmerWorks
@@ -410,6 +402,12 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Platform_SDL.cpp"
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL_GPU.cpp"
         core/app/App.cpp
+        core/utils/IUniqueAble.cpp
+        core/mod/resourcePack/cache/TextureCache.cpp
+        core/mod/resourcePack/cache/AudioCache.cpp
+        core/mod/resourcePack/cache/GpuPipelineCache.cpp
+        core/mod/resourcePack/cache/ShaderCache.cpp
+        core/gpu/GpuShaderCompileResult.cpp
         core/mod/resourcePack/BaseResourceCache.cpp
         core/mod/resourcePack/BaseManager.cpp
         core/app/AppEventLoop.cpp
@@ -609,11 +607,9 @@ target_sources(GlimmerWorks
         core/gpu/GpuLightingPass.cpp
         core/gpu/GpuRenderer.cpp
         core/gpu/GpuRenderPassState.cpp
-        core/gpu/GpuShaderCache.cpp
         core/gpu/GpuShaderCompiler.cpp
         core/gpu/GpuShaderPipelineManager.cpp
         core/gpu/GpuSpriteBatcher.cpp
-        core/gpu/GpuTexture.cpp
         core/gpu/RenderQueue.cpp
         core/ecs/system/RayCast2DSystem.cpp
         core/ecs/system/SpiritRendererSystem.cpp
@@ -806,6 +802,12 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Platform_SDL.h"
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL_GPU.h"
         core/app/App.h
+        core/utils/IUniqueAble.h
+        core/mod/resourcePack/cache/TextureCache.h
+        core/mod/resourcePack/cache/AudioCache.h
+        core/mod/resourcePack/cache/GpuPipelineCache.h
+        core/mod/resourcePack/cache/ShaderCache.h
+        core/gpu/GpuShaderCompileResult.h
         core/mod/resourcePack/BaseResourceCache.h
         core/mod/resourcePack/BaseManager.h
         core/context/tasks/IAppContextInitTask.h
@@ -1014,11 +1016,9 @@ target_sources(GlimmerWorks
         core/gpu/GpuLightingPass.h
         core/gpu/GpuRenderer.h
         core/gpu/GpuRenderPassState.h
-        core/gpu/GpuShaderCache.h
         core/gpu/GpuShaderCompiler.h
         core/gpu/GpuShaderPipelineManager.h
         core/gpu/GpuSpriteBatcher.h
-        core/gpu/GpuTexture.h
         core/gpu/LightMapParams.h
         core/gpu/RenderCommand.h
         core/gpu/RenderLayer.h

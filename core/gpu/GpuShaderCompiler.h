@@ -26,10 +26,9 @@
  */
 #pragma once
 
-#include <cstddef>
-#include <vector>
+#include <memory>
 
-#include <SDL3/SDL_gpu.h>
+#include "GpuShaderCompileResult.h"
 
 namespace glimmer {
     /**
@@ -44,8 +43,7 @@ namespace glimmer {
      * the last shader has been compiled (typically during GpuContext init/shutdown).
      * 用法：编译任何着色器之前调用一次 Init()，最后一次编译结束后调用 Shutdown()。
      */
-    class GpuShaderCompiler {
-    public:
+    struct GpuShaderCompiler {
         /**
          * Initialize the glslang process state.
          * 初始化 glslang 进程状态。
@@ -61,68 +59,13 @@ namespace glimmer {
         static void Shutdown();
 
         /**
-         * Compile GLSL source code into an SDL_GPUShader.
-         * 将 GLSL 源码编译为 SDL_GPUShader。
-         * @param device device 有效的 GPU 设备
-         * @param source source GLSL 源码（以 '\0' 结尾）
-         * @param debugName debugName 出错时用于日志定位的名称（通常是文件路径）
-         * @param gpuStage gpuStage 着色器阶段（顶点或片元）
-         * @param numSamplers numSamplers 着色器声明的采样器数量
-         * @param numUniformBuffers numUniformBuffers 着色器声明的 uniform 缓冲数量
-         * @return The compiled shader on success (caller must release it with
-         * SDL_ReleaseGPUShader), nullptr on failure.
-         * 成功返回编译好的着色器（调用方需用 SDL_ReleaseGPUShader 释放），失败返回 nullptr。
-         */
-        static SDL_GPUShader *CompileFromSource(SDL_GPUDevice *device, const char *source, const char *debugName,
-                                                SDL_GPUShaderStage gpuStage, Uint32 numSamplers,
-                                                Uint32 numUniformBuffers);
-
-        /**
-         * Compile GLSL source code to SPIR-V words (without creating a GPU
-         * shader). The result can be cached on disk and later turned into an
-         * SDL_GPUShader with CreateFromSpirv.
-         * 将 GLSL 源码编译为 SPIR-V 字（不创建 GPU 着色器）。结果可以缓存到磁盘，
-         * 之后通过 CreateFromSpirv 转换为 SDL_GPUShader。
-         * @param source source GLSL 源码（以 '\0' 结尾）
-         * @param debugName debugName 出错时用于日志定位的名称（通常是文件路径）
-         * @param gpuStage gpuStage 着色器阶段（顶点或片元）
-         * @return The SPIR-V words on success, an empty vector on failure.
-         * 成功返回 SPIR-V 字数组，失败返回空数组。
-         */
-        static std::vector<unsigned int> CompileToSpirv(const char *source, const char *debugName,
-                                                        SDL_GPUShaderStage gpuStage);
-
-        /**
-         * Create an SDL_GPUShader from SPIR-V binary data.
-         * 从 SPIR-V 二进制数据创建 SDL_GPUShader。
-         * @param device device 有效的 GPU 设备
-         * @param code code SPIR-V 二进制数据
-         * @param codeSize codeSize 数据字节数（必须是 4 的倍数）
-         * @param debugName debugName 出错时用于日志定位的名称
-         * @param gpuStage gpuStage 着色器阶段（顶点或片元）
-         * @param numSamplers numSamplers 着色器声明的采样器数量
-         * @param numUniformBuffers numUniformBuffers 着色器声明的 uniform 缓冲数量
-         * @return The shader on success (caller must release it with
-         * SDL_ReleaseGPUShader), nullptr on failure.
-         * 成功返回着色器（调用方需用 SDL_ReleaseGPUShader 释放），失败返回 nullptr。
-         */
-        static SDL_GPUShader *CreateFromSpirv(SDL_GPUDevice *device, const void *code, size_t codeSize,
-                                              const char *debugName, SDL_GPUShaderStage gpuStage, Uint32 numSamplers,
-                                              Uint32 numUniformBuffers);
-
-        /**
-         * Load a GLSL file with SDL_LoadFile and compile it into an SDL_GPUShader.
-         * 使用 SDL_LoadFile 读取 GLSL 文件并编译为 SDL_GPUShader。
-         * @param device device 有效的 GPU 设备
-         * @param filePath filePath 着色器文件路径（相对工作目录，Android 上相对 assets）
-         * @param gpuStage gpuStage 着色器阶段（顶点或片元）
-         * @param numSamplers numSamplers 着色器声明的采样器数量
-         * @param numUniformBuffers numUniformBuffers 着色器声明的 uniform 缓冲数量
-         * @return The compiled shader on success, nullptr on failure.
-         * 成功返回编译好的着色器，失败返回 nullptr。
-         */
-        static SDL_GPUShader *CompileFromFile(SDL_GPUDevice *device, const char *filePath,
-                                              SDL_GPUShaderStage gpuStage, Uint32 numSamplers,
-                                              Uint32 numUniformBuffers);
+        * Compile the GLSL source code into SPIR-V binary.
+        * 将GLSL源码编译为 SPIR-V二进制。
+        * @param source glsl source glsl源代码
+        * @param vertex Is it a vertex shader? 是否为顶点着色器
+        * @return
+        */
+        static std::unique_ptr<GpuShaderCompileResult> CompileToSpirv(const std::string &source,
+                                                                      bool vertex);
     };
 }

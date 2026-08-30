@@ -25,7 +25,20 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include "core/mod/resourcePack/BaseResourceCache.h"
+
 namespace glimmer {
-    class GpuPipelineCache {
+    class GpuPipelineCache : public BaseResourceCache<GPUPipelineResourceResult> {
+        toml::spec *tomlVersion_ = nullptr;
+
+    protected:
+        std::shared_ptr<GPUPipelineResourceResult> LoadResourceFromPack(AppContext *appContext,
+            const ResourceRef *resourceRef, const ResourcePack *resourcePack) override;
+
+    public:
+
+        void SetTomlVersion(toml::spec *tomlVersion);
+
+        ~GpuPipelineCache() noexcept override;
     };
 }

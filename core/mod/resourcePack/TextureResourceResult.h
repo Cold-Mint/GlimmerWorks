@@ -36,9 +36,9 @@ namespace glimmer {
     protected:
         void DestroyResourceImpl(SDL_GPUTexture *resource) override;
 
+    public:
         ~TextureResourceResult() override;
 
-    public:
         void SetGpuDevice(SDL_GPUDevice *gpuDevice);
 
         void SetTexturePath(const std::filesystem::path &texturePath);

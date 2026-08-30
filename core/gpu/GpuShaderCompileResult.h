@@ -26,21 +26,41 @@
  */
 #pragma once
 #include <cstdint>
+#include <vector>
 
 namespace glimmer {
-    /**
-     * Indicating distinguishability, content variation, without altering the unique identifier
-     * 表示可区分的，内容变化，不会改变UniqueId
-     */
-    class IUniqueAble {
+    class GpuShaderCompileResult {
+        std::vector<unsigned int> code_;
+        //采样器数量
+        uint32_t numSamplers_ = 0;
+        //UniformBuffers数量
+        uint32_t numUniformBuffers_ = 0;
+
     public:
-        virtual ~IUniqueAble() = default;
+        void SetNumSamplers(uint32_t numSamplers);
+
+        void SetNumUniformBuffers(uint32_t numUniformBuffers);
+
+        [[nodiscard]] uint32_t GetNumSamplers() const;
+
+        [[nodiscard]] uint32_t GetNumUniformBuffers() const;
 
         /**
-         * GetId
-         * 获取Id
+         * Set the compiled Spirv binary.
+         * 设置编译后的Spirv二进制。
+         * @param code
+         */
+        void SetCode(const std::vector<unsigned int> &code);
+
+        [[nodiscard]] size_t GetCodeSize() const;
+
+        /**
+         * Get the code
+         * 获取源代码
          * @return
          */
-        [[nodiscard]] virtual uint64_t GetUniqueId() const = 0;
+        [[nodiscard]] const std::vector<unsigned int> &GetCode() const;
+
+        [[nodiscard]] std::vector<unsigned int> &GetMutableCode();
     };
 }

@@ -503,6 +503,10 @@ glimmer::DataPack::DataPack(std::filesystem::path path, const VirtualFileSystem 
                                                              tomlTemplateExpander_(tomlTemplateExpander) {
 }
 
+uint64_t glimmer::DataPack::GetUniqueId() const {
+    return StringUtils::StringToUint64(manifest_.id);
+}
+
 bool glimmer::DataPack::LoadManifest() {
     const auto contentOptional = virtualFileSystem_->ReadFileAsString(rootPath_ / MANIFEST_FILE_NAME);
     if (!contentOptional.has_value()) {

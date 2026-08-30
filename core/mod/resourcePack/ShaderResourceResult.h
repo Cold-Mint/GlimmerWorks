@@ -25,21 +25,20 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <filesystem>
-#include <string>
+#include "ResourceResult.h"
+#include "SDL3/SDL_gpu.h"
 
 namespace glimmer {
-    class ShaderResourceResult {
-        std::filesystem::path shaderPath_;
-        std::string source_;
+    class ShaderResourceResult : public ResourceResult<SDL_GPUShader> {
+        SDL_GPUDevice *device_ = nullptr;
+
+    protected:
+        void DestroyResourceImpl(SDL_GPUShader *resource) override;
 
     public:
-        void SetPath(const std::filesystem::path &shaderPath);
 
-        [[nodiscard]] const std::filesystem::path &GetPath() const;
+        void SetDevice(SDL_GPUDevice *device);
 
-        void SetSource(std::string source);
-
-        [[nodiscard]] const std::string &GetSource() const;
+        ~ShaderResourceResult() override;
     };
 }

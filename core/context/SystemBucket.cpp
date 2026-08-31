@@ -30,6 +30,18 @@ void glimmer::SystemBucket::SetWindowContext(std::unique_ptr<WindowContext> wind
     windowContext_ = std::move(windowContext);
 }
 
+void glimmer::SystemBucket::SetCacheContext(std::unique_ptr<CacheContext> cacheContext) {
+    cacheContext_ = std::move(cacheContext);
+}
+
+glimmer::CacheContext *glimmer::SystemBucket::GetCacheContext() const {
+    CacheContext *cacheContext = cacheContext_.get();
+    if (cacheContext == nullptr) {
+        return nullptr;
+    }
+    return cacheContext;
+}
+
 glimmer::WindowContext *glimmer::SystemBucket::GetWindowContext() const {
     WindowContext *windowContext = windowContext_.get();
     if (windowContext == nullptr) {

@@ -44,10 +44,10 @@ uint8_t glimmer::CraftPreview::GetCount() const {
     return count_;
 }
 
-std::shared_ptr<glimmer::GpuTexture> glimmer::CraftPreview::GetTexture() {
+std::shared_ptr<glimmer::TextureResourceResult> glimmer::CraftPreview::GetTexture() {
     return texture_;
 }
 
-void glimmer::CraftPreview::SetTexture(std::shared_ptr<GpuTexture> texture) {
+void glimmer::CraftPreview::SetTexture(std::shared_ptr<TextureResourceResult> texture) {
     texture_ = std::move(texture);
 }

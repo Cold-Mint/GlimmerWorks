@@ -126,7 +126,7 @@ bool glimmer::ParallaxBackgroundCommand::Execute(const CommandSender *commandSen
         if (resourceLocator == nullptr) {
             return false;
         }
-        const glimmer::GpuTexture *texture = parallaxBackgroundComponent->GetTexture(resourceLocator);
+        const SDL_GPUTexture *texture = parallaxBackgroundComponent->GetTexture(resourceLocator);
         if (texture == nullptr) {
             onMessageRef(langsResources->parallaxBackgroundNone);
             return false;

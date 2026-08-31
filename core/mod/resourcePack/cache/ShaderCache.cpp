@@ -29,6 +29,7 @@
 #include <src/cache/shader_cache.pb.h>
 
 #include "core/gpu/GpuShaderCompiler.h"
+#include "core/mod/resourcePack/ShaderResourceResult.h"
 #include "core/utils/StringUtils.h"
 
 
@@ -38,11 +39,7 @@ std::shared_ptr<glimmer::ShaderResourceResult> glimmer::ShaderCache::LoadResourc
     if (windowContext == nullptr) {
         return nullptr;
     }
-    GpuContext *gpuContext = windowContext->GetGpuContext();
-    if (gpuContext == nullptr) {
-        return nullptr;
-    }
-    SDL_GPUDevice *device = gpuContext->GetDevice();
+    SDL_GPUDevice *device = windowContext->GetDevice();
     if (device == nullptr) {
         return nullptr;
     }

@@ -54,15 +54,8 @@ namespace glimmer {
          */
         bool exactMatch_ = true;
 
-        std::shared_ptr<GpuTexture> positiveTexture_ = nullptr;
-        std::shared_ptr<GpuTexture> negativeTexture_ = nullptr;
-
     public:
         [[nodiscard]] uint16_t GetRequiredWeight() const;
-
-        void SetPositiveTexture(const std::shared_ptr<GpuTexture> &positiveTexture);
-
-        void SetNegativeTexture(const std::shared_ptr<GpuTexture> &negativeTexture);
 
         void SetActualValue(uint16_t actualValue);
 
@@ -75,10 +68,6 @@ namespace glimmer {
         [[nodiscard]] bool Matched() const;
 
         [[nodiscard]] uint16_t GetActualValue() const;
-
-        [[nodiscard]] GpuTexture *GetPositiveTexture() const;
-
-        [[nodiscard]] GpuTexture *GetNegativeTexture() const;
 
         void SetRequiredWeight(uint16_t requiredWeight);
 

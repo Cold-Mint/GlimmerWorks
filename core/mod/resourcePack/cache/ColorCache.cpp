@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025-2026  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
- * 版权(C) 2025-2026  Cold-Mint <cold_mint@qq.com>
+ * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
  * 该许可证的第3版，或者（由你选择）任何后续版本。
@@ -24,29 +24,28 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
+#include "ColorCache.h"
 
-namespace glimmer {
-    /**
-     * Blend configuration of a sprite-style pipeline.
-     * 精灵风格管线的混合配置。
-     */
-    enum class SpriteBlendMode : uint8_t {
-        /**
-         * Standard alpha blending (src.a / 1-src.a).
-         * 标准 alpha 混合（src.a / 1-src.a）。
-         */
-        Alpha,
-        /**
-         * Multiplicative blending (dst.rgb * src.rgb), used by the
-         * lighting pass to modulate the game layer.
-         * 乘法混合（dst.rgb * src.rgb），光照通道用它调制 game 层。
-         */
-        Multiply,
-        /**
-         * Blending disabled (source overwrites destination).
-         * 禁用混合（源直接覆盖目标）。
-         */
-        None
-    };
+#include "core/utils/TomlUtils.h"
+#include "toml11/parser.hpp"
+
+std::shared_ptr<glimmer::ColorResource> glimmer::ColorCache::LoadResourceFromPack(AppContext *appContext,
+    const ResourceRef *resourceRef, const ResourcePack *resourcePack) {
+    std::filesystem::path colorPath = resourcePack->GetPath() / "colors" / resourceRef->GetPackageId() / resourceRef->
+                                      GetResourceKey();
+    colorPath.replace_extension("color.toml");
+    const VirtualFileSystem *virtualFileSystem = appContext->GetVirtualFileSystem();
+    if (!virtualFileSystem->Exists(colorPath)) {
+        return nullptr;
+    }
+    auto dataOptional = virtualFileSystem->ReadFileAsString(colorPath);
+    if (!dataOptional.has_value()) {
+        return nullptr;
+    }
+    auto tomlVersion = appContext->GetTomlVersion();
+    const toml::value value = toml::parse_str(
+        dataOptional.value(), *tomlVersion);
+    return std::make_shared<ColorResource>(toml::get<ColorResource>(value));
 }
+
+glimmer::ColorCache::~ColorCache() noexcept = default;

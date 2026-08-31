@@ -118,7 +118,7 @@ namespace glimmer {
          * @return
          */
         [[nodiscard]] virtual std::optional<std::filesystem::file_time_type>
-        GetMtime(const std::filesystem::path &path);
+        GetMtime(const std::filesystem::path &path) = 0;
 
         [[nodiscard]] virtual std::optional<std::filesystem::path> GetParentPath(
             const std::filesystem::path &path) const = 0;

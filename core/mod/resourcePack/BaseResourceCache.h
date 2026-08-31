@@ -30,6 +30,7 @@
 
 #include "core/context/AppContext.h"
 
+
 namespace glimmer {
     /**
      * BaseResourceCache
@@ -42,17 +43,6 @@ namespace glimmer {
     class BaseResourceCache {
         std::unordered_map<uint64_t, std::weak_ptr<ResourceResultType> >
         resourceCache_;
-
-        /**
-         * If resource placeholders are enabled, then return the resource placeholder.
-         * 如果启用了资源占位符，那么返回资源占位。
-         * @param appContext
-         * @param resourceRef
-         * @param enablePlaceholder
-         * @return
-         */
-        std::shared_ptr<ResourceResultType> TryGetPlaceholder(
-            const AppContext *appContext, const ResourceRef *resourceRef, bool enablePlaceholder);
 
     protected:
         /**
@@ -85,11 +75,23 @@ namespace glimmer {
          * 加载资源
          * @param appContext appContext 应用上下文
          * @param resourceRef resourceRef 资源引用
-         * @param enablePlaceholder 有效资源；缓存未命中/加载失败时，根据enablePlaceholder返回占位资源或nullptr
+         * @param enablePlaceHolder 有效资源；缓存未命中/加载失败时，根据enablePlaceholder返回占位资源或nullptr
          * @return
          */
-        std::shared_ptr<ResourceResultType> LoadResource(const AppContext *appContext,
-                                                         const ResourceRef *resourceRef, bool enablePlaceholder = true);
+        std::shared_ptr<ResourceResultType> LoadResource(AppContext *appContext,
+                                                         const ResourceRef *resourceRef, bool enablePlaceHolder = true);
+
+
+        /**
+         * If resource placeholders are enabled, then return the resource placeholder.
+         * 如果启用了资源占位符，那么返回资源占位。
+         * @param appContext
+         * @param resourceRef
+         * @param enablePlaceholder
+         * @return
+         */
+        std::shared_ptr<ResourceResultType> TryGetPlaceholder(
+            const AppContext *appContext, const ResourceRef *resourceRef, bool enablePlaceholder);
 
         /**
          * Clear
@@ -100,26 +102,28 @@ namespace glimmer {
          */
         void Clear();
     };
+}
 
+namespace glimmer {
     template<typename ResourceResultType>
     std::shared_ptr<ResourceResultType> BaseResourceCache<ResourceResultType>::LoadResource(
-        const AppContext *appContext, const ResourceRef *resourceRef, const bool enablePlaceholder) {
+        AppContext *appContext, const ResourceRef *resourceRef, const bool enablePlaceHolder) {
         if (appContext == nullptr) {
-            return TryGetPlaceholder(appContext, resourceRef);
+            return TryGetPlaceholder(appContext, resourceRef, enablePlaceHolder);
         }
-        MainThreadDispatcher *mainThreadDispatcher = appContext->GetMainThreadDispatcher();
+        auto mainThreadDispatcher = appContext->GetMainThreadDispatcher();
         if (mainThreadDispatcher == nullptr) {
-            return TryGetPlaceholder(appContext, resourceRef, enablePlaceholder);
+            return TryGetPlaceholder(appContext, resourceRef, enablePlaceHolder);
         }
         Config *config = appContext->GetConfig();
         if (config == nullptr) {
-            return TryGetPlaceholder(appContext, resourceRef, enablePlaceholder);
+            return TryGetPlaceholder(appContext, resourceRef, enablePlaceHolder);
         }
         const Mods &mods = config->mods;
         const std::vector<uint64_t> &enabledResourcePack = mods.enabledResourcePack;
         ResourcePackManager *resourcePackManager = appContext->GetResourcePackManager();
         if (resourcePackManager == nullptr) {
-            return TryGetPlaceholder(appContext, resourceRef, enablePlaceholder);
+            return TryGetPlaceholder(appContext, resourceRef, enablePlaceHolder);
         }
 
         return mainThreadDispatcher->AddMainThreadTaskAwait(
@@ -139,7 +143,7 @@ namespace glimmer {
                     if (resourcePack == nullptr) {
                         continue;
                     }
-                    auto result = LoadResourceFromPack(appContext, resourceRef->GetResourceType(), resourcePack);
+                    auto result = LoadResourceFromPack(appContext, resourceRef, resourcePack);
                     if (result == nullptr) {
                         continue;
                     }
@@ -148,10 +152,10 @@ namespace glimmer {
                     resourceCache_[fingerprint] = result;
                     return result;
                 }
-                return nullptr;
+                return std::shared_ptr<ResourceResultType>(nullptr);
             }
         ).get();
-        return TryGetPlaceholder(appContext, resourceRef, enablePlaceholder);
+        return TryGetPlaceholder(appContext, resourceRef, enablePlaceHolder);
     }
 
     template<typename ResourceResultType>
@@ -168,7 +172,7 @@ namespace glimmer {
     template<typename ResourceResultType>
     std::shared_ptr<ResourceResultType> BaseResourceCache<ResourceResultType>::TryGetPlaceholder(
         const AppContext *appContext, const ResourceRef *resourceRef, const bool enablePlaceholder) {
-        if (!enablePlaceholder) {
+        if (!enablePlaceholder || resourceRef == nullptr) {
             return nullptr;
         }
         return CreatePlaceholderResource(appContext, resourceRef);

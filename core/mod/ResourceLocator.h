@@ -41,9 +41,12 @@
 #include "resourcePack/AudioResourceResult.h"
 #include "resourcePack/GPUPipelineResource.h"
 #include "resourcePack/ResourcePackManager.h"
+#include "resourcePack/ShaderResourceResult.h"
 #include "resourcePack/TextureResourceResult.h"
 
+
 namespace glimmer {
+    class CacheContext;
     class TileResourceManager;
     class MobRegistry;
     class ItemManager;
@@ -60,6 +63,7 @@ namespace glimmer {
      */
     class ResourceLocator {
         AppContext *appContext_ = nullptr;
+        CacheContext *cacheContext_ = nullptr;
         ResourcePackManager *resourcePackManager_ = nullptr;
         FixedColorManager *fixedColorManager_ = nullptr;
         LootTableRegistry *lootTableRegistry_ = nullptr;
@@ -91,44 +95,43 @@ namespace glimmer {
         [[nodiscard]] bool ValidateAccessPermission(const ResourceRef *resourceRef) const;
 
     public:
-        explicit ResourceLocator(AppContext *appContext_);
+        explicit ResourceLocator(AppContext *appContext);
 
         /**
          * Load the texture and return an error placeholder if the loading fails.
          * 加载纹理，并在加载失败后返回错误占位符。
          * @param resourceRef
+         * @param enablePlaceHolder
          * @return
          */
-        [[nodiscard]] std::shared_ptr<TextureResourceResult> FindTexture(const ResourceRef *resourceRef) const;
+        [[nodiscard]] std::shared_ptr<TextureResourceResult> FindTexture(
+            const ResourceRef *resourceRef, bool enablePlaceHolder = true) const;
 
-        /**
-         * 加载纹理
-         * @param resourceRef 资源引用
-         * @return 找不到返回null，权限受限返回accessDeniedTexture。
-         */
-        [[nodiscard]] std::shared_ptr<TextureResourceResult> FindTextureRaw(const ResourceRef *resourceRef) const;
-
-        [[nodiscard]] std::shared_ptr<AudioResourceResult> FindAudio(const ResourceRef *resourceRef) const;
+        [[nodiscard]] std::shared_ptr<AudioResourceResult> FindAudio(const ResourceRef *resourceRef,
+                                                                     bool enablePlaceholder = true) const;
 
         /**
          * FindShader
          * 查找着色器资源（RESOURCE_SHADER，resourceKey 含扩展名，如 sprite.vert）
          * @param resourceRef resourceRef 着色器引用
-         * @return The result (path + source), nullptr if not found or access denied.
-         * 查找结果（路径 + 源码）；找不到或权限受限时返回 nullptr。
+         * @param enablePlaceHolder enablePlaceholder 启用占位符
          */
-        [[nodiscard]] std::unique_ptr<ShaderResourceResult> FindShader(const ResourceRef *resourceRef) const;
+        [[nodiscard]] std::shared_ptr<ShaderResourceResult> FindShader(const ResourceRef *resourceRef,
+                                                                       bool enablePlaceHolder = true) const;
 
         /**
          * FindPipeline
          * 查找 GPU 管线配置资源（RESOURCE_PIPELINE）。
          * @param resourceRef resourceRef 管线引用
+         * @param enablePlaceHolder
          * @return The result (configuration), nullptr if not found or access denied.
          * 查找结果（配置）；找不到或权限受限时返回 nullptr。
          */
-        [[nodiscard]] std::shared_ptr<GPUPipelineResourceResult> FindPipeline(const ResourceRef *resourceRef) const;
+        [[nodiscard]] std::shared_ptr<GPUPipelineResourceResult> FindPipeline(
+            const ResourceRef *resourceRef, bool enablePlaceHolder = true) const;
 
-        [[nodiscard]] std::unique_ptr<Color> FindColor(const ResourceRef *resourceRef) const;
+        [[nodiscard]] std::unique_ptr<Color> FindColor(const ResourceRef *resourceRef,
+                                                       bool enablePlaceHolder = true) const;
 
         [[nodiscard]] IShapeResource *FindShape(const ResourceRef *resourceRef) const;
 

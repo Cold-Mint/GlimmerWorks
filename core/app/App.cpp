@@ -102,12 +102,12 @@ bool glimmer::App::InitWindowAndRenderer() {
     }
     windowContext->SetWindow(window);
     LogCat::i("Creating GPU context");
-    gpuContext_ = std::make_unique<GpuContext>();
-    if (!gpuContext_->Init(window, config->window.vSync)) {
-        LogCat::e(std::source_location::current(), "GpuContext init failed");
-        return false;
-    }
-    windowContext->SetGpuContext(gpuContext_.get());
+    // gpuContext_ = std::make_unique<GpuContext>();
+    // if (!gpuContext_->Init(window, config->window.vSync)) {
+    //     LogCat::e(std::source_location::current(), "GpuContext init failed");
+    //     return false;
+    // }
+    // windowContext->SetGpuContext(gpuContext_.get());
     LogCat::i("GPU context created successfully");
     ResourcePackManager *resourcePackManager = appContext_->GetResourcePackManager();
     if (resourcePackManager == nullptr) {
@@ -115,12 +115,12 @@ bool glimmer::App::InitWindowAndRenderer() {
         return false;
     }
     GpuShaderCompiler::Init();
-    gpuRenderer_ = std::make_unique<GpuRenderer>();
-    if (!gpuRenderer_->Init(gpuContext_.get(), appContext_)) {
-        LogCat::e(std::source_location::current(), "GpuRenderer init failed");
-        return false;
-    }
-    windowContext->SetRenderer(gpuRenderer_.get());
+    // gpuRenderer_ = std::make_unique<GpuRenderer>();
+    // if (!gpuRenderer_->Init(gpuContext_.get(), appContext_)) {
+    //     LogCat::e(std::source_location::current(), "GpuRenderer init failed");
+    //     return false;
+    // }
+    // windowContext->SetRenderer(gpuRenderer_.get());
     LogCat::i("GpuRenderer created successfully");
     RmlContext *rmlContext = appContext_->GetRmlContext();
     if (rmlContext == nullptr) {
@@ -128,12 +128,12 @@ bool glimmer::App::InitWindowAndRenderer() {
         return false;
     }
     LogCat::i("Initializing RmlContext");
-    rmlContext->Init(appContext_->GetVirtualFileSystem(), gpuContext_.get(), resourcePackManager,
+    rmlContext->Init(appContext_->GetVirtualFileSystem(),windowContext->GetDevice(),
                      appContext_->GetResourceLocator(), appContext_->GetLangsValue(), window,
                      config->window.width,
                      config->window.height);
     LogCat::i("RmlContext initialized successfully");
-    resourcePackManager->SetGpuContext(gpuContext_.get(), appContext_->GetGraphicsContext()->GetPreloadColors());
+    // resourcePackManager->SetGpuContext(gpuContext_.get(), appContext_->GetGraphicsContext()->GetPreloadColors());
     LogCat::i("ResourcePackManager GPU context set");
     LogCat::i("InitWindowAndRenderer completed successfully");
     return true;
@@ -151,54 +151,54 @@ bool glimmer::App::InitFont() const {
         return false;
     }
     LogCat::i("Loading font for language: ", appContext_->GetLanguage());
-    const auto fontPathOpt = resourcePackManager->GetFontPath(
-        config->mods.enabledResourcePack,
-        appContext_->GetLanguage());
+    // const auto fontPathOpt = resourcePackManager->GetFontPath(
+    //     config->mods.enabledResourcePack,
+    //     appContext_->GetLanguage());
 
-    if (!fontPathOpt.has_value()) {
-        LogCat::i("No font configured, skipping font initialization");
-        return true;
-    }
+    // if (!fontPathOpt.has_value()) {
+    //     LogCat::i("No font configured, skipping font initialization");
+    //     return true;
+    // }
 
-    const std::filesystem::path &fontPath = fontPathOpt.value();
-    LogCat::i("Font path: ", fontPath.string());
-    const VirtualFileSystem *virtualFileSystem = appContext_->GetVirtualFileSystem();
-    if (virtualFileSystem == nullptr) {
-        LogCat::e(std::source_location::current(), "virtualFileSystem is nullptr");
-        return false;
-    }
-    if (!virtualFileSystem->Exists(fontPath)) {
-        LogCat::w(std::source_location::current(), "Font file not found: ", fontPath.string());
-        return false;
-    }
-
-    auto actualPath = virtualFileSystem->GetActualPath(fontPath);
-    if (!actualPath.has_value()) {
-        LogCat::w(std::source_location::current(), "Cannot get actual font path");
-        return false;
-    }
-    const std::optional<std::string> fontDataOptional = virtualFileSystem->ReadFileAsString(fontPath);
-    if (!fontDataOptional.has_value()) {
-        LogCat::w(std::source_location::current(), "Cannot read font file");
-        return false;
-    }
-    RmlContext *rmlContext = appContext_->GetRmlContext();
-    if (rmlContext == nullptr) {
-        LogCat::e(std::source_location::current(), "rmlContext is nullptr");
-        return false;
-    }
-    if (!rmlContext->LoadFont(virtualFileSystem, fontPath)) {
-        LogCat::e(std::source_location::current(), "RmlContext Failed to load font: ", actualPath.value());
-        return false;
-    }
-    const std::string fontPathStr = actualPath.value().string();
-    TTF_Font *sdlFont = TTF_OpenFont(fontPathStr.c_str(), 16);
-    if (sdlFont == nullptr) {
-        LogCat::e(std::source_location::current(), "Failed to load font: ", actualPath.value());
-        return false;
-    }
-    resourcePackManager->SetFont(sdlFont);
-    LogCat::i("Font loaded successfully: ", fontPathStr);
+    // const std::filesystem::path &fontPath = fontPathOpt.value();
+    // LogCat::i("Font path: ", fontPath.string());
+    // const VirtualFileSystem *virtualFileSystem = appContext_->GetVirtualFileSystem();
+    // if (virtualFileSystem == nullptr) {
+    //     LogCat::e(std::source_location::current(), "virtualFileSystem is nullptr");
+    //     return false;
+    // }
+    // if (!virtualFileSystem->Exists(fontPath)) {
+    //     LogCat::w(std::source_location::current(), "Font file not found: ", fontPath.string());
+    //     return false;
+    // }
+    //
+    // auto actualPath = virtualFileSystem->GetActualPath(fontPath);
+    // if (!actualPath.has_value()) {
+    //     LogCat::w(std::source_location::current(), "Cannot get actual font path");
+    //     return false;
+    // }
+    // const std::optional<std::string> fontDataOptional = virtualFileSystem->ReadFileAsString(fontPath);
+    // if (!fontDataOptional.has_value()) {
+    //     LogCat::w(std::source_location::current(), "Cannot read font file");
+    //     return false;
+    // }
+    // RmlContext *rmlContext = appContext_->GetRmlContext();
+    // if (rmlContext == nullptr) {
+    //     LogCat::e(std::source_location::current(), "rmlContext is nullptr");
+    //     return false;
+    // }
+    // if (!rmlContext->LoadFont(virtualFileSystem, fontPath)) {
+    //     LogCat::e(std::source_location::current(), "RmlContext Failed to load font: ", actualPath.value());
+    //     return false;
+    // }
+    // const std::string fontPathStr = actualPath.value().string();
+    // TTF_Font *sdlFont = TTF_OpenFont(fontPathStr.c_str(), 16);
+    // if (sdlFont == nullptr) {
+    //     LogCat::e(std::source_location::current(), "Failed to load font: ", actualPath.value());
+    //     return false;
+    // }
+    // resourcePackManager->SetFont(sdlFont);
+    // LogCat::i("Font loaded successfully: ", fontPathStr);
     return true;
 }
 
@@ -237,7 +237,7 @@ bool glimmer::App::InitAudio() {
         LogCat::e(std::source_location::current(), "resourcePackManager is nullptr");
         return false;
     }
-    resourcePackManager->SetMixer(mixer_);
+    // resourcePackManager->SetMixer(mixer_);
     LogCat::i("Loading main menu BGM");
     AudioContext *audioContext = appContext_->GetAudioContext();
     if (audioContext == nullptr) {
@@ -288,8 +288,6 @@ bool glimmer::App::CheckWindowSizeChange(WindowContext *windowContext, const int
 }
 
 glimmer::App::~App() {
-    gpuRenderer_.reset();
-    gpuContext_.reset();
     GpuShaderCompiler::Shutdown();
     if (initSDLMixSuccess_) {
         MIX_Quit();
@@ -337,7 +335,7 @@ void glimmer::App::Run() const {
 
     LogCat::i("Creating event loop and renderer");
     AppEventLoop eventLoop(appContext_, lastInputTime);
-    AppRenderer renderer(appContext_, gpuRenderer_.get());
+    AppRenderer renderer(appContext_);
 
     WindowContext *windowContext = appContext_->GetWindowContext();
     if (windowContext == nullptr) {
@@ -468,9 +466,9 @@ void glimmer::App::UpdateScenes(const float deltaTime) const {
 void glimmer::App::InitScenesAndConsole() const {
     auto sceneManager = appContext_->GetSceneManager();
     sceneManager->PushScene(std::make_unique<SplashScene>(appContext_));
-#if  !defined(NDEBUG)
-    sceneManager->AddOverlayScene(std::make_unique<DebugOverlay>(appContext_));
-#endif
+// #if  !defined(NDEBUG)
+//     sceneManager->AddOverlayScene(std::make_unique<DebugOverlay>(appContext_));
+// #endif
     sceneManager->AddOverlayScene(std::make_unique<ConsoleOverlay>(appContext_));
     ConsoleWorker *consoleWorker = appContext_->GetConsoleContext()->GetConsoleWorker();
     if (consoleWorker == nullptr) {
@@ -478,10 +476,10 @@ void glimmer::App::InitScenesAndConsole() const {
     }
     consoleWorker->PushOnMessage(
         std::make_unique<std::function<void(const std::string &)> >([this](const std::string &text) {
-            if (appContext_ == nullptr) {
-                return;
-            }
-            appContext_->AddUIMessage(text);
+            // if (appContext_ == nullptr) {
+            //     return;
+            // }
+            // appContext_->AddUIMessage(text);
         })
     );
 }

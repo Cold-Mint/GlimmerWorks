@@ -31,7 +31,7 @@
 
 namespace glimmer {
     class TileItem : public Item {
-        std::shared_ptr<Tile> tile_;
+        std::shared_ptr<Tile> tile_ = nullptr;
         const TileResourceData *tileResourceData_;
         const TileDimensions *tileDimensions_;
 
@@ -51,7 +51,7 @@ namespace glimmer {
         bool OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user, const AbilityConfig *abilityConfig,
                    std::unordered_set<AbilityType> &popupAbility) override;
 
-        [[nodiscard]] GpuTexture *GetIcon() const override;
+        [[nodiscard]] TextureResourceResult * GetIcon() const override;
 
         [[nodiscard]] const ResourceRef *GetIconResourceRef() const override;
 

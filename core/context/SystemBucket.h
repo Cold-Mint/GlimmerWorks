@@ -28,16 +28,19 @@
 #include <memory>
 
 #include "AudioContext.h"
+#include "CacheContext.h"
 #include "ConsoleContext.h"
 #include "GraphicsContext.h"
 #include "ModContext.h"
 #include "WindowContext.h"
 #include "core/config/Config.h"
+#include "core/mod/ResourceLocator.h"
+#include "core/mod/resourcePack/ResourcePackManager.h"
 #include "core/saves/SavesManager.h"
 #include "core/scene/MainThreadDispatcher.h"
 #include "core/scene/SceneManager.h"
-#include "core/ui/GameUIMessage.h"
 #include "core/utils/LanguageUtils.h"
+#include "core/vfs/VirtualFileSystem.h"
 
 namespace glimmer {
     class SystemBucket {
@@ -58,9 +61,14 @@ namespace glimmer {
         std::unique_ptr<AudioContext> audioContext_ = nullptr;
         std::unique_ptr<MainThreadDispatcher> mainThreadDispatcher_ = nullptr;
         std::unique_ptr<toml::value> langsValue_ = nullptr;
+        std::unique_ptr<CacheContext> cacheContext_ = nullptr;
 
     public:
         void SetWindowContext(std::unique_ptr<WindowContext> windowContext);
+
+        void SetCacheContext(std::unique_ptr<CacheContext> cacheContext);
+
+        [[nodiscard]] CacheContext* GetCacheContext() const;
 
         [[nodiscard]] WindowContext *GetWindowContext() const;
 

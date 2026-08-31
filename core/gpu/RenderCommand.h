@@ -30,9 +30,9 @@
 
 #include "RenderLayer.h"
 #include "SpriteVertex.h"
+#include "core/mod/resourcePack/TextureResourceResult.h"
 
 namespace glimmer {
-    class GpuTexture;
 
     /**
      * Flip flags for RenderQueue::DrawTextureRotated (replaces SDL_FlipMode).
@@ -62,7 +62,7 @@ namespace glimmer {
      * （矩形/线/点）。
      */
     struct RenderCommand {
-        const GpuTexture *texture = nullptr;
+        const TextureResourceResult *texture = nullptr;
         SpriteVertex corners[4] = {};
         RenderLayer layer = RenderLayer::Background;
         float depth = 0.0F;

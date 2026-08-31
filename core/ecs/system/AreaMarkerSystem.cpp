@@ -71,90 +71,90 @@ void glimmer::AreaMarkerSystem::Update(const float delta) {
 }
 
 void glimmer::AreaMarkerSystem::Render(RenderQueue *queue) {
-    if (appContext_ == nullptr) {
-        return;
-    }
-    if (cameraComponent_ == nullptr) {
-        return;
-    }
-    if (cameraTransform2DComponent_ == nullptr) {
-        return;
-    }
-    if (areaMarkerComponent_ == nullptr) {
-        return;
-    }
-    if (!areaMarkerComponent_->CanDraw()) {
-        return;
-    }
-    WorldVector2D cameraPosition = cameraTransform2DComponent_->GetPosition();
-    const auto &areaMarkerFullColor =
-            preloadColors_->
-            areaMarkerColor;
-    const auto &areaMarkerBorderColor = preloadColors_->
-            areaMarkerBorderColor;
-    const TileVector2D &startPointTileVector2D = areaMarkerComponent_->GetStartPoint();
-    const TileVector2D &endPointTileVector2D = areaMarkerComponent_->GetEndPoint();
-    const WorldVector2D startPoint = CoordinateTransformer::TileToWorld(startPointTileVector2D);
-    const WorldVector2D endPoint = CoordinateTransformer::TileToWorld(endPointTileVector2D);
-    int tileWidth = std::abs(endPointTileVector2D.x - startPointTileVector2D.x) + 1;
-    int tileHeight = std::abs(endPointTileVector2D.y - startPointTileVector2D.y) + 1;
-    int tileArea = tileWidth * tileHeight;
-    const float minWorldX = std::min(startPoint.x, endPoint.x);
-    const float maxWorldX = std::max(startPoint.x, endPoint.x);
-    const float minWorldY = std::min(startPoint.y, endPoint.y);
-    const float maxWorldY = std::max(startPoint.y, endPoint.y);
-    WorldVector2D rectWorldMin;
-    rectWorldMin.x = minWorldX - HALF_TILE_SIZE;
-    rectWorldMin.y = minWorldY - HALF_TILE_SIZE;
-    WorldVector2D rectWorldMax;
-    rectWorldMax.x = maxWorldX + HALF_TILE_SIZE;
-    rectWorldMax.y = maxWorldY + HALF_TILE_SIZE;
-    if (cameraComponent_->IsPointInViewport(cameraPosition, rectWorldMin) ||
-        cameraComponent_->IsPointInViewport(cameraPosition, rectWorldMax)) {
-        ScreenVector2D camMin = CoordinateTransformer::WorldToScreen(cameraPosition, rectWorldMin,
-                                                                     cameraComponent_->GetSize(),
-                                                                     cameraComponent_->GetZoom());
-        ScreenVector2D camMax = CoordinateTransformer::WorldToScreen(cameraPosition, rectWorldMax,
-                                                                     cameraComponent_->GetSize(),
-                                                                     cameraComponent_->GetZoom());
-        SDL_FRect rect;
-        rect.x = std::min(camMin.x, camMax.x);
-        rect.y = std::min(camMin.y, camMax.y);
-        rect.w = std::abs(camMax.x - camMin.x);
-        rect.h = std::abs(camMax.y - camMin.y);
-        const SDL_Color fillColor = {
-            areaMarkerFullColor.r,
-            areaMarkerFullColor.g, areaMarkerFullColor.b,
-            areaMarkerFullColor.a
-        };
-        queue->FillRect(RenderLayer::TileOverlay, 0.0F, &rect, fillColor);
-        const SDL_Color borderColor = {
-            areaMarkerBorderColor.r,
-            areaMarkerBorderColor.g, areaMarkerBorderColor.b,
-            areaMarkerBorderColor.a
-        };
-        queue->DrawRect(RenderLayer::TileOverlay, 0.0F, &rect, borderColor);
-
-        std::string areaMarkerTip = fmt::format(fmt::runtime(appContext_->GetLangsResources()->areaMarkerTip),
-                                                tileWidth, tileHeight, tileArea);
-        if (const uint64_t areaMarkerTipFingerprint = StringUtils::StringToUint64(areaMarkerTip);
-            areaMarkerTipFingerprint != areaMarkerTipFingerprint_) {
-            areaMarkerTipTexture_ = resourcePackManager_->
-                    CreateStringTexture(areaMarkerTip, &preloadColors_->textColor);
-        }
-
-        if (areaMarkerTipTexture_ == nullptr) {
-            return;
-        }
-        const float textX = rect.x + (rect.w - areaMarkerTipTexture_->w) / 2.0F;
-        const float textY = rect.y + (rect.h - areaMarkerTipTexture_->h) / 2.0F;
-        SDL_FRect rectCenter = {
-            textX, textY,
-            static_cast<float>(areaMarkerTipTexture_->w),
-            static_cast<float>(areaMarkerTipTexture_->h)
-        };
-        queue->DrawTexture(RenderLayer::TileOverlay, 0.0F, areaMarkerTipTexture_.get(), nullptr, &rectCenter);
-    }
+    // if (appContext_ == nullptr) {
+    //     return;
+    // }
+    // if (cameraComponent_ == nullptr) {
+    //     return;
+    // }
+    // if (cameraTransform2DComponent_ == nullptr) {
+    //     return;
+    // }
+    // if (areaMarkerComponent_ == nullptr) {
+    //     return;
+    // }
+    // if (!areaMarkerComponent_->CanDraw()) {
+    //     return;
+    // }
+    // WorldVector2D cameraPosition = cameraTransform2DComponent_->GetPosition();
+    // const auto &areaMarkerFullColor =
+    //         preloadColors_->
+    //         areaMarkerColor;
+    // const auto &areaMarkerBorderColor = preloadColors_->
+    //         areaMarkerBorderColor;
+    // const TileVector2D &startPointTileVector2D = areaMarkerComponent_->GetStartPoint();
+    // const TileVector2D &endPointTileVector2D = areaMarkerComponent_->GetEndPoint();
+    // const WorldVector2D startPoint = CoordinateTransformer::TileToWorld(startPointTileVector2D);
+    // const WorldVector2D endPoint = CoordinateTransformer::TileToWorld(endPointTileVector2D);
+    // int tileWidth = std::abs(endPointTileVector2D.x - startPointTileVector2D.x) + 1;
+    // int tileHeight = std::abs(endPointTileVector2D.y - startPointTileVector2D.y) + 1;
+    // int tileArea = tileWidth * tileHeight;
+    // const float minWorldX = std::min(startPoint.x, endPoint.x);
+    // const float maxWorldX = std::max(startPoint.x, endPoint.x);
+    // const float minWorldY = std::min(startPoint.y, endPoint.y);
+    // const float maxWorldY = std::max(startPoint.y, endPoint.y);
+    // WorldVector2D rectWorldMin;
+    // rectWorldMin.x = minWorldX - HALF_TILE_SIZE;
+    // rectWorldMin.y = minWorldY - HALF_TILE_SIZE;
+    // WorldVector2D rectWorldMax;
+    // rectWorldMax.x = maxWorldX + HALF_TILE_SIZE;
+    // rectWorldMax.y = maxWorldY + HALF_TILE_SIZE;
+    // if (cameraComponent_->IsPointInViewport(cameraPosition, rectWorldMin) ||
+    //     cameraComponent_->IsPointInViewport(cameraPosition, rectWorldMax)) {
+    //     ScreenVector2D camMin = CoordinateTransformer::WorldToScreen(cameraPosition, rectWorldMin,
+    //                                                                  cameraComponent_->GetSize(),
+    //                                                                  cameraComponent_->GetZoom());
+    //     ScreenVector2D camMax = CoordinateTransformer::WorldToScreen(cameraPosition, rectWorldMax,
+    //                                                                  cameraComponent_->GetSize(),
+    //                                                                  cameraComponent_->GetZoom());
+    //     SDL_FRect rect;
+    //     rect.x = std::min(camMin.x, camMax.x);
+    //     rect.y = std::min(camMin.y, camMax.y);
+    //     rect.w = std::abs(camMax.x - camMin.x);
+    //     rect.h = std::abs(camMax.y - camMin.y);
+    //     const SDL_Color fillColor = {
+    //         areaMarkerFullColor.r,
+    //         areaMarkerFullColor.g, areaMarkerFullColor.b,
+    //         areaMarkerFullColor.a
+    //     };
+    //     queue->FillRect(RenderLayer::TileOverlay, 0.0F, &rect, fillColor);
+    //     const SDL_Color borderColor = {
+    //         areaMarkerBorderColor.r,
+    //         areaMarkerBorderColor.g, areaMarkerBorderColor.b,
+    //         areaMarkerBorderColor.a
+    //     };
+    //     queue->DrawRect(RenderLayer::TileOverlay, 0.0F, &rect, borderColor);
+    //
+    //     std::string areaMarkerTip = fmt::format(fmt::runtime(appContext_->GetLangsResources()->areaMarkerTip),
+    //                                             tileWidth, tileHeight, tileArea);
+    //     if (const uint64_t areaMarkerTipFingerprint = StringUtils::StringToUint64(areaMarkerTip);
+    //         areaMarkerTipFingerprint != areaMarkerTipFingerprint_) {
+    //         areaMarkerTipTexture_ = resourcePackManager_->
+    //                 CreateStringTexture(areaMarkerTip, &preloadColors_->textColor);
+    //     }
+    //
+    //     if (areaMarkerTipTexture_ == nullptr) {
+    //         return;
+    //     }
+    //     const float textX = rect.x + (rect.w - areaMarkerTipTexture_->w) / 2.0F;
+    //     const float textY = rect.y + (rect.h - areaMarkerTipTexture_->h) / 2.0F;
+    //     SDL_FRect rectCenter = {
+    //         textX, textY,
+    //         static_cast<float>(areaMarkerTipTexture_->w),
+    //         static_cast<float>(areaMarkerTipTexture_->h)
+    //     };
+    //     queue->DrawTexture(RenderLayer::TileOverlay, 0.0F, areaMarkerTipTexture_.get(), nullptr, &rectCenter);
+    // }
 }
 
 glimmer::GameSystemType glimmer::AreaMarkerSystem::GetGameSystemType() const {

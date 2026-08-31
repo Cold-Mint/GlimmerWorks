@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025-2026  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
- * 版权(C) 2025-2026  Cold-Mint <cold_mint@qq.com>
+ * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
  * 该许可证的第3版，或者（由你选择）任何后续版本。
@@ -32,34 +32,9 @@
 
 #include "RenderCommand.h"
 #include "RenderLayer.h"
+#include "core/mod/resourcePack/TextureResourceResult.h"
 
 namespace glimmer {
-    /**
-     * RenderQueue
-     * 渲染队列
-     *
-     * Retained-mode replacement of the old immediate-mode SpriteRenderer
-     * drawing API. Game systems submit quads (RenderCommand) tagged with a
-     * RenderLayer and a depth value during their Render() pass; nothing is
-     * drawn at submission time. Once every system has submitted, GpuRenderer
-     * sorts the queue (layer ascending, then depth ascending, submission
-     * order preserved for ties) and draws all commands in one batch.
-     * 旧立即模式 SpriteRenderer 绘制 API 的保留模式替代品。游戏系统在各自
-     * 的 Render() 阶段提交带有 RenderLayer 和 depth 标记的四边形
-     * （RenderCommand）；提交时不进行任何绘制。所有系统提交完毕后，
-     * GpuRenderer 对队列排序（层升序，然后 depth 升序，并列时保持提交
-     * 顺序），并在一个批次中绘制全部命令。
-     *
-     * Coordinate system: pixel coordinates with a top-left origin (+Y down),
-     * identical to the old SpriteRenderer.
-     * 坐标系：左上角原点、+Y 向下的像素坐标，与旧 SpriteRenderer 一致。
-     *
-     * The class is GPU-agnostic: it only records command data and never
-     * touches SDL_GPU objects, so it can be filled from any thread-safe
-     * context and is cheap to clear and refill every frame.
-     * 本类与 GPU 无关：它只记录命令数据，从不接触 SDL_GPU 对象，因此可以
-     * 在任何线程安全的上下文中填充，并且每帧清空重建的开销很低。
-     */
     class RenderQueue {
         std::vector<RenderCommand> commands_;
 
@@ -73,7 +48,7 @@ namespace glimmer {
          * @param uvs uvs 4 个角点对应的纹理坐标
          * @param color color 顶点颜色（调色/透明度调制）
          */
-        void AppendQuad(RenderLayer layer, float depth, const GpuTexture *texture,
+        void AppendQuad(RenderLayer layer, float depth, const TextureResourceResult *texture,
                         const SDL_FPoint positions[4], const SDL_FPoint uvs[4], const SDL_Color &color);
 
     public:
@@ -129,7 +104,7 @@ namespace glimmer {
          * @param dst dst 目标矩形（像素，nullptr 表示 (0,0,纹理宽,纹理高)）
          * @param mod mod 颜色调制（替代 SDL_SetTextureColorMod/AlphaMod）
          */
-        void DrawTexture(RenderLayer layer, float depth, const GpuTexture *texture,
+        void DrawTexture(RenderLayer layer, float depth, TextureResourceResult *texture,
                          const SDL_FRect *src, const SDL_FRect *dst,
                          const SDL_Color &mod = {255, 255, 255, 255});
 
@@ -148,7 +123,7 @@ namespace glimmer {
          * @param flip flip FLIP_HORIZONTAL/FLIP_VERTICAL 的按位或
          * @param mod mod 颜色调制
          */
-        void DrawTextureRotated(RenderLayer layer, float depth, const GpuTexture *texture,
+        void DrawTextureRotated(RenderLayer layer, float depth, const TextureResourceResult *texture,
                                 const SDL_FRect *src, const SDL_FRect *dst,
                                 double angleDegrees, const SDL_FPoint *center, Uint8 flip,
                                 const SDL_Color &mod = {255, 255, 255, 255});

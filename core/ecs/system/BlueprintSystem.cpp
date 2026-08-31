@@ -264,7 +264,7 @@ void glimmer::BlueprintSystem::RenderBlueprintTexture(RenderQueue *queue, const 
     if (blueprintTextureResourceResult == nullptr) {
         return;
     }
-    GpuTexture *blueprintTexture = blueprintTextureResourceResult->GetResource();
+    TextureResourceResult *blueprintTexture = blueprintTextureResourceResult.get();
     if (blueprintTexture == nullptr) {
         return;
     }

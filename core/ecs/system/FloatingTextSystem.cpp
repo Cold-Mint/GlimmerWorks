@@ -28,7 +28,6 @@
 
 #include "core/config/Constants.h"
 #include "core/math/CoordinateTransformer.h"
-#include "core/ecs/component/FloatingTextComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/world/WorldContext.h"
 
@@ -59,97 +58,97 @@ glimmer::FloatingTextSystem::FloatingTextSystem(WorldContext *worldContext) : Ga
 }
 
 void glimmer::FloatingTextSystem::Update(float delta) {
-    const WorldContext *worldContext = GetWorldContext();
-    EntityManager *entityManager = GetEntityManager();
-    if (worldContext == nullptr) {
-        return;
-    }
-    if (cameraComponent_ == nullptr) {
-        return;
-    }
-    if (cameraTransform2DComponent_ == nullptr) {
-        return;
-    }
-    if (entities_.empty()) {
-        return;
-    }
-    uint64_t now = SDL_GetTicks();
-    for (const GameEntityID floatingTextEntity: entities_) {
-        auto floatingTextComponent = entityManager->GetComponent<FloatingTextComponent>(
-            floatingTextEntity);
-        const Transform2DComponent *transform2DComponent = entityManager->GetComponent<Transform2DComponent>(
-            floatingTextEntity);
-        if (floatingTextComponent == nullptr || transform2DComponent == nullptr) {
-            continue;
-        }
-        if (!cameraComponent_->
-            IsPointInViewport(cameraTransform2DComponent_->GetPosition(), transform2DComponent->GetPosition())) {
-            continue;
-        }
-        auto &tween = floatingTextComponent->GetTween();
-        tween.step(1);
-        floatingTextComponent->SetAlpha(fabs(tween.peek()));
-        if (now > floatingTextComponent->GetExpireTime()) {
-            entityManager->RemoveEntity(floatingTextEntity);
-        }
-    }
+    // const WorldContext *worldContext = GetWorldContext();
+    // EntityManager *entityManager = GetEntityManager();
+    // if (worldContext == nullptr) {
+    //     return;
+    // }
+    // if (cameraComponent_ == nullptr) {
+    //     return;
+    // }
+    // if (cameraTransform2DComponent_ == nullptr) {
+    //     return;
+    // }
+    // if (entities_.empty()) {
+    //     return;
+    // }
+    // uint64_t now = SDL_GetTicks();
+    // for (const GameEntityID floatingTextEntity: entities_) {
+        // auto floatingTextComponent = entityManager->GetComponent<FloatingTextComponent>(
+        //     floatingTextEntity);
+        // const Transform2DComponent *transform2DComponent = entityManager->GetComponent<Transform2DComponent>(
+        //     floatingTextEntity);
+        // if (floatingTextComponent == nullptr || transform2DComponent == nullptr) {
+        //     continue;
+        // }
+        // if (!cameraComponent_->
+        //     IsPointInViewport(cameraTransform2DComponent_->GetPosition(), transform2DComponent->GetPosition())) {
+        //     continue;
+        // }
+        // auto &tween = floatingTextComponent->GetTween();
+        // tween.step(1);
+        // floatingTextComponent->SetAlpha(fabs(tween.peek()));
+        // if (now > floatingTextComponent->GetExpireTime()) {
+        //     entityManager->RemoveEntity(floatingTextEntity);
+        // }
+    // }
 }
 
 void glimmer::FloatingTextSystem::Render(RenderQueue *queue) {
-    const WorldContext *worldContext = GetWorldContext();
-    EntityManager *entityManager = GetEntityManager();
-    if (worldContext == nullptr) {
-        return;
-    }
-    const AppContext *appContext = worldContext->GetAppContext();
-    if (appContext == nullptr) {
-        return;
-    }
-    if (cameraComponent_ == nullptr) {
-        return;
-    }
-    if (cameraTransform2DComponent_ == nullptr) {
-        return;
-    }
-    if (entities_.empty()) {
-        return;
-    }
-    for (const GameEntityID floatingText: entities_) {
-        auto floatingTextComponent = entityManager->GetComponent<FloatingTextComponent>(
-            floatingText);
-        const Transform2DComponent *transform2DComponent = entityManager->GetComponent<Transform2DComponent>(
-            floatingText);
-        if (floatingTextComponent == nullptr || transform2DComponent == nullptr) {
-            continue;
-        }
-        if (!cameraComponent_->
-            IsPointInViewport(cameraTransform2DComponent_->GetPosition(), transform2DComponent->GetPosition())) {
-            continue;
-        }
-        ScreenVector2D camera2D = CoordinateTransformer::WorldToScreen(cameraTransform2DComponent_->GetPosition(),
-                                                                       transform2DComponent->GetPosition(),
-                                                                       cameraComponent_->GetSize(),
-                                                                       cameraComponent_->GetZoom());
-        std::string &text = floatingTextComponent->GetText();
-        if (text.empty()) {
-            continue;
-        }
-        if (floatingTextComponent->GetAlpha() <= 0.01F) {
-            continue;
-        }
-        GpuTexture *texture = floatingTextComponent->GetTexture();
-        if (texture != nullptr) {
-            SDL_FRect dst = {
-                camera2D.x,
-                camera2D.y,
-                static_cast<float>(texture->w),
-                static_cast<float>(texture->h)
-            };
-
-            queue->DrawTexture(RenderLayer::Effect, 0.0F, texture, nullptr, &dst,
-                               {255, 255, 255, static_cast<Uint8>(floatingTextComponent->GetAlpha() * 255)});
-        }
-    }
+    // const WorldContext *worldContext = GetWorldContext();
+    // EntityManager *entityManager = GetEntityManager();
+    // if (worldContext == nullptr) {
+    //     return;
+    // }
+    // const AppContext *appContext = worldContext->GetAppContext();
+    // if (appContext == nullptr) {
+    //     return;
+    // }
+    // if (cameraComponent_ == nullptr) {
+    //     return;
+    // }
+    // if (cameraTransform2DComponent_ == nullptr) {
+    //     return;
+    // }
+    // if (entities_.empty()) {
+    //     return;
+    // }
+    // for (const GameEntityID floatingText: entities_) {
+    //     auto floatingTextComponent = entityManager->GetComponent<FloatingTextComponent>(
+    //         floatingText);
+    //     const Transform2DComponent *transform2DComponent = entityManager->GetComponent<Transform2DComponent>(
+    //         floatingText);
+    //     if (floatingTextComponent == nullptr || transform2DComponent == nullptr) {
+    //         continue;
+    //     }
+    //     if (!cameraComponent_->
+    //         IsPointInViewport(cameraTransform2DComponent_->GetPosition(), transform2DComponent->GetPosition())) {
+    //         continue;
+    //     }
+    //     ScreenVector2D camera2D = CoordinateTransformer::WorldToScreen(cameraTransform2DComponent_->GetPosition(),
+    //                                                                    transform2DComponent->GetPosition(),
+    //                                                                    cameraComponent_->GetSize(),
+    //                                                                    cameraComponent_->GetZoom());
+    //     std::string &text = floatingTextComponent->GetText();
+    //     if (text.empty()) {
+    //         continue;
+    //     }
+    //     if (floatingTextComponent->GetAlpha() <= 0.01F) {
+    //         continue;
+    //     }
+    //     GpuTexture *texture = floatingTextComponent->GetTexture();
+    //     if (texture != nullptr) {
+    //         SDL_FRect dst = {
+    //             camera2D.x,
+    //             camera2D.y,
+    //             static_cast<float>(texture->w),
+    //             static_cast<float>(texture->h)
+    //         };
+    //
+    //         queue->DrawTexture(RenderLayer::Effect, 0.0F, texture, nullptr, &dst,
+    //                            {255, 255, 255, static_cast<Uint8>(floatingTextComponent->GetAlpha() * 255)});
+    //     }
+    // }
 }
 
 void glimmer::FloatingTextSystem::OnConfigChanged(const Config *config) {

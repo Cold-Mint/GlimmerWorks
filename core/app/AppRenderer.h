@@ -26,7 +26,6 @@
  */
 #pragma once
 #include "core/context/AppContext.h"
-#include "core/gpu/GpuRenderer.h"
 #include "core/gpu/RenderQueue.h"
 
 namespace glimmer {
@@ -44,7 +43,6 @@ namespace glimmer {
      */
     class AppRenderer {
         AppContext *appContext_ = nullptr;
-        GpuRenderer *renderer_ = nullptr;
         RenderQueue renderQueue_;
 
         void RenderUiMessage(int windowHeight, uint64_t frameStart);
@@ -54,7 +52,7 @@ namespace glimmer {
         void RenderOverlays();
 
     public:
-        AppRenderer(AppContext *appContext, GpuRenderer *renderer);
+        AppRenderer(AppContext *appContext);
 
         /**
          * RenderFrame

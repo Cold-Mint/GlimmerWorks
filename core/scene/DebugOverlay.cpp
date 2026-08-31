@@ -61,66 +61,66 @@ void glimmer::DebugOverlay::Update(const float delta) {
 }
 
 void glimmer::DebugOverlay::Render(RenderQueue *queue) {
-    if (!displayDebugPanel_) {
-        return;
-    }
-
-    //Draw the SDL screen coordinates
-    //绘制SDL屏幕坐标
-    const auto labelSpacing = static_cast<int>(50 * uiScale_);
-    for (int x = 0; x <= windowWidth_; x += labelSpacing) {
-        GpuTexture *texture = nullptr;
-        auto textureIterator = numberTextureMap_.find(x);
-        if (textureIterator == numberTextureMap_.end()) {
-            std::shared_ptr<GpuTexture> texturePtr = resourcePackManager_->CreateStringTexture(
-                std::to_string(x), &preloadColors_->textColor);
-            numberTextureMap_[x] = texturePtr;
-            texture = texturePtr.get();
-        } else {
-            texture = textureIterator->second.get();
-        }
-        SDL_FRect dst = {
-            static_cast<float>(x) + 2.0f * uiScale_, 2.0f * uiScale_, static_cast<float>(texture->w) * uiScale_,
-            static_cast<float>(texture->h) * uiScale_
-        };
-        queue->DrawTexture(RenderLayer::Overlay, 0.0F, texture, nullptr, &dst);
-    }
-    for (int y = 0; y <= windowHeight_; y += labelSpacing) {
-        GpuTexture *texture = nullptr;
-        auto textureIterator = numberTextureMap_.find(y);
-        if (textureIterator == numberTextureMap_.end()) {
-            std::shared_ptr<GpuTexture> texturePtr = resourcePackManager_->CreateStringTexture(
-                std::to_string(y), &preloadColors_->textColor);
-            numberTextureMap_[y] = texturePtr;
-            texture = texturePtr.get();
-        } else {
-            texture = textureIterator->second.get();
-        }
-        SDL_FRect dst = {
-            2.0f * uiScale_, static_cast<float>(y) + 2.0f * uiScale_, static_cast<float>(texture->w) * uiScale_,
-            static_cast<float>(texture->h) * uiScale_
-        };
-        queue->DrawTexture(RenderLayer::Overlay, 0.0F, texture, nullptr, &dst);
-    }
-    std::string fpsString = fmt::format(fmt::runtime(langsResources_->fpsInfo), fps_, frameTimeMs_);
-    const uint64_t fpsFingerprint = StringUtils::StringToUint64(fpsString);
-    GpuTexture *texture = nullptr;
-    auto fpsIterator = fpsTextures_.find(fpsFingerprint);
-    if (fpsIterator == fpsTextures_.end()) {
-        std::shared_ptr<GpuTexture> texturePtr = resourcePackManager_->CreateStringTexture(
-            fpsString, &preloadColors_->textColor);
-        fpsTextures_[fpsFingerprint] = texturePtr;
-        texture = texturePtr.get();
-    } else {
-        texture = fpsIterator->second.get();
-    }
-    SDL_FRect fpsRect = {
-        static_cast<float>(windowWidth_) - texture->w * uiScale_,
-        static_cast<float>(windowHeight_) - texture->h * uiScale_,
-        texture->w * uiScale_,
-        texture->h * uiScale_
-    };
-    queue->DrawTexture(RenderLayer::Overlay, 0.0F, texture, nullptr, &fpsRect);
+    // if (!displayDebugPanel_) {
+    //     return;
+    // }
+    //
+    // //Draw the SDL screen coordinates
+    // //绘制SDL屏幕坐标
+    // const auto labelSpacing = static_cast<int>(50 * uiScale_);
+    // for (int x = 0; x <= windowWidth_; x += labelSpacing) {
+    //     GpuTexture *texture = nullptr;
+    //     auto textureIterator = numberTextureMap_.find(x);
+    //     if (textureIterator == numberTextureMap_.end()) {
+    //         std::shared_ptr<GpuTexture> texturePtr = resourcePackManager_->CreateStringTexture(
+    //             std::to_string(x), &preloadColors_->textColor);
+    //         numberTextureMap_[x] = texturePtr;
+    //         texture = texturePtr.get();
+    //     } else {
+    //         texture = textureIterator->second.get();
+    //     }
+    //     SDL_FRect dst = {
+    //         static_cast<float>(x) + 2.0f * uiScale_, 2.0f * uiScale_, static_cast<float>(texture->w) * uiScale_,
+    //         static_cast<float>(texture->h) * uiScale_
+    //     };
+    //     queue->DrawTexture(RenderLayer::Overlay, 0.0F, texture, nullptr, &dst);
+    // }
+    // for (int y = 0; y <= windowHeight_; y += labelSpacing) {
+    //     GpuTexture *texture = nullptr;
+    //     auto textureIterator = numberTextureMap_.find(y);
+    //     if (textureIterator == numberTextureMap_.end()) {
+    //         std::shared_ptr<GpuTexture> texturePtr = resourcePackManager_->CreateStringTexture(
+    //             std::to_string(y), &preloadColors_->textColor);
+    //         numberTextureMap_[y] = texturePtr;
+    //         texture = texturePtr.get();
+    //     } else {
+    //         texture = textureIterator->second.get();
+    //     }
+    //     SDL_FRect dst = {
+    //         2.0f * uiScale_, static_cast<float>(y) + 2.0f * uiScale_, static_cast<float>(texture->w) * uiScale_,
+    //         static_cast<float>(texture->h) * uiScale_
+    //     };
+    //     queue->DrawTexture(RenderLayer::Overlay, 0.0F, texture, nullptr, &dst);
+    // }
+    // std::string fpsString = fmt::format(fmt::runtime(langsResources_->fpsInfo), fps_, frameTimeMs_);
+    // const uint64_t fpsFingerprint = StringUtils::StringToUint64(fpsString);
+    // GpuTexture *texture = nullptr;
+    // auto fpsIterator = fpsTextures_.find(fpsFingerprint);
+    // if (fpsIterator == fpsTextures_.end()) {
+    //     std::shared_ptr<GpuTexture> texturePtr = resourcePackManager_->CreateStringTexture(
+    //         fpsString, &preloadColors_->textColor);
+    //     fpsTextures_[fpsFingerprint] = texturePtr;
+    //     texture = texturePtr.get();
+    // } else {
+    //     texture = fpsIterator->second.get();
+    // }
+    // SDL_FRect fpsRect = {
+    //     static_cast<float>(windowWidth_) - texture->w * uiScale_,
+    //     static_cast<float>(windowHeight_) - texture->h * uiScale_,
+    //     texture->w * uiScale_,
+    //     texture->h * uiScale_
+    // };
+    // queue->DrawTexture(RenderLayer::Overlay, 0.0F, texture, nullptr, &fpsRect);
 }
 
 void glimmer::DebugOverlay::OnConfigChanged(const Config *config) {

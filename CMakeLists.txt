@@ -392,7 +392,17 @@ if (ANDROID)
     add_library(GlimmerWorks SHARED)
 else ()
     message(STATUS "Building for Desktop → Executable")
-    add_executable(GlimmerWorks)
+    add_executable(GlimmerWorks
+            core/gpu/RenderQueue.cpp
+            core/gpu/RenderQueue.h
+            core/mod/resourcePack/cache/ColorCache.cpp
+            core/mod/resourcePack/cache/ColorCache.h
+            core/context/CacheContext.cpp
+            core/context/CacheContext.h
+            core/mod/BasePackManager.cpp
+            core/mod/BasePackManager.h
+            core/mod/resourcePack/cache/RmlCache.cpp
+            core/mod/resourcePack/cache/RmlCache.h)
 endif ()
 
 target_sources(GlimmerWorks
@@ -407,6 +417,7 @@ target_sources(GlimmerWorks
         core/mod/resourcePack/cache/AudioCache.cpp
         core/mod/resourcePack/cache/GpuPipelineCache.cpp
         core/mod/resourcePack/cache/ShaderCache.cpp
+        core/gpu/GpuShaderCompiler.cpp
         core/gpu/GpuShaderCompileResult.cpp
         core/mod/resourcePack/BaseResourceCache.cpp
         core/mod/resourcePack/BaseManager.cpp
@@ -433,7 +444,6 @@ target_sources(GlimmerWorks
         core/console/hook/CommandHookEntry.cpp
         core/console/hook/CommandHookManager.cpp
         core/config/Config.cpp
-        core/ui/GameUIMessage.cpp
         core/ui/Hyperlink.cpp
         core/utils/IFingerprintable.cpp
         core/inventory/SelectedItemRuntimeData.cpp
@@ -468,7 +478,6 @@ target_sources(GlimmerWorks
         core/console/asset_enumerator/StartInvAssetEnumerator.cpp
         core/console/asset_enumerator/StringAssetEnumerator.cpp
         core/console/asset_enumerator/StructuresAssetEnumerator.cpp
-        core/console/asset_enumerator/TextureAssetEnumerator.cpp
         core/console/asset_enumerator/TileAssetEnumerator.cpp
         core/console/command/AssetViewerCommand.cpp
         core/console/command/BiomeScoreCommand.cpp
@@ -540,7 +549,6 @@ target_sources(GlimmerWorks
         core/ecs/DroppedItemCreator.cpp
         core/ecs/EntityManager.cpp
         core/ecs/EntityShortCut.cpp
-        core/ecs/FlowingTextCreator.cpp
         core/ecs/GameComponent.cpp
         core/ecs/GameEntity.cpp
         core/ecs/GameSystem.cpp
@@ -561,7 +569,6 @@ target_sources(GlimmerWorks
         core/ecs/component/DebugDrawComponent.cpp
         core/ecs/component/MiningComponent.cpp
         core/ecs/component/DroppedItemComponent.cpp
-        core/ecs/component/FloatingTextComponent.cpp
         core/ecs/component/ItemContainerComponent.cpp
         core/ecs/component/ItemEditorComponent.cpp
         core/ecs/component/ItemToolTipComponent.cpp
@@ -600,17 +607,6 @@ target_sources(GlimmerWorks
         core/ecs/system/PauseSystem.cpp
         core/ecs/system/PhysicsSystem.cpp
         core/ecs/system/PlayerControlSystem.cpp
-        core/gpu/GpuCompositor.cpp
-        core/gpu/GpuContext.cpp
-        core/gpu/GpuFrameState.cpp
-        core/gpu/GpuLayerTextures.cpp
-        core/gpu/GpuLightingPass.cpp
-        core/gpu/GpuRenderer.cpp
-        core/gpu/GpuRenderPassState.cpp
-        core/gpu/GpuShaderCompiler.cpp
-        core/gpu/GpuShaderPipelineManager.cpp
-        core/gpu/GpuSpriteBatcher.cpp
-        core/gpu/RenderQueue.cpp
         core/ecs/system/RayCast2DSystem.cpp
         core/ecs/system/SpiritRendererSystem.cpp
         core/ecs/system/TechProviderSystem.cpp
@@ -807,6 +803,7 @@ target_sources(GlimmerWorks
         core/mod/resourcePack/cache/AudioCache.h
         core/mod/resourcePack/cache/GpuPipelineCache.h
         core/mod/resourcePack/cache/ShaderCache.h
+        core/gpu/GpuShaderCompiler.h
         core/gpu/GpuShaderCompileResult.h
         core/mod/resourcePack/BaseResourceCache.h
         core/mod/resourcePack/BaseManager.h
@@ -835,7 +832,6 @@ target_sources(GlimmerWorks
         core/console/hook/CommandHookScope.h
         core/config/Config.h
         core/config/Constants.h
-        core/ui/GameUIMessage.h
         core/ui/Hyperlink.h
         core/utils/IFingerprintable.h
         core/utils/LangsResources.h
@@ -875,7 +871,6 @@ target_sources(GlimmerWorks
         core/console/asset_enumerator/StartInvAssetEnumerator.h
         core/console/asset_enumerator/StringAssetEnumerator.h
         core/console/asset_enumerator/StructuresAssetEnumerator.h
-        core/console/asset_enumerator/TextureAssetEnumerator.h
         core/console/asset_enumerator/TileAssetEnumerator.h
         core/console/command/AssetViewerCommand.h
         core/console/command/BiomeScoreCommand.h
@@ -948,7 +943,6 @@ target_sources(GlimmerWorks
         core/ecs/EcsTypes.h
         core/ecs/EntityManager.h
         core/ecs/EntityShortCut.h
-        core/ecs/FlowingTextCreator.h
         core/ecs/GameComponent.h
         core/ecs/GameEntity.h
         core/ecs/GameSystem.h
@@ -973,7 +967,6 @@ target_sources(GlimmerWorks
         core/ecs/component/DebugDrawComponent.h
         core/ecs/component/MiningComponent.h
         core/ecs/component/DroppedItemComponent.h
-        core/ecs/component/FloatingTextComponent.h
         core/ecs/component/ItemContainerComponent.h
         core/ecs/component/ItemEditorComponent.h
         core/ecs/component/ItemToolTipComponent.h
@@ -1008,23 +1001,6 @@ target_sources(GlimmerWorks
         core/ecs/system/ParallaxBackgroundSystem.h
         core/ecs/system/PauseSystem.h
         core/ecs/system/PhysicsSystem.h
-        core/gpu/DrawRun.h
-        core/gpu/GpuCompositor.h
-        core/gpu/GpuContext.h
-        core/gpu/GpuFrameState.h
-        core/gpu/GpuLayerTextures.h
-        core/gpu/GpuLightingPass.h
-        core/gpu/GpuRenderer.h
-        core/gpu/GpuRenderPassState.h
-        core/gpu/GpuShaderCompiler.h
-        core/gpu/GpuShaderPipelineManager.h
-        core/gpu/GpuSpriteBatcher.h
-        core/gpu/LightMapParams.h
-        core/gpu/RenderCommand.h
-        core/gpu/RenderLayer.h
-        core/gpu/RenderQueue.h
-        core/gpu/SpriteBlendMode.h
-        core/gpu/SpriteVertex.h
         core/ecs/system/RayCast2DSystem.h
         core/ecs/system/SpiritRendererSystem.h
         core/ecs/system/TechProviderSystem.h

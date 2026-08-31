@@ -54,8 +54,8 @@ glimmer::MainScene::MainScene(AppContext *context)
     nextBackgroundResourceRef_.SetResourceType(RESOURCE_TEXTURE);
     nextBackgroundResourceRef_.SetResourceKey(fmt::format("{}{}", "main_menu_bg_frames/bg_",
                                                           std::to_string(backgroundIndex_)));
-    const std::shared_ptr<TextureResourceResult> textureResourceResult = resourceLocator->FindTextureRaw(
-        &nextBackgroundResourceRef_);
+    const std::shared_ptr<TextureResourceResult> textureResourceResult = resourceLocator->FindTexture(
+        &nextBackgroundResourceRef_, false);
     if (textureResourceResult == nullptr) {
         LogCat::e(std::source_location::current(), "textureResourceResult == nullptr");
         return;

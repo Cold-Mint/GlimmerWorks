@@ -30,13 +30,6 @@ uint16_t glimmer::TagRuntimeData::GetRequiredWeight() const {
     return requiredWeight_;
 }
 
-void glimmer::TagRuntimeData::SetPositiveTexture(const std::shared_ptr<GpuTexture> &positiveTexture) {
-    positiveTexture_ = positiveTexture;
-}
-
-void glimmer::TagRuntimeData::SetNegativeTexture(const std::shared_ptr<GpuTexture> &negativeTexture) {
-    negativeTexture_ = negativeTexture;
-}
 
 void glimmer::TagRuntimeData::SetActualValue(const uint16_t actualValue) {
     actualValue_ = actualValue;
@@ -63,20 +56,6 @@ bool glimmer::TagRuntimeData::Matched() const {
 
 uint16_t glimmer::TagRuntimeData::GetActualValue() const {
     return actualValue_;
-}
-
-glimmer::GpuTexture *glimmer::TagRuntimeData::GetPositiveTexture() const {
-    if (positiveTexture_ == nullptr) {
-        return nullptr;
-    }
-    return positiveTexture_.get();
-}
-
-glimmer::GpuTexture *glimmer::TagRuntimeData::GetNegativeTexture() const {
-    if (negativeTexture_ == nullptr) {
-        return nullptr;
-    }
-    return negativeTexture_.get();
 }
 
 void glimmer::TagRuntimeData::SetRequiredWeight(const uint16_t requiredWeight) {

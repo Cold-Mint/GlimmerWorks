@@ -28,6 +28,12 @@
 #include <filesystem>
 #include <memory>
 
+#include "core/mod/ResourceRef.h"
+
+namespace glimmer {
+    class AppContext;
+}
+
 #include "core/rmi/GameFileInterface.h"
 #include "core/rmi/GameFontEngineInterface.h"
 #include "core/rmi/RenderInterfaceSDL3.h"
@@ -42,7 +48,6 @@ namespace glimmer {
         friend class AppEventLoop;
         std::unique_ptr<SystemInterfaceSDL3> systemInterfaceSDL3_ = nullptr;
         std::unique_ptr<RenderInterfaceSDL3> renderInterfaceSDL3_ = nullptr;
-        ResourcePackManager *resourcePackManager_ = nullptr;
         std::unique_ptr<GameFileInterface> gameFileInterface_ = nullptr;
         std::unique_ptr<GameFontEngineInterface> gameFontEngineInterface_ = nullptr;
         DecoratorNinePatchTextureInstancer decoratorNinePatchTextureInstancer_;
@@ -50,16 +55,16 @@ namespace glimmer {
         std::unordered_map<uint64_t, Rml::ElementDocument *> elementDocumentCache_;
         std::vector<std::vector<Rml::byte> > fontDataBuffers_;
 
-        [[nodiscard]] Rml::ElementDocument *LoadDocument(const AppContext *appContext,
-                                                         const ResourceRef *resourceRef);
+        [[nodiscard]] Rml::ElementDocument *LoadDocument(AppContext *appContext,
+                                                         const ResourceRef *resourceRef, bool enablePlaceHolder = true);
 
         void CloseDocument(Rml::ElementDocument *document);
 
         [[nodiscard]] Rml::Context *GetRmlContext() const;
 
     public:
-        bool Init(VirtualFileSystem *virtualFileSystem, GpuContext *gpuContext,
-                  ResourcePackManager *resourcePackManager, ResourceLocator *resourceLocator,
+        bool Init(VirtualFileSystem *virtualFileSystem, SDL_GPUDevice *device,
+                  ResourceLocator *resourceLocator,
                   toml::value *langsValuePtr, SDL_Window *window, int width, int height);
 
         bool LoadFont(const VirtualFileSystem *virtualFileSystem, const std::filesystem::path &path);

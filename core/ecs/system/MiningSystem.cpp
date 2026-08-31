@@ -463,10 +463,7 @@ void glimmer::MiningSystem::RenderDiggingPoint(RenderQueue *queue, const MiningR
     if (crackTextureResult == nullptr) {
         return;
     }
-    GpuTexture *texture = crackTextureResult->GetResource();
-    if (texture != nullptr) {
-        queue->DrawTexture(RenderLayer::TileOverlay, 0.0F, texture, nullptr, &dstRect);
-    }
+    queue->DrawTexture(RenderLayer::TileOverlay, 0.0F, crackTextureResult.get(), nullptr, &dstRect);
 }
 
 glimmer::GameSystemType glimmer::MiningSystem::GetGameSystemType() const {

@@ -25,17 +25,15 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#if  !defined(NDEBUG)
-#include "IAssetEnumerator.h"
+#include "core/mod/resourcePack/BaseResourceCache.h"
 
 namespace glimmer {
-    class TextureAssetEnumerator : public IAssetEnumerator {
-        std::string assetName = "texture";
+    class ColorCache : public BaseResourceCache<ColorResource> {
+    protected:
+        std::shared_ptr<ColorResource> LoadResourceFromPack(AppContext *appContext, const ResourceRef *resourceRef,
+            const ResourcePack *resourcePack) override;
 
     public:
-        [[nodiscard]] std::string_view GetAssetType() const override;
-
-        [[nodiscard]] std::optional<std::string> ListAsset(const AppContext *appContext) override;
+        ~ColorCache() noexcept override;
     };
 }
-#endif

@@ -31,7 +31,6 @@
 #include "core/utils/LangsResources.h"
 
 #include "core/console/asset_enumerator/StringAssetEnumerator.h"
-#include "core/console/asset_enumerator/TextureAssetEnumerator.h"
 #include "core/console/asset_enumerator/TileAssetEnumerator.h"
 #include "core/console/asset_enumerator/BiomesAssetEnumerator.h"
 #include "core/console/asset_enumerator/ComposableItemsAssetEnumerator.h"
@@ -68,7 +67,6 @@ void glimmer::AssetViewerCommand::AddAssetEnumerator(std::unique_ptr<IAssetEnume
 glimmer::AssetViewerCommand::AssetViewerCommand(AppContext *appContext)
     : Command(appContext) {
     AddAssetEnumerator(std::make_unique<StringAssetEnumerator>());
-    AddAssetEnumerator(std::make_unique<TextureAssetEnumerator>());
     AddAssetEnumerator(std::make_unique<TileAssetEnumerator>());
     AddAssetEnumerator(std::make_unique<BiomesAssetEnumerator>());
     AddAssetEnumerator(std::make_unique<ComposableItemsAssetEnumerator>());

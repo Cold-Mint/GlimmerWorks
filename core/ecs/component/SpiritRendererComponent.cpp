@@ -48,14 +48,14 @@ void glimmer::SpiritRendererComponent::SetFlipV(const bool flipV) {
     flipV_ = flipV;
 }
 
-glimmer::GpuTexture *glimmer::SpiritRendererComponent::GetTexture(const ResourceLocator *resourceLocator) {
+glimmer::TextureResourceResult *glimmer::SpiritRendererComponent::GetTexture(const ResourceLocator *resourceLocator) {
     if (textureResult_ == nullptr) {
         textureResult_ = resourceLocator->FindTexture(&resourceRef_);
         if (textureResult_ == nullptr) {
             return nullptr;
         }
     }
-    return textureResult_->GetResource();
+    return textureResult_.get();
 }
 
 void glimmer::SpiritRendererComponent::SetPosition(const WorldVector2D &position) {

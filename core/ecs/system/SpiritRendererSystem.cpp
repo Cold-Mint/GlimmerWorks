@@ -93,21 +93,21 @@ void glimmer::SpiritRendererSystem::Render(RenderQueue *queue) {
         if (transform2DComponent == nullptr) {
             continue;
         }
-        GpuTexture *sdlTexture = spiritRendererComponent->GetTexture(resourceLocator);
+        TextureResourceResult *sdlTexture = spiritRendererComponent->GetTexture(resourceLocator);
         WorldVector2D worldVector2d = transform2DComponent->GetPosition() + spiritRendererComponent->GetPosition();
         SDL_FRect worldVectorRect = {
             worldVector2d.x,
             worldVector2d.y,
-            static_cast<float>(sdlTexture->w),
-            static_cast<float>(sdlTexture->h)
+            static_cast<float>(sdlTexture->GetWidth()),
+            static_cast<float>(sdlTexture->GetHeight())
         };
         if (cameraComponent_->IsRectInViewport(cameraTransform2DComponent_->GetPosition(), &worldVectorRect)) {
             ScreenVector2D ScreenVector2D = CoordinateTransformer::WorldToScreen(
                 cameraTransform2DComponent_->GetPosition(), worldVector2d, cameraComponent_->GetSize(),
                 cameraComponent_->GetZoom());
             SDL_FRect dstrect = {
-                ScreenVector2D.x, ScreenVector2D.y, static_cast<float>(sdlTexture->w) * zoom,
-                static_cast<float>(sdlTexture->h) * zoom
+                ScreenVector2D.x, ScreenVector2D.y, static_cast<float>(sdlTexture->GetWidth()) * zoom,
+                static_cast<float>(sdlTexture->GetHeight()) * zoom
             };
             Uint8 flip = glimmer::FLIP_NONE;
 

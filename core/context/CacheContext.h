@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,35 +24,38 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "FlowingTextCreator.h"
+#pragma once
+#include <memory>
 
-#include "component/FloatingTextComponent.h"
+namespace glimmer {
+    class ColorCache;
+    class AudioCache;
+    class GpuPipelineCache;
+    class RmlCache;
+    class ShaderCache;
+    class TextureCache;
 
-glimmer::FlowingTextCreator::FlowingTextCreator(WorldContext *worldContext, const std::string &text,
-                                                const WorldVector2D &position) : IEntityCreator(worldContext),
-    text_(text), position_(position) {
-}
+    class CacheContext {
+        std::unique_ptr<AudioCache> audioCache_;
+        std::unique_ptr<GpuPipelineCache> gpuPipelineCache_;
+        std::unique_ptr<ShaderCache> shaderCache_;
+        std::unique_ptr<TextureCache> textureCache_;
+        std::unique_ptr<RmlCache> rmlCache_;
+        std::unique_ptr<ColorCache> colorCache_;
 
-void glimmer::FlowingTextCreator::LoadTemplateComponents(uint32_t id) {
-    const WorldContext *worldContext = GetWorldContext();
-    if (worldContext == nullptr) {
-        return;
-    }
-    AppContext *appContext = worldContext->GetAppContext();
-    if (appContext == nullptr) {
-        return;
-    }
-    EntityManager *entityManager = worldContext->GetEntityManager();
-    if (entityManager == nullptr) {
-        return;
-    }
-    if (auto transform2dComponent = entityManager->AddComponent<Transform2DComponent>(id); transform2dComponent !=
-        nullptr) {
-        transform2dComponent->SetPosition(position_);
-    }
-    auto floatingTextComponent = entityManager->AddComponent<FloatingTextComponent>(
-        id, appContext, appContext->GetConfig()->window.normalTargetFps);
-    if (floatingTextComponent != nullptr) {
-        floatingTextComponent->SetText(text_);
-    }
+    public:
+        ~CacheContext();
+
+        [[nodiscard]] AudioCache *GetAudioCache() const;
+
+        [[nodiscard]] GpuPipelineCache *GetPipelineCache() const;
+
+        [[nodiscard]] ShaderCache *GetShaderCache() const;
+
+        [[nodiscard]] ColorCache *GetColorCache() const;
+
+        [[nodiscard]] RmlCache *GetRmlCache() const;
+
+        [[nodiscard]] TextureCache *GetTextureCache() const;
+    };
 }

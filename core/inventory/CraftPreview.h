@@ -28,11 +28,12 @@
 #include <memory>
 #include <string>
 #include <string_view>
-#include "core/gpu/GpuTexture.h"
+
+#include "core/mod/resourcePack/TextureResourceResult.h"
 
 namespace glimmer {
     class CraftPreview {
-        std::shared_ptr<GpuTexture> texture_;
+        std::shared_ptr<TextureResourceResult> texture_ = nullptr;
         uint8_t count_ = 1;
         std::string name_;
 
@@ -45,8 +46,8 @@ namespace glimmer {
 
         [[nodiscard]] uint8_t GetCount() const;
 
-        std::shared_ptr<GpuTexture> GetTexture();
+        std::shared_ptr<TextureResourceResult> GetTexture();
 
-        void SetTexture(std::shared_ptr<GpuTexture> texture);
+        void SetTexture(std::shared_ptr<TextureResourceResult> texture);
     };
 }

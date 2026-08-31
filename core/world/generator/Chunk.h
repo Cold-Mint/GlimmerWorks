@@ -29,6 +29,7 @@
 
 #include "TileSnapshot.h"
 #include "src/saves/chunk.pb.h"
+#include "tweeny/tweeny.h"
 #include "box2d/id.h"
 #include "core/ecs/component/TileLayerComponent.h"
 #include "core/config/Constants.h"

@@ -39,12 +39,28 @@ glimmer::TextureResourceResult::~TextureResourceResult() {
     DestroyResource();
 }
 
+void glimmer::TextureResourceResult::SetWidth(const uint32_t width) {
+    width_ = width;
+}
+
+void glimmer::TextureResourceResult::SetHeight(const uint32_t height) {
+    height_ = height;
+}
+
 void glimmer::TextureResourceResult::SetGpuDevice(SDL_GPUDevice *gpuDevice) {
     gpuDevice_ = gpuDevice;
 }
 
 void glimmer::TextureResourceResult::SetTexturePath(const std::filesystem::path &texturePath) {
     texturePath_ = texturePath;
+}
+
+uint32_t glimmer::TextureResourceResult::GetWidth() const {
+    return width_;
+}
+
+uint32_t glimmer::TextureResourceResult::GetHeight() const {
+    return height_;
 }
 
 const std::filesystem::path &glimmer::TextureResourceResult::GetTexturePath() {

@@ -138,17 +138,13 @@ bool glimmer::TileItem::OnUse(bool mouseLeft, WorldContext *worldContext, uint32
     return true;
 }
 
-
-glimmer::GpuTexture *glimmer::TileItem::GetIcon() const {
+glimmer::TextureResourceResult *glimmer::TileItem::GetIcon() const {
     if (tileResourceData_ == nullptr) {
         return nullptr;
     }
-    const TextureResourceResult *textureResourceResult = tileResourceData_->GetTexture();
-    if (textureResourceResult == nullptr) {
-        return nullptr;
-    }
-    return textureResourceResult->GetResource();
+    return tileResourceData_->GetTexture();
 }
+
 
 const glimmer::ResourceRef *glimmer::TileItem::GetIconResourceRef() const {
     if (tileResourceData_ == nullptr) {

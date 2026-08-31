@@ -29,7 +29,6 @@
 #include "core/ecs/component/AreaMarkerComponent.h"
 #include "core/ecs/component/CameraComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
-#include "core/gpu/GpuTexture.h"
 #include "core/world/PreloadColors.h"
 
 namespace glimmer {
@@ -41,7 +40,7 @@ namespace glimmer {
         ResourcePackManager *resourcePackManager_ = nullptr;
         Transform2DComponent *cameraTransform2DComponent_ = nullptr;
         uint64_t areaMarkerTipFingerprint_ = 0;
-        std::shared_ptr<GpuTexture> areaMarkerTipTexture_ = nullptr;
+        std::shared_ptr<TextureResourceResult> areaMarkerTipTexture_ = nullptr;
 
     public:
         explicit AreaMarkerSystem(WorldContext *worldContext);

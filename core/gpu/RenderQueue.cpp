@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025-2026  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
- * 版权(C) 2025-2026  Cold-Mint <cold_mint@qq.com>
+ * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
  * 该许可证的第3版，或者（由你选择）任何后续版本。
@@ -29,11 +29,8 @@
 #include <algorithm>
 #include <cmath>
 
-#include "GpuTexture.h"
-
-void glimmer::RenderQueue::AppendQuad(const RenderLayer layer, const float depth, const GpuTexture *texture,
-                                      const SDL_FPoint positions[4], const SDL_FPoint uvs[4],
-                                      const SDL_Color &color) {
+void glimmer::RenderQueue::AppendQuad(RenderLayer layer, float depth, const TextureResourceResult *texture,
+                                      const SDL_FPoint positions[4], const SDL_FPoint uvs[4], const SDL_Color &color) {
     RenderCommand &command = commands_.emplace_back();
     command.texture = texture;
     command.layer = layer;
@@ -74,13 +71,13 @@ const std::vector<glimmer::RenderCommand> &glimmer::RenderQueue::GetCommands() c
     return commands_;
 }
 
-void glimmer::RenderQueue::DrawTexture(const RenderLayer layer, const float depth, const GpuTexture *texture,
+void glimmer::RenderQueue::DrawTexture(RenderLayer layer, float depth, TextureResourceResult *texture,
                                        const SDL_FRect *src, const SDL_FRect *dst, const SDL_Color &mod) {
-    if (texture == nullptr || !texture->IsValid()) {
+    if (texture == nullptr) {
         return;
     }
-    const float textureWidth = static_cast<float>(texture->w);
-    const float textureHeight = static_cast<float>(texture->h);
+    const auto textureWidth = static_cast<float>(texture->GetWidth());
+    const auto textureHeight = static_cast<float>(texture->GetHeight());
     SDL_FRect dstRect;
     if (dst == nullptr) {
         dstRect = {0.0F, 0.0F, textureWidth, textureHeight};
@@ -115,17 +112,18 @@ void glimmer::RenderQueue::DrawTexture(const RenderLayer layer, const float dept
     AppendQuad(layer, depth, texture, positions, uvs, mod);
 }
 
-void glimmer::RenderQueue::DrawTextureRotated(const RenderLayer layer, const float depth, const GpuTexture *texture,
-                                              const SDL_FRect *src, const SDL_FRect *dst, const double angleDegrees,
-                                              const SDL_FPoint *center, const Uint8 flip, const SDL_Color &mod) {
-    if (texture == nullptr || !texture->IsValid() || dst == nullptr) {
+void glimmer::RenderQueue::DrawTextureRotated(RenderLayer layer, float depth, const TextureResourceResult *texture,
+                                              const SDL_FRect *src, const SDL_FRect *dst, double angleDegrees,
+                                              const SDL_FPoint *center, Uint8 flip,
+                                              const SDL_Color &mod) {
+    if (texture == nullptr || dst == nullptr) {
         return;
     }
     if (dst->w <= 0.0F || dst->h <= 0.0F) {
         return;
     }
-    const float textureWidth = static_cast<float>(texture->w);
-    const float textureHeight = static_cast<float>(texture->h);
+    const float textureWidth = static_cast<float>(texture->GetWidth());
+    const float textureHeight = static_cast<float>(texture->GetHeight());
     float u0 = 0.0F;
     float v0 = 0.0F;
     float u1 = 1.0F;

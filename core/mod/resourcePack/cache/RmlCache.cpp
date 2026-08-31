@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,44 +24,26 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
-#include "core/ecs/GameComponent.h"
-#include "core/world/PreloadColors.h"
-#include "core/gpu/GpuTexture.h"
-#include "tweeny/tween.h"
+#include "RmlCache.h"
 
-namespace glimmer {
-    class ResourcePackManager;
+#include "core/mod/resourcePack/RmlResourceResult.h"
 
-    class FloatingTextComponent : public GameComponent {
-        std::string text_;
-        float alpha_ = 0.0F;
-        tweeny::tween<float> tween_;
-        uint64_t expireTime_ = 0;
-        std::shared_ptr<GpuTexture> texture_ = nullptr;
-        ResourcePackManager *resourcePackManager_ = nullptr;
-        PreloadColors *preloadColors_ = nullptr;
-
-    public:
-        explicit FloatingTextComponent(const AppContext *appContext, float normalTargetFps);
-
-        void SetText(const std::string &text);
-
-        tweeny::tween<float> &GetTween();
-
-        [[nodiscard]] uint64_t GetExpireTime() const;
-
-
-        void SetAlpha(float alpha);
-
-        [[nodiscard]] float GetAlpha() const;
-
-        [[nodiscard]] std::string &GetText();
-
-        [[nodiscard]] GpuTexture *GetTexture() const;
-
-        [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
-
-        [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
-    };
+std::shared_ptr<glimmer::RmlResourceResult> glimmer::RmlCache::LoadResourceFromPack(AppContext *appContext,
+    const ResourceRef *resourceRef, const ResourcePack *resourcePack) {
+    std::filesystem::path rmlPath = resourcePack->GetPath() / "layouts" / resourceRef->GetPackageId() / resourceRef->
+                                    GetResourceKey();
+    rmlPath.replace_extension("rml");
+    const VirtualFileSystem *virtualFileSystem = appContext->GetVirtualFileSystem();
+    if (!virtualFileSystem->Exists(rmlPath)) {
+        return nullptr;
+    }
+    auto actualRmlPath = virtualFileSystem->GetActualPath(rmlPath);
+    if (!actualRmlPath.has_value()) {
+        return nullptr;
+    }
+    auto result = std::make_shared<RmlResourceResult>();
+    result->SetPath(actualRmlPath.value());
+    return result;
 }
+
+glimmer::RmlCache::~RmlCache() noexcept = default;

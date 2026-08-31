@@ -90,13 +90,13 @@ void glimmer::MaterialItem::Reduce(unsigned value) {
     // MaterialItem has no durability to reduce
 }
 
-
-glimmer::GpuTexture *glimmer::MaterialItem::GetIcon() const {
+glimmer::TextureResourceResult *glimmer::MaterialItem::GetIcon() const {
     if (iconResult_ == nullptr) {
         return nullptr;
     }
-    return iconResult_->GetResource();
+    return iconResult_.get();
 }
+
 
 bool glimmer::MaterialItem::OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user,
                                   const AbilityConfig *abilityConfig, std::unordered_set<AbilityType> &popupAbility) {

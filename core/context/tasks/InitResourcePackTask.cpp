@@ -46,12 +46,12 @@ bool glimmer::InitResourcePackTask::Run(SystemBucket *systemBucket) {
         LogCat::e(std::source_location::current(), "config is nullptr");
         return false;
     }
-    auto resourcePackManager = std::make_unique<ResourcePackManager>(virtualFileSystem);
-    if (resourcePackManager->Scan(config->mods.resourcePackPath, config->mods.enabledResourcePack,
-                                  *tomlVersion) == 0) {
-        LogCat::e(std::source_location::current(), "The resource package cannot be found.");
-        return false;
-    }
+    auto resourcePackManager = std::make_unique<ResourcePackManager>();
+    // if (resourcePackManager->Scan(config->mods.resourcePackPath, config->mods.enabledResourcePack,
+    //                               *tomlVersion) == 0) {
+    //     LogCat::e(std::source_location::current(), "The resource package cannot be found.");
+    //     return false;
+    // }
     systemBucket->SetResourcePackManager(std::move(resourcePackManager));
     return true;
 }

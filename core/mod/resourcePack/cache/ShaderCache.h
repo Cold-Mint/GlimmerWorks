@@ -30,6 +30,7 @@
 #include "src/cache/shader_cache.pb.h"
 
 namespace glimmer {
+    class ShaderResourceResult;
     class GpuShaderCompileResult;
 
     class ShaderCache : public BaseResourceCache<ShaderResourceResult> {

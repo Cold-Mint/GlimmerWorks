@@ -30,7 +30,6 @@
 
 #include "core/world/WorldContext.h"
 #include "core/ecs/component/DroppedItemComponent.h"
-#include "core/ecs/FlowingTextCreator.h"
 #include "core/ecs/component/MagnetComponent.h"
 #include "core/mod/resourcePack/AudioResourceResult.h"
 
@@ -71,8 +70,6 @@ glimmer::AutoPickSystem::AutoPickSystem(WorldContext *worldContext) : GameSystem
 }
 
 void glimmer::AutoPickSystem::TryMergeFlowingText() {
-    WorldContext *worldContext = GetWorldContext();
-    EntityManager *entityManager = GetEntityManager();
     if (frameItemCounts_.empty()) {
         return;
     }
@@ -84,9 +81,6 @@ void glimmer::AutoPickSystem::TryMergeFlowingText() {
         }
         stringStream << " * " << count << "\n";
     }
-
-    FlowingTextCreator flowingTextCreator(worldContext, stringStream.str(), lastPosition);
-    flowingTextCreator.LoadTemplateComponents(entityManager->AddEntity());
     frameItemCounts_.clear();
 }
 

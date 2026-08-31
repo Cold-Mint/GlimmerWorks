@@ -47,39 +47,39 @@
 
 void glimmer::DebugPanelSystem::RenderDebugText(RenderQueue *queue, int windowW, const std::string &text, float y,
                                                 const Color &textColor, SDL_Color textBGColor) {
-    const uint64_t stringFingerprint = StringUtils::StringToUint64(text);
-    auto iterator = textures_.find(stringFingerprint);
-    GpuTexture *texture = nullptr;
-    if (iterator == textures_.end()) {
-        const std::shared_ptr<GpuTexture> texturePtr = resourcePackManager_->CreateStringTexture(text, &textColor);
-        textures_[stringFingerprint] = texturePtr;
-        texture = texturePtr.get();
-    } else {
-        texture = iterator->second.get();
-    }
-    SDL_FRect dst{
-        static_cast<float>(windowW - texture->w - 4),
-        y,
-        static_cast<float>(texture->w),
-        static_cast<float>(texture->h)
-    };
-    queue->FillRect(RenderLayer::Overlay, 0.0F, &dst, textBGColor);
-    queue->DrawTexture(RenderLayer::Overlay, 0.0F, texture, nullptr, &dst);
+    // const uint64_t stringFingerprint = StringUtils::StringToUint64(text);
+    // auto iterator = textures_.find(stringFingerprint);
+    // GpuTexture *texture = nullptr;
+    // if (iterator == textures_.end()) {
+    //     const std::shared_ptr<GpuTexture> texturePtr = resourcePackManager_->CreateStringTexture(text, &textColor);
+    //     textures_[stringFingerprint] = texturePtr;
+    //     texture = texturePtr.get();
+    // } else {
+    //     texture = iterator->second.get();
+    // }
+    // SDL_FRect dst{
+    //     static_cast<float>(windowW - texture->w - 4),
+    //     y,
+    //     static_cast<float>(texture->w),
+    //     static_cast<float>(texture->h)
+    // };
+    // queue->FillRect(RenderLayer::Overlay, 0.0F, &dst, textBGColor);
+    // queue->DrawTexture(RenderLayer::Overlay, 0.0F, texture, nullptr, &dst);
 }
 
 void glimmer::DebugPanelSystem::RenderCrosshairToEdge(RenderQueue *queue, float screenX, float screenY) const {
-    const WorldContext *worldContext = GetWorldContext();
-    const SDL_Color crosshairColor = {255, 230, 0, 200};
-
-    SDL_FRect hLine = {
-        0.0F, screenY, static_cast<float>(worldContext->GetAppContext()->GetWindowContext()->GetWindowWidth()), 1.0F
-    };
-    queue->FillRect(RenderLayer::Overlay, 0.0F, &hLine, crosshairColor);
-
-    SDL_FRect vLine = {
-        screenX, 0.0F, 1.0F, static_cast<float>(worldContext->GetAppContext()->GetWindowContext()->GetWindowHeight())
-    };
-    queue->FillRect(RenderLayer::Overlay, 0.0F, &vLine, crosshairColor);
+    // const WorldContext *worldContext = GetWorldContext();
+    // const SDL_Color crosshairColor = {255, 230, 0, 200};
+    //
+    // SDL_FRect hLine = {
+    //     0.0F, screenY, static_cast<float>(worldContext->GetAppContext()->GetWindowContext()->GetWindowWidth()), 1.0F
+    // };
+    // queue->FillRect(RenderLayer::Overlay, 0.0F, &hLine, crosshairColor);
+    //
+    // SDL_FRect vLine = {
+    //     screenX, 0.0F, 1.0F, static_cast<float>(worldContext->GetAppContext()->GetWindowContext()->GetWindowHeight())
+    // };
+    // queue->FillRect(RenderLayer::Overlay, 0.0F, &vLine, crosshairColor);
 }
 
 
@@ -122,7 +122,7 @@ void glimmer::DebugPanelSystem::RenderChunkBounds(RenderQueue *queue, const Came
                 rect.w,
                 rect.h
             };
-            queue->DrawRect(RenderLayer::Overlay, 0.0F, &outline, chunkBorderColor);
+            // queue->DrawRect(RenderLayer::Overlay, 0.0F, &outline, chunkBorderColor);
         }
     }
 }
@@ -172,9 +172,9 @@ void glimmer::DebugPanelSystem::OnConfigChanged(const Config *config) {
 }
 
 void glimmer::DebugPanelSystem::OnActivationChanged(bool activeStatus) {
-    if (!activeStatus) {
-        textures_.clear();
-    }
+    // if (!activeStatus) {
+    //     textures_.clear();
+    // }
 }
 
 
@@ -306,14 +306,14 @@ void glimmer::DebugPanelSystem::Render(RenderQueue *queue) {
         float drawY = gridCenterY + static_cast<float>(playerChunkY - chunkIndexY) * cellSize;
 
         SDL_FRect rect = {drawX, drawY, cellSize - 1.0F, cellSize - 1.0F};
-        queue->FillRect(RenderLayer::Overlay, 0.0F, &rect, loadedChunkColor);
+        // queue->FillRect(RenderLayer::Overlay, 0.0F, &rect, loadedChunkColor);
     }
 
     // Draw Current Chunk (Red)
     // 绘制当前区块（红色）
     const SDL_Color currentChunkColor = {255, 69, 0, 200};
     SDL_FRect playerRect = {gridCenterX, gridCenterY, cellSize - 1.0F, cellSize - 1.0F};
-    queue->FillRect(RenderLayer::Overlay, 0.0F, &playerRect, currentChunkColor);
+    // queue->FillRect(RenderLayer::Overlay, 0.0F, &playerRect, currentChunkColor);
 
     // Draw Visible Chunks (Orange)
     // 绘制可见区块（橙色）【修改Y轴计算：cy - playerChunkY → playerChunkY - cy】
@@ -339,13 +339,13 @@ void glimmer::DebugPanelSystem::Render(RenderQueue *queue) {
             float drawY = gridCenterY + static_cast<float>(playerChunkY - cy) * cellSize;
 
             SDL_FRect top = {drawX, drawY, cellSize, 1.0F};
-            queue->FillRect(RenderLayer::Overlay, 0.0F, &top, visibleChunkColor);
+            // queue->FillRect(RenderLayer::Overlay, 0.0F, &top, visibleChunkColor);
             SDL_FRect bottom = {drawX, drawY + cellSize - 1.0F, cellSize, 1.0F};
-            queue->FillRect(RenderLayer::Overlay, 0.0F, &bottom, visibleChunkColor);
+            // queue->FillRect(RenderLayer::Overlay, 0.0F, &bottom, visibleChunkColor);
             SDL_FRect left = {drawX, drawY, 1.0F, cellSize};
-            queue->FillRect(RenderLayer::Overlay, 0.0F, &left, visibleChunkColor);
+            // queue->FillRect(RenderLayer::Overlay, 0.0F, &left, visibleChunkColor);
             SDL_FRect right = {drawX + cellSize - 1.0F, drawY, 1.0F, cellSize};
-            queue->FillRect(RenderLayer::Overlay, 0.0F, &right, visibleChunkColor);
+            // queue->FillRect(RenderLayer::Overlay, 0.0F, &right, visibleChunkColor);
         }
     }
 
@@ -354,20 +354,20 @@ void glimmer::DebugPanelSystem::Render(RenderQueue *queue) {
     std::string chunkText = fmt::format(fmt::runtime(langsResources_->debugChunkInfo), playerChunkX, playerChunkY,
                                         visibleChunkCount, chunksPtr.size());
     uint64_t chunkTextFingerprint = StringUtils::StringToUint64(chunkText);
-    if (chunkTextFingerprint != chunkTextFingerprint_) {
-        chunkTextTexture_ = resourcePackManager_->CreateStringTexture(
-            chunkText, &preloadColors_->debugColor.debugPanelTextColor);
-        chunkTextFingerprint_ = chunkTextFingerprint;
-    }
-    if (chunkTextTexture_ != nullptr) {
-        SDL_FRect dst = {
-            48.0F,
-            static_cast<float>(windowHeight) - static_cast<float>(chunkTextTexture_->h) - 8.0F,
-            static_cast<float>(chunkTextTexture_->w),
-            static_cast<float>(chunkTextTexture_->h)
-        };
-        queue->DrawTexture(RenderLayer::Overlay, 0.0F, chunkTextTexture_.get(), nullptr, &dst);
-    }
+    // if (chunkTextFingerprint != chunkTextFingerprint_) {
+    //     chunkTextTexture_ = resourcePackManager_->CreateStringTexture(
+    //         chunkText, &preloadColors_->debugColor.debugPanelTextColor);
+    //     chunkTextFingerprint_ = chunkTextFingerprint;
+    // }
+    // if (chunkTextTexture_ != nullptr) {
+    //     SDL_FRect dst = {
+    //         48.0F,
+    //         static_cast<float>(windowHeight) - static_cast<float>(chunkTextTexture_->h) - 8.0F,
+    //         static_cast<float>(chunkTextTexture_->w),
+    //         static_cast<float>(chunkTextTexture_->h)
+    //     };
+    //     queue->DrawTexture(RenderLayer::Overlay, 0.0F, chunkTextTexture_.get(), nullptr, &dst);
+    // }
     glimmer::ScreenVector2D screenPos = CoordinateTransformer::WorldToScreen(cameraTransform2DComponent_->GetPosition(),
                                                                              mousePosition_,
                                                                              cameraComponent_->GetSize(),

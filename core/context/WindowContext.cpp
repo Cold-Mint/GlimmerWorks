@@ -28,16 +28,12 @@
 
 #include <SDL3/SDL.h>
 
+void glimmer::WindowContext::SetDevice(SDL_GPUDevice *device) {
+    device_ = device;
+}
+
 void glimmer::WindowContext::SetWindow(SDL_Window *window) {
     window_ = window;
-}
-
-void glimmer::WindowContext::SetGpuContext(GpuContext *gpuContext) {
-    gpuContext_ = gpuContext;
-}
-
-void glimmer::WindowContext::SetRenderer(GpuRenderer *renderer) {
-    renderer_ = renderer;
 }
 
 void glimmer::WindowContext::SetWindowWidth(int width) {
@@ -52,16 +48,12 @@ void glimmer::WindowContext::SetWindowTitle(const char *title) const {
     SDL_SetWindowTitle(window_, title);
 }
 
+SDL_GPUDevice *glimmer::WindowContext::GetDevice() const {
+    return device_;
+}
+
 SDL_Window *glimmer::WindowContext::GetWindow() const {
     return window_;
-}
-
-glimmer::GpuContext *glimmer::WindowContext::GetGpuContext() const {
-    return gpuContext_;
-}
-
-glimmer::GpuRenderer *glimmer::WindowContext::GetRenderer() const {
-    return renderer_;
 }
 
 int glimmer::WindowContext::GetWindowWidth() const {

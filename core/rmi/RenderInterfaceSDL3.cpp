@@ -28,14 +28,13 @@
 
 #include "core/log/LogCat.h"
 #include "core/config/Constants.h"
+#include "core/mod/ResourceLocator.h"
+#include "core/mod/ResourceRef.h"
 #include "core/utils/StringUtils.h"
 
-
 glimmer::RenderInterfaceSDL3::RenderInterfaceSDL3(SDL_GPUDevice *device, SDL_Window *window,
-                                                  ResourcePackManager *resourcePackManager,
                                                   ResourceLocator *resourceLocator) : RenderInterface_SDL_GPU(
     device, window) {
-    resourcePackManager_ = resourcePackManager;
     resourceLocator_ = resourceLocator;
 }
 
@@ -59,13 +58,13 @@ Rml::TextureHandle glimmer::RenderInterfaceSDL3::LoadTexture(Rml::Vector2i &text
         LogCat::w(std::source_location::current(), "textureResourceResult == nullptr");
         return {};
     }
-    GpuTexture *gpuTexture = textureResourceResult->GetResource();
-    if (gpuTexture == nullptr || !gpuTexture->IsValid()) {
+    SDL_GPUTexture *texture = textureResourceResult->GetResource();
+    if (texture == nullptr) {
         LogCat::w(std::source_location::current(), "gpuTexture == nullptr");
         return {};
     }
-    const auto textureHandle = reinterpret_cast<Rml::TextureHandle>(gpuTexture->GetGpuTexture());
-    texture_dimensions = {gpuTexture->w, gpuTexture->h};
+    const auto textureHandle = reinterpret_cast<Rml::TextureHandle>(texture);
+    texture_dimensions = {static_cast<int>(textureResourceResult->GetWidth()), static_cast<int>(textureResourceResult->GetHeight())};
     textureMap_[textureHandle] = textureResourceResult;
     return textureHandle;
 }

@@ -26,94 +26,89 @@
  */
 #include "core/app/AppRenderer.h"
 #include "core/scene/SceneManager.h"
-#include "core/ui/GameUIMessage.h"
 
-
-glimmer::AppRenderer::AppRenderer(AppContext *appContext, GpuRenderer *renderer) : appContext_(appContext),
-    renderer_(renderer) {
-}
 
 void glimmer::AppRenderer::RenderFrame(const RmlContext *rmlContext, const int windowWidth, const int windowHeight,
                                        const uint64_t frameStart,
                                        const float deltaTime) {
-    if (windowWidth <= 0 || windowHeight <= 0 || renderer_ == nullptr) {
+    if (windowWidth <= 0 || windowHeight <= 0) {
         return;
     }
     WindowContext *windowContext = appContext_->GetWindowContext();
     if (windowContext == nullptr) {
         return;
     }
-    renderer_->BeginFrame(windowContext->GetWindow());
+    // renderer_->BeginFrame(windowContext->GetWindow());
     //Collect this frame's render commands, then flush them in one sorted
     //batch: scene systems, overlay scenes and UI messages all submit into
     //the shared layered queue.
     //收集本帧的渲染命令，然后以一个排好序的批次冲刷：场景系统、覆盖场景
     //和 UI 消息都提交到共享的分层队列中。
-    renderQueue_.Clear();
+    // renderQueue_.Clear();
     RenderScenes();
     RenderOverlays();
     RenderUiMessage(windowHeight, frameStart);
-    renderer_->FlushQueue(renderQueue_);
-    GpuTexture *uiTarget = renderer_->GetUiTargetTexture();
-    rmlContext->RenderContext(renderer_->GetCommandBuffer(),
-                              uiTarget != nullptr ? uiTarget->GetGpuTexture() : nullptr,
-                              renderer_->GetSwapchainWidth(), renderer_->GetSwapchainHeight());
-    renderer_->CompositeToSwapchain();
-    if (!appContext_->ProcessPendingScreenshot(windowContext->GetGpuContext(), renderer_)) {
-        renderer_->SubmitFrame();
-    }
+    // renderer_->FlushQueue(renderQueue_);
+    // GpuTexture *uiTarget = renderer_->GetUiTargetTexture();
+    // rmlContext->RenderContext(renderer_->GetCommandBuffer(),
+                              // uiTarget != nullptr ? uiTarget->GetGpuTexture() : nullptr,
+                              // renderer_->GetSwapchainWidth(), renderer_->GetSwapchainHeight());
+    // renderer_->CompositeToSwapchain();
+    // if (!appContext_->ProcessPendingScreenshot(windowContext->GetGpuContext(), renderer_)) {
+        // renderer_->SubmitFrame();
+    // }
 }
 
 void glimmer::AppRenderer::RenderUiMessage(int windowHeight, uint64_t frameStart) {
-    auto &uiMessages = appContext_->GetGameUIMessages();
-    if (uiMessages.empty()) {
-        return;
-    }
-    std::erase_if(uiMessages,
-                  [frameStart](const GameUIMessage &msg) {
-                      return msg.GetExpireTime() <= frameStart;
-                  });
-
-    constexpr float padding = 16.0F;
-    constexpr float spacing = 6.0F;
-    float totalHeight = 0.0F;
-    for (auto &msg: uiMessages) {
-        auto &tween = msg.GetTween();
-        tween.step(1);
-        const float peekResult = tween.peek();
-        msg.SetAlpha(peekResult);
-        if (peekResult <= 0.01F) {
-            continue;
-        }
-        const GpuTexture *texture = msg.GetTexture();
-        if (texture == nullptr) {
-            continue;
-        }
-        totalHeight += static_cast<float>(texture->h) + spacing;
-    }
-
-    if (!uiMessages.empty() && totalHeight > 0.0F) {
-        totalHeight -= spacing;
-    }
-    float startY = static_cast<float>(windowHeight) - totalHeight - padding;
-    for (auto &msg: uiMessages) {
-        if (msg.GetAlpha() <= 0.01F) {
-            continue;
-        }
-        const GpuTexture *texture = msg.GetTexture();
-        if (texture == nullptr) {
-            continue;
-        }
-        const SDL_FRect dst = {
-            padding,
-            startY,
-            static_cast<float>(texture->w),
-            static_cast<float>(texture->h)
-        };
-        const auto alpha = static_cast<Uint8>(msg.GetAlpha() * 255);
-        renderQueue_.DrawTexture(RenderLayer::Overlay, 0.0F, texture, nullptr, &dst, {255, 255, 255, alpha});
-        startY += static_cast<float>(texture->h) + spacing;
-    }
+    // auto &uiMessages = appContext_->GetGameUIMessages();
+    // if (uiMessages.empty()) {
+    //     return;
+    // }
+    // std::erase_if(uiMessages,
+    //               [frameStart](const GameUIMessage &msg) {
+    //                   return msg.GetExpireTime() <= frameStart;
+    //               });
+    //
+    // constexpr float padding = 16.0F;
+    // constexpr float spacing = 6.0F;
+    // float totalHeight = 0.0F;
+    // for (auto &msg: uiMessages) {
+    //     auto &tween = msg.GetTween();
+    //     tween.step(1);
+    //     const float peekResult = tween.peek();
+    //     msg.SetAlpha(peekResult);
+    //     if (peekResult <= 0.01F) {
+    //         continue;
+    //     }
+    //     const GpuTexture *texture = msg.GetTexture();
+    //     if (texture == nullptr) {
+    //         continue;
+    //     }
+    //     totalHeight += static_cast<float>(texture->h) + spacing;
+    // }
+    //
+    // if (!uiMessages.empty() && totalHeight > 0.0F) {
+    //     totalHeight -= spacing;
+    // }
+    // float startY = static_cast<float>(windowHeight) - totalHeight - padding;
+    // for (auto &msg: uiMessages) {
+    //     if (msg.GetAlpha() <= 0.01F) {
+    //         continue;
+    //     }
+    //     const GpuTexture *texture = msg.GetTexture();
+    //     if (texture == nullptr) {
+    //         continue;
+    //     }
+    //     const SDL_FRect dst = {
+    //         padding,
+    //         startY,
+    //         static_cast<float>(texture->w),
+    //         static_cast<float>(texture->h)
+    //     };
+    //     const auto alpha = static_cast<Uint8>(msg.GetAlpha() * 255);
+    //     renderQueue_.DrawTexture(RenderLayer::Overlay, 0.0F, texture, nullptr, &dst, {255, 255, 255, alpha});
+    //     startY += static_cast<float>(texture->h) + spacing;
+    // }
 }
 
 void glimmer::AppRenderer::RenderScenes() {
@@ -129,4 +124,7 @@ void glimmer::AppRenderer::RenderOverlays() {
     for (const auto overlay: overlayScenes) {
         overlay->Render(&renderQueue_);
     }
+}
+
+glimmer::AppRenderer::AppRenderer(AppContext *appContext) : appContext_(appContext) {
 }

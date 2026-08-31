@@ -30,11 +30,11 @@
 #include "core/config/Config.h"
 #include "core/context/RmlContext.h"
 #include "core/ecs/IDocumentRegistry.h"
-#include "core/gpu/RenderQueue.h"
 #include "RmlUi/Core/DataModelHandle.h"
 
 
 namespace glimmer {
+    class RenderQueue;
     class AppContext;
 
     class Scene : public IDocumentRegistry {

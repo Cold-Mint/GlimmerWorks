@@ -37,35 +37,35 @@ glimmer::ParallaxBackgroundSystem::ParallaxBackgroundSystem(WorldContext *worldC
 }
 
 void glimmer::ParallaxBackgroundSystem::Render(RenderQueue *queue) {
-    WorldContext *worldContext = GetWorldContext();
-    EntityShortCut *entityShortCut = GetEntityShortCut();
-
-    if (worldContext == nullptr) {
-        return;
-    }
-    const AppContext *appContext = worldContext->GetAppContext();
-    if (appContext == nullptr) {
-        return;
-    }
-    const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
-    if (resourceLocator == nullptr) {
-        return;
-    }
-    ParallaxBackgroundComponent *parallaxBackgroundComponent = entityShortCut->GetParallaxBackgroundComponent();
-    if (parallaxBackgroundComponent == nullptr) {
-        return;
-    }
-    GpuTexture *texture = parallaxBackgroundComponent->GetTexture(resourceLocator);
-    if (texture == nullptr) {
-        return;
-    }
-    SDL_FRect destRect = {
-        0.0F,
-        0.0F,
-        static_cast<float>(appContext->GetWindowContext()->GetWindowWidth()),
-        static_cast<float>(appContext->GetWindowContext()->GetWindowHeight()),
-    };
-    queue->DrawTexture(RenderLayer::Background, 0.0F, texture, nullptr, &destRect);
+    // WorldContext *worldContext = GetWorldContext();
+    // EntityShortCut *entityShortCut = GetEntityShortCut();
+    //
+    // if (worldContext == nullptr) {
+    //     return;
+    // }
+    // const AppContext *appContext = worldContext->GetAppContext();
+    // if (appContext == nullptr) {
+    //     return;
+    // }
+    // const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+    // if (resourceLocator == nullptr) {
+    //     return;
+    // }
+    // ParallaxBackgroundComponent *parallaxBackgroundComponent = entityShortCut->GetParallaxBackgroundComponent();
+    // if (parallaxBackgroundComponent == nullptr) {
+    //     return;
+    // }
+    // GpuTexture *texture = parallaxBackgroundComponent->GetTexture(resourceLocator);
+    // if (texture == nullptr) {
+    //     return;
+    // }
+    // SDL_FRect destRect = {
+    //     0.0F,
+    //     0.0F,
+    //     static_cast<float>(appContext->GetWindowContext()->GetWindowWidth()),
+    //     static_cast<float>(appContext->GetWindowContext()->GetWindowHeight()),
+    // };
+    // queue->DrawTexture(RenderLayer::Background, 0.0F, texture, nullptr, &destRect);
 }
 
 glimmer::GameSystemType glimmer::ParallaxBackgroundSystem::GetGameSystemType() const {

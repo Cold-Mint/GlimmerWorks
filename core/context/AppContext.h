@@ -33,7 +33,6 @@
 
 #include "core/utils/LangsResources.h"
 #include "core/config/Config.h"
-#include "core/ui/GameUIMessage.h"
 #include "core/saves/SavesManager.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/mod/resourcePack/ResourcePackManager.h"
@@ -60,7 +59,6 @@ namespace glimmer {
             const std::function<void(const std::string &text)> *onMessage = nullptr;
         };
 
-        std::vector<GameUIMessage> gameUIMessages_;
         mutable std::optional<PendingScreenshot> pendingScreenshot_;
         SystemBucket systemBucket_;
         std::vector<std::unique_ptr<IAppContextInitTask> > initTasks_;
@@ -77,6 +75,9 @@ namespace glimmer {
         [[nodiscard]] const toml::spec *GetTomlVersion() const;
 
         void SetRandomSlogan() const;
+
+
+        [[nodiscard]] CacheContext *GetCacheContext() const;
 
         [[nodiscard]] ModContext *GetModContext() const;
 
@@ -108,10 +109,6 @@ namespace glimmer {
 
         [[nodiscard]] const std::string &GetLanguage() const;
 
-        void AddUIMessage(const std::string &string);
-
-        std::vector<GameUIMessage> &GetGameUIMessages();
-
         void ExitApp() const;
 
         void CreateScreenshot(const std::function<void(const std::string &text)> *onMessage) const;
@@ -130,6 +127,6 @@ namespace glimmer {
          * @return true if a screenshot was captured (and the frame submitted).
          * 捕获了截图（并提交了帧）时返回 true。
          */
-        bool ProcessPendingScreenshot(const GpuContext *gpuContext, GpuRenderer *renderer);
+        // bool ProcessPendingScreenshot(const GpuContext *gpuContext, GpuRenderer *renderer);
     };
 }

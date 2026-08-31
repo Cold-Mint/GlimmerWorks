@@ -26,22 +26,34 @@
  */
 #include "RmlContext.h"
 
+#include "AppContext.h"
 #include "core/log/LogCat.h"
+#include "core/mod/resourcePack/RmlResourceResult.h"
+#include "core/mod/resourcePack/cache/RmlCache.h"
 #include "RmlUi/Core/Context.h"
 #include "RmlUi/Core/Core.h"
 #include "RmlUi/Core/Factory.h"
 #include "RmlUi/Debugger/Debugger.h"
 
 
-Rml::ElementDocument *glimmer::RmlContext::LoadDocument(const AppContext *appContext, const ResourceRef *resourceRef) {
-    if (context_ == nullptr || resourcePackManager_ == nullptr || resourceRef == nullptr) {
+Rml::ElementDocument *glimmer::RmlContext::LoadDocument(AppContext *appContext, const ResourceRef *resourceRef,
+                                                        bool enablePlaceHolder) {
+    if (context_ == nullptr || resourceRef == nullptr) {
         return nullptr;
     }
     const uint64_t fingerprint = resourceRef->GetFingerprint();
     auto iterator = elementDocumentCache_.find(fingerprint);
     if (iterator == elementDocumentCache_.end()) {
-        const std::unique_ptr<RmlResourceResult> rmlResourceResult = resourcePackManager_->GetRmlFilePath(
-            appContext, resourceRef);
+        CacheContext *cacheContext = appContext->GetCacheContext();
+        if (cacheContext == nullptr) {
+            return nullptr;
+        }
+        RmlCache *rmlCache = cacheContext->GetRmlCache();
+        if (rmlCache == nullptr) {
+            return nullptr;
+        }
+        const std::shared_ptr<RmlResourceResult> rmlResourceResult = rmlCache->LoadResource(
+            appContext, resourceRef, enablePlaceHolder);
         if (rmlResourceResult == nullptr) {
             LogCat::w(std::source_location::current(), "rmlResourceResult == nullptr");
             return nullptr;
@@ -87,17 +99,16 @@ Rml::Context *glimmer::RmlContext::GetRmlContext() const {
     return context_;
 }
 
-bool glimmer::RmlContext::Init(VirtualFileSystem *virtualFileSystem, GpuContext *gpuContext,
-                               ResourcePackManager *resourcePackManager, ResourceLocator *resourceLocator,
-                               toml::value *langsValuePtr,
-                               SDL_Window *window, int width, int height) {
+bool glimmer::RmlContext::Init(VirtualFileSystem *virtualFileSystem, SDL_GPUDevice *device,
+                               ResourceLocator *resourceLocator, toml::value *langsValuePtr, SDL_Window *window,
+                               int width, int height) {
     LogCat::i("Initializing RmlContext, width: ", width, ", height: ", height);
-    resourcePackManager_ = resourcePackManager;
     systemInterfaceSDL3_ = std::make_unique<SystemInterfaceSDL3>(langsValuePtr);
     systemInterfaceSDL3_->SetWindow(window);
     Rml::SetSystemInterface(systemInterfaceSDL3_.get());
-    renderInterfaceSDL3_ = std::make_unique<RenderInterfaceSDL3>(gpuContext->GetDevice(), window,
-                                                                 resourcePackManager, resourceLocator);
+
+    renderInterfaceSDL3_ = std::make_unique<RenderInterfaceSDL3>(device, window,
+                                                                 resourceLocator);
     Rml::SetRenderInterface(renderInterfaceSDL3_.get());
     gameFileInterface_ = std::make_unique<GameFileInterface>(virtualFileSystem);
     Rml::SetFileInterface(gameFileInterface_.get());

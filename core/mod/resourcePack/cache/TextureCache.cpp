@@ -28,17 +28,8 @@
 #include "SDL3/SDL_gpu.h"
 #include "SDL3_image/SDL_image.h"
 
-
-std::shared_ptr<glimmer::TextureResourceResult> glimmer::TextureCache::CreateTexture(const GpuContext *gpuContext,
+std::shared_ptr<glimmer::TextureResourceResult> glimmer::TextureCache::CreateTexture(SDL_GPUDevice *gpuDevice,
     const Color &accent, const Color &base) {
-    if (gpuContext == nullptr) {
-        return nullptr;
-    }
-    SDL_GPUDevice *gpuDevice = gpuContext->GetDevice();
-    if (gpuDevice == nullptr) {
-        return nullptr;
-    }
-
     SDL_Surface *surface =
             SDL_CreateSurface(TILE_SIZE, TILE_SIZE, SDL_PIXELFORMAT_RGBA32);
     if (surface == nullptr) {
@@ -175,18 +166,18 @@ void glimmer::TextureCache::SetAppContext(const AppContext *appContext) {
     if (windowContext == nullptr) {
         return;
     }
-    GpuContext *gpuContext = windowContext->GetGpuContext();
-    if (gpuContext == nullptr) {
-        return;
-    }
     const GraphicsContext *graphicContext = appContext->GetGraphicsContext();
     const PreloadColors *preloadColors = graphicContext->GetPreloadColors();
     if (preloadColors == nullptr) {
         LogCat::w(std::source_location::current(), "preloadColors is nullptr, fallback textures not created");
         return;
     }
-    errorTexture_ = CreateTexture(gpuContext, preloadColors->error.accentColor, preloadColors->error.baseColor);
-    accessDeniedTexture_ = CreateTexture(gpuContext, preloadColors->accessDenied.accentColor,
+    SDL_GPUDevice *device = windowContext->GetDevice();
+    if (device == nullptr) {
+        return;
+    }
+    errorTexture_ = CreateTexture(device, preloadColors->error.accentColor, preloadColors->error.baseColor);
+    accessDeniedTexture_ = CreateTexture(device, preloadColors->accessDenied.accentColor,
                                          preloadColors->accessDenied.baseColor);
 }
 
@@ -218,10 +209,6 @@ std::shared_ptr<glimmer::TextureResourceResult> glimmer::TextureCache::LoadResou
     if (windowContext == nullptr) {
         return nullptr;
     }
-    const GpuContext *gpuContext = windowContext->GetGpuContext();
-    if (gpuContext == nullptr) {
-        return nullptr;
-    }
     if (!virtualFileSystem->Exists(texturePath)) {
         return nullptr;
     }
@@ -233,14 +220,15 @@ std::shared_ptr<glimmer::TextureResourceResult> glimmer::TextureCache::LoadResou
     if (surface == nullptr) {
         return nullptr;
     }
-    SDL_GPUDevice *gpuDevice = gpuContext->GetDevice();
+    SDL_GPUDevice *gpuDevice = windowContext->GetDevice();
     if (gpuDevice == nullptr) {
         return nullptr;
     }
-    SDL_GPUTexture *texture = CreateTextureFromSurface(gpuDevice, surface);
-    SDL_DestroySurface(surface);
     auto textureResourceResult = std::make_shared<TextureResourceResult>();
-    textureResourceResult->SetResource(texture);
+    textureResourceResult->SetResource(CreateTextureFromSurface(gpuDevice, surface));
     textureResourceResult->SetGpuDevice(gpuDevice);
+    textureResourceResult->SetWidth(surface->w);
+    textureResourceResult->SetHeight(surface->h);
+    SDL_DestroySurface(surface);
     return textureResourceResult;
 }

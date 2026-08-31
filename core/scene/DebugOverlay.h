@@ -27,8 +27,8 @@
 #pragma once
 #if  !defined(NDEBUG)
 #include "Scene.h"
-#include "core/gpu/GpuTexture.h"
 #include "core/mod/resourcePack/ResourcePackManager.h"
+#include "core/world/PreloadColors.h"
 
 namespace glimmer {
     struct LangsResources;
@@ -47,8 +47,6 @@ namespace glimmer {
         int windowWidth_ = 0;
         int windowHeight_ = 0;
         float uiScale_ = 0.0F;
-        std::unordered_map<int, std::shared_ptr<GpuTexture> > numberTextureMap_;
-        std::unordered_map<uint64_t, std::shared_ptr<GpuTexture> > fpsTextures_;
         ResourcePackManager *resourcePackManager_ = nullptr;
         PreloadColors *preloadColors_ = nullptr;
         LangsResources *langsResources_ = nullptr;

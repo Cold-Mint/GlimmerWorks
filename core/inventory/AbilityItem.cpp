@@ -123,11 +123,11 @@ const std::optional<std::string> &glimmer::AbilityItem::GetDescription() const {
     return description_;
 }
 
-glimmer::GpuTexture *glimmer::AbilityItem::GetIcon() const {
+glimmer::TextureResourceResult *glimmer::AbilityItem::GetIcon() const {
     if (iconResult_ == nullptr) {
         return nullptr;
     }
-    return iconResult_->GetResource();
+    return iconResult_.get();
 }
 
 const glimmer::ResourceRef *glimmer::AbilityItem::GetIconResourceRef() const {

@@ -36,10 +36,27 @@ namespace glimmer {
      */
     template<typename ResourceType>
     class BaseManager {
-        std::unordered_map<uint64_t, std::unique_ptr<ResourceType>, std::equal_to<> >
+        std::unordered_map<uint64_t, std::unique_ptr<ResourceType> >
         resourceMap_;
 
+    protected:
+        /**
+        * When a certain resource is successfully registered.
+        * 当某个资源注册成功后。
+        * @param resource
+        */
+        virtual void AfterRegister(ResourceType *resource);
+
+        /**
+         * When the registration of a certain resource is cancelled.
+         * 当取消注册某个资源后。
+         * @param resource
+         */
+        virtual void BeforeUnRegister(ResourceType *resource);
+
     public:
+        virtual ~BaseManager() = default;
+
         /**
          * Find
          * 查找某个资源
@@ -79,11 +96,19 @@ namespace glimmer {
         if (iterator == resourceMap_.end()) {
             return nullptr;
         }
-        std::unique_ptr<ResourceType> &resourcePtr = iterator->second.get();
+        std::unique_ptr<ResourceType> &resourcePtr = iterator->second;
         if (resourcePtr == nullptr) {
             return nullptr;
         }
         return resourcePtr.get();
+    }
+
+    template<typename ResourceType>
+    void BaseManager<ResourceType>::AfterRegister(ResourceType *resource) {
+    }
+
+    template<typename ResourceType>
+    void BaseManager<ResourceType>::BeforeUnRegister(ResourceType *resource) {
     }
 
     template<typename ResourceType>
@@ -93,7 +118,9 @@ namespace glimmer {
         if (iterator == resourceMap_.end()) {
             auto [it, inserted] = resourceMap_.insert(std::make_pair(uniqueId, std::move(resource)));
             if (inserted) {
-                return it->second.get();
+                ResourceType *result = it->second.get();
+                AfterRegister(result);
+                return result;
             }
             return nullptr;
         }
@@ -106,7 +133,8 @@ namespace glimmer {
         if (iterator == resourceMap_.end()) {
             return false;
         }
-        resourceMap_.erase(iterator->second->getId());
+        BeforeUnRegister(iterator->second.get());
+        resourceMap_.erase(iterator);
         return true;
     }
 

@@ -29,7 +29,6 @@
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/component/CameraComponent.h"
 #include "core/ecs/component/TileLayerComponent.h"
-#include "core/gpu/GpuTexture.h"
 
 namespace glimmer {
     class Transform2DComponent;
@@ -45,12 +44,12 @@ namespace glimmer {
         std::vector<TileLayerComponent *> tileLayerComponents_;
         AppContext *appContext_ = nullptr;
         bool displayDebugPanel_ = false;
-        std::shared_ptr<GpuTexture> chunkTextTexture_ = nullptr;
+        // std::shared_ptr<GpuTexture> chunkTextTexture_ = nullptr;
         uint64_t chunkTextFingerprint_ = 0;
         PreloadColors *preloadColors_ = nullptr;
         LangsResources *langsResources_ = nullptr;
         ResourcePackManager *resourcePackManager_ = nullptr;
-        std::unordered_map<uint64_t, std::shared_ptr<GpuTexture> > textures_;
+        // std::unordered_map<uint64_t, std::shared_ptr<GpuTexture> > textures_;
 
         void RenderDebugText(RenderQueue *queue, int windowW, const std::string &text, float y,
                              const Color &textColor, SDL_Color textBGColor);

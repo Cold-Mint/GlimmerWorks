@@ -32,6 +32,8 @@ namespace glimmer {
     class TextureResourceResult : public ResourceResult<SDL_GPUTexture> {
         std::filesystem::path texturePath_;
         SDL_GPUDevice *gpuDevice_ = nullptr;
+        uint32_t width_ = 0;
+        uint32_t height_ = 0;
 
     protected:
         void DestroyResourceImpl(SDL_GPUTexture *resource) override;
@@ -39,9 +41,17 @@ namespace glimmer {
     public:
         ~TextureResourceResult() override;
 
+        void SetWidth(uint32_t width);
+
+        void SetHeight(uint32_t height);
+
         void SetGpuDevice(SDL_GPUDevice *gpuDevice);
 
         void SetTexturePath(const std::filesystem::path &texturePath);
+
+        [[nodiscard]] uint32_t GetWidth() const;
+
+        [[nodiscard]] uint32_t GetHeight() const;
 
         const std::filesystem::path &GetTexturePath();
     };

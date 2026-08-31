@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -25,43 +25,44 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <memory>
-#include <string>
+#include <vector>
 
-#include "core/math/Color.h"
-#include "core/mod/resourcePack/ResourcePackManager.h"
-#include "core/gpu/GpuTexture.h"
-#include "tweeny/tween.h"
+#include "resourcePack/BaseManager.h"
 
 namespace glimmer {
-    class GameUIMessage : IFingerprintAble {
-        std::string text_;
-        uint64_t createTime_;
-        uint64_t expireTime_;
+    template<typename ResourceType>
+    class BasePackManager : public BaseManager<ResourceType> {
+        std::vector<ResourceType *> resourceVector_;
 
-        float alpha_ = 0.0F;
+    protected:
+        void AfterRegister(ResourceType *resource) override;
 
-        tweeny::tween<float> tween_;
-        std::shared_ptr<GpuTexture> texture_;
-
+        void BeforeUnRegister(ResourceType *resource) override;
     public:
-        GameUIMessage(ResourcePackManager *resourcePackManager, std::string text, uint64_t now, const Color *color,
-                      float targetFps);
-
-        [[nodiscard]] uint64_t GetCreateTime() const;
-
-        void SetAlpha(float alpha);
-
-        [[nodiscard]] std::string GetText() const;
-
-        [[nodiscard]] float GetAlpha() const;
-
-        [[nodiscard]] GpuTexture *GetTexture() const;
-
-        [[nodiscard]] tweeny::tween<float> &GetTween();
-
-        [[nodiscard]] uint64_t GetExpireTime() const;
-
-        [[nodiscard]] uint64_t GetFingerprint() const override;
+        /**
+         * List all the resources
+         * 列出所有资源
+         * @return
+         */
+        const std::vector<ResourceType *> *List() const;
     };
+
+    template<typename ResourceType>
+    void BasePackManager<ResourceType>::AfterRegister(ResourceType *resource) {
+        resourceVector_.emplace_back(resource);
+    }
+
+    template<typename ResourceType>
+    void BasePackManager<ResourceType>::BeforeUnRegister(ResourceType *resource) {
+        auto it = std::find(resourceVector_.begin(), resourceVector_.end(), resource);
+        if(it != resourceVector_.end())
+        {
+            resourceVector_.erase(it);
+        }
+    }
+
+    template<typename ResourceType>
+    const std::vector<ResourceType *> *BasePackManager<ResourceType>::List() const {
+        return &resourceVector_;
+    }
 }

@@ -26,7 +26,15 @@
  */
 #include "CacheContext.h"
 
-glimmer::CacheContext::~CacheContext() = default;
+
+glimmer::CacheContext::CacheContext() {
+    audioCache_ = std::make_unique<AudioCache>();
+    gpuPipelineCache_ = std::make_unique<GpuPipelineCache>();
+    shaderCache_ = std::make_unique<ShaderCache>();
+    textureCache_ = std::make_unique<TextureCache>();
+    rmlCache_ = std::make_unique<RmlCache>();
+    colorCache_ = std::make_unique<ColorCache>();
+}
 
 glimmer::AudioCache *glimmer::CacheContext::GetAudioCache() const {
     AudioCache *audioCachePtr = audioCache_.get();

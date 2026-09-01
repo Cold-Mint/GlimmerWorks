@@ -392,7 +392,9 @@ if (ANDROID)
     add_library(GlimmerWorks SHARED)
 else ()
     message(STATUS "Building for Desktop → Executable")
-    add_executable(GlimmerWorks)
+    add_executable(GlimmerWorks
+            core/mod/PackScanRequest.cpp
+            core/mod/PackScanRequest.h)
 endif ()
 
 target_sources(GlimmerWorks

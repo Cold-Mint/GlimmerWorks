@@ -44,7 +44,7 @@ namespace glimmer {
         std::unique_ptr<ColorCache> colorCache_ = nullptr;
 
     public:
-        ~CacheContext();
+        CacheContext();
 
         [[nodiscard]] AudioCache *GetAudioCache() const;
 

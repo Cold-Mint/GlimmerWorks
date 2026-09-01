@@ -28,12 +28,39 @@
 
 #include <SDL3/SDL.h>
 
-void glimmer::WindowContext::SetDevice(SDL_GPUDevice *device) {
-    device_ = device;
-}
+#include "core/log/LogCat.h"
 
-void glimmer::WindowContext::SetWindow(SDL_Window *window) {
+
+bool glimmer::WindowContext::CreateWindowAndDevice(const int width, const int height, const bool fullscreen) {
+    SDL_Window *window = SDL_CreateWindow(
+        "GlimmerWorks",
+        width,
+        height,
+        fullscreen ? SDL_WINDOW_FULLSCREEN : SDL_WINDOW_RESIZABLE
+    );
+    if (window == nullptr) {
+        LogCat::e(std::source_location::current(), "window is nullptr");
+        return false;
+    }
+    SDL_PropertiesID gpuProps = SDL_CreateProperties();
+    SDL_SetBooleanProperty(gpuProps, SDL_PROP_GPU_DEVICE_CREATE_SHADERS_SPIRV_BOOLEAN, true);
+#if !defined(NDEBUG)
+    SDL_SetBooleanProperty(gpuProps, SDL_PROP_GPU_DEVICE_CREATE_DEBUGMODE_BOOLEAN, true);
+#endif
+    SDL_GPUDevice *gpuDevice = SDL_CreateGPUDeviceWithProperties(gpuProps);
+    SDL_DestroyProperties(gpuProps);
+    if (gpuDevice == nullptr) {
+        LogCat::e(std::source_location::current(), "Failed to create GPU device: ", SDL_GetError());
+        return false;
+    }
+    if (!SDL_ClaimWindowForGPUDevice(gpuDevice, window)) {
+        LogCat::e(std::source_location::current(), "Failed to claim window for GPU device: ", SDL_GetError());
+        SDL_DestroyGPUDevice(gpuDevice);
+        return false;
+    }
+    device_ = gpuDevice;
     window_ = window;
+    return true;
 }
 
 void glimmer::WindowContext::SetWindowWidth(int width) {
@@ -70,4 +97,13 @@ bool glimmer::WindowContext::IsRunning() const {
 
 void glimmer::WindowContext::Exit() {
     isRunning_ = false;
+    if (device_ != nullptr && window_ != nullptr) {
+        SDL_ReleaseWindowFromGPUDevice(device_, window_);
+    }
+    if (device_ != nullptr) {
+        SDL_DestroyGPUDevice(device_);
+    }
+    if (window_ != nullptr) {
+        SDL_DestroyWindow(window_);
+    }
 }

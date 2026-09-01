@@ -25,7 +25,6 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <SDL3/SDL.h>
 
 #include "core/context/AppContext.h"
 
@@ -37,7 +36,6 @@ namespace glimmer {
         bool initSDLTtfSuccess_ = false;
         uint64_t lastTime_ = 0;
         AppContext *appContext_ = nullptr;
-        SDL_Window *window = nullptr;
         MIX_Mixer *mixer_ = nullptr;
         std::string fontData_;
 

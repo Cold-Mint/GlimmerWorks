@@ -27,6 +27,8 @@
 #pragma once
 #include <vector>
 
+#include "PackScanRequest.h"
+#include "core/context/AppContext.h"
 #include "resourcePack/BaseManager.h"
 
 namespace glimmer {
@@ -38,6 +40,7 @@ namespace glimmer {
         void AfterRegister(ResourceType *resource) override;
 
         void BeforeUnRegister(ResourceType *resource) override;
+
     public:
         /**
          * List all the resources
@@ -45,6 +48,10 @@ namespace glimmer {
          * @return
          */
         const std::vector<ResourceType *> *List() const;
+
+        int Scan(const PackScanRequest *packScanRequest);
+
+        virtual std::filesystem::path GetPackPath(Config *config) const = 0;
     };
 
     template<typename ResourceType>
@@ -55,8 +62,7 @@ namespace glimmer {
     template<typename ResourceType>
     void BasePackManager<ResourceType>::BeforeUnRegister(ResourceType *resource) {
         auto it = std::find(resourceVector_.begin(), resourceVector_.end(), resource);
-        if(it != resourceVector_.end())
-        {
+        if (it != resourceVector_.end()) {
             resourceVector_.erase(it);
         }
     }
@@ -64,5 +70,56 @@ namespace glimmer {
     template<typename ResourceType>
     const std::vector<ResourceType *> *BasePackManager<ResourceType>::List() const {
         return &resourceVector_;
+    }
+
+    template<typename ResourceType>
+    int BasePackManager<ResourceType>::Scan(const PackScanRequest *packScanRequest) {
+        AppContext *appContext = packScanRequest->GetAppContext();
+        if (appContext == nullptr) {
+            LogCat::w(std::source_location::current(), "appContext is nullptr");
+            return 0;
+        }
+        VirtualFileSystem *virtualFileSystem = appContext->GetVirtualFileSystem();
+        if (virtualFileSystem == nullptr) {
+            LogCat::e(std::source_location::current(), "virtualFileSystem_ is nullptr");
+            return 0;
+        }
+        const Config *config = appContext->GetConfig();
+        if (config == nullptr) {
+            LogCat::e(std::source_location::current(), "config is nullptr");
+            return 0;
+        }
+        const std::filesystem::path &packPath = GetPackPath(config);
+        if (!virtualFileSystem->Exists(packPath)) {
+            LogCat::w(std::source_location::current(), "Data pack path does not exist: ", packPath.string());
+            return 0;
+        }
+        int success = 0;
+        for (const std::vector<std::filesystem::path> files = virtualFileSystem->ListFile(packPath, false); const
+             auto&entry: files) {
+            if (!virtualFileSystem->IsFile(entry)) {
+                DataPack pack(entry, virtualFileSystem_, tomlTemplateExpander_, tomlVersion);
+                if (!pack.LoadManifest()) {
+                    LogCat::w(std::source_location::current(), "Failed to load manifest for data pack: ",
+                              entry.string());
+                    continue;
+                }
+                if (!IsDataPackEnabled(pack, appContext->GetConfig()->mods.enabledDataPack)) {
+                    continue;
+                }
+                if (!IsDataPackAvailable(pack)) {
+                    continue;
+                }
+                if (pack.LoadPack(appContext)) {
+                    LogCat::i("Loaded data pack: ", pack.GetManifest().id);
+                    success++;
+                    packVerifyStateMap_[pack.GetManifest().id] = pack.GetPackVerifyState();
+                    packManifestVector_.push_back(pack.GetManifest());
+                } else {
+                    LogCat::w(std::source_location::current(), "Failed to load data pack: ", pack.GetManifest().id);
+                }
+            }
+        }
+        return success;
     }
 }

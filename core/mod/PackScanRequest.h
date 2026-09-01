@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -26,10 +26,24 @@
  */
 #pragma once
 
-#include "ResourcePack.h"
-#include "core/mod/BasePackManager.h"
+namespace toml {
+    struct spec;
+}
 
 namespace glimmer {
-    class ResourcePackManager : public BasePackManager<ResourcePack> {
+    class AppContext;
+
+    class PackScanRequest {
+        AppContext *appContext_ = nullptr;
+        toml::spec *tomlVersion_ = nullptr;
+
+    public:
+        void SetAppContext(AppContext *appContext);
+
+        [[nodiscard]] AppContext *GetAppContext() const;
+
+        void SetTomlVersion(toml::spec *tomlVersion);
+
+        [[nodiscard]] toml::spec *GetTomlVersion() const;
     };
 }

@@ -83,44 +83,20 @@ bool glimmer::App::InitWindowAndRenderer() {
     }
     LogCat::i("Creating window: width=", config->window.width, ", height=", config->window.height,
               ", fullscreen=", config->window.fullscreen);
-    window = SDL_CreateWindow(
-        "GlimmerWorks",
-        config->window.width,
-        config->window.height,
-        config->window.fullscreen ? SDL_WINDOW_FULLSCREEN : SDL_WINDOW_RESIZABLE
-    );
-    if (window == nullptr) {
-        LogCat::e(std::source_location::current(), "window is nullptr");
-        return false;
-    }
-    LogCat::i("Window created successfully");
-
     WindowContext *windowContext = appContext_->GetWindowContext();
     if (windowContext == nullptr) {
         LogCat::e(std::source_location::current(), "windowContext is nullptr");
         return false;
     }
-    windowContext->SetWindow(window);
-    LogCat::i("Creating GPU context");
-    // gpuContext_ = std::make_unique<GpuContext>();
-    // if (!gpuContext_->Init(window, config->window.vSync)) {
-    //     LogCat::e(std::source_location::current(), "GpuContext init failed");
-    //     return false;
-    // }
-    // windowContext->SetGpuContext(gpuContext_.get());
-    LogCat::i("GPU context created successfully");
+    if (!windowContext->CreateWindowAndDevice(config->window.width, config->window.height, config->window.fullscreen)) {
+        return false;
+    }
     ResourcePackManager *resourcePackManager = appContext_->GetResourcePackManager();
     if (resourcePackManager == nullptr) {
         LogCat::e(std::source_location::current(), "ResourcePackManager is nullptr");
         return false;
     }
     GpuShaderCompiler::Init();
-    // gpuRenderer_ = std::make_unique<GpuRenderer>();
-    // if (!gpuRenderer_->Init(gpuContext_.get(), appContext_)) {
-    //     LogCat::e(std::source_location::current(), "GpuRenderer init failed");
-    //     return false;
-    // }
-    // windowContext->SetRenderer(gpuRenderer_.get());
     LogCat::i("GpuRenderer created successfully");
     RmlContext *rmlContext = appContext_->GetRmlContext();
     if (rmlContext == nullptr) {
@@ -128,12 +104,11 @@ bool glimmer::App::InitWindowAndRenderer() {
         return false;
     }
     LogCat::i("Initializing RmlContext");
-    rmlContext->Init(appContext_->GetVirtualFileSystem(),windowContext->GetDevice(),
-                     appContext_->GetResourceLocator(), appContext_->GetLangsValue(), window,
+    rmlContext->Init(appContext_->GetVirtualFileSystem(), windowContext->GetDevice(),
+                     appContext_->GetResourceLocator(), appContext_->GetLangsValue(), windowContext->GetWindow(),
                      config->window.width,
                      config->window.height);
     LogCat::i("RmlContext initialized successfully");
-    // resourcePackManager->SetGpuContext(gpuContext_.get(), appContext_->GetGraphicsContext()->GetPreloadColors());
     LogCat::i("ResourcePackManager GPU context set");
     LogCat::i("InitWindowAndRenderer completed successfully");
     return true;
@@ -292,9 +267,6 @@ glimmer::App::~App() {
     if (initSDLMixSuccess_) {
         MIX_Quit();
     }
-    if (window != nullptr) {
-        SDL_DestroyWindow(window);
-    }
     if (initSDLTtfSuccess_) {
         TTF_Quit();
     }
@@ -357,7 +329,7 @@ void glimmer::App::Run() const {
     while (windowContext->IsRunning() && sceneManager->GetSceneCount() > 0) {
         int windowWidth = 0;
         int windowHeight = 0;
-        SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+        SDL_GetWindowSize(windowContext->GetWindow(), &windowWidth, &windowHeight);
 
         if (CheckWindowSizeChange(windowContext, windowWidth, windowHeight)) {
             LogCat::i("Window size changed: ", windowWidth, "x", windowHeight);
@@ -466,9 +438,9 @@ void glimmer::App::UpdateScenes(const float deltaTime) const {
 void glimmer::App::InitScenesAndConsole() const {
     auto sceneManager = appContext_->GetSceneManager();
     sceneManager->PushScene(std::make_unique<SplashScene>(appContext_));
-// #if  !defined(NDEBUG)
-//     sceneManager->AddOverlayScene(std::make_unique<DebugOverlay>(appContext_));
-// #endif
+    // #if  !defined(NDEBUG)
+    //     sceneManager->AddOverlayScene(std::make_unique<DebugOverlay>(appContext_));
+    // #endif
     sceneManager->AddOverlayScene(std::make_unique<ConsoleOverlay>(appContext_));
     ConsoleWorker *consoleWorker = appContext_->GetConsoleContext()->GetConsoleWorker();
     if (consoleWorker == nullptr) {

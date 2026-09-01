@@ -42,9 +42,16 @@ namespace glimmer {
 
         ~WindowContext() = default;
 
-        void SetDevice(SDL_GPUDevice *device);
+        /**
+         * Create windows and devices
+         * 创建窗口和设备
+         * @param width width 宽度
+         * @param height height 高度
+         * @param fullscreen fullscreen 全屏
+         * @return
+         */
+        [[nodiscard]] bool CreateWindowAndDevice(int width, int height, bool fullscreen);
 
-        void SetWindow(SDL_Window *window);
 
         void SetWindowWidth(int width);
 

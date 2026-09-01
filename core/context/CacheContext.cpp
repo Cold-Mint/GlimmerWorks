@@ -26,13 +26,6 @@
  */
 #include "CacheContext.h"
 
-#include "core/mod/resourcePack/cache/AudioCache.h"
-#include "core/mod/resourcePack/cache/GpuPipelineCache.h"
-#include "core/mod/resourcePack/cache/RmlCache.h"
-#include "core/mod/resourcePack/cache/ShaderCache.h"
-#include "core/mod/resourcePack/cache/TextureCache.h"
-#include "core/mod/resourcePack/cache/ColorCache.h"
-
 glimmer::CacheContext::~CacheContext() = default;
 
 glimmer::AudioCache *glimmer::CacheContext::GetAudioCache() const {

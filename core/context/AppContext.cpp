@@ -28,6 +28,7 @@
 
 #include <random>
 
+#include "SystemBucket.h"
 #include "core/log/LogCat.h"
 #include "core/utils/RandomUtils.h"
 #include "core/utils/StringUtils.h"
@@ -58,6 +59,7 @@ void glimmer::AppContext::RegisterInitTask(std::unique_ptr<IAppContextInitTask> 
 }
 
 glimmer::AppContext::AppContext() {
+    systemBucket_ = std::make_unique<SystemBucket>();
     RegisterInitTask(std::make_unique<InitVFSTask>());
     RegisterInitTask(std::make_unique<InitLangsTask>());
     RegisterInitTask(std::make_unique<InitCoreContextsTask>());
@@ -74,13 +76,13 @@ glimmer::AppContext::AppContext() {
 bool glimmer::AppContext::InitSystem() {
     bool success = true;
     std::stack<IAppContextInitTask *> initTaskStack;
-    SystemBucket *systemBucketPtr = &systemBucket_;
+    ISystemBucket *systemBucket = systemBucket_.get();
     for (auto &initTask: initTasks_) {
         IAppContextInitTask *initTaskPtr = initTask.get();
         if (initTaskPtr == nullptr) {
             continue;
         }
-        if (initTaskPtr->Run(systemBucketPtr)) {
+        if (initTaskPtr->Run(systemBucket)) {
             initTaskStack.push(initTaskPtr);
         } else {
             success = false;
@@ -92,33 +94,33 @@ bool glimmer::AppContext::InitSystem() {
         return true;
     }
     while (!initTaskStack.empty()) {
-        initTaskStack.top()->Rollback(systemBucketPtr);
+        initTaskStack.top()->Rollback(systemBucket);
         initTaskStack.pop();
     }
     return false;
 }
 
 const toml::spec *glimmer::AppContext::GetTomlVersion() const {
-    return systemBucket_.GetTomlVersion();
+    return systemBucket_->GetTomlVersion();
 }
 
 glimmer::WindowContext *glimmer::AppContext::GetWindowContext() const {
-    return systemBucket_.GetWindowContext();
+    return systemBucket_->GetWindowContext();
 }
 
 void glimmer::AppContext::ExitApp() const {
-    if (const ConsoleContext *consoleContext = systemBucket_.GetConsoleContext(); consoleContext != nullptr) {
+    if (const ConsoleContext *consoleContext = systemBucket_->GetConsoleContext(); consoleContext != nullptr) {
         consoleContext->StopConsoleWorker();
-        if (const Config *config = systemBucket_.GetConfig();
+        if (const Config *config = systemBucket_->GetConfig();
             config != nullptr && config->console.maxHistoryEntries > 0) {
             consoleContext->SaveCommandHistory();
         }
     }
-    SceneManager *sceneManager = systemBucket_.GetSceneManager();
+    SceneManager *sceneManager = systemBucket_->GetSceneManager();
     if (sceneManager != nullptr) {
         sceneManager->ClearScenes();
     }
-    if (WindowContext *windowContext = systemBucket_.GetWindowContext(); windowContext != nullptr) {
+    if (WindowContext *windowContext = systemBucket_->GetWindowContext(); windowContext != nullptr) {
         windowContext->Exit();
     }
 }
@@ -128,15 +130,15 @@ void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::s
         return;
     }
     const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
-    const WindowContext *windowContext = systemBucket_.GetWindowContext();
+    const WindowContext *windowContext = systemBucket_->GetWindowContext();
     if (windowContext == nullptr) {
         return;
     }
-    const auto config = systemBucket_.GetConfig();
+    const auto config = systemBucket_->GetConfig();
     if (config == nullptr) {
         return;
     }
-    const VirtualFileSystem *virtualFileSystem = systemBucket_.GetVirtualFileSystem();
+    const VirtualFileSystem *virtualFileSystem = systemBucket_->GetVirtualFileSystem();
     if (virtualFileSystem == nullptr) {
         return;
     }
@@ -261,67 +263,67 @@ static SDL_PixelFormat MapSwapchainFormatToPixelFormat(const SDL_GPUTextureForma
 // }
 
 glimmer::ModContext *glimmer::AppContext::GetModContext() const {
-    return systemBucket_.GetModContext();
+    return systemBucket_->GetModContext();
 }
 
 glimmer::ConsoleContext *glimmer::AppContext::GetConsoleContext() const {
-    return systemBucket_.GetConsoleContext();
+    return systemBucket_->GetConsoleContext();
 }
 
 glimmer::GraphicsContext *glimmer::AppContext::GetGraphicsContext() const {
-    return systemBucket_.GetGraphicsContext();
+    return systemBucket_->GetGraphicsContext();
 }
 
 glimmer::AudioContext *glimmer::AppContext::GetAudioContext() const {
-    return systemBucket_.GetAudioContext();
+    return systemBucket_->GetAudioContext();
 }
 
 glimmer::RmlContext *glimmer::AppContext::GetRmlContext() const {
-    return systemBucket_.GetRmlContext();
+    return systemBucket_->GetRmlContext();
 }
 
 glimmer::MainThreadDispatcher *glimmer::AppContext::GetMainThreadDispatcher() const {
-    return systemBucket_.GetMainThreadDispatcher();
+    return systemBucket_->GetMainThreadDispatcher();
 }
 
 glimmer::Config *glimmer::AppContext::GetConfig() const {
-    return systemBucket_.GetConfig();
+    return systemBucket_->GetConfig();
 }
 
 toml::value *glimmer::AppContext::GetLangsValue() const {
-    return systemBucket_.GetLangsValue();
+    return systemBucket_->GetLangsValue();
 }
 
 glimmer::LangsResources *glimmer::AppContext::GetLangsResources() const {
-    return systemBucket_.GetLangsResources();
+    return systemBucket_->GetLangsResources();
 }
 
 glimmer::ResourcePackManager *glimmer::AppContext::GetResourcePackManager() const {
-    return systemBucket_.GetResourcePackManager();
+    return systemBucket_->GetResourcePackManager();
 }
 
 glimmer::ResourceLocator *glimmer::AppContext::GetResourceLocator() const {
-    return systemBucket_.GetResourceLocator();
+    return systemBucket_->GetResourceLocator();
 }
 
 glimmer::VirtualFileSystem *glimmer::AppContext::GetVirtualFileSystem() const {
-    return systemBucket_.GetVirtualFileSystem();
+    return systemBucket_->GetVirtualFileSystem();
 }
 
 glimmer::SceneManager *glimmer::AppContext::GetSceneManager() const {
-    return systemBucket_.GetSceneManager();
+    return systemBucket_->GetSceneManager();
 }
 
 glimmer::SavesManager *glimmer::AppContext::GetSavesManager() const {
-    return systemBucket_.GetSavesManager();
+    return systemBucket_->GetSavesManager();
 }
 
 void glimmer::AppContext::SetRandomSlogan() const {
-    const WindowContext *windowContext = systemBucket_.GetWindowContext();
+    const WindowContext *windowContext = systemBucket_->GetWindowContext();
     if (windowContext == nullptr) {
         return;
     }
-    const LangsResources *langsResources = systemBucket_.GetLangsResources();
+    const LangsResources *langsResources = systemBucket_->GetLangsResources();
     if (langsResources == nullptr) {
         windowContext->SetWindowTitle(PROJECT_NAME.c_str());
         return;
@@ -336,9 +338,9 @@ void glimmer::AppContext::SetRandomSlogan() const {
 }
 
 glimmer::CacheContext *glimmer::AppContext::GetCacheContext() const {
-    return systemBucket_.GetCacheContext();
+    return systemBucket_->GetCacheContext();
 }
 
 const std::string &glimmer::AppContext::GetLanguage() const {
-    return systemBucket_.GetLanguage();
+    return systemBucket_->GetLanguage();
 }

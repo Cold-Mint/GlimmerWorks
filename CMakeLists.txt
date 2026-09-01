@@ -392,17 +392,7 @@ if (ANDROID)
     add_library(GlimmerWorks SHARED)
 else ()
     message(STATUS "Building for Desktop → Executable")
-    add_executable(GlimmerWorks
-            core/gpu/RenderQueue.cpp
-            core/gpu/RenderQueue.h
-            core/mod/resourcePack/cache/ColorCache.cpp
-            core/mod/resourcePack/cache/ColorCache.h
-            core/context/CacheContext.cpp
-            core/context/CacheContext.h
-            core/mod/BasePackManager.cpp
-            core/mod/BasePackManager.h
-            core/mod/resourcePack/cache/RmlCache.cpp
-            core/mod/resourcePack/cache/RmlCache.h)
+    add_executable(GlimmerWorks)
 endif ()
 
 target_sources(GlimmerWorks
@@ -412,6 +402,11 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Platform_SDL.cpp"
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL_GPU.cpp"
         core/app/App.cpp
+        core/gpu/RenderQueue.cpp
+        core/mod/resourcePack/cache/ColorCache.cpp
+        core/context/CacheContext.cpp
+        core/mod/BasePackManager.cpp
+        core/mod/resourcePack/cache/RmlCache.cpp
         core/utils/IUniqueAble.cpp
         core/mod/resourcePack/cache/TextureCache.cpp
         core/mod/resourcePack/cache/AudioCache.cpp
@@ -419,7 +414,6 @@ target_sources(GlimmerWorks
         core/mod/resourcePack/cache/ShaderCache.cpp
         core/gpu/GpuShaderCompiler.cpp
         core/gpu/GpuShaderCompileResult.cpp
-        core/mod/resourcePack/BaseResourceCache.cpp
         core/mod/resourcePack/BaseManager.cpp
         core/app/AppEventLoop.cpp
         core/context/tasks/IAppContextInitTask.cpp
@@ -798,6 +792,12 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Platform_SDL.h"
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL_GPU.h"
         core/app/App.h
+        core/mod/resourcePack/cache/RmlCache.h
+        core/context/ISystemBucket.h
+        core/mod/BasePackManager.h
+        core/context/CacheContext.h
+        core/mod/resourcePack/cache/ColorCache.h
+        core/gpu/RenderQueue.h
         core/utils/IUniqueAble.h
         core/mod/resourcePack/cache/TextureCache.h
         core/mod/resourcePack/cache/AudioCache.h

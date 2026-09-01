@@ -28,19 +28,24 @@
 
 #include "InitCoreContextsTask.h"
 
-bool glimmer::InitCoreContextsTask::Run(SystemBucket *systemBucket) {
+#include "core/context/CacheContext.h"
+#include "core/context/ISystemBucket.h"
+
+bool glimmer::InitCoreContextsTask::Run(ISystemBucket *systemBucket) {
     systemBucket->SetWindowContext(std::make_unique<WindowContext>());
     systemBucket->SetMainThreadDispatcher(std::make_unique<MainThreadDispatcher>());
     systemBucket->SetAudioContext(std::make_unique<AudioContext>());
     systemBucket->SetGraphicsContext(std::make_unique<GraphicsContext>());
     systemBucket->SetSceneManager(std::make_unique<SceneManager>());
+    systemBucket->SetCacheContext(std::make_unique<CacheContext>());
     return true;
 }
 
-void glimmer::InitCoreContextsTask::Rollback(SystemBucket *systemBucket) {
+void glimmer::InitCoreContextsTask::Rollback(ISystemBucket *systemBucket) {
     systemBucket->SetSceneManager(nullptr);
     systemBucket->SetGraphicsContext(nullptr);
     systemBucket->SetAudioContext(nullptr);
     systemBucket->SetMainThreadDispatcher(nullptr);
     systemBucket->SetWindowContext(nullptr);
+    systemBucket->SetCacheContext(nullptr);
 }

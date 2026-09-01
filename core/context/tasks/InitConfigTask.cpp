@@ -31,7 +31,7 @@
 #include "core/log/LogCat.h"
 #include "toml11/parser.hpp"
 
-bool glimmer::InitConfigTask::Run(SystemBucket *systemBucket) {
+bool glimmer::InitConfigTask::Run(ISystemBucket *systemBucket) {
     const toml::spec *tomlVersion = systemBucket->GetTomlVersion();
     if (tomlVersion == nullptr) {
         LogCat::e(std::source_location::current(), "tomlVersion is nullptr");
@@ -55,6 +55,6 @@ bool glimmer::InitConfigTask::Run(SystemBucket *systemBucket) {
     return true;
 }
 
-void glimmer::InitConfigTask::Rollback(SystemBucket *systemBucket) {
+void glimmer::InitConfigTask::Rollback(ISystemBucket *systemBucket) {
     systemBucket->SetConfig(nullptr);
 }

@@ -28,12 +28,13 @@
 
 #include "InitConsoleContextTask.h"
 
+#include "core/context/ISystemBucket.h"
 #include "core/log/LogCat.h"
 
 glimmer::InitConsoleContextTask::InitConsoleContextTask(AppContext *appContext) : appContext_(appContext) {
 }
 
-bool glimmer::InitConsoleContextTask::Run(SystemBucket *systemBucket) {
+bool glimmer::InitConsoleContextTask::Run(ISystemBucket *systemBucket) {
     VirtualFileSystem *virtualFileSystem = systemBucket->GetVirtualFileSystem();
     if (virtualFileSystem == nullptr) {
         LogCat::e(std::source_location::current(), "virtualFileSystem is nullptr");
@@ -54,6 +55,6 @@ bool glimmer::InitConsoleContextTask::Run(SystemBucket *systemBucket) {
     return true;
 }
 
-void glimmer::InitConsoleContextTask::Rollback(SystemBucket *systemBucket) {
+void glimmer::InitConsoleContextTask::Rollback(ISystemBucket *systemBucket) {
     systemBucket->SetConsoleContext(nullptr);
 }

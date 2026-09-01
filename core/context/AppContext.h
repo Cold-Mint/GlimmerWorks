@@ -42,11 +42,11 @@
 #include "GraphicsContext.h"
 #include "AudioContext.h"
 #include "RmlContext.h"
-#include "SystemBucket.h"
 #include "WindowContext.h"
 #include "core/scene/MainThreadDispatcher.h"
 #include "core/scene/SceneManager.h"
 #include "tasks/IAppContextInitTask.h"
+#include "core/context/ISystemBucket.h"
 
 namespace glimmer {
     class AppContext {
@@ -60,7 +60,7 @@ namespace glimmer {
         };
 
         mutable std::optional<PendingScreenshot> pendingScreenshot_;
-        SystemBucket systemBucket_;
+        std::unique_ptr<ISystemBucket> systemBucket_;
         std::vector<std::unique_ptr<IAppContextInitTask> > initTasks_;
 
         void RegisterInitTask(std::unique_ptr<IAppContextInitTask> initTask);

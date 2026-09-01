@@ -27,6 +27,7 @@
 #include "RmlContext.h"
 
 #include "AppContext.h"
+#include "CacheContext.h"
 #include "core/log/LogCat.h"
 #include "core/mod/resourcePack/RmlResourceResult.h"
 #include "core/mod/resourcePack/cache/RmlCache.h"

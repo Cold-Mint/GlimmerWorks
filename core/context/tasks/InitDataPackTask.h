@@ -36,6 +36,6 @@ namespace glimmer {
     public:
         explicit InitDataPackTask(AppContext *appContext);
 
-        bool Run(SystemBucket *systemBucket) override;
+        bool Run(ISystemBucket *systemBucket) override;
     };
 }

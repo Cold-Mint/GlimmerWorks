@@ -26,6 +26,8 @@
  */
 #include "SystemBucket.h"
 
+glimmer::SystemBucket::~SystemBucket() = default;
+
 void glimmer::SystemBucket::SetWindowContext(std::unique_ptr<WindowContext> windowContext) {
     windowContext_ = std::move(windowContext);
 }

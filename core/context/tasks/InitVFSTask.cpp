@@ -26,11 +26,12 @@
  */
 #include "InitVFSTask.h"
 
+#include "core/context/ISystemBucket.h"
 #include "core/log/LogCat.h"
 #include "core/vfs/StdFileProvider.h"
 #include "core/vfs/VirtualFileSystem.h"
 
-bool glimmer::InitVFSTask::Run(SystemBucket *systemBucket) {
+bool glimmer::InitVFSTask::Run(ISystemBucket *systemBucket) {
     auto virtualFileSystem = std::make_unique<VirtualFileSystem>();
 #ifdef __ANDROID__
     auto env = static_cast<JNIEnv *>(SDL_GetAndroidJNIEnv());
@@ -117,6 +118,6 @@ bool glimmer::InitVFSTask::Run(SystemBucket *systemBucket) {
     return true;
 }
 
-void glimmer::InitVFSTask::Rollback(SystemBucket *systemBucket) {
+void glimmer::InitVFSTask::Rollback(ISystemBucket *systemBucket) {
     systemBucket->SetVirtualFileSystem(nullptr);
 }

@@ -28,9 +28,10 @@
 
 #include "InitResourcePackTask.h"
 
+#include "core/context/SystemBucket.h"
 #include "core/log/LogCat.h"
 
-bool glimmer::InitResourcePackTask::Run(SystemBucket *systemBucket) {
+bool glimmer::InitResourcePackTask::Run(ISystemBucket *systemBucket) {
     const toml::spec *tomlVersion = systemBucket->GetTomlVersion();
     if (tomlVersion == nullptr) {
         LogCat::e(std::source_location::current(), "tomlVersion is nullptr");
@@ -56,6 +57,6 @@ bool glimmer::InitResourcePackTask::Run(SystemBucket *systemBucket) {
     return true;
 }
 
-void glimmer::InitResourcePackTask::Rollback(SystemBucket *systemBucket) {
+void glimmer::InitResourcePackTask::Rollback(ISystemBucket *systemBucket) {
     systemBucket->SetResourcePackManager(nullptr);
 }

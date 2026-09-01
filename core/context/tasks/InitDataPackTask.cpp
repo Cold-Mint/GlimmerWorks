@@ -28,12 +28,13 @@
 
 #include "InitDataPackTask.h"
 
+#include "core/context/ISystemBucket.h"
 #include "core/log/LogCat.h"
 
 glimmer::InitDataPackTask::InitDataPackTask(AppContext *appContext) : appContext_(appContext) {
 }
 
-bool glimmer::InitDataPackTask::Run(SystemBucket *systemBucket) {
+bool glimmer::InitDataPackTask::Run(ISystemBucket *systemBucket) {
     const toml::spec *tomlVersion = systemBucket->GetTomlVersion();
     if (tomlVersion == nullptr) {
         LogCat::e(std::source_location::current(), "tomlVersion is nullptr");

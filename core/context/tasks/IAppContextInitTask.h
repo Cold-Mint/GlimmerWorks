@@ -25,9 +25,10 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "core/context/SystemBucket.h"
 
 namespace glimmer {
+    class ISystemBucket;
+
     class IAppContextInitTask {
     public:
         virtual ~IAppContextInitTask() = default;
@@ -38,13 +39,13 @@ namespace glimmer {
          * @param systemBucket
          * @return
          */
-        virtual bool Run(SystemBucket *systemBucket) = 0;
+        virtual bool Run(ISystemBucket *systemBucket) = 0;
 
         /**
          * Rollback
          * 回滚任务
         * @param systemBucket
          */
-        virtual void Rollback(SystemBucket *systemBucket);
+        virtual void Rollback(ISystemBucket *systemBucket);
     };
 }

@@ -28,9 +28,10 @@
 
 #include "InitSavesManagerTask.h"
 
+#include "core/context/ISystemBucket.h"
 #include "core/log/LogCat.h"
 
-bool glimmer::InitSavesManagerTask::Run(SystemBucket *systemBucket) {
+bool glimmer::InitSavesManagerTask::Run(ISystemBucket *systemBucket) {
     VirtualFileSystem *virtualFileSystem = systemBucket->GetVirtualFileSystem();
     if (virtualFileSystem == nullptr) {
         LogCat::e(std::source_location::current(), "virtualFileSystem is nullptr");
@@ -47,6 +48,6 @@ bool glimmer::InitSavesManagerTask::Run(SystemBucket *systemBucket) {
     return true;
 }
 
-void glimmer::InitSavesManagerTask::Rollback(SystemBucket *systemBucket) {
+void glimmer::InitSavesManagerTask::Rollback(ISystemBucket *systemBucket) {
     systemBucket->SetSavesManager(nullptr);
 }

@@ -31,6 +31,7 @@
 #include "CacheContext.h"
 #include "ConsoleContext.h"
 #include "GraphicsContext.h"
+#include "ISystemBucket.h"
 #include "ModContext.h"
 #include "WindowContext.h"
 #include "core/config/Config.h"
@@ -43,7 +44,7 @@
 #include "core/vfs/VirtualFileSystem.h"
 
 namespace glimmer {
-    class SystemBucket {
+    class SystemBucket : public ISystemBucket {
         std::string language_ = LanguageUtils::getLanguage();
         toml::spec tomlVersion_ = toml::spec::v(1, 1, 0);
         std::unique_ptr<WindowContext> windowContext_ = nullptr;
@@ -64,74 +65,76 @@ namespace glimmer {
         std::unique_ptr<CacheContext> cacheContext_ = nullptr;
 
     public:
-        void SetWindowContext(std::unique_ptr<WindowContext> windowContext);
+        ~SystemBucket() override;
 
-        void SetCacheContext(std::unique_ptr<CacheContext> cacheContext);
+        void SetWindowContext(std::unique_ptr<WindowContext> windowContext) override;
 
-        [[nodiscard]] CacheContext* GetCacheContext() const;
+        void SetCacheContext(std::unique_ptr<CacheContext> cacheContext) override;
 
-        [[nodiscard]] WindowContext *GetWindowContext() const;
+        [[nodiscard]] CacheContext *GetCacheContext() const override;
 
-        void SetConfig(std::unique_ptr<Config> config);
+        [[nodiscard]] WindowContext *GetWindowContext() const override;
 
-        [[nodiscard]] Config *GetConfig() const;
+        void SetConfig(std::unique_ptr<Config> config) override;
 
-        void SetSceneManager(std::unique_ptr<SceneManager> sceneManager);
+        [[nodiscard]] Config *GetConfig() const override;
 
-        [[nodiscard]] SceneManager *GetSceneManager() const;
+        void SetSceneManager(std::unique_ptr<SceneManager> sceneManager) override;
 
-        void SetVirtualFileSystem(std::unique_ptr<VirtualFileSystem> virtualFileSystem);
+        [[nodiscard]] SceneManager *GetSceneManager() const override;
 
-        [[nodiscard]] VirtualFileSystem *GetVirtualFileSystem() const;
+        void SetVirtualFileSystem(std::unique_ptr<VirtualFileSystem> virtualFileSystem) override;
 
-        void SetResourcePackManager(std::unique_ptr<ResourcePackManager> resourcePackManager);
+        [[nodiscard]] VirtualFileSystem *GetVirtualFileSystem() const override;
 
-        [[nodiscard]] ResourcePackManager *GetResourcePackManager() const;
+        void SetResourcePackManager(std::unique_ptr<ResourcePackManager> resourcePackManager) override;
 
-        void SetResourceLocator(std::unique_ptr<ResourceLocator> resourceLocator);
+        [[nodiscard]] ResourcePackManager *GetResourcePackManager() const override;
 
-        [[nodiscard]] ResourceLocator *GetResourceLocator() const;
+        void SetResourceLocator(std::unique_ptr<ResourceLocator> resourceLocator) override;
 
-        void SetLangsResources(std::unique_ptr<LangsResources> langsResources);
+        [[nodiscard]] ResourceLocator *GetResourceLocator() const override;
 
-        [[nodiscard]] LangsResources *GetLangsResources() const;
+        void SetLangsResources(std::unique_ptr<LangsResources> langsResources) override;
 
-        void SetSavesManager(std::unique_ptr<SavesManager> savesManager);
+        [[nodiscard]] LangsResources *GetLangsResources() const override;
 
-        [[nodiscard]] SavesManager *GetSavesManager() const;
+        void SetSavesManager(std::unique_ptr<SavesManager> savesManager) override;
 
-        void SetModContext(std::unique_ptr<ModContext> modContext);
+        [[nodiscard]] SavesManager *GetSavesManager() const override;
 
-        [[nodiscard]] ModContext *GetModContext() const;
+        void SetModContext(std::unique_ptr<ModContext> modContext) override;
 
-        void SetRmlContext(std::unique_ptr<RmlContext> rmlContext);
+        [[nodiscard]] ModContext *GetModContext() const override;
 
-        [[nodiscard]] RmlContext *GetRmlContext() const;
+        void SetRmlContext(std::unique_ptr<RmlContext> rmlContext) override;
 
-        void SetConsoleContext(std::unique_ptr<ConsoleContext> consoleContext);
+        [[nodiscard]] RmlContext *GetRmlContext() const override;
 
-        [[nodiscard]] ConsoleContext *GetConsoleContext() const;
+        void SetConsoleContext(std::unique_ptr<ConsoleContext> consoleContext) override;
 
-        void SetGraphicsContext(std::unique_ptr<GraphicsContext> graphicsContext);
+        [[nodiscard]] ConsoleContext *GetConsoleContext() const override;
 
-        [[nodiscard]] GraphicsContext *GetGraphicsContext() const;
+        void SetGraphicsContext(std::unique_ptr<GraphicsContext> graphicsContext) override;
 
-        void SetMainThreadDispatcher(std::unique_ptr<MainThreadDispatcher> mainThreadDispatcher);
+        [[nodiscard]] GraphicsContext *GetGraphicsContext() const override;
 
-        [[nodiscard]] MainThreadDispatcher *GetMainThreadDispatcher() const;
+        void SetMainThreadDispatcher(std::unique_ptr<MainThreadDispatcher> mainThreadDispatcher) override;
 
-        void SetLangsValue(std::unique_ptr<toml::value> langsValue);
+        [[nodiscard]] MainThreadDispatcher *GetMainThreadDispatcher() const override;
 
-        void SetAudioContext(std::unique_ptr<AudioContext> audioContext);
+        void SetLangsValue(std::unique_ptr<toml::value> langsValue) override;
 
-        [[nodiscard]] AudioContext *GetAudioContext() const;
+        void SetAudioContext(std::unique_ptr<AudioContext> audioContext) override;
 
-        [[nodiscard]] toml::value *GetLangsValue() const;
+        [[nodiscard]] AudioContext *GetAudioContext() const override;
 
-        [[nodiscard]] const toml::spec *GetTomlVersion() const;
+        [[nodiscard]] toml::value *GetLangsValue() const override;
 
-        void SetLanguage(const std::string &language);
+        [[nodiscard]] const toml::spec *GetTomlVersion() const override;
 
-        [[nodiscard]] const std::string &GetLanguage() const;
+        void SetLanguage(const std::string &language) override;
+
+        [[nodiscard]] const std::string &GetLanguage() const override;
     };
 }

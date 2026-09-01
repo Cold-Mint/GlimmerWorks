@@ -26,12 +26,13 @@
  */
 #include "InitLangsTask.h"
 
+#include "core/context/SystemBucket.h"
 #include "core/utils/LangsResources.h"
 #include "core/vfs/VirtualFileSystem.h"
 #include "toml11/find.hpp"
 #include "toml11/parser.hpp"
 
-bool glimmer::InitLangsTask::Run(SystemBucket *systemBucket) {
+bool glimmer::InitLangsTask::Run(ISystemBucket *systemBucket) {
     const toml::spec *tomlVersion = systemBucket->GetTomlVersion();
     if (tomlVersion == nullptr) {
         return false;
@@ -184,7 +185,7 @@ bool glimmer::InitLangsTask::Run(SystemBucket *systemBucket) {
     return true;
 }
 
-void glimmer::InitLangsTask::Rollback(SystemBucket *systemBucket) {
+void glimmer::InitLangsTask::Rollback(ISystemBucket *systemBucket) {
     systemBucket->SetLangsResources(nullptr);
     systemBucket->SetLangsValue(nullptr);
 }

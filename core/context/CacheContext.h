@@ -27,21 +27,21 @@
 #pragma once
 #include <memory>
 
-namespace glimmer {
-    class ColorCache;
-    class AudioCache;
-    class GpuPipelineCache;
-    class RmlCache;
-    class ShaderCache;
-    class TextureCache;
+#include "core/mod/resourcePack/cache/AudioCache.h"
+#include "core/mod/resourcePack/cache/ColorCache.h"
+#include "core/mod/resourcePack/cache/GpuPipelineCache.h"
+#include "core/mod/resourcePack/cache/RmlCache.h"
+#include "core/mod/resourcePack/cache/ShaderCache.h"
+#include "core/mod/resourcePack/cache/TextureCache.h"
 
+namespace glimmer {
     class CacheContext {
-        std::unique_ptr<AudioCache> audioCache_;
-        std::unique_ptr<GpuPipelineCache> gpuPipelineCache_;
-        std::unique_ptr<ShaderCache> shaderCache_;
-        std::unique_ptr<TextureCache> textureCache_;
-        std::unique_ptr<RmlCache> rmlCache_;
-        std::unique_ptr<ColorCache> colorCache_;
+        std::unique_ptr<AudioCache> audioCache_ = nullptr;
+        std::unique_ptr<GpuPipelineCache> gpuPipelineCache_ = nullptr;
+        std::unique_ptr<ShaderCache> shaderCache_ = nullptr;
+        std::unique_ptr<TextureCache> textureCache_ = nullptr;
+        std::unique_ptr<RmlCache> rmlCache_ = nullptr;
+        std::unique_ptr<ColorCache> colorCache_ = nullptr;
 
     public:
         ~CacheContext();

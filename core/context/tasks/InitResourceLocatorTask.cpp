@@ -28,12 +28,13 @@
 
 #include "InitResourceLocatorTask.h"
 
+#include "core/context/SystemBucket.h"
 #include "core/log/LogCat.h"
 
 glimmer::InitResourceLocatorTask::InitResourceLocatorTask(AppContext *appContext) : appContext_(appContext) {
 }
 
-bool glimmer::InitResourceLocatorTask::Run(SystemBucket *systemBucket) {
+bool glimmer::InitResourceLocatorTask::Run(ISystemBucket *systemBucket) {
     const ModContext *modContext = systemBucket->GetModContext();
     if (modContext == nullptr) {
         LogCat::e(std::source_location::current(), "modContext is nullptr");
@@ -58,6 +59,6 @@ bool glimmer::InitResourceLocatorTask::Run(SystemBucket *systemBucket) {
     return true;
 }
 
-void glimmer::InitResourceLocatorTask::Rollback(SystemBucket *systemBucket) {
+void glimmer::InitResourceLocatorTask::Rollback(ISystemBucket *systemBucket) {
     systemBucket->SetResourceLocator(nullptr);
 }

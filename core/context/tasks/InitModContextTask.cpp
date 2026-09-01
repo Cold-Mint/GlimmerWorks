@@ -28,9 +28,10 @@
 
 #include "InitModContextTask.h"
 
+#include "core/context/SystemBucket.h"
 #include "core/log/LogCat.h"
 
-bool glimmer::InitModContextTask::Run(SystemBucket *systemBucket) {
+bool glimmer::InitModContextTask::Run(ISystemBucket *systemBucket) {
     VirtualFileSystem *virtualFileSystem = systemBucket->GetVirtualFileSystem();
     if (virtualFileSystem == nullptr) {
         LogCat::e(std::source_location::current(), "virtualFileSystem is nullptr");
@@ -47,6 +48,6 @@ bool glimmer::InitModContextTask::Run(SystemBucket *systemBucket) {
     return true;
 }
 
-void glimmer::InitModContextTask::Rollback(SystemBucket *systemBucket) {
+void glimmer::InitModContextTask::Rollback(ISystemBucket *systemBucket) {
     systemBucket->SetModContext(nullptr);
 }

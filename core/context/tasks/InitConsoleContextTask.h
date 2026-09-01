@@ -36,8 +36,8 @@ namespace glimmer {
     public:
         explicit InitConsoleContextTask(AppContext *appContext);
 
-        bool Run(SystemBucket *systemBucket) override;
+        bool Run(ISystemBucket *systemBucket) override;
 
-        void Rollback(SystemBucket *systemBucket) override;
+        void Rollback(ISystemBucket *systemBucket) override;
     };
 }

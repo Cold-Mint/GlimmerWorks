@@ -104,6 +104,7 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
     params.SetResourceRef(resourceRef);
     params.SetIconResourceRef(itemResource->texture);
     auto result = std::make_unique<ComposableItem>(params);
+    result->SetLightSourceRef(itemResource->lightSource);
     if (itemResource->pipeline.IsValid()) {
         if (const std::shared_ptr<GPUPipelineResourceResult> pipelineResult = appContext->GetResourceLocator()->
                 FindPipeline(

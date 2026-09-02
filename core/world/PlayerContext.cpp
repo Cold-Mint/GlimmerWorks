@@ -34,6 +34,7 @@
 #include "core/ecs/EntityShortCut.h"
 #include "core/ecs/MobEntityCreator.h"
 #include "core/ecs/component/ItemContainerComponent.h"
+#include "core/ecs/component/LightComponent.h"
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/math/CoordinateTransformer.h"
@@ -100,6 +101,7 @@ void glimmer::PlayerContext::InitPlayer(const ResourceRef &resourceRef) {
     auto *playerComponent = entityManager->GetComponent<PlayerComponent>(playerEntity);
     if (playerComponent != nullptr) {
         playerComponent->SetItem(itemContainer->GetItem(0));
+        UpdatePlayerHandLight(playerEntity, playerComponent->GetItem());
     }
     itemCallback_ = itemContainer->AddOnContentChanged(
         [this, playerComponent, itemContainer](const uint8_t index, Item *item, ContainerChangeType changeType) {
@@ -111,13 +113,14 @@ void glimmer::PlayerContext::InitPlayer(const ResourceRef &resourceRef) {
             OnPlayerItemChanged(itemContainer, index, item, changeType, playerComponent);
         });
 
-    itemContainer->AddOnSelectIndexChanged([playerComponent,itemContainer](const uint8_t index) {
+    itemContainer->AddOnSelectIndexChanged([this, playerComponent, itemContainer, playerEntity](const uint8_t index) {
         if (playerComponent == nullptr) {
             LogCat::e(std::source_location::current(),
                       "itemContainer->AddOnSelectIndexChanged playerComponent == nullptr");
             return;
         }
         playerComponent->SetItem(itemContainer->GetItem(index));
+        UpdatePlayerHandLight(playerEntity, playerComponent->GetItem());
     });
     entityShortCut->SetPlayer(playerEntity);
 }
@@ -185,16 +188,21 @@ void glimmer::PlayerContext::OnPlayerItemChanged(const ItemContainer *itemContai
     if (index != itemContainer->GetSelectIndex()) {
         return;
     }
+    const EntityShortCut *entityShortCut = worldContext_->GetEntityShortCut();
+    const GameEntityID playerEntity = entityShortCut != nullptr ? entityShortCut->GetPlayer() : GAME_ENTITY_ID_INVALID;
     if (changeType == ContainerChangeType::STACK_DURABILITY_EXHAUSTED) {
         HandleItemBreak(item, playerComponent);
         playerComponent->SetItem(nullptr);
+        UpdatePlayerHandLight(playerEntity, nullptr);
         return;
     }
     if (changeType == ContainerChangeType::STACK_AMOUNT_EXHAUSTED || changeType == ContainerChangeType::STACK_DESTROY) {
         playerComponent->SetItem(nullptr);
+        UpdatePlayerHandLight(playerEntity, nullptr);
         return;
     }
     playerComponent->SetItem(item);
+    UpdatePlayerHandLight(playerEntity, item);
 }
 
 void glimmer::PlayerContext::HandleItemBreak(Item *item, PlayerComponent *playerComponent) const {
@@ -210,6 +218,31 @@ void glimmer::PlayerContext::HandleItemBreak(Item *item, PlayerComponent *player
     }
     if (playerComponent != nullptr) {
         playerComponent->SetItem(nullptr);
+    }
+}
+
+void glimmer::PlayerContext::UpdatePlayerHandLight(const GameEntityID playerEntity, Item *item) const {
+    EntityManager *entityManager = worldContext_->GetEntityManager();
+    if (entityManager == nullptr) {
+        return;
+    }
+    const ResourceRef *lightRef = nullptr;
+    if (item != nullptr) {
+        const ResourceRef &ref = item->GetLightSourceRef();
+        if (ref.IsValid()) {
+            lightRef = &ref;
+        }
+    }
+    if (lightRef != nullptr) {
+        LightComponent *lightComponent = entityManager->GetComponent<LightComponent>(playerEntity);
+        if (lightComponent == nullptr) {
+            lightComponent = entityManager->AddComponent<LightComponent>(playerEntity);
+        }
+        if (lightComponent != nullptr) {
+            lightComponent->SetLightSourceRef(*lightRef);
+        }
+    } else {
+        entityManager->RemoveComponent(playerEntity, COMPONENT_LIGHT);
     }
 }
 

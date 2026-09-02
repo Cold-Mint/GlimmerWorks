@@ -38,15 +38,17 @@ namespace {
         float intensity;
     };
 
-    constexpr std::array<Keyframe, 7> KEYFRAMES = {{
-        {0.0F, 80, 100, 160, 0.10F},
-        {4.0F, 230, 150, 90, 0.35F},
-        {6.0F, 250, 240, 210, 0.70F},
-        {12.0F, 255, 255, 250, 0.85F},
-        {18.0F, 240, 150, 80, 0.50F},
-        {20.0F, 90, 110, 170, 0.20F},
-        {24.0F, 80, 100, 160, 0.10F},
-    }};
+    constexpr std::array<Keyframe, 7> KEYFRAMES = {
+        {
+            {0.0F, 80, 100, 160, 0.10F},
+            {4.0F, 230, 150, 90, 0.35F},
+            {6.0F, 250, 240, 210, 0.70F},
+            {12.0F, 255, 255, 250, 0.85F},
+            {18.0F, 240, 150, 80, 0.50F},
+            {20.0F, 90, 110, 170, 0.20F},
+            {24.0F, 80, 100, 160, 0.10F},
+        }
+    };
 }
 
 glimmer::AmbientLight glimmer::ComputeAmbientLight(const float timeOfDay) {

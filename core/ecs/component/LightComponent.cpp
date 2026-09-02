@@ -24,48 +24,20 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
-#include <cstdint>
+#include "LightComponent.h"
 
-namespace glimmer {
-    enum class GameSystemType : uint8_t {
-        None,
-        AndroidControlSystem,
-        AreaMarkerSystem,
-        AutoPickSystem,
-        BiomeBGMSystem,
-        BlueprintSystem,
-        Box2dSystemContext,
-        CameraSystem,
-        ChunkSystem,
-        DebugDrawBox2dSystem,
-        DebugDrawSystem,
-        DebugMultiMapSystem,
-        DebugPanelSystem,
-        DiggingSystem,
-        DraggableSystem,
-        DroppedItemSystem,
-        DynamicLightSystem,
-        FloatingTextSystem,
-        HotBarGUISystem,
-        ItemSlotSystem,
-        Light2DSystem,
-        MagnetSystem,
-        ParallaxBackgroundSystem,
-        PauseSystem,
-        PhysicsSystem,
-        PlayerControlSystem,
-        RayCast2DSystem,
-        SpiritRendererSystem,
-        TileLayerSystem,
-        Transform2DSystem,
-        InventoryGUISystem,
-        CraftPreviewSlotSystem,
-        MaterialSelectCraftUISystem,
-        ItemToolTipSystem,
-        ItemSlotQuantitySystem,
-        ButtonSystem,
-        TeachProviderSystem,
-        RecipeDetailGUISystem,
-    };
+void glimmer::LightComponent::SetLightSourceRef(const ResourceRef &lightSourceRef) {
+    lightSourceRef_ = lightSourceRef;
+}
+
+const glimmer::ResourceRef &glimmer::LightComponent::GetLightSourceRef() const {
+    return lightSourceRef_;
+}
+
+GameComponentTypeMessage glimmer::LightComponent::GetComponentTypeStatic() {
+    return COMPONENT_LIGHT;
+}
+
+GameComponentTypeMessage glimmer::LightComponent::GetComponentType() {
+    return GetComponentTypeStatic();
 }

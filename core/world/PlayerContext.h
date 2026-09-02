@@ -61,6 +61,8 @@ namespace glimmer {
 
         void DropComposableItemAbilities(const ComposableItem *composableItem) const;
 
+        void UpdatePlayerHandLight(GameEntityID playerEntity, Item *item) const;
+
     public:
         explicit PlayerContext(WorldContext *worldContext);
 

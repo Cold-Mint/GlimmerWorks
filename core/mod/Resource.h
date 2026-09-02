@@ -388,6 +388,8 @@ namespace glimmer {
         ResourceRef texture;
         //@genNextLine(pipeline|渲染管线引用)
         ResourceRef pipeline = {};
+        //@genNextLine(lightSource|手持时发光的光源引用)
+        ResourceRef lightSource = {};
         //@genNextLine(ability|能力标识)
         uint8_t ability;
         //@genNextLine(abilityConfig|能力变量配置)
@@ -412,6 +414,8 @@ namespace glimmer {
         ResourceRef texture;
         //@genNextLine(pipeline|渲染管线引用)
         ResourceRef pipeline = {};
+        //@genNextLine(lightSource|手持时发光的光源引用)
+        ResourceRef lightSource = {};
         //@genNextLine(tags|标签)
         std::vector<ItemTagResource> tags = {};
     };
@@ -722,6 +726,8 @@ namespace glimmer {
         ResourceRef texture;
         //@genNextLine(pipeline|渲染管线引用)
         ResourceRef pipeline = {};
+        //@genNextLine(lightSource|手持时发光的光源引用)
+        ResourceRef lightSource = {};
         //@genNextLine(slotSize|槽位大小)
         size_t slotSize;
         //@genNextLine(maxDurability|最大耐久度)

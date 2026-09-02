@@ -67,6 +67,7 @@ std::unique_ptr<glimmer::MaterialItem> glimmer::MaterialItem::FromItemResource(c
                                                        appContext->GetResourceLocator()->FindTexture(
                                                            &itemResource->texture), itemResource->tags, resourceRef,
                                                        itemResource->texture);
+    materialItem->SetLightSourceRef(itemResource->lightSource);
     if (itemResource->pipeline.IsValid()) {
         if (const std::shared_ptr<GPUPipelineResourceResult> pipelineResult = appContext->GetResourceLocator()->
                 FindPipeline(

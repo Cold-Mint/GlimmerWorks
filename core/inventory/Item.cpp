@@ -36,6 +36,14 @@ void glimmer::Item::SetResourceRef(const ResourceRef &resourceRef) {
     resourceRef_ = resourceRef;
 }
 
+void glimmer::Item::SetLightSourceRef(const ResourceRef &lightSourceRef) {
+    lightSourceRef_ = lightSourceRef;
+}
+
+const glimmer::ResourceRef &glimmer::Item::GetLightSourceRef() const {
+    return lightSourceRef_;
+}
+
 glimmer::ItemDurabilityModule *glimmer::Item::GetMutableDurabilityModule() {
     return &itemDurabilityModule_;
 }

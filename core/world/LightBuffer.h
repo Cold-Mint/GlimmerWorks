@@ -49,7 +49,17 @@ namespace glimmer {
      * 传播光照，取代此前的射线方案。
      */
     class LightBuffer {
+        struct DynamicLightEntry {
+            TileVector2D position;
+            TileLayerType layer;
+            std::unique_ptr<LightSource> lightSource;
+        };
+
         std::unordered_map<TileVector2D, std::unique_ptr<TileLightData>, Vector2DIHash> tileLightData_;
+
+        //Dynamic (mobile) light sources keyed by an arbitrary id (e.g. entity id).
+        //动态（移动）光源，以任意 id（如实体 id）为键。
+        std::unordered_map<uint64_t, DynamicLightEntry> dynamicLights_;
 
         /**
          * Monotonic counter bumped by every mutating operation. The renderer
@@ -108,6 +118,25 @@ namespace glimmer {
         void ClearLightSource(TileVector2D position, TileLayerType layerType);
 
         const Color *GetFinalLightColor(TileVector2D position) const;
+
+        /**
+         * SetDynamicLight
+         * 设置/更新一个动态（移动）光源。若 id 已存在且位置/光源参数变化，
+         * 会先清除旧贡献再设置新贡献（原子移动，不残留）。
+         * @param id id 光源唯一标识（如实体 id）
+         * @param position position 光源所在瓦片
+         * @param layerType layerType 图层
+         * @param lightSource lightSource 光源数据
+         */
+        void SetDynamicLight(uint64_t id, TileVector2D position, TileLayerType layerType,
+                             std::unique_ptr<LightSource> lightSource);
+
+        /**
+         * RemoveDynamicLight
+         * 移除指定 id 的动态光源。
+         * @param id id 光源唯一标识
+         */
+        void RemoveDynamicLight(uint64_t id);
 
         /**
          * SetTileOpaque

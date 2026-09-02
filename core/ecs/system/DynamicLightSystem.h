@@ -25,47 +25,33 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <cstdint>
+#include <unordered_set>
+
+#include "core/ecs/GameSystem.h"
+#include "core/ecs/EcsTypes.h"
 
 namespace glimmer {
-    enum class GameSystemType : uint8_t {
-        None,
-        AndroidControlSystem,
-        AreaMarkerSystem,
-        AutoPickSystem,
-        BiomeBGMSystem,
-        BlueprintSystem,
-        Box2dSystemContext,
-        CameraSystem,
-        ChunkSystem,
-        DebugDrawBox2dSystem,
-        DebugDrawSystem,
-        DebugMultiMapSystem,
-        DebugPanelSystem,
-        DiggingSystem,
-        DraggableSystem,
-        DroppedItemSystem,
-        DynamicLightSystem,
-        FloatingTextSystem,
-        HotBarGUISystem,
-        ItemSlotSystem,
-        Light2DSystem,
-        MagnetSystem,
-        ParallaxBackgroundSystem,
-        PauseSystem,
-        PhysicsSystem,
-        PlayerControlSystem,
-        RayCast2DSystem,
-        SpiritRendererSystem,
-        TileLayerSystem,
-        Transform2DSystem,
-        InventoryGUISystem,
-        CraftPreviewSlotSystem,
-        MaterialSelectCraftUISystem,
-        ItemToolTipSystem,
-        ItemSlotQuantitySystem,
-        ButtonSystem,
-        TeachProviderSystem,
-        RecipeDetailGUISystem,
+    /**
+     * DynamicLightSystem
+     * 动态光照系统
+     *
+     * Every frame, drives all entities carrying a LightComponent as mobile
+     * light sources: resolves their light resource, reads their transform and
+     * keeps their LightBuffer contribution in sync (and removes it when the
+     * entity disappears).
+     * 每帧驱动所有携带 LightComponent 的实体作为移动光源：解析其光源资源、
+     * 读取其变换，并使其在 LightBuffer 中的贡献保持同步（实体消失时移除）。
+     */
+    class DynamicLightSystem final : public GameSystem {
+        std::unordered_set<GameEntityID> lastLightEntities_;
+
+    public:
+        explicit DynamicLightSystem(WorldContext *worldContext);
+
+        void Update(float delta) override;
+
+        uint8_t GetExecutionOrder() override;
+
+        [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };
 }

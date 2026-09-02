@@ -579,6 +579,7 @@ target_sources(GlimmerWorks
         core/ecs/component/PlayerComponent.cpp
         core/ecs/component/RayCast2DComponent.cpp
         core/ecs/component/RigidBody2DComponent.cpp
+        core/ecs/component/LightComponent.cpp
         core/ecs/component/SpiritRendererComponent.cpp
         core/ecs/component/TechProviderComponent.cpp
         core/ecs/component/TileLayerComponent.cpp
@@ -601,6 +602,7 @@ target_sources(GlimmerWorks
         core/ecs/system/FloatingTextSystem.cpp
         core/ecs/system/HotBarGUISystem.cpp
         core/ecs/system/Light2DSystem.cpp
+        core/ecs/system/DynamicLightSystem.cpp
         core/ecs/system/MagnetSystem.cpp
         core/ecs/system/ParallaxBackgroundSystem.cpp
         core/ecs/system/PauseSystem.cpp
@@ -988,6 +990,7 @@ target_sources(GlimmerWorks
         core/ecs/component/PauseComponent.h
         core/ecs/component/RayCast2DComponent.h
         core/ecs/component/RigidBody2DComponent.h
+        core/ecs/component/LightComponent.h
         core/ecs/component/SpiritRendererComponent.h
         core/ecs/component/TechProviderComponent.h
         core/ecs/component/TileLayerComponent.h
@@ -1008,6 +1011,7 @@ target_sources(GlimmerWorks
         core/ecs/system/DroppedItemSystem.h
         core/ecs/system/FloatingTextSystem.h
         core/ecs/system/Light2DSystem.h
+        core/ecs/system/DynamicLightSystem.h
         core/ecs/system/MagnetSystem.h
         core/ecs/system/ParallaxBackgroundSystem.h
         core/ecs/system/PauseSystem.h

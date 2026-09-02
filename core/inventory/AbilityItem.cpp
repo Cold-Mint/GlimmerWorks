@@ -95,6 +95,7 @@ std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(con
     params.SetResourceRef(resourceRef);
     params.SetItemAbility(itemAbility);
     auto abilityItem = std::make_unique<AbilityItem>(params);
+    abilityItem->SetLightSourceRef(itemResource->lightSource);
     if (itemResource->pipeline.IsValid()) {
         if (const std::shared_ptr<GPUPipelineResourceResult> pipelineResult = appContext->GetResourceLocator()->
                 FindPipeline(

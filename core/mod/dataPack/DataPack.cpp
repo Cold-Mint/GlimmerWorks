@@ -212,6 +212,7 @@ void glimmer::DataPack::LoadComposableItemResourceFromFile(const toml::value &va
     itemResource->description.SetSelfPackageId(manifest_.id);
     itemResource->texture.SetSelfPackageId(manifest_.id);
     itemResource->pipeline.SetSelfPackageId(manifest_.id);
+    itemResource->lightSource.SetSelfPackageId(manifest_.id);
     for (auto &tag: itemResource->tags) {
         tag.MakeCachedTag();
     }
@@ -232,6 +233,7 @@ void glimmer::DataPack::LoadAbilityItemResourceFromFile(const toml::value &value
     itemResource->description.SetSelfPackageId(manifest_.id);
     itemResource->texture.SetSelfPackageId(manifest_.id);
     itemResource->pipeline.SetSelfPackageId(manifest_.id);
+    itemResource->lightSource.SetSelfPackageId(manifest_.id);
     for (auto &tag: itemResource->tags) {
         tag.MakeCachedTag();
     }
@@ -246,6 +248,7 @@ void glimmer::DataPack::LoadMaterialItemResourceResourceFromFile(const toml::val
     itemResource->description.SetSelfPackageId(manifest_.id);
     itemResource->texture.SetSelfPackageId(manifest_.id);
     itemResource->pipeline.SetSelfPackageId(manifest_.id);
+    itemResource->lightSource.SetSelfPackageId(manifest_.id);
     for (auto &tag: itemResource->tags) {
         tag.MakeCachedTag();
     }

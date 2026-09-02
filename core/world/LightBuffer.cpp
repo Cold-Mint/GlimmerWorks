@@ -115,6 +115,11 @@ void glimmer::LightBuffer::RebuildAllLight() {
             }
         }
     }
+    for (const auto &[id, entry]: dynamicLights_) {
+        if (entry.lightSource != nullptr) {
+            sources.emplace_back(entry.layer, entry.lightSource.get());
+        }
+    }
     for (const auto &[position, tileData]: tileLightData_) {
         if (tileData != nullptr) {
             tileData->ClearAllLightContributions();
@@ -253,6 +258,48 @@ const glimmer::Color *glimmer::LightBuffer::GetFinalLightColor(const TileVector2
         return nullptr;
     }
     return it->second->GetFinalLightColor();
+}
+
+void glimmer::LightBuffer::SetDynamicLight(const uint64_t id, const TileVector2D position,
+                                           const TileLayerType layerType,
+                                           std::unique_ptr<LightSource> lightSource) {
+    if (lightSource == nullptr) {
+        RemoveDynamicLight(id);
+        return;
+    }
+    const auto it = dynamicLights_.find(id);
+    if (it != dynamicLights_.end()) {
+        const DynamicLightEntry &old = it->second;
+        const LightSource *oldSource = old.lightSource.get();
+        const LightSource *newSource = lightSource.get();
+        const Color *oldColor = oldSource->GetEmissionColor();
+        const Color *newColor = newSource->GetEmissionColor();
+        const bool same = old.position == position && old.layer == layerType &&
+                          oldSource->GetMaxRadius() == newSource->GetMaxRadius() &&
+                          oldColor != nullptr && newColor != nullptr &&
+                          oldColor->GetFingerprint() == newColor->GetFingerprint();
+        if (same) {
+            return;
+        }
+        ClearLightFromSource(*oldSource, old.layer);
+        dynamicLights_.erase(it);
+    }
+    SetLightFromSource(*lightSource, layerType);
+    DynamicLightEntry entry{position, layerType, std::move(lightSource)};
+    dynamicLights_.emplace(id, std::move(entry));
+    ++revision_;
+}
+
+void glimmer::LightBuffer::RemoveDynamicLight(const uint64_t id) {
+    const auto it = dynamicLights_.find(id);
+    if (it == dynamicLights_.end()) {
+        return;
+    }
+    if (it->second.lightSource != nullptr) {
+        ClearLightFromSource(*it->second.lightSource, it->second.layer);
+    }
+    dynamicLights_.erase(it);
+    ++revision_;
 }
 
 float glimmer::LightBuffer::GetSkyVisibility(const TileVector2D &position) const {

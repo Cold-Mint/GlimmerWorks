@@ -420,6 +420,7 @@ namespace toml {
             r.abilityConfig = toml::find_or<glimmer::AbilityConfig>(v, "ability_config", {});
             r.canUseAlone = toml::find_or<bool>(v, "can_use_alone", false);
             r.description = toml::find_or<glimmer::ResourceRef>(v, "description", {});
+            r.lightSource = toml::find_or<glimmer::ResourceRef>(v, "light_source", {});
             r.maxDurability = toml::find_or<uint32_t>(v, "max_durability", 16);
             r.name = toml::find<glimmer::ResourceRef>(v, "name");
             r.pipeline = toml::find_or<glimmer::ResourceRef>(v, "pipeline", {});
@@ -462,6 +463,7 @@ namespace toml {
             r.defaultAbilityList = toml::find_or<std::vector<glimmer::ItemMessageResource> >(
                 v, "default_ability_list", {});
             r.description = toml::find_or<glimmer::ResourceRef>(v, "description", {});
+            r.lightSource = toml::find_or<glimmer::ResourceRef>(v, "light_source", {});
             r.maxDurability = toml::find_or<uint32_t>(v, "max_durability", 16);
             r.name = toml::find<glimmer::ResourceRef>(v, "name");
             r.pipeline = toml::find_or<glimmer::ResourceRef>(v, "pipeline", {});
@@ -565,6 +567,7 @@ namespace toml {
         static glimmer::MaterialItemResource from_toml(const value &v) {
             glimmer::MaterialItemResource r;
             r.description = toml::find_or<glimmer::ResourceRef>(v, "description", {});
+            r.lightSource = toml::find_or<glimmer::ResourceRef>(v, "light_source", {});
             r.name = toml::find<glimmer::ResourceRef>(v, "name");
             r.pipeline = toml::find_or<glimmer::ResourceRef>(v, "pipeline", {});
             r.resourceId = toml::find<std::string>(v, "resource_id");

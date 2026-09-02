@@ -25,47 +25,30 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <cstdint>
+#include "core/ecs/GameComponent.h"
+#include "core/mod/ResourceRef.h"
 
 namespace glimmer {
-    enum class GameSystemType : uint8_t {
-        None,
-        AndroidControlSystem,
-        AreaMarkerSystem,
-        AutoPickSystem,
-        BiomeBGMSystem,
-        BlueprintSystem,
-        Box2dSystemContext,
-        CameraSystem,
-        ChunkSystem,
-        DebugDrawBox2dSystem,
-        DebugDrawSystem,
-        DebugMultiMapSystem,
-        DebugPanelSystem,
-        DiggingSystem,
-        DraggableSystem,
-        DroppedItemSystem,
-        DynamicLightSystem,
-        FloatingTextSystem,
-        HotBarGUISystem,
-        ItemSlotSystem,
-        Light2DSystem,
-        MagnetSystem,
-        ParallaxBackgroundSystem,
-        PauseSystem,
-        PhysicsSystem,
-        PlayerControlSystem,
-        RayCast2DSystem,
-        SpiritRendererSystem,
-        TileLayerSystem,
-        Transform2DSystem,
-        InventoryGUISystem,
-        CraftPreviewSlotSystem,
-        MaterialSelectCraftUISystem,
-        ItemToolTipSystem,
-        ItemSlotQuantitySystem,
-        ButtonSystem,
-        TeachProviderSystem,
-        RecipeDetailGUISystem,
+    /**
+     * LightComponent
+     * 光照组件
+     *
+     * Attached to an entity to make it emit light as a dynamic (mobile) light
+     * source. The DynamicLightSystem reads this component each frame and keeps
+     * the entity's light contribution in sync with its Transform2DComponent.
+     * 挂载到实体上，使其作为动态（移动）光源发光。DynamicLightSystem 每帧读取
+     * 该组件，并使实体的光照贡献与其 Transform2DComponent 保持同步。
+     */
+    class LightComponent : public GameComponent {
+        ResourceRef lightSourceRef_;
+
+    public:
+        void SetLightSourceRef(const ResourceRef &lightSourceRef);
+
+        [[nodiscard]] const ResourceRef &GetLightSourceRef() const;
+
+        [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
+
+        [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
     };
 }

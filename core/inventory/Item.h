@@ -48,6 +48,7 @@ namespace glimmer {
         friend class GiveCommand;
         friend class ItemEditorCommand;
         ResourceRef resourceRef_;
+        ResourceRef lightSourceRef_;
         ItemDurabilityModule itemDurabilityModule_;
         ItemLockModule itemLockModule_;
         ItemStackModule itemStackModule_;
@@ -74,6 +75,19 @@ namespace glimmer {
 
     public:
         ~Item() override = default;
+
+        /**
+         * SetLightSourceRef
+         * 设置物品的光源引用（手持时发光）。
+         * @param lightSourceRef lightSourceRef 光源引用
+         */
+        void SetLightSourceRef(const ResourceRef &lightSourceRef);
+
+        /**
+         * GetLightSourceRef
+         * 获取物品的光源引用；未设置时返回无效引用（IsValid() == false）。
+         */
+        [[nodiscard]] const ResourceRef &GetLightSourceRef() const;
 
         virtual void ReadItemMessage(WorldContext *worldContext, const ItemMessage &itemMessage);
 

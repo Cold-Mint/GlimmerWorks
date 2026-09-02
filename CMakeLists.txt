@@ -703,6 +703,7 @@ target_sources(GlimmerWorks
         core/scene/CreateWorldScene.cpp
         core/scene/DebugOverlay.cpp
         core/scene/MainScene.cpp
+        core/scene/UIMessageOverlay.cpp
         core/scene/MainThreadDispatcher.cpp
         core/scene/SavedGamesScene.cpp
         core/scene/Scene.cpp
@@ -836,6 +837,7 @@ target_sources(GlimmerWorks
         core/config/Config.h
         core/config/Constants.h
         core/ui/Hyperlink.h
+        core/ui/UIMessage.h
         core/utils/IFingerprintable.h
         core/utils/LangsResources.h
         core/inventory/SelectedItemRuntimeData.h
@@ -1110,6 +1112,7 @@ target_sources(GlimmerWorks
         core/scene/CreateWorldScene.h
         core/scene/DebugOverlay.h
         core/scene/MainScene.h
+        core/scene/UIMessageOverlay.h
         core/scene/MainThreadDispatcher.h
         core/scene/SavedGamesScene.h
         core/scene/Scene.h

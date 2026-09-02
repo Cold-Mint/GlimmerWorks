@@ -64,8 +64,6 @@ namespace glimmer {
         SDL_GPUTexture *whiteTexture_ = nullptr;
         SDL_GPUSampler *sampler_ = nullptr;
 
-        void RenderUiMessage(int windowHeight, uint64_t frameStart);
-
         void RenderScenes();
 
         void RenderOverlays();

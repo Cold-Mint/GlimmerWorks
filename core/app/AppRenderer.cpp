@@ -425,6 +425,8 @@ void glimmer::AppRenderer::FlushQueue(SDL_GPUCommandBuffer *commandBuffer, SDL_G
 
 void glimmer::AppRenderer::RenderFrame(const RmlContext *rmlContext, const int windowWidth, const int windowHeight,
                                        const uint64_t frameStart, const float deltaTime) {
+    (void) frameStart;
+    (void) deltaTime;
     if (windowWidth <= 0 || windowHeight <= 0) {
         return;
     }
@@ -449,7 +451,6 @@ void glimmer::AppRenderer::RenderFrame(const RmlContext *rmlContext, const int w
     renderQueue_.Clear();
     RenderScenes();
     RenderOverlays();
-    RenderUiMessage(windowHeight, frameStart);
 
     SDL_GPUCommandBuffer *commandBuffer = SDL_AcquireGPUCommandBuffer(device_);
     if (commandBuffer == nullptr) {
@@ -478,13 +479,6 @@ void glimmer::AppRenderer::RenderFrame(const RmlContext *rmlContext, const int w
     if (!SDL_SubmitGPUCommandBuffer(commandBuffer)) {
         LogCat::w(std::source_location::current(), "SDL_SubmitGPUCommandBuffer failed: ", SDL_GetError());
     }
-}
-
-void glimmer::AppRenderer::RenderUiMessage(const int windowHeight, const uint64_t frameStart) {
-    // UI messages are not yet restored; no-op for now.
-    // UI 消息尚未恢复；暂为空实现。
-    (void) windowHeight;
-    (void) frameStart;
 }
 
 void glimmer::AppRenderer::RenderScenes() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+ * Copyright (C) 2025-2026  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,8 +13,8 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
- * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
+ *
+ * 版权(C) 2025-2026  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
  * 该许可证的第3版，或者（由你选择）任何后续版本。
@@ -25,34 +25,33 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-
-#include <optional>
-#include <string>
-
-#include "ResourcePack.h"
-#include "core/mod/BasePackManager.h"
+#include "Scene.h"
+#include "core/ui/UIMessage.h"
+#include "RmlUi/Core/DataModelHandle.h"
 
 namespace glimmer {
-    class ResourcePackManager : public BasePackManager<ResourcePack> {
-    protected:
-        std::vector<uint64_t> * GetEnabledPack(Config *config) const override;
-
-        std::filesystem::path GetPackPath(Config *config) const override;
-
-        std::unique_ptr<ResourcePack>
-        LoadPack(const PackScanRequest *packScanRequest, std::filesystem::path path) override;
+    /**
+     * UIMessageOverlay
+     * UI 消息叠加层
+     *
+     * Always-on overlay that renders transient UI messages through an RmlUi
+     * data model. The visual presentation lives entirely in a resource-pack
+     * RML document (overridable by mods); this scene only maintains the message
+     * list and its lifetime.
+     * 常驻叠加层，通过 RmlUi 数据模型渲染短暂 UI 消息。视觉呈现完全由资源包
+     * 的 RML 文档决定（可被模组覆盖）；本场景只负责维护消息列表与生命周期。
+     */
+    class UIMessageOverlay final : public Scene {
+        Rml::DataModelHandle uiMessageModelHandle_;
+        Rml::ElementDocument *uiMessageDocument_ = nullptr;
 
     public:
-        /**
-         * GetFontPath
-         * 获取字体文件路径
-         * @param enabledResourcePack 启用的资源包ID列表
-         * @param language 语言
-         * @param virtualFileSystem 虚拟文件系统
-         * @return 优先返回 fonts/<language>.ttf，其次返回 fonts/default.ttf，都没有则返回 nullopt
-         */
-        std::optional<std::filesystem::path> GetFontPath(const std::vector<uint64_t> &enabledResourcePack,
-                                                         const std::string &language,
-                                                         const VirtualFileSystem *virtualFileSystem);
+        explicit UIMessageOverlay(AppContext *context);
+
+        void LoadDocuments() override;
+
+        void OnCreateDataModels() override;
+
+        void Update(float delta) override;
     };
 }

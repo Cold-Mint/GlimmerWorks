@@ -34,6 +34,7 @@
 #include "core/utils/LangsResources.h"
 #include "core/config/Config.h"
 #include "core/saves/SavesManager.h"
+#include "core/ui/UIMessage.h"
 #include "core/vfs/VirtualFileSystem.h"
 #include "ConsoleContext.h"
 #include "GraphicsContext.h"
@@ -59,6 +60,7 @@ namespace glimmer {
         mutable std::optional<PendingScreenshot> pendingScreenshot_;
         std::unique_ptr<ISystemBucket> systemBucket_;
         std::vector<std::unique_ptr<IAppContextInitTask> > initTasks_;
+        std::vector<UIMessage> uiMessages_;
 
         void RegisterInitTask(std::unique_ptr<IAppContextInitTask> initTask);
 
@@ -105,6 +107,19 @@ namespace glimmer {
         [[nodiscard]] SavesManager *GetSavesManager() const;
 
         [[nodiscard]] const std::string &GetLanguage() const;
+
+        /**
+         * Add a transient UI message that is displayed via the RmlUi data
+         * binding (see UIMessageOverlay).
+         * 添加一条通过 RmlUi 数据绑定显示的短暂 UI 消息（见 UIMessageOverlay）。
+         * @param text text 消息文本
+         */
+        void AddUIMessage(const std::string &text);
+
+        /**
+         * @return The pending UI messages. 待显示的 UI 消息列表。
+         */
+        [[nodiscard]] std::vector<UIMessage> &GetUIMessages();
 
         void ExitApp() const;
 

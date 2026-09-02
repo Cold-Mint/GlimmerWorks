@@ -46,6 +46,7 @@
 #include "core/console/hook/CommandHookManager.h"
 #include "RmlUi/Core/Context.h"
 #include "core/scene/ConsoleOverlay.h"
+#include "core/scene/UIMessageOverlay.h"
 
 
 bool glimmer::App::InitSDL() {
@@ -126,54 +127,38 @@ bool glimmer::App::InitFont() const {
         return false;
     }
     LogCat::i("Loading font for language: ", appContext_->GetLanguage());
-    // const auto fontPathOpt = resourcePackManager->GetFontPath(
-    //     config->mods.enabledResourcePack,
-    //     appContext_->GetLanguage());
+    const auto fontPathOpt = resourcePackManager->GetFontPath(
+        config->mods.enabledResourcePack,
+        appContext_->GetLanguage(),
+        appContext_->GetVirtualFileSystem());
 
-    // if (!fontPathOpt.has_value()) {
-    //     LogCat::i("No font configured, skipping font initialization");
-    //     return true;
-    // }
+    if (!fontPathOpt.has_value()) {
+        LogCat::i("No font configured, skipping font initialization");
+        return true;
+    }
 
-    // const std::filesystem::path &fontPath = fontPathOpt.value();
-    // LogCat::i("Font path: ", fontPath.string());
-    // const VirtualFileSystem *virtualFileSystem = appContext_->GetVirtualFileSystem();
-    // if (virtualFileSystem == nullptr) {
-    //     LogCat::e(std::source_location::current(), "virtualFileSystem is nullptr");
-    //     return false;
-    // }
-    // if (!virtualFileSystem->Exists(fontPath)) {
-    //     LogCat::w(std::source_location::current(), "Font file not found: ", fontPath.string());
-    //     return false;
-    // }
-    //
-    // auto actualPath = virtualFileSystem->GetActualPath(fontPath);
-    // if (!actualPath.has_value()) {
-    //     LogCat::w(std::source_location::current(), "Cannot get actual font path");
-    //     return false;
-    // }
-    // const std::optional<std::string> fontDataOptional = virtualFileSystem->ReadFileAsString(fontPath);
-    // if (!fontDataOptional.has_value()) {
-    //     LogCat::w(std::source_location::current(), "Cannot read font file");
-    //     return false;
-    // }
-    // RmlContext *rmlContext = appContext_->GetRmlContext();
-    // if (rmlContext == nullptr) {
-    //     LogCat::e(std::source_location::current(), "rmlContext is nullptr");
-    //     return false;
-    // }
-    // if (!rmlContext->LoadFont(virtualFileSystem, fontPath)) {
-    //     LogCat::e(std::source_location::current(), "RmlContext Failed to load font: ", actualPath.value());
-    //     return false;
-    // }
-    // const std::string fontPathStr = actualPath.value().string();
-    // TTF_Font *sdlFont = TTF_OpenFont(fontPathStr.c_str(), 16);
-    // if (sdlFont == nullptr) {
-    //     LogCat::e(std::source_location::current(), "Failed to load font: ", actualPath.value());
-    //     return false;
-    // }
-    // resourcePackManager->SetFont(sdlFont);
-    // LogCat::i("Font loaded successfully: ", fontPathStr);
+    const std::filesystem::path &fontPath = fontPathOpt.value();
+    LogCat::i("Font path: ", fontPath.string());
+    const VirtualFileSystem *virtualFileSystem = appContext_->GetVirtualFileSystem();
+    if (virtualFileSystem == nullptr) {
+        LogCat::e(std::source_location::current(), "virtualFileSystem is nullptr");
+        return false;
+    }
+    if (!virtualFileSystem->Exists(fontPath)) {
+        LogCat::w(std::source_location::current(), "Font file not found: ", fontPath.string());
+        return false;
+    }
+
+    RmlContext *rmlContext = appContext_->GetRmlContext();
+    if (rmlContext == nullptr) {
+        LogCat::e(std::source_location::current(), "rmlContext is nullptr");
+        return false;
+    }
+    if (!rmlContext->LoadFont(virtualFileSystem, fontPath)) {
+        LogCat::e(std::source_location::current(), "RmlContext Failed to load font: ", fontPath.string());
+        return false;
+    }
+    LogCat::i("Font loaded successfully: ", fontPath.string());
     return true;
 }
 
@@ -442,6 +427,7 @@ void glimmer::App::InitScenesAndConsole() const {
     //     sceneManager->AddOverlayScene(std::make_unique<DebugOverlay>(appContext_));
     // #endif
     sceneManager->AddOverlayScene(std::make_unique<ConsoleOverlay>(appContext_));
+    sceneManager->AddOverlayScene(std::make_unique<UIMessageOverlay>(appContext_));
     ConsoleWorker *consoleWorker = appContext_->GetConsoleContext()->GetConsoleWorker();
     if (consoleWorker == nullptr) {
         return;

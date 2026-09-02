@@ -34,6 +34,7 @@
 #include "core/utils/StringUtils.h"
 #include "fmt/xchar.h"
 #include "SDL3_image/SDL_image.h"
+#include "SDL3/SDL.h"
 #include "tasks/InitConfigTask.h"
 #include "tasks/InitConsoleContextTask.h"
 #include "tasks/InitCoreContextsTask.h"
@@ -343,4 +344,15 @@ glimmer::CacheContext *glimmer::AppContext::GetCacheContext() const {
 
 const std::string &glimmer::AppContext::GetLanguage() const {
     return systemBucket_->GetLanguage();
+}
+
+void glimmer::AppContext::AddUIMessage(const std::string &text) {
+    UIMessage message;
+    message.message = text;
+    message.expireTime = SDL_GetTicks() + UI_MESSAGE_DURATION_MS;
+    uiMessages_.emplace_back(std::move(message));
+}
+
+std::vector<glimmer::UIMessage> &glimmer::AppContext::GetUIMessages() {
+    return uiMessages_;
 }

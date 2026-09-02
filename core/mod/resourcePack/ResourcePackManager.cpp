@@ -53,3 +53,39 @@ std::unique_ptr<glimmer::ResourcePack> glimmer::ResourcePackManager::LoadPack(co
     }
     return resourcePack;
 }
+
+std::optional<std::filesystem::path> glimmer::ResourcePackManager::GetFontPath(
+    const std::vector<uint64_t> &enabledResourcePack,
+    const std::string &language,
+    const VirtualFileSystem *virtualFileSystem) {
+    if (virtualFileSystem == nullptr) {
+        return std::nullopt;
+    }
+    std::optional<std::filesystem::path> defaultFontPath;
+    for (const uint64_t packId: enabledResourcePack) {
+        const ResourcePack *pack = Find(packId);
+        if (pack == nullptr) {
+            continue;
+        }
+        const std::filesystem::path fontsDir = pack->GetPath() / "fonts";
+
+        // Prefer fonts/<language>.ttf
+        // 优先使用 fonts/<language>.ttf
+        std::filesystem::path languageFont = fontsDir / language;
+        languageFont.replace_extension("ttf");
+        if (virtualFileSystem->Exists(languageFont)) {
+            return languageFont;
+        }
+
+        // Record the first fonts/default.ttf as fallback
+        // 记录第一个 fonts/default.ttf 作为回退
+        if (!defaultFontPath.has_value()) {
+            std::filesystem::path defaultFont = fontsDir / "default";
+            defaultFont.replace_extension("ttf");
+            if (virtualFileSystem->Exists(defaultFont)) {
+                defaultFontPath = defaultFont;
+            }
+        }
+    }
+    return defaultFontPath;
+}

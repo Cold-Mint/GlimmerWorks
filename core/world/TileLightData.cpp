@@ -26,6 +26,8 @@
  */
 #include "TileLightData.h"
 
+#include <bit>
+
 #include "core/config/Constants.h"
 #include "core/utils/LightUtils.h"
 #include "src/core/vector2d.pb.h"
@@ -187,6 +189,11 @@ void glimmer::TileLightData::RecalculateLight() {
     finalLightColor_ = ComputeFinalLightColor();
 }
 
+void glimmer::TileLightData::ClearAllLightContributions() {
+    lightContributions_.clear();
+    finalLightColor_ = nullptr;
+}
+
 const std::unordered_map<glimmer::TileLayerType, std::vector<std::unique_ptr<glimmer::LightContribution> > > *glimmer::
 TileLightData::GetLightContributions() const {
     return &lightContributions_;
@@ -303,12 +310,26 @@ void glimmer::TileLightData::ClearLightSource(const TileLayerType layerType) {
     lightSourceData_.erase(layerType);
 }
 
+void glimmer::TileLightData::SetOpaque(const TileLayerType layerType, const bool opaque) {
+    const int index = std::countr_zero(std::to_underlying(layerType));
+    if (index >= 0 && index < TILE_LAYER_TYPE_COUNT) {
+        opaqueByLayer_[index] = opaque;
+    }
+}
+
+bool glimmer::TileLightData::IsOpaque(const TileLayerType layerType) const {
+    const int index = std::countr_zero(std::to_underlying(layerType));
+    if (index >= 0 && index < TILE_LAYER_TYPE_COUNT) {
+        return opaqueByLayer_[index];
+    }
+    return false;
+}
+
 const glimmer::Color *glimmer::TileLightData::GetFinalLightColor() const {
     return finalLightColor_.get();
 }
 
-void glimmer::TileLightData::ClearLightContribution(const TileLayerType layerType, const LightSource *lightSource,
-                                                    const int rayIndex) {
+void glimmer::TileLightData::ClearLightContribution(const TileLayerType layerType, const LightSource *lightSource) {
     if (lightSource == nullptr) {
         return;
     }
@@ -321,22 +342,18 @@ void glimmer::TileLightData::ClearLightContribution(const TileLayerType layerTyp
         return;
     }
     bool hasRemoved = false;
-    for (auto iter = lightContributionVector.cbegin(); iter != lightContributionVector.cend();) {
+    for (auto iter = lightContributionVector.begin(); iter != lightContributionVector.end();) {
         const auto &lightContribution = *iter;
         if (lightContribution == nullptr) {
             ++iter;
             continue;
         }
-
         if (lightSource == lightContribution->GetLightSource()) {
-            if (lightContribution->GetRayIndex() == LIGHT_CONTRIBUTION_CENTER_RAY_INDEX
-                || lightContribution->GetRayIndex() == rayIndex) {
-                lightContributionVector.erase(iter);
-                hasRemoved = true;
-            }
-            break;
+            iter = lightContributionVector.erase(iter);
+            hasRemoved = true;
+        } else {
+            ++iter;
         }
-        ++iter;
     }
     if (hasRemoved) {
         finalLightColor_ = ComputeFinalLightColor();

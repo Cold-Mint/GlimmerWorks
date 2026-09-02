@@ -40,6 +40,8 @@ namespace glimmer {
     public:
         explicit WorldScene(AppContext *context, std::unique_ptr<WorldContext> worldContext);
 
+        [[nodiscard]] WorldContext *GetWorldContext() const;
+
         void OnFrameStart() override;
 
         bool HandleEvent(const SDL_Event &event) override;

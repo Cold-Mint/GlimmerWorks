@@ -406,6 +406,7 @@ target_sources(GlimmerWorks
         core/app/App.cpp
         core/gpu/BlendMode.cpp
         core/gpu/RenderQueue.cpp
+        core/gpu/LightMapTexture.cpp
         core/mod/resourcePack/cache/ColorCache.cpp
         core/context/CacheContext.cpp
         core/mod/resourcePack/cache/RmlCache.cpp
@@ -738,8 +739,8 @@ target_sources(GlimmerWorks
         core/world/ChunkType.cpp
         core/world/LightBuffer.cpp
         core/world/LightContribution.cpp
+        core/world/LightFloodFill.cpp
         core/world/LightMask.cpp
-        core/world/LightPropagationTraverser.cpp
         core/world/LightSource.cpp
         core/world/PlayerContext.cpp
         core/world/PreloadColors.cpp
@@ -755,7 +756,6 @@ target_sources(GlimmerWorks
         core/world/TileLootData.cpp
         core/world/TileMiningData.cpp
         core/world/TileResourceData.cpp
-        core/world/TraverseAction.cpp
         core/world/WorldContext.cpp
         core/world/generator/BiomeDecorator.cpp
         core/world/generator/BiomeDecoratorManager.cpp
@@ -803,6 +803,7 @@ target_sources(GlimmerWorks
         core/mod/resourcePack/cache/ColorCache.h
         core/gpu/BlendMode.h
         core/gpu/RenderQueue.h
+        core/gpu/LightMapTexture.h
         core/utils/IUniqueAble.h
         core/mod/resourcePack/cache/TextureCache.h
         core/mod/resourcePack/cache/AudioCache.h
@@ -1149,8 +1150,8 @@ target_sources(GlimmerWorks
         core/world/ChunkType.h
         core/world/LightBuffer.h
         core/world/LightContribution.h
+        core/world/LightFloodFill.h
         core/world/LightMask.h
-        core/world/LightPropagationTraverser.h
         core/world/LightSource.h
         core/world/PlayerContext.h
         core/world/PreloadColors.h
@@ -1166,7 +1167,6 @@ target_sources(GlimmerWorks
         core/world/TileLootData.h
         core/world/TileMiningData.h
         core/world/TileResourceData.h
-        core/world/TraverseAction.h
         core/world/WorldContext.h
         core/world/generator/BiomeDecorator.h
         core/world/generator/BiomeDecoratorManager.h

@@ -78,11 +78,11 @@ namespace glimmer {
          * Stable-sort the queued commands by (layer, depth) ascending.
          * Commands that compare equal keep their relative submission order,
          * which preserves the classic painter's algorithm inside a layer.
-         * Called by GpuRenderer::FlushQueue; there is normally no need to
+         * Called by AppRenderer::FlushScenePass; there is normally no need to
          * call it manually.
          * 按（层、depth）升序对队列中的命令进行稳定排序。比较结果相等的
          * 命令保持相对提交顺序，从而在层内保持经典的画家算法。
-         * 由 GpuRenderer::FlushQueue 调用，通常无需手动调用。
+         * 由 AppRenderer::FlushScenePass 调用，通常无需手动调用。
          */
         void Sort();
 

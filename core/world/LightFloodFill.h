@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -25,56 +25,39 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <cstdint>
+#include <functional>
 
-#include "core/math/Color.h"
 #include "core/math/TileVector2D.h"
-
 
 namespace glimmer {
     /**
-     * LightAttenuation
-     * 光照衰减模型
+     * LightFloodFill
+     * 光照泛洪遍历器
+     *
+     * Breadth-first flood fill starting from a light source center, spreading
+     * outward with 8-directional connectivity. This replaces the previous
+     * ray-casting traversal and naturally produces round, artifact-free light
+     * halos while supporting solid-tile occlusion.
+     * 从光源中心开始的广度优先泛洪，以 8 方向连通向外扩散。它取代了此前的
+     * 射线遍历，天然产生圆形、无伪影的光晕，并支持实体瓦片遮挡。
      */
-    enum class LightAttenuation : uint8_t {
-        /**
-         * Linear falloff proportional to euclidean distance.
-         * 与欧氏距离成正比的线性衰减。
-         */
-        Linear = 0,
-        /**
-         * Physically-inspired inverse-square falloff.
-         * 物理启发的平方反比衰减。
-         */
-        InverseSquare = 1,
-    };
-
-    class LightSource {
-        TileVector2D center_ = {};
-        int maxRadius_ = 0;
-        Color emissionColor_ = {};
-        LightAttenuation attenuation_ = LightAttenuation::Linear;
-
+    class LightFloodFill {
     public:
-        explicit LightSource(const TileVector2D &center, int maxRadius, const Color &emissionColor);
-
-        [[nodiscard]] int GetMaxRadius() const;
-
-        [[nodiscard]] const TileVector2D &GetCenter() const;
-
-        [[nodiscard]] const Color *GetEmissionColor() const;
-
-        [[nodiscard]] LightAttenuation GetAttenuation() const;
-
-        void SetAttenuation(LightAttenuation attenuation);
+        using OpaquePredicate = std::function<bool(const TileVector2D &)>;
+        using VisitCallback = std::function<void(const TileVector2D &)>;
 
         /**
-         * GetAttenuationFactor
-         * 获取指定相对偏移处的衰减系数（0..1）。
-         * @param dx dx 相对光源中心的 X 偏移
-         * @param dy dy 相对光源中心的 Y 偏移
-         * @return 0..1 的衰减系数
+         * Propagate
+         * 传播光照
+         * @param center center 光源中心
+         * @param maxRadius maxRadius 最大半径
+         * @param isOpaque isOpaque 判断某瓦片是否阻挡光线
+         * @param visit visit 访问回调（每个可达瓦片恰好回调一次，含中心）
+         * @param diagonalBlock diagonalBlock 是否启用对角防漏光规则
          */
-        [[nodiscard]] float GetAttenuationFactor(int dx, int dy) const;
+        static void Propagate(const TileVector2D &center, int maxRadius,
+                              const OpaquePredicate &isOpaque,
+                              const VisitCallback &visit,
+                              bool diagonalBlock = true);
     };
 }

@@ -34,16 +34,21 @@
 #include "core/config/Constants.h"
 #include "core/context/CacheContext.h"
 #include "core/context/WindowContext.h"
+#include "core/ecs/component/CameraComponent.h"
+#include "core/ecs/component/Transform2DComponent.h"
 #include "core/gpu/BlendMode.h"
 #include "core/gpu/GpuPipelineObjectCache.h"
 #include "core/gpu/GpuShaderCompiler.h"
 #include "core/gpu/GpuShaderCompileResult.h"
 #include "core/log/LogCat.h"
+#include "core/math/CoordinateTransformer.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/mod/ResourceRef.h"
 #include "core/mod/resourcePack/GPUPipelineResource.h"
 #include "core/mod/resourcePack/ShaderResourceResult.h"
 #include "core/scene/SceneManager.h"
+#include "core/scene/WorldScene.h"
+#include "core/world/WorldContext.h"
 
 
 glimmer::AppRenderer::AppRenderer(AppContext *appContext) : appContext_(appContext) {
@@ -57,6 +62,7 @@ glimmer::AppRenderer::AppRenderer(AppContext *appContext) : appContext_(appConte
     resourceLocator_ = appContext_->GetResourceLocator();
     EnsureGpuResources();
     EnsureSpritePipeline();
+    EnsureLightingPipeline();
 }
 
 bool glimmer::AppRenderer::EnsureGpuResources() {
@@ -315,8 +321,8 @@ void glimmer::AppRenderer::EnsureTransferBufferSize(const Uint32 size) {
     transferBufferSize_ = transferBuffer_ != nullptr ? newSize : 0;
 }
 
-void glimmer::AppRenderer::FlushQueue(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUTexture *swapchainTexture,
-                                      const Uint32 width, const Uint32 height) {
+void glimmer::AppRenderer::FlushScenePass(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUTexture *targetTexture,
+                                          const Uint32 width, const Uint32 height) {
     const bool hasCommands = !renderQueue_.IsEmpty();
 
     if (hasCommands) {
@@ -365,7 +371,7 @@ void glimmer::AppRenderer::FlushQueue(SDL_GPUCommandBuffer *commandBuffer, SDL_G
     }
 
     SDL_GPUColorTargetInfo colorTarget = {};
-    colorTarget.texture = swapchainTexture;
+    colorTarget.texture = targetTexture;
     colorTarget.load_op = SDL_GPU_LOADOP_CLEAR;
     colorTarget.store_op = SDL_GPU_STOREOP_STORE;
     colorTarget.clear_color = {0.0F, 0.0F, 0.0F, 1.0F};
@@ -413,6 +419,173 @@ void glimmer::AppRenderer::FlushQueue(SDL_GPUCommandBuffer *commandBuffer, SDL_G
     SDL_EndGPURenderPass(renderPass);
 }
 
+void glimmer::AppRenderer::EnsureSceneTexture(const Uint32 width, const Uint32 height) {
+    if (width == 0 || height == 0) {
+        return;
+    }
+    if (sceneTexture_ != nullptr && sceneTextureWidth_ == width && sceneTextureHeight_ == height) {
+        return;
+    }
+    if (sceneTexture_ != nullptr) {
+        SDL_ReleaseGPUTexture(device_, sceneTexture_);
+        sceneTexture_ = nullptr;
+    }
+    SDL_GPUTextureCreateInfo info = {};
+    info.type = SDL_GPU_TEXTURETYPE_2D;
+    info.format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM;
+    info.usage = SDL_GPU_TEXTUREUSAGE_COLOR_TARGET | SDL_GPU_TEXTUREUSAGE_SAMPLER;
+    info.width = width;
+    info.height = height;
+    info.layer_count_or_depth = 1;
+    info.num_levels = 1;
+    info.sample_count = SDL_GPU_SAMPLECOUNT_1;
+    info.props = 0;
+    sceneTexture_ = SDL_CreateGPUTexture(device_, &info);
+    if (sceneTexture_ == nullptr) {
+        LogCat::w(std::source_location::current(), "SDL_CreateGPUTexture failed: ", SDL_GetError());
+        return;
+    }
+    sceneTextureWidth_ = width;
+    sceneTextureHeight_ = height;
+}
+
+bool glimmer::AppRenderer::EnsureLightingPipeline() {
+    if (lightingPipeline_ != nullptr) {
+        return true;
+    }
+    if (device_ == nullptr) {
+        return false;
+    }
+    if (lightingSampler_ == nullptr) {
+        SDL_GPUSamplerCreateInfo samplerInfo = {};
+        samplerInfo.min_filter = SDL_GPU_FILTER_LINEAR;
+        samplerInfo.mag_filter = SDL_GPU_FILTER_LINEAR;
+        samplerInfo.mipmap_mode = SDL_GPU_SAMPLERMIPMAPMODE_LINEAR;
+        samplerInfo.address_mode_u = SDL_GPU_SAMPLERADDRESSMODE_CLAMP_TO_EDGE;
+        samplerInfo.address_mode_v = SDL_GPU_SAMPLERADDRESSMODE_CLAMP_TO_EDGE;
+        samplerInfo.address_mode_w = SDL_GPU_SAMPLERADDRESSMODE_CLAMP_TO_EDGE;
+        lightingSampler_ = SDL_CreateGPUSampler(device_, &samplerInfo);
+        if (lightingSampler_ == nullptr) {
+            LogCat::w(std::source_location::current(), "SDL_CreateGPUSampler failed: ", SDL_GetError());
+            return false;
+        }
+    }
+
+    SDL_GPUShader *vertexShader = CompileShader(DEFAULT_LIGHTING_VERT, true);
+    SDL_GPUShader *fragmentShader = CompileShader(DEFAULT_LIGHTING_FRAG, false);
+    if (vertexShader == nullptr || fragmentShader == nullptr) {
+        if (vertexShader != nullptr) {
+            SDL_ReleaseGPUShader(device_, vertexShader);
+        }
+        if (fragmentShader != nullptr) {
+            SDL_ReleaseGPUShader(device_, fragmentShader);
+        }
+        return false;
+    }
+
+    SDL_GPUColorTargetDescription colorTarget = {};
+    const WindowContext *windowContext = appContext_->GetWindowContext();
+    SDL_Window *window = windowContext != nullptr ? windowContext->GetWindow() : nullptr;
+    if (window == nullptr) {
+        SDL_ReleaseGPUShader(device_, vertexShader);
+        SDL_ReleaseGPUShader(device_, fragmentShader);
+        return false;
+    }
+    colorTarget.format = SDL_GetGPUSwapchainTextureFormat(device_, window);
+    colorTarget.blend_state = ToColorTargetBlendState(BlendMode::Opaque);
+
+    SDL_GPUGraphicsPipelineCreateInfo createInfo = {};
+    createInfo.vertex_shader = vertexShader;
+    createInfo.fragment_shader = fragmentShader;
+    createInfo.primitive_type = SDL_GPU_PRIMITIVETYPE_TRIANGLELIST;
+    createInfo.vertex_input_state.num_vertex_buffers = 0;
+    createInfo.vertex_input_state.num_vertex_attributes = 0;
+    createInfo.multisample_state.sample_count = SDL_GPU_SAMPLECOUNT_1;
+    createInfo.target_info.color_target_descriptions = &colorTarget;
+    createInfo.target_info.num_color_targets = 1;
+    createInfo.target_info.has_depth_stencil_target = false;
+
+    lightingPipeline_ = SDL_CreateGPUGraphicsPipeline(device_, &createInfo);
+    if (lightingPipeline_ == nullptr) {
+        LogCat::w(std::source_location::current(), "SDL_CreateGPUGraphicsPipeline failed: ", SDL_GetError());
+    }
+
+    SDL_ReleaseGPUShader(device_, vertexShader);
+    SDL_ReleaseGPUShader(device_, fragmentShader);
+    return lightingPipeline_ != nullptr;
+}
+
+void glimmer::AppRenderer::FlushLightingPass(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUTexture *targetTexture,
+                                             const Uint32 width, const Uint32 height) {
+    (void) width;
+    (void) height;
+    if (lightingPipeline_ == nullptr || lightingSampler_ == nullptr || sceneTexture_ == nullptr ||
+        lightMapTexture_.GetTexture() == nullptr) {
+        return;
+    }
+
+    SDL_GPUColorTargetInfo colorTarget = {};
+    colorTarget.texture = targetTexture;
+    colorTarget.load_op = SDL_GPU_LOADOP_CLEAR;
+    colorTarget.store_op = SDL_GPU_STOREOP_STORE;
+    colorTarget.clear_color = {0.0F, 0.0F, 0.0F, 1.0F};
+
+    SDL_GPURenderPass *renderPass = SDL_BeginGPURenderPass(commandBuffer, &colorTarget, 1, nullptr);
+    if (renderPass == nullptr) {
+        return;
+    }
+    SDL_BindGPUGraphicsPipeline(renderPass, lightingPipeline_);
+    SDL_GPUTextureSamplerBinding bindings[2] = {
+        {sceneTexture_, lightingSampler_},
+        {lightMapTexture_.GetTexture(), lightingSampler_}
+    };
+    SDL_BindGPUFragmentSamplers(renderPass, 0, bindings, 2);
+    SDL_PushGPUFragmentUniformData(commandBuffer, 0, lightingParams_, sizeof(lightingParams_));
+    SDL_DrawGPUPrimitives(renderPass, 3, 1, 0, 0);
+    SDL_EndGPURenderPass(renderPass);
+}
+
+void glimmer::AppRenderer::UpdateLightMap(const LightBuffer *lightBuffer, const CameraComponent *camera,
+                                          const Transform2DComponent *cameraTransform,
+                                          const Uint32 width, const Uint32 height) {
+    if (lightBuffer == nullptr || camera == nullptr || cameraTransform == nullptr) {
+        return;
+    }
+    const float zoom = camera->GetZoom();
+    const ScreenVector2D cameraSize(static_cast<float>(width), static_cast<float>(height));
+    const WorldVector2D cameraPosition = cameraTransform->GetPosition();
+    const SDL_FRect viewportRect = CoordinateTransformer::GetViewportRect(cameraPosition, cameraSize, zoom);
+    const TileVector2D tileMin = CoordinateTransformer::WorldToTile(
+        WorldVector2D(viewportRect.x, viewportRect.y));
+    const TileVector2D tileMax = CoordinateTransformer::WorldToTile(
+        WorldVector2D(viewportRect.x + viewportRect.w, viewportRect.y + viewportRect.h));
+    const int originX = tileMin.x - 1;
+    const int originY = tileMin.y - 1;
+    const auto sizeX = static_cast<Uint32>(tileMax.x - tileMin.x + 3);
+    const auto sizeY = static_cast<Uint32>(tileMax.y - tileMin.y + 3);
+    const Config *config = appContext_->GetConfig();
+    const bool fullBright = config == nullptr || !config->light.enable;
+    lightMapTexture_.Update(device_, lightBuffer, originX, originY, sizeX, sizeY, fullBright);
+
+    const LightingConfig &lighting = config != nullptr ? config->lighting : LightingConfig{};
+    lightingParams_[0] = static_cast<float>(originX);
+    lightingParams_[1] = static_cast<float>(originY);
+    lightingParams_[2] = static_cast<float>(sizeX);
+    lightingParams_[3] = static_cast<float>(sizeY);
+    lightingParams_[4] = cameraPosition.x;
+    lightingParams_[5] = cameraPosition.y;
+    lightingParams_[6] = cameraSize.x;
+    lightingParams_[7] = cameraSize.y;
+    lightingParams_[8] = zoom;
+    lightingParams_[9] = static_cast<float>(TILE_SIZE);
+    lightingParams_[10] = lighting.fullBrightAlpha;
+    lightingParams_[11] = lighting.minVisibility;
+    lightingParams_[12] = lighting.tintStrength;
+    lightingParams_[13] = 0.0F;
+    lightingParams_[14] = 0.0F;
+    lightingParams_[15] = 0.0F;
+}
+
 void glimmer::AppRenderer::RenderFrame(const RmlContext *rmlContext, const int windowWidth, const int windowHeight,
                                        const uint64_t frameStart, const float deltaTime) {
     (void) frameStart;
@@ -423,7 +596,7 @@ void glimmer::AppRenderer::RenderFrame(const RmlContext *rmlContext, const int w
     if (device_ == nullptr) {
         return;
     }
-    if (!EnsureSpritePipeline()) {
+    if (!EnsureSpritePipeline() || !EnsureLightingPipeline()) {
         return;
     }
     WindowContext *windowContext = appContext_->GetWindowContext();
@@ -435,9 +608,9 @@ void glimmer::AppRenderer::RenderFrame(const RmlContext *rmlContext, const int w
         return;
     }
 
-    //Collect this frame's render commands, then upload and draw them in one
-    //sorted batch before compositing RmlUi on top.
-    //收集本帧的渲染命令，然后以排好序的批次上传并绘制，最后把 RmlUi 合成在上层。
+    //Collect this frame's render commands, then render the unlit scene into an
+    //offscreen target and composite lighting + RmlUi on top.
+    //收集本帧的渲染命令，然后把无光照场景渲染到离屏目标，再在上层合成光照与 RmlUi。
     renderQueue_.Clear();
     RenderScenes();
     RenderOverlays();
@@ -455,12 +628,38 @@ void glimmer::AppRenderer::RenderFrame(const RmlContext *rmlContext, const int w
         return;
     }
 
-    // The projection uniform maps scene geometry (which is authored in logical
-    // window coordinates) into NDC, so it must use the logical window size
-    // rather than the physical swapchain dimensions.
-    // 投影 uniform 把场景几何（以逻辑窗口坐标书写）映射到 NDC，因此必须使用
-    // 逻辑窗口尺寸而非物理交换链尺寸。
-    FlushQueue(commandBuffer, swapchainTexture, static_cast<Uint32>(windowWidth), static_cast<Uint32>(windowHeight));
+    const Uint32 logicalWidth = static_cast<Uint32>(windowWidth);
+    const Uint32 logicalHeight = static_cast<Uint32>(windowHeight);
+
+    // Pass 1: render the unlit scene into the offscreen target.
+    // 通道 1：将无光照场景渲染到离屏目标。
+    EnsureSceneTexture(logicalWidth, logicalHeight);
+    FlushScenePass(commandBuffer, sceneTexture_, logicalWidth, logicalHeight);
+
+    // Build and upload the per-tile light map for the camera viewport.
+    // 构建并上传相机视口的逐瓦片光照贴图。
+    LightBuffer *lightBuffer = nullptr;
+    CameraComponent *camera = nullptr;
+    Transform2DComponent *cameraTransform = nullptr;
+    if (SceneManager *sceneManager = appContext_->GetSceneManager(); sceneManager != nullptr) {
+        if (auto *worldScene = dynamic_cast<WorldScene *>(sceneManager->GetTopScene()); worldScene != nullptr) {
+            WorldContext *worldContext = worldScene->GetWorldContext();
+            if (worldContext != nullptr) {
+                lightBuffer = worldContext->GetLightingBuffer();
+                EntityShortCut *entityShortCut = worldContext->GetEntityShortCut();
+                if (entityShortCut != nullptr) {
+                    camera = entityShortCut->GetCameraComponent();
+                    cameraTransform = entityShortCut->GetCameraTransform2DComponent();
+                }
+            }
+        }
+    }
+    UpdateLightMap(lightBuffer, camera, cameraTransform, logicalWidth, logicalHeight);
+    lightMapTexture_.Upload(commandBuffer);
+
+    // Pass 2: composite the lit scene into the swapchain.
+    // 通道 2：将受光照的场景合成到交换链。
+    FlushLightingPass(commandBuffer, swapchainTexture, logicalWidth, logicalHeight);
 
     if (rmlContext != nullptr) {
         rmlContext->RenderContext(commandBuffer, swapchainTexture, swapchainWidth, swapchainHeight);

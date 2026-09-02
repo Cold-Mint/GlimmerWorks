@@ -35,13 +35,8 @@ namespace glimmer {
     class LightContribution {
         const LightSource *lightSource_ = nullptr;
         std::unique_ptr<Color> lightColor_;
-        int rayIndex_ = 0;
 
     public:
-        void SetRayIndex(int rayIndex);
-
-        [[nodiscard]] int GetRayIndex() const;
-
         void SetLightSource(const LightSource *lightSource);
 
         [[nodiscard]] const LightSource *GetLightSource() const;

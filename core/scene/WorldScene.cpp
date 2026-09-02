@@ -50,6 +50,10 @@ glimmer::WorldScene::WorldScene(AppContext *context, std::unique_ptr<WorldContex
     Init();
 }
 
+glimmer::WorldContext *glimmer::WorldScene::GetWorldContext() const {
+    return worldContext_.get();
+}
+
 void glimmer::WorldScene::OnFrameStart() {
     if (systemScheduler_ == nullptr) {
         return;

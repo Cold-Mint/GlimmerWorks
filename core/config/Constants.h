@@ -400,7 +400,6 @@ static constexpr int FLY_SPEED = TILE_SIZE * 25;
 //How often should the information of picked-up items be accumulated and settled (unit: seconds)?
 //累积多长时间结算一次捡起的物品信息（单位：秒）
 static constexpr float MERGE_DURATION = 0.35F;
-static constexpr int LIGHT_CONTRIBUTION_CENTER_RAY_INDEX = -1;
 static constexpr std::string TEXTURE_FORMAT = "png";
 static constexpr std::string AUDIO_FORMAT = "ogg";
 static constexpr std::string SHADER_VERT_FORMAT = "vert";
@@ -442,5 +441,43 @@ layout(location = 0) out vec4 out_color;
 layout(set = 2, binding = 0) uniform sampler2D inputTexture;
 void main() {
     out_color = texture(inputTexture, in_uv) * in_color;
+}
+)";
+
+static constexpr auto DEFAULT_LIGHTING_VERT = R"(#version 450
+layout(location = 0) out vec2 out_uv;
+void main() {
+    vec2 pos = vec2(float((gl_VertexIndex << 1) & 2), float(gl_VertexIndex & 2));
+    gl_Position = vec4(pos * 2.0 - 1.0, 0.0, 1.0);
+    out_uv = vec2(pos.x, 1.0 - pos.y);
+}
+)";
+
+static constexpr auto DEFAULT_LIGHTING_FRAG = R"(#version 450
+layout(location = 0) in vec2 in_uv;
+layout(location = 0) out vec4 out_color;
+layout(set = 2, binding = 0) uniform sampler2D sceneTexture;
+layout(set = 2, binding = 1) uniform sampler2D lightMap;
+layout(set = 3, binding = 0) uniform LightingParams {
+    vec4 u_p0;
+    vec4 u_p1;
+    vec4 u_p2;
+    vec4 u_p3;
+};
+void main() {
+    vec4 scene = texture(sceneTexture, in_uv);
+    vec2 screenPx = in_uv * u_p1.zw;
+    vec2 worldPx;
+    worldPx.x = u_p1.x + (screenPx.x - u_p1.z * 0.5) / u_p2.x;
+    worldPx.y = u_p1.y + (u_p1.w * 0.5 - screenPx.y) / u_p2.x;
+    vec2 worldTile = worldPx / u_p2.y;
+    vec2 lightUv;
+    lightUv.x = (worldTile.x - u_p0.x + 0.5) / u_p0.z;
+    lightUv.y = (u_p0.y + u_p0.w - worldTile.y - 0.5) / u_p0.w;
+    vec4 light = texture(lightMap, lightUv);
+    float brightness = light.a;
+    float visibility = max(brightness, u_p2.w);
+    vec3 tint = mix(vec3(1.0), light.rgb, u_p3.x * brightness);
+    out_color = vec4(scene.rgb * visibility * tint, scene.a);
 }
 )";

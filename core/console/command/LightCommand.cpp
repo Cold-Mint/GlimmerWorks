@@ -117,7 +117,7 @@ std::string glimmer::LightCommand::BuildLightContributionString(const TileLightD
             lightContributionStream << fmt::format(fmt::runtime(langsResources->lightContributionInfo),
                                                    std::to_underlying(layerType), lightColor->r,
                                                    lightColor->g, lightColor->b, lightColor->a,
-                                                   contribution->GetRayIndex(), lightPosition.x,
+                                                   0, lightPosition.x,
                                                    lightPosition.y);
         }
     }

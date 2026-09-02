@@ -89,6 +89,9 @@ void glimmer::ChunkManager::UpdateTileLight(const Chunk *chunk, const TileLayerT
     const int localX = index & CHUNK_MASK;
     const int localY = index >> CHUNK_SHIFT;
     auto lightSourcePosition = TileVector2D(chunkPosition.x + localX, chunkPosition.y + localY);
+    const TilePhysicsType physicsType = tile->GetTilePhysicsType();
+    const bool opaque = physicsType == TilePhysicsType::Static || physicsType == TilePhysicsType::Dynamic;
+    lightBuffer_->SetTileOpaque(lightSourcePosition, layerType, opaque);
     const TileLightResourceData *tileLightResourceData = tile->GetLightResourceData();
     if (tileLightResourceData == nullptr) {
         return;
@@ -162,11 +165,13 @@ void glimmer::ChunkManager::UpdateTileLight(const Chunk *chunk, const TileLayerT
 
 
 void glimmer::ChunkManager::UpdateChunkLight(const Chunk *chunk) const {
+    lightBuffer_->BeginBatch();
     for (int index = 0; index < CHUNK_AREA; ++index) {
         for (int i = 0; i < TILE_LAYER_TYPE_COUNT; ++i) {
             UpdateTileLight(chunk, static_cast<TileLayerType>(1 << i), index);
         }
     }
+    lightBuffer_->EndBatch();
 }
 
 std::unordered_map<glimmer::TileVector2D, glimmer::Chunk *, glimmer::Vector2DIHash> *

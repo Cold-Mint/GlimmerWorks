@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -26,10 +26,11 @@
  */
 #pragma once
 
+#include <unordered_map>
+
 #include "LightMask.h"
 #include "LightSource.h"
 #include "TileLightData.h"
-#include "TraverseAction.h"
 #include "core/math/Color.h"
 #include "core/math/Vector2DIHash.h"
 
@@ -37,8 +38,18 @@
 namespace glimmer {
     class TileVector2D;
 
+    /**
+     * LightBuffer
+     * 光照缓冲
+     *
+     * Stores per-tile lighting (sources, masks, contributions and final color)
+     * and propagates light using an 8-directional flood fill instead of the
+     * previous ray-casting approach.
+     * 存储逐瓦片光照（光源、遮罩、贡献与最终颜色），并采用 8 方向泛洪
+     * 传播光照，取代此前的射线方案。
+     */
     class LightBuffer {
-        std::unordered_map<const TileVector2D, std::unique_ptr<TileLightData>, Vector2DIHash> tileLightData_;
+        std::unordered_map<TileVector2D, std::unique_ptr<TileLightData>, Vector2DIHash> tileLightData_;
 
         /**
          * Monotonic counter bumped by every mutating operation. The renderer
@@ -49,17 +60,22 @@ namespace glimmer {
          */
         uint64_t revision_ = 0;
 
-        TraverseAction ClearLightStepCallback(const LightSource *lightSourcePtr,
-                                              TileVector2D current,
-                                              TileVector2D next, bool centerOfCircle, TileLayerType layerType,
-                                              int rayIndex);
+        //Whether batch mode is active (chunk load suppresses per-tile rebuilds).
+        //批量模式是否激活（区块加载时抑制逐瓦片重算）。
+        bool batching_ = false;
+        bool batchDirty_ = false;
 
-        void ClearLightContributionAt(const TileVector2D &pos, TileLayerType layerType,
-                                      const LightSource *lightSourcePtr, int rayIndex);
+        TileLightData &GetOrCreate(const TileVector2D &position);
 
-        TraverseAction SetLightStepCallback(const LightSource *lightSourcePtr, TileVector2D current, TileVector2D next,
-                                            bool centerOfCircle, TileLayerType layerType,
-                                            int rayIndex);
+        void SetLightFromSource(const LightSource &source, TileLayerType layerType);
+
+        void ClearLightFromSource(const LightSource &source, TileLayerType layerType);
+
+        void SetLightContributionAt(const TileVector2D &position, TileLayerType layerType, const LightSource &source);
+
+        void ClearLightContributionAt(const TileVector2D &position, TileLayerType layerType, const LightSource &source);
+
+        void RebuildAllLight();
 
     public:
         void SetSideLightMask(TileVector2D position, TileLayerType layerType, std::unique_ptr<LightMask> sideLightMask);
@@ -84,7 +100,28 @@ namespace glimmer {
 
         void ClearLightSource(TileVector2D position, TileLayerType layerType);
 
-        const Color *GetFinalLightColor(TileVector2D position);
+        const Color *GetFinalLightColor(TileVector2D position) const;
+
+        /**
+         * SetTileOpaque
+         * 设置指定瓦片在指定图层是否阻挡光线。当数值变化时会触发一次全量重算。
+         * @param position position 瓦片世界坐标
+         * @param layerType layerType 图层类型
+         * @param opaque opaque 是否阻挡
+         */
+        void SetTileOpaque(TileVector2D position, TileLayerType layerType, bool opaque);
+
+        /**
+         * BeginBatch
+         * 进入批量模式，抑制 SetTileOpaque 触发的逐次重算，直到 EndBatch。
+         */
+        void BeginBatch();
+
+        /**
+         * EndBatch
+         * 退出批量模式；若期间发生了 opaque 变化，则统一重算一次。
+         */
+        void EndBatch();
 
         /**
          * @return The current revision counter. Any change to the buffered

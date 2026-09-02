@@ -35,14 +35,9 @@ namespace glimmer {
         CameraComponent *cameraComponent_ = nullptr;
         Transform2DComponent *cameraTransform2DComponent_ = nullptr;
         std::vector<TileLayerComponent *> tileLayerComponents_;
-#if  !defined(NDEBUG)
-        bool lightEnabled_ = false;
-#endif
-        bool ShouldDrawTile(const Color *finalLightColor) const;
 
         void RenderTileSnapshot(RenderQueue *queue, const TileSnapshot *tileSnapshot,
                                 const TileVector2D &tileCoord, Uint8 alpha,
-                                const Color *finalLightColor,
                                 std::unordered_set<uint64_t> &drawnTiles) const;
 
     public:

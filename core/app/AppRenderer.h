@@ -30,10 +30,14 @@
 #include <SDL3/SDL_gpu.h>
 
 #include "core/context/AppContext.h"
+#include "core/gpu/LightMapTexture.h"
 #include "core/gpu/RenderQueue.h"
 
 namespace glimmer {
     class ResourceLocator;
+    class WorldContext;
+    class CameraComponent;
+    class Transform2DComponent;
 
     /**
      * AppRenderer
@@ -64,6 +68,19 @@ namespace glimmer {
         SDL_GPUTexture *whiteTexture_ = nullptr;
         SDL_GPUSampler *sampler_ = nullptr;
 
+        //Offscreen render target for the unlit scene pass, plus the lighting
+        //pipeline/sampler and per-tile light map texture used by the lighting pass.
+        //用于无光照场景通道的离屏渲染目标，以及光照通道使用的光照管线/采样器与逐瓦片光照贴图纹理。
+        SDL_GPUTexture *sceneTexture_ = nullptr;
+        Uint32 sceneTextureWidth_ = 0;
+        Uint32 sceneTextureHeight_ = 0;
+        SDL_GPUGraphicsPipeline *lightingPipeline_ = nullptr;
+        SDL_GPUSampler *lightingSampler_ = nullptr;
+        LightMapTexture lightMapTexture_;
+        //Lighting shader uniform parameters (4 x vec4, std140 friendly).
+        //光照着色器 uniform 参数（4 x vec4，std140 友好）。
+        float lightingParams_[16] = {};
+
         void RenderScenes();
 
         void RenderOverlays();
@@ -83,6 +100,18 @@ namespace glimmer {
          * 内置精灵着色器。
          */
         bool EnsureSpritePipeline();
+
+        /**
+         * Create the fullscreen lighting pipeline (built-in shaders) on demand.
+         * 按需创建全屏光照管线（内置着色器）。
+         */
+        bool EnsureLightingPipeline();
+
+        /**
+         * Create or resize the offscreen scene render target.
+         * 创建或调整离屏场景渲染目标。
+         */
+        void EnsureSceneTexture(Uint32 width, Uint32 height);
 
         /**
          * Compile a GLSL source to SPIR-V and wrap it in an SDL_GPUShader.
@@ -111,12 +140,28 @@ namespace glimmer {
         void EnsureTransferBufferSize(Uint32 size);
 
         /**
-         * Upload the queued commands to the GPU and draw them into the
-         * swapchain within a single clear-and-store render pass.
-         * 把排队的命令上传到 GPU，并在一次 clear/store 渲染通道内绘制到交换链。
+         * Upload the queued commands to the GPU and draw them into the given
+         * render target within a single clear-and-store render pass.
+         * 把排队的命令上传到 GPU，并在一次 clear/store 渲染通道内绘制到指定渲染目标。
          */
-        void FlushQueue(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUTexture *swapchainTexture, Uint32 width,
-                        Uint32 height);
+        void FlushScenePass(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUTexture *targetTexture, Uint32 width,
+                            Uint32 height);
+
+        /**
+         * Composite the lit result: a fullscreen quad samples the unlit scene
+         * texture and the light map, applies lighting, and stores to the target.
+         * 合成受光照结果：全屏四边形采样无光照场景纹理与光照贴图，应用光照后写入目标。
+         */
+        void FlushLightingPass(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUTexture *targetTexture, Uint32 width,
+                               Uint32 height);
+
+        /**
+         * Rebuild the per-tile light map texture from the light buffer for the
+         * camera viewport (plus a one-tile border).
+         * 根据相机视口（含一格边距）从光照缓冲重建逐瓦片光照贴图纹理。
+         */
+        void UpdateLightMap(const LightBuffer *lightBuffer, const CameraComponent *camera,
+                            const Transform2DComponent *cameraTransform, Uint32 width, Uint32 height);
 
     public:
         explicit AppRenderer(AppContext *appContext);

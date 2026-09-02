@@ -69,24 +69,8 @@ glimmer::TileLayerSystem::TileLayerSystem(WorldContext *worldContext)
 }
 
 
-bool glimmer::TileLayerSystem::ShouldDrawTile(const Color *finalLightColor) const {
-#if !defined(NDEBUG)
-    if (!lightEnabled_) {
-        return true;
-    }
-#endif
-    if (finalLightColor == nullptr) {
-        return false;
-    }
-    if (finalLightColor->a == 0) {
-        return false;
-    }
-    return true;
-}
-
 void glimmer::TileLayerSystem::RenderTileSnapshot(RenderQueue *queue, const TileSnapshot *tileSnapshot,
                                                   const TileVector2D &tileCoord, Uint8 alpha,
-                                                  const Color *finalLightColor,
                                                   std::unordered_set<uint64_t> &drawnTiles) const {
     if (tileSnapshot == nullptr) {
         return;
@@ -97,9 +81,6 @@ void glimmer::TileLayerSystem::RenderTileSnapshot(RenderQueue *queue, const Tile
     }
     const TileStateMessage *tileState = tileSnapshot->GetTileState();
     if (tileState == nullptr) {
-        return;
-    }
-    if (!ShouldDrawTile(finalLightColor)) {
         return;
     }
     TileVector2D offset;
@@ -188,9 +169,8 @@ void glimmer::TileLayerSystem::Render(RenderQueue *queue) {
         if (chunk != nullptr) {
             alpha = static_cast<Uint8>(chunk->GetChunkFadeAlpha() * 255.0F);
         }
-        const Color *finalLightColor = worldContext->GetLightingBuffer()->GetFinalLightColor(tileCoord);
         for (const auto &tileSnapshot: tileList) {
-            RenderTileSnapshot(queue, tileSnapshot, tileCoord, alpha, finalLightColor, drawnTiles);
+            RenderTileSnapshot(queue, tileSnapshot, tileCoord, alpha, drawnTiles);
         }
     }
 }
@@ -200,9 +180,7 @@ uint8_t glimmer::TileLayerSystem::GetExecutionOrder() {
 }
 
 void glimmer::TileLayerSystem::OnConfigChanged(const Config *config) {
-#if  !defined(NDEBUG)
-    lightEnabled_ = config->light.enable;
-#endif
+    (void) config;
 }
 
 glimmer::GameSystemType glimmer::TileLayerSystem::GetGameSystemType() const {

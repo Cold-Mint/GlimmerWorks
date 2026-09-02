@@ -27,14 +27,6 @@
 #include "LightContribution.h"
 
 
-void glimmer::LightContribution::SetRayIndex(int rayIndex) {
-    rayIndex_ = rayIndex;
-}
-
-int glimmer::LightContribution::GetRayIndex() const {
-    return rayIndex_;
-}
-
 void glimmer::LightContribution::SetLightSource(const LightSource *lightSource) {
     lightSource_ = lightSource;
 }

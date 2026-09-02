@@ -25,14 +25,16 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <array>
 #include <memory>
 #include <unordered_map>
 #include <vector>
 
 #include "LightContribution.h"
 #include "LightMask.h"
-#include "generator/TileLayerType.h"
+#include "core/config/Constants.h"
 #include "core/math/Color.h"
+#include "generator/TileLayerType.h"
 
 
 namespace glimmer {
@@ -46,6 +48,9 @@ namespace glimmer {
         std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > sideLightMaskData_;
         std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > backLightMaskData_;
         std::unique_ptr<Color> finalLightColor_;
+        //Whether this tile blocks light per layer.
+        //该瓦片按层是否阻挡光线。
+        std::array<bool, TILE_LAYER_TYPE_COUNT> opaqueByLayer_ = {};
 
         /**
          * ComputeFinalLightColor
@@ -73,6 +78,12 @@ namespace glimmer {
         void SetLightContribution(TileLayerType layerType, std::unique_ptr<LightContribution> contribution);
 
         void RecalculateLight();
+
+        /**
+         * ClearAllLightContributions
+         * 清空全部光照贡献与最终颜色（不触发计算）。
+         */
+        void ClearAllLightContributions();
 
         [[nodiscard]] const std::unordered_map<TileLayerType, std::vector<std::unique_ptr<LightContribution> > > *
         GetLightContributions() const;
@@ -138,6 +149,22 @@ namespace glimmer {
         void ClearLightSource(TileLayerType layerType);
 
         /**
+         * SetOpaque
+         * 设置该瓦片在指定图层是否阻挡光线。
+         * @param layerType layerType 图层类型
+         * @param opaque opaque 是否阻挡
+         */
+        void SetOpaque(TileLayerType layerType, bool opaque);
+
+        /**
+         * IsOpaque
+         * 查询该瓦片在指定图层是否阻挡光线。
+         * @param layerType layerType 图层类型
+         * @return 是否阻挡
+         */
+        [[nodiscard]] bool IsOpaque(TileLayerType layerType) const;
+
+        /**
          * GetFinalLightColor
          * 获取最终的光照。
          * @return
@@ -150,8 +177,7 @@ namespace glimmer {
          * 清除光照贡献（触发总颜色计算）
          * @param layerType  layerType 图层类型
          * @param lightSource lightSource 光源指针
-         * @param rayIndex rayIndex 射线索引
          */
-        void ClearLightContribution(TileLayerType layerType, const LightSource *lightSource, int rayIndex);
+        void ClearLightContribution(TileLayerType layerType, const LightSource *lightSource);
     };
 }

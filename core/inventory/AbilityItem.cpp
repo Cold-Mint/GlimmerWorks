@@ -27,7 +27,9 @@
 #include "AbilityItem.h"
 #include <memory>
 #include "core/context/AppContext.h"
+#include "core/context/CacheContext.h"
 #include "ComposableItem.h"
+#include "core/gpu/GpuPipelineObjectCache.h"
 #include "ItemAbilityFactory.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/log/LogCat.h"
@@ -92,7 +94,21 @@ std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(con
     params.SetTags(itemResource->tags);
     params.SetResourceRef(resourceRef);
     params.SetItemAbility(itemAbility);
-    return std::make_unique<AbilityItem>(params);
+    auto abilityItem = std::make_unique<AbilityItem>(params);
+    if (itemResource->pipeline.IsValid()) {
+        if (const std::shared_ptr<GPUPipelineResourceResult> pipelineResult = appContext->GetResourceLocator()->
+                FindPipeline(
+                    &itemResource->pipeline,
+                    false); pipelineResult != nullptr && pipelineResult->GetResource() != nullptr) {
+            if (CacheContext *cacheContext = appContext->GetCacheContext(); cacheContext != nullptr) {
+                if (GpuPipelineObjectCache *pipelineObjectCache = cacheContext->GetPipelineObjectCache();
+                    pipelineObjectCache != nullptr) {
+                    abilityItem->SetPipeline(pipelineObjectCache->GetOrCreatePipeline(pipelineResult->GetResource()));
+                }
+            }
+        }
+    }
+    return abilityItem;
 }
 
 const glimmer::AbilityConfig *glimmer::AbilityItem::GetAbilityConfig() const {
@@ -128,6 +144,14 @@ glimmer::TextureResourceResult *glimmer::AbilityItem::GetIcon() const {
         return nullptr;
     }
     return iconResult_.get();
+}
+
+SDL_GPUGraphicsPipeline *glimmer::AbilityItem::GetPipeline() const {
+    return pipeline_;
+}
+
+void glimmer::AbilityItem::SetPipeline(SDL_GPUGraphicsPipeline *pipeline) {
+    pipeline_ = pipeline;
 }
 
 const glimmer::ResourceRef *glimmer::AbilityItem::GetIconResourceRef() const {

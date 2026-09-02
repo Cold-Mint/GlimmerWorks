@@ -33,10 +33,10 @@ namespace glimmer {
 
     protected:
         std::shared_ptr<GPUPipelineResourceResult> LoadResourceFromPack(AppContext *appContext,
-            const ResourceRef *resourceRef, const ResourcePack *resourcePack) override;
+                                                                        const ResourceRef *resourceRef,
+                                                                        const ResourcePack *resourcePack) override;
 
     public:
-
         void SetTomlVersion(toml::spec *tomlVersion);
 
         ~GpuPipelineCache() noexcept override;

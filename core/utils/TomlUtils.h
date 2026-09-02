@@ -422,6 +422,7 @@ namespace toml {
             r.description = toml::find_or<glimmer::ResourceRef>(v, "description", {});
             r.maxDurability = toml::find_or<uint32_t>(v, "max_durability", 16);
             r.name = toml::find<glimmer::ResourceRef>(v, "name");
+            r.pipeline = toml::find_or<glimmer::ResourceRef>(v, "pipeline", {});
             r.resourceId = toml::find<std::string>(v, "resource_id");
             r.tags = toml::find_or<std::vector<glimmer::ItemTagResource> >(v, "tags", {});
             r.texture = toml::find<glimmer::ResourceRef>(v, "texture");
@@ -463,6 +464,7 @@ namespace toml {
             r.description = toml::find_or<glimmer::ResourceRef>(v, "description", {});
             r.maxDurability = toml::find_or<uint32_t>(v, "max_durability", 16);
             r.name = toml::find<glimmer::ResourceRef>(v, "name");
+            r.pipeline = toml::find_or<glimmer::ResourceRef>(v, "pipeline", {});
             r.resourceId = toml::find<std::string>(v, "resource_id");
             r.slotSize = toml::find<size_t>(v, "slot_size");
             r.tags = toml::find_or<std::vector<glimmer::ItemTagResource> >(v, "tags", {});
@@ -564,6 +566,7 @@ namespace toml {
             glimmer::MaterialItemResource r;
             r.description = toml::find_or<glimmer::ResourceRef>(v, "description", {});
             r.name = toml::find<glimmer::ResourceRef>(v, "name");
+            r.pipeline = toml::find_or<glimmer::ResourceRef>(v, "pipeline", {});
             r.resourceId = toml::find<std::string>(v, "resource_id");
             r.tags = toml::find_or<std::vector<glimmer::ItemTagResource> >(v, "tags", {});
             r.texture = toml::find<glimmer::ResourceRef>(v, "texture");
@@ -659,6 +662,7 @@ namespace toml {
             r.minMiningEfficiency = toml::find_or<float>(v, "min_mining_efficiency", 0);
             r.name = toml::find<glimmer::ResourceRef>(v, "name");
             r.physicsType = toml::find_or<uint8_t>(v, "physics_type", 0);
+            r.pipeline = toml::find_or<glimmer::ResourceRef>(v, "pipeline", {});
             r.placeSfx = toml::find<glimmer::ResourceRef>(v, "place_sfx");
             r.recipeGroup = toml::find_or<uint8_t>(v, "recipe_group", 0);
             r.resourceId = toml::find<std::string>(v, "resource_id");
@@ -715,6 +719,7 @@ namespace toml {
             r.jumpForce = toml::find_or<float>(v, "jump_force", 7.5F);
             r.maxSpeed = toml::find_or<float>(v, "max_speed", 18.0F);
             r.movementAcceleration = toml::find_or<float>(v, "movement_acceleration", 6.0F);
+            r.pipeline = toml::find_or<glimmer::ResourceRef>(v, "pipeline", {});
             r.resourceId = toml::find<std::string>(v, "resource_id");
             r.shape = toml::find<glimmer::ResourceRef>(v, "shape");
             r.texture = toml::find_or<glimmer::ResourceRef>(v, "texture", {});

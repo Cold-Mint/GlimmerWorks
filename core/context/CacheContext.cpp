@@ -26,10 +26,13 @@
  */
 #include "CacheContext.h"
 
+#include "core/context/AppContext.h"
 
-glimmer::CacheContext::CacheContext() {
+
+glimmer::CacheContext::CacheContext(AppContext *appContext) : appContext_(appContext) {
     audioCache_ = std::make_unique<AudioCache>();
     gpuPipelineCache_ = std::make_unique<GpuPipelineCache>();
+    gpuPipelineObjectCache_ = std::make_unique<GpuPipelineObjectCache>(appContext);
     shaderCache_ = std::make_unique<ShaderCache>();
     textureCache_ = std::make_unique<TextureCache>();
     rmlCache_ = std::make_unique<RmlCache>();
@@ -50,6 +53,14 @@ glimmer::GpuPipelineCache *glimmer::CacheContext::GetPipelineCache() const {
         return nullptr;
     }
     return gpuPipelinePtr;
+}
+
+glimmer::GpuPipelineObjectCache *glimmer::CacheContext::GetPipelineObjectCache() const {
+    GpuPipelineObjectCache *gpuPipelineObjectCachePtr = gpuPipelineObjectCache_.get();
+    if (gpuPipelineObjectCachePtr == nullptr) {
+        return nullptr;
+    }
+    return gpuPipelineObjectCachePtr;
 }
 
 glimmer::ShaderCache *glimmer::CacheContext::GetShaderCache() const {

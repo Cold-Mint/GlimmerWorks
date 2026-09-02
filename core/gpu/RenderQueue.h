@@ -49,7 +49,8 @@ namespace glimmer {
          * @param color color 顶点颜色（调色/透明度调制）
          */
         void AppendQuad(RenderLayer layer, float depth, const TextureResourceResult *texture,
-                        const SDL_FPoint positions[4], const SDL_FPoint uvs[4], const SDL_Color &color);
+                        const SDL_FPoint positions[4], const SDL_FPoint uvs[4], const SDL_Color &color,
+                        SDL_GPUGraphicsPipeline *pipeline = nullptr);
 
     public:
         RenderQueue() = default;
@@ -106,7 +107,8 @@ namespace glimmer {
          */
         void DrawTexture(RenderLayer layer, float depth, TextureResourceResult *texture,
                          const SDL_FRect *src, const SDL_FRect *dst,
-                         const SDL_Color &mod = {255, 255, 255, 255});
+                         const SDL_Color &mod = {255, 255, 255, 255},
+                         SDL_GPUGraphicsPipeline *pipeline = nullptr);
 
         /**
          * Queue a texture region rotated around a center point, with
@@ -126,7 +128,8 @@ namespace glimmer {
         void DrawTextureRotated(RenderLayer layer, float depth, const TextureResourceResult *texture,
                                 const SDL_FRect *src, const SDL_FRect *dst,
                                 double angleDegrees, const SDL_FPoint *center, Uint8 flip,
-                                const SDL_Color &mod = {255, 255, 255, 255});
+                                const SDL_Color &mod = {255, 255, 255, 255},
+                                SDL_GPUGraphicsPipeline *pipeline = nullptr);
 
         /**
          * Queue a rectangle filled with a solid color

@@ -45,7 +45,7 @@ namespace glimmer {
         std::vector<uint64_t> *GetEnabledPack(Config *config) const override;
 
         static bool CheckDependencyVersion(const std::vector<PackDependence> &dependencies,
-                                    uint64_t packId2, uint32_t version);
+                                           uint64_t packId2, uint32_t version);
 
     public:
         const std::vector<std::string> &GetPackIdVector() const;

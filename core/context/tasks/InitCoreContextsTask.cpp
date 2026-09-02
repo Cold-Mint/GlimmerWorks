@@ -31,13 +31,16 @@
 #include "core/context/CacheContext.h"
 #include "core/context/ISystemBucket.h"
 
+glimmer::InitCoreContextsTask::InitCoreContextsTask(AppContext *appContext) : appContext_(appContext) {
+}
+
 bool glimmer::InitCoreContextsTask::Run(ISystemBucket *systemBucket) {
     systemBucket->SetWindowContext(std::make_unique<WindowContext>());
     systemBucket->SetMainThreadDispatcher(std::make_unique<MainThreadDispatcher>());
     systemBucket->SetAudioContext(std::make_unique<AudioContext>());
     systemBucket->SetGraphicsContext(std::make_unique<GraphicsContext>());
     systemBucket->SetSceneManager(std::make_unique<SceneManager>());
-    systemBucket->SetCacheContext(std::make_unique<CacheContext>());
+    systemBucket->SetCacheContext(std::make_unique<CacheContext>(appContext_));
     return true;
 }
 

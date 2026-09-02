@@ -57,8 +57,9 @@ namespace glimmer {
     template<typename ResourceT>
     class BiomeDecorator : public IBiomeDecorator {
         virtual void DecorationImpl(WorldContext *worldContext, TerrainResult *terrainResult,
-                                   ResourceT *decoratorResource, BiomeResource *biomeResource,
-                                   std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > *tilesRefMap)
+                                    ResourceT *decoratorResource, BiomeResource *biomeResource,
+                                    std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > *
+                                    tilesRefMap)
         = 0;
 
     public:

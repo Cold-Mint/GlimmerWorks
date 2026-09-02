@@ -26,6 +26,7 @@
  */
 #pragma once
 
+#include <SDL3/SDL_gpu.h>
 #include <SDL3/SDL_stdinc.h>
 
 #include "RenderLayer.h"
@@ -33,7 +34,6 @@
 #include "core/mod/resourcePack/TextureResourceResult.h"
 
 namespace glimmer {
-
     /**
      * Flip flags for RenderQueue::DrawTextureRotated (replaces SDL_FlipMode).
      * RenderQueue::DrawTextureRotated 使用的翻转标志（替代 SDL_FlipMode）。
@@ -66,5 +66,6 @@ namespace glimmer {
         SpriteVertex corners[4] = {};
         RenderLayer layer = RenderLayer::Background;
         float depth = 0.0F;
+        SDL_GPUGraphicsPipeline *pipeline = nullptr;
     };
 }

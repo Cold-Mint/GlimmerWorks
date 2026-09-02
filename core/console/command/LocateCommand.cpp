@@ -47,12 +47,13 @@ std::optional<glimmer::TileVector2D> glimmer::LocateCommand::SearchBiomes(int ti
         chunkCenter.y = y;
         float elevation = ChunkGenerator::GetElevation(y);
         const BiomeResource *nowBiomeResource = biomeRegistry->FindBestBiome(chunkGenerator->GetHumidity(chunkCenter),
-                                                                       chunkGenerator->GetTemperature(
-                                                                           chunkCenter, elevation),
-                                                                       chunkGenerator->GetWeirdness(chunkCenter),
-                                                                       chunkGenerator->GetErosion(chunkCenter),
-                                                                       elevation, ChunkGenerator::GetSurfaceProximity(
-                                                                           firstTileTerrainY, y));
+                                                                             chunkGenerator->GetTemperature(
+                                                                                 chunkCenter, elevation),
+                                                                             chunkGenerator->GetWeirdness(chunkCenter),
+                                                                             chunkGenerator->GetErosion(chunkCenter),
+                                                                             elevation,
+                                                                             ChunkGenerator::GetSurfaceProximity(
+                                                                                 firstTileTerrainY, y));
         if (nowBiomeResource == nullptr) {
             continue;
         }

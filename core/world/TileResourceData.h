@@ -25,6 +25,8 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <SDL3/SDL_gpu.h>
+
 #include "core/mod/Resource.h"
 #include "core/mod/resourcePack/AudioResourceResult.h"
 #include "core/mod/resourcePack/TextureResourceResult.h"
@@ -36,6 +38,7 @@ namespace glimmer {
         std::shared_ptr<AudioResourceResult> placeSFXResult_ = nullptr;
         std::vector<ItemTagResource> tags_;
         ResourceRef textureRef_;
+        SDL_GPUGraphicsPipeline *pipeline_ = nullptr;
 
     public:
         [[nodiscard]] TextureResourceResult *GetTexture() const;
@@ -48,6 +51,8 @@ namespace glimmer {
 
         [[nodiscard]] const std::vector<ItemTagResource> &GetTags() const;
 
+        [[nodiscard]] SDL_GPUGraphicsPipeline *GetPipeline() const;
+
         void SetTexture(const std::shared_ptr<TextureResourceResult> &textureResult);
 
         void SetTextureRef(const ResourceRef &textureRef);
@@ -57,5 +62,7 @@ namespace glimmer {
         void SetPlaceSFX(const std::shared_ptr<AudioResourceResult> &placeSFXResult);
 
         void SetTags(const std::vector<ItemTagResource> &tags);
+
+        void SetPipeline(SDL_GPUGraphicsPipeline *pipeline);
     };
 }

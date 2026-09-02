@@ -25,6 +25,8 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <SDL3/SDL_gpu.h>
+
 #include "core/ecs/GameComponent.h"
 #include "core/math/WorldVector2D.h"
 #include "core/mod/ResourceLocator.h"
@@ -35,6 +37,7 @@ namespace glimmer {
         ResourceRef resourceRef_;
         WorldVector2D position_;
         std::shared_ptr<TextureResourceResult> textureResult_ = nullptr;
+        SDL_GPUGraphicsPipeline *pipeline_ = nullptr;
         bool flipH_ = false;
         bool flipV_ = false;
 
@@ -52,6 +55,10 @@ namespace glimmer {
         void SetFlipV(bool flipV);
 
         [[nodiscard]] TextureResourceResult *GetTexture(const ResourceLocator *resourceLocator);
+
+        void SetPipeline(SDL_GPUGraphicsPipeline *pipeline);
+
+        [[nodiscard]] SDL_GPUGraphicsPipeline *GetPipeline() const;
 
         void SetPosition(const WorldVector2D &position);
 

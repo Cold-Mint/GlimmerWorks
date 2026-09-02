@@ -64,7 +64,9 @@ Rml::TextureHandle glimmer::RenderInterfaceSDL3::LoadTexture(Rml::Vector2i &text
         return {};
     }
     const auto textureHandle = reinterpret_cast<Rml::TextureHandle>(texture);
-    texture_dimensions = {static_cast<int>(textureResourceResult->GetWidth()), static_cast<int>(textureResourceResult->GetHeight())};
+    texture_dimensions = {
+        static_cast<int>(textureResourceResult->GetWidth()), static_cast<int>(textureResourceResult->GetHeight())
+    };
     textureMap_[textureHandle] = textureResourceResult;
     return textureHandle;
 }

@@ -31,7 +31,7 @@ namespace glimmer {
     class ColorCache : public BaseResourceCache<ColorResource> {
     protected:
         std::shared_ptr<ColorResource> LoadResourceFromPack(AppContext *appContext, const ResourceRef *resourceRef,
-            const ResourcePack *resourcePack) override;
+                                                            const ResourcePack *resourcePack) override;
 
     public:
         ~ColorCache() noexcept override;

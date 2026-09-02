@@ -57,7 +57,7 @@ namespace glimmer {
 
 
         static void SetLightMaskImpl(std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > &lightMaskData,
-                                    TileLayerType layerType, std::unique_ptr<LightMask> lightMask);
+                                     TileLayerType layerType, std::unique_ptr<LightMask> lightMask);
 
         static const LightMask *GetLightMaskImpl(
             std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > &lightMaskData,

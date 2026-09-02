@@ -30,10 +30,10 @@
 
 
 void glimmer::SurfaceBiomeDecorator::DecorationImpl(WorldContext *worldContext, TerrainResult *terrainResult,
-                                                   SurfaceBiomeDecoratorResource *decoratorResource,
-                                                   BiomeResource *biomeResource,
-                                                   std::unordered_map<TileLayerType, std::array<ResourceRef,
-                                                       CHUNK_AREA> > *tilesRefMap) {
+                                                    SurfaceBiomeDecoratorResource *decoratorResource,
+                                                    BiomeResource *biomeResource,
+                                                    std::unordered_map<TileLayerType, std::array<ResourceRef,
+                                                        CHUNK_AREA> > *tilesRefMap) {
     std::array<ResourceRef, CHUNK_AREA> &targetLayer = tilesRefMap->at(
         static_cast<TileLayerType>(decoratorResource->layerType));
     const bool airValid = decoratorResource->openAirTile.IsValid();

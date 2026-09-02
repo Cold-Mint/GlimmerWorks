@@ -58,6 +58,14 @@ glimmer::TextureResourceResult *glimmer::SpiritRendererComponent::GetTexture(con
     return textureResult_.get();
 }
 
+void glimmer::SpiritRendererComponent::SetPipeline(SDL_GPUGraphicsPipeline *pipeline) {
+    pipeline_ = pipeline;
+}
+
+SDL_GPUGraphicsPipeline *glimmer::SpiritRendererComponent::GetPipeline() const {
+    return pipeline_;
+}
+
 void glimmer::SpiritRendererComponent::SetPosition(const WorldVector2D &position) {
     position_ = position;
 }

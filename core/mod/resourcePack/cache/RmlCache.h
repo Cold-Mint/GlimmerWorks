@@ -30,10 +30,10 @@
 namespace glimmer {
     class RmlResourceResult;
 
-    class RmlCache : public BaseResourceCache<RmlResourceResult>{
+    class RmlCache : public BaseResourceCache<RmlResourceResult> {
     protected:
         std::shared_ptr<RmlResourceResult> LoadResourceFromPack(AppContext *appContext, const ResourceRef *resourceRef,
-            const ResourcePack *resourcePack) override;
+                                                                const ResourcePack *resourcePack) override;
 
     public:
         ~RmlCache() noexcept override;

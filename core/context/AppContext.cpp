@@ -63,7 +63,7 @@ glimmer::AppContext::AppContext() {
     systemBucket_ = std::make_unique<SystemBucket>();
     RegisterInitTask(std::make_unique<InitVFSTask>());
     RegisterInitTask(std::make_unique<InitLangsTask>());
-    RegisterInitTask(std::make_unique<InitCoreContextsTask>());
+    RegisterInitTask(std::make_unique<InitCoreContextsTask>(this));
     RegisterInitTask(std::make_unique<InitConfigTask>());
     RegisterInitTask(std::make_unique<InitSavesManagerTask>());
     RegisterInitTask(std::make_unique<InitRmlContextTask>());

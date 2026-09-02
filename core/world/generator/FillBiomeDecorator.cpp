@@ -28,10 +28,10 @@
 
 
 void glimmer::FillBiomeDecorator::DecorationImpl(WorldContext *worldContext, TerrainResult *terrainResult,
-                                                FillBiomeDecoratorResource *decoratorResource,
-                                                BiomeResource *biomeResource,
-                                                std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> >
-                                                *tilesRefMap) {
+                                                 FillBiomeDecoratorResource *decoratorResource,
+                                                 BiomeResource *biomeResource,
+                                                 std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> >
+                                                 *tilesRefMap) {
     std::array<ResourceRef, CHUNK_AREA> &targetLayer = tilesRefMap->at(
         static_cast<TileLayerType>(decoratorResource->layerType));
     const ResourceRef &resourceRef = decoratorResource->tile;

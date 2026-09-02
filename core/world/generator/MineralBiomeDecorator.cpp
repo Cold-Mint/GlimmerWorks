@@ -32,10 +32,10 @@
 
 
 void glimmer::MineralBiomeDecorator::DecorationImpl(WorldContext *worldContext, TerrainResult *terrainResult,
-                                                   MineralBiomeDecoratorResource *decoratorResource,
-                                                   BiomeResource *biomeResource,
-                                                   std::unordered_map<TileLayerType, std::array<ResourceRef,
-                                                       CHUNK_AREA> > *tilesRefMap) {
+                                                    MineralBiomeDecoratorResource *decoratorResource,
+                                                    BiomeResource *biomeResource,
+                                                    std::unordered_map<TileLayerType, std::array<ResourceRef,
+                                                        CHUNK_AREA> > *tilesRefMap) {
     const FastNoiseLite *noiseLite = decoratorResource->GetFastNoiseLite(GetWorldSeed());
     if (noiseLite == nullptr) {
         return;

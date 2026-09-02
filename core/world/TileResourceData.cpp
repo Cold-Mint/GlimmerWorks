@@ -56,6 +56,10 @@ const std::vector<glimmer::ItemTagResource> &glimmer::TileResourceData::GetTags(
     return tags_;
 }
 
+SDL_GPUGraphicsPipeline *glimmer::TileResourceData::GetPipeline() const {
+    return pipeline_;
+}
+
 void glimmer::TileResourceData::SetTexture(const std::shared_ptr<TextureResourceResult> &textureResult) {
     this->textureResult_ = textureResult;
 }
@@ -74,4 +78,8 @@ void glimmer::TileResourceData::SetPlaceSFX(const std::shared_ptr<AudioResourceR
 
 void glimmer::TileResourceData::SetTags(const std::vector<ItemTagResource> &tags) {
     this->tags_ = tags;
+}
+
+void glimmer::TileResourceData::SetPipeline(SDL_GPUGraphicsPipeline *pipeline) {
+    this->pipeline_ = pipeline;
 }

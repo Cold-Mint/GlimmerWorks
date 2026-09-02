@@ -49,6 +49,7 @@ namespace glimmer {
         std::shared_ptr<std::function<void(uint8_t, Item *, ContainerChangeType)> > callback_ = nullptr;
         std::shared_ptr<IAllocStrategy<uint32_t> > allocStrategyPtr_ = nullptr;
         ResourceRef iconResourceRef_;
+        SDL_GPUGraphicsPipeline *pipeline_ = nullptr;
 
         void AddCallback();
 
@@ -75,7 +76,11 @@ namespace glimmer {
 
         [[nodiscard]] const std::optional<std::string> &GetDescription() const override;
 
-        [[nodiscard]] TextureResourceResult * GetIcon() const override;
+        [[nodiscard]] TextureResourceResult *GetIcon() const override;
+
+        [[nodiscard]] SDL_GPUGraphicsPipeline *GetPipeline() const override;
+
+        void SetPipeline(SDL_GPUGraphicsPipeline *pipeline);
 
         void SwapItem(uint8_t index,
                       ItemContainer *otherContainer,

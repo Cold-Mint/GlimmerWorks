@@ -386,6 +386,8 @@ namespace glimmer {
         ResourceRef description = {};
         //@genNextLine(texture|纹理资源引用)
         ResourceRef texture;
+        //@genNextLine(pipeline|渲染管线引用)
+        ResourceRef pipeline = {};
         //@genNextLine(ability|能力标识)
         uint8_t ability;
         //@genNextLine(abilityConfig|能力变量配置)
@@ -408,6 +410,8 @@ namespace glimmer {
         ResourceRef description = {};
         //@genNextLine(texture|纹理资源引用)
         ResourceRef texture;
+        //@genNextLine(pipeline|渲染管线引用)
+        ResourceRef pipeline = {};
         //@genNextLine(tags|标签)
         std::vector<ItemTagResource> tags = {};
     };
@@ -455,6 +459,8 @@ namespace glimmer {
         ResourceRef lootTable = {};
         //@genNextLine(texture|纹理资源引用)
         ResourceRef texture;
+        //@genNextLine(pipeline|渲染管线引用)
+        ResourceRef pipeline = {};
         //@genNextLine(enableBlueprint|启用蓝图-手持瓦片时显示蓝图)
         bool enableBlueprint = true;
         //@genNextLine(enableBlueprintMask|启用蓝图遮照-用颜色标记禁止放置的区域)
@@ -692,6 +698,8 @@ namespace glimmer {
         float density = 0.001F;
         //@genNextLine(texture|纹理资源引用)
         ResourceRef texture = {};
+        //@genNextLine(pipeline|渲染管线引用)
+        ResourceRef pipeline = {};
         //@genNextLine(Set the item that will be automatically used when no items are held. This item cannot be discarded, does not participate in recipe synthesis, and cannot be edited using the itemEditor command.If this item has the ability to be excavated, then its durability will not be deducted.|设置不持有任何物品时自动使用的物品。此物品不能丢弃，不参与配方合成，不能通过itemEditor命令编辑。如果此物品有挖掘能力，那么也不会扣除耐久。)
         ItemMessageResource emptyHandAutoUseItem;
         //@genNextLine(TilePlacementForbiddenZone|瓦片放置禁止区域)
@@ -712,6 +720,8 @@ namespace glimmer {
         ResourceRef description = {};
         //@genNextLine(texture|纹理资源引用)
         ResourceRef texture;
+        //@genNextLine(pipeline|渲染管线引用)
+        ResourceRef pipeline = {};
         //@genNextLine(slotSize|槽位大小)
         size_t slotSize;
         //@genNextLine(maxDurability|最大耐久度)

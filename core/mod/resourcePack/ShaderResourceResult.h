@@ -36,7 +36,6 @@ namespace glimmer {
         void DestroyResourceImpl(SDL_GPUShader *resource) override;
 
     public:
-
         void SetDevice(SDL_GPUDevice *device);
 
         ~ShaderResourceResult() override;

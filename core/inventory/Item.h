@@ -25,6 +25,7 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <SDL3/SDL_gpu.h>
 #include <memory>
 #include <string>
 
@@ -119,6 +120,15 @@ namespace glimmer {
          * @return
          */
         [[nodiscard]] virtual TextureResourceResult *GetIcon() const = 0;
+
+        /**
+         * GetPipeline
+         * 获取渲染管线
+         * @return 自定义管线；若无则返回 nullptr
+         */
+        [[nodiscard]] virtual SDL_GPUGraphicsPipeline *GetPipeline() const {
+            return nullptr;
+        }
 
         [[nodiscard]] virtual const ResourceRef *GetIconResourceRef() const = 0;
 

@@ -27,7 +27,9 @@
 #include "ComposableItem.h"
 
 #include "AbilityItem.h"
+#include "core/context/CacheContext.h"
 #include "core/ecs/component/Transform2DComponent.h"
+#include "core/gpu/GpuPipelineObjectCache.h"
 #include "core/world/WorldContext.h"
 #include <utility>
 #include <vector>
@@ -102,6 +104,19 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
     params.SetResourceRef(resourceRef);
     params.SetIconResourceRef(itemResource->texture);
     auto result = std::make_unique<ComposableItem>(params);
+    if (itemResource->pipeline.IsValid()) {
+        if (const std::shared_ptr<GPUPipelineResourceResult> pipelineResult = appContext->GetResourceLocator()->
+                FindPipeline(
+                    &itemResource->pipeline,
+                    false); pipelineResult != nullptr && pipelineResult->GetResource() != nullptr) {
+            if (CacheContext *cacheContext = appContext->GetCacheContext(); cacheContext != nullptr) {
+                if (GpuPipelineObjectCache *pipelineObjectCache = cacheContext->GetPipelineObjectCache();
+                    pipelineObjectCache != nullptr) {
+                    result->SetPipeline(pipelineObjectCache->GetOrCreatePipeline(pipelineResult->GetResource()));
+                }
+            }
+        }
+    }
     if (uint8_t defaultAbilitySize = itemResource->defaultAbilityList.size(); defaultAbilitySize > 0) {
         for (int i = 0; i < defaultAbilitySize; i++) {
             auto itemObj = appContext->GetResourceLocator()->FindItem(worldContext,
@@ -320,4 +335,12 @@ glimmer::TextureResourceResult *glimmer::ComposableItem::GetIcon() const {
         return nullptr;
     }
     return iconResult_.get();
+}
+
+SDL_GPUGraphicsPipeline *glimmer::ComposableItem::GetPipeline() const {
+    return pipeline_;
+}
+
+void glimmer::ComposableItem::SetPipeline(SDL_GPUGraphicsPipeline *pipeline) {
+    pipeline_ = pipeline;
 }

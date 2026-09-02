@@ -32,8 +32,10 @@
 #include <vector>
 
 #include "core/config/Constants.h"
+#include "core/context/CacheContext.h"
 #include "core/context/WindowContext.h"
 #include "core/gpu/BlendMode.h"
+#include "core/gpu/GpuPipelineObjectCache.h"
 #include "core/gpu/GpuShaderCompiler.h"
 #include "core/gpu/GpuShaderCompileResult.h"
 #include "core/log/LogCat.h"
@@ -164,17 +166,16 @@ bool glimmer::AppRenderer::EnsureSpritePipeline() {
     if (spritePipeline_ != nullptr) {
         return true;
     }
-    if (device_ == nullptr) {
+    if (device_ == nullptr || appContext_ == nullptr) {
         return false;
     }
 
-    SDL_GPUShader *vertexShader = nullptr;
-    SDL_GPUShader *fragmentShader = nullptr;
-    bool ownsVertexShader = false;
-    bool ownsFragmentShader = false;
-    SDL_GPUColorTargetBlendState blendState = ToColorTargetBlendState(BlendMode::Alpha);
+    CacheContext *cacheContext = appContext_->GetCacheContext();
+    GpuPipelineObjectCache *pipelineObjectCache = cacheContext != nullptr
+                                                      ? cacheContext->GetPipelineObjectCache()
+                                                      : nullptr;
 
-    if (resourceLocator_ != nullptr) {
+    if (resourceLocator_ != nullptr && pipelineObjectCache != nullptr) {
         ResourceRef pipelineRef;
         pipelineRef.SetSelfPackageId(RESOURCE_REF_CORE);
         pipelineRef.SetResourceType(RESOURCE_PIPELINE);
@@ -184,32 +185,24 @@ bool glimmer::AppRenderer::EnsureSpritePipeline() {
         if (pipelineResult != nullptr) {
             const GPUPipelineResource *pipelineResource = pipelineResult->GetResource();
             if (pipelineResource != nullptr) {
-                const std::shared_ptr<ShaderResourceResult> vertexResult = resourceLocator_->FindShader(
-                    &pipelineResource->vertexShader, false);
-                const std::shared_ptr<ShaderResourceResult> fragmentResult = resourceLocator_->FindShader(
-                    &pipelineResource->fragmentShader, false);
-                if (vertexResult != nullptr && fragmentResult != nullptr) {
-                    vertexShader = vertexResult->GetResource();
-                    fragmentShader = fragmentResult->GetResource();
-                    blendState = ToColorTargetBlendState(BlendModeFromUint8(pipelineResource->blendMode));
-                }
+                spritePipeline_ = pipelineObjectCache->GetOrCreatePipeline(pipelineResource);
             }
         }
     }
 
-    if (vertexShader == nullptr) {
-        vertexShader = CompileShader(DEFAULT_SPRITE_VERT, true);
-        ownsVertexShader = true;
+    if (spritePipeline_ != nullptr) {
+        return true;
     }
-    if (fragmentShader == nullptr) {
-        fragmentShader = CompileShader(DEFAULT_PASSTHROUGH_FRAG, false);
-        ownsFragmentShader = true;
-    }
+
+    //Fallback to built-in sprite shaders.
+    //回退到内置精灵着色器。
+    SDL_GPUShader *vertexShader = CompileShader(DEFAULT_SPRITE_VERT, true);
+    SDL_GPUShader *fragmentShader = CompileShader(DEFAULT_PASSTHROUGH_FRAG, false);
     if (vertexShader == nullptr || fragmentShader == nullptr) {
-        if (ownsVertexShader && vertexShader != nullptr) {
+        if (vertexShader != nullptr) {
             SDL_ReleaseGPUShader(device_, vertexShader);
         }
-        if (ownsFragmentShader && fragmentShader != nullptr) {
+        if (fragmentShader != nullptr) {
             SDL_ReleaseGPUShader(device_, fragmentShader);
         }
         return false;
@@ -238,16 +231,12 @@ bool glimmer::AppRenderer::EnsureSpritePipeline() {
     const WindowContext *windowContext = appContext_->GetWindowContext();
     SDL_Window *window = windowContext != nullptr ? windowContext->GetWindow() : nullptr;
     if (window == nullptr) {
-        if (ownsVertexShader && vertexShader != nullptr) {
-            SDL_ReleaseGPUShader(device_, vertexShader);
-        }
-        if (ownsFragmentShader && fragmentShader != nullptr) {
-            SDL_ReleaseGPUShader(device_, fragmentShader);
-        }
+        SDL_ReleaseGPUShader(device_, vertexShader);
+        SDL_ReleaseGPUShader(device_, fragmentShader);
         return false;
     }
     colorTarget.format = SDL_GetGPUSwapchainTextureFormat(device_, window);
-    colorTarget.blend_state = blendState;
+    colorTarget.blend_state = ToColorTargetBlendState(BlendMode::Alpha);
 
     SDL_GPUGraphicsPipelineCreateInfo createInfo = {};
     createInfo.vertex_shader = vertexShader;
@@ -267,12 +256,8 @@ bool glimmer::AppRenderer::EnsureSpritePipeline() {
         LogCat::w(std::source_location::current(), "SDL_CreateGPUGraphicsPipeline failed: ", SDL_GetError());
     }
 
-    if (ownsVertexShader && vertexShader != nullptr) {
-        SDL_ReleaseGPUShader(device_, vertexShader);
-    }
-    if (ownsFragmentShader && fragmentShader != nullptr) {
-        SDL_ReleaseGPUShader(device_, fragmentShader);
-    }
+    SDL_ReleaseGPUShader(device_, vertexShader);
+    SDL_ReleaseGPUShader(device_, fragmentShader);
     return spritePipeline_ != nullptr;
 }
 
@@ -342,7 +327,7 @@ void glimmer::AppRenderer::FlushQueue(SDL_GPUCommandBuffer *commandBuffer, SDL_G
         std::vector<Uint32> indices;
         vertices.reserve(commands.size() * 4);
         indices.reserve(commands.size() * 6);
-        for (const RenderCommand &command : commands) {
+        for (const RenderCommand &command: commands) {
             const Uint32 baseIndex = static_cast<Uint32>(vertices.size());
             vertices.insert(vertices.end(), command.corners, command.corners + 4);
             const Uint32 quadIndices[6] = {
@@ -392,8 +377,6 @@ void glimmer::AppRenderer::FlushQueue(SDL_GPUCommandBuffer *commandBuffer, SDL_G
 
     if (hasCommands && spritePipeline_ != nullptr && vertexBuffer_ != nullptr && indexBuffer_ != nullptr &&
         sampler_ != nullptr) {
-        SDL_BindGPUGraphicsPipeline(renderPass, spritePipeline_);
-
         SDL_GPUBufferBinding vertexBinding = {vertexBuffer_, 0};
         SDL_BindGPUVertexBuffers(renderPass, 0, &vertexBinding, 1);
         SDL_GPUBufferBinding indexBinding = {indexBuffer_, 0};
@@ -403,8 +386,15 @@ void glimmer::AppRenderer::FlushQueue(SDL_GPUCommandBuffer *commandBuffer, SDL_G
         SDL_PushGPUVertexUniformData(commandBuffer, 0, viewSize, sizeof(viewSize));
 
         const std::vector<RenderCommand> &commands = renderQueue_.GetCommands();
+        SDL_GPUGraphicsPipeline *currentPipeline = spritePipeline_;
+        SDL_BindGPUGraphicsPipeline(renderPass, currentPipeline);
         Uint32 firstIndex = 0;
-        for (const RenderCommand &command : commands) {
+        for (const RenderCommand &command: commands) {
+            SDL_GPUGraphicsPipeline *commandPipeline = command.pipeline != nullptr ? command.pipeline : spritePipeline_;
+            if (commandPipeline != currentPipeline) {
+                SDL_BindGPUGraphicsPipeline(renderPass, commandPipeline);
+                currentPipeline = commandPipeline;
+            }
             SDL_GPUTexture *texture = whiteTexture_;
             if (command.texture != nullptr && command.texture->GetResource() != nullptr) {
                 texture = command.texture->GetResource();

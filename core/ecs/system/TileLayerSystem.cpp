@@ -131,7 +131,8 @@ void glimmer::TileLayerSystem::RenderTileSnapshot(RenderQueue *queue, const Tile
     if (textureResourceResult == nullptr) {
         return;
     }
-    queue->DrawTexture(RenderLayer::Tile, 0.0F, textureResourceResult, nullptr, &renderQuad, {255, 255, 255, alpha});
+    queue->DrawTexture(RenderLayer::Tile, 0.0F, textureResourceResult, nullptr, &renderQuad,
+                       {255, 255, 255, alpha}, tileResourceData->GetPipeline());
 }
 
 void glimmer::TileLayerSystem::Render(RenderQueue *queue) {

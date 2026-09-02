@@ -27,6 +27,7 @@
 #pragma once
 #include <memory>
 
+#include "core/gpu/GpuPipelineObjectCache.h"
 #include "core/mod/resourcePack/cache/AudioCache.h"
 #include "core/mod/resourcePack/cache/ColorCache.h"
 #include "core/mod/resourcePack/cache/GpuPipelineCache.h"
@@ -36,19 +37,23 @@
 
 namespace glimmer {
     class CacheContext {
+        AppContext *appContext_ = nullptr;
         std::unique_ptr<AudioCache> audioCache_ = nullptr;
         std::unique_ptr<GpuPipelineCache> gpuPipelineCache_ = nullptr;
+        std::unique_ptr<GpuPipelineObjectCache> gpuPipelineObjectCache_ = nullptr;
         std::unique_ptr<ShaderCache> shaderCache_ = nullptr;
         std::unique_ptr<TextureCache> textureCache_ = nullptr;
         std::unique_ptr<RmlCache> rmlCache_ = nullptr;
         std::unique_ptr<ColorCache> colorCache_ = nullptr;
 
     public:
-        CacheContext();
+        explicit CacheContext(AppContext *appContext);
 
         [[nodiscard]] AudioCache *GetAudioCache() const;
 
         [[nodiscard]] GpuPipelineCache *GetPipelineCache() const;
+
+        [[nodiscard]] GpuPipelineObjectCache *GetPipelineObjectCache() const;
 
         [[nodiscard]] ShaderCache *GetShaderCache() const;
 

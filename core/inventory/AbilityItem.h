@@ -40,6 +40,7 @@ namespace glimmer {
         bool unbreakable_;
         bool canUseAlone_;
         ResourceRef iconResourceRef_;
+        SDL_GPUGraphicsPipeline *pipeline_ = nullptr;
 
     public:
         explicit AbilityItem(const AbilityItemCreateParams &params);
@@ -55,6 +56,10 @@ namespace glimmer {
         [[nodiscard]] const std::optional<std::string> &GetDescription() const override;
 
         [[nodiscard]] TextureResourceResult *GetIcon() const override;
+
+        [[nodiscard]] SDL_GPUGraphicsPipeline *GetPipeline() const override;
+
+        void SetPipeline(SDL_GPUGraphicsPipeline *pipeline);
 
         [[nodiscard]] const ResourceRef *GetIconResourceRef() const override;
 

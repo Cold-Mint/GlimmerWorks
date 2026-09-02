@@ -74,23 +74,23 @@ void glimmer::FloatingTextSystem::Update(float delta) {
     // }
     // uint64_t now = SDL_GetTicks();
     // for (const GameEntityID floatingTextEntity: entities_) {
-        // auto floatingTextComponent = entityManager->GetComponent<FloatingTextComponent>(
-        //     floatingTextEntity);
-        // const Transform2DComponent *transform2DComponent = entityManager->GetComponent<Transform2DComponent>(
-        //     floatingTextEntity);
-        // if (floatingTextComponent == nullptr || transform2DComponent == nullptr) {
-        //     continue;
-        // }
-        // if (!cameraComponent_->
-        //     IsPointInViewport(cameraTransform2DComponent_->GetPosition(), transform2DComponent->GetPosition())) {
-        //     continue;
-        // }
-        // auto &tween = floatingTextComponent->GetTween();
-        // tween.step(1);
-        // floatingTextComponent->SetAlpha(fabs(tween.peek()));
-        // if (now > floatingTextComponent->GetExpireTime()) {
-        //     entityManager->RemoveEntity(floatingTextEntity);
-        // }
+    // auto floatingTextComponent = entityManager->GetComponent<FloatingTextComponent>(
+    //     floatingTextEntity);
+    // const Transform2DComponent *transform2DComponent = entityManager->GetComponent<Transform2DComponent>(
+    //     floatingTextEntity);
+    // if (floatingTextComponent == nullptr || transform2DComponent == nullptr) {
+    //     continue;
+    // }
+    // if (!cameraComponent_->
+    //     IsPointInViewport(cameraTransform2DComponent_->GetPosition(), transform2DComponent->GetPosition())) {
+    //     continue;
+    // }
+    // auto &tween = floatingTextComponent->GetTween();
+    // tween.step(1);
+    // floatingTextComponent->SetAlpha(fabs(tween.peek()));
+    // if (now > floatingTextComponent->GetExpireTime()) {
+    //     entityManager->RemoveEntity(floatingTextEntity);
+    // }
     // }
 }
 

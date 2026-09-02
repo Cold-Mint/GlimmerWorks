@@ -31,9 +31,9 @@
 namespace glimmer {
     class MineralBiomeDecorator : public BiomeDecorator<MineralBiomeDecoratorResource> {
         void DecorationImpl(WorldContext *worldContext, TerrainResult *terrainResult,
-                           MineralBiomeDecoratorResource *decoratorResource, BiomeResource *biomeResource,
-                           std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > *
-                           tilesRefMap) override;
+                            MineralBiomeDecoratorResource *decoratorResource, BiomeResource *biomeResource,
+                            std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > *
+                            tilesRefMap) override;
 
     public:
         BiomeDecoratorType GetBiomeDecoratorType() override;

@@ -37,6 +37,7 @@ namespace glimmer {
         std::optional<std::string> description_;
         std::shared_ptr<TextureResourceResult> iconResult_;
         ResourceRef textureResourceRef_;
+        SDL_GPUGraphicsPipeline *pipeline_ = nullptr;
 
     public:
         explicit MaterialItem(std::string id, std::string name, std::optional<std::string> description,
@@ -60,7 +61,11 @@ namespace glimmer {
 
         void Reduce(unsigned value) override;
 
-        [[nodiscard]] TextureResourceResult * GetIcon() const override;
+        [[nodiscard]] TextureResourceResult *GetIcon() const override;
+
+        [[nodiscard]] SDL_GPUGraphicsPipeline *GetPipeline() const override;
+
+        void SetPipeline(SDL_GPUGraphicsPipeline *pipeline);
 
         bool OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user, const AbilityConfig *abilityConfig,
                    std::unordered_set<AbilityType> &popupAbility) override;

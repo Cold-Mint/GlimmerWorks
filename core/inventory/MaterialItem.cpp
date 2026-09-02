@@ -29,6 +29,9 @@
 #include <utility>
 
 #include "core/context/AppContext.h"
+#include "core/context/CacheContext.h"
+#include "core/gpu/GpuPipelineObjectCache.h"
+#include "core/mod/ResourceLocator.h"
 #include "core/utils/StringUtils.h"
 
 glimmer::MaterialItem::MaterialItem(std::string id, std::string name, std::optional<std::string> description,
@@ -59,11 +62,25 @@ std::unique_ptr<glimmer::MaterialItem> glimmer::MaterialItem::FromItemResource(c
     if (descriptionRes != nullptr) {
         description = descriptionRes->value;
     }
-    return std::make_unique<MaterialItem>(Resource::GenerateId(*itemResource), name,
-                                          description,
-                                          appContext->GetResourceLocator()->FindTexture(
-                                              &itemResource->texture), itemResource->tags, resourceRef,
-                                          itemResource->texture);
+    auto materialItem = std::make_unique<MaterialItem>(Resource::GenerateId(*itemResource), name,
+                                                       description,
+                                                       appContext->GetResourceLocator()->FindTexture(
+                                                           &itemResource->texture), itemResource->tags, resourceRef,
+                                                       itemResource->texture);
+    if (itemResource->pipeline.IsValid()) {
+        if (const std::shared_ptr<GPUPipelineResourceResult> pipelineResult = appContext->GetResourceLocator()->
+                FindPipeline(
+                    &itemResource->pipeline,
+                    false); pipelineResult != nullptr && pipelineResult->GetResource() != nullptr) {
+            if (CacheContext *cacheContext = appContext->GetCacheContext(); cacheContext != nullptr) {
+                if (GpuPipelineObjectCache *pipelineObjectCache = cacheContext->GetPipelineObjectCache();
+                    pipelineObjectCache != nullptr) {
+                    materialItem->SetPipeline(pipelineObjectCache->GetOrCreatePipeline(pipelineResult->GetResource()));
+                }
+            }
+        }
+    }
+    return materialItem;
 }
 
 const glimmer::ResourceRef *glimmer::MaterialItem::GetIconResourceRef() const {
@@ -97,6 +114,13 @@ glimmer::TextureResourceResult *glimmer::MaterialItem::GetIcon() const {
     return iconResult_.get();
 }
 
+SDL_GPUGraphicsPipeline *glimmer::MaterialItem::GetPipeline() const {
+    return pipeline_;
+}
+
+void glimmer::MaterialItem::SetPipeline(SDL_GPUGraphicsPipeline *pipeline) {
+    pipeline_ = pipeline;
+}
 
 bool glimmer::MaterialItem::OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user,
                                   const AbilityConfig *abilityConfig, std::unordered_set<AbilityType> &popupAbility) {

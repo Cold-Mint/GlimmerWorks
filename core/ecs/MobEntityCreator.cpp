@@ -34,6 +34,8 @@
 #include "component/RigidBody2DComponent.h"
 #include "component/SpiritRendererComponent.h"
 #include "component/TilePlacementForbiddenZoneComponent.h"
+#include "core/context/CacheContext.h"
+#include "core/gpu/GpuPipelineObjectCache.h"
 
 
 glimmer::MobEntityCreator::MobEntityCreator(WorldContext *worldContext) : IPersistenceEntityCreator(worldContext) {
@@ -157,6 +159,18 @@ void glimmer::MobEntityCreator::LoadTemplateComponents(const uint32_t id, const 
         spiritRendererComponent->SetPosition({
             TILE_SIZE * mobResource->textureOffset.x, TILE_SIZE * mobResource->textureOffset.y
         });
+        if (mobResource->pipeline.IsValid()) {
+            if (const std::shared_ptr<GPUPipelineResourceResult> pipelineResult = resourceLocator->FindPipeline(
+                &mobResource->pipeline, false); pipelineResult != nullptr && pipelineResult->GetResource() != nullptr) {
+                if (CacheContext *cacheContext = appContext->GetCacheContext(); cacheContext != nullptr) {
+                    if (GpuPipelineObjectCache *pipelineObjectCache = cacheContext->GetPipelineObjectCache();
+                        pipelineObjectCache != nullptr) {
+                        spiritRendererComponent->SetPipeline(
+                            pipelineObjectCache->GetOrCreatePipeline(pipelineResult->GetResource()));
+                    }
+                }
+            }
+        }
     }
 }
 

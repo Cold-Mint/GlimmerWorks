@@ -52,7 +52,9 @@ void glimmer::ParallaxBackgroundComponent::ClearTexture() {
 
 SDL_GPUTexture *glimmer::ParallaxBackgroundComponent::GetTexture(const ResourceLocator *resourceLocator) {
     if (textureResourceFingerprint_ != newTextureResourceFingerprint_) {
-        textureResourceResult_ = resourceLocator->FindTexture(&textureResourceRef_);
+        textureResourceResult_ = textureResourceRef_.IsValid()
+                                     ? resourceLocator->FindTexture(&textureResourceRef_)
+                                     : nullptr;
         textureResourceFingerprint_ = newTextureResourceFingerprint_;
     }
     if (textureResourceResult_ == nullptr) {

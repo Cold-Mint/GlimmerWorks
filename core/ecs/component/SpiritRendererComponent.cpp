@@ -50,6 +50,9 @@ void glimmer::SpiritRendererComponent::SetFlipV(const bool flipV) {
 
 glimmer::TextureResourceResult *glimmer::SpiritRendererComponent::GetTexture(const ResourceLocator *resourceLocator) {
     if (textureResult_ == nullptr) {
+        if (!resourceRef_.IsValid()) {
+            return nullptr;
+        }
         textureResult_ = resourceLocator->FindTexture(&resourceRef_);
         if (textureResult_ == nullptr) {
             return nullptr;

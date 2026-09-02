@@ -47,7 +47,7 @@ void glimmer::GpuShaderCompileResult::SetCode(const std::vector<unsigned int> &c
 }
 
 size_t glimmer::GpuShaderCompileResult::GetCodeSize() const {
-    return code_.size();
+    return code_.size() * sizeof(unsigned int);
 }
 
 const std::vector<unsigned int> &glimmer::GpuShaderCompileResult::GetCode() const {

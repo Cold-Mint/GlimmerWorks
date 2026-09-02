@@ -69,7 +69,7 @@ glimmer::AppContext::AppContext() {
     RegisterInitTask(std::make_unique<InitModContextTask>());
     RegisterInitTask(std::make_unique<InitConsoleContextTask>(this));
     RegisterInitTask(std::make_unique<InitDataPackTask>(this));
-    RegisterInitTask(std::make_unique<InitResourcePackTask>());
+    RegisterInitTask(std::make_unique<InitResourcePackTask>(this));
     RegisterInitTask(std::make_unique<InitResourceLocatorTask>(this));
 }
 

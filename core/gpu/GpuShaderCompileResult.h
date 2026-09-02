@@ -52,6 +52,10 @@ namespace glimmer {
          */
         void SetCode(const std::vector<unsigned int> &code);
 
+        /**
+         * Get the size of the compiled SPIR-V binary in bytes.
+         * 获取编译后的 SPIR-V 二进制的字节数。
+         */
         [[nodiscard]] size_t GetCodeSize() const;
 
         /**

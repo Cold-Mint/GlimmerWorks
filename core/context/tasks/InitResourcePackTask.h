@@ -26,10 +26,15 @@
  */
 #pragma once
 #include "IAppContextInitTask.h"
+class AppContext;
 
 namespace glimmer {
     class InitResourcePackTask : public IAppContextInitTask {
+        AppContext *appContext_ = nullptr;
+
     public:
+        explicit InitResourcePackTask(AppContext *appContext);
+
         bool Run(ISystemBucket *systemBucket) override;
 
         void Rollback(ISystemBucket *systemBucket) override;

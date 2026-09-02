@@ -126,7 +126,7 @@ namespace glimmer {
         }
 
         return mainThreadDispatcher->AddMainThreadTaskAwait(
-            [this, enabledResourcePack, resourcePackManager, appContext, resourceRef] {
+            [this, enabledResourcePack, resourcePackManager, appContext, resourceRef, enablePlaceHolder] {
                 uint64_t fingerprint = resourceRef->GetFingerprint();
                 const auto cache = resourceCache_.find(fingerprint);
                 if (cache != resourceCache_.end()) {
@@ -151,7 +151,7 @@ namespace glimmer {
                     resourceCache_[fingerprint] = result;
                     return result;
                 }
-                return std::shared_ptr<ResourceResultType>(nullptr);
+                return TryGetPlaceholder(appContext, resourceRef, enablePlaceHolder);
             }
         ).get();
         return TryGetPlaceholder(appContext, resourceRef, enablePlaceHolder);

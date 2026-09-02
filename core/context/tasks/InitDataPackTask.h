@@ -31,7 +31,7 @@ namespace glimmer {
     class AppContext;
 
     class InitDataPackTask : public IAppContextInitTask {
-        AppContext *appContext_;
+        AppContext *appContext_ = nullptr;
 
     public:
         explicit InitDataPackTask(AppContext *appContext);

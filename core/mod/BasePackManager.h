@@ -128,6 +128,6 @@ namespace glimmer {
 
     template<typename ResourceType>
     bool BasePackManager<ResourceType>::IsPackAvailable(const PackManifest *packManifest) {
-        return packManifest->minGameVersion > GAME_VERSION_NUMBER;
+        return packManifest->minGameVersion <= GAME_VERSION_NUMBER;
     }
 }

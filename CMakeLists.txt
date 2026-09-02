@@ -404,6 +404,7 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Platform_SDL.cpp"
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL_GPU.cpp"
         core/app/App.cpp
+        core/gpu/BlendMode.cpp
         core/gpu/RenderQueue.cpp
         core/mod/resourcePack/cache/ColorCache.cpp
         core/context/CacheContext.cpp
@@ -798,6 +799,7 @@ target_sources(GlimmerWorks
         core/mod/BasePackManager.h
         core/context/CacheContext.h
         core/mod/resourcePack/cache/ColorCache.h
+        core/gpu/BlendMode.h
         core/gpu/RenderQueue.h
         core/utils/IUniqueAble.h
         core/mod/resourcePack/cache/TextureCache.h

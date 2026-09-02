@@ -62,6 +62,10 @@ std::unique_ptr<glimmer::DataPack> glimmer::DataPackManager::LoadPack(const Pack
         LogCat::w(std::source_location::current(), "Failed to load manifest for data pack");
         return nullptr;
     }
+    if (!dataPack->LoadPack(appContext)) {
+        LogCat::w(std::source_location::current(), "Failed to load data pack");
+        return nullptr;
+    }
     return dataPack;
 }
 

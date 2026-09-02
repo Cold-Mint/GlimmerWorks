@@ -26,7 +26,6 @@
  */
 #pragma once
 
-#include "core/context/AppContext.h"
 #include "core/mod/BasePackManager.h"
 
 namespace glimmer {

@@ -31,8 +31,12 @@
 #include "core/context/SystemBucket.h"
 #include "core/log/LogCat.h"
 
+glimmer::InitResourcePackTask::InitResourcePackTask(AppContext *appContext) {
+    appContext_ = appContext;
+}
+
 bool glimmer::InitResourcePackTask::Run(ISystemBucket *systemBucket) {
-    const toml::spec *tomlVersion = systemBucket->GetTomlVersion();
+    toml::spec *tomlVersion = systemBucket->GetTomlVersion();
     if (tomlVersion == nullptr) {
         LogCat::e(std::source_location::current(), "tomlVersion is nullptr");
         return false;
@@ -48,11 +52,13 @@ bool glimmer::InitResourcePackTask::Run(ISystemBucket *systemBucket) {
         return false;
     }
     auto resourcePackManager = std::make_unique<ResourcePackManager>();
-    // if (resourcePackManager->Scan(config->mods.resourcePackPath, config->mods.enabledResourcePack,
-    //                               *tomlVersion) == 0) {
-    //     LogCat::e(std::source_location::current(), "The resource package cannot be found.");
-    //     return false;
-    // }
+    PackScanRequest packScanRequest;
+    packScanRequest.SetAppContext(appContext_);
+    packScanRequest.SetTomlVersion(tomlVersion);
+    if (resourcePackManager->Scan(&packScanRequest) == 0) {
+        LogCat::e(std::source_location::current(), "The resource package cannot be found.");
+        return false;
+    }
     systemBucket->SetResourcePackManager(std::move(resourcePackManager));
     return true;
 }

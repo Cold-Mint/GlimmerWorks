@@ -112,6 +112,9 @@ bool glimmer::InitLangsTask::Run(ISystemBucket *systemBucket) {
     langsResources->lightingInspectorEnableFail = toml::find<std::string>(tomlValue, "lighting_inspector_enable_fail");
     langsResources->lightingInspectorDisableFail = toml::find<std::string>(
         tomlValue, "lighting_inspector_disable_fail");
+    langsResources->timeInfo = toml::find<std::string>(tomlValue, "time_info");
+    langsResources->timeSetSuccess = toml::find<std::string>(tomlValue, "time_set_success");
+    langsResources->timeInvalid = toml::find<std::string>(tomlValue, "time_invalid");
     langsResources->tileNameAir = toml::find<std::string>(tomlValue, STRING_TILE_AIR_NAME);
     langsResources->tileNameAirWall = toml::find<std::string>(tomlValue, STRING_TILE_AIR_WALL_NAME);
     langsResources->tileNameError = toml::find<std::string>(tomlValue, STRING_TILE_ERROR_NAME);

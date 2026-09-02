@@ -158,6 +158,8 @@ bool glimmer::Config::ReloadConfig() {
         toml::find_or<float>(tomlRef, "lighting", "min_visibility", lighting.minVisibility), 0.0F, 1.0F);
     lighting.tintStrength = std::clamp(
         toml::find_or<float>(tomlRef, "lighting", "tint_strength", lighting.tintStrength), 0.0F, 1.0F);
+    lighting.dayLengthSeconds = std::max(
+        toml::find_or<float>(tomlRef, "lighting", "day_length_seconds", lighting.dayLengthSeconds), 1.0F);
 #if  !defined(NDEBUG)
     debug.displayDebugPanel = toml::find<bool>(tomlRef, "debug", "display_debug_panel");
     debug.displayBox2dShape = toml::find<bool>(tomlRef, "debug", "display_box2d_shape");

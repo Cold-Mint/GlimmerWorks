@@ -55,6 +55,7 @@
 #include "core/console/command/TagCommand.h"
 #include "core/console/command/TechnologyCommand.h"
 #include "core/console/command/TileSnapshotCommand.h"
+#include "core/console/command/TimeCommand.h"
 #include "core/console/command/TpCommand.h"
 #include "core/console/command/UnlockedRecipesCommand.h"
 #include "core/console/command/VFSCommand.h"
@@ -98,6 +99,7 @@ void glimmer::ConsoleContext::RegisterCommands(AppContext *appContext) const {
     commandManager_->RegisterCommand(std::make_unique<InputCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<GuiCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<SeedCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<TimeCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<FlyCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<EchoCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<ScreenshotCommand>(appContext));

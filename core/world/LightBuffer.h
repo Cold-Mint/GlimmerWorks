@@ -60,6 +60,11 @@ namespace glimmer {
          */
         uint64_t revision_ = 0;
 
+        //The highest opaque Ground-layer tile y for each column, used to
+        //derive sky visibility (ambient light only reaches tiles above it).
+        //每列最高的不透明地面层瓦片 y，用于推导天空可见度（环境光只到达其上的瓦片）。
+        std::unordered_map<int, int> columnSkyTopY_;
+
         //Whether batch mode is active (chunk load suppresses per-tile rebuilds).
         //批量模式是否激活（区块加载时抑制逐瓦片重算）。
         bool batching_ = false;
@@ -76,6 +81,8 @@ namespace glimmer {
         void ClearLightContributionAt(const TileVector2D &position, TileLayerType layerType, const LightSource &source);
 
         void RebuildAllLight();
+
+        void RecalculateColumnSkyTopY(int x);
 
     public:
         void SetSideLightMask(TileVector2D position, TileLayerType layerType, std::unique_ptr<LightMask> sideLightMask);
@@ -122,6 +129,14 @@ namespace glimmer {
          * 退出批量模式；若期间发生了 opaque 变化，则统一重算一次。
          */
         void EndBatch();
+
+        /**
+         * GetSkyVisibility
+         * 获取指定瓦片的天空可见度（1 = 露天，0 = 被上方不透明瓦片遮挡）。
+         * 用于决定环境光（天光）是否照射到该瓦片。
+         * @param position position 瓦片世界坐标
+         */
+        [[nodiscard]] float GetSkyVisibility(const TileVector2D &position) const;
 
         /**
          * @return The current revision counter. Any change to the buffered

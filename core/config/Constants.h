@@ -47,6 +47,7 @@ static constexpr std::string PLAYER_FILE_NAME = "player.bin";
 static constexpr std::string HELP_COMMAND_NAME = "help";
 static constexpr std::string LICENSE_COMMAND_NAME = "license";
 static constexpr std::string SEED_COMMAND_NAME = "seed";
+static constexpr std::string TIME_COMMAND_NAME = "time";
 static constexpr std::string SUMMON_COMMAND_NAME = "summon";
 static constexpr std::string CONFIG_COMMAND_NAME = "config";
 static constexpr std::string HEIGHT_MAP_COMMAND_NAME = "heightMap";

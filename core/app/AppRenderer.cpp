@@ -48,6 +48,7 @@
 #include "core/mod/resourcePack/ShaderResourceResult.h"
 #include "core/scene/SceneManager.h"
 #include "core/scene/WorldScene.h"
+#include "core/world/AmbientLight.h"
 #include "core/world/WorldContext.h"
 
 
@@ -547,6 +548,7 @@ void glimmer::AppRenderer::FlushLightingPass(SDL_GPUCommandBuffer *commandBuffer
 
 void glimmer::AppRenderer::UpdateLightMap(const LightBuffer *lightBuffer, const CameraComponent *camera,
                                           const Transform2DComponent *cameraTransform,
+                                          const WorldContext *worldContext,
                                           const Uint32 width, const Uint32 height) {
     if (lightBuffer == nullptr || camera == nullptr || cameraTransform == nullptr) {
         return;
@@ -565,7 +567,9 @@ void glimmer::AppRenderer::UpdateLightMap(const LightBuffer *lightBuffer, const 
     const auto sizeY = static_cast<Uint32>(tileMax.y - tileMin.y + 3);
     const Config *config = appContext_->GetConfig();
     const bool fullBright = config == nullptr || !config->light.enable;
-    lightMapTexture_.Update(device_, lightBuffer, originX, originY, sizeX, sizeY, fullBright);
+    const AmbientLight ambient = ComputeAmbientLight(worldContext != nullptr ? worldContext->GetTimeOfDay() : 12.0F);
+    lightMapTexture_.Update(device_, lightBuffer, fullBright ? nullptr : &ambient,
+                            originX, originY, sizeX, sizeY, fullBright);
 
     const LightingConfig &lighting = config != nullptr ? config->lighting : LightingConfig{};
     lightingParams_[0] = static_cast<float>(originX);
@@ -641,9 +645,10 @@ void glimmer::AppRenderer::RenderFrame(const RmlContext *rmlContext, const int w
     LightBuffer *lightBuffer = nullptr;
     CameraComponent *camera = nullptr;
     Transform2DComponent *cameraTransform = nullptr;
+    WorldContext *worldContext = nullptr;
     if (SceneManager *sceneManager = appContext_->GetSceneManager(); sceneManager != nullptr) {
         if (auto *worldScene = dynamic_cast<WorldScene *>(sceneManager->GetTopScene()); worldScene != nullptr) {
-            WorldContext *worldContext = worldScene->GetWorldContext();
+            worldContext = worldScene->GetWorldContext();
             if (worldContext != nullptr) {
                 lightBuffer = worldContext->GetLightingBuffer();
                 EntityShortCut *entityShortCut = worldContext->GetEntityShortCut();
@@ -654,7 +659,7 @@ void glimmer::AppRenderer::RenderFrame(const RmlContext *rmlContext, const int w
             }
         }
     }
-    UpdateLightMap(lightBuffer, camera, cameraTransform, logicalWidth, logicalHeight);
+    UpdateLightMap(lightBuffer, camera, cameraTransform, worldContext, logicalWidth, logicalHeight);
     lightMapTexture_.Upload(commandBuffer);
 
     // Pass 2: composite the lit scene into the swapchain.

@@ -85,6 +85,9 @@ void glimmer::WorldScene::OnWindowClose() {
 }
 
 void glimmer::WorldScene::Update(const float delta) {
+    if (worldContext_ != nullptr) {
+        worldContext_->AdvanceTime(delta);
+    }
     if (systemScheduler_ != nullptr) {
         systemScheduler_->Update(delta);
     }

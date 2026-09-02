@@ -89,6 +89,9 @@ namespace glimmer {
         std::string lightingInspectorDisable;
         std::string lightingInspectorEnableFail;
         std::string lightingInspectorDisableFail;
+        std::string timeInfo;
+        std::string timeSetSuccess;
+        std::string timeInvalid;
         std::string tileNameAir;
         std::string tileNameAirWall;
         std::string tileNameError;

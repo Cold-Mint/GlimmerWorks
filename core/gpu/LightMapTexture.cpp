@@ -26,10 +26,13 @@
  */
 #include "LightMapTexture.h"
 
+#include <algorithm>
+#include <cmath>
 #include <cstring>
 
 #include "core/log/LogCat.h"
 #include "core/math/TileVector2D.h"
+#include "core/world/AmbientLight.h"
 #include "core/world/LightBuffer.h"
 
 
@@ -66,6 +69,7 @@ void glimmer::LightMapTexture::EnsureTexture(const Uint32 width, const Uint32 he
 }
 
 void glimmer::LightMapTexture::Update(SDL_GPUDevice *device, const LightBuffer *lightBuffer,
+                                      const AmbientLight *ambient,
                                       const int originTileX, const int originTileY,
                                       const Uint32 sizeX, const Uint32 sizeY, const bool fullBright) {
     device_ = device;
@@ -73,8 +77,17 @@ void glimmer::LightMapTexture::Update(SDL_GPUDevice *device, const LightBuffer *
         return;
     }
     const uint64_t revision = lightBuffer != nullptr ? lightBuffer->GetRevision() : 0;
+    const float ambientR = ambient != nullptr ? static_cast<float>(ambient->color.r) / 255.0F : 0.0F;
+    const float ambientG = ambient != nullptr ? static_cast<float>(ambient->color.g) / 255.0F : 0.0F;
+    const float ambientB = ambient != nullptr ? static_cast<float>(ambient->color.b) / 255.0F : 0.0F;
+    //Quantize the continuous intensity so the light map is only rebuilt when
+    //it actually crosses a 1/255 step instead of every frame.
+    //量化连续强度，使光照贴图仅在强度真正跨越 1/255 步长时重建，而非每帧重建。
+    const float ambientA = ambient != nullptr ? std::round(ambient->intensity * 255.0F) / 255.0F : 0.0F;
     if (lastRevision_ == revision && lastOriginX_ == originTileX && lastOriginY_ == originTileY &&
-        lastSizeX_ == sizeX && lastSizeY_ == sizeY && lastFullBright_ == fullBright) {
+        lastSizeX_ == sizeX && lastSizeY_ == sizeY && lastFullBright_ == fullBright &&
+        lastAmbient_[0] == ambientR && lastAmbient_[1] == ambientG && lastAmbient_[2] == ambientB &&
+        lastAmbient_[3] == ambientA) {
         dirty_ = false;
         return;
     }
@@ -88,6 +101,10 @@ void glimmer::LightMapTexture::Update(SDL_GPUDevice *device, const LightBuffer *
     lastSizeX_ = sizeX;
     lastSizeY_ = sizeY;
     lastFullBright_ = fullBright;
+    lastAmbient_[0] = ambientR;
+    lastAmbient_[1] = ambientG;
+    lastAmbient_[2] = ambientB;
+    lastAmbient_[3] = ambientA;
     pixelBuffer_.resize(static_cast<size_t>(sizeX) * static_cast<size_t>(sizeY) * 4);
     for (Uint32 row = 0; row < sizeY; ++row) {
         //Texture row 0 is the top of the screen; world +Y points up, so rows
@@ -104,19 +121,30 @@ void glimmer::LightMapTexture::Update(SDL_GPUDevice *device, const LightBuffer *
                 pixel[3] = 255;
                 continue;
             }
+            const TileVector2D tile(tileX, tileY);
             const Color *light = lightBuffer != nullptr
-                                     ? lightBuffer->GetFinalLightColor(TileVector2D(tileX, tileY))
+                                     ? lightBuffer->GetFinalLightColor(tile)
                                      : nullptr;
-            if (light == nullptr) {
+            const float srcR = light != nullptr ? static_cast<float>(light->r) / 255.0F : 0.0F;
+            const float srcG = light != nullptr ? static_cast<float>(light->g) / 255.0F : 0.0F;
+            const float srcB = light != nullptr ? static_cast<float>(light->b) / 255.0F : 0.0F;
+            const float srcA = light != nullptr ? static_cast<float>(light->a) / 255.0F : 0.0F;
+            const float sky = lightBuffer != nullptr ? lightBuffer->GetSkyVisibility(tile) : 0.0F;
+            const float ambScale = ambientA * sky;
+            const float totalR = srcR * srcA + ambientR * ambScale;
+            const float totalG = srcG * srcA + ambientG * ambScale;
+            const float totalB = srcB * srcA + ambientB * ambScale;
+            const float totalA = std::max(srcA, ambScale);
+            if (totalA <= 0.0F) {
                 pixel[0] = 0;
                 pixel[1] = 0;
                 pixel[2] = 0;
                 pixel[3] = 0;
             } else {
-                pixel[0] = light->r;
-                pixel[1] = light->g;
-                pixel[2] = light->b;
-                pixel[3] = light->a;
+                pixel[0] = static_cast<Uint8>(std::min(255.0F, totalR / totalA * 255.0F));
+                pixel[1] = static_cast<Uint8>(std::min(255.0F, totalG / totalA * 255.0F));
+                pixel[2] = static_cast<Uint8>(std::min(255.0F, totalB / totalA * 255.0F));
+                pixel[3] = static_cast<Uint8>(std::min(255.0F, totalA * 255.0F));
             }
         }
     }

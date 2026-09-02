@@ -161,7 +161,8 @@ namespace glimmer {
          * 根据相机视口（含一格边距）从光照缓冲重建逐瓦片光照贴图纹理。
          */
         void UpdateLightMap(const LightBuffer *lightBuffer, const CameraComponent *camera,
-                            const Transform2DComponent *cameraTransform, Uint32 width, Uint32 height);
+                            const Transform2DComponent *cameraTransform, const WorldContext *worldContext,
+                            Uint32 width, Uint32 height);
 
     public:
         explicit AppRenderer(AppContext *appContext);

@@ -129,6 +129,11 @@ namespace glimmer {
          * 光色染色强度（0..1）：0 = 中性灰光照，1 = 完整色相过滤。
          */
         float tintStrength = 0.6F;
+        /**
+         * Real-world duration of a full in-game day, in seconds.
+         * 一整天对应的现实时长（秒）。
+         */
+        float dayLengthSeconds = 600.0F;
     };
 
     struct Console {

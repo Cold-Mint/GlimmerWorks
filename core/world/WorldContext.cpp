@@ -26,6 +26,7 @@
  */
 #include "WorldContext.h"
 
+#include <cmath>
 #include <ranges>
 
 #include "ChunkManager.h"
@@ -112,6 +113,31 @@ b2WorldId glimmer::WorldContext::GetWorldId() const {
 
 int glimmer::WorldContext::GetWorldSeed() const {
     return worldSeed_;
+}
+
+float glimmer::WorldContext::GetTimeOfDay() const {
+    return timeOfDay_;
+}
+
+void glimmer::WorldContext::SetTimeOfDay(const float hour) {
+    timeOfDay_ = std::fmod(hour, 24.0F);
+    if (timeOfDay_ < 0.0F) {
+        timeOfDay_ += 24.0F;
+    }
+}
+
+void glimmer::WorldContext::AdvanceTime(const float delta) {
+    if (!running || dayLengthSeconds_ <= 0.0F) {
+        return;
+    }
+    timeOfDay_ += delta * (24.0F / dayLengthSeconds_);
+    if (timeOfDay_ >= 24.0F) {
+        timeOfDay_ = std::fmod(timeOfDay_, 24.0F);
+    }
+}
+
+float glimmer::WorldContext::GetDayLengthSeconds() const {
+    return dayLengthSeconds_;
 }
 
 bool glimmer::WorldContext::IsEmptyEntityId(const uint32_t id) {
@@ -267,6 +293,9 @@ glimmer::WorldContext::WorldContext(AppContext *appContext, MapManifest *mapMani
     auto *commandManager = appContext->GetConsoleContext()->GetCommandManager();
     commandManager->BindWorldContext(this);
     commandManager->SetAllowCheats(mapManifest->allowCheats);
+    if (const Config *config = appContext->GetConfig(); config != nullptr) {
+        dayLengthSeconds_ = config->lighting.dayLengthSeconds;
+    }
     startTime_ = TimeUtils::GetCurrentTimeMs();
 
     auto pause = entityManager_->AddEntity();

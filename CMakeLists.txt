@@ -497,6 +497,7 @@ target_sources(GlimmerWorks
         core/console/command/LocateCommand.cpp
         core/console/command/LootCommand.cpp
         core/console/command/PackVerifyCommand.cpp
+        core/console/command/TimeCommand.cpp
         core/console/command/ParallaxBackgroundCommand.cpp
         core/console/command/PlaceCommand.cpp
         core/console/command/PlayCommand.cpp
@@ -737,6 +738,7 @@ target_sources(GlimmerWorks
         core/rmi/dataModel/ItemSlotDataModel.cpp
         core/world/ChunkTask.cpp
         core/world/ChunkType.cpp
+        core/world/AmbientLight.cpp
         core/world/LightBuffer.cpp
         core/world/LightContribution.cpp
         core/world/LightFloodFill.cpp
@@ -900,6 +902,7 @@ target_sources(GlimmerWorks
         core/console/command/LocateCommand.h
         core/console/command/LootCommand.h
         core/console/command/PackVerifyCommand.h
+        core/console/command/TimeCommand.h
         core/console/command/ParallaxBackgroundCommand.h
         core/console/command/PlaceCommand.h
         core/console/command/PlayCommand.h
@@ -1148,6 +1151,7 @@ target_sources(GlimmerWorks
         core/world/ChunkManager.h
         core/world/ChunkTask.h
         core/world/ChunkType.h
+        core/world/AmbientLight.h
         core/world/LightBuffer.h
         core/world/LightContribution.h
         core/world/LightFloodFill.h

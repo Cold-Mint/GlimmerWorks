@@ -89,6 +89,18 @@ namespace glimmer {
          */
         bool running = true;
 
+        /**
+         * Current time of day in hours (0..24). Used to drive the day/night cycle.
+         * 当前时间（小时，0..24）。用于驱动昼夜循环。
+         */
+        float timeOfDay_ = 12.0F;
+
+        /**
+         * Real-world duration of a full in-game day, in seconds.
+         * 一整天对应的现实时长（秒）。
+         */
+        float dayLengthSeconds_ = 600.0F;
+
         long startTime_ = 0;
         std::unique_ptr<ChunkManager> chunkManager_;
         std::unique_ptr<TerrainManager> terrainManager_;
@@ -114,6 +126,32 @@ namespace glimmer {
         [[nodiscard]] b2WorldId GetWorldId() const;
 
         [[nodiscard]] int GetWorldSeed() const;
+
+        /**
+         * GetTimeOfDay
+         * 获取当前时间（小时，0..24）。
+         */
+        [[nodiscard]] float GetTimeOfDay() const;
+
+        /**
+         * SetTimeOfDay
+         * 设置当前时间（小时，0..24），自动环绕到 [0,24)。
+         * @param hour hour 小时
+         */
+        void SetTimeOfDay(float hour);
+
+        /**
+         * AdvanceTime
+         * 推进时间（暂停时不流逝）。
+         * @param delta delta 上一帧耗时（秒）
+         */
+        void AdvanceTime(float delta);
+
+        /**
+         * GetDayLengthSeconds
+         * 获取一天对应的现实时长（秒）。
+         */
+        [[nodiscard]] float GetDayLengthSeconds() const;
 
         [[nodiscard]] ChunkGenerator *GetChunkGenerator() const;
 

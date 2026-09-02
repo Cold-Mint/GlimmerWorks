@@ -32,6 +32,7 @@
 
 namespace glimmer {
     class LightBuffer;
+    struct AmbientLight;
 
     /**
      * LightMapTexture
@@ -57,6 +58,7 @@ namespace glimmer {
         Uint32 lastSizeX_ = 0;
         Uint32 lastSizeY_ = 0;
         bool lastFullBright_ = false;
+        float lastAmbient_[4] = {0.0F, 0.0F, 0.0F, 0.0F};
         bool dirty_ = false;
 
         void EnsureTexture(Uint32 width, Uint32 height);
@@ -68,15 +70,16 @@ namespace glimmer {
 
         /**
          * Update
-         * 从光照缓冲读取指定瓦片范围的光照并上传到纹理。
+         * 从光照缓冲读取指定瓦片范围的光照（含环境光/天光）并上传到纹理。
          * @param device device GPU 设备
          * @param lightBuffer lightBuffer 光照缓冲
+         * @param ambient ambient 环境光（可为 nullptr，表示无环境光）
          * @param originTileX originTileX 覆盖范围的左下角瓦片 X（最小 X）
          * @param originTileY originTileY 覆盖范围的左下角瓦片 Y（最小 Y）
          * @param sizeX sizeX 覆盖的瓦片列数
          * @param sizeY sizeY 覆盖的瓦片行数
          */
-        void Update(SDL_GPUDevice *device, const LightBuffer *lightBuffer,
+        void Update(SDL_GPUDevice *device, const LightBuffer *lightBuffer, const AmbientLight *ambient,
                     int originTileX, int originTileY, Uint32 sizeX, Uint32 sizeY,
                     bool fullBright = false);
 

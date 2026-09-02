@@ -189,6 +189,7 @@ void glimmer::LightBuffer::ClearTileLightData(const TileVector2D &position) {
     if (it == tileLightData_.end()) {
         return;
     }
+    bool wasGroundOpaque = false;
     if (it->second != nullptr) {
         const auto *lightSources = it->second->GetLightSources();
         std::vector<TileLayerType> layerTypesToClear;
@@ -201,8 +202,15 @@ void glimmer::LightBuffer::ClearTileLightData(const TileVector2D &position) {
         for (const auto layerType: layerTypesToClear) {
             ClearLightSource(position, layerType);
         }
+        wasGroundOpaque = it->second->IsOpaque(TileLayerType::Ground);
     }
     tileLightData_.erase(position);
+    if (wasGroundOpaque) {
+        const auto skyIt = columnSkyTopY_.find(position.x);
+        if (skyIt != columnSkyTopY_.end() && skyIt->second == position.y) {
+            RecalculateColumnSkyTopY(position.x);
+        }
+    }
     ++revision_;
 }
 
@@ -247,6 +255,27 @@ const glimmer::Color *glimmer::LightBuffer::GetFinalLightColor(const TileVector2
     return it->second->GetFinalLightColor();
 }
 
+float glimmer::LightBuffer::GetSkyVisibility(const TileVector2D &position) const {
+    const auto it = columnSkyTopY_.find(position.x);
+    const int topY = it != columnSkyTopY_.end() ? it->second : (WORLD_MIN_Y - 1);
+    //The topmost opaque tile itself still faces the sky, so it is lit by
+    //ambient light; only tiles strictly below it are underground.
+    //最顶部的不透明瓦片本身仍朝向天空，会被环境光照亮；只有严格位于其下的瓦片才属于地下。
+    return position.y >= topY ? 1.0F : 0.0F;
+}
+
+void glimmer::LightBuffer::RecalculateColumnSkyTopY(const int x) {
+    for (int y = WORLD_MAX_Y - 1; y >= WORLD_MIN_Y; --y) {
+        const auto it = tileLightData_.find(TileVector2D(x, y));
+        if (it != tileLightData_.end() && it->second != nullptr &&
+            it->second->IsOpaque(TileLayerType::Ground)) {
+            columnSkyTopY_[x] = y;
+            return;
+        }
+    }
+    columnSkyTopY_[x] = WORLD_MIN_Y - 1;
+}
+
 void glimmer::LightBuffer::SetTileOpaque(const TileVector2D position, const TileLayerType layerType,
                                          const bool opaque) {
     bool changed = false;
@@ -268,6 +297,17 @@ void glimmer::LightBuffer::SetTileOpaque(const TileVector2D position, const Tile
     }
     if (!changed) {
         return;
+    }
+    if (layerType == TileLayerType::Ground) {
+        const auto it = columnSkyTopY_.find(position.x);
+        const int currentTop = it != columnSkyTopY_.end() ? it->second : (WORLD_MIN_Y - 1);
+        if (opaque) {
+            if (position.y > currentTop) {
+                columnSkyTopY_[position.x] = position.y;
+            }
+        } else if (position.y == currentTop) {
+            RecalculateColumnSkyTopY(position.x);
+        }
     }
     if (batching_) {
         batchDirty_ = true;

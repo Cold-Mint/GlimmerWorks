@@ -173,6 +173,9 @@ min_visibility = 0.05
 # Light hue tint strength (0..1): 0 = neutral gray lighting, 1 = full hue filtering.
 # 光色染色强度（0..1）：0 = 中性灰光照，1 = 完整色相过滤。
 tint_strength = 0.6
+# Real-world duration of a full in-game day, in seconds.
+# 一整天对应的现实时长（秒）。
+day_length_seconds = 600.0
 
 [command]
 # Number of chunks traversed in the positive/negative X direction when using the `locate biome` command.

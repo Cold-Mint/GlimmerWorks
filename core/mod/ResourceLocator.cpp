@@ -34,6 +34,7 @@
 #include "core/inventory/TileItem.h"
 #include "core/log/LogCat.h"
 #include "core/utils/RandomUtils.h"
+#include "core/utils/StringUtils.h"
 #include "core/world/WorldContext.h"
 #include "core/world/TileInstancePool.h"
 #include "dataPack/StringManager.h"
@@ -54,7 +55,8 @@ bool glimmer::ResourceLocator::ValidateAccessPermission(const ResourceRef *resou
         return false;
     }
     return dataPackManager_->IsDependencySatisfied(
-        resourceRef->GetSelfPackageId(), resourceRef->GetPackageId());
+        StringUtils::StringToUint64(resourceRef->GetSelfPackageId()),
+        StringUtils::StringToUint64(resourceRef->GetPackageId()));
 }
 
 glimmer::ResourceLocator::ResourceLocator(AppContext *appContext) : appContext_(appContext) {

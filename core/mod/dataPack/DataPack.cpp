@@ -516,6 +516,9 @@ bool glimmer::DataPack::LoadManifest() {
     manifest_ = toml::get<DataPackManifest>(value);
     manifest_.name.SetSelfPackageId(manifest_.id);
     manifest_.description.SetSelfPackageId(manifest_.id);
+    for (auto &packDependency: manifest_.packDependencies) {
+        packDependency.packIdUint = StringUtils::StringToUint64(packDependency.packId);
+    }
     return true;
 }
 
@@ -816,7 +819,6 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) {
     return total != 0;
 }
 
-
-const glimmer::DataPackManifest &glimmer::DataPack::GetManifest() const {
-    return manifest_;
+const glimmer::DataPackManifest *glimmer::DataPack::GetManifest() const {
+    return &manifest_;
 }

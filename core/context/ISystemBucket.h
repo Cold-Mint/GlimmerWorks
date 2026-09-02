@@ -120,7 +120,7 @@ namespace glimmer {
 
         [[nodiscard]] virtual toml::value *GetLangsValue() const = 0;
 
-        [[nodiscard]] virtual const toml::spec *GetTomlVersion() const = 0;
+        [[nodiscard]] virtual toml::spec *GetTomlVersion() = 0;
 
         virtual void SetLanguage(const std::string &language) = 0;
 

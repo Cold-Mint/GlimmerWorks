@@ -64,7 +64,7 @@ void glimmer::ModContext::Init(VirtualFileSystem *vfs, const LangsResources *lan
     tomlTemplateExpander_->Register(std::make_unique<UnSetTemplateCommand>());
 
     LogCat::d("Creating DataPackManager");
-    dataPackManager_ = std::make_unique<DataPackManager>(vfs, tomlTemplateExpander_.get());
+    dataPackManager_ = std::make_unique<DataPackManager>();
 
     LogCat::d("Creating StringManager and loading language strings");
     stringManager_ = std::make_unique<StringManager>();

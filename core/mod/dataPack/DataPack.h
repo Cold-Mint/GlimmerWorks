@@ -37,7 +37,6 @@
 #include "RecipeManager.h"
 #include "StructureRegistry.h"
 #include "core/context/GraphicsContext.h"
-#include "core/context/ModContext.h"
 #include "core/mod/PackManifest.h"
 #include "core/vfs/VirtualFileSystem.h"
 #include "core/contributor/ContributorManager.h"
@@ -48,6 +47,7 @@
 #include "core/shape/ShapeManager.h"
 #include "core/shape/ShapeType.h"
 #include "core/utils/IUniqueAble.h"
+#include "core/world/structure/StructureConditionProcessorType.h"
 #include "core/world/structure/StructureGeneratorType.h"
 #include "toml11/spec.hpp"
 #include "toml11/types.hpp"
@@ -56,6 +56,12 @@ namespace glimmer {
     struct SpecialFileProcessingParams;
     class TileResourceManager;
     class StringManager;
+    class ModContext;
+    class AppContext;
+    class ComposableItemRegistry;
+    class AbilityItemRegistry;
+    class MaterialItemRegistry;
+    class StructurePlacementConditionsRegistry;
 
     class DataPack : public IUniqueAble {
         std::filesystem::path rootPath_;
@@ -192,6 +198,6 @@ namespace glimmer {
 
         [[nodiscard]] bool LoadPack(AppContext *appContext);
 
-        [[nodiscard]] const DataPackManifest &GetManifest() const;
+        [[nodiscard]] const DataPackManifest *GetManifest() const;
     };
 }

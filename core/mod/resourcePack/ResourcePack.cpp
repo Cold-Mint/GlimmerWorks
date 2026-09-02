@@ -51,9 +51,10 @@ bool glimmer::ResourcePack::LoadManifest() {
     return true;
 }
 
-const glimmer::ResourcePackManifest &glimmer::ResourcePack::GetManifest() const {
-    return manifest_;
+const glimmer::ResourcePackManifest *glimmer::ResourcePack::GetManifest() const {
+    return &manifest_;
 }
+
 
 uint64_t glimmer::ResourcePack::GetUniqueId() const {
     return StringUtils::StringToUint64(manifest_.id);

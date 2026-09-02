@@ -25,13 +25,20 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <algorithm>
+#include <filesystem>
 #include <vector>
 
 #include "PackScanRequest.h"
-#include "core/context/AppContext.h"
+#include "core/log/LogCat.h"
+#include "core/mod/PackManifest.h"
 #include "resourcePack/BaseManager.h"
 
 namespace glimmer {
+    class AppContext;
+    class Config;
+    class VirtualFileSystem;
+
     template<typename ResourceType>
     class BasePackManager : public BaseManager<ResourceType> {
         std::vector<ResourceType *> resourceVector_;
@@ -40,6 +47,50 @@ namespace glimmer {
         void AfterRegister(ResourceType *resource) override;
 
         void BeforeUnRegister(ResourceType *resource) override;
+
+        /**
+         * GetEnabledPack
+         * 获取所有的启用包
+         * @param config
+         * @return
+         */
+        virtual std::vector<uint64_t> *GetEnabledPack(Config *config) const = 0;
+
+        /**
+         * Obtain the path for package loading
+         * 获取包加载的路径
+         * @param config
+         * @return
+         */
+        virtual std::filesystem::path GetPackPath(Config *config) const = 0;
+
+        /**
+        * Load a certain package
+        * 加载某个包
+        * @param packScanRequest
+        * @param path
+        * @return
+        */
+        virtual std::unique_ptr<ResourceType> LoadPack(const PackScanRequest *packScanRequest,
+                                                       std::filesystem::path path) = 0;
+
+        /**
+        * Is the package included in the enabled list?
+        * 包是否处于启用列表内。
+        * @param uuid
+        * @param enabledPack
+        * @return
+        */
+        static bool IsPackEnabled(const uint64_t &uuid,
+                                  std::vector<uint64_t> *enabledPack);
+
+        /**
+         * Check if the bag is usable
+         * 检查包是否可用
+         * @param packManifest
+         * @return
+         */
+        [[nodiscard]] static bool IsPackAvailable(const PackManifest *packManifest);
 
     public:
         /**
@@ -50,8 +101,6 @@ namespace glimmer {
         const std::vector<ResourceType *> *List() const;
 
         int Scan(const PackScanRequest *packScanRequest);
-
-        virtual std::filesystem::path GetPackPath(Config *config) const = 0;
     };
 
     template<typename ResourceType>
@@ -61,7 +110,7 @@ namespace glimmer {
 
     template<typename ResourceType>
     void BasePackManager<ResourceType>::BeforeUnRegister(ResourceType *resource) {
-        auto it = std::find(resourceVector_.begin(), resourceVector_.end(), resource);
+        auto it = std::ranges::find(resourceVector_, resource);
         if (it != resourceVector_.end()) {
             resourceVector_.erase(it);
         }
@@ -73,53 +122,12 @@ namespace glimmer {
     }
 
     template<typename ResourceType>
-    int BasePackManager<ResourceType>::Scan(const PackScanRequest *packScanRequest) {
-        AppContext *appContext = packScanRequest->GetAppContext();
-        if (appContext == nullptr) {
-            LogCat::w(std::source_location::current(), "appContext is nullptr");
-            return 0;
-        }
-        VirtualFileSystem *virtualFileSystem = appContext->GetVirtualFileSystem();
-        if (virtualFileSystem == nullptr) {
-            LogCat::e(std::source_location::current(), "virtualFileSystem_ is nullptr");
-            return 0;
-        }
-        const Config *config = appContext->GetConfig();
-        if (config == nullptr) {
-            LogCat::e(std::source_location::current(), "config is nullptr");
-            return 0;
-        }
-        const std::filesystem::path &packPath = GetPackPath(config);
-        if (!virtualFileSystem->Exists(packPath)) {
-            LogCat::w(std::source_location::current(), "Data pack path does not exist: ", packPath.string());
-            return 0;
-        }
-        int success = 0;
-        for (const std::vector<std::filesystem::path> files = virtualFileSystem->ListFile(packPath, false); const
-             auto&entry: files) {
-            if (!virtualFileSystem->IsFile(entry)) {
-                DataPack pack(entry, virtualFileSystem_, tomlTemplateExpander_, tomlVersion);
-                if (!pack.LoadManifest()) {
-                    LogCat::w(std::source_location::current(), "Failed to load manifest for data pack: ",
-                              entry.string());
-                    continue;
-                }
-                if (!IsDataPackEnabled(pack, appContext->GetConfig()->mods.enabledDataPack)) {
-                    continue;
-                }
-                if (!IsDataPackAvailable(pack)) {
-                    continue;
-                }
-                if (pack.LoadPack(appContext)) {
-                    LogCat::i("Loaded data pack: ", pack.GetManifest().id);
-                    success++;
-                    packVerifyStateMap_[pack.GetManifest().id] = pack.GetPackVerifyState();
-                    packManifestVector_.push_back(pack.GetManifest());
-                } else {
-                    LogCat::w(std::source_location::current(), "Failed to load data pack: ", pack.GetManifest().id);
-                }
-            }
-        }
-        return success;
+    bool BasePackManager<ResourceType>::IsPackEnabled(const uint64_t &uuid, std::vector<uint64_t> *enabledPack) {
+        return std::ranges::find(*enabledPack, uuid) != enabledPack->end();
+    }
+
+    template<typename ResourceType>
+    bool BasePackManager<ResourceType>::IsPackAvailable(const PackManifest *packManifest) {
+        return packManifest->minGameVersion > GAME_VERSION_NUMBER;
     }
 }

@@ -28,6 +28,7 @@
 
 #include "core/mod/PackVerifyState.h"
 #include "core/context/AppContext.h"
+#include "core/utils/StringUtils.h"
 #include "fmt/xchar.h"
 
 void glimmer::PackVerifyCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
@@ -77,12 +78,13 @@ bool glimmer::PackVerifyCommand::Execute(const CommandSender *commandSender, con
         return false;
     }
     std::string packId = commandArgs->AsString(1);
-    if (!dataPackManager->Contains(packId)) {
+    uint64_t packIdUint64 = StringUtils::StringToUint64(packId);
+    if (!dataPackManager->Contains(packIdUint64)) {
         onMessageRef(langsResources->dataPackageCannotBeFound);
         return false;
     }
     using enum PackVerifyState;
-    switch (dataPackManager->GetPackVerifyState(packId)) {
+    switch (dataPackManager->GetPackVerifyState(packIdUint64)) {
         case Unsigned:
             onMessageRef(langsResources->unsignedPackage);
             break;

@@ -131,7 +131,7 @@ namespace glimmer {
 
         [[nodiscard]] toml::value *GetLangsValue() const override;
 
-        [[nodiscard]] const toml::spec *GetTomlVersion() const override;
+        [[nodiscard]] toml::spec * GetTomlVersion() override;
 
         void SetLanguage(const std::string &language) override;
 

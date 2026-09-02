@@ -25,3 +25,31 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "ResourcePackManager.h"
+
+#include "core/config/Config.h"
+#include "core/context/AppContext.h"
+
+std::vector<uint64_t> *glimmer::ResourcePackManager::GetEnabledPack(Config *config) const {
+    return &config->mods.enabledResourcePack;
+}
+
+std::filesystem::path glimmer::ResourcePackManager::GetPackPath(Config *config) const {
+    return config->mods.resourcePackPath;
+}
+
+std::unique_ptr<glimmer::ResourcePack> glimmer::ResourcePackManager::LoadPack(const PackScanRequest *packScanRequest,
+                                                                              std::filesystem::path path) {
+    AppContext *appContext = packScanRequest->GetAppContext();
+    if (appContext == nullptr) {
+        return nullptr;
+    }
+    VirtualFileSystem *virtualFileSystem = appContext->GetVirtualFileSystem();
+    if (virtualFileSystem == nullptr) {
+        return nullptr;
+    }
+    auto resourcePack = std::make_unique<ResourcePack>(path, virtualFileSystem, *packScanRequest->GetTomlVersion());
+    if (!resourcePack->LoadManifest()) {
+        return nullptr;
+    }
+    return resourcePack;
+}

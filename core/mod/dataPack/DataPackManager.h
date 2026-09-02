@@ -30,7 +30,28 @@
 #include "core/mod/BasePackManager.h"
 
 namespace glimmer {
-    class DataPackManager: public BasePackManager<DataPack> {
+    class DataPackManager : public BasePackManager<DataPack> {
+        std::vector<std::string> packIdVector;
 
+    protected:
+        void AfterRegister(DataPack *resource) override;
+
+        void BeforeUnRegister(DataPack *resource) override;
+
+        std::unique_ptr<DataPack> LoadPack(const PackScanRequest *packScanRequest, std::filesystem::path path) override;
+
+        std::filesystem::path GetPackPath(Config *config) const override;
+
+        std::vector<uint64_t> *GetEnabledPack(Config *config) const override;
+
+        static bool CheckDependencyVersion(const std::vector<PackDependence> &dependencies,
+                                    uint64_t packId2, uint32_t version);
+
+    public:
+        const std::vector<std::string> &GetPackIdVector() const;
+
+        PackVerifyState GetPackVerifyState(uint64_t id);
+
+        bool IsDependencySatisfied(uint64_t packId1, uint64_t packId2);
     };
 }

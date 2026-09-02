@@ -34,10 +34,7 @@
 #include "core/utils/LangsResources.h"
 #include "core/config/Config.h"
 #include "core/saves/SavesManager.h"
-#include "core/mod/ResourceLocator.h"
-#include "core/mod/resourcePack/ResourcePackManager.h"
 #include "core/vfs/VirtualFileSystem.h"
-#include "ModContext.h"
 #include "ConsoleContext.h"
 #include "GraphicsContext.h"
 #include "AudioContext.h"
@@ -130,3 +127,8 @@ namespace glimmer {
         // bool ProcessPendingScreenshot(const GpuContext *gpuContext, GpuRenderer *renderer);
     };
 }
+
+#include "core/mod/ResourceLocator.h"
+#include "core/mod/resourcePack/ResourcePackManager.h"
+#include "ModContext.h"
+#include "core/mod/BasePackManager.inl"

@@ -45,7 +45,7 @@ namespace glimmer {
 
         bool LoadManifest();
 
-        [[nodiscard]] const ResourcePackManifest &GetManifest() const;
+        [[nodiscard]] const ResourcePackManifest *GetManifest() const;
 
         [[nodiscard]] uint64_t GetUniqueId() const override;
 

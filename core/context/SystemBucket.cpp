@@ -220,7 +220,7 @@ toml::value *glimmer::SystemBucket::GetLangsValue() const {
     return langsValue;
 }
 
-const toml::spec *glimmer::SystemBucket::GetTomlVersion() const {
+toml::spec *glimmer::SystemBucket::GetTomlVersion() {
     return &tomlVersion_;
 }
 

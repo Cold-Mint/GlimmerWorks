@@ -28,6 +28,8 @@
 #include <string>
 #include <cstdint>
 
+#include "core/utils/StringUtils.h"
+
 
 /**
  * DesignDimension
@@ -132,6 +134,7 @@ static const std::string BIOME_SCORE_INSPECTOR_ID = "288937ef-4627-46cf-89b9-187
 static constexpr std::string DEV_NAME_COLO_MINT = "Cold-Mint";
 static constexpr std::string RESOURCE_REF_SELF = "@self";
 static constexpr std::string RESOURCE_REF_CORE = "@core";
+static uint64_t RESOURCE_REF_CORE_ID = glimmer::StringUtils::StringToUint64(RESOURCE_REF_CORE);
 static constexpr std::uint32_t CORE_DATA_PACK_VERSION_NUMBER = 1;
 static constexpr std::string DEBUG_FOLDER_NAME = "debug";
 static constexpr std::string DATA_FILE_TYPE_STRINGS = "strings";

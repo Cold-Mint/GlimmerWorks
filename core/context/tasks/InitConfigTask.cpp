@@ -32,11 +32,6 @@
 #include "toml11/parser.hpp"
 
 bool glimmer::InitConfigTask::Run(ISystemBucket *systemBucket) {
-    const toml::spec *tomlVersion = systemBucket->GetTomlVersion();
-    if (tomlVersion == nullptr) {
-        LogCat::e(std::source_location::current(), "tomlVersion is nullptr");
-        return false;
-    }
     const VirtualFileSystem *virtualFileSystem = systemBucket->GetVirtualFileSystem();
     if (virtualFileSystem == nullptr) {
         LogCat::e(std::source_location::current(), "virtualFileSystem is nullptr");
@@ -49,7 +44,7 @@ bool glimmer::InitConfigTask::Run(ISystemBucket *systemBucket) {
     }
     auto config = std::make_unique<Config>();
     config->SetConfigValue(
-        std::make_unique<toml::value>(toml::parse_str(configData.value(), *tomlVersion)));
+        std::make_unique<toml::value>(toml::parse_str(configData.value(), TOML_VERSION)));
     config->ReloadConfig();
     systemBucket->SetConfig(std::move(config));
     return true;

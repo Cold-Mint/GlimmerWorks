@@ -47,7 +47,7 @@ std::unique_ptr<glimmer::ResourcePack> glimmer::ResourcePackManager::LoadPack(co
     if (virtualFileSystem == nullptr) {
         return nullptr;
     }
-    auto resourcePack = std::make_unique<ResourcePack>(path, virtualFileSystem, *packScanRequest->GetTomlVersion());
+    auto resourcePack = std::make_unique<ResourcePack>(path, virtualFileSystem, TOML_VERSION);
     if (!resourcePack->LoadManifest()) {
         return nullptr;
     }

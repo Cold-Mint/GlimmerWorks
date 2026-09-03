@@ -71,8 +71,6 @@ namespace glimmer {
 
         [[nodiscard]] WindowContext *GetWindowContext() const;
 
-        [[nodiscard]] const toml::spec *GetTomlVersion() const;
-
         void SetRandomSlogan() const;
 
 

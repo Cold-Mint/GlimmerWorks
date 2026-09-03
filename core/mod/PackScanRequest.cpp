@@ -33,11 +33,3 @@ void glimmer::PackScanRequest::SetAppContext(AppContext *appContext) {
 glimmer::AppContext *glimmer::PackScanRequest::GetAppContext() const {
     return appContext_;
 }
-
-void glimmer::PackScanRequest::SetTomlVersion(toml::spec *tomlVersion) {
-    tomlVersion_ = tomlVersion;
-}
-
-toml::spec *glimmer::PackScanRequest::GetTomlVersion() const {
-    return tomlVersion_;
-}

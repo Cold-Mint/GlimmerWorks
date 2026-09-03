@@ -26,24 +26,15 @@
  */
 #pragma once
 
-namespace toml {
-    struct spec;
-}
-
 namespace glimmer {
     class AppContext;
 
     class PackScanRequest {
         AppContext *appContext_ = nullptr;
-        toml::spec *tomlVersion_ = nullptr;
 
     public:
         void SetAppContext(AppContext *appContext);
 
         [[nodiscard]] AppContext *GetAppContext() const;
-
-        void SetTomlVersion(toml::spec *tomlVersion);
-
-        [[nodiscard]] toml::spec *GetTomlVersion() const;
     };
 }

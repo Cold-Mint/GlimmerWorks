@@ -101,10 +101,6 @@ bool glimmer::AppContext::InitSystem() {
     return false;
 }
 
-const toml::spec *glimmer::AppContext::GetTomlVersion() const {
-    return systemBucket_->GetTomlVersion();
-}
-
 glimmer::WindowContext *glimmer::AppContext::GetWindowContext() const {
     return systemBucket_->GetWindowContext();
 }

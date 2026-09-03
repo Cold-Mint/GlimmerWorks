@@ -26,9 +26,9 @@
  */
 #pragma once
 #include <string>
-#include <cstdint>
 
 #include "core/utils/StringUtils.h"
+#include "toml11/spec.hpp"
 
 
 /**
@@ -115,6 +115,7 @@ static constexpr std::string COMMAND_HOOK_ID_SUGGESTION_NAME = "&hook_id";
 static constexpr std::string SCAN_KEY_DYNAMIC_SUGGESTIONS_NAME = "&scan_key";
 static constexpr std::string EVENT_TYPE_DYNAMIC_SUGGESTIONS_NAME = "&event_type";
 static constexpr std::string MOUSE_BUTTON_DYNAMIC_SUGGESTIONS_NAME = "&mouse_button";
+static constexpr toml::spec TOML_VERSION = toml::spec::v(1, 1, 0);
 
 static constexpr std::string ABILITY_ID_NONE = "none";
 static constexpr std::string ABILITY_ID_MINING = "mining";
@@ -136,7 +137,7 @@ static constexpr std::string DEV_NAME_COLO_MINT = "Cold-Mint";
 static constexpr std::string RESOURCE_REF_SELF = "@self";
 static constexpr std::string RESOURCE_REF_CORE = "@core";
 static uint64_t RESOURCE_REF_CORE_ID = glimmer::StringUtils::StringToUint64(RESOURCE_REF_CORE);
-static constexpr std::uint32_t CORE_DATA_PACK_VERSION_NUMBER = 1;
+static constexpr uint32_t CORE_DATA_PACK_VERSION_NUMBER = 1;
 static constexpr std::string DEBUG_FOLDER_NAME = "debug";
 static constexpr std::string DATA_FILE_TYPE_STRINGS = "strings";
 static constexpr std::string DATA_FILE_TYPE_TILE = "tile";

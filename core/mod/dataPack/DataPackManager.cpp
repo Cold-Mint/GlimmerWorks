@@ -57,7 +57,7 @@ std::unique_ptr<glimmer::DataPack> glimmer::DataPackManager::LoadPack(const Pack
     }
 
     auto dataPack = std::make_unique<DataPack>(path, virtualFileSystem, modContext->GetTomlTemplateExpander(),
-                                               *packScanRequest->GetTomlVersion());
+                                               TOML_VERSION);
     if (!dataPack->LoadManifest()) {
         LogCat::w(std::source_location::current(), "Failed to load manifest for data pack");
         return nullptr;

@@ -35,7 +35,6 @@
 #include "core/mod/Resource.h"
 #include "core/mod/dataPack/PackDependence.h"
 #include "core/mod/resourcePack/ResourcePackConfig.h"
-
 namespace toml {
     template<>
     struct from<glimmer::ResourceRef> {

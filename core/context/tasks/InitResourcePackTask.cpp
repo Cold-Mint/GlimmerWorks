@@ -36,11 +36,6 @@ glimmer::InitResourcePackTask::InitResourcePackTask(AppContext *appContext) {
 }
 
 bool glimmer::InitResourcePackTask::Run(ISystemBucket *systemBucket) {
-    toml::spec *tomlVersion = systemBucket->GetTomlVersion();
-    if (tomlVersion == nullptr) {
-        LogCat::e(std::source_location::current(), "tomlVersion is nullptr");
-        return false;
-    }
     VirtualFileSystem *virtualFileSystem = systemBucket->GetVirtualFileSystem();
     if (virtualFileSystem == nullptr) {
         LogCat::e(std::source_location::current(), "virtualFileSystem is nullptr");
@@ -54,7 +49,6 @@ bool glimmer::InitResourcePackTask::Run(ISystemBucket *systemBucket) {
     auto resourcePackManager = std::make_unique<ResourcePackManager>();
     PackScanRequest packScanRequest;
     packScanRequest.SetAppContext(appContext_);
-    packScanRequest.SetTomlVersion(tomlVersion);
     if (resourcePackManager->Scan(&packScanRequest) == 0) {
         LogCat::e(std::source_location::current(), "The resource package cannot be found.");
         return false;

@@ -220,10 +220,6 @@ toml::value *glimmer::SystemBucket::GetLangsValue() const {
     return langsValue;
 }
 
-toml::spec *glimmer::SystemBucket::GetTomlVersion() {
-    return &tomlVersion_;
-}
-
 void glimmer::SystemBucket::SetLanguage(const std::string &language) {
     language_ = language;
 }

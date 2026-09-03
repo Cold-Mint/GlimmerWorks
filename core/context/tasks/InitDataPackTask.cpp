@@ -35,11 +35,6 @@ glimmer::InitDataPackTask::InitDataPackTask(AppContext *appContext) : appContext
 }
 
 bool glimmer::InitDataPackTask::Run(ISystemBucket *systemBucket) {
-    toml::spec *tomlVersion = systemBucket->GetTomlVersion();
-    if (tomlVersion == nullptr) {
-        LogCat::e(std::source_location::current(), "tomlVersion is nullptr");
-        return false;
-    }
     const ModContext *modContext = systemBucket->GetModContext();
     if (modContext == nullptr) {
         LogCat::e(std::source_location::current(), "modContext is nullptr");
@@ -52,7 +47,6 @@ bool glimmer::InitDataPackTask::Run(ISystemBucket *systemBucket) {
     }
     PackScanRequest packScanRequest;
     packScanRequest.SetAppContext(appContext_);
-    packScanRequest.SetTomlVersion(tomlVersion);
     if (dataPackManager->Scan(&packScanRequest) == 0) {
         LogCat::e(std::source_location::current(), "The data package cannot be found.");
         return false;

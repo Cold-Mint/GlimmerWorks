@@ -46,7 +46,6 @@
 namespace glimmer {
     class SystemBucket : public ISystemBucket {
         std::string language_ = LanguageUtils::getLanguage();
-        toml::spec tomlVersion_ = toml::spec::v(1, 1, 0);
         std::unique_ptr<WindowContext> windowContext_ = nullptr;
         std::unique_ptr<Config> config_ = nullptr;
         std::unique_ptr<SceneManager> sceneManager_ = nullptr;
@@ -131,7 +130,6 @@ namespace glimmer {
 
         [[nodiscard]] toml::value *GetLangsValue() const override;
 
-        [[nodiscard]] toml::spec *GetTomlVersion() override;
 
         void SetLanguage(const std::string &language) override;
 

@@ -33,10 +33,6 @@
 #include "toml11/parser.hpp"
 
 bool glimmer::InitLangsTask::Run(ISystemBucket *systemBucket) {
-    const toml::spec *tomlVersion = systemBucket->GetTomlVersion();
-    if (tomlVersion == nullptr) {
-        return false;
-    }
     const VirtualFileSystem *virtualFileSystem = systemBucket->GetVirtualFileSystem();
     if (virtualFileSystem == nullptr) {
         return false;
@@ -50,7 +46,7 @@ bool glimmer::InitLangsTask::Run(ISystemBucket *systemBucket) {
     if (!langData.has_value()) {
         return false;
     }
-    auto tomlValue = toml::parse_str(langData.value(), *tomlVersion);
+    auto tomlValue = toml::parse_str(langData.value(), TOML_VERSION);
     auto langsResources = std::make_unique<LangsResources>();
     langsResources->savedGames = toml::find<std::string>(tomlValue, "saved_games");
     langsResources->commandInfo = toml::find<std::string>(tomlValue, "command_info");

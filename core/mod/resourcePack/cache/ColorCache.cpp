@@ -42,10 +42,8 @@ std::shared_ptr<glimmer::ColorResource> glimmer::ColorCache::LoadResourceFromPac
     if (!dataOptional.has_value()) {
         return nullptr;
     }
-    auto tomlVersion = appContext->GetTomlVersion();
-    const toml::value value = toml::parse_str(
-        dataOptional.value(), *tomlVersion);
-    return std::make_shared<ColorResource>(toml::get<ColorResource>(value));
+    return std::make_shared<ColorResource>(toml::get<ColorResource>(toml::parse_str(
+        dataOptional.value(), TOML_VERSION)));
 }
 
 glimmer::ColorCache::~ColorCache() noexcept = default;

@@ -45,7 +45,8 @@ glimmer::TileItem::TileItem(const std::shared_ptr<Tile> &tile, const ResourceRef
     SetUnbreakable(true);
     const TileLightResourceData *tileLightResourceData = tile->GetLightResourceData();
     if (tileLightResourceData != nullptr) {
-        if (const ResourceRef *lightResourceRef = tileLightResourceData->GetLightSourceResource(); lightResourceRef->IsValid()) {
+        if (const ResourceRef *lightResourceRef = tileLightResourceData->GetLightSourceResource(); lightResourceRef->
+            IsValid()) {
             SetLightSourceRef(*lightResourceRef);
         }
     }

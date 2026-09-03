@@ -392,9 +392,7 @@ if (ANDROID)
     add_library(GlimmerWorks SHARED)
 else ()
     message(STATUS "Building for Desktop → Executable")
-    add_executable(GlimmerWorks
-            core/mod/PackScanRequest.cpp
-            core/mod/PackScanRequest.h)
+    add_executable(GlimmerWorks)
 endif ()
 
 target_sources(GlimmerWorks
@@ -404,6 +402,9 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Platform_SDL.cpp"
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL_GPU.cpp"
         core/app/App.cpp
+        core/mod/PackScanRequest.cpp
+        core/mod/resourcePack/GPUSamplerResource.cpp
+        core/mod/resourcePack/cache/GpuSamplerCache.cpp
         core/gpu/BlendMode.cpp
         core/gpu/RenderQueue.cpp
         core/gpu/LightMapTexture.cpp
@@ -683,7 +684,7 @@ target_sources(GlimmerWorks
         core/mod/resourcePack/AudioManager.cpp
         core/mod/resourcePack/AudioResourceResult.cpp
         core/mod/resourcePack/AudioType.cpp
-        core/mod/resourcePack/GPUPipelineResource.cpp
+        core/mod/resourcePack/GPUPipelineResourceResult.cpp
         core/mod/resourcePack/ResourcePack.cpp
         core/mod/resourcePack/ResourcePackConfig.cpp
         core/mod/resourcePack/ResourcePackManager.cpp
@@ -800,6 +801,9 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Platform_SDL.h"
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL_GPU.h"
         core/app/App.h
+        core/mod/PackScanRequest.h
+        core/mod/resourcePack/cache/GpuSamplerCache.h
+        core/mod/resourcePack/GPUSamplerResource.h
         core/mod/resourcePack/cache/RmlCache.h
         core/context/ISystemBucket.h
         core/mod/BasePackManager.h
@@ -1093,7 +1097,7 @@ target_sources(GlimmerWorks
         core/mod/resourcePack/AudioManager.h
         core/mod/resourcePack/AudioResourceResult.h
         core/mod/resourcePack/AudioType.h
-        core/mod/resourcePack/GPUPipelineResource.h
+        core/mod/resourcePack/GPUPipelineResourceResult.h
         core/mod/resourcePack/ResourcePack.h
         core/mod/resourcePack/ResourcePackConfig.h
         core/mod/resourcePack/ResourcePackManager.h

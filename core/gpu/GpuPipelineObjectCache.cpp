@@ -34,7 +34,7 @@
 #include "core/gpu/SpriteVertex.h"
 #include "core/log/LogCat.h"
 #include "core/mod/ResourceLocator.h"
-#include "core/mod/resourcePack/GPUPipelineResource.h"
+#include "core/mod/resourcePack/GPUPipelineResourceResult.h"
 #include "core/mod/resourcePack/ShaderResourceResult.h"
 
 namespace glimmer {

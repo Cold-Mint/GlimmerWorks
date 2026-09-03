@@ -45,7 +45,7 @@ std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::GpuPipelineCache::L
     if (!data.has_value()) {
         return nullptr;
     }
-    const toml::value value = toml::parse_str(data.value(), *tomlVersion_);
+    const toml::value value = toml::parse_str(data.value(), TOML_VERSION);
     const std::string &manifestId = resourcePack->GetManifest()->id;
     auto gpuPipelineResource = std::make_unique<GPUPipelineResource>(toml::get<GPUPipelineResource>(value));
     gpuPipelineResource->vertexShader.SetSelfPackageId(manifestId);
@@ -57,8 +57,5 @@ std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::GpuPipelineCache::L
     return pipelineResourceResult;
 }
 
-void glimmer::GpuPipelineCache::SetTomlVersion(toml::spec *tomlVersion) {
-    tomlVersion_ = tomlVersion;
-}
 
 glimmer::GpuPipelineCache::~GpuPipelineCache() noexcept = default;

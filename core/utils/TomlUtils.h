@@ -35,6 +35,7 @@
 #include "core/mod/Resource.h"
 #include "core/mod/dataPack/PackDependence.h"
 #include "core/mod/resourcePack/ResourcePackConfig.h"
+
 namespace toml {
     template<>
     struct from<glimmer::ResourceRef> {
@@ -122,6 +123,27 @@ namespace toml {
             r.g = toml::find_or<uint8_t>(v, "g", 0);
             r.r = toml::find_or<uint8_t>(v, "r", 0);
             r.resourceId = toml::find<std::string>(v, "resource_id");
+            return r;
+        }
+    };
+
+    template<>
+    struct from<glimmer::GpuSamplerResource> {
+        static glimmer::GpuSamplerResource from_toml(const value &v) {
+            glimmer::GpuSamplerResource r;
+            r.addressModeU = toml::find_or<uint8_t>(v, "address_mode_u", 0);
+            r.addressModeV = toml::find_or<uint8_t>(v, "address_mode_v", 0);
+            r.addressModeW = toml::find_or<uint8_t>(v, "address_mode_w", 2);
+            r.compareOp = toml::find_or<uint8_t>(v, "compare_op", 0);
+            r.enableAnisotropy = toml::find_or<bool>(v, "enable_anisotropy", false);
+            r.enableCompare = toml::find_or<bool>(v, "enable_compare", false);
+            r.magFilter = toml::find_or<uint8_t>(v, "mag_filter", 0);
+            r.maxAnisotropy = toml::find_or<float>(v, "max_anisotropy", 0);
+            r.maxLod = toml::find_or<float>(v, "max_lod", 0);
+            r.minFilter = toml::find_or<uint8_t>(v, "min_filter", 0);
+            r.minLod = toml::find_or<float>(v, "min_lod", 0);
+            r.mipLodBias = toml::find_or<float>(v, "mip_lod_bias", 0);
+            r.mipmapMode = toml::find_or<uint8_t>(v, "mipmap_mode", 0);
             return r;
         }
     };

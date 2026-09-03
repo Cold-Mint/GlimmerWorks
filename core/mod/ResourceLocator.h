@@ -39,7 +39,7 @@
 #include "dataPack/MaterialItemRegistry.h"
 #include "dataPack/StringManager.h"
 #include "resourcePack/AudioResourceResult.h"
-#include "resourcePack/GPUPipelineResource.h"
+#include "resourcePack/GPUPipelineResourceResult.h"
 #include "resourcePack/ResourcePackManager.h"
 #include "resourcePack/ShaderResourceResult.h"
 #include "resourcePack/TextureResourceResult.h"

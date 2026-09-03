@@ -418,6 +418,10 @@ static constexpr std::string SHADER_EXTENSION_VERT = "vert";
 static constexpr std::string SHADER_EXTENSION_FRAG = "frag";
 static constexpr std::string SHADER_ENTRY_POINT = "main";
 
+/**
+ * DEFAULT_SPRITE_VERT
+ * 默认精灵顶点着色器
+ */
 static constexpr auto DEFAULT_SPRITE_VERT = R"(#version 450
 layout(location = 0) in vec2 in_position;
 layout(location = 1) in vec2 in_uv;
@@ -437,6 +441,10 @@ void main() {
 }
 )";
 
+/**
+ * DEFAULT_PASSTHROUGH_FRAG
+ * 默认透传着色器
+ */
 static constexpr auto DEFAULT_PASSTHROUGH_FRAG = R"(#version 450
 layout(location = 0) in vec2 in_uv;
 layout(location = 1) in vec4 in_color;

@@ -252,6 +252,36 @@ namespace glimmer {
     };
 
 
+    //@genNextLine(GpuSamplerResource|GPU 采样器资源)
+    struct GpuSamplerResource {
+        //@genNextLine(The minification filter to apply to lookups. 0 represents NEAREST hard edges, 1 represents LINEAR soft edges.|缩小过滤。 0为NEAREST硬边缘，1为LINEAR线性柔和)
+        uint8_t minFilter = 0;
+        //@genNextLine(The magnification filter to apply to lookups.|放大过滤。)
+        uint8_t magFilter = 0;
+        //@genNextLine(The mipmap filter to apply to lookups.|用于查找的 mipmap 过滤器。 0为NEAREST硬边缘，1为LINEAR线性柔和)
+        uint8_t mipmapMode = 0;
+        //@genNextLine(U-axis texture addressing mode|U轴纹理寻址模式)
+        uint8_t addressModeU = 0;
+        //@genNextLine(V-axis texture addressing mode|V轴纹理寻址模式)
+        uint8_t addressModeV = 0;
+        //@genNextLine(W-axis texture addressing mode is used for 3D.|W轴纹理寻址模式 用于3d。)
+        uint8_t addressModeW = 2;
+        //@genNextLine(The bias to be added to mipmap LOD calculation.|用于添加到 mipmap LOD 计算的偏移量。)
+        float mipLodBias = 0;
+        //@genNextLine(The anisotropy value clamp used by the sampler. If enable_anisotropy is false, this is ignored. |采样器使用的各向异性值夹具。如果 enable_anisotropy 为 false，则忽略此值。)
+        float maxAnisotropy = 0;
+        //@genNextLine(The comparison operator to apply to fetched data before filtering.|用于在过滤前对获取的数据应用的比较运算符。)
+        uint8_t compareOp = 0;
+        //@genNextLine(Clamps the minimum of the computed LOD value.|将计算出的LOD值最小值进行夹紧。)
+        float minLod = 0;
+        //@genNextLine(Clamps the maximum of the computed LOD value.|将计算出的LOD值的最大值进行夹紧。)
+        float maxLod = 0;
+        //@genNextLine(Enable anisotropic filtering.|启用各向异性过滤。)
+        bool enableAnisotropy = false;
+        //@genNextLine(true to enable comparison against a reference value during lookups.|用于在查找时与参考值进行比较。)
+        bool enableCompare = false;
+    };
+
     //@genNextLine(GPUPipelineResource|GPU 管线资源)
     struct GPUPipelineResource {
         //@genNextLine(vertexShader|顶点着色器引用)

@@ -24,7 +24,7 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "GPUPipelineResource.h"
+#include "GPUPipelineResourceResult.h"
 
 
 void glimmer::GPUPipelineResourceResult::SetPipelineResource(std::unique_ptr<GPUPipelineResource> pipelineResource) {

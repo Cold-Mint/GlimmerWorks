@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -28,13 +28,6 @@
 #include "core/mod/resourcePack/BaseResourceCache.h"
 
 namespace glimmer {
-    class GpuPipelineCache : public BaseResourceCache<GPUPipelineResourceResult> {
-    protected:
-        std::shared_ptr<GPUPipelineResourceResult> LoadResourceFromPack(AppContext *appContext,
-                                                                        const ResourceRef *resourceRef,
-                                                                        const ResourcePack *resourcePack) override;
-
-    public:
-        ~GpuPipelineCache() noexcept override;
+    class GpuSamplerCache : public BaseResourceCache<SDL_GPUSampler> {
     };
 }

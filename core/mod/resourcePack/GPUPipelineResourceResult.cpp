@@ -27,12 +27,15 @@
 #include "GPUPipelineResourceResult.h"
 
 
-void glimmer::GPUPipelineResourceResult::SetPipelineResource(std::unique_ptr<GPUPipelineResource> pipelineResource) {
-    pipelineResource_ = std::move(pipelineResource);
-    if (pipelineResource_ == nullptr) {
+void glimmer::GPUPipelineResourceResult::DestroyResourceImpl(SDL_GPUGraphicsPipeline *resource) {
+    if (device_ == nullptr) {
         return;
     }
-    SetResource(pipelineResource_.get());
+    SDL_ReleaseGPUGraphicsPipeline(device_, resource);
+}
+
+void glimmer::GPUPipelineResourceResult::SetDevice(SDL_GPUDevice *device) {
+    device_ = device;
 }
 
 glimmer::GPUPipelineResourceResult::~GPUPipelineResourceResult() {

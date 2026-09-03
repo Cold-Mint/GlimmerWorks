@@ -289,15 +289,6 @@ namespace glimmer {
 
         //@genNextLine(vertexShader|片元着色器引用)
         ResourceRef fragmentShader;
-
-        //@genNextLine(blendMode|颜色混合模式)
-        uint8_t blendMode = 0;
-
-        //@genNextLine(Number of samplers declared by the fragment shader.|片元着色器声明的采样器数量)
-        uint32_t fragmentNumSamplers = 1;
-
-        //@genNextLine(Number of uniform buffers declared by the fragment shader.|片元着色器声明的 uniform 缓冲数量。)
-        uint32_t fragmentNumUniformBuffers = 0;
     };
 
     //@genNextLine(HorizontalSpacingStructureConditionsResource|横向间隔结构放置条件资源)

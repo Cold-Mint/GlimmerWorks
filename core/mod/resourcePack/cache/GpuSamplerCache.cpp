@@ -25,3 +25,57 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "GpuSamplerCache.h"
+#include "core/utils/TomlUtils.h"
+#include "toml11/parser.hpp"
+
+std::shared_ptr<glimmer::GPUSamplerResourceResult> glimmer::GpuSamplerCache::LoadResourceFromPack(
+    AppContext *appContext, const ResourceRef *resourceRef, const ResourcePack *resourcePack) {
+    std::filesystem::path pipelinePath = resourcePack->GetPath() / "samplers" / resourceRef->GetPackageId() /
+                                         resourceRef->GetResourceKey();
+    pipelinePath.replace_extension("toml");
+    const VirtualFileSystem *virtualFileSystem = appContext->GetVirtualFileSystem();
+    if (virtualFileSystem == nullptr) {
+        return nullptr;
+    }
+    if (!virtualFileSystem->Exists(pipelinePath)) {
+        return nullptr;
+    }
+    auto data = virtualFileSystem->ReadFileAsString(pipelinePath);
+    if (!data.has_value()) {
+        return nullptr;
+    }
+    const WindowContext *windowContext = appContext->GetWindowContext();
+    if (windowContext == nullptr) {
+        return nullptr;
+    }
+    SDL_GPUDevice *device = windowContext->GetDevice();
+    if (device == nullptr) {
+        return nullptr;
+    }
+    const auto gpuSamplerResource = std::make_unique<GpuSamplerResource>(
+        toml::get<GpuSamplerResource>(toml::parse_str(data.value(), TOML_VERSION)));
+    if (gpuSamplerResource == nullptr) {
+        return nullptr;
+    }
+    SDL_GPUSamplerCreateInfo createInfo = {};
+    createInfo.min_filter = static_cast<SDL_GPUFilter>(gpuSamplerResource->minFilter);
+    createInfo.mag_filter = static_cast<SDL_GPUFilter>(gpuSamplerResource->magFilter);
+    createInfo.mipmap_mode = static_cast<SDL_GPUSamplerMipmapMode>(gpuSamplerResource->mipmapMode);
+    createInfo.address_mode_u = static_cast<SDL_GPUSamplerAddressMode>(gpuSamplerResource->addressModeU);
+    createInfo.address_mode_v = static_cast<SDL_GPUSamplerAddressMode>(gpuSamplerResource->addressModeV);
+    createInfo.address_mode_w = static_cast<SDL_GPUSamplerAddressMode>(gpuSamplerResource->addressModeW);
+    createInfo.mip_lod_bias = gpuSamplerResource->mipLodBias;
+    createInfo.max_anisotropy = gpuSamplerResource->maxAnisotropy;
+    createInfo.compare_op = static_cast<SDL_GPUCompareOp>(gpuSamplerResource->compareOp);
+    createInfo.min_lod = gpuSamplerResource->minLod;
+    createInfo.max_lod = gpuSamplerResource->maxLod;
+    createInfo.enable_anisotropy = gpuSamplerResource->enableAnisotropy;
+    createInfo.enable_compare = gpuSamplerResource->enableCompare;
+    auto samplerResourceResult = std::make_shared<GPUSamplerResourceResult>();
+    samplerResourceResult->SetDevice(device);
+    samplerResourceResult->SetResource(SDL_CreateGPUSampler(device, &createInfo));
+    samplerResourceResult->SetResourcePack(resourcePack);
+    return samplerResourceResult;
+}
+
+glimmer::GpuSamplerCache::~GpuSamplerCache() noexcept = default;

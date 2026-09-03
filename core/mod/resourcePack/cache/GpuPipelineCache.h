@@ -29,6 +29,9 @@
 
 namespace glimmer {
     class GpuPipelineCache : public BaseResourceCache<GPUPipelineResourceResult> {
+        std::shared_ptr<ShaderResourceResult> vertexShaderResult_ = nullptr;
+        std::shared_ptr<ShaderResourceResult> fragmentShaderResult_ = nullptr;
+
     protected:
         std::shared_ptr<GPUPipelineResourceResult> LoadResourceFromPack(AppContext *appContext,
                                                                         const ResourceRef *resourceRef,

@@ -27,18 +27,21 @@
 #pragma once
 
 #include "ResourceResult.h"
-#include "core/mod/Resource.h"
+#include "SDL3/SDL_gpu.h"
 
 namespace glimmer {
     /**
      * GPUPipelineResourceResult
      * GPU 管线资源结果
      */
-    class GPUPipelineResourceResult : public ResourceResult<GPUPipelineResource> {
-        std::unique_ptr<GPUPipelineResource> pipelineResource_ = nullptr;
+    class GPUPipelineResourceResult : public ResourceResult<SDL_GPUGraphicsPipeline> {
+        SDL_GPUDevice *device_ = nullptr;
+
+    protected:
+        void DestroyResourceImpl(SDL_GPUGraphicsPipeline *resource) override;
 
     public:
-        void SetPipelineResource(std::unique_ptr<GPUPipelineResource> pipelineResource);
+        void SetDevice(SDL_GPUDevice *device);
 
         ~GPUPipelineResourceResult() override;
     };

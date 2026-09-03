@@ -405,6 +405,7 @@ target_sources(GlimmerWorks
         core/mod/PackScanRequest.cpp
         core/mod/resourcePack/GPUSamplerResource.cpp
         core/mod/resourcePack/cache/GpuSamplerCache.cpp
+        core/mod/resourcePack/GPUSamplerResourceResult.cpp
         core/gpu/BlendMode.cpp
         core/gpu/RenderQueue.cpp
         core/gpu/LightMapTexture.cpp
@@ -802,6 +803,7 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL_GPU.h"
         core/app/App.h
         core/mod/PackScanRequest.h
+        core/mod/resourcePack/GPUSamplerResourceResult.h
         core/mod/resourcePack/cache/GpuSamplerCache.h
         core/mod/resourcePack/GPUSamplerResource.h
         core/mod/resourcePack/cache/RmlCache.h

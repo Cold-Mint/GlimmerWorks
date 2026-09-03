@@ -118,7 +118,7 @@ SDL_GPUGraphicsPipeline *glimmer::GpuPipelineObjectCache::GetOrCreatePipeline(
     const PipelineKey key{
         pipelineResource->vertexShader.GetFingerprint(),
         pipelineResource->fragmentShader.GetFingerprint(),
-        pipelineResource->blendMode
+        0
     };
     const auto it = pipelines_.find(key);
     if (it != pipelines_.end()) {
@@ -146,7 +146,7 @@ SDL_GPUGraphicsPipeline *glimmer::GpuPipelineObjectCache::GetOrCreatePipeline(
 
     SDL_GPUGraphicsPipeline *pipeline = CreateSpritePipeline(
         appContext_, vertexShader, fragmentShader,
-        BlendModeFromUint8(pipelineResource->blendMode));
+        BlendModeFromUint8(0));
     if (pipeline == nullptr) {
         return nullptr;
     }

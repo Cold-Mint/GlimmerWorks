@@ -45,15 +45,41 @@ std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::GpuPipelineCache::L
     if (!data.has_value()) {
         return nullptr;
     }
-    const toml::value value = toml::parse_str(data.value(), TOML_VERSION);
+    const WindowContext *windowContext = appContext->GetWindowContext();
+    if (windowContext == nullptr) {
+        return nullptr;
+    }
+    SDL_GPUDevice *device = windowContext->GetDevice();
+    if (device == nullptr) {
+        return nullptr;
+    }
+    ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+    if (resourceLocator == nullptr) {
+        return nullptr;
+    }
     const std::string &manifestId = resourcePack->GetManifest()->id;
-    auto gpuPipelineResource = std::make_unique<GPUPipelineResource>(toml::get<GPUPipelineResource>(value));
+    auto gpuPipelineResource = std::make_unique<GPUPipelineResource>(
+        toml::get<GPUPipelineResource>(toml::parse_str(data.value(), TOML_VERSION)));
     gpuPipelineResource->vertexShader.SetSelfPackageId(manifestId);
     gpuPipelineResource->fragmentShader.SetSelfPackageId(manifestId);
+
+    SDL_GPUGraphicsPipelineCreateInfo createInfo = {};
+    vertexShaderResult_ = resourceLocator->FindShader(
+        &gpuPipelineResource->vertexShader);
+    if (vertexShaderResult_ == nullptr) {
+        return nullptr;
+    }
+    createInfo.vertex_shader = vertexShaderResult_->GetResource();
+    fragmentShaderResult_ = resourceLocator->FindShader(
+        &gpuPipelineResource->fragmentShader);
+    if (fragmentShaderResult_ == nullptr) {
+        return nullptr;
+    }
+    createInfo.fragment_shader = fragmentShaderResult_->GetResource();
     auto pipelineResourceResult = std::make_shared<GPUPipelineResourceResult>();
+    pipelineResourceResult->SetResource(SDL_CreateGPUGraphicsPipeline(device, &createInfo));
     pipelineResourceResult->SetResourcePack(resourcePack);
-    pipelineResourceResult->SetPipelineResource(
-        std::move(gpuPipelineResource));
+    pipelineResourceResult->SetDevice(device);
     return pipelineResourceResult;
 }
 

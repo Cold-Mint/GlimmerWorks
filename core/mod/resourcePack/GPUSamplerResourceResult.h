@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025-2026  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
- * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
+ * 版权(C) 2025-2026  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
  * 该许可证的第3版，或者（由你选择）任何后续版本。
@@ -25,16 +25,19 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "core/mod/resourcePack/BaseResourceCache.h"
-#include "core/mod/resourcePack/GPUSamplerResourceResult.h"
+#include "ResourceResult.h"
+#include "SDL3/SDL_gpu.h"
 
 namespace glimmer {
-    class GpuSamplerCache : public BaseResourceCache<GPUSamplerResourceResult> {
+    class GPUSamplerResourceResult : public ResourceResult<SDL_GPUSampler> {
+        SDL_GPUDevice *device_ = nullptr;
+
     protected:
-        std::shared_ptr<GPUSamplerResourceResult> LoadResourceFromPack(AppContext *appContext,
-            const ResourceRef *resourceRef, const ResourcePack *resourcePack) override;
+        void DestroyResourceImpl(SDL_GPUSampler *resource) override;
 
     public:
-        ~GpuSamplerCache() noexcept override;
+        void SetDevice(SDL_GPUDevice *device);
+
+        ~GPUSamplerResourceResult() override;
     };
 }

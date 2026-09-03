@@ -26,6 +26,10 @@
  */
 #pragma once
 namespace glimmer {
+    /*
+     * BreakSource
+     * 破坏源
+     */
     enum class BreakSource {
         Unknown,
         ChunkLoad,

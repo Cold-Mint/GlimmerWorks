@@ -47,16 +47,16 @@ void glimmer::TimeCommand::InitSuggestions(NodeTree<std::string> *suggestionsTre
         return;
     }
     suggestionsTree->AddChild("set");
+    suggestionsTree->AddChild("get");
 }
 
 void glimmer::TimeCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
     if (commandArgs == nullptr || strings == nullptr) {
         return;
     }
+    strings->emplace_back("[operation:string]");
     if (commandArgs->GetSize() >= 2 && commandArgs->AsString(1) == "set") {
         strings->emplace_back("[hour:float]");
-    } else {
-        strings->emplace_back("[set]");
     }
 }
 
@@ -114,6 +114,14 @@ bool glimmer::TimeCommand::Execute(const CommandSender *commandSender, const Com
         int outMinute = 0;
         FormatTime(hour, outHour, outMinute);
         onMessageRef(fmt::format(fmt::runtime(langsResources->timeSetSuccess), outHour, outMinute));
+        return true;
+    }
+
+    if (operation == "get") {
+        int hour = 0;
+        int minute = 0;
+        FormatTime(worldContext->GetTimeOfDay(), hour, minute);
+        onMessageRef(fmt::format(fmt::runtime(langsResources->timeInfo), hour, minute));
         return true;
     }
 

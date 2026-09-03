@@ -99,7 +99,7 @@ event_type = "key_down"
 [light]
 # Enable lighting
 # 启用光照
-enable = false
+enable = true
 
 [debug]
 # Show debug panel in game

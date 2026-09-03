@@ -42,7 +42,6 @@ glimmer::DynamicLightSystem::DynamicLightSystem(WorldContext *worldContext) : Ga
 }
 
 void glimmer::DynamicLightSystem::Update(const float delta) {
-    (void) delta;
     WorldContext *worldContext = GetWorldContext();
     EntityManager *entityManager = GetEntityManager();
     if (worldContext == nullptr || entityManager == nullptr) {
@@ -60,8 +59,8 @@ void glimmer::DynamicLightSystem::Update(const float delta) {
 
     std::unordered_set<GameEntityID> currentEntities;
     for (const GameEntityID entityId: lightEntities) {
-        LightComponent *lightComponent = entityManager->GetComponent<LightComponent>(entityId);
-        Transform2DComponent *transform = entityManager->GetComponent<Transform2DComponent>(entityId);
+        auto *lightComponent = entityManager->GetComponent<LightComponent>(entityId);
+        auto *transform = entityManager->GetComponent<Transform2DComponent>(entityId);
         if (lightComponent == nullptr || transform == nullptr) {
             continue;
         }

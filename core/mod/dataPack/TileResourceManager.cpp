@@ -86,7 +86,7 @@ void glimmer::TileResourceManager::InitBuiltinTiles() {
     airWall_ = AddCoreResource({
         TILE_ID_AIR_WALL, TilePhysicsType::None, TileLayerType::BackGround, -1.0F,
         STRING_TILE_AIR_WALL_NAME, "tiles/air_wall",
-        LIGHT_SKY, LIGHT_MASK_NONE, LIGHT_MASK_NONE,
+        LIGHT_NONE, LIGHT_MASK_NONE, LIGHT_MASK_NONE,
         true, false, STRING_TILE_AIR_WALL_DESCRIPTION
     });
     AddCoreResource({

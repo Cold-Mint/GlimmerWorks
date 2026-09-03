@@ -43,6 +43,12 @@ glimmer::TileItem::TileItem(const std::shared_ptr<Tile> &tile, const ResourceRef
     }
     SetMaxStack(ITEM_MAX_STACK);
     SetUnbreakable(true);
+    const TileLightResourceData *tileLightResourceData = tile->GetLightResourceData();
+    if (tileLightResourceData != nullptr) {
+        if (const ResourceRef *lightResourceRef = tileLightResourceData->GetLightSourceResource(); lightResourceRef->IsValid()) {
+            SetLightSourceRef(*lightResourceRef);
+        }
+    }
 }
 
 const std::string &glimmer::TileItem::GetId() const {

@@ -234,7 +234,7 @@ void glimmer::PlayerContext::UpdatePlayerHandLight(const GameEntityID playerEnti
         }
     }
     if (lightRef != nullptr) {
-        LightComponent *lightComponent = entityManager->GetComponent<LightComponent>(playerEntity);
+        auto *lightComponent = entityManager->GetComponent<LightComponent>(playerEntity);
         if (lightComponent == nullptr) {
             lightComponent = entityManager->AddComponent<LightComponent>(playerEntity);
         }

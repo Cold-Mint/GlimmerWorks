@@ -25,12 +25,21 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include "core/gpu/BlendMode.h"
 #include "core/mod/resourcePack/BaseResourceCache.h"
 
 namespace glimmer {
     class GpuPipelineCache : public BaseResourceCache<GPUPipelineResourceResult> {
         std::shared_ptr<ShaderResourceResult> vertexShaderResult_ = nullptr;
         std::shared_ptr<ShaderResourceResult> fragmentShaderResult_ = nullptr;
+
+
+        /**
+        * Convert a BlendMode into an SDL3 GPU color target blend state.
+        * 将 BlendMode 转换为 SDL3 GPU 颜色目标混合状态。
+        * @param mode mode 混合模式
+        */
+        static SDL_GPUColorTargetBlendState ToColorTargetBlendState(BlendMode mode);
 
     protected:
         std::shared_ptr<GPUPipelineResourceResult> LoadResourceFromPack(AppContext *appContext,

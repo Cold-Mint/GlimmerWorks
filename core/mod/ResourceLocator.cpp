@@ -217,8 +217,8 @@ std::shared_ptr<glimmer::ShaderResourceResult> glimmer::ResourceLocator::FindSha
     return shaderCache->LoadResource(appContext_, resourceRef, enablePlaceholder);
 }
 
-std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::ResourceLocator::FindPipeline(
-    const ResourceRef *resourceRef, bool enablePlaceHolder) const {
+std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::ResourceLocator::FindGPUGraphicsPipeline(
+    const ResourceRef *resourceRef, const bool enablePlaceHolder) const {
     if (cacheContext_ == nullptr) {
         return nullptr;
     }
@@ -238,6 +238,29 @@ std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::ResourceLocator::Fi
     }
     return gpuPipelineCache->LoadResource(appContext_, resourceRef, enablePlaceHolder);
 }
+
+std::shared_ptr<glimmer::GPUSamplerResourceResult> glimmer::ResourceLocator::FindGPUGraphicsSampler(
+    const ResourceRef *resourceRef, bool enablePlaceHolder) const {
+    if (cacheContext_ == nullptr) {
+        return nullptr;
+    }
+    GpuSamplerCache *gpuSamplerCache = cacheContext_->GetGpuSamplerCache();
+    if (gpuSamplerCache == nullptr) {
+        return nullptr;
+    }
+    if (resourceRef == nullptr) {
+        LogCat::w(std::source_location::current(), "resourceRef == nullptr");
+        return nullptr;
+    }
+    if (resourceRef->GetResourceType() != RESOURCE_SAMPLER) {
+        LogCat::w(std::source_location::current(), "Type mismatch: expected RESOURCE_SAMPLER (",
+                  std::to_underlying(RESOURCE_SAMPLER), "), got ", std::to_underlying(resourceRef->GetResourceType()),
+                  ").");
+        return nullptr;
+    }
+    return gpuSamplerCache->LoadResource(appContext_, resourceRef, enablePlaceHolder);
+}
+
 
 std::unique_ptr<glimmer::Color> glimmer::ResourceLocator::FindColor(const ResourceRef *resourceRef,
                                                                     bool enablePlaceHolder) const {

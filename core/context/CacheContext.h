@@ -27,10 +27,10 @@
 #pragma once
 #include <memory>
 
-#include "core/gpu/GpuPipelineObjectCache.h"
 #include "core/mod/resourcePack/cache/AudioCache.h"
 #include "core/mod/resourcePack/cache/ColorCache.h"
 #include "core/mod/resourcePack/cache/GpuPipelineCache.h"
+#include "core/mod/resourcePack/cache/GpuSamplerCache.h"
 #include "core/mod/resourcePack/cache/RmlCache.h"
 #include "core/mod/resourcePack/cache/ShaderCache.h"
 #include "core/mod/resourcePack/cache/TextureCache.h"
@@ -40,20 +40,20 @@ namespace glimmer {
         AppContext *appContext_ = nullptr;
         std::unique_ptr<AudioCache> audioCache_ = nullptr;
         std::unique_ptr<GpuPipelineCache> gpuPipelineCache_ = nullptr;
-        std::unique_ptr<GpuPipelineObjectCache> gpuPipelineObjectCache_ = nullptr;
         std::unique_ptr<ShaderCache> shaderCache_ = nullptr;
         std::unique_ptr<TextureCache> textureCache_ = nullptr;
         std::unique_ptr<RmlCache> rmlCache_ = nullptr;
         std::unique_ptr<ColorCache> colorCache_ = nullptr;
+        std::unique_ptr<GpuSamplerCache> gpuSamplerCache_ = nullptr;
 
     public:
         explicit CacheContext(AppContext *appContext);
 
+        [[nodiscard]] GpuSamplerCache *GetGpuSamplerCache() const;
+
         [[nodiscard]] AudioCache *GetAudioCache() const;
 
         [[nodiscard]] GpuPipelineCache *GetPipelineCache() const;
-
-        [[nodiscard]] GpuPipelineObjectCache *GetPipelineObjectCache() const;
 
         [[nodiscard]] ShaderCache *GetShaderCache() const;
 

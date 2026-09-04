@@ -30,17 +30,17 @@
 
 std::shared_ptr<glimmer::GPUSamplerResourceResult> glimmer::GpuSamplerCache::LoadResourceFromPack(
     AppContext *appContext, const ResourceRef *resourceRef, const ResourcePack *resourcePack) {
-    std::filesystem::path pipelinePath = resourcePack->GetPath() / "samplers" / resourceRef->GetPackageId() /
-                                         resourceRef->GetResourceKey();
-    pipelinePath.replace_extension("toml");
+    std::filesystem::path samplerPath = resourcePack->GetPath() / "samplers" / resourceRef->GetPackageId() /
+                                        resourceRef->GetResourceKey();
+    samplerPath.replace_extension("sampler.toml");
     const VirtualFileSystem *virtualFileSystem = appContext->GetVirtualFileSystem();
     if (virtualFileSystem == nullptr) {
         return nullptr;
     }
-    if (!virtualFileSystem->Exists(pipelinePath)) {
+    if (!virtualFileSystem->Exists(samplerPath)) {
         return nullptr;
     }
-    auto data = virtualFileSystem->ReadFileAsString(pipelinePath);
+    auto data = virtualFileSystem->ReadFileAsString(samplerPath);
     if (!data.has_value()) {
         return nullptr;
     }

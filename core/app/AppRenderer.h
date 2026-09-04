@@ -32,6 +32,7 @@
 #include "core/context/AppContext.h"
 #include "core/gpu/LightMapTexture.h"
 #include "core/gpu/RenderQueue.h"
+#include "core/mod/resourcePack/GPUSamplerResourceResult.h"
 
 namespace glimmer {
     class ResourceLocator;
@@ -54,11 +55,8 @@ namespace glimmer {
     class AppRenderer {
         AppContext *appContext_ = nullptr;
         RenderQueue renderQueue_;
-
         SDL_GPUDevice *device_ = nullptr;
         ResourceLocator *resourceLocator_ = nullptr;
-
-        SDL_GPUGraphicsPipeline *spritePipeline_ = nullptr;
         SDL_GPUBuffer *vertexBuffer_ = nullptr;
         SDL_GPUBuffer *indexBuffer_ = nullptr;
         Uint32 vertexBufferSize_ = 0;
@@ -67,6 +65,8 @@ namespace glimmer {
         Uint32 transferBufferSize_ = 0;
         SDL_GPUTexture *whiteTexture_ = nullptr;
         SDL_GPUSampler *sampler_ = nullptr;
+        std::shared_ptr<GPUPipelineResourceResult> lightingPipeline_ = nullptr;
+        std::shared_ptr<GPUSamplerResourceResult> lightingSampler_ = nullptr;
 
         //Offscreen render target for the unlit scene pass, plus the lighting
         //pipeline/sampler and per-tile light map texture used by the lighting pass.
@@ -74,8 +74,6 @@ namespace glimmer {
         SDL_GPUTexture *sceneTexture_ = nullptr;
         Uint32 sceneTextureWidth_ = 0;
         Uint32 sceneTextureHeight_ = 0;
-        SDL_GPUGraphicsPipeline *lightingPipeline_ = nullptr;
-        SDL_GPUSampler *lightingSampler_ = nullptr;
         LightMapTexture lightMapTexture_;
         //Lighting shader uniform parameters (4 x vec4, std140 friendly).
         //光照着色器 uniform 参数（4 x vec4，std140 友好）。
@@ -85,27 +83,6 @@ namespace glimmer {
 
         void RenderOverlays();
 
-        /**
-         * Create the shared GPU resources (white texture and sampler) if they
-         * have not been created yet.
-         * 若尚未创建，创建共享 GPU 资源（白色纹理与采样器）。
-         */
-        bool EnsureGpuResources();
-
-        /**
-         * Create the sprite graphics pipeline on demand. Tries to load the
-         * pipeline from the resource pack first; falls back to the built-in
-         * sprite shaders when the resource pack is missing.
-         * 按需创建精灵图形管线。优先从资源包加载管线；资源包缺失时回退到
-         * 内置精灵着色器。
-         */
-        bool EnsureSpritePipeline();
-
-        /**
-         * Create the fullscreen lighting pipeline (built-in shaders) on demand.
-         * 按需创建全屏光照管线（内置着色器）。
-         */
-        bool EnsureLightingPipeline();
 
         /**
          * Create or resize the offscreen scene render target.
@@ -152,8 +129,7 @@ namespace glimmer {
          * texture and the light map, applies lighting, and stores to the target.
          * 合成受光照结果：全屏四边形采样无光照场景纹理与光照贴图，应用光照后写入目标。
          */
-        void FlushLightingPass(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUTexture *targetTexture, Uint32 width,
-                               Uint32 height);
+        void FlushLightingPass(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUTexture *targetTexture);
 
         /**
          * Rebuild the per-tile light map texture from the light buffer for the

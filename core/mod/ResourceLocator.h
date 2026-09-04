@@ -40,6 +40,7 @@
 #include "dataPack/StringManager.h"
 #include "resourcePack/AudioResourceResult.h"
 #include "resourcePack/GPUPipelineResourceResult.h"
+#include "resourcePack/GPUSamplerResourceResult.h"
 #include "resourcePack/ResourcePackManager.h"
 #include "resourcePack/ShaderResourceResult.h"
 #include "resourcePack/TextureResourceResult.h"
@@ -127,7 +128,11 @@ namespace glimmer {
          * @return The result (configuration), nullptr if not found or access denied.
          * 查找结果（配置）；找不到或权限受限时返回 nullptr。
          */
-        [[nodiscard]] std::shared_ptr<GPUPipelineResourceResult> FindPipeline(
+        [[nodiscard]] std::shared_ptr<GPUPipelineResourceResult> FindGPUGraphicsPipeline(
+            const ResourceRef *resourceRef, bool enablePlaceHolder = true) const;
+
+
+        [[nodiscard]] std::shared_ptr<GPUSamplerResourceResult> FindGPUGraphicsSampler(
             const ResourceRef *resourceRef, bool enablePlaceHolder = true) const;
 
         [[nodiscard]] std::unique_ptr<Color> FindColor(const ResourceRef *resourceRef,

@@ -32,7 +32,6 @@
 #include "WorldContext.h"
 #include "core/context/AppContext.h"
 #include "core/context/CacheContext.h"
-#include "core/gpu/GpuPipelineObjectCache.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/ecs/component/TechProviderComponent.h"
 #include "core/log/LogCat.h"
@@ -203,17 +202,14 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     tile->resourceData_.SetTextureRef(tileResource->texture);
     tile->resourceData_.SetTexture(textureResult);
     if (tileResource->pipeline.IsValid()) {
-        const std::shared_ptr<GPUPipelineResourceResult> pipelineResult = resourceLocator->FindPipeline(
+        const std::shared_ptr<GPUPipelineResourceResult> pipelineResult = resourceLocator->FindGPUGraphicsPipeline(
             &tileResource->pipeline, false);
-        if (pipelineResult != nullptr && pipelineResult->GetResource() != nullptr) {
-            CacheContext *cacheContext = appContext->GetCacheContext();
-            GpuPipelineObjectCache *pipelineObjectCache = cacheContext != nullptr
-                                                              ? cacheContext->GetPipelineObjectCache()
-                                                              : nullptr;
-            if (pipelineObjectCache != nullptr) {
-                tile->resourceData_.SetPipeline(pipelineObjectCache->GetOrCreatePipeline(
-                    pipelineResult->GetResource()));
+        if (pipelineResult != nullptr) {
+            SDL_GPUGraphicsPipeline *pipeline = pipelineResult->GetResource();
+            if (pipeline == nullptr) {
+                return nullptr;
             }
+            tile->resourceData_.SetPipeline(pipeline);
         }
     }
     tile->blueprintData_.SetEnableBlueprint(tileResource->enableBlueprint);

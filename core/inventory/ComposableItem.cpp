@@ -29,7 +29,6 @@
 #include "AbilityItem.h"
 #include "core/context/CacheContext.h"
 #include "core/ecs/component/Transform2DComponent.h"
-#include "core/gpu/GpuPipelineObjectCache.h"
 #include "core/world/WorldContext.h"
 #include <utility>
 #include <vector>
@@ -107,14 +106,11 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
     result->SetLightSourceRef(itemResource->lightSource);
     if (itemResource->pipeline.IsValid()) {
         if (const std::shared_ptr<GPUPipelineResourceResult> pipelineResult = appContext->GetResourceLocator()->
-                FindPipeline(
+                FindGPUGraphicsPipeline(
                     &itemResource->pipeline,
                     false); pipelineResult != nullptr && pipelineResult->GetResource() != nullptr) {
             if (CacheContext *cacheContext = appContext->GetCacheContext(); cacheContext != nullptr) {
-                if (GpuPipelineObjectCache *pipelineObjectCache = cacheContext->GetPipelineObjectCache();
-                    pipelineObjectCache != nullptr) {
-                    result->SetPipeline(pipelineObjectCache->GetOrCreatePipeline(pipelineResult->GetResource()));
-                }
+                result->SetPipeline(pipelineResult->GetResource());
             }
         }
     }

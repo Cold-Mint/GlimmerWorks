@@ -25,15 +25,67 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "GpuPipelineCache.h"
+
+#include "core/gpu/BlendMode.h"
+#include "core/gpu/SpriteVertex.h"
 #include "core/utils/TomlUtils.h"
 #include "toml11/parser.hpp"
 
+
+SDL_GPUColorTargetBlendState glimmer::GpuPipelineCache::ToColorTargetBlendState(const BlendMode mode) {
+    SDL_GPUColorTargetBlendState state = {};
+    state.enable_blend = false;
+    state.enable_color_write_mask = false;
+    state.color_write_mask = 0;
+
+    switch (mode) {
+        case BlendMode::Opaque:
+            break;
+        case BlendMode::Alpha:
+            state.enable_blend = true;
+            state.src_color_blendfactor = SDL_GPU_BLENDFACTOR_SRC_ALPHA;
+            state.dst_color_blendfactor = SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
+            state.color_blend_op = SDL_GPU_BLENDOP_ADD;
+            state.src_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ONE;
+            state.dst_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
+            state.alpha_blend_op = SDL_GPU_BLENDOP_ADD;
+            break;
+        case BlendMode::Additive:
+            state.enable_blend = true;
+            state.src_color_blendfactor = SDL_GPU_BLENDFACTOR_SRC_ALPHA;
+            state.dst_color_blendfactor = SDL_GPU_BLENDFACTOR_ONE;
+            state.color_blend_op = SDL_GPU_BLENDOP_ADD;
+            state.src_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ONE;
+            state.dst_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ONE;
+            state.alpha_blend_op = SDL_GPU_BLENDOP_ADD;
+            break;
+        case BlendMode::Multiply:
+            state.enable_blend = true;
+            state.src_color_blendfactor = SDL_GPU_BLENDFACTOR_DST_COLOR;
+            state.dst_color_blendfactor = SDL_GPU_BLENDFACTOR_ZERO;
+            state.color_blend_op = SDL_GPU_BLENDOP_ADD;
+            state.src_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ONE;
+            state.dst_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ZERO;
+            state.alpha_blend_op = SDL_GPU_BLENDOP_ADD;
+            break;
+        case BlendMode::Premultiplied:
+            state.enable_blend = true;
+            state.src_color_blendfactor = SDL_GPU_BLENDFACTOR_ONE;
+            state.dst_color_blendfactor = SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
+            state.color_blend_op = SDL_GPU_BLENDOP_ADD;
+            state.src_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ONE;
+            state.dst_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
+            state.alpha_blend_op = SDL_GPU_BLENDOP_ADD;
+            break;
+    }
+    return state;
+}
 
 std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::GpuPipelineCache::LoadResourceFromPack(
     AppContext *appContext, const ResourceRef *resourceRef, const ResourcePack *resourcePack) {
     std::filesystem::path pipelinePath = resourcePack->GetPath() / "pipelines" / resourceRef->GetPackageId() /
                                          resourceRef->GetResourceKey();
-    pipelinePath.replace_extension("toml");
+    pipelinePath.replace_extension("pipeline.toml");
     VirtualFileSystem *virtualFileSystem = appContext->GetVirtualFileSystem();
     if (virtualFileSystem == nullptr) {
         return nullptr;
@@ -47,6 +99,10 @@ std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::GpuPipelineCache::L
     }
     const WindowContext *windowContext = appContext->GetWindowContext();
     if (windowContext == nullptr) {
+        return nullptr;
+    }
+    SDL_Window *window = windowContext->GetWindow();
+    if (window == nullptr) {
         return nullptr;
     }
     SDL_GPUDevice *device = windowContext->GetDevice();
@@ -63,7 +119,39 @@ std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::GpuPipelineCache::L
     gpuPipelineResource->vertexShader.SetSelfPackageId(manifestId);
     gpuPipelineResource->fragmentShader.SetSelfPackageId(manifestId);
 
+    SDL_GPUVertexBufferDescription bufferDescription = {};
+    bufferDescription.slot = 0;
+    bufferDescription.pitch = sizeof(SpriteVertex);
+    bufferDescription.input_rate = SDL_GPU_VERTEXINPUTRATE_VERTEX;
+
+    SDL_GPUVertexAttribute attributes[3] = {};
+    attributes[0].location = 0;
+    attributes[0].buffer_slot = 0;
+    attributes[0].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2;
+    attributes[0].offset = offsetof(SpriteVertex, x);
+    attributes[1].location = 1;
+    attributes[1].buffer_slot = 0;
+    attributes[1].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2;
+    attributes[1].offset = offsetof(SpriteVertex, u);
+    attributes[2].location = 2;
+    attributes[2].buffer_slot = 0;
+    attributes[2].format = SDL_GPU_VERTEXELEMENTFORMAT_UBYTE4_NORM;
+    attributes[2].offset = offsetof(SpriteVertex, r);
+
+    SDL_GPUColorTargetDescription colorTarget = {};
+    colorTarget.blend_state = ToColorTargetBlendState(static_cast<BlendMode>(gpuPipelineResource->blendMode));
+    colorTarget.format = SDL_GetGPUSwapchainTextureFormat(device, window);
+
     SDL_GPUGraphicsPipelineCreateInfo createInfo = {};
+    createInfo.primitive_type = static_cast<SDL_GPUPrimitiveType>(gpuPipelineResource->primitiveType);
+    createInfo.vertex_input_state.vertex_buffer_descriptions = &bufferDescription;
+    createInfo.vertex_input_state.num_vertex_buffers = 1;
+    createInfo.vertex_input_state.vertex_attributes = attributes;
+    createInfo.vertex_input_state.num_vertex_attributes = 3;
+    createInfo.multisample_state.sample_count = SDL_GPU_SAMPLECOUNT_1;
+    createInfo.target_info.color_target_descriptions = &colorTarget;
+    createInfo.target_info.num_color_targets = 1;
+    createInfo.target_info.has_depth_stencil_target = false;
     vertexShaderResult_ = resourceLocator->FindShader(
         &gpuPipelineResource->vertexShader);
     if (vertexShaderResult_ == nullptr) {

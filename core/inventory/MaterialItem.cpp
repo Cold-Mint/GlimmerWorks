@@ -30,9 +30,7 @@
 
 #include "core/context/AppContext.h"
 #include "core/context/CacheContext.h"
-#include "core/gpu/GpuPipelineObjectCache.h"
 #include "core/mod/ResourceLocator.h"
-#include "core/utils/StringUtils.h"
 
 glimmer::MaterialItem::MaterialItem(std::string id, std::string name, std::optional<std::string> description,
                                     std::shared_ptr<TextureResourceResult> iconResult,
@@ -70,14 +68,11 @@ std::unique_ptr<glimmer::MaterialItem> glimmer::MaterialItem::FromItemResource(c
     materialItem->SetLightSourceRef(itemResource->lightSource);
     if (itemResource->pipeline.IsValid()) {
         if (const std::shared_ptr<GPUPipelineResourceResult> pipelineResult = appContext->GetResourceLocator()->
-                FindPipeline(
+                FindGPUGraphicsPipeline(
                     &itemResource->pipeline,
                     false); pipelineResult != nullptr && pipelineResult->GetResource() != nullptr) {
             if (CacheContext *cacheContext = appContext->GetCacheContext(); cacheContext != nullptr) {
-                if (GpuPipelineObjectCache *pipelineObjectCache = cacheContext->GetPipelineObjectCache();
-                    pipelineObjectCache != nullptr) {
-                    materialItem->SetPipeline(pipelineObjectCache->GetOrCreatePipeline(pipelineResult->GetResource()));
-                }
+                materialItem->SetPipeline(pipelineResult->GetResource());
             }
         }
     }

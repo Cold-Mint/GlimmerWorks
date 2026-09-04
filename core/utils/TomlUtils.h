@@ -526,9 +526,8 @@ namespace toml {
         static glimmer::GPUPipelineResource from_toml(const value &v) {
             glimmer::GPUPipelineResource r;
             r.blendMode = toml::find_or<uint8_t>(v, "blend_mode", 0);
-            r.fragmentNumSamplers = toml::find_or<uint32_t>(v, "fragment_num_samplers", 1);
-            r.fragmentNumUniformBuffers = toml::find_or<uint32_t>(v, "fragment_num_uniform_buffers", 0);
             r.fragmentShader = toml::find<glimmer::ResourceRef>(v, "fragment_shader");
+            r.primitiveType = toml::find_or<uint8_t>(v, "primitive_type", 0);
             r.vertexShader = toml::find<glimmer::ResourceRef>(v, "vertex_shader");
             return r;
         }

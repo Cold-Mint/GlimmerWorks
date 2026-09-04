@@ -118,7 +118,7 @@ bool glimmer::ResourceRef::IsValid() const {
 }
 
 uint64_t glimmer::ResourceRef::GetFingerprint() const {
-    return static_cast<uint64_t>(resourceType_) & 0x1FULL << 59
+    return (static_cast<uint64_t>(resourceType_) & 0x1FULL) << 59
            | (std::hash<std::string>{}(packId_) & 0x1FFFFFFFULL) << 30
            | std::hash<std::string>{}(resourceKey_) & 0x3FFFFFFFULL;
 }

@@ -32,65 +32,38 @@
 glimmer::CacheContext::CacheContext(AppContext *appContext) : appContext_(appContext) {
     audioCache_ = std::make_unique<AudioCache>();
     gpuPipelineCache_ = std::make_unique<GpuPipelineCache>();
-    gpuPipelineObjectCache_ = std::make_unique<GpuPipelineObjectCache>(appContext);
     shaderCache_ = std::make_unique<ShaderCache>();
     textureCache_ = std::make_unique<TextureCache>();
     rmlCache_ = std::make_unique<RmlCache>();
     colorCache_ = std::make_unique<ColorCache>();
+    gpuSamplerCache_ = std::make_unique<GpuSamplerCache>();
+}
+
+glimmer::GpuSamplerCache *glimmer::CacheContext::GetGpuSamplerCache() const {
+    return gpuSamplerCache_.get();
 }
 
 glimmer::AudioCache *glimmer::CacheContext::GetAudioCache() const {
-    AudioCache *audioCachePtr = audioCache_.get();
-    if (audioCachePtr == nullptr) {
-        return nullptr;
-    }
-    return audioCachePtr;
+    return audioCache_.get();
 }
 
 glimmer::GpuPipelineCache *glimmer::CacheContext::GetPipelineCache() const {
-    GpuPipelineCache *gpuPipelinePtr = gpuPipelineCache_.get();
-    if (gpuPipelinePtr == nullptr) {
-        return nullptr;
-    }
-    return gpuPipelinePtr;
+    return gpuPipelineCache_.get();
 }
 
-glimmer::GpuPipelineObjectCache *glimmer::CacheContext::GetPipelineObjectCache() const {
-    GpuPipelineObjectCache *gpuPipelineObjectCachePtr = gpuPipelineObjectCache_.get();
-    if (gpuPipelineObjectCachePtr == nullptr) {
-        return nullptr;
-    }
-    return gpuPipelineObjectCachePtr;
-}
 
 glimmer::ShaderCache *glimmer::CacheContext::GetShaderCache() const {
-    ShaderCache *shaderCachePtr = shaderCache_.get();
-    if (shaderCachePtr == nullptr) {
-        return nullptr;
-    }
-    return shaderCachePtr;
+    return shaderCache_.get();
 }
 
 glimmer::ColorCache *glimmer::CacheContext::GetColorCache() const {
-    ColorCache *colorCachePtr = colorCache_.get();
-    if (colorCachePtr == nullptr) {
-        return nullptr;
-    }
-    return colorCachePtr;
+    return colorCache_.get();
 }
 
 glimmer::RmlCache *glimmer::CacheContext::GetRmlCache() const {
-    RmlCache *rmlCachePtr = rmlCache_.get();
-    if (rmlCachePtr == nullptr) {
-        return nullptr;
-    }
-    return rmlCachePtr;
+    return rmlCache_.get();
 }
 
 glimmer::TextureCache *glimmer::CacheContext::GetTextureCache() const {
-    TextureCache *textureCachePtr = textureCache_.get();
-    if (textureCachePtr == nullptr) {
-        return nullptr;
-    }
-    return textureCachePtr;
+    return textureCache_.get();
 }

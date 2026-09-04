@@ -289,6 +289,12 @@ namespace glimmer {
 
         //@genNextLine(vertexShader|片元着色器引用)
         ResourceRef fragmentShader;
+
+        //@genNextLine(primitiveType|Gpu图元拓扑模式)
+        uint8_t primitiveType = 0;
+
+        //@genNextLine(blendMode)
+        uint8_t blendMode = 0;
     };
 
     //@genNextLine(HorizontalSpacingStructureConditionsResource|横向间隔结构放置条件资源)

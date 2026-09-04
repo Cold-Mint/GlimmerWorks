@@ -29,7 +29,6 @@
 #include "core/context/AppContext.h"
 #include "core/context/CacheContext.h"
 #include "ComposableItem.h"
-#include "core/gpu/GpuPipelineObjectCache.h"
 #include "ItemAbilityFactory.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/log/LogCat.h"
@@ -98,14 +97,11 @@ std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(con
     abilityItem->SetLightSourceRef(itemResource->lightSource);
     if (itemResource->pipeline.IsValid()) {
         if (const std::shared_ptr<GPUPipelineResourceResult> pipelineResult = appContext->GetResourceLocator()->
-                FindPipeline(
+                FindGPUGraphicsPipeline(
                     &itemResource->pipeline,
                     false); pipelineResult != nullptr && pipelineResult->GetResource() != nullptr) {
             if (CacheContext *cacheContext = appContext->GetCacheContext(); cacheContext != nullptr) {
-                if (GpuPipelineObjectCache *pipelineObjectCache = cacheContext->GetPipelineObjectCache();
-                    pipelineObjectCache != nullptr) {
-                    abilityItem->SetPipeline(pipelineObjectCache->GetOrCreatePipeline(pipelineResult->GetResource()));
-                }
+                abilityItem->SetPipeline(pipelineResult->GetResource());
             }
         }
     }

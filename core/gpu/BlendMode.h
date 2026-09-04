@@ -26,8 +26,6 @@
  */
 #pragma once
 
-#include <cstdint>
-
 #include <SDL3/SDL_gpu.h>
 
 namespace glimmer {
@@ -53,18 +51,4 @@ namespace glimmer {
         /** Pre-multiplied alpha blending. 预乘 alpha 混合。 */
         Premultiplied = 4,
     };
-
-    /**
-     * Convert a raw uint8 value to the BlendMode enum.
-     * 将原始 uint8 值转换为 BlendMode 枚举。
-     * @param value value 原始值
-     */
-    [[nodiscard]] BlendMode BlendModeFromUint8(uint8_t value);
-
-    /**
-     * Convert a BlendMode into an SDL3 GPU color target blend state.
-     * 将 BlendMode 转换为 SDL3 GPU 颜色目标混合状态。
-     * @param mode mode 混合模式
-     */
-    [[nodiscard]] SDL_GPUColorTargetBlendState ToColorTargetBlendState(BlendMode mode);
 }

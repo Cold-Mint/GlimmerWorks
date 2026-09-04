@@ -32,7 +32,8 @@ namespace glimmer {
     class GpuSamplerCache : public BaseResourceCache<GPUSamplerResourceResult> {
     protected:
         std::shared_ptr<GPUSamplerResourceResult> LoadResourceFromPack(AppContext *appContext,
-            const ResourceRef *resourceRef, const ResourcePack *resourcePack) override;
+                                                                       const ResourceRef *resourceRef,
+                                                                       const ResourcePack *resourcePack) override;
 
     public:
         ~GpuSamplerCache() noexcept override;

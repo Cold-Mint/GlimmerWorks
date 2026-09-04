@@ -155,7 +155,7 @@ void glimmer::LightMapTexture::Upload(SDL_GPUCommandBuffer *commandBuffer) {
     if (commandBuffer == nullptr || texture_ == nullptr || pixelBuffer_.empty() || !dirty_) {
         return;
     }
-    const Uint32 dataSize = static_cast<Uint32>(pixelBuffer_.size());
+    const auto dataSize = static_cast<Uint32>(pixelBuffer_.size());
     if (transferBuffer_ == nullptr || transferBufferSize_ < dataSize) {
         if (transferBuffer_ != nullptr) {
             SDL_ReleaseGPUTransferBuffer(device_, transferBuffer_);

@@ -164,8 +164,14 @@ std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::GpuPipelineCache::L
         return nullptr;
     }
     createInfo.fragment_shader = fragmentShaderResult_->GetResource();
+
+    SDL_GPUGraphicsPipeline *gpuGraphicsPipeline = SDL_CreateGPUGraphicsPipeline(device, &createInfo);
+    if (gpuGraphicsPipeline == nullptr) {
+        LogCat::e(std::source_location::current(), "Failed to create GPU GraphicsPipeline");
+        return nullptr;
+    }
     auto pipelineResourceResult = std::make_shared<GPUPipelineResourceResult>();
-    pipelineResourceResult->SetResource(SDL_CreateGPUGraphicsPipeline(device, &createInfo));
+    pipelineResourceResult->SetResource(gpuGraphicsPipeline);
     pipelineResourceResult->SetResourcePack(resourcePack);
     pipelineResourceResult->SetDevice(device);
     return pipelineResourceResult;

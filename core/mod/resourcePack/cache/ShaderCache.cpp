@@ -82,7 +82,15 @@ std::shared_ptr<glimmer::ShaderResourceResult> glimmer::ShaderCache::LoadResourc
     shaderInfo.num_storage_buffers = 0;
     shaderInfo.props = 0;
     std::unique_ptr<GpuShaderCompileResult> gpuShaderCompileResult = nullptr;
-    auto shaderCacheMessagePtr = TryLoad(config->cachePath, virtualFileSystem, mtimeInt64, resourceRef, glslCode);
+    auto cachePath = std::filesystem::path(config->cachePath) / "shaders" / StringUtils::SanitizeFileName(
+                         resourceRef->GetPackageId()) /
+                     StringUtils::SanitizeFileName(resourceRef->GetResourceKey());
+    if (resourceRef->GetResourceType() == RESOURCE_SHADER_VERTEX) {
+        cachePath.replace_extension(SHADER_VERT_FORMAT + ".cache");
+    } else {
+        cachePath.replace_extension(SHADER_FRAG_FORMAT + ".cache");
+    }
+    auto shaderCacheMessagePtr = TryLoad(cachePath, virtualFileSystem, mtimeInt64, resourceRef, glslCode);
     if (shaderCacheMessagePtr == nullptr) {
         gpuShaderCompileResult = GpuShaderCompiler::CompileToSpirv(
             glslCode, vertex);
@@ -94,9 +102,20 @@ std::shared_ptr<glimmer::ShaderResourceResult> glimmer::ShaderCache::LoadResourc
         shaderInfo.num_samplers = gpuShaderCompileResult->GetNumSamplers();
         shaderInfo.num_uniform_buffers = gpuShaderCompileResult->GetNumUniformBuffers();
         auto hash = StringUtils::StringToFullBlake3(glslCode);
-        Store(config->cachePath, virtualFileSystem, resourceRef, mtimeInt64, hash,
-              gpuShaderCompileResult->GetCode().data(),
-              gpuShaderCompileResult->GetCodeSize());
+        ShaderCacheStoreData shaderCacheStoreData;
+        shaderCacheStoreData.virtualFileSystem = virtualFileSystem;
+        shaderCacheStoreData.resourceRef = resourceRef;
+        shaderCacheStoreData.mtime = mtimeInt64;
+        shaderCacheStoreData.hash = &hash;
+        shaderCacheStoreData.spirV = gpuShaderCompileResult->GetCode().data();
+        shaderCacheStoreData.spirVSize = gpuShaderCompileResult->GetCodeSize();
+        shaderCacheStoreData.numSamplers = gpuShaderCompileResult->GetNumSamplers();
+        shaderCacheStoreData.numUniformBuffers = gpuShaderCompileResult->GetNumUniformBuffers();
+        ShaderCacheMessage shaderCacheMessage;
+        WriteShaderCacheStoreToMessage(&shaderCacheStoreData, &shaderCacheMessage);
+        if (!virtualFileSystem->WriteFile(cachePath, shaderCacheMessage.SerializeAsString())) {
+            LogCat::e(std::source_location::current(), "create cache message failed: ", cachePath.string());
+        }
     } else {
         //Successfully read the cache.
         //成功读取缓存。
@@ -121,24 +140,10 @@ std::shared_ptr<glimmer::ShaderResourceResult> glimmer::ShaderCache::LoadResourc
     return shaderResourceResult;
 }
 
-std::filesystem::path glimmer::ShaderCache::GetCacheFilePath(const std::filesystem::path &cacheDir,
-                                                             const ResourceRef *resourceRef) {
-    auto path = cacheDir / "shaders" / StringUtils::SanitizeFileName(resourceRef->GetPackageId()) /
-                StringUtils::SanitizeFileName(resourceRef->GetResourceKey());
-    if (resourceRef->GetResourceType() == RESOURCE_SHADER_VERTEX) {
-        path.replace_extension(SHADER_VERT_FORMAT + ".cache");
-    } else {
-        path.replace_extension(SHADER_FRAG_FORMAT + ".cache");
-    }
-
-    return path;
-}
-
-std::unique_ptr<ShaderCacheMessage> glimmer::ShaderCache::TryLoad(const std::filesystem::path &cacheDir,
+std::unique_ptr<ShaderCacheMessage> glimmer::ShaderCache::TryLoad(const std::filesystem::path &cacheFilePath,
                                                                   const VirtualFileSystem *virtualFileSystem,
                                                                   int64_t mtime, const ResourceRef *resourceRef,
                                                                   const std::string &code) {
-    const std::filesystem::path cacheFilePath = GetCacheFilePath(cacheDir, resourceRef);
     if (!virtualFileSystem->Exists(cacheFilePath)) {
         return nullptr;
     }
@@ -180,33 +185,29 @@ std::unique_ptr<ShaderCacheMessage> glimmer::ShaderCache::TryLoad(const std::fil
     if (!cacheMessage->blake3hash().empty()
         && std::memcmp(newBlake3.data(), cacheMessage->blake3hash().data(), BLAKE3_OUT_LEN) == 0) {
         LogCat::i("Shader cache hit (blake3): ", cacheFilePath.string());
-        //Refresh the stored modification time so the next launch takes the
-        //fast path again.
-        //刷新缓存的修改时间，使下次启动重新走快速路径。
-        Store(cacheDir, virtualFileSystem, resourceRef, mtime, newBlake3, cacheMessage->spirvbinary().data(),
-              cacheMessage->spirvbinary().size());
+        //The modification time of the file has changed, but the hash value remains the same.
+        //文件的修改时间变了，但是哈希值没变。
+        cacheMessage->set_sourcemtime(mtime);
+        if (!virtualFileSystem->WriteFile(cacheFilePath, cacheMessage->SerializeAsString())) {
+            LogCat::e(std::source_location::current(), "update cache message failed: ", cacheFilePath.string());
+        }
         return cacheMessage;
     }
     return nullptr;
 }
 
-void glimmer::ShaderCache::Store(const std::filesystem::path &cacheDir, const VirtualFileSystem *virtualFileSystem,
-                                 const ResourceRef *resourceRef, int64_t mtime, const std::array<uint8_t, 32> &hash,
-                                 const void *spirv,
-                                 size_t spirvSize) const {
-    if (resourceRef == nullptr || virtualFileSystem == nullptr || spirv == nullptr || spirvSize == 0) {
-        return;
-    }
-    ShaderCacheMessage cacheMessage;
-    cacheMessage.set_sourcemtime(mtime);
-    std::string &dst = *cacheMessage.mutable_blake3hash();
-    dst.assign(reinterpret_cast<const char *>(hash.data()), hash.size());
-    resourceRef->WriteResourceRefMessage(*cacheMessage.mutable_shaderresourceref());
-    cacheMessage.set_spirvbinary(spirv, spirvSize);
-    const std::filesystem::path cacheFilePath = GetCacheFilePath(cacheDir, resourceRef);
-    if (!virtualFileSystem->WriteFile(cacheFilePath, cacheMessage.SerializeAsString())) {
-        LogCat::w(std::source_location::current(), "Failed to write shader cache: ", cacheFilePath.string());
-    }
+
+void glimmer::ShaderCache::WriteShaderCacheStoreToMessage(const ShaderCacheStoreData *shaderCacheStoreData,
+                                                          ShaderCacheMessage *cacheMessage) {
+    cacheMessage->set_sourcemtime(shaderCacheStoreData->mtime);
+    std::string &dst = *cacheMessage->mutable_blake3hash();
+    dst.assign(reinterpret_cast<const char *>(shaderCacheStoreData->hash->data()),
+               shaderCacheStoreData->hash->size());
+    shaderCacheStoreData->resourceRef->WriteResourceRefMessage(*cacheMessage->mutable_shaderresourceref());
+    cacheMessage->set_spirvbinary(shaderCacheStoreData->spirV, shaderCacheStoreData->spirVSize);
+    cacheMessage->set_numsamplers(shaderCacheStoreData->numSamplers);
+    cacheMessage->set_numuniformbuffers(shaderCacheStoreData->numUniformBuffers);
 }
+
 
 glimmer::ShaderCache::~ShaderCache() noexcept = default;

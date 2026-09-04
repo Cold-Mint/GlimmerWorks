@@ -36,8 +36,6 @@
 #include "core/context/WindowContext.h"
 #include "core/ecs/component/CameraComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
-#include "core/gpu/GpuShaderCompiler.h"
-#include "core/gpu/GpuShaderCompileResult.h"
 #include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/mod/ResourceLocator.h"
@@ -58,30 +56,96 @@ glimmer::AppRenderer::AppRenderer(AppContext *appContext) : appContext_(appConte
         device_ = windowContext->GetDevice();
     }
     resourceLocator_ = appContext_->GetResourceLocator();
+    ResourceRef defaultPipelineResourceRef;
+    defaultPipelineResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    defaultPipelineResourceRef.SetResourceType(RESOURCE_PIPELINE);
+    defaultPipelineResourceRef.SetResourceKey("default");
+    defaultPipeline_ = resourceLocator_->FindGPUGraphicsPipeline(&defaultPipelineResourceRef);
+    if (defaultPipeline_ == nullptr) {
+        LogCat::e(std::source_location::current(), "defaultPipeline failed: ", SDL_GetError());
+    }
+    ResourceRef defaultSamplerResourceRef;
+    defaultSamplerResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    defaultSamplerResourceRef.SetResourceType(RESOURCE_SAMPLER);
+    defaultSamplerResourceRef.SetResourceKey("default");
+    defaultSampler_ = resourceLocator_->FindGPUGraphicsSampler(&defaultSamplerResourceRef);
+    if (defaultSampler_ == nullptr) {
+        LogCat::e(std::source_location::current(), "defaultSampler failed: ", SDL_GetError());
+    }
 }
 
-SDL_GPUShader *glimmer::AppRenderer::CompileShader(const std::string &source, const bool vertex) const {
-    const std::unique_ptr<GpuShaderCompileResult> result = GpuShaderCompiler::CompileToSpirv(source, vertex);
-    if (result == nullptr) {
-        LogCat::w(std::source_location::current(), "Failed to compile shader");
-        return nullptr;
+void glimmer::AppRenderer::RenderFrame(const RmlContext *rmlContext, const int windowWidth, const int windowHeight) {
+    if (windowWidth <= 0 || windowHeight <= 0) {
+        return;
     }
-    SDL_GPUShaderCreateInfo info = {};
-    info.entrypoint = SHADER_ENTRY_POINT.c_str();
-    info.format = SDL_GPU_SHADERFORMAT_SPIRV;
-    info.stage = vertex ? SDL_GPU_SHADERSTAGE_VERTEX : SDL_GPU_SHADERSTAGE_FRAGMENT;
-    info.num_samplers = result->GetNumSamplers();
-    info.num_uniform_buffers = result->GetNumUniformBuffers();
-    info.num_storage_textures = 0;
-    info.num_storage_buffers = 0;
-    info.props = 0;
-    info.code = reinterpret_cast<const Uint8 *>(result->GetCode().data());
-    info.code_size = result->GetCodeSize();
-    SDL_GPUShader *shader = SDL_CreateGPUShader(device_, &info);
-    if (shader == nullptr) {
-        LogCat::w(std::source_location::current(), "SDL_CreateGPUShader failed: ", SDL_GetError());
+    if (device_ == nullptr) {
+        return;
     }
-    return shader;
+    WindowContext *windowContext = appContext_->GetWindowContext();
+    if (windowContext == nullptr) {
+        return;
+    }
+    SDL_Window *window = windowContext->GetWindow();
+    if (window == nullptr) {
+        return;
+    }
+
+    //Collect this frame's render commands, then render the unlit scene into an
+    //offscreen target and composite lighting + RmlUi on top.
+    //收集本帧的渲染命令，然后把无光照场景渲染到离屏目标，再在上层合成光照与 RmlUi。
+    renderQueue_.Clear();
+    RenderScenes();
+    RenderOverlays();
+
+    SDL_GPUCommandBuffer *commandBuffer = SDL_AcquireGPUCommandBuffer(device_);
+    if (commandBuffer == nullptr) {
+        return;
+    }
+    SDL_GPUTexture *swapChainTexture = nullptr;
+    Uint32 swapChainWidth = 0;
+    Uint32 swapChainHeight = 0;
+    if (!SDL_AcquireGPUSwapchainTexture(commandBuffer, window, &swapChainTexture, &swapChainWidth, &swapChainHeight)) {
+        LogCat::w(std::source_location::current(), "SDL_AcquireGPUSwapchainTexture failed: ", SDL_GetError());
+        SDL_CancelGPUCommandBuffer(commandBuffer);
+        return;
+    }
+
+    const auto logicalWidth = static_cast<Uint32>(windowWidth);
+    const auto logicalHeight = static_cast<Uint32>(windowHeight);
+
+    // Pass 1: render the unlit scene into the offscreen target.
+    // 通道 1：将无光照场景渲染到离屏目标。
+    EnsureSceneTexture(logicalWidth, logicalHeight);
+    FlushScenePass(commandBuffer, sceneTexture_, logicalWidth, logicalHeight);
+
+    // Build and upload the per-tile light map for the camera viewport.
+    // 构建并上传相机视口的逐瓦片光照贴图。
+    LightBuffer *lightBuffer = nullptr;
+    CameraComponent *camera = nullptr;
+    Transform2DComponent *cameraTransform = nullptr;
+    WorldContext *worldContext = nullptr;
+    if (SceneManager *sceneManager = appContext_->GetSceneManager(); sceneManager != nullptr) {
+        if (auto *worldScene = dynamic_cast<WorldScene *>(sceneManager->GetTopScene()); worldScene != nullptr) {
+            worldContext = worldScene->GetWorldContext();
+            if (worldContext != nullptr) {
+                lightBuffer = worldContext->GetLightingBuffer();
+                EntityShortCut *entityShortCut = worldContext->GetEntityShortCut();
+                if (entityShortCut != nullptr) {
+                    camera = entityShortCut->GetCameraComponent();
+                    cameraTransform = entityShortCut->GetCameraTransform2DComponent();
+                }
+            }
+        }
+    }
+    UpdateLightMap(lightBuffer, camera, cameraTransform, worldContext, logicalWidth, logicalHeight);
+    lightMapTexture_.Upload(commandBuffer);
+    FlushLightingPass(commandBuffer, swapChainTexture);
+    if (rmlContext != nullptr) {
+        rmlContext->RenderContext(commandBuffer, swapChainTexture, logicalWidth, logicalHeight);
+    }
+    if (!SDL_SubmitGPUCommandBuffer(commandBuffer)) {
+        LogCat::w(std::source_location::current(), "SDL_SubmitGPUCommandBuffer failed: ", SDL_GetError());
+    }
 }
 
 void glimmer::AppRenderer::EnsureVertexBufferSize(const Uint32 size) {
@@ -145,13 +209,12 @@ void glimmer::AppRenderer::FlushScenePass(SDL_GPUCommandBuffer *commandBuffer, S
     if (hasCommands) {
         renderQueue_.Sort();
         const std::vector<RenderCommand> &commands = renderQueue_.GetCommands();
-
         std::vector<SpriteVertex> vertices;
         std::vector<Uint32> indices;
         vertices.reserve(commands.size() * 4);
         indices.reserve(commands.size() * 6);
         for (const RenderCommand &command: commands) {
-            const Uint32 baseIndex = static_cast<Uint32>(vertices.size());
+            const auto baseIndex = static_cast<Uint32>(vertices.size());
             vertices.insert(vertices.end(), command.corners, command.corners + 4);
             const Uint32 quadIndices[6] = {
                 baseIndex + 0, baseIndex + 1, baseIndex + 2,
@@ -159,9 +222,8 @@ void glimmer::AppRenderer::FlushScenePass(SDL_GPUCommandBuffer *commandBuffer, S
             };
             indices.insert(indices.end(), quadIndices, quadIndices + 6);
         }
-
-        const Uint32 vertexDataSize = static_cast<Uint32>(vertices.size() * sizeof(SpriteVertex));
-        const Uint32 indexDataSize = static_cast<Uint32>(indices.size() * sizeof(Uint32));
+        const auto vertexDataSize = static_cast<Uint32>(vertices.size() * sizeof(SpriteVertex));
+        const auto indexDataSize = static_cast<Uint32>(indices.size() * sizeof(Uint32));
         EnsureVertexBufferSize(vertexDataSize);
         EnsureIndexBufferSize(indexDataSize);
         EnsureTransferBufferSize(vertexDataSize + indexDataSize);
@@ -169,7 +231,7 @@ void glimmer::AppRenderer::FlushScenePass(SDL_GPUCommandBuffer *commandBuffer, S
         if (vertexBuffer_ != nullptr && indexBuffer_ != nullptr && transferBuffer_ != nullptr) {
             void *mapped = SDL_MapGPUTransferBuffer(device_, transferBuffer_, true);
             if (mapped != nullptr) {
-                std::memcpy(static_cast<Uint8 *>(mapped), vertices.data(), vertexDataSize);
+                std::memcpy(mapped, vertices.data(), vertexDataSize);
                 std::memcpy(static_cast<Uint8 *>(mapped) + vertexDataSize, indices.data(), indexDataSize);
                 SDL_UnmapGPUTransferBuffer(device_, transferBuffer_);
             }
@@ -198,8 +260,7 @@ void glimmer::AppRenderer::FlushScenePass(SDL_GPUCommandBuffer *commandBuffer, S
         return;
     }
 
-    if (hasCommands && vertexBuffer_ != nullptr && indexBuffer_ != nullptr &&
-        sampler_ != nullptr) {
+    if (hasCommands && vertexBuffer_ != nullptr && indexBuffer_ != nullptr) {
         SDL_GPUBufferBinding vertexBinding = {vertexBuffer_, 0};
         SDL_BindGPUVertexBuffers(renderPass, 0, &vertexBinding, 1);
         SDL_GPUBufferBinding indexBinding = {indexBuffer_, 0};
@@ -209,16 +270,17 @@ void glimmer::AppRenderer::FlushScenePass(SDL_GPUCommandBuffer *commandBuffer, S
         SDL_PushGPUVertexUniformData(commandBuffer, 0, viewSize, sizeof(viewSize));
 
         const std::vector<RenderCommand> &commands = renderQueue_.GetCommands();
-        SDL_GPUGraphicsPipeline *currentPipeline = nullptr;
+        SDL_GPUGraphicsPipeline *defaultPipeline = defaultPipeline_->GetResource();
+        SDL_GPUGraphicsPipeline *currentPipeline = defaultPipeline;
         SDL_BindGPUGraphicsPipeline(renderPass, currentPipeline);
         Uint32 firstIndex = 0;
         for (const RenderCommand &command: commands) {
-            SDL_GPUGraphicsPipeline *commandPipeline = command.pipeline;
+            SDL_GPUGraphicsPipeline *commandPipeline = command.pipeline != nullptr ? command.pipeline : defaultPipeline;
             if (commandPipeline != currentPipeline) {
                 SDL_BindGPUGraphicsPipeline(renderPass, commandPipeline);
                 currentPipeline = commandPipeline;
             }
-            SDL_GPUTexture *texture = whiteTexture_;
+            SDL_GPUTexture *texture = nullptr;
             if (command.texture != nullptr && command.texture->GetResource() != nullptr) {
                 texture = command.texture->GetResource();
             }
@@ -226,7 +288,7 @@ void glimmer::AppRenderer::FlushScenePass(SDL_GPUCommandBuffer *commandBuffer, S
                 firstIndex += 6;
                 continue;
             }
-            SDL_GPUTextureSamplerBinding textureSamplerBinding = {texture, sampler_};
+            SDL_GPUTextureSamplerBinding textureSamplerBinding = {texture, defaultSampler_->GetResource()};
             SDL_BindGPUFragmentSamplers(renderPass, 0, &textureSamplerBinding, 1);
             SDL_DrawGPUIndexedPrimitives(renderPass, 6, 1, firstIndex, 0, 0);
             firstIndex += 6;
@@ -368,83 +430,6 @@ void glimmer::AppRenderer::UpdateLightMap(const LightBuffer *lightBuffer, const 
     lightingParams_[13] = 0.0F;
     lightingParams_[14] = 0.0F;
     lightingParams_[15] = 0.0F;
-}
-
-void glimmer::AppRenderer::RenderFrame(const RmlContext *rmlContext, const int windowWidth, const int windowHeight,
-                                       const uint64_t frameStart, const float deltaTime) {
-    (void) frameStart;
-    (void) deltaTime;
-    if (windowWidth <= 0 || windowHeight <= 0) {
-        return;
-    }
-    if (device_ == nullptr) {
-        return;
-    }
-    WindowContext *windowContext = appContext_->GetWindowContext();
-    if (windowContext == nullptr) {
-        return;
-    }
-    SDL_Window *window = windowContext->GetWindow();
-    if (window == nullptr) {
-        return;
-    }
-
-    //Collect this frame's render commands, then render the unlit scene into an
-    //offscreen target and composite lighting + RmlUi on top.
-    //收集本帧的渲染命令，然后把无光照场景渲染到离屏目标，再在上层合成光照与 RmlUi。
-    renderQueue_.Clear();
-    RenderScenes();
-    RenderOverlays();
-
-    SDL_GPUCommandBuffer *commandBuffer = SDL_AcquireGPUCommandBuffer(device_);
-    if (commandBuffer == nullptr) {
-        return;
-    }
-    SDL_GPUTexture *swapchainTexture = nullptr;
-    Uint32 swapchainWidth = 0;
-    Uint32 swapchainHeight = 0;
-    if (!SDL_AcquireGPUSwapchainTexture(commandBuffer, window, &swapchainTexture, &swapchainWidth, &swapchainHeight)) {
-        LogCat::w(std::source_location::current(), "SDL_AcquireGPUSwapchainTexture failed: ", SDL_GetError());
-        SDL_CancelGPUCommandBuffer(commandBuffer);
-        return;
-    }
-
-    const Uint32 logicalWidth = static_cast<Uint32>(windowWidth);
-    const Uint32 logicalHeight = static_cast<Uint32>(windowHeight);
-
-    // Pass 1: render the unlit scene into the offscreen target.
-    // 通道 1：将无光照场景渲染到离屏目标。
-    EnsureSceneTexture(logicalWidth, logicalHeight);
-    FlushScenePass(commandBuffer, sceneTexture_, logicalWidth, logicalHeight);
-
-    // Build and upload the per-tile light map for the camera viewport.
-    // 构建并上传相机视口的逐瓦片光照贴图。
-    LightBuffer *lightBuffer = nullptr;
-    CameraComponent *camera = nullptr;
-    Transform2DComponent *cameraTransform = nullptr;
-    WorldContext *worldContext = nullptr;
-    if (SceneManager *sceneManager = appContext_->GetSceneManager(); sceneManager != nullptr) {
-        if (auto *worldScene = dynamic_cast<WorldScene *>(sceneManager->GetTopScene()); worldScene != nullptr) {
-            worldContext = worldScene->GetWorldContext();
-            if (worldContext != nullptr) {
-                lightBuffer = worldContext->GetLightingBuffer();
-                EntityShortCut *entityShortCut = worldContext->GetEntityShortCut();
-                if (entityShortCut != nullptr) {
-                    camera = entityShortCut->GetCameraComponent();
-                    cameraTransform = entityShortCut->GetCameraTransform2DComponent();
-                }
-            }
-        }
-    }
-    UpdateLightMap(lightBuffer, camera, cameraTransform, worldContext, logicalWidth, logicalHeight);
-    lightMapTexture_.Upload(commandBuffer);
-    FlushLightingPass(commandBuffer, swapchainTexture);
-    if (rmlContext != nullptr) {
-        rmlContext->RenderContext(commandBuffer, swapchainTexture, swapchainWidth, swapchainHeight);
-    }
-    if (!SDL_SubmitGPUCommandBuffer(commandBuffer)) {
-        LogCat::w(std::source_location::current(), "SDL_SubmitGPUCommandBuffer failed: ", SDL_GetError());
-    }
 }
 
 void glimmer::AppRenderer::RenderScenes() {

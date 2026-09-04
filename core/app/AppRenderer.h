@@ -63,9 +63,9 @@ namespace glimmer {
         Uint32 indexBufferSize_ = 0;
         SDL_GPUTransferBuffer *transferBuffer_ = nullptr;
         Uint32 transferBufferSize_ = 0;
-        SDL_GPUTexture *whiteTexture_ = nullptr;
-        SDL_GPUSampler *sampler_ = nullptr;
         std::shared_ptr<GPUPipelineResourceResult> lightingPipeline_ = nullptr;
+        std::shared_ptr<GPUPipelineResourceResult> defaultPipeline_ = nullptr;
+        std::shared_ptr<GPUSamplerResourceResult> defaultSampler_ = nullptr;
         std::shared_ptr<GPUSamplerResourceResult> lightingSampler_ = nullptr;
 
         //Offscreen render target for the unlit scene pass, plus the lighting
@@ -89,14 +89,6 @@ namespace glimmer {
          * 创建或调整离屏场景渲染目标。
          */
         void EnsureSceneTexture(Uint32 width, Uint32 height);
-
-        /**
-         * Compile a GLSL source to SPIR-V and wrap it in an SDL_GPUShader.
-         * The caller owns the returned shader.
-         * 将 GLSL 源码编译为 SPIR-V 并封装为 SDL_GPUShader。调用方持有返回
-         * 着色器的所有权。
-         */
-        [[nodiscard]] SDL_GPUShader *CompileShader(const std::string &source, bool vertex) const;
 
         /**
          * Grow the vertex buffer to at least `size` bytes if necessary.
@@ -149,10 +141,7 @@ namespace glimmer {
          * @param rmlContext
          * @param windowWidth
          * @param windowHeight
-         * @param frameStart
-         * @param deltaTime
          */
-        void RenderFrame(const RmlContext *rmlContext, int windowWidth, int windowHeight, uint64_t frameStart,
-                         float deltaTime);
+        void RenderFrame(const RmlContext *rmlContext, int windowWidth, int windowHeight);
     };
 }

@@ -336,7 +336,7 @@ void glimmer::App::Run() const {
         eventLoop.ProcessEvents(frameStart);
         rmlContext->UpdateContext();
         UpdateScenes(deltaTime);
-        renderer.RenderFrame(rmlContext, windowWidth, windowHeight, frameStart, deltaTime);
+        renderer.RenderFrame(rmlContext, windowWidth, windowHeight);
         const Uint64 frameTimeMs = SDL_GetTicks() - frameStart;
         if (frameTimeMs < targetFrameTimeMs) {
             SDL_Delay(targetFrameTimeMs - frameTimeMs);

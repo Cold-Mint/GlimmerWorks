@@ -25,7 +25,7 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "blake3.h"
+#include "ShaderCacheStoreRequest.h"
 #include "core/mod/resourcePack/BaseResourceCache.h"
 #include "src/cache/shader_cache.pb.h"
 
@@ -40,46 +40,26 @@ namespace glimmer {
                                                                    const ResourcePack *resourcePack) override;
 
         /**
-         * Build the cache file path for a shader resource reference
-         * (<cachePath>/shaders/<packageId>/<resourceKey>.cache, sanitized).
-         * 构造着色器资源引用对应的缓存文件路径
-         * （<cachePath>/shaders/<packageId>/<resourceKey>.cache，已过滤非法字符）。
-         */
-        static std::filesystem::path GetCacheFilePath(const std::filesystem::path &cacheDir,
-                                                      const ResourceRef *resourceRef);
-
-        /**
          * Try to load a valid cached SPIR-V binary for the given shader.
          * 尝试为给定着色器加载有效的缓存 SPIR-V 二进制。
+         * @param cacheFilePath
          * @param virtualFileSystem
          * @param mtime mtime 文件修改时间
          * @param resourceRef resourceRef 着色器资源引用
-         * @param sourcePath sourcePath 着色器源文件路径（用于读取修改时间）
+         * @param code
          * @return The SPIR-V binary on a cache hit, std::nullopt on a miss
          * (missing/corrupted/stale cache).
          * 命中时返回 SPIR-V 二进制；未命中（缓存缺失/损坏/过期）返回 std::nullopt。
          */
-        [[nodiscard]] std::unique_ptr<ShaderCacheMessage> TryLoad(const std::filesystem::path &cacheDir,
-                                                                  const VirtualFileSystem *virtualFileSystem,
-                                                                  int64_t mtime,
-                                                                  const ResourceRef *resourceRef,
-                                                                  const std::string &code);
+        static std::unique_ptr<ShaderCacheMessage> TryLoad(const std::filesystem::path &cacheFilePath,
+                                                           const VirtualFileSystem *virtualFileSystem,
+                                                           int64_t mtime,
+                                                           const ResourceRef *resourceRef,
+                                                           const std::string &code);
 
-        /**
-         * Store a freshly compiled SPIR-V binary in the disk cache.
-         * 把刚编译的 SPIR-V 二进制写入磁盘缓存。
-         * @param cacheDir
-         * @param virtualFileSystem
-         * @param resourceRef resourceRef 着色器资源引用
-         * @param mtime mtime 源码修改时间
-         * @param hash hash 着色器哈希
-         * @param spirv spirv SPIR-V 二进制数据
-         * @param spirvSize spirvSize 数据字节数
-         */
-        void Store(const std::filesystem::path &cacheDir, const VirtualFileSystem *virtualFileSystem,
-                   const ResourceRef *resourceRef, int64_t mtime,
-                   const std::array<uint8_t,BLAKE3_OUT_LEN> &hash,
-                   const void *spirv, size_t spirvSize) const;
+
+        static void WriteShaderCacheStoreToMessage(const ShaderCacheStoreData *shaderCacheStoreData,
+                                                   ShaderCacheMessage *cacheMessage);
 
     public:
         ~ShaderCache() noexcept override;

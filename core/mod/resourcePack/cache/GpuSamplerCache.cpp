@@ -71,9 +71,14 @@ std::shared_ptr<glimmer::GPUSamplerResourceResult> glimmer::GpuSamplerCache::Loa
     createInfo.max_lod = gpuSamplerResource->maxLod;
     createInfo.enable_anisotropy = gpuSamplerResource->enableAnisotropy;
     createInfo.enable_compare = gpuSamplerResource->enableCompare;
+    SDL_GPUSampler *sampler = SDL_CreateGPUSampler(device, &createInfo);
+    if (sampler == nullptr) {
+        LogCat::e(std::source_location::current(), "SDL_CreateGPUSampler == nullptr");
+        return nullptr;
+    }
     auto samplerResourceResult = std::make_shared<GPUSamplerResourceResult>();
     samplerResourceResult->SetDevice(device);
-    samplerResourceResult->SetResource(SDL_CreateGPUSampler(device, &createInfo));
+    samplerResourceResult->SetResource(sampler);
     samplerResourceResult->SetResourcePack(resourcePack);
     return samplerResourceResult;
 }

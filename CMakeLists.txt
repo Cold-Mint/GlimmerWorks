@@ -802,6 +802,7 @@ target_sources(GlimmerWorks
         core/app/App.h
         core/mod/PackScanRequest.h
         core/mod/resourcePack/GPUSamplerResourceResult.h
+        core/mod/resourcePack/cache/ShaderCacheStoreRequest.h
         core/mod/resourcePack/cache/GpuSamplerCache.h
         core/mod/resourcePack/GPUSamplerResource.h
         core/mod/resourcePack/cache/RmlCache.h

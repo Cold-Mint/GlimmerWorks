@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
+ * 
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -25,47 +25,24 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <cstdint>
+
+#include "WeatherContext.h"
+#include "core/mod/Resource.h"
 
 namespace glimmer {
-    enum class GameSystemType : uint8_t {
-        None,
-        AndroidControlSystem,
-        AreaMarkerSystem,
-        AutoPickSystem,
-        BiomeBGMSystem,
-        BlueprintSystem,
-        Box2dSystemContext,
-        CameraSystem,
-        ChunkSystem,
-        DebugDrawBox2dSystem,
-        DebugDrawSystem,
-        DebugMultiMapSystem,
-        DebugPanelSystem,
-        DiggingSystem,
-        DraggableSystem,
-        DroppedItemSystem,
-        DynamicLightSystem,
-        FloatingTextSystem,
-        HotBarGUISystem,
-        ItemSlotSystem,
-        MagnetSystem,
-        ParallaxBackgroundSystem,
-        PauseSystem,
-        PhysicsSystem,
-        PlayerControlSystem,
-        RayCast2DSystem,
-        SkySystem,
-        SpiritRendererSystem,
-        TileLayerSystem,
-        Transform2DSystem,
-        InventoryGUISystem,
-        CraftPreviewSlotSystem,
-        MaterialSelectCraftUISystem,
-        ItemToolTipSystem,
-        ItemSlotQuantitySystem,
-        ButtonSystem,
-        TeachProviderSystem,
-        RecipeDetailGUISystem,
+    /**
+     * IWeatherCondition
+     * 天气条件处理器接口
+     * Matches a weather condition against the WeatherContext.
+     * 针对 WeatherContext 匹配天气条件。
+     */
+    class IWeatherCondition {
+    public:
+        virtual ~IWeatherCondition() = default;
+
+        [[nodiscard]] virtual WeatherConditionType GetType() const = 0;
+
+        [[nodiscard]] virtual bool Match(const WeatherContext &ctx,
+                                         const WeatherConditionResource *resource) const = 0;
     };
 }

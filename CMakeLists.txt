@@ -615,6 +615,7 @@ target_sources(GlimmerWorks
         core/ecs/system/PhysicsSystem.cpp
         core/ecs/system/PlayerControlSystem.cpp
         core/ecs/system/RayCast2DSystem.cpp
+        core/ecs/system/SkySystem.cpp
         core/ecs/system/SpiritRendererSystem.cpp
         core/ecs/system/TechProviderSystem.cpp
         core/ecs/system/TileLayerSystem.cpp
@@ -769,6 +770,9 @@ target_sources(GlimmerWorks
         core/world/TileResourceData.cpp
         core/world/Dimension.cpp
         core/world/WorldContext.cpp
+        core/world/weather/WeatherConditionProcessorManager.cpp
+        core/world/weather/WeatherConditionProcessors.cpp
+        core/world/weather/WeatherManager.cpp
         core/world/generator/BiomeDecorator.cpp
         core/world/generator/BiomeDecoratorManager.cpp
         core/world/generator/Chunk.cpp

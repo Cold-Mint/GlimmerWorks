@@ -42,6 +42,7 @@ namespace glimmer {
         uint32_t entityIDIndex;
         bool allowCheats = false;
         ResourceRef currentDimension;
+        long elapsedDays = 0;
 
         void FromMessage(const MapManifestMessage &manifestMessage);
 

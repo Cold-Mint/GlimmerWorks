@@ -76,6 +76,11 @@ void glimmer::ModContext::Init(VirtualFileSystem *vfs, const LangsResources *lan
     LogCat::d("Creating DimensionRegistry");
     dimensionRegistry_ = std::make_unique<DimensionRegistry>();
 
+    LogCat::d("Creating WeatherRegistry");
+    weatherRegistry_ = std::make_unique<WeatherRegistry>();
+    weatherConditionRegistry_ = std::make_unique<WeatherConditionRegistry>();
+    skyElementRegistry_ = std::make_unique<SkyElementRegistry>();
+
     LogCat::d("Creating TileResourceManager");
     tileResourceManager_ = std::make_unique<TileResourceManager>();
 
@@ -149,6 +154,18 @@ glimmer::BiomeRegistry *glimmer::ModContext::GetBiomeRegistry() const {
 
 glimmer::DimensionRegistry *glimmer::ModContext::GetDimensionRegistry() const {
     return dimensionRegistry_.get();
+}
+
+glimmer::WeatherRegistry *glimmer::ModContext::GetWeatherRegistry() const {
+    return weatherRegistry_.get();
+}
+
+glimmer::WeatherConditionRegistry *glimmer::ModContext::GetWeatherConditionRegistry() const {
+    return weatherConditionRegistry_.get();
+}
+
+glimmer::SkyElementRegistry *glimmer::ModContext::GetSkyElementRegistry() const {
+    return skyElementRegistry_.get();
 }
 
 glimmer::BiomeDecoratorManager *glimmer::ModContext::GetBiomeDecoratorManager() const {

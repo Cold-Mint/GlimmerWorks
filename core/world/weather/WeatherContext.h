@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
+ * 
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -28,44 +28,29 @@
 #include <cstdint>
 
 namespace glimmer {
-    enum class GameSystemType : uint8_t {
-        None,
-        AndroidControlSystem,
-        AreaMarkerSystem,
-        AutoPickSystem,
-        BiomeBGMSystem,
-        BlueprintSystem,
-        Box2dSystemContext,
-        CameraSystem,
-        ChunkSystem,
-        DebugDrawBox2dSystem,
-        DebugDrawSystem,
-        DebugMultiMapSystem,
-        DebugPanelSystem,
-        DiggingSystem,
-        DraggableSystem,
-        DroppedItemSystem,
-        DynamicLightSystem,
-        FloatingTextSystem,
-        HotBarGUISystem,
-        ItemSlotSystem,
-        MagnetSystem,
-        ParallaxBackgroundSystem,
-        PauseSystem,
-        PhysicsSystem,
-        PlayerControlSystem,
-        RayCast2DSystem,
-        SkySystem,
-        SpiritRendererSystem,
-        TileLayerSystem,
-        Transform2DSystem,
-        InventoryGUISystem,
-        CraftPreviewSlotSystem,
-        MaterialSelectCraftUISystem,
-        ItemToolTipSystem,
-        ItemSlotQuantitySystem,
-        ButtonSystem,
-        TeachProviderSystem,
-        RecipeDetailGUISystem,
+    /**
+     * WeatherContext
+     * 天气上下文
+     * The values that weather conditions are matched against.
+     * 天气条件匹配所依据的上下文值。
+     */
+    struct WeatherContext {
+        /**
+         * Current time of day in the range [0, 1).
+         * 当前时间（0..1）。
+         */
+        float timeOfDay = 0.0F;
+
+        /**
+         * Current moon phase (0..7), derived from elapsedDays % MOON_PHASE_COUNT.
+         * 当前月相（0..7），由 elapsedDays % MOON_PHASE_COUNT 推导。
+         */
+        uint8_t moonPhase = 0;
+
+        /**
+         * Current generic weather intensity (0..1).
+         * 当前通用天气强度（0..1）。
+         */
+        float weatherIntensity = 0.0F;
     };
 }

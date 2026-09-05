@@ -35,6 +35,7 @@ namespace glimmer {
     class TerrainManager;
     class ChunkGenerator;
     class ChunkLoader;
+    class WeatherManager;
     struct DimensionResource;
 
     /**
@@ -82,6 +83,7 @@ namespace glimmer {
         std::unique_ptr<TerrainManager> terrainManager_;
         std::unique_ptr<ChunkGenerator> chunkGenerator_;
         std::unique_ptr<ChunkLoader> chunkLoader_;
+        std::unique_ptr<WeatherManager> weatherManager_;
 
     public:
         Dimension(WorldContext *worldContext, DimensionResource *dimensionResource);
@@ -113,6 +115,8 @@ namespace glimmer {
         [[nodiscard]] ChunkGenerator *GetChunkGenerator() const;
 
         [[nodiscard]] ChunkLoader *GetChunkLoader() const;
+
+        [[nodiscard]] WeatherManager *GetWeatherManager() const;
 
         /**
          * GetTimeOfDay

@@ -31,6 +31,7 @@
 
 namespace glimmer {
     struct LightKeyframe;
+    struct SkyColorKeyframe;
     class WorldContext;
 
     /**
@@ -42,6 +43,15 @@ namespace glimmer {
         Color color;
         //Ambient intensity (0..1). 环境光强度（0..1）。
         float intensity = 0.0F;
+    };
+
+    /**
+     * SkyColors
+     * 天空颜色（顶部与地平线）
+     */
+    struct SkyColors {
+        Color top;
+        Color horizon;
     };
 
     /**
@@ -61,4 +71,13 @@ namespace glimmer {
      * @return 环境光
      */
     [[nodiscard]] AmbientLight ComputeAmbientLight(const WorldContext *worldContext, float timeOfDay);
+
+    /**
+     * ComputeSkyColors
+     * 读取当前维度的天空颜色关键帧并解析颜色资源；世界上下文为 null 或无关键帧时使用默认天空颜色。
+     * @param worldContext worldContext 世界上下文（可为 null）
+     * @param timeOfDay timeOfDay 一天中的时间（0..1）
+     * @return 天空颜色
+     */
+    [[nodiscard]] SkyColors ComputeSkyColors(const WorldContext *worldContext, float timeOfDay);
 }

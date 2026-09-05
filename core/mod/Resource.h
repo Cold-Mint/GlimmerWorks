@@ -688,6 +688,135 @@ namespace glimmer {
     };
 
     /**
+     * SkyColorKeyframe
+     * 天空颜色关键帧
+     * A single keyframe of the sky color curve (top and horizon color resources).
+     * 天空颜色曲线上的单个关键帧（顶部与地平线颜色资源引用）。
+     */
+    //@genNextLine(SkyColorKeyframe|天空颜色关键帧)
+    struct SkyColorKeyframe {
+        //@genNextLine(t|时间点(0-1))
+        float t = 0.0F;
+        //@genNextLine(top|天空顶部颜色资源引用)
+        ResourceRef top;
+        //@genNextLine(horizon|地平线颜色资源引用)
+        ResourceRef horizon;
+    };
+
+    /**
+     * WeatherIntensityLevel
+     * 天气强度等级
+     * A weighted intensity level for the generic weather intensity axis.
+     * 通用天气强度轴的一个加权强度等级。
+     */
+    //@genNextLine(WeatherIntensityLevel|天气强度等级)
+    struct WeatherIntensityLevel {
+        //@genNextLine(value|强度值(0-1))
+        float value = 0.0F;
+        //@genNextLine(weight|权重)
+        float weight = 1.0F;
+    };
+
+    /**
+     * WeatherConditionType
+     * 天气条件类型
+     */
+    enum class WeatherConditionType : uint8_t {
+        None,
+        TimeOfDay,
+        MoonPhase,
+        WeatherIntensity,
+        Chance
+    };
+
+    /**
+     * SkyElementType
+     * 天空元素类型
+     */
+    enum class SkyElementType : uint8_t {
+        None,
+        Sun,
+        Moon,
+        Cloud,
+        Star,
+        Rain,
+        Snow,
+        Storm
+    };
+
+    /**
+     * SkyAnimationType
+     * 天空元素动画类型（内置）
+     */
+    enum class SkyAnimationType : uint8_t {
+        None,
+        SunArc,
+        MoonArc,
+        Drift,
+        Twinkle,
+        Fall,
+        Static
+    };
+
+    /**
+     * WeatherConditionResource
+     * 天气条件资源
+     * A reusable condition matched against the WeatherContext.
+     * 针对 WeatherContext 匹配的可复用条件。
+     */
+    //@genNextLine(WeatherConditionResource|天气条件资源)
+    struct WeatherConditionResource : Resource {
+        //@genNextLine(type|条件类型 0=None 1=TimeOfDay 2=MoonPhase 3=WeatherIntensity 4=Chance)
+        uint8_t type = 0;
+        //@genNextLine(minValue|区间下限(TimeOfDay/WeatherIntensity))
+        float minValue = 0.0F;
+        //@genNextLine(maxValue|区间上限(TimeOfDay/WeatherIntensity))
+        float maxValue = 1.0F;
+        //@genNextLine(moonPhase|目标月相(MoonPhase))
+        uint8_t moonPhase = 0;
+        //@genNextLine(weight|权重(Chance))
+        float weight = 1.0F;
+    };
+
+    /**
+     * SkyElementResource
+     * 天空元素资源
+     * A single sky element (sun/moon/cloud/star/rain...) with its shader and animation.
+     * 单个天空元素（太阳/月亮/云/星星/雨...），含着色器与动画。
+     */
+    //@genNextLine(SkyElementResource|天空元素资源)
+    struct SkyElementResource : Resource {
+        //@genNextLine(type|元素类型 0=None 1=Sun 2=Moon 3=Cloud 4=Star 5=Rain 6=Snow 7=Storm)
+        uint8_t type = 0;
+        //@genNextLine(slot|元素槽位（同 slot+animationType 互斥）)
+        uint8_t slot = 0;
+        //@genNextLine(animationType|动画类型 0=None 1=SunArc 2=MoonArc 3=Drift 4=Twinkle 5=Fall 6=Static)
+        uint8_t animationType = 0;
+        //@genNextLine(priority|同(slot,animationType)内优先级，高者胜)
+        int8_t priority = 0;
+        //@genNextLine(pipeline|着色器管线引用)
+        ResourceRef pipeline;
+        //@genNextLine(sampler|采样器引用)
+        ResourceRef sampler;
+        //@genNextLine(params|元素参数)
+        std::vector<float> params;
+    };
+
+    /**
+     * WeatherResource
+     * 天气资源
+     * A weather is a collection of sky elements matched by conditions.
+     * 天气是一组由条件匹配的天空元素集合。
+     */
+    //@genNextLine(WeatherResource|天气资源)
+    struct WeatherResource : Resource {
+        //@genNextLine(conditions|匹配条件列表（全部满足才生效）)
+        std::vector<ResourceRef> conditions;
+        //@genNextLine(elements|天空元素列表)
+        std::vector<ResourceRef> elements;
+    };
+
+    /**
      * DimensionResource
      * 维度
      * A dimension is a collection of biomes with its own world generator noise configuration and time flow.
@@ -717,6 +846,16 @@ namespace glimmer {
         float initialTime = 0.0F;
         //@genNextLine(ambientLightKeyframes|环境光关键帧列表（时间点+RGB+强度），决定昼夜光照曲线)
         std::vector<LightKeyframe> ambientLightKeyframes = GetDefaultAmbientLightKeyframes();
+        //@genNextLine(skyColorKeyframes|天空颜色关键帧列表（时间点+顶部/地平线颜色资源引用）)
+        std::vector<SkyColorKeyframe> skyColorKeyframes;
+        //@genNextLine(weathers|该维度生效的天气列表（引用WeatherResource）)
+        std::vector<ResourceRef> weathers;
+        //@genNextLine(weatherIntensityLevels|天气强度轴等级（值+权重）)
+        std::vector<WeatherIntensityLevel> weatherIntensityLevels = {{0.0F, 1.0F}, {1.0F, 1.0F}};
+        //@genNextLine(weatherIntensityMinDuration|天气强度最短持续时长(秒))
+        float weatherIntensityMinDuration = 60.0F;
+        //@genNextLine(weatherIntensityMaxDuration|天气强度最长持续时长(秒))
+        float weatherIntensityMaxDuration = 300.0F;
 
         /**
          * GetDefaultAmbientLightKeyframes

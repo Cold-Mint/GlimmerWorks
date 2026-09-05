@@ -54,6 +54,7 @@ namespace glimmer {
     struct DimensionResource;
     struct ResourceRef;
     struct LightKeyframe;
+    struct SkyColorKeyframe;
 
     /**
      * GameEntity has been restricted to be accessed directly only within the WorldContext. uint32_t is provided externally.
@@ -161,6 +162,36 @@ namespace glimmer {
          * 获取当前维度的环境光关键帧；无当前维度时返回默认关键帧。
          */
         [[nodiscard]] const std::vector<LightKeyframe> &GetAmbientLightKeyframes() const;
+
+        /**
+         * GetSkyColorKeyframes
+         * 获取当前维度的天空颜色关键帧；无当前维度时返回默认关键帧。
+         */
+        [[nodiscard]] const std::vector<SkyColorKeyframe> &GetSkyColorKeyframes() const;
+
+        /**
+         * GetElapsedDays
+         * 获取此存档经历的游戏天数（世界级）。
+         */
+        [[nodiscard]] long GetElapsedDays() const;
+
+        /**
+         * GetMoonPhase
+         * 获取当前月相（0..MOON_PHASE_COUNT-1）。
+         */
+        [[nodiscard]] uint8_t GetMoonPhase() const;
+
+        /**
+         * OnDayAdvanced
+         * 当某个维度的时间回绕（1→0）时调用，使世界天数 +1。
+         */
+        void OnDayAdvanced();
+
+        /**
+         * GetWeatherIntensity
+         * 获取当前维度的天气强度。
+         */
+        [[nodiscard]] float GetWeatherIntensity() const;
 
         /**
          * SwitchDimension

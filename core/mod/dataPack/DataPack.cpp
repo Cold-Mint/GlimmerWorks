@@ -212,7 +212,44 @@ void glimmer::DataPack::LoadDimensionResourceFromFile(const toml::value &value,
                                                       DimensionRegistry *dimensionRegistry) const {
     auto dimensionResource = std::make_unique<DimensionResource>(toml::get<DimensionResource>(value));
     dimensionResource->packId = manifest_.id;
+    for (auto &weather: dimensionResource->weathers) {
+        weather.SetSelfPackageId(manifest_.id);
+    }
+    for (auto &keyframe: dimensionResource->skyColorKeyframes) {
+        keyframe.top.SetSelfPackageId(manifest_.id);
+        keyframe.horizon.SetSelfPackageId(manifest_.id);
+    }
     dimensionRegistry->Register(std::move(dimensionResource));
+}
+
+void glimmer::DataPack::LoadWeatherResourceFromFile(const toml::value &value,
+                                                    WeatherRegistry *weatherRegistry) const {
+    auto weatherResource = std::make_unique<WeatherResource>(toml::get<WeatherResource>(value));
+    weatherResource->packId = manifest_.id;
+    for (auto &condition: weatherResource->conditions) {
+        condition.SetSelfPackageId(manifest_.id);
+    }
+    for (auto &element: weatherResource->elements) {
+        element.SetSelfPackageId(manifest_.id);
+    }
+    weatherRegistry->Register(std::move(weatherResource));
+}
+
+void glimmer::DataPack::LoadWeatherConditionResourceFromFile(const toml::value &value,
+                                                             WeatherConditionRegistry *weatherConditionRegistry) const {
+    auto conditionResource = std::make_unique<WeatherConditionResource>(
+        toml::get<WeatherConditionResource>(value));
+    conditionResource->packId = manifest_.id;
+    weatherConditionRegistry->Register(std::move(conditionResource));
+}
+
+void glimmer::DataPack::LoadSkyElementResourceFromFile(const toml::value &value,
+                                                       SkyElementRegistry *skyElementRegistry) const {
+    auto elementResource = std::make_unique<SkyElementResource>(toml::get<SkyElementResource>(value));
+    elementResource->packId = manifest_.id;
+    elementResource->pipeline.SetSelfPackageId(manifest_.id);
+    elementResource->sampler.SetSelfPackageId(manifest_.id);
+    skyElementRegistry->Register(std::move(elementResource));
 }
 
 void glimmer::DataPack::LoadComposableItemResourceFromFile(const toml::value &value,
@@ -578,6 +615,18 @@ int glimmer::DataPack::LoadResourceByType(const std::string &dataType, const std
     }
     if (dataType == DATA_FILE_TYPE_DIMENSION) {
         LoadDimensionResourceFromFile(value, modContext->GetDimensionRegistry());
+        return 1;
+    }
+    if (dataType == DATA_FILE_TYPE_WEATHER) {
+        LoadWeatherResourceFromFile(value, modContext->GetWeatherRegistry());
+        return 1;
+    }
+    if (dataType == DATA_FILE_TYPE_WEATHER_CONDITION) {
+        LoadWeatherConditionResourceFromFile(value, modContext->GetWeatherConditionRegistry());
+        return 1;
+    }
+    if (dataType == DATA_FILE_TYPE_SKY_ELEMENT) {
+        LoadSkyElementResourceFromFile(value, modContext->GetSkyElementRegistry());
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_COMPOSABLE_ITEM) {

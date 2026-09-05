@@ -216,6 +216,30 @@ void glimmer::RenderQueue::FillRect(const RenderLayer layer, const float depth, 
     AppendQuad(layer, depth, nullptr, positions, uvs, color);
 }
 
+void glimmer::RenderQueue::DrawFullScreenQuad(const RenderLayer layer, const float depth, const SDL_FRect *dst,
+                                              SDL_GPUGraphicsPipeline *pipeline, SDL_GPUSampler *sampler,
+                                              const CompiledUniformBlock *uniformBlock) {
+    if (dst == nullptr) {
+        return;
+    }
+    if (dst->w <= 0.0F || dst->h <= 0.0F) {
+        return;
+    }
+    const SDL_FPoint positions[4] = {
+        {dst->x, dst->y},
+        {dst->x + dst->w, dst->y},
+        {dst->x, dst->y + dst->h},
+        {dst->x + dst->w, dst->y + dst->h}
+    };
+    const SDL_FPoint uvs[4] = {
+        {0.0F, 0.0F},
+        {1.0F, 0.0F},
+        {0.0F, 1.0F},
+        {1.0F, 1.0F}
+    };
+    AppendQuad(layer, depth, nullptr, positions, uvs, {255, 255, 255, 255}, pipeline, sampler, uniformBlock);
+}
+
 void glimmer::RenderQueue::DrawRect(const RenderLayer layer, const float depth, const SDL_FRect *rect,
                                     const SDL_Color &color) {
     if (rect == nullptr) {

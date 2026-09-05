@@ -147,6 +147,9 @@ static constexpr std::string DATA_FILE_TYPE_STRINGS = "strings";
 static constexpr std::string DATA_FILE_TYPE_TILE = "tile";
 static constexpr std::string DATA_FILE_TYPE_BIOME = "biome";
 static constexpr std::string DATA_FILE_TYPE_DIMENSION = "dimension";
+static constexpr std::string DATA_FILE_TYPE_WEATHER = "weather";
+static const std::string DATA_FILE_TYPE_WEATHER_CONDITION = "weather_condition";
+static constexpr std::string DATA_FILE_TYPE_SKY_ELEMENT = "sky_element";
 static constexpr std::string DATA_FILE_TYPE_COMPOSABLE_ITEM = "composable";
 static constexpr std::string DATA_FILE_TYPE_ABILITY_ITEM = "ability";
 static constexpr std::string DATA_FILE_TYPE_MATERIAL_ITEM = "material";
@@ -212,6 +215,12 @@ static constexpr int HALF_CHUNK_SIZE = CHUNK_SIZE * 0.5;
  */
 static constexpr int CHUNK_AREA = CHUNK_SIZE * CHUNK_SIZE;
 static constexpr int TILE_LAYER_TYPE_COUNT = 2;
+
+/**
+ * Number of moon phases.
+ * 月相数量。
+ */
+static constexpr int MOON_PHASE_COUNT = 8;
 
 /**
  * Block mask (used for fast modulo operation / obtaining offset within the block)

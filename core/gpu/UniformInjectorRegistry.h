@@ -40,6 +40,10 @@ namespace glimmer {
     inline constexpr std::string_view BUILTIN_LIGHTMAP_SIZE = "@builtin.lightmap_size";
     inline constexpr std::string_view BUILTIN_TIME_OF_DAY = "@builtin.time_of_day";
     inline constexpr std::string_view BUILTIN_AMBIENT_COLOR = "@builtin.ambient_color";
+    inline constexpr std::string_view BUILTIN_MOON_PHASE = "@builtin.moon_phase";
+    inline constexpr std::string_view BUILTIN_WEATHER_INTENSITY = "@builtin.weather_intensity";
+    inline constexpr std::string_view BUILTIN_SKY_TOP_COLOR = "@builtin.sky_top_color";
+    inline constexpr std::string_view BUILTIN_SKY_HORIZON_COLOR = "@builtin.sky_horizon_color";
 
     /**
      * UniformInjector

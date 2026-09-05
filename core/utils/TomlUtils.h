@@ -488,6 +488,68 @@ namespace toml {
     };
 
     template<>
+    struct from<glimmer::SkyColorKeyframe> {
+        static glimmer::SkyColorKeyframe from_toml(const value &v) {
+            glimmer::SkyColorKeyframe r;
+            r.t = toml::find_or<float>(v, "t", 0.0F);
+            r.top = toml::find_or<glimmer::ResourceRef>(v, "top", glimmer::ResourceRef());
+            r.horizon = toml::find_or<glimmer::ResourceRef>(v, "horizon", glimmer::ResourceRef());
+            return r;
+        }
+    };
+
+    template<>
+    struct from<glimmer::WeatherIntensityLevel> {
+        static glimmer::WeatherIntensityLevel from_toml(const value &v) {
+            glimmer::WeatherIntensityLevel r;
+            r.value = toml::find_or<float>(v, "value", 0.0F);
+            r.weight = toml::find_or<float>(v, "weight", 1.0F);
+            return r;
+        }
+    };
+
+    template<>
+    struct from<glimmer::WeatherConditionResource> {
+        static glimmer::WeatherConditionResource from_toml(const value &v) {
+            glimmer::WeatherConditionResource r;
+            r.resourceId = toml::find<std::string>(v, "resource_id");
+            r.type = toml::find_or<uint8_t>(v, "type", 0);
+            r.minValue = toml::find_or<float>(v, "min_value", 0.0F);
+            r.maxValue = toml::find_or<float>(v, "max_value", 1.0F);
+            r.moonPhase = toml::find_or<uint8_t>(v, "moon_phase", 0);
+            r.weight = toml::find_or<float>(v, "weight", 1.0F);
+            return r;
+        }
+    };
+
+    template<>
+    struct from<glimmer::SkyElementResource> {
+        static glimmer::SkyElementResource from_toml(const value &v) {
+            glimmer::SkyElementResource r;
+            r.resourceId = toml::find<std::string>(v, "resource_id");
+            r.type = toml::find_or<uint8_t>(v, "type", 0);
+            r.slot = toml::find_or<uint8_t>(v, "slot", 0);
+            r.animationType = toml::find_or<uint8_t>(v, "animation_type", 0);
+            r.priority = toml::find_or<int8_t>(v, "priority", 0);
+            r.pipeline = toml::find<glimmer::ResourceRef>(v, "pipeline");
+            r.sampler = toml::find_or<glimmer::ResourceRef>(v, "sampler", {});
+            r.params = toml::find_or<std::vector<float> >(v, "params", {});
+            return r;
+        }
+    };
+
+    template<>
+    struct from<glimmer::WeatherResource> {
+        static glimmer::WeatherResource from_toml(const value &v) {
+            glimmer::WeatherResource r;
+            r.resourceId = toml::find<std::string>(v, "resource_id");
+            r.conditions = toml::find_or<std::vector<glimmer::ResourceRef> >(v, "conditions", {});
+            r.elements = toml::find_or<std::vector<glimmer::ResourceRef> >(v, "elements", {});
+            return r;
+        }
+    };
+
+    template<>
     struct from<glimmer::DimensionResource> {
         static glimmer::DimensionResource from_toml(const value &v) {
             glimmer::DimensionResource r;
@@ -503,6 +565,13 @@ namespace toml {
             r.initialTime = toml::find_or<float>(v, "initial_time", 0.0F);
             r.ambientLightKeyframes = toml::find_or<std::vector<glimmer::LightKeyframe> >(
                 v, "ambient_light_keyframes", r.ambientLightKeyframes);
+            r.skyColorKeyframes = toml::find_or<std::vector<glimmer::SkyColorKeyframe> >(
+                v, "sky_color_keyframes", r.skyColorKeyframes);
+            r.weathers = toml::find_or<std::vector<glimmer::ResourceRef> >(v, "weathers", {});
+            r.weatherIntensityLevels = toml::find_or<std::vector<glimmer::WeatherIntensityLevel> >(
+                v, "weather_intensity_levels", r.weatherIntensityLevels);
+            r.weatherIntensityMinDuration = toml::find_or<float>(v, "weather_intensity_min_duration", 60.0F);
+            r.weatherIntensityMaxDuration = toml::find_or<float>(v, "weather_intensity_max_duration", 300.0F);
             return r;
         }
     };

@@ -32,6 +32,7 @@
 #include "TerrainManager.h"
 #include "generator/ChunkGenerator.h"
 #include "generator/ChunkLoader.h"
+#include "weather/WeatherManager.h"
 #include "core/log/LogCat.h"
 #include "core/mod/Resource.h"
 #include "core/mod/ResourceRef.h"
@@ -58,10 +59,13 @@ void glimmer::Dimension::Init() {
     chunkGenerator_ = std::make_unique<
         ChunkGenerator>(worldContext_, worldContext_->GetWorldSeed(), dimensionResource_);
     chunkLoader_ = std::make_unique<ChunkLoader>(worldContext_, worldContext_->GetSaves(), dimensionFolderName_);
+    weatherManager_ = std::make_unique<WeatherManager>(worldContext_, this);
 
     if (const auto manifest = worldContext_->GetSaves()->ReadDimensionManifest(dimensionFolderName_);
         manifest.has_value()) {
         timeOfDay_ = manifest->time();
+        weatherManager_->SetWeatherIntensity(manifest->weatherintensity());
+        weatherManager_->SetWeatherTimer(manifest->weathertimer());
         LogCat::i("Dimension time restored: ", dimensionId_, " time=", timeOfDay_);
     } else {
         timeOfDay_ = initialTime_;
@@ -82,6 +86,8 @@ void glimmer::Dimension::SaveTime() const {
     }
     dimensionRef.WriteResourceRefMessage(*manifestMessage.mutable_dimension());
     manifestMessage.set_time(timeOfDay_);
+    manifestMessage.set_weatherintensity(weatherManager_ != nullptr ? weatherManager_->GetWeatherIntensity() : 0.0F);
+    manifestMessage.set_weathertimer(weatherManager_ != nullptr ? weatherManager_->GetWeatherTimer() : 0.0F);
     (void) worldContext_->GetSaves()->WriteDimensionManifest(dimensionFolderName_, manifestMessage);
 }
 
@@ -113,6 +119,10 @@ glimmer::ChunkLoader *glimmer::Dimension::GetChunkLoader() const {
     return chunkLoader_.get();
 }
 
+glimmer::WeatherManager *glimmer::Dimension::GetWeatherManager() const {
+    return weatherManager_.get();
+}
+
 float glimmer::Dimension::GetTimeOfDay() const {
     return timeOfDay_;
 }
@@ -129,7 +139,12 @@ void glimmer::Dimension::AdvanceTime(const float delta, const float dayLengthSec
         return;
     }
     timeOfDay_ += delta * timeFlowSpeed_ / dayLengthSeconds;
-    timeOfDay_ = std::fmod(timeOfDay_, 1.0F);
+    if (timeOfDay_ >= 1.0F) {
+        timeOfDay_ = std::fmod(timeOfDay_, 1.0F);
+        if (worldContext_ != nullptr) {
+            worldContext_->OnDayAdvanced();
+        }
+    }
     if (timeOfDay_ < 0.0F) {
         timeOfDay_ += 1.0F;
     }

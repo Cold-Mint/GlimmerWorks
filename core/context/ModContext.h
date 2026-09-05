@@ -30,6 +30,9 @@
 
 #include "core/mod/dataPack/BiomeRegistry.h"
 #include "core/mod/dataPack/DimensionRegistry.h"
+#include "core/mod/dataPack/WeatherRegistry.h"
+#include "core/mod/dataPack/WeatherConditionRegistry.h"
+#include "core/mod/dataPack/SkyElementRegistry.h"
 #include "core/mod/dataPack/TileResourceManager.h"
 #include "core/mod/dataPack/BiomeDecoratorRegistry.h"
 #include "core/lootTable/LootTableRegistry.h"
@@ -61,6 +64,9 @@ namespace glimmer {
         std::unique_ptr<TileResourceManager> tileResourceManager_;
         std::unique_ptr<BiomeRegistry> biomeRegistry_;
         std::unique_ptr<DimensionRegistry> dimensionRegistry_;
+        std::unique_ptr<WeatherRegistry> weatherRegistry_;
+        std::unique_ptr<WeatherConditionRegistry> weatherConditionRegistry_;
+        std::unique_ptr<SkyElementRegistry> skyElementRegistry_;
         std::unique_ptr<BiomeDecoratorManager> biomeDecoratorManager_;
         std::unique_ptr<BiomeDecoratorRegistry> biomeDecoratorRegistry_;
         std::unique_ptr<AbilityItemRegistry> abilityItemRegistry_;
@@ -95,6 +101,12 @@ namespace glimmer {
         [[nodiscard]] BiomeRegistry *GetBiomeRegistry() const;
 
         [[nodiscard]] DimensionRegistry *GetDimensionRegistry() const;
+
+        [[nodiscard]] WeatherRegistry *GetWeatherRegistry() const;
+
+        [[nodiscard]] WeatherConditionRegistry *GetWeatherConditionRegistry() const;
+
+        [[nodiscard]] SkyElementRegistry *GetSkyElementRegistry() const;
 
         [[nodiscard]] BiomeDecoratorManager *GetBiomeDecoratorManager() const;
 

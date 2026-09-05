@@ -140,6 +140,23 @@ namespace glimmer {
                                 const CompiledUniformBlock *uniformBlock = nullptr);
 
         /**
+         * Queue a full-screen quad with a custom pipeline and optional uniform block.
+         * Used for procedural screen-space passes (sky, post effects) that do not
+         * sample a texture but read the full-screen UV (0..1).
+         * 将使用自定义管线与可选 uniform 块的全屏四边形命令入队。
+         * 用于程序化屏幕空间 pass（天空、后处理），不采样纹理而是读取全屏 UV (0..1)。
+         * @param layer layer 命令所属渲染层
+         * @param depth depth 层内深度
+         * @param dst dst 目标矩形（像素）
+         * @param pipeline pipeline 渲染管线
+         * @param sampler sampler 采样器
+         * @param uniformBlock uniformBlock uniform 块
+         */
+        void DrawFullScreenQuad(RenderLayer layer, float depth, const SDL_FRect *dst,
+                                SDL_GPUGraphicsPipeline *pipeline, SDL_GPUSampler *sampler,
+                                const CompiledUniformBlock *uniformBlock);
+
+        /**
          * Queue a rectangle filled with a solid color
          * (replaces SDL_RenderFillRect + SDL_SetRenderDrawColor).
          * 将纯色填充矩形的命令入队（替代 SDL_RenderFillRect +

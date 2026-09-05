@@ -28,7 +28,9 @@
 
 #include <cmath>
 
+#include "core/context/AppContext.h"
 #include "core/mod/Resource.h"
+#include "core/mod/ResourceLocator.h"
 #include "core/world/WorldContext.h"
 
 glimmer::AmbientLight glimmer::ComputeAmbientLight(const float timeOfDay,
@@ -66,4 +68,63 @@ glimmer::AmbientLight glimmer::ComputeAmbientLight(const WorldContext *worldCont
                                                       ? worldContext->GetAmbientLightKeyframes()
                                                       : DimensionResource::GetDefaultAmbientLightKeyframes();
     return ComputeAmbientLight(timeOfDay, keyframes);
+}
+
+glimmer::SkyColors glimmer::ComputeSkyColors(const WorldContext *worldContext, const float timeOfDay) {
+    const SkyColors fallback{
+        Color(120, 180, 220, 255),
+        Color(200, 220, 240, 255)
+    };
+    if (worldContext == nullptr || worldContext->GetAppContext() == nullptr) {
+        return fallback;
+    }
+    const std::vector<SkyColorKeyframe> &keyframes = worldContext->GetSkyColorKeyframes();
+    if (keyframes.empty()) {
+        return fallback;
+    }
+    ResourceLocator *resourceLocator = worldContext->GetAppContext()->GetResourceLocator();
+    if (resourceLocator == nullptr) {
+        return fallback;
+    }
+
+    auto resolveColor = [resourceLocator](const ResourceRef &ref, const Color &defaultColor) {
+        const std::unique_ptr<Color> color = resourceLocator->FindColor(&ref, false);
+        return color != nullptr ? *color : defaultColor;
+    };
+
+    float t = std::fmod(timeOfDay, 1.0F);
+    if (t < 0.0F) {
+        t += 1.0F;
+    }
+    for (size_t i = 0; i + 1 < keyframes.size(); ++i) {
+        const SkyColorKeyframe &start = keyframes[i];
+        const SkyColorKeyframe &end = keyframes[i + 1];
+        if (t >= start.t && t <= end.t) {
+            const Color startTop = resolveColor(start.top, fallback.top);
+            const Color startHorizon = resolveColor(start.horizon, fallback.horizon);
+            const Color endTop = resolveColor(end.top, fallback.top);
+            const Color endHorizon = resolveColor(end.horizon, fallback.horizon);
+            const float span = end.t - start.t;
+            const float u = span > 0.0F ? (t - start.t) / span : 0.0F;
+            SkyColors result;
+            result.top = Color(
+                static_cast<uint8_t>(std::lerp(static_cast<float>(startTop.r), static_cast<float>(endTop.r), u)),
+                static_cast<uint8_t>(std::lerp(static_cast<float>(startTop.g), static_cast<float>(endTop.g), u)),
+                static_cast<uint8_t>(std::lerp(static_cast<float>(startTop.b), static_cast<float>(endTop.b), u)),
+                255);
+            result.horizon = Color(
+                static_cast<uint8_t>(std::lerp(static_cast<float>(startHorizon.r),
+                                               static_cast<float>(endHorizon.r), u)),
+                static_cast<uint8_t>(std::lerp(static_cast<float>(startHorizon.g),
+                                               static_cast<float>(endHorizon.g), u)),
+                static_cast<uint8_t>(std::lerp(static_cast<float>(startHorizon.b),
+                                               static_cast<float>(endHorizon.b), u)),
+                255);
+            return result;
+        }
+    }
+    SkyColors result;
+    result.top = resolveColor(keyframes.back().top, fallback.top);
+    result.horizon = resolveColor(keyframes.back().horizon, fallback.horizon);
+    return result;
 }

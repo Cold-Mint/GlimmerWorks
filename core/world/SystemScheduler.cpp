@@ -32,6 +32,7 @@
 #include "core/ecs/system/AreaMarkerSystem.h"
 #include "core/ecs/system/AutoPickSystem.h"
 #include "core/ecs/system/BiomeBGMSystem.h"
+#include "core/ecs/system/SkySystem.h"
 #include "core/ecs/system/BlueprintSystem.h"
 #include "core/ecs/system/CameraSystem.h"
 #include "core/ecs/system/ChunkSystem.h"
@@ -352,7 +353,7 @@ void glimmer::SystemScheduler::InitSystem() {
     RegisterSystem(std::make_unique<ChunkSystem>(worldContext_));
     RegisterSystem(std::make_unique<PhysicsSystem>(worldContext_));
     RegisterSystem(std::make_unique<MagnetSystem>(worldContext_));
-    RegisterSystem(std::make_unique<ParallaxBackgroundSystem>(worldContext_));
+    RegisterSystem(std::make_unique<SkySystem>(worldContext_));
     RegisterSystem(std::make_unique<FloatingTextSystem>(worldContext_));
     RegisterSystem(std::make_unique<DroppedItemSystem>(worldContext_));
     RegisterSystem(std::make_unique<AutoPickSystem>(worldContext_));

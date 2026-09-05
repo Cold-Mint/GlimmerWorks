@@ -54,6 +54,7 @@ namespace glimmer {
         /**
          * Find Best Biome
          * 查找最合的生物群系
+         * @param dimensionId dimensionId 当前维度Id（packId:resourceId），仅在该维度引用的群系中匹配
          * @param humidity humidity 湿度
          * @param temperature temperature 温度
          * @param weirdness weirdness 奇异度
@@ -62,7 +63,17 @@ namespace glimmer {
          * @param surfaceProximity SurfaceProximity 地表贴近度
          * @return
          */
-        [[nodiscard]] BiomeResource *FindBestBiome(float humidity, float temperature, float weirdness, float erosion,
+        [[nodiscard]] BiomeResource *FindBestBiome(const std::string &dimensionId, float humidity, float temperature,
+                                                   float weirdness, float erosion,
                                                    float elevation, float surfaceProximity) const;
+
+        /**
+         * BelongsToDimension
+         * 判断某个生物群系是否属于指定维度。维度引用列表为空时视为属于所有维度。
+         * @param biome biome 生物群系
+         * @param dimensionId dimensionId 维度Id
+         * @return
+         */
+        [[nodiscard]] static bool BelongsToDimension(const BiomeResource *biome, const std::string &dimensionId);
     };
 }

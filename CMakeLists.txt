@@ -487,6 +487,7 @@ target_sources(GlimmerWorks
         core/console/command/Box2DCommand.cpp
         core/console/command/ClearCommand.cpp
         core/console/command/ConfigCommand.cpp
+        core/console/command/DimensionCommand.cpp
         core/console/command/EchoCommand.cpp
         core/console/command/EcsCommand.cpp
         core/console/command/ExitCommand.cpp
@@ -529,6 +530,7 @@ target_sources(GlimmerWorks
         core/console/suggestion/ConfigSuggestions.cpp
         core/console/suggestion/CoordinateDynamicSuggestions.cpp
         core/console/suggestion/DataPackDynamicSuggestions.cpp
+        core/console/suggestion/DimensionSuggestions.cpp
         core/console/suggestion/DynamicSuggestions.cpp
         core/console/suggestion/DynamicSuggestionsManager.cpp
         core/console/suggestion/EventTypeDynamicSuggestions.cpp
@@ -673,6 +675,7 @@ target_sources(GlimmerWorks
         core/mod/dataPack/BiomeRegistry.cpp
         core/mod/dataPack/DataPack.cpp
         core/mod/dataPack/DataPackManager.cpp
+        core/mod/dataPack/DimensionRegistry.cpp
         core/mod/dataPack/FixedColorManager.cpp
         core/mod/dataPack/LightMaskManager.cpp
         core/mod/dataPack/LightSourceManager.cpp
@@ -764,6 +767,7 @@ target_sources(GlimmerWorks
         core/world/TileLootData.cpp
         core/world/TileMiningData.cpp
         core/world/TileResourceData.cpp
+        core/world/Dimension.cpp
         core/world/WorldContext.cpp
         core/world/generator/BiomeDecorator.cpp
         core/world/generator/BiomeDecoratorManager.cpp

@@ -32,24 +32,30 @@
 #include "core/log/LogCat.h"
 
 
-std::filesystem::path glimmer::Saves::ToChunkPath(const TileVector2D &position) const {
+std::filesystem::path glimmer::Saves::ToDimensionPath(const std::string &dimensionFolderName) const {
+    return path_ / DIMENSIONS_FOLDER_NAME / dimensionFolderName;
+}
+
+std::filesystem::path glimmer::Saves::ToChunkPath(const std::string &dimensionFolderName,
+                                                  const TileVector2D &position) const {
     std::stringstream fileNameStream;
     fileNameStream << "chunk_";
     fileNameStream << std::to_string(position.x);
     fileNameStream << "_";
     fileNameStream << std::to_string(position.y);
     fileNameStream << ".bin";
-    return path_ / "chunks" / fileNameStream.str();
+    return ToDimensionPath(dimensionFolderName) / "chunks" / fileNameStream.str();
 }
 
-std::filesystem::path glimmer::Saves::ToChunkEntityPath(const TileVector2D &position) const {
+std::filesystem::path glimmer::Saves::ToChunkEntityPath(const std::string &dimensionFolderName,
+                                                        const TileVector2D &position) const {
     std::stringstream fileNameStream;
     fileNameStream << "entity_";
     fileNameStream << std::to_string(position.x);
     fileNameStream << "_";
     fileNameStream << std::to_string(position.y);
     fileNameStream << ".bin";
-    return path_ / "entities" / fileNameStream.str();
+    return ToDimensionPath(dimensionFolderName) / "entities" / fileNameStream.str();
 }
 
 std::filesystem::path glimmer::Saves::ToPlayerPath() const {
@@ -76,20 +82,22 @@ const std::filesystem::path &glimmer::Saves::GetPath() const {
     return path_;
 }
 
-bool glimmer::Saves::ChunkExists(const TileVector2D &position) const {
+bool glimmer::Saves::ChunkExists(const std::string &dimensionFolderName, const TileVector2D &position) const {
     return virtualFileSystem_->Exists(
-        ToChunkPath(position));
+        ToChunkPath(dimensionFolderName, position));
 }
 
-bool glimmer::Saves::EntityExists(const TileVector2D &position) const {
+bool glimmer::Saves::EntityExists(const std::string &dimensionFolderName, const TileVector2D &position) const {
     return virtualFileSystem_->Exists(
-        ToChunkEntityPath(position));
+        ToChunkEntityPath(dimensionFolderName, position));
 }
 
-std::optional<ChunkMessage> glimmer::Saves::ReadChunk(const TileVector2D &position) const {
-    const auto streamUnique = virtualFileSystem_->ReadFileAsStream(ToChunkPath(position));
+std::optional<ChunkMessage> glimmer::Saves::ReadChunk(const std::string &dimensionFolderName,
+                                                      const TileVector2D &position) const {
+    const auto streamUnique = virtualFileSystem_->ReadFileAsStream(ToChunkPath(dimensionFolderName, position));
     if (streamUnique == nullptr) {
-        LogCat::w(std::source_location::current(), "Failed to open chunk file: ", ToChunkPath(position).string());
+        LogCat::w(std::source_location::current(), "Failed to open chunk file: ",
+                  ToChunkPath(dimensionFolderName, position).string());
         return std::nullopt;
     }
     const auto stream = streamUnique.get();
@@ -99,20 +107,26 @@ std::optional<ChunkMessage> glimmer::Saves::ReadChunk(const TileVector2D &positi
     if (ChunkMessage chunkMessage; chunkMessage.ParseFromIstream(stream)) {
         return chunkMessage;
     }
-    LogCat::w(std::source_location::current(), "Failed to parse chunk data: ", ToChunkPath(position).string());
+    LogCat::w(std::source_location::current(), "Failed to parse chunk data: ",
+              ToChunkPath(dimensionFolderName, position).string());
     return std::nullopt;
 }
 
-bool glimmer::Saves::WriteChunk(const TileVector2D &position, const ChunkMessage &chunkMessage) const {
-    bool result = virtualFileSystem_->WriteFile(ToChunkPath(position), chunkMessage.SerializeAsString());
+bool glimmer::Saves::WriteChunk(const std::string &dimensionFolderName, const TileVector2D &position,
+                                const ChunkMessage &chunkMessage) const {
+    bool result = virtualFileSystem_->WriteFile(ToChunkPath(dimensionFolderName, position),
+                                                chunkMessage.SerializeAsString());
     if (!result) {
-        LogCat::w(std::source_location::current(), "Failed to write chunk: ", ToChunkPath(position).string());
+        LogCat::w(std::source_location::current(), "Failed to write chunk: ",
+                  ToChunkPath(dimensionFolderName, position).string());
     }
     return result;
 }
 
-std::optional<ChunkEntityMessage> glimmer::Saves::ReadChunkEntity(const TileVector2D &position) const {
-    const auto streamUnique = virtualFileSystem_->ReadFileAsStream(ToChunkEntityPath(position));
+std::optional<ChunkEntityMessage> glimmer::Saves::ReadChunkEntity(const std::string &dimensionFolderName,
+                                                                  const TileVector2D &position) const {
+    const auto streamUnique = virtualFileSystem_->ReadFileAsStream(
+        ToChunkEntityPath(dimensionFolderName, position));
     if (streamUnique == nullptr) {
         return std::nullopt;
     }
@@ -127,13 +141,37 @@ std::optional<ChunkEntityMessage> glimmer::Saves::ReadChunkEntity(const TileVect
     return std::nullopt;
 }
 
-bool glimmer::Saves::WriteChunkEntity(const TileVector2D &position,
+bool glimmer::Saves::WriteChunkEntity(const std::string &dimensionFolderName, const TileVector2D &position,
                                       const ChunkEntityMessage &chunkEntityMessage) const {
-    return virtualFileSystem_->WriteFile(ToChunkEntityPath(position), chunkEntityMessage.SerializeAsString());
+    return virtualFileSystem_->WriteFile(ToChunkEntityPath(dimensionFolderName, position),
+                                         chunkEntityMessage.SerializeAsString());
 }
 
-bool glimmer::Saves::DeleteChunkEntity(const TileVector2D &position) const {
-    return virtualFileSystem_->DeleteFileOrFolder(ToChunkEntityPath(position));
+bool glimmer::Saves::DeleteChunkEntity(const std::string &dimensionFolderName, const TileVector2D &position) const {
+    return virtualFileSystem_->DeleteFileOrFolder(ToChunkEntityPath(dimensionFolderName, position));
+}
+
+std::optional<DimensionManifestMessage> glimmer::Saves::ReadDimensionManifest(
+    const std::string &dimensionFolderName) const {
+    const auto streamUnique = virtualFileSystem_->ReadFileAsStream(
+        ToDimensionPath(dimensionFolderName) / DIMENSION_MANIFEST_FILE_NAME);
+    if (streamUnique == nullptr) {
+        return std::nullopt;
+    }
+    const auto stream = streamUnique.get();
+    if (stream == nullptr) {
+        return std::nullopt;
+    }
+    if (DimensionManifestMessage dimensionManifestMessage; dimensionManifestMessage.ParseFromIstream(stream)) {
+        return dimensionManifestMessage;
+    }
+    return std::nullopt;
+}
+
+bool glimmer::Saves::WriteDimensionManifest(const std::string &dimensionFolderName,
+                                            const DimensionManifestMessage &dimensionManifestMessage) const {
+    return virtualFileSystem_->WriteFile(ToDimensionPath(dimensionFolderName) / DIMENSION_MANIFEST_FILE_NAME,
+                                         dimensionManifestMessage.SerializeAsString());
 }
 
 bool glimmer::Saves::WritePlayer(const PlayerMessage &playerMessage) const {

@@ -455,11 +455,65 @@ namespace toml {
     };
 
     template<>
+    struct from<glimmer::NoiseConfig> {
+        static glimmer::NoiseConfig from_toml(const value &v) {
+            glimmer::NoiseConfig r;
+            r.noiseType = toml::find_or<uint8_t>(v, "noise_type", 3);
+            r.frequency = toml::find_or<float>(v, "frequency", 0.01F);
+            r.fractalType = toml::find_or<uint8_t>(v, "fractal_type", 0);
+            r.octaves = toml::find_or<int>(v, "octaves", 3);
+            r.lacunarity = toml::find_or<float>(v, "lacunarity", 2.0F);
+            r.gain = toml::find_or<float>(v, "gain", 0.5F);
+            r.weightedStrength = toml::find_or<float>(v, "weighted_strength", 0.0F);
+            r.pingPongStrength = toml::find_or<float>(v, "ping_pong_strength", 2.0F);
+            r.cellularDistanceFunction = toml::find_or<uint8_t>(v, "cellular_distance_function", 1);
+            r.cellularReturnType = toml::find_or<uint8_t>(v, "cellular_return_type", 1);
+            r.cellularJitter = toml::find_or<float>(v, "cellular_jitter", 1.0F);
+            r.seedOffset = toml::find_or<int>(v, "seed_offset", 0);
+            return r;
+        }
+    };
+
+    template<>
+    struct from<glimmer::LightKeyframe> {
+        static glimmer::LightKeyframe from_toml(const value &v) {
+            glimmer::LightKeyframe r;
+            r.t = toml::find_or<float>(v, "t", 0.0F);
+            r.r = toml::find_or<uint8_t>(v, "r", 0);
+            r.g = toml::find_or<uint8_t>(v, "g", 0);
+            r.b = toml::find_or<uint8_t>(v, "b", 0);
+            r.intensity = toml::find_or<float>(v, "intensity", 0.0F);
+            return r;
+        }
+    };
+
+    template<>
+    struct from<glimmer::DimensionResource> {
+        static glimmer::DimensionResource from_toml(const value &v) {
+            glimmer::DimensionResource r;
+            r.resourceId = toml::find<std::string>(v, "resource_id");
+            r.continentNoise = toml::find_or<glimmer::NoiseConfig>(v, "continent_noise", r.continentNoise);
+            r.mountainNoise = toml::find_or<glimmer::NoiseConfig>(v, "mountain_noise", r.mountainNoise);
+            r.hillsNoise = toml::find_or<glimmer::NoiseConfig>(v, "hills_noise", r.hillsNoise);
+            r.humidityNoise = toml::find_or<glimmer::NoiseConfig>(v, "humidity_noise", r.humidityNoise);
+            r.temperatureNoise = toml::find_or<glimmer::NoiseConfig>(v, "temperature_noise", r.temperatureNoise);
+            r.weirdnessNoise = toml::find_or<glimmer::NoiseConfig>(v, "weirdness_noise", r.weirdnessNoise);
+            r.erosionNoise = toml::find_or<glimmer::NoiseConfig>(v, "erosion_noise", r.erosionNoise);
+            r.timeFlowSpeed = toml::find_or<float>(v, "time_flow_speed", 1.0F);
+            r.initialTime = toml::find_or<float>(v, "initial_time", 0.0F);
+            r.ambientLightKeyframes = toml::find_or<std::vector<glimmer::LightKeyframe> >(
+                v, "ambient_light_keyframes", r.ambientLightKeyframes);
+            return r;
+        }
+    };
+
+    template<>
     struct from<glimmer::BiomeResource> {
         static glimmer::BiomeResource from_toml(const value &v) {
             glimmer::BiomeResource r;
             r.bgm = toml::find<glimmer::ResourceRef>(v, "bgm");
             r.decors = toml::find<std::vector<glimmer::ResourceRef> >(v, "decors");
+            r.dimensions = toml::find_or<std::vector<glimmer::ResourceRef> >(v, "dimensions", {});
             r.elevation = toml::find_or<float>(v, "elevation", 0.5F);
             r.erosion = toml::find_or<float>(v, "erosion", 0.5F);
             r.humidity = toml::find_or<float>(v, "humidity", 0.5F);

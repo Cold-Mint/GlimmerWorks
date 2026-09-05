@@ -28,6 +28,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <string>
 #include <unordered_map>
 
 #include "LightBuffer.h"
@@ -52,6 +53,7 @@ namespace glimmer {
         std::unique_ptr<LightBuffer> lightBuffer_ = nullptr;
         std::unique_ptr<TileInstancePool> tileInstancePool_;
         WorldContext *worldContext_ = nullptr;
+        std::string dimensionFolderName_;
 
         /**
          * OnChunkTileChange
@@ -74,7 +76,7 @@ namespace glimmer {
         void UpdateChunkLight(const Chunk *chunk) const;
 
     public:
-        explicit ChunkManager(WorldContext *worldContext);
+        explicit ChunkManager(WorldContext *worldContext, std::string dimensionFolderName);
 
         ~ChunkManager();
 

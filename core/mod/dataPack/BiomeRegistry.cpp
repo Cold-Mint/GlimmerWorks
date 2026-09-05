@@ -41,7 +41,23 @@ void glimmer::BiomeRegistry::OnRegister(BiomeResource *resource) {
     biomeVector_.emplace_back(resource);
 }
 
-glimmer::BiomeResource *glimmer::BiomeRegistry::FindBestBiome(const float humidity, const float temperature,
+bool glimmer::BiomeRegistry::BelongsToDimension(const BiomeResource *biome, const std::string &dimensionId) {
+    if (biome == nullptr) {
+        return false;
+    }
+    if (biome->dimensions.empty()) {
+        return true;
+    }
+    for (const auto &dimension: biome->dimensions) {
+        if (Resource::GenerateId(dimension.GetPackageId(), dimension.GetResourceKey()) == dimensionId) {
+            return true;
+        }
+    }
+    return false;
+}
+
+glimmer::BiomeResource *glimmer::BiomeRegistry::FindBestBiome(const std::string &dimensionId,
+                                                              const float humidity, const float temperature,
                                                               const float weirdness,
                                                               const float erosion, const float elevation,
                                                               const float surfaceProximity) const {
@@ -53,6 +69,9 @@ glimmer::BiomeResource *glimmer::BiomeRegistry::FindBestBiome(const float humidi
     float bestDistance = std::numeric_limits<float>::max();
 
     for (auto &biome: biomeVector_) {
+        if (!BelongsToDimension(biome, dimensionId)) {
+            continue;
+        }
         const float scoreHumidity = CalculateBiomeScoreDelta(biome->humidity, humidity, biome->strictnessHumidity);
         const float scoreTemperature = CalculateBiomeScoreDelta(biome->temperature, temperature,
                                                                 biome->strictnessTemperature);

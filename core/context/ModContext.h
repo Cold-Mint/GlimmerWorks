@@ -29,6 +29,7 @@
 #include <memory>
 
 #include "core/mod/dataPack/BiomeRegistry.h"
+#include "core/mod/dataPack/DimensionRegistry.h"
 #include "core/mod/dataPack/TileResourceManager.h"
 #include "core/mod/dataPack/BiomeDecoratorRegistry.h"
 #include "core/lootTable/LootTableRegistry.h"
@@ -59,6 +60,7 @@ namespace glimmer {
         std::unique_ptr<StringManager> stringManager_;
         std::unique_ptr<TileResourceManager> tileResourceManager_;
         std::unique_ptr<BiomeRegistry> biomeRegistry_;
+        std::unique_ptr<DimensionRegistry> dimensionRegistry_;
         std::unique_ptr<BiomeDecoratorManager> biomeDecoratorManager_;
         std::unique_ptr<BiomeDecoratorRegistry> biomeDecoratorRegistry_;
         std::unique_ptr<AbilityItemRegistry> abilityItemRegistry_;
@@ -91,6 +93,8 @@ namespace glimmer {
         [[nodiscard]] TileResourceManager *GetTileResourceManager() const;
 
         [[nodiscard]] BiomeRegistry *GetBiomeRegistry() const;
+
+        [[nodiscard]] DimensionRegistry *GetDimensionRegistry() const;
 
         [[nodiscard]] BiomeDecoratorManager *GetBiomeDecoratorManager() const;
 

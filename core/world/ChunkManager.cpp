@@ -42,7 +42,8 @@
 #include "generator/ChunkPhysicsHelper.h"
 #include "src/saves/chunk.pb.h"
 
-glimmer::ChunkManager::ChunkManager(WorldContext *worldContext) : worldContext_(worldContext) {
+glimmer::ChunkManager::ChunkManager(WorldContext *worldContext, std::string dimensionFolderName)
+    : worldContext_(worldContext), dimensionFolderName_(std::move(dimensionFolderName)) {
     lightBuffer_ = std::make_unique<LightBuffer>();
     tileInstancePool_ = std::make_unique<TileInstancePool>();
 }
@@ -266,7 +267,7 @@ bool glimmer::ChunkManager::SaveChunk(TileVector2D position) {
     ChunkMessage chunkMessage;
     Chunk *chunk = it->second.get();
     chunk->WriteChunkMessage(chunkMessage);
-    (void) worldContext_->GetSaves()->WriteChunk(position, chunkMessage);
+    (void) worldContext_->GetSaves()->WriteChunk(dimensionFolderName_, position, chunkMessage);
     const WorldVector2D startWorldVector2d = chunk->GetStartWorldPosition();
     const WorldVector2D endWorldVector2d = chunk->GetEndWorldPosition();
     const float minX = std::min(startWorldVector2d.x, endWorldVector2d.x);
@@ -301,9 +302,9 @@ bool glimmer::ChunkManager::SaveChunk(TileVector2D position) {
     if (chunkEntityMessage.entities_size() > 0) {
         //Create a file and save it
         //创建文件并保存
-        (void) worldContext_->GetSaves()->WriteChunkEntity(position, chunkEntityMessage);
+        (void) worldContext_->GetSaves()->WriteChunkEntity(dimensionFolderName_, position, chunkEntityMessage);
     } else {
-        (void) worldContext_->GetSaves()->DeleteChunkEntity(position);
+        (void) worldContext_->GetSaves()->DeleteChunkEntity(dimensionFolderName_, position);
     }
     for (auto id: entitiesToRemove) {
         entityManager->RemoveEntity(id);

@@ -25,6 +25,8 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <string>
+
 #include "core/ecs/EntityManager.h"
 #include "core/saves/Saves.h"
 
@@ -32,6 +34,7 @@ namespace glimmer {
     class ChunkLoader {
         Saves *saves_ = nullptr;
         WorldContext *worldContext_ = nullptr;
+        std::string dimensionFolderName_;
 
         /**
          * Load entity from saves
@@ -41,7 +44,7 @@ namespace glimmer {
         void LoadEntityFromSaves(TileVector2D position) const;
 
     public:
-        ChunkLoader(WorldContext *worldContext, Saves *saves);
+        ChunkLoader(WorldContext *worldContext, Saves *saves, std::string dimensionFolderName);
 
         /**
          * Load block from saves

@@ -202,7 +202,17 @@ void glimmer::DataPack::LoadBiomeResourceFromFile(const toml::value &value, Biom
     for (auto &decorator: biomeResource->decors) {
         decorator.SetSelfPackageId(manifest_.id);
     }
+    for (auto &dimension: biomeResource->dimensions) {
+        dimension.SetSelfPackageId(manifest_.id);
+    }
     biomeRegistry->Register(std::move(biomeResource));
+}
+
+void glimmer::DataPack::LoadDimensionResourceFromFile(const toml::value &value,
+                                                      DimensionRegistry *dimensionRegistry) const {
+    auto dimensionResource = std::make_unique<DimensionResource>(toml::get<DimensionResource>(value));
+    dimensionResource->packId = manifest_.id;
+    dimensionRegistry->Register(std::move(dimensionResource));
 }
 
 void glimmer::DataPack::LoadComposableItemResourceFromFile(const toml::value &value,
@@ -564,6 +574,10 @@ int glimmer::DataPack::LoadResourceByType(const std::string &dataType, const std
     }
     if (dataType == DATA_FILE_TYPE_BIOME) {
         LoadBiomeResourceFromFile(value, modContext->GetBiomeRegistry());
+        return 1;
+    }
+    if (dataType == DATA_FILE_TYPE_DIMENSION) {
+        LoadDimensionResourceFromFile(value, modContext->GetDimensionRegistry());
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_COMPOSABLE_ITEM) {

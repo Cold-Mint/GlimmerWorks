@@ -36,6 +36,11 @@ void glimmer::MapManifest::FromMessage(const MapManifestMessage &manifestMessage
     totalPlayTime = manifestMessage.totalplaytime();
     entityIDIndex = manifestMessage.entityidindex();
     allowCheats = manifestMessage.allowcheats();
+    if (manifestMessage.has_currentdimension()) {
+        currentDimension.ReadResourceRefMessage(manifestMessage.currentdimension());
+    } else {
+        currentDimension = ResourceRef();
+    }
 }
 
 void glimmer::MapManifest::ToMessage(MapManifestMessage &manifestMessage) {
@@ -48,4 +53,7 @@ void glimmer::MapManifest::ToMessage(MapManifestMessage &manifestMessage) {
     manifestMessage.set_totalplaytime(totalPlayTime);
     manifestMessage.set_entityidindex(entityIDIndex);
     manifestMessage.set_allowcheats(allowCheats);
+    if (currentDimension.IsValid()) {
+        currentDimension.WriteResourceRefMessage(*manifestMessage.mutable_currentdimension());
+    }
 }

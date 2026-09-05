@@ -31,6 +31,7 @@
 #include "core/console/command/Box2DCommand.h"
 #include "core/console/command/ClearCommand.h"
 #include "core/console/command/ConfigCommand.h"
+#include "core/console/command/DimensionCommand.h"
 #include "core/console/command/EchoCommand.h"
 #include "core/console/command/EcsCommand.h"
 #include "core/console/command/FlyCommand.h"
@@ -71,6 +72,7 @@
 #include "core/console/suggestion/ConfigSuggestions.h"
 #include "core/console/suggestion/CoordinateDynamicSuggestions.h"
 #include "core/console/suggestion/DataPackDynamicSuggestions.h"
+#include "core/console/suggestion/DimensionSuggestions.h"
 #include "core/console/suggestion/EventTypeDynamicSuggestions.h"
 #include "core/console/suggestion/LootSuggestions.h"
 #include "core/console/suggestion/MaterialItemDynamicSuggestions.h"
@@ -100,6 +102,7 @@ void glimmer::ConsoleContext::RegisterCommands(AppContext *appContext) const {
     commandManager_->RegisterCommand(std::make_unique<GuiCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<SeedCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<TimeCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<DimensionCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<FlyCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<EchoCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<ScreenshotCommand>(appContext));
@@ -162,6 +165,8 @@ bool glimmer::ConsoleContext::Init(AppContext *appContext, VirtualFileSystem *vf
         std::make_unique<DataPackDynamicSuggestions>(modContext->GetDataPackManager()));
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
         std::make_unique<BiomeSuggestions>(modContext->GetBiomeRegistry()));
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(
+        std::make_unique<DimensionSuggestions>(modContext->GetDimensionRegistry()));
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
         std::make_unique<TileDynamicSuggestions>(modContext->GetTileResourceManager()));
 

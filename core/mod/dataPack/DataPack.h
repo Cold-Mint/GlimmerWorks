@@ -30,6 +30,7 @@
 #include "BiomeDecoratorRegistry.h"
 #include "BiomeDecoratorType.h"
 #include "BiomeRegistry.h"
+#include "DimensionRegistry.h"
 #include "FixedColorManager.h"
 #include "LightMaskManager.h"
 #include "LightSourceManager.h"
@@ -108,6 +109,8 @@ namespace glimmer {
         void LoadTileResourceFromFile(const toml::value &value, TileResourceManager *tileManager) const;
 
         void LoadBiomeResourceFromFile(const toml::value &value, BiomeRegistry *biomeRegistry) const;
+
+        void LoadDimensionResourceFromFile(const toml::value &value, DimensionRegistry *dimensionRegistry) const;
 
         void LoadComposableItemResourceFromFile(const toml::value &value,
                                                 ComposableItemRegistry *composableItemRegistry) const;

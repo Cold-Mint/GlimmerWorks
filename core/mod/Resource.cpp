@@ -39,6 +39,17 @@ std::string glimmer::Resource::GenerateId(const Resource &resource) {
     return GenerateId(resource.packId, resource.resourceId);
 }
 
+const std::vector<glimmer::LightKeyframe> &glimmer::DimensionResource::GetDefaultAmbientLightKeyframes() {
+    static const std::vector<LightKeyframe> keyframes = {
+        {0.00F, 250, 240, 210, 0.70F},
+        {0.25F, 255, 255, 250, 0.85F},
+        {0.50F, 80, 100, 160, 0.10F},
+        {0.75F, 230, 150, 90, 0.35F},
+        {1.00F, 250, 240, 210, 0.70F},
+    };
+    return keyframes;
+}
+
 glimmer::Color glimmer::FixedColorResource::ToColor() const {
     return Color{r, g, b, a};
 }

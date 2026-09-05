@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
+ * 
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -26,42 +26,26 @@
  */
 #include "AmbientLight.h"
 
-#include <array>
 #include <cmath>
 
-namespace {
-    struct Keyframe {
-        float hour;
-        uint8_t r;
-        uint8_t g;
-        uint8_t b;
-        float intensity;
-    };
+#include "core/mod/Resource.h"
+#include "core/world/WorldContext.h"
 
-    constexpr std::array<Keyframe, 7> KEYFRAMES = {
-        {
-            {0.0F, 80, 100, 160, 0.10F},
-            {4.0F, 230, 150, 90, 0.35F},
-            {6.0F, 250, 240, 210, 0.70F},
-            {12.0F, 255, 255, 250, 0.85F},
-            {18.0F, 240, 150, 80, 0.50F},
-            {20.0F, 90, 110, 170, 0.20F},
-            {24.0F, 80, 100, 160, 0.10F},
-        }
-    };
-}
-
-glimmer::AmbientLight glimmer::ComputeAmbientLight(const float timeOfDay) {
-    float t = std::fmod(timeOfDay, 24.0F);
-    if (t < 0.0F) {
-        t += 24.0F;
+glimmer::AmbientLight glimmer::ComputeAmbientLight(const float timeOfDay,
+                                                   const std::vector<LightKeyframe> &keyframes) {
+    if (keyframes.empty()) {
+        return ComputeAmbientLight(timeOfDay, DimensionResource::GetDefaultAmbientLightKeyframes());
     }
-    for (size_t i = 0; i + 1 < KEYFRAMES.size(); ++i) {
-        const Keyframe &start = KEYFRAMES[i];
-        const Keyframe &end = KEYFRAMES[i + 1];
-        if (t >= start.hour && t <= end.hour) {
-            const float span = end.hour - start.hour;
-            const float u = span > 0.0F ? (t - start.hour) / span : 0.0F;
+    float t = std::fmod(timeOfDay, 1.0F);
+    if (t < 0.0F) {
+        t += 1.0F;
+    }
+    for (size_t i = 0; i + 1 < keyframes.size(); ++i) {
+        const LightKeyframe &start = keyframes[i];
+        const LightKeyframe &end = keyframes[i + 1];
+        if (t >= start.t && t <= end.t) {
+            const float span = end.t - start.t;
+            const float u = span > 0.0F ? (t - start.t) / span : 0.0F;
             AmbientLight result;
             result.color.r = static_cast<uint8_t>(std::lerp(static_cast<float>(start.r), static_cast<float>(end.r), u));
             result.color.g = static_cast<uint8_t>(std::lerp(static_cast<float>(start.g), static_cast<float>(end.g), u));
@@ -72,7 +56,14 @@ glimmer::AmbientLight glimmer::ComputeAmbientLight(const float timeOfDay) {
         }
     }
     AmbientLight result;
-    result.color = Color(KEYFRAMES.back().r, KEYFRAMES.back().g, KEYFRAMES.back().b, 255);
-    result.intensity = KEYFRAMES.back().intensity;
+    result.color = Color(keyframes.back().r, keyframes.back().g, keyframes.back().b, 255);
+    result.intensity = keyframes.back().intensity;
     return result;
+}
+
+glimmer::AmbientLight glimmer::ComputeAmbientLight(const WorldContext *worldContext, const float timeOfDay) {
+    const std::vector<LightKeyframe> &keyframes = worldContext != nullptr
+                                                      ? worldContext->GetAmbientLightKeyframes()
+                                                      : DimensionResource::GetDefaultAmbientLightKeyframes();
+    return ComputeAmbientLight(timeOfDay, keyframes);
 }

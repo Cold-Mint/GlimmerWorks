@@ -32,6 +32,7 @@
 #include "src/core/player.pb.h"
 #include "src/saves/chunk.pb.h"
 #include "src/saves/chunk_entity.pb.h"
+#include "src/saves/dimension_manifest.pb.h"
 
 namespace glimmer {
     class Saves {
@@ -39,9 +40,13 @@ namespace glimmer {
         VirtualFileSystem *virtualFileSystem_;
         std::function<void(const MapManifestMessage &)> onMapManifestChanged_;
 
-        [[nodiscard]] std::filesystem::path ToChunkPath(const TileVector2D &position) const;
+        [[nodiscard]] std::filesystem::path ToDimensionPath(const std::string &dimensionFolderName) const;
 
-        [[nodiscard]] std::filesystem::path ToChunkEntityPath(const TileVector2D &position) const;
+        [[nodiscard]] std::filesystem::path ToChunkPath(const std::string &dimensionFolderName,
+                                                        const TileVector2D &position) const;
+
+        [[nodiscard]] std::filesystem::path ToChunkEntityPath(const std::string &dimensionFolderName,
+                                                              const TileVector2D &position) const;
 
         [[nodiscard]] std::filesystem::path ToPlayerPath() const;
 
@@ -67,29 +72,41 @@ namespace glimmer {
         /**
          * Check whether the block file at the specified location exists.
          * 获取指定位置的区块文件是否存在。
-         * @param position
+         * @param dimensionFolderName dimensionFolderName 维度目录名（命名空间_维度id）
+         * @param position position 区块位置
          * @return
          */
-        [[nodiscard]] bool ChunkExists(const TileVector2D &position) const;
+        [[nodiscard]] bool ChunkExists(const std::string &dimensionFolderName, const TileVector2D &position) const;
 
         /**
          * Check whether the specified entity file exists.
          * 获取指定的实体文件是否存在。
-         * @param position
+         * @param dimensionFolderName dimensionFolderName 维度目录名
+         * @param position position 区块位置
          * @return
          */
-        [[nodiscard]] bool EntityExists(const TileVector2D &position) const;
+        [[nodiscard]] bool EntityExists(const std::string &dimensionFolderName, const TileVector2D &position) const;
 
-        [[nodiscard]] std::optional<ChunkMessage> ReadChunk(const TileVector2D &position) const;
+        [[nodiscard]] std::optional<ChunkMessage> ReadChunk(const std::string &dimensionFolderName,
+                                                            const TileVector2D &position) const;
 
-        [[nodiscard]] bool WriteChunk(const TileVector2D &position, const ChunkMessage &chunkMessage) const;
+        [[nodiscard]] bool WriteChunk(const std::string &dimensionFolderName, const TileVector2D &position,
+                                      const ChunkMessage &chunkMessage) const;
 
-        [[nodiscard]] std::optional<ChunkEntityMessage> ReadChunkEntity(const TileVector2D &position) const;
+        [[nodiscard]] std::optional<ChunkEntityMessage> ReadChunkEntity(const std::string &dimensionFolderName,
+                                                                        const TileVector2D &position) const;
 
-        [[nodiscard]] bool WriteChunkEntity(const TileVector2D &position,
+        [[nodiscard]] bool WriteChunkEntity(const std::string &dimensionFolderName, const TileVector2D &position,
                                             const ChunkEntityMessage &chunkEntityMessage) const;
 
-        [[nodiscard]] bool DeleteChunkEntity(const TileVector2D &position) const;
+        [[nodiscard]] bool DeleteChunkEntity(const std::string &dimensionFolderName,
+                                             const TileVector2D &position) const;
+
+        [[nodiscard]] std::optional<DimensionManifestMessage> ReadDimensionManifest(
+            const std::string &dimensionFolderName) const;
+
+        [[nodiscard]] bool WriteDimensionManifest(const std::string &dimensionFolderName,
+                                                  const DimensionManifestMessage &dimensionManifestMessage) const;
 
         [[nodiscard]] bool WritePlayer(const PlayerMessage &playerMessage) const;
 

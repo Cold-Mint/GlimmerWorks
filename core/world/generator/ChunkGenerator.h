@@ -27,6 +27,7 @@
 #pragma once
 #include <FastNoiseLite.h>
 #include <memory>
+#include <string>
 
 #include "Chunk.h"
 #include "TerrainResult.h"
@@ -36,6 +37,12 @@
 namespace glimmer {
     class ChunkGenerator {
         WorldContext *worldContext_;
+
+        /**
+         * The id of the dimension this generator belongs to ("packId:resourceId").
+         * 该生成器所属维度的Id。
+         */
+        std::string dimensionId_;
         /**
         * Height map
         * 高度图
@@ -116,6 +123,15 @@ namespace glimmer {
                                        const ResourceRef &waterTileRef,
                                        const ResourceRef &bedrockTileRef, const ResourceRef &voidWallTileRef);
 
+        /**
+         * ApplyNoiseConfig
+         * 应用噪声配置
+         * @param noise noise 目标噪声生成器
+         * @param config config 噪声配置
+         * @param baseSeed baseSeed 基准种子（世界种子）
+         */
+        static void ApplyNoiseConfig(FastNoiseLite *noise, const NoiseConfig &config, int baseSeed);
+
         static void SetTileRefForTerrainType(int idx, const TerrainTileResult &terrainTileResult,
                                              std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > &
                                              tilesRefMap,
@@ -157,7 +173,7 @@ namespace glimmer {
             IStructureResource *structureResource) const;
 
     public:
-        explicit ChunkGenerator(WorldContext *worldContext, int worldSeed);
+        explicit ChunkGenerator(WorldContext *worldContext, int worldSeed, const DimensionResource *dimensionResource);
 
         /**
         * get Height
@@ -166,6 +182,12 @@ namespace glimmer {
         * @return The height array of this block (length = CHUNK_SIZE)
         */
         int GetFirstTileTerrainY(int x);
+
+        /**
+         * GetDimensionId
+         * 获取该生成器所属维度的Id。
+         */
+        [[nodiscard]] const std::string &GetDimensionId() const;
 
         /**
          * GenerateTerrain

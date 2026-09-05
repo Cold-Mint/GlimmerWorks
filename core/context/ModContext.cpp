@@ -73,6 +73,9 @@ void glimmer::ModContext::Init(VirtualFileSystem *vfs, const LangsResources *lan
     LogCat::d("Creating BiomesManager");
     biomeRegistry_ = std::make_unique<BiomeRegistry>();
 
+    LogCat::d("Creating DimensionRegistry");
+    dimensionRegistry_ = std::make_unique<DimensionRegistry>();
+
     LogCat::d("Creating TileResourceManager");
     tileResourceManager_ = std::make_unique<TileResourceManager>();
 
@@ -142,6 +145,10 @@ glimmer::TileResourceManager *glimmer::ModContext::GetTileResourceManager() cons
 
 glimmer::BiomeRegistry *glimmer::ModContext::GetBiomeRegistry() const {
     return biomeRegistry_.get();
+}
+
+glimmer::DimensionRegistry *glimmer::ModContext::GetDimensionRegistry() const {
+    return dimensionRegistry_.get();
 }
 
 glimmer::BiomeDecoratorManager *glimmer::ModContext::GetBiomeDecoratorManager() const {

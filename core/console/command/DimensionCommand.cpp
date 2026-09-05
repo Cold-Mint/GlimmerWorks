@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
+ * 
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,44 +24,49 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "TimeCommand.h"
+#include "DimensionCommand.h"
 
 #include "fmt/xchar.h"
 #include "core/config/Constants.h"
+#include "core/mod/ResourceRef.h"
 #include "core/utils/LangsResources.h"
 #include "core/world/WorldContext.h"
 
-glimmer::TimeCommand::TimeCommand(AppContext *appContext) : Command(appContext) {
+glimmer::DimensionCommand::DimensionCommand(AppContext *appContext) : Command(appContext) {
 }
 
-bool glimmer::TimeCommand::RequiresWorldContext() const {
+bool glimmer::DimensionCommand::RequiresWorldContext() const {
     return true;
 }
 
-const std::string &glimmer::TimeCommand::GetName() const {
-    return TIME_COMMAND_NAME;
+bool glimmer::DimensionCommand::RequiresCheatEnabled() const {
+    return true;
 }
 
-void glimmer::TimeCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
+const std::string &glimmer::DimensionCommand::GetName() const {
+    return DIMENSION_COMMAND_NAME;
+}
+
+void glimmer::DimensionCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
     if (suggestionsTree == nullptr) {
         return;
     }
-    suggestionsTree->AddChild("set");
+    suggestionsTree->AddChild("switch")->AddChild(DIMENSION_DYNAMIC_SUGGESTIONS_NAME);
     suggestionsTree->AddChild("get");
 }
 
-void glimmer::TimeCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
+void glimmer::DimensionCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
     if (commandArgs == nullptr || strings == nullptr) {
         return;
     }
     strings->emplace_back("[operation:string]");
-    if (commandArgs->GetSize() >= 2 && commandArgs->AsString(1) == "set") {
-        strings->emplace_back("[time:float]");
+    if (commandArgs->GetSize() >= 2 && commandArgs->AsString(1) == "switch") {
+        strings->emplace_back("[dimensionId:string]");
     }
 }
 
-bool glimmer::TimeCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
-                                   const std::function<void(const std::string &text)> *onMessage) {
+bool glimmer::DimensionCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                                        const std::function<void(const std::string &text)> *onMessage) {
     const AppContext *appContext = GetAppContext();
     if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr) {
         return false;
@@ -76,34 +81,28 @@ bool glimmer::TimeCommand::Execute(const CommandSender *commandSender, const Com
     const int size = commandArgs->GetSize();
 
     if (size < 2) {
-        onMessageRef(fmt::format(fmt::runtime(langsResources->timeInfo), worldContext->GetTimeOfDay()));
+        onMessageRef(fmt::format("Current dimension: {}", worldContext->GetCurrentDimensionId()));
         return true;
     }
 
     const std::string operation = commandArgs->AsString(1);
-    if (operation == "set") {
+    if (operation == "get") {
+        onMessageRef(fmt::format("Current dimension: {}", worldContext->GetCurrentDimensionId()));
+        return true;
+    }
+
+    if (operation == "switch") {
         if (size < 3) {
             onMessageRef(fmt::format(fmt::runtime(langsResources->insufficientParameterLength), 3, size));
             return false;
         }
-        float time = 0.0F;
-        try {
-            time = commandArgs->AsFloat(2);
-        } catch (const std::exception &) {
-            onMessageRef(langsResources->timeInvalid);
+        const auto resourceRef = commandArgs->AsResourceRef(2, RESOURCE_DIMENSION);
+        if (!resourceRef.has_value()) {
+            onMessageRef(langsResources->unknownCommandParameters);
             return false;
         }
-        if (time < 0.0F || time > 1.0F) {
-            onMessageRef(langsResources->timeInvalid);
-            return false;
-        }
-        worldContext->SetTimeOfDay(time);
-        onMessageRef(fmt::format(fmt::runtime(langsResources->timeSetSuccess), worldContext->GetTimeOfDay()));
-        return true;
-    }
-
-    if (operation == "get") {
-        onMessageRef(fmt::format(fmt::runtime(langsResources->timeInfo), worldContext->GetTimeOfDay()));
+        worldContext->SwitchDimension(resourceRef.value());
+        onMessageRef(fmt::format("Switched to dimension: {}", worldContext->GetCurrentDimensionId()));
         return true;
     }
 

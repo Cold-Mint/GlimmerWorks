@@ -24,41 +24,25 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
-#include <vector>
+#include "DimensionSuggestions.h"
 
-#include "core/math/Color.h"
+#include <algorithm>
 
-namespace glimmer {
-    struct LightKeyframe;
-    class WorldContext;
+#include "core/config/Constants.h"
 
-    /**
-     * AmbientLight
-     * 环境光
-     */
-    struct AmbientLight {
-        //Ambient hue (RGB, alpha unused). 环境光色调（RGB，alpha 未使用）。
-        Color color;
-        //Ambient intensity (0..1). 环境光强度（0..1）。
-        float intensity = 0.0F;
-    };
+glimmer::DimensionSuggestions::DimensionSuggestions(DimensionRegistry *dimensionRegistry)
+    : dimensionRegistry_(dimensionRegistry) {
+}
 
-    /**
-     * ComputeAmbientLight
-     * 根据一天中的时间和关键帧计算环境光的色调与强度（线性插值）。
-     * @param timeOfDay timeOfDay 一天中的时间（0..1，0=清晨，0.5=午夜，1=次日清晨）
-     * @param keyframes keyframes 环境光关键帧（按时间点升序）
-     * @return 环境光
-     */
-    [[nodiscard]] AmbientLight ComputeAmbientLight(float timeOfDay, const std::vector<LightKeyframe> &keyframes);
+std::string glimmer::DimensionSuggestions::GetId() const {
+    return DIMENSION_DYNAMIC_SUGGESTIONS_NAME;
+}
 
-    /**
-     * ComputeAmbientLight
-     * 读取当前维度的关键帧计算环境光；世界上下文为 null 时使用默认关键帧。
-     * @param worldContext worldContext 世界上下文（可为 null）
-     * @param timeOfDay timeOfDay 一天中的时间（0..1）
-     * @return 环境光
-     */
-    [[nodiscard]] AmbientLight ComputeAmbientLight(const WorldContext *worldContext, float timeOfDay);
+const std::vector<std::string> &glimmer::DimensionSuggestions::GetSuggestions(
+    const std::optional<std::string> &param) {
+    return dimensionRegistry_->List();
+}
+
+bool glimmer::DimensionSuggestions::Match(const std::string &keyword, const std::string &param) {
+    return std::ranges::contains(dimensionRegistry_->List(), keyword);
 }

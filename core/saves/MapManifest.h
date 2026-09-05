@@ -27,6 +27,7 @@
 #pragma once
 #include <string>
 
+#include "core/mod/ResourceRef.h"
 #include "src/saves/map_manifest.pb.h"
 
 namespace glimmer {
@@ -40,6 +41,7 @@ namespace glimmer {
         long totalPlayTime;
         uint32_t entityIDIndex;
         bool allowCheats = false;
+        ResourceRef currentDimension;
 
         void FromMessage(const MapManifestMessage &manifestMessage);
 

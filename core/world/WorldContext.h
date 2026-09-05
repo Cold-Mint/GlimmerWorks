@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
+ * 
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -27,6 +27,9 @@
 #pragma once
 
 #include <memory>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 #include "LightBuffer.h"
 #include "core/saves/Saves.h"
@@ -47,6 +50,10 @@ namespace glimmer {
     class TerrainManager;
     class SystemScheduler;
     class PlayerContext;
+    class Dimension;
+    struct DimensionResource;
+    struct ResourceRef;
+    struct LightKeyframe;
 
     /**
      * GameEntity has been restricted to be accessed directly only within the WorldContext. uint32_t is provided externally.
@@ -70,8 +77,18 @@ namespace glimmer {
         AppContext *appContext_;
         std::unique_ptr<EntityManager> entityManager_;
         std::unique_ptr<EntityShortCut> entityShortCut_;
-        std::unique_ptr<ChunkLoader> chunkLoader_ = nullptr;
-        std::unique_ptr<ChunkGenerator> chunkGenerator_ = nullptr;
+
+        /**
+         * All dimensions of this world, keyed by dimension id ("packId:resourceId").
+         * 该世界中的所有维度，以维度Id为键。
+         */
+        std::unordered_map<std::string, std::unique_ptr<Dimension> > dimensions_;
+
+        /**
+         * The currently active dimension.
+         * 当前活动的维度。
+         */
+        Dimension *currentDimension_ = nullptr;
 
         //Is the game being saved
         //是否正在保存游戏
@@ -90,22 +107,22 @@ namespace glimmer {
         bool running = true;
 
         /**
-         * Current time of day in hours (0..24). Used to drive the day/night cycle.
-         * 当前时间（小时，0..24）。用于驱动昼夜循环。
-         */
-        float timeOfDay_ = 12.0F;
-
-        /**
          * Real-world duration of a full in-game day, in seconds.
          * 一整天对应的现实时长（秒）。
          */
         float dayLengthSeconds_ = 600.0F;
 
         long startTime_ = 0;
-        std::unique_ptr<ChunkManager> chunkManager_;
-        std::unique_ptr<TerrainManager> terrainManager_;
         std::unique_ptr<SystemScheduler> systemScheduler_;
         std::unique_ptr<PlayerContext> playerContext_;
+
+        /**
+         * GetOrCreateDimension
+         * 获取或创建指定维度资源的运行时维度。
+         * @param dimensionResource dimensionResource 维度资源
+         * @return
+         */
+        Dimension *GetOrCreateDimension(DimensionResource *dimensionResource);
 
     public:
         ~WorldContext();
@@ -128,21 +145,46 @@ namespace glimmer {
         [[nodiscard]] int GetWorldSeed() const;
 
         /**
+         * GetCurrentDimension
+         * 获取当前维度。
+         */
+        [[nodiscard]] Dimension *GetCurrentDimension() const;
+
+        /**
+         * GetCurrentDimensionId
+         * 获取当前维度的Id。
+         */
+        [[nodiscard]] std::string GetCurrentDimensionId() const;
+
+        /**
+         * GetAmbientLightKeyframes
+         * 获取当前维度的环境光关键帧；无当前维度时返回默认关键帧。
+         */
+        [[nodiscard]] const std::vector<LightKeyframe> &GetAmbientLightKeyframes() const;
+
+        /**
+         * SwitchDimension
+         * 切换到指定维度。会保存当前维度时间、卸载当前维度区块并加载目标维度。
+         * @param dimensionRef dimensionRef 目标维度引用
+         */
+        void SwitchDimension(const ResourceRef &dimensionRef);
+
+        /**
          * GetTimeOfDay
-         * 获取当前时间（小时，0..24）。
+         * 获取当前维度的时间（0..1）。
          */
         [[nodiscard]] float GetTimeOfDay() const;
 
         /**
          * SetTimeOfDay
-         * 设置当前时间（小时，0..24），自动环绕到 [0,24)。
-         * @param hour hour 小时
+         * 设置当前维度的时间（0..1），自动环绕到 [0,1)。
+         * @param time time 时间
          */
-        void SetTimeOfDay(float hour);
+        void SetTimeOfDay(float time);
 
         /**
          * AdvanceTime
-         * 推进时间（暂停时不流逝）。
+         * 推进当前维度的时间（暂停或时间流动速度为0时不流逝）。
          * @param delta delta 上一帧耗时（秒）
          */
         void AdvanceTime(float delta);

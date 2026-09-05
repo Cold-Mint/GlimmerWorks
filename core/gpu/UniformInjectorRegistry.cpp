@@ -78,12 +78,12 @@ namespace {
     }
 
     void InjectTimeOfDay(const glimmer::UniformInjectContext &ctx, float *dst) {
-        dst[0] = ctx.worldContext != nullptr ? ctx.worldContext->GetTimeOfDay() : 12.0F;
+        dst[0] = ctx.worldContext != nullptr ? ctx.worldContext->GetTimeOfDay() : 0.0F;
     }
 
     void InjectAmbientColor(const glimmer::UniformInjectContext &ctx, float *dst) {
-        const float timeOfDay = ctx.worldContext != nullptr ? ctx.worldContext->GetTimeOfDay() : 12.0F;
-        const glimmer::AmbientLight ambient = glimmer::ComputeAmbientLight(timeOfDay);
+        const float timeOfDay = ctx.worldContext != nullptr ? ctx.worldContext->GetTimeOfDay() : 0.0F;
+        const glimmer::AmbientLight ambient = glimmer::ComputeAmbientLight(ctx.worldContext, timeOfDay);
         dst[0] = static_cast<float>(ambient.color.r) / 255.0F;
         dst[1] = static_cast<float>(ambient.color.g) / 255.0F;
         dst[2] = static_cast<float>(ambient.color.b) / 255.0F;

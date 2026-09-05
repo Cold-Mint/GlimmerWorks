@@ -634,6 +634,98 @@ namespace glimmer {
     };
 
     /**
+     * NoiseConfig
+     * 噪声配置
+     * Describes the parameters of a single FastNoiseLite generator used by the world generator.
+     * 描述世界生成器中单个FastNoiseLite噪声生成器的参数。
+     */
+    //@genNextLine(NoiseConfig|噪声配置)
+    struct NoiseConfig {
+        //@genNextLine(noiseType|噪声类型 0=OpenSimplex2 1=OpenSimplex2S 2=Cellular 3=Perlin 4=ValueCubic 5=Value)
+        uint8_t noiseType = 3;
+        //@genNextLine(frequency|频率)
+        float frequency = 0.01F;
+        //@genNextLine(fractalType|分形类型 0=None 1=FBm 2=Ridged 3=PingPong 4=DomainWarpProgressive 5=DomainWarpIndependent)
+        uint8_t fractalType = 0;
+        //@genNextLine(octaves|分形八度数)
+        int octaves = 3;
+        //@genNextLine(lacunarity|分形lacunarity)
+        float lacunarity = 2.0F;
+        //@genNextLine(gain|分形增益)
+        float gain = 0.5F;
+        //@genNextLine(weightedStrength|分形加权强度)
+        float weightedStrength = 0.0F;
+        //@genNextLine(pingPongStrength|分形乒乓强度)
+        float pingPongStrength = 2.0F;
+        //@genNextLine(cellularDistanceFunction|细胞噪声距离函数 0=Euclidean 1=EuclideanSq 2=Manhattan 3=Hybrid)
+        uint8_t cellularDistanceFunction = 1;
+        //@genNextLine(cellularReturnType|细胞噪声返回类型 0=CellValue 1=Distance 2=Distance2 3=Distance2Add 4=Distance2Sub 5=Distance2Mul 6=Distance2Div)
+        uint8_t cellularReturnType = 1;
+        //@genNextLine(cellularJitter|细胞噪声抖动)
+        float cellularJitter = 1.0F;
+        //@genNextLine(seedOffset|种子偏移量)
+        int seedOffset = 0;
+    };
+
+    /**
+     * LightKeyframe
+     * 环境光关键帧
+     * A single keyframe of the ambient light day/night curve.
+     * 环境光昼夜曲线上的单个关键帧。
+     */
+    //@genNextLine(LightKeyframe|环境光关键帧)
+    struct LightKeyframe {
+        //@genNextLine(t|时间点(0-1))
+        float t = 0.0F;
+        //@genNextLine(r|红色通道值)
+        uint8_t r = 0;
+        //@genNextLine(g|绿色通道值)
+        uint8_t g = 0;
+        //@genNextLine(b|蓝色通道值)
+        uint8_t b = 0;
+        //@genNextLine(intensity|光照强度(0-1))
+        float intensity = 0.0F;
+    };
+
+    /**
+     * DimensionResource
+     * 维度
+     * A dimension is a collection of biomes with its own world generator noise configuration and time flow.
+     * 维度是生物群系的集合，拥有独立的世界生成器噪声配置和时间流动。
+     */
+    //@genNextLine(DimensionResource|维度资源)
+    struct DimensionResource : Resource {
+        // NoiseConfig member order: noiseType, frequency, fractalType, octaves, lacunarity, gain,
+        // weightedStrength, pingPongStrength, cellularDistanceFunction, cellularReturnType, cellularJitter, seedOffset.
+        //@genNextLine(continentNoise|大陆噪声配置)
+        NoiseConfig continentNoise{3, 0.001F, 0, 3, 2.0F, 0.5F, 0.0F, 2.0F, 1, 1, 1.0F, 0};
+        //@genNextLine(mountainNoise|山脉噪声配置)
+        NoiseConfig mountainNoise{3, 0.01F, 0, 3, 2.0F, 0.5F, 0.0F, 2.0F, 1, 1, 1.0F, 1};
+        //@genNextLine(hillsNoise|丘陵噪声配置)
+        NoiseConfig hillsNoise{3, 0.02F, 0, 3, 2.0F, 0.5F, 0.0F, 2.0F, 1, 1, 1.0F, 2};
+        //@genNextLine(humidityNoise|湿度噪声配置)
+        NoiseConfig humidityNoise{3, 0.005F, 0, 3, 2.0F, 0.5F, 0.0F, 2.0F, 1, 1, 1.0F, 100};
+        //@genNextLine(temperatureNoise|温度噪声配置)
+        NoiseConfig temperatureNoise{3, 0.01F, 0, 3, 2.0F, 0.5F, 0.0F, 2.0F, 1, 1, 1.0F, 200};
+        //@genNextLine(weirdnessNoise|怪异度噪声配置)
+        NoiseConfig weirdnessNoise{0, 1.0F, 0, 3, 2.0F, 0.5F, 0.0F, 2.0F, 1, 1, 1.0F, 300};
+        //@genNextLine(erosionNoise|侵蚀度噪声配置)
+        NoiseConfig erosionNoise{3, 0.003F, 0, 3, 2.0F, 0.5F, 0.0F, 2.0F, 1, 1, 1.0F, 400};
+        //@genNextLine(timeFlowSpeed|时间流动速度 设置为0则禁用时间流动（无昼夜循环）)
+        float timeFlowSpeed = 1.0F;
+        //@genNextLine(initialTime|初始时间(0-1) 首次进入维度后时间从哪里开始流动)
+        float initialTime = 0.0F;
+        //@genNextLine(ambientLightKeyframes|环境光关键帧列表（时间点+RGB+强度），决定昼夜光照曲线)
+        std::vector<LightKeyframe> ambientLightKeyframes = GetDefaultAmbientLightKeyframes();
+
+        /**
+         * GetDefaultAmbientLightKeyframes
+         * 获取默认环境光关键帧。
+         */
+        [[nodiscard]] static const std::vector<LightKeyframe> &GetDefaultAmbientLightKeyframes();
+    };
+
+    /**
      * BiomeResource
      * 生物群系
      */
@@ -677,6 +769,8 @@ namespace glimmer {
         ResourceRef bgm;
         //@genNextLine(parallaxBackground|视差背景)
         ResourceRef parallaxBackground;
+        //@genNextLine(dimensions|引用的维度列表（单个生物群系可引用多个维度）)
+        std::vector<ResourceRef> dimensions;
     };
 
     //@genNextLine(LootResource|战利品资源)

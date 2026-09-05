@@ -38,7 +38,6 @@
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/gpu/UniformBlock.h"
 #include "core/gpu/UniformInjectContext.h"
-#include "core/gpu/UniformInjectorRegistry.h"
 #include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/mod/ResourceLocator.h"
@@ -127,13 +126,9 @@ void glimmer::AppRenderer::RenderFrame(const RmlContext *rmlContext, const int w
     const auto logicalWidth = static_cast<Uint32>(windowWidth);
     const auto logicalHeight = static_cast<Uint32>(windowHeight);
 
-    // Pass 1: render the unlit scene into the offscreen target.
-    // 通道 1：将无光照场景渲染到离屏目标。
-    EnsureSceneTexture(logicalWidth, logicalHeight);
-    FlushScenePass(commandBuffer, sceneTexture_, logicalWidth, logicalHeight);
-
-    // Build and upload the per-tile light map for the camera viewport.
-    // 构建并上传相机视口的逐瓦片光照贴图。
+    //Resolve camera/world once per frame; both the scene pass and the lighting
+    //pass consume it.
+    //每帧解析一次相机/世界上下文；场景 pass 与光照 pass 共用。
     LightBuffer *lightBuffer = nullptr;
     CameraComponent *camera = nullptr;
     Transform2DComponent *cameraTransform = nullptr;
@@ -151,6 +146,14 @@ void glimmer::AppRenderer::RenderFrame(const RmlContext *rmlContext, const int w
             }
         }
     }
+
+    // Pass 1: render the unlit scene into the offscreen target.
+    // 通道 1：将无光照场景渲染到离屏目标。
+    EnsureSceneTexture(logicalWidth, logicalHeight);
+    FlushScenePass(commandBuffer, sceneTexture_, logicalWidth, logicalHeight, camera, cameraTransform, worldContext);
+
+    // Build and upload the per-tile light map for the camera viewport.
+    // 构建并上传相机视口的逐瓦片光照贴图。
     UpdateLightMap(lightBuffer, camera, cameraTransform, worldContext, logicalWidth, logicalHeight);
     lightMapTexture_.Upload(commandBuffer);
     FlushLightingPass(commandBuffer, swapChainTexture);
@@ -217,7 +220,17 @@ void glimmer::AppRenderer::EnsureTransferBufferSize(const Uint32 size) {
 }
 
 void glimmer::AppRenderer::FlushScenePass(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUTexture *targetTexture,
-                                          const Uint32 width, const Uint32 height) {
+                                          const Uint32 width, const Uint32 height,
+                                          const CameraComponent *camera,
+                                          const Transform2DComponent *cameraTransform,
+                                          const WorldContext *worldContext) {
+    UniformInjectContext sceneInjectContext;
+    sceneInjectContext.camera = camera;
+    sceneInjectContext.cameraTransform = cameraTransform;
+    sceneInjectContext.worldContext = worldContext;
+    sceneInjectContext.width = static_cast<float>(width);
+    sceneInjectContext.height = static_cast<float>(height);
+
     const bool hasCommands = !renderQueue_.IsEmpty();
 
     if (hasCommands) {
@@ -312,6 +325,11 @@ void glimmer::AppRenderer::FlushScenePass(SDL_GPUCommandBuffer *commandBuffer, S
             }
             SDL_GPUTextureSamplerBinding textureSamplerBinding = {texture, sampler};
             SDL_BindGPUFragmentSamplers(renderPass, 0, &textureSamplerBinding, 1);
+            if (command.uniformBlock != nullptr) {
+                command.uniformBlock->Fill(sceneInjectContext, sceneStagingBuffer_);
+                SDL_PushGPUFragmentUniformData(commandBuffer, command.uniformBlock->GetBinding(),
+                                               sceneStagingBuffer_.data(), sceneStagingBuffer_.size());
+            }
             SDL_DrawGPUIndexedPrimitives(renderPass, 6, 1, firstIndex, 0, 0);
             firstIndex += 6;
         }
@@ -360,16 +378,30 @@ void glimmer::AppRenderer::FlushLightingPass(SDL_GPUCommandBuffer *commandBuffer
         {lightMapTexture_.GetTexture(), sampler}
     };
     SDL_BindGPUFragmentSamplers(renderPass, 0, bindings, 2);
-    const CompiledUniformBlock *uniformBlock = lightingPipeline_->GetUniformBlock();
-    if (uniformBlock != nullptr) {
-        if (lightingStagingBuffer_.empty()) {
-            lightingStagingBuffer_.assign(uniformBlock->GetSize(), 0);
-        }
-        SDL_PushGPUFragmentUniformData(commandBuffer, uniformBlock->GetBinding(),
-                                       lightingStagingBuffer_.data(), lightingStagingBuffer_.size());
-    }
+    FillAndPushUniformBlock(commandBuffer, lightingPipeline_, lightingInjectContext_, lightingStagingBuffer_);
     SDL_DrawGPUPrimitives(renderPass, 3, 1, 0, 0);
     SDL_EndGPURenderPass(renderPass);
+}
+
+void glimmer::AppRenderer::FillAndPushUniformBlock(
+    SDL_GPUCommandBuffer *commandBuffer,
+    const std::shared_ptr<GPUPipelineResourceResult> &pipeline,
+    const UniformInjectContext &ctx,
+    std::vector<uint8_t> &stagingBuffer) const {
+    if (pipeline == nullptr) {
+        return;
+    }
+    const CompiledUniformBlock *uniformBlock = pipeline->GetUniformBlock();
+    if (uniformBlock == nullptr) {
+        stagingBuffer.clear();
+        return;
+    }
+    uniformBlock->Fill(ctx, stagingBuffer);
+    if (stagingBuffer.empty()) {
+        stagingBuffer.assign(uniformBlock->GetSize(), 0);
+    }
+    SDL_PushGPUFragmentUniformData(commandBuffer, uniformBlock->GetBinding(),
+                                   stagingBuffer.data(), stagingBuffer.size());
 }
 
 void glimmer::AppRenderer::EnsureSceneTexture(const Uint32 width, const Uint32 height) {
@@ -492,38 +524,15 @@ void glimmer::AppRenderer::UpdateLightMap(const LightBuffer *lightBuffer, const 
     lightMapTexture_.Update(device_, lightBuffer, fullBright ? nullptr : &ambient,
                             originX, originY, sizeX, sizeY, fullBright);
 
-    if (lightingPipeline_ == nullptr) {
-        return;
-    }
-    const CompiledUniformBlock *uniformBlock = lightingPipeline_->GetUniformBlock();
-    if (uniformBlock == nullptr) {
-        lightingStagingBuffer_.clear();
-        return;
-    }
-
-    UniformInjectContext injectContext;
-    injectContext.camera = camera;
-    injectContext.cameraTransform = cameraTransform;
-    injectContext.worldContext = worldContext;
-    injectContext.width = static_cast<float>(width);
-    injectContext.height = static_cast<float>(height);
-    injectContext.lightMapOriginX = originX;
-    injectContext.lightMapOriginY = originY;
-    injectContext.lightMapSizeX = sizeX;
-    injectContext.lightMapSizeY = sizeY;
-
-    const size_t bufferSize = uniformBlock->GetSize();
-    lightingStagingBuffer_.assign(bufferSize, 0);
-    std::memcpy(lightingStagingBuffer_.data(), uniformBlock->GetStaticBuffer().data(), bufferSize);
-    for (const uint32_t memberIndex: uniformBlock->GetDynamicMemberIndices()) {
-        const CompiledUniformMember &member = uniformBlock->GetMembers()[memberIndex];
-        const UniformInjector injector = UniformInjectorRegistry::Find(member.source);
-        if (injector == nullptr) {
-            LogCat::w(std::source_location::current(), "Uniform injector not found: ", member.source);
-            continue;
-        }
-        injector(injectContext, reinterpret_cast<float *>(lightingStagingBuffer_.data() + member.offset));
-    }
+    lightingInjectContext_.camera = camera;
+    lightingInjectContext_.cameraTransform = cameraTransform;
+    lightingInjectContext_.worldContext = worldContext;
+    lightingInjectContext_.width = static_cast<float>(width);
+    lightingInjectContext_.height = static_cast<float>(height);
+    lightingInjectContext_.lightMapOriginX = originX;
+    lightingInjectContext_.lightMapOriginY = originY;
+    lightingInjectContext_.lightMapSizeX = sizeX;
+    lightingInjectContext_.lightMapSizeY = sizeY;
 }
 
 void glimmer::AppRenderer::RenderScenes() {

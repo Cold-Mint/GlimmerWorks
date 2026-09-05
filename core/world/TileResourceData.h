@@ -34,6 +34,8 @@
 #include "core/mod/resourcePack/TextureResourceResult.h"
 
 namespace glimmer {
+    class CompiledUniformBlock;
+
     class TileResourceData {
         std::shared_ptr<TextureResourceResult> textureResult_ = nullptr;
         std::shared_ptr<AudioResourceResult> breakSFXResult_ = nullptr;
@@ -57,6 +59,8 @@ namespace glimmer {
         [[nodiscard]] SDL_GPUGraphicsPipeline *GetPipeline() const;
 
         [[nodiscard]] SDL_GPUSampler *GetSampler() const;
+
+        [[nodiscard]] const CompiledUniformBlock *GetUniformBlock() const;
 
         void SetTexture(const std::shared_ptr<TextureResourceResult> &textureResult);
 

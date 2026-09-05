@@ -72,6 +72,13 @@ SDL_GPUSampler *glimmer::TileResourceData::GetSampler() const {
     return sampler_->GetResource();
 }
 
+const glimmer::CompiledUniformBlock *glimmer::TileResourceData::GetUniformBlock() const {
+    if (pipeline_ == nullptr) {
+        return nullptr;
+    }
+    return pipeline_->GetUniformBlock();
+}
+
 
 void glimmer::TileResourceData::SetTexture(const std::shared_ptr<TextureResourceResult> &textureResult) {
     this->textureResult_ = textureResult;

@@ -34,6 +34,7 @@
 #include "core/context/AppContext.h"
 #include "core/gpu/LightMapTexture.h"
 #include "core/gpu/RenderQueue.h"
+#include "core/gpu/UniformInjectContext.h"
 #include "core/mod/resourcePack/GPUSamplerResourceResult.h"
 
 namespace glimmer {
@@ -90,6 +91,13 @@ namespace glimmer {
         //光照 uniform 块的逐帧 staging 缓冲区；静态成员从编译块恢复，
         //动态成员每帧注入后再推送至 GPU。
         std::vector<uint8_t> lightingStagingBuffer_;
+        //Per-frame injection context, filled by UpdateLightMap and consumed by
+        //the lighting pass when it fills/pushes the uniform block.
+        //每帧注入上下文，由 UpdateLightMap 填充，光照 pass 填充/推送 uniform 块时消费。
+        UniformInjectContext lightingInjectContext_;
+        //Per-frame staging buffer for scene-pass command uniform blocks.
+        //场景 pass 命令 uniform 块的逐帧 staging 缓冲区。
+        std::vector<uint8_t> sceneStagingBuffer_;
 
         void RenderScenes();
 
@@ -133,7 +141,8 @@ namespace glimmer {
          * 把排队的命令上传到 GPU，并在一次 clear/store 渲染通道内绘制到指定渲染目标。
          */
         void FlushScenePass(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUTexture *targetTexture, Uint32 width,
-                            Uint32 height);
+                            Uint32 height, const CameraComponent *camera,
+                            const Transform2DComponent *cameraTransform, const WorldContext *worldContext);
 
         /**
          * Composite the lit result: a fullscreen quad samples the unlit scene
@@ -141,6 +150,18 @@ namespace glimmer {
          * 合成受光照结果：全屏四边形采样无光照场景纹理与光照贴图，应用光照后写入目标。
          */
         void FlushLightingPass(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUTexture *targetTexture);
+
+        /**
+         * Fill and push the uniform block of a fullscreen pass. Encapsulates
+         * "fetch pipeline uniform block -> fill with ctx -> push", so any new
+         * fullscreen/post-processing pass can reuse the same injection path.
+         * 填充并推送一个全屏 pass 的 uniform 块。封装
+         * "取管线 uniform 块 -> 用 ctx 填充 -> 推送"，使新的全屏/后处理 pass 复用同一注入路径。
+         */
+        void FillAndPushUniformBlock(SDL_GPUCommandBuffer *commandBuffer,
+                                     const std::shared_ptr<GPUPipelineResourceResult> &pipeline,
+                                     const UniformInjectContext &ctx,
+                                     std::vector<uint8_t> &stagingBuffer) const;
 
         /**
          * Rebuild the per-tile light map texture from the light buffer for the

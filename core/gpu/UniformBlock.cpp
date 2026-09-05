@@ -104,3 +104,17 @@ const std::vector<uint32_t> &glimmer::CompiledUniformBlock::GetDynamicMemberIndi
 const std::vector<uint8_t> &glimmer::CompiledUniformBlock::GetStaticBuffer() const {
     return staticBuffer_;
 }
+
+void glimmer::CompiledUniformBlock::Fill(const UniformInjectContext &ctx, std::vector<uint8_t> &out) const {
+    out.assign(staticBuffer_.size(), 0);
+    std::memcpy(out.data(), staticBuffer_.data(), staticBuffer_.size());
+    for (const uint32_t memberIndex: dynamicMemberIndices_) {
+        const CompiledUniformMember &member = members_[memberIndex];
+        const UniformInjector injector = UniformInjectorRegistry::Find(member.source);
+        if (injector == nullptr) {
+            LogCat::w(std::source_location::current(), "Uniform injector not found: ", member.source);
+            continue;
+        }
+        injector(ctx, reinterpret_cast<float *>(out.data() + member.offset));
+    }
+}

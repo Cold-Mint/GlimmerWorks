@@ -25,12 +25,13 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <cstdint>
 #include <memory>
 #include <string>
 #include <vector>
 
 #include "Std140LayoutBuilder.h"
+#include "UniformInjectContext.h"
+#include "UniformInjectorRegistry.h"
 #include "core/mod/Resource.h"
 
 namespace glimmer {
@@ -82,6 +83,14 @@ namespace glimmer {
         [[nodiscard]] const std::vector<uint32_t> &GetDynamicMemberIndices() const;
 
         [[nodiscard]] const std::vector<uint8_t> &GetStaticBuffer() const;
+
+        /**
+         * Fill
+         * 填充输出缓冲区：先恢复静态成员，再逐动态成员调用注入器写入值。
+         * @param ctx ctx 注入上下文
+         * @param out out 输出缓冲区（大小会被重置为本块大小）
+         */
+        void Fill(const UniformInjectContext &ctx, std::vector<uint8_t> &out) const;
 
     private:
         uint32_t set_ = 0;

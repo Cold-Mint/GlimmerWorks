@@ -113,7 +113,8 @@ void glimmer::TileLayerSystem::RenderTileSnapshot(RenderQueue *queue, const Tile
         return;
     }
     queue->DrawTexture(RenderLayer::Tile, 0.0F, textureResourceResult, nullptr, &renderQuad,
-                       {255, 255, 255, alpha}, tileResourceData->GetPipeline(), tileResourceData->GetSampler());
+                       {255, 255, 255, alpha}, tileResourceData->GetPipeline(), tileResourceData->GetSampler(),
+                       tileResourceData->GetUniformBlock());
 }
 
 void glimmer::TileLayerSystem::Render(RenderQueue *queue) {

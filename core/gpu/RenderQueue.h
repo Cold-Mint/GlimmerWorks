@@ -53,7 +53,8 @@ namespace glimmer {
         void AppendQuad(RenderLayer layer, float depth, const TextureResourceResult *texture,
                         const SDL_FPoint positions[4], const SDL_FPoint uvs[4], const SDL_Color &color,
                         SDL_GPUGraphicsPipeline *pipeline = nullptr,
-                        SDL_GPUSampler *sampler = nullptr);
+                        SDL_GPUSampler *sampler = nullptr,
+                        const CompiledUniformBlock *uniformBlock = nullptr);
 
     public:
         RenderQueue() = default;
@@ -112,7 +113,8 @@ namespace glimmer {
                          const SDL_FRect *src, const SDL_FRect *dst,
                          const SDL_Color &mod = {255, 255, 255, 255},
                          SDL_GPUGraphicsPipeline *pipeline = nullptr,
-                         SDL_GPUSampler *sampler = nullptr);
+                         SDL_GPUSampler *sampler = nullptr,
+                         const CompiledUniformBlock *uniformBlock = nullptr);
 
         /**
          * Queue a texture region rotated around a center point, with
@@ -134,7 +136,8 @@ namespace glimmer {
                                 double angleDegrees, const SDL_FPoint *center, Uint8 flip,
                                 const SDL_Color &mod = {255, 255, 255, 255},
                                 SDL_GPUGraphicsPipeline *pipeline = nullptr,
-                                SDL_GPUSampler *sampler = nullptr);
+                                SDL_GPUSampler *sampler = nullptr,
+                                const CompiledUniformBlock *uniformBlock = nullptr);
 
         /**
          * Queue a rectangle filled with a solid color

@@ -47,10 +47,13 @@ namespace glimmer {
          * @param positions positions 4 个角点（左上、右上、左下、右下，像素坐标）
          * @param uvs uvs 4 个角点对应的纹理坐标
          * @param color color 顶点颜色（调色/透明度调制）
+         * @param pipeline pipeline 渲染管线（nullptr 表示使用默认管线）
+         * @param sampler sampler 采样器（nullptr 表示使用默认采样器）
          */
         void AppendQuad(RenderLayer layer, float depth, const TextureResourceResult *texture,
                         const SDL_FPoint positions[4], const SDL_FPoint uvs[4], const SDL_Color &color,
-                        SDL_GPUGraphicsPipeline *pipeline = nullptr);
+                        SDL_GPUGraphicsPipeline *pipeline = nullptr,
+                        SDL_GPUSampler *sampler = nullptr);
 
     public:
         RenderQueue() = default;
@@ -108,7 +111,8 @@ namespace glimmer {
         void DrawTexture(RenderLayer layer, float depth, TextureResourceResult *texture,
                          const SDL_FRect *src, const SDL_FRect *dst,
                          const SDL_Color &mod = {255, 255, 255, 255},
-                         SDL_GPUGraphicsPipeline *pipeline = nullptr);
+                         SDL_GPUGraphicsPipeline *pipeline = nullptr,
+                         SDL_GPUSampler *sampler = nullptr);
 
         /**
          * Queue a texture region rotated around a center point, with
@@ -129,7 +133,8 @@ namespace glimmer {
                                 const SDL_FRect *src, const SDL_FRect *dst,
                                 double angleDegrees, const SDL_FPoint *center, Uint8 flip,
                                 const SDL_Color &mod = {255, 255, 255, 255},
-                                SDL_GPUGraphicsPipeline *pipeline = nullptr);
+                                SDL_GPUGraphicsPipeline *pipeline = nullptr,
+                                SDL_GPUSampler *sampler = nullptr);
 
         /**
          * Queue a rectangle filled with a solid color

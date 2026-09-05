@@ -26,6 +26,7 @@
  */
 #include "AbilityItem.h"
 #include <memory>
+#include <utility>
 #include "core/context/AppContext.h"
 #include "core/context/CacheContext.h"
 #include "ComposableItem.h"
@@ -101,7 +102,17 @@ std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(con
                     &itemResource->pipeline,
                     false); pipelineResult != nullptr && pipelineResult->GetResource() != nullptr) {
             if (CacheContext *cacheContext = appContext->GetCacheContext(); cacheContext != nullptr) {
-                abilityItem->SetPipeline(pipelineResult->GetResource());
+                abilityItem->SetPipeline(pipelineResult);
+            }
+        }
+    }
+    if (itemResource->sampler.IsValid()) {
+        if (const std::shared_ptr<GPUSamplerResourceResult> samplerResult = appContext->GetResourceLocator()->
+                FindGPUGraphicsSampler(
+                    &itemResource->sampler,
+                    false); samplerResult != nullptr && samplerResult->GetResource() != nullptr) {
+            if (CacheContext *cacheContext = appContext->GetCacheContext(); cacheContext != nullptr) {
+                abilityItem->SetSampler(samplerResult);
             }
         }
     }
@@ -144,11 +155,25 @@ glimmer::TextureResourceResult *glimmer::AbilityItem::GetIcon() const {
 }
 
 SDL_GPUGraphicsPipeline *glimmer::AbilityItem::GetPipeline() const {
-    return pipeline_;
+    if (pipeline_ == nullptr) {
+        return nullptr;
+    }
+    return pipeline_->GetResource();
 }
 
-void glimmer::AbilityItem::SetPipeline(SDL_GPUGraphicsPipeline *pipeline) {
-    pipeline_ = pipeline;
+void glimmer::AbilityItem::SetPipeline(std::shared_ptr<GPUPipelineResourceResult> pipeline) {
+    pipeline_ = std::move(pipeline);
+}
+
+SDL_GPUSampler *glimmer::AbilityItem::GetSampler() const {
+    if (sampler_ == nullptr) {
+        return nullptr;
+    }
+    return sampler_->GetResource();
+}
+
+void glimmer::AbilityItem::SetSampler(std::shared_ptr<GPUSamplerResourceResult> sampler) {
+    sampler_ = std::move(sampler);
 }
 
 const glimmer::ResourceRef *glimmer::AbilityItem::GetIconResourceRef() const {

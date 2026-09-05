@@ -26,6 +26,8 @@
  */
 #include "TileResourceData.h"
 
+#include <utility>
+
 
 glimmer::TextureResourceResult *glimmer::TileResourceData::GetTexture() const {
     if (textureResult_ == nullptr) {
@@ -57,8 +59,19 @@ const std::vector<glimmer::ItemTagResource> &glimmer::TileResourceData::GetTags(
 }
 
 SDL_GPUGraphicsPipeline *glimmer::TileResourceData::GetPipeline() const {
-    return pipeline_;
+    if (pipeline_ == nullptr) {
+        return nullptr;
+    }
+    return pipeline_->GetResource();
 }
+
+SDL_GPUSampler *glimmer::TileResourceData::GetSampler() const {
+    if (sampler_ == nullptr) {
+        return nullptr;
+    }
+    return sampler_->GetResource();
+}
+
 
 void glimmer::TileResourceData::SetTexture(const std::shared_ptr<TextureResourceResult> &textureResult) {
     this->textureResult_ = textureResult;
@@ -80,6 +93,10 @@ void glimmer::TileResourceData::SetTags(const std::vector<ItemTagResource> &tags
     this->tags_ = tags;
 }
 
-void glimmer::TileResourceData::SetPipeline(SDL_GPUGraphicsPipeline *pipeline) {
-    this->pipeline_ = pipeline;
+void glimmer::TileResourceData::SetPipeline(std::shared_ptr<GPUPipelineResourceResult> pipeline) {
+    pipeline_ = std::move(pipeline);
+}
+
+void glimmer::TileResourceData::SetSampler(std::shared_ptr<GPUSamplerResourceResult> sampler) {
+    sampler_ = std::move(sampler);
 }

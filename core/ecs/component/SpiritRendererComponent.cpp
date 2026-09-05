@@ -26,6 +26,8 @@
  */
 #include "SpiritRendererComponent.h"
 
+#include <utility>
+
 glimmer::SpiritRendererComponent::SpiritRendererComponent() = default;
 
 void glimmer::SpiritRendererComponent::SetTextureRef(const ResourceRef &resourceRef) {
@@ -61,13 +63,29 @@ glimmer::TextureResourceResult *glimmer::SpiritRendererComponent::GetTexture(con
     return textureResult_.get();
 }
 
-void glimmer::SpiritRendererComponent::SetPipeline(SDL_GPUGraphicsPipeline *pipeline) {
-    pipeline_ = pipeline;
+void glimmer::SpiritRendererComponent::SetPipeline(std::shared_ptr<GPUPipelineResourceResult> pipeline) {
+    pipeline_ = std::move(pipeline);
 }
 
+
 SDL_GPUGraphicsPipeline *glimmer::SpiritRendererComponent::GetPipeline() const {
-    return pipeline_;
+    if (pipeline_ == nullptr) {
+        return nullptr;
+    }
+    return pipeline_->GetResource();
 }
+
+void glimmer::SpiritRendererComponent::SetSampler(std::shared_ptr<GPUSamplerResourceResult> sampler) {
+    sampler_ = std::move(sampler);
+}
+
+SDL_GPUSampler *glimmer::SpiritRendererComponent::GetSampler() const {
+    if (sampler_ == nullptr) {
+        return nullptr;
+    }
+    return sampler_->GetResource();
+}
+
 
 void glimmer::SpiritRendererComponent::SetPosition(const WorldVector2D &position) {
     position_ = position;

@@ -125,7 +125,7 @@ void glimmer::DroppedItemSystem::Render(RenderQueue *queue) {
             };
 
             queue->DrawTexture(RenderLayer::GroundItem, 0.0F, icon, nullptr, &dstRect,
-                               {255, 255, 255, 255}, item->GetPipeline());
+                               {255, 255, 255, 255}, item->GetPipeline(), item->GetSampler());
         }
     }
 }

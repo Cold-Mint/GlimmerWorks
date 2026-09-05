@@ -29,6 +29,8 @@
 
 #include "core/mod/Resource.h"
 #include "core/mod/resourcePack/AudioResourceResult.h"
+#include "core/mod/resourcePack/GPUPipelineResourceResult.h"
+#include "core/mod/resourcePack/GPUSamplerResourceResult.h"
 #include "core/mod/resourcePack/TextureResourceResult.h"
 
 namespace glimmer {
@@ -38,7 +40,8 @@ namespace glimmer {
         std::shared_ptr<AudioResourceResult> placeSFXResult_ = nullptr;
         std::vector<ItemTagResource> tags_;
         ResourceRef textureRef_;
-        SDL_GPUGraphicsPipeline *pipeline_ = nullptr;
+        std::shared_ptr<GPUPipelineResourceResult> pipeline_ = nullptr;
+        std::shared_ptr<GPUSamplerResourceResult> sampler_ = nullptr;
 
     public:
         [[nodiscard]] TextureResourceResult *GetTexture() const;
@@ -53,6 +56,8 @@ namespace glimmer {
 
         [[nodiscard]] SDL_GPUGraphicsPipeline *GetPipeline() const;
 
+        [[nodiscard]] SDL_GPUSampler *GetSampler() const;
+
         void SetTexture(const std::shared_ptr<TextureResourceResult> &textureResult);
 
         void SetTextureRef(const ResourceRef &textureRef);
@@ -63,6 +68,8 @@ namespace glimmer {
 
         void SetTags(const std::vector<ItemTagResource> &tags);
 
-        void SetPipeline(SDL_GPUGraphicsPipeline *pipeline);
+        void SetPipeline(std::shared_ptr<GPUPipelineResourceResult> pipeline);
+
+        void SetSampler(std::shared_ptr<GPUSamplerResourceResult> sampler);
     };
 }

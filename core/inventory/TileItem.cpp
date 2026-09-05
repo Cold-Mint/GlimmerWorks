@@ -152,6 +152,20 @@ glimmer::TextureResourceResult *glimmer::TileItem::GetIcon() const {
     return tileResourceData_->GetTexture();
 }
 
+SDL_GPUGraphicsPipeline *glimmer::TileItem::GetPipeline() const {
+    if (tileResourceData_ == nullptr) {
+        return nullptr;
+    }
+    return tileResourceData_->GetPipeline();
+}
+
+SDL_GPUSampler *glimmer::TileItem::GetSampler() const {
+    if (tileResourceData_ == nullptr) {
+        return nullptr;
+    }
+    return tileResourceData_->GetSampler();
+}
+
 
 const glimmer::ResourceRef *glimmer::TileItem::GetIconResourceRef() const {
     if (tileResourceData_ == nullptr) {

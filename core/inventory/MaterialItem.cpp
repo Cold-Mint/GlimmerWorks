@@ -72,7 +72,17 @@ std::unique_ptr<glimmer::MaterialItem> glimmer::MaterialItem::FromItemResource(c
                     &itemResource->pipeline,
                     false); pipelineResult != nullptr && pipelineResult->GetResource() != nullptr) {
             if (CacheContext *cacheContext = appContext->GetCacheContext(); cacheContext != nullptr) {
-                materialItem->SetPipeline(pipelineResult->GetResource());
+                materialItem->SetPipeline(pipelineResult);
+            }
+        }
+    }
+    if (itemResource->sampler.IsValid()) {
+        if (const std::shared_ptr<GPUSamplerResourceResult> samplerResult = appContext->GetResourceLocator()->
+                FindGPUGraphicsSampler(
+                    &itemResource->sampler,
+                    false); samplerResult != nullptr && samplerResult->GetResource() != nullptr) {
+            if (CacheContext *cacheContext = appContext->GetCacheContext(); cacheContext != nullptr) {
+                materialItem->SetSampler(samplerResult);
             }
         }
     }
@@ -111,11 +121,25 @@ glimmer::TextureResourceResult *glimmer::MaterialItem::GetIcon() const {
 }
 
 SDL_GPUGraphicsPipeline *glimmer::MaterialItem::GetPipeline() const {
-    return pipeline_;
+    if (pipeline_ == nullptr) {
+        return nullptr;
+    }
+    return pipeline_->GetResource();
 }
 
-void glimmer::MaterialItem::SetPipeline(SDL_GPUGraphicsPipeline *pipeline) {
-    pipeline_ = pipeline;
+void glimmer::MaterialItem::SetPipeline(std::shared_ptr<GPUPipelineResourceResult> pipeline) {
+    pipeline_ = std::move(pipeline);
+}
+
+SDL_GPUSampler *glimmer::MaterialItem::GetSampler() const {
+    if (sampler_ == nullptr) {
+        return nullptr;
+    }
+    return sampler_->GetResource();
+}
+
+void glimmer::MaterialItem::SetSampler(std::shared_ptr<GPUSamplerResourceResult> sampler) {
+    sampler_ = std::move(sampler);
 }
 
 bool glimmer::MaterialItem::OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user,

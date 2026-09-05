@@ -72,6 +72,7 @@ glimmer::AppRenderer::AppRenderer(AppContext *appContext) : appContext_(appConte
     if (defaultSampler_ == nullptr) {
         LogCat::e(std::source_location::current(), "defaultSampler failed: ", SDL_GetError());
     }
+    EnsureSolidColorTexture();
 }
 
 void glimmer::AppRenderer::RenderFrame(const RmlContext *rmlContext, const int windowWidth, const int windowHeight) {
@@ -271,6 +272,7 @@ void glimmer::AppRenderer::FlushScenePass(SDL_GPUCommandBuffer *commandBuffer, S
 
         const std::vector<RenderCommand> &commands = renderQueue_.GetCommands();
         SDL_GPUGraphicsPipeline *defaultPipeline = defaultPipeline_->GetResource();
+        SDL_GPUSampler *defaultSampler = defaultSampler_->GetResource();
         SDL_GPUGraphicsPipeline *currentPipeline = defaultPipeline;
         SDL_BindGPUGraphicsPipeline(renderPass, currentPipeline);
         Uint32 firstIndex = 0;
@@ -280,15 +282,22 @@ void glimmer::AppRenderer::FlushScenePass(SDL_GPUCommandBuffer *commandBuffer, S
                 SDL_BindGPUGraphicsPipeline(renderPass, commandPipeline);
                 currentPipeline = commandPipeline;
             }
-            SDL_GPUTexture *texture = nullptr;
-            if (command.texture != nullptr && command.texture->GetResource() != nullptr) {
-                texture = command.texture->GetResource();
+            SDL_GPUTexture *texture = solidColorTexture_;
+            if (command.texture != nullptr) {
+                auto commandTexture = command.texture->GetResource();
+                if (commandTexture != nullptr) {
+                    texture = commandTexture;
+                }
             }
             if (texture == nullptr) {
                 firstIndex += 6;
                 continue;
             }
-            SDL_GPUTextureSamplerBinding textureSamplerBinding = {texture, defaultSampler_->GetResource()};
+            SDL_GPUSampler *sampler = defaultSampler;
+            if (command.sampler != nullptr) {
+                sampler = command.sampler;
+            }
+            SDL_GPUTextureSamplerBinding textureSamplerBinding = {texture, sampler};
             SDL_BindGPUFragmentSamplers(renderPass, 0, &textureSamplerBinding, 1);
             SDL_DrawGPUIndexedPrimitives(renderPass, 6, 1, firstIndex, 0, 0);
             firstIndex += 6;
@@ -385,6 +394,70 @@ void glimmer::AppRenderer::EnsureSceneTexture(const Uint32 width, const Uint32 h
     }
     sceneTextureWidth_ = width;
     sceneTextureHeight_ = height;
+}
+
+
+void glimmer::AppRenderer::EnsureSolidColorTexture() {
+    if (device_ == nullptr || solidColorTexture_ != nullptr) {
+        return;
+    }
+    SDL_GPUTextureCreateInfo textureInfo = {};
+    textureInfo.type = SDL_GPU_TEXTURETYPE_2D;
+    textureInfo.format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM;
+    textureInfo.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER;
+    textureInfo.width = 1;
+    textureInfo.height = 1;
+    textureInfo.layer_count_or_depth = 1;
+    textureInfo.num_levels = 1;
+    textureInfo.sample_count = SDL_GPU_SAMPLECOUNT_1;
+    textureInfo.props = 0;
+    solidColorTexture_ = SDL_CreateGPUTexture(device_, &textureInfo);
+    if (solidColorTexture_ == nullptr) {
+        LogCat::w(std::source_location::current(), "SDL_CreateGPUTexture failed: ", SDL_GetError());
+        return;
+    }
+    constexpr Uint8 whitePixel[4] = {255, 255, 255, 255};
+    SDL_GPUTransferBufferCreateInfo transferInfo = {};
+    transferInfo.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD;
+    transferInfo.size = sizeof(whitePixel);
+    transferInfo.props = 0;
+    SDL_GPUTransferBuffer *transferBuffer = SDL_CreateGPUTransferBuffer(device_, &transferInfo);
+    if (transferBuffer == nullptr) {
+        LogCat::w(std::source_location::current(), "SDL_CreateGPUTransferBuffer failed: ", SDL_GetError());
+        return;
+    }
+    void *mapped = SDL_MapGPUTransferBuffer(device_, transferBuffer, false);
+    if (mapped != nullptr) {
+        std::memcpy(mapped, whitePixel, sizeof(whitePixel));
+        SDL_UnmapGPUTransferBuffer(device_, transferBuffer);
+    }
+    SDL_GPUCommandBuffer *uploadCommandBuffer = SDL_AcquireGPUCommandBuffer(device_);
+    if (uploadCommandBuffer == nullptr) {
+        SDL_ReleaseGPUTransferBuffer(device_, transferBuffer);
+        return;
+    }
+    SDL_GPUCopyPass *copyPass = SDL_BeginGPUCopyPass(uploadCommandBuffer);
+    if (copyPass == nullptr) {
+        SDL_CancelGPUCommandBuffer(uploadCommandBuffer);
+        SDL_ReleaseGPUTransferBuffer(device_, transferBuffer);
+        return;
+    }
+    SDL_GPUTextureTransferInfo source = {};
+    source.transfer_buffer = transferBuffer;
+    source.offset = 0;
+    source.pixels_per_row = 1;
+    source.rows_per_layer = 1;
+    SDL_GPUTextureRegion destination = {};
+    destination.texture = solidColorTexture_;
+    destination.mip_level = 0;
+    destination.layer = 0;
+    destination.w = 1;
+    destination.h = 1;
+    destination.d = 1;
+    SDL_UploadToGPUTexture(copyPass, &source, &destination, false);
+    SDL_EndGPUCopyPass(copyPass);
+    SDL_SubmitGPUCommandBuffer(uploadCommandBuffer);
+    SDL_ReleaseGPUTransferBuffer(device_, transferBuffer);
 }
 
 

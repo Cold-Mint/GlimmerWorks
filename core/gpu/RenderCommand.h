@@ -31,6 +31,7 @@
 
 #include "RenderLayer.h"
 #include "SpriteVertex.h"
+#include "core/mod/resourcePack/GPUSamplerResourceResult.h"
 #include "core/mod/resourcePack/TextureResourceResult.h"
 
 namespace glimmer {
@@ -63,6 +64,7 @@ namespace glimmer {
      */
     struct RenderCommand {
         const TextureResourceResult *texture = nullptr;
+        SDL_GPUSampler *sampler = nullptr;
         SpriteVertex corners[4] = {};
         RenderLayer layer = RenderLayer::Background;
         float depth = 0.0F;

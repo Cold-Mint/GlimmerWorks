@@ -127,7 +127,8 @@ void glimmer::SpiritRendererSystem::Render(RenderQueue *queue) {
                 nullptr,
                 flip,
                 {255, 255, 255, 255},
-                spiritRendererComponent->GetPipeline()
+                spiritRendererComponent->GetPipeline(),
+                spiritRendererComponent->GetSampler()
             );
         }
     }

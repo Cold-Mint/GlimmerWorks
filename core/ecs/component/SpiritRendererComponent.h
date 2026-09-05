@@ -37,7 +37,8 @@ namespace glimmer {
         ResourceRef resourceRef_;
         WorldVector2D position_;
         std::shared_ptr<TextureResourceResult> textureResult_ = nullptr;
-        SDL_GPUGraphicsPipeline *pipeline_ = nullptr;
+        std::shared_ptr<GPUPipelineResourceResult> pipeline_ = nullptr;
+        std::shared_ptr<GPUSamplerResourceResult> sampler_ = nullptr;
         bool flipH_ = false;
         bool flipV_ = false;
 
@@ -56,9 +57,13 @@ namespace glimmer {
 
         [[nodiscard]] TextureResourceResult *GetTexture(const ResourceLocator *resourceLocator);
 
-        void SetPipeline(SDL_GPUGraphicsPipeline *pipeline);
+        void SetPipeline(std::shared_ptr<GPUPipelineResourceResult> pipeline);
 
         [[nodiscard]] SDL_GPUGraphicsPipeline *GetPipeline() const;
+
+        void SetSampler(std::shared_ptr<GPUSamplerResourceResult> sampler);
+
+        [[nodiscard]] SDL_GPUSampler *GetSampler() const;
 
         void SetPosition(const WorldVector2D &position);
 

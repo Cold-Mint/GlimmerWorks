@@ -446,6 +446,7 @@ namespace toml {
             r.name = toml::find<glimmer::ResourceRef>(v, "name");
             r.pipeline = toml::find_or<glimmer::ResourceRef>(v, "pipeline", {});
             r.resourceId = toml::find<std::string>(v, "resource_id");
+            r.sampler = toml::find_or<glimmer::ResourceRef>(v, "sampler", {});
             r.tags = toml::find_or<std::vector<glimmer::ItemTagResource> >(v, "tags", {});
             r.texture = toml::find<glimmer::ResourceRef>(v, "texture");
             r.unbreakable = toml::find_or<bool>(v, "unbreakable", false);
@@ -489,6 +490,7 @@ namespace toml {
             r.name = toml::find<glimmer::ResourceRef>(v, "name");
             r.pipeline = toml::find_or<glimmer::ResourceRef>(v, "pipeline", {});
             r.resourceId = toml::find<std::string>(v, "resource_id");
+            r.sampler = toml::find_or<glimmer::ResourceRef>(v, "sampler", {});
             r.slotSize = toml::find<size_t>(v, "slot_size");
             r.tags = toml::find_or<std::vector<glimmer::ItemTagResource> >(v, "tags", {});
             r.texture = toml::find<glimmer::ResourceRef>(v, "texture");
@@ -591,6 +593,7 @@ namespace toml {
             r.name = toml::find<glimmer::ResourceRef>(v, "name");
             r.pipeline = toml::find_or<glimmer::ResourceRef>(v, "pipeline", {});
             r.resourceId = toml::find<std::string>(v, "resource_id");
+            r.sampler = toml::find_or<glimmer::ResourceRef>(v, "sampler", {});
             r.tags = toml::find_or<std::vector<glimmer::ItemTagResource> >(v, "tags", {});
             r.texture = toml::find<glimmer::ResourceRef>(v, "texture");
             return r;
@@ -689,6 +692,7 @@ namespace toml {
             r.placeSfx = toml::find<glimmer::ResourceRef>(v, "place_sfx");
             r.recipeGroup = toml::find_or<uint8_t>(v, "recipe_group", 0);
             r.resourceId = toml::find<std::string>(v, "resource_id");
+            r.sampler = toml::find_or<glimmer::ResourceRef>(v, "sampler", {});
             r.sideLightMask = toml::find<glimmer::ResourceRef>(v, "side_light_mask");
             r.tags = toml::find_or<std::vector<glimmer::ItemTagResource> >(v, "tags", {});
             r.technologyLevel = toml::find_or<uint8_t>(v, "technology_level", 0);
@@ -744,6 +748,7 @@ namespace toml {
             r.movementAcceleration = toml::find_or<float>(v, "movement_acceleration", 6.0F);
             r.pipeline = toml::find_or<glimmer::ResourceRef>(v, "pipeline", {});
             r.resourceId = toml::find<std::string>(v, "resource_id");
+            r.sampler = toml::find_or<glimmer::ResourceRef>(v, "sampler", {});
             r.shape = toml::find<glimmer::ResourceRef>(v, "shape");
             r.texture = toml::find_or<glimmer::ResourceRef>(v, "texture", {});
             r.textureOffset = toml::find<glimmer::Vector2DResource>(v, "texture_offset");

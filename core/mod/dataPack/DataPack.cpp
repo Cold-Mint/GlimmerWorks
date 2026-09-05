@@ -179,6 +179,7 @@ void glimmer::DataPack::LoadTileResourceFromFile(const toml::value &value, TileR
     tileResource->description.SetSelfPackageId(manifest_.id);
     tileResource->texture.SetSelfPackageId(manifest_.id);
     tileResource->pipeline.SetSelfPackageId(manifest_.id);
+    tileResource->sampler.SetSelfPackageId(manifest_.id);
     tileResource->blueprintTexture.SetSelfPackageId(manifest_.id);
     tileResource->breakSfx.SetSelfPackageId(manifest_.id);
     tileResource->placeSfx.SetSelfPackageId(manifest_.id);
@@ -212,6 +213,7 @@ void glimmer::DataPack::LoadComposableItemResourceFromFile(const toml::value &va
     itemResource->description.SetSelfPackageId(manifest_.id);
     itemResource->texture.SetSelfPackageId(manifest_.id);
     itemResource->pipeline.SetSelfPackageId(manifest_.id);
+    itemResource->sampler.SetSelfPackageId(manifest_.id);
     itemResource->lightSource.SetSelfPackageId(manifest_.id);
     for (auto &tag: itemResource->tags) {
         tag.MakeCachedTag();
@@ -233,6 +235,7 @@ void glimmer::DataPack::LoadAbilityItemResourceFromFile(const toml::value &value
     itemResource->description.SetSelfPackageId(manifest_.id);
     itemResource->texture.SetSelfPackageId(manifest_.id);
     itemResource->pipeline.SetSelfPackageId(manifest_.id);
+    itemResource->sampler.SetSelfPackageId(manifest_.id);
     itemResource->lightSource.SetSelfPackageId(manifest_.id);
     for (auto &tag: itemResource->tags) {
         tag.MakeCachedTag();
@@ -248,6 +251,7 @@ void glimmer::DataPack::LoadMaterialItemResourceResourceFromFile(const toml::val
     itemResource->description.SetSelfPackageId(manifest_.id);
     itemResource->texture.SetSelfPackageId(manifest_.id);
     itemResource->pipeline.SetSelfPackageId(manifest_.id);
+    itemResource->sampler.SetSelfPackageId(manifest_.id);
     itemResource->lightSource.SetSelfPackageId(manifest_.id);
     for (auto &tag: itemResource->tags) {
         tag.MakeCachedTag();
@@ -268,6 +272,7 @@ void glimmer::DataPack::LoadMobResourceFromFile(const toml::value &value, MobReg
     mobResource->shape.SetSelfPackageId(manifest_.id);
     mobResource->texture.SetSelfPackageId(manifest_.id);
     mobResource->pipeline.SetSelfPackageId(manifest_.id);
+    mobResource->sampler.SetSelfPackageId(manifest_.id);
     ItemMessageResource &emptyHandAutoUseItem = mobResource->emptyHandAutoUseItem;
     emptyHandAutoUseItem.item.SetSelfPackageId(manifest_.id);
     for (auto &abilityItemRef: emptyHandAutoUseItem.abilityItemRef) {

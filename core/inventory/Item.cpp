@@ -113,6 +113,15 @@ const glimmer::ItemLockModule *glimmer::Item::GetLockModule() const {
     return &itemLockModule_;
 }
 
+SDL_GPUGraphicsPipeline *glimmer::Item::GetPipeline() const {
+    return nullptr;
+}
+
+SDL_GPUSampler *glimmer::Item::GetSampler() const {
+    return nullptr;
+}
+
+
 unsigned glimmer::Item::GetRemaining() const {
     return itemDurabilityModule_.GetMaxDurability() - itemDurabilityModule_.GetUsedDurability();
 }

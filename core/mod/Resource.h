@@ -415,6 +415,8 @@ namespace glimmer {
         ResourceRef texture;
         //@genNextLine(pipeline|渲染管线引用)
         ResourceRef pipeline = {};
+        //@genNextLine(sampler|采样器引用)
+        ResourceRef sampler = {};
         //@genNextLine(lightSource|手持时发光的光源引用)
         ResourceRef lightSource = {};
         //@genNextLine(ability|能力标识)
@@ -441,6 +443,8 @@ namespace glimmer {
         ResourceRef texture;
         //@genNextLine(pipeline|渲染管线引用)
         ResourceRef pipeline = {};
+        //@genNextLine(sampler|采样器引用)
+        ResourceRef sampler = {};
         //@genNextLine(lightSource|手持时发光的光源引用)
         ResourceRef lightSource = {};
         //@genNextLine(tags|标签)
@@ -492,6 +496,8 @@ namespace glimmer {
         ResourceRef texture;
         //@genNextLine(pipeline|渲染管线引用)
         ResourceRef pipeline = {};
+        //@genNextLine(sampler|采样器引用)
+        ResourceRef sampler = {};
         //@genNextLine(enableBlueprint|启用蓝图-手持瓦片时显示蓝图)
         bool enableBlueprint = true;
         //@genNextLine(enableBlueprintMask|启用蓝图遮照-用颜色标记禁止放置的区域)
@@ -731,6 +737,8 @@ namespace glimmer {
         ResourceRef texture = {};
         //@genNextLine(pipeline|渲染管线引用)
         ResourceRef pipeline = {};
+        //@genNextLine(sampler|采样器引用)
+        ResourceRef sampler = {};
         //@genNextLine(Set the item that will be automatically used when no items are held. This item cannot be discarded, does not participate in recipe synthesis, and cannot be edited using the itemEditor command.If this item has the ability to be excavated, then its durability will not be deducted.|设置不持有任何物品时自动使用的物品。此物品不能丢弃，不参与配方合成，不能通过itemEditor命令编辑。如果此物品有挖掘能力，那么也不会扣除耐久。)
         ItemMessageResource emptyHandAutoUseItem;
         //@genNextLine(TilePlacementForbiddenZone|瓦片放置禁止区域)
@@ -753,6 +761,8 @@ namespace glimmer {
         ResourceRef texture;
         //@genNextLine(pipeline|渲染管线引用)
         ResourceRef pipeline = {};
+        //@genNextLine(sampler|采样器引用)
+        ResourceRef sampler = {};
         //@genNextLine(lightSource|手持时发光的光源引用)
         ResourceRef lightSource = {};
         //@genNextLine(slotSize|槽位大小)

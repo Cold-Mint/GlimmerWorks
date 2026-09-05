@@ -163,7 +163,15 @@ void glimmer::MobEntityCreator::LoadTemplateComponents(const uint32_t id, const 
                     FindGPUGraphicsPipeline(
                         &mobResource->pipeline,
                         false); pipelineResult != nullptr && pipelineResult->GetResource() != nullptr) {
-                spiritRendererComponent->SetPipeline(pipelineResult->GetResource());
+                spiritRendererComponent->SetPipeline(pipelineResult);
+            }
+        }
+        if (mobResource->sampler.IsValid()) {
+            if (const std::shared_ptr<GPUSamplerResourceResult> samplerResult = resourceLocator->
+                    FindGPUGraphicsSampler(
+                        &mobResource->sampler,
+                        false); samplerResult != nullptr && samplerResult->GetResource() != nullptr) {
+                spiritRendererComponent->SetSampler(samplerResult);
             }
         }
     }

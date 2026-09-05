@@ -26,6 +26,7 @@
  */
 #pragma once
 #include "Item.h"
+#include "core/mod/resourcePack/GPUPipelineResourceResult.h"
 #include "core/mod/resourcePack/TextureResourceResult.h"
 
 namespace glimmer {
@@ -37,7 +38,8 @@ namespace glimmer {
         std::optional<std::string> description_;
         std::shared_ptr<TextureResourceResult> iconResult_;
         ResourceRef textureResourceRef_;
-        SDL_GPUGraphicsPipeline *pipeline_ = nullptr;
+        std::shared_ptr<GPUPipelineResourceResult> pipeline_ = nullptr;
+        std::shared_ptr<GPUSamplerResourceResult> sampler_ = nullptr;
 
     public:
         explicit MaterialItem(std::string id, std::string name, std::optional<std::string> description,
@@ -65,7 +67,11 @@ namespace glimmer {
 
         [[nodiscard]] SDL_GPUGraphicsPipeline *GetPipeline() const override;
 
-        void SetPipeline(SDL_GPUGraphicsPipeline *pipeline);
+        void SetPipeline(std::shared_ptr<GPUPipelineResourceResult> pipeline);
+
+        [[nodiscard]] SDL_GPUSampler *GetSampler() const override;
+
+        void SetSampler(std::shared_ptr<GPUSamplerResourceResult> sampler);
 
         bool OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user, const AbilityConfig *abilityConfig,
                    std::unordered_set<AbilityType> &popupAbility) override;

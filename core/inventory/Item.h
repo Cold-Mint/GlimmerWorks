@@ -35,6 +35,7 @@
 #include "ItemTagModule.h"
 #include "ability/AbilityType.h"
 #include "core/math/IAllocatable.h"
+#include "core/mod/resourcePack/GPUSamplerResourceResult.h"
 #include "core/world/TileResourceData.h"
 
 namespace glimmer {
@@ -140,9 +141,14 @@ namespace glimmer {
          * 获取渲染管线
          * @return 自定义管线；若无则返回 nullptr
          */
-        [[nodiscard]] virtual SDL_GPUGraphicsPipeline *GetPipeline() const {
-            return nullptr;
-        }
+        [[nodiscard]] virtual SDL_GPUGraphicsPipeline *GetPipeline() const;
+
+        /**
+         * GetSampler
+         * 获取采样器
+         * @return 自定义采样器；若无则返回 nullptr
+         */
+        [[nodiscard]] virtual SDL_GPUSampler *GetSampler() const;
 
         [[nodiscard]] virtual const ResourceRef *GetIconResourceRef() const = 0;
 

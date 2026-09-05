@@ -68,6 +68,13 @@ namespace glimmer {
         std::shared_ptr<GPUSamplerResourceResult> defaultSampler_ = nullptr;
         std::shared_ptr<GPUSamplerResourceResult> lightingSampler_ = nullptr;
 
+        //1x1 white texture bound when a command has no texture, so the
+        //fragment shader's `texture * color` resolves to just the vertex color
+        //for solid-color geometry (rectangles/lines/points).
+        //当命令没有纹理时绑定的 1x1 白色纹理，使片元着色器的
+        //`texture * color` 退化为纯顶点颜色（矩形/线/点）。
+        SDL_GPUTexture *solidColorTexture_ = nullptr;
+
         //Offscreen render target for the unlit scene pass, plus the lighting
         //pipeline/sampler and per-tile light map texture used by the lighting pass.
         //用于无光照场景通道的离屏渲染目标，以及光照通道使用的光照管线/采样器与逐瓦片光照贴图纹理。
@@ -89,6 +96,13 @@ namespace glimmer {
          * 创建或调整离屏场景渲染目标。
          */
         void EnsureSceneTexture(Uint32 width, Uint32 height);
+
+        /**
+         * Create the 1x1 white texture used to render solid-color geometry
+         * (rectangles, lines and points submitted with a null texture).
+         * 创建用于渲染纯色几何图形（以空纹理提交的矩形、线与点）的 1x1 白色纹理。
+         */
+        void EnsureSolidColorTexture();
 
         /**
          * Grow the vertex buffer to at least `size` bytes if necessary.

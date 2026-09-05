@@ -205,11 +205,14 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
         const std::shared_ptr<GPUPipelineResourceResult> pipelineResult = resourceLocator->FindGPUGraphicsPipeline(
             &tileResource->pipeline, false);
         if (pipelineResult != nullptr) {
-            SDL_GPUGraphicsPipeline *pipeline = pipelineResult->GetResource();
-            if (pipeline == nullptr) {
-                return nullptr;
-            }
-            tile->resourceData_.SetPipeline(pipeline);
+            tile->resourceData_.SetPipeline(pipelineResult);
+        }
+    }
+    if (tileResource->sampler.IsValid()) {
+        const std::shared_ptr<GPUSamplerResourceResult> samplerResult = resourceLocator->FindGPUGraphicsSampler(
+            &tileResource->sampler, false);
+        if (samplerResult != nullptr && samplerResult->GetResource() != nullptr) {
+            tile->resourceData_.SetSampler(samplerResult);
         }
     }
     tile->blueprintData_.SetEnableBlueprint(tileResource->enableBlueprint);

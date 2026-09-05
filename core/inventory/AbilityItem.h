@@ -28,6 +28,7 @@
 #include "AbilityItemCreateParams.h"
 #include "Item.h"
 #include "ability/ItemAbility.h"
+#include "core/mod/resourcePack/GPUPipelineResourceResult.h"
 
 namespace glimmer {
     class AbilityItem : public Item {
@@ -40,7 +41,8 @@ namespace glimmer {
         bool unbreakable_;
         bool canUseAlone_;
         ResourceRef iconResourceRef_;
-        SDL_GPUGraphicsPipeline *pipeline_ = nullptr;
+        std::shared_ptr<GPUPipelineResourceResult> pipeline_ = nullptr;
+        std::shared_ptr<GPUSamplerResourceResult> sampler_ = nullptr;
 
     public:
         explicit AbilityItem(const AbilityItemCreateParams &params);
@@ -59,7 +61,11 @@ namespace glimmer {
 
         [[nodiscard]] SDL_GPUGraphicsPipeline *GetPipeline() const override;
 
-        void SetPipeline(SDL_GPUGraphicsPipeline *pipeline);
+        void SetPipeline(std::shared_ptr<GPUPipelineResourceResult> pipeline);
+
+        [[nodiscard]] SDL_GPUSampler * GetSampler() const override;
+
+        void SetSampler(std::shared_ptr<GPUSamplerResourceResult> sampler);
 
         [[nodiscard]] const ResourceRef *GetIconResourceRef() const override;
 

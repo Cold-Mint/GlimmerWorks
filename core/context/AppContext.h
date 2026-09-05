@@ -123,21 +123,6 @@ namespace glimmer {
 
         void CreateScreenshot(const std::function<void(const std::string &text)> *onMessage) const;
 
-        /**
-         * Capture the frame that was just rendered when a screenshot request is
-         * pending. Must be called on the main thread after all rendering
-         * (including RmlUi) is done and before the frame is submitted; when it
-         * returns true the frame has already been submitted and the caller must
-         * not submit it again.
-         * 当存在待处理截图请求时，捕获刚渲染完成的帧。必须在主线程上、
-         * 所有渲染（包括 RmlUi）完成之后、帧提交之前调用；返回 true 表示
-         * 帧已被提交，调用方不得再次提交。
-         * @param gpuContext gpuContext GPU 上下文
-         * @param renderer renderer GPU 渲染器
-         * @return true if a screenshot was captured (and the frame submitted).
-         * 捕获了截图（并提交了帧）时返回 true。
-         */
-        // bool ProcessPendingScreenshot(const GpuContext *gpuContext, GpuRenderer *renderer);
     };
 }
 

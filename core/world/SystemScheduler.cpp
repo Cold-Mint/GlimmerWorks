@@ -46,7 +46,6 @@
 #include "core/ecs/system/HotBarGUISystem.h"
 #include "core/ecs/system/InventoryGUISystem.h"
 #include "core/ecs/system/ItemTooltipSystem.h"
-#include "core/ecs/system/Light2DSystem.h"
 #include "core/ecs/system/MagnetSystem.h"
 #include "core/ecs/system/ParallaxBackgroundSystem.h"
 #include "core/ecs/system/PauseSystem.h"
@@ -362,7 +361,6 @@ void glimmer::SystemScheduler::InitSystem() {
     RegisterSystem(std::make_unique<SpiritRendererSystem>(worldContext_));
     RegisterSystem(std::make_unique<RayCast2DSystem>(worldContext_));
     RegisterSystem(std::make_unique<BiomeBGMSystem>(worldContext_));
-    RegisterSystem(std::make_unique<Light2DSystem>(worldContext_));
     RegisterSystem(std::make_unique<DynamicLightSystem>(worldContext_));
     RegisterSystem(std::make_unique<BlueprintSystem>(worldContext_));
     RegisterSystem(std::make_unique<TechProviderSystem>(worldContext_));

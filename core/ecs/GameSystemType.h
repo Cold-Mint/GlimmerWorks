@@ -49,7 +49,6 @@ namespace glimmer {
         FloatingTextSystem,
         HotBarGUISystem,
         ItemSlotSystem,
-        Light2DSystem,
         MagnetSystem,
         ParallaxBackgroundSystem,
         PauseSystem,

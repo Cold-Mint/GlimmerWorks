@@ -332,7 +332,6 @@ static constexpr uint8_t EXECUTION_ORDER_MATERIAL_SELECT_CRAFT_UI = 18;
 static constexpr uint8_t EXECUTION_ORDER_ITEM_SLOT_QUANTITY = 19;
 static constexpr uint8_t EXECUTION_ORDER_ITEM_TOOLTIP = 21;
 static constexpr uint8_t EXECUTION_ORDER_DYNAMIC_LIGHT = 92;
-static constexpr uint8_t EXECUTION_ORDER_LIGHT2D = 93;
 static constexpr uint8_t EXECUTION_ORDER_DEBUG_DRAW = 94;
 static constexpr uint8_t EXECUTION_ORDER_DEBUG_CHUNK = 95;
 static constexpr uint8_t EXECUTION_ORDER_DEBUG_BOX2D = 96;

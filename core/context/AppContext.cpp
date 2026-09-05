@@ -33,7 +33,6 @@
 #include "core/utils/RandomUtils.h"
 #include "core/utils/StringUtils.h"
 #include "fmt/xchar.h"
-#include "SDL3_image/SDL_image.h"
 #include "SDL3/SDL.h"
 #include "tasks/InitConfigTask.h"
 #include "tasks/InitConsoleContextTask.h"
@@ -154,110 +153,8 @@ void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::s
             "GetActualPath failed"));
         return;
     }
-    //The actual capture happens at the end of the current frame in
-    //ProcessPendingScreenshot (called by AppRenderer on the main thread).
-    //实际捕获发生在当前帧结束时，由 ProcessPendingScreenshot（AppRenderer 在主线程调用）完成。
     pendingScreenshot_ = PendingScreenshot{actualPath.value(), onMessage};
 }
-
-static SDL_PixelFormat MapSwapchainFormatToPixelFormat(const SDL_GPUTextureFormat format) {
-    switch (format) {
-        case SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM:
-            return SDL_PIXELFORMAT_ABGR8888;
-        case SDL_GPU_TEXTUREFORMAT_B8G8R8A8_UNORM:
-            return SDL_PIXELFORMAT_ARGB8888;
-        default:
-            return SDL_PIXELFORMAT_UNKNOWN;
-    }
-}
-
-// bool glimmer::AppContext::ProcessPendingScreenshot(const GpuContext *gpuContext, GpuRenderer *renderer) {
-//     if (!pendingScreenshot_.has_value()) {
-//         return false;
-//     }
-//     const PendingScreenshot pending = pendingScreenshot_.value();
-//     pendingScreenshot_.reset();
-//     const std::function<void(const std::string &text)> &onMessageRef = *pending.onMessage;
-//     if (gpuContext == nullptr || renderer == nullptr || renderer->GetSwapchainTexture() == nullptr ||
-//         renderer->GetCommandBuffer() == nullptr) {
-//         onMessageRef(fmt::format(
-//             fmt::runtime(GetLangsResources()->screenshotSavedFailed),
-//             "no active GPU frame"));
-//         return false;
-//     }
-//     SDL_GPUDevice *device = gpuContext->GetDevice();
-//     const Uint32 width = renderer->GetSwapchainWidth();
-//     const Uint32 height = renderer->GetSwapchainHeight();
-//     const SDL_GPUTextureFormat swapchainFormat = gpuContext->GetSwapchainFormat();
-//     const SDL_PixelFormat pixelFormat = MapSwapchainFormatToPixelFormat(swapchainFormat);
-//     if (pixelFormat == SDL_PIXELFORMAT_UNKNOWN) {
-//         onMessageRef(fmt::format(
-//             fmt::runtime(GetLangsResources()->screenshotSavedFailed),
-//             "unsupported swapchain format"));
-//         return false;
-//     }
-//     //Copy the swapchain texture to an offscreen texture, then download it.
-//     //先将交换链纹理拷贝到离屏纹理，再下载其内容。
-//     SDL_GPUTextureCreateInfo textureCreateInfo = {};
-//     textureCreateInfo.type = SDL_GPU_TEXTURETYPE_2D;
-//     textureCreateInfo.format = swapchainFormat;
-//     textureCreateInfo.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER;
-//     textureCreateInfo.width = width;
-//     textureCreateInfo.height = height;
-//     textureCreateInfo.layer_count_or_depth = 1;
-//     textureCreateInfo.num_levels = 1;
-//     textureCreateInfo.sample_count = SDL_GPU_SAMPLECOUNT_1;
-//     textureCreateInfo.props = 0;
-//     SDL_GPUTexture *screenshotTexture = SDL_CreateGPUTexture(device, &textureCreateInfo);
-//     if (screenshotTexture == nullptr) {
-//         onMessageRef(fmt::format(
-//             fmt::runtime(GetLangsResources()->screenshotSavedFailed),
-//             SDL_GetError()));
-//         return false;
-//     }
-//     SDL_GPUBlitInfo blitInfo = {};
-//     blitInfo.source.texture = renderer->GetSwapchainTexture();
-//     blitInfo.source.mip_level = 0;
-//     blitInfo.source.layer_or_depth_plane = 0;
-//     blitInfo.source.x = 0;
-//     blitInfo.source.y = 0;
-//     blitInfo.source.w = width;
-//     blitInfo.source.h = height;
-//     blitInfo.destination.texture = screenshotTexture;
-//     blitInfo.destination.mip_level = 0;
-//     blitInfo.destination.layer_or_depth_plane = 0;
-//     blitInfo.destination.x = 0;
-//     blitInfo.destination.y = 0;
-//     blitInfo.destination.w = width;
-//     blitInfo.destination.h = height;
-//     blitInfo.load_op = SDL_GPU_LOADOP_DONT_CARE;
-//     blitInfo.flip_mode = SDL_FLIP_NONE;
-//     blitInfo.filter = SDL_GPU_FILTER_NEAREST;
-//     blitInfo.cycle = false;
-//     SDL_BlitGPUTexture(renderer->GetCommandBuffer(), &blitInfo);
-//     renderer->SubmitFrame();
-//     SDL_Surface *surface = gpuContext->ReadbackTexture(screenshotTexture, width, height, pixelFormat);
-//     SDL_ReleaseGPUTexture(device, screenshotTexture);
-//     if (surface == nullptr) {
-//         onMessageRef(fmt::format(
-//             fmt::runtime(GetLangsResources()->screenshotSavedFailed),
-//             "ReadbackTexture failed"));
-//         return true;
-//     }
-//     const bool result = IMG_SavePNG(surface, pending.path.string().c_str());
-//     SDL_DestroySurface(surface);
-//     if (result) {
-//         onMessageRef(fmt::format(
-//             fmt::runtime(GetLangsResources()->screenshotSavedSuccess),
-//             pending.path.string()));
-//     } else {
-//         onMessageRef(
-//             fmt::format(
-//                 fmt::runtime(GetLangsResources()->screenshotSavedFailed),
-//                 "IMG_SavePNG Failed"));
-//     }
-//     return true;
-// }
 
 glimmer::ModContext *glimmer::AppContext::GetModContext() const {
     return systemBucket_->GetModContext();

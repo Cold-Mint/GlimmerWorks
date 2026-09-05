@@ -601,7 +601,6 @@ target_sources(GlimmerWorks
         core/ecs/system/DroppedItemSystem.cpp
         core/ecs/system/FloatingTextSystem.cpp
         core/ecs/system/HotBarGUISystem.cpp
-        core/ecs/system/Light2DSystem.cpp
         core/ecs/system/DynamicLightSystem.cpp
         core/ecs/system/MagnetSystem.cpp
         core/ecs/system/ParallaxBackgroundSystem.cpp
@@ -1014,7 +1013,6 @@ target_sources(GlimmerWorks
         core/ecs/system/MiningSystem.h
         core/ecs/system/DroppedItemSystem.h
         core/ecs/system/FloatingTextSystem.h
-        core/ecs/system/Light2DSystem.h
         core/ecs/system/DynamicLightSystem.h
         core/ecs/system/MagnetSystem.h
         core/ecs/system/ParallaxBackgroundSystem.h

@@ -53,9 +53,9 @@ namespace glimmer {
 
         [[nodiscard]] TextureResourceResult *GetIcon() const override;
 
-        [[nodiscard]] SDL_GPUGraphicsPipeline * GetPipeline() const override;
+        [[nodiscard]] SDL_GPUGraphicsPipeline *GetPipeline() const override;
 
-        [[nodiscard]] SDL_GPUSampler * GetSampler() const override;
+        [[nodiscard]] SDL_GPUSampler *GetSampler() const override;
 
         [[nodiscard]] const ResourceRef *GetIconResourceRef() const override;
 

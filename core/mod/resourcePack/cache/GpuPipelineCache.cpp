@@ -118,6 +118,7 @@ std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::GpuPipelineCache::L
         toml::get<GPUPipelineResource>(toml::parse_str(data.value(), TOML_VERSION)));
     gpuPipelineResource->vertexShader.SetSelfPackageId(manifestId);
     gpuPipelineResource->fragmentShader.SetSelfPackageId(manifestId);
+    gpuPipelineResource->uniformBlock.SetSelfPackageId(manifestId);
 
     SDL_GPUVertexBufferDescription bufferDescription = {};
     bufferDescription.slot = 0;
@@ -174,6 +175,12 @@ std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::GpuPipelineCache::L
     pipelineResourceResult->SetResource(gpuGraphicsPipeline);
     pipelineResourceResult->SetResourcePack(resourcePack);
     pipelineResourceResult->SetDevice(device);
+    if (gpuPipelineResource->uniformBlock.IsValid()) {
+        auto uniformBlock = resourceLocator->FindUniformBlock(&gpuPipelineResource->uniformBlock);
+        if (uniformBlock != nullptr) {
+            pipelineResourceResult->SetUniformBlock(std::move(uniformBlock));
+        }
+    }
     return pipelineResourceResult;
 }
 

@@ -25,43 +25,23 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-
-#include <memory>
-
 #include "ResourceResult.h"
-#include "SDL3/SDL_gpu.h"
+#include "core/gpu/UniformBlock.h"
 
 namespace glimmer {
-    class CompiledUniformBlock;
-    class UniformBlockResourceResult;
-
     /**
-     * GPUPipelineResourceResult
-     * GPU 管线资源结果
+     * UniformBlockResourceResult
+     * Uniform 块资源结果
+     *
+     * Wraps a CompiledUniformBlock as a cached resource. The compiled layout is
+     * pure CPU data, so destruction is a plain delete.
+     * 将 CompiledUniformBlock 封装为缓存资源。编译布局为纯 CPU 数据，销毁即 delete。
      */
-    class GPUPipelineResourceResult : public ResourceResult<SDL_GPUGraphicsPipeline> {
-        SDL_GPUDevice *device_ = nullptr;
-        std::shared_ptr<UniformBlockResourceResult> uniformBlock_ = nullptr;
-
+    class UniformBlockResourceResult : public ResourceResult<CompiledUniformBlock> {
     protected:
-        void DestroyResourceImpl(SDL_GPUGraphicsPipeline *resource) override;
+        void DestroyResourceImpl(CompiledUniformBlock *resource) override;
 
     public:
-        void SetDevice(SDL_GPUDevice *device);
-
-        /**
-         * SetUniformBlock
-         * 设置管线关联的 Uniform 块。管线强持有该块，保证其生命周期与管线一致。
-         * @param uniformBlock uniformBlock Uniform 块资源
-         */
-        void SetUniformBlock(std::shared_ptr<UniformBlockResourceResult> uniformBlock);
-
-        /**
-         * GetUniformBlock
-         * 获取管线关联的 Uniform 块（可为 nullptr）。
-         */
-        [[nodiscard]] const CompiledUniformBlock *GetUniformBlock() const;
-
-        ~GPUPipelineResourceResult() override;
+        ~UniformBlockResourceResult() override;
     };
 }

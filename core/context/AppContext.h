@@ -122,7 +122,6 @@ namespace glimmer {
         void ExitApp() const;
 
         void CreateScreenshot(const std::function<void(const std::string &text)> *onMessage) const;
-
     };
 }
 

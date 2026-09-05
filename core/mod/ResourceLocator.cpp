@@ -261,6 +261,28 @@ std::shared_ptr<glimmer::GPUSamplerResourceResult> glimmer::ResourceLocator::Fin
     return gpuSamplerCache->LoadResource(appContext_, resourceRef, enablePlaceHolder);
 }
 
+std::shared_ptr<glimmer::UniformBlockResourceResult> glimmer::ResourceLocator::FindUniformBlock(
+    const ResourceRef *resourceRef, bool enablePlaceHolder) const {
+    if (cacheContext_ == nullptr) {
+        return nullptr;
+    }
+    UniformBlockCache *uniformBlockCache = cacheContext_->GetUniformBlockCache();
+    if (uniformBlockCache == nullptr) {
+        return nullptr;
+    }
+    if (resourceRef == nullptr) {
+        LogCat::w(std::source_location::current(), "resourceRef == nullptr");
+        return nullptr;
+    }
+    if (resourceRef->GetResourceType() != RESOURCE_UNIFORM_BLOCK) {
+        LogCat::w(std::source_location::current(), "Type mismatch: expected RESOURCE_UNIFORM_BLOCK (",
+                  std::to_underlying(RESOURCE_UNIFORM_BLOCK), "), got ",
+                  std::to_underlying(resourceRef->GetResourceType()), ").");
+        return nullptr;
+    }
+    return uniformBlockCache->LoadResource(appContext_, resourceRef, enablePlaceHolder);
+}
+
 
 std::unique_ptr<glimmer::Color> glimmer::ResourceLocator::FindColor(const ResourceRef *resourceRef,
                                                                     bool enablePlaceHolder) const {

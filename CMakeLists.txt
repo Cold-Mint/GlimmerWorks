@@ -418,6 +418,11 @@ target_sources(GlimmerWorks
         core/mod/resourcePack/cache/ShaderCache.cpp
         core/gpu/GpuShaderCompiler.cpp
         core/gpu/GpuShaderCompileResult.cpp
+        core/gpu/Std140LayoutBuilder.cpp
+        core/gpu/UniformBlock.cpp
+        core/gpu/UniformInjectorRegistry.cpp
+        core/mod/resourcePack/UniformBlockResourceResult.cpp
+        core/mod/resourcePack/cache/UniformBlockCache.cpp
         core/mod/resourcePack/BaseManager.cpp
         core/app/AppEventLoop.cpp
         core/context/tasks/IAppContextInitTask.cpp
@@ -819,6 +824,12 @@ target_sources(GlimmerWorks
         core/mod/resourcePack/cache/ShaderCache.h
         core/gpu/GpuShaderCompiler.h
         core/gpu/GpuShaderCompileResult.h
+        core/gpu/Std140LayoutBuilder.h
+        core/gpu/UniformBlock.h
+        core/gpu/UniformInjectContext.h
+        core/gpu/UniformInjectorRegistry.h
+        core/mod/resourcePack/UniformBlockResourceResult.h
+        core/mod/resourcePack/cache/UniformBlockCache.h
         core/mod/resourcePack/BaseResourceCache.h
         core/mod/resourcePack/BaseManager.h
         core/context/tasks/IAppContextInitTask.h

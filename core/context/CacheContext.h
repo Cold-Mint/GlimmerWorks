@@ -34,6 +34,7 @@
 #include "core/mod/resourcePack/cache/RmlCache.h"
 #include "core/mod/resourcePack/cache/ShaderCache.h"
 #include "core/mod/resourcePack/cache/TextureCache.h"
+#include "core/mod/resourcePack/cache/UniformBlockCache.h"
 
 namespace glimmer {
     class CacheContext {
@@ -45,11 +46,14 @@ namespace glimmer {
         std::unique_ptr<RmlCache> rmlCache_ = nullptr;
         std::unique_ptr<ColorCache> colorCache_ = nullptr;
         std::unique_ptr<GpuSamplerCache> gpuSamplerCache_ = nullptr;
+        std::unique_ptr<UniformBlockCache> uniformBlockCache_ = nullptr;
 
     public:
         explicit CacheContext(AppContext *appContext);
 
         [[nodiscard]] GpuSamplerCache *GetGpuSamplerCache() const;
+
+        [[nodiscard]] UniformBlockCache *GetUniformBlockCache() const;
 
         [[nodiscard]] AudioCache *GetAudioCache() const;
 

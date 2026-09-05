@@ -295,6 +295,36 @@ namespace glimmer {
 
         //@genNextLine(blendMode)
         uint8_t blendMode = 0;
+
+        //@genNextLine(uniformBlock|Uniform 块描述引用)
+        ResourceRef uniformBlock = {};
+    };
+
+    //@genNextLine(UniformMemberResource|Uniform 成员资源)
+    struct UniformMemberResource {
+        //@genNextLine(name Member name, must match the uniform block member name in the shader.|成员名，需与着色器内 uniform block 成员名一致)
+        std::string name;
+
+        //@genNextLine(type Member type: float/vec2/vec3/vec4/mat4.|成员类型：float/vec2/vec3/vec4/mat4)
+        std::string type;
+
+        //@genNextLine(source Value source: static for a fixed value, or @builtin.xxx for an engine-injected value.|值来源：static 为固定值，@builtin.xxx 为引擎注入值)
+        std::string source;
+
+        //@genNextLine(value Static value, only used when source is static.|静态值，仅 source 为 static 时生效)
+        std::vector<float> value;
+    };
+
+    //@genNextLine(UniformBlockResource|Uniform 块资源)
+    struct UniformBlockResource {
+        //@genNextLine(set Descriptor set of the uniform block.|uniform 块的描述符集)
+        uint32_t set = 0;
+
+        //@genNextLine(binding Binding slot of the uniform block.|uniform 块的绑定槽位)
+        uint32_t binding = 0;
+
+        //@genNextLine(members Member list.|成员列表)
+        std::vector<UniformMemberResource> members;
     };
 
     //@genNextLine(HorizontalSpacingStructureConditionsResource|横向间隔结构放置条件资源)

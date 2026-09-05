@@ -36,6 +36,9 @@
 #include "core/context/WindowContext.h"
 #include "core/ecs/component/CameraComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
+#include "core/gpu/UniformBlock.h"
+#include "core/gpu/UniformInjectContext.h"
+#include "core/gpu/UniformInjectorRegistry.h"
 #include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/mod/ResourceLocator.h"
@@ -72,6 +75,16 @@ glimmer::AppRenderer::AppRenderer(AppContext *appContext) : appContext_(appConte
     if (defaultSampler_ == nullptr) {
         LogCat::e(std::source_location::current(), "defaultSampler failed: ", SDL_GetError());
     }
+    ResourceRef lightingPipelineResourceRef;
+    lightingPipelineResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    lightingPipelineResourceRef.SetResourceType(RESOURCE_PIPELINE);
+    lightingPipelineResourceRef.SetResourceKey("lighting");
+    lightingPipeline_ = resourceLocator_->FindGPUGraphicsPipeline(&lightingPipelineResourceRef);
+    ResourceRef lightingSamplerResourceRef;
+    lightingSamplerResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    lightingSamplerResourceRef.SetResourceType(RESOURCE_SAMPLER);
+    lightingSamplerResourceRef.SetResourceKey("lighting");
+    lightingSampler_ = resourceLocator_->FindGPUGraphicsSampler(&lightingSamplerResourceRef);
     EnsureSolidColorTexture();
 }
 
@@ -324,13 +337,6 @@ void glimmer::AppRenderer::FlushLightingPass(SDL_GPUCommandBuffer *commandBuffer
         return;
     }
     if (lightingPipeline_ == nullptr) {
-        ResourceRef resourceRef;
-        resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-        resourceRef.SetResourceType(RESOURCE_PIPELINE);
-        resourceRef.SetResourceKey("lighting");
-        lightingPipeline_ = resourceLocator_->FindGPUGraphicsPipeline(&resourceRef);
-    }
-    if (lightingPipeline_ == nullptr) {
         LogCat::e(std::source_location::current(), "lighting pipeline not found");
         return;
     }
@@ -338,13 +344,6 @@ void glimmer::AppRenderer::FlushLightingPass(SDL_GPUCommandBuffer *commandBuffer
     if (pipeline == nullptr) {
         LogCat::e(std::source_location::current(), "pipeline == nullptr");
         return;
-    }
-    if (lightingSampler_ == nullptr) {
-        ResourceRef resourceRef;
-        resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-        resourceRef.SetResourceType(RESOURCE_SAMPLER);
-        resourceRef.SetResourceKey("lighting");
-        lightingSampler_ = resourceLocator_->FindGPUGraphicsSampler(&resourceRef);
     }
     if (lightingSampler_ == nullptr) {
         LogCat::e(std::source_location::current(), "lightingSampler failed: ");
@@ -361,7 +360,14 @@ void glimmer::AppRenderer::FlushLightingPass(SDL_GPUCommandBuffer *commandBuffer
         {lightMapTexture_.GetTexture(), sampler}
     };
     SDL_BindGPUFragmentSamplers(renderPass, 0, bindings, 2);
-    SDL_PushGPUFragmentUniformData(commandBuffer, 0, lightingParams_, sizeof(lightingParams_));
+    const CompiledUniformBlock *uniformBlock = lightingPipeline_->GetUniformBlock();
+    if (uniformBlock != nullptr) {
+        if (lightingStagingBuffer_.empty()) {
+            lightingStagingBuffer_.assign(uniformBlock->GetSize(), 0);
+        }
+        SDL_PushGPUFragmentUniformData(commandBuffer, uniformBlock->GetBinding(),
+                                       lightingStagingBuffer_.data(), lightingStagingBuffer_.size());
+    }
     SDL_DrawGPUPrimitives(renderPass, 3, 1, 0, 0);
     SDL_EndGPURenderPass(renderPass);
 }
@@ -486,23 +492,38 @@ void glimmer::AppRenderer::UpdateLightMap(const LightBuffer *lightBuffer, const 
     lightMapTexture_.Update(device_, lightBuffer, fullBright ? nullptr : &ambient,
                             originX, originY, sizeX, sizeY, fullBright);
 
-    const LightingConfig &lighting = config != nullptr ? config->lighting : LightingConfig{};
-    lightingParams_[0] = static_cast<float>(originX);
-    lightingParams_[1] = static_cast<float>(originY);
-    lightingParams_[2] = static_cast<float>(sizeX);
-    lightingParams_[3] = static_cast<float>(sizeY);
-    lightingParams_[4] = cameraPosition.x;
-    lightingParams_[5] = cameraPosition.y;
-    lightingParams_[6] = cameraSize.x;
-    lightingParams_[7] = cameraSize.y;
-    lightingParams_[8] = zoom;
-    lightingParams_[9] = static_cast<float>(TILE_SIZE);
-    lightingParams_[10] = lighting.fullBrightAlpha;
-    lightingParams_[11] = lighting.minVisibility;
-    lightingParams_[12] = lighting.tintStrength;
-    lightingParams_[13] = 0.0F;
-    lightingParams_[14] = 0.0F;
-    lightingParams_[15] = 0.0F;
+    if (lightingPipeline_ == nullptr) {
+        return;
+    }
+    const CompiledUniformBlock *uniformBlock = lightingPipeline_->GetUniformBlock();
+    if (uniformBlock == nullptr) {
+        lightingStagingBuffer_.clear();
+        return;
+    }
+
+    UniformInjectContext injectContext;
+    injectContext.camera = camera;
+    injectContext.cameraTransform = cameraTransform;
+    injectContext.worldContext = worldContext;
+    injectContext.width = static_cast<float>(width);
+    injectContext.height = static_cast<float>(height);
+    injectContext.lightMapOriginX = originX;
+    injectContext.lightMapOriginY = originY;
+    injectContext.lightMapSizeX = sizeX;
+    injectContext.lightMapSizeY = sizeY;
+
+    const size_t bufferSize = uniformBlock->GetSize();
+    lightingStagingBuffer_.assign(bufferSize, 0);
+    std::memcpy(lightingStagingBuffer_.data(), uniformBlock->GetStaticBuffer().data(), bufferSize);
+    for (const uint32_t memberIndex: uniformBlock->GetDynamicMemberIndices()) {
+        const CompiledUniformMember &member = uniformBlock->GetMembers()[memberIndex];
+        const UniformInjector injector = UniformInjectorRegistry::Find(member.source);
+        if (injector == nullptr) {
+            LogCat::w(std::source_location::current(), "Uniform injector not found: ", member.source);
+            continue;
+        }
+        injector(injectContext, reinterpret_cast<float *>(lightingStagingBuffer_.data() + member.offset));
+    }
 }
 
 void glimmer::AppRenderer::RenderScenes() {

@@ -25,7 +25,9 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <cstdint>
 #include <string>
+#include <vector>
 
 #include <SDL3/SDL_gpu.h>
 
@@ -82,9 +84,12 @@ namespace glimmer {
         Uint32 sceneTextureWidth_ = 0;
         Uint32 sceneTextureHeight_ = 0;
         LightMapTexture lightMapTexture_;
-        //Lighting shader uniform parameters (4 x vec4, std140 friendly).
-        //光照着色器 uniform 参数（4 x vec4，std140 友好）。
-        float lightingParams_[16] = {};
+        //Per-frame staging buffer for the lighting uniform block; static
+        //members are restored from the compiled block and dynamic members are
+        //injected each frame before being pushed to the GPU.
+        //光照 uniform 块的逐帧 staging 缓冲区；静态成员从编译块恢复，
+        //动态成员每帧注入后再推送至 GPU。
+        std::vector<uint8_t> lightingStagingBuffer_;
 
         void RenderScenes();
 

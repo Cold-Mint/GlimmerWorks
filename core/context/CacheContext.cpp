@@ -37,10 +37,15 @@ glimmer::CacheContext::CacheContext(AppContext *appContext) : appContext_(appCon
     rmlCache_ = std::make_unique<RmlCache>();
     colorCache_ = std::make_unique<ColorCache>();
     gpuSamplerCache_ = std::make_unique<GpuSamplerCache>();
+    uniformBlockCache_ = std::make_unique<UniformBlockCache>();
 }
 
 glimmer::GpuSamplerCache *glimmer::CacheContext::GetGpuSamplerCache() const {
     return gpuSamplerCache_.get();
+}
+
+glimmer::UniformBlockCache *glimmer::CacheContext::GetUniformBlockCache() const {
+    return uniformBlockCache_.get();
 }
 
 glimmer::AudioCache *glimmer::CacheContext::GetAudioCache() const {

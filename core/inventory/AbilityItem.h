@@ -63,7 +63,7 @@ namespace glimmer {
 
         void SetPipeline(std::shared_ptr<GPUPipelineResourceResult> pipeline);
 
-        [[nodiscard]] SDL_GPUSampler * GetSampler() const override;
+        [[nodiscard]] SDL_GPUSampler *GetSampler() const override;
 
         void SetSampler(std::shared_ptr<GPUSamplerResourceResult> sampler);
 

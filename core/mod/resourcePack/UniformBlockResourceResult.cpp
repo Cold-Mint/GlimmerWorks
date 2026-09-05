@@ -24,44 +24,12 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
+#include "UniformBlockResourceResult.h"
 
-#include <memory>
+void glimmer::UniformBlockResourceResult::DestroyResourceImpl(CompiledUniformBlock *resource) {
+    delete resource;
+}
 
-#include "ResourceResult.h"
-#include "SDL3/SDL_gpu.h"
-
-namespace glimmer {
-    class CompiledUniformBlock;
-    class UniformBlockResourceResult;
-
-    /**
-     * GPUPipelineResourceResult
-     * GPU 管线资源结果
-     */
-    class GPUPipelineResourceResult : public ResourceResult<SDL_GPUGraphicsPipeline> {
-        SDL_GPUDevice *device_ = nullptr;
-        std::shared_ptr<UniformBlockResourceResult> uniformBlock_ = nullptr;
-
-    protected:
-        void DestroyResourceImpl(SDL_GPUGraphicsPipeline *resource) override;
-
-    public:
-        void SetDevice(SDL_GPUDevice *device);
-
-        /**
-         * SetUniformBlock
-         * 设置管线关联的 Uniform 块。管线强持有该块，保证其生命周期与管线一致。
-         * @param uniformBlock uniformBlock Uniform 块资源
-         */
-        void SetUniformBlock(std::shared_ptr<UniformBlockResourceResult> uniformBlock);
-
-        /**
-         * GetUniformBlock
-         * 获取管线关联的 Uniform 块（可为 nullptr）。
-         */
-        [[nodiscard]] const CompiledUniformBlock *GetUniformBlock() const;
-
-        ~GPUPipelineResourceResult() override;
-    };
+glimmer::UniformBlockResourceResult::~UniformBlockResourceResult() {
+    DestroyResource();
 }

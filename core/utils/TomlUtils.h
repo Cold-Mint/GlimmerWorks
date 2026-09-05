@@ -530,7 +530,31 @@ namespace toml {
             r.blendMode = toml::find_or<uint8_t>(v, "blend_mode", 0);
             r.fragmentShader = toml::find<glimmer::ResourceRef>(v, "fragment_shader");
             r.primitiveType = toml::find_or<uint8_t>(v, "primitive_type", 0);
+            r.uniformBlock = toml::find_or<glimmer::ResourceRef>(v, "uniform_block", {});
             r.vertexShader = toml::find<glimmer::ResourceRef>(v, "vertex_shader");
+            return r;
+        }
+    };
+
+    template<>
+    struct from<glimmer::UniformMemberResource> {
+        static glimmer::UniformMemberResource from_toml(const value &v) {
+            glimmer::UniformMemberResource r;
+            r.name = toml::find<std::string>(v, "name");
+            r.source = toml::find<std::string>(v, "source");
+            r.type = toml::find<std::string>(v, "type");
+            r.value = toml::find_or<std::vector<float> >(v, "value", {});
+            return r;
+        }
+    };
+
+    template<>
+    struct from<glimmer::UniformBlockResource> {
+        static glimmer::UniformBlockResource from_toml(const value &v) {
+            glimmer::UniformBlockResource r;
+            r.binding = toml::find_or<uint32_t>(v, "binding", 0);
+            r.members = toml::find<std::vector<glimmer::UniformMemberResource> >(v, "members");
+            r.set = toml::find_or<uint32_t>(v, "set", 0);
             return r;
         }
     };

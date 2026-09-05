@@ -44,6 +44,7 @@
 #include "resourcePack/ResourcePackManager.h"
 #include "resourcePack/ShaderResourceResult.h"
 #include "resourcePack/TextureResourceResult.h"
+#include "resourcePack/UniformBlockResourceResult.h"
 
 
 namespace glimmer {
@@ -133,6 +134,16 @@ namespace glimmer {
 
 
         [[nodiscard]] std::shared_ptr<GPUSamplerResourceResult> FindGPUGraphicsSampler(
+            const ResourceRef *resourceRef, bool enablePlaceHolder = true) const;
+
+        /**
+         * FindUniformBlock
+         * 查找 Uniform 块描述资源（RESOURCE_UNIFORM_BLOCK）。
+         * @param resourceRef resourceRef Uniform 块引用
+         * @param enablePlaceHolder
+         * @return 编译后的 Uniform 块；找不到或权限受限时返回 nullptr。
+         */
+        [[nodiscard]] std::shared_ptr<UniformBlockResourceResult> FindUniformBlock(
             const ResourceRef *resourceRef, bool enablePlaceHolder = true) const;
 
         [[nodiscard]] std::unique_ptr<Color> FindColor(const ResourceRef *resourceRef,

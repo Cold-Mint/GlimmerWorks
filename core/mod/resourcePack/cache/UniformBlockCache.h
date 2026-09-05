@@ -25,43 +25,25 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-
-#include <memory>
-
-#include "ResourceResult.h"
-#include "SDL3/SDL_gpu.h"
+#include "core/mod/resourcePack/BaseResourceCache.h"
+#include "core/mod/resourcePack/UniformBlockResourceResult.h"
 
 namespace glimmer {
-    class CompiledUniformBlock;
-    class UniformBlockResourceResult;
-
     /**
-     * GPUPipelineResourceResult
-     * GPU 管线资源结果
+     * UniformBlockCache
+     * Uniform 块缓存
+     *
+     * Lazily loads and compiles the "*.uniforms.toml" description files that
+     * live alongside shaders in the resource pack.
+     * 延迟加载并编译资源包内与着色器同目录的 "*.uniforms.toml" 描述文件。
      */
-    class GPUPipelineResourceResult : public ResourceResult<SDL_GPUGraphicsPipeline> {
-        SDL_GPUDevice *device_ = nullptr;
-        std::shared_ptr<UniformBlockResourceResult> uniformBlock_ = nullptr;
-
+    class UniformBlockCache : public BaseResourceCache<UniformBlockResourceResult> {
     protected:
-        void DestroyResourceImpl(SDL_GPUGraphicsPipeline *resource) override;
+        std::shared_ptr<UniformBlockResourceResult> LoadResourceFromPack(AppContext *appContext,
+                                                                         const ResourceRef *resourceRef,
+                                                                         const ResourcePack *resourcePack) override;
 
     public:
-        void SetDevice(SDL_GPUDevice *device);
-
-        /**
-         * SetUniformBlock
-         * 设置管线关联的 Uniform 块。管线强持有该块，保证其生命周期与管线一致。
-         * @param uniformBlock uniformBlock Uniform 块资源
-         */
-        void SetUniformBlock(std::shared_ptr<UniformBlockResourceResult> uniformBlock);
-
-        /**
-         * GetUniformBlock
-         * 获取管线关联的 Uniform 块（可为 nullptr）。
-         */
-        [[nodiscard]] const CompiledUniformBlock *GetUniformBlock() const;
-
-        ~GPUPipelineResourceResult() override;
+        ~UniformBlockCache() noexcept override;
     };
 }

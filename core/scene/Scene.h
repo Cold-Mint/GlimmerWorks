@@ -30,6 +30,7 @@
 #include "core/config/Config.h"
 #include "core/context/RmlContext.h"
 #include "core/ecs/IDocumentRegistry.h"
+#include "core/tick/ITickListener.h"
 #include "RmlUi/Core/DataModelHandle.h"
 
 
@@ -37,7 +38,7 @@ namespace glimmer {
     class RenderQueue;
     class AppContext;
 
-    class Scene : public IDocumentRegistry {
+    class Scene : public IDocumentRegistry, public ITickListener {
         bool initSubclassFinish_ = false;
         AppContext *appContext_ = nullptr;
         RmlContext *rmlContext_ = nullptr;
@@ -46,7 +47,9 @@ namespace glimmer {
         std::deque<Rml::DataModelConstructor> rmlConstructors_;
         std::unordered_set<Rml::String> rmlConstructorNames_;
 #if  !defined(NDEBUG)
-        float initTimeOut_ = 0.0F;
+        //After this tick, it indicates that the initialization has failed.
+        //超过此tick后表示初始化失败。
+        uint64_t initTick_ = 0;
 #endif
 
         void RemoveAllDataModel();
@@ -97,6 +100,8 @@ namespace glimmer {
          * @param delta Unit: Seconds 单位：秒
          */
         virtual void Update(float delta);
+
+        void OnTick(uint64_t tick) override;
 
         /**
          * Render

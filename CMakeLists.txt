@@ -611,12 +611,10 @@ target_sources(GlimmerWorks
         core/ecs/system/HotBarGUISystem.cpp
         core/ecs/system/DynamicLightSystem.cpp
         core/ecs/system/MagnetSystem.cpp
-        core/ecs/system/ParallaxBackgroundSystem.cpp
         core/ecs/system/PauseSystem.cpp
         core/ecs/system/PhysicsSystem.cpp
         core/ecs/system/PlayerControlSystem.cpp
         core/ecs/system/RayCast2DSystem.cpp
-        core/ecs/system/SkySystem.cpp
         core/ecs/system/SpiritRendererSystem.cpp
         core/ecs/system/TechProviderSystem.cpp
         core/ecs/system/TileLayerSystem.cpp
@@ -1037,7 +1035,6 @@ target_sources(GlimmerWorks
         core/ecs/system/FloatingTextSystem.h
         core/ecs/system/DynamicLightSystem.h
         core/ecs/system/MagnetSystem.h
-        core/ecs/system/ParallaxBackgroundSystem.h
         core/ecs/system/PauseSystem.h
         core/ecs/system/PhysicsSystem.h
         core/ecs/system/RayCast2DSystem.h

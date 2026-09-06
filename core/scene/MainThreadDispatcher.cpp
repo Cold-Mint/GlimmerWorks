@@ -26,41 +26,41 @@
  */
 #include "MainThreadDispatcher.h"
 
-namespace glimmer {
-    MainThreadDispatcher::MainThreadDispatcher() {
-        mainThreadId_ = std::this_thread::get_id();
-    }
+glimmer::MainThreadDispatcher::MainThreadDispatcher() {
+    mainThreadId_ = std::this_thread::get_id();
+}
 
-    MainThreadDispatcher::~MainThreadDispatcher() = default;
+glimmer::MainThreadDispatcher::~MainThreadDispatcher() = default;
 
-    bool MainThreadDispatcher::IsMainThread() const {
-        return std::this_thread::get_id() == mainThreadId_;
-    }
+bool glimmer::MainThreadDispatcher::IsMainThread() const {
+    //std::this_thread::get_id() always returns the ID of the current thread where the code is executed.
+    //std::this_thread::get_id()永远获取当前代码所处线程。
+    return mainThreadId_ == std::this_thread::get_id();
+}
 
-    void MainThreadDispatcher::ProcessMainThreadTasks() {
-        std::queue<std::function<void()> > tasks;
-        {
-            std::lock_guard lock(mainThreadMutex_);
-            std::swap(tasks, mainThreadTasks_);
-        }
-
-        while (!tasks.empty()) {
-            tasks.front()();
-            tasks.pop();
-        }
-    }
-
-    void MainThreadDispatcher::RunOnMainThread(std::function<void()> task) {
-        if (IsMainThread()) {
-            task();
-            return;
-        }
+void glimmer::MainThreadDispatcher::ProcessMainThreadTasks() {
+    std::queue<std::function<void()> > tasks;
+    {
         std::lock_guard lock(mainThreadMutex_);
-        mainThreadTasks_.push(std::move(task));
+        std::swap(tasks, mainThreadTasks_);
     }
 
-    void MainThreadDispatcher::PostToNextMainFrame(std::function<void()> task) {
-        std::lock_guard lock(mainThreadMutex_);
-        mainThreadTasks_.push(std::move(task));
+    while (!tasks.empty()) {
+        tasks.front()();
+        tasks.pop();
     }
+}
+
+void glimmer::MainThreadDispatcher::RunOnMainThread(std::function<void()> task) {
+    if (IsMainThread()) {
+        task();
+        return;
+    }
+    std::lock_guard lock(mainThreadMutex_);
+    mainThreadTasks_.push(std::move(task));
+}
+
+void glimmer::MainThreadDispatcher::PostToNextMainFrame(std::function<void()> task) {
+    std::lock_guard lock(mainThreadMutex_);
+    mainThreadTasks_.push(std::move(task));
 }

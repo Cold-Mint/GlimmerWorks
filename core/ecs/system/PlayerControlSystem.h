@@ -76,7 +76,7 @@ namespace glimmer {
          */
         bool UseItem(bool mouseLeft, Item *item);
 
-        static void UpdateFlying(float delta, const PlayerInputHandler *playerInputHandler,
+        static void UpdateFlying(const PlayerInputHandler *playerInputHandler,
                                  Transform2DComponent *transform2DComponent);
 
         void UpdateGroundedMovement(PlayerInputHandler *playerInputHandler, const PlayerComponent *playerComponent,
@@ -107,7 +107,7 @@ namespace glimmer {
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
-        void Update(float delta) override;
+        void OnTick(uint64_t tick) override;
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
 

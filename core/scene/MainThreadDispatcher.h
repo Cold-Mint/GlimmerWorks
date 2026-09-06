@@ -33,6 +33,10 @@
 #include <functional>
 
 namespace glimmer {
+    /**
+     * MainThreadDispatcher
+     * 主线程任务调度器
+     */
     class MainThreadDispatcher {
         std::mutex mainThreadMutex_;
         std::queue<std::function<void()> > mainThreadTasks_;
@@ -47,6 +51,13 @@ namespace glimmer {
 
         void ProcessMainThreadTasks();
 
+        /**
+         * Send a task to the main thread. It can be waited for.
+         * 投递一个任务到主线程，可等待。
+         * @tparam Func
+         * @param func
+         * @return Call the `.get()` method at the return value to wait for the execution to complete. 在返回值处调用.get()等待执行完毕。
+         */
         template<typename Func>
         std::future<std::invoke_result_t<Func> > AddMainThreadTaskAwait(Func &&func) {
             using Result = std::invoke_result_t<Func>;
@@ -79,8 +90,21 @@ namespace glimmer {
             return future;
         }
 
+        /**
+         * RunOnMainThread
+         * 在主线程运行
+         *
+         * If the currently executing thread is the main thread, then call it immediately. Otherwise, schedule it for the next frame.
+         * 如果当前执行线程为主线程，那么立刻调用。否则，投递到下一帧。
+         * @param task
+         */
         void RunOnMainThread(std::function<void()> task);
 
+        /**
+         * Post to the next frame
+         * 投递到下一帧
+         * @param task
+         */
         void PostToNextMainFrame(std::function<void()> task);
     };
 }

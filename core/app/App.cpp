@@ -40,13 +40,13 @@
 #include "SDL3/SDL_init.h"
 #include "SDL3_mixer/SDL_mixer.h"
 #include "core/gpu/GpuShaderCompiler.h"
-#include "core/utils/ColorUtils.h"
 #include "core/scene/SceneManager.h"
 #include "core/console/ConsoleWorker.h"
 #include "core/console/hook/CommandHookManager.h"
 #include "RmlUi/Core/Context.h"
 #include "core/scene/ConsoleOverlay.h"
 #include "core/scene/UIMessageOverlay.h"
+#include "core/tick/TickWorker.h"
 
 
 bool glimmer::App::InitSDL() {
@@ -249,6 +249,9 @@ bool glimmer::App::CheckWindowSizeChange(WindowContext *windowContext, const int
 
 glimmer::App::~App() {
     GpuShaderCompiler::Shutdown();
+    if (tickWorker_ != nullptr) {
+        tickWorker_->RemoveCallback(this);
+    }
     if (initSDLMixSuccess_) {
         MIX_Quit();
     }
@@ -261,6 +264,9 @@ glimmer::App::~App() {
 }
 
 glimmer::App::App(AppContext *appContext) : appContext_(appContext) {
+    tickWorker_ = appContext_->GetTickWorker();
+    tickWorker_->AddCallback(this);
+    sceneManager_ = appContext_->GetSceneManager();
 }
 
 bool glimmer::App::Init() {
@@ -279,7 +285,6 @@ bool glimmer::App::Init() {
 
 void glimmer::App::Run() const {
     LogCat::i("Starting application main loop");
-    const auto sceneManager = appContext_->GetSceneManager();
     const auto config = appContext_->GetConfig();
 
     LogCat::i("Initializing scenes and console");
@@ -311,7 +316,7 @@ void glimmer::App::Run() const {
     }
     Rml::Context *rmlContextCore = rmlContext->GetRmlContext();
     LogCat::i("Entering main game loop");
-    while (windowContext->IsRunning() && sceneManager->GetSceneCount() > 0) {
+    while (windowContext->IsRunning() && sceneManager_->GetSceneCount() > 0) {
         int windowWidth = 0;
         int windowHeight = 0;
         SDL_GetWindowSize(windowContext->GetWindow(), &windowWidth, &windowHeight);
@@ -349,12 +354,11 @@ void glimmer::App::Run() const {
 }
 
 void glimmer::App::HandleWindowSizeChange(const int &windowWidth, const int &windowHeight) const {
-    const auto sceneManager = appContext_->GetSceneManager();
-    const auto &overlayScenes = sceneManager->GetOverlayScenes();
+    const auto &overlayScenes = sceneManager_->GetOverlayScenes();
     for (const auto overlayScene: std::ranges::reverse_view(overlayScenes)) {
         overlayScene->OnWindowSizeChanged(windowWidth, windowHeight);
     }
-    if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
+    if (Scene *topScene = sceneManager_->GetTopScene(); topScene != nullptr) {
         topScene->OnWindowSizeChanged(windowWidth, windowHeight);
     }
 }
@@ -385,12 +389,11 @@ bool glimmer::App::CheckConfigChange(uint64_t &configFingerprint) const {
         commandHookManager->LoadHookFromConfig(config->commandHooks);
     }
 
-    const auto sceneManager = appContext_->GetSceneManager();
-    const auto &overlayScenes = sceneManager->GetOverlayScenes();
+    const auto &overlayScenes = sceneManager_->GetOverlayScenes();
     for (const auto overlayScene: std::ranges::reverse_view(overlayScenes)) {
         overlayScene->OnConfigChanged(config);
     }
-    if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
+    if (Scene *topScene = sceneManager_->GetTopScene(); topScene != nullptr) {
         topScene->OnConfigChanged(config);
     }
 
@@ -399,23 +402,21 @@ bool glimmer::App::CheckConfigChange(uint64_t &configFingerprint) const {
 }
 
 void glimmer::App::NotifyFrameStart() const {
-    const auto sceneManager = appContext_->GetSceneManager();
-    const auto &overlayScenes = sceneManager->GetOverlayScenes();
+    const auto &overlayScenes = sceneManager_->GetOverlayScenes();
     for (const auto overlayScene: std::ranges::reverse_view(overlayScenes)) {
         overlayScene->OnFrameStart();
     }
-    if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
+    if (Scene *topScene = sceneManager_->GetTopScene(); topScene != nullptr) {
         topScene->OnFrameStart();
     }
 }
 
 void glimmer::App::UpdateScenes(const float deltaTime) const {
-    const auto sceneManager = appContext_->GetSceneManager();
-    const auto &overlayScenes = sceneManager->GetOverlayScenes();
+    const auto &overlayScenes = sceneManager_->GetOverlayScenes();
     for (const auto overlay: overlayScenes) {
         overlay->Update(deltaTime);
     }
-    if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
+    if (Scene *topScene = sceneManager_->GetTopScene(); topScene != nullptr) {
         topScene->Update(deltaTime);
     }
 }
@@ -440,4 +441,14 @@ void glimmer::App::InitScenesAndConsole() const {
             // appContext_->AddUIMessage(text);
         })
     );
+}
+
+void glimmer::App::OnTick(const uint64_t tick) {
+    const auto &overlayScenes = sceneManager_->GetOverlayScenes();
+    for (const auto overlay: overlayScenes) {
+        overlay->OnTick(tick);
+    }
+    if (Scene *topScene = sceneManager_->GetTopScene(); topScene != nullptr) {
+        topScene->OnTick(tick);
+    }
 }

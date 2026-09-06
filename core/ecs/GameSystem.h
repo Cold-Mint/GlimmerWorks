@@ -32,6 +32,7 @@
 #include "GameSystemType.h"
 #include "SDL3/SDL_events.h"
 #include "core/gpu/RenderQueue.h"
+#include "core/tick/ITickListener.h"
 #include "src/core/game_component_type.pb.h"
 
 namespace glimmer {
@@ -39,7 +40,7 @@ namespace glimmer {
     class WorldContext;
     class Config;
 
-    class GameSystem {
+    class GameSystem : public ITickListener {
         std::unordered_set<GameComponentTypeMessage> watchComponents_;
         std::unordered_set<GameComponentTypeMessage> activeWatchComponents_;
 
@@ -72,6 +73,8 @@ namespace glimmer {
 
         explicit GameSystem(WorldContext *worldContext);
 
+
+        void OnTick(uint64_t tick) override;
 
         /**
         * The component for locking observation

@@ -92,6 +92,11 @@ glimmer::GameSystem::GameSystem(WorldContext *worldContext) : worldContext_(worl
     LogCat::i("GameSystem created");
 }
 
+void glimmer::GameSystem::OnTick(uint64_t tick) {
+    //Handle the Tick here.
+    //在这里处理Tick。
+}
+
 void glimmer::GameSystem::Init() {
     LogCat::i("GameSystem initializing");
     initSubclassFinish_ = true;

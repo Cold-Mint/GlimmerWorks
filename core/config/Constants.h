@@ -124,6 +124,10 @@ static constexpr toml::spec TOML_VERSION = toml::spec::v(1, 1, 0);
 //The number of ticks per second.
 //每秒的tick数。
 static constexpr double TICK_RATE = 20.0;
+static constexpr float FIXED_TIME_STEP = 1 / TICK_RATE;
+//How many ticks after the player drops an item can it be picked up?
+//玩家丢出物品后多少Tick后可被捡起。
+static constexpr uint64_t DROP_INTERVAL = TICK_RATE * 1.5;
 
 static constexpr std::string ABILITY_ID_NONE = "none";
 static constexpr std::string ABILITY_ID_MINING = "mining";
@@ -181,6 +185,7 @@ static constexpr std::string DATA_FILE_TYPE_LIGHT_MASK = "light_mask";
 static constexpr std::string DATA_FILE_TYPE_LIGHT_SOURCE = "light_source";
 static constexpr std::string DATA_FILE_TYPE_RECIPE = "recipe";
 
+
 static constexpr uint16_t BOX2D_CATEGORY_PLAYER = 0x0001;
 static constexpr uint16_t BOX2D_CATEGORY_TILE = 0x0002;
 static constexpr uint16_t BOX2D_CATEGORY_ITEM = 0x0004;
@@ -190,7 +195,6 @@ static constexpr uint8_t INVENTORY_ROW_COUNT = 4;
 static constexpr DesignDimension MATERIAL_SELECT_CRAFT_PANEL_MIN_WIDTH = 380.0F;
 static constexpr DesignDimension MATERIAL_SELECT_CRAFT_PANEL_MIN_HEIGHT = 320.0F;
 static constexpr DesignDimension MATERIAL_SELECT_CRAFT_BUTTON_HEIGHT = 32.0F;
-static constexpr float DROP_INTERVAL = 1.0F / ITEM_MAX_STACK;
 static constexpr int TOOLTIP_TEXT_WRAP_WIDTH = 180;
 
 //Maximum suction (slightly larger than the original 80, compensating for attenuation)

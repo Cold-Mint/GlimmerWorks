@@ -279,15 +279,21 @@ bool glimmer::Scene::HandleEvent(const SDL_Event &event) {
 }
 
 void glimmer::Scene::Update(float delta) {
+    //Cover this method to achieve the initialization of data before each frame rendering.
+    //覆盖此方法以实现在每帧渲染前初始化数据。
+}
+
+void glimmer::Scene::OnTick(const uint64_t tick) {
 #if  !defined(NDEBUG)
     if (!initSubclassFinish_) {
-        initTimeOut_ += delta;
-        if (initTimeOut_ > 2) {
+        initTick_ += tick;
+        if (tick > static_cast<uint64_t>(TICK_RATE) * 2) {
             assert(false);
         }
     }
 #endif
 }
+
 
 void glimmer::Scene::Render(RenderQueue *queue) {
     // Intentionally empty default implementation for base class

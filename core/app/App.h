@@ -27,18 +27,19 @@
 #pragma once
 
 #include "core/context/AppContext.h"
+#include "core/tick/ITickListener.h"
 
 
 namespace glimmer {
-    class App {
+    class App : public ITickListener {
         bool initSDLSuccess_ = false;
         bool initSDLMixSuccess_ = false;
         bool initSDLTtfSuccess_ = false;
         uint64_t lastTime_ = 0;
         AppContext *appContext_ = nullptr;
+        TickWorker *tickWorker_ = nullptr;
         MIX_Mixer *mixer_ = nullptr;
-        std::string fontData_;
-
+        SceneManager *sceneManager_ = nullptr;
 
         bool InitSDL();
 
@@ -64,7 +65,9 @@ namespace glimmer {
         void InitScenesAndConsole() const;
 
     public:
-        ~App();
+        void OnTick(uint64_t tick) override;
+
+        ~App() override;
 
         explicit App(AppContext *appContext);
 

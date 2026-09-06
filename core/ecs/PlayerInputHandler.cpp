@@ -94,16 +94,16 @@ bool glimmer::PlayerInputHandler::IsPressedD() const {
     return pressedD_;
 }
 
-void glimmer::PlayerInputHandler::ResetDropTimer() {
-    dropTimer_ = 0;
+void glimmer::PlayerInputHandler::ResetDropTick() {
+    dropTick_ = 0;
 }
 
-void glimmer::PlayerInputHandler::AddDropTimer(const float delta) {
-    dropTimer_ += delta;
+void glimmer::PlayerInputHandler::AddDropTick() {
+    dropTick_++;
 }
 
-void glimmer::PlayerInputHandler::RemoveDropTimer(const float delta) {
-    dropTimer_ -= delta;
+void glimmer::PlayerInputHandler::RemoveDropTick() {
+    dropTick_--;
 }
 
 void glimmer::PlayerInputHandler::SetJump(const bool jump) {
@@ -139,7 +139,7 @@ bool glimmer::PlayerInputHandler::IsMouseRightDown() const {
 }
 
 float glimmer::PlayerInputHandler::GetDropTimer() const {
-    return dropTimer_;
+    return dropTick_;
 }
 
 void glimmer::PlayerInputHandler::SetDropPressed(const bool dropPressed) {

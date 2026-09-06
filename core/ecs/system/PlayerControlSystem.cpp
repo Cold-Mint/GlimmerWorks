@@ -99,7 +99,7 @@ void glimmer::PlayerControlSystem::CheckDropItem(PlayerInputHandler *playerInput
     if (playerInputHandler->GetDropTimer() < DROP_INTERVAL) {
         return;
     }
-    playerInputHandler->RemoveDropTimer(DROP_INTERVAL);
+    playerInputHandler->RemoveDropTick();
     DropItem(itemContainer, itemContainer->GetSelectIndex());
     playerInputHandler->SetDropPressed(false);
 }
@@ -185,51 +185,6 @@ void glimmer::PlayerControlSystem::HandleVerticalInput(const SDL_Event &event, P
     }
 }
 
-void glimmer::PlayerControlSystem::Update(const float delta) {
-    EntityManager *entityManager = GetEntityManager();
-    const EntityShortCut *entityShortCut = GetEntityShortCut();
-    if (WorldContext::IsEmptyEntityId(playerEntityID_)) {
-        return;
-    }
-    const auto playerComponent = entityManager->GetComponent<PlayerComponent>(playerEntityID_);
-    if (playerComponent == nullptr) {
-        return;
-    }
-    const PlayerCapabilityHandler *playerCapabilityHandler = playerComponent->GetCapabilityHandler();
-    if (playerCapabilityHandler == nullptr) {
-        return;
-    }
-    PlayerInputHandler *playerInputHandler = playerComponent->GetInputHandler();
-    if (playerInputHandler == nullptr) {
-        return;
-    }
-    if (playerCapabilityHandler->IsFlying()) {
-        const auto transform2DComponent = entityManager->GetComponent<Transform2DComponent>(playerEntityID_);
-        if (transform2DComponent == nullptr) {
-            return;
-        }
-        UpdateFlying(delta, playerInputHandler, transform2DComponent);
-    } else {
-        const auto rigidBody2DComponent = entityManager->GetComponent<RigidBody2DComponent>(playerEntityID_);
-        if (rigidBody2DComponent == nullptr) {
-            return;
-        }
-        if (!rigidBody2DComponent->IsReady()) {
-            return;
-        }
-        UpdateGroundedMovement(playerInputHandler, playerComponent, rigidBody2DComponent);
-    }
-    const auto itemContainerComponent = entityShortCut->GetItemContainerComponent();
-    const ItemContainer *itemContainer = itemContainerComponent->GetItemContainer();
-    playerInputHandler->AddDropTimer(delta);
-    CheckDropItem(playerInputHandler, itemContainer);
-
-    if (playerInputHandler->IsMouseLeftDown() || playerInputHandler->IsMouseRightDown()) {
-        if (Item *item = playerComponent->GetItem(); !UseItem(playerInputHandler->IsMouseLeftDown(), item)) {
-            UseItem(playerInputHandler->IsMouseLeftDown(), playerComponent->GetEmptyHandAutoUseItem());
-        }
-    }
-}
 
 glimmer::GameSystemType glimmer::PlayerControlSystem::GetGameSystemType() const {
     return GameSystemType::PlayerControlSystem;
@@ -300,11 +255,11 @@ bool glimmer::PlayerControlSystem::UseItem(const bool mouseLeft, Item *item) {
     return item->OnUse(mouseLeft, worldContext, playerEntityID_, item->GetAbilityConfig(), popupAbility_);
 }
 
-void glimmer::PlayerControlSystem::UpdateFlying(const float delta, const PlayerInputHandler *playerInputHandler,
+void glimmer::PlayerControlSystem::UpdateFlying(const PlayerInputHandler *playerInputHandler,
                                                 Transform2DComponent *transform2DComponent) {
     WorldVector2D velocity = {};
-    velocity.x = playerInputHandler->GetHorizontalInput() * delta * FLY_SPEED;
-    velocity.y = playerInputHandler->GetVerticalInput() * delta * FLY_SPEED;
+    velocity.x = playerInputHandler->GetHorizontalInput() * FLY_SPEED;
+    velocity.y = playerInputHandler->GetVerticalInput() * FLY_SPEED;
     transform2DComponent->SetPosition(transform2DComponent->GetPosition() + velocity);
 }
 
@@ -350,6 +305,52 @@ void glimmer::PlayerControlSystem::OnWatchedComponentChanged(GameComponentTypeMe
     }
 }
 
+void glimmer::PlayerControlSystem::OnTick(uint64_t tick) {
+    EntityManager *entityManager = GetEntityManager();
+    const EntityShortCut *entityShortCut = GetEntityShortCut();
+    if (WorldContext::IsEmptyEntityId(playerEntityID_)) {
+        return;
+    }
+    const auto playerComponent = entityManager->GetComponent<PlayerComponent>(playerEntityID_);
+    if (playerComponent == nullptr) {
+        return;
+    }
+    const PlayerCapabilityHandler *playerCapabilityHandler = playerComponent->GetCapabilityHandler();
+    if (playerCapabilityHandler == nullptr) {
+        return;
+    }
+    PlayerInputHandler *playerInputHandler = playerComponent->GetInputHandler();
+    if (playerInputHandler == nullptr) {
+        return;
+    }
+    if (playerCapabilityHandler->IsFlying()) {
+        const auto transform2DComponent = entityManager->GetComponent<Transform2DComponent>(playerEntityID_);
+        if (transform2DComponent == nullptr) {
+            return;
+        }
+        UpdateFlying(playerInputHandler, transform2DComponent);
+    } else {
+        const auto rigidBody2DComponent = entityManager->GetComponent<RigidBody2DComponent>(playerEntityID_);
+        if (rigidBody2DComponent == nullptr) {
+            return;
+        }
+        if (!rigidBody2DComponent->IsReady()) {
+            return;
+        }
+        UpdateGroundedMovement(playerInputHandler, playerComponent, rigidBody2DComponent);
+    }
+    const auto itemContainerComponent = entityShortCut->GetItemContainerComponent();
+    const ItemContainer *itemContainer = itemContainerComponent->GetItemContainer();
+    playerInputHandler->AddDropTick();
+    CheckDropItem(playerInputHandler, itemContainer);
+
+    if (playerInputHandler->IsMouseLeftDown() || playerInputHandler->IsMouseRightDown()) {
+        if (Item *item = playerComponent->GetItem(); !UseItem(playerInputHandler->IsMouseLeftDown(), item)) {
+            UseItem(playerInputHandler->IsMouseLeftDown(), playerComponent->GetEmptyHandAutoUseItem());
+        }
+    }
+}
+
 void glimmer::PlayerControlSystem::UpdatePlayerFacing(PlayerComponent *playerComponent,
                                                       const PlayerInputHandler *playerInputHandler) const {
     EntityManager *entityManager = GetEntityManager();
@@ -375,7 +376,7 @@ void glimmer::PlayerControlSystem::HandleKeyAction(const SDL_Event &event, Playe
     if (event.key.key == SDLK_Q) {
         playerInputHandler->SetDropPressed(pressed);
         if (!pressed) {
-            playerInputHandler->ResetDropTimer();
+            playerInputHandler->ResetDropTick();
         }
     }
 }

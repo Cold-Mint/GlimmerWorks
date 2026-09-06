@@ -30,6 +30,7 @@
 #include "core/config/Config.h"
 #include "core/context/RmlContext.h"
 #include "core/ecs/IDocumentRegistry.h"
+#include "core/gpu/UniformInjectContext.h"
 #include "core/tick/ITickListener.h"
 #include "RmlUi/Core/DataModelHandle.h"
 
@@ -75,6 +76,14 @@ namespace glimmer {
 
     public:
         [[nodiscard]] std::vector<Rml::ElementDocument *> GetAllDocuments() const;
+
+
+        /**
+         * The context used for injecting parameters into the shader.
+         * 用于向着色器注入参数的上下文。
+         * @return
+         */
+        [[nodiscard]] virtual UniformInjectContext *GetUniformInjectContext();
 
         Rml::ElementDocument *LoadSingleDocument(const ResourceRef *resourceRef) override;
 

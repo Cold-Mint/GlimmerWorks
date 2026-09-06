@@ -42,6 +42,7 @@ namespace glimmer {
     class WorldContext;
     class CameraComponent;
     class Transform2DComponent;
+    class LightBuffer;
 
     /**
      * AppRenderer
@@ -70,6 +71,8 @@ namespace glimmer {
         std::shared_ptr<GPUPipelineResourceResult> defaultPipeline_ = nullptr;
         std::shared_ptr<GPUSamplerResourceResult> defaultSampler_ = nullptr;
         std::shared_ptr<GPUSamplerResourceResult> lightingSampler_ = nullptr;
+        SDL_Window *window_ = nullptr;
+        SceneManager *sceneManager_ = nullptr;
 
         //1x1 white texture bound when a command has no texture, so the
         //fragment shader's `texture * color` resolves to just the vertex color
@@ -91,15 +94,10 @@ namespace glimmer {
         //光照 uniform 块的逐帧 staging 缓冲区；静态成员从编译块恢复，
         //动态成员每帧注入后再推送至 GPU。
         std::vector<uint8_t> lightingStagingBuffer_;
-        //Per-frame injection context, filled by UpdateLightMap and consumed by
-        //the lighting pass when it fills/pushes the uniform block.
-        //每帧注入上下文，由 UpdateLightMap 填充，光照 pass 填充/推送 uniform 块时消费。
-        UniformInjectContext lightingInjectContext_;
         //Per-frame staging buffer for scene-pass command uniform blocks.
         //场景 pass 命令 uniform 块的逐帧 staging 缓冲区。
         std::vector<uint8_t> sceneStagingBuffer_;
 
-        void RenderScenes();
 
         void RenderOverlays();
 
@@ -141,15 +139,15 @@ namespace glimmer {
          * 把排队的命令上传到 GPU，并在一次 clear/store 渲染通道内绘制到指定渲染目标。
          */
         void FlushScenePass(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUTexture *targetTexture, Uint32 width,
-                            Uint32 height, const CameraComponent *camera,
-                            const Transform2DComponent *cameraTransform, const WorldContext *worldContext);
+                            Uint32 height, UniformInjectContext *injectContext);
 
         /**
          * Composite the lit result: a fullscreen quad samples the unlit scene
          * texture and the light map, applies lighting, and stores to the target.
          * 合成受光照结果：全屏四边形采样无光照场景纹理与光照贴图，应用光照后写入目标。
          */
-        void FlushLightingPass(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUTexture *targetTexture);
+        void FlushLightingPass(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUTexture *targetTexture,
+                               UniformInjectContext *injectContext);
 
         /**
          * Fill and push the uniform block of a fullscreen pass. Encapsulates
@@ -158,19 +156,17 @@ namespace glimmer {
          * 填充并推送一个全屏 pass 的 uniform 块。封装
          * "取管线 uniform 块 -> 用 ctx 填充 -> 推送"，使新的全屏/后处理 pass 复用同一注入路径。
          */
-        void FillAndPushUniformBlock(SDL_GPUCommandBuffer *commandBuffer,
-                                     const std::shared_ptr<GPUPipelineResourceResult> &pipeline,
-                                     const UniformInjectContext &ctx,
-                                     std::vector<uint8_t> &stagingBuffer) const;
+        static void FillAndPushUniformBlock(SDL_GPUCommandBuffer *commandBuffer,
+                                            const std::shared_ptr<GPUPipelineResourceResult> &pipeline,
+                                            const UniformInjectContext &injectContext,
+                                            std::vector<uint8_t> &stagingBuffer);
 
         /**
          * Rebuild the per-tile light map texture from the light buffer for the
          * camera viewport (plus a one-tile border).
          * 根据相机视口（含一格边距）从光照缓冲重建逐瓦片光照贴图纹理。
          */
-        void UpdateLightMap(const LightBuffer *lightBuffer, const CameraComponent *camera,
-                            const Transform2DComponent *cameraTransform, const WorldContext *worldContext,
-                            Uint32 width, Uint32 height);
+        void UpdateLightMap(UniformInjectContext *injectContext);
 
     public:
         explicit AppRenderer(AppContext *appContext);

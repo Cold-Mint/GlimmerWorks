@@ -188,6 +188,10 @@ std::vector<Rml::ElementDocument *> glimmer::Scene::GetAllDocuments() const {
     return docs;
 }
 
+glimmer::UniformInjectContext * glimmer::Scene::GetUniformInjectContext() {
+    return nullptr;
+}
+
 Rml::Element *glimmer::Scene::FindElementById(const Rml::String &elementId) const {
     for (Rml::ElementDocument *doc: elementDocumentSet_) {
         if (doc != nullptr) {

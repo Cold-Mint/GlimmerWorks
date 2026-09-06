@@ -304,11 +304,15 @@ void glimmer::LightBuffer::RemoveDynamicLight(const uint64_t id) {
 
 float glimmer::LightBuffer::GetSkyVisibility(const TileVector2D &position) const {
     const auto it = columnSkyTopY_.find(position.x);
-    const int topY = it != columnSkyTopY_.end() ? it->second : (WORLD_MIN_Y - 1);
+    const int topY = it != columnSkyTopY_.end() ? it->second : WORLD_MIN_Y - 1;
     //The topmost opaque tile itself still faces the sky, so it is lit by
     //ambient light; only tiles strictly below it are underground.
     //最顶部的不透明瓦片本身仍朝向天空，会被环境光照亮；只有严格位于其下的瓦片才属于地下。
     return position.y >= topY ? 1.0F : 0.0F;
+}
+
+uint64_t glimmer::LightBuffer::GetRevision() const {
+    return revision_;
 }
 
 void glimmer::LightBuffer::RecalculateColumnSkyTopY(const int x) {

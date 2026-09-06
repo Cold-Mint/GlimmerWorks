@@ -504,7 +504,6 @@ target_sources(GlimmerWorks
         core/console/command/LocateCommand.cpp
         core/console/command/LootCommand.cpp
         core/console/command/PackVerifyCommand.cpp
-        core/console/command/TimeCommand.cpp
         core/console/command/ParallaxBackgroundCommand.cpp
         core/console/command/PlaceCommand.cpp
         core/console/command/PlayCommand.cpp
@@ -769,9 +768,6 @@ target_sources(GlimmerWorks
         core/world/TileResourceData.cpp
         core/world/Dimension.cpp
         core/world/WorldContext.cpp
-        core/world/weather/WeatherConditionProcessorManager.cpp
-        core/world/weather/WeatherConditionProcessors.cpp
-        core/world/weather/WeatherManager.cpp
         core/world/generator/BiomeDecorator.cpp
         core/world/generator/BiomeDecoratorManager.cpp
         core/world/generator/Chunk.cpp
@@ -811,6 +807,7 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Platform_SDL.h"
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL_GPU.h"
         core/app/App.h
+        core/world/DynamicLightEntry.h
         core/mod/PackScanRequest.h
         core/gpu/PendingScreenshot.h
         core/mod/resourcePack/GPUSamplerResourceResult.h
@@ -928,7 +925,6 @@ target_sources(GlimmerWorks
         core/console/command/LocateCommand.h
         core/console/command/LootCommand.h
         core/console/command/PackVerifyCommand.h
-        core/console/command/TimeCommand.h
         core/console/command/ParallaxBackgroundCommand.h
         core/console/command/PlaceCommand.h
         core/console/command/PlayCommand.h

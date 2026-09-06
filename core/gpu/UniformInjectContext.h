@@ -27,6 +27,8 @@
 #pragma once
 #include <cstdint>
 
+#include "core/world/LightBuffer.h"
+
 namespace glimmer {
     class CameraComponent;
     class Transform2DComponent;
@@ -46,7 +48,8 @@ namespace glimmer {
     public:
         const CameraComponent *camera = nullptr;
         const Transform2DComponent *cameraTransform = nullptr;
-        const WorldContext *worldContext = nullptr;
+        WorldContext *worldContext = nullptr;
+        LightBuffer *lightBuffer = nullptr;
         float width = 0.0F;
         float height = 0.0F;
         int lightMapOriginX = 0;

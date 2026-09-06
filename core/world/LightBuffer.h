@@ -28,6 +28,7 @@
 
 #include <unordered_map>
 
+#include "DynamicLightEntry.h"
 #include "LightMask.h"
 #include "LightSource.h"
 #include "TileLightData.h"
@@ -49,12 +50,6 @@ namespace glimmer {
      * 传播光照，取代此前的射线方案。
      */
     class LightBuffer {
-        struct DynamicLightEntry {
-            TileVector2D position;
-            TileLayerType layer;
-            std::unique_ptr<LightSource> lightSource;
-        };
-
         std::unordered_map<TileVector2D, std::unique_ptr<TileLightData>, Vector2DIHash> tileLightData_;
 
         //Dynamic (mobile) light sources keyed by an arbitrary id (e.g. entity id).
@@ -172,8 +167,6 @@ namespace glimmer {
          * light data (sources, masks, contributions) increments it.
          * 当前修订计数器。任何对光照缓冲数据（光源、遮罩、贡献）的修改都会使其递增。
          */
-        [[nodiscard]] uint64_t GetRevision() const {
-            return revision_;
-        }
+        [[nodiscard]] uint64_t GetRevision() const;
     };
 }

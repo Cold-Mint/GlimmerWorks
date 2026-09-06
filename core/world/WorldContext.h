@@ -188,12 +188,6 @@ namespace glimmer {
         void OnDayAdvanced();
 
         /**
-         * GetWeatherIntensity
-         * 获取当前维度的天气强度。
-         */
-        [[nodiscard]] float GetWeatherIntensity() const;
-
-        /**
          * SwitchDimension
          * 切换到指定维度。会保存当前维度时间、卸载当前维度区块并加载目标维度。
          * @param dimensionRef dimensionRef 目标维度引用
@@ -207,11 +201,11 @@ namespace glimmer {
         [[nodiscard]] float GetTimeOfDay() const;
 
         /**
-         * SetTimeOfDay
-         * 设置当前维度的时间（0..1），自动环绕到 [0,1)。
-         * @param time time 时间
+         * Update the current dimension's time.
+         * 更新当前维度的时间。
+         * @param worldTick
          */
-        void SetTimeOfDay(float time);
+        void UpdateTimeOfDay(uint64_t worldTick);
 
         /**
          * AdvanceTime

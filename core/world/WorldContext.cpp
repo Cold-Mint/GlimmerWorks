@@ -31,7 +31,6 @@
 #include <vector>
 
 #include "Dimension.h"
-#include "weather/WeatherManager.h"
 #include "ChunkManager.h"
 #include "TerrainManager.h"
 #include "SystemScheduler.h"
@@ -138,9 +137,6 @@ const std::vector<glimmer::LightKeyframe> &glimmer::WorldContext::GetAmbientLigh
 
 const std::vector<glimmer::SkyColorKeyframe> &glimmer::WorldContext::GetSkyColorKeyframes() const {
     static const std::vector<SkyColorKeyframe> empty;
-    if (currentDimension_ != nullptr && currentDimension_->GetDimensionResource() != nullptr) {
-        return currentDimension_->GetDimensionResource()->skyColorKeyframes;
-    }
     return empty;
 }
 
@@ -153,13 +149,6 @@ uint8_t glimmer::WorldContext::GetMoonPhase() const {
 }
 
 void glimmer::WorldContext::OnDayAdvanced() {
-}
-
-float glimmer::WorldContext::GetWeatherIntensity() const {
-    if (currentDimension_ != nullptr && currentDimension_->GetWeatherManager() != nullptr) {
-        return currentDimension_->GetWeatherManager()->GetWeatherIntensity();
-    }
-    return 0.0F;
 }
 
 void glimmer::WorldContext::SwitchDimension(const ResourceRef &dimensionRef) {
@@ -236,13 +225,17 @@ int glimmer::WorldContext::GetWorldSeed() const {
 }
 
 float glimmer::WorldContext::GetTimeOfDay() const {
-    return currentDimension_ != nullptr ? currentDimension_->GetTimeOfDay() : 0.0F;
+    if (currentDimension_ == nullptr) {
+        return 0.0F;
+    }
+    return currentDimension_->GetTimeOfDay();
 }
 
-void glimmer::WorldContext::SetTimeOfDay(const float time) {
-    if (currentDimension_ != nullptr) {
-        currentDimension_->SetTimeOfDay(time);
+void glimmer::WorldContext::UpdateTimeOfDay(uint64_t worldTick) {
+    if (currentDimension_ == nullptr) {
+        return;
     }
+    // currentDimension_->
 }
 
 void glimmer::WorldContext::AdvanceTime(const float delta) {
@@ -251,9 +244,6 @@ void glimmer::WorldContext::AdvanceTime(const float delta) {
     }
     if (currentDimension_ != nullptr) {
         currentDimension_->AdvanceTime(delta, dayLengthSeconds_);
-        if (currentDimension_->GetWeatherManager() != nullptr) {
-            currentDimension_->GetWeatherManager()->Update(delta);
-        }
     }
 }
 

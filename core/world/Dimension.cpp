@@ -32,7 +32,6 @@
 #include "TerrainManager.h"
 #include "generator/ChunkGenerator.h"
 #include "generator/ChunkLoader.h"
-#include "weather/WeatherManager.h"
 #include "core/log/LogCat.h"
 #include "core/mod/Resource.h"
 #include "core/mod/ResourceRef.h"
@@ -59,7 +58,6 @@ void glimmer::Dimension::Init() {
     chunkGenerator_ = std::make_unique<
         ChunkGenerator>(worldContext_, worldContext_->GetWorldSeed(), dimensionResource_);
     chunkLoader_ = std::make_unique<ChunkLoader>(worldContext_, worldContext_->GetSaves(), dimensionFolderName_);
-    weatherManager_ = std::make_unique<WeatherManager>(worldContext_, this);
 
     if (const auto manifest = worldContext_->GetSaves()->ReadDimensionManifest(dimensionFolderName_);
         manifest.has_value()) {
@@ -111,10 +109,6 @@ glimmer::ChunkGenerator *glimmer::Dimension::GetChunkGenerator() const {
 
 glimmer::ChunkLoader *glimmer::Dimension::GetChunkLoader() const {
     return chunkLoader_.get();
-}
-
-glimmer::WeatherManager *glimmer::Dimension::GetWeatherManager() const {
-    return weatherManager_.get();
 }
 
 float glimmer::Dimension::GetTimeOfDay() const {

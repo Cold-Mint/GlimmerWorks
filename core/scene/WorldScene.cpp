@@ -50,9 +50,6 @@ glimmer::WorldScene::WorldScene(AppContext *context, std::unique_ptr<WorldContex
     Init();
 }
 
-glimmer::WorldContext *glimmer::WorldScene::GetWorldContext() const {
-    return worldContext_.get();
-}
 
 void glimmer::WorldScene::OnFrameStart() {
     if (systemScheduler_ == nullptr) {
@@ -82,6 +79,12 @@ void glimmer::WorldScene::OnWindowClose() {
     LogCat::i("Saving game on window close: worldName=", worldContext_->GetMapManifest()->name);
     worldContext_->SaveGame();
     LogCat::i("Game saved successfully");
+}
+
+void glimmer::WorldScene::OnTick(uint64_t tick) {
+    if (systemScheduler_ != nullptr) {
+        systemScheduler_->OnTick(tick);
+    }
 }
 
 void glimmer::WorldScene::Update(const float delta) {

@@ -26,9 +26,9 @@
  */
 #pragma once
 #include "Scene.h"
-#include "core/gpu/RenderQueue.h"
 #include "core/world/WorldContext.h"
 #include <SDL3/SDL_events.h>
+
 
 namespace glimmer {
     class PauseSystem;
@@ -40,8 +40,6 @@ namespace glimmer {
     public:
         explicit WorldScene(AppContext *context, std::unique_ptr<WorldContext> worldContext);
 
-        [[nodiscard]] WorldContext *GetWorldContext() const;
-
         void OnFrameStart() override;
 
         bool HandleEvent(const SDL_Event &event) override;
@@ -49,6 +47,8 @@ namespace glimmer {
         bool OnBackPressed() override;
 
         void OnWindowClose() override;
+
+        void OnTick(uint64_t tick) override;
 
         void Update(float delta) override;
 

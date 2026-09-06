@@ -94,10 +94,6 @@ namespace {
         dst[0] = ctx.worldContext != nullptr ? static_cast<float>(ctx.worldContext->GetMoonPhase()) : 0.0F;
     }
 
-    void InjectWeatherIntensity(const glimmer::UniformInjectContext &ctx, float *dst) {
-        dst[0] = ctx.worldContext != nullptr ? ctx.worldContext->GetWeatherIntensity() : 0.0F;
-    }
-
     void InjectSkyTopColor(const glimmer::UniformInjectContext &ctx, float *dst) {
         const float timeOfDay = ctx.worldContext != nullptr ? ctx.worldContext->GetTimeOfDay() : 0.0F;
         const glimmer::SkyColors sky = glimmer::ComputeSkyColors(ctx.worldContext, timeOfDay);
@@ -132,7 +128,6 @@ namespace {
             map[std::string(glimmer::BUILTIN_TIME_OF_DAY)] = &InjectTimeOfDay;
             map[std::string(glimmer::BUILTIN_AMBIENT_COLOR)] = &InjectAmbientColor;
             map[std::string(glimmer::BUILTIN_MOON_PHASE)] = &InjectMoonPhase;
-            map[std::string(glimmer::BUILTIN_WEATHER_INTENSITY)] = &InjectWeatherIntensity;
             map[std::string(glimmer::BUILTIN_SKY_TOP_COLOR)] = &InjectSkyTopColor;
             map[std::string(glimmer::BUILTIN_SKY_HORIZON_COLOR)] = &InjectSkyHorizonColor;
             return map;

@@ -119,6 +119,8 @@ namespace glimmer {
 
         bool HandleEvent(const SDL_Event &event);
 
+        void OnTick(uint64_t tick);
+
         void Update(float delta) const;
 
         bool OnBackPressed();

@@ -173,6 +173,12 @@ bool glimmer::SystemScheduler::HandleEvent(const SDL_Event &event) {
     return handled;
 }
 
+void glimmer::SystemScheduler::OnTick(uint64_t tick) {
+    for (auto &activeSystem: activeSystems_) {
+        activeSystem->OnTick(tick);
+    }
+}
+
 void glimmer::SystemScheduler::Update(const float delta) const {
     if (!worldContext_->IsRuning()) {
         return;

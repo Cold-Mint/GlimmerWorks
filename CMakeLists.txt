@@ -812,6 +812,7 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL_GPU.h"
         core/app/App.h
         core/mod/PackScanRequest.h
+        core/gpu/PendingScreenshot.h
         core/mod/resourcePack/GPUSamplerResourceResult.h
         core/mod/resourcePack/cache/ShaderCacheStoreRequest.h
         core/mod/resourcePack/cache/GpuSamplerCache.h

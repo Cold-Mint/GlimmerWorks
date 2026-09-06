@@ -34,14 +34,9 @@ namespace glimmer {
         SDL_Window *window_ = nullptr;
         int windowWidth_ = 0;
         int windowHeight_ = 0;
-        bool isRunning_ = true;
         SDL_GPUDevice *device_ = nullptr;
 
     public:
-        WindowContext() = default;
-
-        ~WindowContext() = default;
-
         /**
          * Create windows and devices
          * 创建窗口和设备
@@ -67,8 +62,6 @@ namespace glimmer {
 
         [[nodiscard]] int GetWindowHeight() const;
 
-        [[nodiscard]] bool IsRunning() const;
-
-        void Exit();
+        void Shutdown();
     };
 }

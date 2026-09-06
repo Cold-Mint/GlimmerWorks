@@ -43,7 +43,7 @@ namespace glimmer {
 
         bool InitSDL();
 
-        bool InitWindowAndRenderer();
+        [[nodiscard]] bool InitWindowAndRenderer() const;
 
         [[nodiscard]] bool InitFont() const;
 

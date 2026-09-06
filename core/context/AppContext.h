@@ -45,27 +45,24 @@
 #include "core/scene/SceneManager.h"
 #include "tasks/IAppContextInitTask.h"
 #include "core/context/ISystemBucket.h"
+#include "core/gpu/PendingScreenshot.h"
 
 namespace glimmer {
     class AppContext {
-        /**
-         * Pending screenshot request, captured at the end of the next rendered frame.
-         * 待处理的截图请求，在下一帧渲染结束时捕获。
-         */
-        struct PendingScreenshot {
-            std::filesystem::path path;
-            const std::function<void(const std::string &text)> *onMessage = nullptr;
-        };
-
         mutable std::optional<PendingScreenshot> pendingScreenshot_;
         std::unique_ptr<ISystemBucket> systemBucket_;
         std::vector<std::unique_ptr<IAppContextInitTask> > initTasks_;
         std::vector<UIMessage> uiMessages_;
+        bool isRunning_ = true;
 
         void RegisterInitTask(std::unique_ptr<IAppContextInitTask> initTask);
 
     public:
         AppContext();
+
+        ~AppContext();
+
+        bool IsRunning() const;
 
         bool InitSystem();
 
@@ -121,7 +118,7 @@ namespace glimmer {
          */
         [[nodiscard]] std::vector<UIMessage> &GetUIMessages();
 
-        void ExitApp() const;
+        void ExitApp();
 
         void CreateScreenshot(const std::function<void(const std::string &text)> *onMessage) const;
     };

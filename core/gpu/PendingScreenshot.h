@@ -24,23 +24,17 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "ExitCommand.h"
+#pragma once
+#include <filesystem>
+#include <functional>
 
-#include "core/context/AppContext.h"
-
-glimmer::ExitCommand::ExitCommand(AppContext *appContext) : Command(appContext) {
-}
-
-const std::string &glimmer::ExitCommand::GetName() const {
-    return EXIT_COMMAND_NAME;
-}
-
-bool glimmer::ExitCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
-                                   const std::function<void(const std::string &text)> *onMessage) {
-    AppContext *appContext = GetAppContext();
-    if (appContext == nullptr) {
-        return false;
-    }
-    appContext->ExitApp();
-    return true;
+namespace glimmer {
+    /**
+    * Pending screenshot request, captured at the end of the next rendered frame.
+    * 待处理的截图请求，在下一帧渲染结束时捕获。
+    */
+    struct PendingScreenshot {
+        std::filesystem::path path;
+        const std::function<void(const std::string &text)> *onMessage = nullptr;
+    };
 }

@@ -91,19 +91,16 @@ int glimmer::WindowContext::GetWindowHeight() const {
     return windowHeight_;
 }
 
-bool glimmer::WindowContext::IsRunning() const {
-    return isRunning_;
-}
-
-void glimmer::WindowContext::Exit() {
-    isRunning_ = false;
+void glimmer::WindowContext::Shutdown() {
     if (device_ != nullptr && window_ != nullptr) {
         SDL_ReleaseWindowFromGPUDevice(device_, window_);
     }
     if (device_ != nullptr) {
         SDL_DestroyGPUDevice(device_);
+        device_ = nullptr;
     }
     if (window_ != nullptr) {
         SDL_DestroyWindow(window_);
+        window_ = nullptr;
     }
 }

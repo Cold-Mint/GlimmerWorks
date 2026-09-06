@@ -29,6 +29,7 @@
 #include <random>
 
 #include "SystemBucket.h"
+#include "core/gpu/PendingScreenshot.h"
 #include "core/log/LogCat.h"
 #include "core/utils/RandomUtils.h"
 #include "core/utils/StringUtils.h"
@@ -73,6 +74,27 @@ glimmer::AppContext::AppContext() {
     RegisterInitTask(std::make_unique<InitResourceLocatorTask>(this));
 }
 
+glimmer::AppContext::~AppContext() {
+    if (const ConsoleContext *consoleContext = systemBucket_->GetConsoleContext(); consoleContext != nullptr) {
+        consoleContext->StopConsoleWorker();
+        if (const Config *config = systemBucket_->GetConfig();
+            config != nullptr && config->console.maxHistoryEntries > 0) {
+            consoleContext->SaveCommandHistory();
+        }
+    }
+    SceneManager *sceneManager = systemBucket_->GetSceneManager();
+    if (sceneManager != nullptr) {
+        sceneManager->ClearScenes();
+    }
+    if (TickWorker *tickWorker = systemBucket_->GetTickWorker(); tickWorker != nullptr) {
+        tickWorker->Stop();
+    }
+}
+
+bool glimmer::AppContext::IsRunning() const {
+    return isRunning_;
+}
+
 bool glimmer::AppContext::InitSystem() {
     bool success = true;
     std::stack<IAppContextInitTask *> initTaskStack;
@@ -102,26 +124,6 @@ bool glimmer::AppContext::InitSystem() {
 
 glimmer::WindowContext *glimmer::AppContext::GetWindowContext() const {
     return systemBucket_->GetWindowContext();
-}
-
-void glimmer::AppContext::ExitApp() const {
-    if (const ConsoleContext *consoleContext = systemBucket_->GetConsoleContext(); consoleContext != nullptr) {
-        consoleContext->StopConsoleWorker();
-        if (const Config *config = systemBucket_->GetConfig();
-            config != nullptr && config->console.maxHistoryEntries > 0) {
-            consoleContext->SaveCommandHistory();
-        }
-    }
-    SceneManager *sceneManager = systemBucket_->GetSceneManager();
-    if (sceneManager != nullptr) {
-        sceneManager->ClearScenes();
-    }
-    if (TickWorker *tickWorker = systemBucket_->GetTickWorker(); tickWorker != nullptr) {
-        tickWorker->Stop();
-    }
-    if (WindowContext *windowContext = systemBucket_->GetWindowContext(); windowContext != nullptr) {
-        windowContext->Exit();
-    }
 }
 
 void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::string &text)> *onMessage) const {
@@ -255,4 +257,8 @@ void glimmer::AppContext::AddUIMessage(const std::string &text) {
 
 std::vector<glimmer::UIMessage> &glimmer::AppContext::GetUIMessages() {
     return uiMessages_;
+}
+
+void glimmer::AppContext::ExitApp() {
+    isRunning_ = false;
 }

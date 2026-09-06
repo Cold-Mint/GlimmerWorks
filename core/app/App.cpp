@@ -76,7 +76,7 @@ bool glimmer::App::InitSDL() {
     return true;
 }
 
-bool glimmer::App::InitWindowAndRenderer() {
+bool glimmer::App::InitWindowAndRenderer() const {
     Config *config = appContext_->GetConfig();
     if (config == nullptr) {
         LogCat::e(std::source_location::current(), "config is nullptr");
@@ -235,7 +235,6 @@ bool glimmer::App::InitAudio() {
 bool glimmer::App::CheckWindowSizeChange(WindowContext *windowContext, const int &windowWidth,
                                          const int &windowHeight) {
     bool changed = false;
-
     if (windowHeight != windowContext->GetWindowHeight()) {
         changed = true;
         windowContext->SetWindowHeight(windowHeight);
@@ -251,6 +250,11 @@ glimmer::App::~App() {
     GpuShaderCompiler::Shutdown();
     if (tickWorker_ != nullptr) {
         tickWorker_->RemoveCallback(this);
+    }
+    if (appContext_ != nullptr) {
+        if (WindowContext *windowContext = appContext_->GetWindowContext(); windowContext != nullptr) {
+            windowContext->Shutdown();
+        }
     }
     if (initSDLMixSuccess_) {
         MIX_Quit();
@@ -316,7 +320,7 @@ void glimmer::App::Run() const {
     }
     Rml::Context *rmlContextCore = rmlContext->GetRmlContext();
     LogCat::i("Entering main game loop");
-    while (windowContext->IsRunning() && sceneManager_->GetSceneCount() > 0) {
+    while (appContext_->IsRunning()) {
         int windowWidth = 0;
         int windowHeight = 0;
         SDL_GetWindowSize(windowContext->GetWindow(), &windowWidth, &windowHeight);

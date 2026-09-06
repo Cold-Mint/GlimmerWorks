@@ -140,7 +140,7 @@ void glimmer::MainScene::OnStartGameClick(Rml::DataModelHandle handle, Rml::Even
 }
 
 void glimmer::MainScene::OnExitGameClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args) {
-    const AppContext *context = GetAppContext();
+    AppContext *context = GetAppContext();
     if (context == nullptr) {
         LogCat::w(std::source_location::current(), "context == nullptr");
         return;

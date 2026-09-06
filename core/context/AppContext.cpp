@@ -116,6 +116,9 @@ void glimmer::AppContext::ExitApp() const {
     if (sceneManager != nullptr) {
         sceneManager->ClearScenes();
     }
+    if (TickWorker *tickWorker = systemBucket_->GetTickWorker(); tickWorker != nullptr) {
+        tickWorker->Stop();
+    }
     if (WindowContext *windowContext = systemBucket_->GetWindowContext(); windowContext != nullptr) {
         windowContext->Exit();
     }
@@ -162,6 +165,10 @@ glimmer::ModContext *glimmer::AppContext::GetModContext() const {
 
 glimmer::ConsoleContext *glimmer::AppContext::GetConsoleContext() const {
     return systemBucket_->GetConsoleContext();
+}
+
+glimmer::TickWorker *glimmer::AppContext::GetTickWorker() const {
+    return systemBucket_->GetTickWorker();
 }
 
 glimmer::GraphicsContext *glimmer::AppContext::GetGraphicsContext() const {

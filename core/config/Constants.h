@@ -121,6 +121,10 @@ static constexpr std::string EVENT_TYPE_DYNAMIC_SUGGESTIONS_NAME = "&event_type"
 static constexpr std::string MOUSE_BUTTON_DYNAMIC_SUGGESTIONS_NAME = "&mouse_button";
 static constexpr toml::spec TOML_VERSION = toml::spec::v(1, 1, 0);
 
+//The number of ticks per second.
+//每秒的tick数。
+static constexpr double TICK_RATE = 20.0;
+
 static constexpr std::string ABILITY_ID_NONE = "none";
 static constexpr std::string ABILITY_ID_MINING = "mining";
 static constexpr std::string ABILITY_ID_AREA_MARKER = "areaMarker";

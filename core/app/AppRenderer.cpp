@@ -520,7 +520,8 @@ void glimmer::AppRenderer::UpdateLightMap(const LightBuffer *lightBuffer, const 
     const auto sizeY = static_cast<Uint32>(tileMax.y - tileMin.y + 3);
     const Config *config = appContext_->GetConfig();
     const bool fullBright = config == nullptr || !config->light.enable;
-    const AmbientLight ambient = ComputeAmbientLight(worldContext, worldContext != nullptr ? worldContext->GetTimeOfDay() : 0.0F);
+    const AmbientLight ambient = ComputeAmbientLight(worldContext,
+                                                     worldContext != nullptr ? worldContext->GetTimeOfDay() : 0.0F);
     lightMapTexture_.Update(device_, lightBuffer, fullBright ? nullptr : &ambient,
                             originX, originY, sizeX, sizeY, fullBright);
 

@@ -63,9 +63,6 @@ void glimmer::Dimension::Init() {
 
     if (const auto manifest = worldContext_->GetSaves()->ReadDimensionManifest(dimensionFolderName_);
         manifest.has_value()) {
-        timeOfDay_ = manifest->time();
-        weatherManager_->SetWeatherIntensity(manifest->weatherintensity());
-        weatherManager_->SetWeatherTimer(manifest->weathertimer());
         LogCat::i("Dimension time restored: ", dimensionId_, " time=", timeOfDay_);
     } else {
         timeOfDay_ = initialTime_;
@@ -85,9 +82,6 @@ void glimmer::Dimension::SaveTime() const {
         dimensionRef.ReadResource(*dimensionResource_, RESOURCE_DIMENSION);
     }
     dimensionRef.WriteResourceRefMessage(*manifestMessage.mutable_dimension());
-    manifestMessage.set_time(timeOfDay_);
-    manifestMessage.set_weatherintensity(weatherManager_ != nullptr ? weatherManager_->GetWeatherIntensity() : 0.0F);
-    manifestMessage.set_weathertimer(weatherManager_ != nullptr ? weatherManager_->GetWeatherTimer() : 0.0F);
     (void) worldContext_->GetSaves()->WriteDimensionManifest(dimensionFolderName_, manifestMessage);
 }
 

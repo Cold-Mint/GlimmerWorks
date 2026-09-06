@@ -172,6 +172,18 @@ glimmer::ConsoleContext *glimmer::SystemBucket::GetConsoleContext() const {
     return consoleContext;
 }
 
+void glimmer::SystemBucket::SetTickWorker(std::unique_ptr<TickWorker> tickWorker) {
+    tickWorker_ = std::move(tickWorker);
+}
+
+glimmer::TickWorker *glimmer::SystemBucket::GetTickWorker() const {
+    TickWorker *tickWorker = tickWorker_.get();
+    if (tickWorker == nullptr) {
+        return nullptr;
+    }
+    return tickWorker;
+}
+
 void glimmer::SystemBucket::SetGraphicsContext(std::unique_ptr<GraphicsContext> graphicsContext) {
     graphicsContext_ = std::move(graphicsContext);
 }

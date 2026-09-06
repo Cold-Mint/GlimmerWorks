@@ -145,7 +145,7 @@ const std::vector<glimmer::SkyColorKeyframe> &glimmer::WorldContext::GetSkyColor
 }
 
 long glimmer::WorldContext::GetElapsedDays() const {
-    return mapManifest_ != nullptr ? mapManifest_->elapsedDays : 0;
+    return 0;
 }
 
 uint8_t glimmer::WorldContext::GetMoonPhase() const {
@@ -153,9 +153,6 @@ uint8_t glimmer::WorldContext::GetMoonPhase() const {
 }
 
 void glimmer::WorldContext::OnDayAdvanced() {
-    if (mapManifest_ != nullptr) {
-        mapManifest_->elapsedDays++;
-    }
 }
 
 float glimmer::WorldContext::GetWeatherIntensity() const {

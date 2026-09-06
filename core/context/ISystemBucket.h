@@ -38,6 +38,7 @@ namespace glimmer {
     class MainThreadDispatcher;
     class GraphicsContext;
     class ConsoleContext;
+    class TickWorker;
     class RmlContext;
     class ModContext;
     class SavesManager;
@@ -103,6 +104,10 @@ namespace glimmer {
         virtual void SetConsoleContext(std::unique_ptr<ConsoleContext> consoleContext) = 0;
 
         [[nodiscard]] virtual ConsoleContext *GetConsoleContext() const = 0;
+
+        virtual void SetTickWorker(std::unique_ptr<TickWorker> tickWorker) = 0;
+
+        [[nodiscard]] virtual TickWorker *GetTickWorker() const = 0;
 
         virtual void SetGraphicsContext(std::unique_ptr<GraphicsContext> graphicsContext) = 0;
 

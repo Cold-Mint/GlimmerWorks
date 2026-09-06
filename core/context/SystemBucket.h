@@ -40,6 +40,7 @@
 #include "core/saves/SavesManager.h"
 #include "core/scene/MainThreadDispatcher.h"
 #include "core/scene/SceneManager.h"
+#include "core/tick/TickWorker.h"
 #include "core/utils/LanguageUtils.h"
 #include "core/vfs/VirtualFileSystem.h"
 
@@ -57,6 +58,7 @@ namespace glimmer {
         std::unique_ptr<ModContext> modContext_ = nullptr;
         std::unique_ptr<RmlContext> rmlContext_ = nullptr;
         std::unique_ptr<ConsoleContext> consoleContext_ = nullptr;
+        std::unique_ptr<TickWorker> tickWorker_ = nullptr;
         std::unique_ptr<GraphicsContext> graphicsContext_ = nullptr;
         std::unique_ptr<AudioContext> audioContext_ = nullptr;
         std::unique_ptr<MainThreadDispatcher> mainThreadDispatcher_ = nullptr;
@@ -113,6 +115,10 @@ namespace glimmer {
         void SetConsoleContext(std::unique_ptr<ConsoleContext> consoleContext) override;
 
         [[nodiscard]] ConsoleContext *GetConsoleContext() const override;
+
+        void SetTickWorker(std::unique_ptr<TickWorker> tickWorker) override;
+
+        [[nodiscard]] TickWorker *GetTickWorker() const override;
 
         void SetGraphicsContext(std::unique_ptr<GraphicsContext> graphicsContext) override;
 

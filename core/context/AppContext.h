@@ -80,6 +80,8 @@ namespace glimmer {
 
         [[nodiscard]] ConsoleContext *GetConsoleContext() const;
 
+        [[nodiscard]] TickWorker *GetTickWorker() const;
+
         [[nodiscard]] GraphicsContext *GetGraphicsContext() const;
 
         [[nodiscard]] AudioContext *GetAudioContext() const;

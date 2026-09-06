@@ -466,6 +466,7 @@ target_sources(GlimmerWorks
         core/console/ConsoleMessage.cpp
         core/console/ConsoleWorker.cpp
         core/console/LocalConsoleInput.cpp
+        core/tick/TickWorker.cpp
         core/console/asset_enumerator/AbilityItemsAssetEnumerator.cpp
         core/console/asset_enumerator/BiomeDecorsAssetEnumerator.cpp
         core/console/asset_enumerator/BiomesAssetEnumerator.cpp
@@ -889,6 +890,8 @@ target_sources(GlimmerWorks
         core/console/ConsoleMessage.h
         core/console/ConsoleWorker.h
         core/console/LocalConsoleInput.h
+        core/tick/TickWorker.h
+        core/tick/ITickListener.h
         core/console/asset_enumerator/AbilityItemsAssetEnumerator.h
         core/console/asset_enumerator/BiomeDecorsAssetEnumerator.h
         core/console/asset_enumerator/BiomesAssetEnumerator.h

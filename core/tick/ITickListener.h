@@ -24,54 +24,19 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include <fstream>
+#pragma once
+#include <cstdint>
 
-#include "core/app/App.h"
-#include "core/log/LogCat.h"
-#include "core/context/AppContext.h"
-#include "core/tick/TickWorker.h"
-#include "fmt/args.h"
+namespace glimmer {
+    class ITickListener {
+    public:
+        virtual ~ITickListener() = default;
 
-#ifdef __ANDROID__
-#include <jni.h>
-#endif
-
-using namespace glimmer;
-namespace fs = std::filesystem;
-
-int main() {
-    SDL_SetAppMetadata(
-        PROJECT_NAME.c_str(), GAME_VERSION_STRING,
-        APP_PACKNAME);
-    AppContext appContext;
-    if (!appContext.InitSystem()) {
-        LogCat::e(std::source_location::current(), "appContext Init failed");
-        return EXIT_FAILURE;
-    }
-    App app(&appContext);
-    if (!app.Init()) {
-        LogCat::e(std::source_location::current(), "app Init failed");
-        return EXIT_FAILURE;
-    }
-    app.Run();
-    return EXIT_SUCCESS;
+        /**
+         * Called on every tick.
+         * 在每个 tick 被调用。
+         * @param tick The cumulative tick count. 累计 tick 次数。
+         */
+        virtual void OnTick(uint64_t tick) = 0;
+    };
 }
-
-
-#ifdef __ANDROID__
-extern "C" {
-int SDL_main(int argc, char *argv[]) {
-    return main();
-}
-
-//Set whether to allow the Activity to be recreated
-//设置是否允许Activity被重新创建
-JNIEXPORT jboolean
-
-JNICALL
-Java_org_libsdl_app_SDLActivity_nativeAllowRecreateActivity(JNIEnv *, jclass) {
-    return JNI_TRUE;
-}
-}
-
-#endif

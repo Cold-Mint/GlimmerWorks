@@ -30,9 +30,10 @@
 #include <cstdint>
 #include <vector>
 
+#include "core/math/Color.h"
+
 namespace glimmer {
     class LightBuffer;
-    struct AmbientLight;
 
     /**
      * LightMapTexture
@@ -79,7 +80,7 @@ namespace glimmer {
          * @param sizeX sizeX 覆盖的瓦片列数
          * @param sizeY sizeY 覆盖的瓦片行数
          */
-        void Update(SDL_GPUDevice *device, const LightBuffer *lightBuffer, const AmbientLight *ambient,
+        void Update(SDL_GPUDevice *device, const LightBuffer *lightBuffer, const Color *ambient,
                     int originTileX, int originTileY, Uint32 sizeX, Uint32 sizeY,
                     bool fullBright = false);
 

@@ -45,7 +45,8 @@
 #include "core/mod/ResourceRef.h"
 #include "core/mod/resourcePack/GPUPipelineResourceResult.h"
 #include "core/scene/SceneManager.h"
-#include "core/world/AmbientLight.h"
+#include "core/utils/ColorUtils.h"
+#include "core/world/Dimension.h"
 #include "core/world/WorldContext.h"
 
 
@@ -385,8 +386,9 @@ void glimmer::AppRenderer::UpdateLightMap(UniformInjectContext *injectContext) {
     const auto sizeY = static_cast<Uint32>(tileMax.y - tileMin.y + 3);
     const Config *config = appContext_->GetConfig();
     const bool fullBright = config == nullptr || !config->light.enable;
-    const AmbientLight ambient = ComputeAmbientLight(worldContext,
-                                                     worldContext != nullptr ? worldContext->GetTimeOfDay() : 0.0F);
+    const Color ambient = ColorUtils::ComputeAmbientLight(resourceLocator_, worldContext->GetTimeOfDay(),
+                                                          worldContext->GetCurrentDimension()->GetDimensionResource()->
+                                                          ambientLightKeyframes);
     lightMapTexture_.Update(device_, injectContext->lightBuffer, fullBright ? nullptr : &ambient,
                             originX, originY, sizeX, sizeY, fullBright);
 }

@@ -324,7 +324,7 @@ namespace glimmer {
         uint32_t binding = 0;
 
         //@genNextLine(members Member list.|成员列表)
-        std::vector<UniformMemberResource> members;
+        std::vector<UniformMemberResource> members = {};
     };
 
     //@genNextLine(HorizontalSpacingStructureConditionsResource|横向间隔结构放置条件资源)
@@ -677,14 +677,8 @@ namespace glimmer {
     struct LightKeyframe {
         //@genNextLine(t|时间点(0-1))
         float t = 0.0F;
-        //@genNextLine(r|红色通道值)
-        uint8_t r = 0;
-        //@genNextLine(g|绿色通道值)
-        uint8_t g = 0;
-        //@genNextLine(b|蓝色通道值)
-        uint8_t b = 0;
-        //@genNextLine(intensity|光照强度(0-1))
-        float intensity = 0.0F;
+        //@genNextLine(color|颜色)
+        ResourceRef color;
     };
 
     /**
@@ -733,12 +727,6 @@ namespace glimmer {
         float initialTime = 0.0F;
         //@genNextLine(ambientLightKeyframes|环境光关键帧列表（时间点+RGB+强度），决定昼夜光照曲线)
         std::vector<LightKeyframe> ambientLightKeyframes;
-
-        /**
-         * GetDefaultAmbientLightKeyframes
-         * 获取默认环境光关键帧。
-         */
-        [[nodiscard]] static const std::vector<LightKeyframe> &GetDefaultAmbientLightKeyframes();
     };
 
     /**

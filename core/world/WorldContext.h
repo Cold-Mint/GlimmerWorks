@@ -157,11 +157,6 @@ namespace glimmer {
          */
         [[nodiscard]] std::string GetCurrentDimensionId() const;
 
-        /**
-         * GetAmbientLightKeyframes
-         * 获取当前维度的环境光关键帧；无当前维度时返回默认关键帧。
-         */
-        [[nodiscard]] const std::vector<LightKeyframe> &GetAmbientLightKeyframes() const;
 
         /**
          * GetSkyColorKeyframes
@@ -169,23 +164,6 @@ namespace glimmer {
          */
         [[nodiscard]] const std::vector<SkyColorKeyframe> &GetSkyColorKeyframes() const;
 
-        /**
-         * GetElapsedDays
-         * 获取此存档经历的游戏天数（世界级）。
-         */
-        [[nodiscard]] long GetElapsedDays() const;
-
-        /**
-         * GetMoonPhase
-         * 获取当前月相（0..MOON_PHASE_COUNT-1）。
-         */
-        [[nodiscard]] uint8_t GetMoonPhase() const;
-
-        /**
-         * OnDayAdvanced
-         * 当某个维度的时间回绕（1→0）时调用，使世界天数 +1。
-         */
-        void OnDayAdvanced();
 
         /**
          * SwitchDimension

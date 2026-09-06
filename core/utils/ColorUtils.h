@@ -28,6 +28,7 @@
 #include <vector>
 
 #include "core/math/Color.h"
+#include "core/mod/ResourceLocator.h"
 
 
 namespace glimmer {
@@ -60,5 +61,17 @@ namespace glimmer {
          * @return
          */
         static Color AdditiveBlend(const Color &firstColor, const Color &secondColor);
+
+        /**
+        * ComputeAmbientLight
+        * 根据一天中的时间和关键帧计算环境光的色调与强度（线性插值）。
+        * Computes the ambient light color and intensity from the time of day and keyframes (linear interpolation).
+        * @param resourceLocator resourceLocator 资源定位器，用于解析关键帧的颜色资源；为 null 时颜色回退为黑色。
+        * @param timeOfDay timeOfDay 一天中的时间（0..1，0=清晨，0.5=午夜，1=次日清晨）。
+        * @param keyframes keyframes 环境光关键帧（按时间点升序，首尾之间跨零点自动环绕插值）。
+        * @return 环境光颜色，其中 a 通道为强度；无关键帧时返回黑色。
+        */
+        static Color ComputeAmbientLight(ResourceLocator *resourceLocator, float timeOfDay,
+                                         const std::vector<LightKeyframe> &keyframes);
     };
 }

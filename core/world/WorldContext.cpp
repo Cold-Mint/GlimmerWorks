@@ -128,28 +128,12 @@ std::string glimmer::WorldContext::GetCurrentDimensionId() const {
     return currentDimension_->GetDimensionId();
 }
 
-const std::vector<glimmer::LightKeyframe> &glimmer::WorldContext::GetAmbientLightKeyframes() const {
-    if (currentDimension_ != nullptr && currentDimension_->GetDimensionResource() != nullptr) {
-        return currentDimension_->GetDimensionResource()->ambientLightKeyframes;
-    }
-    return DimensionResource::GetDefaultAmbientLightKeyframes();
-}
 
 const std::vector<glimmer::SkyColorKeyframe> &glimmer::WorldContext::GetSkyColorKeyframes() const {
     static const std::vector<SkyColorKeyframe> empty;
     return empty;
 }
 
-long glimmer::WorldContext::GetElapsedDays() const {
-    return 0;
-}
-
-uint8_t glimmer::WorldContext::GetMoonPhase() const {
-    return static_cast<uint8_t>(GetElapsedDays() % MOON_PHASE_COUNT);
-}
-
-void glimmer::WorldContext::OnDayAdvanced() {
-}
 
 void glimmer::WorldContext::SwitchDimension(const ResourceRef &dimensionRef) {
     if (appContext_ == nullptr) {
@@ -241,9 +225,6 @@ void glimmer::WorldContext::UpdateTimeOfDay(uint64_t worldTick) {
 void glimmer::WorldContext::AdvanceTime(const float delta) {
     if (!running) {
         return;
-    }
-    if (currentDimension_ != nullptr) {
-        currentDimension_->AdvanceTime(delta, dayLengthSeconds_);
     }
 }
 

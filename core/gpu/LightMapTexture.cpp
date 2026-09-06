@@ -32,7 +32,6 @@
 
 #include "core/log/LogCat.h"
 #include "core/math/TileVector2D.h"
-#include "core/world/AmbientLight.h"
 #include "core/world/LightBuffer.h"
 
 
@@ -68,22 +67,20 @@ void glimmer::LightMapTexture::EnsureTexture(const Uint32 width, const Uint32 he
     height_ = height;
 }
 
-void glimmer::LightMapTexture::Update(SDL_GPUDevice *device, const LightBuffer *lightBuffer,
-                                      const AmbientLight *ambient,
-                                      const int originTileX, const int originTileY,
-                                      const Uint32 sizeX, const Uint32 sizeY, const bool fullBright) {
+void glimmer::LightMapTexture::Update(SDL_GPUDevice *device, const LightBuffer *lightBuffer, const Color *ambient,
+                                      int originTileX, int originTileY, Uint32 sizeX, Uint32 sizeY, bool fullBright) {
     device_ = device;
     if (device_ == nullptr || sizeX == 0 || sizeY == 0) {
         return;
     }
     const uint64_t revision = lightBuffer != nullptr ? lightBuffer->GetRevision() : 0;
-    const float ambientR = ambient != nullptr ? static_cast<float>(ambient->color.r) / 255.0F : 0.0F;
-    const float ambientG = ambient != nullptr ? static_cast<float>(ambient->color.g) / 255.0F : 0.0F;
-    const float ambientB = ambient != nullptr ? static_cast<float>(ambient->color.b) / 255.0F : 0.0F;
+    const float ambientR = ambient != nullptr ? static_cast<float>(ambient->r) / 255.0F : 0.0F;
+    const float ambientG = ambient != nullptr ? static_cast<float>(ambient->g) / 255.0F : 0.0F;
+    const float ambientB = ambient != nullptr ? static_cast<float>(ambient->b) / 255.0F : 0.0F;
     //Quantize the continuous intensity so the light map is only rebuilt when
     //it actually crosses a 1/255 step instead of every frame.
     //量化连续强度，使光照贴图仅在强度真正跨越 1/255 步长时重建，而非每帧重建。
-    const float ambientA = ambient != nullptr ? std::round(ambient->intensity * 255.0F) / 255.0F : 0.0F;
+    const float ambientA = ambient != nullptr ? ambient->a / 255.0F : 0.0F;
     if (lastRevision_ == revision && lastOriginX_ == originTileX && lastOriginY_ == originTileY &&
         lastSizeX_ == sizeX && lastSizeY_ == sizeY && lastFullBright_ == fullBright &&
         lastAmbient_[0] == ambientR && lastAmbient_[1] == ambientG && lastAmbient_[2] == ambientB &&

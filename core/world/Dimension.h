@@ -115,8 +115,6 @@ namespace glimmer {
 
         [[nodiscard]] ChunkLoader *GetChunkLoader() const;
 
-        [[nodiscard]] WeatherManager *GetWeatherManager() const;
-
         /**
          * GetTimeOfDay
          * 获取当前时间（0..1）。
@@ -128,14 +126,6 @@ namespace glimmer {
          * 设置当前时间（0..1），自动回绕到 [0,1)。
          */
         void SetTimeOfDay(float time);
-
-        /**
-         * AdvanceTime
-         * 推进时间。timeFlowSpeed 为 0 时时间冻结。
-         * @param delta delta 上一帧耗时（秒）
-         * @param dayLengthSeconds dayLengthSeconds 一整天对应的现实时长（秒）
-         */
-        void AdvanceTime(float delta, float dayLengthSeconds);
 
         [[nodiscard]] float GetTimeFlowSpeed() const;
 

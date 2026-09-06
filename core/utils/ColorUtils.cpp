@@ -70,3 +70,40 @@ glimmer::Color glimmer::ColorUtils::AdditiveBlend(const Color &firstColor, const
     result.a = std::max(firstColor.a, secondColor.a);
     return result;
 }
+
+glimmer::Color glimmer::ColorUtils::ComputeAmbientLight(ResourceLocator *resourceLocator, const float timeOfDay,
+                                                        const std::vector<LightKeyframe> &keyframes) {
+    if (keyframes.empty()) {
+        return {};
+    }
+    const auto resolveColor = [resourceLocator](const ResourceRef &ref) -> Color {
+        if (resourceLocator == nullptr) {
+            return {};
+        }
+        const std::unique_ptr<Color> color = resourceLocator->FindColor(&ref, false);
+        return color != nullptr ? *color : Color{};
+    };
+    if (keyframes.size() == 1) {
+        return resolveColor(keyframes.front().color);
+    }
+    for (size_t i = 0; i + 1 < keyframes.size(); ++i) {
+        const LightKeyframe &start = keyframes[i];
+        const LightKeyframe &end = keyframes[i + 1];
+        if (timeOfDay >= start.t && timeOfDay <= end.t) {
+            const Color startColor = resolveColor(start.color);
+            const Color endColor = resolveColor(end.color);
+            const float span = end.t - start.t;
+            const float u = span > 0.0F ? (timeOfDay - start.t) / span : 0.0F;
+            return LinearInterpolateColor(startColor, endColor, u);
+        }
+    }
+    float t = timeOfDay;
+    if (t < keyframes.back().t) {
+        t += 1.0F;
+    }
+    const float span = keyframes.front().t + 1.0F - keyframes.back().t;
+    const float u = span > 0.0F ? (t - keyframes.back().t) / span : 0.0F;
+    const Color startColor = resolveColor(keyframes.back().color);
+    const Color endColor = resolveColor(keyframes.front().color);
+    return LinearInterpolateColor(startColor, endColor, u);
+}

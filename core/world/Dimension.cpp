@@ -122,22 +122,6 @@ void glimmer::Dimension::SetTimeOfDay(float time) {
     }
 }
 
-void glimmer::Dimension::AdvanceTime(const float delta, const float dayLengthSeconds) {
-    if (timeFlowSpeed_ <= 0.0F || dayLengthSeconds <= 0.0F) {
-        return;
-    }
-    timeOfDay_ += delta * timeFlowSpeed_ / dayLengthSeconds;
-    if (timeOfDay_ >= 1.0F) {
-        timeOfDay_ = std::fmod(timeOfDay_, 1.0F);
-        if (worldContext_ != nullptr) {
-            worldContext_->OnDayAdvanced();
-        }
-    }
-    if (timeOfDay_ < 0.0F) {
-        timeOfDay_ += 1.0F;
-    }
-}
-
 float glimmer::Dimension::GetTimeFlowSpeed() const {
     return timeFlowSpeed_;
 }

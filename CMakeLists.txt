@@ -647,7 +647,6 @@ target_sources(GlimmerWorks
         core/math/Color.cpp
         core/math/ColorF.cpp
         core/math/CoordinateTransformer.cpp
-        core/math/DesignVector2D.cpp
         core/math/ForwardAllocStrategy.cpp
         core/math/IAllocStrategy.cpp
         core/math/IAllocatable.cpp
@@ -746,7 +745,6 @@ target_sources(GlimmerWorks
         core/rmi/dataModel/ItemSlotDataModel.cpp
         core/world/ChunkTask.cpp
         core/world/ChunkType.cpp
-        core/world/AmbientLight.cpp
         core/world/LightBuffer.cpp
         core/world/LightContribution.cpp
         core/world/LightFloodFill.cpp
@@ -1173,7 +1171,6 @@ target_sources(GlimmerWorks
         core/world/ChunkManager.h
         core/world/ChunkTask.h
         core/world/ChunkType.h
-        core/world/AmbientLight.h
         core/world/LightBuffer.h
         core/world/LightContribution.h
         core/world/LightFloodFill.h

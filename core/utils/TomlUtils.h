@@ -247,19 +247,6 @@ namespace toml {
     };
 
     template<>
-    struct from<glimmer::LightKeyframe> {
-        static glimmer::LightKeyframe from_toml(const value &v) {
-            glimmer::LightKeyframe r;
-            r.b = toml::find_or<uint8_t>(v, "b", 0);
-            r.g = toml::find_or<uint8_t>(v, "g", 0);
-            r.intensity = toml::find_or<float>(v, "intensity", 0.0F);
-            r.r = toml::find_or<uint8_t>(v, "r", 0);
-            r.t = toml::find_or<float>(v, "t", 0.0F);
-            return r;
-        }
-    };
-
-    template<>
     struct from<glimmer::LootResource> {
         static glimmer::LootResource from_toml(const value &v) {
             glimmer::LootResource r;
@@ -463,7 +450,7 @@ namespace toml {
         static glimmer::UniformBlockResource from_toml(const value &v) {
             glimmer::UniformBlockResource r;
             r.binding = toml::find_or<uint32_t>(v, "binding", 0);
-            r.members = toml::find<std::vector<glimmer::UniformMemberResource> >(v, "members");
+            r.members = toml::find_or<std::vector<glimmer::UniformMemberResource> >(v, "members", {});
             r.set = toml::find_or<uint32_t>(v, "set", 0);
             return r;
         }
@@ -614,6 +601,16 @@ namespace toml {
             r.durabilityStrategyType = toml::find_or<int8_t>(v, "durability_strategy_type", -1);
             r.item = toml::find<glimmer::ResourceRef>(v, "item");
             r.locked = toml::find_or<bool>(v, "locked", false);
+            return r;
+        }
+    };
+
+    template<>
+    struct from<glimmer::LightKeyframe> {
+        static glimmer::LightKeyframe from_toml(const value &v) {
+            glimmer::LightKeyframe r;
+            r.color = toml::find<glimmer::ResourceRef>(v, "color");
+            r.t = toml::find_or<float>(v, "t", 0.0F);
             return r;
         }
     };

@@ -34,7 +34,6 @@
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/math/WorldVector2D.h"
 #include "core/utils/TransparentStringHash.h"
-#include "core/world/AmbientLight.h"
 #include "core/world/WorldContext.h"
 
 namespace {
@@ -81,37 +80,6 @@ namespace {
         dst[0] = ctx.worldContext != nullptr ? ctx.worldContext->GetTimeOfDay() : 0.0F;
     }
 
-    void InjectAmbientColor(const glimmer::UniformInjectContext &ctx, float *dst) {
-        const float timeOfDay = ctx.worldContext != nullptr ? ctx.worldContext->GetTimeOfDay() : 0.0F;
-        const glimmer::AmbientLight ambient = glimmer::ComputeAmbientLight(ctx.worldContext, timeOfDay);
-        dst[0] = static_cast<float>(ambient.color.r) / 255.0F;
-        dst[1] = static_cast<float>(ambient.color.g) / 255.0F;
-        dst[2] = static_cast<float>(ambient.color.b) / 255.0F;
-        dst[3] = ambient.intensity;
-    }
-
-    void InjectMoonPhase(const glimmer::UniformInjectContext &ctx, float *dst) {
-        dst[0] = ctx.worldContext != nullptr ? static_cast<float>(ctx.worldContext->GetMoonPhase()) : 0.0F;
-    }
-
-    void InjectSkyTopColor(const glimmer::UniformInjectContext &ctx, float *dst) {
-        const float timeOfDay = ctx.worldContext != nullptr ? ctx.worldContext->GetTimeOfDay() : 0.0F;
-        const glimmer::SkyColors sky = glimmer::ComputeSkyColors(ctx.worldContext, timeOfDay);
-        dst[0] = static_cast<float>(sky.top.r) / 255.0F;
-        dst[1] = static_cast<float>(sky.top.g) / 255.0F;
-        dst[2] = static_cast<float>(sky.top.b) / 255.0F;
-        dst[3] = 1.0F;
-    }
-
-    void InjectSkyHorizonColor(const glimmer::UniformInjectContext &ctx, float *dst) {
-        const float timeOfDay = ctx.worldContext != nullptr ? ctx.worldContext->GetTimeOfDay() : 0.0F;
-        const glimmer::SkyColors sky = glimmer::ComputeSkyColors(ctx.worldContext, timeOfDay);
-        dst[0] = static_cast<float>(sky.horizon.r) / 255.0F;
-        dst[1] = static_cast<float>(sky.horizon.g) / 255.0F;
-        dst[2] = static_cast<float>(sky.horizon.b) / 255.0F;
-        dst[3] = 1.0F;
-    }
-
     using InjectorMap = std::unordered_map<std::string, glimmer::UniformInjector,
         glimmer::TransparentStringHash, std::equal_to<> >;
 
@@ -126,10 +94,6 @@ namespace {
             map[std::string(glimmer::BUILTIN_LIGHTMAP_ORIGIN)] = &InjectLightmapOrigin;
             map[std::string(glimmer::BUILTIN_LIGHTMAP_SIZE)] = &InjectLightmapSize;
             map[std::string(glimmer::BUILTIN_TIME_OF_DAY)] = &InjectTimeOfDay;
-            map[std::string(glimmer::BUILTIN_AMBIENT_COLOR)] = &InjectAmbientColor;
-            map[std::string(glimmer::BUILTIN_MOON_PHASE)] = &InjectMoonPhase;
-            map[std::string(glimmer::BUILTIN_SKY_TOP_COLOR)] = &InjectSkyTopColor;
-            map[std::string(glimmer::BUILTIN_SKY_HORIZON_COLOR)] = &InjectSkyHorizonColor;
             return map;
         }();
         return injectors;

@@ -28,6 +28,7 @@
 
 #include "MapManifest.h"
 #include "core/ecs/component/TileLayerComponent.h"
+#include "core/utils/IUniqueAble.h"
 #include "core/vfs/VirtualFileSystem.h"
 #include "src/core/player.pb.h"
 #include "src/saves/chunk.pb.h"
@@ -35,9 +36,10 @@
 #include "src/saves/dimension_manifest.pb.h"
 
 namespace glimmer {
-    class Saves {
+    class Saves : public IUniqueAble {
         std::filesystem::path path_;
         VirtualFileSystem *virtualFileSystem_;
+        uint64_t uniqueId_ = 0;
         std::function<void(const MapManifestMessage &)> onMapManifestChanged_;
 
         [[nodiscard]] std::filesystem::path ToDimensionPath(const std::string &dimensionFolderName) const;
@@ -48,7 +50,7 @@ namespace glimmer {
         [[nodiscard]] std::filesystem::path ToChunkEntityPath(const std::string &dimensionFolderName,
                                                               const TileVector2D &position) const;
 
-        [[nodiscard]] std::filesystem::path ToPlayerPath() const;
+        [[nodiscard]] std::filesystem::path ToLocalPlayerPath() const;
 
     public:
         explicit Saves(std::filesystem::path path, VirtualFileSystem *virtualFileSystem);
@@ -108,11 +110,13 @@ namespace glimmer {
         [[nodiscard]] bool WriteDimensionManifest(const std::string &dimensionFolderName,
                                                   const DimensionManifestMessage &dimensionManifestMessage) const;
 
-        [[nodiscard]] bool WritePlayer(const PlayerMessage &playerMessage) const;
+        [[nodiscard]] bool WriteLocalPlayer(const PlayerMessage &playerMessage) const;
 
-        [[nodiscard]] std::optional<PlayerMessage> ReadPlayer() const;
+        [[nodiscard]] std::optional<PlayerMessage> ReadLocalPlayer() const;
 
         [[nodiscard]] bool PlayerExists() const;
+
+        [[nodiscard]] uint64_t GetUniqueId() const override;
 
         /**
          * ReadMapManifest

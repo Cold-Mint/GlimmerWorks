@@ -123,9 +123,11 @@ void glimmer::AppRenderer::RenderFrame(const RmlContext *rmlContext, const int w
 
     // Build and upload the per-tile light map for the camera viewport.
     // 构建并上传相机视口的逐瓦片光照贴图。
-    UpdateLightMap(uniformInjectContext);
-    lightMapTexture_.Upload(commandBuffer);
-    FlushLightingPass(commandBuffer, swapChainTexture, uniformInjectContext);
+    if (uniformInjectContext != nullptr) {
+        UpdateLightMap(uniformInjectContext);
+        lightMapTexture_.Upload(commandBuffer);
+        FlushLightingPass(commandBuffer, swapChainTexture, uniformInjectContext);
+    }
     if (rmlContext != nullptr) {
         rmlContext->RenderContext(commandBuffer, swapChainTexture, logicalWidth, logicalHeight);
     }
@@ -304,7 +306,7 @@ void glimmer::AppRenderer::FlushScenePass(SDL_GPUCommandBuffer *commandBuffer, S
 }
 
 void glimmer::AppRenderer::FlushLightingPass(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUTexture *targetTexture,
-                                             UniformInjectContext *injectContext) {
+                                             const UniformInjectContext *injectContext) {
     if (sceneTexture_ == nullptr ||
         lightMapTexture_.GetTexture() == nullptr) {
         return;
@@ -386,9 +388,8 @@ void glimmer::AppRenderer::UpdateLightMap(UniformInjectContext *injectContext) {
     const auto sizeY = static_cast<Uint32>(tileMax.y - tileMin.y + 3);
     const Config *config = appContext_->GetConfig();
     const bool fullBright = config == nullptr || !config->light.enable;
-    const Color ambient = ColorUtils::ComputeAmbientLight(resourceLocator_, worldContext->GetTimeOfDay(),
-                                                          worldContext->GetCurrentDimension()->GetDimensionResource()->
-                                                          ambientLightKeyframes);
+    const Color ambient = ColorUtils::ComputeAmbientLight(resourceLocator_, 0.0,
+                                                          {});
     lightMapTexture_.Update(device_, injectContext->lightBuffer, fullBright ? nullptr : &ambient,
                             originX, originY, sizeX, sizeY, fullBright);
 }

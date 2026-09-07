@@ -73,6 +73,8 @@ namespace glimmer {
          */
         ResourceType *Register(std::unique_ptr<ResourceType> resource);
 
+        void Clear();
+
         /**
          * Unregister
          * 注销资源
@@ -125,6 +127,17 @@ namespace glimmer {
             return nullptr;
         }
         return nullptr;
+    }
+
+    template<typename ResourceType>
+    void BaseManager<ResourceType>::Clear() {
+        auto iterator = resourceMap_.begin();
+        while (iterator != resourceMap_.end()) {
+            BeforeUnRegister(iterator->second.get());
+            //"erase" returns the next iterator and updates the "iterator"
+            //erase 返回下一个迭代器，更新iterator
+            iterator = resourceMap_.erase(iterator);
+        }
     }
 
     template<typename ResourceType>

@@ -147,7 +147,7 @@ namespace glimmer {
          * 合成受光照结果：全屏四边形采样无光照场景纹理与光照贴图，应用光照后写入目标。
          */
         void FlushLightingPass(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUTexture *targetTexture,
-                               UniformInjectContext *injectContext);
+                               const UniformInjectContext *injectContext);
 
         /**
          * Fill and push the uniform block of a fullscreen pass. Encapsulates

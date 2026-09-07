@@ -148,8 +148,6 @@ bool glimmer::Config::ReloadConfig() {
     anim.chunkFadeInFrom = toml::find<float>(tomlRef, "animation", "chunk_fadein_from");
     anim.chunkFadeInTo = toml::find<float>(tomlRef, "animation", "chunk_fadein_to");
     biomeBgm.debounceSeconds = toml::find<float>(tomlRef, "biome_bgm", "debounce_seconds");
-    lighting.dayLengthSeconds = std::max(
-        toml::find_or<float>(tomlRef, "lighting", "day_length_seconds", lighting.dayLengthSeconds), 1.0F);
 #if  !defined(NDEBUG)
     debug.displayDebugPanel = toml::find<bool>(tomlRef, "debug", "display_debug_panel");
     debug.displayBox2dShape = toml::find<bool>(tomlRef, "debug", "display_box2d_shape");

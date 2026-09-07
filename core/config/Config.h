@@ -158,7 +158,6 @@ namespace glimmer {
         BiomeBGMConfig biomeBgm{};
         CommandConfig command{};
         MainMenuBackground mainMenuBackground{};
-        LightingConfig lighting{};
         int configVersion = 1;
         std::string runtimePath;
         /**

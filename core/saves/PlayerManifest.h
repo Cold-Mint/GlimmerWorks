@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,24 +24,22 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "MapManifest.h"
+#pragma once
+#include "src/core/player.pb.h"
 
-void glimmer::MapManifest::FromMessage(const MapManifestMessage &manifestMessage) {
-    name = manifestMessage.name();
-    gameVersionName = manifestMessage.gameversionname();
-    gameVersionNumber = manifestMessage.gameversionnumber();
-    seed = manifestMessage.seed();
-    createTime = manifestMessage.createtime();
-    entityIDIndex = manifestMessage.entityidindex();
-    globalTickCount = manifestMessage.globaltickcount();
-}
+namespace glimmer {
+    /**
+     * PlayerManifest
+     * 玩家的清单文件
+     */
+    struct PlayerManifest {
+        long lastPlayedTime = 0;
+        PlayerPermissionLevelMessage permissionLevel = PLAYER_PERMISSION_LEVEL_NORMAL;
+        std::vector<PlayerDimensionMessage> visitedDimensions;
+        EntityItemMessage entityItemMessage;
 
-void glimmer::MapManifest::ToMessage(MapManifestMessage &manifestMessage) {
-    manifestMessage.set_name(name);
-    manifestMessage.set_gameversionname(gameVersionName);
-    manifestMessage.set_gameversionnumber(gameVersionNumber);
-    manifestMessage.set_seed(seed);
-    manifestMessage.set_createtime(createTime);
-    manifestMessage.set_entityidindex(entityIDIndex);
-    manifestMessage.set_globaltickcount(globalTickCount);
+        void FromMessage(const PlayerMessage &playerMessage);
+
+        void ToMessage(PlayerMessage &playerMessage) const;
+    };
 }

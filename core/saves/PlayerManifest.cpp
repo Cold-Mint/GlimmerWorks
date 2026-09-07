@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,29 +24,27 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
-#include "core/console/Command.h"
+#include "PlayerManifest.h"
 
-namespace glimmer {
-    /**
-     * DimensionCommand
-     * 维度命令，用于查看和切换维度。
-     */
-    class DimensionCommand final : public Command {
-        void InitSuggestions(NodeTree<std::string> *suggestionsTree) override;
+void glimmer::PlayerManifest::FromMessage(const PlayerMessage &playerMessage) {
+    lastPlayedTime = playerMessage.lastplayedtime();
+    permissionLevel = playerMessage.permissionlevel();
+    int visitedDimensionsSize = playerMessage.visiteddimensions_size();
+    visitedDimensions.clear();
+    visitedDimensions.reserve(visitedDimensionsSize);
+    for (int i = 0; i < visitedDimensionsSize; ++i) {
+        visitedDimensions[i] = playerMessage.visiteddimensions(i);
+    }
+    entityItemMessage = playerMessage.entity();
+}
 
-    public:
-        explicit DimensionCommand(AppContext *appContext);
-
-        [[nodiscard]] bool RequiresWorldContext() const override;
-
-        [[nodiscard]] bool RequiresCheatEnabled() const override;
-
-        [[nodiscard]] const std::string &GetName() const override;
-
-        void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
-
-        bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
-                     const std::function<void(const std::string &text)> *onMessage) override;
-    };
+void glimmer::PlayerManifest::ToMessage(PlayerMessage &playerMessage) const {
+    playerMessage.set_lastplayedtime(lastPlayedTime);
+    playerMessage.set_permissionlevel(permissionLevel);
+    playerMessage.mutable_visiteddimensions()->Clear();
+    size_t visitedDimensionsSize = visitedDimensions.size();
+    for (int i = 0; i < visitedDimensionsSize; ++i) {
+        playerMessage.mutable_visiteddimensions()->Add()->CopyFrom(visitedDimensions[i]);
+    }
+    playerMessage.mutable_entity()->CopyFrom(entityItemMessage);
 }

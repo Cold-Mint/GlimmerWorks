@@ -31,7 +31,6 @@
 #include "core/console/command/Box2DCommand.h"
 #include "core/console/command/ClearCommand.h"
 #include "core/console/command/ConfigCommand.h"
-#include "core/console/command/DimensionCommand.h"
 #include "core/console/command/EchoCommand.h"
 #include "core/console/command/EcsCommand.h"
 #include "core/console/command/FlyCommand.h"
@@ -100,7 +99,6 @@ void glimmer::ConsoleContext::RegisterCommands(AppContext *appContext) const {
     commandManager_->RegisterCommand(std::make_unique<InputCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<GuiCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<SeedCommand>(appContext));
-    commandManager_->RegisterCommand(std::make_unique<DimensionCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<FlyCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<EchoCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<ScreenshotCommand>(appContext));

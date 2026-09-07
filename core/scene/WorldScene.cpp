@@ -88,9 +88,6 @@ void glimmer::WorldScene::OnTick(uint64_t tick) {
 }
 
 void glimmer::WorldScene::Update(const float delta) {
-    if (worldContext_ != nullptr) {
-        worldContext_->AdvanceTime(delta);
-    }
     if (systemScheduler_ != nullptr) {
         systemScheduler_->Update(delta);
     }

@@ -76,10 +76,6 @@ namespace {
         dst[1] = static_cast<float>(ctx.lightMapSizeY);
     }
 
-    void InjectTimeOfDay(const glimmer::UniformInjectContext &ctx, float *dst) {
-        dst[0] = ctx.worldContext != nullptr ? ctx.worldContext->GetTimeOfDay() : 0.0F;
-    }
-
     using InjectorMap = std::unordered_map<std::string, glimmer::UniformInjector,
         glimmer::TransparentStringHash, std::equal_to<> >;
 
@@ -93,7 +89,6 @@ namespace {
             map[std::string(glimmer::BUILTIN_TILE_SIZE)] = &InjectTileSize;
             map[std::string(glimmer::BUILTIN_LIGHTMAP_ORIGIN)] = &InjectLightmapOrigin;
             map[std::string(glimmer::BUILTIN_LIGHTMAP_SIZE)] = &InjectLightmapSize;
-            map[std::string(glimmer::BUILTIN_TIME_OF_DAY)] = &InjectTimeOfDay;
             return map;
         }();
         return injectors;

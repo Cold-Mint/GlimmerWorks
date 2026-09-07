@@ -161,11 +161,6 @@ chunk_fadein_to = 1.0
 # 用于过滤短暂跨越（如单次跳跃跨过瓦片边界）造成的频繁切换（单位：秒）。
 debounce_seconds = 3.0
 
-[lighting]
-# Real-world duration of a full in-game day, in seconds.
-# 一整天对应的现实时长（秒）。
-day_length_seconds = 600.0
-
 [command]
 # Number of chunks traversed in the positive/negative X direction when using the `locate biome` command.
 # 使用 locate biome 命令时，沿 X 轴正 / 负方向遍历的区块数量。

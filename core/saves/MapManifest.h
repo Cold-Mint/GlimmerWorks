@@ -37,11 +37,9 @@ namespace glimmer {
         uint32_t gameVersionNumber;
         int seed;
         long createTime;
-        long lastPlayedTime;
         uint32_t entityIDIndex;
-        bool allowCheats = false;
         ResourceRef currentDimension;
-        uint64_t globalTick = 0;
+        uint64_t globalTickCount = 0;
 
         void FromMessage(const MapManifestMessage &manifestMessage);
 

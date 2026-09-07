@@ -74,10 +74,15 @@ void glimmer::SavedGamesScene::UpdateSaveItems() {
         if (manifest == nullptr) {
             continue;
         }
+        const PlayerManifest *playerManifest = savesManager_->GetPlayerManifest(i);
+        if (playerManifest == nullptr) {
+            continue;
+        }
         SaveItem item;
+
         item.name = manifest->name;
-        item.allowCheats = manifest->allowCheats;
-        item.lastPlayedTime = TimeUtils::FormatTime(manifest->lastPlayedTime);
+        item.allowCheats = playerManifest->permissionLevel == PLAYER_PERMISSION_LEVEL_ADMIN;
+        item.lastPlayedTime = TimeUtils::FormatTime(playerManifest->lastPlayedTime);
         item.index = static_cast<int>(savedGamesDataModel_.saveItems.size());
         item.originalIndex = static_cast<int>(i);
         item.selected = item.index == savedGamesDataModel_.selectedSaveIndex;

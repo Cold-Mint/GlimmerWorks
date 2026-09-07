@@ -128,7 +128,7 @@ void glimmer::PlayerContext::InitPlayer(const ResourceRef &resourceRef) {
 uint32_t glimmer::PlayerContext::CreateOrLoadPlayer(const ResourceRef &resourceRef) const {
     uint32_t playerEntity = GAME_ENTITY_ID_INVALID;
     if (worldContext_->GetSaves()->PlayerExists()) {
-        auto playerMessage = worldContext_->GetSaves()->ReadPlayer();
+        auto playerMessage = worldContext_->GetSaves()->ReadLocalPlayer();
         if (playerMessage.has_value()) {
             playerEntity = worldContext_->GetChunkLoader()->RecoveryEntity(playerMessage->entity());
         }

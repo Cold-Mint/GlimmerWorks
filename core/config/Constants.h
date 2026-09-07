@@ -41,7 +41,7 @@ using DesignDimension = float;
 // 数据包和资源包的清单文件名
 static constexpr std::string MANIFEST_FILE_NAME = "manifest.toml";
 static constexpr std::string MAP_MANIFEST_FILE_NAME = "manifest.bin";
-static constexpr std::string PLAYER_FILE_NAME = "player.bin";
+static const std::string LOCAL_PLAYER_FILE_NAME = "local_player.bin";
 static const std::string DIMENSION_MANIFEST_FILE_NAME = "dimension_manifest.bin";
 static constexpr std::string DIMENSIONS_FOLDER_NAME = "dimensions";
 

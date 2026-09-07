@@ -102,77 +102,12 @@ glimmer::MapManifest *glimmer::WorldContext::GetMapManifest() const {
     return mapManifest_;
 }
 
-glimmer::Dimension *glimmer::WorldContext::GetCurrentDimension() const {
-    return currentDimension_;
-}
-
-std::string glimmer::WorldContext::GetCurrentDimensionId() const {
-    if (currentDimension_ == nullptr) {
-        return {};
-    }
-    return currentDimension_->GetDimensionId();
-}
-
-
-void glimmer::WorldContext::SwitchDimension(const ResourceRef &dimensionRef) {
-    if (appContext_ == nullptr) {
-        return;
-    }
-    DimensionRegistry *dimensionRegistry = appContext_->GetModContext()->GetDimensionRegistry();
-    if (dimensionRegistry == nullptr) {
-        return;
-    }
-    DimensionResource *resource = dimensionRegistry->Find(dimensionRef.GetPackageId(), dimensionRef.GetResourceKey());
-    if (resource == nullptr) {
-        LogCat::w(std::source_location::current(), "Dimension resource not found: ",
-                  dimensionRef.GetPackageId(), ":", dimensionRef.GetResourceKey());
-        return;
-    }
-    const std::string targetId = Resource::GenerateId(resource->packId, resource->resourceId);
-    if (currentDimension_ != nullptr && currentDimension_->GetDimensionId() == targetId) {
-        return;
-    }
-    if (currentDimension_ != nullptr) {
-        currentDimension_->SaveTime();
-        auto *chunks = currentDimension_->GetChunkManager()->GetAllChunks();
-        std::vector<TileVector2D> positions;
-        positions.reserve(chunks->size());
-        for (const auto &entry: *chunks) {
-            positions.push_back(entry.first);
-        }
-        for (const auto &position: positions) {
-            currentDimension_->GetChunkManager()->UnloadChunkAt(position);
-        }
-    }
-    currentDimension_ = GetOrCreateDimension(resource);
-    if (currentDimension_ == nullptr) {
-        return;
-    }
-    ResourceRef ref;
-    ref.ReadResource(*resource, RESOURCE_DIMENSION);
-    mapManifest_->currentDimension = ref;
-    if (currentDimension_->GetChunkGenerator() != nullptr) {
-        const int firstTileTerrainY = currentDimension_->GetChunkGenerator()->GetFirstTileTerrainY(0);
-        const WorldVector2D spawn = CoordinateTransformer::TileToWorld(TileVector2D(0, firstTileTerrainY + 3));
-        const GameEntityID player = entityShortCut_->GetPlayer();
-        if (!IsEmptyEntityId(player)) {
-            auto *rigidBody = entityManager_->GetComponent<RigidBody2DComponent>(player);
-            if (rigidBody != nullptr && rigidBody->IsReady()) {
-                const b2Vec2 newPos = Box2DUtils::ToMeters(spawn);
-                const b2Rot currentRot = b2Body_GetRotation(rigidBody->GetBodyId());
-                b2Body_SetTransform(rigidBody->GetBodyId(), newPos, currentRot);
-            }
-        }
-    }
-    LogCat::i("Switched to dimension: ", currentDimension_->GetDimensionId());
-}
-
 glimmer::ChunkGenerator *glimmer::WorldContext::GetChunkGenerator() const {
-    return currentDimension_ != nullptr ? currentDimension_->GetChunkGenerator() : nullptr;
+    return nullptr;
 }
 
 glimmer::ChunkLoader *glimmer::WorldContext::GetChunkLoader() const {
-    return currentDimension_ != nullptr ? currentDimension_->GetChunkLoader() : nullptr;
+    return nullptr;
 }
 
 glimmer::AppContext *glimmer::WorldContext::GetAppContext() const {
@@ -187,37 +122,17 @@ int glimmer::WorldContext::GetWorldSeed() const {
     return worldSeed_;
 }
 
-float glimmer::WorldContext::GetTimeOfDay() const {
-    if (currentDimension_ == nullptr) {
-        return 0.0F;
-    }
-    return currentDimension_->GetTimeOfDay();
-}
-
-void glimmer::WorldContext::UpdateTimeOfDay(uint64_t worldTick) {
-    if (currentDimension_ == nullptr) {
-        return;
-    }
-    // currentDimension_->
-}
-
-void glimmer::WorldContext::AdvanceTime(const float delta) {
-    if (!running) {
-        return;
-    }
-}
-
 bool glimmer::WorldContext::IsEmptyEntityId(const uint32_t id) {
     return id == GAME_ENTITY_ID_INVALID;
 }
 
 
 glimmer::ChunkManager *glimmer::WorldContext::GetChunkManager() const {
-    return currentDimension_ != nullptr ? currentDimension_->GetChunkManager() : nullptr;
+    return nullptr;
 }
 
 glimmer::TerrainManager *glimmer::WorldContext::GetTerrainManager() const {
-    return currentDimension_ != nullptr ? currentDimension_->GetTerrainManager() : nullptr;
+    return nullptr;
 }
 
 glimmer::SystemScheduler *glimmer::WorldContext::GetSystemScheduler() const {
@@ -277,13 +192,8 @@ void glimmer::WorldContext::SaveGame() {
         return;
     }
     const long endTime = TimeUtils::GetCurrentTimeMs();
-    mapManifestMessageData->set_globaltick(GetGlobalTick());
-    mapManifestMessageData->set_lastplayedtime(endTime);
+    mapManifestMessageData->set_globaltickcount(GetGlobalTick());
     mapManifestMessageData->set_entityidindex(entityManager_->GetEntityIndex());
-    if (mapManifest_->currentDimension.IsValid()) {
-        mapManifest_->currentDimension.WriteResourceRefMessage(
-            *mapManifestMessageData->mutable_currentdimension());
-    }
     if (!saves->WriteMapManifest(mapManifestMessageData.value())) {
         LogCat::w(std::source_location::current(), "Failed to write map manifest");
         saving_ = false;
@@ -292,37 +202,25 @@ void glimmer::WorldContext::SaveGame() {
     auto player = entityShortCut_->GetPlayer();
     if (!IsEmptyEntityId(player) && entityManager_->IsPersistable(player)) {
         PlayerMessage playerMessage;
+        playerMessage.set_lastplayedtime(endTime);
+
         SaveEntity(playerMessage.mutable_entity(), player);
-        (void) saves->WritePlayer(playerMessage);
+        (void) saves->WriteLocalPlayer(playerMessage);
         LogCat::i("Player saved");
     } else {
         LogCat::d("Player save skipped: isEmpty=", IsEmptyEntityId(player), ", persistable=",
                   entityManager_->IsPersistable(player));
     }
-
-    int chunkCount = 0;
-    for (auto &[id, dimension]: dimensions_) {
-        if (dimension == nullptr) {
-            continue;
-        }
-        dimension->SaveTime();
-        auto *allChunks = dimension->GetChunkManager()->GetAllChunks();
-        for (const auto &pos: *allChunks | std::views::keys) {
-            (void) dimension->GetChunkManager()->SaveChunk(pos);
-            chunkCount++;
-        }
-    }
-    LogCat::i("Game save completed, chunks saved: ", chunkCount);
     saving_ = false;
 }
 
 
 glimmer::LightBuffer *glimmer::WorldContext::GetLightingBuffer() const {
-    return currentDimension_ != nullptr ? currentDimension_->GetChunkManager()->GetLightingBuffer() : nullptr;
+    return nullptr;
 }
 
 glimmer::TileInstancePool *glimmer::WorldContext::GetTileInstancePool() const {
-    return currentDimension_ != nullptr ? currentDimension_->GetChunkManager()->GetTileInstancePool() : nullptr;
+    return nullptr;
 }
 
 
@@ -334,8 +232,6 @@ glimmer::WorldContext::~WorldContext() {
     if (entityManager_) {
         entityManager_->Clear();
     }
-    dimensions_.clear();
-    currentDimension_ = nullptr;
     LogCat::d("EntityManager cleared, dimensions released");
     b2DestroyWorld(worldId_);
     worldId_ = b2_nullWorldId;
@@ -355,11 +251,6 @@ void glimmer::WorldContext::OnTick(const uint64_t tick) {
 
 uint64_t glimmer::WorldContext::GetGlobalTick() const {
     return fixedGlobalTick_ + (lastTick_ - startTick_);
-}
-
-uint32_t glimmer::WorldContext::GetDimensionTick(Dimension *dimension) const {
-    dimension.
-
 }
 
 glimmer::WorldContext::WorldContext(AppContext *appContext, MapManifest *mapManifest,
@@ -384,17 +275,16 @@ glimmer::WorldContext::WorldContext(AppContext *appContext, MapManifest *mapMani
         dimensionResource = dimensionRegistry->GetDefaultDimension();
     }
     if (dimensionResource != nullptr) {
-        currentDimension_ = GetOrCreateDimension(dimensionResource);
         ResourceRef ref;
         ref.ReadResource(*dimensionResource, RESOURCE_DIMENSION);
         mapManifest_->currentDimension = ref;
     } else {
         LogCat::e(std::source_location::current(), "No dimension resource registered");
     }
-    fixedGlobalTick_ = mapManifest->globalTick;
+    fixedGlobalTick_ = mapManifest->globalTickCount;
     auto *commandManager = appContext->GetConsoleContext()->GetCommandManager();
     commandManager->BindWorldContext(this);
-    commandManager->SetAllowCheats(mapManifest->allowCheats);
+    commandManager->SetAllowCheats(true);
     auto pause = entityManager_->AddEntity();
     entityManager_->AddComponent<PauseComponent>(pause);
 

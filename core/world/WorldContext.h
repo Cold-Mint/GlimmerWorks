@@ -150,32 +150,6 @@ namespace glimmer {
 
         [[nodiscard]] int GetWorldSeed() const;
 
-        /**
-         * GetCurrentDimension
-         * 获取当前维度。
-         */
-        [[nodiscard]] Dimension *GetCurrentDimension() const;
-
-        /**
-         * GetCurrentDimensionId
-         * 获取当前维度的Id。
-         */
-        [[nodiscard]] std::string GetCurrentDimensionId() const;
-
-
-        /**
-         * GetTimeOfDay
-         * 获取当前维度的时间（0..1）。
-         */
-        [[nodiscard]] float GetTimeOfDay() const;
-
-        /**
-         * Update the current dimension's time.
-         * 更新当前维度的时间。
-         * @param worldTick
-         */
-        void UpdateTimeOfDay(uint64_t worldTick);
-
         [[nodiscard]] ChunkGenerator *GetChunkGenerator() const;
 
         [[nodiscard]] ChunkLoader *GetChunkLoader() const;

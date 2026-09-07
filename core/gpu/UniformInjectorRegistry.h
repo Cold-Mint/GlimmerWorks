@@ -38,7 +38,6 @@ namespace glimmer {
     inline constexpr std::string_view BUILTIN_TILE_SIZE = "@builtin.tile_size";
     inline constexpr std::string_view BUILTIN_LIGHTMAP_ORIGIN = "@builtin.lightmap_origin";
     inline constexpr std::string_view BUILTIN_LIGHTMAP_SIZE = "@builtin.lightmap_size";
-    inline constexpr std::string_view BUILTIN_TIME_OF_DAY = "@builtin.time_of_day";
 
     /**
      * UniformInjector

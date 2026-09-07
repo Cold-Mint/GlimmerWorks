@@ -408,6 +408,7 @@ target_sources(GlimmerWorks
         core/mod/resourcePack/GPUSamplerResourceResult.cpp
         core/gpu/RenderQueue.cpp
         core/gpu/LightMapTexture.cpp
+        core/saves/PlayerManifest.cpp
         core/mod/resourcePack/cache/ColorCache.cpp
         core/context/CacheContext.cpp
         core/mod/resourcePack/cache/RmlCache.cpp
@@ -488,7 +489,6 @@ target_sources(GlimmerWorks
         core/console/command/Box2DCommand.cpp
         core/console/command/ClearCommand.cpp
         core/console/command/ConfigCommand.cpp
-        core/console/command/DimensionCommand.cpp
         core/console/command/EchoCommand.cpp
         core/console/command/EcsCommand.cpp
         core/console/command/ExitCommand.cpp
@@ -806,6 +806,7 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL_GPU.h"
         core/app/App.h
         core/world/DayNormalizedTime.h
+        core/saves/PlayerManifest.h
         core/world/SimpleDimensionManager.h
         core/world/DynamicLightEntry.h
         core/mod/PackScanRequest.h

@@ -157,15 +157,20 @@ void glimmer::CreateWorldScene::CreateWorld() const {
     }
     LogCat::i("World seed: ", seedValue, " (input: ", seedInput, ")");
 
-    MapManifest manifest;
-    manifest.seed = seedValue;
-    manifest.name = name;
-    manifest.gameVersionName = GAME_VERSION_STRING;
-    manifest.gameVersionNumber = GAME_VERSION_NUMBER;
-    manifest.createTime = TimeUtils::GetCurrentTimeMs();
-    manifest.lastPlayedTime = manifest.createTime;
-    manifest.globalTick = 0;
-    manifest.allowCheats = createWorldDataModel_.allowCheats;
+    MapManifest mapManifest;
+    mapManifest.seed = seedValue;
+    mapManifest.name = name;
+    mapManifest.gameVersionName = GAME_VERSION_STRING;
+    mapManifest.gameVersionNumber = GAME_VERSION_NUMBER;
+    mapManifest.createTime = TimeUtils::GetCurrentTimeMs();
+    mapManifest.globalTickCount = 0;
+    PlayerManifest playerManifest;
+    playerManifest.lastPlayedTime = TimeUtils::GetCurrentTimeMs();
+    if (createWorldDataModel_.allowCheats) {
+        playerManifest.permissionLevel = PLAYER_PERMISSION_LEVEL_ADMIN;
+    } else {
+        playerManifest.permissionLevel = PLAYER_PERMISSION_LEVEL_NORMAL;
+    }
     LogCat::i("World manifest: version=", GAME_VERSION_STRING, ", allowCheats=", createWorldDataModel_.allowCheats);
     auto savesManager = GetAppContext()->GetSavesManager();
     if (savesManager == nullptr) {
@@ -173,7 +178,7 @@ void glimmer::CreateWorldScene::CreateWorld() const {
         return;
     }
 
-    Saves *saves = savesManager->Create(GetAppContext()->GetConfig()->runtimePath, manifest);
+    Saves *saves = savesManager->Create(GetAppContext()->GetConfig()->runtimePath, mapManifest, playerManifest);
     if (saves == nullptr) {
         LogCat::e(std::source_location::current(), "Failed to create saves");
         return;

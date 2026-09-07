@@ -58,12 +58,13 @@ std::filesystem::path glimmer::Saves::ToChunkEntityPath(const std::string &dimen
     return ToDimensionPath(dimensionFolderName) / "entities" / fileNameStream.str();
 }
 
-std::filesystem::path glimmer::Saves::ToPlayerPath() const {
-    return path_ / PLAYER_FILE_NAME;
+std::filesystem::path glimmer::Saves::ToLocalPlayerPath() const {
+    return path_ / "players" / LOCAL_PLAYER_FILE_NAME;
 }
 
 glimmer::Saves::Saves(std::filesystem::path path, VirtualFileSystem *virtualFileSystem) : path_(std::move(path)),
     virtualFileSystem_(virtualFileSystem) {
+    uniqueId_ = StringUtils::StringToUint64(path_.string());
 }
 
 void glimmer::Saves::SetOnMapManifestChanged(const std::function<void(const MapManifestMessage &)> &onMapManifestChanged
@@ -171,16 +172,16 @@ bool glimmer::Saves::WriteDimensionManifest(const std::string &dimensionFolderNa
                                          dimensionManifestMessage.SerializeAsString());
 }
 
-bool glimmer::Saves::WritePlayer(const PlayerMessage &playerMessage) const {
-    bool result = virtualFileSystem_->WriteFile(ToPlayerPath(), playerMessage.SerializeAsString());
+bool glimmer::Saves::WriteLocalPlayer(const PlayerMessage &playerMessage) const {
+    bool result = virtualFileSystem_->WriteFile(ToLocalPlayerPath(), playerMessage.SerializeAsString());
     if (!result) {
-        LogCat::w(std::source_location::current(), "Failed to write player data: ", ToPlayerPath().string());
+        LogCat::w(std::source_location::current(), "Failed to write player data: ", ToLocalPlayerPath().string());
     }
     return result;
 }
 
-std::optional<PlayerMessage> glimmer::Saves::ReadPlayer() const {
-    const auto streamUnique = virtualFileSystem_->ReadFileAsStream(ToPlayerPath());
+std::optional<PlayerMessage> glimmer::Saves::ReadLocalPlayer() const {
+    const auto streamUnique = virtualFileSystem_->ReadFileAsStream(ToLocalPlayerPath());
     if (streamUnique == nullptr) {
         return std::nullopt;
     }
@@ -195,7 +196,11 @@ std::optional<PlayerMessage> glimmer::Saves::ReadPlayer() const {
 }
 
 bool glimmer::Saves::PlayerExists() const {
-    return virtualFileSystem_->Exists(ToPlayerPath());
+    return virtualFileSystem_->Exists(ToLocalPlayerPath());
+}
+
+uint64_t glimmer::Saves::GetUniqueId() const {
+    return uniqueId_;
 }
 
 std::optional<MapManifestMessage> glimmer::Saves::ReadMapManifest() const {

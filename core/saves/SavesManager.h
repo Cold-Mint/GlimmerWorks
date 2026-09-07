@@ -27,15 +27,24 @@
 #pragma once
 #include <vector>
 
+#include "PlayerManifest.h"
 #include "Saves.h"
+#include "core/mod/resourcePack/BaseManager.h"
 
 namespace glimmer {
-    class SavesManager {
+    class SavesManager : public BaseManager<Saves> {
         VirtualFileSystem *virtualFileSystem_;
-        std::vector<std::unique_ptr<Saves> > saveList_;
         std::vector<std::unique_ptr<MapManifest> > manifestList_;
+        //Local user
+        //本地用户
+        std::vector<std::unique_ptr<PlayerManifest> > localPlayers_;
+        std::unordered_map<Saves *, size_t> saveToIndex_;
+        std::vector<Saves *> saveList_;
 
-        void AddSaves(std::unique_ptr<Saves> saves);
+    protected:
+        void AfterRegister(Saves *resource) override;
+
+        void BeforeUnRegister(Saves *resource) override;
 
     public:
         explicit SavesManager(VirtualFileSystem *virtualFileSystem);
@@ -50,6 +59,8 @@ namespace glimmer {
 
         [[nodiscard]] MapManifest *GetMapManifest(size_t index) const;
 
+        [[nodiscard]] PlayerManifest *GetPlayerManifest(size_t index) const;
+
         /**
          * Delete the specified archive
          * 删除指定存档
@@ -63,9 +74,11 @@ namespace glimmer {
         * Create a saves
         * 创建存档
         * @param runtimePath runtimePath 运行目录
-        * @param manifest manifest 清单文件
+        * @param mapManifest mapManifest 清单文件
+        * @param playerManifest playerManifest 玩家清单文件
         */
-        Saves *Create(const std::filesystem::path &runtimePath, MapManifest &manifest);
+        Saves *Create(const std::filesystem::path &runtimePath, MapManifest &mapManifest,
+                      PlayerManifest &playerManifest);
 
 
         /**

@@ -29,6 +29,9 @@
 #include <memory>
 #include <string>
 
+#include "DayNormalizedTime.h"
+#include "src/saves/dimension_manifest.pb.h"
+
 namespace glimmer {
     class WorldContext;
     class ChunkManager;
@@ -61,11 +64,13 @@ namespace glimmer {
 
         DimensionResource *dimensionResource_ = nullptr;
 
+        DimensionManifestMessage dimensionManifestMessage_;
+
         /**
          * Current time of day in the range [0, 1). 0 = morning, 0.5 = midnight, 1 wraps to 0 (next morning).
          * 当前时间（0..1）。0代表清晨，0.5代表午夜，1回绕到0（次日清晨）。
          */
-        float timeOfDay_ = 0.0F;
+        DayNormalizedTime timeOfDay_ = 0.0F;
 
         /**
          * Time flow speed. 0 disables the day/night cycle.
@@ -77,7 +82,7 @@ namespace glimmer {
          * Initial time on first entry (0..1).
          * 首次进入维度的时间起点（0..1）。
          */
-        float initialTime_ = 0.0F;
+        DayNormalizedTime initialTime_ = 0.0F;
 
         std::unique_ptr<ChunkManager> chunkManager_;
         std::unique_ptr<TerrainManager> terrainManager_;
@@ -115,17 +120,15 @@ namespace glimmer {
 
         [[nodiscard]] ChunkLoader *GetChunkLoader() const;
 
-        /**
-         * GetTimeOfDay
-         * 获取当前时间（0..1）。
-         */
-        [[nodiscard]] float GetTimeOfDay() const;
+        [[nodiscard]] DayNormalizedTime GetTimeOfDay() const;
+
+        [[nodiscard]] uint64_t GetDimensionTick(uint64_t globalTick) const;
 
         /**
          * SetTimeOfDay
          * 设置当前时间（0..1），自动回绕到 [0,1)。
          */
-        void SetTimeOfDay(float time);
+        void SetTimeOfDay(DayNormalizedTime time);
 
         [[nodiscard]] float GetTimeFlowSpeed() const;
 

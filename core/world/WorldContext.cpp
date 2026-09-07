@@ -102,21 +102,6 @@ glimmer::MapManifest *glimmer::WorldContext::GetMapManifest() const {
     return mapManifest_;
 }
 
-glimmer::Dimension *glimmer::WorldContext::GetOrCreateDimension(DimensionResource *dimensionResource) {
-    if (dimensionResource == nullptr) {
-        return nullptr;
-    }
-    const std::string id = Resource::GenerateId(dimensionResource->packId, dimensionResource->resourceId);
-    if (const auto it = dimensions_.find(id); it != dimensions_.end()) {
-        return it->second.get();
-    }
-    auto dimension = std::make_unique<Dimension>(this, dimensionResource);
-    dimension->Init();
-    Dimension *ptr = dimension.get();
-    dimensions_[id] = std::move(dimension);
-    return ptr;
-}
-
 glimmer::Dimension *glimmer::WorldContext::GetCurrentDimension() const {
     return currentDimension_;
 }
@@ -126,12 +111,6 @@ std::string glimmer::WorldContext::GetCurrentDimensionId() const {
         return {};
     }
     return currentDimension_->GetDimensionId();
-}
-
-
-const std::vector<glimmer::SkyColorKeyframe> &glimmer::WorldContext::GetSkyColorKeyframes() const {
-    static const std::vector<SkyColorKeyframe> empty;
-    return empty;
 }
 
 
@@ -228,10 +207,6 @@ void glimmer::WorldContext::AdvanceTime(const float delta) {
     }
 }
 
-float glimmer::WorldContext::GetDayLengthSeconds() const {
-    return dayLengthSeconds_;
-}
-
 bool glimmer::WorldContext::IsEmptyEntityId(const uint32_t id) {
     return id == GAME_ENTITY_ID_INVALID;
 }
@@ -302,8 +277,7 @@ void glimmer::WorldContext::SaveGame() {
         return;
     }
     const long endTime = TimeUtils::GetCurrentTimeMs();
-    mapManifestMessageData->set_totalplaytime(
-        mapManifestMessageData->totalplaytime() + (endTime - startTime_));
+    mapManifestMessageData->set_globaltick(GetGlobalTick());
     mapManifestMessageData->set_lastplayedtime(endTime);
     mapManifestMessageData->set_entityidindex(entityManager_->GetEntityIndex());
     if (mapManifest_->currentDimension.IsValid()) {
@@ -371,6 +345,23 @@ glimmer::WorldContext::~WorldContext() {
     LogCat::i("WorldContext destroyed");
 }
 
+void glimmer::WorldContext::OnTick(const uint64_t tick) {
+    if (!initedTick_) {
+        startTick_ = tick;
+        initedTick_ = true;
+    }
+    lastTick_ = tick;
+}
+
+uint64_t glimmer::WorldContext::GetGlobalTick() const {
+    return fixedGlobalTick_ + (lastTick_ - startTick_);
+}
+
+uint32_t glimmer::WorldContext::GetDimensionTick(Dimension *dimension) const {
+    dimension.
+
+}
+
 glimmer::WorldContext::WorldContext(AppContext *appContext, MapManifest *mapManifest,
                                     Saves *saves) : worldSeed_(mapManifest->seed), saves_(saves),
                                                     mapManifest_(mapManifest), appContext_(appContext) {
@@ -400,15 +391,10 @@ glimmer::WorldContext::WorldContext(AppContext *appContext, MapManifest *mapMani
     } else {
         LogCat::e(std::source_location::current(), "No dimension resource registered");
     }
-
+    fixedGlobalTick_ = mapManifest->globalTick;
     auto *commandManager = appContext->GetConsoleContext()->GetCommandManager();
     commandManager->BindWorldContext(this);
     commandManager->SetAllowCheats(mapManifest->allowCheats);
-    if (const Config *config = appContext->GetConfig(); config != nullptr) {
-        dayLengthSeconds_ = config->lighting.dayLengthSeconds;
-    }
-    startTime_ = TimeUtils::GetCurrentTimeMs();
-
     auto pause = entityManager_->AddEntity();
     entityManager_->AddComponent<PauseComponent>(pause);
 

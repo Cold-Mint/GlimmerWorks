@@ -164,7 +164,7 @@ void glimmer::CreateWorldScene::CreateWorld() const {
     manifest.gameVersionNumber = GAME_VERSION_NUMBER;
     manifest.createTime = TimeUtils::GetCurrentTimeMs();
     manifest.lastPlayedTime = manifest.createTime;
-    manifest.totalPlayTime = 0;
+    manifest.globalTick = 0;
     manifest.allowCheats = createWorldDataModel_.allowCheats;
     LogCat::i("World manifest: version=", GAME_VERSION_STRING, ", allowCheats=", createWorldDataModel_.allowCheats);
     auto savesManager = GetAppContext()->GetSavesManager();

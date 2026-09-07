@@ -60,7 +60,7 @@ namespace glimmer {
      * GameEntity has been restricted to be accessed directly only within the WorldContext. uint32_t is provided externally.
      * GameEntity 已被限制为仅在WorldContext内部直接访问。对外提供uint32_t。
      */
-    class WorldContext {
+    class WorldContext : public ITickListener {
         /**
          * World Seed
          * 世界种子
@@ -78,18 +78,27 @@ namespace glimmer {
         AppContext *appContext_;
         std::unique_ptr<EntityManager> entityManager_;
         std::unique_ptr<EntityShortCut> entityShortCut_;
+        /**
+         * The initial tick number when this context was created
+         * 创建此上下文时的初始tick数
+         */
+        uint64_t startTick_ = 0;
 
         /**
-         * All dimensions of this world, keyed by dimension id ("packId:resourceId").
-         * 该世界中的所有维度，以维度Id为键。
+         * The fixed tick count is obtained from the saved list file.
+         * 固定的tick数，来自清单文件保存的。
          */
-        std::unordered_map<std::string, std::unique_ptr<Dimension> > dimensions_;
+        uint64_t fixedGlobalTick_ = 0;
+
+        uint64_t lastTick_ = 0;
 
         /**
-         * The currently active dimension.
-         * 当前活动的维度。
+         * Has Tick been initialized?
+         * 是否初始化了Tick?
          */
-        Dimension *currentDimension_ = nullptr;
+        bool initedTick_ = false;
+
+
 
         //Is the game being saved
         //是否正在保存游戏
@@ -107,26 +116,22 @@ namespace glimmer {
          */
         bool running = true;
 
-        /**
-         * Real-world duration of a full in-game day, in seconds.
-         * 一整天对应的现实时长（秒）。
-         */
-        float dayLengthSeconds_ = 600.0F;
 
         long startTime_ = 0;
         std::unique_ptr<SystemScheduler> systemScheduler_;
         std::unique_ptr<PlayerContext> playerContext_;
 
+    public:
+        ~WorldContext() override;
+
+        void OnTick(uint64_t tick) override;
+
         /**
-         * GetOrCreateDimension
-         * 获取或创建指定维度资源的运行时维度。
-         * @param dimensionResource dimensionResource 维度资源
+         * Get the total number of ticks that the player has spent playing this save file.
+         * 获取玩家游玩此存档的总tick数。
          * @return
          */
-        Dimension *GetOrCreateDimension(DimensionResource *dimensionResource);
-
-    public:
-        ~WorldContext();
+        [[nodiscard]] uint64_t GetGlobalTick() const;
 
 
         WorldContext(AppContext *appContext, MapManifest *mapManifest, Saves *saves);
@@ -159,20 +164,6 @@ namespace glimmer {
 
 
         /**
-         * GetSkyColorKeyframes
-         * 获取当前维度的天空颜色关键帧；无当前维度时返回默认关键帧。
-         */
-        [[nodiscard]] const std::vector<SkyColorKeyframe> &GetSkyColorKeyframes() const;
-
-
-        /**
-         * SwitchDimension
-         * 切换到指定维度。会保存当前维度时间、卸载当前维度区块并加载目标维度。
-         * @param dimensionRef dimensionRef 目标维度引用
-         */
-        void SwitchDimension(const ResourceRef &dimensionRef);
-
-        /**
          * GetTimeOfDay
          * 获取当前维度的时间（0..1）。
          */
@@ -184,19 +175,6 @@ namespace glimmer {
          * @param worldTick
          */
         void UpdateTimeOfDay(uint64_t worldTick);
-
-        /**
-         * AdvanceTime
-         * 推进当前维度的时间（暂停或时间流动速度为0时不流逝）。
-         * @param delta delta 上一帧耗时（秒）
-         */
-        void AdvanceTime(float delta);
-
-        /**
-         * GetDayLengthSeconds
-         * 获取一天对应的现实时长（秒）。
-         */
-        [[nodiscard]] float GetDayLengthSeconds() const;
 
         [[nodiscard]] ChunkGenerator *GetChunkGenerator() const;
 

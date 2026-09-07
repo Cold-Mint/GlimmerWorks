@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -25,26 +25,29 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <string>
-
-#include "core/mod/ResourceRef.h"
-#include "src/saves/map_manifest.pb.h"
+#include "Dimension.h"
 
 namespace glimmer {
-    struct MapManifest {
-        std::string name;
-        std::string gameVersionName;
-        uint32_t gameVersionNumber;
-        int seed;
-        long createTime;
-        long lastPlayedTime;
-        uint32_t entityIDIndex;
-        bool allowCheats = false;
-        ResourceRef currentDimension;
-        uint64_t globalTick = 0;
+    /**
+     * SimpleDimensionManager
+     * 单人游戏内使用简易维度管理器
+     *
+     * When adding multiplayer games in the future, consider moving them to a separate library.
+     * 当往后加入多人游戏时，可考虑将其移动到单独的库中。
+     */
+    class SimpleDimensionManager {
+        /**
+        * In a single-player game, the player can only exist in one dimension. They cannot be in both dimension A and dimension B simultaneously. (Multiple dimensions coexisting in memory only occur in multiplayer games.)
+        * 单人游戏内，玩家只能处在一个维度。不能同时在A维度又在B维度。（多人游戏才会出现多个维度共存在内存中）
+        */
+        Dimension *dimension_ = nullptr;
 
-        void FromMessage(const MapManifestMessage &manifestMessage);
-
-        void ToMessage(MapManifestMessage &manifestMessage);
+    public:
+        /**
+         * Obtain the current tick count of the current dimension's experience
+         * 获取当前维度经历的tick数
+         * @return
+         */
+        uint64_t GetDimensionTick() const;
     };
 }

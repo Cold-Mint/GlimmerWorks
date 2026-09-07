@@ -127,7 +127,10 @@ static constexpr double TICK_RATE = 20.0;
 static constexpr float FIXED_TIME_STEP = 1 / TICK_RATE;
 //How many ticks after the player drops an item can it be picked up?
 //玩家丢出物品后多少Tick后可被捡起。
-static constexpr uint64_t DROP_INTERVAL = TICK_RATE * 1.5;
+static constexpr uint32_t DROP_INTERVAL = TICK_RATE * 1.5;
+//15 minutes, one game day.
+//15分钟，一游戏Day。
+static constexpr uint32_t DAY_LENGTH = TICK_RATE * 15 * 60;
 
 static constexpr std::string ABILITY_ID_NONE = "none";
 static constexpr std::string ABILITY_ID_MINING = "mining";
@@ -278,16 +281,6 @@ static constexpr int SEA_LEVEL_HEIGHT = WORLD_MIN_Y + TERRAIN_HEIGHT_RANGE * 0.5
 //Continent noise, the maximum height that can be allocated.
 //大陆噪声，可分配的最大高度。
 static constexpr int CONTINENT_MAX_HEIGHT = TERRAIN_HEIGHT_RANGE * 0.2F;
-
-static constexpr int MAX_LAND_HEIGHT = WORLD_MIN_Y + TERRAIN_HEIGHT_RANGE;
-
-// 噪声权重
-static constexpr float MOUNTAIN_WEIGHT = 0.70F; // 山脉噪声在陆地起伏中的权重
-static constexpr float HILLS_WEIGHT = 0.30F; // 丘陵噪声在陆地起伏中的权重
-
-// 高原/山脉的额外抬升参数
-static constexpr float PEAK_LIFT_THRESHOLD = 0.60F; // 陆地起伏噪声高于此值时开始抬升
-static constexpr float MAX_PEAK_LIFT = 0.30F; // 山峰额外抬升的最大噪声比例 (例如，1.0 + 0.3 = 1.3 倍的幅度)
 
 static constexpr int TILE_SIZE = 16;
 static constexpr int HALF_TILE_SIZE = TILE_SIZE >> 1;

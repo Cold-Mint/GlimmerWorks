@@ -102,20 +102,6 @@ namespace glimmer {
         bool enable;
     };
 
-    /**
-     * In-game day cycle tuning. Available in all build types.
-     * GPU 光照调参（如最低可见度、染色强度）已迁移到材质包的
-     * shaders/@core/lighting.uniforms.toml。此结构仅保留昼夜循环时长。
-     * 游戏内昼夜循环调参。所有构建类型均可用。
-     */
-    struct LightingConfig {
-        /**
-         * Real-world duration of a full in-game day, in seconds.
-         * 一整天对应的现实时长（秒）。
-         */
-        float dayLengthSeconds = 600.0F;
-    };
-
     struct Console {
         uint16_t maxHistoryEntries = 100;
     };

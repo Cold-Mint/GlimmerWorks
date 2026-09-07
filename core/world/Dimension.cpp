@@ -34,19 +34,19 @@
 #include "generator/ChunkLoader.h"
 #include "core/log/LogCat.h"
 #include "core/mod/Resource.h"
-#include "core/mod/ResourceRef.h"
 #include "core/saves/Saves.h"
 #include "WorldContext.h"
 #include "src/saves/dimension_manifest.pb.h"
 
 glimmer::Dimension::Dimension(WorldContext *worldContext, DimensionResource *dimensionResource)
     : worldContext_(worldContext), dimensionResource_(dimensionResource) {
-    if (dimensionResource_ != nullptr) {
-        dimensionId_ = Resource::GenerateId(dimensionResource_->packId, dimensionResource_->resourceId);
-        dimensionFolderName_ = dimensionResource_->packId + "_" + dimensionResource_->resourceId;
-        timeFlowSpeed_ = dimensionResource_->timeFlowSpeed;
-        initialTime_ = dimensionResource_->initialTime;
+    if (dimensionResource_ == nullptr) {
+        return;
     }
+    dimensionId_ = Resource::GenerateId(dimensionResource_->packId, dimensionResource_->resourceId);
+    dimensionFolderName_ = dimensionResource_->packId + "_" + dimensionResource_->resourceId;
+    timeFlowSpeed_ = dimensionResource_->timeFlowSpeed;
+    initialTime_ = dimensionResource_->initialTime;
 }
 
 glimmer::Dimension::~Dimension() = default;
@@ -58,29 +58,26 @@ void glimmer::Dimension::Init() {
     chunkGenerator_ = std::make_unique<
         ChunkGenerator>(worldContext_, worldContext_->GetWorldSeed(), dimensionResource_);
     chunkLoader_ = std::make_unique<ChunkLoader>(worldContext_, worldContext_->GetSaves(), dimensionFolderName_);
-
-    if (const auto manifest = worldContext_->GetSaves()->ReadDimensionManifest(dimensionFolderName_);
-        manifest.has_value()) {
-        LogCat::i("Dimension time restored: ", dimensionId_, " time=", timeOfDay_);
-    } else {
-        timeOfDay_ = initialTime_;
-        SaveTime();
-        LogCat::i("Dimension first entry, initial time: ", dimensionId_, " time=", timeOfDay_);
+    const Saves *saves = worldContext_->GetSaves();
+    if (saves == nullptr) {
+        LogCat::e(std::source_location::current(), "saves == nullptr");
+        return;
     }
-    LogCat::i("Dimension initialized: ", dimensionId_);
+    auto manifestOptional = saves->ReadDimensionManifest(dimensionFolderName_);
+    if (manifestOptional.has_value()) {
+        dimensionManifestMessage_ = manifestOptional.value();
+    }
 }
 
 void glimmer::Dimension::SaveTime() const {
-    if (worldContext_ == nullptr || worldContext_->GetSaves() == nullptr) {
+    if (worldContext_ == nullptr) {
         return;
     }
-    DimensionManifestMessage manifestMessage;
-    ResourceRef dimensionRef;
-    if (dimensionResource_ != nullptr) {
-        dimensionRef.ReadResource(*dimensionResource_, RESOURCE_DIMENSION);
+    Saves *saves = worldContext_->GetSaves();
+    if (saves == nullptr) {
+        return;
     }
-    dimensionRef.WriteResourceRefMessage(*manifestMessage.mutable_dimension());
-    (void) worldContext_->GetSaves()->WriteDimensionManifest(dimensionFolderName_, manifestMessage);
+    (void) saves->WriteDimensionManifest(dimensionFolderName_, dimensionManifestMessage_);
 }
 
 const std::string &glimmer::Dimension::GetDimensionId() const {
@@ -115,7 +112,11 @@ float glimmer::Dimension::GetTimeOfDay() const {
     return timeOfDay_;
 }
 
-void glimmer::Dimension::SetTimeOfDay(float time) {
+uint64_t glimmer::Dimension::GetDimensionTick(uint64_t globalTick) const {
+// dimensionManifestMessage_.
+}
+
+void glimmer::Dimension::SetTimeOfDay(const DayNormalizedTime time) {
     timeOfDay_ = std::fmod(time, 1.0F);
     if (timeOfDay_ < 0.0F) {
         timeOfDay_ += 1.0F;

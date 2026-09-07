@@ -36,6 +36,10 @@
 #include "src/saves/component.pb.h"
 
 namespace glimmer {
+    /**
+     * The entity manager is not a standard Manager.
+     * 实体管理器并不是标准Manager
+     */
     class EntityManager {
         GameEntityID entityIndex_ = GAME_ENTITY_ID_INVALID;
         std::unordered_map<GameEntityID, std::unique_ptr<GameEntity> > entityMap_;

@@ -33,6 +33,7 @@
 #include "WorldScene.h"
 #include "core/config/Config.h"
 #include "core/log/LogCat.h"
+#include "core/rmi/dataModel/DimensionItem.h"
 #include "core/saves/Saves.h"
 #include "core/saves/SavesManager.h"
 #include "core/utils/RandomUtils.h"
@@ -46,21 +47,41 @@ glimmer::CreateWorldScene::CreateWorldScene(AppContext *context) : Scene(context
         LogCat::e(std::source_location::current(), "Scene manager cannot be nullptr.");
         return;
     }
+    const ModContext *modContext = context->GetModContext();
+    if (modContext == nullptr) {
+        return;
+    }
+    resourceLocator_ = context->GetResourceLocator();
+    if (resourceLocator_ == nullptr) {
+        return;
+    }
+    dimensionRegistry_ = modContext->GetDimensionRegistry();
+    if (dimensionRegistry_ == nullptr) {
+        return;
+    }
     mainThreadDispatcher_ = context->GetMainThreadDispatcher();
     if (mainThreadDispatcher_ == nullptr) {
         LogCat::e(std::source_location::current(), "Main Thread Dispatcher cannot be nullptr.");
         return;
     }
     RandomizeWorld();
+    LoadDimensions();
     Init();
 }
 
 void glimmer::CreateWorldScene::OnCreateDataModels() {
     Rml::DataModelConstructor *constructor = CreateDataModel("create_world_scene");
     if (constructor != nullptr) {
+        if (auto dimensionItemStruct = constructor->RegisterStruct<DimensionItem>()) {
+            dimensionItemStruct.RegisterMember("dimension_id", &DimensionItem::dimensionId);
+            dimensionItemStruct.RegisterMember("name", &DimensionItem::name);
+            constructor->RegisterArray<std::vector<DimensionItem> >();
+        }
         constructor->Bind("world_name", &createWorldDataModel_.worldName);
         constructor->Bind("seed", &createWorldDataModel_.seedStr);
         constructor->Bind("allow_cheats", &createWorldDataModel_.allowCheats);
+        constructor->Bind("dimensions", &createWorldDataModel_.dimensions);
+        constructor->Bind("selected_dimension_id", &createWorldDataModel_.selectedDimensionId);
         constructor->BindEventCallback(
             "on_create_world_click",
             &CreateWorldScene::OnCreateWorldClick,
@@ -141,12 +162,12 @@ void glimmer::CreateWorldScene::OnRandomNameClick(Rml::DataModelHandle handle, R
 }
 
 void glimmer::CreateWorldScene::CreateWorld() const {
-    std::string name = createWorldDataModel_.worldName;
-    if (name.empty()) {
+    const std::string &worldName = createWorldDataModel_.worldName;
+    if (worldName.empty()) {
         LogCat::w(std::source_location::current(), "World name cannot be empty");
         return;
     }
-    LogCat::i("Creating new world: name=", name);
+    LogCat::i("Creating new world: name=", worldName);
 
     const std::string seedInput = createWorldDataModel_.seedStr;
     int seedValue = 0;
@@ -159,11 +180,12 @@ void glimmer::CreateWorldScene::CreateWorld() const {
 
     MapManifest mapManifest;
     mapManifest.seed = seedValue;
-    mapManifest.name = name;
+    mapManifest.name = worldName;
     mapManifest.gameVersionName = GAME_VERSION_STRING;
     mapManifest.gameVersionNumber = GAME_VERSION_NUMBER;
     mapManifest.createTime = TimeUtils::GetCurrentTimeMs();
     mapManifest.globalTickCount = 0;
+
     PlayerManifest playerManifest;
     playerManifest.lastPlayedTime = TimeUtils::GetCurrentTimeMs();
     if (createWorldDataModel_.allowCheats) {
@@ -171,6 +193,12 @@ void glimmer::CreateWorldScene::CreateWorld() const {
     } else {
         playerManifest.permissionLevel = PLAYER_PERMISSION_LEVEL_NORMAL;
     }
+    std::optional<ResourceRef> resourceRefOptional = ResourceRef::ParseFromId(createWorldDataModel_.selectedDimensionId,
+                                                                              RESOURCE_DIMENSION);
+    if (!resourceRefOptional.has_value()) {
+        return;
+    }
+    playerManifest.customDimension = resourceRefOptional.value();
     LogCat::i("World manifest: version=", GAME_VERSION_STRING, ", allowCheats=", createWorldDataModel_.allowCheats);
     auto savesManager = GetAppContext()->GetSavesManager();
     if (savesManager == nullptr) {
@@ -187,11 +215,33 @@ void glimmer::CreateWorldScene::CreateWorld() const {
     mainThreadDispatcher_->PostToNextMainFrame([this, savesManager, saves] {
         sceneManager_->ReplaceScene(std::make_unique<WorldScene>(
             GetAppContext(), std::make_unique<WorldContext>(
-                GetAppContext(), savesManager->GetMapManifest(savesManager->GetSavesListSize() - 1),
+                GetAppContext(),
                 saves)));
     });
     LogCat::i("Transitioning to WorldScene");
 }
+
+void glimmer::CreateWorldScene::LoadDimensions() {
+    const std::vector<DimensionResource *> &startingDimensions = dimensionRegistry_->GetStartingDimensions();
+    std::vector<DimensionItem> &dimensions = createWorldDataModel_.dimensions;
+    for (auto startingDimension: startingDimensions) {
+        DimensionItem dimensionItem = {};
+        const std::string dimensionId = Resource::GenerateId(startingDimension->name.GetPackageId(),
+                                                             startingDimension->resourceId);
+        const StringResource *nameRes = resourceLocator_->FindString(&startingDimension->name);
+        if (nameRes == nullptr) {
+            dimensionItem.name = dimensionId;
+        } else {
+            dimensionItem.name = nameRes->value;
+        }
+        dimensionItem.dimensionId = dimensionId;
+        dimensions.emplace_back(dimensionItem);
+    }
+    if (!dimensions.empty() && createWorldDataModel_.selectedDimensionId.empty()) {
+        createWorldDataModel_.selectedDimensionId = dimensions.front().dimensionId;
+    }
+}
+
 
 void glimmer::CreateWorldScene::OnConfigChanged(const Config *config) {
     uiScale_ = config->window.uiScale;

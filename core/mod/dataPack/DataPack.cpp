@@ -212,6 +212,7 @@ void glimmer::DataPack::LoadDimensionResourceFromFile(const toml::value &value,
                                                       DimensionRegistry *dimensionRegistry) const {
     auto dimensionResource = std::make_unique<DimensionResource>(toml::get<DimensionResource>(value));
     dimensionResource->packId = manifest_.id;
+    dimensionResource->name.SetSelfPackageId(manifest_.id);
     dimensionRegistry->Register(std::move(dimensionResource));
 }
 

@@ -25,23 +25,13 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "core/mod/ResourceRef.h"
-#include "src/core/player.pb.h"
+#include "IAppContextInitTask.h"
 
 namespace glimmer {
-    /**
-     * PlayerManifest
-     * 玩家的清单文件
-     */
-    struct PlayerManifest {
-        long lastPlayedTime = 0;
-        PlayerPermissionLevelMessage permissionLevel = PLAYER_PERMISSION_LEVEL_NORMAL;
-        std::vector<PlayerDimensionMessage> visitedDimensions;
-        EntityItemMessage entityItemMessage;
-        ResourceRef customDimension;
+    class InitValidateGameTask : public IAppContextInitTask {
+    public:
+        bool Run(ISystemBucket *systemBucket) override;
 
-        void FromMessage(const PlayerMessage &playerMessage);
-
-        void ToMessage(PlayerMessage &playerMessage) const;
+        void Rollback(ISystemBucket *systemBucket) override;
     };
 }

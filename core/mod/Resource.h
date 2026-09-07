@@ -705,6 +705,10 @@ namespace glimmer {
      */
     //@genNextLine(DimensionResource|维度资源)
     struct DimensionResource : Resource {
+        //@genNextLine(allowAsStarting|是否可作为开局维度)
+        bool allowAsStarting = false;
+        //@genNextLine(name|名称)
+        ResourceRef name;
         // NoiseConfig member order: noiseType, frequency, fractalType, octaves, lacunarity, gain,
         // weightedStrength, pingPongStrength, cellularDistanceFunction, cellularReturnType, cellularJitter, seedOffset.
         //@genNextLine(continentNoise|大陆噪声配置)

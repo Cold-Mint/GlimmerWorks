@@ -45,6 +45,7 @@
 #include "tasks/InitResourcePackTask.h"
 #include "tasks/InitRmlContextTask.h"
 #include "tasks/InitSavesManagerTask.h"
+#include "tasks/InitValidateGameTask.h"
 #include "tasks/InitVFSTask.h"
 
 #ifdef __ANDROID__
@@ -72,6 +73,7 @@ glimmer::AppContext::AppContext() {
     RegisterInitTask(std::make_unique<InitDataPackTask>(this));
     RegisterInitTask(std::make_unique<InitResourcePackTask>(this));
     RegisterInitTask(std::make_unique<InitResourceLocatorTask>(this));
+    RegisterInitTask(std::make_unique<InitValidateGameTask>());
 }
 
 glimmer::AppContext::~AppContext() {

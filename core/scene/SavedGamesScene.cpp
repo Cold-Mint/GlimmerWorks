@@ -79,7 +79,6 @@ void glimmer::SavedGamesScene::UpdateSaveItems() {
             continue;
         }
         SaveItem item;
-
         item.name = manifest->name;
         item.allowCheats = playerManifest->permissionLevel == PLAYER_PERMISSION_LEVEL_ADMIN;
         item.lastPlayedTime = TimeUtils::FormatTime(playerManifest->lastPlayedTime);
@@ -131,9 +130,9 @@ void glimmer::SavedGamesScene::OnLoadClick(Rml::DataModelHandle handle, Rml::Eve
         LogCat::w(std::source_location::current(), "saves or manifest is nullptr");
         return;
     }
-    mainThreadDispatcher->PostToNextMainFrame([this, manifest, saves] {
+    mainThreadDispatcher->PostToNextMainFrame([this, saves] {
         sceneManager_->PushScene(std::make_unique<WorldScene>(
-            GetAppContext(), std::make_unique<WorldContext>(GetAppContext(), manifest, saves)));
+            GetAppContext(), std::make_unique<WorldContext>(GetAppContext(), saves)));
     });
 }
 

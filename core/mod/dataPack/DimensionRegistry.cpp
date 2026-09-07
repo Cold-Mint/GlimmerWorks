@@ -26,17 +26,13 @@
  */
 #include "DimensionRegistry.h"
 
-std::span<glimmer::DimensionResource *> glimmer::DimensionRegistry::GetDimensionVector() {
-    return dimensionVector_;
+
+const std::vector<glimmer::DimensionResource *> &glimmer::DimensionRegistry::GetStartingDimensions() const {
+    return startingDimensions_;
 }
 
 void glimmer::DimensionRegistry::OnRegister(DimensionResource *resource) {
-    dimensionVector_.emplace_back(resource);
-}
-
-glimmer::DimensionResource *glimmer::DimensionRegistry::GetDefaultDimension() const {
-    if (dimensionVector_.empty()) {
-        return nullptr;
+    if (resource->allowAsStarting) {
+        startingDimensions_.push_back(resource);
     }
-    return dimensionVector_.front();
 }

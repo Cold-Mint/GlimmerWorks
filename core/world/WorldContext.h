@@ -74,8 +74,10 @@ namespace glimmer {
         Saves *saves_;
 
         b2WorldId worldId_ = b2_nullWorldId;
-        MapManifest *mapManifest_ = nullptr;
-        AppContext *appContext_;
+        std::unique_ptr<MapManifest> mapManifest_ = nullptr;
+        std::unique_ptr<PlayerManifest> playerManifest_ = nullptr;
+        DimensionResource *dimensionResource_ = nullptr;
+        AppContext *appContext_ = nullptr;
         std::unique_ptr<EntityManager> entityManager_;
         std::unique_ptr<EntityShortCut> entityShortCut_;
         /**
@@ -97,7 +99,6 @@ namespace glimmer {
          * 是否初始化了Tick?
          */
         bool initedTick_ = false;
-
 
 
         //Is the game being saved
@@ -134,7 +135,7 @@ namespace glimmer {
         [[nodiscard]] uint64_t GetGlobalTick() const;
 
 
-        WorldContext(AppContext *appContext, MapManifest *mapManifest, Saves *saves);
+        WorldContext(AppContext *appContext, Saves *saves);
 
         [[nodiscard]] EntityManager *GetEntityManager() const;
 

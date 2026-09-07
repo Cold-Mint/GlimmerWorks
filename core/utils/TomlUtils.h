@@ -115,18 +115,6 @@ namespace toml {
     };
 
     template<>
-    struct from<glimmer::DimensionResource> {
-        static glimmer::DimensionResource from_toml(const value &v) {
-            glimmer::DimensionResource r;
-            r.ambientLightKeyframes = toml::find<std::vector<glimmer::LightKeyframe> >(v, "ambient_light_keyframes");
-            r.initialTime = toml::find_or<float>(v, "initial_time", 0.0F);
-            r.resourceId = toml::find<std::string>(v, "resource_id");
-            r.timeFlowSpeed = toml::find_or<float>(v, "time_flow_speed", 1.0F);
-            return r;
-        }
-    };
-
-    template<>
     struct from<glimmer::FixedColorResource> {
         static glimmer::FixedColorResource from_toml(const value &v) {
             glimmer::FixedColorResource r;
@@ -563,6 +551,20 @@ namespace toml {
             r.displayName = toml::find<glimmer::ResourceRef>(v, "display_name");
             r.name = toml::find<std::string>(v, "name");
             r.uuid = toml::find<std::string>(v, "uuid");
+            return r;
+        }
+    };
+
+    template<>
+    struct from<glimmer::DimensionResource> {
+        static glimmer::DimensionResource from_toml(const value &v) {
+            glimmer::DimensionResource r;
+            r.allowAsStarting = toml::find_or<bool>(v, "allow_as_starting", false);
+            r.ambientLightKeyframes = toml::find<std::vector<glimmer::LightKeyframe> >(v, "ambient_light_keyframes");
+            r.initialTime = toml::find_or<float>(v, "initial_time", 0.0F);
+            r.name = toml::find<glimmer::ResourceRef>(v, "name");
+            r.resourceId = toml::find<std::string>(v, "resource_id");
+            r.timeFlowSpeed = toml::find_or<float>(v, "time_flow_speed", 1.0F);
             return r;
         }
     };

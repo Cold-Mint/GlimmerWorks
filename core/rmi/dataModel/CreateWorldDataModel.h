@@ -25,12 +25,15 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include "DimensionItem.h"
 #include "RmlUi/Config/Config.h"
 
 namespace glimmer {
     struct CreateWorldDataModel {
         Rml::String worldName;
         Rml::String seedStr;
+        Rml::String selectedDimensionId;
         bool allowCheats = false;
+        std::vector<DimensionItem> dimensions;
     };
 }

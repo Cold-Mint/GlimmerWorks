@@ -33,6 +33,8 @@
 #include "core/rmi/dataModel/CreateWorldDataModel.h"
 
 namespace glimmer {
+    class DimensionRegistry;
+
     class CreateWorldScene : public Scene {
         void OnCreateWorldClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
@@ -51,7 +53,14 @@ namespace glimmer {
         Rml::DataModelHandle modelHandle_;
         CreateWorldDataModel createWorldDataModel_;
         SceneManager *sceneManager_ = nullptr;
+        DimensionRegistry *dimensionRegistry_ = nullptr;
+        ResourceLocator *resourceLocator_ = nullptr;
         MainThreadDispatcher *mainThreadDispatcher_ = nullptr;
+
+
+        void CreateWorld() const;
+
+        void LoadDimensions();
 
     public:
         float uiScale_ = 1.0F;
@@ -64,7 +73,6 @@ namespace glimmer {
 
         void LoadDocuments() override;
 
-        void CreateWorld() const;
 
         void OnConfigChanged(const Config *config) override;
 

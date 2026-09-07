@@ -35,17 +35,11 @@ namespace glimmer {
     struct DimensionResource;
 
     class DimensionRegistry : public BaseResourceRegistry<DimensionResource> {
-        std::vector<DimensionResource *> dimensionVector_{};
+        std::vector<DimensionResource *> startingDimensions_;
 
     public:
-        [[nodiscard]] std::span<DimensionResource *> GetDimensionVector();
+        const std::vector<DimensionResource *> &GetStartingDimensions() const;
 
         void OnRegister(DimensionResource *resource) override;
-
-        /**
-         * GetDefaultDimension
-         * 获取默认维度（注册的第一个维度）。
-         */
-        [[nodiscard]] DimensionResource *GetDefaultDimension() const;
     };
 }

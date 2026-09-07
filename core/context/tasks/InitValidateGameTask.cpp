@@ -24,24 +24,29 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
-#include "core/mod/ResourceRef.h"
-#include "src/core/player.pb.h"
+#include "InitValidateGameTask.h"
 
-namespace glimmer {
-    /**
-     * PlayerManifest
-     * 玩家的清单文件
-     */
-    struct PlayerManifest {
-        long lastPlayedTime = 0;
-        PlayerPermissionLevelMessage permissionLevel = PLAYER_PERMISSION_LEVEL_NORMAL;
-        std::vector<PlayerDimensionMessage> visitedDimensions;
-        EntityItemMessage entityItemMessage;
-        ResourceRef customDimension;
+#include "core/context/ISystemBucket.h"
+#include "core/context/ModContext.h"
 
-        void FromMessage(const PlayerMessage &playerMessage);
+bool glimmer::InitValidateGameTask::Run(ISystemBucket *systemBucket) {
+    ModContext *modContext = systemBucket->GetModContext();
+    if (modContext == nullptr) {
+        return false;
+    }
+    DimensionRegistry *dimensionRegistry = modContext->GetDimensionRegistry();
+    if (dimensionRegistry == nullptr) {
+        return false;
+    }
+    const std::vector<DimensionResource *> &dimensionResources = dimensionRegistry->GetStartingDimensions();
+    if (dimensionResources.empty()) {
+        LogCat::e(std::source_location::current(), "At least one usable initial dimension is required.");
+        return false;
+    }
+    return true;
+}
 
-        void ToMessage(PlayerMessage &playerMessage) const;
-    };
+void glimmer::InitValidateGameTask::Rollback(ISystemBucket *systemBucket) {
+    //This method does not need to be implemented.
+    //此方法不用实现。
 }

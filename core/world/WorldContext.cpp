@@ -26,8 +26,6 @@
  */
 #include "WorldContext.h"
 
-#include <cmath>
-#include <ranges>
 #include <vector>
 
 #include "Dimension.h"
@@ -42,10 +40,8 @@
 #include "core/ecs/component/ItemContainerComponent.h"
 #include "core/ecs/component/ItemToolTipComponent.h"
 #include "core/ecs/component/PauseComponent.h"
-#include "core/ecs/component/RigidBody2DComponent.h"
 #include "core/ecs/component/TileLayerComponent.h"
 #include "core/log/LogCat.h"
-#include "core/math/CoordinateTransformer.h"
 #include "core/mod/Resource.h"
 #include "core/mod/ResourceRef.h"
 #include "core/mod/dataPack/DimensionRegistry.h"
@@ -99,7 +95,7 @@ glimmer::Saves *glimmer::WorldContext::GetSaves() const {
 }
 
 glimmer::MapManifest *glimmer::WorldContext::GetMapManifest() const {
-    return mapManifest_;
+    return mapManifest_.get();
 }
 
 glimmer::ChunkGenerator *glimmer::WorldContext::GetChunkGenerator() const {
@@ -253,35 +249,46 @@ uint64_t glimmer::WorldContext::GetGlobalTick() const {
     return fixedGlobalTick_ + (lastTick_ - startTick_);
 }
 
-glimmer::WorldContext::WorldContext(AppContext *appContext, MapManifest *mapManifest,
-                                    Saves *saves) : worldSeed_(mapManifest->seed), saves_(saves),
-                                                    mapManifest_(mapManifest), appContext_(appContext) {
-    LogCat::i("Creating WorldContext, world name: ", mapManifest->name, ", seed: ", worldSeed_);
+glimmer::WorldContext::WorldContext(AppContext *appContext, Saves *saves) : saves_(saves),
+                                                                            appContext_(appContext) {
+    std::optional<MapManifestMessage> mapManifestOptional = saves->ReadMapManifest();
+    if (mapManifestOptional.has_value()) {
+        return;
+    }
+    std::optional<PlayerMessage> playerOptional = saves->ReadLocalPlayer();
+    if (playerOptional.has_value()) {
+        return;
+    }
+    PlayerMessage &playerMessage = playerOptional.value();
+    playerManifest_ = std::make_unique<PlayerManifest>();
+    playerManifest_->FromMessage(playerMessage);
+    mapManifest_ = std::make_unique<MapManifest>();
+    mapManifest_->FromMessage(mapManifestOptional.value());
+    worldSeed_ = mapManifest_->seed;
     b2WorldDef worldDef = b2DefaultWorldDef();
     worldDef.gravity = b2Vec2(0.0F, -10.0F);
     worldId_ = b2CreateWorld(&worldDef);
-    appContext_->GetModContext()->GetBiomeDecoratorManager()->SetWorldSeed(worldSeed_);
+    ModContext *modContext = appContext_->GetModContext();
+    if (modContext == nullptr) {
+        return;
+    }
+    BiomeDecoratorManager *biomeDecoratorManager = modContext->GetBiomeDecoratorManager();
+    if (biomeDecoratorManager == nullptr) {
+        return;
+    }
+    biomeDecoratorManager->SetWorldSeed(worldSeed_);
     entityManager_ = std::make_unique<EntityManager>();
     entityShortCut_ = std::make_unique<EntityShortCut>();
     entityManager_->SetEntityIndex(mapManifest_->entityIDIndex);
+    DimensionRegistry *dimensionRegistry = modContext->GetDimensionRegistry();
+    if (dimensionRegistry == nullptr) {
+        return;
+    }
+    ResourceRef &customDimension = playerManifest_->customDimension;
+    dimensionResource_ = dimensionRegistry->Find(customDimension.GetPackageId(),
+                                                 customDimension.GetResourceKey());
 
-    DimensionRegistry *dimensionRegistry = appContext->GetModContext()->GetDimensionRegistry();
-    DimensionResource *dimensionResource = nullptr;
-    if (mapManifest_->currentDimension.IsValid()) {
-        dimensionResource = dimensionRegistry->Find(mapManifest_->currentDimension.GetPackageId(),
-                                                    mapManifest_->currentDimension.GetResourceKey());
-    }
-    if (dimensionResource == nullptr) {
-        dimensionResource = dimensionRegistry->GetDefaultDimension();
-    }
-    if (dimensionResource != nullptr) {
-        ResourceRef ref;
-        ref.ReadResource(*dimensionResource, RESOURCE_DIMENSION);
-        mapManifest_->currentDimension = ref;
-    } else {
-        LogCat::e(std::source_location::current(), "No dimension resource registered");
-    }
-    fixedGlobalTick_ = mapManifest->globalTickCount;
+    fixedGlobalTick_ = mapManifest_->globalTickCount;
     auto *commandManager = appContext->GetConsoleContext()->GetCommandManager();
     commandManager->BindWorldContext(this);
     commandManager->SetAllowCheats(true);

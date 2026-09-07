@@ -38,7 +38,6 @@ namespace glimmer {
         int seed;
         long createTime;
         uint32_t entityIDIndex;
-        ResourceRef currentDimension;
         uint64_t globalTickCount = 0;
 
         void FromMessage(const MapManifestMessage &manifestMessage);

@@ -403,6 +403,7 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL_GPU.cpp"
         core/app/App.cpp
         core/mod/PackScanRequest.cpp
+        core/context/tasks/InitValidateGameTask.cpp
         core/mod/resourcePack/GPUSamplerResource.cpp
         core/mod/resourcePack/cache/GpuSamplerCache.cpp
         core/mod/resourcePack/GPUSamplerResourceResult.cpp
@@ -806,6 +807,8 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL_GPU.h"
         core/app/App.h
         core/world/DayNormalizedTime.h
+        core/rmi/dataModel/DimensionItem.h
+        core/context/tasks/InitValidateGameTask.h
         core/saves/PlayerManifest.h
         core/world/SimpleDimensionManager.h
         core/world/DynamicLightEntry.h

@@ -150,6 +150,15 @@ namespace glimmer {
                                const UniformInjectContext *injectContext);
 
         /**
+         * Clear a render target to solid black within a single clear-and-store
+         * render pass. Called once every frame, before the world/UI passes,
+         * so the previous frame's content never persists behind the RmlUi UI.
+         * 在单次 clear/store 渲染通道内把渲染目标清为纯黑。每帧在世界/UI 通道
+         * 之前调用一次，避免上一帧内容残留在 RmlUi UI 之后。
+         */
+        static void ClearRenderTarget(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUTexture *targetTexture);
+
+        /**
          * Fill and push the uniform block of a fullscreen pass. Encapsulates
          * "fetch pipeline uniform block -> fill with ctx -> push", so any new
          * fullscreen/post-processing pass can reuse the same injection path.
@@ -166,7 +175,7 @@ namespace glimmer {
          * camera viewport (plus a one-tile border).
          * 根据相机视口（含一格边距）从光照缓冲重建逐瓦片光照贴图纹理。
          */
-        void UpdateLightMap(UniformInjectContext *injectContext);
+        void UpdateLightMap(const UniformInjectContext *injectContext);
 
     public:
         explicit AppRenderer(AppContext *appContext);

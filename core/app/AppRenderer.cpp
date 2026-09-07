@@ -121,6 +121,11 @@ void glimmer::AppRenderer::RenderFrame(const RmlContext *rmlContext, const int w
     FlushScenePass(commandBuffer, sceneTexture_, logicalWidth, logicalHeight,
                    uniformInjectContext);
 
+    // Clear the swapChain once per frame so stale content from the previous
+    // frame never persists behind the RmlUi UI.
+    // 每帧清一次交换链，避免上一帧内容残留在 RmlUi UI 之后。
+    ClearRenderTarget(commandBuffer, swapChainTexture);
+
     // Build and upload the per-tile light map for the camera viewport.
     // 构建并上传相机视口的逐瓦片光照贴图。
     if (uniformInjectContext != nullptr) {
@@ -314,9 +319,8 @@ void glimmer::AppRenderer::FlushLightingPass(SDL_GPUCommandBuffer *commandBuffer
 
     SDL_GPUColorTargetInfo colorTarget = {};
     colorTarget.texture = targetTexture;
-    colorTarget.load_op = SDL_GPU_LOADOP_CLEAR;
+    colorTarget.load_op = SDL_GPU_LOADOP_LOAD;
     colorTarget.store_op = SDL_GPU_STOREOP_STORE;
-    colorTarget.clear_color = {0.0F, 0.0F, 0.0F, 1.0F};
 
     SDL_GPURenderPass *renderPass = SDL_BeginGPURenderPass(commandBuffer, &colorTarget, 1, nullptr);
     if (renderPass == nullptr) {
@@ -351,6 +355,23 @@ void glimmer::AppRenderer::FlushLightingPass(SDL_GPUCommandBuffer *commandBuffer
     SDL_EndGPURenderPass(renderPass);
 }
 
+void glimmer::AppRenderer::ClearRenderTarget(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUTexture *targetTexture) {
+    if (commandBuffer == nullptr || targetTexture == nullptr) {
+        return;
+    }
+    SDL_GPUColorTargetInfo colorTarget = {};
+    colorTarget.texture = targetTexture;
+    colorTarget.load_op = SDL_GPU_LOADOP_CLEAR;
+    colorTarget.store_op = SDL_GPU_STOREOP_STORE;
+    colorTarget.clear_color = {0.0F, 0.0F, 0.0F, 1.0F};
+
+    SDL_GPURenderPass *renderPass = SDL_BeginGPURenderPass(commandBuffer, &colorTarget, 1, nullptr);
+    if (renderPass == nullptr) {
+        return;
+    }
+    SDL_EndGPURenderPass(renderPass);
+}
+
 void glimmer::AppRenderer::FillAndPushUniformBlock(
     SDL_GPUCommandBuffer *commandBuffer,
     const std::shared_ptr<GPUPipelineResourceResult> &pipeline,
@@ -372,8 +393,7 @@ void glimmer::AppRenderer::FillAndPushUniformBlock(
                                    stagingBuffer.data(), stagingBuffer.size());
 }
 
-void glimmer::AppRenderer::UpdateLightMap(UniformInjectContext *injectContext) {
-    WorldContext *worldContext = injectContext->worldContext;
+void glimmer::AppRenderer::UpdateLightMap(const UniformInjectContext *injectContext) {
     const float zoom = injectContext->camera->GetZoom();
     const ScreenVector2D cameraSize(injectContext->width, injectContext->height);
     const WorldVector2D cameraPosition = injectContext->cameraTransform->GetPosition();

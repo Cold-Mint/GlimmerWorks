@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -25,34 +25,28 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "core/ecs/GameSystem.h"
-#include "core/ecs/component/AreaMarkerComponent.h"
-#include "core/ecs/component/CameraComponent.h"
-#include "core/ecs/component/Transform2DComponent.h"
-#include "core/world/PreloadColors.h"
+#include <cstdint>
 
 namespace glimmer {
-    class AreaMarkerSystem : public GameSystem {
-        AreaMarkerComponent *areaMarkerComponent_ = nullptr;
-        AppContext *appContext_ = nullptr;
-        PreloadColors *preloadColors_ = nullptr;
-        CameraComponent *cameraComponent_ = nullptr;
-        ResourcePackManager *resourcePackManager_ = nullptr;
-        Transform2DComponent *cameraTransform2DComponent_ = nullptr;
-        uint64_t areaMarkerTipFingerprint_ = 0;
-        std::shared_ptr<TextureResourceResult> areaMarkerTipTexture_ = nullptr;
+    /**
+     * ErrorCode
+     * 错误代码
+     *
+     * Do not reuse incorrect codes. For newly added errors, a new error code should be added.
+     * 不要复用错误代码，新增的错误要增加错误代码。
+     */
+    enum class ErrorCode : uint32_t {
+        SUCCESS = 0,
+        //缺少必要的资源包
+        MISSING_RESPACK = 1,
+        //缺少必要的玩家定义（玩家toml文件）
+        MISSING_PLAYER = 2,
+        //缺少必要的数据包
+        MISSING_DATAPACK = 3,
+        //无法读取配置文件config.toml（配置文件不存在或者读写权限受限。）
+        CAN_NOT_READ_CONFIG_DATA = 4,
+        //无法读取语言文件/langs文件下的toml。
+        CAN_NOT_READ_LANG = 5,
 
-    public:
-        explicit AreaMarkerSystem(WorldContext *worldContext);
-
-        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
-
-        void Update(float delta) override;
-
-        void Render(RenderQueue *queue) override;
-
-        [[nodiscard]] GameSystemType GetGameSystemType() const override;
-
-        uint8_t GetExecutionOrder() override;
     };
 }

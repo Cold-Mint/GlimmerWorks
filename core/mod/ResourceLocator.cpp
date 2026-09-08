@@ -107,7 +107,8 @@ glimmer::ResourceLocator::ResourceLocator(AppContext *appContext) : appContext_(
     }
     composableItemRegistry_ = modContext->GetComposableItemRegistry();
     if (composableItemRegistry_ == nullptr) {
-        LogCat::e(std::source_location::current(), "composable_item_manager_is_null", "composableItemManager_ == nullptr");
+        LogCat::e(std::source_location::current(), "composable_item_manager_is_null",
+                  "composableItemManager_ == nullptr");
         return;
     }
     materialItemRegistry_ = modContext->GetMaterialItemRegistry();
@@ -285,9 +286,7 @@ std::shared_ptr<glimmer::UniformBlockResourceResult> glimmer::ResourceLocator::F
     return uniformBlockCache->LoadResource(appContext_, resourceRef, enablePlaceHolder);
 }
 
-
-std::unique_ptr<glimmer::Color> glimmer::ResourceLocator::FindColor(const ResourceRef *resourceRef,
-                                                                    bool enablePlaceHolder) const {
+std::unique_ptr<glimmer::Color> glimmer::ResourceLocator::FindColor(const ResourceRef *resourceRef) const {
     if (resourceRef == nullptr) {
         LogCat::w(std::source_location::current(), "resource_ref_is_null", "resourceRef == nullptr");
         return nullptr;

@@ -55,3 +55,7 @@ void glimmer::InitCoreContextsTask::Rollback(ISystemBucket *systemBucket) {
     systemBucket->SetWindowContext(nullptr);
     systemBucket->SetCacheContext(nullptr);
 }
+
+std::string glimmer::InitCoreContextsTask::GetTaskName() {
+    return "InitCoreContextsTask";
+}

@@ -97,7 +97,7 @@ bool glimmer::AppContext::IsRunning() const {
     return isRunning_;
 }
 
-bool glimmer::AppContext::InitSystem() {
+bool glimmer::AppContext::InitSystem() const {
     bool success = true;
     std::stack<IAppContextInitTask *> initTaskStack;
     ISystemBucket *systemBucket = systemBucket_.get();
@@ -118,7 +118,12 @@ bool glimmer::AppContext::InitSystem() {
         return true;
     }
     while (!initTaskStack.empty()) {
-        initTaskStack.top()->Rollback(systemBucket);
+        IAppContextInitTask *topTask = initTaskStack.top();
+        if (topTask == nullptr) {
+            continue;
+        }
+        LogCat::d("rollback_task", "Roll back the {} task", topTask->GetTaskName());
+        topTask->Rollback(systemBucket);
         initTaskStack.pop();
     }
     return false;

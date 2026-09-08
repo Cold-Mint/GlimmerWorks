@@ -51,3 +51,7 @@ void glimmer::InitValidateGameTask::Rollback(ISystemBucket *systemBucket) {
     //This method does not need to be implemented.
     //此方法不用实现。
 }
+
+std::string glimmer::InitValidateGameTask::GetTaskName() {
+    return "InitValidateGameTask";
+}

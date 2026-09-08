@@ -27,9 +27,6 @@
 #pragma once
 
 #include <memory>
-#include <string>
-#include <unordered_map>
-#include <vector>
 
 #include "LightBuffer.h"
 #include "core/saves/Saves.h"
@@ -156,5 +153,7 @@ namespace glimmer {
         [[nodiscard]] LightBuffer *GetLightingBuffer() const;
 
         [[nodiscard]] TileInstancePool *GetTileInstancePool() const;
+
+        [[nodiscard]] Dimension *GetDimension() const;
     };
 }

@@ -51,3 +51,7 @@ bool glimmer::InitSavesManagerTask::Run(ISystemBucket *systemBucket) {
 void glimmer::InitSavesManagerTask::Rollback(ISystemBucket *systemBucket) {
     systemBucket->SetSavesManager(nullptr);
 }
+
+std::string glimmer::InitSavesManagerTask::GetTaskName() {
+    return "InitSavesManagerTask";
+}

@@ -28,7 +28,6 @@
 #if  !defined(NDEBUG)
 #include "Scene.h"
 #include "core/mod/resourcePack/ResourcePackManager.h"
-#include "core/world/PreloadColors.h"
 
 namespace glimmer {
     struct LangsResources;
@@ -48,7 +47,6 @@ namespace glimmer {
         int windowHeight_ = 0;
         float uiScale_ = 0.0F;
         ResourcePackManager *resourcePackManager_ = nullptr;
-        PreloadColors *preloadColors_ = nullptr;
         LangsResources *langsResources_ = nullptr;
 
     public:

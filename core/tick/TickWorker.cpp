@@ -29,8 +29,10 @@
 #include <chrono>
 
 #include "core/config/Constants.h"
+#include "core/log/LogCat.h"
 
 void glimmer::TickWorker::TickLoop(std::stop_token stopToken) {
+    LogCat::i("tick_worker_thread_started", "TickWorker thread started");
     using Clock = std::chrono::steady_clock;
     const auto tickInterval = std::chrono::duration_cast<Clock::duration>(
         std::chrono::duration<double>(1.0 / TICK_RATE));
@@ -57,6 +59,7 @@ void glimmer::TickWorker::TickLoop(std::stop_token stopToken) {
             }
         }
     }
+    LogCat::i("tick_worker_thread_stopped", "TickWorker thread stopped");
 }
 
 glimmer::TickWorker::TickWorker() {

@@ -122,6 +122,7 @@ bool glimmer::RmlContext::Init(VirtualFileSystem *virtualFileSystem, SDL_GPUDevi
     Rml::Debugger::Initialise(context_);
 #endif
     LogCat::i("rml_context_initialized", "RmlContext initialized successfully");
+    initialized_ = true;
     return true;
 }
 
@@ -184,5 +185,7 @@ glimmer::RmlContext::~RmlContext() {
     if (renderInterfaceSDL3_ != nullptr) {
         renderInterfaceSDL3_->Shutdown();
     }
-    Rml::Shutdown();
+    if (initialized_) {
+        Rml::Shutdown();
+    }
 }

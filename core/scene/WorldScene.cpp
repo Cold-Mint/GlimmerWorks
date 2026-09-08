@@ -48,6 +48,16 @@ glimmer::WorldScene::WorldScene(AppContext *context, std::unique_ptr<WorldContex
             (PROJECT_NAME + " - " + worldContext_->GetMapManifest()->name).c_str());
     }
     Init();
+    uniformInjectContext_ = std::make_unique<UniformInjectContext>();
+    uniformInjectContext_->worldContext = worldContext_.get();
+    EntityShortCut *entityShortCut = worldContext_->GetEntityShortCut();
+    if (entityShortCut == nullptr) {
+        LogCat::e(std::source_location::current(), "entity_short_cut_is_null", "EntityShortCut is nullptr");
+        return;
+    }
+    uniformInjectContext_->camera = entityShortCut->GetCameraComponent();
+    uniformInjectContext_->cameraTransform = entityShortCut->GetCameraTransform2DComponent();
+    uniformInjectContext_->lightBuffer = worldContext_->GetLightingBuffer();
 }
 
 
@@ -76,7 +86,8 @@ void glimmer::WorldScene::OnWindowClose() {
     if (worldContext_ == nullptr) {
         return;
     }
-    LogCat::i("saving_game_on_window_close", "Saving game on window close: worldName={}", worldContext_->GetMapManifest()->name);
+    LogCat::i("saving_game_on_window_close", "Saving game on window close: worldName={}",
+              worldContext_->GetMapManifest()->name);
     worldContext_->SaveGame();
     LogCat::i("game_saved_successfully", "Game saved successfully");
 }
@@ -115,6 +126,10 @@ void glimmer::WorldScene::LoadDocuments() {
     if (systemScheduler_ != nullptr) {
         systemScheduler_->LoadDocuments(this);
     }
+}
+
+glimmer::UniformInjectContext *glimmer::WorldScene::GetUniformInjectContext() {
+    return uniformInjectContext_.get();
 }
 
 void glimmer::WorldScene::OnCreateDataModels() {

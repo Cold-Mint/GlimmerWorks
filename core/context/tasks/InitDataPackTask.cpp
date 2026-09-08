@@ -48,7 +48,7 @@ bool glimmer::InitDataPackTask::Run(ISystemBucket *systemBucket) {
     PackScanRequest packScanRequest;
     packScanRequest.SetAppContext(appContext_);
     if (dataPackManager->Scan(&packScanRequest) == 0) {
-        LogCat::e(std::source_location::current(), "data_pack_not_found", "The data package cannot be found.");
+        LogCat::publicError(ErrorCode::MISSING_RESPACK,std::source_location::current(), "missing_required_data_pack", "At least one available datapack must be installed.");
         return false;
     }
     RecipeManager *recipeManager = modContext->GetRecipeManager();
@@ -58,4 +58,8 @@ bool glimmer::InitDataPackTask::Run(ISystemBucket *systemBucket) {
     }
     recipeManager->PreSortRecipes();
     return true;
+}
+
+std::string glimmer::InitDataPackTask::GetTaskName() {
+    return "InitDataPackTask";
 }

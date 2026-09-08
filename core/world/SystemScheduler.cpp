@@ -29,7 +29,6 @@
 #include <utility>
 
 #include "core/ecs/EntityManager.h"
-#include "core/ecs/system/AreaMarkerSystem.h"
 #include "core/ecs/system/AutoPickSystem.h"
 #include "core/ecs/system/BiomeBGMSystem.h"
 #include "core/ecs/system/BlueprintSystem.h"
@@ -360,7 +359,6 @@ void glimmer::SystemScheduler::InitSystem() {
     RegisterSystem(std::make_unique<FloatingTextSystem>(worldContext_));
     RegisterSystem(std::make_unique<DroppedItemSystem>(worldContext_));
     RegisterSystem(std::make_unique<AutoPickSystem>(worldContext_));
-    RegisterSystem(std::make_unique<AreaMarkerSystem>(worldContext_));
     RegisterSystem(std::make_unique<MiningSystem>(worldContext_));
     RegisterSystem(std::make_unique<SpiritRendererSystem>(worldContext_));
     RegisterSystem(std::make_unique<RayCast2DSystem>(worldContext_));

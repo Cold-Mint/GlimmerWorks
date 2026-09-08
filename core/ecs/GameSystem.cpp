@@ -31,8 +31,8 @@
 
 
 void glimmer::GameSystem::OnActivationChanged(const bool activeStatus) {
-    LogCat::i("game_system_activation_changed", "GameSystem activation changed: {}",
-              activeStatus ? "active" : "inactive");
+    LogCat::i("game_system_activation_changed", "GameSystem {} activation changed: {}",
+              std::to_underlying(GetGameSystemType()), activeStatus ? "active" : "inactive");
 }
 
 void glimmer::GameSystem::AddActiveWatchComponent(GameComponentTypeMessage gameComponentType) {

@@ -54,6 +54,7 @@ namespace glimmer {
         Rml::Context *context_ = nullptr;
         std::unordered_map<uint64_t, Rml::ElementDocument *> elementDocumentCache_;
         std::vector<std::vector<Rml::byte> > fontDataBuffers_;
+        bool initialized_ = false;
 
         [[nodiscard]] Rml::ElementDocument *LoadDocument(AppContext *appContext,
                                                          const ResourceRef *resourceRef, bool enablePlaceHolder = true);

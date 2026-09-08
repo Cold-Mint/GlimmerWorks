@@ -51,3 +51,7 @@ bool glimmer::InitModContextTask::Run(ISystemBucket *systemBucket) {
 void glimmer::InitModContextTask::Rollback(ISystemBucket *systemBucket) {
     systemBucket->SetModContext(nullptr);
 }
+
+std::string glimmer::InitModContextTask::GetTaskName() {
+    return "InitModContextTask";
+}

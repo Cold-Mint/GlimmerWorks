@@ -37,6 +37,7 @@
 bool glimmer::InitLangsTask::Run(ISystemBucket *systemBucket) {
     const VirtualFileSystem *virtualFileSystem = systemBucket->GetVirtualFileSystem();
     if (virtualFileSystem == nullptr) {
+        LogCat::e(std::source_location::current(), "vfs_is_null", "virtualFileSystem is nullptr");
         return false;
     }
     std::filesystem::path langFile = "langs" / std::filesystem::path(systemBucket->GetLanguage());
@@ -46,6 +47,8 @@ bool glimmer::InitLangsTask::Run(ISystemBucket *systemBucket) {
     }
     const auto langData = virtualFileSystem->ReadFileAsString(langFile);
     if (!langData.has_value()) {
+        LogCat::publicError(ErrorCode::CAN_NOT_READ_LANG, std::source_location::current(), "can_not_read_language",
+                            "can not read language file at langs folder");
         return false;
     }
     auto tomlValue = toml::parse_str(langData.value(), TOML_VERSION);
@@ -187,7 +190,7 @@ bool glimmer::InitLangsTask::Run(ISystemBucket *systemBucket) {
         const auto logIt = rootTable.find("log");
         if (logIt != rootTable.end() && logIt->second.is_table()) {
             auto logTable = std::make_shared<std::unordered_map<std::string, std::string> >();
-            for (const auto &[logKey, logValue] : logIt->second.as_table()) {
+            for (const auto &[logKey, logValue]: logIt->second.as_table()) {
                 if (logValue.is_string()) {
                     logTable->emplace(logKey, logValue.as_string());
                 }
@@ -205,4 +208,8 @@ void glimmer::InitLangsTask::Rollback(ISystemBucket *systemBucket) {
     systemBucket->SetLangsResources(nullptr);
     systemBucket->SetLangsValue(nullptr);
     LogCat::ClearLocalizer();
+}
+
+std::string glimmer::InitLangsTask::GetTaskName() {
+    return "InitLangsTask";
 }

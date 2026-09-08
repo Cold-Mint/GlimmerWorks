@@ -46,7 +46,8 @@ bool glimmer::InitResourceLocatorTask::Run(ISystemBucket *systemBucket) {
         return false;
     }
     if (const size_t number = mobRegistry->GetPlayerResourceList().size(); number == 0) {
-        LogCat::e(std::source_location::current(), "player_resource_required", "At least one player resource is required.");
+        LogCat::publicError(ErrorCode::MISSING_PLAYER, std::source_location::current(), "player_resource_required",
+                            "At least one player resource is required.");
         return false;
     }
     systemBucket->SetResourceLocator(std::make_unique<ResourceLocator>(appContext_));
@@ -61,4 +62,8 @@ bool glimmer::InitResourceLocatorTask::Run(ISystemBucket *systemBucket) {
 
 void glimmer::InitResourceLocatorTask::Rollback(ISystemBucket *systemBucket) {
     systemBucket->SetResourceLocator(nullptr);
+}
+
+std::string glimmer::InitResourceLocatorTask::GetTaskName() {
+    return "InitResourceLocatorTask";
 }

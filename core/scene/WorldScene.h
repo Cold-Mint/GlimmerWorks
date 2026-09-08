@@ -35,6 +35,7 @@ namespace glimmer {
 
     class WorldScene : public Scene {
         std::unique_ptr<WorldContext> worldContext_;
+        std::unique_ptr<UniformInjectContext> uniformInjectContext_;
         SystemScheduler *systemScheduler_;
 
     public:
@@ -59,6 +60,8 @@ namespace glimmer {
         void Render(RenderQueue *queue) override;
 
         void LoadDocuments() override;
+
+        [[nodiscard]] UniformInjectContext *GetUniformInjectContext() override;
 
         void OnCreateDataModels() override;
     };

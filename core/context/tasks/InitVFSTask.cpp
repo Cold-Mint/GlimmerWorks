@@ -93,7 +93,8 @@ bool glimmer::InitVFSTask::Run(ISystemBucket *systemBucket) {
     }
     jmethodID getAbsolutePathMethod = env->GetMethodID(fileClass, "getAbsolutePath", "()Ljava/lang/String;");
     if (getAbsolutePathMethod == nullptr) {
-        LogCat::e(std::source_location::current(), "get_absolute_path_method_is_null", "getAbsolutePathMethod is nullptr");
+        LogCat::e(std::source_location::current(), "get_absolute_path_method_is_null",
+                  "getAbsolutePathMethod is nullptr");
         return;
     }
     auto absolutePathJStr = static_cast<jstring>(env->CallObjectMethod(dataDirFile, getAbsolutePathMethod));
@@ -120,4 +121,8 @@ bool glimmer::InitVFSTask::Run(ISystemBucket *systemBucket) {
 
 void glimmer::InitVFSTask::Rollback(ISystemBucket *systemBucket) {
     systemBucket->SetVirtualFileSystem(nullptr);
+}
+
+std::string glimmer::InitVFSTask::GetTaskName() {
+    return "InitVFSTask";
 }

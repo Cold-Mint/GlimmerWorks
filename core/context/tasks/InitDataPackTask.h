@@ -37,5 +37,7 @@ namespace glimmer {
         explicit InitDataPackTask(AppContext *appContext);
 
         bool Run(ISystemBucket *systemBucket) override;
+
+        std::string GetTaskName() override;
     };
 }

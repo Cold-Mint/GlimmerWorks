@@ -31,7 +31,6 @@ namespace glimmer {
     enum class GameSystemType : uint8_t {
         None,
         AndroidControlSystem,
-        AreaMarkerSystem,
         AutoPickSystem,
         BiomeBGMSystem,
         BlueprintSystem,

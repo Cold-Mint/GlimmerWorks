@@ -125,9 +125,6 @@ void glimmer::ConsoleContext::RegisterCommands(AppContext *appContext) const {
     commandManager_->RegisterCommand(std::make_unique<ConfigCommand>(appContext));
 }
 
-glimmer::ConsoleContext::ConsoleContext() = default;
-
-glimmer::ConsoleContext::~ConsoleContext() = default;
 
 bool glimmer::ConsoleContext::Init(AppContext *appContext, VirtualFileSystem *vfs, const std::string &runtimePath,
                                    int maxHistoryEntries) {

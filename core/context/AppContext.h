@@ -64,7 +64,7 @@ namespace glimmer {
 
         bool IsRunning() const;
 
-        bool InitSystem();
+        bool InitSystem() const;
 
         [[nodiscard]] WindowContext *GetWindowContext() const;
 

@@ -39,7 +39,8 @@ bool glimmer::InitConfigTask::Run(ISystemBucket *systemBucket) {
     }
     const std::optional<std::string> configData = virtualFileSystem->ReadFileAsString(CONFIG_FILE_NAME);
     if (!configData.has_value()) {
-        LogCat::e(std::source_location::current(), "config_data_no_value", "configData not has value");
+        LogCat::publicError(ErrorCode::CAN_NOT_READ_CONFIG_DATA, std::source_location::current(),
+                            "can_not_read_config_data", "Can not read {}.",CONFIG_FILE_NAME);
         return false;
     }
     auto config = std::make_unique<Config>();
@@ -52,4 +53,8 @@ bool glimmer::InitConfigTask::Run(ISystemBucket *systemBucket) {
 
 void glimmer::InitConfigTask::Rollback(ISystemBucket *systemBucket) {
     systemBucket->SetConfig(nullptr);
+}
+
+std::string glimmer::InitConfigTask::GetTaskName() {
+    return "InitConfigTask";
 }

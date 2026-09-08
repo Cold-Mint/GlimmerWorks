@@ -50,7 +50,9 @@ bool glimmer::InitResourcePackTask::Run(ISystemBucket *systemBucket) {
     PackScanRequest packScanRequest;
     packScanRequest.SetAppContext(appContext_);
     if (resourcePackManager->Scan(&packScanRequest) == 0) {
-        LogCat::e(std::source_location::current(), "resource_pack_not_found", "The resource package cannot be found.");
+        LogCat::publicError(ErrorCode::MISSING_RESPACK, std::source_location::current(),
+                            "missing_required_resource_pack",
+                            "At least one available resource pack must be installed.");
         return false;
     }
     systemBucket->SetResourcePackManager(std::move(resourcePackManager));
@@ -59,4 +61,8 @@ bool glimmer::InitResourcePackTask::Run(ISystemBucket *systemBucket) {
 
 void glimmer::InitResourcePackTask::Rollback(ISystemBucket *systemBucket) {
     systemBucket->SetResourcePackManager(nullptr);
+}
+
+std::string glimmer::InitResourcePackTask::GetTaskName() {
+    return "InitResourcePackTask";
 }

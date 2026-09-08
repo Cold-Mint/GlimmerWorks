@@ -39,5 +39,7 @@ namespace glimmer {
         bool Run(ISystemBucket *systemBucket) override;
 
         void Rollback(ISystemBucket *systemBucket) override;
+
+        std::string GetTaskName() override;
     };
 }

@@ -594,7 +594,6 @@ target_sources(GlimmerWorks
         core/ecs/component/TilePlacementForbiddenZoneComponent.cpp
         core/ecs/component/Transform2DComponent.cpp
         core/ecs/system/AndroidControlSystem.cpp
-        core/ecs/system/AreaMarkerSystem.cpp
         core/ecs/system/AutoPickSystem.cpp
         core/ecs/system/BiomeBGMSystem.cpp
         core/ecs/system/BlueprintSystem.cpp
@@ -807,6 +806,7 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL_GPU.h"
         core/app/App.h
         core/world/DayNormalizedTime.h
+        core/log/ErrorCode.h
         core/rmi/dataModel/DimensionItem.h
         core/context/tasks/InitValidateGameTask.h
         core/saves/PlayerManifest.h
@@ -1020,7 +1020,6 @@ target_sources(GlimmerWorks
         core/ecs/component/TilePlacementForbiddenZoneComponent.h
         core/ecs/component/Transform2DComponent.h
         core/ecs/system/AndroidControlSystem.h
-        core/ecs/system/AreaMarkerSystem.h
         core/ecs/system/AutoPickSystem.h
         core/ecs/system/BiomeBGMSystem.h
         core/ecs/system/BlueprintSystem.h

@@ -71,10 +71,6 @@ glimmer::EntityManager *glimmer::WorldContext::GetEntityManager() const {
 }
 
 glimmer::EntityShortCut *glimmer::WorldContext::GetEntityShortCut() const {
-    if (entityShortCut_ == nullptr) {
-        LogCat::w(std::source_location::current(), "entity_shortcut_is_null", "entityShortCut is nullptr");
-        return nullptr;
-    }
     return entityShortCut_.get();
 }
 
@@ -209,6 +205,10 @@ glimmer::LightBuffer *glimmer::WorldContext::GetLightingBuffer() const {
 
 glimmer::TileInstancePool *glimmer::WorldContext::GetTileInstancePool() const {
     return tileInstancePool_.get();
+}
+
+glimmer::Dimension *glimmer::WorldContext::GetDimension() const {
+    return dimension_.get();
 }
 
 

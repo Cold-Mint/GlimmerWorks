@@ -69,7 +69,7 @@ namespace glimmer {
         void Init();
 
     public:
-        virtual ~GameSystem() = default;
+        ~GameSystem() override = default;
 
         explicit GameSystem(WorldContext *worldContext);
 

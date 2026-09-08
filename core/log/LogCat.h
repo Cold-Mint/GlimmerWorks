@@ -35,6 +35,8 @@
 #include <string_view>
 #include <unordered_map>
 #include <fmt/format.h>
+
+#include "ErrorCode.h"
 #ifdef __ANDROID__
 #include <android/log.h>
 #endif
@@ -119,6 +121,10 @@ namespace glimmer {
 #endif
         }
 
+        /**
+         * Errors applicable to the internal part of the engine.
+         * 适用于引擎内部的错误。
+         */
         template<typename... Args>
         static void e(const std::source_location sourceLocation, std::string_view key, std::string_view fallback,
                       Args &&... args) {
@@ -130,6 +136,32 @@ namespace glimmer {
 #else
             std::cout << COLOR_ERROR;
             std::cout << "[e] At " << sourceLocation.file_name() << ":" << sourceLocation.line() << " " << message;
+            std::cout << COLOR_RESET << std::endl;
+#endif
+#if  !defined(NDEBUG)
+            assert(false);
+#endif
+        }
+
+        /**
+         * Used for outputting errors related to data packets and material packages, targeted at players / data packet / material package developers.
+         * 用于输出数据包，材质包相关的错误，面向玩家/数据包/材质包开发者。
+         */
+        template<typename... Args>
+        static void publicError(const ErrorCode errorCode, const std::source_location sourceLocation,
+                                std::string_view key,
+                                std::string_view fallback,
+                                Args &&... args) {
+            const std::string message = Format(key, fallback, std::forward<Args>(args)...);
+#ifdef __ANDROID__
+            std::ostringstream oss;
+            oss << "[e] At " << sourceLocation.file_name() << ":" << sourceLocation.line() << " " << message;
+            __android_log_print(ANDROID_LOG_ERROR, "GlimmerWorks", "%s", oss.str().c_str());
+#else
+            std::cout << COLOR_ERROR;
+            std::cout << "[e-" << static_cast<uint32_t>(errorCode) << "] At " << sourceLocation.
+                    file_name() << ":" <<
+                    sourceLocation.line() << " " << message;
             std::cout << COLOR_RESET << std::endl;
 #endif
 #if  !defined(NDEBUG)

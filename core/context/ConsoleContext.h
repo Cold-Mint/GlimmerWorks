@@ -50,10 +50,6 @@ namespace glimmer {
         void RegisterCommands(AppContext *appContext) const;
 
     public:
-        ConsoleContext();
-
-        ~ConsoleContext();
-
         bool Init(AppContext *appContext, VirtualFileSystem *vfs, const std::string &runtimePath,
                   int maxHistoryEntries);
 

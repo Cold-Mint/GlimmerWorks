@@ -37,3 +37,7 @@ bool glimmer::InitRmlContextTask::Run(ISystemBucket *systemBucket) {
 void glimmer::InitRmlContextTask::Rollback(ISystemBucket *systemBucket) {
     systemBucket->SetRmlContext(nullptr);
 }
+
+std::string glimmer::InitRmlContextTask::GetTaskName() {
+    return "InitRmlContextTask";
+}

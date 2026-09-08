@@ -175,7 +175,7 @@ namespace glimmer {
          * camera viewport (plus a one-tile border).
          * 根据相机视口（含一格边距）从光照缓冲重建逐瓦片光照贴图纹理。
          */
-        void UpdateLightMap(const UniformInjectContext *injectContext);
+        void UpdateLightMap(UniformInjectContext *injectContext);
 
     public:
         explicit AppRenderer(AppContext *appContext);

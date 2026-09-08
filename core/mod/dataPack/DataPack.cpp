@@ -213,6 +213,9 @@ void glimmer::DataPack::LoadDimensionResourceFromFile(const toml::value &value,
     auto dimensionResource = std::make_unique<DimensionResource>(toml::get<DimensionResource>(value));
     dimensionResource->packId = manifest_.id;
     dimensionResource->name.SetSelfPackageId(manifest_.id);
+    for (auto &ambientLightKeyframe: dimensionResource->ambientLightKeyframes) {
+        ambientLightKeyframe.color.SetSelfPackageId(manifest_.id);
+    }
     dimensionRegistry->Register(std::move(dimensionResource));
 }
 

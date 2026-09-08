@@ -80,7 +80,7 @@ glimmer::Color glimmer::ColorUtils::ComputeAmbientLight(ResourceLocator *resourc
         if (resourceLocator == nullptr) {
             return {};
         }
-        const std::unique_ptr<Color> color = resourceLocator->FindColor(&ref, false);
+        const std::unique_ptr<Color> color = resourceLocator->FindColor(&ref);
         return color != nullptr ? *color : Color{};
     };
     if (keyframes.size() == 1) {

@@ -124,11 +124,9 @@ void glimmer::AppRenderer::RenderFrame(const RmlContext *rmlContext, const int w
         uniformInjectContext->width = static_cast<float>(logicalWidth);
         uniformInjectContext->height = static_cast<float>(logicalHeight);
     } else {
-        LogCat::i("app_renderer_uniform_inject_context_is_null",
+        LogCat::w(std::source_location::current(), "app_renderer_uniform_inject_context_is_null",
                   "UniformInjectContext is null, lighting pass will be skipped (black screen)");
     }
-    LogCat::i("app_renderer_frame_info", "RenderFrame: w={}, h={}, commands={}, injectContext={}",
-              logicalWidth, logicalHeight, renderQueue_.GetCommandCount(), uniformInjectContext != nullptr);
     EnsureSceneTexture(logicalWidth, logicalHeight);
     FlushScenePass(commandBuffer, sceneTexture_, logicalWidth, logicalHeight,
                    uniformInjectContext);
@@ -210,36 +208,26 @@ void glimmer::AppRenderer::EnsureTransferBufferSize(const Uint32 size) {
 
 void glimmer::AppRenderer::FlushScenePass(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUTexture *targetTexture,
                                           Uint32 width, Uint32 height, UniformInjectContext *injectContext) {
-    //     sceneInjectContext.camera = camera;
-    // sceneInjectContext.cameraTransform = cameraTransform;
-    // sceneInjectContext.worldContext = worldContext;
-    // sceneInjectContext.width = static_cast<float>(width);
-    // sceneInjectContext.height = static_cast<float>(height);
-
     const bool hasCommands = !renderQueue_.IsEmpty();
-    LogCat::i("app_renderer_scene_pass_info",
-              "FlushScenePass: commands={}, targetTexture={}, vertexBuffer={}, indexBuffer={}",
-              renderQueue_.GetCommandCount(), targetTexture != nullptr, vertexBuffer_ != nullptr,
-              indexBuffer_ != nullptr);
 
     if (hasCommands) {
         renderQueue_.Sort();
         const std::vector<RenderCommand> &commands = renderQueue_.GetCommands();
-        std::vector<SpriteVertex> vertices;
-        std::vector<Uint32> indices;
-        vertices.reserve(commands.size() * 4);
-        indices.reserve(commands.size() * 6);
+        vertexStaging_.clear();
+        indexStaging_.clear();
+        vertexStaging_.reserve(commands.size() * 4);
+        indexStaging_.reserve(commands.size() * 6);
         for (const RenderCommand &command: commands) {
-            const auto baseIndex = static_cast<Uint32>(vertices.size());
-            vertices.insert(vertices.end(), command.corners, command.corners + 4);
+            const auto baseIndex = static_cast<Uint32>(vertexStaging_.size());
+            vertexStaging_.insert(vertexStaging_.end(), command.corners, command.corners + 4);
             const Uint32 quadIndices[6] = {
                 baseIndex + 0, baseIndex + 1, baseIndex + 2,
                 baseIndex + 1, baseIndex + 3, baseIndex + 2
             };
-            indices.insert(indices.end(), quadIndices, quadIndices + 6);
+            indexStaging_.insert(indexStaging_.end(), quadIndices, quadIndices + 6);
         }
-        const auto vertexDataSize = static_cast<Uint32>(vertices.size() * sizeof(SpriteVertex));
-        const auto indexDataSize = static_cast<Uint32>(indices.size() * sizeof(Uint32));
+        const auto vertexDataSize = static_cast<Uint32>(vertexStaging_.size() * sizeof(SpriteVertex));
+        const auto indexDataSize = static_cast<Uint32>(indexStaging_.size() * sizeof(Uint32));
         EnsureVertexBufferSize(vertexDataSize);
         EnsureIndexBufferSize(indexDataSize);
         EnsureTransferBufferSize(vertexDataSize + indexDataSize);
@@ -247,8 +235,8 @@ void glimmer::AppRenderer::FlushScenePass(SDL_GPUCommandBuffer *commandBuffer, S
         if (vertexBuffer_ != nullptr && indexBuffer_ != nullptr && transferBuffer_ != nullptr) {
             void *mapped = SDL_MapGPUTransferBuffer(device_, transferBuffer_, true);
             if (mapped != nullptr) {
-                std::memcpy(mapped, vertices.data(), vertexDataSize);
-                std::memcpy(static_cast<Uint8 *>(mapped) + vertexDataSize, indices.data(), indexDataSize);
+                std::memcpy(mapped, vertexStaging_.data(), vertexDataSize);
+                std::memcpy(static_cast<Uint8 *>(mapped) + vertexDataSize, indexStaging_.data(), indexDataSize);
                 SDL_UnmapGPUTransferBuffer(device_, transferBuffer_);
             }
 
@@ -431,30 +419,30 @@ void glimmer::AppRenderer::UpdateLightMap(UniformInjectContext *injectContext) {
     const auto sizeY = static_cast<Uint32>(tileMax.y - tileMin.y + 3);
     const Config *config = appContext_->GetConfig();
     const bool fullBright = config == nullptr || !config->light.enable;
-    WorldContext *worldContext = injectContext->worldContext;
-    const DimensionResource *dimensionResource = nullptr;
-    if (worldContext != nullptr && worldContext->GetDimension() != nullptr) {
-        dimensionResource = worldContext->GetDimension()->GetDimensionResource();
+    if (!ambientLightComputed_) {
+        WorldContext *worldContext = injectContext->worldContext;
+        const DimensionResource *dimensionResource = nullptr;
+        if (worldContext != nullptr && worldContext->GetDimension() != nullptr) {
+            dimensionResource = worldContext->GetDimension()->GetDimensionResource();
+        }
+        static const std::vector<LightKeyframe> emptyKeyframes;
+        const float timeOfDay = dimensionResource != nullptr ? dimensionResource->initialTime : 0.0F;
+        const std::vector<LightKeyframe> &keyframes = dimensionResource != nullptr
+                                                          ? dimensionResource->ambientLightKeyframes
+                                                          : emptyKeyframes;
+        ambientLight_ = ColorUtils::ComputeAmbientLight(resourceLocator_, timeOfDay, keyframes);
+        ambientLightComputed_ = true;
+        LogCat::i("app_renderer_ambient_light", "Ambient light: rgba=({},{},{},{}), timeOfDay={}, keyframes={}",
+                  static_cast<int>(ambientLight_.r), static_cast<int>(ambientLight_.g),
+                  static_cast<int>(ambientLight_.b), static_cast<int>(ambientLight_.a), timeOfDay,
+                  keyframes.size());
     }
-    static const std::vector<LightKeyframe> emptyKeyframes;
-    const float timeOfDay = dimensionResource != nullptr ? dimensionResource->initialTime : 0.0F;
-    const std::vector<LightKeyframe> &keyframes = dimensionResource != nullptr
-                                                       ? dimensionResource->ambientLightKeyframes
-                                                       : emptyKeyframes;
-    const Color ambient = ColorUtils::ComputeAmbientLight(resourceLocator_, timeOfDay, keyframes);
-    LogCat::i("app_renderer_ambient_light", "Ambient light: rgba=({},{},{},{}), timeOfDay={}, keyframes={}",
-              static_cast<int>(ambient.r), static_cast<int>(ambient.g), static_cast<int>(ambient.b),
-              static_cast<int>(ambient.a), timeOfDay, keyframes.size());
-    lightMapTexture_.Update(device_, injectContext->lightBuffer, fullBright ? nullptr : &ambient,
+    lightMapTexture_.Update(device_, injectContext->lightBuffer, fullBright ? nullptr : &ambientLight_,
                             originX, originY, sizeX, sizeY, fullBright);
     injectContext->lightMapOriginX = originX;
     injectContext->lightMapOriginY = originY;
     injectContext->lightMapSizeX = sizeX;
     injectContext->lightMapSizeY = sizeY;
-    LogCat::i("app_renderer_light_map_info",
-              "UpdateLightMap: viewport=({},{},{},{}), origin=({},{}), size=({}x{}), fullBright={}",
-              viewportRect.x, viewportRect.y, viewportRect.w, viewportRect.h,
-              originX, originY, sizeX, sizeY, fullBright);
 }
 
 void glimmer::AppRenderer::EnsureSceneTexture(const Uint32 width, const Uint32 height) {

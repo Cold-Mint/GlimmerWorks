@@ -169,7 +169,7 @@ void glimmer::LightMapTexture::Upload(SDL_GPUCommandBuffer *commandBuffer) {
     if (transferBuffer_ == nullptr) {
         return;
     }
-    void *mapped = SDL_MapGPUTransferBuffer(device_, transferBuffer_, false);
+    void *mapped = SDL_MapGPUTransferBuffer(device_, transferBuffer_, true);
     if (mapped == nullptr) {
         return;
     }
@@ -195,7 +195,7 @@ void glimmer::LightMapTexture::Upload(SDL_GPUCommandBuffer *commandBuffer) {
     destination.w = width_;
     destination.h = height_;
     destination.d = 1;
-    SDL_UploadToGPUTexture(copyPass, &source, &destination, false);
+    SDL_UploadToGPUTexture(copyPass, &source, &destination, true);
     SDL_EndGPUCopyPass(copyPass);
     dirty_ = false;
 }

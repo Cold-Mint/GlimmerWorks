@@ -33,6 +33,7 @@
 
 #include "core/context/AppContext.h"
 #include "core/gpu/LightMapTexture.h"
+#include "core/math/Color.h"
 #include "core/gpu/RenderQueue.h"
 #include "core/gpu/UniformInjectContext.h"
 #include "core/mod/resourcePack/GPUSamplerResourceResult.h"
@@ -97,6 +98,19 @@ namespace glimmer {
         //Per-frame staging buffer for scene-pass command uniform blocks.
         //场景 pass 命令 uniform 块的逐帧 staging 缓冲区。
         std::vector<uint8_t> sceneStagingBuffer_;
+        //CPU-side staging buffers reused across frames to assemble the vertex
+        //and index data before upload, avoiding per-frame heap allocation.
+        //跨帧复用的 CPU 端暂存缓冲区，用于在上传前组装顶点/索引数据，
+        //避免每帧堆分配。
+        std::vector<SpriteVertex> vertexStaging_;
+        std::vector<Uint32> indexStaging_;
+        //Cached ambient light resolved from the dimension's keyframes at the
+        //fixed initial time (no day/night flow yet), so color resources are
+        //not re-resolved every frame.
+        //按固定初始时间从维度关键帧解析并缓存的环境光（暂无昼夜流动），
+        //避免每帧重复解析颜色资源。
+        Color ambientLight_;
+        bool ambientLightComputed_ = false;
 
 
         void RenderOverlays();

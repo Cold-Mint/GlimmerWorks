@@ -36,11 +36,13 @@ void glimmer::PlayerManifest::FromMessage(const PlayerMessage &playerMessage) {
         visitedDimensions[i] = playerMessage.visiteddimensions(i);
     }
     entityItemMessage = playerMessage.entity();
+    customDimension.ReadResourceRefMessage(playerMessage.currentdimension());
 }
 
 void glimmer::PlayerManifest::ToMessage(PlayerMessage &playerMessage) const {
     playerMessage.set_lastplayedtime(lastPlayedTime);
     playerMessage.set_permissionlevel(permissionLevel);
+    customDimension.WriteResourceRefMessage(*playerMessage.mutable_currentdimension());
     playerMessage.mutable_visiteddimensions()->Clear();
     size_t visitedDimensionsSize = visitedDimensions.size();
     for (int i = 0; i < visitedDimensionsSize; ++i) {

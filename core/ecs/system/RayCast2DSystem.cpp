@@ -38,12 +38,7 @@ void glimmer::RayCast2DSystem::OnWatchedComponentChanged(GameComponentTypeMessag
     }
 }
 
-glimmer::RayCast2DSystem::RayCast2DSystem(WorldContext *worldContext) : GameSystem(worldContext) {
-    WatchComponent(COMPONENT_RAY_CAST_2D);
-    Init();
-}
-
-void glimmer::RayCast2DSystem::Update(float delta) {
+void glimmer::RayCast2DSystem::OnTick(uint64_t tick) {
     const WorldContext *worldContext = GetWorldContext();
     EntityManager *entityManager = GetEntityManager();
     if (worldContext == nullptr) {
@@ -79,6 +74,12 @@ void glimmer::RayCast2DSystem::Update(float delta) {
         }
     }
 }
+
+glimmer::RayCast2DSystem::RayCast2DSystem(WorldContext *worldContext) : GameSystem(worldContext) {
+    WatchComponent(COMPONENT_RAY_CAST_2D);
+    Init();
+}
+
 
 glimmer::GameSystemType glimmer::RayCast2DSystem::GetGameSystemType() const {
     return GameSystemType::RayCast2DSystem;

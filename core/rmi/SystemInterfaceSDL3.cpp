@@ -30,7 +30,10 @@
 #include "core/log/LogCat.h"
 #include "toml11/find.hpp"
 
-glimmer::SystemInterfaceSDL3::SystemInterfaceSDL3(toml::value *langsValuePtr) : langsValuePtr_(langsValuePtr) {
+
+glimmer::SystemInterfaceSDL3::SystemInterfaceSDL3(toml::value *langsValuePtr,
+                                                  SDL_Window *window) : SystemInterface_SDL(window),
+                                                                        langsValuePtr_(langsValuePtr) {
 }
 
 int glimmer::SystemInterfaceSDL3::TranslateString(Rml::String &translated, const Rml::String &input) {

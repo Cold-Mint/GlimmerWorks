@@ -51,12 +51,12 @@ void glimmer::ChunkLoader::LoadEntityFromSaves(TileVector2D position) const {
 glimmer::ChunkLoader::ChunkLoader(WorldContext *worldContext, Saves *saves, std::string dimensionFolderName)
     : saves_(saves),
       worldContext_(worldContext),
-      dimensionFolderName_(std::move(dimensionFolderName)) {
+      dimensionFolderName_(std::move(dimensionFolderName)), entityManager_(worldContext_->GetEntityManager()) {
 }
 
 GameEntityID glimmer::ChunkLoader::RecoveryEntity(const EntityItemMessage &entityItemMessage) const {
     const auto id = entityItemMessage.gameentity().id();
-    worldContext_->GetEntityManager()->AddEntity(id);
+    entityManager_->AddEntity(id);
     if (entityItemMessage.has_resourceref()) {
         const ResourceRefMessage &resourceRefMessage = entityItemMessage.resourceref();
         const uint32_t resourceType = resourceRefMessage.resourcetype();

@@ -34,6 +34,7 @@ namespace glimmer {
     class ChunkLoader {
         Saves *saves_ = nullptr;
         WorldContext *worldContext_ = nullptr;
+        EntityManager *entityManager_ = nullptr;
         std::string dimensionFolderName_;
 
         /**

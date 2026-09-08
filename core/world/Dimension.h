@@ -26,21 +26,9 @@
  */
 #pragma once
 
-#include <memory>
-#include <string>
-
-#include "DayNormalizedTime.h"
-#include "src/saves/dimension_manifest.pb.h"
+#include "core/mod/Resource.h"
 
 namespace glimmer {
-    class WorldContext;
-    class ChunkManager;
-    class TerrainManager;
-    class ChunkGenerator;
-    class ChunkLoader;
-    class WeatherManager;
-    struct DimensionResource;
-
     /**
      * Dimension
      * 维度
@@ -48,90 +36,11 @@ namespace glimmer {
      * 维度持有独立的世界生成、区块存储、地形和时间状态。
      */
     class Dimension {
-        WorldContext *worldContext_ = nullptr;
-
-        /**
-         * The id of the dimension ("packId:resourceId"). Used for biome matching.
-         * 维度Id（packId:resourceId），用于生物群系匹配。
-         */
-        std::string dimensionId_;
-
-        /**
-         * The folder name of the dimension inside the save ("packId_resourceId").
-         * 维度在存档内的目录名（packId_resourceId）。
-         */
-        std::string dimensionFolderName_;
-
         DimensionResource *dimensionResource_ = nullptr;
 
-        DimensionManifestMessage dimensionManifestMessage_;
-
-        /**
-         * Current time of day in the range [0, 1). 0 = morning, 0.5 = midnight, 1 wraps to 0 (next morning).
-         * 当前时间（0..1）。0代表清晨，0.5代表午夜，1回绕到0（次日清晨）。
-         */
-        DayNormalizedTime timeOfDay_ = 0.0F;
-
-        /**
-         * Time flow speed. 0 disables the day/night cycle.
-         * 时间流动速度。0则禁用昼夜循环。
-         */
-        float timeFlowSpeed_ = 1.0F;
-
-        /**
-         * Initial time on first entry (0..1).
-         * 首次进入维度的时间起点（0..1）。
-         */
-        DayNormalizedTime initialTime_ = 0.0F;
-
-        std::unique_ptr<ChunkManager> chunkManager_;
-        std::unique_ptr<TerrainManager> terrainManager_;
-        std::unique_ptr<ChunkGenerator> chunkGenerator_;
-        std::unique_ptr<ChunkLoader> chunkLoader_;
-
     public:
-        Dimension(WorldContext *worldContext, DimensionResource *dimensionResource);
-
-        ~Dimension();
-
-        /**
-         * Init
-         * 初始化维度（创建各管理器并恢复/设置时间）。
-         */
-        void Init();
-
-        /**
-         * SaveTime
-         * 将当前时间写入维度清单。
-         */
-        void SaveTime() const;
-
-        [[nodiscard]] const std::string &GetDimensionId() const;
-
-        [[nodiscard]] const std::string &GetDimensionFolderName() const;
+        void SetDimensionResource(DimensionResource *dimensionResource);
 
         [[nodiscard]] DimensionResource *GetDimensionResource() const;
-
-        [[nodiscard]] ChunkManager *GetChunkManager() const;
-
-        [[nodiscard]] TerrainManager *GetTerrainManager() const;
-
-        [[nodiscard]] ChunkGenerator *GetChunkGenerator() const;
-
-        [[nodiscard]] ChunkLoader *GetChunkLoader() const;
-
-        [[nodiscard]] DayNormalizedTime GetTimeOfDay() const;
-
-        [[nodiscard]] uint64_t GetDimensionTick(uint64_t globalTick) const;
-
-        /**
-         * SetTimeOfDay
-         * 设置当前时间（0..1），自动回绕到 [0,1)。
-         */
-        void SetTimeOfDay(DayNormalizedTime time);
-
-        [[nodiscard]] float GetTimeFlowSpeed() const;
-
-        [[nodiscard]] float GetInitialTime() const;
     };
 }

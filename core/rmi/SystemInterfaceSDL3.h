@@ -33,7 +33,7 @@ namespace glimmer {
         toml::value *langsValuePtr_ = nullptr;
 
     public:
-        explicit SystemInterfaceSDL3(toml::value *langsValuePtr);
+        explicit SystemInterfaceSDL3(toml::value *langsValuePtr, SDL_Window *window);
 
         int TranslateString(Rml::String &translated, const Rml::String &input) override;
 

@@ -127,6 +127,15 @@ namespace glimmer {
         static std::string GetScreenshotFileName();
 
         /**
+         * GetDimensionFolderName
+         * 获取维度文件夹的名称
+         * @param packId
+         * @param key
+         * @return
+         */
+        static std::string GetDimensionFolderName(std::string packId, std::string key);
+
+        /**
          * Replace all
          * 替换全部
          * @param str str 源字符串

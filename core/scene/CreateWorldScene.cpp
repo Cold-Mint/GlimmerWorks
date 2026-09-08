@@ -212,10 +212,14 @@ void glimmer::CreateWorldScene::CreateWorld() const {
         return;
     }
     LogCat::i("World saved successfully");
-    mainThreadDispatcher_->PostToNextMainFrame([this, savesManager, saves] {
+    mainThreadDispatcher_->PostToNextMainFrame([this, saves] {
+        AppContext *appContext = GetAppContext();
+        if (appContext == nullptr) {
+            return;
+        }
         sceneManager_->ReplaceScene(std::make_unique<WorldScene>(
-            GetAppContext(), std::make_unique<WorldContext>(
-                GetAppContext(),
+            appContext, std::make_unique<WorldContext>(
+                appContext,
                 saves)));
     });
     LogCat::i("Transitioning to WorldScene");

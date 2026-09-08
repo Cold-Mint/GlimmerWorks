@@ -26,107 +26,13 @@
  */
 #include "Dimension.h"
 
-#include <cmath>
-
-#include "ChunkManager.h"
-#include "TerrainManager.h"
-#include "generator/ChunkGenerator.h"
-#include "generator/ChunkLoader.h"
-#include "core/log/LogCat.h"
 #include "core/mod/Resource.h"
-#include "core/saves/Saves.h"
-#include "WorldContext.h"
-#include "src/saves/dimension_manifest.pb.h"
 
-glimmer::Dimension::Dimension(WorldContext *worldContext, DimensionResource *dimensionResource)
-    : worldContext_(worldContext), dimensionResource_(dimensionResource) {
-    if (dimensionResource_ == nullptr) {
-        return;
-    }
-    dimensionId_ = Resource::GenerateId(dimensionResource_->packId, dimensionResource_->resourceId);
-    dimensionFolderName_ = dimensionResource_->packId + "_" + dimensionResource_->resourceId;
-    timeFlowSpeed_ = dimensionResource_->timeFlowSpeed;
-    initialTime_ = dimensionResource_->initialTime;
-}
 
-glimmer::Dimension::~Dimension() = default;
-
-void glimmer::Dimension::Init() {
-    LogCat::i("Initializing dimension: ", dimensionId_);
-    chunkManager_ = std::make_unique<ChunkManager>(worldContext_, dimensionFolderName_);
-    terrainManager_ = std::make_unique<TerrainManager>(worldContext_);
-    chunkGenerator_ = std::make_unique<
-        ChunkGenerator>(worldContext_, worldContext_->GetWorldSeed(), dimensionResource_);
-    chunkLoader_ = std::make_unique<ChunkLoader>(worldContext_, worldContext_->GetSaves(), dimensionFolderName_);
-    const Saves *saves = worldContext_->GetSaves();
-    if (saves == nullptr) {
-        LogCat::e(std::source_location::current(), "saves == nullptr");
-        return;
-    }
-    auto manifestOptional = saves->ReadDimensionManifest(dimensionFolderName_);
-    if (manifestOptional.has_value()) {
-        dimensionManifestMessage_ = manifestOptional.value();
-    }
-}
-
-void glimmer::Dimension::SaveTime() const {
-    if (worldContext_ == nullptr) {
-        return;
-    }
-    Saves *saves = worldContext_->GetSaves();
-    if (saves == nullptr) {
-        return;
-    }
-    (void) saves->WriteDimensionManifest(dimensionFolderName_, dimensionManifestMessage_);
-}
-
-const std::string &glimmer::Dimension::GetDimensionId() const {
-    return dimensionId_;
-}
-
-const std::string &glimmer::Dimension::GetDimensionFolderName() const {
-    return dimensionFolderName_;
+void glimmer::Dimension::SetDimensionResource(DimensionResource *dimensionResource) {
+    dimensionResource_ = dimensionResource;
 }
 
 glimmer::DimensionResource *glimmer::Dimension::GetDimensionResource() const {
     return dimensionResource_;
-}
-
-glimmer::ChunkManager *glimmer::Dimension::GetChunkManager() const {
-    return chunkManager_.get();
-}
-
-glimmer::TerrainManager *glimmer::Dimension::GetTerrainManager() const {
-    return terrainManager_.get();
-}
-
-glimmer::ChunkGenerator *glimmer::Dimension::GetChunkGenerator() const {
-    return chunkGenerator_.get();
-}
-
-glimmer::ChunkLoader *glimmer::Dimension::GetChunkLoader() const {
-    return chunkLoader_.get();
-}
-
-float glimmer::Dimension::GetTimeOfDay() const {
-    return timeOfDay_;
-}
-
-uint64_t glimmer::Dimension::GetDimensionTick(uint64_t globalTick) const {
-// dimensionManifestMessage_.
-}
-
-void glimmer::Dimension::SetTimeOfDay(const DayNormalizedTime time) {
-    timeOfDay_ = std::fmod(time, 1.0F);
-    if (timeOfDay_ < 0.0F) {
-        timeOfDay_ += 1.0F;
-    }
-}
-
-float glimmer::Dimension::GetTimeFlowSpeed() const {
-    return timeFlowSpeed_;
-}
-
-float glimmer::Dimension::GetInitialTime() const {
-    return initialTime_;
 }

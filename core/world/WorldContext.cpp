@@ -99,11 +99,11 @@ glimmer::MapManifest *glimmer::WorldContext::GetMapManifest() const {
 }
 
 glimmer::ChunkGenerator *glimmer::WorldContext::GetChunkGenerator() const {
-    return nullptr;
+    return chunkGenerator_.get();
 }
 
 glimmer::ChunkLoader *glimmer::WorldContext::GetChunkLoader() const {
-    return nullptr;
+    return chunkLoader_.get();
 }
 
 glimmer::AppContext *glimmer::WorldContext::GetAppContext() const {
@@ -124,26 +124,18 @@ bool glimmer::WorldContext::IsEmptyEntityId(const uint32_t id) {
 
 
 glimmer::ChunkManager *glimmer::WorldContext::GetChunkManager() const {
-    return nullptr;
+    return chunkManager_.get();
 }
 
 glimmer::TerrainManager *glimmer::WorldContext::GetTerrainManager() const {
-    return nullptr;
+    return terrainManager_.get();
 }
 
 glimmer::SystemScheduler *glimmer::WorldContext::GetSystemScheduler() const {
-    if (systemScheduler_ == nullptr) {
-        LogCat::w(std::source_location::current(), "systemScheduler is nullptr");
-        return nullptr;
-    }
     return systemScheduler_.get();
 }
 
 glimmer::PlayerContext *glimmer::WorldContext::GetPlayerContext() const {
-    if (playerContext_ == nullptr) {
-        LogCat::w(std::source_location::current(), "playerContext is nullptr");
-        return nullptr;
-    }
     return playerContext_.get();
 }
 
@@ -212,11 +204,11 @@ void glimmer::WorldContext::SaveGame() {
 
 
 glimmer::LightBuffer *glimmer::WorldContext::GetLightingBuffer() const {
-    return nullptr;
+    return lightBuffer_.get();
 }
 
 glimmer::TileInstancePool *glimmer::WorldContext::GetTileInstancePool() const {
-    return nullptr;
+    return tileInstancePool_.get();
 }
 
 
@@ -252,11 +244,11 @@ uint64_t glimmer::WorldContext::GetGlobalTick() const {
 glimmer::WorldContext::WorldContext(AppContext *appContext, Saves *saves) : saves_(saves),
                                                                             appContext_(appContext) {
     std::optional<MapManifestMessage> mapManifestOptional = saves->ReadMapManifest();
-    if (mapManifestOptional.has_value()) {
+    if (!mapManifestOptional.has_value()) {
         return;
     }
     std::optional<PlayerMessage> playerOptional = saves->ReadLocalPlayer();
-    if (playerOptional.has_value()) {
+    if (!playerOptional.has_value()) {
         return;
     }
     PlayerMessage &playerMessage = playerOptional.value();
@@ -285,9 +277,22 @@ glimmer::WorldContext::WorldContext(AppContext *appContext, Saves *saves) : save
         return;
     }
     ResourceRef &customDimension = playerManifest_->customDimension;
-    dimensionResource_ = dimensionRegistry->Find(customDimension.GetPackageId(),
-                                                 customDimension.GetResourceKey());
-
+    dimension_ = std::make_unique<Dimension>();
+    DimensionResource *dimensionResource = dimensionRegistry->Find(customDimension.GetPackageId(),
+                                                                   customDimension.GetResourceKey());
+    if (dimensionResource == nullptr) {
+        return;
+    }
+    std::string dimensionFolderName = StringUtils::GetDimensionFolderName(
+        customDimension.GetPackageId(),
+        customDimension.GetResourceKey());
+    dimension_->SetDimensionResource(dimensionResource);
+    chunkLoader_ = std::make_unique<ChunkLoader>(this, saves, dimensionFolderName);
+    chunkManager_ = std::make_unique<ChunkManager>(this, dimensionFolderName);
+    chunkGenerator_ = std::make_unique<ChunkGenerator>(this, worldSeed_, dimensionResource);
+    terrainManager_ = std::make_unique<TerrainManager>(this);
+    lightBuffer_ = std::make_unique<LightBuffer>();
+    tileInstancePool_ = std::make_unique<TileInstancePool>();
     fixedGlobalTick_ = mapManifest_->globalTickCount;
     auto *commandManager = appContext->GetConsoleContext()->GetCommandManager();
     commandManager->BindWorldContext(this);

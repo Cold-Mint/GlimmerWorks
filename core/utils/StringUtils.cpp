@@ -156,6 +156,10 @@ std::string glimmer::StringUtils::GetScreenshotFileName() {
     return oss.str();
 }
 
+std::string glimmer::StringUtils::GetDimensionFolderName(std::string packId, std::string key) {
+    return fmt::format("{}_{}", packId, key);
+}
+
 void glimmer::StringUtils::ReplaceAll(std::string &str, const std::string_view from, const std::string_view to) {
     if (from.empty()) {
         return;

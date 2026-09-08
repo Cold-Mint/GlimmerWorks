@@ -188,7 +188,7 @@ std::vector<Rml::ElementDocument *> glimmer::Scene::GetAllDocuments() const {
     return docs;
 }
 
-glimmer::UniformInjectContext * glimmer::Scene::GetUniformInjectContext() {
+glimmer::UniformInjectContext *glimmer::Scene::GetUniformInjectContext() {
     return nullptr;
 }
 

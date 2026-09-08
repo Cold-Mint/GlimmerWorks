@@ -52,7 +52,7 @@ namespace glimmer {
     class PlayerContext;
     class Dimension;
     struct DimensionResource;
-    struct ResourceRef;
+    class ResourceRef;
     struct LightKeyframe;
     struct SkyColorKeyframe;
 
@@ -61,66 +61,42 @@ namespace glimmer {
      * GameEntity 已被限制为仅在WorldContext内部直接访问。对外提供uint32_t。
      */
     class WorldContext : public ITickListener {
-        /**
-         * World Seed
-         * 世界种子
-         */
         int worldSeed_;
-
-        /**
-        * Game saves
-        * 游戏存档
-        */
         Saves *saves_;
-
-        b2WorldId worldId_ = b2_nullWorldId;
-        std::unique_ptr<MapManifest> mapManifest_ = nullptr;
-        std::unique_ptr<PlayerManifest> playerManifest_ = nullptr;
-        DimensionResource *dimensionResource_ = nullptr;
-        AppContext *appContext_ = nullptr;
-        std::unique_ptr<EntityManager> entityManager_;
-        std::unique_ptr<EntityShortCut> entityShortCut_;
-        /**
-         * The initial tick number when this context was created
-         * 创建此上下文时的初始tick数
-         */
+        //The initial tick number when this context was created
+        //创建此上下文时的初始tick数
         uint64_t startTick_ = 0;
-
-        /**
-         * The fixed tick count is obtained from the saved list file.
-         * 固定的tick数，来自清单文件保存的。
-         */
+        //The fixed tick count is obtained from the saved list file.
+        //固定的tick数，来自清单文件保存的。
         uint64_t fixedGlobalTick_ = 0;
-
         uint64_t lastTick_ = 0;
-
-        /**
-         * Has Tick been initialized?
-         * 是否初始化了Tick?
-         */
+        //Has Tick been initialized?
+        //是否初始化了Tick?
         bool initedTick_ = false;
-
-
         //Is the game being saved
         //是否正在保存游戏
         bool saving_ = false;
-
-        /**
-         * Whether to enable the item dragging mode
-         * 是否启用物品拖拽模式
-         */
+        //Whether to enable the item dragging mode
+        //是否启用物品拖拽模式
         bool dragMode_ = false;
-
-        /**
-         * Whether it is running or not, if false, it indicates that the game has been paused.
-         * 是否正在运行中，为false则表示游戏已被暂停。
-         */
+        //Whether it is running or not, if false, it indicates that the game has been paused.
+        //是否正在运行中，为false则表示游戏已被暂停。
         bool running = true;
-
-
-        long startTime_ = 0;
+        b2WorldId worldId_ = b2_nullWorldId;
+        AppContext *appContext_ = nullptr;
+        std::unique_ptr<MapManifest> mapManifest_ = nullptr;
+        std::unique_ptr<PlayerManifest> playerManifest_ = nullptr;
+        std::unique_ptr<Dimension> dimension_;
+        std::unique_ptr<TileInstancePool> tileInstancePool_;
+        std::unique_ptr<EntityManager> entityManager_;
+        std::unique_ptr<EntityShortCut> entityShortCut_;
         std::unique_ptr<SystemScheduler> systemScheduler_;
         std::unique_ptr<PlayerContext> playerContext_;
+        std::unique_ptr<ChunkLoader> chunkLoader_;
+        std::unique_ptr<ChunkGenerator> chunkGenerator_;
+        std::unique_ptr<ChunkManager> chunkManager_;
+        std::unique_ptr<TerrainManager> terrainManager_;
+        std::unique_ptr<LightBuffer> lightBuffer_;
 
     public:
         ~WorldContext() override;

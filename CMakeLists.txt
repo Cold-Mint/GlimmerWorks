@@ -336,7 +336,7 @@ FetchContent_MakeAvailable(monoCypher)
 FetchContent_Declare(
         spirv-headers
         GIT_REPOSITORY "https://github.com/KhronosGroup/SPIRV-Headers"
-        GIT_TAG ${KHRONOSGROUP_SPIRV_HEADERS_VERSION}
+        GIT_TAG ${KHRONOSGROUP_SPIRV-HEADERS_VERSION}
         GIT_SHALLOW TRUE
         EXCLUDE_FROM_ALL
 )
@@ -345,7 +345,7 @@ FetchContent_MakeAvailable(spirv-headers)
 FetchContent_Declare(
         spirv-tools
         GIT_REPOSITORY "https://github.com/KhronosGroup/SPIRV-Tools"
-        GIT_TAG ${KHRONOSGROUP_SPIRV_TOOLS_VERSION}
+        GIT_TAG ${KHRONOSGROUP_SPIRV-TOOLS_VERSION}
         GIT_SHALLOW TRUE
         EXCLUDE_FROM_ALL
 )
@@ -810,7 +810,6 @@ target_sources(GlimmerWorks
         core/rmi/dataModel/DimensionItem.h
         core/context/tasks/InitValidateGameTask.h
         core/saves/PlayerManifest.h
-        core/world/SimpleDimensionManager.h
         core/world/DynamicLightEntry.h
         core/mod/PackScanRequest.h
         core/gpu/PendingScreenshot.h

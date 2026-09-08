@@ -36,7 +36,7 @@ namespace glimmer {
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
-        void Update(float delta) override;
+        void OnTick(uint64_t tick) override;
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };

@@ -235,7 +235,7 @@ void glimmer::SystemScheduler::NotifySystemsOfComponentChange(const GameComponen
 void glimmer::SystemScheduler::NotifyActiveSystems(const GameComponentTypeMessage gameComponentType,
                                                    const uint32_t count) const {
     if (activeSystems_.empty()) {
-        LogCat::w(std::source_location::current(), "activeSystems_.empty()");
+        LogCat::w(std::source_location::current(), "system_scheduler_active_systems_empty", "activeSystems_.empty()");
         return;
     }
     for (auto &system: activeSystems_) {
@@ -255,7 +255,7 @@ void glimmer::SystemScheduler::NotifyActiveSystems(const GameComponentTypeMessag
 void glimmer::SystemScheduler::NotifyInactiveSystems(const GameComponentTypeMessage gameComponentType,
                                                      const uint32_t count) const {
     if (inactiveSystems_.empty()) {
-        LogCat::w(std::source_location::current(), "inactiveSystems_.empty()");
+        LogCat::w(std::source_location::current(), "system_scheduler_inactive_systems_empty", "inactiveSystems_.empty()");
         return;
     }
     for (auto &system: inactiveSystems_) {
@@ -401,7 +401,7 @@ void glimmer::SystemScheduler::RegisterSystem(std::unique_ptr<GameSystem> system
 #if  !defined(NDEBUG)
         auto guiGameSystem = dynamic_cast<GuiGameSystem *>(system.get());
         if (guiGameSystem != nullptr) {
-            LogCat::e(std::source_location::current(), "You should use RegisterGuiSystem instead of RegisterSystem.");
+            LogCat::e(std::source_location::current(), "system_scheduler_use_register_gui_system", "You should use RegisterGuiSystem instead of RegisterSystem.");
             return;
         }
 #endif

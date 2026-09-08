@@ -34,15 +34,15 @@ glimmer::WorldScene::WorldScene(AppContext *context, std::unique_ptr<WorldContex
     : Scene(context) {
     worldContext_ = std::move(worldContext);
     if (worldContext_ == nullptr) {
-        LogCat::e(std::source_location::current(), "worldContext is nullptr");
+        LogCat::e(std::source_location::current(), "world_context_is_null", "worldContext is nullptr");
         return;
     }
     systemScheduler_ = worldContext_->GetSystemScheduler();
     if (systemScheduler_ == nullptr) {
-        LogCat::e(std::source_location::current(), "systemScheduler is nullptr");
+        LogCat::e(std::source_location::current(), "system_scheduler_is_null", "systemScheduler is nullptr");
         return;
     }
-    LogCat::i("Creating WorldScene: worldName=", worldContext_->GetMapManifest()->name);
+    LogCat::i("creating_world_scene", "Creating WorldScene: worldName={}", worldContext_->GetMapManifest()->name);
     if (context != nullptr) {
         context->GetWindowContext()->SetWindowTitle(
             (PROJECT_NAME + " - " + worldContext_->GetMapManifest()->name).c_str());
@@ -76,9 +76,9 @@ void glimmer::WorldScene::OnWindowClose() {
     if (worldContext_ == nullptr) {
         return;
     }
-    LogCat::i("Saving game on window close: worldName=", worldContext_->GetMapManifest()->name);
+    LogCat::i("saving_game_on_window_close", "Saving game on window close: worldName={}", worldContext_->GetMapManifest()->name);
     worldContext_->SaveGame();
-    LogCat::i("Game saved successfully");
+    LogCat::i("game_saved_successfully", "Game saved successfully");
 }
 
 void glimmer::WorldScene::OnTick(uint64_t tick) {

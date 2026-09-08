@@ -144,7 +144,7 @@ bool glimmer::ComposableItem::OnUse(bool mouseLeft, WorldContext *worldContext, 
                                     const AbilityConfig *abilityConfig, std::unordered_set<AbilityType> &popupAbility) {
     EntityManager *entityManager = worldContext->GetEntityManager();
     if (entityManager == nullptr) {
-        LogCat::w(std::source_location::current(), "entityManager == nullptr");
+        LogCat::w(std::source_location::current(), "entity_manager_is_null", "entityManager == nullptr");
         return false;
     }
     bool handle = false;
@@ -154,17 +154,17 @@ bool glimmer::ComposableItem::OnUse(bool mouseLeft, WorldContext *worldContext, 
     for (uint8_t index = 0; index < max; index++) {
         Item *item = itemContainer_->GetItem(index);
         if (item == nullptr) {
-            LogCat::w(std::source_location::current(), "item at ", std::to_string(index), " is nullptr");
+            LogCat::w(std::source_location::current(), "composable_item_at_index_is_null", "item at {} is nullptr", std::to_string(index));
             continue;
         }
         const auto abilityItem = dynamic_cast<AbilityItem *>(item);
         if (abilityItem == nullptr) {
-            LogCat::w(std::source_location::current(), "abilityItem == nullptr");
+            LogCat::w(std::source_location::current(), "ability_item_is_null", "abilityItem == nullptr");
             continue;
         }
         ItemAbility *itemAbility = abilityItem->GetItemAbility();
         if (itemAbility == nullptr) {
-            LogCat::w(std::source_location::current(), "itemAbility == nullptr");
+            LogCat::w(std::source_location::current(), "item_ability_is_null", "itemAbility == nullptr");
             continue;
         }
 

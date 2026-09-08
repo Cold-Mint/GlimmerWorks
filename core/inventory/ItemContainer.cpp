@@ -212,13 +212,15 @@ void glimmer::ItemContainer::RemoveOnSelectIndexChanged(
 void glimmer::ItemContainer::SetSelectIndex(const uint8_t index) {
     const uint8_t size = items_.size();
     if (size == 0) {
-        LogCat::e(std::source_location::current(), "Try to select elements in an empty container.");
+        LogCat::e(std::source_location::current(), "select_empty_container",
+                  "Try to select elements in an empty container.");
         selectIndex_ = 0;
         InvokeOnSelectIndexChanged(selectIndex_);
         return;
     }
     if (index >= size) {
-        LogCat::w(std::source_location::current(), "Beyond the legal data limits. index = ", index, ",size = ", size);
+        LogCat::w(std::source_location::current(), "index_out_of_range",
+                  "Beyond the legal data limits. index = {},size = {}", static_cast<int>(index), static_cast<int>(size));
         selectIndex_ = size - 1;
     } else {
         selectIndex_ = index;
@@ -232,17 +234,17 @@ uint8_t glimmer::ItemContainer::GetSelectIndex() const {
 
 std::unique_ptr<glimmer::Item> glimmer::ItemContainer::AddItem(std::unique_ptr<Item> newItem) {
     if (newItem == nullptr) {
-        LogCat::w(std::source_location::current(), "Try to add newItem is null.");
+        LogCat::w(std::source_location::current(), "add_item_null", "Try to add newItem is null.");
         return nullptr;
     }
     ItemStackModule *newItemStackModule = newItem->GetMutableStackModule();
     if (newItemStackModule == nullptr) {
-        LogCat::w(std::source_location::current(), "NewItem ItemStackModule is null.");
+        LogCat::w(std::source_location::current(), "new_item_stack_module_null", "NewItem ItemStackModule is null.");
         return nullptr;
     }
 
-    LogCat::d("AddItem start. ItemId=", newItem->GetId(), " initAmount=",
-              static_cast<int>(newItemStackModule->GetAmount()), "container capacity=", items_.size());
+    LogCat::d("add_item_start", "AddItem start. ItemId={} initAmount={}container capacity={}", newItem->GetId(),
+              static_cast<int>(newItemStackModule->GetAmount()), items_.size());
 
     uint8_t index = 0;
     for (const auto &currentItem: items_) {
@@ -261,55 +263,56 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::AddItem(std::unique_ptr<I
         }
         const uint8_t remainingStackCount = currentItemStackModule->GetRemainingStackCount();
         if (remainingStackCount == 0) {
-            LogCat::d("Slot[", static_cast<int>(index), "] no stack space. itemId:",
+            LogCat::d("slot_no_stack_space", "Slot[{}] no stack space. itemId:{}", static_cast<int>(index),
                       currentItem->GetId());
             ++index;
             continue;
         }
-        LogCat::d("Slot[", static_cast<int>(index), "] can stack. freeSpace:", remainingStackCount, "slotItemId:",
-                  currentItem->GetId());
+        LogCat::d("slot_can_stack", "Slot[{}] can stack. freeSpace:{}slotItemId:{}", static_cast<int>(index),
+                  static_cast<int>(remainingStackCount), currentItem->GetId());
 
         const uint8_t stackedAmount = currentItemStackModule->AddAmount(newItemStackModule->GetAmount());
         if (stackedAmount == 0) {
-            LogCat::d("Slot[", static_cast<int>(index), "] stackedAmount = 0, skip");
+            LogCat::d("slot_stacked_amount_zero", "Slot[{}] stackedAmount = 0, skip", static_cast<int>(index));
             ++index;
             continue;
         }
-        LogCat::d("Slot[", static_cast<int>(index), "] try stack amount:", std::to_string(stackedAmount));
+        LogCat::d("slot_try_stack_amount", "Slot[{}] try stack amount:{}", static_cast<int>(index),
+                  std::to_string(stackedAmount));
 
         if (newItemStackModule->RemoveAmount(stackedAmount) == 0 && currentItemStackModule->
             RemoveAmount(stackedAmount) == 0) {
             //The attempt to deduct the quantity from the new item to be added failed, and there was also an error in the reduction of the quantity of the items already in the container.
             //在要添加的新物品内扣除数量失败，且在容器内的物品撤销增加的数量也发生了错误。
-            LogCat::w(std::source_location::current(),
+            LogCat::w(std::source_location::current(), "deduct_quantity_failed",
                       "The attempt to deduct the quantity from the new item to be added failed, and there was also an error in the reduction of the quantity of the items already in the container.");
         }
 
-        LogCat::d("After stack, newItem remain amount:",
-                  newItemStackModule->GetAmount());
+        LogCat::d("after_stack_remain", "After stack, newItem remain amount:{}",
+                  static_cast<int>(newItemStackModule->GetAmount()));
         if (newItemStackModule->GetAmount() == 0) {
-            LogCat::d("AddItem complete: all consumed, return nullptr");
+            LogCat::d("add_item_all_consumed", "AddItem complete: all consumed, return nullptr");
             return nullptr;
         }
         ++index;
     }
 
-    LogCat::d("Stack loop finished, start find empty slot. remainAmount=",
+    LogCat::d("stack_loop_finished", "Stack loop finished, start find empty slot. remainAmount={}",
               static_cast<int>(newItemStackModule->GetAmount()));
     index = 0;
     for (auto &currentItem: items_) {
         if (currentItem == nullptr) {
-            LogCat::d("Found empty slot[", static_cast<int>(index), "], put remaining item");
+            LogCat::d("found_empty_slot", "Found empty slot[{}], put remaining item", static_cast<int>(index));
             currentItem = std::move(newItem);
             BindItemEvent(index, currentItem);
-            LogCat::d("AddItem complete: placed into empty slot, return nullptr");
+            LogCat::d("add_item_placed_empty_slot", "AddItem complete: placed into empty slot, return nullptr");
             return nullptr;
         }
         ++index;
     }
 
-    LogCat::d("No empty slot left, cannot place. return leftover item. remainAmount:",
-              newItemStackModule->GetAmount());
+    LogCat::d("no_empty_slot_left", "No empty slot left, cannot place. return leftover item. remainAmount:{}",
+              static_cast<int>(newItemStackModule->GetAmount()));
     return newItem;
 }
 
@@ -345,12 +348,12 @@ bool glimmer::ItemContainer::HasTag(uint64_t tag) {
 
 uint8_t glimmer::ItemContainer::GetRemainingItemAmountAfterAdd(const Item *item) const {
     if (item == nullptr) {
-        LogCat::e(std::source_location::current(), "item == nullptr");
+        LogCat::e(std::source_location::current(), "item_is_null", "item == nullptr");
         return 0;
     }
     const ItemStackModule *itemStackModule = item->GetStackModule();
     if (itemStackModule == nullptr) {
-        LogCat::e(std::source_location::current(), "itemStackModule == nullptr");
+        LogCat::e(std::source_location::current(), "item_stack_module_is_null", "itemStackModule == nullptr");
         return 0;
     }
     uint8_t remainingAmount = itemStackModule->GetAmount();

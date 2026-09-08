@@ -41,26 +41,26 @@ glimmer::RenderInterfaceSDL3::RenderInterfaceSDL3(SDL_GPUDevice *device, SDL_Win
 Rml::TextureHandle glimmer::RenderInterfaceSDL3::LoadTexture(Rml::Vector2i &texture_dimensions,
                                                              const Rml::String &source) {
     if (!source.starts_with(TEXTURE_PREFIX)) {
-        LogCat::e(std::source_location::current(),
-                  "Only textures with the loading path starting with \'", TEXTURE_PREFIX, "\' are supported. source=",
+        LogCat::e(std::source_location::current(), "texture_prefix_unsupported",
+                  "Only textures with the loading path starting with '{}' are supported. source={}", TEXTURE_PREFIX,
                   source);
         return {};
     }
     const std::string id = source.substr(TEXTURE_PREFIX.size());
     const std::optional<ResourceRef> resourceRefOptional = ResourceRef::ParseFromId(id, RESOURCE_TEXTURE);
     if (!resourceRefOptional.has_value()) {
-        LogCat::w(std::source_location::current(), "!resourceRefOptional.has_value()");
+        LogCat::w(std::source_location::current(), "resource_ref_optional_empty", "!resourceRefOptional.has_value()");
         return {};
     }
     const std::shared_ptr<TextureResourceResult> textureResourceResult = resourceLocator_->FindTexture(
         &resourceRefOptional.value());
     if (textureResourceResult == nullptr) {
-        LogCat::w(std::source_location::current(), "textureResourceResult == nullptr");
+        LogCat::w(std::source_location::current(), "texture_resource_result_is_null", "textureResourceResult == nullptr");
         return {};
     }
     SDL_GPUTexture *texture = textureResourceResult->GetResource();
     if (texture == nullptr) {
-        LogCat::w(std::source_location::current(), "gpuTexture == nullptr");
+        LogCat::w(std::source_location::current(), "gpu_texture_is_null", "gpuTexture == nullptr");
         return {};
     }
     const auto textureHandle = reinterpret_cast<Rml::TextureHandle>(texture);

@@ -248,7 +248,7 @@ void glimmer::Tile::OnPlace(const WorldContext *worldContext, PlaceSourceMessage
     auto gameEntityIterator = gameEntities_.find(fingerprint);
     if (gameEntityIterator != gameEntities_.end()) {
 #if  !defined(NDEBUG)
-        LogCat::e(std::source_location::current(),
+        LogCat::e(std::source_location::current(), "tile_place_entity_exists",
                   "Before generating a new entity, it is necessary to ensure that there are no other entities at the current location.");
         assert(false);
 #else

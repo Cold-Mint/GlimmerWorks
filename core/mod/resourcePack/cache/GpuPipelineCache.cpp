@@ -168,7 +168,7 @@ std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::GpuPipelineCache::L
 
     SDL_GPUGraphicsPipeline *gpuGraphicsPipeline = SDL_CreateGPUGraphicsPipeline(device, &createInfo);
     if (gpuGraphicsPipeline == nullptr) {
-        LogCat::e(std::source_location::current(), "Failed to create GPU GraphicsPipeline");
+        LogCat::e(std::source_location::current(), "gpu_pipeline_create_failed", "Failed to create GPU GraphicsPipeline");
         return nullptr;
     }
     auto pipelineResourceResult = std::make_shared<GPUPipelineResourceResult>();

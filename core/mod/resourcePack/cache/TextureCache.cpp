@@ -77,7 +77,7 @@ SDL_GPUTexture *glimmer::TextureCache::CreateTextureFromSurface(SDL_GPUDevice *g
     textureCreateInfo.props = 0;
     SDL_GPUTexture *texture = SDL_CreateGPUTexture(gpuDevice, &textureCreateInfo);
     if (texture == nullptr) {
-        LogCat::w(std::source_location::current(), "SDL_CreateGPUTexture failed: ", SDL_GetError());
+        LogCat::w(std::source_location::current(), "texture_cache_gpu_texture_create_failed", "SDL_CreateGPUTexture failed: {}", SDL_GetError());
         SDL_DestroySurface(rgbaSurface);
         return nullptr;
     }
@@ -89,14 +89,14 @@ SDL_GPUTexture *glimmer::TextureCache::CreateTextureFromSurface(SDL_GPUDevice *g
     transferBufferCreateInfo.props = 0;
     SDL_GPUTransferBuffer *transferBuffer = SDL_CreateGPUTransferBuffer(gpuDevice, &transferBufferCreateInfo);
     if (transferBuffer == nullptr) {
-        LogCat::w(std::source_location::current(), "SDL_CreateGPUTransferBuffer failed: ", SDL_GetError());
+        LogCat::w(std::source_location::current(), "texture_cache_transfer_buffer_create_failed", "SDL_CreateGPUTransferBuffer failed: {}", SDL_GetError());
         SDL_ReleaseGPUTexture(gpuDevice, texture);
         SDL_DestroySurface(rgbaSurface);
         return nullptr;
     }
     void *mappedPtr = SDL_MapGPUTransferBuffer(gpuDevice, transferBuffer, false);
     if (mappedPtr == nullptr) {
-        LogCat::w(std::source_location::current(), "SDL_MapGPUTransferBuffer failed: ", SDL_GetError());
+        LogCat::w(std::source_location::current(), "texture_cache_transfer_buffer_map_failed", "SDL_MapGPUTransferBuffer failed: {}", SDL_GetError());
         SDL_ReleaseGPUTransferBuffer(gpuDevice, transferBuffer);
         SDL_ReleaseGPUTexture(gpuDevice, texture);
         SDL_DestroySurface(rgbaSurface);
@@ -116,14 +116,14 @@ SDL_GPUTexture *glimmer::TextureCache::CreateTextureFromSurface(SDL_GPUDevice *g
 
     SDL_GPUCommandBuffer *uploadCommandBuffer = SDL_AcquireGPUCommandBuffer(gpuDevice);
     if (uploadCommandBuffer == nullptr) {
-        LogCat::w(std::source_location::current(), "SDL_AcquireGPUCommandBuffer failed: ", SDL_GetError());
+        LogCat::w(std::source_location::current(), "texture_cache_command_buffer_acquire_failed", "SDL_AcquireGPUCommandBuffer failed: {}", SDL_GetError());
         SDL_ReleaseGPUTransferBuffer(gpuDevice, transferBuffer);
         SDL_ReleaseGPUTexture(gpuDevice, texture);
         return nullptr;
     }
     SDL_GPUCopyPass *copyPass = SDL_BeginGPUCopyPass(uploadCommandBuffer);
     if (copyPass == nullptr) {
-        LogCat::w(std::source_location::current(), "SDL_BeginGPUCopyPass failed: ", SDL_GetError());
+        LogCat::w(std::source_location::current(), "texture_cache_copy_pass_begin_failed", "SDL_BeginGPUCopyPass failed: {}", SDL_GetError());
         SDL_CancelGPUCommandBuffer(uploadCommandBuffer);
         SDL_ReleaseGPUTransferBuffer(gpuDevice, transferBuffer);
         SDL_ReleaseGPUTexture(gpuDevice, texture);
@@ -146,7 +146,7 @@ SDL_GPUTexture *glimmer::TextureCache::CreateTextureFromSurface(SDL_GPUDevice *g
     SDL_UploadToGPUTexture(copyPass, &transferInfo, &textureRegion, false);
     SDL_EndGPUCopyPass(copyPass);
     if (!SDL_SubmitGPUCommandBuffer(uploadCommandBuffer)) {
-        LogCat::w(std::source_location::current(), "SDL_SubmitGPUCommandBuffer failed: ", SDL_GetError());
+        LogCat::w(std::source_location::current(), "texture_cache_command_buffer_submit_failed", "SDL_SubmitGPUCommandBuffer failed: {}", SDL_GetError());
         SDL_ReleaseGPUTransferBuffer(gpuDevice, transferBuffer);
         SDL_ReleaseGPUTexture(gpuDevice, texture);
         return nullptr;
@@ -169,7 +169,7 @@ void glimmer::TextureCache::SetAppContext(const AppContext *appContext) {
     const GraphicsContext *graphicContext = appContext->GetGraphicsContext();
     const PreloadColors *preloadColors = graphicContext->GetPreloadColors();
     if (preloadColors == nullptr) {
-        LogCat::w(std::source_location::current(), "preloadColors is nullptr, fallback textures not created");
+        LogCat::w(std::source_location::current(), "texture_cache_preload_colors_is_null", "preloadColors is nullptr, fallback textures not created");
         return;
     }
     SDL_GPUDevice *device = windowContext->GetDevice();

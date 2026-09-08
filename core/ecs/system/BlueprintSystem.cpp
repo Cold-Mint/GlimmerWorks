@@ -115,14 +115,14 @@ void glimmer::BlueprintSystem::OnWatchedComponentChanged(GameComponentTypeMessag
     if (gameComponentType == COMPONENT_MINING && miningComponent_ == nullptr) {
         miningComponent_ = entityShortCut->GetMiningComponent();
         if (miningComponent_ == nullptr) {
-            LogCat::e(std::source_location::current(), "miningComponent_ == nullptr");
+            LogCat::e(std::source_location::current(), "mining_component_is_null", "miningComponent_ == nullptr");
         }
     }
     if (gameComponentType == COMPONENT_PLAYER && WorldContext::IsEmptyEntityId(player)) {
         player = entityShortCut->GetPlayer();
         playerComponent_ = entityManager->GetComponent<PlayerComponent>(player);
         if (playerComponent_ == nullptr) {
-            LogCat::e(std::source_location::current(), "playerComponent_ == nullptr");
+            LogCat::e(std::source_location::current(), "player_component_is_null", "playerComponent_ == nullptr");
         }
     }
     if (gameComponentType == COMPONENT_TILE_PLACEMENT_FORBIDDEN_ZONE) {

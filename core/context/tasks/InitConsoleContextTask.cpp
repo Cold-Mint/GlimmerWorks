@@ -37,18 +37,18 @@ glimmer::InitConsoleContextTask::InitConsoleContextTask(AppContext *appContext) 
 bool glimmer::InitConsoleContextTask::Run(ISystemBucket *systemBucket) {
     VirtualFileSystem *virtualFileSystem = systemBucket->GetVirtualFileSystem();
     if (virtualFileSystem == nullptr) {
-        LogCat::e(std::source_location::current(), "virtualFileSystem is nullptr");
+        LogCat::e(std::source_location::current(), "vfs_is_null", "virtualFileSystem is nullptr");
         return false;
     }
     const Config *config = systemBucket->GetConfig();
     if (config == nullptr) {
-        LogCat::e(std::source_location::current(), "config is nullptr");
+        LogCat::e(std::source_location::current(), "config_is_null", "config is nullptr");
         return false;
     }
     auto consoleContext = std::make_unique<ConsoleContext>();
     if (!consoleContext->Init(appContext_, virtualFileSystem, config->runtimePath,
                               config->console.maxHistoryEntries)) {
-        LogCat::e(std::source_location::current(), "init consoleContext fail.");
+        LogCat::e(std::source_location::current(), "init_console_context_failed", "init consoleContext fail.");
         return false;
     }
     systemBucket->SetConsoleContext(std::move(consoleContext));

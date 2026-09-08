@@ -40,7 +40,7 @@
 
 #ifdef _WIN32
 void glimmer::LocalConsoleInput::InputLoop(std::stop_token stopToken) {
-    LogCat::i("LocalConsoleInput thread started");
+    LogCat::i("local_console_input_thread_started", "LocalConsoleInput thread started");
     HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
     HANDLE hConsoleOut = GetStdHandle(STD_OUTPUT_HANDLE);
     HANDLE hWakeup = static_cast<HANDLE>(wakeupEvent_);
@@ -81,7 +81,7 @@ void glimmer::LocalConsoleInput::InputLoop(std::stop_token stopToken) {
                         WideCharToMultiByte(CP_UTF8, 0, wline.c_str(), (int) wline.size(),
                                             &line[0], len, nullptr, nullptr);
                     }
-                    LogCat::i("Received command from local console: ", line);
+                    LogCat::i("received_console_command", "Received command from local console: {}", line);
                     if (onCommandCallback_) {
                         onCommandCallback_(line);
                     }
@@ -100,7 +100,7 @@ void glimmer::LocalConsoleInput::InputLoop(std::stop_token stopToken) {
             }
         }
     }
-    LogCat::i("LocalConsoleInput thread stopped");
+    LogCat::i("local_console_input_thread_stopped", "LocalConsoleInput thread stopped");
 }
 
 glimmer::LocalConsoleInput::LocalConsoleInput (std::function<void(const std::string &)> onCommandCallback)
@@ -119,7 +119,7 @@ void glimmer::LocalConsoleInput::Stop() {
 }
 #else
 void glimmer::LocalConsoleInput::InputLoop(std::stop_token stopToken) {
-    LogCat::i("LocalConsoleInput thread started");
+    LogCat::i("local_console_input_thread_started", "LocalConsoleInput thread started");
     std::string line;
     pollfd pfds[2];
     pfds[0].fd = STDIN_FILENO;
@@ -145,13 +145,13 @@ void glimmer::LocalConsoleInput::InputLoop(std::stop_token stopToken) {
             if (line.empty()) {
                 continue;
             }
-            LogCat::i("Received command from local console: ", line);
+            LogCat::i("received_console_command", "Received command from local console: {}", line);
             if (onCommandCallback_) {
                 onCommandCallback_(line);
             }
         }
     }
-    LogCat::i("LocalConsoleInput thread stopped");
+    LogCat::i("local_console_input_thread_stopped", "LocalConsoleInput thread stopped");
 }
 
 glimmer::LocalConsoleInput::LocalConsoleInput(std::function<void(const std::string &)> onCommandCallback)

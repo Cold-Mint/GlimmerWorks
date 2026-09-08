@@ -34,12 +34,12 @@
 bool glimmer::InitSavesManagerTask::Run(ISystemBucket *systemBucket) {
     VirtualFileSystem *virtualFileSystem = systemBucket->GetVirtualFileSystem();
     if (virtualFileSystem == nullptr) {
-        LogCat::e(std::source_location::current(), "virtualFileSystem is nullptr");
+        LogCat::e(std::source_location::current(), "vfs_is_null", "virtualFileSystem is nullptr");
         return false;
     }
     const Config *config = systemBucket->GetConfig();
     if (config == nullptr) {
-        LogCat::e(std::source_location::current(), "config is nullptr");
+        LogCat::e(std::source_location::current(), "config_is_null", "config is nullptr");
         return false;
     }
     auto savesManager = std::make_unique<SavesManager>(virtualFileSystem);

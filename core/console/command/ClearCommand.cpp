@@ -67,12 +67,12 @@ bool glimmer::ClearCommand::Execute(const CommandSender *commandSender, const Co
     }
     auto playerComponent = entityManager->GetComponent<PlayerComponent>(playerEntity);
     if (playerComponent == nullptr) {
-        LogCat::e(std::source_location::current(), "playerComponent is null");
+        LogCat::e(std::source_location::current(), "player_component_is_null", "playerComponent is null");
         return false;
     }
     auto itemContainer = itemContainerComponent->GetItemContainer();
     if (itemContainer == nullptr) {
-        LogCat::e(std::source_location::current(), "itemContainer is null");
+        LogCat::e(std::source_location::current(), "item_container_is_null", "itemContainer is null");
         return false;
     }
     appContext->GetMainThreadDispatcher()->PostToNextMainFrame([playerComponent, itemContainer] {

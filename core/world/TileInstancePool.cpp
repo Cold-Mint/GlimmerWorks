@@ -33,8 +33,8 @@
 glimmer::TileInstancePool::~TileInstancePool() {
     for (auto &[fingerprint, weakTile]: tileInstanceMap_) {
         if (!weakTile.expired()) {
-            LogCat::e(std::source_location::current(), "A memory leak of the tile fingerprint (", fingerprint,
-                      ") has been detected.");
+            LogCat::e(std::source_location::current(), "tile_memory_leak",
+                      "A memory leak of the tile fingerprint ({}) has been detected.", fingerprint);
             break;
         }
     }

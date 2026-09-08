@@ -436,7 +436,7 @@ glimmer::Color glimmer::PreloadColors::LoadColor(const ResourceLocator *resource
 
     const std::unique_ptr<Color> targetColor = resourceLocator->FindColor(&resourceRef);
     if (targetColor == nullptr) {
-        LogCat::w(std::source_location::current(), "Use the default color:", key);
+        LogCat::w(std::source_location::current(), "preload_color_use_default", "Use the default color: {}", key);
         return defaultColor;
     }
 

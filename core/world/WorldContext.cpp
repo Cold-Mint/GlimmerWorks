@@ -64,7 +64,7 @@ void glimmer::WorldContext::SetDragMode(const bool dragMode) {
 
 glimmer::EntityManager *glimmer::WorldContext::GetEntityManager() const {
     if (entityManager_ == nullptr) {
-        LogCat::w(std::source_location::current(), "entityManager is nullptr");
+        LogCat::w(std::source_location::current(), "entity_manager_is_null", "entityManager is nullptr");
         return nullptr;
     }
     return entityManager_.get();
@@ -72,7 +72,7 @@ glimmer::EntityManager *glimmer::WorldContext::GetEntityManager() const {
 
 glimmer::EntityShortCut *glimmer::WorldContext::GetEntityShortCut() const {
     if (entityShortCut_ == nullptr) {
-        LogCat::w(std::source_location::current(), "entityShortCut is nullptr");
+        LogCat::w(std::source_location::current(), "entity_shortcut_is_null", "entityShortCut is nullptr");
         return nullptr;
     }
     return entityShortCut_.get();
@@ -88,7 +88,7 @@ void glimmer::WorldContext::SetRuning(const bool run) {
 
 glimmer::Saves *glimmer::WorldContext::GetSaves() const {
     if (saves_ == nullptr) {
-        LogCat::w(std::source_location::current(), "saves is nullptr");
+        LogCat::w(std::source_location::current(), "saves_is_null", "saves is nullptr");
         return nullptr;
     }
     return saves_;
@@ -141,7 +141,7 @@ glimmer::PlayerContext *glimmer::WorldContext::GetPlayerContext() const {
 
 
 void glimmer::WorldContext::SaveEntity(EntityItemMessage *entityItemMessage, const GameEntityID entityId) const {
-    LogCat::d("SaveEntity: entityId=", entityId);
+    LogCat::d("world_context_save_entity", "SaveEntity: entityId={}", entityId);
     entityItemMessage->mutable_gameentity()->set_id(entityId);
     const ResourceRef *resourceRef = entityManager_->GetResourceRef(entityId);
     if (resourceRef != nullptr) {
@@ -157,25 +157,25 @@ void glimmer::WorldContext::SaveEntity(EntityItemMessage *entityItemMessage, con
             componentMessage->set_data(stringOptional.value());
         }
     }
-    LogCat::d("SaveEntity completed: entityId=", entityId, ", components=", components.size());
+    LogCat::d("world_context_save_entity_completed", "SaveEntity completed: entityId={}, components={}", entityId, components.size());
 }
 
 void glimmer::WorldContext::SaveGame() {
     if (saving_) {
-        LogCat::w(std::source_location::current(), "Save already in progress, ignoring");
+        LogCat::w(std::source_location::current(), "world_context_save_in_progress", "Save already in progress, ignoring");
         return;
     }
-    LogCat::i("Starting game save: ", mapManifest_->name);
+    LogCat::i("world_context_save_starting", "Starting game save: {}", mapManifest_->name);
     saving_ = true;
     const Saves *saves = GetSaves();
     if (saves == nullptr) {
-        LogCat::e(std::source_location::current(), "saves is nullptr");
+        LogCat::e(std::source_location::current(), "saves_is_null", "saves is nullptr");
         saving_ = false;
         return;
     }
     auto mapManifestMessageData = saves->ReadMapManifest();
     if (!mapManifestMessageData.has_value()) {
-        LogCat::w(std::source_location::current(), "Failed to read map manifest");
+        LogCat::w(std::source_location::current(), "world_context_read_map_manifest_failed", "Failed to read map manifest");
         saving_ = false;
         return;
     }
@@ -183,7 +183,7 @@ void glimmer::WorldContext::SaveGame() {
     mapManifestMessageData->set_globaltickcount(GetGlobalTick());
     mapManifestMessageData->set_entityidindex(entityManager_->GetEntityIndex());
     if (!saves->WriteMapManifest(mapManifestMessageData.value())) {
-        LogCat::w(std::source_location::current(), "Failed to write map manifest");
+        LogCat::w(std::source_location::current(), "world_context_write_map_manifest_failed", "Failed to write map manifest");
         saving_ = false;
         return;
     }
@@ -194,10 +194,10 @@ void glimmer::WorldContext::SaveGame() {
 
         SaveEntity(playerMessage.mutable_entity(), player);
         (void) saves->WriteLocalPlayer(playerMessage);
-        LogCat::i("Player saved");
+        LogCat::i("world_context_player_saved", "Player saved");
     } else {
-        LogCat::d("Player save skipped: isEmpty=", IsEmptyEntityId(player), ", persistable=",
-                  entityManager_->IsPersistable(player));
+        LogCat::d("world_context_player_save_skipped", "Player save skipped: isEmpty={}, persistable={}",
+                  IsEmptyEntityId(player), entityManager_->IsPersistable(player));
     }
     saving_ = false;
 }
@@ -213,20 +213,20 @@ glimmer::TileInstancePool *glimmer::WorldContext::GetTileInstancePool() const {
 
 
 glimmer::WorldContext::~WorldContext() {
-    LogCat::i("Destroying WorldContext: worldName=", mapManifest_ ? mapManifest_->name : "unknown");
+    LogCat::i("world_context_destroying", "Destroying WorldContext: worldName={}", mapManifest_ ? mapManifest_->name : "unknown");
     playerContext_.reset();
     systemScheduler_.reset();
-    LogCat::d("PlayerContext and SystemScheduler released");
+    LogCat::d("world_context_player_scheduler_released", "PlayerContext and SystemScheduler released");
     if (entityManager_) {
         entityManager_->Clear();
     }
-    LogCat::d("EntityManager cleared, dimensions released");
+    LogCat::d("world_context_entity_manager_cleared", "EntityManager cleared, dimensions released");
     b2DestroyWorld(worldId_);
     worldId_ = b2_nullWorldId;
     if (appContext_) {
         appContext_->GetConsoleContext()->GetCommandManager()->UnbindWorldContext();
     }
-    LogCat::i("WorldContext destroyed");
+    LogCat::i("world_context_destroyed", "WorldContext destroyed");
 }
 
 void glimmer::WorldContext::OnTick(const uint64_t tick) {
@@ -313,7 +313,7 @@ glimmer::WorldContext::WorldContext(AppContext *appContext, Saves *saves) : save
     entityManager_->AddComponent<
         TileLayerComponent>(backgroundTileLayerEntity, this, TileLayerType::BackGround);
     playerContext_ = std::make_unique<PlayerContext>(this);
-    LogCat::i("Core subsystems created: dimensions, PlayerContext");
+    LogCat::i("world_context_core_subsystems_created", "Core subsystems created: dimensions, PlayerContext");
 
     ResourceRef playerResourceRef{};
     playerResourceRef.ReadResource(*appContext->GetModContext()->GetMobRegistry()->GetPlayerResourceList()[0],
@@ -326,6 +326,6 @@ glimmer::WorldContext::WorldContext(AppContext *appContext, Saves *saves) : save
         entityManager_->AddComponent<ItemToolTipComponent>(entityManager_->AddEntity()));
     systemScheduler_ = std::make_unique<SystemScheduler>(this);
     systemScheduler_->InitSystem();
-    LogCat::i("Player initialized, SystemScheduler initialized");
-    LogCat::i("WorldContext created successfully");
+    LogCat::i("world_context_player_initialized", "Player initialized, SystemScheduler initialized");
+    LogCat::i("world_context_created", "WorldContext created successfully");
 }

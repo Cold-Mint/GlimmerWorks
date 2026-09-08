@@ -94,7 +94,7 @@ std::optional<ChunkMessage> glimmer::Saves::ReadChunk(const std::string &dimensi
                                                       const TileVector2D &position) const {
     const auto streamUnique = virtualFileSystem_->ReadFileAsStream(ToChunkPath(dimensionFolderName, position));
     if (streamUnique == nullptr) {
-        LogCat::w(std::source_location::current(), "Failed to open chunk file: ",
+        LogCat::w(std::source_location::current(), "chunk_file_open_failed", "Failed to open chunk file: {}",
                   ToChunkPath(dimensionFolderName, position).string());
         return std::nullopt;
     }
@@ -105,7 +105,7 @@ std::optional<ChunkMessage> glimmer::Saves::ReadChunk(const std::string &dimensi
     if (ChunkMessage chunkMessage; chunkMessage.ParseFromIstream(stream)) {
         return chunkMessage;
     }
-    LogCat::w(std::source_location::current(), "Failed to parse chunk data: ",
+    LogCat::w(std::source_location::current(), "chunk_data_parse_failed", "Failed to parse chunk data: {}",
               ToChunkPath(dimensionFolderName, position).string());
     return std::nullopt;
 }
@@ -115,7 +115,7 @@ bool glimmer::Saves::WriteChunk(const std::string &dimensionFolderName, const Ti
     bool result = virtualFileSystem_->WriteFile(ToChunkPath(dimensionFolderName, position),
                                                 chunkMessage.SerializeAsString());
     if (!result) {
-        LogCat::w(std::source_location::current(), "Failed to write chunk: ",
+        LogCat::w(std::source_location::current(), "chunk_write_failed", "Failed to write chunk: {}",
                   ToChunkPath(dimensionFolderName, position).string());
     }
     return result;
@@ -175,7 +175,8 @@ bool glimmer::Saves::WriteDimensionManifest(const std::string &dimensionFolderNa
 bool glimmer::Saves::WriteLocalPlayer(const PlayerMessage &playerMessage) const {
     bool result = virtualFileSystem_->WriteFile(ToLocalPlayerPath(), playerMessage.SerializeAsString());
     if (!result) {
-        LogCat::w(std::source_location::current(), "Failed to write player data: ", ToLocalPlayerPath().string());
+        LogCat::w(std::source_location::current(), "player_data_write_failed", "Failed to write player data: {}",
+                  ToLocalPlayerPath().string());
     }
     return result;
 }
@@ -224,7 +225,7 @@ bool glimmer::Saves::WriteMapManifest(const MapManifestMessage &mapManifestMessa
     }
     bool result = virtualFileSystem_->WriteFile(path_ / MAP_MANIFEST_FILE_NAME, mapManifestMessage.SerializeAsString());
     if (!result) {
-        LogCat::w(std::source_location::current(), "Failed to write map manifest: ",
+        LogCat::w(std::source_location::current(), "map_manifest_write_failed", "Failed to write map manifest: {}",
                   (path_ / MAP_MANIFEST_FILE_NAME).string());
     }
     return result;

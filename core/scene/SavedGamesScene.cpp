@@ -48,15 +48,15 @@ glimmer::SavedGamesScene::SavedGamesScene(AppContext *context)
       langsResources_(context->GetLangsResources()), savesManager_(context->GetSavesManager()),
       sceneManager_(context->GetSceneManager()), mainThreadDispatcher(context->GetMainThreadDispatcher()) {
     if (savesManager_ == nullptr) {
-        LogCat::w(std::source_location::current(), "savesManager_ == nullptr");
+        LogCat::w(std::source_location::current(), "saves_manager_is_null", "savesManager_ == nullptr");
         return;
     }
     if (sceneManager_ == nullptr) {
-        LogCat::w(std::source_location::current(), "sceneManager_ == nullptr");
+        LogCat::w(std::source_location::current(), "scene_manager_is_null", "sceneManager_ == nullptr");
         return;
     }
     if (mainThreadDispatcher == nullptr) {
-        LogCat::w(std::source_location::current(), "mainThreadDispatcher == nullptr");
+        LogCat::w(std::source_location::current(), "main_thread_dispatcher_is_null", "mainThreadDispatcher == nullptr");
         return;
     }
     Init();
@@ -116,18 +116,18 @@ void glimmer::SavedGamesScene::OnLoadClick(Rml::DataModelHandle handle, Rml::Eve
                                            const Rml::VariantList &args) {
     int listIndex = savedGamesDataModel_.selectedSaveIndex;
     if (savesManager_ == nullptr) {
-        LogCat::w(std::source_location::current(), "savesManager_ == nullptr");
+        LogCat::w(std::source_location::current(), "saves_manager_is_null", "savesManager_ == nullptr");
         return;
     }
     if (listIndex < 0 || listIndex >= static_cast<int>(savedGamesDataModel_.saveItems.size())) {
-        LogCat::w(std::source_location::current(), "invalid index");
+        LogCat::w(std::source_location::current(), "invalid_index", "invalid index");
         return;
     }
     int originalIndex = savedGamesDataModel_.saveItems[listIndex].originalIndex;
     Saves *saves = savesManager_->GetSave(originalIndex);
     MapManifest *manifest = savesManager_->GetMapManifest(originalIndex);
     if (saves == nullptr || manifest == nullptr) {
-        LogCat::w(std::source_location::current(), "saves or manifest is nullptr");
+        LogCat::w(std::source_location::current(), "saves_or_manifest_is_null", "saves or manifest is nullptr");
         return;
     }
     mainThreadDispatcher->PostToNextMainFrame([this, saves] {
@@ -140,11 +140,11 @@ void glimmer::SavedGamesScene::OnDeleteClick(Rml::DataModelHandle handle, Rml::E
                                              const Rml::VariantList &args) {
     int listIndex = savedGamesDataModel_.selectedSaveIndex;
     if (savesManager_ == nullptr) {
-        LogCat::w(std::source_location::current(), "savesManager_ == nullptr");
+        LogCat::w(std::source_location::current(), "saves_manager_is_null", "savesManager_ == nullptr");
         return;
     }
     if (listIndex < 0 || listIndex >= static_cast<int>(savedGamesDataModel_.saveItems.size())) {
-        LogCat::w(std::source_location::current(), "invalid index");
+        LogCat::w(std::source_location::current(), "invalid_index", "invalid index");
         return;
     }
     int originalIndex = savedGamesDataModel_.saveItems[listIndex].originalIndex;
@@ -187,7 +187,7 @@ void glimmer::SavedGamesScene::OnNewGameClick(Rml::DataModelHandle handle, Rml::
 void glimmer::SavedGamesScene::OnSearchChange(Rml::DataModelHandle handle, Rml::Event &event,
                                               const Rml::VariantList &args) {
     if (searchInputElement_ == nullptr) {
-        LogCat::w(std::source_location::current(), "searchInputElement_ == nullptr");
+        LogCat::w(std::source_location::current(), "search_input_element_is_null", "searchInputElement_ == nullptr");
         return;
     }
     savedGamesDataModel_.searchKeyword = searchInputElement_->GetAttribute<Rml::String>("value", "");
@@ -201,12 +201,12 @@ void glimmer::SavedGamesScene::OnSearchChange(Rml::DataModelHandle handle, Rml::
 void glimmer::SavedGamesScene::OnSaveSelect(Rml::DataModelHandle handle, Rml::Event &event,
                                             const Rml::VariantList &args) {
     if (args.empty()) {
-        LogCat::w(std::source_location::current(), "args.empty()");
+        LogCat::w(std::source_location::current(), "args_empty", "args.empty()");
         return;
     }
     int index = args[0].Get<int>();
     if (index < 0 || index >= static_cast<int>(savedGamesDataModel_.saveItems.size())) {
-        LogCat::w(std::source_location::current(), "invalid index");
+        LogCat::w(std::source_location::current(), "invalid_index", "invalid index");
         return;
     }
     SetSelectedSaveIndex(index);
@@ -217,12 +217,12 @@ void glimmer::SavedGamesScene::OnSaveSelect(Rml::DataModelHandle handle, Rml::Ev
 void glimmer::SavedGamesScene::OnSaveDblclick(Rml::DataModelHandle handle, Rml::Event &event,
                                               const Rml::VariantList &args) {
     if (args.empty()) {
-        LogCat::w(std::source_location::current(), "args.empty()");
+        LogCat::w(std::source_location::current(), "args_empty", "args.empty()");
         return;
     }
     int index = args[0].Get<int>();
     if (index < 0 || index >= static_cast<int>(savedGamesDataModel_.saveItems.size())) {
-        LogCat::w(std::source_location::current(), "invalid index");
+        LogCat::w(std::source_location::current(), "invalid_index", "invalid index");
         return;
     }
     SetSelectedSaveIndex(index);
@@ -347,16 +347,16 @@ void glimmer::SavedGamesScene::LoadDocuments() {
     Rml::ElementDocument *elementDocument = LoadSingleDocument(&resourceRef);
     Rml::Element *searchInput = elementDocument->GetElementById("search_input");
     if (searchInput == nullptr) {
-        LogCat::e(std::source_location::current(), "searchInput== nullptr");
+        LogCat::e(std::source_location::current(), "search_input_is_null", "searchInput== nullptr");
         return;
     }
     searchInputElement_ = rmlui_dynamic_cast<Rml::ElementFormControlInput *>(searchInput);
     if (searchInputElement_ == nullptr) {
-        LogCat::e(std::source_location::current(), "searchInputElement== nullptr");
+        LogCat::e(std::source_location::current(), "search_input_element_is_null", "searchInputElement== nullptr");
     }
     saveListElement_ = elementDocument->GetElementById("save_list");
     if (saveListElement_ == nullptr) {
-        LogCat::e(std::source_location::current(), "saveListElement== nullptr");
+        LogCat::e(std::source_location::current(), "save_list_element_is_null", "saveListElement== nullptr");
     }
 }
 

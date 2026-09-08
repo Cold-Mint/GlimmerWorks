@@ -195,15 +195,15 @@ void glimmer::MiningSystem::PlayBreakSFX(const AppContext *appContext, const Til
 static bool CheckMiningEfficiency(const glimmer::Tile *tile, const glimmer::AbilityConfig *abilityConfig) {
     const glimmer::TileMiningData *tileMiningData = tile->GetMiningData();
     if (tileMiningData == nullptr) {
-        glimmer::LogCat::w(std::source_location::current(), "tileMiningData == nullptr");
+        glimmer::LogCat::w(std::source_location::current(), "tile_mining_data_is_null", "tileMiningData == nullptr");
         return true;
     }
     if (abilityConfig == nullptr) {
-        glimmer::LogCat::w(std::source_location::current(), "abilityConfig == nullptr");
+        glimmer::LogCat::w(std::source_location::current(), "ability_config_is_null", "abilityConfig == nullptr");
         return true;
     }
     if (tileMiningData->GetMinMiningEfficiency() > abilityConfig->miningEfficiency) {
-        glimmer::LogCat::w(std::source_location::current(),
+        glimmer::LogCat::w(std::source_location::current(), "mining_efficiency_exceeded",
                            "tileMiningData->GetMinMiningEfficiency() > abilityConfig->miningEfficiency");
         return false;
     }
@@ -378,7 +378,7 @@ void glimmer::MiningSystem::ProcessMiningComplete(const TileLayerComponent *tile
         return;
     }
     const size_t pointsCount = miningRangeData->GetPointsCount();
-    LogCat::i("Mining complete, processing ", pointsCount, " mining points");
+    LogCat::i("mining_complete_processing", "Mining complete, processing {} mining points", pointsCount);
     for (size_t i = 0; i < pointsCount; i++) {
         const MiningRangeDataPoint *point = miningRangeData->GetPoint(i);
         if (point == nullptr) {
@@ -391,8 +391,8 @@ void glimmer::MiningSystem::ProcessMiningComplete(const TileLayerComponent *tile
             TileResourceManager::GetAirResourceRef(tileLayerType)
         });
         if (broken > 0) {
-            LogCat::i("Broken tiles at position (", point->GetTileTopLeftPosition().x, ",",
-                      point->GetTileTopLeftPosition().y, "): ", broken);
+            LogCat::i("broken_tiles_at_position", "Broken tiles at position ({}, {}): {}",
+                      point->GetTileTopLeftPosition().x, point->GetTileTopLeftPosition().y, broken);
         }
     }
     miningComponent_->SetProgress(0.0F);

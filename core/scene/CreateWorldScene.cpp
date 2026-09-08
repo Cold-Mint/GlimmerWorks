@@ -44,7 +44,7 @@ namespace fs = std::filesystem;
 glimmer::CreateWorldScene::CreateWorldScene(AppContext *context) : Scene(context) {
     sceneManager_ = context->GetSceneManager();
     if (sceneManager_ == nullptr) {
-        LogCat::e(std::source_location::current(), "Scene manager cannot be nullptr.");
+        LogCat::e(std::source_location::current(), "scene_manager_cannot_be_null", "Scene manager cannot be nullptr.");
         return;
     }
     const ModContext *modContext = context->GetModContext();
@@ -61,7 +61,7 @@ glimmer::CreateWorldScene::CreateWorldScene(AppContext *context) : Scene(context
     }
     mainThreadDispatcher_ = context->GetMainThreadDispatcher();
     if (mainThreadDispatcher_ == nullptr) {
-        LogCat::e(std::source_location::current(), "Main Thread Dispatcher cannot be nullptr.");
+        LogCat::e(std::source_location::current(), "main_thread_dispatcher_cannot_be_null", "Main Thread Dispatcher cannot be nullptr.");
         return;
     }
     RandomizeWorld();
@@ -164,10 +164,10 @@ void glimmer::CreateWorldScene::OnRandomNameClick(Rml::DataModelHandle handle, R
 void glimmer::CreateWorldScene::CreateWorld() const {
     const std::string &worldName = createWorldDataModel_.worldName;
     if (worldName.empty()) {
-        LogCat::w(std::source_location::current(), "World name cannot be empty");
+        LogCat::w(std::source_location::current(), "world_name_cannot_be_empty", "World name cannot be empty");
         return;
     }
-    LogCat::i("Creating new world: name=", worldName);
+    LogCat::i("creating_new_world", "Creating new world: name={}", worldName);
 
     const std::string seedInput = createWorldDataModel_.seedStr;
     int seedValue = 0;
@@ -176,7 +176,7 @@ void glimmer::CreateWorldScene::CreateWorld() const {
     } else {
         seedValue = static_cast<int>(StringUtils::StringToUint64Blake3(seedInput));
     }
-    LogCat::i("World seed: ", seedValue, " (input: ", seedInput, ")");
+    LogCat::i("world_seed", "World seed: {} (input: {})", seedValue, seedInput);
 
     MapManifest mapManifest;
     mapManifest.seed = seedValue;
@@ -199,19 +199,20 @@ void glimmer::CreateWorldScene::CreateWorld() const {
         return;
     }
     playerManifest.customDimension = resourceRefOptional.value();
-    LogCat::i("World manifest: version=", GAME_VERSION_STRING, ", allowCheats=", createWorldDataModel_.allowCheats);
+    LogCat::i("world_manifest", "World manifest: version={}, allowCheats={}", GAME_VERSION_STRING,
+              createWorldDataModel_.allowCheats);
     auto savesManager = GetAppContext()->GetSavesManager();
     if (savesManager == nullptr) {
-        LogCat::e(std::source_location::current(), "savesManager is nullptr");
+        LogCat::e(std::source_location::current(), "saves_manager_is_null", "savesManager is nullptr");
         return;
     }
 
     Saves *saves = savesManager->Create(GetAppContext()->GetConfig()->runtimePath, mapManifest, playerManifest);
     if (saves == nullptr) {
-        LogCat::e(std::source_location::current(), "Failed to create saves");
+        LogCat::e(std::source_location::current(), "failed_to_create_saves", "Failed to create saves");
         return;
     }
-    LogCat::i("World saved successfully");
+    LogCat::i("world_saved_successfully", "World saved successfully");
     mainThreadDispatcher_->PostToNextMainFrame([this, saves] {
         AppContext *appContext = GetAppContext();
         if (appContext == nullptr) {
@@ -222,7 +223,7 @@ void glimmer::CreateWorldScene::CreateWorld() const {
                 appContext,
                 saves)));
     });
-    LogCat::i("Transitioning to WorldScene");
+    LogCat::i("transitioning_to_world_scene", "Transitioning to WorldScene");
 }
 
 void glimmer::CreateWorldScene::LoadDimensions() {

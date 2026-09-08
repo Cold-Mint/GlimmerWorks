@@ -94,7 +94,7 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkLoader::LoadChunkFromSaves(TileVec
     }
     if (saves_->ChunkExists(dimensionFolderName_, position)) {
         if (const auto chunkMessage = saves_->ReadChunk(dimensionFolderName_, position); chunkMessage.has_value()) {
-            LogCat::i("Loading chunk from saves at: (", position.x, ",", position.y, ")");
+            LogCat::i("chunk_loading_from_saves", "Loading chunk from saves at: ({}, {})", position.x, position.y);
             auto chunk = std::make_unique<Chunk>(worldContext_, position, config);
             chunk.get()->ReadChunkMessage(chunkMessage.value());
             LoadEntityFromSaves(position);

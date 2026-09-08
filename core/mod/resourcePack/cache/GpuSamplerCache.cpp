@@ -73,7 +73,7 @@ std::shared_ptr<glimmer::GPUSamplerResourceResult> glimmer::GpuSamplerCache::Loa
     createInfo.enable_compare = gpuSamplerResource->enableCompare;
     SDL_GPUSampler *sampler = SDL_CreateGPUSampler(device, &createInfo);
     if (sampler == nullptr) {
-        LogCat::e(std::source_location::current(), "SDL_CreateGPUSampler == nullptr");
+        LogCat::e(std::source_location::current(), "sdl_create_gpu_sampler_is_null", "SDL_CreateGPUSampler == nullptr");
         return nullptr;
     }
     auto samplerResourceResult = std::make_shared<GPUSamplerResourceResult>();

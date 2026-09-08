@@ -34,12 +34,12 @@
 bool glimmer::InitConfigTask::Run(ISystemBucket *systemBucket) {
     const VirtualFileSystem *virtualFileSystem = systemBucket->GetVirtualFileSystem();
     if (virtualFileSystem == nullptr) {
-        LogCat::e(std::source_location::current(), "virtualFileSystem is nullptr");
+        LogCat::e(std::source_location::current(), "vfs_is_null", "virtualFileSystem is nullptr");
         return false;
     }
     const std::optional<std::string> configData = virtualFileSystem->ReadFileAsString(CONFIG_FILE_NAME);
     if (!configData.has_value()) {
-        LogCat::e(std::source_location::current(), "configData not has value");
+        LogCat::e(std::source_location::current(), "config_data_no_value", "configData not has value");
         return false;
     }
     auto config = std::make_unique<Config>();

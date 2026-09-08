@@ -31,7 +31,8 @@
 
 
 void glimmer::GameSystem::OnActivationChanged(const bool activeStatus) {
-    LogCat::i("GameSystem activation changed: ", activeStatus ? "active" : "inactive");
+    LogCat::i("game_system_activation_changed", "GameSystem activation changed: {}",
+              activeStatus ? "active" : "inactive");
 }
 
 void glimmer::GameSystem::AddActiveWatchComponent(GameComponentTypeMessage gameComponentType) {
@@ -89,7 +90,7 @@ void glimmer::GameSystem::OnWatchedComponentChanged(GameComponentTypeMessage gam
 glimmer::GameSystem::GameSystem(WorldContext *worldContext) : worldContext_(worldContext) {
     entityManager_ = worldContext_->GetEntityManager();
     entityShortCut_ = worldContext_->GetEntityShortCut();
-    LogCat::i("GameSystem created");
+    LogCat::i("game_system_created", "GameSystem created");
 }
 
 void glimmer::GameSystem::OnTick(uint64_t tick) {
@@ -98,11 +99,11 @@ void glimmer::GameSystem::OnTick(uint64_t tick) {
 }
 
 void glimmer::GameSystem::Init() {
-    LogCat::i("GameSystem initializing");
+    LogCat::i("game_system_initializing", "GameSystem initializing");
     initSubclassFinish_ = true;
     const AppContext *appContext = worldContext_->GetAppContext();
     if (appContext == nullptr) {
-        LogCat::w(std::source_location::current(), "appContext is nullptr");
+        LogCat::w(std::source_location::current(), "app_context_is_null", "appContext is nullptr");
         return;
     }
     OnWindowSizeChanged(appContext->GetWindowContext()->GetWindowWidth(),
@@ -111,7 +112,7 @@ void glimmer::GameSystem::Init() {
     if (config != nullptr) {
         OnConfigChanged(config);
     }
-    LogCat::i("GameSystem initialized");
+    LogCat::i("game_system_initialized", "GameSystem initialized");
 }
 
 bool glimmer::GameSystem::IsWatchingComponent(GameComponentTypeMessage gameComponentType) const {
@@ -146,8 +147,9 @@ void glimmer::GameSystem::Update(const float delta) {
     if (!initSubclassFinish_) {
         initTimeOut_ += delta;
         if (initTimeOut_ > 2) {
-            LogCat::e(std::source_location::current(), "systemType = ", static_cast<int>(GetGameSystemType()),
-                      " ,Did not be called within two seconds GameSystem::Init()");
+            LogCat::e(std::source_location::current(), "game_system_init_not_called",
+                      "systemType = {} ,Did not be called within two seconds GameSystem::Init()",
+                      static_cast<int>(GetGameSystemType()));
         }
     }
 #endif

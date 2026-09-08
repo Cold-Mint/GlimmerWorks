@@ -35,17 +35,17 @@ std::string_view glimmer::ComposableItemsAssetEnumerator::GetAssetType() const {
 
 std::optional<std::string> glimmer::ComposableItemsAssetEnumerator::ListAsset(const AppContext *appContext) {
     if (appContext == nullptr) {
-        LogCat::w(std::source_location::current(), "appContext is nullptr");
+        LogCat::w(std::source_location::current(), "app_context_is_null", "appContext is nullptr");
         return std::nullopt;
     }
     const ModContext *modContext = appContext->GetModContext();
     if (modContext == nullptr) {
-        LogCat::w(std::source_location::current(), "modContext is nullptr");
+        LogCat::w(std::source_location::current(), "mod_context_is_null", "modContext is nullptr");
         return std::nullopt;
     }
     const ComposableItemRegistry *composableItemRegistry = modContext->GetComposableItemRegistry();
     if (composableItemRegistry == nullptr) {
-        LogCat::w(std::source_location::current(), "composableItemRegistry is nullptr");
+        LogCat::w(std::source_location::current(), "composable_item_registry_is_null", "composableItemRegistry is nullptr");
         return std::nullopt;
     }
     return composableItemRegistry->ListString();

@@ -56,7 +56,7 @@ std::unique_ptr<glimmer::GpuShaderCompileResult> glimmer::GpuShaderCompiler::Com
     const TBuiltInResource *resources = GetDefaultResources();
     constexpr auto messages = static_cast<EShMessages>(EShMsgSpvRules | EShMsgVulkanRules);
     if (!glslShader.parse(resources, 450, false, messages)) {
-        LogCat::w(std::source_location::current(), "GLSL compilation failed : ",
+        LogCat::w(std::source_location::current(), "glsl_compilation_failed", "GLSL compilation failed : {}",
                   glslShader.getInfoLog());
         return nullptr;
     }

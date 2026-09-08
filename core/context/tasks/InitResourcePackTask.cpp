@@ -38,19 +38,19 @@ glimmer::InitResourcePackTask::InitResourcePackTask(AppContext *appContext) {
 bool glimmer::InitResourcePackTask::Run(ISystemBucket *systemBucket) {
     VirtualFileSystem *virtualFileSystem = systemBucket->GetVirtualFileSystem();
     if (virtualFileSystem == nullptr) {
-        LogCat::e(std::source_location::current(), "virtualFileSystem is nullptr");
+        LogCat::e(std::source_location::current(), "vfs_is_null", "virtualFileSystem is nullptr");
         return false;
     }
     const Config *config = systemBucket->GetConfig();
     if (config == nullptr) {
-        LogCat::e(std::source_location::current(), "config is nullptr");
+        LogCat::e(std::source_location::current(), "config_is_null", "config is nullptr");
         return false;
     }
     auto resourcePackManager = std::make_unique<ResourcePackManager>();
     PackScanRequest packScanRequest;
     packScanRequest.SetAppContext(appContext_);
     if (resourcePackManager->Scan(&packScanRequest) == 0) {
-        LogCat::e(std::source_location::current(), "The resource package cannot be found.");
+        LogCat::e(std::source_location::current(), "resource_pack_not_found", "The resource package cannot be found.");
         return false;
     }
     systemBucket->SetResourcePackManager(std::move(resourcePackManager));

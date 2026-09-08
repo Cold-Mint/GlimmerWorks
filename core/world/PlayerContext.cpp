@@ -106,7 +106,7 @@ void glimmer::PlayerContext::InitPlayer(const ResourceRef &resourceRef) {
     itemCallback_ = itemContainer->AddOnContentChanged(
         [this, playerComponent, itemContainer](const uint8_t index, Item *item, ContainerChangeType changeType) {
             if (playerComponent == nullptr) {
-                LogCat::e(std::source_location::current(),
+                LogCat::e(std::source_location::current(), "player_context_player_component_is_null",
                           "itemContainer->AddOnSelectIndexChanged playerComponent == nullptr");
                 return;
             }
@@ -115,7 +115,7 @@ void glimmer::PlayerContext::InitPlayer(const ResourceRef &resourceRef) {
 
     itemContainer->AddOnSelectIndexChanged([this, playerComponent, itemContainer, playerEntity](const uint8_t index) {
         if (playerComponent == nullptr) {
-            LogCat::e(std::source_location::current(),
+            LogCat::e(std::source_location::current(), "player_context_player_component_is_null",
                       "itemContainer->AddOnSelectIndexChanged playerComponent == nullptr");
             return;
         }

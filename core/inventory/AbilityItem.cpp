@@ -58,7 +58,7 @@ glimmer::AbilityItem::AbilityItem(const AbilityItemCreateParams &params) : id_(p
         itemDurabilityModule->SetUnbreakable(unbreakable_);
     }
     if (itemAbility_ == nullptr) {
-        LogCat::e(std::source_location::current(), "itemAbility is nullptr");
+        LogCat::e(std::source_location::current(), "item_ability_is_null", "itemAbility is nullptr");
         return;
     }
 }

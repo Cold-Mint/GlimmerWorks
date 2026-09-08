@@ -101,7 +101,7 @@ void glimmer::ItemTooltipSystem::OnWatchedComponentChanged(GameComponentTypeMess
     if (gameComponentType == COMPONENT_ITEM_TOOL_TIP) {
         itemToolTipComponent_ = GetEntityShortCut()->GetItemToolTipComponent();
         if (itemToolTipComponent_ == nullptr) {
-            LogCat::e(std::source_location::current(), "itemToolTipComponent_ == nullptr");
+            LogCat::e(std::source_location::current(), "item_tooltip_component_is_null", "itemToolTipComponent_ == nullptr");
         }
     }
 }

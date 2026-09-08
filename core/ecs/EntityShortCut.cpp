@@ -38,7 +38,7 @@ void glimmer::EntityShortCut::SetParallaxBackgroundComponent(ParallaxBackgroundC
 
 glimmer::ParallaxBackgroundComponent *glimmer::EntityShortCut::GetParallaxBackgroundComponent() const {
     if (parallaxBackgroundComponent_ == nullptr) {
-        LogCat::w(std::source_location::current(),
+        LogCat::w(std::source_location::current(), "parallax_background_component_null",
                   "EntityShortCut: ParallaxBackgroundComponent pointer is null, component not initialized");
         return nullptr;
     }
@@ -51,7 +51,7 @@ GameEntityID glimmer::EntityShortCut::GetPlayer() const {
 
 glimmer::ItemToolTipComponent *glimmer::EntityShortCut::GetItemToolTipComponent() const {
     if (itemToolTipComponent_ == nullptr) {
-        LogCat::w(std::source_location::current(),
+        LogCat::w(std::source_location::current(), "item_tooltip_component_null",
                   "EntityShortCut: ItemToolTipComponent pointer is null, tooltip ui not ready");
         return nullptr;
     }
@@ -68,7 +68,7 @@ void glimmer::EntityShortCut::SetMiningComponent(MiningComponent *miningComponen
 
 glimmer::MiningComponent *glimmer::EntityShortCut::GetMiningComponent() const {
     if (miningComponent_ == nullptr) {
-        LogCat::w(std::source_location::current(),
+        LogCat::w(std::source_location::current(), "mining_component_null",
                   "EntityShortCut: miningComponent pointer is null, digging system uninitialized");
         return nullptr;
     }
@@ -81,7 +81,7 @@ void glimmer::EntityShortCut::SetBlueprintComponent(BlueprintComponent *blueprin
 
 glimmer::BlueprintComponent *glimmer::EntityShortCut::GetBlueprintComponent() const {
     if (blueprintComponent_ == nullptr) {
-        LogCat::w(std::source_location::current(),
+        LogCat::w(std::source_location::current(), "blueprint_component_null",
                   "EntityShortCut: BlueprintComponent pointer is null, build blueprint ui missing");
         return nullptr;
     }
@@ -94,7 +94,7 @@ void glimmer::EntityShortCut::SetItemContainerComponent(ItemContainerComponent *
 
 glimmer::ItemContainerComponent *glimmer::EntityShortCut::GetItemContainerComponent() const {
     if (itemContainerComponent_ == nullptr) {
-        LogCat::w(std::source_location::current(),
+        LogCat::w(std::source_location::current(), "item_container_component_null",
                   "EntityShortCut: ItemContainerComponent pointer is null, inventory container unavailable");
         return nullptr;
     }
@@ -107,7 +107,7 @@ void glimmer::EntityShortCut::SetCameraComponent(CameraComponent *cameraComponen
 
 glimmer::CameraComponent *glimmer::EntityShortCut::GetCameraComponent() const {
     if (cameraComponent_ == nullptr) {
-        LogCat::w(std::source_location::current(),
+        LogCat::w(std::source_location::current(), "camera_component_null",
                   "EntityShortCut: CameraComponent pointer is null, main camera not initialized");
         return nullptr;
     }
@@ -120,7 +120,7 @@ void glimmer::EntityShortCut::SetAreaMarkerComponent(AreaMarkerComponent *areaMa
 
 glimmer::AreaMarkerComponent *glimmer::EntityShortCut::GetAreaMarkerComponent() const {
     if (areaMarkerComponent_ == nullptr) {
-        LogCat::w(std::source_location::current(),
+        LogCat::w(std::source_location::current(), "area_marker_component_null",
                   "EntityShortCut: AreaMarkerComponent pointer is null, region marker render missing");
         return nullptr;
     }
@@ -133,7 +133,7 @@ void glimmer::EntityShortCut::SetCameraTransform2DComponent(Transform2DComponent
 
 glimmer::Transform2DComponent *glimmer::EntityShortCut::GetCameraTransform2DComponent() const {
     if (cameraTransform2DComponent_ == nullptr) {
-        LogCat::w(std::source_location::current(),
+        LogCat::w(std::source_location::current(), "camera_transform2d_component_null",
                   "EntityShortCut: Camera Transform2DComponent pointer is null, camera transform unbound");
         return nullptr;
     }
@@ -146,7 +146,7 @@ void glimmer::EntityShortCut::SetRecipeSelectionComponent(RecipeSelectionCompone
 
 glimmer::RecipeSelectionComponent *glimmer::EntityShortCut::GetRecipeSelectionComponent() const {
     if (recipeSelectionComponent_ == nullptr) {
-        LogCat::w(std::source_location::current(),
+        LogCat::w(std::source_location::current(), "recipe_selection_component_null",
                   "EntityShortCut: RecipeSelectionComponent pointer is null, camera transform unbound");
         return nullptr;
     }

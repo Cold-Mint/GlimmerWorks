@@ -26,9 +26,15 @@
  */
 #pragma once
 #include <assert.h>
-#include <chrono>
+#include <atomic>
 #include <iostream>
+#include <memory>
 #include <source_location>
+#include <sstream>
+#include <string>
+#include <string_view>
+#include <unordered_map>
+#include <fmt/format.h>
 #ifdef __ANDROID__
 #include <android/log.h>
 #endif
@@ -40,68 +46,90 @@ constexpr const char *COLOR_ERROR = "\o{33}[31m";
 
 namespace glimmer {
     class LogCat {
+        using LogTable = std::unordered_map<std::string, std::string>;
+
+        static inline std::atomic<std::shared_ptr<const LogTable> > localizer_ = nullptr;
+
+        static std::string Resolve(std::string_view key, std::string_view fallback) {
+            const auto table = localizer_.load();
+            if (table != nullptr) {
+                const auto it = table->find(std::string(key));
+                if (it != table->end()) {
+                    return it->second;
+                }
+            }
+            return std::string(fallback);
+        }
+
+        template<typename... Args>
+        static std::string Format(std::string_view key, std::string_view fallback, Args &&... args) {
+            const std::string templateString = Resolve(key, fallback);
+            return fmt::vformat(templateString, fmt::make_format_args(args...));
+        }
+
     public:
+        static void SetLocalizer(std::shared_ptr<const LogTable> table) {
+            localizer_.store(std::move(table));
+        }
+
+        static void ClearLocalizer() {
+            localizer_.store(nullptr);
+        }
+
         template<typename... Args>
-        static void i([[maybe_unused]] Args &&... args) {
+        static void i([[maybe_unused]] std::string_view key, [[maybe_unused]] std::string_view fallback,
+                      [[maybe_unused]] Args &&... args) {
 #if  !defined(NDEBUG)
+            const std::string message = Format(key, fallback, std::forward<Args>(args)...);
 #ifdef __ANDROID__
-            std::ostringstream oss;
-            (oss << ... << args);
-            __android_log_print(ANDROID_LOG_INFO, "GlimmerWorks", "%s", oss.str().c_str());
+            __android_log_print(ANDROID_LOG_INFO, "GlimmerWorks", "%s", message.c_str());
 #else
-            std::cout << COLOR_INFO << "[i] ";
-            (std::cout << ... << args);
-            std::cout << COLOR_RESET << std::endl;
+            std::cout << COLOR_INFO << "[i] " << message << COLOR_RESET << std::endl;
 #endif
 #endif
         }
 
         template<typename... Args>
-        static void d([[maybe_unused]] Args &&... args) {
+        static void d([[maybe_unused]] std::string_view key, [[maybe_unused]] std::string_view fallback,
+                      [[maybe_unused]] Args &&... args) {
 #if  !defined(NDEBUG)
+            const std::string message = Format(key, fallback, std::forward<Args>(args)...);
 #ifdef __ANDROID__
-            std::ostringstream oss;
-            (oss << ... << args);
-            __android_log_print(ANDROID_LOG_DEBUG, "GlimmerWorks", "%s", oss.str().c_str());
+            __android_log_print(ANDROID_LOG_DEBUG, "GlimmerWorks", "%s", message.c_str());
 #else
-            std::cout << COLOR_DEBUG << "[d] ";
-            (std::cout << ... << args);
-            std::cout << COLOR_RESET << std::endl;
+            std::cout << COLOR_DEBUG << "[d] " << message << COLOR_RESET << std::endl;
 #endif
 #endif
         }
 
         template<typename... Args>
-        static void w([[maybe_unused]] const std::source_location sourceLocation, [[maybe_unused]] Args &&... args) {
+        static void w([[maybe_unused]] const std::source_location sourceLocation, [[maybe_unused]] std::string_view key,
+                      [[maybe_unused]] std::string_view fallback, [[maybe_unused]] Args &&... args) {
 #if  !defined(NDEBUG)
+            const std::string message = Format(key, fallback, std::forward<Args>(args)...);
 #ifdef __ANDROID__
             std::ostringstream oss;
-            oss << "[w] At " << sourceLocation.file_name() << ":" << sourceLocation.line() <<
-                    sourceLocation.file_name() << " ";
-            (oss << ... << args);
+            oss << "[w] At " << sourceLocation.file_name() << ":" << sourceLocation.line() << " " << message;
             __android_log_print(ANDROID_LOG_WARN, "GlimmerWorks", "%s", oss.str().c_str());
 #else
             std::cout << COLOR_WARN;
-            std::cout << "[w] At " << sourceLocation.file_name() << ":" << sourceLocation.line() << " ";
-            (std::cout << ... << args);
+            std::cout << "[w] At " << sourceLocation.file_name() << ":" << sourceLocation.line() << " " << message;
             std::cout << COLOR_RESET << std::endl;
 #endif
 #endif
         }
 
-
         template<typename... Args>
-        static void e(const std::source_location sourceLocation, Args &&... args) {
+        static void e(const std::source_location sourceLocation, std::string_view key, std::string_view fallback,
+                      Args &&... args) {
+            const std::string message = Format(key, fallback, std::forward<Args>(args)...);
 #ifdef __ANDROID__
             std::ostringstream oss;
-            oss << "[e] At " << sourceLocation.file_name() << ":" << sourceLocation.line() <<
-                    sourceLocation.file_name() << " ";
-            (oss << ... << args);
+            oss << "[e] At " << sourceLocation.file_name() << ":" << sourceLocation.line() << " " << message;
             __android_log_print(ANDROID_LOG_ERROR, "GlimmerWorks", "%s", oss.str().c_str());
 #else
             std::cout << COLOR_ERROR;
-            std::cout << "[e] At " << sourceLocation.file_name() << ":" << sourceLocation.line() << " ";
-            (std::cout << ... << args);
+            std::cout << "[e] At " << sourceLocation.file_name() << ":" << sourceLocation.line() << " " << message;
             std::cout << COLOR_RESET << std::endl;
 #endif
 #if  !defined(NDEBUG)

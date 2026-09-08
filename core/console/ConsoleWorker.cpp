@@ -35,7 +35,7 @@
 
 
 void glimmer::ConsoleWorker::WorkLoop(std::stop_token stopToken) {
-    LogCat::i("ConsoleWorker thread started");
+    LogCat::i("console_worker_thread_started", "ConsoleWorker thread started");
     while (!stopToken.stop_requested()) {
         std::unique_lock lock(commandMutex_);
         conditionVariable_.wait(lock, [this, &stopToken] {
@@ -62,12 +62,12 @@ void glimmer::ConsoleWorker::WorkLoop(std::stop_token stopToken) {
         auto commandResponse = std::make_unique<CommandResponse>();
         const std::string &command = commandRequest->GetCommand();
         const CommandArgs args(command);
-        LogCat::i("Executing command: ", command);
+        LogCat::i("executing_command", "Executing command: {}", command);
         if (Command *cmd = commandManager_->GetCommand(args.AsString(0)); cmd == nullptr) {
-            LogCat::w(std::source_location::current(), "Command not found: ", args.AsString(0));
+            LogCat::w(std::source_location::current(), "command_not_found", "Command not found: {}", args.AsString(0));
             commandResponse->SetCommandResult(CommandResult::NotFound, command);
         } else if (!commandManager_->CanExecuteCommand(cmd)) {
-            LogCat::w(std::source_location::current(), "Command cannot execute: ", args.AsString(0));
+            LogCat::w(std::source_location::current(), "command_cannot_execute", "Command cannot execute: {}", args.AsString(0));
             const LangsResources *langsResources = appContext_ != nullptr ? appContext_->GetLangsResources() : nullptr;
             if (langsResources != nullptr) {
                 if (cmd->RequiresWorldContext()) {
@@ -83,7 +83,7 @@ void glimmer::ConsoleWorker::WorkLoop(std::stop_token stopToken) {
                 &args,
                 currentCallback
             );
-            LogCat::i("Command executed: ", args.AsString(0), ", success: ", success);
+            LogCat::i("command_executed", "Command executed: {}, success: {}", args.AsString(0), success);
             commandResponse->SetCommandResult(
                 success ? CommandResult::Success : CommandResult::Failure, command
             );
@@ -91,7 +91,7 @@ void glimmer::ConsoleWorker::WorkLoop(std::stop_token stopToken) {
         std::lock_guard writeLock(commandMutex_);
         responseMap_[commandRequest->GetId()] = std::move(commandResponse);
     }
-    LogCat::i("ConsoleWorker thread stopped");
+    LogCat::i("console_worker_thread_stopped", "ConsoleWorker thread stopped");
 }
 
 glimmer::ConsoleWorker::ConsoleWorker(CommandManager *commandManager, AppContext *appContext)

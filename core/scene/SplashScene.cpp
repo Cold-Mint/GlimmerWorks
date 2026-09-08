@@ -33,7 +33,7 @@
 
 glimmer::SplashScene::SplashScene(AppContext *context)
     : Scene(context) {
-    LogCat::i("Creating SplashScene, duration: 2000ms");
+    LogCat::i("creating_splash_scene", "Creating SplashScene, duration: 2000ms");
     nextSceneTime_ = SDL_GetTicks() + 2000;
     Init();
 }

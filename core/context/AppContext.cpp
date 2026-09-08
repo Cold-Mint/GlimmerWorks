@@ -114,7 +114,7 @@ bool glimmer::AppContext::InitSystem() {
         }
     }
     if (success) {
-        LogCat::i("AppContext initialization completed successfully");
+        LogCat::i("app_context_initialization_completed", "AppContext initialization completed successfully");
         return true;
     }
     while (!initTaskStack.empty()) {

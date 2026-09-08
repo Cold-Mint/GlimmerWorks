@@ -77,16 +77,18 @@ glimmer::AppContext *glimmer::Scene::GetAppContext() const {
 }
 
 void glimmer::Scene::Init() {
-    LogCat::i("Scene init started");
+    LogCat::i("scene_init_started", "Scene init started");
     initSubclassFinish_ = true;
     const AppContext *appContext = GetAppContext();
     if (appContext == nullptr) {
-        LogCat::w(std::source_location::current(), "Scene init failed: appContext is nullptr");
+        LogCat::w(std::source_location::current(), "scene_init_app_context_is_null",
+                  "Scene init failed: appContext is nullptr");
         return;
     }
     const WindowContext *windowContext = appContext->GetWindowContext();
     if (windowContext == nullptr) {
-        LogCat::w(std::source_location::current(), "Scene init failed: windowContext is nullptr");
+        LogCat::w(std::source_location::current(), "scene_init_window_context_is_null",
+                  "Scene init failed: windowContext is nullptr");
         return;
     }
     OnWindowSizeChanged(windowContext->GetWindowWidth(), windowContext->GetWindowHeight());
@@ -96,23 +98,24 @@ void glimmer::Scene::Init() {
     rmlContext_ = appContext->GetRmlContext();
     OnCreateDataModels();
     LoadDocuments();
-    LogCat::i("Scene init completed");
+    LogCat::i("scene_init_completed", "Scene init completed");
 }
 
 Rml::ElementDocument *glimmer::Scene::LoadSingleDocument(const ResourceRef *resourceRef) {
     if (appContext_ == nullptr || rmlContext_ == nullptr || resourceRef == nullptr) {
-        LogCat::w(std::source_location::current(),
+        LogCat::w(std::source_location::current(), "load_document_missing_vars",
                   "The required variables for LoadDocument are missing. It is necessary to check if they are called after the init method.");
         return nullptr;
     }
     Rml::ElementDocument *elementDocument = rmlContext_->LoadDocument(appContext_, resourceRef);
     if (elementDocument == nullptr) {
-        LogCat::w(std::source_location::current(), "elementDocument_ == nullptr");
+        LogCat::w(std::source_location::current(), "element_document_is_null", "elementDocument_ == nullptr");
         return nullptr;
     }
 #if  !defined(NDEBUG)
     if (elementDocumentSet_.contains(elementDocument)) {
-        LogCat::e(std::source_location::current(), "A duplicate loading of the document has been detected.");
+        LogCat::e(std::source_location::current(), "duplicate_document_loading",
+                  "A duplicate loading of the document has been detected.");
         return nullptr;
     }
 #endif
@@ -129,7 +132,7 @@ Rml::DataModelConstructor *glimmer::Scene::CreateDataModel(const Rml::String &na
         return nullptr;
     }
     if (rmlConstructorNames_.contains(name)) {
-        LogCat::w(std::source_location::current(), "Recreate the dataModel:", name);
+        LogCat::w(std::source_location::current(), "recreate_data_model", "Recreate the dataModel:{}", name);
         return nullptr;
     }
     rmlConstructors_.push_back(rmlContextCore->CreateDataModel(name));
@@ -139,12 +142,14 @@ Rml::DataModelConstructor *glimmer::Scene::CreateDataModel(const Rml::String &na
 
 void glimmer::Scene::RemoveAllDataModel() {
     if (rmlContext_ == nullptr) {
-        LogCat::w(std::source_location::current(), "RemoveAllDataModel rmlContext_ == nullptr");
+        LogCat::w(std::source_location::current(), "remove_all_data_model_rml_context_is_null",
+                  "RemoveAllDataModel rmlContext_ == nullptr");
         return;
     }
     Rml::Context *rmlContextCore = rmlContext_->GetRmlContext();
     if (rmlContextCore == nullptr) {
-        LogCat::w(std::source_location::current(), "RemoveAllDataModel rmlContextCore == nullptr");
+        LogCat::w(std::source_location::current(), "remove_all_data_model_rml_context_core_is_null",
+                  "RemoveAllDataModel rmlContextCore == nullptr");
         return;
     }
     rmlConstructors_.clear();

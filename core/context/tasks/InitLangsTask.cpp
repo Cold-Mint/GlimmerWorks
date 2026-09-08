@@ -27,10 +27,12 @@
 #include "InitLangsTask.h"
 
 #include "core/context/SystemBucket.h"
+#include "core/log/LogCat.h"
 #include "core/utils/LangsResources.h"
 #include "core/vfs/VirtualFileSystem.h"
 #include "toml11/find.hpp"
 #include "toml11/parser.hpp"
+#include <unordered_map>
 
 bool glimmer::InitLangsTask::Run(ISystemBucket *systemBucket) {
     const VirtualFileSystem *virtualFileSystem = systemBucket->GetVirtualFileSystem();
@@ -179,6 +181,21 @@ bool glimmer::InitLangsTask::Run(ISystemBucket *systemBucket) {
     langsResources->timeM = toml::find<std::string>(tomlValue, "time_m");
     langsResources->timeS = toml::find<std::string>(tomlValue, "time_s");
     langsResources->savesDescription = toml::find<std::string>(tomlValue, "saves_description");
+
+    if (tomlValue.is_table()) {
+        const auto &rootTable = tomlValue.as_table();
+        const auto logIt = rootTable.find("log");
+        if (logIt != rootTable.end() && logIt->second.is_table()) {
+            auto logTable = std::make_shared<std::unordered_map<std::string, std::string> >();
+            for (const auto &[logKey, logValue] : logIt->second.as_table()) {
+                if (logValue.is_string()) {
+                    logTable->emplace(logKey, logValue.as_string());
+                }
+            }
+            LogCat::SetLocalizer(std::move(logTable));
+        }
+    }
+
     systemBucket->SetLangsResources(std::move(langsResources));
     systemBucket->SetLangsValue(std::make_unique<toml::value>(tomlValue));
     return true;
@@ -187,4 +204,5 @@ bool glimmer::InitLangsTask::Run(ISystemBucket *systemBucket) {
 void glimmer::InitLangsTask::Rollback(ISystemBucket *systemBucket) {
     systemBucket->SetLangsResources(nullptr);
     systemBucket->SetLangsValue(nullptr);
+    LogCat::ClearLocalizer();
 }

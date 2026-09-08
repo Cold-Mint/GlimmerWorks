@@ -42,39 +42,39 @@ void glimmer::RecipeDetailGUISystem::LoadRecipeDetail() {
     craftCount_ = 1;
     maxCraftCount_ = 1;
     if (currentRecipe_ == nullptr) {
-        LogCat::w(std::source_location::current(), "currentRecipe_ == nullptr");
+        LogCat::w(std::source_location::current(), "current_recipe_is_null", "currentRecipe_ == nullptr");
         return;
     }
 
     WorldContext *worldContext = GetWorldContext();
     if (worldContext == nullptr) {
-        LogCat::w(std::source_location::current(), "worldContext == nullptr");
+        LogCat::w(std::source_location::current(), "world_context_is_null", "worldContext == nullptr");
         return;
     }
 
     AppContext *appContext = worldContext->GetAppContext();
     if (appContext == nullptr) {
-        LogCat::w(std::source_location::current(), "appContext == nullptr");
+        LogCat::w(std::source_location::current(), "app_context_is_null", "appContext == nullptr");
         return;
     }
     ModContext *modContext = appContext->GetModContext();
     if (modContext == nullptr) {
-        LogCat::w(std::source_location::current(), "modContext == nullptr");
+        LogCat::w(std::source_location::current(), "mod_context_is_null", "modContext == nullptr");
         return;
     }
     StringManager *stringManager = modContext->GetStringManager();
     if (stringManager == nullptr) {
-        LogCat::w(std::source_location::current(), "stringManager == nullptr");
+        LogCat::w(std::source_location::current(), "string_manager_is_null", "stringManager == nullptr");
         return;
     }
     ResourceLocator *resourceLocator = appContext->GetResourceLocator();
     if (resourceLocator == nullptr) {
-        LogCat::w(std::source_location::current(), "resourceLocator == nullptr");
+        LogCat::w(std::source_location::current(), "resource_locator_is_null", "resourceLocator == nullptr");
         return;
     }
     auto outputItem = resourceLocator->FindItem(worldContext, currentRecipe_->output);
     if (outputItem == nullptr) {
-        LogCat::w(std::source_location::current(), "outputItem == nullptr");
+        LogCat::w(std::source_location::current(), "output_item_is_null", "outputItem == nullptr");
         return;
     }
     outputName_ = outputItem->GetName();
@@ -87,7 +87,7 @@ void glimmer::RecipeDetailGUISystem::LoadRecipeDetail() {
     }
     const ItemStackModule *stackModule = outputItem->GetStackModule();
     if (stackModule == nullptr) {
-        LogCat::w(std::source_location::current(), "stackModule == nullptr");
+        LogCat::w(std::source_location::current(), "stack_module_is_null", "stackModule == nullptr");
         return;
     }
     outputAmount_ = static_cast<int>(currentRecipe_->output.amount);

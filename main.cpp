@@ -45,12 +45,12 @@ int main() {
         APP_PACKNAME);
     AppContext appContext;
     if (!appContext.InitSystem()) {
-        LogCat::e(std::source_location::current(), "appContext Init failed");
+        LogCat::e(std::source_location::current(), "app_context_init_failed", "appContext Init failed");
         return EXIT_FAILURE;
     }
     App app(&appContext);
     if (!app.Init()) {
-        LogCat::e(std::source_location::current(), "app Init failed");
+        LogCat::e(std::source_location::current(), "app_init_failed", "app Init failed");
         return EXIT_FAILURE;
     }
     app.Run();

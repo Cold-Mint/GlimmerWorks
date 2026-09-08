@@ -35,12 +35,12 @@ glimmer::GameFileInterface::GameFileInterface(VirtualFileSystem *virtualFileSyst
 
 Rml::FileHandle glimmer::GameFileInterface::Open(const Rml::String &path) {
     if (virtualFileSystem_ == nullptr) {
-        LogCat::w(std::source_location::current(), "virtualFileSystem_ == nullptr");
+        LogCat::w(std::source_location::current(), "vfs_is_null", "virtualFileSystem_ == nullptr");
         return 0;
     }
     std::unique_ptr<std::istream> stream = virtualFileSystem_->ReadFileAsStream(path);
     if (stream == nullptr) {
-        LogCat::w(std::source_location::current(), "stream == nullptr");
+        LogCat::w(std::source_location::current(), "stream_is_null", "stream == nullptr");
         return 0;
     }
     indexFileHandle_++;
@@ -55,7 +55,7 @@ void glimmer::GameFileInterface::Close(Rml::FileHandle file) {
 size_t glimmer::GameFileInterface::Read(void *buffer, size_t size, Rml::FileHandle file) {
     const auto it = streamMap_.find(file);
     if (it == streamMap_.end()) {
-        LogCat::w(std::source_location::current(), "it == streamMap_.end()");
+        LogCat::w(std::source_location::current(), "stream_map_end", "it == streamMap_.end()");
         return 0;
     }
     std::istream *stream = it->second.get();
@@ -66,7 +66,7 @@ size_t glimmer::GameFileInterface::Read(void *buffer, size_t size, Rml::FileHand
 bool glimmer::GameFileInterface::Seek(Rml::FileHandle file, long offset, int origin) {
     const auto it = streamMap_.find(file);
     if (it == streamMap_.end()) {
-        LogCat::w(std::source_location::current(), "it == streamMap_.end()");
+        LogCat::w(std::source_location::current(), "stream_map_end", "it == streamMap_.end()");
         return false;
     }
     std::istream *stream = it->second.get();
@@ -82,7 +82,7 @@ bool glimmer::GameFileInterface::Seek(Rml::FileHandle file, long offset, int ori
             seekDir = std::ios::end;
             break;
         default:
-            LogCat::w(std::source_location::current(), "invalid origin: ", origin);
+            LogCat::w(std::source_location::current(), "invalid_origin", "invalid origin: {}", origin);
             return false;
     }
     stream->seekg(offset, seekDir);
@@ -92,7 +92,7 @@ bool glimmer::GameFileInterface::Seek(Rml::FileHandle file, long offset, int ori
 size_t glimmer::GameFileInterface::Tell(Rml::FileHandle file) {
     const auto it = streamMap_.find(file);
     if (it == streamMap_.end()) {
-        LogCat::w(std::source_location::current(), "index:", file, "it == streamMap_.end()");
+        LogCat::w(std::source_location::current(), "stream_map_end_at_index", "index:{} it == streamMap_.end()", file);
         return 0;
     }
     std::istream *stream = it->second.get();
@@ -101,7 +101,7 @@ size_t glimmer::GameFileInterface::Tell(Rml::FileHandle file) {
     stream->clear();
     const std::streampos pos = stream->tellg();
     if (pos == std::streampos(-1)) {
-        LogCat::w(std::source_location::current(), "index:", file, " pos == std::streampos(-1)");
+        LogCat::w(std::source_location::current(), "tell_pos_error", "index:{} pos == std::streampos(-1)", file);
         return 0;
     }
     return pos;
@@ -110,19 +110,19 @@ size_t glimmer::GameFileInterface::Tell(Rml::FileHandle file) {
 size_t glimmer::GameFileInterface::Length(Rml::FileHandle file) {
     const auto it = streamMap_.find(file);
     if (it == streamMap_.end()) {
-        LogCat::w(std::source_location::current(), "it == streamMap_.end() ");
+        LogCat::w(std::source_location::current(), "stream_map_end", "it == streamMap_.end() ");
         return 0;
     }
     std::istream *stream = it->second.get();
     const std::streampos currentPos = stream->tellg();
     if (currentPos == std::streampos(-1)) {
-        LogCat::w(std::source_location::current(), "currentPos == std::streampos(-1)");
+        LogCat::w(std::source_location::current(), "current_pos_error", "currentPos == std::streampos(-1)");
         return 0;
     }
     stream->seekg(0, std::ios::end);
     const std::streampos endPos = stream->tellg();
     if (endPos == std::streampos(-1)) {
-        LogCat::w(std::source_location::current(), "endPos == std::streampos(-1)");
+        LogCat::w(std::source_location::current(), "end_pos_error", "endPos == std::streampos(-1)");
         stream->seekg(currentPos);
         return 0;
     }
@@ -133,14 +133,14 @@ size_t glimmer::GameFileInterface::Length(Rml::FileHandle file) {
 
 bool glimmer::GameFileInterface::LoadFile(const Rml::String &path, Rml::String &out_data) {
     if (virtualFileSystem_ == nullptr) {
-        LogCat::w(std::source_location::current(), "virtualFileSystem_ == nullptr");
+        LogCat::w(std::source_location::current(), "vfs_is_null", "virtualFileSystem_ == nullptr");
         return false;
     }
     if (std::optional<std::string> string = virtualFileSystem_->ReadFileAsString(path); string.has_value()) {
         out_data = string.value();
         return true;
     }
-    LogCat::w(std::source_location::current(), "readFile Error");
+    LogCat::w(std::source_location::current(), "read_file_error", "readFile Error");
     return false;
 }
 

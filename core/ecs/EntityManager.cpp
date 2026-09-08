@@ -58,11 +58,11 @@ GameEntityID glimmer::EntityManager::AddEntity(GameEntityID gameEntityId) {
             ++entityIndex_;
         }
         entityMap_.emplace(entityIndex_, std::make_unique<GameEntity>(entityIndex_));
-        LogCat::d("Entity created: id=", entityIndex_);
+        LogCat::d("entity_created", "Entity created: id={}", entityIndex_);
         return entityIndex_;
     }
     entityMap_.emplace(gameEntityId, std::make_unique<GameEntity>(gameEntityId));
-    LogCat::d("Entity created: id=", gameEntityId);
+    LogCat::d("entity_created", "Entity created: id={}", gameEntityId);
     return gameEntityId;
 }
 
@@ -122,7 +122,7 @@ uint32_t glimmer::EntityManager::GetComponentCount(const GameComponentTypeMessag
 }
 
 void glimmer::EntityManager::RemoveEntity(const GameEntityID gameEntityId) {
-    LogCat::d("Entity removing: id=", gameEntityId);
+    LogCat::d("entity_removing", "Entity removing: id={}", gameEntityId);
     entityMap_.erase(gameEntityId);
     auto entityToGameComponentTypeIterator = entityToGameComponentType_.find(gameEntityId);
     if (entityToGameComponentTypeIterator != entityToGameComponentType_.end()) {
@@ -146,7 +146,7 @@ void glimmer::EntityManager::RemoveEntity(const GameEntityID gameEntityId) {
                 }
             }
         }
-        LogCat::d("Entity removed: id=", gameEntityId, ", components removed: ", componentCount);
+        LogCat::d("entity_removed", "Entity removed: id={}, components removed: {}", gameEntityId, componentCount);
     }
     entityIndex_++;
 }
@@ -176,7 +176,8 @@ void glimmer::EntityManager::RemoveComponent(const GameEntityID gameEntityId,
     }
 
     components_.erase(componentIterator);
-    LogCat::d("Component removed: entityId=", gameEntityId, ", type=", static_cast<int>(typeMessage));
+    LogCat::d("component_removed", "Component removed: entityId={}, type={}", gameEntityId,
+              static_cast<int>(typeMessage));
     auto entityToGameComponentTypeIterator = entityToGameComponentType_.find(gameEntityId);
     if (entityToGameComponentTypeIterator != entityToGameComponentType_.end()) {
         auto &unorderedSet = entityToGameComponentTypeIterator->second;
@@ -283,12 +284,13 @@ void glimmer::EntityManager::RecoveryComponent(WorldContext *worldContext, GameE
             gameComponent = AddComponent<Transform2DComponent>(gameEntityId);
             break;
         default:
-            LogCat::w(std::source_location::current(), "Irrecoverable component type ",
-                      std::to_underlying(componentMessage.type()));
+            LogCat::w(std::source_location::current(), "irrecoverable_component_type",
+                      "Irrecoverable component type {}", std::to_underlying(componentMessage.type()));
             return;
     }
     if (gameComponent == nullptr) {
-        LogCat::w(std::source_location::current(), "When restoring the component, an empty object was returned. ");
+        LogCat::w(std::source_location::current(), "restore_component_empty",
+                  "When restoring the component, an empty object was returned. ");
         return;
     }
     gameComponent->Deserialize(worldContext, componentMessage.data());

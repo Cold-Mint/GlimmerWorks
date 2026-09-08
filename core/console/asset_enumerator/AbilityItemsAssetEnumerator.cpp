@@ -35,17 +35,17 @@ std::string_view glimmer::AbilityItemsAssetEnumerator::GetAssetType() const {
 
 std::optional<std::string> glimmer::AbilityItemsAssetEnumerator::ListAsset(const AppContext *appContext) {
     if (appContext == nullptr) {
-        LogCat::w(std::source_location::current(), "appContext is nullptr");
+        LogCat::w(std::source_location::current(), "app_context_is_null", "appContext is nullptr");
         return std::nullopt;
     }
     const ModContext *modContext = appContext->GetModContext();
     if (modContext == nullptr) {
-        LogCat::w(std::source_location::current(), "modContext is nullptr");
+        LogCat::w(std::source_location::current(), "mod_context_is_null", "modContext is nullptr");
         return std::nullopt;
     }
     const AbilityItemRegistry *abilityItemRegistry = modContext->GetAbilityItemRegistry();
     if (abilityItemRegistry == nullptr) {
-        LogCat::w(std::source_location::current(), "itemManager is nullptr");
+        LogCat::w(std::source_location::current(), "item_manager_is_null", "itemManager is nullptr");
         return std::nullopt;
     }
     return abilityItemRegistry->ListString();

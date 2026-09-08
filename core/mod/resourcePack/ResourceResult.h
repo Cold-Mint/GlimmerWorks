@@ -73,7 +73,7 @@ namespace glimmer {
     template<typename T>
     void ResourceResult<T>::SetResourcePack(const ResourcePack *resourcePack) {
         if (resourcePack == nullptr) {
-            LogCat::e(std::source_location::current(), "resourcePack == nullptr");
+            LogCat::e(std::source_location::current(), "resource_pack_is_null", "resourcePack == nullptr");
             return;
         }
         resourcePack_ = resourcePack;
@@ -88,7 +88,7 @@ namespace glimmer {
     ResourceResult<T>::~ResourceResult() {
 #if  !defined(NDEBUG)
         if (!safeDestroy_) {
-            LogCat::e(std::source_location::current(),
+            LogCat::e(std::source_location::current(), "resource_not_released",
                       "Some resources have not been released correctly. Please implement the \"DestroyResource\" method within the destructor of the subclass.");
         }
 #endif

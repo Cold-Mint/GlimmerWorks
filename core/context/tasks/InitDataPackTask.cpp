@@ -37,23 +37,23 @@ glimmer::InitDataPackTask::InitDataPackTask(AppContext *appContext) : appContext
 bool glimmer::InitDataPackTask::Run(ISystemBucket *systemBucket) {
     const ModContext *modContext = systemBucket->GetModContext();
     if (modContext == nullptr) {
-        LogCat::e(std::source_location::current(), "modContext is nullptr");
+        LogCat::e(std::source_location::current(), "mod_context_is_null", "modContext is nullptr");
         return false;
     }
     DataPackManager *dataPackManager = modContext->GetDataPackManager();
     if (dataPackManager == nullptr) {
-        LogCat::e(std::source_location::current(), "dataPackManager is nullptr");
+        LogCat::e(std::source_location::current(), "data_pack_manager_is_null", "dataPackManager is nullptr");
         return false;
     }
     PackScanRequest packScanRequest;
     packScanRequest.SetAppContext(appContext_);
     if (dataPackManager->Scan(&packScanRequest) == 0) {
-        LogCat::e(std::source_location::current(), "The data package cannot be found.");
+        LogCat::e(std::source_location::current(), "data_pack_not_found", "The data package cannot be found.");
         return false;
     }
     RecipeManager *recipeManager = modContext->GetRecipeManager();
     if (recipeManager == nullptr) {
-        LogCat::e(std::source_location::current(), "recipeManager is nullptr");
+        LogCat::e(std::source_location::current(), "recipe_manager_is_null", "recipeManager is nullptr");
         return false;
     }
     recipeManager->PreSortRecipes();

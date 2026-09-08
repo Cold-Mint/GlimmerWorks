@@ -137,7 +137,7 @@ void glimmer::ConsoleOverlay::HideConsole() const {
 void glimmer::ConsoleOverlay::OnSuggestHover(Rml::DataModelHandle handle, Rml::Event &event,
                                              const Rml::VariantList &args) {
     if (args.empty()) {
-        LogCat::w(std::source_location::current(), "args.empty()");
+        LogCat::w(std::source_location::current(), "args_empty", "args.empty()");
         return;
     }
     int index = args[0].Get<int>();
@@ -235,7 +235,7 @@ void glimmer::ConsoleOverlay::ApplySuggestion(const std::string &message) {
 void glimmer::ConsoleOverlay::HandleReturnKey() {
     auto text = consoleInputElement_->GetAttribute<Rml::String>("value", "");
     if (text.empty()) {
-        LogCat::w(std::source_location::current(), "text.empty()");
+        LogCat::w(std::source_location::current(), "text_empty", "text.empty()");
         return;
     }
     consoleInputElement_->SetAttribute("value", "");
@@ -251,7 +251,7 @@ void glimmer::ConsoleOverlay::HandleReturnKey() {
         return;
     }
     if (consoleWorker_ == nullptr || commandManager_ == nullptr) {
-        LogCat::w(std::source_location::current(), "consoleWorker_ == nullptr || commandManager_ == nullptr");
+        LogCat::w(std::source_location::current(), "console_worker_or_command_manager_is_null", "consoleWorker_ == nullptr || commandManager_ == nullptr");
         return;
     }
     consoleWorker_->CreateRequest(text.substr(1),
@@ -295,11 +295,11 @@ void glimmer::ConsoleOverlay::HandleTabKey() {
 void glimmer::ConsoleOverlay::OnSuggestClick(Rml::DataModelHandle handle, Rml::Event &event,
                                              const Rml::VariantList &args) {
     if (args.empty()) {
-        LogCat::w(std::source_location::current(), "args.empty()");
+        LogCat::w(std::source_location::current(), "args_empty", "args.empty()");
         return;
     }
     if (consoleInputElement_ == nullptr) {
-        LogCat::w(std::source_location::current(), "consoleInputElement_ == nullptr");
+        LogCat::w(std::source_location::current(), "console_input_element_is_null", "consoleInputElement_ == nullptr");
         return;
     }
     auto message = args[0].Get<std::string>();
@@ -309,7 +309,7 @@ void glimmer::ConsoleOverlay::OnSuggestClick(Rml::DataModelHandle handle, Rml::E
 void glimmer::ConsoleOverlay::OnConsoleChange(Rml::DataModelHandle handle, Rml::Event &event,
                                               const Rml::VariantList &args) {
     if (consoleInputElement_ == nullptr) {
-        LogCat::w(std::source_location::current(), "consoleInputElement== nullptr");
+        LogCat::w(std::source_location::current(), "console_input_element_is_null", "consoleInputElement== nullptr");
         return;
     }
     auto text = consoleInputElement_->GetAttribute<Rml::String>("value", "");
@@ -354,32 +354,32 @@ glimmer::ConsoleOverlay::ConsoleOverlay(AppContext *context)
     Init();
     const AppContext *appContext = GetAppContext();
     if (appContext == nullptr) {
-        LogCat::e(std::source_location::current(), "appContext== nullptr");
+        LogCat::e(std::source_location::current(), "app_context_is_null", "appContext== nullptr");
         return;
     }
     const ConsoleContext *consoleContext = appContext->GetConsoleContext();
     if (consoleContext == nullptr) {
-        LogCat::w(std::source_location::current(), "consoleContext== nullptr");
+        LogCat::w(std::source_location::current(), "console_context_is_null", "consoleContext== nullptr");
         return;
     }
     commandManager_ = consoleContext->GetCommandManager();
     if (commandManager_ == nullptr) {
-        LogCat::w(std::source_location::current(), "commandManager== nullptr");
+        LogCat::w(std::source_location::current(), "command_manager_is_null", "commandManager== nullptr");
         return;
     }
     commandHistoryMessage_ = consoleContext->GetCommandHistoryMessage();
     if (commandHistoryMessage_ == nullptr) {
-        LogCat::w(std::source_location::current(), "commandHistoryMessage == nullptr");
+        LogCat::w(std::source_location::current(), "command_history_message_is_null", "commandHistoryMessage == nullptr");
         return;
     }
     consoleWorker_ = consoleContext->GetConsoleWorker();
     if (consoleWorker_ == nullptr) {
-        LogCat::w(std::source_location::current(), "consoleWorker== nullptr");
+        LogCat::w(std::source_location::current(), "console_worker_is_null", "consoleWorker== nullptr");
         return;
     }
     dynamicSuggestionsManager_ = consoleContext->GetDynamicSuggestionsManager();
     if (dynamicSuggestionsManager_ == nullptr) {
-        LogCat::w(std::source_location::current(), "dynamicSuggestionsManager== nullptr");
+        LogCat::w(std::source_location::current(), "dynamic_suggestions_manager_is_null", "dynamicSuggestionsManager== nullptr");
         return;
     }
 }
@@ -393,12 +393,12 @@ void glimmer::ConsoleOverlay::LoadDocuments() {
     consoleDocument_->Hide();
     Rml::Element *consoleInput = consoleDocument_->GetElementById("console_input");
     if (consoleInput == nullptr) {
-        LogCat::e(std::source_location::current(), "consoleInput== nullptr");
+        LogCat::e(std::source_location::current(), "console_input_is_null", "consoleInput== nullptr");
         return;
     }
     consoleInputElement_ = rmlui_dynamic_cast<Rml::ElementFormControlInput *>(consoleInput);
     if (consoleInputElement_ == nullptr) {
-        LogCat::e(std::source_location::current(), "consoleInputElement== nullptr");
+        LogCat::e(std::source_location::current(), "console_input_element_is_null", "consoleInputElement== nullptr");
         return;
     }
     suggestionListElement_ = consoleDocument_->GetElementById("suggestion_list");

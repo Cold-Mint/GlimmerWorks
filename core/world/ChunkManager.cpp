@@ -193,15 +193,15 @@ void glimmer::ChunkManager::LoadChunkAt(TileVector2D position) {
     if (chunks_.contains(position)) {
         return;
     }
-    LogCat::d("Loading chunk at position: (", position.x, ",", position.y, ")");
+    LogCat::d("chunk_loading", "Loading chunk at position: ({}, {})", position.x, position.y);
     std::unique_ptr<Chunk> newlyCreatedChunk = worldContext_->GetChunkLoader()->LoadChunkFromSaves(position);
     if (newlyCreatedChunk == nullptr) {
-        LogCat::d("Chunk not found in saves, generating new chunk");
+        LogCat::d("chunk_not_found_generating", "Chunk not found in saves, generating new chunk");
         newlyCreatedChunk = worldContext_->GetChunkGenerator()->GenerateChunkAt(position);
     }
     if (newlyCreatedChunk == nullptr) {
-        LogCat::w(std::source_location::current(), "Failed to load or generate chunk at: (", position.x, ",",
-                  position.y, ")");
+        LogCat::w(std::source_location::current(), "chunk_load_generate_failed", "Failed to load or generate chunk at: ({}, {})", position.x,
+                  position.y);
         return;
     }
     UpdateChunkLight(newlyCreatedChunk.get());
@@ -214,7 +214,7 @@ void glimmer::ChunkManager::LoadChunkAt(TileVector2D position) {
     });
     chunks_.insert({position, std::move(newlyCreatedChunk)});
     chunkSnapshot_++;
-    LogCat::d("Chunk loaded successfully at: (", position.x, ",", position.y, ")");
+    LogCat::d("chunk_loaded", "Chunk loaded successfully at: ({}, {})", position.x, position.y);
 }
 
 
@@ -223,7 +223,7 @@ void glimmer::ChunkManager::UnloadChunkAt(const TileVector2D &position) {
     if (it == chunks_.end()) {
         return;
     }
-    LogCat::d("Unloading chunk at position: (", position.x, ",", position.y, ")");
+    LogCat::d("chunk_unloading", "Unloading chunk at position: ({}, {})", position.x, position.y);
     if (SaveChunk(position)) {
         for (int x = 0; x < CHUNK_SIZE; x++) {
             for (int y = 0; y < CHUNK_SIZE; y++) {
@@ -233,10 +233,10 @@ void glimmer::ChunkManager::UnloadChunkAt(const TileVector2D &position) {
         ChunkPhysicsHelper::DetachPhysicsBodyToChunk(worldContext_->GetAppContext(), it->second.get());
         chunks_.erase(it);
         chunkSnapshot_++;
-        LogCat::d("Chunk unloaded successfully at: (", position.x, ",", position.y, ")");
+        LogCat::d("chunk_unloaded", "Chunk unloaded successfully at: ({}, {})", position.x, position.y);
     } else {
-        LogCat::w(std::source_location::current(), "Failed to save chunk during unload at: (", position.x, ",",
-                  position.y, ")");
+        LogCat::w(std::source_location::current(), "chunk_save_failed_during_unload", "Failed to save chunk during unload at: ({}, {})", position.x,
+                  position.y);
     }
 }
 

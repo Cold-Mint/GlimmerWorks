@@ -45,8 +45,8 @@ std::unique_ptr<glimmer::CompiledUniformBlock> glimmer::CompiledUniformBlock::Co
         compiled.staticValue = member.value;
         compiled.type = Std140LayoutBuilder::ParseType(member.type);
         if (compiled.type == UniformScalarType::Invalid) {
-            LogCat::w(std::source_location::current(), "Invalid uniform member type: ", member.type,
-                      " for member ", member.name);
+            LogCat::w(std::source_location::current(), "invalid_uniform_member_type",
+                      "Invalid uniform member type: {} for member {}", member.type, member.name);
             return nullptr;
         }
         const uint32_t alignment = Std140LayoutBuilder::GetAlignment(compiled.type);
@@ -112,7 +112,8 @@ void glimmer::CompiledUniformBlock::Fill(const UniformInjectContext &ctx, std::v
         const CompiledUniformMember &member = members_[memberIndex];
         const UniformInjector injector = UniformInjectorRegistry::Find(member.source);
         if (injector == nullptr) {
-            LogCat::w(std::source_location::current(), "Uniform injector not found: ", member.source);
+            LogCat::w(std::source_location::current(), "uniform_injector_not_found", "Uniform injector not found: {}",
+                      member.source);
             continue;
         }
         injector(ctx, reinterpret_cast<float *>(out.data() + member.offset));

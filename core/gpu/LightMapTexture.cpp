@@ -58,7 +58,8 @@ void glimmer::LightMapTexture::EnsureTexture(const Uint32 width, const Uint32 he
     info.props = 0;
     texture_ = SDL_CreateGPUTexture(device_, &info);
     if (texture_ == nullptr) {
-        LogCat::w(std::source_location::current(), "SDL_CreateGPUTexture failed: ", SDL_GetError());
+        LogCat::w(std::source_location::current(), "sdl_create_gpu_texture_failed", "SDL_CreateGPUTexture failed: {}",
+                  SDL_GetError());
         width_ = 0;
         height_ = 0;
         return;

@@ -143,10 +143,10 @@ bool glimmer::AppEventLoop::HandleSystemEvent(const SDL_Event &event) const {
     auto sceneManager = appContext_->GetSceneManager();
 #ifdef __ANDROID__
     if (event.type == SDL_EVENT_KEY_DOWN && event.key.key == SDLK_AC_BACK) {
-        LogCat::i("Back button pressed (Android)");
+        LogCat::i("back_button_pressed", "Back button pressed (Android)");
         if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
             if (!topScene->OnBackPressed()) {
-                LogCat::i("Back button: popping scene");
+                LogCat::i("back_button_popping_scene", "Back button: popping scene");
                 sceneManager->PopScene();
             }
         }
@@ -154,7 +154,7 @@ bool glimmer::AppEventLoop::HandleSystemEvent(const SDL_Event &event) const {
     }
 #else
     if (event.type == SDL_EVENT_KEY_DOWN && event.key.scancode == SDL_SCANCODE_ESCAPE && !event.key.repeat) {
-        LogCat::i("Escape key pressed");
+        LogCat::i("escape_key_pressed", "Escape key pressed");
         bool handled = false;
         const auto &overlayScenes = sceneManager->GetOverlayScenes();
         for (const auto overlayScene: std::ranges::reverse_view(overlayScenes)) {
@@ -165,14 +165,14 @@ bool glimmer::AppEventLoop::HandleSystemEvent(const SDL_Event &event) const {
         }
         Scene *topScene = sceneManager->GetTopScene();
         if (!handled && topScene != nullptr && !topScene->OnBackPressed()) {
-            LogCat::i("Escape key: popping scene");
+            LogCat::i("escape_key_popping_scene", "Escape key: popping scene");
             sceneManager->PopScene();
         }
         return true;
     }
 #endif
     if (event.type == SDL_EVENT_QUIT) {
-        LogCat::i("Quit event received");
+        LogCat::i("quit_event_received", "Quit event received");
         const auto &overlayScenes = sceneManager->GetOverlayScenes();
         for (const auto overlayScene: std::ranges::reverse_view(overlayScenes)) {
             overlayScene->OnWindowClose();

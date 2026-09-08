@@ -114,7 +114,7 @@ std::shared_ptr<glimmer::ShaderResourceResult> glimmer::ShaderCache::LoadResourc
         ShaderCacheMessage shaderCacheMessage;
         WriteShaderCacheStoreToMessage(&shaderCacheStoreData, &shaderCacheMessage);
         if (!virtualFileSystem->WriteFile(cachePath, shaderCacheMessage.SerializeAsString())) {
-            LogCat::e(std::source_location::current(), "create cache message failed: ", cachePath.string());
+            LogCat::e(std::source_location::current(), "shader_cache_create_message_failed", "create cache message failed: {}", cachePath.string());
         }
     } else {
         //Successfully read the cache.
@@ -125,12 +125,12 @@ std::shared_ptr<glimmer::ShaderResourceResult> glimmer::ShaderCache::LoadResourc
         shaderInfo.num_uniform_buffers = shaderCacheMessagePtr->numuniformbuffers();
     }
     if (shaderInfo.code_size % sizeof(unsigned int) != 0) {
-        LogCat::w(std::source_location::current(), "Invalid SPIR-V input");
+        LogCat::w(std::source_location::current(), "shader_cache_invalid_spirv", "Invalid SPIR-V input");
         return nullptr;
     }
     SDL_GPUShader *gpuShader = SDL_CreateGPUShader(device, &shaderInfo);
     if (gpuShader == nullptr) {
-        LogCat::w(std::source_location::current(), "SDL_CreateGPUShader failed: ", SDL_GetError());
+        LogCat::w(std::source_location::current(), "shader_cache_gpu_shader_create_failed", "SDL_CreateGPUShader failed: {}", SDL_GetError());
         return nullptr;
     }
     auto shaderResourceResult = std::make_shared<ShaderResourceResult>();
@@ -155,12 +155,12 @@ std::unique_ptr<ShaderCacheMessage> glimmer::ShaderCache::TryLoad(const std::fil
     if (!cacheMessage->ParseFromString(cacheData.value())) {
         //Corrupted or truncated cache: discard it and fall back to recompiling.
         //缓存损坏或被截断：丢弃缓存并回退到重新编译。
-        LogCat::w(std::source_location::current(), "Shader cache corrupted, discarding: ", cacheFilePath.string());
+        LogCat::w(std::source_location::current(), "shader_cache_corrupted_discarding", "Shader cache corrupted, discarding: {}", cacheFilePath.string());
         static_cast<void>(virtualFileSystem->DeleteFileOrFolder(cacheFilePath));
         return nullptr;
     }
     if (cacheMessage->spirvbinary().empty()) {
-        LogCat::w(std::source_location::current(), "Shader cache has no SPIR-V data, discarding: ",
+        LogCat::w(std::source_location::current(), "shader_cache_no_spirv_discarding", "Shader cache has no SPIR-V data, discarding: {}",
                   cacheFilePath.string());
         static_cast<void>(virtualFileSystem->DeleteFileOrFolder(cacheFilePath));
         return nullptr;
@@ -170,7 +170,7 @@ std::unique_ptr<ShaderCacheMessage> glimmer::ShaderCache::TryLoad(const std::fil
     if (resourceRef->GetFingerprint() != oldResourceRef.GetFingerprint()) {
         //The cache file belongs to a different shader; do not trust it.
         //缓存文件属于其他着色器，不可信。
-        LogCat::w(std::source_location::current(), "Shader cache resource mismatch, discarding: ",
+        LogCat::w(std::source_location::current(), "shader_cache_resource_mismatch_discarding", "Shader cache resource mismatch, discarding: {}",
                   cacheFilePath.string());
         static_cast<void>(virtualFileSystem->DeleteFileOrFolder(cacheFilePath));
         return nullptr;
@@ -178,18 +178,18 @@ std::unique_ptr<ShaderCacheMessage> glimmer::ShaderCache::TryLoad(const std::fil
     if (cacheMessage->sourcemtime() == mtime) {
         //The source file did not change: the cached binary is still valid.
         //源文件未变化：缓存的二进制仍然有效。
-        LogCat::i("Shader cache hit (mtime): ", cacheFilePath.string());
+        LogCat::i("shader_cache_hit_mtime", "Shader cache hit (mtime): {}", cacheFilePath.string());
         return cacheMessage;
     }
     auto newBlake3 = StringUtils::StringToFullBlake3(code);
     if (!cacheMessage->blake3hash().empty()
         && std::memcmp(newBlake3.data(), cacheMessage->blake3hash().data(), BLAKE3_OUT_LEN) == 0) {
-        LogCat::i("Shader cache hit (blake3): ", cacheFilePath.string());
+        LogCat::i("shader_cache_hit_blake3", "Shader cache hit (blake3): {}", cacheFilePath.string());
         //The modification time of the file has changed, but the hash value remains the same.
         //文件的修改时间变了，但是哈希值没变。
         cacheMessage->set_sourcemtime(mtime);
         if (!virtualFileSystem->WriteFile(cacheFilePath, cacheMessage->SerializeAsString())) {
-            LogCat::e(std::source_location::current(), "update cache message failed: ", cacheFilePath.string());
+            LogCat::e(std::source_location::current(), "shader_cache_update_message_failed", "update cache message failed: {}", cacheFilePath.string());
         }
         return cacheMessage;
     }

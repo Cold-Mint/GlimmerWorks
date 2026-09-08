@@ -209,7 +209,8 @@ namespace glimmer {
             for (auto &callBack: onComponentCountChanged_) {
                 callBack.second(typeMessage, count);
             }
-            LogCat::d("Component added: entityId=", gameEntityId, ", type=", static_cast<int>(typeMessage));
+            LogCat::d("component_added", "Component added: entityId={}, type={}", gameEntityId,
+                      static_cast<int>(typeMessage));
             return ptr;
         }
         const std::unique_ptr<GameComponent> &gameComponentPtr = componentIterator->second;

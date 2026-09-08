@@ -66,15 +66,6 @@ void glimmer::ChunkManager::UpdateTileLight(const Chunk *chunk, const TileLayerT
     if (appContext == nullptr) {
         return;
     }
-#if  !defined(NDEBUG)
-    const Config *config = appContext->GetConfig();
-    if (config == nullptr) {
-        return;
-    }
-    if (!config->light.enable) {
-        return;
-    }
-#endif
     if (chunk == nullptr) {
         return;
     }

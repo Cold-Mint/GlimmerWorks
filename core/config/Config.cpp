@@ -157,7 +157,6 @@ bool glimmer::Config::ReloadConfig() {
     debug.displayHumidityMap = toml::find<bool>(tomlRef, "debug", "display_humidity_map");
     debug.displayErosionMap = toml::find<bool>(tomlRef, "debug", "display_erosion_map");
     debug.displayWeirdnessMap = toml::find<bool>(tomlRef, "debug", "display_weirdness_map");
-    light.enable = toml::find<bool>(tomlRef, "light", "enable");
 #endif
     fingerprint_++;
     return true;

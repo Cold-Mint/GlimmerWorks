@@ -418,7 +418,7 @@ void glimmer::AppRenderer::UpdateLightMap(UniformInjectContext *injectContext) {
     const auto sizeX = static_cast<Uint32>(tileMax.x - tileMin.x + 3);
     const auto sizeY = static_cast<Uint32>(tileMax.y - tileMin.y + 3);
     const Config *config = appContext_->GetConfig();
-    const bool fullBright = config == nullptr || !config->light.enable;
+    const bool fullBright = config == nullptr;
     if (!ambientLightComputed_) {
         WorldContext *worldContext = injectContext->worldContext;
         const DimensionResource *dimensionResource = nullptr;

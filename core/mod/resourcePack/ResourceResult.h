@@ -108,7 +108,9 @@ namespace glimmer {
         }
         DestroyResourceImpl(resource);
         resource_ = nullptr;
+#if  !defined(NDEBUG)
         safeDestroy_ = true;
+#endif
     }
 
 

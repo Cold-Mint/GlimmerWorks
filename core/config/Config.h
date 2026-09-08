@@ -98,10 +98,6 @@ namespace glimmer {
         bool displayWeirdnessMap;
     };
 
-    struct LightConfig {
-        bool enable;
-    };
-
     struct Console {
         uint16_t maxHistoryEntries = 100;
     };
@@ -167,7 +163,6 @@ namespace glimmer {
         std::string cachePath = ".cache";
         std::vector<CommandHookResource> commandHooks;
 #if  !defined(NDEBUG)
-        LightConfig light;
         Debug debug{};
 #endif
 

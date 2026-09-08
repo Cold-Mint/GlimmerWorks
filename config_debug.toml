@@ -85,21 +85,10 @@ code = "f6"
 event_type = "key_down"
 
 [[command_hooks]]
-hook_id = "b47ff758-6c06-475b-927d-bbeebda7421b"
-command = "config set light.enable toggle"
-code = "f5"
-event_type = "key_down"
-
-[[command_hooks]]
 hook_id = "a068131c-42e2-4dc6-9771-468cf145b75e"
 command = "config commit"
 code = "f5"
 event_type = "key_down"
-
-[light]
-# Enable lighting
-# 启用光照
-enable = true
 
 [debug]
 # Show debug panel in game

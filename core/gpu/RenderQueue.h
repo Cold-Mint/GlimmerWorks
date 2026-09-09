@@ -49,6 +49,7 @@ namespace glimmer {
          * @param color color 顶点颜色（调色/透明度调制）
          * @param pipeline pipeline 渲染管线（nullptr 表示使用默认管线）
          * @param sampler sampler 采样器（nullptr 表示使用默认采样器）
+         * @param uniformBlock
          */
         void AppendQuad(RenderLayer layer, float depth, const TextureResourceResult *texture,
                         const SDL_FPoint positions[4], const SDL_FPoint uvs[4], const SDL_Color &color,
@@ -58,6 +59,8 @@ namespace glimmer {
 
     public:
         RenderQueue() = default;
+
+        void AddCommand(RenderCommand command);
 
         /**
          * Remove all queued commands (called once per frame before systems

@@ -29,7 +29,6 @@
 #include "core/ecs/GameSystem.h"
 #include "box2d/types.h"
 #include <numbers>
-#include "core/config/Constants.h"
 
 namespace glimmer {
     constexpr float kScale = 30.0F; // 1 meter = 30 pixels （游戏单位缩放）
@@ -37,12 +36,17 @@ namespace glimmer {
     constexpr float kPi = std::numbers::pi_v<float>;
 
     class DebugDrawBox2dSystem : public GameSystem {
+        //Enqueue, add within the tick.
+        //队列，在tick内添加。
+        RenderQueue queue_;
         CameraComponent *cameraComponent_ = nullptr;
         Transform2DComponent *cameraTransform2DComponent_ = nullptr;
         uint32_t transform2DCount_ = 0;
         uint32_t rayCast2DCount_ = 0;
         std::vector<GameEntityID> entities_;
         bool displayBox2dShape_ = false;
+        WorldContext *worldContext_ = nullptr;
+        EntityManager *entityManager_ = nullptr;
 
     public:
         explicit DebugDrawBox2dSystem(WorldContext *worldContext);
@@ -71,6 +75,8 @@ namespace glimmer {
         static void b2DrawStringFcn(b2Vec2 p, const char *s, b2HexColor color, void *context);
 
         bool CanActive() const override;
+
+        void OnTick(uint64_t tick) override;
 
         void Render(RenderQueue *queue) override;
 

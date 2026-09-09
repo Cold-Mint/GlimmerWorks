@@ -60,6 +60,8 @@ glimmer::DebugDrawBox2dSystem::DebugDrawBox2dSystem(WorldContext *worldContext) 
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_RAY_CAST_2D);
     Init();
+    worldContext_ = worldContext;
+    entityManager_ = worldContext->GetEntityManager();
 }
 
 void glimmer::DebugDrawBox2dSystem::OnConfigChanged(const Config *config) {
@@ -590,10 +592,8 @@ bool glimmer::DebugDrawBox2dSystem::CanActive() const {
     return displayBox2dShape_;
 }
 
-void glimmer::DebugDrawBox2dSystem::Render(RenderQueue *queue) {
-    EntityManager *entityManager = GetEntityManager();
-    WorldContext *worldContext = GetWorldContext();
-    if (entityManager == nullptr) {
+void glimmer::DebugDrawBox2dSystem::OnTick(uint64_t tick) {
+    if (entityManager_ == nullptr) {
         return;
     }
     if (cameraComponent_ == nullptr) {
@@ -602,7 +602,8 @@ void glimmer::DebugDrawBox2dSystem::Render(RenderQueue *queue) {
     if (cameraTransform2DComponent_ == nullptr) {
         return;
     }
-    auto box2dSystemContext = Box2dSystemContext(worldContext, queue);
+    queue_.Clear();
+    auto box2dSystemContext = Box2dSystemContext(worldContext_, &queue_);
     b2DebugDraw debugDraw = b2DefaultDebugDraw();
     debugDraw.DrawPolygonFcn = b2DrawPolygonFcn;
     debugDraw.DrawSolidPolygonFcn = b2DrawSolidPolygonFcn;
@@ -615,7 +616,15 @@ void glimmer::DebugDrawBox2dSystem::Render(RenderQueue *queue) {
     debugDraw.DrawStringFcn = b2DrawStringFcn;
     debugDraw.context = &box2dSystemContext;
     debugDraw.drawShapes = true;
-    b2World_Draw(worldContext->GetWorldId(), &debugDraw);
+    b2World_Draw(worldContext_->GetWorldId(), &debugDraw);
+}
+
+void glimmer::DebugDrawBox2dSystem::Render(RenderQueue *queue) {
+    EntityManager *entityManager = GetEntityManager();
+    const std::vector<RenderCommand> &commands = queue_.GetCommands();
+    for (const auto &command: commands) {
+        queue->AddCommand(command);
+    }
     for (const uint32_t entity: entities_) {
         const auto rayComp =
                 entityManager->GetComponent<RayCast2DComponent>(entity);

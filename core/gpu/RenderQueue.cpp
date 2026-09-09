@@ -49,6 +49,10 @@ void glimmer::RenderQueue::AppendQuad(RenderLayer layer, float depth, const Text
     }
 }
 
+void glimmer::RenderQueue::AddCommand(RenderCommand command) {
+    commands_.emplace_back(command);
+}
+
 void glimmer::RenderQueue::Clear() {
     commands_.clear();
 }

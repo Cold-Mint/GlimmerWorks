@@ -26,28 +26,22 @@
  */
 #include "core/app/AppRenderer.h"
 
-#include <cstddef>
-#include <cstring>
 #include <memory>
-#include <vector>
 
+#include "core/app/pass/ClearPass.h"
+#include "core/app/pass/LightingPass.h"
+#include "core/app/pass/ScenePass.h"
+#include "core/app/pass/UiPass.h"
 #include "core/config/Constants.h"
-#include "core/context/CacheContext.h"
+#include "core/gpu/IPass.h"
 #include "core/context/WindowContext.h"
-#include "core/ecs/EntityShortCut.h"
-#include "core/ecs/component/CameraComponent.h"
-#include "core/ecs/component/Transform2DComponent.h"
-#include "core/gpu/UniformBlock.h"
+#include "core/gpu/RenderFrameContext.h"
 #include "core/gpu/UniformInjectContext.h"
 #include "core/log/LogCat.h"
-#include "core/math/CoordinateTransformer.h"
-#include "core/mod/ResourceLocator.h"
 #include "core/mod/ResourceRef.h"
 #include "core/mod/resourcePack/GPUPipelineResourceResult.h"
+#include "core/scene/Scene.h"
 #include "core/scene/SceneManager.h"
-#include "core/utils/ColorUtils.h"
-#include "core/world/Dimension.h"
-#include "core/world/WorldContext.h"
 
 
 glimmer::AppRenderer::AppRenderer(AppContext *appContext) : appContext_(appContext) {
@@ -64,8 +58,8 @@ glimmer::AppRenderer::AppRenderer(AppContext *appContext) : appContext_(appConte
     defaultPipelineResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     defaultPipelineResourceRef.SetResourceType(RESOURCE_PIPELINE);
     defaultPipelineResourceRef.SetResourceKey("default");
-    defaultPipeline_ = resourceLocator_->FindGPUGraphicsPipeline(&defaultPipelineResourceRef);
-    if (defaultPipeline_ == nullptr) {
+    auto defaultPipeline = resourceLocator_->FindGPUGraphicsPipeline(&defaultPipelineResourceRef);
+    if (defaultPipeline == nullptr) {
         LogCat::e(std::source_location::current(), "default_pipeline_failed", "defaultPipeline failed: {}",
                   SDL_GetError());
     }
@@ -73,8 +67,8 @@ glimmer::AppRenderer::AppRenderer(AppContext *appContext) : appContext_(appConte
     defaultSamplerResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     defaultSamplerResourceRef.SetResourceType(RESOURCE_SAMPLER);
     defaultSamplerResourceRef.SetResourceKey("default");
-    defaultSampler_ = resourceLocator_->FindGPUGraphicsSampler(&defaultSamplerResourceRef);
-    if (defaultSampler_ == nullptr) {
+    auto defaultSampler = resourceLocator_->FindGPUGraphicsSampler(&defaultSamplerResourceRef);
+    if (defaultSampler == nullptr) {
         LogCat::e(std::source_location::current(), "default_sampler_failed", "defaultSampler failed: {}",
                   SDL_GetError());
     }
@@ -82,17 +76,24 @@ glimmer::AppRenderer::AppRenderer(AppContext *appContext) : appContext_(appConte
     lightingPipelineResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     lightingPipelineResourceRef.SetResourceType(RESOURCE_PIPELINE);
     lightingPipelineResourceRef.SetResourceKey("lighting");
-    lightingPipeline_ = resourceLocator_->FindGPUGraphicsPipeline(&lightingPipelineResourceRef);
+    auto lightingPipeline = resourceLocator_->FindGPUGraphicsPipeline(&lightingPipelineResourceRef);
     ResourceRef lightingSamplerResourceRef;
     lightingSamplerResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     lightingSamplerResourceRef.SetResourceType(RESOURCE_SAMPLER);
     lightingSamplerResourceRef.SetResourceKey("lighting");
-    lightingSampler_ = resourceLocator_->FindGPUGraphicsSampler(&lightingSamplerResourceRef);\
-    sceneManager_ = appContext->GetSceneManager();
-    EnsureSolidColorTexture();
+    auto lightingSampler = resourceLocator_->FindGPUGraphicsSampler(&lightingSamplerResourceRef);
+    sceneManager_ = appContext_->GetSceneManager();
+    passes_.emplace_back(
+        std::make_unique<ScenePass>(device_, window_, std::move(defaultPipeline), std::move(defaultSampler)));
+    passes_.emplace_back(std::make_unique<ClearPass>());
+    passes_.emplace_back(std::make_unique<LightingPass>(resourceLocator_, device_, std::move(lightingPipeline),
+                                                        std::move(lightingSampler)));
+    passes_.emplace_back(std::make_unique<UiPass>(appContext_->GetRmlContext()));
 }
 
-void glimmer::AppRenderer::RenderFrame(const RmlContext *rmlContext, const int windowWidth, const int windowHeight) {
+glimmer::AppRenderer::~AppRenderer() = default;
+
+void glimmer::AppRenderer::RenderFrame(const int windowWidth, const int windowHeight) {
     if (windowWidth <= 0 || windowHeight <= 0 || device_ == nullptr || sceneManager_ == nullptr) {
         return;
     }
@@ -127,437 +128,27 @@ void glimmer::AppRenderer::RenderFrame(const RmlContext *rmlContext, const int w
         LogCat::w(std::source_location::current(), "app_renderer_uniform_inject_context_is_null",
                   "UniformInjectContext is null, lighting pass will be skipped (black screen)");
     }
-    EnsureSceneTexture(logicalWidth, logicalHeight);
-    FlushScenePass(commandBuffer, sceneTexture_, logicalWidth, logicalHeight,
-                   uniformInjectContext);
 
-    // Clear the swapChain once per frame so stale content from the previous
-    // frame never persists behind the RmlUi UI.
-    // 每帧清一次交换链，避免上一帧内容残留在 RmlUi UI 之后。
-    ClearRenderTarget(commandBuffer, swapChainTexture);
-
-    // Build and upload the per-tile light map for the camera viewport.
-    // 构建并上传相机视口的逐瓦片光照贴图。
-    if (uniformInjectContext != nullptr) {
-        UpdateLightMap(uniformInjectContext);
-        lightMapTexture_.Upload(commandBuffer);
-        FlushLightingPass(commandBuffer, swapChainTexture, uniformInjectContext);
+    RenderFrameContext ctx;
+    ctx.commandBuffer = commandBuffer;
+    ctx.swapChainTexture = swapChainTexture;
+    ctx.swapChainWidth = swapChainWidth;
+    ctx.swapChainHeight = swapChainHeight;
+    ctx.logicalWidth = logicalWidth;
+    ctx.logicalHeight = logicalHeight;
+    ctx.injectContext = uniformInjectContext;
+    ctx.renderQueue = &renderQueue_;
+    for (auto &pass: passes_) {
+        pass->Prepare(ctx);
     }
-    if (rmlContext != nullptr) {
-        rmlContext->RenderContext(commandBuffer, swapChainTexture, logicalWidth, logicalHeight);
+    for (auto &pass: passes_) {
+        pass->Record(ctx);
     }
     if (!SDL_SubmitGPUCommandBuffer(commandBuffer)) {
         LogCat::w(std::source_location::current(), "sdl_submit_gpu_command_buffer_failed",
                   "SDL_SubmitGPUCommandBuffer failed: {}", SDL_GetError());
     }
 }
-
-void glimmer::AppRenderer::EnsureVertexBufferSize(const Uint32 size) {
-    if (size <= vertexBufferSize_) {
-        return;
-    }
-    Uint32 newSize = vertexBufferSize_ > 0 ? vertexBufferSize_ : 1;
-    while (newSize < size) {
-        newSize *= 2;
-    }
-    if (vertexBuffer_ != nullptr) {
-        SDL_ReleaseGPUBuffer(device_, vertexBuffer_);
-    }
-    SDL_GPUBufferCreateInfo info = {};
-    info.usage = SDL_GPU_BUFFERUSAGE_VERTEX;
-    info.size = newSize;
-    vertexBuffer_ = SDL_CreateGPUBuffer(device_, &info);
-    vertexBufferSize_ = vertexBuffer_ != nullptr ? newSize : 0;
-}
-
-void glimmer::AppRenderer::EnsureIndexBufferSize(const Uint32 size) {
-    if (size <= indexBufferSize_) {
-        return;
-    }
-    Uint32 newSize = indexBufferSize_ > 0 ? indexBufferSize_ : 1;
-    while (newSize < size) {
-        newSize *= 2;
-    }
-    if (indexBuffer_ != nullptr) {
-        SDL_ReleaseGPUBuffer(device_, indexBuffer_);
-    }
-    SDL_GPUBufferCreateInfo info = {};
-    info.usage = SDL_GPU_BUFFERUSAGE_INDEX;
-    info.size = newSize;
-    indexBuffer_ = SDL_CreateGPUBuffer(device_, &info);
-    indexBufferSize_ = indexBuffer_ != nullptr ? newSize : 0;
-}
-
-void glimmer::AppRenderer::EnsureTransferBufferSize(const Uint32 size) {
-    if (size <= transferBufferSize_) {
-        return;
-    }
-    Uint32 newSize = transferBufferSize_ > 0 ? transferBufferSize_ : 1;
-    while (newSize < size) {
-        newSize *= 2;
-    }
-    if (transferBuffer_ != nullptr) {
-        SDL_ReleaseGPUTransferBuffer(device_, transferBuffer_);
-    }
-    SDL_GPUTransferBufferCreateInfo info = {};
-    info.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD;
-    info.size = newSize;
-    transferBuffer_ = SDL_CreateGPUTransferBuffer(device_, &info);
-    transferBufferSize_ = transferBuffer_ != nullptr ? newSize : 0;
-}
-
-void glimmer::AppRenderer::FlushScenePass(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUTexture *targetTexture,
-                                          Uint32 width, Uint32 height, UniformInjectContext *injectContext) {
-    const bool hasCommands = !renderQueue_.IsEmpty();
-
-    if (hasCommands) {
-        renderQueue_.Sort();
-        const std::vector<RenderCommand> &commands = renderQueue_.GetCommands();
-        vertexStaging_.clear();
-        indexStaging_.clear();
-        vertexStaging_.reserve(commands.size() * 4);
-        indexStaging_.reserve(commands.size() * 6);
-        for (const RenderCommand &command: commands) {
-            const auto baseIndex = static_cast<Uint32>(vertexStaging_.size());
-            vertexStaging_.insert(vertexStaging_.end(), command.corners, command.corners + 4);
-            const Uint32 quadIndices[6] = {
-                baseIndex + 0, baseIndex + 1, baseIndex + 2,
-                baseIndex + 1, baseIndex + 3, baseIndex + 2
-            };
-            indexStaging_.insert(indexStaging_.end(), quadIndices, quadIndices + 6);
-        }
-        const auto vertexDataSize = static_cast<Uint32>(vertexStaging_.size() * sizeof(SpriteVertex));
-        const auto indexDataSize = static_cast<Uint32>(indexStaging_.size() * sizeof(Uint32));
-        EnsureVertexBufferSize(vertexDataSize);
-        EnsureIndexBufferSize(indexDataSize);
-        EnsureTransferBufferSize(vertexDataSize + indexDataSize);
-
-        if (vertexBuffer_ != nullptr && indexBuffer_ != nullptr && transferBuffer_ != nullptr) {
-            void *mapped = SDL_MapGPUTransferBuffer(device_, transferBuffer_, true);
-            if (mapped != nullptr) {
-                std::memcpy(mapped, vertexStaging_.data(), vertexDataSize);
-                std::memcpy(static_cast<Uint8 *>(mapped) + vertexDataSize, indexStaging_.data(), indexDataSize);
-                SDL_UnmapGPUTransferBuffer(device_, transferBuffer_);
-            }
-
-            SDL_GPUCopyPass *copyPass = SDL_BeginGPUCopyPass(commandBuffer);
-            if (copyPass != nullptr) {
-                SDL_GPUTransferBufferLocation vertexSource = {transferBuffer_, 0};
-                SDL_GPUBufferRegion vertexDestination = {vertexBuffer_, 0, vertexDataSize};
-                SDL_UploadToGPUBuffer(copyPass, &vertexSource, &vertexDestination, true);
-                SDL_GPUTransferBufferLocation indexSource = {transferBuffer_, vertexDataSize};
-                SDL_GPUBufferRegion indexDestination = {indexBuffer_, 0, indexDataSize};
-                SDL_UploadToGPUBuffer(copyPass, &indexSource, &indexDestination, true);
-                SDL_EndGPUCopyPass(copyPass);
-            }
-        }
-    }
-
-    SDL_GPUColorTargetInfo colorTarget = {};
-    colorTarget.texture = targetTexture;
-    colorTarget.load_op = SDL_GPU_LOADOP_CLEAR;
-    colorTarget.store_op = SDL_GPU_STOREOP_STORE;
-    colorTarget.clear_color = {0.0F, 0.0F, 0.0F, 1.0F};
-
-    SDL_GPURenderPass *renderPass = SDL_BeginGPURenderPass(commandBuffer, &colorTarget, 1, nullptr);
-    if (renderPass == nullptr) {
-        return;
-    }
-
-    if (hasCommands && vertexBuffer_ != nullptr && indexBuffer_ != nullptr) {
-        SDL_GPUBufferBinding vertexBinding = {vertexBuffer_, 0};
-        SDL_BindGPUVertexBuffers(renderPass, 0, &vertexBinding, 1);
-        SDL_GPUBufferBinding indexBinding = {indexBuffer_, 0};
-        SDL_BindGPUIndexBuffer(renderPass, &indexBinding, SDL_GPU_INDEXELEMENTSIZE_32BIT);
-
-        const float viewSize[2] = {static_cast<float>(width), static_cast<float>(height)};
-        SDL_PushGPUVertexUniformData(commandBuffer, 0, viewSize, sizeof(viewSize));
-
-        const std::vector<RenderCommand> &commands = renderQueue_.GetCommands();
-        SDL_GPUGraphicsPipeline *defaultPipeline = defaultPipeline_->GetResource();
-        SDL_GPUSampler *defaultSampler = defaultSampler_->GetResource();
-        SDL_GPUGraphicsPipeline *currentPipeline = defaultPipeline;
-        SDL_BindGPUGraphicsPipeline(renderPass, currentPipeline);
-        Uint32 firstIndex = 0;
-        for (const RenderCommand &command: commands) {
-            SDL_GPUGraphicsPipeline *commandPipeline = command.pipeline != nullptr ? command.pipeline : defaultPipeline;
-            if (commandPipeline != currentPipeline) {
-                SDL_BindGPUGraphicsPipeline(renderPass, commandPipeline);
-                currentPipeline = commandPipeline;
-            }
-            SDL_GPUTexture *texture = solidColorTexture_;
-            if (command.texture != nullptr) {
-                auto commandTexture = command.texture->GetResource();
-                if (commandTexture != nullptr) {
-                    texture = commandTexture;
-                }
-            }
-            if (texture == nullptr) {
-                firstIndex += 6;
-                continue;
-            }
-            SDL_GPUSampler *sampler = defaultSampler;
-            if (command.sampler != nullptr) {
-                sampler = command.sampler;
-            }
-            SDL_GPUTextureSamplerBinding textureSamplerBinding = {texture, sampler};
-            SDL_BindGPUFragmentSamplers(renderPass, 0, &textureSamplerBinding, 1);
-            if (command.uniformBlock != nullptr) {
-                command.uniformBlock->Fill(*injectContext, sceneStagingBuffer_);
-                SDL_PushGPUFragmentUniformData(commandBuffer, command.uniformBlock->GetBinding(),
-                                               sceneStagingBuffer_.data(), sceneStagingBuffer_.size());
-            }
-            SDL_DrawGPUIndexedPrimitives(renderPass, 6, 1, firstIndex, 0, 0);
-            firstIndex += 6;
-        }
-    }
-
-    SDL_EndGPURenderPass(renderPass);
-}
-
-void glimmer::AppRenderer::FlushLightingPass(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUTexture *targetTexture,
-                                             const UniformInjectContext *injectContext) {
-    if (sceneTexture_ == nullptr) {
-        LogCat::w(std::source_location::current(), "app_renderer_scene_texture_is_null",
-                  "sceneTexture_ is null, lighting pass skipped");
-        return;
-    }
-    if (lightMapTexture_.GetTexture() == nullptr) {
-        LogCat::w(std::source_location::current(), "app_renderer_light_map_texture_is_null",
-                  "lightMapTexture_ is null, lighting pass skipped");
-        return;
-    }
-
-    SDL_GPUColorTargetInfo colorTarget = {};
-    colorTarget.texture = targetTexture;
-    colorTarget.load_op = SDL_GPU_LOADOP_LOAD;
-    colorTarget.store_op = SDL_GPU_STOREOP_STORE;
-
-    SDL_GPURenderPass *renderPass = SDL_BeginGPURenderPass(commandBuffer, &colorTarget, 1, nullptr);
-    if (renderPass == nullptr) {
-        LogCat::e(std::source_location::current(), "render_pass_is_null", "renderPass == nullptr");
-        return;
-    }
-    if (lightingPipeline_ == nullptr) {
-        LogCat::e(std::source_location::current(), "lighting_pipeline_not_found", "lighting pipeline not found");
-        return;
-    }
-    SDL_GPUGraphicsPipeline *pipeline = lightingPipeline_->GetResource();
-    if (pipeline == nullptr) {
-        LogCat::e(std::source_location::current(), "pipeline_is_null", "pipeline == nullptr");
-        return;
-    }
-    if (lightingSampler_ == nullptr) {
-        LogCat::e(std::source_location::current(), "lighting_sampler_failed", "lightingSampler failed: ");
-        return;
-    }
-    SDL_GPUSampler *sampler = lightingSampler_->GetResource();
-    if (sampler == nullptr) {
-        LogCat::e(std::source_location::current(), "sdl_gpu_sampler_is_null", "SDL_GPUSampler == nullptr");
-        return;
-    }
-    SDL_BindGPUGraphicsPipeline(renderPass, pipeline);
-    SDL_GPUTextureSamplerBinding bindings[2] = {
-        {sceneTexture_, sampler},
-        {lightMapTexture_.GetTexture(), sampler}
-    };
-    SDL_BindGPUFragmentSamplers(renderPass, 0, bindings, 2);
-    FillAndPushUniformBlock(commandBuffer, lightingPipeline_, *injectContext, lightingStagingBuffer_);
-    SDL_DrawGPUPrimitives(renderPass, 3, 1, 0, 0);
-    SDL_EndGPURenderPass(renderPass);
-}
-
-void glimmer::AppRenderer::ClearRenderTarget(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUTexture *targetTexture) {
-    if (commandBuffer == nullptr || targetTexture == nullptr) {
-        return;
-    }
-    SDL_GPUColorTargetInfo colorTarget = {};
-    colorTarget.texture = targetTexture;
-    colorTarget.load_op = SDL_GPU_LOADOP_CLEAR;
-    colorTarget.store_op = SDL_GPU_STOREOP_STORE;
-    colorTarget.clear_color = {0.0F, 0.0F, 0.0F, 1.0F};
-
-    SDL_GPURenderPass *renderPass = SDL_BeginGPURenderPass(commandBuffer, &colorTarget, 1, nullptr);
-    if (renderPass == nullptr) {
-        return;
-    }
-    SDL_EndGPURenderPass(renderPass);
-}
-
-void glimmer::AppRenderer::FillAndPushUniformBlock(
-    SDL_GPUCommandBuffer *commandBuffer,
-    const std::shared_ptr<GPUPipelineResourceResult> &pipeline,
-    const UniformInjectContext &ctx,
-    std::vector<uint8_t> &stagingBuffer) {
-    if (pipeline == nullptr) {
-        return;
-    }
-    const CompiledUniformBlock *uniformBlock = pipeline->GetUniformBlock();
-    if (uniformBlock == nullptr) {
-        stagingBuffer.clear();
-        return;
-    }
-    uniformBlock->Fill(ctx, stagingBuffer);
-    if (stagingBuffer.empty()) {
-        stagingBuffer.assign(uniformBlock->GetSize(), 0);
-    }
-    SDL_PushGPUFragmentUniformData(commandBuffer, uniformBlock->GetBinding(),
-                                   stagingBuffer.data(), stagingBuffer.size());
-}
-
-void glimmer::AppRenderer::UpdateLightMap(UniformInjectContext *injectContext) {
-    const float zoom = injectContext->camera->GetZoom();
-    const ScreenVector2D cameraSize(injectContext->width, injectContext->height);
-    const WorldVector2D cameraPosition = injectContext->cameraTransform->GetPosition();
-    const SDL_FRect viewportRect = CoordinateTransformer::GetViewportRect(cameraPosition, cameraSize, zoom);
-    const TileVector2D tileMin = CoordinateTransformer::WorldToTile(
-        WorldVector2D(viewportRect.x, viewportRect.y));
-    const TileVector2D tileMax = CoordinateTransformer::WorldToTile(
-        WorldVector2D(viewportRect.x + viewportRect.w, viewportRect.y + viewportRect.h));
-    const int originX = tileMin.x - 1;
-    const int originY = tileMin.y - 1;
-    const auto sizeX = static_cast<Uint32>(tileMax.x - tileMin.x + 3);
-    const auto sizeY = static_cast<Uint32>(tileMax.y - tileMin.y + 3);
-    LogCat::i("app_renderer_light_map_camera",
-              "UpdateLightMap camera: zoom={}, cameraSize=({},{}), cameraPosition=({},{})",
-              zoom, cameraSize.x, cameraSize.y, cameraPosition.x, cameraPosition.y);
-    LogCat::i("app_renderer_light_map_tile_range",
-              "UpdateLightMap tile range: tileMin=({},{}), tileMax=({},{})",
-              tileMin.x, tileMin.y, tileMax.x, tileMax.y);
-    LogCat::i("app_renderer_light_map_info",
-              "UpdateLightMap: viewport=({},{},{},{}), origin=({},{}), size=({}x{})",
-              viewportRect.x, viewportRect.y, viewportRect.w, viewportRect.h,
-              originX, originY, sizeX, sizeY);
-
-    WorldContext *worldContext = injectContext->worldContext;
-    const DimensionResource *dimensionResource = nullptr;
-    if (worldContext != nullptr && worldContext->GetDimension() != nullptr) {
-        dimensionResource = worldContext->GetDimension()->GetDimensionResource();
-    }
-    static const std::vector<LightKeyframe> emptyKeyframes;
-    const float timeOfDay = dimensionResource != nullptr ? dimensionResource->initialTime : 0.0F;
-    const std::vector<LightKeyframe> &keyframes = dimensionResource != nullptr
-                                                      ? dimensionResource->ambientLightKeyframes
-                                                      : emptyKeyframes;
-    ambientLight_ = ColorUtils::ComputeAmbientLight(resourceLocator_, timeOfDay, keyframes);
-    LogCat::i("app_renderer_ambient_light", "Ambient light: rgba=({},{},{},{}), timeOfDay={}, keyframes={}",
-              static_cast<int>(ambientLight_.r), static_cast<int>(ambientLight_.g),
-              static_cast<int>(ambientLight_.b), static_cast<int>(ambientLight_.a), timeOfDay,
-              keyframes.size());
-
-
-    lightMapTexture_.Update(device_, injectContext->lightBuffer, &ambientLight_,
-                            originX, originY, sizeX, sizeY);
-    injectContext->lightMapOriginX = originX;
-    injectContext->lightMapOriginY = originY;
-    injectContext->lightMapSizeX = sizeX;
-    injectContext->lightMapSizeY = sizeY;
-}
-
-void glimmer::AppRenderer::EnsureSceneTexture(const Uint32 width, const Uint32 height) {
-    if (width == 0 || height == 0) {
-        return;
-    }
-    if (sceneTexture_ != nullptr && sceneTextureWidth_ == width && sceneTextureHeight_ == height) {
-        return;
-    }
-    if (sceneTexture_ != nullptr) {
-        SDL_ReleaseGPUTexture(device_, sceneTexture_);
-        sceneTexture_ = nullptr;
-    }
-    SDL_GPUTextureCreateInfo info = {};
-    info.type = SDL_GPU_TEXTURETYPE_2D;
-    //The pipelines are created with the swapchain format as their color
-    //target, so the offscreen target must use the same format or the scene
-    //pass produces a black/garbage result.
-    //管线以交换链格式作为颜色目标创建，因此离屏目标必须使用相同格式，
-    //否则场景 pass 会输出黑色/错误结果。
-    info.format = SDL_GetGPUSwapchainTextureFormat(device_, window_);
-    info.usage = SDL_GPU_TEXTUREUSAGE_COLOR_TARGET | SDL_GPU_TEXTUREUSAGE_SAMPLER;
-    info.width = width;
-    info.height = height;
-    info.layer_count_or_depth = 1;
-    info.num_levels = 1;
-    info.sample_count = SDL_GPU_SAMPLECOUNT_1;
-    info.props = 0;
-    sceneTexture_ = SDL_CreateGPUTexture(device_, &info);
-    if (sceneTexture_ == nullptr) {
-        LogCat::w(std::source_location::current(), "sdl_create_gpu_texture_failed", "SDL_CreateGPUTexture failed: {}",
-                  SDL_GetError());
-        return;
-    }
-    LogCat::i("app_renderer_scene_texture_format", "Scene texture created: {}x{}, format={}",
-              width, height, static_cast<int>(info.format));
-    sceneTextureWidth_ = width;
-    sceneTextureHeight_ = height;
-}
-
-
-void glimmer::AppRenderer::EnsureSolidColorTexture() {
-    if (device_ == nullptr || solidColorTexture_ != nullptr) {
-        return;
-    }
-    SDL_GPUTextureCreateInfo textureInfo = {};
-    textureInfo.type = SDL_GPU_TEXTURETYPE_2D;
-    textureInfo.format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM;
-    textureInfo.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER;
-    textureInfo.width = 1;
-    textureInfo.height = 1;
-    textureInfo.layer_count_or_depth = 1;
-    textureInfo.num_levels = 1;
-    textureInfo.sample_count = SDL_GPU_SAMPLECOUNT_1;
-    textureInfo.props = 0;
-    solidColorTexture_ = SDL_CreateGPUTexture(device_, &textureInfo);
-    if (solidColorTexture_ == nullptr) {
-        LogCat::w(std::source_location::current(), "sdl_create_gpu_texture_failed", "SDL_CreateGPUTexture failed: {}",
-                  SDL_GetError());
-        return;
-    }
-    constexpr Uint8 whitePixel[4] = {255, 255, 255, 255};
-    SDL_GPUTransferBufferCreateInfo transferInfo = {};
-    transferInfo.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD;
-    transferInfo.size = sizeof(whitePixel);
-    transferInfo.props = 0;
-    SDL_GPUTransferBuffer *transferBuffer = SDL_CreateGPUTransferBuffer(device_, &transferInfo);
-    if (transferBuffer == nullptr) {
-        LogCat::w(std::source_location::current(), "sdl_create_gpu_transfer_buffer_failed",
-                  "SDL_CreateGPUTransferBuffer failed: {}", SDL_GetError());
-        return;
-    }
-    void *mapped = SDL_MapGPUTransferBuffer(device_, transferBuffer, false);
-    if (mapped != nullptr) {
-        std::memcpy(mapped, whitePixel, sizeof(whitePixel));
-        SDL_UnmapGPUTransferBuffer(device_, transferBuffer);
-    }
-    SDL_GPUCommandBuffer *uploadCommandBuffer = SDL_AcquireGPUCommandBuffer(device_);
-    if (uploadCommandBuffer == nullptr) {
-        SDL_ReleaseGPUTransferBuffer(device_, transferBuffer);
-        return;
-    }
-    SDL_GPUCopyPass *copyPass = SDL_BeginGPUCopyPass(uploadCommandBuffer);
-    if (copyPass == nullptr) {
-        SDL_CancelGPUCommandBuffer(uploadCommandBuffer);
-        SDL_ReleaseGPUTransferBuffer(device_, transferBuffer);
-        return;
-    }
-    SDL_GPUTextureTransferInfo source = {};
-    source.transfer_buffer = transferBuffer;
-    source.offset = 0;
-    source.pixels_per_row = 1;
-    source.rows_per_layer = 1;
-    SDL_GPUTextureRegion destination = {};
-    destination.texture = solidColorTexture_;
-    destination.mip_level = 0;
-    destination.layer = 0;
-    destination.w = 1;
-    destination.h = 1;
-    destination.d = 1;
-    SDL_UploadToGPUTexture(copyPass, &source, &destination, false);
-    SDL_EndGPUCopyPass(copyPass);
-    SDL_SubmitGPUCommandBuffer(uploadCommandBuffer);
-    SDL_ReleaseGPUTransferBuffer(device_, transferBuffer);
-}
-
 
 void glimmer::AppRenderer::RenderOverlays() {
     SceneManager *sceneManager = appContext_->GetSceneManager();

@@ -55,7 +55,8 @@ Rml::TextureHandle glimmer::RenderInterfaceSDL3::LoadTexture(Rml::Vector2i &text
     const std::shared_ptr<TextureResourceResult> textureResourceResult = resourceLocator_->FindTexture(
         &resourceRefOptional.value());
     if (textureResourceResult == nullptr) {
-        LogCat::w(std::source_location::current(), "texture_resource_result_is_null", "textureResourceResult == nullptr");
+        LogCat::w(std::source_location::current(), "texture_resource_result_is_null",
+                  "textureResourceResult == nullptr");
         return {};
     }
     SDL_GPUTexture *texture = textureResourceResult->GetResource();

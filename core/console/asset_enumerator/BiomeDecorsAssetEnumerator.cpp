@@ -45,7 +45,8 @@ std::optional<std::string> glimmer::BiomeDecorsAssetEnumerator::ListAsset(const 
     }
     const BiomeDecoratorRegistry *biomeDecoratorRegistry = modContext->GetBiomeDecoratorRegistry();
     if (biomeDecoratorRegistry == nullptr) {
-        LogCat::w(std::source_location::current(), "decorator_resources_manager_is_null", "decoratorResourcesManager is nullptr");
+        LogCat::w(std::source_location::current(), "decorator_resources_manager_is_null",
+                  "decoratorResourcesManager is nullptr");
         return std::nullopt;
     }
     return biomeDecoratorRegistry->ListString();

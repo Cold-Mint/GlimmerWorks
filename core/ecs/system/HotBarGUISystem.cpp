@@ -79,7 +79,8 @@ void glimmer::HotBarGUISystem::OnWatchedComponentChanged(GameComponentTypeMessag
 
     const ItemContainerComponent *itemContainerComponent = entityShortCut->GetItemContainerComponent();
     if (itemContainerComponent == nullptr) {
-        LogCat::w(std::source_location::current(), "item_container_component_is_null", "itemContainerComponent == nullptr");
+        LogCat::w(std::source_location::current(), "item_container_component_is_null",
+                  "itemContainerComponent == nullptr");
         return;
     }
     itemContainer_ = itemContainerComponent->GetItemContainer();

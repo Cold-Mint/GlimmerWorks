@@ -47,6 +47,5 @@ namespace glimmer {
         CAN_NOT_READ_CONFIG_DATA = 4,
         //无法读取语言文件/langs文件下的toml。
         CAN_NOT_READ_LANG = 5,
-
     };
 }

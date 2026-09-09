@@ -369,13 +369,13 @@ void glimmer::LightBuffer::SetTileOpaque(const TileVector2D position, const Tile
 }
 
 void glimmer::LightBuffer::BeginBatch() {
-    LogCat::d("light_buffer_begin_batch","light buffer begin batch");
+    LogCat::d("light_buffer_begin_batch", "light buffer begin batch");
     batching_ = true;
     batchDirty_ = false;
 }
 
 void glimmer::LightBuffer::EndBatch() {
-    LogCat::d("light_buffer_end_batch","light buffer end batch");
+    LogCat::d("light_buffer_end_batch", "light buffer end batch");
     batching_ = false;
     if (batchDirty_) {
         batchDirty_ = false;

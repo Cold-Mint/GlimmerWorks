@@ -214,7 +214,8 @@ void glimmer::ConsoleContext::StopConsoleWorker() const {
 
 void glimmer::ConsoleContext::SaveCommandHistory() const {
     if (commandHistoryManager_ == nullptr) {
-        LogCat::w(std::source_location::current(), "command_history_manager_is_null", "commandHistoryManager_ == nullptr");
+        LogCat::w(std::source_location::current(), "command_history_manager_is_null",
+                  "commandHistoryManager_ == nullptr");
         return;
     }
     commandHistoryManager_->Save();
@@ -254,7 +255,8 @@ glimmer::CommandHookManager *glimmer::ConsoleContext::GetCommandHookManager() co
 
 glimmer::DynamicSuggestionsManager *glimmer::ConsoleContext::GetDynamicSuggestionsManager() const {
     if (dynamicSuggestionsManager_ == nullptr) {
-        LogCat::w(std::source_location::current(), "dynamic_suggestions_manager_is_null", "dynamicSuggestionsManager_ == nullptr");
+        LogCat::w(std::source_location::current(), "dynamic_suggestions_manager_is_null",
+                  "dynamicSuggestionsManager_ == nullptr");
         return nullptr;
     }
     return dynamicSuggestionsManager_.get();

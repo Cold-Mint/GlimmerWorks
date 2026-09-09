@@ -67,7 +67,8 @@ void glimmer::ConsoleWorker::WorkLoop(std::stop_token stopToken) {
             LogCat::w(std::source_location::current(), "command_not_found", "Command not found: {}", args.AsString(0));
             commandResponse->SetCommandResult(CommandResult::NotFound, command);
         } else if (!commandManager_->CanExecuteCommand(cmd)) {
-            LogCat::w(std::source_location::current(), "command_cannot_execute", "Command cannot execute: {}", args.AsString(0));
+            LogCat::w(std::source_location::current(), "command_cannot_execute", "Command cannot execute: {}",
+                      args.AsString(0));
             const LangsResources *langsResources = appContext_ != nullptr ? appContext_->GetLangsResources() : nullptr;
             if (langsResources != nullptr) {
                 if (cmd->RequiresWorldContext()) {

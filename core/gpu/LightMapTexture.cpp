@@ -83,7 +83,7 @@ void glimmer::LightMapTexture::Update(SDL_GPUDevice *device, const LightBuffer *
     //量化连续强度，使光照贴图仅在强度真正跨越 1/255 步长时重建，而非每帧重建。
     const float ambientA = ambient != nullptr ? ambient->a / 255.0F : 0.0F;
     if (lastRevision_ == revision && lastOriginX_ == originTileX && lastOriginY_ == originTileY &&
-        lastSizeX_ == sizeX && lastSizeY_ == sizeY  &&
+        lastSizeX_ == sizeX && lastSizeY_ == sizeY &&
         lastAmbient_[0] == ambientR && lastAmbient_[1] == ambientG && lastAmbient_[2] == ambientB &&
         lastAmbient_[3] == ambientA) {
         dirty_ = false;

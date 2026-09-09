@@ -167,12 +167,12 @@ void glimmer::RmlContext::UpdateContext() const {
     context_->Update();
 }
 
-void glimmer::RmlContext::RenderContext(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUTexture *swapchainTexture,
+void glimmer::RmlContext::RenderContext(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUTexture *swapChainTexture,
                                         const Uint32 width, const Uint32 height) const {
-    if (context_ == nullptr || commandBuffer == nullptr || swapchainTexture == nullptr) {
+    if (context_ == nullptr || commandBuffer == nullptr || swapChainTexture == nullptr) {
         return;
     }
-    renderInterfaceSDL3_->BeginFrame(commandBuffer, swapchainTexture, width, height);
+    renderInterfaceSDL3_->BeginFrame(commandBuffer, swapChainTexture, width, height);
     context_->Render();
     renderInterfaceSDL3_->EndFrame();
 }

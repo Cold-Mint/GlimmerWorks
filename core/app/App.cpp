@@ -322,11 +322,15 @@ void glimmer::App::Run() const {
     }
     Rml::Context *rmlContextCore = rmlContext->GetRmlContext();
     LogCat::i("entering_main_game_loop", "Entering main game loop");
+    int windowWidth = 0;
+    int windowHeight = 0;
+    SDL_Window *window = windowContext->GetWindow();
+    if (window == nullptr) {
+        LogCat::e(std::source_location::current(), "window_is_null", "window is nullptr");
+        return;
+    }
     while (appContext_->IsRunning()) {
-        int windowWidth = 0;
-        int windowHeight = 0;
-        SDL_GetWindowSize(windowContext->GetWindow(), &windowWidth, &windowHeight);
-
+        SDL_GetWindowSize(window, &windowWidth, &windowHeight);
         if (CheckWindowSizeChange(windowContext, windowWidth, windowHeight)) {
             LogCat::i("window_size_changed", "Window size changed: {}x{}", windowWidth, windowHeight);
             if (rmlContextCore != nullptr) {
@@ -334,20 +338,17 @@ void glimmer::App::Run() const {
             }
             HandleWindowSizeChange(windowWidth, windowHeight);
         }
-
         if (CheckConfigChange(configFingerprint)) {
             LogCat::i("configuration_changed", "Configuration changed, reloading hooks and scenes");
         }
-
         const float targetFrameTime = CalculateTargetFrameTime(frameStart, lastInputTime);
         const auto targetFrameTimeMs = static_cast<Uint32>(targetFrameTime * 1000.0F);
-
         NotifyFrameStart();
         mainThreadDispatcher->ProcessMainThreadTasks();
         eventLoop.ProcessEvents(frameStart);
         rmlContext->UpdateContext();
         UpdateScenes(deltaTime);
-        renderer.RenderFrame(rmlContext, windowWidth, windowHeight);
+        renderer.RenderFrame(windowWidth, windowHeight);
         const Uint64 frameTimeMs = SDL_GetTicks() - frameStart;
         if (frameTimeMs < targetFrameTimeMs) {
             SDL_Delay(targetFrameTimeMs - frameTimeMs);

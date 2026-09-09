@@ -153,12 +153,14 @@ void glimmer::WorldContext::SaveEntity(EntityItemMessage *entityItemMessage, con
             componentMessage->set_data(stringOptional.value());
         }
     }
-    LogCat::d("world_context_save_entity_completed", "SaveEntity completed: entityId={}, components={}", entityId, components.size());
+    LogCat::d("world_context_save_entity_completed", "SaveEntity completed: entityId={}, components={}", entityId,
+              components.size());
 }
 
 void glimmer::WorldContext::SaveGame() {
     if (saving_) {
-        LogCat::w(std::source_location::current(), "world_context_save_in_progress", "Save already in progress, ignoring");
+        LogCat::w(std::source_location::current(), "world_context_save_in_progress",
+                  "Save already in progress, ignoring");
         return;
     }
     LogCat::i("world_context_save_starting", "Starting game save: {}", mapManifest_->name);
@@ -171,7 +173,8 @@ void glimmer::WorldContext::SaveGame() {
     }
     auto mapManifestMessageData = saves->ReadMapManifest();
     if (!mapManifestMessageData.has_value()) {
-        LogCat::w(std::source_location::current(), "world_context_read_map_manifest_failed", "Failed to read map manifest");
+        LogCat::w(std::source_location::current(), "world_context_read_map_manifest_failed",
+                  "Failed to read map manifest");
         saving_ = false;
         return;
     }
@@ -179,7 +182,8 @@ void glimmer::WorldContext::SaveGame() {
     mapManifestMessageData->set_globaltickcount(GetGlobalTick());
     mapManifestMessageData->set_entityidindex(entityManager_->GetEntityIndex());
     if (!saves->WriteMapManifest(mapManifestMessageData.value())) {
-        LogCat::w(std::source_location::current(), "world_context_write_map_manifest_failed", "Failed to write map manifest");
+        LogCat::w(std::source_location::current(), "world_context_write_map_manifest_failed",
+                  "Failed to write map manifest");
         saving_ = false;
         return;
     }
@@ -200,9 +204,9 @@ void glimmer::WorldContext::SaveGame() {
 
 
 glimmer::LightBuffer *glimmer::WorldContext::GetLightingBuffer() const {
-    LightBuffer * result = chunkManager_->GetLightingBuffer();
+    LightBuffer *result = chunkManager_->GetLightingBuffer();
     if (result == nullptr) {
-        LogCat::w(std::source_location::current(),"light_buffer_is_null","light buffer is null");
+        LogCat::w(std::source_location::current(), "light_buffer_is_null", "light buffer is null");
     }
     return result;
 }
@@ -217,7 +221,8 @@ glimmer::Dimension *glimmer::WorldContext::GetDimension() const {
 
 
 glimmer::WorldContext::~WorldContext() {
-    LogCat::i("world_context_destroying", "Destroying WorldContext: worldName={}", mapManifest_ ? mapManifest_->name : "unknown");
+    LogCat::i("world_context_destroying", "Destroying WorldContext: worldName={}",
+              mapManifest_ ? mapManifest_->name : "unknown");
     playerContext_.reset();
     systemScheduler_.reset();
     LogCat::d("world_context_player_scheduler_released", "PlayerContext and SystemScheduler released");

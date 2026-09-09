@@ -55,7 +55,8 @@ glimmer::Command *glimmer::CommandManager::GetCommand(const std::string &name) c
 glimmer::CommandSender *glimmer::CommandManager::GetDefaultCommandSender() {
     defaultCommandSender_.SetPosition({0, 0});
     if (entityShortCut_ == nullptr || entityManager_ == nullptr) {
-        LogCat::w(std::source_location::current(), "entity_shortcut_or_entity_manager_is_null", "entityShortCut_ == nullptr || entityManager_ == nullptr");
+        LogCat::w(std::source_location::current(), "entity_shortcut_or_entity_manager_is_null",
+                  "entityShortCut_ == nullptr || entityManager_ == nullptr");
         return &defaultCommandSender_;
     }
     const GameEntityID player = entityShortCut_->GetPlayer();

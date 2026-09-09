@@ -154,7 +154,8 @@ bool glimmer::ComposableItem::OnUse(bool mouseLeft, WorldContext *worldContext, 
     for (uint8_t index = 0; index < max; index++) {
         Item *item = itemContainer_->GetItem(index);
         if (item == nullptr) {
-            LogCat::w(std::source_location::current(), "composable_item_at_index_is_null", "item at {} is nullptr", std::to_string(index));
+            LogCat::w(std::source_location::current(), "composable_item_at_index_is_null", "item at {} is nullptr",
+                      std::to_string(index));
             continue;
         }
         const auto abilityItem = dynamic_cast<AbilityItem *>(item);

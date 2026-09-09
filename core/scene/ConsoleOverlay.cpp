@@ -251,7 +251,8 @@ void glimmer::ConsoleOverlay::HandleReturnKey() {
         return;
     }
     if (consoleWorker_ == nullptr || commandManager_ == nullptr) {
-        LogCat::w(std::source_location::current(), "console_worker_or_command_manager_is_null", "consoleWorker_ == nullptr || commandManager_ == nullptr");
+        LogCat::w(std::source_location::current(), "console_worker_or_command_manager_is_null",
+                  "consoleWorker_ == nullptr || commandManager_ == nullptr");
         return;
     }
     consoleWorker_->CreateRequest(text.substr(1),
@@ -369,7 +370,8 @@ glimmer::ConsoleOverlay::ConsoleOverlay(AppContext *context)
     }
     commandHistoryMessage_ = consoleContext->GetCommandHistoryMessage();
     if (commandHistoryMessage_ == nullptr) {
-        LogCat::w(std::source_location::current(), "command_history_message_is_null", "commandHistoryMessage == nullptr");
+        LogCat::w(std::source_location::current(), "command_history_message_is_null",
+                  "commandHistoryMessage == nullptr");
         return;
     }
     consoleWorker_ = consoleContext->GetConsoleWorker();
@@ -379,7 +381,8 @@ glimmer::ConsoleOverlay::ConsoleOverlay(AppContext *context)
     }
     dynamicSuggestionsManager_ = consoleContext->GetDynamicSuggestionsManager();
     if (dynamicSuggestionsManager_ == nullptr) {
-        LogCat::w(std::source_location::current(), "dynamic_suggestions_manager_is_null", "dynamicSuggestionsManager== nullptr");
+        LogCat::w(std::source_location::current(), "dynamic_suggestions_manager_is_null",
+                  "dynamicSuggestionsManager== nullptr");
         return;
     }
 }

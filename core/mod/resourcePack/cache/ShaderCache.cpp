@@ -114,7 +114,8 @@ std::shared_ptr<glimmer::ShaderResourceResult> glimmer::ShaderCache::LoadResourc
         ShaderCacheMessage shaderCacheMessage;
         WriteShaderCacheStoreToMessage(&shaderCacheStoreData, &shaderCacheMessage);
         if (!virtualFileSystem->WriteFile(cachePath, shaderCacheMessage.SerializeAsString())) {
-            LogCat::e(std::source_location::current(), "shader_cache_create_message_failed", "create cache message failed: {}", cachePath.string());
+            LogCat::e(std::source_location::current(), "shader_cache_create_message_failed",
+                      "create cache message failed: {}", cachePath.string());
         }
     } else {
         //Successfully read the cache.
@@ -130,7 +131,8 @@ std::shared_ptr<glimmer::ShaderResourceResult> glimmer::ShaderCache::LoadResourc
     }
     SDL_GPUShader *gpuShader = SDL_CreateGPUShader(device, &shaderInfo);
     if (gpuShader == nullptr) {
-        LogCat::w(std::source_location::current(), "shader_cache_gpu_shader_create_failed", "SDL_CreateGPUShader failed: {}", SDL_GetError());
+        LogCat::w(std::source_location::current(), "shader_cache_gpu_shader_create_failed",
+                  "SDL_CreateGPUShader failed: {}", SDL_GetError());
         return nullptr;
     }
     auto shaderResourceResult = std::make_shared<ShaderResourceResult>();
@@ -155,12 +157,14 @@ std::unique_ptr<ShaderCacheMessage> glimmer::ShaderCache::TryLoad(const std::fil
     if (!cacheMessage->ParseFromString(cacheData.value())) {
         //Corrupted or truncated cache: discard it and fall back to recompiling.
         //缓存损坏或被截断：丢弃缓存并回退到重新编译。
-        LogCat::w(std::source_location::current(), "shader_cache_corrupted_discarding", "Shader cache corrupted, discarding: {}", cacheFilePath.string());
+        LogCat::w(std::source_location::current(), "shader_cache_corrupted_discarding",
+                  "Shader cache corrupted, discarding: {}", cacheFilePath.string());
         static_cast<void>(virtualFileSystem->DeleteFileOrFolder(cacheFilePath));
         return nullptr;
     }
     if (cacheMessage->spirvbinary().empty()) {
-        LogCat::w(std::source_location::current(), "shader_cache_no_spirv_discarding", "Shader cache has no SPIR-V data, discarding: {}",
+        LogCat::w(std::source_location::current(), "shader_cache_no_spirv_discarding",
+                  "Shader cache has no SPIR-V data, discarding: {}",
                   cacheFilePath.string());
         static_cast<void>(virtualFileSystem->DeleteFileOrFolder(cacheFilePath));
         return nullptr;
@@ -170,7 +174,8 @@ std::unique_ptr<ShaderCacheMessage> glimmer::ShaderCache::TryLoad(const std::fil
     if (resourceRef->GetFingerprint() != oldResourceRef.GetFingerprint()) {
         //The cache file belongs to a different shader; do not trust it.
         //缓存文件属于其他着色器，不可信。
-        LogCat::w(std::source_location::current(), "shader_cache_resource_mismatch_discarding", "Shader cache resource mismatch, discarding: {}",
+        LogCat::w(std::source_location::current(), "shader_cache_resource_mismatch_discarding",
+                  "Shader cache resource mismatch, discarding: {}",
                   cacheFilePath.string());
         static_cast<void>(virtualFileSystem->DeleteFileOrFolder(cacheFilePath));
         return nullptr;
@@ -189,7 +194,8 @@ std::unique_ptr<ShaderCacheMessage> glimmer::ShaderCache::TryLoad(const std::fil
         //文件的修改时间变了，但是哈希值没变。
         cacheMessage->set_sourcemtime(mtime);
         if (!virtualFileSystem->WriteFile(cacheFilePath, cacheMessage->SerializeAsString())) {
-            LogCat::e(std::source_location::current(), "shader_cache_update_message_failed", "update cache message failed: {}", cacheFilePath.string());
+            LogCat::e(std::source_location::current(), "shader_cache_update_message_failed",
+                      "update cache message failed: {}", cacheFilePath.string());
         }
         return cacheMessage;
     }

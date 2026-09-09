@@ -220,7 +220,8 @@ void glimmer::ItemContainer::SetSelectIndex(const uint8_t index) {
     }
     if (index >= size) {
         LogCat::w(std::source_location::current(), "index_out_of_range",
-                  "Beyond the legal data limits. index = {},size = {}", static_cast<int>(index), static_cast<int>(size));
+                  "Beyond the legal data limits. index = {},size = {}", static_cast<int>(index),
+                  static_cast<int>(size));
         selectIndex_ = size - 1;
     } else {
         selectIndex_ = index;

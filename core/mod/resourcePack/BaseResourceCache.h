@@ -140,7 +140,8 @@ namespace glimmer {
                 for (const auto &packId: enabledResourcePack) {
                     const ResourcePack *resourcePack = resourcePackManager->Find(packId);
                     if (resourcePack == nullptr) {
-                        LogCat::w(std::source_location::current(), "cannot_find_resource_pack", "Cannot find resource pack {}.", packId);
+                        LogCat::w(std::source_location::current(), "cannot_find_resource_pack",
+                                  "Cannot find resource pack {}.", packId);
                         continue;
                     }
                     auto result = LoadResourceFromPack(appContext, resourceRef, resourcePack);

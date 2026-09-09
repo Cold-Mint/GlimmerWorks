@@ -40,7 +40,8 @@ void glimmer::SceneManager::ClearScenes() {
 
 void glimmer::SceneManager::AddOverlayScene(std::unique_ptr<Scene> overlay) {
     if (overlay == nullptr) {
-        LogCat::w(std::source_location::current(), "add_overlay_scene_called_with_null", "AddOverlayScene called with nullptr");
+        LogCat::w(std::source_location::current(), "add_overlay_scene_called_with_null",
+                  "AddOverlayScene called with nullptr");
         return;
     }
     if (std::ranges::find(overlayScenes_, overlay) == overlayScenes_.end()) {
@@ -48,24 +49,28 @@ void glimmer::SceneManager::AddOverlayScene(std::unique_ptr<Scene> overlay) {
         overlayScenesPtr_.push_back(overlayScenes_.back().get());
         LogCat::i("overlay_scene_added", "Overlay scene added, total overlay scenes: {}", overlayScenes_.size());
     } else {
-        LogCat::w(std::source_location::current(), "overlay_scene_already_exists", "Overlay scene already exists, skipping");
+        LogCat::w(std::source_location::current(), "overlay_scene_already_exists",
+                  "Overlay scene already exists, skipping");
     }
 }
 
 void glimmer::SceneManager::RemoveOverlayScene(const Scene *overlay) {
     if (overlay == nullptr) {
-        LogCat::w(std::source_location::current(), "remove_overlay_scene_called_with_null", "RemoveOverlayScene called with nullptr");
+        LogCat::w(std::source_location::current(), "remove_overlay_scene_called_with_null",
+                  "RemoveOverlayScene called with nullptr");
         return;
     }
     for (int i = 0; i < overlayScenes_.size(); i++) {
         if (overlayScenes_[i].get() == overlay) {
             overlayScenes_.erase(overlayScenes_.begin() + i);
             overlayScenesPtr_.erase(overlayScenesPtr_.begin() + i);
-            LogCat::i("overlay_scene_removed", "Overlay scene removed, remaining overlay scenes: {}", overlayScenes_.size());
+            LogCat::i("overlay_scene_removed", "Overlay scene removed, remaining overlay scenes: {}",
+                      overlayScenes_.size());
             return;
         }
     }
-    LogCat::w(std::source_location::current(), "remove_overlay_scene_not_found", "RemoveOverlayScene: overlay scene not found");
+    LogCat::w(std::source_location::current(), "remove_overlay_scene_not_found",
+              "RemoveOverlayScene: overlay scene not found");
 }
 
 std::vector<glimmer::Scene *> glimmer::SceneManager::GetOverlayScenes() const {

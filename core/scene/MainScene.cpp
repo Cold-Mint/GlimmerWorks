@@ -57,7 +57,8 @@ glimmer::MainScene::MainScene(AppContext *context)
     const std::shared_ptr<TextureResourceResult> textureResourceResult = resourceLocator->FindTexture(
         &nextBackgroundResourceRef_, false);
     if (textureResourceResult == nullptr) {
-        LogCat::e(std::source_location::current(), "texture_resource_result_is_null", "textureResourceResult == nullptr");
+        LogCat::e(std::source_location::current(), "texture_resource_result_is_null",
+                  "textureResourceResult == nullptr");
         return;
     }
     textureFolder_ = textureResourceResult->GetTexturePath().parent_path();

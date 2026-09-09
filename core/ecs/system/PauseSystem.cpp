@@ -41,13 +41,15 @@ glimmer::PauseSystem::PauseSystem(WorldContext *worldContext) : GuiGameSystem(wo
 void glimmer::PauseSystem::TogglePause() const {
     WorldContext *worldContext = GetWorldContext();
     if (worldContext == nullptr) {
-        LogCat::w(std::source_location::current(), "pause_toggle_world_context_is_null", "Cannot toggle pause system: worldContext is nullptr");
+        LogCat::w(std::source_location::current(), "pause_toggle_world_context_is_null",
+                  "Cannot toggle pause system: worldContext is nullptr");
         return;
     }
     bool newValue = !worldContext->IsRuning();
     worldContext->SetRuning(newValue);
     if (elementDocument_ == nullptr) {
-        LogCat::w(std::source_location::current(), "pause_toggle_element_document_is_null", "Cannot toggle pause system: elementDocument_ is nullptr");
+        LogCat::w(std::source_location::current(), "pause_toggle_element_document_is_null",
+                  "Cannot toggle pause system: elementDocument_ is nullptr");
         return;
     }
     if (newValue) {
@@ -79,25 +81,29 @@ void glimmer::PauseSystem::OnSaveAndExitButtonClick(Rml::DataModelHandle handle,
                                                     const Rml::VariantList &args) {
     WorldContext *worldContext = GetWorldContext();
     if (worldContext == nullptr) {
-        LogCat::w(std::source_location::current(), "pause_save_world_context_is_null", "Cannot save pause system: worldContext is nullptr");
+        LogCat::w(std::source_location::current(), "pause_save_world_context_is_null",
+                  "Cannot save pause system: worldContext is nullptr");
         return;
     }
     worldContext->SetRuning(false);
     worldContext->SaveGame();
     const AppContext *appContext = worldContext->GetAppContext();
     if (appContext == nullptr) {
-        LogCat::w(std::source_location::current(), "pause_save_app_context_is_null", "Cannot save pause system: appContext is nullptr");
+        LogCat::w(std::source_location::current(), "pause_save_app_context_is_null",
+                  "Cannot save pause system: appContext is nullptr");
         return;
     }
     appContext->SetRandomSlogan();
     MainThreadDispatcher *mainThreadDispatcher = appContext->GetMainThreadDispatcher();
     if (mainThreadDispatcher == nullptr) {
-        LogCat::w(std::source_location::current(), "pause_save_main_thread_dispatcher_is_null", "Cannot save pause system: mainThreadDispatcher is nullptr");
+        LogCat::w(std::source_location::current(), "pause_save_main_thread_dispatcher_is_null",
+                  "Cannot save pause system: mainThreadDispatcher is nullptr");
         return;
     }
     SceneManager *sceneManager = appContext->GetSceneManager();
     if (sceneManager == nullptr) {
-        LogCat::w(std::source_location::current(), "pause_save_scene_manager_is_null", "Cannot save pause system: sceneManager is nullptr");
+        LogCat::w(std::source_location::current(), "pause_save_scene_manager_is_null",
+                  "Cannot save pause system: sceneManager is nullptr");
         return;
     }
     mainThreadDispatcher->PostToNextMainFrame([sceneManager] {
@@ -117,7 +123,8 @@ void glimmer::PauseSystem::LoadDocuments(IDocumentRegistry *documentRegistry) {
 void glimmer::PauseSystem::OnCreateDataModels(IDocumentRegistry *documentRegistry) {
     Rml::DataModelConstructor *constructor = documentRegistry->CreateDataModel("pause_system");
     if (constructor == nullptr) {
-        LogCat::e(std::source_location::current(), "failed_to_create_pause_system_data_model", "Failed to create pause_system data model");
+        LogCat::e(std::source_location::current(), "failed_to_create_pause_system_data_model",
+                  "Failed to create pause_system data model");
         return;
     }
 

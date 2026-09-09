@@ -198,7 +198,8 @@ void glimmer::InventoryGUISystem::OnWatchedComponentChanged(GameComponentTypeMes
 
     const ItemContainerComponent *itemContainerComponent = entityShortCut->GetItemContainerComponent();
     if (itemContainerComponent == nullptr) {
-        LogCat::w(std::source_location::current(), "item_container_component_is_null", "itemContainerComponent == nullptr");
+        LogCat::w(std::source_location::current(), "item_container_component_is_null",
+                  "itemContainerComponent == nullptr");
         return;
     }
     itemContainer_ = itemContainerComponent->GetItemContainer();
@@ -288,7 +289,8 @@ void glimmer::InventoryGUISystem::SetupDragAndDrop() {
 
     Rml::ElementDocument *document = GetElementDocument();
     if (document == nullptr) {
-        LogCat::e(std::source_location::current(), "document_is_null", "document is nullptr, cannot setup drag and drop");
+        LogCat::e(std::source_location::current(), "document_is_null",
+                  "document is nullptr, cannot setup drag and drop");
         return;
     }
 
@@ -301,7 +303,8 @@ void glimmer::InventoryGUISystem::SetupDragAndDrop() {
     }
 
     if (container == nullptr) {
-        LogCat::w(std::source_location::current(), "item_container_element_not_found", "item_container element not found in document");
+        LogCat::w(std::source_location::current(), "item_container_element_not_found",
+                  "item_container element not found in document");
         return;
     }
 

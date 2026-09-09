@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+ * Copyright (C) 2025-2026  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,8 +13,8 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
- * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
+ *
+ * 版权(C) 2025-2026  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
  * 该许可证的第3版，或者（由你选择）任何后续版本。
@@ -24,31 +24,21 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "ComposableItemsAssetEnumerator.h"
-#if  !defined(NDEBUG)
-#include "core/log/LogCat.h"
-#include "core/context/AppContext.h"
+#pragma once
 
-std::string_view glimmer::ComposableItemsAssetEnumerator::GetAssetType() const {
-    return assetName;
-}
+#include "core/gpu/IPass.h"
 
-std::optional<std::string> glimmer::ComposableItemsAssetEnumerator::ListAsset(const AppContext *appContext) {
-    if (appContext == nullptr) {
-        LogCat::w(std::source_location::current(), "app_context_is_null", "appContext is nullptr");
-        return std::nullopt;
-    }
-    const ModContext *modContext = appContext->GetModContext();
-    if (modContext == nullptr) {
-        LogCat::w(std::source_location::current(), "mod_context_is_null", "modContext is nullptr");
-        return std::nullopt;
-    }
-    const ComposableItemRegistry *composableItemRegistry = modContext->GetComposableItemRegistry();
-    if (composableItemRegistry == nullptr) {
-        LogCat::w(std::source_location::current(), "composable_item_registry_is_null",
-                  "composableItemRegistry is nullptr");
-        return std::nullopt;
-    }
-    return composableItemRegistry->ListString();
+namespace glimmer {
+    /**
+     * ClearPass
+     * 清屏 pass
+     *
+     * Clears the swapchain to solid black once per frame, before the lighting
+     * and UI passes, so stale content from the previous frame never persists.
+     * 每帧在光照与 UI pass 之前把交换链清为纯黑，避免上一帧内容残留。
+     */
+    class ClearPass final : public IPass {
+    public:
+        void Record(RenderFrameContext &ctx) override;
+    };
 }
-#endif

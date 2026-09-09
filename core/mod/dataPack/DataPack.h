@@ -73,7 +73,6 @@ namespace glimmer {
         PackVerifyState packVerifyState_ = PackVerifyState::Unsigned;
 
 
-
         /**
          * GetActuallyTemplateSearchPath
          * 获取真实的模板搜索路径。

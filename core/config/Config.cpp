@@ -68,12 +68,14 @@ void glimmer::Config::SetConfigValue(std::unique_ptr<toml::value> configValue) {
         configValue_ = std::move(configValue);
         return;
     }
-    LogCat::e(std::source_location::current(), "toml_config_cannot_be_set_repeatedly", "The toml configuration data cannot be set repeatedly.");
+    LogCat::e(std::source_location::current(), "toml_config_cannot_be_set_repeatedly",
+              "The toml configuration data cannot be set repeatedly.");
 }
 
 toml::value *glimmer::Config::GetConfigValue() const {
     if (configValue_ == nullptr) {
-        LogCat::w(std::source_location::current(), "toml_config_not_found", "The toml configuration data cannot be found.");
+        LogCat::w(std::source_location::current(), "toml_config_not_found",
+                  "The toml configuration data cannot be found.");
         return nullptr;
     }
     return configValue_.get();

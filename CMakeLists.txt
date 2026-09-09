@@ -444,6 +444,12 @@ target_sources(GlimmerWorks
         core/mod/dataPack/MaterialItemRegistry.cpp
         core/mod/dataPack/ComposableItemRegistry.cpp
         core/app/AppRenderer.cpp
+        core/gpu/IPass.cpp
+        core/app/pass/ClearPass.cpp
+        core/app/pass/PassUtils.cpp
+        core/app/pass/ScenePass.cpp
+        core/app/pass/LightingPass.cpp
+        core/app/pass/UiPass.cpp
         core/utils/BoolOrToggle.cpp
         core/ecs/Box2dFilter.cpp
         core/console/hook/CommandHookEntry.cpp
@@ -826,6 +832,8 @@ target_sources(GlimmerWorks
         core/gpu/BlendMode.h
         core/gpu/RenderQueue.h
         core/gpu/LightMapTexture.h
+        core/gpu/IPass.h
+        core/gpu/RenderFrameContext.h
         core/utils/IUniqueAble.h
         core/mod/resourcePack/cache/TextureCache.h
         core/mod/resourcePack/cache/AudioCache.h
@@ -859,6 +867,11 @@ target_sources(GlimmerWorks
         core/mod/dataPack/AbilityItemRegistry.h
         core/app/AppEventLoop.h
         core/app/AppRenderer.h
+        core/app/pass/ClearPass.h
+        core/app/pass/PassUtils.h
+        core/app/pass/ScenePass.h
+        core/app/pass/LightingPass.h
+        core/app/pass/UiPass.h
         core/utils/BoolOrToggle.h
         core/ecs/Box2dFilter.h
         core/console/hook/CommandHookEntry.h

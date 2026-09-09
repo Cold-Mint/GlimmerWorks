@@ -48,7 +48,8 @@ bool glimmer::InitDataPackTask::Run(ISystemBucket *systemBucket) {
     PackScanRequest packScanRequest;
     packScanRequest.SetAppContext(appContext_);
     if (dataPackManager->Scan(&packScanRequest) == 0) {
-        LogCat::publicError(ErrorCode::MISSING_RESPACK,std::source_location::current(), "missing_required_data_pack", "At least one available datapack must be installed.");
+        LogCat::publicError(ErrorCode::MISSING_RESPACK, std::source_location::current(), "missing_required_data_pack",
+                            "At least one available datapack must be installed.");
         return false;
     }
     RecipeManager *recipeManager = modContext->GetRecipeManager();

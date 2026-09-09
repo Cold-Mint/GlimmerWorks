@@ -61,7 +61,8 @@ glimmer::CreateWorldScene::CreateWorldScene(AppContext *context) : Scene(context
     }
     mainThreadDispatcher_ = context->GetMainThreadDispatcher();
     if (mainThreadDispatcher_ == nullptr) {
-        LogCat::e(std::source_location::current(), "main_thread_dispatcher_cannot_be_null", "Main Thread Dispatcher cannot be nullptr.");
+        LogCat::e(std::source_location::current(), "main_thread_dispatcher_cannot_be_null",
+                  "Main Thread Dispatcher cannot be nullptr.");
         return;
     }
     RandomizeWorld();

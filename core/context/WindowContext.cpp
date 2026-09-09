@@ -50,11 +50,13 @@ bool glimmer::WindowContext::CreateWindowAndDevice(const int width, const int he
     SDL_GPUDevice *gpuDevice = SDL_CreateGPUDeviceWithProperties(gpuProps);
     SDL_DestroyProperties(gpuProps);
     if (gpuDevice == nullptr) {
-        LogCat::e(std::source_location::current(), "failed_to_create_gpu_device", "Failed to create GPU device: {}", SDL_GetError());
+        LogCat::e(std::source_location::current(), "failed_to_create_gpu_device", "Failed to create GPU device: {}",
+                  SDL_GetError());
         return false;
     }
     if (!SDL_ClaimWindowForGPUDevice(gpuDevice, window)) {
-        LogCat::e(std::source_location::current(), "failed_to_claim_window_for_gpu_device", "Failed to claim window for GPU device: {}", SDL_GetError());
+        LogCat::e(std::source_location::current(), "failed_to_claim_window_for_gpu_device",
+                  "Failed to claim window for GPU device: {}", SDL_GetError());
         SDL_DestroyGPUDevice(gpuDevice);
         return false;
     }

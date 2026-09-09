@@ -69,7 +69,7 @@ void glimmer::LightMapTexture::EnsureTexture(const Uint32 width, const Uint32 he
 }
 
 void glimmer::LightMapTexture::Update(SDL_GPUDevice *device, const LightBuffer *lightBuffer, const Color *ambient,
-                                      int originTileX, int originTileY, Uint32 sizeX, Uint32 sizeY, bool fullBright) {
+                                      int originTileX, int originTileY, Uint32 sizeX, Uint32 sizeY) {
     device_ = device;
     if (device_ == nullptr || sizeX == 0 || sizeY == 0) {
         return;
@@ -83,7 +83,7 @@ void glimmer::LightMapTexture::Update(SDL_GPUDevice *device, const LightBuffer *
     //量化连续强度，使光照贴图仅在强度真正跨越 1/255 步长时重建，而非每帧重建。
     const float ambientA = ambient != nullptr ? ambient->a / 255.0F : 0.0F;
     if (lastRevision_ == revision && lastOriginX_ == originTileX && lastOriginY_ == originTileY &&
-        lastSizeX_ == sizeX && lastSizeY_ == sizeY && lastFullBright_ == fullBright &&
+        lastSizeX_ == sizeX && lastSizeY_ == sizeY  &&
         lastAmbient_[0] == ambientR && lastAmbient_[1] == ambientG && lastAmbient_[2] == ambientB &&
         lastAmbient_[3] == ambientA) {
         dirty_ = false;
@@ -98,7 +98,6 @@ void glimmer::LightMapTexture::Update(SDL_GPUDevice *device, const LightBuffer *
     lastOriginY_ = originTileY;
     lastSizeX_ = sizeX;
     lastSizeY_ = sizeY;
-    lastFullBright_ = fullBright;
     lastAmbient_[0] = ambientR;
     lastAmbient_[1] = ambientG;
     lastAmbient_[2] = ambientB;
@@ -112,13 +111,6 @@ void glimmer::LightMapTexture::Update(SDL_GPUDevice *device, const LightBuffer *
         for (Uint32 col = 0; col < sizeX; ++col) {
             const int tileX = originTileX + static_cast<int>(col);
             Uint8 *pixel = pixelBuffer_.data() + (static_cast<size_t>(row) * sizeX + col) * 4;
-            if (fullBright) {
-                pixel[0] = 255;
-                pixel[1] = 255;
-                pixel[2] = 255;
-                pixel[3] = 255;
-                continue;
-            }
             const TileVector2D tile(tileX, tileY);
             const Color *light = lightBuffer != nullptr
                                      ? lightBuffer->GetFinalLightColor(tile)

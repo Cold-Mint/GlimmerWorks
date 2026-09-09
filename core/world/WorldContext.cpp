@@ -200,7 +200,11 @@ void glimmer::WorldContext::SaveGame() {
 
 
 glimmer::LightBuffer *glimmer::WorldContext::GetLightingBuffer() const {
-    return lightBuffer_.get();
+    LightBuffer * result = chunkManager_->GetLightingBuffer();
+    if (result == nullptr) {
+        LogCat::w(std::source_location::current(),"light_buffer_is_null","light buffer is null");
+    }
+    return result;
 }
 
 glimmer::TileInstancePool *glimmer::WorldContext::GetTileInstancePool() const {
@@ -291,7 +295,6 @@ glimmer::WorldContext::WorldContext(AppContext *appContext, Saves *saves) : save
     chunkManager_ = std::make_unique<ChunkManager>(this, dimensionFolderName);
     chunkGenerator_ = std::make_unique<ChunkGenerator>(this, worldSeed_, dimensionResource);
     terrainManager_ = std::make_unique<TerrainManager>(this);
-    lightBuffer_ = std::make_unique<LightBuffer>();
     tileInstancePool_ = std::make_unique<TileInstancePool>();
     fixedGlobalTick_ = mapManifest_->globalTickCount;
     auto *commandManager = appContext->GetConsoleContext()->GetCommandManager();

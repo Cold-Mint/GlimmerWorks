@@ -93,7 +93,6 @@ namespace glimmer {
         std::unique_ptr<ChunkGenerator> chunkGenerator_;
         std::unique_ptr<ChunkManager> chunkManager_;
         std::unique_ptr<TerrainManager> terrainManager_;
-        std::unique_ptr<LightBuffer> lightBuffer_;
 
     public:
         ~WorldContext() override;

@@ -58,7 +58,6 @@ namespace glimmer {
         int lastOriginY_ = 0;
         Uint32 lastSizeX_ = 0;
         Uint32 lastSizeY_ = 0;
-        bool lastFullBright_ = false;
         float lastAmbient_[4] = {0.0F, 0.0F, 0.0F, 0.0F};
         bool dirty_ = false;
 
@@ -81,8 +80,7 @@ namespace glimmer {
          * @param sizeY sizeY 覆盖的瓦片行数
          */
         void Update(SDL_GPUDevice *device, const LightBuffer *lightBuffer, const Color *ambient,
-                    int originTileX, int originTileY, Uint32 sizeX, Uint32 sizeY,
-                    bool fullBright = false);
+                    int originTileX, int originTileY, Uint32 sizeX, Uint32 sizeY);
 
         /**
          * Upload

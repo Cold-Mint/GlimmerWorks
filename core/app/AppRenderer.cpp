@@ -335,6 +335,7 @@ void glimmer::AppRenderer::FlushLightingPass(SDL_GPUCommandBuffer *commandBuffer
 
     SDL_GPURenderPass *renderPass = SDL_BeginGPURenderPass(commandBuffer, &colorTarget, 1, nullptr);
     if (renderPass == nullptr) {
+        LogCat::e(std::source_location::current(), "render_pass_is_null", "renderPass == nullptr");
         return;
     }
     if (lightingPipeline_ == nullptr) {
@@ -417,28 +418,36 @@ void glimmer::AppRenderer::UpdateLightMap(UniformInjectContext *injectContext) {
     const int originY = tileMin.y - 1;
     const auto sizeX = static_cast<Uint32>(tileMax.x - tileMin.x + 3);
     const auto sizeY = static_cast<Uint32>(tileMax.y - tileMin.y + 3);
-    const Config *config = appContext_->GetConfig();
-    const bool fullBright = config == nullptr;
-    if (!ambientLightComputed_) {
-        WorldContext *worldContext = injectContext->worldContext;
-        const DimensionResource *dimensionResource = nullptr;
-        if (worldContext != nullptr && worldContext->GetDimension() != nullptr) {
-            dimensionResource = worldContext->GetDimension()->GetDimensionResource();
-        }
-        static const std::vector<LightKeyframe> emptyKeyframes;
-        const float timeOfDay = dimensionResource != nullptr ? dimensionResource->initialTime : 0.0F;
-        const std::vector<LightKeyframe> &keyframes = dimensionResource != nullptr
-                                                          ? dimensionResource->ambientLightKeyframes
-                                                          : emptyKeyframes;
-        ambientLight_ = ColorUtils::ComputeAmbientLight(resourceLocator_, timeOfDay, keyframes);
-        ambientLightComputed_ = true;
-        LogCat::i("app_renderer_ambient_light", "Ambient light: rgba=({},{},{},{}), timeOfDay={}, keyframes={}",
-                  static_cast<int>(ambientLight_.r), static_cast<int>(ambientLight_.g),
-                  static_cast<int>(ambientLight_.b), static_cast<int>(ambientLight_.a), timeOfDay,
-                  keyframes.size());
+    LogCat::i("app_renderer_light_map_camera",
+              "UpdateLightMap camera: zoom={}, cameraSize=({},{}), cameraPosition=({},{})",
+              zoom, cameraSize.x, cameraSize.y, cameraPosition.x, cameraPosition.y);
+    LogCat::i("app_renderer_light_map_tile_range",
+              "UpdateLightMap tile range: tileMin=({},{}), tileMax=({},{})",
+              tileMin.x, tileMin.y, tileMax.x, tileMax.y);
+    LogCat::i("app_renderer_light_map_info",
+              "UpdateLightMap: viewport=({},{},{},{}), origin=({},{}), size=({}x{})",
+              viewportRect.x, viewportRect.y, viewportRect.w, viewportRect.h,
+              originX, originY, sizeX, sizeY);
+
+    WorldContext *worldContext = injectContext->worldContext;
+    const DimensionResource *dimensionResource = nullptr;
+    if (worldContext != nullptr && worldContext->GetDimension() != nullptr) {
+        dimensionResource = worldContext->GetDimension()->GetDimensionResource();
     }
-    lightMapTexture_.Update(device_, injectContext->lightBuffer, fullBright ? nullptr : &ambientLight_,
-                            originX, originY, sizeX, sizeY, fullBright);
+    static const std::vector<LightKeyframe> emptyKeyframes;
+    const float timeOfDay = dimensionResource != nullptr ? dimensionResource->initialTime : 0.0F;
+    const std::vector<LightKeyframe> &keyframes = dimensionResource != nullptr
+                                                      ? dimensionResource->ambientLightKeyframes
+                                                      : emptyKeyframes;
+    ambientLight_ = ColorUtils::ComputeAmbientLight(resourceLocator_, timeOfDay, keyframes);
+    LogCat::i("app_renderer_ambient_light", "Ambient light: rgba=({},{},{},{}), timeOfDay={}, keyframes={}",
+              static_cast<int>(ambientLight_.r), static_cast<int>(ambientLight_.g),
+              static_cast<int>(ambientLight_.b), static_cast<int>(ambientLight_.a), timeOfDay,
+              keyframes.size());
+
+
+    lightMapTexture_.Update(device_, injectContext->lightBuffer, &ambientLight_,
+                            originX, originY, sizeX, sizeY);
     injectContext->lightMapOriginX = originX;
     injectContext->lightMapOriginY = originY;
     injectContext->lightMapSizeX = sizeX;

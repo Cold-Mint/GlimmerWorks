@@ -110,7 +110,6 @@ namespace glimmer {
         //按固定初始时间从维度关键帧解析并缓存的环境光（暂无昼夜流动），
         //避免每帧重复解析颜色资源。
         Color ambientLight_;
-        bool ambientLightComputed_ = false;
 
 
         void RenderOverlays();

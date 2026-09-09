@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -26,485 +26,20 @@
  */
 #include "DataPack.h"
 
+#include <algorithm>
 #include <utility>
 
-#include "blake3.h"
-#include "monocypher-ed25519.h"
+#include "LanguageFileProcessor.h"
+#include "PackSignatureVerifier.h"
 #include "SpecialFileProcessingParams.h"
+#include "core/config/Config.h"
 #include "core/config/Constants.h"
-
-#include "StringManager.h"
-#include "TileResourceManager.h"
 #include "core/context/AppContext.h"
-#include "core/utils/TomlUtils.h"
-#include "core/mod/PackManifest.h"
+#include "core/context/GraphicsContext.h"
+#include "core/context/ModContext.h"
 #include "core/utils/StringUtils.h"
+#include "core/utils/TomlUtils.h"
 #include "toml11/parser.hpp"
-
-using enum glimmer::ShapeType;
-using enum glimmer::BiomeDecoratorType;
-using enum glimmer::PackVerifyState;
-
-
-std::vector<std::filesystem::path> glimmer::DataPack::GetActuallyTemplateSearchPath(
-    const std::filesystem::path &path) const {
-    const std::optional<std::filesystem::path> currentOptional = virtualFileSystem_->GetParentPath(path);
-    if (!currentOptional.has_value()) {
-        return {};
-    }
-    const std::string currentDir = currentOptional.value().string();
-    std::vector<std::filesystem::path> result;
-    for (std::string searchPath: manifest_.templateSearchPath) {
-        StringUtils::ReplaceAll(searchPath, TEMPLATE_CURRENT, currentDir);
-        StringUtils::ReplaceAll(searchPath, TEMPLATE_ROOT, rootPath_.string());
-        result.emplace_back(std::move(searchPath));
-    }
-    return result;
-}
-
-std::optional<std::string> glimmer::DataPack::GetDataType(const std::string &fileName) {
-    const size_t lastDot = fileName.rfind('.');
-    if (lastDot == std::string::npos)
-        return std::nullopt;
-
-    const size_t secondLastDot = fileName.rfind('.', lastDot - 1);
-    if (secondLastDot == std::string::npos)
-        return std::nullopt;
-
-    if (const std::string format = fileName.substr(lastDot + 1); format != "toml")
-        return std::nullopt;
-    return fileName.substr(secondLastDot + 1,
-                           lastDot - secondLastDot - 1);
-}
-
-int glimmer::DataPack::LoadStringResourceFromFile(const std::filesystem::path &path,
-                                                  StringManager *stringManager) const {
-    const auto contentOptional = virtualFileSystem_->ReadFileAsString(path);
-    if (!contentOptional.has_value()) {
-        return 0;
-    }
-    const std::vector<std::filesystem::path> searchPath = GetActuallyTemplateSearchPath(path);
-    if (searchPath.empty()) {
-        return 0;
-    }
-    const toml::value value = toml::parse_str(
-        tomlTemplateExpander_->Expand(searchPath, contentOptional.value(), virtualFileSystem_), tomlVersion_);
-    int count = 0;
-    auto array = toml::find<std::vector<StringResource> >(value, "string");
-    for (auto &stringRes: array) {
-        stringRes.packId = manifest_.id;
-        stringManager->AddResource(
-            std::make_unique<StringResource>(std::move(stringRes))
-        );
-        count++;
-    }
-
-    auto tagArray = toml::find<std::vector<StringResource> >(value, "tag_string");
-    for (auto &stringRes: tagArray) {
-        stringRes.packId = manifest_.id;
-        stringManager->SetTagTranslate(
-            StringUtils::StringToUint64(stringRes.resourceId), stringRes.value
-        );
-        count++;
-    }
-    return count;
-}
-
-
-void glimmer::DataPack::LoadLootTableResourceFromFile(const toml::value &value,
-                                                      LootTableRegistry *lootTableRegistry) const {
-    auto lootResource = std::make_unique<LootResource>(toml::get<LootResource>(value));
-    lootResource->packId = manifest_.id;
-    for (auto &mandatory: lootResource->mandatory) {
-        mandatory.item.SetSelfPackageId(manifest_.id);
-        mandatory.mandatory = true;
-    }
-    for (auto &pool: lootResource->pool) {
-        pool.item.SetSelfPackageId(manifest_.id);
-        pool.mandatory = false;
-    }
-    lootTableRegistry->Register(std::move(lootResource));
-}
-
-void glimmer::DataPack::LoadInitialInventoryResourceFromFile(const toml::value &value,
-                                                             InitialInventoryManager *lootTableManager) const {
-    auto initialInventoryResource = std::make_unique<InitialInventoryResource>(
-        toml::get<InitialInventoryResource>(value));
-    initialInventoryResource->packId = manifest_.id;
-    for (auto &itemMessage: initialInventoryResource->addItems) {
-        itemMessage.item.SetSelfPackageId(manifest_.id);
-        for (auto &abilityItemRef: itemMessage.abilityItemRef) {
-            abilityItemRef.item.SetSelfPackageId(manifest_.id);
-        }
-    }
-    lootTableManager->AddResource(std::move(initialInventoryResource));
-}
-
-void glimmer::DataPack::LoadStructureResourceFromFile(const toml::value &value, StructureRegistry *structureRegistry,
-                                                      StructureGeneratorType structureGeneratorType) const {
-    std::unique_ptr<IStructureResource> structureResource;
-    switch (structureGeneratorType) {
-        case StructureGeneratorType::Tree:
-            structureResource = std::make_unique<TreeStructureResource>(
-                toml::get<TreeStructureResource>(value));
-            break;
-        case StructureGeneratorType::Static: {
-            std::unique_ptr<StaticStructureResource> staticStructureResource = std::make_unique<
-                StaticStructureResource>(
-                toml::get<StaticStructureResource>(value));
-            for (auto &tile_info: staticStructureResource->tileInfo) {
-                tile_info.tile.SetSelfPackageId(manifest_.id);
-            }
-            structureResource = std::move(staticStructureResource);
-        }
-        break;
-        case StructureGeneratorType::None:
-            break;
-    }
-    structureResource->packId = manifest_.id;
-    structureResource->generatorId = std::to_underlying(structureGeneratorType);
-    for (auto &ref: structureResource->data) {
-        ref.SetSelfPackageId(manifest_.id);
-    }
-    for (auto &condition: structureResource->condition) {
-        condition.SetSelfPackageId(manifest_.id);
-    }
-    structureRegistry->Register(std::move(structureResource));
-}
-
-void glimmer::DataPack::LoadTileResourceFromFile(const toml::value &value, TileResourceManager *tileManager) const {
-    auto tileResource = std::make_unique<TileResource>(toml::get<TileResource>(value));
-    tileResource->packId = manifest_.id;
-    tileResource->name.SetSelfPackageId(manifest_.id);
-    tileResource->description.SetSelfPackageId(manifest_.id);
-    tileResource->texture.SetSelfPackageId(manifest_.id);
-    tileResource->pipeline.SetSelfPackageId(manifest_.id);
-    tileResource->sampler.SetSelfPackageId(manifest_.id);
-    tileResource->blueprintTexture.SetSelfPackageId(manifest_.id);
-    tileResource->breakSfx.SetSelfPackageId(manifest_.id);
-    tileResource->placeSfx.SetSelfPackageId(manifest_.id);
-    tileResource->lightSource.SetSelfPackageId(manifest_.id);
-    tileResource->sideLightMask.SetSelfPackageId(manifest_.id);
-    tileResource->backLightMask.SetSelfPackageId(manifest_.id);
-    for (auto &tag: tileResource->tags) {
-        tag.MakeCachedTag();
-    }
-    if (tileResource->customLootTable) {
-        tileResource->lootTable.SetSelfPackageId(manifest_.id);
-    }
-    tileManager->AddResource(std::move(tileResource));
-}
-
-void glimmer::DataPack::LoadBiomeResourceFromFile(const toml::value &value, BiomeRegistry *biomeRegistry) const {
-    auto biomeResource = std::make_unique<BiomeResource>(toml::get<BiomeResource>(value));
-    biomeResource->packId = manifest_.id;
-    biomeResource->bgm.SetSelfPackageId(manifest_.id);
-    for (auto &decorator: biomeResource->decors) {
-        decorator.SetSelfPackageId(manifest_.id);
-    }
-    for (auto &dimension: biomeResource->dimensions) {
-        dimension.SetSelfPackageId(manifest_.id);
-    }
-    biomeRegistry->Register(std::move(biomeResource));
-}
-
-void glimmer::DataPack::LoadDimensionResourceFromFile(const toml::value &value,
-                                                      DimensionRegistry *dimensionRegistry) const {
-    auto dimensionResource = std::make_unique<DimensionResource>(toml::get<DimensionResource>(value));
-    dimensionResource->packId = manifest_.id;
-    dimensionResource->name.SetSelfPackageId(manifest_.id);
-    for (auto &ambientLightKeyframe: dimensionResource->ambientLightKeyframes) {
-        ambientLightKeyframe.color.SetSelfPackageId(manifest_.id);
-    }
-    dimensionRegistry->Register(std::move(dimensionResource));
-}
-
-void glimmer::DataPack::LoadComposableItemResourceFromFile(const toml::value &value,
-                                                           ComposableItemRegistry *composableItemRegistry) const {
-    auto itemResource = std::make_unique<ComposableItemResource>(toml::get<ComposableItemResource>(value));
-    itemResource->packId = manifest_.id;
-    itemResource->name.SetSelfPackageId(manifest_.id);
-    itemResource->description.SetSelfPackageId(manifest_.id);
-    itemResource->texture.SetSelfPackageId(manifest_.id);
-    itemResource->pipeline.SetSelfPackageId(manifest_.id);
-    itemResource->sampler.SetSelfPackageId(manifest_.id);
-    itemResource->lightSource.SetSelfPackageId(manifest_.id);
-    for (auto &tag: itemResource->tags) {
-        tag.MakeCachedTag();
-    }
-    for (auto &defaultAbility: itemResource->defaultAbilityList) {
-        defaultAbility.item.SetSelfPackageId(manifest_.id);
-        for (auto &abilityItemRef: defaultAbility.abilityItemRef) {
-            abilityItemRef.item.SetSelfPackageId(manifest_.id);
-        }
-    }
-    composableItemRegistry->Register(std::move(itemResource));
-}
-
-void glimmer::DataPack::LoadAbilityItemResourceFromFile(const toml::value &value,
-                                                        AbilityItemRegistry *abilityItemRegistry) const {
-    auto itemResource = std::make_unique<AbilityItemResource>(toml::get<AbilityItemResource>(value));
-    itemResource->packId = manifest_.id;
-    itemResource->name.SetSelfPackageId(manifest_.id);
-    itemResource->description.SetSelfPackageId(manifest_.id);
-    itemResource->texture.SetSelfPackageId(manifest_.id);
-    itemResource->pipeline.SetSelfPackageId(manifest_.id);
-    itemResource->sampler.SetSelfPackageId(manifest_.id);
-    itemResource->lightSource.SetSelfPackageId(manifest_.id);
-    for (auto &tag: itemResource->tags) {
-        tag.MakeCachedTag();
-    }
-    abilityItemRegistry->Register(std::move(itemResource));
-}
-
-void glimmer::DataPack::LoadMaterialItemResourceResourceFromFile(const toml::value &value,
-                                                                 MaterialItemRegistry *materialItemRegistry) const {
-    auto itemResource = std::make_unique<MaterialItemResource>(toml::get<MaterialItemResource>(value));
-    itemResource->packId = manifest_.id;
-    itemResource->name.SetSelfPackageId(manifest_.id);
-    itemResource->description.SetSelfPackageId(manifest_.id);
-    itemResource->texture.SetSelfPackageId(manifest_.id);
-    itemResource->pipeline.SetSelfPackageId(manifest_.id);
-    itemResource->sampler.SetSelfPackageId(manifest_.id);
-    itemResource->lightSource.SetSelfPackageId(manifest_.id);
-    for (auto &tag: itemResource->tags) {
-        tag.MakeCachedTag();
-    }
-    materialItemRegistry->Register(std::move(itemResource));
-}
-
-void glimmer::DataPack::LoadContributorResourceFromFile(const toml::value &value,
-                                                        ContributorManager *contributorManager) const {
-    auto contributorResource = std::make_unique<Contributor>(toml::get<Contributor>(value));
-    contributorResource->displayName.SetSelfPackageId(manifest_.id);
-    contributorManager->Register(std::move(contributorResource));
-}
-
-void glimmer::DataPack::LoadMobResourceFromFile(const toml::value &value, MobRegistry *mobRegistry) const {
-    auto mobResource = std::make_unique<MobResource>(toml::get<MobResource>(value));
-    mobResource->packId = manifest_.id;
-    mobResource->shape.SetSelfPackageId(manifest_.id);
-    mobResource->texture.SetSelfPackageId(manifest_.id);
-    mobResource->pipeline.SetSelfPackageId(manifest_.id);
-    mobResource->sampler.SetSelfPackageId(manifest_.id);
-    ItemMessageResource &emptyHandAutoUseItem = mobResource->emptyHandAutoUseItem;
-    emptyHandAutoUseItem.item.SetSelfPackageId(manifest_.id);
-    for (auto &abilityItemRef: emptyHandAutoUseItem.abilityItemRef) {
-        abilityItemRef.item.SetSelfPackageId(manifest_.id);
-    }
-    mobRegistry->Register(std::move(mobResource));
-}
-
-void glimmer::DataPack::
-LoadShapeResourceFromFile(const toml::value &value, ShapeManager *shapeManager, ShapeType type) const {
-    std::unique_ptr<IShapeResource> shapeResource;
-    switch (type) {
-        case CIRCLE: {
-            shapeResource = std::make_unique<CircularShapeResource>(
-                toml::get<CircularShapeResource>(value));
-            shapeResource->shapeType = std::to_underlying(CIRCLE);
-            break;
-        }
-
-        case RECTANGLE: {
-            shapeResource = std::make_unique<RectangleShapeResource>(
-                toml::get<RectangleShapeResource>(value));
-            shapeResource->shapeType = std::to_underlying(RECTANGLE);
-            break;
-        }
-        case ROUNDED_RECTANGLE: {
-            shapeResource = std::make_unique<RoundedRectangleShapeResource>(
-                toml::get<RoundedRectangleShapeResource>(value));
-            shapeResource->shapeType = std::to_underlying(ROUNDED_RECTANGLE);
-            break;
-        }
-    }
-    shapeResource->packId = manifest_.id;
-    shapeManager->Register(std::move(shapeResource));
-}
-
-void glimmer::DataPack::LoadFixedColorResourceFromFile(const toml::value &value,
-                                                       FixedColorManager *fixedColorManager) const {
-    auto fixedColorResource = std::make_unique<FixedColorResource>(toml::get<FixedColorResource>(value));
-    fixedColorResource->packId = manifest_.id;
-    fixedColorManager->Register(std::move(fixedColorResource));
-}
-
-void glimmer::DataPack::LoadLightMaskResourceFromFile(const toml::value &value,
-                                                      LightMaskManager *lightMaskManager) const {
-    auto lightMaskResource = std::make_unique<LightMaskResource>(toml::get<LightMaskResource>(value));
-    lightMaskResource->packId = manifest_.id;
-    lightMaskResource->lightMaskColor.SetSelfPackageId(manifest_.id);
-    lightMaskManager->Register(std::move(lightMaskResource));
-}
-
-void glimmer::DataPack::LoadLightSourceResourceFromFile(const toml::value &value,
-                                                        LightSourceManager *lightSourceManager) const {
-    auto lightSourceResource = std::make_unique<LightSourceResource>(toml::get<LightSourceResource>(value));
-    lightSourceResource->packId = manifest_.id;
-    lightSourceResource->lightColor.SetSelfPackageId(manifest_.id);
-    if (lightSourceResource->lightRadius > CHUNK_SIZE) {
-        lightSourceResource->lightRadius = CHUNK_SIZE;
-    }
-    lightSourceManager->Register(std::move(lightSourceResource));
-}
-
-void glimmer::DataPack::LoadBiomeDecoratorResourceFromFile(const toml::value &value,
-                                                           BiomeDecoratorRegistry *biomeDecoratorRegistry,
-                                                           const BiomeDecoratorType type) const {
-    switch (type) {
-        case FILL: {
-            auto fillResource = std::make_unique<FillBiomeDecoratorResource>(
-                toml::get<FillBiomeDecoratorResource>(value));
-            fillResource->packId = manifest_.id;
-            fillResource->tile.SetSelfPackageId(manifest_.id);
-            fillResource->biomeDecoratorType = std::to_underlying(type);
-            biomeDecoratorRegistry->Register(std::move(fillResource));
-            break;
-        }
-        case MINERAL: {
-            auto mineralBiomeDecoratorResource = std::make_unique<MineralBiomeDecoratorResource>(
-                toml::get<MineralBiomeDecoratorResource>(value));
-            mineralBiomeDecoratorResource->packId = manifest_.id;
-            mineralBiomeDecoratorResource->ore.SetSelfPackageId(manifest_.id);
-            mineralBiomeDecoratorResource->biomeDecoratorType = std::to_underlying(type);
-            biomeDecoratorRegistry->Register(std::move(mineralBiomeDecoratorResource));
-            break;
-        }
-        case SURFACE: {
-            auto surfaceBiomeDecoratorResource = std::make_unique<SurfaceBiomeDecoratorResource>(
-                toml::get<SurfaceBiomeDecoratorResource>(value));
-            surfaceBiomeDecoratorResource->packId = manifest_.id;
-            surfaceBiomeDecoratorResource->openAirTile.SetSelfPackageId(manifest_.id);
-            surfaceBiomeDecoratorResource->underwaterTile.SetSelfPackageId(manifest_.id);
-            surfaceBiomeDecoratorResource->biomeDecoratorType = std::to_underlying(type);
-            biomeDecoratorRegistry->Register(std::move(surfaceBiomeDecoratorResource));
-            break;
-        }
-    }
-}
-
-void glimmer::DataPack::LoadStructurePlacementConditionsResourceFromFile(const toml::value &value,
-                                                                         StructurePlacementConditionsRegistry *
-                                                                         structurePlacementConditionsRegistry,
-                                                                         StructureConditionProcessorType processorType)
-const {
-    switch (processorType) {
-        case StructureConditionProcessorType::Biome: {
-            auto biomeStructurePlacementConditionsResource = std::make_unique<
-                BiomeStructurePlacementConditionsResource>(
-                toml::get<BiomeStructurePlacementConditionsResource>(value));
-            biomeStructurePlacementConditionsResource->packId = manifest_.id;
-            biomeStructurePlacementConditionsResource->processorId = std::to_underlying(processorType);
-            for (auto &targetBiome: biomeStructurePlacementConditionsResource->targetBiomes) {
-                targetBiome.SetSelfPackageId(manifest_.id);
-            }
-            biomeStructurePlacementConditionsResource->RefreshCache();
-            structurePlacementConditionsRegistry->Register(std::move(biomeStructurePlacementConditionsResource));
-            break;
-        }
-        case StructureConditionProcessorType::None: {
-            auto noneStructurePlacementConditionsResource = std::make_unique<NoneStructurePlacementConditionsResource>(
-                toml::get<NoneStructurePlacementConditionsResource>(value));
-            noneStructurePlacementConditionsResource->packId = manifest_.id;
-            noneStructurePlacementConditionsResource->processorId = std::to_underlying(processorType);
-            structurePlacementConditionsRegistry->Register(std::move(noneStructurePlacementConditionsResource));
-            break;
-        }
-        case StructureConditionProcessorType::Height: {
-            auto heightStructureConditionsResource = std::make_unique<HeightStructureConditionsResource>(
-                toml::get<HeightStructureConditionsResource>(value));
-            heightStructureConditionsResource->packId = manifest_.id;
-            heightStructureConditionsResource->processorId = std::to_underlying(processorType);
-            structurePlacementConditionsRegistry->Register(std::move(heightStructureConditionsResource));
-            break;
-        }
-        case StructureConditionProcessorType::HorizontalSpacing: {
-            auto horizontalSpacingStructureConditionsResource = std::make_unique<
-                HorizontalSpacingStructureConditionsResource>(
-                toml::get<HorizontalSpacingStructureConditionsResource>(value));
-            horizontalSpacingStructureConditionsResource->packId = manifest_.id;
-            horizontalSpacingStructureConditionsResource->processorId = std::to_underlying(processorType);
-            structurePlacementConditionsRegistry->Register(
-                std::move(horizontalSpacingStructureConditionsResource));
-            break;
-        }
-        case StructureConditionProcessorType::Surface: {
-            auto surfaceStructurePlacementConditionsResource = std::make_unique<
-                SurfaceStructurePlacementConditionsResource>(
-                toml::get<SurfaceStructurePlacementConditionsResource>(value));
-            surfaceStructurePlacementConditionsResource->packId = manifest_.id;
-            surfaceStructurePlacementConditionsResource->processorId = std::to_underlying(processorType);
-            structurePlacementConditionsRegistry->Register(
-                std::move(surfaceStructurePlacementConditionsResource));
-            break;
-        }
-    }
-}
-
-
-void glimmer::DataPack::LoadRecipeResourceFromFile(const toml::value &value, RecipeManager *recipeManager) const {
-    auto recipeResource = std::make_unique<RecipeResource>(toml::get<RecipeResource>(value));
-    recipeResource->packId = manifest_.id;
-    ItemMessageResource &output = recipeResource->output;
-    output.item.SetSelfPackageId(manifest_.id);
-    for (auto &abilityItemRef: output.abilityItemRef) {
-        abilityItemRef.item.SetSelfPackageId(manifest_.id);
-    }
-    for (auto &input: recipeResource->input) {
-        input.MakeCachedTag();
-    }
-    recipeManager->RegisterRecipe(std::move(recipeResource));
-}
-
-std::optional<std::string> glimmer::DataPack::ExtractLanguageFromFileName(const std::string_view fileName) {
-    constexpr std::string_view suffix = ".strings.toml";
-    if (!fileName.ends_with(suffix)) {
-        return std::nullopt;
-    }
-    std::string base(fileName.substr(0, fileName.size() - suffix.size()));
-    auto pos = base.rfind('.');
-    if (pos == std::string::npos) {
-        return base;
-    }
-    return base.substr(pos + 1);
-}
-
-bool glimmer::DataPack::ProcessPublicKeyFile(const std::filesystem::path &path,
-                                             SpecialFileProcessingParams &params) const {
-    const auto publicKeyStreamUniquePtr = virtualFileSystem_->ReadFileAsStream(path);
-    if (publicKeyStreamUniquePtr == nullptr) {
-        return false;
-    }
-    const auto publicKeyStream = publicKeyStreamUniquePtr.get();
-    if (publicKeyStream == nullptr) {
-        return false;
-    }
-    auto &pubStream = *publicKeyStream;
-    pubStream.read(reinterpret_cast<char *>(params.publicKey.data()), 32);
-    if (pubStream.gcount() == 32) {
-        params.findPublicKey = true;
-    }
-    return true;
-}
-
-bool glimmer::DataPack::ProcessSignatureFile(const std::filesystem::path &path,
-                                             SpecialFileProcessingParams &params) const {
-    const auto signStreamUniquePtr = virtualFileSystem_->ReadFileAsStream(path);
-    if (signStreamUniquePtr == nullptr) {
-        return false;
-    }
-    const auto signStream = signStreamUniquePtr.get();
-    if (signStream == nullptr) {
-        return false;
-    }
-    auto &sigStream = *signStream;
-    sigStream.read(reinterpret_cast<char *>(params.signature.data()), 64);
-    if (sigStream.gcount() == 64) {
-        params.findSignature = true;
-    }
-    return true;
-}
 
 std::optional<std::vector<char> > glimmer::DataPack::ReadFileContent(std::istream *stream) {
     if (stream->fail()) {
@@ -521,13 +56,15 @@ std::optional<std::vector<char> > glimmer::DataPack::ReadFileContent(std::istrea
     return fileBuffer;
 }
 
-
 glimmer::DataPack::DataPack(std::filesystem::path path, const VirtualFileSystem *virtualFileSystem,
-                            const TomlTemplateExpander *tomlTemplateExpander,
-                            const toml::spec &tomlVersion) : rootPath_(std::move(path)),
-                                                             manifest_(), tomlVersion_(tomlVersion),
-                                                             virtualFileSystem_(virtualFileSystem),
-                                                             tomlTemplateExpander_(tomlTemplateExpander) {
+                            const TomlTemplateExpander *tomlTemplateExpander, const toml::spec &tomlVersion)
+    : rootPath_(std::move(path)),
+      manifest_(),
+      tomlVersion_(tomlVersion),
+      virtualFileSystem_(virtualFileSystem),
+      tomlTemplateExpander_(tomlTemplateExpander),
+      packVerifyState_(PackVerifyState::Unsigned),
+      resourceFileLoader_(rootPath_, &manifest_, virtualFileSystem_, tomlTemplateExpander_, tomlVersion_) {
 }
 
 uint64_t glimmer::DataPack::GetUniqueId() const {
@@ -553,194 +90,12 @@ glimmer::PackVerifyState glimmer::DataPack::GetPackVerifyState() const {
     return packVerifyState_;
 }
 
-void glimmer::DataPack::ComputeFileHash(const std::vector<char> &fileBuffer, std::vector<uint8_t> &allHashData) {
-    blake3_hasher hasher;
-    blake3_hasher_init(&hasher);
-    blake3_hasher_update(&hasher, fileBuffer.data(), fileBuffer.size());
-    uint8_t singleHash[BLAKE3_OUT_LEN];
-    blake3_hasher_finalize(&hasher, singleHash, BLAKE3_OUT_LEN);
-    allHashData.insert(allHashData.end(), singleHash, singleHash + BLAKE3_OUT_LEN);
-}
-
-int glimmer::DataPack::LoadResourceByType(const std::string &dataType, const std::string &file,
-                                          const std::string &content, const ModContext *modContext,
-                                          const GraphicsContext *graphicsContext) const {
-    const std::vector<std::filesystem::path> searchPath = GetActuallyTemplateSearchPath(file);
-    if (dataType == DATA_FILE_TYPE_TEMPLATE) {
-        return 1;
-    }
-    std::string data = tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_);
-    const toml::value value = toml::parse_str(
-        data, tomlVersion_);
-    if (dataType == DATA_FILE_TYPE_TILE) {
-        LoadTileResourceFromFile(value, modContext->GetTileResourceManager());
-        return 1;
-    }
-    if (dataType == DATA_FILE_TYPE_BIOME) {
-        LoadBiomeResourceFromFile(value, modContext->GetBiomeRegistry());
-        return 1;
-    }
-    if (dataType == DATA_FILE_TYPE_DIMENSION) {
-        LoadDimensionResourceFromFile(value, modContext->GetDimensionRegistry());
-        return 1;
-    }
-    if (dataType == DATA_FILE_TYPE_COMPOSABLE_ITEM) {
-        LoadComposableItemResourceFromFile(value, modContext->GetComposableItemRegistry());
-        return 1;
-    }
-    if (dataType == DATA_FILE_TYPE_ABILITY_ITEM) {
-        LoadAbilityItemResourceFromFile(value, modContext->GetAbilityItemRegistry());
-        return 1;
-    }
-    if (dataType == DATA_FILE_TYPE_MATERIAL_ITEM) {
-        LoadMaterialItemResourceResourceFromFile(value, modContext->GetMaterialItemRegistry());
-        return 1;
-    }
-    if (dataType == DATA_FILE_TYPE_LOOT_TABLE) {
-        LoadLootTableResourceFromFile(value, modContext->GetLootTableRegistry());
-        return 1;
-    }
-    if (dataType == DATA_FILE_TYPE_TREE_STRUCTURE) {
-        LoadStructureResourceFromFile(value, modContext->GetStructureRegistry(),
-                                      StructureGeneratorType::Tree);
-        return 1;
-    }
-    if (dataType == DATA_FILE_TYPE_STATIC_STRUCTURE) {
-        LoadStructureResourceFromFile(value, modContext->GetStructureRegistry(),
-                                      StructureGeneratorType::Static);
-        return 1;
-    }
-    if (dataType == DATA_FILE_TYPE_INITIAL_INVENTORY) {
-        LoadInitialInventoryResourceFromFile(value, modContext->GetInitialInventoryManager());
-        return 1;
-    }
-    if (dataType == DATA_FILE_TYPE_CONTRIBUTOR) {
-        LoadContributorResourceFromFile(value, modContext->GetContributorManager());
-        return 1;
-    }
-    if (dataType == DATA_FILE_TYPE_MOB) {
-        LoadMobResourceFromFile(value, modContext->GetMobRegistry());
-        return 1;
-    }
-    if (dataType == DATA_FILE_TYPE_SHAPE_CIRCLE) {
-        LoadShapeResourceFromFile(value, modContext->GetShapeManager(), CIRCLE);
-        return 1;
-    }
-    if (dataType == DATA_FILE_TYPE_SHAPE_RECTANGLE) {
-        LoadShapeResourceFromFile(value, modContext->GetShapeManager(), RECTANGLE);
-        return 1;
-    }
-    if (dataType == DATA_FILE_TYPE_SHAPE_ROUNDED_RECTANGLE) {
-        LoadShapeResourceFromFile(value, modContext->GetShapeManager(), ROUNDED_RECTANGLE);
-        return 1;
-    }
-    if (dataType == DATA_FILE_TYPE_DECORATOR_FILL) {
-        LoadBiomeDecoratorResourceFromFile(value, modContext->GetBiomeDecoratorRegistry(),
-                                           FILL);
-        return 1;
-    }
-    if (dataType == DATA_FILE_TYPE_DECORATOR_MINERAL) {
-        LoadBiomeDecoratorResourceFromFile(value, modContext->GetBiomeDecoratorRegistry(),
-                                           MINERAL);
-        return 1;
-    }
-    if (dataType == DATA_FILE_TYPE_DECORATOR_SURFACE) {
-        LoadBiomeDecoratorResourceFromFile(value, modContext->GetBiomeDecoratorRegistry(),
-                                           SURFACE);
-        return 1;
-    }
-    if (dataType == DATA_FILE_TYPE_FIXED_COLOR) {
-        LoadFixedColorResourceFromFile(value, graphicsContext->GetFixedColorManager());
-        return 1;
-    }
-    if (dataType == DATA_FILE_TYPE_LIGHT_MASK) {
-        LoadLightMaskResourceFromFile(value, graphicsContext->GetLightMaskManager());
-        return 1;
-    }
-    if (dataType == DATA_FILE_TYPE_LIGHT_SOURCE) {
-        LoadLightSourceResourceFromFile(value, graphicsContext->GetLightSourceManager());
-        return 1;
-    }
-    if (dataType == DATA_FILE_TYPE_RECIPE) {
-        LoadRecipeResourceFromFile(value, modContext->GetRecipeManager());
-        return 1;
-    }
-    if (dataType == DATA_FILE_TYPE_BIOME_STRUCTURE_CONDITION) {
-        LoadStructurePlacementConditionsResourceFromFile(
-            value, modContext->GetStructurePlacementConditionsRegistry(),
-            StructureConditionProcessorType::Biome);
-        return 1;
-    }
-    if (dataType == DATA_FILE_TYPE_HEIGHT_STRUCTURE_CONDITION) {
-        LoadStructurePlacementConditionsResourceFromFile(
-            value, modContext->GetStructurePlacementConditionsRegistry(),
-            StructureConditionProcessorType::Height);
-        return 1;
-    }
-    if (dataType == DATA_FILE_TYPE_HORIZONTAL_STRUCTURE_CONDITION) {
-        LoadStructurePlacementConditionsResourceFromFile(
-            value, modContext->GetStructurePlacementConditionsRegistry(),
-            StructureConditionProcessorType::HorizontalSpacing);
-        return 1;
-    }
-    if (dataType == DATA_FILE_TYPE_SURFACE_STRUCTURE_CONDITION) {
-        LoadStructurePlacementConditionsResourceFromFile(
-            value, modContext->GetStructurePlacementConditionsRegistry(),
-            StructureConditionProcessorType::Surface);
-        return 1;
-    }
-
-    return 0;
-}
-
-int glimmer::DataPack::LoadLanguageFiles(const std::vector<std::filesystem::path> &defaultLanguageFiles,
-                                         const std::vector<std::filesystem::path> &targetLanguageFiles,
-                                         const ModContext *modContext) const {
-    int total = 0;
-    const auto &filesToLoad = targetLanguageFiles.empty() ? defaultLanguageFiles : targetLanguageFiles;
-    for (const auto &file: filesToLoad) {
-        total += LoadStringResourceFromFile(file, modContext->GetStringManager());
-    }
-    return total;
-}
-
-glimmer::PackVerifyState glimmer::DataPack::VerifySignature(const bool findPublicKey, const bool findSignature,
-                                                            const std::vector<uint8_t> &publicKey,
-                                                            const std::vector<uint8_t> &signature,
-                                                            const std::vector<uint8_t> &allHashData) {
-    if (!findPublicKey || !findSignature) {
-        return VerifiedFailed;
-    }
-    if (crypto_ed25519_check(signature.data(), publicKey.data(),
-                             allHashData.data(), allHashData.size()) == 0) {
-        return VerifiedSuccess;
-    }
-    return VerifiedFailed;
-}
-
-
-bool glimmer::DataPack::ProcessSpecialFiles(const std::filesystem::path &path,
-                                            SpecialFileProcessingParams &params) const {
-    if (!params.enableSignVerify) {
-        return false;
-    }
-    if (!params.findPublicKey && path == params.publicPath) {
-        ProcessPublicKeyFile(path, params);
-        return true;
-    }
-    if (!params.findSignature && path == params.signPath) {
-        ProcessSignatureFile(path, params);
-        return true;
-    }
-    return false;
-}
-
 int glimmer::DataPack::ProcessFile(const std::filesystem::path &file, const AppContext *appContext,
-                                   SpecialFileProcessingParams &specialFileProcessingParams,
+                                   PackSignatureVerifier &signatureVerifier,
                                    std::vector<std::filesystem::path> &defaultLanguageFiles,
                                    std::vector<std::filesystem::path> &targetLanguageFiles,
                                    std::vector<uint8_t> &allHashData) const {
-    if (ProcessSpecialFiles(file, specialFileProcessingParams)) {
+    if (signatureVerifier.ProcessSpecialFiles(file)) {
         return 0;
     }
     auto fileNameOptional = virtualFileSystem_->GetFileOrFolderName(file);
@@ -762,45 +117,24 @@ int glimmer::DataPack::ProcessFile(const std::filesystem::path &file, const AppC
         return 0;
     }
     const std::vector<char> &fileBuffer = fileBufferOptional.value();
-    if (specialFileProcessingParams.enableSignVerify) {
-        ComputeFileHash(fileBuffer, allHashData);
-    }
+    signatureVerifier.ComputeAndAppendFileHash(fileBuffer, allHashData);
 
-    const auto dataTypeOptional = GetDataType(fileName);
+    const auto dataTypeOptional = LanguageFileProcessor::GetDataType(fileName);
     if (!dataTypeOptional.has_value()) {
         return 0;
     }
     const std::string content(fileBuffer.data(), fileBuffer.size());
     const auto &dataType = dataTypeOptional.value();
-    if (ProcessLanguageFile(file, dataType, fileName, defaultLanguageFiles, targetLanguageFiles, appContext)) {
+    if (LanguageFileProcessor::ProcessLanguageFile(file, dataType, fileName, defaultLanguageFiles,
+                                                   targetLanguageFiles, appContext)) {
         return 0;
     }
-    return LoadResourceByType(dataType, file.string(), content, appContext->GetModContext(),
-                              appContext->GetGraphicsContext());
-}
-
-bool glimmer::DataPack::ProcessLanguageFile(const std::filesystem::path &file, std::string_view dataType,
-                                            std::string_view fileName,
-                                            std::vector<std::filesystem::path> &defaultLanguageFiles,
-                                            std::vector<std::filesystem::path> &targetLanguageFiles,
-                                            const AppContext *appContext) {
-    if (dataType != DATA_FILE_TYPE_STRINGS) {
-        return false;
-    }
-    const auto langOptional = ExtractLanguageFromFileName(fileName);
-    if (!langOptional.has_value()) {
-        return true;
-    }
-    if (const auto &fileLang = langOptional.value(); fileLang == appContext->GetLanguage()) {
-        targetLanguageFiles.push_back(file);
-    } else if (fileLang == "default") {
-        defaultLanguageFiles.push_back(file);
-    }
-    return true;
+    return resourceFileLoader_.LoadResourceByType(dataType, file.string(), content,
+                                                  appContext->GetModContext(), appContext->GetGraphicsContext());
 }
 
 bool glimmer::DataPack::LoadPack(AppContext *appContext) {
-    packVerifyState_ = Unsigned;
+    packVerifyState_ = PackVerifyState::Unsigned;
     if (appContext == nullptr) {
         return false;
     }
@@ -823,28 +157,25 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) {
     }
     std::ranges::sort(files);
     std::vector<std::filesystem::path> defaultLanguageFiles;
-    std::vector<std::filesystem::path> targetLanguageFiles;;
+    std::vector<std::filesystem::path> targetLanguageFiles;
     std::vector<uint8_t> allHashData;
     SpecialFileProcessingParams specialFileProcessingParams{
         config->mods.enableSignVerify, rootPath_ / ".public", rootPath_ / ".sign", false, false,
         std::vector<uint8_t>(32), std::vector<uint8_t>(64)
     };
+    PackSignatureVerifier signatureVerifier(virtualFileSystem_, specialFileProcessingParams);
     for (const auto &file: files) {
-        total += ProcessFile(file, appContext,
-                             specialFileProcessingParams, defaultLanguageFiles,
+        total += ProcessFile(file, appContext, signatureVerifier, defaultLanguageFiles,
                              targetLanguageFiles, allHashData);
     }
 
-    total += LoadLanguageFiles(defaultLanguageFiles, targetLanguageFiles, modContext);
+    total += resourceFileLoader_.LoadLanguageFiles(defaultLanguageFiles, targetLanguageFiles, modContext);
 
     if (specialFileProcessingParams.enableSignVerify) {
-        packVerifyState_ = VerifySignature(specialFileProcessingParams.findPublicKey,
-                                           specialFileProcessingParams.findSignature,
-                                           specialFileProcessingParams.publicKey, specialFileProcessingParams.signature,
-                                           allHashData);
+        packVerifyState_ = signatureVerifier.Verify(allHashData);
     }
 
-    if (config->mods.loadOnlyVerified && packVerifyState_ != VerifiedSuccess) {
+    if (config->mods.loadOnlyVerified && packVerifyState_ != PackVerifyState::VerifiedSuccess) {
         return false;
     }
     return total != 0;

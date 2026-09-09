@@ -634,6 +634,7 @@ target_sources(GlimmerWorks
         core/inventory/ItemAbilityFactory.cpp
         core/inventory/ItemContainer.cpp
         core/inventory/ItemDurabilityModule.cpp
+        core/inventory/ItemFactory.cpp
         core/inventory/ItemLockModule.cpp
         core/inventory/ItemStackModule.cpp
         core/inventory/ItemTagModule.cpp
@@ -681,12 +682,15 @@ target_sources(GlimmerWorks
         core/mod/dataPack/DataPackManager.cpp
         core/mod/dataPack/DimensionRegistry.cpp
         core/mod/dataPack/FixedColorManager.cpp
+        core/mod/dataPack/LanguageFileProcessor.cpp
         core/mod/dataPack/LightMaskManager.cpp
         core/mod/dataPack/LightSourceManager.cpp
         core/mod/dataPack/MobRegistry.cpp
         core/mod/dataPack/PackDependence.cpp
+        core/mod/dataPack/PackSignatureVerifier.cpp
         core/mod/dataPack/RecipeGroup.cpp
         core/mod/dataPack/RecipeManager.cpp
+        core/mod/dataPack/ResourceFileLoader.cpp
         core/mod/dataPack/SpecialFileProcessingParams.cpp
         core/mod/dataPack/StringManager.cpp
         core/mod/dataPack/StructureRegistry.cpp
@@ -1073,6 +1077,7 @@ target_sources(GlimmerWorks
         core/inventory/ItemAbilityFactory.h
         core/inventory/ItemContainer.h
         core/inventory/ItemDurabilityModule.h
+        core/inventory/ItemFactory.h
         core/inventory/ItemLockModule.h
         core/inventory/ItemStackModule.h
         core/inventory/ItemTagModule.h
@@ -1122,12 +1127,15 @@ target_sources(GlimmerWorks
         core/mod/dataPack/DataPack.h
         core/mod/dataPack/DataPackManager.h
         core/mod/dataPack/FixedColorManager.h
+        core/mod/dataPack/LanguageFileProcessor.h
         core/mod/dataPack/LightMaskManager.h
         core/mod/dataPack/LightSourceManager.h
         core/mod/dataPack/MobRegistry.h
         core/mod/dataPack/PackDependence.h
+        core/mod/dataPack/PackSignatureVerifier.h
         core/mod/dataPack/RecipeGroup.h
         core/mod/dataPack/RecipeManager.h
+        core/mod/dataPack/ResourceFileLoader.h
         core/mod/dataPack/SpecialFileProcessingParams.h
         core/mod/dataPack/StringManager.h
         core/mod/dataPack/StructureRegistry.h

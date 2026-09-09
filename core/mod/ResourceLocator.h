@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -25,8 +25,12 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <utility>
+
 #include "Resource.h"
 #include "ResourceRef.h"
+#include "core/inventory/ItemFactory.h"
+#include "core/log/LogCat.h"
 #include "core/math/Color.h"
 #include "core/shape/ShapeManager.h"
 #include "dataPack/AbilityItemRegistry.h"
@@ -80,12 +84,43 @@ namespace glimmer {
         StringManager *stringManager_ = nullptr;
         BiomeDecoratorRegistry *biomeDecoratorRegistry_ = nullptr;
         DataPackManager *dataPackManager_ = nullptr;
+        ItemFactory itemFactory_;
+
+        /**
+         * FindRegistered
+         * 按注册表查找资源
+         * A template helper that performs the common null / type / access-permission checks
+         * shared by all registry-backed Find* methods, then delegates to the given lookup.
+         * 模板辅助方法，执行所有基于注册表的 Find* 方法共有的空值/类型/访问权限检查，再委托给给定查找逻辑。
+         * @param resourceRef resourceRef 资源引用
+         * @param expectedType expectedType 期望的资源类型
+         * @param lookup lookup 具体的查找逻辑
+         * @return The located resource, or nullptr on failure 定位到的资源，失败时返回nullptr
+         */
+        template<typename ResultT, typename Lookup>
+        [[nodiscard]] ResultT *FindRegistered(const ResourceRef *resourceRef, ResourceTypeMessage expectedType,
+                                              Lookup &&lookup) const {
+            if (resourceRef == nullptr) {
+                LogCat::w(std::source_location::current(), "resource_ref_is_null", "resourceRef == nullptr");
+                return nullptr;
+            }
+            if (resourceRef->GetResourceType() != expectedType || !ValidateAccessPermission(resourceRef)) {
+                LogCat::w(std::source_location::current(), "type_mismatch_or_access_denied",
+                          "Type mismatch or access permission denied: expected type = {}, actual type = {}",
+                          std::to_underlying(expectedType), std::to_underlying(resourceRef->GetResourceType()));
+                return nullptr;
+            }
+            return lookup();
+        }
+
+    public:
+        explicit ResourceLocator(AppContext *appContext);
 
         /**
         * ValidateAccessPermission
         * Verify whether the current resource reference has the permission to access the package where the target resource is located.
         * 校验当前资源引用是否有权限访问目标资源所在的包。
-         *
+        *
         * Check the package to which the resourceRef belongs (GetSelfPackageId())
         * 检查 resourceRef 所属包（GetSelfPackageId()）
         * Is access permitted to the target package (GetPackageId())?
@@ -95,9 +130,6 @@ namespace glimmer {
         * @return If access is permitted, return true; otherwise, return false. 若允许访问则返回 true，否则返回 false
         */
         [[nodiscard]] bool ValidateAccessPermission(const ResourceRef *resourceRef) const;
-
-    public:
-        explicit ResourceLocator(AppContext *appContext);
 
         /**
          * Load the texture and return an error placeholder if the loading fails.

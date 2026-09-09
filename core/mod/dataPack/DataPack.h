@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -25,45 +25,30 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <filesystem>
+#include <optional>
 #include <string>
+#include <vector>
 
-#include "BiomeDecoratorRegistry.h"
-#include "BiomeDecoratorType.h"
-#include "BiomeRegistry.h"
-#include "DimensionRegistry.h"
-#include "FixedColorManager.h"
-#include "LightMaskManager.h"
-#include "LightSourceManager.h"
-#include "MobRegistry.h"
-#include "RecipeManager.h"
-#include "StructureRegistry.h"
-#include "core/context/GraphicsContext.h"
+#include "ResourceFileLoader.h"
 #include "core/mod/PackManifest.h"
-#include "core/vfs/VirtualFileSystem.h"
-#include "core/contributor/ContributorManager.h"
-#include "core/inventory/InitialInventoryManager.h"
-#include "core/lootTable/LootTableRegistry.h"
 #include "core/mod/PackVerifyState.h"
 #include "core/mod/TomlTemplateExpander.h"
-#include "core/shape/ShapeManager.h"
-#include "core/shape/ShapeType.h"
 #include "core/utils/IUniqueAble.h"
-#include "core/world/structure/StructureConditionProcessorType.h"
-#include "core/world/structure/StructureGeneratorType.h"
+#include "core/vfs/VirtualFileSystem.h"
 #include "toml11/spec.hpp"
-#include "toml11/types.hpp"
 
 namespace glimmer {
-    struct SpecialFileProcessingParams;
-    class TileResourceManager;
-    class StringManager;
-    class ModContext;
     class AppContext;
-    class ComposableItemRegistry;
-    class AbilityItemRegistry;
-    class MaterialItemRegistry;
-    class StructurePlacementConditionsRegistry;
+    class PackSignatureVerifier;
 
+    /**
+     * DataPack
+     * 数据包
+     * Orchestrates manifest loading, file traversal and signature verification, delegating
+     * resource loading to ResourceFileLoader.
+     * 编排清单加载、文件遍历与签名校验，并将资源加载委托给 ResourceFileLoader。
+     */
     class DataPack : public IUniqueAble {
         std::filesystem::path rootPath_;
         DataPackManifest manifest_;
@@ -71,127 +56,36 @@ namespace glimmer {
         const VirtualFileSystem *virtualFileSystem_;
         const TomlTemplateExpander *tomlTemplateExpander_;
         PackVerifyState packVerifyState_ = PackVerifyState::Unsigned;
-
-
-        /**
-         * GetActuallyTemplateSearchPath
-         * 获取真实的模板搜索路径。
-         * @param path toml路径
-         * @return The expanded path 展开后的路径
-         */
-        [[nodiscard]] std::vector<std::filesystem::path> GetActuallyTemplateSearchPath(
-            const std::filesystem::path &path) const;
+        ResourceFileLoader resourceFileLoader_;
 
         /**
-         * GetDataType
-         * 获取数据类型
-         * @param fileName fileName 文件名
-         * @return
+         * ReadFileContent
+         * 读取文件内容
+         * @param stream stream 输入流
+         * @return The file bytes, or nullopt on failure 文件字节内容，失败时返回nullopt
          */
-        static std::optional<std::string> GetDataType(const std::string &fileName);
-
-
-        [[nodiscard]] int LoadStringResourceFromFile(const std::filesystem::path &path,
-                                                     StringManager *stringManager) const;
-
-        void LoadLootTableResourceFromFile(const toml::value &value,
-                                           LootTableRegistry *lootTableRegistry) const;
-
-
-        void LoadInitialInventoryResourceFromFile(const toml::value &value,
-                                                  InitialInventoryManager *lootTableManager) const;
-
-
-        void LoadStructureResourceFromFile(const toml::value &value,
-                                           StructureRegistry *structureRegistry,
-                                           StructureGeneratorType structureGeneratorType) const;
-
-        void LoadTileResourceFromFile(const toml::value &value, TileResourceManager *tileManager) const;
-
-        void LoadBiomeResourceFromFile(const toml::value &value, BiomeRegistry *biomeRegistry) const;
-
-        void LoadDimensionResourceFromFile(const toml::value &value, DimensionRegistry *dimensionRegistry) const;
-
-        void LoadComposableItemResourceFromFile(const toml::value &value,
-                                                ComposableItemRegistry *composableItemRegistry) const;
-
-        void LoadAbilityItemResourceFromFile(const toml::value &value, AbilityItemRegistry *abilityItemRegistry) const;
-
-        void LoadMaterialItemResourceResourceFromFile(const toml::value &value,
-                                                      MaterialItemRegistry *materialItemRegistry) const;
-
-        void LoadContributorResourceFromFile(const toml::value &value,
-                                             ContributorManager *contributorManager) const;
-
-        void LoadMobResourceFromFile(const toml::value &value, MobRegistry *mobRegistry) const;
-
-        void LoadShapeResourceFromFile(const toml::value &value, ShapeManager *shapeManager,
-                                       ShapeType type) const;
-
-        void LoadFixedColorResourceFromFile(const toml::value &value,
-                                            FixedColorManager *fixedColorManager) const;
-
-        void LoadLightMaskResourceFromFile(const toml::value &value,
-                                           LightMaskManager *lightMaskManager) const;
-
-        void LoadLightSourceResourceFromFile(const toml::value &value,
-                                             LightSourceManager *lightSourceManager) const;
-
-        void LoadBiomeDecoratorResourceFromFile(const toml::value &value,
-                                                BiomeDecoratorRegistry *biomeDecoratorRegistry,
-                                                BiomeDecoratorType type) const;
-
-        void LoadStructurePlacementConditionsResourceFromFile(const toml::value &value,
-                                                              StructurePlacementConditionsRegistry *
-                                                              structurePlacementConditionsRegistry,
-                                                              StructureConditionProcessorType processorType) const;
-
-        void LoadRecipeResourceFromFile(const toml::value &value, RecipeManager *recipeManager) const;
-
-        [[nodiscard]]
-        static std::optional<std::string> ExtractLanguageFromFileName(std::string_view fileName);
-
-        bool ProcessPublicKeyFile(const std::filesystem::path &path, SpecialFileProcessingParams &params) const;
-
-        bool ProcessSignatureFile(const std::filesystem::path &path, SpecialFileProcessingParams &params) const;
-
         static std::optional<std::vector<char> > ReadFileContent(std::istream *stream);
 
-        static void ComputeFileHash(const std::vector<char> &fileBuffer, std::vector<uint8_t> &allHashData);
-
-        int LoadResourceByType(const std::string &dataType, const std::string &file,
-                               const std::string &content, const ModContext *modContext,
-                               const GraphicsContext *graphicsContext) const;
-
-        int LoadLanguageFiles(const std::vector<std::filesystem::path> &defaultLanguageFiles,
-                              const std::vector<std::filesystem::path> &targetLanguageFiles,
-                              const ModContext *modContext) const;
-
-        static PackVerifyState VerifySignature(bool findPublicKey, bool findSignature,
-                                               const std::vector<uint8_t> &publicKey,
-                                               const std::vector<uint8_t> &signature,
-                                               const std::vector<uint8_t> &allHashData);
-
-        bool ProcessSpecialFiles(const std::filesystem::path &path,
-                                 SpecialFileProcessingParams &params) const;
-
+        /**
+         * ProcessFile
+         * 处理单个文件
+         * @param file file 文件路径
+         * @param appContext appContext 应用上下文
+         * @param signatureVerifier signatureVerifier 签名校验器
+         * @param defaultLanguageFiles defaultLanguageFiles 默认语言文件列表
+         * @param targetLanguageFiles targetLanguageFiles 目标语言文件列表
+         * @param allHashData allHashData 全部哈希数据
+         * @return The number of loaded resources 加载的资源数量
+         */
         int ProcessFile(const std::filesystem::path &file, const AppContext *appContext,
-                        SpecialFileProcessingParams &specialFileProcessingParams,
+                        PackSignatureVerifier &signatureVerifier,
                         std::vector<std::filesystem::path> &defaultLanguageFiles,
                         std::vector<std::filesystem::path> &targetLanguageFiles,
                         std::vector<uint8_t> &allHashData) const;
 
-        static bool ProcessLanguageFile(const std::filesystem::path &file,
-                                        std::string_view dataType,
-                                        std::string_view fileName,
-                                        std::vector<std::filesystem::path> &defaultLanguageFiles,
-                                        std::vector<std::filesystem::path> &targetLanguageFiles,
-                                        const AppContext *appContext);
-
     public:
         explicit DataPack(std::filesystem::path path, const VirtualFileSystem *virtualFileSystem,
-                          const TomlTemplateExpander *tomlTemplateExpander,
-                          const toml::spec &tomlVersion);
+                          const TomlTemplateExpander *tomlTemplateExpander, const toml::spec &tomlVersion);
 
         [[nodiscard]] uint64_t GetUniqueId() const override;
 

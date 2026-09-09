@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -28,15 +28,9 @@
 
 #include "core/context/AppContext.h"
 #include "core/context/CacheContext.h"
-#include "core/inventory/AbilityItem.h"
-#include "core/inventory/ComposableItem.h"
-#include "core/inventory/MaterialItem.h"
-#include "core/inventory/TileItem.h"
+#include "core/inventory/Item.h"
 #include "core/log/LogCat.h"
-#include "core/utils/RandomUtils.h"
 #include "core/utils/StringUtils.h"
-#include "core/world/WorldContext.h"
-#include "core/world/TileInstancePool.h"
 #include "dataPack/StringManager.h"
 #include "resourcePack/cache/AudioCache.h"
 #include "resourcePack/cache/ColorCache.h"
@@ -59,7 +53,8 @@ bool glimmer::ResourceLocator::ValidateAccessPermission(const ResourceRef *resou
         StringUtils::StringToUint64(resourceRef->GetPackageId()));
 }
 
-glimmer::ResourceLocator::ResourceLocator(AppContext *appContext) : appContext_(appContext) {
+glimmer::ResourceLocator::ResourceLocator(AppContext *appContext) : appContext_(appContext), itemFactory_(appContext,
+                                                                        this) {
     if (appContext_ == nullptr) {
         LogCat::e(std::source_location::current(), "app_context_is_null", "appContext_ == nullptr");
         return;
@@ -334,11 +329,9 @@ std::unique_ptr<glimmer::Color> glimmer::ResourceLocator::FindColor(const Resour
     return nullptr;
 }
 
-
 glimmer::IShapeResource *glimmer::ResourceLocator::FindShape(const ResourceRef *resourceRef) const {
     if (resourceRef == nullptr) {
         LogCat::e(std::source_location::current(), "resource_ref_is_null", "resourceRef == nullptr");
-
         return nullptr;
     }
     if (resourceRef->GetResourceType() != RESOURCE_SHAPE) {
@@ -356,85 +349,58 @@ glimmer::IShapeResource *glimmer::ResourceLocator::FindShape(const ResourceRef *
 }
 
 glimmer::IBiomeDecoratorResource *glimmer::ResourceLocator::FindBiomeDecorator(const ResourceRef *resourceRef) const {
-    if (resourceRef == nullptr) {
-        LogCat::w(std::source_location::current(), "resource_ref_is_null", "resourceRef == nullptr");
-        return nullptr;
-    }
-    if (resourceRef->GetResourceType() != RESOURCE_BIOME_DECORATOR || !ValidateAccessPermission(resourceRef)) {
-        LogCat::w(std::source_location::current(), "type_mismatch_biome_decorator",
-                  "Type mismatch: expected RESOURCE_BIOME_DECORATOR ({}), got {} or access permission denied",
-                  std::to_underlying(RESOURCE_BIOME_DECORATOR), std::to_underlying(resourceRef->GetResourceType()));
-        return nullptr;
-    }
-    if (biomeDecoratorRegistry_ == nullptr) {
-        LogCat::w(std::source_location::current(), "biome_decorator_resources_manager_is_null",
-                  "biomeDecoratorResourcesManager_ == nullptr");
-        return nullptr;
-    }
-    return biomeDecoratorRegistry_->Find(
-        resourceRef->GetPackageId(), resourceRef->GetResourceKey());
+    return FindRegistered<IBiomeDecoratorResource>(resourceRef, RESOURCE_BIOME_DECORATOR,
+                                                   [this, resourceRef]() -> IBiomeDecoratorResource * {
+                                                       if (biomeDecoratorRegistry_ == nullptr) {
+                                                           LogCat::w(std::source_location::current(),
+                                                                     "biome_decorator_resources_manager_is_null",
+                                                                     "biomeDecoratorResourcesManager_ == nullptr");
+                                                           return nullptr;
+                                                       }
+                                                       return biomeDecoratorRegistry_->Find(
+                                                           resourceRef->GetPackageId(), resourceRef->GetResourceKey());
+                                                   });
 }
 
 glimmer::StringResource *glimmer::ResourceLocator::FindString(const ResourceRef *resourceRef) const {
-    if (resourceRef == nullptr) {
-        LogCat::w(std::source_location::current(), "resource_ref_is_null", "resourceRef == nullptr");
-        return nullptr;
-    }
-    if (resourceRef->GetResourceType() != RESOURCE_STRING) {
-        LogCat::w(std::source_location::current(), "type_mismatch_string",
-                  "Type mismatch: expected RESOURCE_STRING ({}), got {} Perhaps this is an optional string resource.",
-                  std::to_underlying(RESOURCE_STRING), std::to_underlying(resourceRef->GetResourceType()));
-        return nullptr;
-    }
-    if (!ValidateAccessPermission(resourceRef)) {
-        LogCat::w(std::source_location::current(), "access_permission_denied", "Access permission denied.");
-        return nullptr;
-    }
-    if (stringManager_ == nullptr) {
-        LogCat::w(std::source_location::current(), "string_manager_is_null", "stringManager_ == nullptr");
-        return nullptr;
-    }
-    return stringManager_->Find(resourceRef->GetPackageId(),
-                                resourceRef->GetResourceKey());
+    return FindRegistered<StringResource>(resourceRef, RESOURCE_STRING, [this, resourceRef]() -> StringResource * {
+        if (stringManager_ == nullptr) {
+            LogCat::w(std::source_location::current(), "string_manager_is_null", "stringManager_ == nullptr");
+            return nullptr;
+        }
+        return stringManager_->Find(resourceRef->GetPackageId(),
+                                    resourceRef->GetResourceKey());
+    });
 }
 
 glimmer::LightSourceResource *glimmer::ResourceLocator::FindLightSource(const ResourceRef *resourceRef) const {
-    if (resourceRef == nullptr) {
-        LogCat::w(std::source_location::current(), "resource_ref_is_null", "resourceRef == nullptr");
-        return nullptr;
-    }
-    if (resourceRef->GetResourceType() != RESOURCE_LIGHT_SOURCE || !ValidateAccessPermission(resourceRef)) {
-        LogCat::w(std::source_location::current(), "type_mismatch_light_source",
-                  "Type mismatch: expected RESOURCE_LIGHT_SOURCE ({}), got {} or access permission denied",
-                  std::to_underlying(RESOURCE_LIGHT_SOURCE), std::to_underlying(resourceRef->GetResourceType()));
-        return nullptr;
-    }
-    if (lightSourceManager_ == nullptr) {
-        LogCat::w(std::source_location::current(), "light_source_manager_is_null", "lightSourceManager_ == nullptr");
-        return nullptr;
-    }
-    return lightSourceManager_->FindLightSourceResource(
-        resourceRef->GetPackageId(),
-        resourceRef->GetResourceKey());
+    return FindRegistered<LightSourceResource>(resourceRef, RESOURCE_LIGHT_SOURCE,
+                                               [this, resourceRef]() -> LightSourceResource * {
+                                                   if (lightSourceManager_ == nullptr) {
+                                                       LogCat::w(std::source_location::current(),
+                                                                 "light_source_manager_is_null",
+                                                                 "lightSourceManager_ == nullptr");
+                                                       return nullptr;
+                                                   }
+                                                   return lightSourceManager_->FindLightSourceResource(
+                                                       resourceRef->GetPackageId(),
+                                                       resourceRef->GetResourceKey());
+                                               });
 }
 
 glimmer::LightMaskResource *glimmer::ResourceLocator::FindLightMask(const ResourceRef *resourceRef) const {
-    if (resourceRef == nullptr) {
-        LogCat::w(std::source_location::current(), "resource_ref_is_null", "resourceRef == nullptr");
-        return nullptr;
-    }
-    if (resourceRef->GetResourceType() != RESOURCE_LIGHT_MASK || !ValidateAccessPermission(resourceRef)) {
-        LogCat::w(std::source_location::current(), "type_mismatch_light_mask",
-                  "Type mismatch: expected RESOURCE_LIGHT_MASK ({}), got {} or access permission denied",
-                  std::to_underlying(RESOURCE_LIGHT_MASK), std::to_underlying(resourceRef->GetResourceType()));
-        return nullptr;
-    }
-    if (lightMaskManager_ == nullptr) {
-        LogCat::w(std::source_location::current(), "light_mask_manager_is_null", "lightMaskManager_ == nullptr");
-        return nullptr;
-    }
-    return lightMaskManager_->FindLightMaskResource(resourceRef->GetPackageId(),
-                                                    resourceRef->GetResourceKey());
+    return FindRegistered<LightMaskResource>(resourceRef, RESOURCE_LIGHT_MASK,
+                                             [this, resourceRef]() -> LightMaskResource * {
+                                                 if (lightMaskManager_ == nullptr) {
+                                                     LogCat::w(std::source_location::current(),
+                                                               "light_mask_manager_is_null",
+                                                               "lightMaskManager_ == nullptr");
+                                                     return nullptr;
+                                                 }
+                                                 return lightMaskManager_->FindLightMaskResource(
+                                                     resourceRef->GetPackageId(),
+                                                     resourceRef->GetResourceKey());
+                                             });
 }
 
 glimmer::TileResource *glimmer::ResourceLocator::FindTileFallback(const ResourceRef *resourceRef,
@@ -460,205 +426,86 @@ glimmer::TileResource *glimmer::ResourceLocator::FindTileFallback(const Resource
 }
 
 glimmer::TileResource *glimmer::ResourceLocator::FindTileRaw(const ResourceRef *resourceRef) const {
-    if (resourceRef == nullptr) {
-        LogCat::w(std::source_location::current(), "resource_ref_is_null", "resourceRef == nullptr");
-        return nullptr;
-    }
-    if (resourceRef->GetResourceType() != RESOURCE_TILE || !ValidateAccessPermission(resourceRef)) {
-        LogCat::w(std::source_location::current(), "type_mismatch_tile",
-                  "Type mismatch: expected RESOURCE_TILE ({}), got {} or access permission denied",
-                  std::to_underlying(RESOURCE_TILE), std::to_underlying(resourceRef->GetResourceType()));
-        return nullptr;
-    }
-    if (tileResourceManager_ == nullptr) {
-        LogCat::w(std::source_location::current(), "tile_resource_is_null", "tileResource == nullptr");
-        return nullptr;
-    }
-    return tileResourceManager_->FindTileRaw(resourceRef->GetPackageId(),
-                                             resourceRef->GetResourceKey());
+    return FindRegistered<TileResource>(resourceRef, RESOURCE_TILE, [this, resourceRef]() -> TileResource * {
+        if (tileResourceManager_ == nullptr) {
+            LogCat::w(std::source_location::current(), "tile_resource_is_null", "tileResource == nullptr");
+            return nullptr;
+        }
+        return tileResourceManager_->FindTileRaw(resourceRef->GetPackageId(),
+                                                 resourceRef->GetResourceKey());
+    });
 }
 
 glimmer::MobResource *glimmer::ResourceLocator::FindMob(const ResourceRef *resourceRef) const {
-    if (resourceRef == nullptr) {
-        LogCat::w(std::source_location::current(), "resource_ref_is_null", "resourceRef == nullptr");
-        return nullptr;
-    }
-    if (resourceRef->GetResourceType() != RESOURCE_MOB || !ValidateAccessPermission(resourceRef)) {
-        LogCat::w(std::source_location::current(), "type_mismatch_mob",
-                  "Type mismatch: expected RESOURCE_MOB ({}), got {} or access permission denied",
-                  std::to_underlying(RESOURCE_MOB), std::to_underlying(resourceRef->GetResourceType()));
-        return nullptr;
-    }
-    if (mobRegistry_ == nullptr) {
-        LogCat::w(std::source_location::current(), "mob_manager_is_null", "mobManager == nullptr");
-        return nullptr;
-    }
-    return mobRegistry_->Find(resourceRef->GetPackageId(),
-                              resourceRef->GetResourceKey());
+    return FindRegistered<MobResource>(resourceRef, RESOURCE_MOB, [this, resourceRef]() -> MobResource * {
+        if (mobRegistry_ == nullptr) {
+            LogCat::w(std::source_location::current(), "mob_manager_is_null", "mobManager == nullptr");
+            return nullptr;
+        }
+        return mobRegistry_->Find(resourceRef->GetPackageId(),
+                                  resourceRef->GetResourceKey());
+    });
 }
 
 glimmer::ComposableItemResource *glimmer::ResourceLocator::FindComposableItem(
     const ResourceRef *resourceRef) const {
-    if (resourceRef == nullptr) {
-        LogCat::w(std::source_location::current(), "resource_ref_is_null", "resourceRef == nullptr");
-        return nullptr;
-    }
-    if (resourceRef->GetResourceType() != RESOURCE_COMPOSABLE_ITEM || !
-        ValidateAccessPermission(resourceRef)) {
-        LogCat::w(std::source_location::current(), "type_mismatch_composable_item",
-                  "Type mismatch: expected RESOURCE_COMPOSABLE_ITEM ({}), got {} or access permission denied",
-                  std::to_underlying(RESOURCE_COMPOSABLE_ITEM), std::to_underlying(resourceRef->GetResourceType()));
-        return nullptr;
-    }
-    if (composableItemRegistry_ == nullptr) {
-        LogCat::w(std::source_location::current(), "item_manager_is_null", "itemManager == nullptr");
-        return nullptr;
-    }
-    return composableItemRegistry_->Find(resourceRef->GetPackageId(),
-                                         resourceRef->GetResourceKey());
+    return FindRegistered<ComposableItemResource>(resourceRef, RESOURCE_COMPOSABLE_ITEM,
+                                                  [this, resourceRef]() -> ComposableItemResource * {
+                                                      if (composableItemRegistry_ == nullptr) {
+                                                          LogCat::w(std::source_location::current(),
+                                                                    "item_manager_is_null", "itemManager == nullptr");
+                                                          return nullptr;
+                                                      }
+                                                      return composableItemRegistry_->Find(resourceRef->GetPackageId(),
+                                                          resourceRef->GetResourceKey());
+                                                  });
 }
 
 glimmer::AbilityItemResource *glimmer::ResourceLocator::FindAbilityItem(
     const ResourceRef *resourceRef) const {
-    if (resourceRef == nullptr) {
-        LogCat::w(std::source_location::current(), "resource_ref_is_null", "resourceRef == nullptr");
-        return nullptr;
-    }
-    if (resourceRef->GetResourceType() != RESOURCE_ABILITY_ITEM || !ValidateAccessPermission(resourceRef)) {
-        LogCat::w(std::source_location::current(), "type_mismatch_ability_item",
-                  "Type mismatch: expected RESOURCE_ABILITY_ITEM ({}), got {} or access permission denied",
-                  std::to_underlying(RESOURCE_ABILITY_ITEM), std::to_underlying(resourceRef->GetResourceType()));
-        return nullptr;
-    }
-    if (abilityItemRegistry_ == nullptr) {
-        LogCat::w(std::source_location::current(), "item_manager_is_null", "itemManager == nullptr");
-        return nullptr;
-    }
-    return abilityItemRegistry_->Find(resourceRef->GetPackageId(),
-                                      resourceRef->GetResourceKey());
+    return FindRegistered<AbilityItemResource>(resourceRef, RESOURCE_ABILITY_ITEM,
+                                               [this, resourceRef]() -> AbilityItemResource * {
+                                                   if (abilityItemRegistry_ == nullptr) {
+                                                       LogCat::w(std::source_location::current(),
+                                                                 "item_manager_is_null", "itemManager == nullptr");
+                                                       return nullptr;
+                                                   }
+                                                   return abilityItemRegistry_->Find(resourceRef->GetPackageId(),
+                                                       resourceRef->GetResourceKey());
+                                               });
 }
 
 glimmer::MaterialItemResource *glimmer::ResourceLocator::FindMaterialItem(const ResourceRef *resourceRef) const {
-    if (resourceRef == nullptr) {
-        LogCat::w(std::source_location::current(), "resource_ref_is_null", "resourceRef == nullptr");
-        return nullptr;
-    }
-    if (resourceRef->GetResourceType() != RESOURCE_MATERIAL_ITEM || !ValidateAccessPermission(resourceRef)) {
-        LogCat::w(std::source_location::current(), "type_mismatch_material_item",
-                  "Type mismatch: expected RESOURCE_MATERIAL_ITEM ({}), got {} or access permission denied",
-                  std::to_underlying(RESOURCE_MATERIAL_ITEM), std::to_underlying(resourceRef->GetResourceType()));
-        return nullptr;
-    }
-    if (materialItemRegistry_ == nullptr) {
-        LogCat::w(std::source_location::current(), "item_manager_is_null", "itemManager == nullptr");
-        return nullptr;
-    }
-    return materialItemRegistry_->Find(resourceRef->GetPackageId(),
-                                       resourceRef->GetResourceKey());
+    return FindRegistered<MaterialItemResource>(resourceRef, RESOURCE_MATERIAL_ITEM,
+                                                [this, resourceRef]() -> MaterialItemResource * {
+                                                    if (materialItemRegistry_ == nullptr) {
+                                                        LogCat::w(std::source_location::current(),
+                                                                  "item_manager_is_null", "itemManager == nullptr");
+                                                        return nullptr;
+                                                    }
+                                                    return materialItemRegistry_->Find(resourceRef->GetPackageId(),
+                                                        resourceRef->GetResourceKey());
+                                                });
 }
 
 glimmer::LootResource *glimmer::ResourceLocator::FindLoot(const ResourceRef *resourceRef) const {
-    if (resourceRef == nullptr) {
-        LogCat::w(std::source_location::current(), "resource_is_null", "Resource == nullptr");
-        return nullptr;
-    }
-    if (resourceRef->GetResourceType() != RESOURCE_LOOT_TABLE || !ValidateAccessPermission(resourceRef)) {
-        LogCat::w(std::source_location::current(), "type_mismatch_loot_table",
-                  "Type mismatch: expected RESOURCE_LOOT_TABLE ({}), got {} or access permission denied",
-                  std::to_underlying(RESOURCE_LOOT_TABLE), std::to_underlying(resourceRef->GetResourceType()));
-        return nullptr;
-    }
-    if (lootTableRegistry_ == nullptr) {
-        LogCat::w(std::source_location::current(), "loot_table_manager_is_null", "lootTableManager_ == nullptr");
-        return nullptr;
-    }
-    return lootTableRegistry_->Find(resourceRef->GetPackageId(),
-                                    resourceRef->GetResourceKey());
+    return FindRegistered<LootResource>(resourceRef, RESOURCE_LOOT_TABLE, [this, resourceRef]() -> LootResource * {
+        if (lootTableRegistry_ == nullptr) {
+            LogCat::w(std::source_location::current(), "loot_table_manager_is_null", "lootTableManager_ == nullptr");
+            return nullptr;
+        }
+        return lootTableRegistry_->Find(resourceRef->GetPackageId(),
+                                        resourceRef->GetResourceKey());
+    });
 }
 
 std::unique_ptr<glimmer::Item> glimmer::ResourceLocator::FindItem(WorldContext *worldContext,
                                                                   const ItemMessage &itemMessage) const {
-    if (worldContext == nullptr) {
-        LogCat::w(std::source_location::current(), "world_context_is_null", "worldContext == nullptr");
-        return nullptr;
-    }
-    ResourceRef resourceRef;
-    resourceRef.ReadResourceRefMessage(itemMessage.itemresourceref());
-    const ResourceTypeMessage resourceType = resourceRef.GetResourceType();
-    if (resourceType == RESOURCE_NONE || !ValidateAccessPermission(&resourceRef)) {
-        LogCat::w(std::source_location::current(), "item_resource_invalid_type",
-                  "Invalid resource type (RESOURCE_NONE) or access permission denied for item resource: type={}",
-                  std::to_underlying(resourceType));
-        return nullptr;
-    }
-    std::unique_ptr<Item> result = nullptr;
-    if (resourceType == RESOURCE_TILE) {
-        auto tileInstancePool = worldContext->GetTileInstancePool();
-        if (tileInstancePool == nullptr) {
-            LogCat::w(std::source_location::current(), "tile_instance_pool_is_null", "tileInstancePool == nullptr");
-            return nullptr;
-        }
-        auto tileResource = FindTileRaw(&resourceRef);
-        if (tileResource != nullptr) {
-            result = std::make_unique<TileItem>(
-                tileInstancePool->CreateTile(appContext_, tileResource, resourceRef.GetFingerprint()), resourceRef);
-        }
-    }
-    if (resourceType == RESOURCE_COMPOSABLE_ITEM) {
-        auto composableItemResource = FindComposableItem(&resourceRef);
-        if (composableItemResource != nullptr) {
-            result = std::move(
-                ComposableItem::FromItemResource(worldContext, composableItemResource, resourceRef));
-        }
-    }
-
-    if (resourceType == RESOURCE_ABILITY_ITEM) {
-        auto abilityItemResource = FindAbilityItem(&resourceRef);
-        if (abilityItemResource != nullptr) {
-            result = std::move(AbilityItem::FromItemResource(appContext_, abilityItemResource, resourceRef));
-        }
-    }
-    if (resourceType == RESOURCE_MATERIAL_ITEM) {
-        auto materialItemResource = FindMaterialItem(&resourceRef);
-        if (materialItemResource != nullptr) {
-            result = std::move(MaterialItem::FromItemResource(appContext_, materialItemResource, resourceRef));
-        }
-    }
-    if (result == nullptr) {
-        LogCat::w(std::source_location::current(), "item_creation_failed",
-                  "Failed to create item from resource: packageId={}, resourceKey={}, type={}",
-                  resourceRef.GetPackageId(), resourceRef.GetResourceKey(), std::to_underlying(resourceType));
-        return nullptr;
-    }
-    result->ReadItemMessage(worldContext, itemMessage);
-    return result;
+    return itemFactory_.CreateItem(worldContext, itemMessage);
 }
 
 std::unique_ptr<glimmer::Item> glimmer::ResourceLocator::FindItem(WorldContext *worldContext,
                                                                   const ItemMessageResource &itemMessageResource)
 const {
-    if (worldContext == nullptr) {
-        LogCat::w(std::source_location::current(), "world_context_is_null", "worldContext == nullptr");
-        return nullptr;
-    }
-    auto itemMessage = ItemMessage();
-    itemMessage.set_locked(itemMessageResource.locked);
-    itemMessage.set_amount(itemMessageResource.amount);
-    itemMessageResource.item.WriteResourceRefMessage(*itemMessage.mutable_itemresourceref());
-    for (auto &abilityItemResource: itemMessageResource.abilityItemRef) {
-        ItemMessage *abilityItem = itemMessage.add_abilityitemref();
-        abilityItemResource.item.WriteResourceRefMessage(*abilityItem->mutable_itemresourceref());
-        abilityItem->set_locked(abilityItemResource.locked);
-        abilityItem->set_amount(abilityItemResource.amount);
-    }
-    if (itemMessageResource.durabilityStrategyType < 0) {
-        itemMessage.set_durabilitystrategy(
-            static_cast<AllocStrategyTypeMessage>(RandomUtils::Random(0, 3))
-        );
-    } else {
-        itemMessage.set_durabilitystrategy(
-            static_cast<AllocStrategyTypeMessage>(itemMessageResource.durabilityStrategyType)
-        );
-    }
-    return FindItem(worldContext, itemMessage);
+    return itemFactory_.CreateItem(worldContext, itemMessageResource);
 }

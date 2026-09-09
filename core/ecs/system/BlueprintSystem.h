@@ -31,6 +31,7 @@
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/ecs/component/TileLayerComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
+#include "core/world/PreloadColors.h"
 
 namespace glimmer {
     class AppContext;

@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,50 +24,38 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include <fstream>
+#pragma once
+#include "IAppContextInitTask.h"
 
-#include "core/app/App.h"
-#include "core/log/LogCat.h"
-#include "core/context/AppContext.h"
-#include "core/tick/TickWorker.h"
-#include "fmt/args.h"
+namespace glimmer {
+    /**
+     * InitSDLTask
+     * SDL 初始化任务
+     * Initializes the SDL / SDL_mixer / SDL_ttf subsystems and owns their shutdown.
+     * 初始化 SDL / SDL_mixer / SDL_ttf 子系统，并负责其关闭。
+     */
+    class InitSDLTask : public IAppContextInitTask {
+        inline static bool initSDLSuccess_ = false;
+        inline static bool initSDLMixSuccess_ = false;
+        inline static bool initSDLTtfSuccess_ = false;
 
-#ifdef __ANDROID__
-#include <jni.h>
-#endif
+        /**
+         * QuitSubsystems
+         * 关闭已初始化的子系统（幂等）
+         */
+        static void QuitSubsystems();
 
-using namespace glimmer;
-namespace fs = std::filesystem;
+    public:
+        bool Run(ISystemBucket *systemBucket) override;
 
-int main() {
-    SDL_SetAppMetadata(
-        PROJECT_NAME.c_str(), GAME_VERSION_STRING,
-        APP_PACKNAME);
-    AppContext appContext;
-    if (!appContext.InitSystem()) {
-        LogCat::e(std::source_location::current(), "app_context_init_failed", "appContext Init failed");
-        return EXIT_FAILURE;
-    }
-    App app(&appContext);
-    app.Run();
-    return EXIT_SUCCESS;
+        void Rollback(ISystemBucket *systemBucket) override;
+
+        std::string GetTaskName() override;
+
+        /**
+         * Shutdown
+         * 正常退出时关闭已初始化的 SDL 子系统（幂等）
+         */
+        static void Shutdown();
+    };
 }
-
-
-#ifdef __ANDROID__
-extern "C" {
-int SDL_main(int argc, char *argv[]) {
-    return main();
-}
-
-//Set whether to allow the Activity to be recreated
-//设置是否允许Activity被重新创建
-JNIEXPORT jboolean
-
-JNICALL
-Java_org_libsdl_app_SDLActivity_nativeAllowRecreateActivity(JNIEnv *, jclass) {
-    return JNI_TRUE;
-}
-}
-
-#endif

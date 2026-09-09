@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -32,22 +32,9 @@
 
 namespace glimmer {
     class App : public ITickListener {
-        bool initSDLSuccess_ = false;
-        bool initSDLMixSuccess_ = false;
-        bool initSDLTtfSuccess_ = false;
-        uint64_t lastTime_ = 0;
         AppContext *appContext_ = nullptr;
         TickWorker *tickWorker_ = nullptr;
-        MIX_Mixer *mixer_ = nullptr;
         SceneManager *sceneManager_ = nullptr;
-
-        bool InitSDL();
-
-        [[nodiscard]] bool InitWindowAndRenderer() const;
-
-        [[nodiscard]] bool InitFont() const;
-
-        bool InitAudio();
 
         static bool CheckWindowSizeChange(WindowContext *windowContext, const int &windowWidth,
                                           const int &windowHeight);
@@ -70,8 +57,6 @@ namespace glimmer {
         ~App() override;
 
         explicit App(AppContext *appContext);
-
-        bool Init();
 
         void Run() const;
     };

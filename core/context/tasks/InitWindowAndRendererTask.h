@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,50 +24,29 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include <fstream>
+#pragma once
+#include "IAppContextInitTask.h"
 
-#include "core/app/App.h"
-#include "core/log/LogCat.h"
-#include "core/context/AppContext.h"
-#include "core/tick/TickWorker.h"
-#include "fmt/args.h"
+namespace glimmer {
+    /**
+     * InitWindowAndRendererTask
+     * 窗口与渲染器初始化任务
+     * Creates the window / GPU device, initializes the shader compiler and RmlUi context.
+     * 创建窗口/GPU设备，初始化着色器编译器与 RmlUi 上下文。
+     */
+    class InitWindowAndRendererTask : public IAppContextInitTask {
+    public:
+        bool Run(ISystemBucket *systemBucket) override;
 
-#ifdef __ANDROID__
-#include <jni.h>
-#endif
+        void Rollback(ISystemBucket *systemBucket) override;
 
-using namespace glimmer;
-namespace fs = std::filesystem;
+        std::string GetTaskName() override;
 
-int main() {
-    SDL_SetAppMetadata(
-        PROJECT_NAME.c_str(), GAME_VERSION_STRING,
-        APP_PACKNAME);
-    AppContext appContext;
-    if (!appContext.InitSystem()) {
-        LogCat::e(std::source_location::current(), "app_context_init_failed", "appContext Init failed");
-        return EXIT_FAILURE;
-    }
-    App app(&appContext);
-    app.Run();
-    return EXIT_SUCCESS;
+        /**
+         * Shutdown
+         * 正常退出时释放着色器编译器与窗口/设备（幂等）
+         * @param systemBucket systemBucket 系统桶
+         */
+        static void Shutdown(ISystemBucket *systemBucket);
+    };
 }
-
-
-#ifdef __ANDROID__
-extern "C" {
-int SDL_main(int argc, char *argv[]) {
-    return main();
-}
-
-//Set whether to allow the Activity to be recreated
-//设置是否允许Activity被重新创建
-JNIEXPORT jboolean
-
-JNICALL
-Java_org_libsdl_app_SDLActivity_nativeAllowRecreateActivity(JNIEnv *, jclass) {
-    return JNI_TRUE;
-}
-}
-
-#endif

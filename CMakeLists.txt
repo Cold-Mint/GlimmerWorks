@@ -429,17 +429,21 @@ target_sources(GlimmerWorks
         core/app/AppEventLoop.cpp
         core/context/tasks/IAppContextInitTask.cpp
         core/context/SystemBucket.cpp
+        core/context/tasks/InitAudioTask.cpp
         core/context/tasks/InitConfigTask.cpp
         core/context/tasks/InitConsoleContextTask.cpp
         core/context/tasks/InitCoreContextsTask.cpp
         core/context/tasks/InitDataPackTask.cpp
+        core/context/tasks/InitFontTask.cpp
         core/context/tasks/InitLangsTask.cpp
         core/context/tasks/InitModContextTask.cpp
         core/context/tasks/InitResourceLocatorTask.cpp
         core/context/tasks/InitResourcePackTask.cpp
         core/context/tasks/InitRmlContextTask.cpp
+        core/context/tasks/InitSDLTask.cpp
         core/context/tasks/InitSavesManagerTask.cpp
         core/context/tasks/InitVFSTask.cpp
+        core/context/tasks/InitWindowAndRendererTask.cpp
         core/mod/dataPack/AbilityItemRegistry.cpp
         core/mod/dataPack/MaterialItemRegistry.cpp
         core/mod/dataPack/ComposableItemRegistry.cpp
@@ -862,17 +866,21 @@ target_sources(GlimmerWorks
         core/mod/resourcePack/BaseResourceCache.h
         core/mod/resourcePack/BaseManager.h
         core/context/tasks/IAppContextInitTask.h
+        core/context/tasks/InitAudioTask.h
         core/context/tasks/InitConfigTask.h
         core/context/tasks/InitConsoleContextTask.h
         core/context/tasks/InitCoreContextsTask.h
         core/context/tasks/InitDataPackTask.h
+        core/context/tasks/InitFontTask.h
         core/context/tasks/InitVFSTask.h
         core/context/tasks/InitLangsTask.h
         core/context/tasks/InitModContextTask.h
         core/context/tasks/InitResourceLocatorTask.h
         core/context/tasks/InitResourcePackTask.h
         core/context/tasks/InitRmlContextTask.h
+        core/context/tasks/InitSDLTask.h
         core/context/tasks/InitSavesManagerTask.h
+        core/context/tasks/InitWindowAndRendererTask.h
         core/context/SystemBucket.h
         core/mod/dataPack/ComposableItemRegistry.h
         core/mod/dataPack/MaterialItemRegistry.h

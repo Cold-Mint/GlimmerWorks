@@ -47,6 +47,10 @@
 #include "tasks/InitSavesManagerTask.h"
 #include "tasks/InitValidateGameTask.h"
 #include "tasks/InitVFSTask.h"
+#include "tasks/InitSDLTask.h"
+#include "tasks/InitWindowAndRendererTask.h"
+#include "tasks/InitFontTask.h"
+#include "tasks/InitAudioTask.h"
 
 #ifdef __ANDROID__
 #include <jni.h>
@@ -74,6 +78,10 @@ glimmer::AppContext::AppContext() {
     RegisterInitTask(std::make_unique<InitResourcePackTask>(this));
     RegisterInitTask(std::make_unique<InitResourceLocatorTask>(this));
     RegisterInitTask(std::make_unique<InitValidateGameTask>());
+    RegisterInitTask(std::make_unique<InitSDLTask>());
+    RegisterInitTask(std::make_unique<InitWindowAndRendererTask>());
+    RegisterInitTask(std::make_unique<InitFontTask>());
+    RegisterInitTask(std::make_unique<InitAudioTask>());
 }
 
 glimmer::AppContext::~AppContext() {
@@ -91,6 +99,8 @@ glimmer::AppContext::~AppContext() {
     if (TickWorker *tickWorker = systemBucket_->GetTickWorker(); tickWorker != nullptr) {
         tickWorker->Stop();
     }
+    InitWindowAndRendererTask::Shutdown(systemBucket_.get());
+    InitSDLTask::Shutdown();
 }
 
 bool glimmer::AppContext::IsRunning() const {

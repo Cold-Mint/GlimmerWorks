@@ -773,19 +773,27 @@ target_sources(GlimmerWorks
         core/world/Dimension.cpp
         core/world/WorldContext.cpp
         core/world/generator/BiomeDecorator.cpp
+        core/world/generator/BiomeDecoratorApplier.cpp
         core/world/generator/BiomeDecoratorManager.cpp
+        core/world/generator/BiomeMatcher.cpp
         core/world/generator/Chunk.cpp
         core/world/generator/ChunkGenerator.cpp
         core/world/generator/ChunkLoader.cpp
         core/world/generator/ChunkPhysicsHelper.cpp
+        core/world/generator/ChunkTilePopulator.cpp
+        core/world/generator/ClimateSampler.cpp
         core/world/generator/FillBiomeDecorator.cpp
         core/world/generator/MineralBiomeDecorator.cpp
+        core/world/generator/StructurePlacer.cpp
         core/world/generator/SurfaceBiomeDecorator.cpp
+        core/world/generator/TerrainGenerator.cpp
+        core/world/generator/TerrainMath.cpp
         core/world/generator/TerrainResult.cpp
         core/world/generator/TerrainResultType.cpp
         core/world/generator/TerrainTileResult.cpp
         core/world/generator/TileLayerType.cpp
         core/world/generator/TilePhysicsType.cpp
+        core/world/generator/TileRefResolver.cpp
         core/world/generator/TileSnapshot.cpp
         core/world/structure/BiomeStructureConditionProcessor.cpp
         core/world/structure/HeightStructureConditionProcessor.cpp
@@ -1210,19 +1218,27 @@ target_sources(GlimmerWorks
         core/world/TileResourceData.h
         core/world/WorldContext.h
         core/world/generator/BiomeDecorator.h
+        core/world/generator/BiomeDecoratorApplier.h
         core/world/generator/BiomeDecoratorManager.h
+        core/world/generator/BiomeMatcher.h
         core/world/generator/Chunk.h
         core/world/generator/ChunkGenerator.h
         core/world/generator/ChunkLoader.h
         core/world/generator/ChunkPhysicsHelper.h
+        core/world/generator/ChunkTilePopulator.h
+        core/world/generator/ClimateSampler.h
         core/world/generator/FillBiomeDecorator.h
         core/world/generator/MineralBiomeDecorator.h
+        core/world/generator/StructurePlacer.h
         core/world/generator/SurfaceBiomeDecorator.h
+        core/world/generator/TerrainGenerator.h
+        core/world/generator/TerrainMath.h
         core/world/generator/TerrainResult.h
         core/world/generator/TerrainResultType.h
         core/world/generator/TerrainTileResult.h
         core/world/generator/TileLayerType.h
         core/world/generator/TilePhysicsType.h
+        core/world/generator/TileRefResolver.h
         core/world/generator/TileSnapshot.h
         core/world/structure/BiomeStructureConditionProcessor.h
         core/world/structure/HeightStructureConditionProcessor.h

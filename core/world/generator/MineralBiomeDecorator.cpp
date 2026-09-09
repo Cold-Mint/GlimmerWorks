@@ -28,7 +28,7 @@
 
 #include <FastNoiseLite.h>
 
-#include "ChunkGenerator.h"
+#include "TerrainMath.h"
 
 
 void glimmer::MineralBiomeDecorator::DecorationImpl(WorldContext *worldContext, TerrainResult *terrainResult,
@@ -50,7 +50,7 @@ void glimmer::MineralBiomeDecorator::DecorationImpl(WorldContext *worldContext, 
         for (int localY = 0; localY < CHUNK_SIZE; localY++) {
             const int idx = localY * CHUNK_SIZE + localX;
             const TileVector2D absolutePosition = terrainResult->GetPosition() + TileVector2D(localX, localY);
-            float elevation = ChunkGenerator::GetElevation(absolutePosition.y);
+            float elevation = TerrainMath::GetElevation(absolutePosition.y);
             if (elevation > decoratorResource->maxSpawnElevation || elevation < decoratorResource->minSpawnElevation) {
                 continue;
             }

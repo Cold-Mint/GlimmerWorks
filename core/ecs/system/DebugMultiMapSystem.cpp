@@ -32,6 +32,7 @@
 #include "core/context/AppContext.h"
 #include "core/utils/ColorUtils.h"
 #include "core/world/WorldContext.h"
+#include "core/world/generator/TerrainMath.h"
 
 glimmer::DebugMultiMapSystem::DebugMultiMapSystem(WorldContext *worldContext) : GameSystem(worldContext) {
     WatchComponent(COMPONENT_CAMERA);
@@ -55,7 +56,7 @@ glimmer::Color glimmer::DebugMultiMapSystem::GetTileDebugColor(const TileVector2
         return color;
     }
     auto debugColor = appContext->GetGraphicsContext()->GetPreloadColors()->debugColor;
-    float elevation = ChunkGenerator::GetElevation(tile.x);
+    float elevation = TerrainMath::GetElevation(tile.x);
     ChunkGenerator *chunkGenerator = worldContext->GetChunkGenerator();
     std::vector<Color> activeColors;
 

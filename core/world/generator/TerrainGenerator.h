@@ -26,58 +26,38 @@
  */
 #pragma once
 #include <memory>
-#include <string>
 
-#include "Chunk.h"
-#include "StructurePlacer.h"
-#include "TerrainGenerator.h"
-#include "TileRefResolver.h"
+#include "BiomeMatcher.h"
+#include "ClimateSampler.h"
+#include "TerrainResult.h"
+#include "TerrainTileResult.h"
+#include "core/math/TileVector2D.h"
 
 namespace glimmer {
-    class WorldContext;
     struct DimensionResource;
     class BiomeRegistry;
-    class TerrainResult;
 
     /**
-     * ChunkGenerator
-     * 区块生成器（门面）
-     * Orchestrates the chunk generation pipeline by composing the terrain generator,
-     * structure placer, decorator applier and tile populators.
-     * 通过组合地形生成器、结构放置器、装饰器应用器与瓦片填充器，编排区块生成流水线。
+     * TerrainGenerator
+     * 地形生成器
+     * Turns noise into terrain types by composing a climate sampler and a biome matcher.
+     * 通过组合气候采样器与生物群系匹配器，将噪声转化为地形类型。
      */
-    class ChunkGenerator {
-        WorldContext *worldContext_;
-        std::string dimensionId_;
-        TerrainGenerator terrainGenerator_;
-        StructurePlacer structurePlacer_;
-        TerrainTileRefs tileRefs_;
-
-        /**
-         * ResolveDimensionId
-         * 解析维度Id
-         * @param dimensionResource dimensionResource 维度资源
-         * @return The dimension id (packId:resourceId) 维度Id（packId:resourceId）
-         */
-        static std::string ResolveDimensionId(const DimensionResource *dimensionResource);
-
-        /**
-         * ResolveBiomeRegistry
-         * 解析生物群系注册表
-         * @param worldContext worldContext 世界上下文
-         * @return The biome registry, or nullptr if unavailable 生物群系注册表，不可用时返回nullptr
-         */
-        static BiomeRegistry *ResolveBiomeRegistry(WorldContext *worldContext);
+    class TerrainGenerator {
+        ClimateSampler climateSampler_;
+        BiomeMatcher biomeMatcher_;
 
     public:
         /**
-         * ChunkGenerator
-         * 区块生成器构造
-         * @param worldContext worldContext 世界上下文
+         * TerrainGenerator
+         * 地形生成器构造
          * @param worldSeed worldSeed 世界种子
          * @param dimensionResource dimensionResource 维度资源
+         * @param dimensionId dimensionId 当前维度Id（packId:resourceId）
+         * @param biomeRegistry biomeRegistry 生物群系注册表
          */
-        ChunkGenerator(WorldContext *worldContext, int worldSeed, const DimensionResource *dimensionResource);
+        TerrainGenerator(int worldSeed, const DimensionResource *dimensionResource,
+                         std::string dimensionId, BiomeRegistry *biomeRegistry);
 
         /**
          * GenerateTerrain
@@ -88,19 +68,13 @@ namespace glimmer {
         std::unique_ptr<TerrainResult> GenerateTerrain(const TileVector2D &position);
 
         /**
-         * GenerateStructure
-         * 生成结构
-         * @param position position 区块位置
+         * GetTerrainTileResult
+         * 获取瓦片地形结果
+         * @param world world 世界坐标
+         * @param firstTileTerrainY firstTileTerrainY 地表第一格Y坐标
+         * @return The terrain classification for the given coordinate 该坐标的地形分类
          */
-        void GenerateStructure(const TileVector2D &position) const;
-
-        /**
-         * GenerateChunkAt
-         * 在指定位置生成区块
-         * @param position position 区块位置
-         * @return The generated chunk, or nullptr on failure 生成的区块，失败时返回nullptr
-         */
-        std::unique_ptr<Chunk> GenerateChunkAt(const TileVector2D &position) const;
+        TerrainTileResult GetTerrainTileResult(const TileVector2D &world, int firstTileTerrainY);
 
         /**
          * GetFirstTileTerrainY
@@ -109,13 +83,6 @@ namespace glimmer {
          * @return The terrain surface Y for the given column 该列的地表Y坐标
          */
         int GetFirstTileTerrainY(int x);
-
-        /**
-         * GetDimensionId
-         * 获取该生成器所属维度的Id
-         * @return The dimension id 维度Id
-         */
-        [[nodiscard]] const std::string &GetDimensionId() const;
 
         /**
          * GetHumidity

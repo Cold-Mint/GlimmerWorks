@@ -28,6 +28,8 @@
 
 #include "core/math/CoordinateTransformer.h"
 #include "core/world/WorldContext.h"
+#include "core/world/generator/Chunk.h"
+#include "core/world/generator/TerrainMath.h"
 #include "fmt/xchar.h"
 
 glimmer::LocateCommand::LocateCommand(AppContext *appContext) : Command(appContext) {
@@ -45,14 +47,14 @@ std::optional<glimmer::TileVector2D> glimmer::LocateCommand::SearchBiomes(int ti
             continue;
         }
         chunkCenter.y = y;
-        float elevation = ChunkGenerator::GetElevation(y);
+        float elevation = TerrainMath::GetElevation(y);
         const BiomeResource *nowBiomeResource = biomeRegistry->FindBestBiome(
             chunkGenerator->GetDimensionId(), chunkGenerator->GetHumidity(chunkCenter),
             chunkGenerator->GetTemperature(chunkCenter, elevation),
             chunkGenerator->GetWeirdness(chunkCenter),
             chunkGenerator->GetErosion(chunkCenter),
             elevation,
-            ChunkGenerator::GetSurfaceProximity(firstTileTerrainY, y));
+            TerrainMath::GetSurfaceProximity(firstTileTerrainY, y));
         if (nowBiomeResource == nullptr) {
             continue;
         }

@@ -713,10 +713,6 @@ namespace glimmer {
         // weightedStrength, pingPongStrength, cellularDistanceFunction, cellularReturnType, cellularJitter, seedOffset.
         //@genNextLine(continentNoise|大陆噪声配置)
         NoiseConfig continentNoise{3, 0.001F, 0, 3, 2.0F, 0.5F, 0.0F, 2.0F, 1, 1, 1.0F, 0};
-        //@genNextLine(mountainNoise|山脉噪声配置)
-        NoiseConfig mountainNoise{3, 0.01F, 0, 3, 2.0F, 0.5F, 0.0F, 2.0F, 1, 1, 1.0F, 1};
-        //@genNextLine(hillsNoise|丘陵噪声配置)
-        NoiseConfig hillsNoise{3, 0.02F, 0, 3, 2.0F, 0.5F, 0.0F, 2.0F, 1, 1, 1.0F, 2};
         //@genNextLine(humidityNoise|湿度噪声配置)
         NoiseConfig humidityNoise{3, 0.005F, 0, 3, 2.0F, 0.5F, 0.0F, 2.0F, 1, 1, 1.0F, 100};
         //@genNextLine(temperatureNoise|温度噪声配置)

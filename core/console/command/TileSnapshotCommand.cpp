@@ -33,6 +33,7 @@
 #include "core/math/CoordinateTransformer.h"
 #include "core/world/WorldContext.h"
 #include "core/world/ChunkManager.h"
+#include "core/world/generator/Chunk.h"
 #include "core/context/AppContext.h"
 #include "fmt/xchar.h"
 

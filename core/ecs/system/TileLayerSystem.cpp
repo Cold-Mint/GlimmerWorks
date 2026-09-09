@@ -35,6 +35,7 @@
 #include "core/world/ChunkManager.h"
 #include "core/utils/ColorUtils.h"
 #include "core/world/Tile.h"
+#include "core/world/generator/Chunk.h"
 #include "core/world/generator/TileLayerType.h"
 
 void glimmer::TileLayerSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) {

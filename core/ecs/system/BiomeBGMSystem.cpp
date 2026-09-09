@@ -31,6 +31,7 @@
 #include "core/mod/resourcePack/AudioResourceResult.h"
 #include "core/world/WorldContext.h"
 #include "core/world/TerrainManager.h"
+#include "core/world/generator/Chunk.h"
 
 void glimmer::BiomeBGMSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) {
     const EntityShortCut *entityShortCut = GetEntityShortCut();

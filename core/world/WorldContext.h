@@ -29,7 +29,9 @@
 #include <memory>
 
 #include "LightBuffer.h"
+#include "core/saves/PlayerManifest.h"
 #include "core/saves/Saves.h"
+#include "core/tick/ITickListener.h"
 #include "box2d/id.h"
 #include "core/ecs/EcsTypes.h"
 #include "core/ecs/EntityManager.h"

@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -26,543 +26,61 @@
  */
 #include "ChunkGenerator.h"
 
-#include "TerrainResultType.h"
-#include "BiomeDecorator.h"
+#include "BiomeDecoratorApplier.h"
+#include "Chunk.h"
+#include "ChunkTilePopulator.h"
+#include "core/context/AppContext.h"
+#include "core/context/ModContext.h"
 #include "core/log/LogCat.h"
 #include "core/mod/Resource.h"
-#include "core/mod/ResourceRef.h"
-#include "core/mod/dataPack/BiomeDecoratorType.h"
-#include "core/world/WorldContext.h"
+#include "core/mod/ResourceLocator.h"
+#include "BiomeDecoratorManager.h"
+#include "core/mod/dataPack/BiomeRegistry.h"
 #include "core/world/TerrainManager.h"
+#include "core/world/WorldContext.h"
 
-
-glimmer::ChunkGenerator::ChunkGenerator(WorldContext *worldContext, const int worldSeed,
-                                        const DimensionResource *dimensionResource) : worldContext_(worldContext) {
+std::string glimmer::ChunkGenerator::ResolveDimensionId(const DimensionResource *dimensionResource) {
     const DimensionResource defaultDimension;
     if (dimensionResource == nullptr) {
         dimensionResource = &defaultDimension;
     }
-    dimensionId_ = Resource::GenerateId(dimensionResource->packId, dimensionResource->resourceId);
-    // 1. 大型陆地板块/大陆噪声 (极低频) - 控制大岛屿和大陆的生成
-    continentHeightMapNoise_ = std::make_unique<FastNoiseLite>();
-    ApplyNoiseConfig(continentHeightMapNoise_.get(), dimensionResource->continentNoise, worldSeed);
-    // 2. 高原/山脉噪声 (低频) - 控制地形的宏观起伏
-    mountainHeightMapNoise_ = std::make_unique<FastNoiseLite>();
-    ApplyNoiseConfig(mountainHeightMapNoise_.get(), dimensionResource->mountainNoise, worldSeed);
-    // 3. 丘陵/细节噪声 (中频) - 控制平原和丘陵的细节
-    hillsNoiseHeightMapNoise_ = std::make_unique<FastNoiseLite>();
-    ApplyNoiseConfig(hillsNoiseHeightMapNoise_.get(), dimensionResource->hillsNoise, worldSeed);
-    humidityMapNoise_ = std::make_unique<FastNoiseLite>();
-    ApplyNoiseConfig(humidityMapNoise_.get(), dimensionResource->humidityNoise, worldSeed);
-    temperatureMapNoise_ = std::make_unique<FastNoiseLite>();
-    ApplyNoiseConfig(temperatureMapNoise_.get(), dimensionResource->temperatureNoise, worldSeed);
-    weirdnessMapNoise_ = std::make_unique<FastNoiseLite>();
-    ApplyNoiseConfig(weirdnessMapNoise_.get(), dimensionResource->weirdnessNoise, worldSeed);
-    erosionMapNoise_ = std::make_unique<FastNoiseLite>();
-    ApplyNoiseConfig(erosionMapNoise_.get(), dimensionResource->erosionNoise, worldSeed);
-    waterTileRef_ = ResourceRef();
-    waterTileRef_.SetResourceType(RESOURCE_TILE);
-    waterTileRef_.SetPackageId(RESOURCE_REF_CORE);
-    waterTileRef_.SetSelfPackageId(RESOURCE_REF_CORE);
-    waterTileRef_.SetResourceKey(TILE_ID_WATER);
-    voidWallTileRef_ = ResourceRef();
-    voidWallTileRef_.SetResourceType(RESOURCE_TILE);
-    voidWallTileRef_.SetPackageId(RESOURCE_REF_CORE);
-    voidWallTileRef_.SetSelfPackageId(RESOURCE_REF_CORE);
-    voidWallTileRef_.SetResourceKey(TILE_ID_VOID_WALL);
-    bedrockTileRef_ = ResourceRef();
-    bedrockTileRef_.SetResourceType(RESOURCE_TILE);
-    bedrockTileRef_.SetPackageId(RESOURCE_REF_CORE);
-    bedrockTileRef_.SetSelfPackageId(RESOURCE_REF_CORE);
-    bedrockTileRef_.SetResourceKey(TILE_ID_BEDROCK);
+    return Resource::GenerateId(dimensionResource->packId, dimensionResource->resourceId);
 }
 
-void glimmer::ChunkGenerator::ApplyNoiseConfig(FastNoiseLite *noise, const NoiseConfig &config, const int baseSeed) {
-    if (noise == nullptr) {
-        return;
+glimmer::BiomeRegistry *glimmer::ChunkGenerator::ResolveBiomeRegistry(WorldContext *worldContext) {
+    if (worldContext == nullptr) {
+        return nullptr;
     }
-    noise->SetSeed(baseSeed + config.seedOffset);
-    noise->SetFrequency(config.frequency);
-    noise->SetNoiseType(static_cast<FastNoiseLite::NoiseType>(config.noiseType));
-    noise->SetFractalType(static_cast<FastNoiseLite::FractalType>(config.fractalType));
-    noise->SetFractalOctaves(config.octaves);
-    noise->SetFractalLacunarity(config.lacunarity);
-    noise->SetFractalGain(config.gain);
-    noise->SetFractalWeightedStrength(config.weightedStrength);
-    noise->SetFractalPingPongStrength(config.pingPongStrength);
-    noise->SetCellularDistanceFunction(
-        static_cast<FastNoiseLite::CellularDistanceFunction>(config.cellularDistanceFunction));
-    noise->SetCellularReturnType(static_cast<FastNoiseLite::CellularReturnType>(config.cellularReturnType));
-    noise->SetCellularJitter(config.cellularJitter);
-}
-
-int glimmer::ChunkGenerator::GetFirstTileTerrainY(int x) {
-    const auto it = heightMap_.find(x);
-    if (it != heightMap_.end()) {
-        return it->second;
+    const AppContext *appContext = worldContext->GetAppContext();
+    if (appContext == nullptr) {
+        return nullptr;
     }
-    const auto sampleX = static_cast<float>(x);
-    const float continentNoise = (continentHeightMapNoise_->GetNoise(sampleX, 0.0F) + 1.0F) * 0.5F;
-    int height = GROUND_START_HEIGHT + CONTINENT_MAX_HEIGHT * continentNoise;
-    // 缓存并返回高度
-    heightMap_[x] = height;
-
-    return height;
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
+        return nullptr;
+    }
+    return modContext->GetBiomeRegistry();
 }
 
-const std::string &glimmer::ChunkGenerator::GetDimensionId() const {
-    return dimensionId_;
+glimmer::ChunkGenerator::ChunkGenerator(WorldContext *worldContext, const int worldSeed,
+                                        const DimensionResource *dimensionResource)
+    : worldContext_(worldContext),
+      dimensionId_(ResolveDimensionId(dimensionResource)),
+      terrainGenerator_(worldSeed, dimensionResource, dimensionId_, ResolveBiomeRegistry(worldContext)),
+      structurePlacer_(worldContext),
+      tileRefs_(TerrainTileRefs::Create()) {
 }
-
 
 std::unique_ptr<glimmer::TerrainResult> glimmer::ChunkGenerator::GenerateTerrain(const TileVector2D &position) {
-    auto terrainResult = std::make_unique<TerrainResult>();
-    terrainResult->SetPosition(position);
-    for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
-        const int firstTileTerrainY = GetFirstTileTerrainY(position.x + localX);
-        for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
-            terrainResult->SetTerrainTileResult(localX, localY,
-                                                GetTerrainTileResult(position + TileVector2D(localX, localY),
-                                                                     firstTileTerrainY));
-        }
-    }
-    const int leftWorldX = position.x - 1;
-
-    for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
-        const int worldY = position.y + localY;
-        const int firstTileTerrainY = GetFirstTileTerrainY(leftWorldX);
-
-        terrainResult->SetLeftTerrainTileResult(
-            localY,
-            GetTerrainTileResult({leftWorldX, worldY}, firstTileTerrainY)
-        );
-    }
-
-
-    const int rightWorldX = position.x + CHUNK_SIZE;
-
-    for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
-        const int worldY = position.y + localY;
-        const int firstTileTerrainY = GetFirstTileTerrainY(rightWorldX);
-
-        terrainResult->SetRightTerrainTileResult(
-            localY,
-            GetTerrainTileResult({rightWorldX, worldY}, firstTileTerrainY)
-        );
-    }
-
-
-    const int downWorldY = position.y - 1;
-
-    for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
-        const int worldX = position.x + localX;
-        const int firstTileTerrainY = GetFirstTileTerrainY(worldX);
-
-        terrainResult->SetDownTerrainTileResult(
-            localX,
-            GetTerrainTileResult({worldX, downWorldY}, firstTileTerrainY)
-        );
-    }
-
-    const int upWorldY = position.y + CHUNK_SIZE;
-
-    for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
-        const int worldX = position.x + localX;
-        const int firstTileTerrainY = GetFirstTileTerrainY(worldX);
-
-        terrainResult->SetUpTerrainTileResult(
-            localX,
-            GetTerrainTileResult({worldX, upWorldY}, firstTileTerrainY)
-        );
-    }
-
-    return terrainResult;
+    return terrainGenerator_.GenerateTerrain(position);
 }
 
 void glimmer::ChunkGenerator::GenerateStructure(const TileVector2D &position) const {
-    const AppContext *appContext = worldContext_->GetAppContext();
-    const auto &all = appContext->GetModContext()->GetStructureRegistry()->GetAll();
-    if (all.empty()) {
-        return;
-    }
-
-    TerrainManager *terrainManager = worldContext_->GetTerrainManager();
-    if (terrainManager == nullptr) {
-        return;
-    }
-
-    TerrainResult *terrainResult = terrainManager->GetOrCreateTerrainData(position);
-
-    for (auto structureResource: all) {
-        std::optional<std::bitset<CHUNK_AREA> > candidatePoints = MatchStructureConditions(
-            appContext, terrainResult, structureResource);
-
-        if (!candidatePoints.has_value()) {
-            continue;
-        }
-
-        PlaceStructureAtCandidatePoints(appContext, terrainManager, position,
-                                        candidatePoints.value(), structureResource);
-    }
-}
-
-void glimmer::ChunkGenerator::PlaceStructureTiles(TerrainManager *terrainManager, const StructureInfo &structureInfo,
-                                                  const TileVector2D &globalOrigin) {
-    const int baseX = globalOrigin.x;
-    const int baseY = globalOrigin.y;
-
-    TerrainResult *currentTerrain = nullptr;
-    TileVector2D currentChunk = {INT_MIN, INT_MIN};
-    for (auto &[tileLayerType, tileMap]: structureInfo.GetStructureMap()) {
-        for (auto &[coord,tileResource]: tileMap) {
-            const int worldX = baseX + coord.x;
-            const int worldY = baseY + coord.y;
-            const int chunkX = worldX & ~CHUNK_MASK;
-            const int chunkY = worldY & ~CHUNK_MASK;
-            const int relativeX = worldX & CHUNK_MASK;
-            const int relativeY = worldY & CHUNK_MASK;
-            TileVector2D chunkCoord{chunkX, chunkY};
-            if (chunkCoord != currentChunk) {
-                currentChunk = chunkCoord;
-                currentTerrain = terrainManager->GetOrCreateTerrainData(chunkCoord);
-            }
-            if (currentTerrain == nullptr) {
-                continue;
-            }
-            const int index = relativeY << CHUNK_SHIFT | relativeX;
-            currentTerrain->SetTerrainTileStructure(index, &tileResource);
-        }
-    }
-}
-
-std::optional<std::bitset<CHUNK_AREA> > glimmer::ChunkGenerator::MatchStructureConditions(const AppContext *appContext,
-    TerrainResult *terrainResult, const IStructureResource *structureResource) {
-    const size_t totalConditions = structureResource->condition.size();
-    if (totalConditions == 0) {
-        return std::nullopt;
-    }
-
-    std::string resId = Resource::GenerateId(*structureResource);
-    std::bitset<CHUNK_AREA> totalBitset;
-    bool hasAnyConditionMatched = false;
-    const int endIndex = static_cast<int>(totalConditions) - 1;
-    ModContext *modContext = appContext->
-            GetModContext();
-    if (modContext == nullptr) {
-        return std::nullopt;
-    }
-    StructurePlacementConditionsProcessorManager *structurePlacementConditionsProcessorManager = modContext->
-            GetStructurePlacementConditionsProcessorManager();
-    if (structurePlacementConditionsProcessorManager == nullptr) {
-        return std::nullopt;
-    }
-    StructurePlacementConditionsRegistry *structurePlacementConditionsRegistry = modContext->
-            GetStructurePlacementConditionsRegistry();
-    if (structurePlacementConditionsRegistry == nullptr) {
-        return std::nullopt;
-    }
-
-    for (int i = 0; i <= endIndex; ++i) {
-        auto &conditionRef = structureResource->condition[i];
-        IStructurePlacementConditionsResource *structurePlacementConditionsResource =
-                structurePlacementConditionsRegistry->Find(conditionRef.GetPackageId(),
-                                                           conditionRef.GetResourceKey());
-        if (structurePlacementConditionsResource == nullptr) {
-            continue;
-        }
-        const auto processorType = static_cast<StructureConditionProcessorType>(structurePlacementConditionsResource->
-            processorId);
-        IStructureConditionProcessor *structureConditionProcessor = structurePlacementConditionsProcessorManager->
-                FindConditionProcessors(processorType);
-        if (structureConditionProcessor == nullptr) {
-            continue;
-        }
-
-        std::bitset<CHUNK_AREA> bitset = structureConditionProcessor->Match(
-            terrainResult, structurePlacementConditionsResource);
-
-        if (bitset.none()) {
-            return std::nullopt;
-        }
-
-        if (!hasAnyConditionMatched) {
-            totalBitset = bitset;
-            hasAnyConditionMatched = true;
-        } else {
-            totalBitset &= bitset;
-        }
-
-        if (totalBitset.none()) {
-            return std::nullopt;
-        }
-    }
-
-    if (!hasAnyConditionMatched || totalBitset.none()) {
-        return std::nullopt;
-    }
-
-    return totalBitset;
-}
-
-
-int glimmer::ChunkGenerator::PlaceStructureAtCandidatePoints(const AppContext *appContext,
-                                                             TerrainManager *terrainManager,
-                                                             const TileVector2D &position,
-                                                             const std::bitset<CHUNK_AREA> &candidatePoints,
-                                                             IStructureResource *structureResource) const {
-    int markedCount = 0;
-    StructureGeneratorManager *structureGeneratorManager = appContext->GetModContext()->GetStructureGeneratorManager();
-
-    for (int i = 0; i < CHUNK_AREA; ++i) {
-        if (!candidatePoints.test(i)) {
-            continue;
-        }
-
-        const int localX = i & CHUNK_MASK;
-        const int localY = i >> CHUNK_SHIFT;
-        TileVector2D structuralOrigin{localX, localY};
-        TileVector2D globalOrigin = position + structuralOrigin;
-        std::optional<StructureInfo> structureInfoOptional = structureGeneratorManager->
-                Generate(worldContext_, globalOrigin, structureResource);
-
-        if (structureInfoOptional.has_value()) {
-            PlaceStructureTiles(terrainManager, structureInfoOptional.value(), globalOrigin);
-        }
-
-        ++markedCount;
-    }
-
-
-    return markedCount;
-}
-
-TerrainTileResult glimmer::ChunkGenerator::GetTerrainTileResult(const TileVector2D world, const int firstTileTerrainY) {
-    TerrainTileResult terrainTileResult;
-    const float elevation = GetElevation(world.y);
-    const auto humidity = GetHumidity(world);
-    const auto temperature = GetTemperature(world, elevation);
-    const auto weirdness = GetWeirdness(world);
-    const auto erosion = GetErosion(world);
-    const auto surfaceProximity = GetSurfaceProximity(firstTileTerrainY, world.y);
-    terrainTileResult.biomeResource = worldContext_->GetAppContext()->GetModContext()->GetBiomeRegistry()->
-            FindBestBiome(
-                dimensionId_, humidity, temperature, weirdness, erosion,
-                elevation, surfaceProximity);
-    if (world.y <= WORLD_MIN_Y || world.x == WORLD_MAX_X || world.x == WORLD_MIN_X) {
-        terrainTileResult.terrainType = TerrainResultType::BEDROCK;
-        return terrainTileResult;
-    }
-    if (world.y > firstTileTerrainY) {
-        if (world.y < SEA_LEVEL_HEIGHT) {
-            //water
-            //水
-            terrainTileResult.terrainType = TerrainResultType::WATER;
-            return terrainTileResult;
-        }
-        //sky
-        //天空
-        terrainTileResult.terrainType = TerrainResultType::AIR;
-        return terrainTileResult;
-    }
-    terrainTileResult.world = world;
-    terrainTileResult.terrainType = TerrainResultType::SOLID;
-    return terrainTileResult;
-}
-
-float glimmer::ChunkGenerator::GetSurfaceProximity(const int firstTileTerrainY, const int worldY) {
-    constexpr float totalHeight = WORLD_MAX_Y - WORLD_MIN_Y;
-    const float surfaceNormalized = static_cast<float>(firstTileTerrainY - WORLD_MIN_Y) / totalHeight;
-    const float currentNormalized = static_cast<float>(worldY - WORLD_MIN_Y) / totalHeight;
-    const float offset = currentNormalized - surfaceNormalized;
-    float proximity = 0.5F + offset * 0.5F;
-    if (proximity < 0.0F) {
-        proximity = 0.0F;
-    }
-    if (proximity > 1.0F) {
-        proximity = 1.0F;
-    }
-    return proximity;
-}
-
-float glimmer::ChunkGenerator::GetElevation(const int y) {
-    return static_cast<float>(y) / (WORLD_MAX_Y - WORLD_MIN_Y + WORLD_MIN_Y);
-}
-
-float glimmer::ChunkGenerator::GetHumidity(const TileVector2D &tileVector2d) {
-    const auto it = humidityMap_.find(tileVector2d);
-    if (it != humidityMap_.end()) {
-        return it->second;
-    }
-    humidityMap_[tileVector2d] = (humidityMapNoise_->GetNoise(static_cast<float>(tileVector2d.x),
-                                                              static_cast<float>(tileVector2d.y)) + 1) * 0.5F;
-    return humidityMap_[tileVector2d];
-}
-
-float glimmer::ChunkGenerator::GetTemperature(const TileVector2D &tileVector2d, float elevation) {
-    const auto it = temperatureMap_.find(tileVector2d);
-    if (it != temperatureMap_.end()) {
-        return it->second;
-    }
-    const float noiseTemp = (temperatureMapNoise_->GetNoise(
-                                 static_cast<float>(tileVector2d.x),
-                                 static_cast<float>(tileVector2d.y)
-                             ) + 1.0F) * 0.5F;
-    const float altitudePenalty = std::pow(1.0F - elevation, 1.5F);
-    const float temperature = noiseTemp * altitudePenalty;
-
-    temperatureMap_[tileVector2d] = temperature;
-    return temperatureMap_[tileVector2d];
-}
-
-float glimmer::ChunkGenerator::GetWeirdness(const TileVector2D &tileVector2d) {
-    const auto it = weirdnessMap_.find(tileVector2d);
-    if (it != weirdnessMap_.end()) {
-        return it->second;
-    }
-    weirdnessMap_[tileVector2d] = (weirdnessMapNoise_->GetNoise(static_cast<float>(tileVector2d.x * 0.000285714),
-                                                                static_cast<float>(tileVector2d.y * 0.000285714)) + 1) *
-                                  0.5F;
-    return weirdnessMap_[tileVector2d];
-}
-
-float glimmer::ChunkGenerator::GetErosion(const TileVector2D &tileVector2d) {
-    const auto it = erosionMap_.find(tileVector2d);
-    if (it != erosionMap_.end()) {
-        return it->second;
-    }
-    erosionMap_[tileVector2d] = (erosionMapNoise_->GetNoise(static_cast<float>(tileVector2d.x),
-                                                            static_cast<float>(tileVector2d.y)) + 1) * 0.5F;
-    return erosionMap_[tileVector2d];
-}
-
-
-void glimmer::ChunkGenerator::InitializeTileRefs(const TerrainResult *terrainResult,
-                                                 std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> >
-                                                 &tilesRefMap,
-                                                 std::unordered_set<BiomeResource *> &biomeResourcesSet,
-                                                 const ResourceRef &waterTileRef,
-                                                 const ResourceRef &bedrockTileRef,
-                                                 const ResourceRef &voidWallTileRef) {
-    for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
-        for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
-            const int idx = localY * CHUNK_SIZE + localX;
-            const auto &terrainTileResult = terrainResult->QueryTerrain(localX, localY);
-            if (terrainTileResult.terrainType == TerrainResultType::BEDROCK) {
-                tilesRefMap[TileLayerType::BackGround][idx] = voidWallTileRef;
-            } else {
-                tilesRefMap[TileLayerType::BackGround][idx] = TileResourceManager::GetAirResourceRef(
-                    TileLayerType::BackGround);
-            }
-            SetTileRefForTerrainType(idx, terrainTileResult, tilesRefMap, biomeResourcesSet, waterTileRef,
-                                     bedrockTileRef);
-        }
-    }
-}
-
-void glimmer::ChunkGenerator::SetTileRefForTerrainType(int idx, const TerrainTileResult &terrainTileResult,
-                                                       std::unordered_map<
-                                                           TileLayerType, std::array<ResourceRef, CHUNK_AREA> > &
-                                                       tilesRefMap,
-                                                       std::unordered_set<BiomeResource *> &biomeResourcesSet,
-                                                       const ResourceRef &waterTileRef,
-                                                       const ResourceRef &bedrockTileRef) {
-    using enum TerrainResultType;
-    using enum TileLayerType;
-    switch (terrainTileResult.terrainType) {
-        case AIR:
-            tilesRefMap[Ground][idx] = TileResourceManager::GetAirResourceRef(Ground);
-            break;
-        case WATER:
-            tilesRefMap[Ground][idx] = waterTileRef;
-            break;
-        case BEDROCK:
-            tilesRefMap[Ground][idx] = bedrockTileRef;
-            break;
-        case STRUCTURE:
-            tilesRefMap[Ground][idx] = terrainTileResult.structureResRef;
-            break;
-        case SOLID:
-            tilesRefMap[Ground][idx] = TileResourceManager::GetAirResourceRef(Ground);
-            if (terrainTileResult.biomeResource != nullptr) {
-                biomeResourcesSet.insert(terrainTileResult.biomeResource);
-            }
-            break;
-    }
-}
-
-void glimmer::ChunkGenerator::ApplyBiomeDecorators(const std::unordered_set<BiomeResource *> &biomeResourcesSet,
-                                                   const ResourceLocator *resourceLocator,
-                                                   BiomeDecoratorManager *biomeDecoratorManager,
-                                                   WorldContext *worldContext,
-                                                   TerrainResult *terrainResult,
-                                                   std::unordered_map<
-                                                       TileLayerType, std::array<ResourceRef, CHUNK_AREA> > &
-                                                   tilesRefMap) {
-    for (auto biomeResources: biomeResourcesSet) {
-        if (biomeResources->decors.empty()) {
-            continue;
-        }
-        for (auto &decRef: biomeResources->decors) {
-            IBiomeDecoratorResource *decoratorResource = resourceLocator->FindBiomeDecorator(&decRef);
-            if (decoratorResource == nullptr) {
-                continue;
-            }
-            IBiomeDecorator *biomeDecorator = biomeDecoratorManager->GetBiomeDecorator(
-                static_cast<BiomeDecoratorType>(decoratorResource->biomeDecoratorType));
-            if (biomeDecorator == nullptr) {
-                continue;
-            }
-            biomeDecorator->Decoration(
-                worldContext, terrainResult, decoratorResource, biomeResources, &tilesRefMap);
-        }
-    }
-}
-
-void glimmer::ChunkGenerator::PopulateSingleTilePosition(
-    Chunk *chunk, const ResourceLocator *resourceLocator,
-    const std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > &tilesRefMap,
-    int topLeftIndex) {
-    for (const auto &[tileLayerType, tileArray]: tilesRefMap) {
-        const ResourceRef &resourceRef = tileArray[topLeftIndex];
-        const TileResource *tileResource = resourceLocator->FindTileRaw(&resourceRef);
-        if (tileResource == nullptr) {
-            continue;
-        }
-        for (int x = 0; x < tileResource->tileWidth; x++) {
-            for (int y = 0; y < tileResource->tileHeight; y++) {
-                const int unitIndex = topLeftIndex + y * CHUNK_SIZE + x;
-                TileStateMessage *tileStateMessage = chunk->GetOrCreateTileState(tileLayerType, unitIndex);
-                tileStateMessage->set_placesource(PLACE_SOURCE_WORLD_GEN);
-                tileStateMessage->set_width(tileResource->tileWidth);
-                tileStateMessage->set_height(tileResource->tileHeight);
-                tileStateMessage->mutable_offset()->set_x(x);
-                tileStateMessage->mutable_offset()->set_y(y);
-                resourceRef.WriteResourceRefMessage(*tileStateMessage->mutable_resourceref());
-                chunk->CommitTileState(BreakSource::ChunkGenerate, tileLayerType, unitIndex, true);
-            }
-        }
-    }
-}
-
-void glimmer::ChunkGenerator::PopulateChunkTiles(Chunk *chunk,
-                                                 const ResourceLocator *resourceLocator,
-                                                 const std::unordered_map<
-                                                     TileLayerType, std::array<ResourceRef, CHUNK_AREA> > &
-                                                 tilesRefMap) {
-    for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
-        for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
-            const int topLeftIndex = localY * CHUNK_SIZE + localX;
-            PopulateSingleTilePosition(chunk, resourceLocator, tilesRefMap, topLeftIndex);
-        }
-    }
+    structurePlacer_.GenerateStructure(position);
 }
 
 std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const TileVector2D &position) const {
     if (worldContext_ == nullptr) {
-        return nullptr;
-    }
-    TileInstancePool *tileInstancePool = worldContext_->GetTileInstancePool();
-    if (tileInstancePool == nullptr) {
         return nullptr;
     }
     AppContext *appContext = worldContext_->GetAppContext();
@@ -571,10 +89,6 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const T
     }
     ResourceLocator *resourceLocator = appContext->GetResourceLocator();
     if (resourceLocator == nullptr) {
-        return nullptr;
-    }
-    const TileResourceManager *tileResourceManager = appContext->GetModContext()->GetTileResourceManager();
-    if (tileResourceManager == nullptr) {
         return nullptr;
     }
     BiomeDecoratorManager *biomeDecoratorManager = appContext->GetModContext()->GetBiomeDecoratorManager();
@@ -600,11 +114,35 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const T
     };
     std::unordered_set<BiomeResource *> biomeResourcesSet;
 
-    InitializeTileRefs(terrainResult, tilesRefMap, biomeResourcesSet, waterTileRef_, bedrockTileRef_, voidWallTileRef_);
-    ApplyBiomeDecorators(biomeResourcesSet, resourceLocator, biomeDecoratorManager, worldContext_, terrainResult,
-                         tilesRefMap);
-    PopulateChunkTiles(chunk.get(), resourceLocator, tilesRefMap);
+    TileRefResolver::Initialize(terrainResult, tileRefs_, tilesRefMap, biomeResourcesSet);
+    BiomeDecoratorApplier::Apply(biomeResourcesSet, resourceLocator, biomeDecoratorManager, worldContext_,
+                                 terrainResult, tilesRefMap);
+    ChunkTilePopulator::Populate(chunk.get(), resourceLocator, tilesRefMap);
 
     LogCat::i("chunk_generation_completed", "Chunk generation completed at: ({}, {})", position.x, position.y);
     return chunk;
+}
+
+int glimmer::ChunkGenerator::GetFirstTileTerrainY(const int x) {
+    return terrainGenerator_.GetFirstTileTerrainY(x);
+}
+
+const std::string &glimmer::ChunkGenerator::GetDimensionId() const {
+    return dimensionId_;
+}
+
+float glimmer::ChunkGenerator::GetHumidity(const TileVector2D &pos) {
+    return terrainGenerator_.GetHumidity(pos);
+}
+
+float glimmer::ChunkGenerator::GetTemperature(const TileVector2D &pos, const float elevation) {
+    return terrainGenerator_.GetTemperature(pos, elevation);
+}
+
+float glimmer::ChunkGenerator::GetWeirdness(const TileVector2D &pos) {
+    return terrainGenerator_.GetWeirdness(pos);
+}
+
+float glimmer::ChunkGenerator::GetErosion(const TileVector2D &pos) {
+    return terrainGenerator_.GetErosion(pos);
 }

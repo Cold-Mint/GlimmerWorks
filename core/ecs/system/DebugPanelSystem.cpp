@@ -42,6 +42,7 @@
 #include "core/utils/StringUtils.h"
 #include "core/world/Tile.h"
 #include "core/world/generator/Chunk.h"
+#include "core/world/generator/TerrainMath.h"
 #include "fmt/xchar.h"
 
 
@@ -219,7 +220,7 @@ void glimmer::DebugPanelSystem::Render(RenderQueue *queue) {
     for (auto tileLayerComponent: tileLayerComponents_) {
         TileVector2D chunkRelative = Chunk::TileCoordinatesToChunkRelativeCoordinates(tileCoord);
         if (firstLayer) {
-            float elevation = ChunkGenerator::GetElevation(tileCoord.y);
+            float elevation = TerrainMath::GetElevation(tileCoord.y);
             std::string tileDebugInfo = fmt::format(
                 fmt::runtime(appContext_->GetLangsResources()->tileDebugInfo),
                 tileCoord.x, tileCoord.y,

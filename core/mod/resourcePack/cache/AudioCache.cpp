@@ -27,6 +27,8 @@
 #pragma once
 #include "AudioCache.h"
 
+#include "core/log/LogCat.h"
+
 
 std::shared_ptr<glimmer::AudioResourceResult> glimmer::AudioCache::CreatePlaceholderResource(
     const AppContext *appContext, const ResourceRef *resourceRef) {
@@ -40,14 +42,19 @@ std::shared_ptr<glimmer::AudioResourceResult> glimmer::AudioCache::LoadResourceF
     audioPath.replace_extension(AUDIO_FORMAT);
     const VirtualFileSystem *virtualFileSystem = appContext->GetVirtualFileSystem();
     if (virtualFileSystem == nullptr) {
+        LogCat::w(std::source_location::current(), "vfs_is_null", "virtualFileSystem == nullptr");
         return nullptr;
     }
     const auto actualAudioPath = virtualFileSystem->GetActualPath(audioPath);
     if (!actualAudioPath.has_value()) {
+        LogCat::w(std::source_location::current(), "audio_file_not_found", "Audio file not found: {}",
+                  audioPath.string());
         return nullptr;
     }
     MIX_Audio *audio = MIX_LoadAudio(mixer_, actualAudioPath.value().string().c_str(), false);
     if (audio == nullptr) {
+        LogCat::w(std::source_location::current(), "audio_load_failed", "Failed to load audio: {}",
+                  actualAudioPath.value().string());
         return nullptr;
     }
     auto audioResourceResult = std::make_shared<AudioResourceResult>();

@@ -28,6 +28,7 @@
 
 #include "blake3.h"
 #include "monocypher-ed25519.h"
+#include "core/log/LogCat.h"
 #include "core/vfs/VirtualFileSystem.h"
 
 using enum glimmer::PackVerifyState;
@@ -44,6 +45,8 @@ bool glimmer::PackSignatureVerifier::IsEnabled() const {
 bool glimmer::PackSignatureVerifier::ProcessPublicKeyFile(const std::filesystem::path &path) const {
     const auto publicKeyStreamUniquePtr = virtualFileSystem_->ReadFileAsStream(path);
     if (publicKeyStreamUniquePtr == nullptr) {
+        LogCat::w(std::source_location::current(), "data_pack_public_key_read_failed",
+                  "Failed to read public key file: {}", path.string());
         return false;
     }
     const auto publicKeyStream = publicKeyStreamUniquePtr.get();
@@ -54,6 +57,7 @@ bool glimmer::PackSignatureVerifier::ProcessPublicKeyFile(const std::filesystem:
     pubStream.read(reinterpret_cast<char *>(params_.publicKey.data()), 32);
     if (pubStream.gcount() == 32) {
         params_.findPublicKey = true;
+        LogCat::d("data_pack_public_key_loaded", "Loaded public key file: {}", path.string());
     }
     return true;
 }
@@ -61,6 +65,8 @@ bool glimmer::PackSignatureVerifier::ProcessPublicKeyFile(const std::filesystem:
 bool glimmer::PackSignatureVerifier::ProcessSignatureFile(const std::filesystem::path &path) const {
     const auto signStreamUniquePtr = virtualFileSystem_->ReadFileAsStream(path);
     if (signStreamUniquePtr == nullptr) {
+        LogCat::w(std::source_location::current(), "data_pack_signature_read_failed",
+                  "Failed to read signature file: {}", path.string());
         return false;
     }
     const auto signStream = signStreamUniquePtr.get();
@@ -71,6 +77,7 @@ bool glimmer::PackSignatureVerifier::ProcessSignatureFile(const std::filesystem:
     sigStream.read(reinterpret_cast<char *>(params_.signature.data()), 64);
     if (sigStream.gcount() == 64) {
         params_.findSignature = true;
+        LogCat::d("data_pack_signature_loaded", "Loaded signature file: {}", path.string());
     }
     return true;
 }
@@ -91,12 +98,16 @@ glimmer::PackVerifyState glimmer::PackSignatureVerifier::VerifySignature(const b
                                                                          const std::vector<uint8_t> &signature,
                                                                          const std::vector<uint8_t> &allHashData) {
     if (!findPublicKey || !findSignature) {
+        LogCat::d("data_pack_signature_missing", "Signature verification skipped: missing public key or signature");
         return VerifiedFailed;
     }
     if (crypto_ed25519_check(signature.data(), publicKey.data(),
                              allHashData.data(), allHashData.size()) == 0) {
+        LogCat::i("data_pack_signature_verified", "Data pack signature verified successfully");
         return VerifiedSuccess;
     }
+    LogCat::w(std::source_location::current(), "data_pack_signature_invalid",
+              "Data pack signature verification failed");
     return VerifiedFailed;
 }
 

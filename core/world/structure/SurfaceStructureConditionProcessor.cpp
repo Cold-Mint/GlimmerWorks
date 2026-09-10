@@ -26,6 +26,8 @@
  */
 #include "SurfaceStructureConditionProcessor.h"
 
+#include "core/log/LogCat.h"
+
 glimmer::StructureConditionProcessorType glimmer::SurfaceStructureConditionProcessor::
 GetStructureConditionProcessorType() {
     return StructureConditionProcessorType::Surface;
@@ -52,5 +54,6 @@ std::bitset<CHUNK_AREA> glimmer::SurfaceStructureConditionProcessor::Match(Terra
             result[localY * CHUNK_SIZE + localX] = true;
         }
     }
+    LogCat::d("surface_condition_matched_count", "Surface condition matched tiles: {}", result.count());
     return result;
 }

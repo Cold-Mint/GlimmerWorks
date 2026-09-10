@@ -29,6 +29,7 @@
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/ecs/component/TilePlacementForbiddenZoneComponent.h"
 #include "core/inventory/TileItem.h"
+#include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/world/WorldContext.h"
 
@@ -98,6 +99,7 @@ void glimmer::BlueprintSystem::OnWatchedComponentChanged(GameComponentTypeMessag
         auto tileLayerEntities = entityManager->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
         if (!tileLayerEntities.empty()) {
             tileLayerComponent_ = entityManager->GetComponent<TileLayerComponent>(tileLayerEntities[0]);
+            LogCat::i("blueprint_tile_layer_bound", "BlueprintSystem tile layer component bound");
         }
     }
     if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr) {
@@ -111,6 +113,7 @@ void glimmer::BlueprintSystem::OnWatchedComponentChanged(GameComponentTypeMessag
     }
     if (gameComponentType == COMPONENT_BLUEPRINT && blueprintComponent_ == nullptr) {
         blueprintComponent_ = entityShortCut->GetBlueprintComponent();
+        LogCat::i("blueprint_component_bound", "BlueprintSystem blueprint component bound");
     }
     if (gameComponentType == COMPONENT_MINING && miningComponent_ == nullptr) {
         miningComponent_ = entityShortCut->GetMiningComponent();

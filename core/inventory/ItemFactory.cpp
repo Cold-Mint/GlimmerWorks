@@ -96,6 +96,8 @@ std::unique_ptr<glimmer::Item> glimmer::ItemFactory::CreateItem(WorldContext *wo
         return nullptr;
     }
     result->ReadItemMessage(worldContext, itemMessage);
+    LogCat::d("item_factory_create_success", "Create item success: itemId={} type={}", result->GetId(),
+              std::to_underlying(resourceType));
     return result;
 }
 
@@ -106,6 +108,9 @@ std::unique_ptr<glimmer::Item> glimmer::ItemFactory::CreateItem(WorldContext *wo
         return nullptr;
     }
     auto itemMessage = ItemMessage();
+    LogCat::d("item_factory_create_from_message",
+              "Create item from item message resource: amount={} abilityItemCount={}",
+              itemMessageResource.amount, itemMessageResource.abilityItemRef.size());
     itemMessage.set_locked(itemMessageResource.locked);
     itemMessage.set_amount(itemMessageResource.amount);
     itemMessageResource.item.WriteResourceRefMessage(*itemMessage.mutable_itemresourceref());
@@ -116,9 +121,11 @@ std::unique_ptr<glimmer::Item> glimmer::ItemFactory::CreateItem(WorldContext *wo
         abilityItem->set_amount(abilityItemResource.amount);
     }
     if (itemMessageResource.durabilityStrategyType < 0) {
-        itemMessage.set_durabilitystrategy(
-            static_cast<AllocStrategyTypeMessage>(RandomUtils::Random(0, 3))
-        );
+        const auto randomStrategy = static_cast<AllocStrategyTypeMessage>(RandomUtils::Random(0, 3));
+        LogCat::d("item_factory_create_random_strategy",
+                  "Durability strategy not specified, use random strategy: {}",
+                  std::to_underlying(randomStrategy));
+        itemMessage.set_durabilitystrategy(randomStrategy);
     } else {
         itemMessage.set_durabilitystrategy(
             static_cast<AllocStrategyTypeMessage>(itemMessageResource.durabilityStrategyType)

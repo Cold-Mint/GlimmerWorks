@@ -31,17 +31,23 @@
 
 #include "PlayerManifest.h"
 #include "core/context/AppContext.h"
+#include "core/log/LogCat.h"
 #include "core/utils/StringUtils.h"
 #include "src/saves/map_manifest.pb.h"
 
 
 void glimmer::SavesManager::AfterRegister(Saves *resource) {
+    LogCat::i("saves_manager_registering", "Registering save: path={}", resource->GetPath().string());
     auto mapManifestMessage = resource->ReadMapManifest();
     if (!mapManifestMessage.has_value()) {
+        LogCat::w(std::source_location::current(), "saves_manager_register_map_manifest_failed",
+                  "Failed to read map manifest during registration: path={}", resource->GetPath().string());
         return;
     }
     auto playerMessage = resource->ReadLocalPlayer();
     if (!playerMessage.has_value()) {
+        LogCat::w(std::source_location::current(), "saves_manager_register_local_player_failed",
+                  "Failed to read local player during registration: path={}", resource->GetPath().string());
         return;
     }
     auto mapManifest = std::make_unique<MapManifest>();
@@ -56,6 +62,9 @@ void glimmer::SavesManager::AfterRegister(Saves *resource) {
     saveList_.push_back(resource);
     saveToIndex_[resource] = index;
 
+    LogCat::d("saves_manager_save_registered", "Save registered: name={}, index={}",
+              manifestList_.back()->name, index);
+
     saveList_.back()->SetOnMapManifestChanged([this, resource](const MapManifestMessage &msg) {
         auto findIt = saveToIndex_.find(resource);
         if (findIt == saveToIndex_.end())
@@ -68,9 +77,12 @@ void glimmer::SavesManager::AfterRegister(Saves *resource) {
 }
 
 void glimmer::SavesManager::BeforeUnRegister(Saves *resource) {
+    LogCat::i("saves_manager_unregistering", "Unregistering save: path={}", resource->GetPath().string());
     resource->SetOnMapManifestChanged(nullptr);
     auto mapIt = saveToIndex_.find(resource);
     if (mapIt == saveToIndex_.end()) {
+        LogCat::w(std::source_location::current(), "saves_manager_unregister_not_found",
+                  "Save not found in index during unregister: path={}", resource->GetPath().string());
         return;
     }
     long index = static_cast<long>(mapIt->second);
@@ -92,6 +104,7 @@ void glimmer::SavesManager::BeforeUnRegister(Saves *resource) {
             pair.second -= 1;
         }
     }
+    LogCat::d("saves_manager_save_unregistered", "Save unregistered: path={}", resource->GetPath().string());
 }
 
 
@@ -112,27 +125,39 @@ glimmer::PlayerManifest *glimmer::SavesManager::GetPlayerManifest(const size_t i
 }
 
 bool glimmer::SavesManager::DeleteSave(const size_t index) {
+    LogCat::i("saves_manager_deleting", "Deleting save: index={}", index);
     if (index >= saveList_.size()) {
+        LogCat::w(std::source_location::current(), "saves_manager_delete_invalid_index",
+                  "Failed to delete save: index {} out of range (size={})", index, saveList_.size());
         return false;
     }
     auto save = saveList_[index];
     if (save == nullptr) {
+        LogCat::w(std::source_location::current(), "saves_manager_delete_save_is_null",
+                  "Failed to delete save: element at index {} is null", index);
         return false;
     }
     if (virtualFileSystem_->DeleteFileOrFolder(save->GetPath())) {
         saveList_.erase(saveList_.begin() + static_cast<long>(index));
         manifestList_.erase(manifestList_.begin() + static_cast<long>(index));
+        LogCat::i("saves_manager_delete_success", "Save deleted successfully: index={}, path={}", index,
+                  save->GetPath().string());
         return true;
     }
+    LogCat::w(std::source_location::current(), "saves_manager_delete_failed", "Failed to delete save: path={}",
+              save->GetPath().string());
     return false;
 }
 
 glimmer::Saves *glimmer::SavesManager::Create(const std::filesystem::path &runtimePath, MapManifest &mapManifest,
                                               PlayerManifest &playerManifest) {
+    LogCat::i("saves_manager_creating", "Creating save: name={}", mapManifest.name);
     std::filesystem::path path = runtimePath / "saves" / StringUtils::ToSafeSaveName(mapManifest.name);
     if (!virtualFileSystem_->Exists(path)) {
         bool createFolder = virtualFileSystem_->CreateFolder(path);
         if (!createFolder) {
+            LogCat::w(std::source_location::current(), "saves_manager_create_folder_failed",
+                      "Failed to create save folder: {}", path.string());
             return nullptr;
         }
     }
@@ -140,24 +165,32 @@ glimmer::Saves *glimmer::SavesManager::Create(const std::filesystem::path &runti
     MapManifestMessage manifestMessage;
     mapManifest.ToMessage(manifestMessage);
     if (!save->WriteMapManifest(manifestMessage)) {
+        LogCat::w(std::source_location::current(), "saves_manager_create_write_manifest_failed",
+                  "Failed to write map manifest while creating save: {}", path.string());
         return nullptr;
     }
     PlayerMessage playerMessage;
     playerManifest.ToMessage(playerMessage);
     if (!save->WriteLocalPlayer(playerMessage)) {
+        LogCat::w(std::source_location::current(), "saves_manager_create_write_player_failed",
+                  "Failed to write local player while creating save: {}", path.string());
         return nullptr;
     }
     Register(std::move(save));
+    LogCat::i("saves_manager_create_success", "Save created successfully: name={}, path={}", mapManifest.name,
+              path.string());
     return GetSave(saveList_.size() - 1);
 }
 
 
 void glimmer::SavesManager::LoadAllSaves(const std::filesystem::path &runtimePath) {
+    LogCat::i("saves_manager_loading_all", "Loading all saves: path={}", (runtimePath / "saves").string());
     Clear();
     for (const std::vector<std::filesystem::path> array = virtualFileSystem_->ListFile(runtimePath / "saves", false);
          const auto &item: array) {
         Register(std::make_unique<Saves>(item, virtualFileSystem_));
     }
+    LogCat::i("saves_manager_load_all_completed", "Finished loading all saves: count={}", saveList_.size());
 }
 
 size_t glimmer::SavesManager::GetSavesListSize() const {
@@ -196,5 +229,7 @@ std::vector<size_t> glimmer::SavesManager::FilterByKeyword(const std::string &ke
         }
         return localPlayerA->lastPlayedTime > localPlayerB->lastPlayedTime;
     });
+    LogCat::d("saves_manager_filter_completed", "Filter saves by keyword completed: keyword={}, results={}", keyword,
+              result.size());
     return result;
 }

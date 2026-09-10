@@ -28,6 +28,7 @@
 #include "DebugMultiMapSystem.h"
 
 #include "core/gpu/RenderQueue.h"
+#include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/context/AppContext.h"
 #include "core/utils/ColorUtils.h"
@@ -105,6 +106,7 @@ void glimmer::DebugMultiMapSystem::OnWatchedComponentChanged(GameComponentTypeMe
     }
     if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr) {
         cameraComponent_ = entityShortCut->GetCameraComponent();
+        LogCat::i("debug_multi_map_camera_bound", "DebugMultiMap camera component bound");
     }
 }
 

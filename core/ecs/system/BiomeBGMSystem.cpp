@@ -27,6 +27,7 @@
 #include "BiomeBGMSystem.h"
 
 #include "core/ecs/component/Transform2DComponent.h"
+#include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/mod/resourcePack/AudioResourceResult.h"
 #include "core/world/WorldContext.h"
@@ -47,6 +48,8 @@ void glimmer::BiomeBGMSystem::OnWatchedComponentChanged(GameComponentTypeMessage
 void glimmer::BiomeBGMSystem::SwitchToBiome(BiomeResource *biomeResource) {
     std::shared_ptr<AudioResourceResult> audioResourceResult = resourceLocator_->FindAudio(&biomeResource->bgm);
     if (audioResourceResult == nullptr) {
+        LogCat::w(std::source_location::current(), "biome_bgm_audio_is_null",
+                  "SwitchToBiome: bgm audio resource is nullptr for biome {}", biomeResource->resourceId);
         return;
     }
     audioResult_ = audioResourceResult;
@@ -54,6 +57,7 @@ void glimmer::BiomeBGMSystem::SwitchToBiome(BiomeResource *biomeResource) {
         audioManager_->ForcePlayReplace(AudioType::BGM, audio, -1);
     }
     biomeResource_ = biomeResource;
+    LogCat::i("biome_bgm_switched", "Biome BGM switched to {}", biomeResource->resourceId);
 }
 
 glimmer::BiomeBGMSystem::BiomeBGMSystem(WorldContext *worldContext) : GameSystem(worldContext) {

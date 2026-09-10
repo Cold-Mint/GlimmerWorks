@@ -31,6 +31,7 @@
 #include "TerrainResultType.h"
 #include "TerrainMath.h"
 #include "core/config/Constants.h"
+#include "core/log/LogCat.h"
 #include "core/mod/Resource.h"
 
 glimmer::TerrainGenerator::TerrainGenerator(const int worldSeed, const DimensionResource *dimensionResource,
@@ -40,6 +41,7 @@ glimmer::TerrainGenerator::TerrainGenerator(const int worldSeed, const Dimension
 }
 
 std::unique_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerrain(const TileVector2D &position) {
+    LogCat::d("terrain_generating", "Generating terrain: position=({}, {})", position.x, position.y);
     auto terrainResult = std::make_unique<TerrainResult>();
     terrainResult->SetPosition(position);
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
@@ -98,6 +100,8 @@ std::unique_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerra
         );
     }
 
+    LogCat::d("terrain_generation_completed", "Terrain generation completed: position=({}, {})", position.x,
+              position.y);
     return terrainResult;
 }
 

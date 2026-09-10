@@ -40,6 +40,8 @@
 
 void glimmer::TomlTemplateExpander::Register(std::unique_ptr<ITemplateCommand> command) {
     if (command == nullptr) {
+        LogCat::w(std::source_location::current(), "toml_template_command_null",
+                  "Attempted to register a null template command");
         return;
     }
     commandMap_[command->GetCommandName()] = std::move(command);
@@ -67,6 +69,7 @@ std::string glimmer::TomlTemplateExpander::Expand(const std::vector<std::filesys
             std::string cmdName = commandLine.substr(0, openParen);
             auto it = commandMap_.find(cmdName);
             if (it == commandMap_.end()) {
+                LogCat::d("toml_template_command_not_found", "Template command not found: {}", cmdName);
                 continue;
             }
             ITemplateCommand *cmd = it->second.get();

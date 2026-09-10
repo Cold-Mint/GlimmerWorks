@@ -134,6 +134,7 @@ void glimmer::InventoryGUISystem::RefreshRecipeList() {
     }
     unlockedRecipes_ = recipeManager->FindUnlockedRecipes(techHandler->GetTechnologyMap(),
                                                           itemContainer_->GetTotalTags());
+    LogCat::d("inventory_recipes_refreshed", "Inventory unlocked recipes: {}", unlockedRecipes_.size());
     recipeOutputItems_.resize(unlockedRecipes_.size());
     recipeSlots_.reserve(unlockedRecipes_.size());
     const uint32_t maxSize = unlockedRecipes_.size();

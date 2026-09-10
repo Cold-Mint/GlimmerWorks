@@ -240,7 +240,7 @@ void glimmer::ScenePass::EnsureSolidColorTexture() {
     SDL_ReleaseGPUTransferBuffer(device_, transferBuffer);
 }
 
-void glimmer::ScenePass::FlushScenePass(RenderFrameContext &ctx) {
+void glimmer::ScenePass::FlushScenePass(const RenderFrameContext &ctx) {
     SDL_GPUCommandBuffer *commandBuffer = ctx.commandBuffer;
     SDL_GPUTexture *targetTexture = ctx.sceneTexture;
     const Uint32 width = ctx.sceneTextureWidth;

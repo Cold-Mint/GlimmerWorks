@@ -29,6 +29,7 @@
 #include "BiomeDecorator.h"
 #include "BiomeDecoratorManager.h"
 #include "TerrainResult.h"
+#include "core/log/LogCat.h"
 #include "core/mod/Resource.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/mod/dataPack/BiomeDecoratorType.h"
@@ -41,6 +42,7 @@ void glimmer::BiomeDecoratorApplier::Apply(const std::unordered_set<BiomeResourc
                                            TerrainResult *terrainResult,
                                            std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > &
                                            tilesRefMap) {
+    LogCat::d("biome_decorator_apply_start", "Applying biome decorators: biome count={}", biomeResourcesSet.size());
     for (auto biomeResources: biomeResourcesSet) {
         if (biomeResources->decors.empty()) {
             continue;
@@ -48,11 +50,14 @@ void glimmer::BiomeDecoratorApplier::Apply(const std::unordered_set<BiomeResourc
         for (auto &decRef: biomeResources->decors) {
             IBiomeDecoratorResource *decoratorResource = resourceLocator->FindBiomeDecorator(&decRef);
             if (decoratorResource == nullptr) {
+                LogCat::d("biome_decorator_resource_is_null", "Biome decorator resource is null, skipping");
                 continue;
             }
             IBiomeDecorator *biomeDecorator = biomeDecoratorManager->GetBiomeDecorator(
                 static_cast<BiomeDecoratorType>(decoratorResource->biomeDecoratorType));
             if (biomeDecorator == nullptr) {
+                LogCat::d("biome_decorator_is_null", "Biome decorator is null for type {}, skipping",
+                          decoratorResource->biomeDecoratorType);
                 continue;
             }
             biomeDecorator->Decoration(

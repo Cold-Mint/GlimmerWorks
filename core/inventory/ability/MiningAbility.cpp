@@ -27,6 +27,7 @@
 #include "MiningAbility.h"
 
 #include "MiningRangeData.h"
+#include "core/log/LogCat.h"
 #include "core/world/WorldContext.h"
 #include "core/ecs/component/TileLayerComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
@@ -44,35 +45,44 @@ glimmer::AbilityType glimmer::MiningAbility::GetAbilityType() const {
 
 bool glimmer::MiningAbility::OnUse(const bool mouseLeft, WorldContext *worldContext, uint32_t user,
                                    const AbilityConfig *abilityConfig, std::unordered_set<AbilityType> &popupAbility) {
+    LogCat::d("mining_use_start", "MiningAbility::OnUse start, mouseLeft={}", mouseLeft);
     if (!mouseLeft) {
+        LogCat::d("mining_use_right_button_skip", "MiningAbility: not left button, skip");
         return false;
     }
     popupAbility.emplace(GetAbilityType());
     if (abilityConfig == nullptr) {
+        LogCat::w(std::source_location::current(), "ability_config_is_null", "abilityConfig == nullptr");
         return false;
     }
     if (abilityConfig->mineAbleLayer == 0) {
+        LogCat::d("mining_mineable_layer_zero", "MiningAbility: mineAbleLayer mask is 0, skip");
         return false;
     }
     EntityManager *entityManager = worldContext->GetEntityManager();
     if (entityManager == nullptr) {
+        LogCat::w(std::source_location::current(), "entity_manager_is_null", "entityManager == nullptr");
         return false;
     }
     auto playerEntity = worldContext->GetEntityShortCut()->GetPlayer();
     if (WorldContext::IsEmptyEntityId(playerEntity)) {
+        LogCat::d("mining_player_entity_empty", "MiningAbility: player entity is empty, skip");
         return false;
     }
     auto playerTransform = entityManager->GetComponent<Transform2DComponent>(playerEntity);
     if (playerTransform == nullptr) {
+        LogCat::d("mining_player_transform_null", "MiningAbility: player Transform2D component is null, skip");
         return false;
     }
     EntityShortCut *entityShortCut = worldContext->GetEntityShortCut();
     if (entityShortCut == nullptr) {
+        LogCat::d("mining_entity_shortcut_null", "MiningAbility: entityShortCut is null, skip");
         return false;
     }
     const WorldVector2D playerWorldPos = playerTransform->GetPosition();
     MiningComponent *miningComponent = entityShortCut->GetMiningComponent();
     if (miningComponent == nullptr) {
+        LogCat::w(std::source_location::current(), "mining_component_is_null", "miningComponent == nullptr");
         return false;
     }
     auto tileLayerEntities = entityManager->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
@@ -106,6 +116,9 @@ bool glimmer::MiningAbility::OnUse(const bool mouseLeft, WorldContext *worldCont
             if (!miningComponent->HasStartPosition() || miningComponent->GetStartPosition() != tileVector2D) {
                 //Change the starting point of the excavation and recalculate the progress.
                 //挖掘起点改变，重新计算进度。
+                LogCat::d("mining_chain_recalculated",
+                          "Mining start point changed, recalculate chain mining: start=({}, {}) chainRadius={}",
+                          tileVector2D.x, tileVector2D.y, static_cast<int>(abilityConfig->chainMiningRadius));
                 miningRangeData_.Reset();
                 miningComponent->SetChainMiningRadius(abilityConfig->chainMiningRadius);
                 miningRangeData_.
@@ -115,6 +128,8 @@ bool glimmer::MiningAbility::OnUse(const bool mouseLeft, WorldContext *worldCont
                 if (pointCount == 0) {
                     //If no exploitable tiles are found, then calculate the default excavation range.
                     //如果没有发现可挖掘的瓦片，那么计算默认的挖掘范围。
+                    LogCat::d("mining_no_exploitable_tiles",
+                              "No exploitable tiles found, calculate default mining range");
                     miningRangeData_.CalculateMining(tileLayerComponent, tileVector2D);
                 }
                 miningComponent->SetEfficiency(abilityConfig->miningEfficiency);

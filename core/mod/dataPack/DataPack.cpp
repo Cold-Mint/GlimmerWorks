@@ -37,6 +37,7 @@
 #include "core/context/AppContext.h"
 #include "core/context/GraphicsContext.h"
 #include "core/context/ModContext.h"
+#include "core/log/LogCat.h"
 #include "core/utils/StringUtils.h"
 #include "core/utils/TomlUtils.h"
 #include "toml11/parser.hpp"
@@ -74,6 +75,8 @@ uint64_t glimmer::DataPack::GetUniqueId() const {
 bool glimmer::DataPack::LoadManifest() {
     const auto contentOptional = virtualFileSystem_->ReadFileAsString(rootPath_ / MANIFEST_FILE_NAME);
     if (!contentOptional.has_value()) {
+        LogCat::w(std::source_location::current(), "data_pack_manifest_read_failed",
+                  "Failed to read data pack manifest file: {}", (rootPath_ / MANIFEST_FILE_NAME).string());
         return false;
     }
     const toml::value value = toml::parse_str(contentOptional.value(), tomlVersion_);
@@ -83,6 +86,8 @@ bool glimmer::DataPack::LoadManifest() {
     for (auto &packDependency: manifest_.packDependencies) {
         packDependency.packIdUint = StringUtils::StringToUint64(packDependency.packId);
     }
+    LogCat::i("data_pack_manifest_loaded", "Data pack manifest loaded: Id={}, version={}", manifest_.id,
+              manifest_.versionNumber);
     return true;
 }
 
@@ -114,6 +119,8 @@ int glimmer::DataPack::ProcessFile(const std::filesystem::path &file, const AppC
     auto stream = istreamUniquePtr.get();
     const std::optional<std::vector<char> > fileBufferOptional = ReadFileContent(stream);
     if (!fileBufferOptional.has_value()) {
+        LogCat::w(std::source_location::current(), "data_pack_file_read_failed", "Failed to read file content: {}",
+                  file.string());
         return 0;
     }
     const std::vector<char> &fileBuffer = fileBufferOptional.value();
@@ -135,24 +142,31 @@ int glimmer::DataPack::ProcessFile(const std::filesystem::path &file, const AppC
 
 bool glimmer::DataPack::LoadPack(AppContext *appContext) {
     packVerifyState_ = PackVerifyState::Unsigned;
+    LogCat::i("data_pack_load_content_start", "Loading data pack content: Id={}", manifest_.id);
     if (appContext == nullptr) {
+        LogCat::w(std::source_location::current(), "app_context_is_null", "appContext == nullptr");
         return false;
     }
     ModContext *modContext = appContext->GetModContext();
     if (modContext == nullptr) {
+        LogCat::w(std::source_location::current(), "mod_context_is_null", "modContext == nullptr");
         return false;
     }
     GraphicsContext *graphicsContext = appContext->GetGraphicsContext();
     if (graphicsContext == nullptr) {
+        LogCat::w(std::source_location::current(), "graphics_context_is_null", "graphicsContext == nullptr");
         return false;
     }
     Config *config = appContext->GetConfig();
     if (config == nullptr) {
+        LogCat::w(std::source_location::current(), "config_is_null", "config == nullptr");
         return false;
     }
     int total = 0;
     std::vector<std::filesystem::path> files = virtualFileSystem_->ListFile(rootPath_, true);
     if (files.empty()) {
+        LogCat::w(std::source_location::current(), "data_pack_no_files", "Data pack contains no files: {}",
+                  rootPath_.string());
         return false;
     }
     std::ranges::sort(files);
@@ -176,8 +190,12 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) {
     }
 
     if (config->mods.loadOnlyVerified && packVerifyState_ != PackVerifyState::VerifiedSuccess) {
+        LogCat::w(std::source_location::current(), "data_pack_verification_rejected",
+                  "Data pack signature verification failed, rejected: {}", manifest_.id);
         return false;
     }
+    LogCat::i("data_pack_load_completed", "Data pack loaded: Id={}, resources={}, verifyState={}", manifest_.id,
+              total, std::to_underlying(packVerifyState_));
     return total != 0;
 }
 

@@ -30,6 +30,7 @@
 #include "core/ecs/EntityManager.h"
 #include "core/ecs/component/LightComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
+#include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/mod/Resource.h"
 #include "core/mod/ResourceLocator.h"
@@ -56,6 +57,7 @@ void glimmer::DynamicLightSystem::Update(const float delta) {
 
     const std::vector<GameEntityID> lightEntities = entityManager->GetEntityIDWithComponents(
         {COMPONENT_LIGHT, COMPONENT_TRANSFORM_2D});
+    LogCat::d("dynamic_light_update", "DynamicLight updating: {} light entities", lightEntities.size());
 
     std::unordered_set<GameEntityID> currentEntities;
     for (const GameEntityID entityId: lightEntities) {
@@ -84,6 +86,7 @@ void glimmer::DynamicLightSystem::Update(const float delta) {
 
     for (const GameEntityID entityId: lastLightEntities_) {
         if (!currentEntities.contains(entityId)) {
+            LogCat::d("dynamic_light_removed", "DynamicLight removed for entity {}", entityId);
             lightBuffer->RemoveDynamicLight(entityId);
         }
     }

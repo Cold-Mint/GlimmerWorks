@@ -26,9 +26,12 @@
  */
 #include "ItemAbility.h"
 
+#include "core/log/LogCat.h"
+
 
 glimmer::ItemAbility::ItemAbility(const AbilityConfig &abilityConfig)
     : abilityConfig_(abilityConfig) {
+    LogCat::d("item_ability_created", "ItemAbility created");
 }
 
 const glimmer::AbilityConfig *glimmer::ItemAbility::GetAbilityConfig() const {

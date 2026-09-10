@@ -32,6 +32,7 @@
 
 #include "core/config/Constants.h"
 #include "core/gpu/RenderQueue.h"
+#include "core/log/LogCat.h"
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/ecs/component/TileLayerComponent.h"
 #include "core/world/TileInstancePool.h"
@@ -170,6 +171,7 @@ glimmer::DebugPanelSystem::DebugPanelSystem(WorldContext *worldContext) : GameSy
 
 void glimmer::DebugPanelSystem::OnConfigChanged(const Config *config) {
     displayDebugPanel_ = config->debug.displayDebugPanel;
+    LogCat::i("debug_panel_display_changed", "DebugPanel display changed: {}", displayDebugPanel_);
 }
 
 void glimmer::DebugPanelSystem::OnActivationChanged(bool activeStatus) {

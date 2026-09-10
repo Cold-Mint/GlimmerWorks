@@ -137,10 +137,14 @@ glimmer::TileVector2D glimmer::Tile::CalculateTileAnchor(const TileAnchorType ti
 std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext *appContext,
                                                                const TileResource *tileResource) {
     if (appContext == nullptr) {
+        LogCat::w(std::source_location::current(), "tile_from_resource_null_context",
+                  "Cannot create tile: app context is null");
         return nullptr;
     }
     const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
     if (resourceLocator == nullptr) {
+        LogCat::w(std::source_location::current(), "tile_from_resource_null_locator",
+                  "Cannot create tile: resource locator is null");
         return nullptr;
     }
     auto tile = std::make_unique<Tile>();
@@ -263,6 +267,8 @@ void glimmer::Tile::OnPlace(const WorldContext *worldContext, PlaceSourceMessage
         teachProviderComponent->SetRecipeGroup(static_cast<RecipeGroup>(recipeGroup_));
         teachProviderComponent->SetTechnologyLevel(technologyLevel_);
         gameEntities_[fingerprint] = entity;
+        LogCat::d("tile_on_place_entity_created", "Placed work block, created entity: id={}, position=({}, {})",
+                  entity, position.x, position.y);
     }
 }
 
@@ -280,6 +286,8 @@ void glimmer::Tile::OnBreak(const WorldContext *worldContext, BreakSource breakS
         return;
     }
     entityManager->RemoveEntity(gameEntityIterator->second);
+    LogCat::d("tile_on_break_entity_removed", "Broke block, removed entity: id={}, position=({}, {})",
+              gameEntityIterator->second, position.x, position.y);
     gameEntities_.erase(gameEntityIterator);
 }
 

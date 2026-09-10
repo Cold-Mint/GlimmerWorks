@@ -26,6 +26,7 @@
  */
 #include "ColorCache.h"
 
+#include "core/log/LogCat.h"
 #include "core/utils/TomlUtils.h"
 #include "toml11/parser.hpp"
 
@@ -36,10 +37,14 @@ std::shared_ptr<glimmer::ColorResource> glimmer::ColorCache::LoadResourceFromPac
     colorPath.replace_extension("color.toml");
     const VirtualFileSystem *virtualFileSystem = appContext->GetVirtualFileSystem();
     if (!virtualFileSystem->Exists(colorPath)) {
+        LogCat::w(std::source_location::current(), "color_file_not_found", "Color resource file not found: {}",
+                  colorPath.string());
         return nullptr;
     }
     auto dataOptional = virtualFileSystem->ReadFileAsString(colorPath);
     if (!dataOptional.has_value()) {
+        LogCat::w(std::source_location::current(), "color_file_read_failed", "Failed to read color resource file: {}",
+                  colorPath.string());
         return nullptr;
     }
     return std::make_shared<ColorResource>(toml::get<ColorResource>(toml::parse_str(

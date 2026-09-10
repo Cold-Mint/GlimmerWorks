@@ -26,15 +26,20 @@
  */
 #include "TreeStructureGenerator.h"
 
+#include "core/log/LogCat.h"
 #include "core/world/WorldContext.h"
 
 std::optional<glimmer::StructureInfo> glimmer::TreeStructureGenerator::Generate(WorldContext *worldContext,
     const TileVector2D &startPosition, IStructureResource *structureResource) {
     if (structureResource == nullptr || worldContext == nullptr) {
+        LogCat::w(std::source_location::current(), "structure_generator_null_input",
+                  "Tree structure generator received null input");
         return std::nullopt;
     }
     ChunkGenerator *chunkGenerator = worldContext->GetChunkGenerator();
     if (chunkGenerator == nullptr) {
+        LogCat::w(std::source_location::current(), "tree_structure_chunk_generator_null",
+                  "Chunk generator is null, cannot generate tree");
         return std::nullopt;
     }
     auto treeStructureResource = dynamic_cast<TreeStructureResource *>(structureResource);
@@ -60,6 +65,8 @@ std::optional<glimmer::StructureInfo> glimmer::TreeStructureGenerator::Generate(
                            treeStructureResource->trunkWidth, leafRef);
         }
     }
+    LogCat::d("tree_structure_generate", "Generated tree structure: position=({}, {}), trunkHeight={}",
+              startPosition.x, startPosition.y, trunkHeight);
     return structureInfo;
 }
 

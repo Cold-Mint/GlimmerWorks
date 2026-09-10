@@ -42,6 +42,7 @@ ComponentFingerprint glimmer::EntityManager::GenComponentFingerprint(const GameE
 }
 
 void glimmer::EntityManager::Clear() {
+    LogCat::d("entity_manager_clearing", "EntityManager clearing: {} entities", entityMap_.size());
     entityMap_.clear();
     entityToGameComponentType_.clear();
     components_.clear();
@@ -272,6 +273,8 @@ void glimmer::EntityManager::RecoveryComponent(WorldContext *worldContext, GameE
                                                const ComponentMessage &componentMessage) {
     //Note: Within this method, this part of the code only includes components that can be serialized. That is, components that override the Serialize() method.
     //注意：在这个方法内，这部分代码只写可被序列化的组件。即覆盖了Serialize()方法的组件。
+    LogCat::d("component_recovering", "Recovering component type {} for entity id={}",
+              std::to_underlying(componentMessage.type()), gameEntityId);
     GameComponent *gameComponent = nullptr;
     switch (componentMessage.type()) {
         case COMPONENT_DROPPED_ITEM:

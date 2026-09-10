@@ -26,11 +26,19 @@
  */
 #include "InitialInventoryManager.h"
 
+#include "core/log/LogCat.h"
+
 
 void glimmer::InitialInventoryManager::AddResource(
     std::unique_ptr<InitialInventoryResource> resource) {
+    if (resource == nullptr) {
+        LogCat::w(std::source_location::current(), "initial_inventory_resource_null",
+                  "InitialInventoryResource is null");
+    }
     initialInventoryPtr_.emplace_back(resource.get());
     initialInventory_.emplace_back(std::move(resource));
+    LogCat::d("initial_inventory_add_resource", "Add initial inventory resource, total={}",
+              initialInventory_.size());
 }
 
 std::span<const glimmer::InitialInventoryResource * const> glimmer::InitialInventoryManager::

@@ -213,6 +213,8 @@ void glimmer::PlayerControlSystem::DropItem(const ItemContainer *itemContainer, 
     WorldContext *worldContext = GetWorldContext();
 
     if (itemContainer == nullptr) {
+        LogCat::w(std::source_location::current(), "player_control_item_container_is_null",
+                  "DropItem: itemContainer is nullptr");
         return;
     }
     const auto item = itemContainer->GetItem(index);
@@ -302,6 +304,7 @@ void glimmer::PlayerControlSystem::OnWatchedComponentChanged(GameComponentTypeMe
     }
     if (gameComponentType == COMPONENT_PLAYER && playerEntityID_ == GAME_ENTITY_ID_INVALID) {
         playerEntityID_ = entityShortCut->GetPlayer();
+        LogCat::i("player_control_player_bound", "PlayerControlSystem player entity bound: id={}", playerEntityID_);
     }
 }
 

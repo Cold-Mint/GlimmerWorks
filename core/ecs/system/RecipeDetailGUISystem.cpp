@@ -41,6 +41,7 @@ void glimmer::RecipeDetailGUISystem::LoadRecipeDetail() {
     canCraft_ = false;
     craftCount_ = 1;
     maxCraftCount_ = 1;
+    LogCat::i("recipe_detail_loading", "RecipeDetail loading");
     if (currentRecipe_ == nullptr) {
         LogCat::w(std::source_location::current(), "current_recipe_is_null", "currentRecipe_ == nullptr");
         return;
@@ -264,6 +265,7 @@ void glimmer::RecipeDetailGUISystem::ExecuteCraftBatch(int count) {
     if (!canCraft_ || currentRecipe_ == nullptr || itemContainer_ == nullptr || count <= 0) {
         return;
     }
+    LogCat::i("recipe_detail_craft", "RecipeDetail crafting {} batches", count);
     WorldContext *worldContext = GetWorldContext();
     if (worldContext == nullptr) {
         return;

@@ -28,6 +28,7 @@
 
 #include "box2d/box2d.h"
 #include "core/ecs/component/RayCast2DComponent.h"
+#include "core/log/LogCat.h"
 #include "core/utils/Box2DUtils.h"
 #include "core/world/WorldContext.h"
 
@@ -35,6 +36,7 @@ void glimmer::RayCast2DSystem::OnWatchedComponentChanged(GameComponentTypeMessag
     EntityManager *entityManager = GetEntityManager();
     if (gameComponentType == COMPONENT_RAY_CAST_2D) {
         entities_ = entityManager->GetEntityIDWithComponents({COMPONENT_RAY_CAST_2D});
+        LogCat::d("raycast_entities_rebuilt", "RayCast2D entities rebuilt: {} entities", entities_.size());
     }
 }
 

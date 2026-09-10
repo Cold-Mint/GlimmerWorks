@@ -57,6 +57,7 @@ glimmer::AbilityItem::AbilityItem(const AbilityItemCreateParams &params) : id_(p
         itemDurabilityModule->SetMaxDurability(maxDurability_);
         itemDurabilityModule->SetUnbreakable(unbreakable_);
     }
+    LogCat::d("ability_item_created", "Ability item created: itemId={} canUseAlone={}", id_, canUseAlone_);
     if (itemAbility_ == nullptr) {
         LogCat::e(std::source_location::current(), "item_ability_is_null", "itemAbility is nullptr");
         return;
@@ -80,6 +81,9 @@ std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(con
             ItemAbilityFactory::CreateItemAbility(static_cast<AbilityType>(itemResource->ability),
                                                   itemResource->abilityConfig);
     if (itemAbility == nullptr) {
+        LogCat::w(std::source_location::current(), "ability_item_ability_create_failed",
+                  "Failed to create item ability. abilityType={}",
+                  std::to_underlying(static_cast<AbilityType>(itemResource->ability)));
         return nullptr;
     }
 
@@ -116,6 +120,8 @@ std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(con
             }
         }
     }
+    LogCat::i("ability_item_from_resource", "Create ability item from resource: itemId={} abilityType={}",
+              name, std::to_underlying(static_cast<AbilityType>(itemResource->ability)));
     return abilityItem;
 }
 
@@ -131,6 +137,7 @@ bool glimmer::AbilityItem::OnUse(const bool mouseLeft, WorldContext *worldContex
     if (canUseAlone_) {
         return itemAbility_->OnUse(mouseLeft, worldContext, user, abilityConfig, popupAbility);
     }
+    LogCat::d("ability_item_use_alone_disabled", "Ability item cannot be used alone, skip. itemId={}", id_);
     return false;
 }
 

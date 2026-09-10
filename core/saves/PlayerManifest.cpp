@@ -26,6 +26,8 @@
  */
 #include "PlayerManifest.h"
 
+#include "core/log/LogCat.h"
+
 void glimmer::PlayerManifest::FromMessage(const PlayerMessage &playerMessage) {
     lastPlayedTime = playerMessage.lastplayedtime();
     permissionLevel = playerMessage.permissionlevel();
@@ -37,6 +39,7 @@ void glimmer::PlayerManifest::FromMessage(const PlayerMessage &playerMessage) {
     }
     entityItemMessage = playerMessage.entity();
     customDimension.ReadResourceRefMessage(playerMessage.currentdimension());
+    LogCat::d("player_manifest_from_message", "Player manifest parsed: visitedDimensions={}", visitedDimensionsSize);
 }
 
 void glimmer::PlayerManifest::ToMessage(PlayerMessage &playerMessage) const {
@@ -49,4 +52,5 @@ void glimmer::PlayerManifest::ToMessage(PlayerMessage &playerMessage) const {
         playerMessage.mutable_visiteddimensions()->Add()->CopyFrom(visitedDimensions[i]);
     }
     playerMessage.mutable_entity()->CopyFrom(entityItemMessage);
+    LogCat::d("player_manifest_to_message", "Player manifest serialized: visitedDimensions={}", visitedDimensionsSize);
 }

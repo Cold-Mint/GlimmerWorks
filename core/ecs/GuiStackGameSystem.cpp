@@ -26,10 +26,15 @@
  */
 #include "GuiStackGameSystem.h"
 
+#include "core/log/LogCat.h"
 #include "core/world/SystemScheduler.h"
 #include "core/world/WorldContext.h"
 
 void glimmer::GuiStackGameSystem::SetAndHideElementDocument(Rml::ElementDocument *document) {
+    if (document == nullptr) {
+        LogCat::w(std::source_location::current(), "gui_stack_document_is_null",
+                  "SetAndHideElementDocument: document is nullptr");
+    }
     SetElementDocument(document);
     if (document != nullptr) {
         document->Hide();
@@ -42,6 +47,8 @@ glimmer::GuiStackGameSystem::GuiStackGameSystem(WorldContext *worldContext) : Gu
 void glimmer::GuiStackGameSystem::OnActivationChanged(bool activeStatus) {
     Rml::ElementDocument *elementDocument = GetElementDocument();
     if (elementDocument == nullptr) {
+        LogCat::w(std::source_location::current(), "gui_stack_element_document_is_null",
+                  "GuiStackGameSystem activation changed: element document is nullptr");
         return;
     }
     if (activeStatus) {

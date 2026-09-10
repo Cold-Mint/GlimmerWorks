@@ -28,6 +28,7 @@
 
 #include "core/config/Constants.h"
 #include "core/gpu/RenderQueue.h"
+#include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/ecs/component/DebugDrawComponent.h"
 #include "core/world/WorldContext.h"
@@ -50,6 +51,7 @@ void glimmer::DebugDrawSystem::OnWatchedComponentChanged(GameComponentTypeMessag
     }
     if (transform2DCount > 0 && debugDrawCount > 0) {
         entities_ = entityManager->GetEntityIDWithComponents({COMPONENT_DEBUG_DRAW, COMPONENT_TRANSFORM_2D});
+        LogCat::d("debug_draw_entities_rebuilt", "DebugDraw entities rebuilt: {} entities", entities_.size());
     }
 }
 

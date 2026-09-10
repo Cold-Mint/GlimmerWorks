@@ -47,6 +47,7 @@ void glimmer::PauseSystem::TogglePause() const {
     }
     bool newValue = !worldContext->IsRuning();
     worldContext->SetRuning(newValue);
+    LogCat::i("pause_toggled", "Pause toggled: {}", newValue);
     if (elementDocument_ == nullptr) {
         LogCat::w(std::source_location::current(), "pause_toggle_element_document_is_null",
                   "Cannot toggle pause system: elementDocument_ is nullptr");

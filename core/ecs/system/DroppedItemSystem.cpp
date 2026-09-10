@@ -26,6 +26,7 @@
  */
 #include "DroppedItemSystem.h"
 
+#include "core/log/LogCat.h"
 #include "core/world/WorldContext.h"
 #include "core/ecs/component/CameraComponent.h"
 #include "core/ecs/component/DroppedItemComponent.h"
@@ -50,6 +51,8 @@ void glimmer::DroppedItemSystem::OnWatchedComponentChanged(GameComponentTypeMess
     }
     if (transform2dCount > 0 && droppedItemCount > 0) {
         droppedEntities_ = entityManager->GetEntityIDWithComponents({COMPONENT_TRANSFORM_2D, COMPONENT_DROPPED_ITEM});
+        LogCat::d("dropped_item_entities_rebuilt", "Dropped item entities rebuilt: {} entities",
+                  droppedEntities_.size());
     }
 }
 
@@ -74,6 +77,7 @@ void glimmer::DroppedItemSystem::Update(float delta) {
             continue;
         }
         if (droppedItemComponent->IsExpired()) {
+            LogCat::d("dropped_item_expired", "Dropped item expired, removing entity: id={}", gameEntity);
             entityManager->RemoveEntity(gameEntity);
             continue;
         }

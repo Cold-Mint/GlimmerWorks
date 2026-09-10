@@ -98,4 +98,5 @@ void glimmer::WorldSaver::SaveGame() {
                   WorldContext::IsEmptyEntityId(player), worldContext_->GetEntityManager()->IsPersistable(player));
     }
     saving_ = false;
+    LogCat::i("world_saved_successfully", "World saved successfully");
 }

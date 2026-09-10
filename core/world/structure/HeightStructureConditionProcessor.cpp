@@ -57,5 +57,6 @@ std::bitset<CHUNK_AREA> glimmer::HeightStructureConditionProcessor::Match(Terrai
             }
         }
     }
+    LogCat::d("height_condition_matched_count", "Height condition matched tiles: {}", matchedTileCount);
     return result;
 }

@@ -130,6 +130,8 @@ void glimmer::LightBuffer::RebuildAllLight() {
         SetLightFromSource(*lightSource, layerType);
     }
     ++revision_;
+    LogCat::d("light_buffer_rebuild_all", "Rebuilt all light: source count={}, revision={}", sources.size(),
+              revision_);
 }
 
 void glimmer::LightBuffer::SetSideLightMask(const TileVector2D position, const TileLayerType layerType,
@@ -289,6 +291,8 @@ void glimmer::LightBuffer::SetDynamicLight(const uint64_t id, const TileVector2D
     DynamicLightEntry entry{position, layerType, std::move(lightSource)};
     dynamicLights_.emplace(id, std::move(entry));
     ++revision_;
+    LogCat::d("light_buffer_set_dynamic_light", "Set dynamic light: id={}, position=({}, {})", id, position.x,
+              position.y);
 }
 
 void glimmer::LightBuffer::RemoveDynamicLight(const uint64_t id) {
@@ -301,6 +305,7 @@ void glimmer::LightBuffer::RemoveDynamicLight(const uint64_t id) {
     }
     dynamicLights_.erase(it);
     ++revision_;
+    LogCat::d("light_buffer_remove_dynamic_light", "Removed dynamic light: id={}", id);
 }
 
 float glimmer::LightBuffer::GetSkyVisibility(const TileVector2D &position) const {

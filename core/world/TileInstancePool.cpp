@@ -46,6 +46,7 @@ std::shared_ptr<glimmer::Tile> glimmer::TileInstancePool::CreateTile(const AppCo
                                                                      uint64_t fingerprint) {
     if (const auto cache = tileInstanceMap_.find(fingerprint); cache != tileInstanceMap_.end()) {
         if (auto cachePtr = cache->second.lock()) {
+            LogCat::d("tile_instance_cache_hit", "Tile instance cache hit: fingerprint={}", fingerprint);
             return cachePtr;
         }
         tileInstanceMap_.erase(cache);
@@ -56,5 +57,6 @@ std::shared_ptr<glimmer::Tile> glimmer::TileInstancePool::CreateTile(const AppCo
     };
     std::shared_ptr<Tile> tile(unique_tile.release(), std::move(deleter));
     tileInstanceMap_.try_emplace(fingerprint, tile);
+    LogCat::d("tile_instance_created", "Created tile instance: fingerprint={}", fingerprint);
     return tile;
 }

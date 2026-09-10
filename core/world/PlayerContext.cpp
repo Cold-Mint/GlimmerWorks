@@ -38,6 +38,7 @@
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/math/CoordinateTransformer.h"
+#include "core/log/LogCat.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/mod/ResourceRef.h"
 #include "core/mod/resourcePack/AudioResourceResult.h"
@@ -78,6 +79,8 @@ void glimmer::PlayerContext::InitPlayer(const ResourceRef &resourceRef) {
     EntityManager *entityManager = worldContext_->GetEntityManager();
     EntityShortCut *entityShortCut = worldContext_->GetEntityShortCut();
     if (entityManager == nullptr || entityShortCut == nullptr) {
+        LogCat::w(std::source_location::current(), "player_context_init_null",
+                  "Cannot init player: entity manager or entity shortcut is null");
         return;
     }
     GameEntityID player = entityShortCut->GetPlayer();
@@ -134,10 +137,12 @@ uint32_t glimmer::PlayerContext::CreateOrLoadPlayer(const ResourceRef &resourceR
         }
     }
     if (!WorldContext::IsEmptyEntityId(playerEntity)) {
+        LogCat::i("player_context_loaded", "Loaded player from saves: id={}", playerEntity);
         return playerEntity;
     }
     const auto firstTileTerrainY = worldContext_->GetChunkGenerator()->GetFirstTileTerrainY(0);
     playerEntity = worldContext_->GetEntityManager()->AddEntity();
+    LogCat::i("player_context_created", "Created new player entity: id={}", playerEntity);
     MobEntityCreator mobEntityCreator{worldContext_};
     mobEntityCreator.LoadTemplateComponents(playerEntity, resourceRef);
     mobEntityCreator.MergeEntityItemMessage(playerEntity,

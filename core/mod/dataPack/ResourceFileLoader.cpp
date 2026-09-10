@@ -47,6 +47,7 @@
 #include "core/contributor/ContributorManager.h"
 #include "core/inventory/InitialInventoryManager.h"
 #include "core/lootTable/LootTableRegistry.h"
+#include "core/log/LogCat.h"
 #include "core/mod/dataPack/BiomeDecoratorRegistry.h"
 #include "core/mod/dataPack/StructurePlacementConditionsRegistry.h"
 #include "core/shape/ShapeManager.h"
@@ -195,6 +196,8 @@ int glimmer::ResourceFileLoader::LoadStringResourceFromFile(const std::filesyste
                                                             StringManager *stringManager) const {
     const auto contentOptional = virtualFileSystem_->ReadFileAsString(path);
     if (!contentOptional.has_value()) {
+        LogCat::w(std::source_location::current(), "resource_file_loader_string_read_failed",
+                  "Failed to read string resource file: {}", path.string());
         return 0;
     }
     const std::vector<std::filesystem::path> searchPath = GetActuallyTemplateSearchPath(path);
@@ -221,6 +224,8 @@ int glimmer::ResourceFileLoader::LoadStringResourceFromFile(const std::filesyste
         );
         count++;
     }
+    LogCat::d("resource_file_loader_strings_loaded", "Loaded string resources: file={}, count={}", path.string(),
+              count);
     return count;
 }
 
@@ -583,6 +588,8 @@ int glimmer::ResourceFileLoader::LoadLanguageFiles(const std::vector<std::filesy
     for (const auto &file: filesToLoad) {
         total += LoadStringResourceFromFile(file, modContext->GetStringManager());
     }
+    LogCat::d("resource_file_loader_language_files_loaded", "Loaded language files: files={}, strings={}",
+              filesToLoad.size(), total);
     return total;
 }
 
@@ -598,6 +605,8 @@ int glimmer::ResourceFileLoader::LoadResourceByType(const std::string &dataType,
 
     const auto it = handlerMap_.find(dataType);
     if (it == handlerMap_.end()) {
+        LogCat::w(std::source_location::current(), "resource_file_loader_unknown_type",
+                  "Unknown resource file type: {}, file: {}", dataType, file);
         return 0;
     }
     it->second(value, modContext, graphicsContext);

@@ -27,10 +27,13 @@
 #include "DataPackManager.h"
 
 #include "core/context/AppContext.h"
+#include "core/log/LogCat.h"
 
 void glimmer::DataPackManager::AfterRegister(DataPack *resource) {
     BasePackManager::AfterRegister(resource);
     packIdVector.emplace_back(resource->GetManifest()->id);
+    LogCat::i("data_pack_registered", "Data pack registered: Id={}, total={}", resource->GetManifest()->id,
+              packIdVector.size());
 }
 
 void glimmer::DataPackManager::BeforeUnRegister(DataPack *resource) {
@@ -39,20 +42,25 @@ void glimmer::DataPackManager::BeforeUnRegister(DataPack *resource) {
     if (it != packIdVector.end()) {
         packIdVector.erase(it);
     }
+    LogCat::d("data_pack_unregistered", "Data pack unregistered: Id={}", resource->GetManifest()->id);
 }
 
 std::unique_ptr<glimmer::DataPack> glimmer::DataPackManager::LoadPack(const PackScanRequest *packScanRequest,
                                                                       std::filesystem::path path) {
+    LogCat::i("data_pack_load_start", "Loading data pack from path: {}", path.string());
     AppContext *appContext = packScanRequest->GetAppContext();
     if (appContext == nullptr) {
+        LogCat::w(std::source_location::current(), "app_context_is_null", "appContext == nullptr");
         return nullptr;
     }
     VirtualFileSystem *virtualFileSystem = appContext->GetVirtualFileSystem();
     if (virtualFileSystem == nullptr) {
+        LogCat::w(std::source_location::current(), "vfs_is_null", "virtualFileSystem == nullptr");
         return nullptr;
     }
     ModContext *modContext = appContext->GetModContext();
     if (modContext == nullptr) {
+        LogCat::w(std::source_location::current(), "mod_context_is_null", "modContext == nullptr");
         return nullptr;
     }
 
@@ -67,6 +75,7 @@ std::unique_ptr<glimmer::DataPack> glimmer::DataPackManager::LoadPack(const Pack
         LogCat::w(std::source_location::current(), "data_pack_load_failed", "Failed to load data pack");
         return nullptr;
     }
+    LogCat::i("data_pack_load_success", "Data pack loaded successfully: Id={}", dataPack->GetManifest()->id);
     return dataPack;
 }
 

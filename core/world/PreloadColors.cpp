@@ -32,6 +32,7 @@
 #include "core/mod/ResourceLocator.h"
 
 void glimmer::PreloadColors::LoadAllColors(const ResourceLocator *resourceLocator) {
+    LogCat::i("preload_colors_start", "Preloading colors");
     Color text;
     text.r = 250;
     text.g = 250;
@@ -425,6 +426,7 @@ void glimmer::PreloadColors::LoadAllColors(const ResourceLocator *resourceLocato
     defaultDurabilityDanger.b = 60;
     defaultDurabilityDanger.a = 96;
     durability.durabilityDanger = LoadColor(resourceLocator, "durability/danger", defaultDurabilityDanger);
+    LogCat::i("preload_colors_completed", "Preloading colors completed");
 }
 
 glimmer::Color glimmer::PreloadColors::LoadColor(const ResourceLocator *resourceLocator, const std::string &key,
@@ -435,6 +437,8 @@ glimmer::Color glimmer::PreloadColors::LoadColor(const ResourceLocator *resource
     resourceRef.SetResourceKey(key);
     const std::unique_ptr<Color> targetColor = resourceLocator->FindColor(&resourceRef);
     if (targetColor == nullptr) {
+        LogCat::w(std::source_location::current(), "preload_color_not_found",
+                  "Color not found, using default: key={}", key);
         return defaultColor;
     }
     return Color{targetColor->r, targetColor->g, targetColor->b, targetColor->a};

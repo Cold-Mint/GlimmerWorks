@@ -28,6 +28,7 @@
 
 #include "box2d/box2d.h"
 #include "TilePhysicsType.h"
+#include "core/log/LogCat.h"
 #include "core/utils/Box2DUtils.h"
 #include "box2d/types.h"
 #include "core/world/Tile.h"
@@ -106,6 +107,8 @@ void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(AppContext *appContex
     if (appContext == nullptr || chunk == nullptr) {
         return;
     }
+    LogCat::d("chunk_physics_attach", "Attaching physics body to chunk: position=({}, {})",
+              chunk->GetPosition().x, chunk->GetPosition().y);
     appContext->GetMainThreadDispatcher()->RunOnMainThread([worldId, chunk] {
         const std::vector<bool> isStaticTile = CollectStaticTiles(chunk);
         std::vector<bool> visited(CHUNK_AREA, false);
@@ -148,6 +151,8 @@ void glimmer::ChunkPhysicsHelper::DetachPhysicsBodyToChunk(AppContext *appContex
     if (appContext == nullptr || chunk == nullptr) {
         return;
     }
+    LogCat::d("chunk_physics_detach", "Detaching physics body from chunk: position=({}, {})",
+              chunk->GetPosition().x, chunk->GetPosition().y);
     appContext->GetMainThreadDispatcher()->RunOnMainThread([chunk] {
         for (const b2BodyId bodyId: chunk->GetAttachedBodies()) {
             if (b2Body_IsValid(bodyId)) {

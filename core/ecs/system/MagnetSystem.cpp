@@ -26,6 +26,7 @@
  */
 #include "MagnetSystem.h"
 
+#include "core/log/LogCat.h"
 #include "core/world/WorldContext.h"
 #include "core/ecs/component/RigidBody2DComponent.h"
 #include "core/ecs/component/DroppedItemComponent.h"
@@ -65,6 +66,7 @@ void glimmer::MagnetSystem::OnWatchedComponentChanged(GameComponentTypeMessage g
         magnetEntities_ = entityManager->GetEntityIDWithComponents({
             COMPONENT_TRANSFORM_2D, COMPONENT_MAGNET, COMPONENT_ITEM_CONTAINER
         });
+        LogCat::d("magnet_entities_rebuilt", "Magnet entities rebuilt: {} magnets", magnetEntities_.size());
     }
     if (magneticComponentCount_ > 0 && transform2DComponentCount_ > 0 && rigidComponentCount_ > 0 &&
         rayCast2dComponentCount_ > 0 && droppedItemComponentCount_ > 0) {
@@ -72,6 +74,7 @@ void glimmer::MagnetSystem::OnWatchedComponentChanged(GameComponentTypeMessage g
             COMPONENT_MAGNETIC, COMPONENT_TRANSFORM_2D, COMPONENT_RIGID_BODY_2D, COMPONENT_RAY_CAST_2D,
             COMPONENT_DROPPED_ITEM
         });
+        LogCat::d("magnetic_entities_rebuilt", "Magnetic entities rebuilt: {} entities", magneticEntities_.size());
     }
 }
 
@@ -158,6 +161,7 @@ bool glimmer::MagnetSystem::ProcessMagneticEntity(GameEntityID magneticEntity,
     b2Body_ApplyForceToCenter(rigidBody2DComponent->GetBodyId(), {force.x, force.y}, true);
     if (distance <= magnet->GetAdsorptionRadius()) {
         magnet->AddEntity(magneticEntity);
+        LogCat::d("magnetic_entity_adsorbed", "Magnetic entity {} entered adsorption radius", magneticEntity);
     }
     return true;
 }

@@ -36,6 +36,8 @@ void glimmer::ItemContainer::BindItemEvent(uint8_t index, std::unique_ptr<Item> 
     if (item == nullptr) {
         return;
     }
+    LogCat::d("container_bind_item_event", "Bind item event at slot[{}], itemId={}", static_cast<int>(index),
+              item->GetId());
     InvokeOnContentChanged(index, item.get(), ContainerChangeType::STACK_CREATE);
     if (ItemStackModule *itemStackModule = item->GetMutableStackModule(); itemStackModule != nullptr) {
         itemStackModule->SetOnAmountChanged(
@@ -44,6 +46,8 @@ void glimmer::ItemContainer::BindItemEvent(uint8_t index, std::unique_ptr<Item> 
                 if (amount == 0) {
                     UnBindItemEvent(item.get());
                     InvokeOnContentChanged(index, item.get(), ContainerChangeType::STACK_AMOUNT_EXHAUSTED);
+                    LogCat::d("container_item_stack_exhausted",
+                              "Item stack exhausted at slot[{}], removing item", static_cast<int>(index));
                     item.reset();
                 }
             });
@@ -57,6 +61,8 @@ void glimmer::ItemContainer::BindItemEvent(uint8_t index, std::unique_ptr<Item> 
                 if (usedDurability >= maxDurability) {
                     UnBindItemEvent(item.get());
                     InvokeOnContentChanged(index, item.get(), ContainerChangeType::STACK_DURABILITY_EXHAUSTED);
+                    LogCat::d("container_item_durability_exhausted",
+                              "Item durability exhausted at slot[{}], removing item", static_cast<int>(index));
                     item.reset();
                 }
             });
@@ -72,6 +78,7 @@ void glimmer::ItemContainer::UnBindItemEvent(Item *item) {
     if (item == nullptr) {
         return;
     }
+    LogCat::d("container_unbind_item_event", "Unbind item event, itemId={}", item->GetId());
     if (ItemStackModule *itemStackModule = item->GetMutableStackModule(); itemStackModule != nullptr) {
         itemStackModule->SetOnAmountChanged(nullptr);
     }
@@ -184,6 +191,7 @@ std::shared_ptr<std::function<void(uint8_t)> > glimmer::ItemContainer::AddOnSele
 }
 
 void glimmer::ItemContainer::Resize(const uint8_t capacity) {
+    LogCat::d("container_resize", "Resize container to capacity={}", static_cast<int>(capacity));
     items_.resize(capacity);
 }
 
@@ -388,6 +396,9 @@ uint8_t glimmer::ItemContainer::GetRemainingItemAmountAfterAdd(const Item *item)
 
 std::unique_ptr<glimmer::Item> glimmer::ItemContainer::ReplaceItem(const uint8_t index, std::unique_ptr<Item> item) {
     if (index >= items_.size()) {
+        LogCat::w(std::source_location::current(), "container_replace_item_invalid_index",
+                  "ReplaceItem index out of range. index={} size={}", static_cast<int>(index),
+                  static_cast<int>(items_.size()));
         return nullptr;
     }
     std::unique_ptr<Item> oldItem = std::move(items_[index]);
@@ -399,11 +410,15 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::ReplaceItem(const uint8_t
     if (items_[index] != nullptr) {
         BindItemEvent(index, items_[index]);
     }
+    LogCat::d("container_replace_item", "Replace item at slot[{}], hadOldItem={} hasNewItem={}",
+              static_cast<int>(index), oldItem != nullptr, items_[index] != nullptr);
     return oldItem;
 }
 
 uint8_t glimmer::ItemContainer::RemoveItem(std::string_view id, const uint8_t amount) const {
     int unallocatedCount = amount;
+    LogCat::d("container_remove_item", "RemoveItem start. itemId={} requestAmount={}", id,
+              static_cast<int>(amount));
     for (auto &i: items_) {
         Item *itemPtr = i.get();
         if (itemPtr == nullptr) {
@@ -424,7 +439,10 @@ uint8_t glimmer::ItemContainer::RemoveItem(std::string_view id, const uint8_t am
             }
         }
     }
-    return amount - unallocatedCount;
+    const uint8_t removedCount = static_cast<uint8_t>(amount - unallocatedCount);
+    LogCat::d("container_remove_item_complete", "RemoveItem complete. itemId={} removed={}", id,
+              static_cast<int>(removedCount));
+    return removedCount;
 }
 
 
@@ -440,6 +458,9 @@ uint8_t glimmer::ItemContainer::GetUsedCapacity() const {
 
 uint8_t glimmer::ItemContainer::RemoveItemAt(const uint8_t index, const uint8_t amount) const {
     if (index >= items_.size() || items_[index] == nullptr) {
+        LogCat::w(std::source_location::current(), "container_remove_item_at_invalid",
+                  "RemoveItemAt invalid: index out of range or empty slot. index={} size={}",
+                  static_cast<int>(index), static_cast<int>(items_.size()));
         return 0;
     }
     Item *item = items_[index].get();
@@ -468,6 +489,7 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::TakeAllItem(const uint8_t
     if (index >= items_.size()) {
         return nullptr;
     }
+    LogCat::d("container_take_all_item", "Take all items from slot[{}]", static_cast<int>(index));
     std::unique_ptr<Item> item = std::move(items_[index]);
     InvokeOnContentChanged(index, item.get(), ContainerChangeType::STACK_DESTROY);
     UnBindItemEvent(item.get());
@@ -482,6 +504,8 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::TakeItem(const uint8_t in
     if (item == nullptr) {
         return nullptr;
     }
+    LogCat::d("container_take_item", "Take item from slot[{}], amount={}", static_cast<int>(index),
+              static_cast<int>(amount));
     std::unique_ptr<Item> newItem = item->Clone();
     UnBindItemEvent(newItem.get());
     ItemStackModule *itemStackModule = item->GetMutableStackModule();
@@ -501,10 +525,18 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::TakeItem(const uint8_t in
 }
 
 bool glimmer::ItemContainer::SwapItem(uint8_t index, ItemContainer *otherContainer, uint8_t otherIndex) {
+    LogCat::d("container_swap_item", "SwapItem start. index={} otherIndex={}", static_cast<int>(index),
+              static_cast<int>(otherIndex));
     if (otherContainer == nullptr) {
+        LogCat::w(std::source_location::current(), "container_swap_item_null",
+                  "SwapItem otherContainer is null");
         return false;
     }
     if (index >= items_.size() || otherIndex >= otherContainer->items_.size()) {
+        LogCat::w(std::source_location::current(), "container_swap_item_invalid_index",
+                  "SwapItem index out of range. index={} size={} otherIndex={} otherSize={}",
+                  static_cast<int>(index), static_cast<int>(items_.size()), static_cast<int>(otherIndex),
+                  static_cast<int>(otherContainer->items_.size()));
         return false;
     }
     if (this == otherContainer) {
@@ -528,6 +560,8 @@ void glimmer::ItemContainer::FromMessage(WorldContext *worldContext, const ItemC
         return;
     }
     const uint8_t messageSize = message.itemresourceref_size();
+    LogCat::d("container_from_message", "Load container from message, capacity={}",
+              static_cast<int>(messageSize));
     Resize(messageSize);
     for (int i = 0; i < messageSize; ++i) {
         const ItemMessage &itemMessage = message.itemresourceref(i);
@@ -556,6 +590,8 @@ void glimmer::ItemContainer::ToMessage(ItemContainerMessage &message) const {
 }
 
 void glimmer::ItemContainer::ResetItems() {
+    LogCat::d("container_reset_items", "Reset container items, capacity={}",
+              static_cast<int>(items_.size()));
     for (uint8_t i = 0; i < items_.size(); ++i) {
         std::unique_ptr<Item> &item = items_[i];
         if (item == nullptr) {
@@ -570,6 +606,7 @@ void glimmer::ItemContainer::ResetItems() {
 
 std::unique_ptr<glimmer::ItemContainer> glimmer::ItemContainer::Clone() const {
     const uint8_t size = items_.size();
+    LogCat::d("container_clone", "Clone container, capacity={}", static_cast<int>(size));
     auto newContainer = std::make_unique<ItemContainer>();
     newContainer->Resize(size);
     for (uint8_t i = 0; i < size; ++i) {

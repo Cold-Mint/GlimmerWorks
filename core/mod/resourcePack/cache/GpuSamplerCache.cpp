@@ -25,6 +25,7 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "GpuSamplerCache.h"
+#include "core/log/LogCat.h"
 #include "core/utils/TomlUtils.h"
 #include "toml11/parser.hpp"
 
@@ -35,21 +36,28 @@ std::shared_ptr<glimmer::GPUSamplerResourceResult> glimmer::GpuSamplerCache::Loa
     samplerPath.replace_extension("sampler.toml");
     const VirtualFileSystem *virtualFileSystem = appContext->GetVirtualFileSystem();
     if (virtualFileSystem == nullptr) {
+        LogCat::w(std::source_location::current(), "vfs_is_null", "virtualFileSystem == nullptr");
         return nullptr;
     }
     if (!virtualFileSystem->Exists(samplerPath)) {
+        LogCat::w(std::source_location::current(), "gpu_sampler_file_not_found",
+                  "GPU sampler configuration file not found: {}", samplerPath.string());
         return nullptr;
     }
     auto data = virtualFileSystem->ReadFileAsString(samplerPath);
     if (!data.has_value()) {
+        LogCat::w(std::source_location::current(), "gpu_sampler_read_failed",
+                  "Failed to read GPU sampler configuration file: {}", samplerPath.string());
         return nullptr;
     }
     const WindowContext *windowContext = appContext->GetWindowContext();
     if (windowContext == nullptr) {
+        LogCat::w(std::source_location::current(), "window_context_is_null", "windowContext == nullptr");
         return nullptr;
     }
     SDL_GPUDevice *device = windowContext->GetDevice();
     if (device == nullptr) {
+        LogCat::w(std::source_location::current(), "gpu_device_is_null", "device == nullptr");
         return nullptr;
     }
     const auto gpuSamplerResource = std::make_unique<GpuSamplerResource>(

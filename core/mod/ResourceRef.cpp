@@ -68,15 +68,21 @@ std::optional<glimmer::ResourceRef> glimmer::ResourceRef::ParseFromId(std::strin
                                                                       const ResourceTypeMessage resourceType) {
     auto pos = id.find(':');
     if (pos == std::string::npos) {
+        LogCat::w(std::source_location::current(), "resource_ref_parse_failed",
+                  "Failed to parse resource ref '{}': missing ':' separator", id);
         return std::nullopt;
     }
     ResourceRef ref;
     ref.SetSelfPackageId(id.substr(0, pos));
     if (ref.GetPackageId().empty()) {
+        LogCat::w(std::source_location::current(), "resource_ref_parse_failed",
+                  "Failed to parse resource ref '{}': empty package id", id);
         return std::nullopt;
     }
     ref.SetResourceKey(id.substr(pos + 1));
     if (ref.GetResourceKey().empty()) {
+        LogCat::w(std::source_location::current(), "resource_ref_parse_failed",
+                  "Failed to parse resource ref '{}': empty resource key", id);
         return std::nullopt;
     }
     ref.SetResourceType(resourceType);

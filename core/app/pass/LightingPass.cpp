@@ -143,14 +143,23 @@ void glimmer::LightingPass::UpdateLightMap(UniformInjectContext *injectContext) 
 
     WorldContext *worldContext = injectContext->worldContext;
     const DimensionResource *dimensionResource = nullptr;
-    if (worldContext != nullptr && worldContext->GetDimension() != nullptr) {
-        dimensionResource = worldContext->GetDimension()->GetDimensionResource();
+    Dimension *dimension = nullptr;
+    if (worldContext == nullptr) {
+        LogCat::w(std::source_location::current(), "world_context_is_null", "worldContext == nullptr");
+        return;
     }
-    static const std::vector<LightKeyframe> emptyKeyframes;
-    const float timeOfDay = dimensionResource != nullptr ? dimensionResource->initialTime : 0.0F;
-    const std::vector<LightKeyframe> &keyframes = dimensionResource != nullptr
-                                                      ? dimensionResource->ambientLightKeyframes
-                                                      : emptyKeyframes;
+    dimension = worldContext->GetDimension();
+    if (dimension == nullptr) {
+        LogCat::w(std::source_location::current(), "dimension_is_null", "dimension is nullptr");
+        return;
+    }
+    dimensionResource = dimension->GetDimensionResource();
+    if (dimensionResource == nullptr) {
+        LogCat::w(std::source_location::current(), "dimension_resource_is_null", "dimensionResource == nullptr");
+        return;
+    }
+    const float timeOfDay = dimensionResource->initialTime;
+    const std::vector<LightKeyframe> &keyframes = dimensionResource->ambientLightKeyframes;
     ambientLight_ = ColorUtils::ComputeAmbientLight(resourceLocator_, timeOfDay, keyframes);
     LogCat::i("app_renderer_ambient_light", "Ambient light: rgba=({},{},{},{}), timeOfDay={}, keyframes={}",
               static_cast<int>(ambientLight_.r), static_cast<int>(ambientLight_.g),

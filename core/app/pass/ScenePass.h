@@ -95,7 +95,7 @@ namespace glimmer {
 
         void EnsureSolidColorTexture();
 
-        void FlushScenePass(RenderFrameContext &ctx);
+        void FlushScenePass(const RenderFrameContext &ctx);
 
     public:
         ScenePass(SDL_GPUDevice *device, SDL_Window *window,

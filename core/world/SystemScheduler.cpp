@@ -350,6 +350,7 @@ void glimmer::SystemScheduler::MoveSystemsToInactive(std::queue<GameSystem *> &t
 }
 
 void glimmer::SystemScheduler::InitSystem() {
+    LogCat::i("system_scheduler_init", "Initializing system scheduler");
     allowRegisterSystem_ = true;
     RegisterSystem(std::make_unique<CameraSystem>(worldContext_));
     RegisterSystem(std::make_unique<PlayerControlSystem>(worldContext_));
@@ -406,6 +407,8 @@ void glimmer::SystemScheduler::RegisterSystem(std::unique_ptr<GameSystem> system
         }
 #endif
         system->LockWatchComponent();
+        LogCat::d("system_registered", "Registered system: type={}",
+                  std::to_underlying(system->GetGameSystemType()));
         inactiveSystems_.emplace_back(std::move(system));
     }
 }
@@ -413,6 +416,8 @@ void glimmer::SystemScheduler::RegisterSystem(std::unique_ptr<GameSystem> system
 void glimmer::SystemScheduler::RegisterGuiSystem(std::unique_ptr<GuiGameSystem> system) {
     if (allowRegisterSystem_) {
         system->LockWatchComponent();
+        LogCat::d("system_registered", "Registered GUI system: type={}",
+                  std::to_underlying(system->GetGameSystemType()));
         inactiveSystems_.emplace_back(std::move(system));
         auto &guiGameSystemUniquePtr = inactiveSystems_.back();
         guiGameSystems_.emplace_back(dynamic_cast<GuiGameSystem *>(guiGameSystemUniquePtr.get()));

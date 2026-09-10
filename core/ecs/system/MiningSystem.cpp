@@ -114,6 +114,8 @@ void glimmer::MiningSystem::DropDefaultLoot(WorldContext *worldContext, EntityMa
                                             const std::shared_ptr<Tile> &tile, const TileVector2D &position,
                                             const ResourceRef &oldResourceRef) {
     const uint32_t droppedEntity = entityManager->AddEntity();
+    LogCat::d("mining_drop_default_loot", "Dropping default loot: entity={}, tile=({}, {})",
+              droppedEntity, position.x, position.y);
     DroppedItemCreator droppedItemCreator{worldContext};
     droppedItemCreator.LoadTemplateComponents(droppedEntity,
                                               DroppedItemCreator::GetResourceRef());
@@ -150,6 +152,8 @@ void glimmer::MiningSystem::DropCustomLoot(WorldContext *worldContext, EntityMan
                                            const AppContext *appContext, const LootResource *lootResource,
                                            const TileVector2D &topLeftVector) {
     std::vector<ItemMessage> itemMessageList = LootResource::GetLootItems(lootResource);
+    LogCat::d("mining_drop_custom_loot", "Dropping custom loot: {} items at ({}, {})",
+              itemMessageList.size(), topLeftVector.x, topLeftVector.y);
     for (auto &itemMessage: itemMessageList) {
         auto itemPtr = appContext->GetResourceLocator()->FindItem(worldContext, itemMessage);
         if (itemPtr == nullptr) {
@@ -265,6 +269,8 @@ void glimmer::MiningSystem::ProcessSingleTile(const TileBreakParams &params, con
 
 uint16_t glimmer::MiningSystem::BreakTile(const TileBreakParams &params) {
     if (params.worldContext == nullptr || params.tileLayerComponent == nullptr) {
+        LogCat::w(std::source_location::current(), "mining_break_tile_invalid_params",
+                  "BreakTile: worldContext or tileLayerComponent is nullptr");
         return 0;
     }
     const AppContext *appContext = params.worldContext->GetAppContext();
@@ -301,6 +307,7 @@ uint16_t glimmer::MiningSystem::BreakTile(const TileBreakParams &params) {
                               x == centerX && y == centerY, sum);
         }
     }
+    LogCat::d("mining_break_tile_complete", "BreakTile complete: {} tiles broken", static_cast<int>(sum));
     return sum;
 }
 

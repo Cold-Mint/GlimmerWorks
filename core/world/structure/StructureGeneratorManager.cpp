@@ -26,6 +26,8 @@
  */
 #include "StructureGeneratorManager.h"
 
+#include "core/log/LogCat.h"
+
 void glimmer::StructureGeneratorManager::RegisterStructureGenerator(
     std::unique_ptr<IStructureGenerator> structureGenerator) {
     const StructureGeneratorType type = structureGenerator->GetStructureGeneratorType();
@@ -36,6 +38,8 @@ std::optional<glimmer::StructureInfo> glimmer::StructureGeneratorManager::Genera
     const TileVector2D &structuralOrigin, IStructureResource *structureResource) {
     const auto type = static_cast<StructureGeneratorType>(structureResource->generatorId);
     if (!structureGeneratorMap_.contains(type)) {
+        LogCat::w(std::source_location::current(), "structure_generator_not_registered",
+                  "Structure generator is not registered: type={}", std::to_underlying(type));
         return std::nullopt;
     }
     return structureGeneratorMap_[type]->Generate(worldContext, structuralOrigin, structureResource);

@@ -31,6 +31,7 @@
 
 #include "core/context/AppContext.h"
 #include "core/context/ModContext.h"
+#include "core/log/LogCat.h"
 #include "core/math/TileVector2D.h"
 #include "core/mod/Resource.h"
 #include "core/mod/ResourceRef.h"
@@ -49,19 +50,24 @@ glimmer::StructurePlacer::StructurePlacer(WorldContext *worldContext) : worldCon
 }
 
 void glimmer::StructurePlacer::GenerateStructure(const TileVector2D &position) const {
+    LogCat::i("structure_placing_start", "Placing structures: position=({}, {})", position.x, position.y);
     const AppContext *appContext = worldContext_->GetAppContext();
     const auto &all = appContext->GetModContext()->GetStructureRegistry()->GetAll();
     if (all.empty()) {
+        LogCat::d("structure_registry_empty", "Structure registry is empty, skipping");
         return;
     }
 
     TerrainManager *terrainManager = worldContext_->GetTerrainManager();
     if (terrainManager == nullptr) {
+        LogCat::w(std::source_location::current(), "terrain_manager_is_null",
+                  "Terrain manager is null, cannot place structures");
         return;
     }
 
     TerrainResult *terrainResult = terrainManager->GetOrCreateTerrainData(position);
 
+    int totalPlaced = 0;
     for (auto structureResource: all) {
         std::optional<std::bitset<CHUNK_AREA> > candidatePoints = MatchStructureConditions(
             appContext, terrainResult, structureResource);
@@ -70,9 +76,11 @@ void glimmer::StructurePlacer::GenerateStructure(const TileVector2D &position) c
             continue;
         }
 
-        PlaceStructureAtCandidatePoints(appContext, terrainManager, position,
-                                        candidatePoints.value(), structureResource);
+        totalPlaced += PlaceStructureAtCandidatePoints(appContext, terrainManager, position,
+                                                       candidatePoints.value(), structureResource);
     }
+    LogCat::d("structure_placed_count", "Structure placement completed: position=({}, {}), placed={}", position.x,
+              position.y, totalPlaced);
 }
 
 void glimmer::StructurePlacer::PlaceStructureTiles(TerrainManager *terrainManager,

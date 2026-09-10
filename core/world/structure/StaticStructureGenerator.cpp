@@ -26,10 +26,14 @@
  */
 #include "StaticStructureGenerator.h"
 
+#include "core/log/LogCat.h"
+
 
 std::optional<glimmer::StructureInfo> glimmer::StaticStructureGenerator::Generate(WorldContext *worldContext,
     const TileVector2D &startPosition, IStructureResource *structureResource) {
     if (structureResource == nullptr || worldContext == nullptr) {
+        LogCat::w(std::source_location::current(), "structure_generator_null_input",
+                  "Static structure generator received null input");
         return std::nullopt;
     }
     StructureInfo structureInfo;

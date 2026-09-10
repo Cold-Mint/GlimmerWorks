@@ -56,6 +56,8 @@ void glimmer::GameSystem::WatchComponent(const GameComponentTypeMessage gameComp
         return;
     }
     watchComponents_.insert(gameComponentType);
+    LogCat::d("game_system_watch_component", "GameSystem watching component type {}",
+              std::to_underlying(gameComponentType));
     //When observing the changes of a certain component, a callback will be triggered first.
     //当开始观察某个组件的变化时，会优先进行一次回调。
     const uint32_t count = entityManager_->GetComponentCount(gameComponentType);

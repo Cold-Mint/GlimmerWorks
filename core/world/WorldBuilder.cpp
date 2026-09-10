@@ -57,10 +57,14 @@ glimmer::WorldBuilder::WorldBuilder(WorldContext *worldContext) : worldContext_(
 void glimmer::WorldBuilder::Build() {
     std::optional<MapManifestMessage> mapManifestOptional = worldContext_->saves_->ReadMapManifest();
     if (!mapManifestOptional.has_value()) {
+        LogCat::w(std::source_location::current(), "world_builder_map_manifest_missing",
+                  "Map manifest is missing, cannot build world");
         return;
     }
     std::optional<PlayerMessage> playerOptional = worldContext_->saves_->ReadLocalPlayer();
     if (!playerOptional.has_value()) {
+        LogCat::w(std::source_location::current(), "world_builder_player_missing",
+                  "Player data is missing, cannot build world");
         return;
     }
     PlayerMessage &playerMessage = playerOptional.value();
@@ -74,6 +78,8 @@ void glimmer::WorldBuilder::Build() {
     worldContext_->worldId_ = b2CreateWorld(&worldDef);
     ModContext *modContext = worldContext_->appContext_->GetModContext();
     if (modContext == nullptr) {
+        LogCat::w(std::source_location::current(), "world_builder_mod_context_null",
+                  "Mod context is null, cannot build world");
         return;
     }
     BiomeDecoratorManager *biomeDecoratorManager = modContext->GetBiomeDecoratorManager();
@@ -93,6 +99,8 @@ void glimmer::WorldBuilder::Build() {
     DimensionResource *dimensionResource = dimensionRegistry->Find(customDimension.GetPackageId(),
                                                                    customDimension.GetResourceKey());
     if (dimensionResource == nullptr) {
+        LogCat::w(std::source_location::current(), "world_builder_dimension_resource_null",
+                  "Dimension resource is not found, cannot build world");
         return;
     }
     std::string dimensionFolderName = StringUtils::GetDimensionFolderName(
@@ -131,9 +139,10 @@ void glimmer::WorldBuilder::Build() {
     LogCat::i("world_context_core_subsystems_created", "Core subsystems created: dimensions, PlayerContext");
 
     ResourceRef playerResourceRef{};
-    playerResourceRef.ReadResource(*worldContext_->appContext_->GetModContext()->GetMobRegistry()->GetPlayerResourceList()[
-                                       0],
-                                   RESOURCE_MOB);
+    playerResourceRef.ReadResource(
+        *worldContext_->appContext_->GetModContext()->GetMobRegistry()->GetPlayerResourceList()[
+            0],
+        RESOURCE_MOB);
     worldContext_->playerContext_->InitPlayer(playerResourceRef);
     auto itemContainerPtr = worldContext_->entityManager_->
             GetComponent<ItemContainerComponent>(worldContext_->entityShortCut_->GetPlayer());

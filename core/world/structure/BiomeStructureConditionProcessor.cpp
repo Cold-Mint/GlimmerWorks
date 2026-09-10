@@ -26,6 +26,8 @@
  */
 #include "BiomeStructureConditionProcessor.h"
 
+#include "core/log/LogCat.h"
+
 glimmer::StructureConditionProcessorType
 glimmer::BiomeStructureConditionProcessor::GetStructureConditionProcessorType() {
     return StructureConditionProcessorType::Biome;
@@ -58,5 +60,6 @@ std::bitset<CHUNK_AREA> glimmer::BiomeStructureConditionProcessor::Match(Terrain
             }
         }
     }
+    LogCat::d("biome_condition_matched_count", "Biome condition matched tiles: {}", matchedTileCount);
     return result;
 }

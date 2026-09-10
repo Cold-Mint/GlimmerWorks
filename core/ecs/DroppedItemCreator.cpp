@@ -30,6 +30,7 @@
 #include "component/MagneticComponent.h"
 #include "component/RayCast2DComponent.h"
 #include "component/RigidBody2DComponent.h"
+#include "core/log/LogCat.h"
 #include "core/world/WorldContext.h"
 
 glimmer::DroppedItemCreator::DroppedItemCreator(WorldContext *worldContext) : IPersistenceEntityCreator(worldContext) {
@@ -73,14 +74,19 @@ glimmer::ResourceRef glimmer::DroppedItemCreator::GetResourceRef() {
 void glimmer::DroppedItemCreator::LoadTemplateComponents(const uint32_t id, const ResourceRef &resourceRef) {
     uint32_t type = resourceRef.GetResourceType();
     if (type != RESOURCE_DROPPED_ITEM) {
+        LogCat::w(std::source_location::current(), "dropped_item_creator_wrong_type",
+                  "DroppedItemCreator: expected RESOURCE_DROPPED_ITEM but got {}", type);
         return;
     }
     WorldContext *worldContext = GetWorldContext();
     if (worldContext == nullptr || WorldContext::IsEmptyEntityId(id)) {
+        LogCat::w(std::source_location::current(), "dropped_item_creator_invalid_context",
+                  "DroppedItemCreator: worldContext is null or entity id is empty (id={})", id);
         return;
     }
     const AppContext *appContext = worldContext->GetAppContext();
     if (appContext == nullptr) {
+        LogCat::w(std::source_location::current(), "app_context_is_null", "appContext is nullptr");
         return;
     }
     EntityManager *entityManager = worldContext->GetEntityManager();
@@ -108,6 +114,7 @@ void glimmer::DroppedItemCreator::LoadTemplateComponents(const uint32_t id, cons
     if (magnetic != nullptr) {
         magnetic->SetType(MAGNETIC_TYPE_ITEM);
     }
+    LogCat::i("dropped_item_entity_template_loaded", "Dropped item entity template loaded: id={}", id);
 }
 
 void glimmer::DroppedItemCreator::

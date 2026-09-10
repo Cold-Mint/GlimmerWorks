@@ -29,6 +29,7 @@
 #include "core/config/Constants.h"
 #include "core/ecs/component/CameraComponent.h"
 #include "core/ecs/component/TileLayerComponent.h"
+#include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/world/TileInstancePool.h"
 #include "core/world/WorldContext.h"
@@ -58,6 +59,8 @@ void glimmer::TileLayerSystem::OnWatchedComponentChanged(GameComponentTypeMessag
             }
             tileLayerComponents_.emplace_back(tileLayerComponent);
         }
+        LogCat::d("tile_layer_components_rebuilt", "TileLayer components rebuilt: {} layers",
+                  tileLayerComponents_.size());
     }
 }
 

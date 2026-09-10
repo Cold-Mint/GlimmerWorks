@@ -37,12 +37,19 @@
 
 void glimmer::LightMapTexture::EnsureTexture(const Uint32 width, const Uint32 height) {
     if (width == 0 || height == 0) {
+        LogCat::d("light_map_texture_ensure_invalid_size", "LightMapTexture::EnsureTexture invalid size: {}x{}", width,
+                  height);
         return;
     }
     if (texture_ != nullptr && width_ == width && height_ == height) {
+        LogCat::d("light_map_texture_ensure_reuse", "LightMapTexture::EnsureTexture reuse existing texture: {}x{}",
+                  width,
+                  height);
         return;
     }
     if (texture_ != nullptr) {
+        LogCat::d("light_map_texture_ensure_resize", "LightMapTexture::EnsureTexture resize texture: {}x{} -> {}x{}",
+                  width_, height_, width, height);
         SDL_ReleaseGPUTexture(device_, texture_);
         texture_ = nullptr;
     }
@@ -66,13 +73,26 @@ void glimmer::LightMapTexture::EnsureTexture(const Uint32 width, const Uint32 he
     }
     width_ = width;
     height_ = height;
+    LogCat::d("light_map_texture_ensure_created", "LightMapTexture::EnsureTexture created texture: {}x{}", width,
+              height);
 }
 
 void glimmer::LightMapTexture::Update(SDL_GPUDevice *device, const LightBuffer *lightBuffer, const Color *ambient,
                                       int originTileX, int originTileY, Uint32 sizeX, Uint32 sizeY) {
     device_ = device;
-    if (device_ == nullptr || sizeX == 0 || sizeY == 0) {
+    if (device_ == nullptr) {
+        LogCat::w(std::source_location::current(), "light_map_texture_update_device_null",
+                  "LightMapTexture::Update device is null");
         return;
+    }
+    if (sizeX == 0 || sizeY == 0) {
+        LogCat::w(std::source_location::current(), "light_map_texture_update_invalid_size",
+                  "LightMapTexture::Update invalid size: {}x{}", sizeX, sizeY);
+        return;
+    }
+    if (lightBuffer == nullptr) {
+        LogCat::d("light_map_texture_update_light_buffer_null",
+                  "LightMapTexture::Update lightBuffer is null, only ambient light will be baked");
     }
     const uint64_t revision = lightBuffer != nullptr ? lightBuffer->GetRevision() : 0;
     const float ambientR = ambient != nullptr ? static_cast<float>(ambient->r) / 255.0F : 0.0F;
@@ -86,11 +106,19 @@ void glimmer::LightMapTexture::Update(SDL_GPUDevice *device, const LightBuffer *
         lastSizeX_ == sizeX && lastSizeY_ == sizeY &&
         lastAmbient_[0] == ambientR && lastAmbient_[1] == ambientG && lastAmbient_[2] == ambientB &&
         lastAmbient_[3] == ambientA) {
+        LogCat::d("light_map_texture_update_skip_unchanged",
+                  "LightMapTexture::Update skipped, light map unchanged: revision={}, origin=({},{}), size={}x{}",
+                  revision, originTileX, originTileY, sizeX, sizeY);
         dirty_ = false;
         return;
     }
+    LogCat::i("light_map_texture_update_build",
+              "LightMapTexture::Update rebuild light map: revision={}, origin=({},{}), size={}x{}, ambient=({},{},{},{})",
+              revision, originTileX, originTileY, sizeX, sizeY, ambientR, ambientG, ambientB, ambientA);
     EnsureTexture(sizeX, sizeY);
     if (texture_ == nullptr) {
+        LogCat::w(std::source_location::current(), "light_map_texture_update_texture_null",
+                  "LightMapTexture::Update texture is null after EnsureTexture");
         return;
     }
     lastRevision_ = revision;
@@ -142,12 +170,22 @@ void glimmer::LightMapTexture::Update(SDL_GPUDevice *device, const LightBuffer *
 }
 
 void glimmer::LightMapTexture::Upload(SDL_GPUCommandBuffer *commandBuffer) {
-    if (commandBuffer == nullptr || texture_ == nullptr || pixelBuffer_.empty() || !dirty_) {
+    if (commandBuffer == nullptr) {
+        LogCat::w(std::source_location::current(), "light_map_texture_upload_command_buffer_null",
+                  "LightMapTexture::Upload commandBuffer is null");
+        return;
+    }
+    if (texture_ == nullptr || pixelBuffer_.empty() || !dirty_) {
+        LogCat::d("light_map_texture_upload_skip",
+                  "LightMapTexture::Upload skipped: texture={}, pixelBuffer={}, dirty={}",
+                  texture_ != nullptr, pixelBuffer_.size(), dirty_);
         return;
     }
     const auto dataSize = static_cast<Uint32>(pixelBuffer_.size());
     if (transferBuffer_ == nullptr || transferBufferSize_ < dataSize) {
         if (transferBuffer_ != nullptr) {
+            LogCat::d("light_map_texture_upload_transfer_buffer_resize",
+                      "LightMapTexture::Upload resize transfer buffer: {} -> {} bytes", transferBufferSize_, dataSize);
             SDL_ReleaseGPUTransferBuffer(device_, transferBuffer_);
             transferBuffer_ = nullptr;
         }
@@ -157,12 +195,19 @@ void glimmer::LightMapTexture::Upload(SDL_GPUCommandBuffer *commandBuffer) {
         info.props = 0;
         transferBuffer_ = SDL_CreateGPUTransferBuffer(device_, &info);
         transferBufferSize_ = transferBuffer_ != nullptr ? dataSize : 0;
+        if (transferBuffer_ == nullptr) {
+            LogCat::w(std::source_location::current(), "sdl_create_gpu_transfer_buffer_failed",
+                      "SDL_CreateGPUTransferBuffer failed: {}", SDL_GetError());
+            return;
+        }
     }
     if (transferBuffer_ == nullptr) {
         return;
     }
     void *mapped = SDL_MapGPUTransferBuffer(device_, transferBuffer_, true);
     if (mapped == nullptr) {
+        LogCat::w(std::source_location::current(), "light_map_texture_upload_map_failed",
+                  "SDL_MapGPUTransferBuffer failed: {}", SDL_GetError());
         return;
     }
     std::memcpy(mapped, pixelBuffer_.data(), dataSize);
@@ -170,6 +215,8 @@ void glimmer::LightMapTexture::Upload(SDL_GPUCommandBuffer *commandBuffer) {
 
     SDL_GPUCopyPass *copyPass = SDL_BeginGPUCopyPass(commandBuffer);
     if (copyPass == nullptr) {
+        LogCat::w(std::source_location::current(), "light_map_texture_upload_begin_copy_pass_failed",
+                  "SDL_BeginGPUCopyPass failed: {}", SDL_GetError());
         return;
     }
     SDL_GPUTextureTransferInfo source = {};
@@ -190,6 +237,8 @@ void glimmer::LightMapTexture::Upload(SDL_GPUCommandBuffer *commandBuffer) {
     SDL_UploadToGPUTexture(copyPass, &source, &destination, true);
     SDL_EndGPUCopyPass(copyPass);
     dirty_ = false;
+    LogCat::d("light_map_texture_upload_complete",
+              "LightMapTexture::Upload complete: {} bytes uploaded to {}x{} texture", dataSize, width_, height_);
 }
 
 glimmer::LightMapTexture::~LightMapTexture() {

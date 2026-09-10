@@ -41,6 +41,8 @@ void glimmer::AudioManager::CreateTracks(const AudioType type, const size_t coun
     for (size_t i = 0; i < count; ++i) {
         MIX_Track *newTrack = MIX_CreateTrack(mixer_);
         if (!newTrack) {
+            LogCat::w(std::source_location::current(), "audio_track_create_failed",
+                      "MIX_CreateTrack failed at index {}", i);
             continue;
         }
         MIX_TagTrack(newTrack, AudioTypeToTag(type));
@@ -48,6 +50,8 @@ void glimmer::AudioManager::CreateTracks(const AudioType type, const size_t coun
     }
 
     track_[type] = std::move(newTracks);
+    LogCat::i("audio_tracks_created", "Created audio tracks: tag={}, count={}", AudioTypeToTag(type),
+              track_[type].size());
 }
 
 MIX_Track *glimmer::AudioManager::GetFreeTrack(const AudioType type) {
@@ -87,6 +91,7 @@ void glimmer::AudioManager::SetMasterVolume(const float volume) {
 
 void glimmer::AudioManager::SetTypeVolume(const AudioType type, const float volume) {
     if (mixer_ == nullptr) {
+        LogCat::w(std::source_location::current(), "audio_mixer_is_null", "mixer_ == nullptr");
         return;
     }
     const float clampVolume = std::clamp(volume, 0.0F, 1.0F);
@@ -96,11 +101,13 @@ void glimmer::AudioManager::SetTypeVolume(const AudioType type, const float volu
 
 void glimmer::AudioManager::TryPlayFree(const AudioType audioType, MIX_Audio *audio, const int loopsNumber) {
     if (audio == nullptr) {
+        LogCat::w(std::source_location::current(), "audio_resource_is_null", "audio == nullptr");
         return;
     }
 
     MIX_Track *track = GetFreeTrack(audioType);
     if (!track) {
+        LogCat::d("audio_no_free_track", "No free track available: tag={}", AudioTypeToTag(audioType));
         return;
     }
     MIX_SetTrackAudio(track, audio);
@@ -112,6 +119,7 @@ void glimmer::AudioManager::TryPlayFree(const AudioType audioType, MIX_Audio *au
 
 void glimmer::AudioManager::ForcePlayReplace(const AudioType audioType, MIX_Audio *audio, const int loopsNumber) {
     if (audio == nullptr) {
+        LogCat::w(std::source_location::current(), "audio_resource_is_null", "audio == nullptr");
         return;
     }
     MIX_Track *track = GetFreeTrack(audioType);

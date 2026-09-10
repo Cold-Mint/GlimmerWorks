@@ -27,6 +27,7 @@
 #include "ItemDurabilityModule.h"
 
 #include "ItemContainer.h"
+#include "core/log/LogCat.h"
 
 uint32_t glimmer::ItemDurabilityModule::GetMaxDurability() const {
     return maxDurability_;
@@ -56,6 +57,9 @@ void glimmer::ItemDurabilityModule::SetOnUsedDurabilityChanged(
 void glimmer::ItemDurabilityModule::AddUsedDurability(const uint32_t value) {
     const uint32_t newValue = usedDurability_ + value;
     if (const uint32_t maxDurability = maxDurability_; newValue > maxDurability) {
+        LogCat::d("durability_add_clamped",
+                  "ItemDurabilityModule::AddUsedDurability clamped to max: value={} newValue={} maxDurability={}",
+                  value, newValue, maxDurability);
         SetUsedDurability(maxDurability);
         return;
     }
@@ -76,6 +80,7 @@ void glimmer::ItemDurabilityModule::SetUsedDurability(const uint32_t value) {
     }
     const uint32_t oldValue = usedDurability_;
     usedDurability_ = value;
+    LogCat::d("durability_set_used", "ItemDurabilityModule usedDurability changed: {} -> {}", oldValue, value);
     if (const std::function<void(ContainerChangeType, uint32_t, uint32_t)> onUsedDurabilityChangedCopy =
             onUsedDurabilityChanged_; onUsedDurabilityChangedCopy != nullptr) {
         onUsedDurabilityChangedCopy(usedDurability_ > oldValue

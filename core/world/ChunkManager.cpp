@@ -46,6 +46,7 @@ glimmer::ChunkManager::ChunkManager(WorldContext *worldContext, std::string dime
     : worldContext_(worldContext), dimensionFolderName_(std::move(dimensionFolderName)) {
     lightBuffer_ = std::make_unique<LightBuffer>();
     tileInstancePool_ = std::make_unique<TileInstancePool>();
+    LogCat::i("chunk_manager_created", "ChunkManager created for dimension folder: {}", dimensionFolderName_);
 }
 
 glimmer::ChunkManager::~ChunkManager() {
@@ -157,6 +158,8 @@ void glimmer::ChunkManager::UpdateTileLight(const Chunk *chunk, const TileLayerT
 
 
 void glimmer::ChunkManager::UpdateChunkLight(const Chunk *chunk) const {
+    LogCat::d("chunk_update_light", "Updating chunk light: position=({}, {})", chunk->GetPosition().x,
+              chunk->GetPosition().y);
     lightBuffer_->BeginBatch();
     for (int index = 0; index < CHUNK_AREA; ++index) {
         for (int i = 0; i < TILE_LAYER_TYPE_COUNT; ++i) {
@@ -257,6 +260,7 @@ bool glimmer::ChunkManager::SaveChunk(TileVector2D position) {
     if (it == chunks_.end()) {
         return false;
     }
+    LogCat::d("chunk_saving", "Saving chunk: position=({}, {})", position.x, position.y);
     ChunkMessage chunkMessage;
     Chunk *chunk = it->second.get();
     chunk->WriteChunkMessage(chunkMessage);
@@ -302,6 +306,8 @@ bool glimmer::ChunkManager::SaveChunk(TileVector2D position) {
     for (auto id: entitiesToRemove) {
         entityManager->RemoveEntity(id);
     }
+    LogCat::d("chunk_saved", "Chunk saved: position=({}, {}), entities={}", position.x, position.y,
+              chunkEntityMessage.entities_size());
     return true;
 }
 

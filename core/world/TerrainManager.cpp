@@ -28,6 +28,7 @@
 
 #include <utility>
 
+#include "core/log/LogCat.h"
 #include "core/world/WorldContext.h"
 #include "generator/ChunkGenerator.h"
 
@@ -48,11 +49,14 @@ glimmer::TerrainResult *glimmer::TerrainManager::GetOrCreateTerrainData(const Ti
 
     auto terrainResult = worldContext_->GetChunkGenerator()->GenerateTerrain(position);
     if (terrainResult == nullptr) {
+        LogCat::w(std::source_location::current(), "terrain_generate_failed",
+                  "Failed to generate terrain data: position=({}, {})", position.x, position.y);
         return nullptr;
     }
     auto terrainPtr = terrainResult.get();
     terrainTileData_.emplace(position, std::move(terrainResult));
     terrainTileDataCache_.emplace(position, terrainPtr);
+    LogCat::d("terrain_data_created", "Created terrain data: position=({}, {})", position.x, position.y);
     return terrainPtr;
 }
 
@@ -65,6 +69,8 @@ void glimmer::TerrainManager::LoadTerrainAt(TileVector2D position) {
     if (processedTerrainTiles_.contains(position)) {
         return;
     }
+    LogCat::d("terrain_loading", "Loading terrain (structure generation): position=({}, {})", position.x,
+              position.y);
     worldContext_->GetChunkGenerator()->GenerateStructure(position);
     processedTerrainTiles_.emplace(position);
 }
@@ -73,6 +79,7 @@ void glimmer::TerrainManager::UnloadTerrainAt(TileVector2D position) {
     if (!processedTerrainTiles_.contains(position)) {
         return;
     }
+    LogCat::d("terrain_unloading", "Unloading terrain: position=({}, {})", position.x, position.y);
     processedTerrainTiles_.erase(position);
     terrainTileDataCache_.erase(position);
     terrainTileData_.erase(position);

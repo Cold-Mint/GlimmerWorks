@@ -28,6 +28,7 @@
 
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/ecs/component/TechProviderComponent.h"
+#include "core/log/LogCat.h"
 #include "core/world/WorldContext.h"
 
 glimmer::TechProviderSystem::TechProviderSystem(WorldContext *worldContext)
@@ -53,6 +54,8 @@ void glimmer::TechProviderSystem::OnActivationChanged(bool activeStatus) {
             return;
         }
         playerTechnologyHandler->ResetTechnologyMap();
+        LogCat::d("tech_provider_reset_on_deactivate",
+                  "TechProvider reset technology map on deactivate");
     }
 }
 
@@ -84,6 +87,7 @@ void glimmer::TechProviderSystem::OnFrameStart() {
         return;
     }
     playerTechnologyHandler->ResetTechnologyMap();
+    size_t appliedProviderCount = 0;
     for (GameEntityID techProviderEntity: techProviderEntities_) {
         auto providerTransform2DComponent = entityManager->GetComponent<Transform2DComponent>(
             techProviderEntity);
@@ -101,7 +105,10 @@ void glimmer::TechProviderSystem::OnFrameStart() {
         }
         playerTechnologyHandler->SetTechnology(techProviderComponent->GetRecipeGroup(),
                                                techProviderComponent->GetTechnologyLevel());
+        ++appliedProviderCount;
     }
+    LogCat::d("tech_provider_technology_applied", "TechProvider applied technology from {} providers",
+              appliedProviderCount);
     changed = false;
 }
 
@@ -124,6 +131,8 @@ void glimmer::TechProviderSystem::OnWatchedComponentChanged(GameComponentTypeMes
             COMPONENT_TRANSFORM_2D, COMPONENT_TECH_PROVIDER
         });
         changed = true;
+        LogCat::d("tech_provider_entities_rebuilt", "TechProvider entities rebuilt: {} providers",
+                  techProviderEntities_.size());
     }
 }
 

@@ -27,6 +27,7 @@
 #include "SpiritRendererSystem.h"
 
 #include "core/ecs/component/SpiritRendererComponent.h"
+#include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/world/WorldContext.h"
 
@@ -51,6 +52,8 @@ void glimmer::SpiritRendererSystem::OnWatchedComponentChanged(GameComponentTypeM
         spiritRendererEntities_ = entityManager->GetEntityIDWithComponents({
             COMPONENT_TRANSFORM_2D, COMPONENT_SPIRIT_RENDERER
         });
+        LogCat::d("spirit_renderer_entities_rebuilt", "SpiritRenderer entities rebuilt: {} entities",
+                  spiritRendererEntities_.size());
     }
 }
 

@@ -35,12 +35,14 @@
 #include "core/ecs/component/ItemToolTipComponent.h"
 #include "core/inventory/Item.h"
 #include "core/inventory/ItemLockModule.h"
+#include "core/log/LogCat.h"
 #include "core/mod/Resource.h"
 #include "core/scene/ConsoleOverlay.h"
 #include "core/world/WorldContext.h"
 #include "core/world/generator/TileLayerType.h"
 
 void glimmer::ItemTooltipSystem::OnItemChanged(const Item *item) {
+    LogCat::d("item_tooltip_item_changed", "ItemTooltip item changed: {}", item->GetName());
     itemTooltipDataModel_.tooltipName = item->GetName();
     const auto &description = item->GetDescription();
     itemTooltipDataModel_.tooltipDesc = description.has_value() ? *description : "";

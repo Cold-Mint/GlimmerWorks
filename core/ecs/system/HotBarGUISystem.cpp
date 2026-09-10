@@ -192,6 +192,8 @@ void glimmer::HotBarGUISystem::LoadInitialHotbarItems() {
 }
 
 void glimmer::HotBarGUISystem::UpdateSelectedSlot(const uint8_t beforeIndex, const uint8_t nextIndex) {
+    LogCat::d("hotbar_slot_changed", "HotBar selected slot changed: {} -> {}",
+              static_cast<int>(beforeIndex), static_cast<int>(nextIndex));
     auto beforeDataModel = GetItemSlotDataModel(beforeIndex);
     if (beforeDataModel != nullptr) {
         beforeDataModel->selected = false;

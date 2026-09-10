@@ -32,6 +32,7 @@
 #include "core/saves/PlayerManifest.h"
 #include "core/saves/Saves.h"
 #include "core/tick/ITickListener.h"
+#include "WorldSaver.h"
 #include "box2d/id.h"
 #include "core/ecs/EcsTypes.h"
 #include "core/ecs/EntityManager.h"
@@ -54,12 +55,15 @@ namespace glimmer {
     class ResourceRef;
     struct LightKeyframe;
     struct SkyColorKeyframe;
+    class WorldBuilder;
 
     /**
      * GameEntity has been restricted to be accessed directly only within the WorldContext. uint32_t is provided externally.
      * GameEntity 已被限制为仅在WorldContext内部直接访问。对外提供uint32_t。
      */
     class WorldContext : public ITickListener {
+        friend class WorldBuilder;
+
         int worldSeed_;
         Saves *saves_;
         //The initial tick number when this context was created
@@ -72,9 +76,6 @@ namespace glimmer {
         //Has Tick been initialized?
         //是否初始化了Tick?
         bool initedTick_ = false;
-        //Is the game being saved
-        //是否正在保存游戏
-        bool saving_ = false;
         //Whether to enable the item dragging mode
         //是否启用物品拖拽模式
         bool dragMode_ = false;
@@ -95,6 +96,7 @@ namespace glimmer {
         std::unique_ptr<ChunkGenerator> chunkGenerator_;
         std::unique_ptr<ChunkManager> chunkManager_;
         std::unique_ptr<TerrainManager> terrainManager_;
+        WorldSaver worldSaver_;
 
     public:
         ~WorldContext() override;

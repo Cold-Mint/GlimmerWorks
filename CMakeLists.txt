@@ -779,7 +779,9 @@ target_sources(GlimmerWorks
         core/world/TileMiningData.cpp
         core/world/TileResourceData.cpp
         core/world/Dimension.cpp
+        core/world/WorldBuilder.cpp
         core/world/WorldContext.cpp
+        core/world/WorldSaver.cpp
         core/world/generator/BiomeDecorator.cpp
         core/world/generator/BiomeDecoratorApplier.cpp
         core/world/generator/BiomeDecoratorManager.cpp
@@ -1232,7 +1234,9 @@ target_sources(GlimmerWorks
         core/world/TileLootData.h
         core/world/TileMiningData.h
         core/world/TileResourceData.h
+        core/world/WorldBuilder.h
         core/world/WorldContext.h
+        core/world/WorldSaver.h
         core/world/generator/BiomeDecorator.h
         core/world/generator/BiomeDecoratorApplier.h
         core/world/generator/BiomeDecoratorManager.h

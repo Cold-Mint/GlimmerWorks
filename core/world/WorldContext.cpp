@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -26,32 +26,17 @@
  */
 #include "WorldContext.h"
 
-#include <vector>
-
+#include "WorldBuilder.h"
 #include "Dimension.h"
 #include "ChunkManager.h"
 #include "TerrainManager.h"
 #include "SystemScheduler.h"
 #include "PlayerContext.h"
+#include "TileInstancePool.h"
 #include "box2d/box2d.h"
 #include "core/config/Constants.h"
-#include "core/ecs/component/AreaMarkerComponent.h"
-#include "core/ecs/component/BlueprintComponent.h"
-#include "core/ecs/component/ItemContainerComponent.h"
-#include "core/ecs/component/ItemToolTipComponent.h"
-#include "core/ecs/component/PauseComponent.h"
-#include "core/ecs/component/TileLayerComponent.h"
 #include "core/log/LogCat.h"
-#include "core/mod/Resource.h"
-#include "core/mod/ResourceRef.h"
-#include "core/mod/dataPack/DimensionRegistry.h"
-#include "core/saves/Saves.h"
-#include "core/utils/Box2DUtils.h"
 #include "core/context/AppContext.h"
-#include "core/utils/TimeUtils.h"
-#include "generator/ChunkGenerator.h"
-#include "generator/ChunkLoader.h"
-#include "src/saves/entity_item.pb.h"
 
 
 bool glimmer::WorldContext::IsDragMode() const {
@@ -118,7 +103,6 @@ bool glimmer::WorldContext::IsEmptyEntityId(const uint32_t id) {
     return id == GAME_ENTITY_ID_INVALID;
 }
 
-
 glimmer::ChunkManager *glimmer::WorldContext::GetChunkManager() const {
     return chunkManager_.get();
 }
@@ -135,73 +119,13 @@ glimmer::PlayerContext *glimmer::WorldContext::GetPlayerContext() const {
     return playerContext_.get();
 }
 
-
 void glimmer::WorldContext::SaveEntity(EntityItemMessage *entityItemMessage, const GameEntityID entityId) const {
-    LogCat::d("world_context_save_entity", "SaveEntity: entityId={}", entityId);
-    entityItemMessage->mutable_gameentity()->set_id(entityId);
-    const ResourceRef *resourceRef = entityManager_->GetResourceRef(entityId);
-    if (resourceRef != nullptr) {
-        resourceRef->WriteResourceRefMessage(*entityItemMessage->mutable_resourceref());
-    }
-    std::vector<GameComponent *> components = entityManager_->GetAllComponent(entityId);
-    auto mutableComponents = entityItemMessage->mutable_components();
-    for (auto &componentItem: components) {
-        auto stringOptional = componentItem->Serialize();
-        if (stringOptional.has_value()) {
-            ComponentMessage *componentMessage = mutableComponents->Add();
-            componentMessage->set_type(componentItem->GetComponentType());
-            componentMessage->set_data(stringOptional.value());
-        }
-    }
-    LogCat::d("world_context_save_entity_completed", "SaveEntity completed: entityId={}, components={}", entityId,
-              components.size());
+    worldSaver_.SaveEntity(entityItemMessage, entityId);
 }
 
 void glimmer::WorldContext::SaveGame() {
-    if (saving_) {
-        LogCat::w(std::source_location::current(), "world_context_save_in_progress",
-                  "Save already in progress, ignoring");
-        return;
-    }
-    LogCat::i("world_context_save_starting", "Starting game save: {}", mapManifest_->name);
-    saving_ = true;
-    const Saves *saves = GetSaves();
-    if (saves == nullptr) {
-        LogCat::e(std::source_location::current(), "saves_is_null", "saves is nullptr");
-        saving_ = false;
-        return;
-    }
-    auto mapManifestMessageData = saves->ReadMapManifest();
-    if (!mapManifestMessageData.has_value()) {
-        LogCat::w(std::source_location::current(), "world_context_read_map_manifest_failed",
-                  "Failed to read map manifest");
-        saving_ = false;
-        return;
-    }
-    const long endTime = TimeUtils::GetCurrentTimeMs();
-    mapManifestMessageData->set_globaltickcount(GetGlobalTick());
-    mapManifestMessageData->set_entityidindex(entityManager_->GetEntityIndex());
-    if (!saves->WriteMapManifest(mapManifestMessageData.value())) {
-        LogCat::w(std::source_location::current(), "world_context_write_map_manifest_failed",
-                  "Failed to write map manifest");
-        saving_ = false;
-        return;
-    }
-    auto player = entityShortCut_->GetPlayer();
-    if (!IsEmptyEntityId(player) && entityManager_->IsPersistable(player)) {
-        PlayerMessage playerMessage;
-        playerMessage.set_lastplayedtime(endTime);
-
-        SaveEntity(playerMessage.mutable_entity(), player);
-        (void) saves->WriteLocalPlayer(playerMessage);
-        LogCat::i("world_context_player_saved", "Player saved");
-    } else {
-        LogCat::d("world_context_player_save_skipped", "Player save skipped: isEmpty={}, persistable={}",
-                  IsEmptyEntityId(player), entityManager_->IsPersistable(player));
-    }
-    saving_ = false;
+    worldSaver_.SaveGame();
 }
-
 
 glimmer::LightBuffer *glimmer::WorldContext::GetLightingBuffer() const {
     LightBuffer *result = chunkManager_->GetLightingBuffer();
@@ -218,7 +142,6 @@ glimmer::TileInstancePool *glimmer::WorldContext::GetTileInstancePool() const {
 glimmer::Dimension *glimmer::WorldContext::GetDimension() const {
     return dimension_.get();
 }
-
 
 glimmer::WorldContext::~WorldContext() {
     LogCat::i("world_context_destroying", "Destroying WorldContext: worldName={}",
@@ -251,89 +174,8 @@ uint64_t glimmer::WorldContext::GetGlobalTick() const {
 }
 
 glimmer::WorldContext::WorldContext(AppContext *appContext, Saves *saves) : saves_(saves),
-                                                                            appContext_(appContext) {
-    std::optional<MapManifestMessage> mapManifestOptional = saves->ReadMapManifest();
-    if (!mapManifestOptional.has_value()) {
-        return;
-    }
-    std::optional<PlayerMessage> playerOptional = saves->ReadLocalPlayer();
-    if (!playerOptional.has_value()) {
-        return;
-    }
-    PlayerMessage &playerMessage = playerOptional.value();
-    playerManifest_ = std::make_unique<PlayerManifest>();
-    playerManifest_->FromMessage(playerMessage);
-    mapManifest_ = std::make_unique<MapManifest>();
-    mapManifest_->FromMessage(mapManifestOptional.value());
-    worldSeed_ = mapManifest_->seed;
-    b2WorldDef worldDef = b2DefaultWorldDef();
-    worldDef.gravity = b2Vec2(0.0F, -10.0F);
-    worldId_ = b2CreateWorld(&worldDef);
-    ModContext *modContext = appContext_->GetModContext();
-    if (modContext == nullptr) {
-        return;
-    }
-    BiomeDecoratorManager *biomeDecoratorManager = modContext->GetBiomeDecoratorManager();
-    if (biomeDecoratorManager == nullptr) {
-        return;
-    }
-    biomeDecoratorManager->SetWorldSeed(worldSeed_);
-    entityManager_ = std::make_unique<EntityManager>();
-    entityShortCut_ = std::make_unique<EntityShortCut>();
-    entityManager_->SetEntityIndex(mapManifest_->entityIDIndex);
-    DimensionRegistry *dimensionRegistry = modContext->GetDimensionRegistry();
-    if (dimensionRegistry == nullptr) {
-        return;
-    }
-    ResourceRef &customDimension = playerManifest_->customDimension;
-    dimension_ = std::make_unique<Dimension>();
-    DimensionResource *dimensionResource = dimensionRegistry->Find(customDimension.GetPackageId(),
-                                                                   customDimension.GetResourceKey());
-    if (dimensionResource == nullptr) {
-        return;
-    }
-    std::string dimensionFolderName = StringUtils::GetDimensionFolderName(
-        customDimension.GetPackageId(),
-        customDimension.GetResourceKey());
-    dimension_->SetDimensionResource(dimensionResource);
-    chunkLoader_ = std::make_unique<ChunkLoader>(this, saves, dimensionFolderName);
-    chunkManager_ = std::make_unique<ChunkManager>(this, dimensionFolderName);
-    chunkGenerator_ = std::make_unique<ChunkGenerator>(this, worldSeed_, dimensionResource);
-    terrainManager_ = std::make_unique<TerrainManager>(this);
-    tileInstancePool_ = std::make_unique<TileInstancePool>();
-    fixedGlobalTick_ = mapManifest_->globalTickCount;
-    auto *commandManager = appContext->GetConsoleContext()->GetCommandManager();
-    commandManager->BindWorldContext(this);
-    commandManager->SetAllowCheats(true);
-    auto pause = entityManager_->AddEntity();
-    entityManager_->AddComponent<PauseComponent>(pause);
-
-    auto recipeSelectionId = entityManager_->AddEntity();
-    entityShortCut_->SetRecipeSelectionComponent(
-        entityManager_->AddComponent<RecipeSelectionComponent>(recipeSelectionId));
-
-    auto groundTileLayerEntity = entityManager_->AddEntity();
-    entityManager_->AddComponent<
-        TileLayerComponent>(groundTileLayerEntity, this, TileLayerType::Ground);
-    entityShortCut_->SetAreaMarkerComponent(entityManager_->AddComponent<AreaMarkerComponent>(groundTileLayerEntity));
-    entityShortCut_->SetBlueprintComponent(entityManager_->AddComponent<BlueprintComponent>(groundTileLayerEntity));
-    auto backgroundTileLayerEntity = entityManager_->AddEntity();
-    entityManager_->AddComponent<
-        TileLayerComponent>(backgroundTileLayerEntity, this, TileLayerType::BackGround);
-    playerContext_ = std::make_unique<PlayerContext>(this);
-    LogCat::i("world_context_core_subsystems_created", "Core subsystems created: dimensions, PlayerContext");
-
-    ResourceRef playerResourceRef{};
-    playerResourceRef.ReadResource(*appContext->GetModContext()->GetMobRegistry()->GetPlayerResourceList()[0],
-                                   RESOURCE_MOB);
-    playerContext_->InitPlayer(playerResourceRef);
-    auto itemContainerPtr = entityManager_->
-            GetComponent<ItemContainerComponent>(entityShortCut_->GetPlayer());
-    entityShortCut_->SetItemContainerComponent(itemContainerPtr);
-    entityShortCut_->SetItemToolTipComponent(
-        entityManager_->AddComponent<ItemToolTipComponent>(entityManager_->AddEntity()));
-    systemScheduler_ = std::make_unique<SystemScheduler>(this);
-    systemScheduler_->InitSystem();
-    LogCat::i("world_context_player_initialized", "Player initialized, SystemScheduler initialized");
-    LogCat::i("world_context_created", "WorldContext created successfully");
+                                                                            appContext_(appContext),
+                                                                            worldSaver_(this) {
+    WorldBuilder builder(this);
+    builder.Build();
 }

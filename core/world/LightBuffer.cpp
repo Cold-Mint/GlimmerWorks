@@ -327,13 +327,20 @@ void glimmer::LightBuffer::RemoveDynamicLight(const uint64_t id) {
 float glimmer::LightBuffer::GetSkyVisibility(const TileVector2D &position) const {
     const auto it = columnSkyTopY_.find(position.x);
     const int topY = it != columnSkyTopY_.end() ? it->second : WORLD_MIN_Y - 1;
-    //The topmost opaque tile itself still faces the sky, so it is lit by
-    //ambient light; only tiles strictly below it are underground.
-    //最顶部的不透明瓦片本身仍朝向天空，会被环境光照亮；只有严格位于其下的瓦片才属于地下。
     const float result = position.y >= topY ? 1.0F : 0.0F;
-    LogCat::d("light_buffer_get_sky_visibility", "GetSkyVisibility: position=({}, {}), topY={}, hasColumn={}, result={}",
+    LogCat::d("light_buffer_get_sky_visibility",
+              "GetSkyVisibility: position=({}, {}), topY={}, hasColumn={}, result={}",
               position.x, position.y, topY, it != columnSkyTopY_.end(), result);
     return result;
+}
+
+int glimmer::LightBuffer::GetColumnSkyTopY(const int x) const {
+    const auto it = columnSkyTopY_.find(x);
+    return it != columnSkyTopY_.end() ? it->second : WORLD_MIN_Y - 1;
+}
+
+bool glimmer::LightBuffer::HasColumnSkyTop(const int x) const {
+    return columnSkyTopY_.find(x) != columnSkyTopY_.end();
 }
 
 uint64_t glimmer::LightBuffer::GetRevision() const {
@@ -344,7 +351,7 @@ void glimmer::LightBuffer::RecalculateColumnSkyTopY(const int x) {
     for (int y = WORLD_MAX_Y - 1; y >= WORLD_MIN_Y; --y) {
         const auto it = tileLightData_.find(TileVector2D(x, y));
         if (it != tileLightData_.end() && it->second != nullptr &&
-            it->second->GetBackLightBlockingStrength(TileLayerType::Ground) >= 1.0F) {
+            it->second->GetBackLightBlockingStrength(TileLayerType::Ground) > 0.0F) {
             columnSkyTopY_[x] = y;
             return;
         }
@@ -362,14 +369,14 @@ void glimmer::LightBuffer::MarkLightDirty() {
 
 void glimmer::LightBuffer::UpdateColumnSkyTopY(const TileVector2D &position, const float oldStrength,
                                                const float newStrength) {
-    const bool wasBlocking = oldStrength >= 1.0F;
-    const bool nowBlocks = newStrength >= 1.0F;
+    const bool wasBlocking = oldStrength > 0.0F;
+    const bool nowBlocks = newStrength > 0.0F;
     if (wasBlocking == nowBlocks) {
         return;
     }
     if (nowBlocks) {
         const auto it = columnSkyTopY_.find(position.x);
-        const int currentTop = it != columnSkyTopY_.end() ? it->second : (WORLD_MIN_Y - 1);
+        const int currentTop = it != columnSkyTopY_.end() ? it->second : WORLD_MIN_Y - 1;
         if (position.y > currentTop) {
             columnSkyTopY_[position.x] = position.y;
         }

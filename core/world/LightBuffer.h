@@ -171,6 +171,22 @@ namespace glimmer {
         [[nodiscard]] float GetSkyVisibility(const TileVector2D &position) const;
 
         /**
+         * GetColumnSkyTopY
+         * 获取指定列的天光天花板 y（该列最高的不透明地面瓦片）。
+         * @param x x 列坐标
+         * @return 若该列存在不透明地面瓦片则返回其 y，否则返回 WORLD_MIN_Y - 1
+         */
+        [[nodiscard]] int GetColumnSkyTopY(int x) const;
+
+        /**
+         * HasColumnSkyTop
+         * 判断指定列是否存在天光天花板记录。
+         * @param x x 列坐标
+         * @return 是否记录了该列的不透明地面瓦片
+         */
+        [[nodiscard]] bool HasColumnSkyTop(int x) const;
+
+        /**
          * @return The current revision counter. Any change to the buffered
          * light data (sources, masks, contributions) increments it.
          * 当前修订计数器。任何对光照缓冲数据（光源、遮罩、贡献）的修改都会使其递增。

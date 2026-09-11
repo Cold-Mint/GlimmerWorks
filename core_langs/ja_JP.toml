@@ -93,6 +93,8 @@ tile_debug_info = "ブロック座標 ({},{}) チャンク内座標 ({},{}) 湿�
 mouse_position = "マウス座標-ワールド座標({:.2f},{:.2f}) SDL3座標({:.2f},{:.2f})"
 tile_res_debug_info = "レイヤー： {} ID： {} 硬度： {} 名前： {}"
 total_light = "合計光量：(A{},R{},G{},B{})"
+sky_visibility_info = "天空可視性：列X={} SkyTopY={} 可視性={:.2f}"
+tile_light_data_info = "レイヤー{} 側面透過率{:.2f} 背面遮光{:.2f} 光源{} 寄与数{}"
 no_biome_was_found = "バイオーム{}が見つかりませんでした。"
 biome_has_found = "最も近いバイオーム{}は({},{})に位置しています。"
 scancode_unknown = "不明なScanCodeです。"

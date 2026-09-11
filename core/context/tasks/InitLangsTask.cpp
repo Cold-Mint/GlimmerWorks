@@ -86,6 +86,8 @@ bool glimmer::InitLangsTask::Run(ISystemBucket *systemBucket) {
     langsResources->tileResDebugInfo = toml::find<std::string>(tomlValue, "tile_res_debug_info");
     langsResources->mousePosition = toml::find<std::string>(tomlValue, "mouse_position");
     langsResources->totalLight = toml::find<std::string>(tomlValue, "total_light");
+    langsResources->skyVisibilityInfo = toml::find<std::string>(tomlValue, "sky_visibility_info");
+    langsResources->tileLightDataInfo = toml::find<std::string>(tomlValue, "tile_light_data_info");
     langsResources->noBiomeWasFound = toml::find<std::string>(tomlValue, "no_biome_was_found");
     langsResources->biomeHasFound = toml::find<std::string>(tomlValue, "biome_has_found");
     langsResources->configurationCommitSuccess = toml::find<std::string>(tomlValue, "configuration_commit_success");

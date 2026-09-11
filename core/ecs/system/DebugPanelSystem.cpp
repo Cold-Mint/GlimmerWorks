@@ -38,8 +38,11 @@
 #include "core/ecs/component/CameraComponent.h"
 #include "core/mod/ResourceRef.h"
 #include "core/world/Tile.h"
+#include "core/world/LightBuffer.h"
+#include "core/world/TileLightData.h"
 #include "core/world/generator/Chunk.h"
 #include "core/world/generator/TerrainMath.h"
+#include "core/world/generator/TileLayerType.h"
 #include "fmt/xchar.h"
 
 bool glimmer::DebugPanelSystem::CanActive() const {
@@ -208,6 +211,57 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
                     finalLightColor->a, finalLightColor->r, finalLightColor->g, finalLightColor->b
                 )
             });
+        }
+
+        // Sky visibility and column sky top info
+        // 天空可见度与列天光天花板信息
+        LightBuffer *lightBuffer = worldContext->GetLightingBuffer();
+        const int columnSkyTopY = lightBuffer->GetColumnSkyTopY(tileCoord.x);
+        const float skyVisibility = lightBuffer->GetSkyVisibility(tileCoord);
+        debugLines_.push_back(DebugLine{
+            fmt::format(
+                fmt::runtime(langsResources->skyVisibilityInfo),
+                tileCoord.x, columnSkyTopY, skyVisibility
+            )
+        });
+
+        // Per-layer lighting data
+        // 各图层光照数据
+        if (const TileLightData *tileLightData = lightBuffer->GetTileLightData(tileCoord);
+            tileLightData == nullptr) {
+            debugLines_.push_back(DebugLine{
+                fmt::format(
+                    fmt::runtime(langsResources->notIncludeLighting),
+                    tileCoord.x, tileCoord.y
+                )
+            });
+        } else {
+            const auto *lightSources = tileLightData->GetLightSources();
+            const auto *lightContributions = tileLightData->GetLightContributions();
+            for (int i = 0; i < TILE_LAYER_TYPE_COUNT; ++i) {
+                const auto layerType = static_cast<TileLayerType>(1 << i);
+                const float sideTransmission = tileLightData->GetSideLightTransmission(layerType);
+                const float backBlocking = tileLightData->GetBackLightBlockingStrength(layerType);
+                bool hasSource = false;
+                if (lightSources != nullptr) {
+                    const auto sourceIt = lightSources->find(layerType);
+                    hasSource = sourceIt != lightSources->end() && sourceIt->second != nullptr;
+                }
+                std::size_t contributionCount = 0;
+                if (lightContributions != nullptr) {
+                    const auto contributionIt = lightContributions->find(layerType);
+                    if (contributionIt != lightContributions->end()) {
+                        contributionCount = contributionIt->second.size();
+                    }
+                }
+                debugLines_.push_back(DebugLine{
+                    fmt::format(
+                        fmt::runtime(langsResources->tileLightDataInfo),
+                        std::to_underlying(layerType), sideTransmission, backBlocking,
+                        hasSource ? 1 : 0, contributionCount
+                    )
+                });
+            }
         }
 
         // Chunk info text

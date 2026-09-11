@@ -146,8 +146,17 @@ void glimmer::ChunkManager::UpdateTileLight(const Chunk *chunk, const TileLayerT
             return;
         }
         if (lightColorPtr->a == 0) {
+            LogCat::d("tile_light_source_zero_alpha",
+                      "Tile light source has zero alpha, clearing: position=({}, {}), layer={}",
+                      lightSourcePosition.x, lightSourcePosition.y, static_cast<int>(layerType));
             lightBuffer_->ClearLightSource(lightSourcePosition, layerType);
         } else {
+            LogCat::d("tile_light_source_found",
+                      "Found tile light source: position=({}, {}), layer={}, radius={}, rgba=({},{},{},{})",
+                      lightSourcePosition.x, lightSourcePosition.y, static_cast<int>(layerType),
+                      lightSourceResource->lightRadius,
+                      static_cast<int>(lightColorPtr->r), static_cast<int>(lightColorPtr->g),
+                      static_cast<int>(lightColorPtr->b), static_cast<int>(lightColorPtr->a));
             lightBuffer_->SetLightSource(lightSourcePosition, layerType,
                                          std::make_unique<LightSource>(
                                              lightSourcePosition, lightSourceResource->lightRadius,

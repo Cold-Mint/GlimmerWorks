@@ -237,6 +237,12 @@ void glimmer::LightBuffer::SetLightSource(const TileVector2D position, const Til
     }
     LightSource *lightSourcePtr = lightSource.get();
     SetLightFromSource(*lightSourcePtr, layerType);
+    const Color *emission = lightSourcePtr->GetEmissionColor();
+    LogCat::d("light_buffer_set_light_source",
+              "Set light source: position=({}, {}), layer={}, radius={}, emission rgba=({},{},{},{})",
+              position.x, position.y, static_cast<int>(layerType), lightSourcePtr->GetMaxRadius(),
+              static_cast<int>(emission->r), static_cast<int>(emission->g),
+              static_cast<int>(emission->b), static_cast<int>(emission->a));
     GetOrCreate(position).SetLightSource(layerType, std::move(lightSource));
     ++revision_;
 }

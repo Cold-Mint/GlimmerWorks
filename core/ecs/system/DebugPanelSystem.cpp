@@ -109,7 +109,6 @@ void glimmer::DebugPanelSystem::LoadDocuments(IDocumentRegistry *documentRegistr
 }
 
 
-
 void glimmer::DebugPanelSystem::OnCreateDataModels(IDocumentRegistry *documentRegistry) {
     Rml::DataModelConstructor *constructor = documentRegistry->CreateDataModel("debug_panel");
     if (constructor == nullptr) {
@@ -150,10 +149,12 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
             cameraTransform2DComponent_->GetPosition(), mousePosition_,
             cameraComponent_->GetSize(), cameraComponent_->GetZoom());
 
-        debugLines_.push_back(DebugLine{fmt::format(
-            fmt::runtime(langsResources->mousePosition),
-            mousePosition_.x, mousePosition_.y, screenPos.x, screenPos.y
-        )});
+        debugLines_.push_back(DebugLine{
+            fmt::format(
+                fmt::runtime(langsResources->mousePosition),
+                mousePosition_.x, mousePosition_.y, screenPos.x, screenPos.y
+            )
+        });
 
         bool firstLayer = true;
         TileVector2D tileCoord = CoordinateTransformer::WorldToTile(mousePosition_);
@@ -161,16 +162,18 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
             TileVector2D chunkRelative = Chunk::TileCoordinatesToChunkRelativeCoordinates(tileCoord);
             if (firstLayer) {
                 float elevation = TerrainMath::GetElevation(tileCoord.y);
-                debugLines_.push_back(DebugLine{fmt::format(
-                    fmt::runtime(langsResources->tileDebugInfo),
-                    tileCoord.x, tileCoord.y,
-                    chunkRelative.x, chunkRelative.y,
-                    chunkGenerator->GetHumidity(tileCoord),
-                    chunkGenerator->GetTemperature(tileCoord, elevation),
-                    chunkGenerator->GetErosion(tileCoord),
-                    elevation,
-                    chunkGenerator->GetWeirdness(tileCoord)
-                )});
+                debugLines_.push_back(DebugLine{
+                    fmt::format(
+                        fmt::runtime(langsResources->tileDebugInfo),
+                        tileCoord.x, tileCoord.y,
+                        chunkRelative.x, chunkRelative.y,
+                        chunkGenerator->GetHumidity(tileCoord),
+                        chunkGenerator->GetTemperature(tileCoord, elevation),
+                        chunkGenerator->GetErosion(tileCoord),
+                        elevation,
+                        chunkGenerator->GetWeirdness(tileCoord)
+                    )
+                });
                 firstLayer = false;
             }
 
@@ -182,23 +185,29 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
             if (miningData == nullptr) {
                 continue;
             }
-            debugLines_.push_back(DebugLine{fmt::format(
-                fmt::runtime(langsResources->tileResDebugInfo),
-                std::to_underlying(tile->GetLayerType()), tile->GetId(), miningData->GetHardness(), tile->GetName()
-            )});
+            debugLines_.push_back(DebugLine{
+                fmt::format(
+                    fmt::runtime(langsResources->tileResDebugInfo),
+                    std::to_underlying(tile->GetLayerType()), tile->GetId(), miningData->GetHardness(), tile->GetName()
+                )
+            });
         }
 
         if (const Color *finalLightColor = worldContext->GetLightingBuffer()->GetFinalLightColor(tileCoord);
             finalLightColor == nullptr) {
-            debugLines_.push_back(DebugLine{fmt::format(
-                fmt::runtime(langsResources->totalLight),
-                -1, -1, -1, -1
-            )});
+            debugLines_.push_back(DebugLine{
+                fmt::format(
+                    fmt::runtime(langsResources->totalLight),
+                    -1, -1, -1, -1
+                )
+            });
         } else {
-            debugLines_.push_back(DebugLine{fmt::format(
-                fmt::runtime(langsResources->totalLight),
-                finalLightColor->a, finalLightColor->r, finalLightColor->g, finalLightColor->b
-            )});
+            debugLines_.push_back(DebugLine{
+                fmt::format(
+                    fmt::runtime(langsResources->totalLight),
+                    finalLightColor->a, finalLightColor->r, finalLightColor->g, finalLightColor->b
+                )
+            });
         }
 
         // Chunk info text

@@ -45,7 +45,6 @@
 #include "core/console/command/LocateCommand.h"
 #include "core/console/command/LootCommand.h"
 #include "core/console/command/PackVerifyCommand.h"
-#include "core/console/command/ParallaxBackgroundCommand.h"
 #include "core/console/command/PlaceCommand.h"
 #include "core/console/command/PlayCommand.h"
 #include "core/console/command/ScreenshotCommand.h"
@@ -115,7 +114,6 @@ void glimmer::ConsoleContext::RegisterCommands(AppContext *appContext) const {
     commandManager_->RegisterCommand(std::make_unique<Box2DCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<BiomeScoreCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<AssetViewerCommand>(appContext));
-    commandManager_->RegisterCommand(std::make_unique<ParallaxBackgroundCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<TechnologyCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<TagCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<UnlockedRecipesCommand>(appContext));

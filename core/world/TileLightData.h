@@ -25,7 +25,6 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <array>
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -48,9 +47,6 @@ namespace glimmer {
         std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > sideLightMaskData_;
         std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > backLightMaskData_;
         std::unique_ptr<Color> finalLightColor_;
-        //Whether this tile blocks light per layer.
-        //该瓦片按层是否阻挡光线。
-        std::array<bool, TILE_LAYER_TYPE_COUNT> opaqueByLayer_ = {};
 
         /**
          * ComputeFinalLightColor
@@ -149,20 +145,22 @@ namespace glimmer {
         void ClearLightSource(TileLayerType layerType);
 
         /**
-         * SetOpaque
-         * 设置该瓦片在指定图层是否阻挡光线。
+         * GetSideLightTransmission
+         * 获取该瓦片在指定图层的侧面透光率（0~1，1 = 完全透光，0 = 完全挡光）。
+         * 由 side 遮罩 alpha 推导：透光率 = 1 - a/255。无遮罩时返回 1（完全透光）。
          * @param layerType layerType 图层类型
-         * @param opaque opaque 是否阻挡
+         * @return 0~1 的透光率
          */
-        void SetOpaque(TileLayerType layerType, bool opaque);
+        [[nodiscard]] float GetSideLightTransmission(TileLayerType layerType) const;
 
         /**
-         * IsOpaque
-         * 查询该瓦片在指定图层是否阻挡光线。
+         * GetBackLightBlockingStrength
+         * 获取该瓦片在指定图层的背景挡光强度（0~1，1 = 完全挡光）。
+         * 由 back 遮罩 alpha 推导：挡光强度 = a/255。无遮罩时返回 0（不挡光）。
          * @param layerType layerType 图层类型
-         * @return 是否阻挡
+         * @return 0~1 的挡光强度
          */
-        [[nodiscard]] bool IsOpaque(TileLayerType layerType) const;
+        [[nodiscard]] float GetBackLightBlockingStrength(TileLayerType layerType) const;
 
         /**
          * GetFinalLightColor

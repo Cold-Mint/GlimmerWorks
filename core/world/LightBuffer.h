@@ -81,12 +81,34 @@ namespace glimmer {
 
         void ClearLightFromSource(const LightSource &source, TileLayerType layerType);
 
-        void SetLightContributionAt(const TileVector2D &position, TileLayerType layerType, const LightSource &source);
+        void SetLightContributionAt(const TileVector2D &position, TileLayerType layerType, const LightSource &source,
+                                    float accumulated);
 
         void ClearLightContributionAt(const TileVector2D &position, TileLayerType layerType, const LightSource &source);
 
         void RebuildAllLight();
 
+        /**
+         * MarkLightDirty
+         * 标记挡光状态已变化，需要重新传播光线。批量模式下延迟到 EndBatch，
+         * 否则立即触发一次全量重算。
+         */
+        void MarkLightDirty();
+
+        /**
+         * UpdateColumnSkyTopY
+         * 根据某列 Ground 层瓦片的背景挡光强度变化，增量维护天光天花板。
+         * @param position position 瓦片世界坐标
+         * @param oldStrength oldStrength 旧挡光强度（0~1）
+         * @param newStrength newStrength 新挡光强度（0~1）
+         */
+        void UpdateColumnSkyTopY(const TileVector2D &position, float oldStrength, float newStrength);
+
+        /**
+         * RecalculateColumnSkyTopY
+         * 重新计算列SkyTopY
+         * @param x
+         */
         void RecalculateColumnSkyTopY(int x);
 
     public:
@@ -97,12 +119,6 @@ namespace glimmer {
         void ClearSideLightMask(const TileVector2D &position, TileLayerType layerType);
 
         void ClearBackLightMask(const TileVector2D &position, TileLayerType layerType);
-
-        // Clear mask data only without light re-propagation (safe for stale data removal)
-        // 仅清除掩码数据，不重新传播光线（安全用于清除过期数据）
-        void ClearSideLightMaskOnly(const TileVector2D &position, TileLayerType layerType);
-
-        void ClearBackLightMaskOnly(const TileVector2D &position, TileLayerType layerType);
 
         void ClearTileLightData(const TileVector2D &position);
 
@@ -134,31 +150,23 @@ namespace glimmer {
         void RemoveDynamicLight(uint64_t id);
 
         /**
-         * SetTileOpaque
-         * 设置指定瓦片在指定图层是否阻挡光线。当数值变化时会触发一次全量重算。
-         * @param position position 瓦片世界坐标
-         * @param layerType layerType 图层类型
-         * @param opaque opaque 是否阻挡
-         */
-        void SetTileOpaque(TileVector2D position, TileLayerType layerType, bool opaque);
-
-        /**
          * BeginBatch
-         * 进入批量模式，抑制 SetTileOpaque 触发的逐次重算，直到 EndBatch。
+         * 进入批量模式。保留用于区块加载期间批量处理光照修改。
          */
         void BeginBatch();
 
         /**
          * EndBatch
-         * 退出批量模式；若期间发生了 opaque 变化，则统一重算一次。
+         * 退出批量模式；若期间光照数据发生了需要重算的变化，则统一重算一次。
          */
         void EndBatch();
 
         /**
          * GetSkyVisibility
-         * 获取指定瓦片的天空可见度（1 = 露天，0 = 被上方不透明瓦片遮挡）。
+         * 获取指定瓦片的天空可见度。
          * 用于决定环境光（天光）是否照射到该瓦片。
          * @param position position 瓦片世界坐标
+         * @return 1 = 露天，0 = 被上方不透明瓦片遮挡
          */
         [[nodiscard]] float GetSkyVisibility(const TileVector2D &position) const;
 

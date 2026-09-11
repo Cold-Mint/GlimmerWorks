@@ -43,5 +43,12 @@ namespace glimmer {
         [[nodiscard]] float GetTintFactor() const;
 
         [[nodiscard]] const Color *GetLightMaskColor() const;
+
+        /**
+         * GetBlockingStrength
+         * 获取该遮罩的挡光强度（0~1，1 = 完全挡光）。
+         * 由遮罩颜色 alpha 通道推导：a=255 → 1.0，a=0 → 0.0。
+         */
+        [[nodiscard]] float GetBlockingStrength() const;
     };
 }

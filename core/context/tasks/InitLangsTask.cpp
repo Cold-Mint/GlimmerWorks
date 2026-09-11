@@ -135,10 +135,6 @@ bool glimmer::InitLangsTask::Run(ISystemBucket *systemBucket) {
     langsResources->tileDescriptionAccessDeniedWall = toml::find<std::string>(
         tomlValue, STRING_TILE_ACCESS_DENIED_WALL_DESCRIPTION);
     langsResources->tileDescriptionBedrock = toml::find<std::string>(tomlValue, STRING_TILE_BEDROCK_DESCRIPTION);
-    langsResources->parallaxBackgroundClear = toml::find<std::string>(tomlValue, "parallax_background_clear");
-    langsResources->parallaxBackgroundSet = toml::find<std::string>(tomlValue, "parallax_background_set");
-    langsResources->parallaxBackgroundGet = toml::find<std::string>(tomlValue, "parallax_background_get");
-    langsResources->parallaxBackgroundNone = toml::find<std::string>(tomlValue, "parallax_background_none");
     langsResources->biomeTemperatureInfo = toml::find<std::string>(tomlValue, "biome_temperature_info");
     langsResources->biomeHumidityInfo = toml::find<std::string>(tomlValue, "biome_humidity_info");
     langsResources->biomeElevationInfo = toml::find<std::string>(tomlValue, "biome_elevation_info");

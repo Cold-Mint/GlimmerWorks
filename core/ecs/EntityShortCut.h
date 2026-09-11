@@ -32,7 +32,6 @@
 #include "component/MiningComponent.h"
 #include "component/ItemContainerComponent.h"
 #include "component/ItemToolTipComponent.h"
-#include "component/ParallaxBackgroundComponent.h"
 #include "component/RecipeSelectionComponent.h"
 #include "component/Transform2DComponent.h"
 #include "core/config/Constants.h"
@@ -46,16 +45,11 @@ namespace glimmer {
         ItemContainerComponent *itemContainerComponent_ = nullptr;
         MiningComponent *miningComponent_ = nullptr;
         AreaMarkerComponent *areaMarkerComponent_ = nullptr;
-        ParallaxBackgroundComponent *parallaxBackgroundComponent_ = nullptr;
         ItemToolTipComponent *itemToolTipComponent_ = nullptr;
         RecipeSelectionComponent *recipeSelectionComponent_ = nullptr;
 
     public:
         void SetPlayer(GameEntityID player);
-
-        void SetParallaxBackgroundComponent(ParallaxBackgroundComponent *parallaxBackgroundComponent);
-
-        [[nodiscard]] ParallaxBackgroundComponent *GetParallaxBackgroundComponent() const;
 
         [[nodiscard]] GameEntityID GetPlayer() const;
 

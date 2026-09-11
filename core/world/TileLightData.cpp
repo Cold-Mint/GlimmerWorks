@@ -26,8 +26,6 @@
  */
 #include "TileLightData.h"
 
-#include <bit>
-
 #include "core/config/Constants.h"
 #include "core/utils/LightUtils.h"
 #include "src/core/vector2d.pb.h"
@@ -310,19 +308,20 @@ void glimmer::TileLightData::ClearLightSource(const TileLayerType layerType) {
     lightSourceData_.erase(layerType);
 }
 
-void glimmer::TileLightData::SetOpaque(const TileLayerType layerType, const bool opaque) {
-    const int index = std::countr_zero(std::to_underlying(layerType));
-    if (index >= 0 && index < TILE_LAYER_TYPE_COUNT) {
-        opaqueByLayer_[index] = opaque;
+float glimmer::TileLightData::GetSideLightTransmission(const TileLayerType layerType) const {
+    const auto it = sideLightMaskData_.find(layerType);
+    if (it == sideLightMaskData_.end() || it->second == nullptr) {
+        return 1.0F;
     }
+    return 1.0F - it->second->GetBlockingStrength();
 }
 
-bool glimmer::TileLightData::IsOpaque(const TileLayerType layerType) const {
-    const int index = std::countr_zero(std::to_underlying(layerType));
-    if (index >= 0 && index < TILE_LAYER_TYPE_COUNT) {
-        return opaqueByLayer_[index];
+float glimmer::TileLightData::GetBackLightBlockingStrength(const TileLayerType layerType) const {
+    const auto it = backLightMaskData_.find(layerType);
+    if (it == backLightMaskData_.end() || it->second == nullptr) {
+        return 0.0F;
     }
-    return false;
+    return it->second->GetBlockingStrength();
 }
 
 const glimmer::Color *glimmer::TileLightData::GetFinalLightColor() const {

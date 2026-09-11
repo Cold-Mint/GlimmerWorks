@@ -82,9 +82,6 @@ void glimmer::ChunkManager::UpdateTileLight(const Chunk *chunk, const TileLayerT
     const int localX = index & CHUNK_MASK;
     const int localY = index >> CHUNK_SHIFT;
     auto lightSourcePosition = TileVector2D(chunkPosition.x + localX, chunkPosition.y + localY);
-    const TilePhysicsType physicsType = tile->GetTilePhysicsType();
-    const bool opaque = physicsType == TilePhysicsType::Static || physicsType == TilePhysicsType::Dynamic;
-    lightBuffer_->SetTileOpaque(lightSourcePosition, layerType, opaque);
     const TileLightResourceData *tileLightResourceData = tile->GetLightResourceData();
     if (tileLightResourceData == nullptr) {
         return;
@@ -93,8 +90,8 @@ void glimmer::ChunkManager::UpdateTileLight(const Chunk *chunk, const TileLayerT
         tileLightResourceData->GetSideLightMaskResource());
     if (sideLightMaskResource == nullptr) {
         // Tile has no side light mask resource, clear any existing side light mask data
-        // 方块没有侧边光掩码资源，清除已有的侧边光掩码数据（不触发重新传播）
-        lightBuffer_->ClearSideLightMaskOnly(lightSourcePosition, layerType);
+        // 方块没有侧边光掩码资源，清除已有的侧边光掩码数据
+        lightBuffer_->ClearSideLightMask(lightSourcePosition, layerType);
     } else {
         const std::unique_ptr<Color> sideLightMaskColorPtr = resourceLocator->FindColor(
             &sideLightMaskResource->lightMaskColor);
@@ -115,8 +112,8 @@ void glimmer::ChunkManager::UpdateTileLight(const Chunk *chunk, const TileLayerT
         tileLightResourceData->GetBackLightMaskResource());
     if (backLightMaskResource == nullptr) {
         // Tile has no back light mask resource, clear any existing back light mask data
-        // 方块没有背光掩码资源，清除已有的背光掩码数据（不触发重新传播）
-        lightBuffer_->ClearBackLightMaskOnly(lightSourcePosition, layerType);
+        // 方块没有背光掩码资源，清除已有的背光掩码数据
+        lightBuffer_->ClearBackLightMask(lightSourcePosition, layerType);
     } else {
         const std::unique_ptr<Color> backLightMaskColorPtr = resourceLocator->FindColor(
             &backLightMaskResource->lightMaskColor);

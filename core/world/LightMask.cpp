@@ -41,3 +41,7 @@ float glimmer::LightMask::GetTintFactor() const {
 const glimmer::Color *glimmer::LightMask::GetLightMaskColor() const {
     return &lightMaskColor_;
 }
+
+float glimmer::LightMask::GetBlockingStrength() const {
+    return static_cast<float>(lightMaskColor_.a) / 255.0F;
+}

@@ -515,7 +515,6 @@ target_sources(GlimmerWorks
         core/console/command/LocateCommand.cpp
         core/console/command/LootCommand.cpp
         core/console/command/PackVerifyCommand.cpp
-        core/console/command/ParallaxBackgroundCommand.cpp
         core/console/command/PlaceCommand.cpp
         core/console/command/PlayCommand.cpp
         core/console/command/RmlDebugCommand.cpp
@@ -592,7 +591,6 @@ target_sources(GlimmerWorks
         core/ecs/component/MagnetComponent.cpp
         core/ecs/component/MagneticComponent.cpp
         core/ecs/component/MobComponent.cpp
-        core/ecs/component/ParallaxBackgroundComponent.cpp
         core/ecs/component/PauseComponent.cpp
         core/ecs/component/PlayerComponent.cpp
         core/ecs/component/RayCast2DComponent.cpp
@@ -965,7 +963,6 @@ target_sources(GlimmerWorks
         core/console/command/LocateCommand.h
         core/console/command/LootCommand.h
         core/console/command/PackVerifyCommand.h
-        core/console/command/ParallaxBackgroundCommand.h
         core/console/command/PlaceCommand.h
         core/console/command/PlayCommand.h
         core/console/command/RmlDebugCommand.h
@@ -1046,7 +1043,6 @@ target_sources(GlimmerWorks
         core/ecs/component/MagnetComponent.h
         core/ecs/component/MagneticComponent.h
         core/ecs/component/MobComponent.h
-        core/ecs/component/ParallaxBackgroundComponent.h
         core/ecs/component/PauseComponent.h
         core/ecs/component/RayCast2DComponent.h
         core/ecs/component/RigidBody2DComponent.h

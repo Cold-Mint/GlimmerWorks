@@ -771,8 +771,6 @@ namespace glimmer {
         float strictnessSurfaceProximity = 1.0F;
         //@genNextLine(BGM|BGM)
         ResourceRef bgm;
-        //@genNextLine(parallaxBackground|视差背景)
-        ResourceRef parallaxBackground;
         //@genNextLine(dimensions|引用的维度列表（单个生物群系可引用多个维度）)
         std::vector<ResourceRef> dimensions;
     };

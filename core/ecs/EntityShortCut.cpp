@@ -32,19 +32,6 @@ void glimmer::EntityShortCut::SetPlayer(const GameEntityID player) {
     player_ = player;
 }
 
-void glimmer::EntityShortCut::SetParallaxBackgroundComponent(ParallaxBackgroundComponent *parallaxBackgroundComponent) {
-    parallaxBackgroundComponent_ = parallaxBackgroundComponent;
-}
-
-glimmer::ParallaxBackgroundComponent *glimmer::EntityShortCut::GetParallaxBackgroundComponent() const {
-    if (parallaxBackgroundComponent_ == nullptr) {
-        LogCat::w(std::source_location::current(), "parallax_background_component_null",
-                  "EntityShortCut: ParallaxBackgroundComponent pointer is null, component not initialized");
-        return nullptr;
-    }
-    return parallaxBackgroundComponent_;
-}
-
 GameEntityID glimmer::EntityShortCut::GetPlayer() const {
     return player_;
 }

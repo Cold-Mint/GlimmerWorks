@@ -507,7 +507,6 @@ namespace toml {
             r.elevation = toml::find_or<float>(v, "elevation", 0.5F);
             r.erosion = toml::find_or<float>(v, "erosion", 0.5F);
             r.humidity = toml::find_or<float>(v, "humidity", 0.5F);
-            r.parallaxBackground = toml::find<glimmer::ResourceRef>(v, "parallax_background");
             r.resourceId = toml::find<std::string>(v, "resource_id");
             r.strictnessElevation = toml::find_or<float>(v, "strictness_elevation", 1.0F);
             r.strictnessErosion = toml::find_or<float>(v, "strictness_erosion", 1.0F);

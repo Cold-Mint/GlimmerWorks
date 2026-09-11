@@ -29,6 +29,7 @@
 #include <array>
 #include <queue>
 #include <unordered_set>
+#include <utility>
 
 #include "core/math/Vector2DIHash.h"
 
@@ -43,7 +44,7 @@ namespace {
 }
 
 void glimmer::LightFloodFill::Propagate(const TileVector2D &center, const int maxRadius,
-                                        const OpaquePredicate &isOpaque,
+                                        const TransmissionFn &transmission,
                                         const VisitCallback &visit,
                                         const bool diagonalBlock) {
     if (!visit) {
@@ -52,19 +53,24 @@ void glimmer::LightFloodFill::Propagate(const TileVector2D &center, const int ma
     // The center tile always emits light, even if the source tile itself is
     // solid (e.g. a glowing block).
     // 中心瓦片始终发光，即使光源瓦片本身是实体（如发光方块）。
-    visit(center);
+    visit(center, 1.0F);
     if (maxRadius <= 0) {
         return;
     }
 
+    //Light weaker than one 1/255 step is treated as invisible and stops
+    //propagation, preventing unbounded falloff through partial masks.
+    //低于 1/255 的光视为不可见并停止传播，避免部分遮罩下的无界衰减。
+    constexpr float MIN_ACCUMULATED = 1.0F / 255.0F;
+
     const int maxRadiusSq = maxRadius * maxRadius;
     std::unordered_set<TileVector2D, Vector2DIHash> visited;
     visited.insert(center);
-    std::queue<TileVector2D> queue;
-    queue.push(center);
+    std::queue<std::pair<TileVector2D, float> > queue;
+    queue.emplace(center, 1.0F);
 
     while (!queue.empty()) {
-        const TileVector2D current = queue.front();
+        const auto [current, currentAccumulated] = queue.front();
         queue.pop();
         for (const auto &[dx, dy]: NEIGHBORS) {
             const TileVector2D next(current.x + dx, current.y + dy);
@@ -82,16 +88,18 @@ void glimmer::LightFloodFill::Propagate(const TileVector2D &center, const int ma
             if (diagonalBlock && dx != 0 && dy != 0) {
                 const TileVector2D orthA(current.x + dx, current.y);
                 const TileVector2D orthB(current.x, current.y + dy);
-                if (isOpaque && isOpaque(orthA) && isOpaque(orthB)) {
+                if (transmission && transmission(orthA) <= 0.0F && transmission(orthB) <= 0.0F) {
                     continue;
                 }
             }
-            if (isOpaque && isOpaque(next)) {
+            const float t = transmission ? transmission(next) : 1.0F;
+            const float accumulated = currentAccumulated * t;
+            if (accumulated <= MIN_ACCUMULATED) {
                 continue;
             }
             visited.insert(next);
-            visit(next);
-            queue.push(next);
+            visit(next, accumulated);
+            queue.emplace(next, accumulated);
         }
     }
 }

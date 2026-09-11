@@ -71,7 +71,6 @@ static constexpr std::string GUI_COMMAND_NAME = "gui";
 static constexpr std::string ITEM_EDITOR_COMMAND_NAME = "itemEditor";
 static constexpr std::string PACK_VERIFY_COMMAND_NAME = "packVerify";
 #if  !defined(NDEBUG)
-static const std::string PARALLAX_BACKGROUND_COMMAND_NAME = "parallaxBackground";
 static constexpr std::string BOX2D_COMMAND_NAME = "box2d";
 static constexpr std::string BIOME_SCORE_COMMAND_NAME = "biomeScore";
 static constexpr std::string TILE_SNAPSHOT_COMMAND_NAME = "tileSnapshot";
@@ -329,7 +328,6 @@ static constexpr float PLAYER_MOVE_SPEED = 60.0F;
  * 表示无效的游戏ID
  */
 static constexpr uint32_t GAME_ENTITY_ID_INVALID = 0;
-static constexpr uint8_t EXECUTION_ORDER_PARALLAX_BACKGROUND = 1;
 static constexpr uint8_t EXECUTION_ORDER_TILE_LAYER = 2;
 static constexpr uint8_t EXECUTION_ORDER_DROPPED_ITEM = 3;
 static constexpr uint8_t EXECUTION_ORDER_DIGGING = 10;

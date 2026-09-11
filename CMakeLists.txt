@@ -610,6 +610,7 @@ target_sources(GlimmerWorks
         core/ecs/system/Box2dSystemContext.cpp
         core/ecs/system/CameraSystem.cpp
         core/ecs/system/ChunkSystem.cpp
+        core/ecs/system/DebugChunkSystem.cpp
         core/ecs/system/DebugDrawBox2dSystem.cpp
         core/ecs/system/DebugDrawSystem.cpp
         core/ecs/system/DebugMultiMapSystem.cpp
@@ -1061,6 +1062,7 @@ target_sources(GlimmerWorks
         core/ecs/system/BlueprintSystem.h
         core/ecs/system/Box2dSystemContext.h
         core/ecs/system/ChunkSystem.h
+        core/ecs/system/DebugChunkSystem.h
         core/ecs/system/DebugDrawBox2dSystem.h
         core/ecs/system/DebugDrawSystem.h
         core/ecs/system/DebugMultiMapSystem.h

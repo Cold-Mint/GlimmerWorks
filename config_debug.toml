@@ -90,6 +90,18 @@ command = "config commit"
 code = "f5"
 event_type = "key_down"
 
+[[command_hooks]]
+hook_id = "ffbd05e6-dd34-4d2c-8d43-45c5a88c7573"
+command = "config set debug.display_chunk_view toggle"
+code = "f3"
+event_type = "key_down"
+
+[[command_hooks]]
+hook_id = "dbba5966-edfd-4bb5-a6c5-4c2b458a028b"
+command = "config commit"
+code = "f3"
+event_type = "key_down"
+
 [debug]
 # Show debug panel in game
 # 游戏内显示调试面板
@@ -115,3 +127,6 @@ display_erosion_map = false
 # Display weirdness map
 # 显示奇异度图
 display_weirdness_map = false
+# Display chunk boundaries and the chunk view
+# 显示区块边界和区块视图
+display_chunk_view = false

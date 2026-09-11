@@ -213,9 +213,9 @@ void glimmer::App::UpdateScenes(const float deltaTime) const {
 void glimmer::App::InitScenesAndConsole() const {
     auto sceneManager = appContext_->GetSceneManager();
     sceneManager->PushScene(std::make_unique<SplashScene>(appContext_));
-    // #if  !defined(NDEBUG)
-    //     sceneManager->AddOverlayScene(std::make_unique<DebugOverlay>(appContext_));
-    // #endif
+#if  !defined(NDEBUG)
+    sceneManager->AddOverlayScene(std::make_unique<DebugOverlay>(appContext_));
+#endif
     sceneManager->AddOverlayScene(std::make_unique<ConsoleOverlay>(appContext_));
     sceneManager->AddOverlayScene(std::make_unique<UIMessageOverlay>(appContext_));
     ConsoleWorker *consoleWorker = appContext_->GetConsoleContext()->GetConsoleWorker();

@@ -34,6 +34,7 @@
 #include "core/ecs/system/BlueprintSystem.h"
 #include "core/ecs/system/CameraSystem.h"
 #include "core/ecs/system/ChunkSystem.h"
+#include "core/ecs/system/DebugChunkSystem.h"
 #include "core/ecs/system/DebugDrawBox2dSystem.h"
 #include "core/ecs/system/DebugDrawSystem.h"
 #include "core/ecs/system/DebugMultiMapSystem.h"
@@ -376,7 +377,8 @@ void glimmer::SystemScheduler::InitSystem() {
 #if  !defined(NDEBUG)
     RegisterSystem(std::make_unique<DebugDrawSystem>(worldContext_));
     RegisterSystem(std::make_unique<DebugDrawBox2dSystem>(worldContext_));
-    RegisterSystem(std::make_unique<DebugPanelSystem>(worldContext_));
+    RegisterSystem(std::make_unique<DebugChunkSystem>(worldContext_));
+    RegisterGuiSystem(std::make_unique<DebugPanelSystem>(worldContext_));
     RegisterSystem(std::make_unique<DebugMultiMapSystem>(worldContext_));
 #endif
 #ifdef __ANDROID__

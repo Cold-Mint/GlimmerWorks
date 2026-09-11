@@ -26,51 +26,48 @@
  */
 #pragma once
 #if  !defined(NDEBUG)
-#include "core/ecs/GuiGameSystem.h"
+#include "core/ecs/GameSystem.h"
 #include "core/ecs/component/CameraComponent.h"
-#include "core/ecs/component/TileLayerComponent.h"
+#include "core/ecs/component/Transform2DComponent.h"
 
 namespace glimmer {
-    class Transform2DComponent;
     class AppContext;
 
     /**
-     * A single line of debug text used by the debug panel data model.
-     * 调试面板数据模型使用的一行调试文本。
+     * DebugChunkSystem
+     * 区块调试系统
+     *
+     * Displays chunk boundaries and a chunk overview in the bottom-left corner.
+     * 显示区块边界和左下角的区块视图。
      */
-    struct DebugLine {
-        std::string text;
-    };
-
-    class DebugPanelSystem : public GuiGameSystem {
+    class DebugChunkSystem : public GameSystem {
         WorldVector2D mousePosition_ = WorldVector2D{};
         CameraComponent *cameraComponent_ = nullptr;
         Transform2DComponent *cameraTransform2DComponent_ = nullptr;
-        std::vector<TileLayerComponent *> tileLayerComponents_;
-        AppContext *appContext_ = nullptr;
-        bool displayDebugPanel_ = false;
-        Rml::DataModelHandle debugModelHandle_;
-        std::vector<DebugLine> debugLines_;
-        std::string chunkText_;
-        int crosshairX_ = 0;
-        int crosshairY_ = 0;
+        bool displayChunkView_ = false;
+
+        /**
+         * Draw the boundaries of the chunks visible on screen.
+         * 绘制屏幕上可见区块的边界。
+         */
+        void RenderChunkBounds(RenderQueue *queue);
+
+        /**
+         * Draw the chunk overview in the bottom-left corner.
+         * 在左下角绘制区块视图。
+         */
+        void RenderChunkView(RenderQueue *queue, AppContext *appContext);
 
     public:
-        bool CanActive() const override;
+        explicit DebugChunkSystem(WorldContext *worldContext);
 
-        explicit DebugPanelSystem(WorldContext *worldContext);
+        bool CanActive() const override;
 
         void OnConfigChanged(const Config *config) override;
 
-        void OnActivationChanged(bool activeStatus) override;
-
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
-        void LoadDocuments(IDocumentRegistry *documentRegistry) override;
-
-        void OnCreateDataModels(IDocumentRegistry *documentRegistry) override;
-
-        void Update(float delta) override;
+        void Render(RenderQueue *queue) override;
 
         bool HandleEvent(const SDL_Event &event) override;
 

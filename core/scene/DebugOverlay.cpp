@@ -28,15 +28,15 @@
 #include "DebugOverlay.h"
 
 #include "core/config/Config.h"
+#include "core/config/Constants.h"
 #include "core/context/AppContext.h"
 #include "core/log/LogCat.h"
-#include "core/utils/StringUtils.h"
+#include "core/mod/ResourceRef.h"
 #include "fmt/xchar.h"
 
 
 glimmer::DebugOverlay::DebugOverlay(AppContext *context)
-    : Scene(context), resourcePackManager_(context->GetResourcePackManager()),
-      langsResources_(context->GetLangsResources()) {
+    : Scene(context), langsResources_(context->GetLangsResources()) {
     LogCat::i("creating_debug_overlay", "Creating DebugOverlay");
     Init();
 }
@@ -57,79 +57,85 @@ void glimmer::DebugOverlay::Update(const float delta) {
         // Average time consumption per frame (ms) 平均每帧耗时(ms)
         fpsFrameCount_ = 0;
         fpsAccumTime_ = 0.0F;
+        if (langsResources_ == nullptr) {
+            fpsText_ = fmt::format("FPS:{:.2f} | Frame Time:{:.2f} ms", fps_, frameTimeMs_);
+        } else {
+            fpsText_ = fmt::format(fmt::runtime(langsResources_->fpsInfo), fps_, frameTimeMs_);
+        }
+        if (debugModelHandle_) {
+            debugModelHandle_.DirtyVariable("fps_text");
+        }
     }
 }
 
-void glimmer::DebugOverlay::Render(RenderQueue *queue) {
-    // if (!displayDebugPanel_) {
-    //     return;
-    // }
-    //
-    // //Draw the SDL screen coordinates
-    // //绘制SDL屏幕坐标
-    // const auto labelSpacing = static_cast<int>(50 * uiScale_);
-    // for (int x = 0; x <= windowWidth_; x += labelSpacing) {
-    //     GpuTexture *texture = nullptr;
-    //     auto textureIterator = numberTextureMap_.find(x);
-    //     if (textureIterator == numberTextureMap_.end()) {
-    //         std::shared_ptr<GpuTexture> texturePtr = resourcePackManager_->CreateStringTexture(
-    //             std::to_string(x), &preloadColors_->textColor);
-    //         numberTextureMap_[x] = texturePtr;
-    //         texture = texturePtr.get();
-    //     } else {
-    //         texture = textureIterator->second.get();
-    //     }
-    //     SDL_FRect dst = {
-    //         static_cast<float>(x) + 2.0f * uiScale_, 2.0f * uiScale_, static_cast<float>(texture->w) * uiScale_,
-    //         static_cast<float>(texture->h) * uiScale_
-    //     };
-    //     queue->DrawTexture(RenderLayer::Overlay, 0.0F, texture, nullptr, &dst);
-    // }
-    // for (int y = 0; y <= windowHeight_; y += labelSpacing) {
-    //     GpuTexture *texture = nullptr;
-    //     auto textureIterator = numberTextureMap_.find(y);
-    //     if (textureIterator == numberTextureMap_.end()) {
-    //         std::shared_ptr<GpuTexture> texturePtr = resourcePackManager_->CreateStringTexture(
-    //             std::to_string(y), &preloadColors_->textColor);
-    //         numberTextureMap_[y] = texturePtr;
-    //         texture = texturePtr.get();
-    //     } else {
-    //         texture = textureIterator->second.get();
-    //     }
-    //     SDL_FRect dst = {
-    //         2.0f * uiScale_, static_cast<float>(y) + 2.0f * uiScale_, static_cast<float>(texture->w) * uiScale_,
-    //         static_cast<float>(texture->h) * uiScale_
-    //     };
-    //     queue->DrawTexture(RenderLayer::Overlay, 0.0F, texture, nullptr, &dst);
-    // }
-    // std::string fpsString = fmt::format(fmt::runtime(langsResources_->fpsInfo), fps_, frameTimeMs_);
-    // const uint64_t fpsFingerprint = StringUtils::StringToUint64(fpsString);
-    // GpuTexture *texture = nullptr;
-    // auto fpsIterator = fpsTextures_.find(fpsFingerprint);
-    // if (fpsIterator == fpsTextures_.end()) {
-    //     std::shared_ptr<GpuTexture> texturePtr = resourcePackManager_->CreateStringTexture(
-    //         fpsString, &preloadColors_->textColor);
-    //     fpsTextures_[fpsFingerprint] = texturePtr;
-    //     texture = texturePtr.get();
-    // } else {
-    //     texture = fpsIterator->second.get();
-    // }
-    // SDL_FRect fpsRect = {
-    //     static_cast<float>(windowWidth_) - texture->w * uiScale_,
-    //     static_cast<float>(windowHeight_) - texture->h * uiScale_,
-    //     texture->w * uiScale_,
-    //     texture->h * uiScale_
-    // };
-    // queue->DrawTexture(RenderLayer::Overlay, 0.0F, texture, nullptr, &fpsRect);
+void glimmer::DebugOverlay::LoadDocuments() {
+    ResourceRef resourceRef;
+    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetResourceType(RESOURCE_RML_PATH);
+    resourceRef.SetResourceKey("debug_overlay/debug_overlay");
+    debugDocument_ = LoadSingleDocument(&resourceRef);
+    if (debugDocument_ == nullptr) {
+        LogCat::w(std::source_location::current(), "debug_document_is_null", "debugDocument_ == nullptr");
+        return;
+    }
+    UpdateDocumentVisibility();
+}
+
+void glimmer::DebugOverlay::OnCreateDataModels() {
+    Rml::DataModelConstructor *constructor = CreateDataModel("debug_overlay_scene");
+    if (constructor == nullptr) {
+        return;
+    }
+    constructor->Bind("fps_text", &fpsText_);
+    if (auto labelStruct = constructor->RegisterStruct<CoordinateLabel>()) {
+        labelStruct.RegisterMember("coordinate", &CoordinateLabel::coordinate);
+        constructor->RegisterArray<std::vector<CoordinateLabel> >();
+    }
+    constructor->Bind("x_coordinates", &xCoordinateLabels_);
+    constructor->Bind("y_coordinates", &yCoordinateLabels_);
+    debugModelHandle_ = constructor->GetModelHandle();
+}
+
+void glimmer::DebugOverlay::UpdateDocumentVisibility() {
+    if (debugDocument_ == nullptr) {
+        return;
+    }
+    if (displayDebugPanel_) {
+        debugDocument_->Show();
+    } else {
+        debugDocument_->Hide();
+    }
+}
+
+void glimmer::DebugOverlay::RebuildCoordinateLabels() {
+    const auto labelSpacing = static_cast<int>(50 * uiScale_);
+    if (labelSpacing <= 0) {
+        return;
+    }
+    xCoordinateLabels_.clear();
+    for (int x = 0; x <= windowWidth_; x += labelSpacing) {
+        xCoordinateLabels_.push_back(CoordinateLabel{x});
+    }
+    yCoordinateLabels_.clear();
+    for (int y = 0; y <= windowHeight_; y += labelSpacing) {
+        yCoordinateLabels_.push_back(CoordinateLabel{y});
+    }
+    if (debugModelHandle_) {
+        debugModelHandle_.DirtyVariable("x_coordinates");
+        debugModelHandle_.DirtyVariable("y_coordinates");
+    }
 }
 
 void glimmer::DebugOverlay::OnConfigChanged(const Config *config) {
     displayDebugPanel_ = config->debug.displayDebugPanel;
     uiScale_ = config->window.uiScale;
+    UpdateDocumentVisibility();
+    RebuildCoordinateLabels();
 }
 
 void glimmer::DebugOverlay::OnWindowSizeChanged(const int &width, const int &height) {
     windowWidth_ = width;
     windowHeight_ = height;
+    RebuildCoordinateLabels();
 }
 #endif

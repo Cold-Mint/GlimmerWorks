@@ -37,6 +37,7 @@ namespace glimmer {
         Box2dSystemContext,
         CameraSystem,
         ChunkSystem,
+        DebugChunkSystem,
         DebugDrawBox2dSystem,
         DebugDrawSystem,
         DebugMultiMapSystem,

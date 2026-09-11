@@ -26,16 +26,26 @@
  */
 #pragma once
 #if  !defined(NDEBUG)
+#include <vector>
+
 #include "Scene.h"
-#include "core/mod/resourcePack/ResourcePackManager.h"
 
 namespace glimmer {
     struct LangsResources;
+
+    /**
+     * A single screen coordinate label used by the debug overlay data model.
+     * 调试叠加层数据模型使用的单个屏幕坐标标签。
+     */
+    struct CoordinateLabel {
+        int coordinate = 0;
+    };
+
     /**
      * Debug the overlay layer
      * 调试叠加层
      * It can be displayed on any scene. Display frps, screen coordinates and other information.
-     * 可以显示在任意场景上。显示frps，屏幕坐标等信息。
+     * 可以显示在任意场景上。显示frps、屏幕坐标等信息。
      */
     class DebugOverlay : public Scene {
         float fps_ = 0.0F;
@@ -43,18 +53,37 @@ namespace glimmer {
         float fpsAccumTime_ = 0.0F;
         int fpsFrameCount_ = 0;
         bool displayDebugPanel_ = false;
+        float uiScale_ = 1.0F;
         int windowWidth_ = 0;
         int windowHeight_ = 0;
-        float uiScale_ = 0.0F;
-        ResourcePackManager *resourcePackManager_ = nullptr;
         LangsResources *langsResources_ = nullptr;
+        Rml::ElementDocument *debugDocument_ = nullptr;
+        Rml::DataModelHandle debugModelHandle_;
+        std::string fpsText_;
+        std::vector<CoordinateLabel> xCoordinateLabels_;
+        std::vector<CoordinateLabel> yCoordinateLabels_;
+
+        /**
+         * Show or hide the debug document according to displayDebugPanel_.
+         * 根据 displayDebugPanel_ 显示或隐藏调试文档。
+         */
+        void UpdateDocumentVisibility();
+
+        /**
+         * Rebuild the screen coordinate labels based on the current window size
+         * and UI scale.
+         * 根据当前窗口尺寸和 UI 缩放重建屏幕坐标标签。
+         */
+        void RebuildCoordinateLabels();
 
     public:
         explicit DebugOverlay(AppContext *context);
 
         void Update(float delta) override;
 
-        void Render(RenderQueue *queue) override;
+        void LoadDocuments() override;
+
+        void OnCreateDataModels() override;
 
         void OnConfigChanged(const Config *config) override;
 

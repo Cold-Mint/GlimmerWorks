@@ -338,6 +338,9 @@ void glimmer::ResourceFileLoader::LoadDimensionResourceFromFile(const toml::valu
     for (auto &ambientLightKeyframe: dimensionResource->ambientLightKeyframes) {
         ambientLightKeyframe.color.SetSelfPackageId(manifest_->id);
     }
+    for (auto &skyLightKeyframe: dimensionResource->skyLightKeyframes) {
+        skyLightKeyframe.color.SetSelfPackageId(manifest_->id);
+    }
     dimensionRegistry->Register(std::move(dimensionResource));
 }
 

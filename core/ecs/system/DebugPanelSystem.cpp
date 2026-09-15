@@ -196,8 +196,8 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
             });
         }
 
-        if (const Color *finalLightColor = worldContext->GetLightingBuffer()->GetFinalLightColor(tileCoord);
-            finalLightColor == nullptr) {
+        const Color finalLightColor = worldContext->GetLightingBuffer()->GetFinalLightColor(tileCoord);
+        if (finalLightColor.a == 0) {
             debugLines_.push_back(DebugLine{
                 fmt::format(
                     fmt::runtime(langsResources->totalLight),
@@ -208,7 +208,7 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
             debugLines_.push_back(DebugLine{
                 fmt::format(
                     fmt::runtime(langsResources->totalLight),
-                    finalLightColor->a, finalLightColor->r, finalLightColor->g, finalLightColor->b
+                    finalLightColor.a, finalLightColor.r, finalLightColor.g, finalLightColor.b
                 )
             });
         }
@@ -217,11 +217,11 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
         // 天空可见度与列天光天花板信息
         LightBuffer *lightBuffer = worldContext->GetLightingBuffer();
         const int columnSkyTopY = lightBuffer->GetColumnSkyTopY(tileCoord.x);
-        const float skyVisibility = lightBuffer->GetSkyVisibility(tileCoord);
+        const float skyFactor = lightBuffer->GetSkyFactor(tileCoord);
         debugLines_.push_back(DebugLine{
             fmt::format(
                 fmt::runtime(langsResources->skyVisibilityInfo),
-                tileCoord.x, columnSkyTopY, skyVisibility
+                tileCoord.x, columnSkyTopY, skyFactor
             )
         });
 

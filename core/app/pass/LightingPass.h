@@ -59,18 +59,26 @@ namespace glimmer {
         //Per-tile light map texture used by the lighting pass.
         //光照 pass 使用的逐瓦片光照贴图纹理。
         LightMapTexture lightMapTexture_;
-        //Cached ambient light resolved from the dimension's keyframes at the
-        //fixed initial time (no day/night flow yet), so color resources are
-        //not re-resolved every frame.
-        //按固定初始时间从维度关键帧解析并缓存的环境光（暂无昼夜流动），
-        //避免每帧重复解析颜色资源。
-        Color ambientLight_;
         //Per-frame staging buffer for the lighting uniform block; static
         //members are restored from the compiled block and dynamic members are
         //injected each frame before being pushed to the GPU.
         //光照 uniform 块的逐帧 staging 缓冲区；静态成员从编译块恢复，
         //动态成员每帧注入后再推送至 GPU。
         std::vector<uint8_t> lightingStagingBuffer_;
+
+#if  !defined(NDEBUG)
+        bool displayLightMap_ = false;
+        std::shared_ptr<GPUPipelineResourceResult> debugPipeline_ = nullptr;
+        std::shared_ptr<GPUSamplerResourceResult> debugSampler_ = nullptr;
+        SDL_GPUBuffer *debugVertexBuffer_ = nullptr;
+        SDL_GPUBuffer *debugIndexBuffer_ = nullptr;
+        SDL_GPUTransferBuffer *debugTransferBuffer_ = nullptr;
+        Uint32 debugTransferBufferSize_ = 0;
+
+        void EnsureDebugBuffers();
+
+        void DrawLightMapDebug(RenderFrameContext &ctx);
+#endif
 
         void UpdateLightMap(UniformInjectContext *injectContext);
 
@@ -81,8 +89,14 @@ namespace glimmer {
                      std::shared_ptr<GPUPipelineResourceResult> lightingPipeline,
                      std::shared_ptr<GPUSamplerResourceResult> lightingSampler);
 
+        ~LightingPass() override;
+
         void Prepare(RenderFrameContext &ctx) override;
 
         void Record(RenderFrameContext &ctx) override;
+
+#if  !defined(NDEBUG)
+        void SetDisplayLightMap(bool display);
+#endif
     };
 }

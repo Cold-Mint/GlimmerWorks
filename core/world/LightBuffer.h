@@ -32,6 +32,7 @@
 #include "LightMask.h"
 #include "LightSource.h"
 #include "TileLightData.h"
+#include "core/config/Constants.h"
 #include "core/math/Color.h"
 #include "core/math/Vector2DIHash.h"
 
@@ -74,6 +75,19 @@ namespace glimmer {
         //批量模式是否激活（区块加载时抑制逐瓦片重算）。
         bool batching_ = false;
         bool batchDirty_ = false;
+
+        //Ambient light configuration, folded into GetFinalLightColor instead of
+        //being applied as a separate renderer channel.
+        //screenLight_: light coming from the background layer (-Z), attenuated
+        //              by the background wall's back-light opacity.
+        //skyLight_:    light coming from above (+Y), attenuated by depth below
+        //              the column's opaque ceiling (inverse-square falloff).
+        //环境光配置，并入 GetFinalLightColor 而非作为渲染端独立通道。
+        //screenLight_：来自背景层（-Z）的屏幕光，被背景墙背光不透明度衰减。
+        //skyLight_：   来自上方（+Y）的天光，按列天花板以下深度做平方反比衰减。
+        Color screenLight_ = {};
+        Color skyLight_ = {};
+        int skyMaxDepth_ = SKY_HEIGHT;
 
         TileLightData &GetOrCreate(const TileVector2D &position);
 
@@ -128,7 +142,7 @@ namespace glimmer {
 
         void ClearLightSource(TileVector2D position, TileLayerType layerType);
 
-        const Color *GetFinalLightColor(TileVector2D position) const;
+        [[nodiscard]] Color GetFinalLightColor(TileVector2D position) const;
 
         /**
          * SetDynamicLight
@@ -162,29 +176,32 @@ namespace glimmer {
         void EndBatch();
 
         /**
-         * GetSkyVisibility
-         * 获取指定瓦片的天空可见度。
-         * 用于决定环境光（天光）是否照射到该瓦片。
-         * @param position position 瓦片世界坐标
-         * @return 1 = 露天，0 = 被上方不透明瓦片遮挡
+         * SetAmbientLight
+         * 设置环境光（屏幕光与天光）配置。值变化时会递增 revision，
+         * 触发光照贴图重建。
+         * @param screenLight screenLight 屏幕光颜色（背景层，来自 -Z）
+         * @param skyLight skyLight 天光颜色（来自 +Y）
+         * @param skyMaxDepth skyMaxDepth 天光最大穿透深度（平方反比衰减到 0 的距离）
          */
-        [[nodiscard]] float GetSkyVisibility(const TileVector2D &position) const;
+        void SetAmbientLight(const Color &screenLight, const Color &skyLight, int skyMaxDepth);
+
+        /**
+         * GetSkyFactor
+         * 获取指定瓦片的天光因子（0~1，连续衰减）。
+         * 天花板及以上为 1，向下按平方反比衰减。
+         * @param position position 瓦片世界坐标
+         * @return 0~1 的天光强度因子
+         */
+        [[nodiscard]] float GetSkyFactor(const TileVector2D &position) const;
 
         /**
          * GetColumnSkyTopY
-         * 获取指定列的天光天花板 y（该列最高的不透明地面瓦片）。
+         * 获取指定列的天光天花板 y（该列最高的不透明地面瓦片），
+         * 用于计算天光的连续深度衰减。
          * @param x x 列坐标
          * @return 若该列存在不透明地面瓦片则返回其 y，否则返回 WORLD_MIN_Y - 1
          */
         [[nodiscard]] int GetColumnSkyTopY(int x) const;
-
-        /**
-         * HasColumnSkyTop
-         * 判断指定列是否存在天光天花板记录。
-         * @param x x 列坐标
-         * @return 是否记录了该列的不透明地面瓦片
-         */
-        [[nodiscard]] bool HasColumnSkyTop(int x) const;
 
         /**
          * @return The current revision counter. Any change to the buffered

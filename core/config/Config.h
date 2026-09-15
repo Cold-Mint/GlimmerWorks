@@ -97,6 +97,7 @@ namespace glimmer {
         bool displayErosionMap;
         bool displayWeirdnessMap;
         bool displayChunkView;
+        bool displayLightMap;
     };
 
     struct Console {

@@ -160,6 +160,7 @@ bool glimmer::Config::ReloadConfig() {
     debug.displayErosionMap = toml::find<bool>(tomlRef, "debug", "display_erosion_map");
     debug.displayWeirdnessMap = toml::find<bool>(tomlRef, "debug", "display_weirdness_map");
     debug.displayChunkView = toml::find<bool>(tomlRef, "debug", "display_chunk_view");
+    debug.displayLightMap = toml::find<bool>(tomlRef, "debug", "display_light_map");
 #endif
     fingerprint_++;
     return true;

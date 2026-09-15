@@ -560,6 +560,7 @@ namespace toml {
             glimmer::DimensionResource r;
             r.allowAsStarting = toml::find_or<bool>(v, "allow_as_starting", false);
             r.ambientLightKeyframes = toml::find<std::vector<glimmer::LightKeyframe> >(v, "ambient_light_keyframes");
+            r.skyLightKeyframes = toml::find<std::vector<glimmer::LightKeyframe> >(v, "sky_light_keyframes");
             r.initialTime = toml::find_or<float>(v, "initial_time", 0.0F);
             r.name = toml::find<glimmer::ResourceRef>(v, "name");
             r.resourceId = toml::find<std::string>(v, "resource_id");

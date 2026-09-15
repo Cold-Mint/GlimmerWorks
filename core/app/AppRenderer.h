@@ -38,6 +38,7 @@ namespace glimmer {
     class SceneManager;
     class RmlContext;
     class IPass;
+    class LightingPass;
 
     /**
      * AppRenderer
@@ -59,6 +60,9 @@ namespace glimmer {
         ResourceLocator *resourceLocator_ = nullptr;
         SceneManager *sceneManager_ = nullptr;
         std::vector<std::unique_ptr<IPass> > passes_;
+#if  !defined(NDEBUG)
+        LightingPass *lightingPass_ = nullptr;
+#endif
 
         void RenderOverlays();
 

@@ -102,6 +102,18 @@ command = "config commit"
 code = "f3"
 event_type = "key_down"
 
+[[command_hooks]]
+hook_id = "9d1f2b3c-4d5e-4f6a-9b8c-1a2b3c4d5e6f"
+command = "config set debug.display_light_map toggle"
+code = "f4"
+event_type = "key_down"
+
+[[command_hooks]]
+hook_id = "a2b3c4d5-e6f7-4a8b-9c0d-1e2f3a4b5c6d"
+command = "config commit"
+code = "f4"
+event_type = "key_down"
+
 [debug]
 # Show debug panel in game
 # 游戏内显示调试面板
@@ -130,3 +142,6 @@ display_weirdness_map = false
 # Display chunk boundaries and the chunk view
 # 显示区块边界和区块视图
 display_chunk_view = false
+# Display the raw light map texture in the bottom-right corner
+# 在屏幕右下角显示原始光照贴图纹理
+display_light_map = false

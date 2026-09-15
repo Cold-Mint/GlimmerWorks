@@ -727,6 +727,8 @@ namespace glimmer {
         float initialTime = 0.0F;
         //@genNextLine(ambientLightKeyframes|环境光关键帧列表（时间点+RGB+强度），决定昼夜光照曲线)
         std::vector<LightKeyframe> ambientLightKeyframes;
+        //@genNextLine(skyLightKeyframes|天光关键帧列表（时间点+RGB+强度）。)
+        std::vector<LightKeyframe> skyLightKeyframes;
     };
 
     /**

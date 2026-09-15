@@ -26,6 +26,7 @@
  */
 #include "LightBuffer.h"
 
+#include <algorithm>
 #include <utility>
 #include <vector>
 
@@ -271,12 +272,45 @@ void glimmer::LightBuffer::ClearLightSource(const TileVector2D position, const T
     ++revision_;
 }
 
-const glimmer::Color *glimmer::LightBuffer::GetFinalLightColor(const TileVector2D position) const {
+glimmer::Color glimmer::LightBuffer::GetFinalLightColor(const TileVector2D position) const {
     const auto it = tileLightData_.find(position);
-    if (it == tileLightData_.end() || it->second == nullptr) {
-        return nullptr;
+    const TileLightData *tileData = (it != tileLightData_.end()) ? it->second.get() : nullptr;
+    const Color *point = tileData != nullptr ? tileData->GetFinalLightColor() : nullptr;
+    const float srcR = point != nullptr ? static_cast<float>(point->r) / 255.0F : 0.0F;
+    const float srcG = point != nullptr ? static_cast<float>(point->g) / 255.0F : 0.0F;
+    const float srcB = point != nullptr ? static_cast<float>(point->b) / 255.0F : 0.0F;
+    const float srcA = point != nullptr ? static_cast<float>(point->a) / 255.0F : 0.0F;
+
+    //Screen ambient light from the background layer, attenuated by the
+    //background wall's back-light blocking strength.
+    //来自背景层的屏幕光，被背景墙背光挡光强度衰减。
+    const float backOpacity = tileData != nullptr
+                                  ? tileData->GetBackLightBlockingStrength(TileLayerType::BackGround)
+                                  : 0.0F;
+    const float screenScale = static_cast<float>(screenLight_.a) / 255.0F * (1.0F - backOpacity);
+
+    //Sky ambient light from above, attenuated by depth below the column's
+    //opaque ceiling using inverse-square falloff.
+    //来自上方的天光，按列天花板以下深度做平方反比衰减。
+    const float skyScale = (static_cast<float>(skyLight_.a) / 255.0F) * GetSkyFactor(position);
+
+    const float totalR = srcR * srcA + static_cast<float>(screenLight_.r) / 255.0F * screenScale +
+                         static_cast<float>(skyLight_.r) / 255.0F * skyScale;
+    const float totalG = srcG * srcA + static_cast<float>(screenLight_.g) / 255.0F * screenScale +
+                         static_cast<float>(skyLight_.g) / 255.0F * skyScale;
+    const float totalB = srcB * srcA + static_cast<float>(screenLight_.b) / 255.0F * screenScale +
+                         static_cast<float>(skyLight_.b) / 255.0F * skyScale;
+    const float totalA = std::max(srcA, std::max(screenScale, skyScale));
+
+    Color result{};
+    if (totalA <= 0.0F) {
+        return result;
     }
-    return it->second->GetFinalLightColor();
+    result.r = static_cast<uint8_t>(std::min(255.0F, totalR / totalA * 255.0F));
+    result.g = static_cast<uint8_t>(std::min(255.0F, totalG / totalA * 255.0F));
+    result.b = static_cast<uint8_t>(std::min(255.0F, totalB / totalA * 255.0F));
+    result.a = static_cast<uint8_t>(std::min(255.0F, totalA * 255.0F));
+    return result;
 }
 
 void glimmer::LightBuffer::SetDynamicLight(const uint64_t id, const TileVector2D position,
@@ -324,23 +358,44 @@ void glimmer::LightBuffer::RemoveDynamicLight(const uint64_t id) {
     LogCat::d("light_buffer_remove_dynamic_light", "Removed dynamic light: id={}", id);
 }
 
-float glimmer::LightBuffer::GetSkyVisibility(const TileVector2D &position) const {
+void glimmer::LightBuffer::SetAmbientLight(const Color &screenLight, const Color &skyLight, const int skyMaxDepth) {
+    const int maxDepth = skyMaxDepth > 0 ? skyMaxDepth : SKY_HEIGHT;
+    if (screenLight_.r == screenLight.r && screenLight_.g == screenLight.g &&
+        screenLight_.b == screenLight.b && screenLight_.a == screenLight.a &&
+        skyLight_.r == skyLight.r && skyLight_.g == skyLight.g &&
+        skyLight_.b == skyLight.b && skyLight_.a == skyLight.a &&
+        skyMaxDepth_ == maxDepth) {
+        return;
+    }
+    screenLight_ = screenLight;
+    skyLight_ = skyLight;
+    skyMaxDepth_ = maxDepth;
+    ++revision_;
+    LogCat::d("light_buffer_set_ambient",
+              "SetAmbientLight: screen rgba=({},{},{},{}), sky rgba=({},{},{},{}), skyMaxDepth={}",
+              static_cast<int>(screenLight_.r), static_cast<int>(screenLight_.g),
+              static_cast<int>(screenLight_.b), static_cast<int>(screenLight_.a),
+              static_cast<int>(skyLight_.r), static_cast<int>(skyLight_.g),
+              static_cast<int>(skyLight_.b), static_cast<int>(skyLight_.a), skyMaxDepth_);
+}
+
+float glimmer::LightBuffer::GetSkyFactor(const TileVector2D &position) const {
     const auto it = columnSkyTopY_.find(position.x);
     const int topY = it != columnSkyTopY_.end() ? it->second : WORLD_MIN_Y - 1;
-    const float result = position.y >= topY ? 1.0F : 0.0F;
-    LogCat::d("light_buffer_get_sky_visibility",
-              "GetSkyVisibility: position=({}, {}), topY={}, hasColumn={}, result={}",
-              position.x, position.y, topY, it != columnSkyTopY_.end(), result);
-    return result;
+    const int depth = topY - position.y;
+    if (depth <= 0) {
+        return 1.0F;
+    }
+    if (skyMaxDepth_ <= 0) {
+        return 0.0F;
+    }
+    const float normalized = static_cast<float>(depth) / static_cast<float>(skyMaxDepth_);
+    return std::clamp(1.0F / (1.0F + normalized * normalized * 4.0F), 0.0F, 1.0F);
 }
 
 int glimmer::LightBuffer::GetColumnSkyTopY(const int x) const {
     const auto it = columnSkyTopY_.find(x);
     return it != columnSkyTopY_.end() ? it->second : WORLD_MIN_Y - 1;
-}
-
-bool glimmer::LightBuffer::HasColumnSkyTop(const int x) const {
-    return columnSkyTopY_.find(x) != columnSkyTopY_.end();
 }
 
 uint64_t glimmer::LightBuffer::GetRevision() const {

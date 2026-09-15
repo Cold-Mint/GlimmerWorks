@@ -32,6 +32,7 @@
 #include "core/app/pass/LightingPass.h"
 #include "core/app/pass/ScenePass.h"
 #include "core/app/pass/UiPass.h"
+#include "core/config/Config.h"
 #include "core/config/Constants.h"
 #include "core/gpu/IPass.h"
 #include "core/context/WindowContext.h"
@@ -88,6 +89,9 @@ glimmer::AppRenderer::AppRenderer(AppContext *appContext) : appContext_(appConte
     passes_.emplace_back(std::make_unique<ClearPass>());
     passes_.emplace_back(std::make_unique<LightingPass>(resourceLocator_, device_, std::move(lightingPipeline),
                                                         std::move(lightingSampler)));
+#if  !defined(NDEBUG)
+    lightingPass_ = dynamic_cast<LightingPass *>(passes_.back().get());
+#endif
     passes_.emplace_back(std::make_unique<UiPass>(appContext_->GetRmlContext()));
 }
 
@@ -138,6 +142,12 @@ void glimmer::AppRenderer::RenderFrame(const int windowWidth, const int windowHe
     ctx.logicalHeight = logicalHeight;
     ctx.injectContext = uniformInjectContext;
     ctx.renderQueue = &renderQueue_;
+#if  !defined(NDEBUG)
+    if (lightingPass_ != nullptr) {
+        const Config *config = appContext_->GetConfig();
+        lightingPass_->SetDisplayLightMap(config != nullptr && config->debug.displayLightMap);
+    }
+#endif
     for (auto &pass: passes_) {
         pass->Prepare(ctx);
     }

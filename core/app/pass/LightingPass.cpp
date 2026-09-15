@@ -26,13 +26,18 @@
  */
 #include "LightingPass.h"
 
+#include <algorithm>
+#include <cstring>
 #include <vector>
 
 #include "PassUtils.h"
 #include "core/gpu/RenderFrameContext.h"
+#include "core/gpu/SpriteVertex.h"
 #include "core/gpu/UniformInjectContext.h"
 #include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
+#include "core/mod/ResourceLocator.h"
+#include "core/mod/ResourceRef.h"
 #include "core/mod/resourcePack/GPUPipelineResourceResult.h"
 #include "core/mod/resourcePack/GPUSamplerResourceResult.h"
 #include "core/utils/ColorUtils.h"
@@ -47,6 +52,38 @@ glimmer::LightingPass::LightingPass(ResourceLocator *resourceLocator, SDL_GPUDev
       device_(device),
       lightingPipeline_(std::move(lightingPipeline)),
       lightingSampler_(std::move(lightingSampler)) {
+#if  !defined(NDEBUG)
+    if (resourceLocator_ != nullptr) {
+        ResourceRef defaultPipelineResourceRef;
+        defaultPipelineResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+        defaultPipelineResourceRef.SetResourceType(RESOURCE_PIPELINE);
+        defaultPipelineResourceRef.SetResourceKey("default");
+        debugPipeline_ = resourceLocator_->FindGPUGraphicsPipeline(&defaultPipelineResourceRef);
+
+        ResourceRef defaultSamplerResourceRef;
+        defaultSamplerResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+        defaultSamplerResourceRef.SetResourceType(RESOURCE_SAMPLER);
+        defaultSamplerResourceRef.SetResourceKey("default");
+        debugSampler_ = resourceLocator_->FindGPUGraphicsSampler(&defaultSamplerResourceRef);
+    }
+#endif
+}
+
+glimmer::LightingPass::~LightingPass() {
+#if  !defined(NDEBUG)
+    if (debugTransferBuffer_ != nullptr) {
+        SDL_ReleaseGPUTransferBuffer(device_, debugTransferBuffer_);
+        debugTransferBuffer_ = nullptr;
+    }
+    if (debugIndexBuffer_ != nullptr) {
+        SDL_ReleaseGPUBuffer(device_, debugIndexBuffer_);
+        debugIndexBuffer_ = nullptr;
+    }
+    if (debugVertexBuffer_ != nullptr) {
+        SDL_ReleaseGPUBuffer(device_, debugVertexBuffer_);
+        debugVertexBuffer_ = nullptr;
+    }
+#endif
 }
 
 void glimmer::LightingPass::Prepare(RenderFrameContext &ctx) {
@@ -61,6 +98,11 @@ void glimmer::LightingPass::Record(RenderFrameContext &ctx) {
     }
     lightMapTexture_.Upload(ctx.commandBuffer);
     FlushLightingPass(ctx);
+#if  !defined(NDEBUG)
+    if (displayLightMap_) {
+        DrawLightMapDebug(ctx);
+    }
+#endif
 }
 
 void glimmer::LightingPass::FlushLightingPass(RenderFrameContext &ctx) {
@@ -159,18 +201,150 @@ void glimmer::LightingPass::UpdateLightMap(UniformInjectContext *injectContext) 
         return;
     }
     const float timeOfDay = dimensionResource->initialTime;
-    const std::vector<LightKeyframe> &keyframes = dimensionResource->ambientLightKeyframes;
-    ambientLight_ = ColorUtils::ComputeAmbientLight(resourceLocator_, timeOfDay, keyframes);
-    LogCat::i("app_renderer_ambient_light", "Ambient light: rgba=({},{},{},{}), timeOfDay={}, keyframes={}",
-              static_cast<int>(ambientLight_.r), static_cast<int>(ambientLight_.g),
-              static_cast<int>(ambientLight_.b), static_cast<int>(ambientLight_.a), timeOfDay,
-              keyframes.size());
+    const std::vector<LightKeyframe> &screenKeyframes = dimensionResource->ambientLightKeyframes;
+    const std::vector<LightKeyframe> &skyKeyframes = dimensionResource->skyLightKeyframes.empty()
+                                                        ? dimensionResource->ambientLightKeyframes
+                                                        : dimensionResource->skyLightKeyframes;
+    const Color screenLight = ColorUtils::ComputeAmbientLight(resourceLocator_, timeOfDay, screenKeyframes);
+    const Color skyLight = ColorUtils::ComputeAmbientLight(resourceLocator_, timeOfDay, skyKeyframes);
+    LogCat::i("app_renderer_ambient_light",
+              "Ambient light: screen rgba=({},{},{},{}), sky rgba=({},{},{},{}), timeOfDay={}, screenKeyframes={}, skyKeyframes={}",
+              static_cast<int>(screenLight.r), static_cast<int>(screenLight.g),
+              static_cast<int>(screenLight.b), static_cast<int>(screenLight.a),
+              static_cast<int>(skyLight.r), static_cast<int>(skyLight.g),
+              static_cast<int>(skyLight.b), static_cast<int>(skyLight.a), timeOfDay,
+              screenKeyframes.size(), skyKeyframes.size());
 
-
-    lightMapTexture_.Update(device_, injectContext->lightBuffer, &ambientLight_,
+    //Fold the resolved colors into the light buffer as screen light (background
+    //layer) and sky light (from above), which are configured independently.
+    //将解析出的颜色并入光照缓冲，作为屏幕光（背景层）与天光（上方），二者独立配置。
+    if (injectContext->lightBuffer != nullptr) {
+        injectContext->lightBuffer->SetAmbientLight(screenLight, skyLight, SKY_HEIGHT);
+    }
+    lightMapTexture_.Update(device_, injectContext->lightBuffer,
                             originX, originY, sizeX, sizeY);
     injectContext->lightMapOriginX = originX;
     injectContext->lightMapOriginY = originY;
     injectContext->lightMapSizeX = sizeX;
     injectContext->lightMapSizeY = sizeY;
 }
+
+#if  !defined(NDEBUG)
+void glimmer::LightingPass::SetDisplayLightMap(const bool display) {
+    displayLightMap_ = display;
+}
+
+void glimmer::LightingPass::EnsureDebugBuffers() {
+    if (device_ == nullptr) {
+        return;
+    }
+    if (debugVertexBuffer_ == nullptr) {
+        SDL_GPUBufferCreateInfo info = {};
+        info.usage = SDL_GPU_BUFFERUSAGE_VERTEX;
+        info.size = sizeof(SpriteVertex) * 4;
+        debugVertexBuffer_ = SDL_CreateGPUBuffer(device_, &info);
+    }
+    if (debugIndexBuffer_ == nullptr) {
+        SDL_GPUBufferCreateInfo info = {};
+        info.usage = SDL_GPU_BUFFERUSAGE_INDEX;
+        info.size = sizeof(Uint32) * 6;
+        debugIndexBuffer_ = SDL_CreateGPUBuffer(device_, &info);
+    }
+    const Uint32 totalSize = sizeof(SpriteVertex) * 4 + sizeof(Uint32) * 6;
+    if (debugTransferBuffer_ == nullptr || debugTransferBufferSize_ < totalSize) {
+        if (debugTransferBuffer_ != nullptr) {
+            SDL_ReleaseGPUTransferBuffer(device_, debugTransferBuffer_);
+            debugTransferBuffer_ = nullptr;
+            debugTransferBufferSize_ = 0;
+        }
+        SDL_GPUTransferBufferCreateInfo info = {};
+        info.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD;
+        info.size = totalSize;
+        debugTransferBuffer_ = SDL_CreateGPUTransferBuffer(device_, &info);
+        debugTransferBufferSize_ = debugTransferBuffer_ != nullptr ? totalSize : 0;
+    }
+}
+
+void glimmer::LightingPass::DrawLightMapDebug(RenderFrameContext &ctx) {
+    SDL_GPUTexture *lightMapTexture = lightMapTexture_.GetTexture();
+    if (ctx.commandBuffer == nullptr || ctx.swapChainTexture == nullptr || lightMapTexture == nullptr) {
+        return;
+    }
+    if (debugPipeline_ == nullptr || debugSampler_ == nullptr || debugPipeline_->GetResource() == nullptr ||
+        debugSampler_->GetResource() == nullptr) {
+        return;
+    }
+    EnsureDebugBuffers();
+    if (debugVertexBuffer_ == nullptr || debugIndexBuffer_ == nullptr || debugTransferBuffer_ == nullptr) {
+        return;
+    }
+
+    const float logicalW = static_cast<float>(ctx.logicalWidth);
+    const float logicalH = static_cast<float>(ctx.logicalHeight);
+    constexpr float margin = 16.0F;
+    constexpr float maxSize = 256.0F;
+    const float texW = static_cast<float>(lightMapTexture_.GetWidth());
+    const float texH = static_cast<float>(lightMapTexture_.GetHeight());
+    float w = maxSize;
+    float h = maxSize;
+    if (texW > 0.0F && texH > 0.0F) {
+        const float scale = maxSize / std::max(texW, texH);
+        w = texW * scale;
+        h = texH * scale;
+    }
+    const float x = logicalW - w - margin;
+    const float y = logicalH - h - margin;
+
+    const SpriteVertex vertices[4] = {
+        {x, y, 0.0F, 0.0F, 255, 255, 255, 255},
+        {x + w, y, 1.0F, 0.0F, 255, 255, 255, 255},
+        {x, y + h, 0.0F, 1.0F, 255, 255, 255, 255},
+        {x + w, y + h, 1.0F, 1.0F, 255, 255, 255, 255}
+    };
+    const Uint32 indices[6] = {0, 1, 2, 1, 3, 2};
+
+    void *mapped = SDL_MapGPUTransferBuffer(device_, debugTransferBuffer_, true);
+    if (mapped != nullptr) {
+        std::memcpy(mapped, vertices, sizeof(vertices));
+        std::memcpy(static_cast<Uint8 *>(mapped) + sizeof(vertices), indices, sizeof(indices));
+        SDL_UnmapGPUTransferBuffer(device_, debugTransferBuffer_);
+    }
+
+    SDL_GPUCopyPass *copyPass = SDL_BeginGPUCopyPass(ctx.commandBuffer);
+    if (copyPass == nullptr) {
+        return;
+    }
+    SDL_GPUTransferBufferLocation vertexSource = {debugTransferBuffer_, 0};
+    SDL_GPUBufferRegion vertexDestination = {debugVertexBuffer_, 0, sizeof(vertices)};
+    SDL_UploadToGPUBuffer(copyPass, &vertexSource, &vertexDestination, true);
+    SDL_GPUTransferBufferLocation indexSource = {debugTransferBuffer_, sizeof(vertices)};
+    SDL_GPUBufferRegion indexDestination = {debugIndexBuffer_, 0, sizeof(indices)};
+    SDL_UploadToGPUBuffer(copyPass, &indexSource, &indexDestination, true);
+    SDL_EndGPUCopyPass(copyPass);
+
+    SDL_GPUColorTargetInfo colorTarget = {};
+    colorTarget.texture = ctx.swapChainTexture;
+    colorTarget.load_op = SDL_GPU_LOADOP_LOAD;
+    colorTarget.store_op = SDL_GPU_STOREOP_STORE;
+
+    SDL_GPURenderPass *renderPass = SDL_BeginGPURenderPass(ctx.commandBuffer, &colorTarget, 1, nullptr);
+    if (renderPass == nullptr) {
+        return;
+    }
+    SDL_BindGPUGraphicsPipeline(renderPass, debugPipeline_->GetResource());
+
+    const float viewSize[2] = {logicalW, logicalH};
+    SDL_PushGPUVertexUniformData(ctx.commandBuffer, 0, viewSize, sizeof(viewSize));
+
+    SDL_GPUBufferBinding vertexBinding = {debugVertexBuffer_, 0};
+    SDL_BindGPUVertexBuffers(renderPass, 0, &vertexBinding, 1);
+    SDL_GPUBufferBinding indexBinding = {debugIndexBuffer_, 0};
+    SDL_BindGPUIndexBuffer(renderPass, &indexBinding, SDL_GPU_INDEXELEMENTSIZE_32BIT);
+
+    SDL_GPUTextureSamplerBinding textureSamplerBinding = {lightMapTexture, debugSampler_->GetResource()};
+    SDL_BindGPUFragmentSamplers(renderPass, 0, &textureSamplerBinding, 1);
+
+    SDL_DrawGPUIndexedPrimitives(renderPass, 6, 1, 0, 0, 0);
+    SDL_EndGPURenderPass(renderPass);
+}
+#endif

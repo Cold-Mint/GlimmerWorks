@@ -92,7 +92,7 @@ entry_cannot_found_in_configuration_file = "在配置文件內找不到條目{}�
 tile_debug_info = "瓦片坐標({},{})區塊內坐標({},{}) 溼度{:.2f} 溫度{:.2f} 侵蝕度{:.2f} 海拔{:.2f} 奇異度{:.2f}"
 total_light = "總光照：(A{},R{},G{},B{})"
 sky_visibility_info = "天空可見度：列X={} SkyTopY={} 可見度={:.2f}"
-tile_light_data_info = "圖層{} 側面透光率{:.2f} 背面擋光{:.2f} 光源{} 貢獻數{}"
+tile_light_data_info = "圖層{} 側面擋光{:.2f} 背面擋光{:.2f} 光源{} 貢獻數{}"
 mouse_position = "鼠標位置-世界坐標({:.2f},{:.2f}) SDL3坐標({:.2f},{:.2f})"
 tile_res_debug_info = "圖層{} ID{} 硬度{} 名稱：{}"
 no_biome_was_found = "沒有找到生物群繫{}。"

@@ -308,12 +308,12 @@ void glimmer::TileLightData::ClearLightSource(const TileLayerType layerType) {
     lightSourceData_.erase(layerType);
 }
 
-float glimmer::TileLightData::GetSideLightTransmission(const TileLayerType layerType) const {
+float glimmer::TileLightData::GetSideLightBlockingStrength(const TileLayerType layerType) const {
     const auto it = sideLightMaskData_.find(layerType);
     if (it == sideLightMaskData_.end() || it->second == nullptr) {
-        return 1.0F;
+        return 0.0F;
     }
-    return 1.0F - it->second->GetBlockingStrength();
+    return it->second->GetBlockingStrength();
 }
 
 float glimmer::TileLightData::GetBackLightBlockingStrength(const TileLayerType layerType) const {

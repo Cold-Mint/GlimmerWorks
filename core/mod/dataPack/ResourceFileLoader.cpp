@@ -26,6 +26,8 @@
  */
 #include "ResourceFileLoader.h"
 
+#include <exception>
+#include <sstream>
 #include <utility>
 
 #include "AbilityItemRegistry.h"
@@ -335,8 +337,8 @@ void glimmer::ResourceFileLoader::LoadDimensionResourceFromFile(const toml::valu
     auto dimensionResource = std::make_unique<DimensionResource>(toml::get<DimensionResource>(value));
     dimensionResource->packId = manifest_->id;
     dimensionResource->name.SetSelfPackageId(manifest_->id);
-    for (auto &ambientLightKeyframe: dimensionResource->ambientLightKeyframes) {
-        ambientLightKeyframe.color.SetSelfPackageId(manifest_->id);
+    for (auto &backLightKeyframe: dimensionResource->backLightKeyframes) {
+        backLightKeyframe.color.SetSelfPackageId(manifest_->id);
     }
     for (auto &skyLightKeyframe: dimensionResource->skyLightKeyframes) {
         skyLightKeyframe.color.SetSelfPackageId(manifest_->id);
@@ -604,14 +606,25 @@ int glimmer::ResourceFileLoader::LoadResourceByType(const std::string &dataType,
         return 1;
     }
     std::string data = tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_);
-    const toml::value value = toml::parse_str(data, tomlVersion_);
+    try {
+        std::istringstream dataStream(data);
+        const toml::value value = toml::parse(dataStream, file, tomlVersion_);
 
-    const auto it = handlerMap_.find(dataType);
-    if (it == handlerMap_.end()) {
-        LogCat::w(std::source_location::current(), "resource_file_loader_unknown_type",
-                  "Unknown resource file type: {}, file: {}", dataType, file);
-        return 0;
+        const auto it = handlerMap_.find(dataType);
+        if (it == handlerMap_.end()) {
+            LogCat::w(std::source_location::current(), "resource_file_loader_unknown_type",
+                      "Unknown resource file type: {}, file: {}", dataType, file);
+            return 0;
+        }
+        it->second(value, modContext, graphicsContext);
+    } catch (const toml::type_error &e) {
+        const toml::source_location &location = e.location();
+        LogCat::w(std::source_location::current(), "resource_file_load_failure_at_line",
+                  "Failed to load resource file: {}, at line {}: {}", file,
+                  location.first_line_number(), e.what());
+    } catch (const std::exception &e) {
+        LogCat::w(std::source_location::current(), "resource_file_load_failure",
+                  "Failed to load resource file: {}, error: {}", file, e.what());
     }
-    it->second(value, modContext, graphicsContext);
     return 1;
 }

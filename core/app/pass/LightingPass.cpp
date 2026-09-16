@@ -201,25 +201,23 @@ void glimmer::LightingPass::UpdateLightMap(UniformInjectContext *injectContext) 
         return;
     }
     const float timeOfDay = dimensionResource->initialTime;
-    const std::vector<LightKeyframe> &screenKeyframes = dimensionResource->ambientLightKeyframes;
-    const std::vector<LightKeyframe> &skyKeyframes = dimensionResource->skyLightKeyframes.empty()
-                                                        ? dimensionResource->ambientLightKeyframes
-                                                        : dimensionResource->skyLightKeyframes;
-    const Color screenLight = ColorUtils::ComputeAmbientLight(resourceLocator_, timeOfDay, screenKeyframes);
+    const std::vector<LightKeyframe> &backLightKeyFrames = dimensionResource->backLightKeyframes;
+    const std::vector<LightKeyframe> &skyKeyframes = dimensionResource->skyLightKeyframes;
+    const Color screenLight = ColorUtils::ComputeAmbientLight(resourceLocator_, timeOfDay, backLightKeyFrames);
     const Color skyLight = ColorUtils::ComputeAmbientLight(resourceLocator_, timeOfDay, skyKeyframes);
     LogCat::i("app_renderer_ambient_light",
-              "Ambient light: screen rgba=({},{},{},{}), sky rgba=({},{},{},{}), timeOfDay={}, screenKeyframes={}, skyKeyframes={}",
+              "Ambient light: screen rgba=({},{},{},{}), sky rgba=({},{},{},{}), timeOfDay={}, backLightKeyFrames={}, skyKeyframes={}",
               static_cast<int>(screenLight.r), static_cast<int>(screenLight.g),
               static_cast<int>(screenLight.b), static_cast<int>(screenLight.a),
               static_cast<int>(skyLight.r), static_cast<int>(skyLight.g),
               static_cast<int>(skyLight.b), static_cast<int>(skyLight.a), timeOfDay,
-              screenKeyframes.size(), skyKeyframes.size());
+              backLightKeyFrames.size(), skyKeyframes.size());
 
     //Fold the resolved colors into the light buffer as screen light (background
     //layer) and sky light (from above), which are configured independently.
     //将解析出的颜色并入光照缓冲，作为屏幕光（背景层）与天光（上方），二者独立配置。
     if (injectContext->lightBuffer != nullptr) {
-        injectContext->lightBuffer->SetAmbientLight(screenLight, skyLight, SKY_HEIGHT);
+        injectContext->lightBuffer->SetLightColor(screenLight, skyLight);
     }
     lightMapTexture_.Update(device_, injectContext->lightBuffer,
                             originX, originY, sizeX, sizeY);

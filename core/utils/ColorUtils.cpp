@@ -74,7 +74,7 @@ glimmer::Color glimmer::ColorUtils::AdditiveBlend(const Color &firstColor, const
 glimmer::Color glimmer::ColorUtils::ComputeAmbientLight(ResourceLocator *resourceLocator, const float timeOfDay,
                                                         const std::vector<LightKeyframe> &keyframes) {
     if (keyframes.empty()) {
-        LogCat::w(std::source_location::current(), "compute_ambient_light_keyframes_empty",
+        LogCat::w(std::source_location::current(), "compute_back_light_keyframes_empty",
                   "compute ambient light keyframes empty");
         return {};
     }

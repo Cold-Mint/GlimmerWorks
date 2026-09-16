@@ -44,15 +44,15 @@ namespace glimmer {
     class LightFloodFill {
     public:
         /**
-         * TransmissionFn
-         * 透光率函数：返回 0~1，1 = 完全透光，0 = 完全挡光。
+         * BlockingFn
+         * 挡光强度函数：返回 0~1，0 = 完全不挡光（完全透光），1 = 完全挡光。
          */
-        using TransmissionFn = std::function<float(const TileVector2D &)>;
+        using BlockingFn = std::function<float(const TileVector2D &)>;
 
         /**
          * VisitCallback
          * 访问回调：每个可达瓦片回调一次（含中心）。第二个参数为从光源
-         * 到该瓦片沿路径累积的透光率（0~1）。
+         * 到该瓦片沿路径累积的光强（0~1）。
          */
         using VisitCallback = std::function<void(const TileVector2D &, float accumulated)>;
 
@@ -61,12 +61,12 @@ namespace glimmer {
          * 传播光照
          * @param center center 光源中心
          * @param maxRadius maxRadius 最大半径
-         * @param transmission transmission 判断某瓦片的透光率（0~1）
+         * @param blocking blocking 判断某瓦片的挡光强度（0~1，0=不挡光，1=完全挡光）
          * @param visit visit 访问回调（每个可达瓦片恰好回调一次，含中心）
          * @param diagonalBlock diagonalBlock 是否启用对角防漏光规则
          */
         static void Propagate(const TileVector2D &center, int maxRadius,
-                              const TransmissionFn &transmission,
+                              const BlockingFn &blocking,
                               const VisitCallback &visit,
                               bool diagonalBlock = true);
     };

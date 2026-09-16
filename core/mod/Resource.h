@@ -79,9 +79,9 @@ namespace glimmer {
 
     //@genNextLine(LightMaskResource|光源遮照资源)
     struct LightMaskResource : Resource {
-        //@genNextLine(lightMaskColor A 0 represents the complete blocking of light by the RGB control, resulting in no light transmission.|光线透射色彩 A 0代表完全不透光 RGB 控制光线的混合)
+        //@genNextLine(lightMaskColor The A channel is the light blocking strength (0 = no blocking, 255 = full blocking); RGB controls the light tint mixing.|光线遮照颜色：A通道为挡光强度（0=不挡光，255=完全挡光）；RGB控制光线混合染色)
         ResourceRef lightMaskColor;
-        //@genNextLine(tintFactor|染色系数 0为光照颜色，1为光源遮照颜色)
+        //@genNextLine(tintFactor|染色系数 0为光照颜色，1为光源遮照颜色，输入0不染色，输入0.5染色50%光照颜色)
         float tintFactor = 0.0F;
     };
 
@@ -725,8 +725,8 @@ namespace glimmer {
         float timeFlowSpeed = 1.0F;
         //@genNextLine(initialTime|初始时间(0-1) 首次进入维度后时间从哪里开始流动)
         float initialTime = 0.0F;
-        //@genNextLine(ambientLightKeyframes|环境光关键帧列表（时间点+RGB+强度），决定昼夜光照曲线)
-        std::vector<LightKeyframe> ambientLightKeyframes;
+        //@genNextLine(backLightKeyframes|背光关键帧列表（时间点+RGB+强度），决定昼夜光照曲线)
+        std::vector<LightKeyframe> backLightKeyframes;
         //@genNextLine(skyLightKeyframes|天光关键帧列表（时间点+RGB+强度）。)
         std::vector<LightKeyframe> skyLightKeyframes;
     };

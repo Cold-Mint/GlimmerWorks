@@ -76,18 +76,14 @@ namespace glimmer {
         bool batching_ = false;
         bool batchDirty_ = false;
 
-        //Ambient light configuration, folded into GetFinalLightColor instead of
-        //being applied as a separate renderer channel.
-        //screenLight_: light coming from the background layer (-Z), attenuated
-        //              by the background wall's back-light opacity.
-        //skyLight_:    light coming from above (+Y), attenuated by depth below
-        //              the column's opaque ceiling (inverse-square falloff).
-        //环境光配置，并入 GetFinalLightColor 而非作为渲染端独立通道。
-        //screenLight_：来自背景层（-Z）的屏幕光，被背景墙背光不透明度衰减。
-        //skyLight_：   来自上方（+Y）的天光，按列天花板以下深度做平方反比衰减。
-        Color screenLight_ = {};
+        //Ambient light colors, stored by SetLightColor.
+        //backLight_: light coming from the background layer (-Z).
+        //skyLight_:  light coming from above (+Y).
+        //环境光颜色，由 SetLightColor 存储。
+        //backLight_：来自背景层（-Z）的屏幕光。
+        //skyLight_：来自上方（+Y）的天光。
+        Color backLight_ = {};
         Color skyLight_ = {};
-        int skyMaxDepth_ = SKY_HEIGHT;
 
         TileLightData &GetOrCreate(const TileVector2D &position);
 
@@ -111,7 +107,7 @@ namespace glimmer {
 
         /**
          * UpdateColumnSkyTopY
-         * 根据某列 Ground 层瓦片的背景挡光强度变化，增量维护天光天花板。
+         * 根据某列 Ground 层瓦片的侧面挡光强度变化，增量维护天光天花板。
          * @param position position 瓦片世界坐标
          * @param oldStrength oldStrength 旧挡光强度（0~1）
          * @param newStrength newStrength 新挡光强度（0~1）
@@ -126,9 +122,9 @@ namespace glimmer {
         void RecalculateColumnSkyTopY(int x);
 
     public:
-        void SetSideLightMask(TileVector2D position, TileLayerType layerType, std::unique_ptr<LightMask> sideLightMask);
+        void SetSideLightMask(const TileVector2D& position, TileLayerType layerType, std::unique_ptr<LightMask> sideLightMask);
 
-        void SetBackLightMask(TileVector2D position, TileLayerType layerType, std::unique_ptr<LightMask> backLightMask);
+        void SetBackLightMask(const TileVector2D& position, TileLayerType layerType, std::unique_ptr<LightMask> backLightMask);
 
         void ClearSideLightMask(const TileVector2D &position, TileLayerType layerType);
 
@@ -138,11 +134,11 @@ namespace glimmer {
 
         [[nodiscard]] const TileLightData *GetTileLightData(const TileVector2D &position) const;
 
-        void SetLightSource(TileVector2D position, TileLayerType layerType, std::unique_ptr<LightSource> lightSource);
+        void SetLightSource(const TileVector2D& position, TileLayerType layerType, std::unique_ptr<LightSource> lightSource);
 
-        void ClearLightSource(TileVector2D position, TileLayerType layerType);
+        void ClearLightSource(const TileVector2D& position, TileLayerType layerType);
 
-        [[nodiscard]] Color GetFinalLightColor(TileVector2D position) const;
+        [[nodiscard]] Color GetFinalLightColor(const TileVector2D& position) const;
 
         /**
          * SetDynamicLight
@@ -153,7 +149,7 @@ namespace glimmer {
          * @param layerType layerType 图层
          * @param lightSource lightSource 光源数据
          */
-        void SetDynamicLight(uint64_t id, TileVector2D position, TileLayerType layerType,
+        void SetDynamicLight(uint64_t id, const TileVector2D& position, TileLayerType layerType,
                              std::unique_ptr<LightSource> lightSource);
 
         /**
@@ -176,19 +172,17 @@ namespace glimmer {
         void EndBatch();
 
         /**
-         * SetAmbientLight
-         * 设置环境光（屏幕光与天光）配置。值变化时会递增 revision，
+         * SetLightColor
+         * 设置光照颜色。值变化时会递增 revision，
          * 触发光照贴图重建。
-         * @param screenLight screenLight 屏幕光颜色（背景层，来自 -Z）
+         * @param backLight backLight 背光颜色（背景层，来自 -Z）
          * @param skyLight skyLight 天光颜色（来自 +Y）
-         * @param skyMaxDepth skyMaxDepth 天光最大穿透深度（平方反比衰减到 0 的距离）
          */
-        void SetAmbientLight(const Color &screenLight, const Color &skyLight, int skyMaxDepth);
+        void SetLightColor(const Color &backLight, const Color &skyLight);
 
         /**
          * GetSkyFactor
-         * 获取指定瓦片的天光因子（0~1，连续衰减）。
-         * 天花板及以上为 1，向下按平方反比衰减。
+         * 获取指定瓦片的天光因子
          * @param position position 瓦片世界坐标
          * @return 0~1 的天光强度因子
          */

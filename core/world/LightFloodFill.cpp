@@ -44,7 +44,7 @@ namespace {
 }
 
 void glimmer::LightFloodFill::Propagate(const TileVector2D &center, const int maxRadius,
-                                        const TransmissionFn &transmission,
+                                        const BlockingFn &blocking,
                                         const VisitCallback &visit,
                                         const bool diagonalBlock) {
     if (!visit) {
@@ -84,16 +84,16 @@ void glimmer::LightFloodFill::Propagate(const TileVector2D &center, const int ma
             }
             // Diagonal anti-leak rule: a diagonal step is only allowed when at
             // least one of the two orthogonal neighbors is transparent.
-            // 对角防漏光规则：仅当两个正交邻居中至少一个透光时才允许对角移动。
+            // 对角防漏光规则：仅当两个正交邻居中至少一个不挡光时才允许对角移动。
             if (diagonalBlock && dx != 0 && dy != 0) {
                 const TileVector2D orthA(current.x + dx, current.y);
                 const TileVector2D orthB(current.x, current.y + dy);
-                if (transmission && transmission(orthA) <= 0.0F && transmission(orthB) <= 0.0F) {
+                if (blocking && blocking(orthA) >= 1.0F && blocking(orthB) >= 1.0F) {
                     continue;
                 }
             }
-            const float t = transmission ? transmission(next) : 1.0F;
-            const float accumulated = currentAccumulated * t;
+            const float b = blocking ? blocking(next) : 0.0F;
+            const float accumulated = currentAccumulated * (1.0F - b);
             if (accumulated <= MIN_ACCUMULATED) {
                 continue;
             }

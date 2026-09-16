@@ -49,9 +49,9 @@ void glimmer::LightBuffer::SetLightFromSource(const LightSource &source, const T
                               [this, layerType](const TileVector2D &position) {
                                   const auto it = tileLightData_.find(position);
                                   if (it == tileLightData_.end() || it->second == nullptr) {
-                                      return 1.0F;
+                                      return 0.0F;
                                   }
-                                  return it->second->GetSideLightTransmission(layerType);
+                                  return it->second->GetSideLightBlockingStrength(layerType);
                               },
                               [this, layerType, &source](const TileVector2D &position, const float accumulated) {
                                   SetLightContributionAt(position, layerType, source, accumulated);
@@ -64,9 +64,9 @@ void glimmer::LightBuffer::ClearLightFromSource(const LightSource &source, const
                               [this, layerType](const TileVector2D &position) {
                                   const auto it = tileLightData_.find(position);
                                   if (it == tileLightData_.end() || it->second == nullptr) {
-                                      return 1.0F;
+                                      return 0.0F;
                                   }
-                                  return it->second->GetSideLightTransmission(layerType);
+                                  return it->second->GetSideLightBlockingStrength(layerType);
                               },
                               [this, layerType, &source](const TileVector2D &position, float) {
                                   ClearLightContributionAt(position, layerType, source);
@@ -135,7 +135,7 @@ void glimmer::LightBuffer::RebuildAllLight() {
               revision_);
 }
 
-void glimmer::LightBuffer::SetSideLightMask(const TileVector2D position, const TileLayerType layerType,
+void glimmer::LightBuffer::SetSideLightMask(const TileVector2D &position, const TileLayerType layerType,
                                             std::unique_ptr<LightMask> sideLightMask) {
     if (sideLightMask == nullptr) {
         return;
@@ -149,9 +149,12 @@ void glimmer::LightBuffer::SetSideLightMask(const TileVector2D position, const T
     if (oldStrength != newStrength) {
         MarkLightDirty();
     }
+    if (layerType == TileLayerType::Ground) {
+        UpdateColumnSkyTopY(position, oldStrength, newStrength);
+    }
 }
 
-void glimmer::LightBuffer::SetBackLightMask(const TileVector2D position, const TileLayerType layerType,
+void glimmer::LightBuffer::SetBackLightMask(const TileVector2D &position, const TileLayerType layerType,
                                             std::unique_ptr<LightMask> backLightMask) {
     if (backLightMask == nullptr) {
         return;
@@ -165,9 +168,6 @@ void glimmer::LightBuffer::SetBackLightMask(const TileVector2D position, const T
     ++revision_;
     if (oldStrength != newStrength) {
         MarkLightDirty();
-    }
-    if (layerType == TileLayerType::Ground) {
-        UpdateColumnSkyTopY(position, oldStrength, newStrength);
     }
 }
 
@@ -183,6 +183,9 @@ void glimmer::LightBuffer::ClearSideLightMask(const TileVector2D &position, cons
     if (oldStrength != 0.0F) {
         MarkLightDirty();
     }
+    if (layerType == TileLayerType::Ground) {
+        UpdateColumnSkyTopY(position, oldStrength, 0.0F);
+    }
 }
 
 void glimmer::LightBuffer::ClearBackLightMask(const TileVector2D &position, const TileLayerType layerType) {
@@ -197,9 +200,6 @@ void glimmer::LightBuffer::ClearBackLightMask(const TileVector2D &position, cons
     ++revision_;
     if (oldStrength != 0.0F) {
         MarkLightDirty();
-    }
-    if (layerType == TileLayerType::Ground) {
-        UpdateColumnSkyTopY(position, oldStrength, 0.0F);
     }
 }
 
@@ -221,7 +221,7 @@ void glimmer::LightBuffer::ClearTileLightData(const TileVector2D &position) {
         for (const auto layerType: layerTypesToClear) {
             ClearLightSource(position, layerType);
         }
-        wasGroundOpaque = it->second->GetBackLightBlockingStrength(TileLayerType::Ground) >= 1.0F;
+        wasGroundOpaque = it->second->GetSideLightBlockingStrength(TileLayerType::Ground) >= 1.0F;
     }
     tileLightData_.erase(position);
     if (wasGroundOpaque) {
@@ -241,7 +241,7 @@ const glimmer::TileLightData *glimmer::LightBuffer::GetTileLightData(const TileV
     return it->second.get();
 }
 
-void glimmer::LightBuffer::SetLightSource(const TileVector2D position, const TileLayerType layerType,
+void glimmer::LightBuffer::SetLightSource(const TileVector2D &position, const TileLayerType layerType,
                                           std::unique_ptr<LightSource> lightSource) {
     if (lightSource == nullptr) {
         return;
@@ -258,7 +258,7 @@ void glimmer::LightBuffer::SetLightSource(const TileVector2D position, const Til
     ++revision_;
 }
 
-void glimmer::LightBuffer::ClearLightSource(const TileVector2D position, const TileLayerType layerType) {
+void glimmer::LightBuffer::ClearLightSource(const TileVector2D &position, const TileLayerType layerType) {
     const auto it = tileLightData_.find(position);
     if (it == tileLightData_.end() || it->second == nullptr) {
         return;
@@ -272,48 +272,25 @@ void glimmer::LightBuffer::ClearLightSource(const TileVector2D position, const T
     ++revision_;
 }
 
-glimmer::Color glimmer::LightBuffer::GetFinalLightColor(const TileVector2D position) const {
+glimmer::Color glimmer::LightBuffer::GetFinalLightColor(const TileVector2D &position) const {
     const auto it = tileLightData_.find(position);
-    const TileLightData *tileData = (it != tileLightData_.end()) ? it->second.get() : nullptr;
-    const Color *point = tileData != nullptr ? tileData->GetFinalLightColor() : nullptr;
-    const float srcR = point != nullptr ? static_cast<float>(point->r) / 255.0F : 0.0F;
-    const float srcG = point != nullptr ? static_cast<float>(point->g) / 255.0F : 0.0F;
-    const float srcB = point != nullptr ? static_cast<float>(point->b) / 255.0F : 0.0F;
-    const float srcA = point != nullptr ? static_cast<float>(point->a) / 255.0F : 0.0F;
-
-    //Screen ambient light from the background layer, attenuated by the
-    //background wall's back-light blocking strength.
-    //来自背景层的屏幕光，被背景墙背光挡光强度衰减。
-    const float backOpacity = tileData != nullptr
-                                  ? tileData->GetBackLightBlockingStrength(TileLayerType::BackGround)
-                                  : 0.0F;
-    const float screenScale = static_cast<float>(screenLight_.a) / 255.0F * (1.0F - backOpacity);
-
-    //Sky ambient light from above, attenuated by depth below the column's
-    //opaque ceiling using inverse-square falloff.
-    //来自上方的天光，按列天花板以下深度做平方反比衰减。
-    const float skyScale = (static_cast<float>(skyLight_.a) / 255.0F) * GetSkyFactor(position);
-
-    const float totalR = srcR * srcA + static_cast<float>(screenLight_.r) / 255.0F * screenScale +
-                         static_cast<float>(skyLight_.r) / 255.0F * skyScale;
-    const float totalG = srcG * srcA + static_cast<float>(screenLight_.g) / 255.0F * screenScale +
-                         static_cast<float>(skyLight_.g) / 255.0F * skyScale;
-    const float totalB = srcB * srcA + static_cast<float>(screenLight_.b) / 255.0F * screenScale +
-                         static_cast<float>(skyLight_.b) / 255.0F * skyScale;
-    const float totalA = std::max(srcA, std::max(screenScale, skyScale));
-
-    Color result{};
-    if (totalA <= 0.0F) {
-        return result;
+    if (it == tileLightData_.end()) {
+        return Color{};
     }
-    result.r = static_cast<uint8_t>(std::min(255.0F, totalR / totalA * 255.0F));
-    result.g = static_cast<uint8_t>(std::min(255.0F, totalG / totalA * 255.0F));
-    result.b = static_cast<uint8_t>(std::min(255.0F, totalB / totalA * 255.0F));
-    result.a = static_cast<uint8_t>(std::min(255.0F, totalA * 255.0F));
+    const TileLightData *tileData = it->second.get();
+    const Color *point = tileData->GetFinalLightColor();
+    if (point == nullptr) {
+        return Color{};
+    }
+    Color result{};
+    result.r = point->r;
+    result.g = point->g;
+    result.b = point->b;
+    result.a = point->a;
     return result;
 }
 
-void glimmer::LightBuffer::SetDynamicLight(const uint64_t id, const TileVector2D position,
+void glimmer::LightBuffer::SetDynamicLight(const uint64_t id, const TileVector2D &position,
                                            const TileLayerType layerType,
                                            std::unique_ptr<LightSource> lightSource) {
     if (lightSource == nullptr) {
@@ -358,39 +335,14 @@ void glimmer::LightBuffer::RemoveDynamicLight(const uint64_t id) {
     LogCat::d("light_buffer_remove_dynamic_light", "Removed dynamic light: id={}", id);
 }
 
-void glimmer::LightBuffer::SetAmbientLight(const Color &screenLight, const Color &skyLight, const int skyMaxDepth) {
-    const int maxDepth = skyMaxDepth > 0 ? skyMaxDepth : SKY_HEIGHT;
-    if (screenLight_.r == screenLight.r && screenLight_.g == screenLight.g &&
-        screenLight_.b == screenLight.b && screenLight_.a == screenLight.a &&
-        skyLight_.r == skyLight.r && skyLight_.g == skyLight.g &&
-        skyLight_.b == skyLight.b && skyLight_.a == skyLight.a &&
-        skyMaxDepth_ == maxDepth) {
-        return;
-    }
-    screenLight_ = screenLight;
-    skyLight_ = skyLight;
-    skyMaxDepth_ = maxDepth;
-    ++revision_;
-    LogCat::d("light_buffer_set_ambient",
-              "SetAmbientLight: screen rgba=({},{},{},{}), sky rgba=({},{},{},{}), skyMaxDepth={}",
-              static_cast<int>(screenLight_.r), static_cast<int>(screenLight_.g),
-              static_cast<int>(screenLight_.b), static_cast<int>(screenLight_.a),
-              static_cast<int>(skyLight_.r), static_cast<int>(skyLight_.g),
-              static_cast<int>(skyLight_.b), static_cast<int>(skyLight_.a), skyMaxDepth_);
-}
-
 float glimmer::LightBuffer::GetSkyFactor(const TileVector2D &position) const {
     const auto it = columnSkyTopY_.find(position.x);
-    const int topY = it != columnSkyTopY_.end() ? it->second : WORLD_MIN_Y - 1;
-    const int depth = topY - position.y;
-    if (depth <= 0) {
+    if (it == columnSkyTopY_.end()) {
+        //If the opaque square at the top is not found, then set the full-day light to 1.0.
+        //没有找到位于顶部的不透光方块，那么设置为1.0全天光。
         return 1.0F;
     }
-    if (skyMaxDepth_ <= 0) {
-        return 0.0F;
-    }
-    const float normalized = static_cast<float>(depth) / static_cast<float>(skyMaxDepth_);
-    return std::clamp(1.0F / (1.0F + normalized * normalized * 4.0F), 0.0F, 1.0F);
+    return 0.0F;
 }
 
 int glimmer::LightBuffer::GetColumnSkyTopY(const int x) const {
@@ -406,7 +358,7 @@ void glimmer::LightBuffer::RecalculateColumnSkyTopY(const int x) {
     for (int y = WORLD_MAX_Y - 1; y >= WORLD_MIN_Y; --y) {
         const auto it = tileLightData_.find(TileVector2D(x, y));
         if (it != tileLightData_.end() && it->second != nullptr &&
-            it->second->GetBackLightBlockingStrength(TileLayerType::Ground) > 0.0F) {
+            it->second->GetSideLightBlockingStrength(TileLayerType::Ground) > 0.0F) {
             columnSkyTopY_[x] = y;
             return;
         }
@@ -456,4 +408,22 @@ void glimmer::LightBuffer::EndBatch() {
         batchDirty_ = false;
         RebuildAllLight();
     }
+}
+
+void glimmer::LightBuffer::SetLightColor(const Color &backLight, const Color &skyLight) {
+    const uint64_t newBackLightFingerprint = backLight.GetFingerprint();
+    if (const uint64_t newSkyLightFingerprint = skyLight.GetFingerprint();
+        backLight_.GetFingerprint() == newBackLightFingerprint && skyLight_.GetFingerprint() ==
+        newSkyLightFingerprint) {
+        return;
+    }
+    backLight_ = backLight;
+    skyLight_ = skyLight;
+    ++revision_;
+    LogCat::d("light_buffer_set_light_color",
+              "SetLightColor: backLight rgba=({},{},{},{}), skyLight rgba=({},{},{},{})",
+              static_cast<int>(backLight_.r), static_cast<int>(backLight_.g),
+              static_cast<int>(backLight_.b), static_cast<int>(backLight_.a),
+              static_cast<int>(skyLight_.r), static_cast<int>(skyLight_.g),
+              static_cast<int>(skyLight_.b), static_cast<int>(skyLight_.a));
 }

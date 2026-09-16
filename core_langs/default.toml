@@ -93,7 +93,7 @@ tile_debug_info = "Tile Pos({}, {}) Chunk Local({}, {}) Humidity {:.2f} Temp {:.
 tile_res_debug_info = "Layer:{} ID:{} Hardness:{} Name:{}"
 total_light = "Total Light:(A{},R{},G{},B{})"
 sky_visibility_info = "Sky Visibility: ColumnX={} SkyTopY={} Visibility={:.2f}"
-tile_light_data_info = "Layer:{} SideTransmission:{:.2f} BackBlocking:{:.2f} LightSource:{} Contributions:{}"
+tile_light_data_info = "Layer {} Side Occlusion {:.2f} Back Occlusion {:.2f} Light Source {} Contribution Count {}"
 mouse_position = "Mouse Position - World Coordinates ({:.2f},{:.2f}) SDL3 Coordinates({:.2f},{:.2f})"
 no_biome_was_found = "No biome found:{}."
 biome_has_found = "The nearest biome {} is located at ({},{})."

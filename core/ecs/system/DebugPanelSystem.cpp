@@ -197,21 +197,12 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
         }
 
         const Color finalLightColor = worldContext->GetLightingBuffer()->GetFinalLightColor(tileCoord);
-        if (finalLightColor.a == 0) {
-            debugLines_.push_back(DebugLine{
-                fmt::format(
-                    fmt::runtime(langsResources->totalLight),
-                    -1, -1, -1, -1
-                )
-            });
-        } else {
-            debugLines_.push_back(DebugLine{
-                fmt::format(
-                    fmt::runtime(langsResources->totalLight),
-                    finalLightColor.a, finalLightColor.r, finalLightColor.g, finalLightColor.b
-                )
-            });
-        }
+        debugLines_.push_back(DebugLine{
+            fmt::format(
+                fmt::runtime(langsResources->totalLight),
+                finalLightColor.a, finalLightColor.r, finalLightColor.g, finalLightColor.b
+            )
+        });
 
         // Sky visibility and column sky top info
         // 天空可见度与列天光天花板信息
@@ -240,7 +231,7 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
             const auto *lightContributions = tileLightData->GetLightContributions();
             for (int i = 0; i < TILE_LAYER_TYPE_COUNT; ++i) {
                 const auto layerType = static_cast<TileLayerType>(1 << i);
-                const float sideTransmission = tileLightData->GetSideLightTransmission(layerType);
+                const float sideBlocking = tileLightData->GetSideLightBlockingStrength(layerType);
                 const float backBlocking = tileLightData->GetBackLightBlockingStrength(layerType);
                 bool hasSource = false;
                 if (lightSources != nullptr) {
@@ -257,7 +248,7 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
                 debugLines_.push_back(DebugLine{
                     fmt::format(
                         fmt::runtime(langsResources->tileLightDataInfo),
-                        std::to_underlying(layerType), sideTransmission, backBlocking,
+                        std::to_underlying(layerType), sideBlocking, backBlocking,
                         hasSource ? 1 : 0, contributionCount
                     )
                 });

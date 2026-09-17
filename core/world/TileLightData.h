@@ -53,13 +53,11 @@ namespace glimmer {
          */
         [[nodiscard]] std::unique_ptr<Color> ComputeFinalLightColor();
 
-        void ApplyBackLightMask(Color *finalLightColor, TileLayerType tileLayer);
 
+        static void SetLightMask(std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > &lightMaskData,
+                                 TileLayerType layerType, std::unique_ptr<LightMask> lightMask);
 
-        static void SetLightMaskImpl(std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > &lightMaskData,
-                                     TileLayerType layerType, std::unique_ptr<LightMask> lightMask);
-
-        static const LightMask *GetLightMaskImpl(
+        static const LightMask *GetLightMask(
             std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > &lightMaskData,
             TileLayerType layerType);
 
@@ -71,8 +69,6 @@ namespace glimmer {
          * @param contribution contribution 贡献
          */
         void SetLightContribution(TileLayerType layerType, std::unique_ptr<LightContribution> contribution);
-
-        void RecalculateLight();
 
         /**
          * ClearAllLightContributions

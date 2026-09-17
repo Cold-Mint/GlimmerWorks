@@ -34,6 +34,14 @@ glimmer::LightSource::LightSource(const TileVector2D &center, int maxRadius, con
     : center_(center), maxRadius_(maxRadius), emissionColor_(emissionColor) {
 }
 
+glimmer::LightSource::LightSource(const LightSourceType type, const Color &emissionColor)
+    : emissionColor_(emissionColor), type_(type) {
+}
+
+glimmer::LightSourceType glimmer::LightSource::GetType() const {
+    return type_;
+}
+
 int glimmer::LightSource::GetMaxRadius() const {
     return maxRadius_;
 }
@@ -44,6 +52,10 @@ const glimmer::TileVector2D &glimmer::LightSource::GetCenter() const {
 
 const glimmer::Color *glimmer::LightSource::GetEmissionColor() const {
     return &emissionColor_;
+}
+
+void glimmer::LightSource::SetEmissionColor(const Color &emissionColor) {
+    emissionColor_ = emissionColor;
 }
 
 glimmer::LightAttenuation glimmer::LightSource::GetAttenuation() const {

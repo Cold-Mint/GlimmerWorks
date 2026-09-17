@@ -49,20 +49,41 @@ namespace glimmer {
         InverseSquare = 1,
     };
 
+    /**
+     * LightSourceType
+     * 光源类型
+     *
+     * Point 表示具有中心与半径的点光源；AmbientBack 表示来自背景层（-Z）
+     * 的环境光；AmbientSky 表示来自上方（+Y）的天光。环境光没有中心与半径，
+     * 通过光照贡献系统均匀或按遮挡施加到每个瓦片。
+     */
+    enum class LightSourceType : uint8_t {
+        Point = 0,
+        AmbientBack = 1,
+        AmbientSky = 2,
+    };
+
     class LightSource {
         TileVector2D center_ = {};
         int maxRadius_ = 0;
         Color emissionColor_ = {};
         LightAttenuation attenuation_ = LightAttenuation::Linear;
+        LightSourceType type_ = LightSourceType::Point;
 
     public:
         explicit LightSource(const TileVector2D &center, int maxRadius, const Color &emissionColor);
+
+        explicit LightSource(LightSourceType type, const Color &emissionColor);
+
+        [[nodiscard]] LightSourceType GetType() const;
 
         [[nodiscard]] int GetMaxRadius() const;
 
         [[nodiscard]] const TileVector2D &GetCenter() const;
 
         [[nodiscard]] const Color *GetEmissionColor() const;
+
+        void SetEmissionColor(const Color &emissionColor);
 
         [[nodiscard]] LightAttenuation GetAttenuation() const;
 

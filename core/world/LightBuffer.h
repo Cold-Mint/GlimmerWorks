@@ -76,14 +76,14 @@ namespace glimmer {
         bool batching_ = false;
         bool batchDirty_ = false;
 
-        //Ambient light colors, stored by SetLightColor.
-        //backLight_: light coming from the background layer (-Z).
-        //skyLight_:  light coming from above (+Y).
-        //环境光颜色，由 SetLightColor 存储。
-        //backLight_：来自背景层（-Z）的屏幕光。
-        //skyLight_：来自上方（+Y）的天光。
-        Color backLight_ = {};
-        Color skyLight_ = {};
+        //Ambient light sources, updated by SetLightColor.
+        //backLightSource_: light coming from the background layer (-Z).
+        //skyLightSource_:  light coming from above (+Y).
+        //环境光源，由 SetLightColor 更新。
+        //backLightSource_：来自背景层（-Z）的屏幕光。
+        //skyLightSource_：来自上方（+Y）的天光。
+        LightSource backLightSource_{LightSourceType::AmbientBack, Color{}};
+        LightSource skyLightSource_{LightSourceType::AmbientSky, Color{}};
 
         TileLightData &GetOrCreate(const TileVector2D &position);
 
@@ -96,7 +96,17 @@ namespace glimmer {
 
         void ClearLightContributionAt(const TileVector2D &position, TileLayerType layerType, const LightSource &source);
 
+        void SetAmbientLightContributionAt(const TileVector2D &position, TileLayerType layerType, const LightSource &source,
+                                           std::unique_ptr<Color> lightColor);
+
         void RebuildAllLight();
+
+        /**
+         * RebuildAmbientLight
+         * 重建环境光贡献。清除由环境光源产生的贡献，并根据当前背光/天光颜色、
+         * 背光遮罩与天光可见度重新注入每个瓦片的环境光贡献。
+         */
+        void RebuildAmbientLight();
 
         /**
          * MarkLightDirty

@@ -178,6 +178,13 @@ void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::s
     pendingScreenshot_ = PendingScreenshot{actualPath.value(), onMessage};
 }
 
+std::optional<glimmer::PendingScreenshot> glimmer::AppContext::TakePendingScreenshot() {
+    if (!pendingScreenshot_.has_value()) {
+        return std::nullopt;
+    }
+    return std::exchange(pendingScreenshot_, std::nullopt);
+}
+
 glimmer::ModContext *glimmer::AppContext::GetModContext() const {
     return systemBucket_->GetModContext();
 }

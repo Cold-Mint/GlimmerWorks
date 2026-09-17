@@ -121,6 +121,13 @@ namespace glimmer {
         void ExitApp();
 
         void CreateScreenshot(const std::function<void(const std::string &text)> *onMessage) const;
+
+        /**
+         * Take out the pending screenshot request, if any.
+         * 取出待处理的截图请求（如果有）。
+         * @return The pending screenshot request, or std::nullopt if none.
+         */
+        [[nodiscard]] std::optional<PendingScreenshot> TakePendingScreenshot();
     };
 }
 

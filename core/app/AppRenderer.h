@@ -31,6 +31,7 @@
 #include <SDL3/SDL_gpu.h>
 
 #include "core/context/AppContext.h"
+#include "core/gpu/PendingScreenshot.h"
 #include "core/gpu/RenderQueue.h"
 
 namespace glimmer {
@@ -64,7 +65,40 @@ namespace glimmer {
         LightingPass *lightingPass_ = nullptr;
 #endif
 
+        //When a screenshot is requested, passes render into this texture instead
+        //of the swapchain. It is then blitted to the swapchain and downloaded.
+        //截图请求时，各 pass 先渲染到此纹理而非交换链，然后再 blit 到交换链并下载。
+        SDL_GPUTexture *screenshotTexture_ = nullptr;
+        Uint32 screenshotTextureWidth_ = 0;
+        Uint32 screenshotTextureHeight_ = 0;
+
         void RenderOverlays();
+
+        /**
+         * Create or recreate the screenshot target texture so it matches the
+         * requested size and swapchain format.
+         * 创建或重建截图目标纹理，使其与请求的尺寸和交换链格式匹配。
+         */
+        void EnsureScreenshotTexture(Uint32 width, Uint32 height);
+
+        /**
+         * Blit the screenshot target texture to the real swapchain texture.
+         * 将截图目标纹理 Blit 到真正的交换链纹理。
+         */
+        void BlitScreenshotToSwapChain(SDL_GPUCommandBuffer *commandBuffer,
+                                       SDL_GPUTexture *source,
+                                       SDL_GPUTexture *destination,
+                                       Uint32 width, Uint32 height);
+
+        /**
+         * Download the current scene image and save it to the path stored in
+         * the pending screenshot request. This function submits and waits on the
+         * command buffer internally, so RenderFrame must skip the normal submit
+         * when a screenshot was processed.
+         * 下载当前场景图像并保存到截图请求指定的路径。此函数会内部提交并等待
+         * 命令缓冲，因此处理截图后 RenderFrame 必须跳过正常提交。
+         */
+        bool SaveScreenshot(const PendingScreenshot &pendingScreenshot, const struct RenderFrameContext &ctx);
 
     public:
         explicit AppRenderer(AppContext *appContext);

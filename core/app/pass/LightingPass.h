@@ -68,6 +68,7 @@ namespace glimmer {
 
 #if  !defined(NDEBUG)
         bool displayLightMap_ = false;
+        bool enableLighting_ = true;
         std::shared_ptr<GPUPipelineResourceResult> debugPipeline_ = nullptr;
         std::shared_ptr<GPUSamplerResourceResult> debugSampler_ = nullptr;
         SDL_GPUBuffer *debugVertexBuffer_ = nullptr;
@@ -78,6 +79,8 @@ namespace glimmer {
         void EnsureDebugBuffers();
 
         void DrawLightMapDebug(RenderFrameContext &ctx);
+
+        void BlitScene(RenderFrameContext &ctx);
 #endif
 
         void UpdateLightMap(UniformInjectContext *injectContext);
@@ -97,6 +100,8 @@ namespace glimmer {
 
 #if  !defined(NDEBUG)
         void SetDisplayLightMap(bool display);
+
+        void SetEnableLighting(bool enable);
 #endif
     };
 }

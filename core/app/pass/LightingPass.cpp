@@ -87,12 +87,23 @@ glimmer::LightingPass::~LightingPass() {
 }
 
 void glimmer::LightingPass::Prepare(RenderFrameContext &ctx) {
+#if  !defined(NDEBUG)
+    if (!enableLighting_) {
+        return;
+    }
+#endif
     if (ctx.injectContext != nullptr) {
         UpdateLightMap(ctx.injectContext);
     }
 }
 
 void glimmer::LightingPass::Record(RenderFrameContext &ctx) {
+#if  !defined(NDEBUG)
+    if (!enableLighting_) {
+        BlitScene(ctx);
+        return;
+    }
+#endif
     if (ctx.injectContext == nullptr) {
         return;
     }
@@ -232,16 +243,110 @@ void glimmer::LightingPass::SetDisplayLightMap(const bool display) {
     displayLightMap_ = display;
 }
 
+void glimmer::LightingPass::SetEnableLighting(const bool enable) {
+    enableLighting_ = enable;
+}
+
+void glimmer::LightingPass::BlitScene(RenderFrameContext &ctx) {
+    //When lighting is disabled, draw the unlit scene texture to the
+    //swapchain using a fullscreen quad, bypassing the lighting composite.
+    //禁用光照时，用全屏四边形把无光照场景纹理绘制到交换链，绕过光照合成。
+    SDL_GPUTexture *sceneTexture = ctx.sceneTexture;
+    if (ctx.commandBuffer == nullptr || ctx.swapChainTexture == nullptr || sceneTexture == nullptr) {
+        return;
+    }
+    if (debugPipeline_ == nullptr || debugSampler_ == nullptr || debugPipeline_->GetResource() == nullptr ||
+        debugSampler_->GetResource() == nullptr) {
+        return;
+    }
+    EnsureDebugBuffers();
+    if (debugVertexBuffer_ == nullptr || debugIndexBuffer_ == nullptr || debugTransferBuffer_ == nullptr) {
+        return;
+    }
+
+    const float logicalW = static_cast<float>(ctx.logicalWidth);
+    const float logicalH = static_cast<float>(ctx.logicalHeight);
+    //Build a fullscreen quad in logical pixel coordinates with a white
+    //vertex color, so the sprite shader outputs the sampled texture as-is.
+    //构建逻辑像素坐标下的全屏四边形，顶点色为白色，使精灵着色器原样输出采样纹理。
+    const SpriteVertex vertices[4] = {
+        {0.0F, 0.0F, 0.0F, 0.0F, 255, 255, 255, 255},
+        {logicalW, 0.0F, 1.0F, 0.0F, 255, 255, 255, 255},
+        {0.0F, logicalH, 0.0F, 1.0F, 255, 255, 255, 255},
+        {logicalW, logicalH, 1.0F, 1.0F, 255, 255, 255, 255}
+    };
+    const Uint32 indices[6] = {0, 1, 2, 1, 3, 2};
+
+    //Upload the quad vertices and indices into the shared debug transfer
+    //buffer, then copy them into the vertex/index buffers in a copy pass.
+    //将四边形顶点与索引上传到共享的调试传输缓冲，再通过复制通道写入顶点/索引缓冲。
+    void *mapped = SDL_MapGPUTransferBuffer(device_, debugTransferBuffer_, true);
+    if (mapped != nullptr) {
+        std::memcpy(mapped, vertices, sizeof(vertices));
+        std::memcpy(static_cast<Uint8 *>(mapped) + sizeof(vertices), indices, sizeof(indices));
+        SDL_UnmapGPUTransferBuffer(device_, debugTransferBuffer_);
+    }
+
+    SDL_GPUCopyPass *copyPass = SDL_BeginGPUCopyPass(ctx.commandBuffer);
+    if (copyPass == nullptr) {
+        return;
+    }
+    SDL_GPUTransferBufferLocation vertexSource = {debugTransferBuffer_, 0};
+    SDL_GPUBufferRegion vertexDestination = {debugVertexBuffer_, 0, sizeof(vertices)};
+    SDL_UploadToGPUBuffer(copyPass, &vertexSource, &vertexDestination, true);
+    SDL_GPUTransferBufferLocation indexSource = {debugTransferBuffer_, sizeof(vertices)};
+    SDL_GPUBufferRegion indexDestination = {debugIndexBuffer_, 0, sizeof(indices)};
+    SDL_UploadToGPUBuffer(copyPass, &indexSource, &indexDestination, true);
+    SDL_EndGPUCopyPass(copyPass);
+
+    //Use LOADOP_LOAD so the fullscreen quad is blended over the already
+    //cleared swapchain; transparent scene regions keep the black clear color.
+    //使用 LOADOP_LOAD 使全屏四边形叠加在已清屏的交换链上；场景透明区域保留黑色清屏色。
+    SDL_GPUColorTargetInfo colorTarget = {};
+    colorTarget.texture = ctx.swapChainTexture;
+    colorTarget.load_op = SDL_GPU_LOADOP_LOAD;
+    colorTarget.store_op = SDL_GPU_STOREOP_STORE;
+
+    SDL_GPURenderPass *renderPass = SDL_BeginGPURenderPass(ctx.commandBuffer, &colorTarget, 1, nullptr);
+    if (renderPass == nullptr) {
+        return;
+    }
+    SDL_BindGPUGraphicsPipeline(renderPass, debugPipeline_->GetResource());
+
+    //Push the logical viewport size, matching the vertex shader's expected
+    //coordinate transform for screen-space quads.
+    //推送逻辑视口尺寸，匹配顶点着色器对屏幕空间四边形的坐标变换期望。
+    const float viewSize[2] = {logicalW, logicalH};
+    SDL_PushGPUVertexUniformData(ctx.commandBuffer, 0, viewSize, sizeof(viewSize));
+
+    SDL_GPUBufferBinding vertexBinding = {debugVertexBuffer_, 0};
+    SDL_BindGPUVertexBuffers(renderPass, 0, &vertexBinding, 1);
+    SDL_GPUBufferBinding indexBinding = {debugIndexBuffer_, 0};
+    SDL_BindGPUIndexBuffer(renderPass, &indexBinding, SDL_GPU_INDEXELEMENTSIZE_32BIT);
+
+    //Sample the unlit scene texture with the debug sampler and draw the quad.
+    //用调试采样器采样无光照场景纹理并绘制四边形。
+    SDL_GPUTextureSamplerBinding textureSamplerBinding = {sceneTexture, debugSampler_->GetResource()};
+    SDL_BindGPUFragmentSamplers(renderPass, 0, &textureSamplerBinding, 1);
+
+    SDL_DrawGPUIndexedPrimitives(renderPass, 6, 1, 0, 0, 0);
+    SDL_EndGPURenderPass(renderPass);
+}
+
 void glimmer::LightingPass::EnsureDebugBuffers() {
     if (device_ == nullptr) {
         return;
     }
+    //Lazily create the fixed-size vertex buffer holding the fullscreen quad.
+    //懒创建保存全屏四边形的固定大小顶点缓冲。
     if (debugVertexBuffer_ == nullptr) {
         SDL_GPUBufferCreateInfo info = {};
         info.usage = SDL_GPU_BUFFERUSAGE_VERTEX;
         info.size = sizeof(SpriteVertex) * 4;
         debugVertexBuffer_ = SDL_CreateGPUBuffer(device_, &info);
     }
+    //Lazily create the fixed-size index buffer for the two triangles.
+    //懒创建两个三角形所需的固定大小索引缓冲。
     if (debugIndexBuffer_ == nullptr) {
         SDL_GPUBufferCreateInfo info = {};
         info.usage = SDL_GPU_BUFFERUSAGE_INDEX;
@@ -249,6 +354,9 @@ void glimmer::LightingPass::EnsureDebugBuffers() {
         debugIndexBuffer_ = SDL_CreateGPUBuffer(device_, &info);
     }
     const Uint32 totalSize = sizeof(SpriteVertex) * 4 + sizeof(Uint32) * 6;
+    //(Re)allocate the upload staging buffer only when it is missing or too
+    //small; otherwise reuse it across frames to avoid per-frame allocation.
+    //仅当上传暂存缓冲缺失或过小时才（重新）分配，否则跨帧复用，避免每帧分配。
     if (debugTransferBuffer_ == nullptr || debugTransferBufferSize_ < totalSize) {
         if (debugTransferBuffer_ != nullptr) {
             SDL_ReleaseGPUTransferBuffer(device_, debugTransferBuffer_);

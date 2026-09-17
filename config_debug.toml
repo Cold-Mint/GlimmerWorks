@@ -114,6 +114,18 @@ command = "config commit"
 code = "f4"
 event_type = "key_down"
 
+[[command_hooks]]
+hook_id = "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e"
+command = "config set debug.disable_lighting toggle"
+code = "f2"
+event_type = "key_down"
+
+[[command_hooks]]
+hook_id = "c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f"
+command = "config commit"
+code = "f2"
+event_type = "key_down"
+
 [debug]
 # Show debug panel in game
 # 游戏内显示调试面板
@@ -145,3 +157,6 @@ display_chunk_view = false
 # Display the raw light map texture in the bottom-right corner
 # 在屏幕右下角显示原始光照贴图纹理
 display_light_map = false
+# Disable the lighting composite and blit the unlit scene directly
+# 禁用光照合成，直接把无光照场景绘制到屏幕
+disable_lighting = false

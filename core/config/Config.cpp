@@ -161,6 +161,7 @@ bool glimmer::Config::ReloadConfig() {
     debug.displayWeirdnessMap = toml::find<bool>(tomlRef, "debug", "display_weirdness_map");
     debug.displayChunkView = toml::find<bool>(tomlRef, "debug", "display_chunk_view");
     debug.displayLightMap = toml::find<bool>(tomlRef, "debug", "display_light_map");
+    debug.disableLighting = toml::find<bool>(tomlRef, "debug", "disable_lighting");
 #endif
     fingerprint_++;
     return true;

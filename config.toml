@@ -190,9 +190,3 @@ enabled_resource_pack = ["glimmerworks_res"]
 # Maximum number of console history entries to save (0 = disable history function)
 # 控制台历史记录最大保存条数（0 = 禁用历史记录功能）
 max_history_entries = 100
-
-[[command_hooks]]
-hook_id = "cb2bfd40-c389-468b-ae11-032e8e2b00b7"
-command = "screenShot create"
-code = "f2"
-event_type = "key_down"

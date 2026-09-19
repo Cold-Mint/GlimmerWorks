@@ -26,17 +26,17 @@
  */
 #pragma once
 
+#include <vector>
+
 #include <SDL3/SDL_gpu.h>
 #include <SDL3/SDL_stdinc.h>
 
 #include "RenderLayer.h"
 #include "SpriteVertex.h"
-#include "core/mod/resourcePack/GPUSamplerResourceResult.h"
+#include "core/mod/resourcePack/GPUPipelineResourceResult.h"
 #include "core/mod/resourcePack/TextureResourceResult.h"
 
 namespace glimmer {
-    class CompiledUniformBlock;
-
     /**
      * Flip flags for RenderQueue::DrawTextureRotated (replaces SDL_FlipMode).
      * RenderQueue::DrawTextureRotated 使用的翻转标志（替代 SDL_FlipMode）。
@@ -71,8 +71,8 @@ namespace glimmer {
         RenderLayer layer = RenderLayer::Background;
         float depth = 0.0F;
         SDL_GPUGraphicsPipeline *pipeline = nullptr;
-        //Optional uniform block to fill and push before drawing this command.
-        //绘制此命令前要填充并推送的可选 uniform 块。
-        const CompiledUniformBlock *uniformBlock = nullptr;
+        //Optional uniform blocks to fill and push before drawing this command.
+        //绘制此命令前要填充并推送的可选 uniform 块列表。
+        const std::vector<PipelineUniformBlock> *uniformBlocks = nullptr;
     };
 }

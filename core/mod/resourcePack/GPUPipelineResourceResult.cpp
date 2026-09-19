@@ -40,13 +40,12 @@ void glimmer::GPUPipelineResourceResult::SetDevice(SDL_GPUDevice *device) {
     device_ = device;
 }
 
-void glimmer::GPUPipelineResourceResult::SetUniformBlock(
-    std::shared_ptr<UniformBlockResourceResult> uniformBlock) {
-    uniformBlock_ = std::move(uniformBlock);
+void glimmer::GPUPipelineResourceResult::AddUniformBlock(PipelineUniformBlock uniformBlock) {
+    uniformBlocks_.push_back(uniformBlock);
 }
 
-const glimmer::CompiledUniformBlock *glimmer::GPUPipelineResourceResult::GetUniformBlock() const {
-    return uniformBlock_ != nullptr ? uniformBlock_->GetResource() : nullptr;
+const std::vector<glimmer::PipelineUniformBlock> *glimmer::GPUPipelineResourceResult::GetUniformBlocks() const {
+    return &uniformBlocks_;
 }
 
 glimmer::GPUPipelineResourceResult::~GPUPipelineResourceResult() {

@@ -27,6 +27,9 @@
 #pragma once
 
 #include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "GpuShaderCompileResult.h"
 
@@ -67,5 +70,18 @@ namespace glimmer {
         */
         static std::unique_ptr<GpuShaderCompileResult> CompileToSpirv(const std::string &source,
                                                                       bool vertex);
+
+        /**
+         * Reflect the uniform blocks declared in a GLSL source and return each
+         * block's name and binding number. Used when a shader is loaded from
+         * cache so the bindings don't need a full SPIR-V recompile.
+         * 反射 GLSL 源码中声明的 uniform 块，返回每个块的名字与 binding 号。
+         * 用于从缓存加载着色器时，无需重新编译 SPIR-V 即可取得 binding。
+         * @param source glsl source glsl源代码
+         * @param vertex Is it a vertex shader? 是否为顶点着色器
+         * @return vector of (block name, binding). Empty on failure.
+         */
+        static std::vector<std::pair<std::string, uint32_t> > ReflectUniformBlocks(const std::string &source,
+                                                                                   bool vertex);
     };
 }

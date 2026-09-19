@@ -72,7 +72,6 @@ std::unique_ptr<glimmer::GpuShaderCompileResult> glimmer::GpuShaderCompiler::Com
         return nullptr;
     }
     auto result = std::make_unique<GpuShaderCompileResult>();
-    result->SetNumUniformBuffers(static_cast<uint32_t>(program.getNumUniformBlocks()));
     uint32_t numSamplers = 0;
     for (int i = 0; i < program.getNumUniformVariables(); ++i) {
         const glslang::TType *type = program.getUniformTType(i);
@@ -83,7 +82,45 @@ std::unique_ptr<glimmer::GpuShaderCompileResult> glimmer::GpuShaderCompiler::Com
             ++numSamplers;
         }
     }
+    int numUniformBlocks = program.getNumUniformBlocks();
+    result->SetNumUniformBuffers(static_cast<uint32_t>(numUniformBlocks));
+    std::vector<std::pair<std::string, uint32_t> > blockBindings;
+    blockBindings.reserve(static_cast<size_t>(numUniformBlocks));
+    for (int i = 0; i < numUniformBlocks; ++i) {
+        blockBindings.emplace_back(program.getUniformBlockName(i),
+                                   static_cast<uint32_t>(program.getUniformBlockBinding(i)));
+    }
+    result->SetUniformBlockBindings(blockBindings);
     result->SetNumSamplers(numSamplers);
     glslang::GlslangToSpv(*glslShader.getIntermediate(), result->GetMutableCode(), &options);
+    return result;
+}
+
+std::vector<std::pair<std::string, uint32_t> > glimmer::GpuShaderCompiler::ReflectUniformBlocks(
+    const std::string &source, const bool vertex) {
+    std::vector<std::pair<std::string, uint32_t> > result;
+    if (source.empty()) {
+        return result;
+    }
+    const EShLanguage shaderStage = vertex ? EShLangVertex : EShLangFragment;
+    glslang::TShader glslShader(shaderStage);
+    const char *sources[] = {source.c_str()};
+    glslShader.setStrings(sources, 1);
+    const TBuiltInResource *resources = GetDefaultResources();
+    constexpr auto messages = static_cast<EShMessages>(EShMsgSpvRules | EShMsgVulkanRules);
+    if (!glslShader.parse(resources, 450, false, messages)) {
+        return result;
+    }
+    glslang::TProgram program;
+    program.addShader(&glslShader);
+    if (!program.link(messages) || !program.buildReflection()) {
+        return result;
+    }
+    const int numUniformBlocks = program.getNumUniformBlocks();
+    result.reserve(static_cast<size_t>(numUniformBlocks));
+    for (int i = 0; i < numUniformBlocks; ++i) {
+        result.emplace_back(program.getUniformBlockName(i),
+                            static_cast<uint32_t>(program.getUniformBlockBinding(i)));
+    }
     return result;
 }

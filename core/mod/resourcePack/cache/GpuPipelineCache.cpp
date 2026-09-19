@@ -28,6 +28,7 @@
 
 #include "core/gpu/BlendMode.h"
 #include "core/gpu/SpriteVertex.h"
+#include "core/gpu/UniformBlock.h"
 #include "core/log/LogCat.h"
 #include "core/utils/TomlUtils.h"
 #include "toml11/parser.hpp"
@@ -128,7 +129,12 @@ std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::GpuPipelineCache::L
         toml::get<GPUPipelineResource>(toml::parse_str(data.value(), TOML_VERSION)));
     gpuPipelineResource->vertexShader.SetSelfPackageId(manifestId);
     gpuPipelineResource->fragmentShader.SetSelfPackageId(manifestId);
-    gpuPipelineResource->uniformBlock.SetSelfPackageId(manifestId);
+    for (ResourceRef &uniformBlock: gpuPipelineResource->vertexUniformBlock) {
+        uniformBlock.SetSelfPackageId(manifestId);
+    }
+    for (ResourceRef &uniformBlock: gpuPipelineResource->fragmentUniformBlock) {
+        uniformBlock.SetSelfPackageId(manifestId);
+    }
 
     SDL_GPUVertexBufferDescription bufferDescription = {};
     bufferDescription.slot = 0;
@@ -190,11 +196,47 @@ std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::GpuPipelineCache::L
     pipelineResourceResult->SetResource(gpuGraphicsPipeline);
     pipelineResourceResult->SetResourcePack(resourcePack);
     pipelineResourceResult->SetDevice(device);
-    if (gpuPipelineResource->uniformBlock.IsValid()) {
-        auto uniformBlock = resourceLocator->FindUniformBlock(&gpuPipelineResource->uniformBlock);
-        if (uniformBlock != nullptr) {
-            pipelineResourceResult->SetUniformBlock(std::move(uniformBlock));
+    for (const ResourceRef &uniformBlockRef: gpuPipelineResource->vertexUniformBlock) {
+        if (!uniformBlockRef.IsValid()) {
+            continue;
         }
+        auto uniformBlock = resourceLocator->FindUniformBlock(&uniformBlockRef);
+        if (uniformBlock == nullptr) {
+            continue;
+        }
+        const CompiledUniformBlock *compiledUniformBlock = uniformBlock->GetResource();
+        if (compiledUniformBlock == nullptr) {
+            continue;
+        }
+        const std::optional<uint32_t> binding = vertexShaderResult_->GetUniformBlockBinding(
+            compiledUniformBlock->GetName());
+        if (!binding.has_value()) {
+            LogCat::w(std::source_location::current(), "uniform_block_binding_not_found",
+                      "Vertex shader has no uniform block named '{}'", compiledUniformBlock->GetName());
+            continue;
+        }
+        pipelineResourceResult->AddUniformBlock({std::move(uniformBlock), UniformBlockStage::Vertex, *binding});
+    }
+    for (const ResourceRef &uniformBlockRef: gpuPipelineResource->fragmentUniformBlock) {
+        if (!uniformBlockRef.IsValid()) {
+            continue;
+        }
+        auto uniformBlock = resourceLocator->FindUniformBlock(&uniformBlockRef);
+        if (uniformBlock == nullptr) {
+            continue;
+        }
+        const CompiledUniformBlock *compiledUniformBlock = uniformBlock->GetResource();
+        if (compiledUniformBlock == nullptr) {
+            continue;
+        }
+        const std::optional<uint32_t> binding = fragmentShaderResult_->GetUniformBlockBinding(
+            compiledUniformBlock->GetName());
+        if (!binding.has_value()) {
+            LogCat::w(std::source_location::current(), "uniform_block_binding_not_found",
+                      "Fragment shader has no uniform block named '{}'", compiledUniformBlock->GetName());
+            continue;
+        }
+        pipelineResourceResult->AddUniformBlock({std::move(uniformBlock), UniformBlockStage::Fragment, *binding});
     }
     return pipelineResourceResult;
 }

@@ -28,14 +28,13 @@
 
 #include <cstring>
 
+#include "UniformInjectorRegistry.h"
 #include "core/log/LogCat.h"
 
 std::unique_ptr<glimmer::CompiledUniformBlock> glimmer::CompiledUniformBlock::Compile(
     const UniformBlockResource &resource) {
     auto block = std::make_unique<CompiledUniformBlock>();
-    block->set_ = resource.set;
-    block->binding_ = resource.binding;
-
+    block->name_ = resource.name;
     uint32_t cursor = 0;
     block->members_.reserve(resource.members.size());
     for (const UniformMemberResource &member: resource.members) {
@@ -77,16 +76,11 @@ std::unique_ptr<glimmer::CompiledUniformBlock> glimmer::CompiledUniformBlock::Co
             block->dynamicMemberIndices_.push_back(static_cast<uint32_t>(i));
         }
     }
-
     return block;
 }
 
-uint32_t glimmer::CompiledUniformBlock::GetSet() const {
-    return set_;
-}
-
-uint32_t glimmer::CompiledUniformBlock::GetBinding() const {
-    return binding_;
+const std::string &glimmer::CompiledUniformBlock::GetName() const {
+    return name_;
 }
 
 size_t glimmer::CompiledUniformBlock::GetSize() const {
@@ -95,14 +89,6 @@ size_t glimmer::CompiledUniformBlock::GetSize() const {
 
 const std::vector<glimmer::CompiledUniformMember> &glimmer::CompiledUniformBlock::GetMembers() const {
     return members_;
-}
-
-const std::vector<uint32_t> &glimmer::CompiledUniformBlock::GetDynamicMemberIndices() const {
-    return dynamicMemberIndices_;
-}
-
-const std::vector<uint8_t> &glimmer::CompiledUniformBlock::GetStaticBuffer() const {
-    return staticBuffer_;
 }
 
 void glimmer::CompiledUniformBlock::Fill(const UniformInjectContext &ctx, std::vector<uint8_t> &out) const {

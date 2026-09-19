@@ -437,9 +437,8 @@ namespace toml {
     struct from<glimmer::UniformBlockResource> {
         static glimmer::UniformBlockResource from_toml(const value &v) {
             glimmer::UniformBlockResource r;
-            r.binding = toml::find_or<uint32_t>(v, "binding", 0);
             r.members = toml::find_or<std::vector<glimmer::UniformMemberResource> >(v, "members", {});
-            r.set = toml::find_or<uint32_t>(v, "set", 0);
+            r.name = toml::find<std::string>(v, "name");
             return r;
         }
     };
@@ -451,7 +450,7 @@ namespace toml {
             r.name = toml::find<std::string>(v, "name");
             r.source = toml::find<std::string>(v, "source");
             r.type = toml::find<std::string>(v, "type");
-            r.value = toml::find<std::vector<float> >(v, "value");
+            r.value = toml::find_or<std::vector<float> >(v, "value", {});
             return r;
         }
     };
@@ -560,10 +559,10 @@ namespace toml {
             glimmer::DimensionResource r;
             r.allowAsStarting = toml::find_or<bool>(v, "allow_as_starting", false);
             r.backLightKeyframes = toml::find<std::vector<glimmer::LightKeyframe> >(v, "back_light_keyframes");
-            r.skyLightKeyframes = toml::find<std::vector<glimmer::LightKeyframe> >(v, "sky_light_keyframes");
             r.initialTime = toml::find_or<float>(v, "initial_time", 0.0F);
             r.name = toml::find<glimmer::ResourceRef>(v, "name");
             r.resourceId = toml::find<std::string>(v, "resource_id");
+            r.skyLightKeyframes = toml::find<std::vector<glimmer::LightKeyframe> >(v, "sky_light_keyframes");
             r.timeFlowSpeed = toml::find_or<float>(v, "time_flow_speed", 1.0F);
             return r;
         }
@@ -587,9 +586,10 @@ namespace toml {
             glimmer::GPUPipelineResource r;
             r.blendMode = toml::find_or<uint8_t>(v, "blend_mode", 0);
             r.fragmentShader = toml::find<glimmer::ResourceRef>(v, "fragment_shader");
+            r.fragmentUniformBlock = toml::find_or<std::vector<glimmer::ResourceRef> >(v, "fragment_uniform_block", {});
             r.primitiveType = toml::find_or<uint8_t>(v, "primitive_type", 0);
-            r.uniformBlock = toml::find_or<glimmer::ResourceRef>(v, "uniform_block", {});
             r.vertexShader = toml::find<glimmer::ResourceRef>(v, "vertex_shader");
+            r.vertexUniformBlock = toml::find_or<std::vector<glimmer::ResourceRef> >(v, "vertex_uniform_block", {});
             return r;
         }
     };

@@ -31,8 +31,9 @@
 
 #include <SDL3/SDL_gpu.h>
 
+#include "core/mod/resourcePack/GPUPipelineResourceResult.h"
+
 namespace glimmer {
-    class GPUPipelineResourceResult;
     class UniformInjectContext;
 
     /**
@@ -45,14 +46,15 @@ namespace glimmer {
     void ClearRenderTarget(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUTexture *targetTexture);
 
     /**
-     * Fill and push the uniform block of a fullscreen pass. Encapsulates
-     * "fetch pipeline uniform block -> fill with ctx -> push", so any new
-     * fullscreen/post-processing pass can reuse the same injection path.
-     * 填充并推送一个全屏 pass 的 uniform 块。封装
-     * "取管线 uniform 块 -> 用 ctx 填充 -> 推送"，使新的全屏/后处理 pass 复用同一注入路径。
+     * Fill and push a list of uniform blocks directly. Used when only the
+     * block list is available (e.g. a per-command pipeline without its
+     * resource result). Falls back to clearing the staging buffer when the
+     * list is null or empty.
+     * 直接填充并推送一个 uniform 块列表。用于仅有块列表而拿不到资源结果时
+     * （例如命令携带的管线）。列表为空或为 null 时仅清空暂存缓冲。
      */
     void FillAndPushUniformBlock(SDL_GPUCommandBuffer *commandBuffer,
-                                 const std::shared_ptr<GPUPipelineResourceResult> &pipeline,
+                                 const std::vector<PipelineUniformBlock> *uniformBlocks,
                                  const UniformInjectContext &ctx,
                                  std::vector<uint8_t> &stagingBuffer);
 }

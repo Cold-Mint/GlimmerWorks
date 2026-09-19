@@ -49,13 +49,13 @@ namespace glimmer {
          * @param color color 顶点颜色（调色/透明度调制）
          * @param pipeline pipeline 渲染管线（nullptr 表示使用默认管线）
          * @param sampler sampler 采样器（nullptr 表示使用默认采样器）
-         * @param uniformBlock
+         * @param uniformBlocks uniformBlocks 可选 uniform 块列表
          */
         void AppendQuad(RenderLayer layer, float depth, const TextureResourceResult *texture,
                         const SDL_FPoint positions[4], const SDL_FPoint uvs[4], const SDL_Color &color,
                         SDL_GPUGraphicsPipeline *pipeline = nullptr,
                         SDL_GPUSampler *sampler = nullptr,
-                        const CompiledUniformBlock *uniformBlock = nullptr);
+                        const std::vector<PipelineUniformBlock> *uniformBlocks = nullptr);
 
     public:
         RenderQueue() = default;
@@ -117,7 +117,7 @@ namespace glimmer {
                          const SDL_Color &mod = {255, 255, 255, 255},
                          SDL_GPUGraphicsPipeline *pipeline = nullptr,
                          SDL_GPUSampler *sampler = nullptr,
-                         const CompiledUniformBlock *uniformBlock = nullptr);
+                         const std::vector<PipelineUniformBlock> *uniformBlocks = nullptr);
 
         /**
          * Queue a texture region rotated around a center point, with
@@ -140,7 +140,7 @@ namespace glimmer {
                                 const SDL_Color &mod = {255, 255, 255, 255},
                                 SDL_GPUGraphicsPipeline *pipeline = nullptr,
                                 SDL_GPUSampler *sampler = nullptr,
-                                const CompiledUniformBlock *uniformBlock = nullptr);
+                                const std::vector<PipelineUniformBlock> *uniformBlocks = nullptr);
 
         /**
          * Queue a full-screen quad with a custom pipeline and optional uniform block.
@@ -153,11 +153,11 @@ namespace glimmer {
          * @param dst dst 目标矩形（像素）
          * @param pipeline pipeline 渲染管线
          * @param sampler sampler 采样器
-         * @param uniformBlock uniformBlock uniform 块
+         * @param uniformBlocks uniformBlocks uniform 块列表
          */
         void DrawFullScreenQuad(RenderLayer layer, float depth, const SDL_FRect *dst,
                                 SDL_GPUGraphicsPipeline *pipeline, SDL_GPUSampler *sampler,
-                                const CompiledUniformBlock *uniformBlock);
+                                const std::vector<PipelineUniformBlock> *uniformBlocks);
 
         /**
          * Queue a rectangle filled with a solid color

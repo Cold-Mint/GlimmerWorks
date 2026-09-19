@@ -72,11 +72,11 @@ SDL_GPUSampler *glimmer::TileResourceData::GetSampler() const {
     return sampler_->GetResource();
 }
 
-const glimmer::CompiledUniformBlock *glimmer::TileResourceData::GetUniformBlock() const {
+const std::vector<glimmer::PipelineUniformBlock> *glimmer::TileResourceData::GetUniformBlocks() const {
     if (pipeline_ == nullptr) {
-        return nullptr;
+        return {};
     }
-    return pipeline_->GetUniformBlock();
+    return pipeline_->GetUniformBlocks();
 }
 
 

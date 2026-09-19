@@ -38,6 +38,8 @@
 #include "core/mod/resourcePack/GPUPipelineResourceResult.h"
 #include "core/mod/resourcePack/GPUSamplerResourceResult.h"
 
+#include "PassUtils.h"
+
 
 glimmer::ScenePass::ScenePass(SDL_GPUDevice *device, SDL_Window *window,
                               std::shared_ptr<GPUPipelineResourceResult> defaultPipeline,
@@ -243,8 +245,6 @@ void glimmer::ScenePass::EnsureSolidColorTexture() {
 void glimmer::ScenePass::FlushScenePass(const RenderFrameContext &ctx) {
     SDL_GPUCommandBuffer *commandBuffer = ctx.commandBuffer;
     SDL_GPUTexture *targetTexture = ctx.sceneTexture;
-    const Uint32 width = ctx.sceneTextureWidth;
-    const Uint32 height = ctx.sceneTextureHeight;
     UniformInjectContext *injectContext = ctx.injectContext;
     RenderQueue *renderQueue = ctx.renderQueue;
 
@@ -314,20 +314,26 @@ void glimmer::ScenePass::FlushScenePass(const RenderFrameContext &ctx) {
         SDL_GPUBufferBinding indexBinding = {indexBuffer_, 0};
         SDL_BindGPUIndexBuffer(renderPass, &indexBinding, SDL_GPU_INDEXELEMENTSIZE_32BIT);
 
-        const float viewSize[2] = {static_cast<float>(width), static_cast<float>(height)};
-        SDL_PushGPUVertexUniformData(commandBuffer, 0, viewSize, sizeof(viewSize));
-
         const std::vector<RenderCommand> &commands = renderQueue->GetCommands();
         SDL_GPUGraphicsPipeline *defaultPipeline = defaultPipeline_->GetResource();
         SDL_GPUSampler *defaultSampler = defaultSampler_->GetResource();
         SDL_GPUGraphicsPipeline *currentPipeline = defaultPipeline;
         SDL_BindGPUGraphicsPipeline(renderPass, currentPipeline);
+        FillAndPushUniformBlock(commandBuffer, defaultPipeline_->GetUniformBlocks(), *injectContext,
+                                sceneStagingBuffer_);
         Uint32 firstIndex = 0;
         for (const RenderCommand &command: commands) {
             SDL_GPUGraphicsPipeline *commandPipeline = command.pipeline != nullptr ? command.pipeline : defaultPipeline;
             if (commandPipeline != currentPipeline) {
                 SDL_BindGPUGraphicsPipeline(renderPass, commandPipeline);
                 currentPipeline = commandPipeline;
+                //Push the newly bound pipeline's uniform blocks once per switch.
+                //仅在管线切换时推送一次新管线的 uniform 块。
+                const std::vector<PipelineUniformBlock> *uniformBlocks = command.uniformBlocks;
+                if (uniformBlocks == nullptr) {
+                    uniformBlocks = defaultPipeline_->GetUniformBlocks();
+                }
+                FillAndPushUniformBlock(commandBuffer, uniformBlocks, *injectContext, sceneStagingBuffer_);
             }
             SDL_GPUTexture *texture = solidColorTexture_;
             if (command.texture != nullptr) {
@@ -346,11 +352,6 @@ void glimmer::ScenePass::FlushScenePass(const RenderFrameContext &ctx) {
             }
             SDL_GPUTextureSamplerBinding textureSamplerBinding = {texture, sampler};
             SDL_BindGPUFragmentSamplers(renderPass, 0, &textureSamplerBinding, 1);
-            if (command.uniformBlock != nullptr) {
-                command.uniformBlock->Fill(*injectContext, sceneStagingBuffer_);
-                SDL_PushGPUFragmentUniformData(commandBuffer, command.uniformBlock->GetBinding(),
-                                               sceneStagingBuffer_.data(), sceneStagingBuffer_.size());
-            }
             SDL_DrawGPUIndexedPrimitives(renderPass, 6, 1, firstIndex, 0, 0);
             firstIndex += 6;
         }

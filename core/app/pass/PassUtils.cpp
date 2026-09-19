@@ -31,6 +31,7 @@
 
 #include "core/gpu/UniformBlock.h"
 #include "core/mod/resourcePack/GPUPipelineResourceResult.h"
+#include "core/mod/resourcePack/UniformBlockResourceResult.h"
 
 
 void glimmer::ClearRenderTarget(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUTexture *targetTexture) {
@@ -52,21 +53,32 @@ void glimmer::ClearRenderTarget(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUText
 
 void glimmer::FillAndPushUniformBlock(
     SDL_GPUCommandBuffer *commandBuffer,
-    const std::shared_ptr<GPUPipelineResourceResult> &pipeline,
+    const std::vector<PipelineUniformBlock> *uniformBlocks,
     const UniformInjectContext &ctx,
     std::vector<uint8_t> &stagingBuffer) {
-    if (pipeline == nullptr) {
-        return;
-    }
-    const CompiledUniformBlock *uniformBlock = pipeline->GetUniformBlock();
-    if (uniformBlock == nullptr) {
+    if (uniformBlocks == nullptr || uniformBlocks->empty()) {
         stagingBuffer.clear();
         return;
     }
-    uniformBlock->Fill(ctx, stagingBuffer);
-    if (stagingBuffer.empty()) {
-        stagingBuffer.assign(uniformBlock->GetSize(), 0);
+    for (const PipelineUniformBlock &uniformBlock: *uniformBlocks) {
+        if (uniformBlock.block == nullptr) {
+            continue;
+        }
+        const UniformBlockResourceResult *uniformBlockResourceResultPtr = uniformBlock.block.get();
+        if (uniformBlockResourceResultPtr == nullptr) {
+            continue;
+        }
+        const CompiledUniformBlock *compiledUniformBlock = uniformBlockResourceResultPtr->GetResource();
+        if (compiledUniformBlock == nullptr) {
+            continue;
+        }
+        compiledUniformBlock->Fill(ctx, stagingBuffer);
+        if (uniformBlock.stage == UniformBlockStage::Vertex) {
+            SDL_PushGPUVertexUniformData(commandBuffer, uniformBlock.binding,
+                                         stagingBuffer.data(), stagingBuffer.size());
+        } else {
+            SDL_PushGPUFragmentUniformData(commandBuffer, uniformBlock.binding,
+                                           stagingBuffer.data(), stagingBuffer.size());
+        }
     }
-    SDL_PushGPUFragmentUniformData(commandBuffer, uniformBlock->GetBinding(),
-                                   stagingBuffer.data(), stagingBuffer.size());
 }

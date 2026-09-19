@@ -25,18 +25,33 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <optional>
+#include <string>
+#include <utility>
+#include <vector>
+
 #include "ResourceResult.h"
 #include "SDL3/SDL_gpu.h"
 
 namespace glimmer {
     class ShaderResourceResult : public ResourceResult<SDL_GPUShader> {
         SDL_GPUDevice *device_ = nullptr;
+        //每个 uniform 块的名字与 binding 号（first=块名, second=binding）
+        std::vector<std::pair<std::string, uint32_t> > uniformBlockBindings_;
 
     protected:
         void DestroyResourceImpl(SDL_GPUShader *resource) override;
 
     public:
         void SetDevice(SDL_GPUDevice *device);
+
+        void SetUniformBlockBindings(const std::vector<std::pair<std::string, uint32_t> > &bindings);
+
+        /**
+         * GetUniformBlockBinding
+         * 按块名查找其 binding 号。若未找到返回 std::nullopt（不会静默回退到 0）。
+         */
+        [[nodiscard]] std::optional<uint32_t> GetUniformBlockBinding(const std::string &name) const;
 
         ~ShaderResourceResult() override;
     };

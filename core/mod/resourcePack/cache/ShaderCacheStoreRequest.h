@@ -26,6 +26,9 @@
  */
 #pragma once
 #include <filesystem>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "core/mod/ResourceRef.h"
 #include "core/vfs/VirtualFileSystem.h"
@@ -40,5 +43,7 @@ namespace glimmer {
         size_t spirVSize = 0;
         uint32_t numSamplers = 0;
         uint32_t numUniformBuffers = 0;
+        const std::vector<std::pair<std::string, uint32_t> > *uniformBlockBindings = nullptr;
+        uint32_t gameVersionNumber = 0;
     };
 }

@@ -31,7 +31,6 @@
 
 #include "Std140LayoutBuilder.h"
 #include "UniformInjectContext.h"
-#include "UniformInjectorRegistry.h"
 #include "core/mod/Resource.h"
 
 namespace glimmer {
@@ -50,6 +49,15 @@ namespace glimmer {
         //Static value, valid only when source == "static".
         //静态值，仅 source == "static" 时有效。
         std::vector<float> staticValue;
+    };
+
+    /**
+     * UniformBlockStage
+     * Uniform 块所属的着色器阶段。推送数据时据此选择顶点/片元 API。
+     */
+    enum class UniformBlockStage : uint8_t {
+        Vertex = 0,
+        Fragment = 1,
     };
 
     /**
@@ -72,17 +80,15 @@ namespace glimmer {
          */
         static std::unique_ptr<CompiledUniformBlock> Compile(const UniformBlockResource &resource);
 
-        [[nodiscard]] uint32_t GetSet() const;
-
-        [[nodiscard]] uint32_t GetBinding() const;
-
         [[nodiscard]] size_t GetSize() const;
 
         [[nodiscard]] const std::vector<CompiledUniformMember> &GetMembers() const;
 
-        [[nodiscard]] const std::vector<uint32_t> &GetDynamicMemberIndices() const;
-
-        [[nodiscard]] const std::vector<uint8_t> &GetStaticBuffer() const;
+        /**
+         * GetName
+         * 获取 uniform 块名（与着色器内 block 名一致）。
+         */
+        [[nodiscard]] const std::string &GetName() const;
 
         /**
          * Fill
@@ -93,8 +99,7 @@ namespace glimmer {
         void Fill(const UniformInjectContext &ctx, std::vector<uint8_t> &out) const;
 
     private:
-        uint32_t set_ = 0;
-        uint32_t binding_ = 0;
+        std::string name_;
         std::vector<CompiledUniformMember> members_;
         std::vector<uint32_t> dynamicMemberIndices_;
         std::vector<uint8_t> staticBuffer_;

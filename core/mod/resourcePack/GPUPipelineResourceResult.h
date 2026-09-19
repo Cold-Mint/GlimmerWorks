@@ -27,13 +27,27 @@
 #pragma once
 
 #include <memory>
+#include <vector>
 
+#include "core/gpu/UniformBlock.h"
 #include "ResourceResult.h"
 #include "SDL3/SDL_gpu.h"
 
 namespace glimmer {
-    class CompiledUniformBlock;
     class UniformBlockResourceResult;
+
+    /**
+    * PipelineUniformBlock
+    * 管线关联的 uniform 块及其每管线元数据（阶段、binding）。
+    *
+    * block 指向共享的编译块；stage 与 binding 是每管线属性，因此多管线
+    * 共享同一个块时不会互相覆盖。
+    */
+    struct PipelineUniformBlock {
+        std::shared_ptr<UniformBlockResourceResult> block;
+        UniformBlockStage stage = UniformBlockStage::Fragment;
+        uint32_t binding = 0;
+    };
 
     /**
      * GPUPipelineResourceResult
@@ -41,7 +55,7 @@ namespace glimmer {
      */
     class GPUPipelineResourceResult : public ResourceResult<SDL_GPUGraphicsPipeline> {
         SDL_GPUDevice *device_ = nullptr;
-        std::shared_ptr<UniformBlockResourceResult> uniformBlock_ = nullptr;
+        std::vector<PipelineUniformBlock> uniformBlocks_;
 
     protected:
         void DestroyResourceImpl(SDL_GPUGraphicsPipeline *resource) override;
@@ -50,17 +64,17 @@ namespace glimmer {
         void SetDevice(SDL_GPUDevice *device);
 
         /**
-         * SetUniformBlock
-         * 设置管线关联的 Uniform 块。管线强持有该块，保证其生命周期与管线一致。
-         * @param uniformBlock uniformBlock Uniform 块资源
+         * AddUniformBlock
+         * 追加一个管线关联的 Uniform 块。管线强持有该块，保证其生命周期与管线一致。
+         * @param uniformBlock uniformBlock 管线关联的 Uniform 块及其阶段与绑定槽
          */
-        void SetUniformBlock(std::shared_ptr<UniformBlockResourceResult> uniformBlock);
+        void AddUniformBlock(PipelineUniformBlock uniformBlock);
 
         /**
-         * GetUniformBlock
-         * 获取管线关联的 Uniform 块（可为 nullptr）。
+         * GetUniformBlocks
+         * 获取管线关联的全部 Uniform 块
          */
-        [[nodiscard]] const CompiledUniformBlock *GetUniformBlock() const;
+        [[nodiscard]] const std::vector<PipelineUniformBlock> *GetUniformBlocks() const;
 
         ~GPUPipelineResourceResult() override;
     };

@@ -26,6 +26,8 @@
  */
 #pragma once
 #include <cstdint>
+#include <string>
+#include <utility>
 #include <vector>
 
 namespace glimmer {
@@ -35,6 +37,8 @@ namespace glimmer {
         uint32_t numSamplers_ = 0;
         //UniformBuffers数量
         uint32_t numUniformBuffers_ = 0;
+        //每个 uniform 块的名字与 binding 号（first=块名, second=binding）
+        std::vector<std::pair<std::string, uint32_t> > uniformBlockBindings_;
 
     public:
         void SetNumSamplers(uint32_t numSamplers);
@@ -44,6 +48,10 @@ namespace glimmer {
         [[nodiscard]] uint32_t GetNumSamplers() const;
 
         [[nodiscard]] uint32_t GetNumUniformBuffers() const;
+
+        void SetUniformBlockBindings(const std::vector<std::pair<std::string, uint32_t> > &bindings);
+
+        [[nodiscard]] const std::vector<std::pair<std::string, uint32_t> > &GetUniformBlockBindings() const;
 
         /**
          * Set the compiled Spirv binary.

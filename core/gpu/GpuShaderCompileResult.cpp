@@ -42,6 +42,15 @@ uint32_t glimmer::GpuShaderCompileResult::GetNumUniformBuffers() const {
     return numUniformBuffers_;
 }
 
+void glimmer::GpuShaderCompileResult::SetUniformBlockBindings(
+    const std::vector<std::pair<std::string, uint32_t> > &bindings) {
+    uniformBlockBindings_ = bindings;
+}
+
+const std::vector<std::pair<std::string, uint32_t> > &glimmer::GpuShaderCompileResult::GetUniformBlockBindings() const {
+    return uniformBlockBindings_;
+}
+
 void glimmer::GpuShaderCompileResult::SetCode(const std::vector<unsigned int> &code) {
     code_ = code;
 }

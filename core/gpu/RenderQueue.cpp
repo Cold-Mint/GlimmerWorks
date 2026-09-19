@@ -30,18 +30,17 @@
 #include <cmath>
 #include <functional>
 
-void glimmer::RenderQueue::AppendQuad(RenderLayer layer, float depth, const TextureResourceResult *texture,
+void glimmer::RenderQueue::AppendQuad(const RenderLayer layer, const float depth, const TextureResourceResult *texture,
                                       const SDL_FPoint positions[4], const SDL_FPoint uvs[4], const SDL_Color &color,
                                       SDL_GPUGraphicsPipeline *pipeline,
-                                      SDL_GPUSampler *sampler,
-                                      const CompiledUniformBlock *uniformBlock) {
+                                      SDL_GPUSampler *sampler, const std::vector<PipelineUniformBlock> *uniformBlocks) {
     RenderCommand &command = commands_.emplace_back();
     command.texture = texture;
     command.layer = layer;
     command.depth = depth;
     command.pipeline = pipeline;
     command.sampler = sampler;
-    command.uniformBlock = uniformBlock;
+    command.uniformBlocks = uniformBlocks;
     for (int i = 0; i < 4; ++i) {
         command.corners[i] = {
             positions[i].x, positions[i].y, uvs[i].x, uvs[i].y, color.r, color.g, color.b, color.a
@@ -89,7 +88,7 @@ void glimmer::RenderQueue::DrawTexture(RenderLayer layer, float depth, TextureRe
                                        const SDL_FRect *src, const SDL_FRect *dst, const SDL_Color &mod,
                                        SDL_GPUGraphicsPipeline *pipeline,
                                        SDL_GPUSampler *sampler,
-                                       const CompiledUniformBlock *uniformBlock) {
+                                       const std::vector<PipelineUniformBlock> *uniformBlocks) {
     if (texture == nullptr) {
         return;
     }
@@ -126,7 +125,7 @@ void glimmer::RenderQueue::DrawTexture(RenderLayer layer, float depth, TextureRe
         {u0, v1},
         {u1, v1}
     };
-    AppendQuad(layer, depth, texture, positions, uvs, mod, pipeline, sampler, uniformBlock);
+    AppendQuad(layer, depth, texture, positions, uvs, mod, pipeline, sampler, uniformBlocks);
 }
 
 void glimmer::RenderQueue::DrawTextureRotated(RenderLayer layer, float depth, const TextureResourceResult *texture,
@@ -134,7 +133,7 @@ void glimmer::RenderQueue::DrawTextureRotated(RenderLayer layer, float depth, co
                                               const SDL_FPoint *center, Uint8 flip,
                                               const SDL_Color &mod, SDL_GPUGraphicsPipeline *pipeline,
                                               SDL_GPUSampler *sampler,
-                                              const CompiledUniformBlock *uniformBlock) {
+                                              const std::vector<PipelineUniformBlock> *uniformBlocks) {
     if (texture == nullptr || dst == nullptr) {
         return;
     }
@@ -193,7 +192,31 @@ void glimmer::RenderQueue::DrawTextureRotated(RenderLayer layer, float depth, co
         std::swap(uvs[0].y, uvs[2].y);
         std::swap(uvs[1].y, uvs[3].y);
     }
-    AppendQuad(layer, depth, texture, positions, uvs, mod, pipeline, sampler, uniformBlock);
+    AppendQuad(layer, depth, texture, positions, uvs, mod, pipeline, sampler, uniformBlocks);
+}
+
+void glimmer::RenderQueue::DrawFullScreenQuad(RenderLayer layer, float depth, const SDL_FRect *dst,
+                                              SDL_GPUGraphicsPipeline *pipeline, SDL_GPUSampler *sampler,
+                                              const std::vector<PipelineUniformBlock> *uniformBlocks) {
+    if (dst == nullptr) {
+        return;
+    }
+    if (dst->w <= 0.0F || dst->h <= 0.0F) {
+        return;
+    }
+    const SDL_FPoint positions[4] = {
+        {dst->x, dst->y},
+        {dst->x + dst->w, dst->y},
+        {dst->x, dst->y + dst->h},
+        {dst->x + dst->w, dst->y + dst->h}
+    };
+    const SDL_FPoint uvs[4] = {
+        {0.0F, 0.0F},
+        {1.0F, 0.0F},
+        {0.0F, 1.0F},
+        {1.0F, 1.0F}
+    };
+    AppendQuad(layer, depth, nullptr, positions, uvs, {255, 255, 255, 255}, pipeline, sampler, uniformBlocks);
 }
 
 
@@ -218,30 +241,6 @@ void glimmer::RenderQueue::FillRect(const RenderLayer layer, const float depth, 
         {1.0F, 1.0F}
     };
     AppendQuad(layer, depth, nullptr, positions, uvs, color);
-}
-
-void glimmer::RenderQueue::DrawFullScreenQuad(const RenderLayer layer, const float depth, const SDL_FRect *dst,
-                                              SDL_GPUGraphicsPipeline *pipeline, SDL_GPUSampler *sampler,
-                                              const CompiledUniformBlock *uniformBlock) {
-    if (dst == nullptr) {
-        return;
-    }
-    if (dst->w <= 0.0F || dst->h <= 0.0F) {
-        return;
-    }
-    const SDL_FPoint positions[4] = {
-        {dst->x, dst->y},
-        {dst->x + dst->w, dst->y},
-        {dst->x, dst->y + dst->h},
-        {dst->x + dst->w, dst->y + dst->h}
-    };
-    const SDL_FPoint uvs[4] = {
-        {0.0F, 0.0F},
-        {1.0F, 0.0F},
-        {0.0F, 1.0F},
-        {1.0F, 1.0F}
-    };
-    AppendQuad(layer, depth, nullptr, positions, uvs, {255, 255, 255, 255}, pipeline, sampler, uniformBlock);
 }
 
 void glimmer::RenderQueue::DrawRect(const RenderLayer layer, const float depth, const SDL_FRect *rect,

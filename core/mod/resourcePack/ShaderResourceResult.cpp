@@ -37,6 +37,20 @@ void glimmer::ShaderResourceResult::SetDevice(SDL_GPUDevice *device) {
     device_ = device;
 }
 
+void glimmer::ShaderResourceResult::SetUniformBlockBindings(
+    const std::vector<std::pair<std::string, uint32_t> > &bindings) {
+    uniformBlockBindings_ = bindings;
+}
+
+std::optional<uint32_t> glimmer::ShaderResourceResult::GetUniformBlockBinding(const std::string &name) const {
+    for (const auto &entry: uniformBlockBindings_) {
+        if (entry.first == name) {
+            return entry.second;
+        }
+    }
+    return std::nullopt;
+}
+
 glimmer::ShaderResourceResult::~ShaderResourceResult() {
     DestroyResource();
 }

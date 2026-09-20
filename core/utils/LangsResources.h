@@ -86,6 +86,9 @@ namespace glimmer {
         std::string lightSourceInfo;
         std::string lightMaskInfo;
         std::string notIncludeLighting;
+        std::string ambientLightInfo;
+        std::string dynamicLightInfo;
+        std::string lightRevisionInfo;
         std::string cmdHookManagerNotFound;
         std::string lightingInspectorEnable;
         std::string lightingInspectorDisable;

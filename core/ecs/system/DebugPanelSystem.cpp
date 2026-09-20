@@ -196,7 +196,25 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
             });
         }
 
-        const Color finalLightColor = worldContext->GetLightingBuffer()->GetFinalLightColor(tileCoord);
+        const LightBuffer *lightBuffer = worldContext->GetLightingBuffer();
+
+        // Ambient light colors
+        // 环境光颜色
+        const Color *backLightColor = lightBuffer->GetBackLightColor();
+        const Color *skyLightColor = lightBuffer->GetSkyLightColor();
+        if (backLightColor != nullptr && skyLightColor != nullptr) {
+            debugLines_.push_back(DebugLine{
+                fmt::format(
+                    fmt::runtime(langsResources->ambientLightInfo),
+                    backLightColor->a, backLightColor->r, backLightColor->g, backLightColor->b,
+                    skyLightColor->a, skyLightColor->r, skyLightColor->g, skyLightColor->b
+                )
+            });
+        }
+
+        // Total light
+        // 总光照
+        const Color finalLightColor = lightBuffer->GetFinalLightColor(tileCoord);
         debugLines_.push_back(DebugLine{
             fmt::format(
                 fmt::runtime(langsResources->totalLight),
@@ -204,18 +222,22 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
             )
         });
 
-        // Sky visibility and column sky top info
-        // 天空可见度与列天光天花板信息
-        LightBuffer *lightBuffer = worldContext->GetLightingBuffer();
+        // Revision
+        // 光照修订版本
+        debugLines_.push_back(DebugLine{
+            fmt::format(fmt::runtime(langsResources->lightRevisionInfo), lightBuffer->GetRevision())
+        });
+
+        // Sky transmittance and column occluders
+        // 天光透射率与列遮挡瓦片
         const int columnSkyTopY = lightBuffer->GetColumnSkyTopY(tileCoord.x);
-        const float skyFactor = lightBuffer->GetSkyFactor(tileCoord);
+        const float skyTransmittance = lightBuffer->GetSkyTransmittance(tileCoord);
         debugLines_.push_back(DebugLine{
             fmt::format(
                 fmt::runtime(langsResources->skyVisibilityInfo),
-                tileCoord.x, columnSkyTopY, skyFactor
+                tileCoord.x, columnSkyTopY, skyTransmittance
             )
         });
-
         // Per-layer lighting data
         // 各图层光照数据
         if (const TileLightData *tileLightData = lightBuffer->GetTileLightData(tileCoord);
@@ -229,10 +251,11 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
         } else {
             const auto *lightSources = tileLightData->GetLightSources();
             const auto *lightContributions = tileLightData->GetLightContributions();
+            const auto *lightMasks = tileLightData->GetLightMasks();
             for (int i = 0; i < TILE_LAYER_TYPE_COUNT; ++i) {
                 const auto layerType = static_cast<TileLayerType>(1 << i);
-                const float sideBlocking = tileLightData->GetSideLightBlockingStrength(layerType);
-                const float backBlocking = tileLightData->GetBackLightBlockingStrength(layerType);
+                const float sideBlocking = tileLightData->GetLightBlockingStrength(layerType, LightDirection::Downward);
+                const float backBlocking = tileLightData->GetLightBlockingStrength(layerType, LightDirection::Backward);
                 bool hasSource = false;
                 if (lightSources != nullptr) {
                     const auto sourceIt = lightSources->find(layerType);
@@ -250,6 +273,104 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
                         fmt::runtime(langsResources->tileLightDataInfo),
                         std::to_underlying(layerType), sideBlocking, backBlocking,
                         hasSource ? 1 : 0, contributionCount
+                    )
+                });
+
+                // Light masks
+                // 光线遮照详情
+                if (lightMasks != nullptr) {
+                    const auto maskLayerIt = lightMasks->find(layerType);
+                    if (maskLayerIt != lightMasks->end()) {
+                        for (const auto &[direction, mask] : maskLayerIt->second) {
+                            if (mask == nullptr) {
+                                continue;
+                            }
+                            const Color *maskColor = mask->GetLightMaskColor();
+                            if (maskColor == nullptr) {
+                                continue;
+                            }
+                            debugLines_.push_back(DebugLine{
+                                fmt::format(
+                                    fmt::runtime(langsResources->lightMaskInfo),
+                                    std::to_underlying(direction),
+                                    std::to_underlying(layerType),
+                                    maskColor->r, maskColor->g, maskColor->b, maskColor->a,
+                                    mask->GetTintFactor()
+                                )
+                            });
+                        }
+                    }
+                }
+
+                // Light source
+                // 光源详情
+                if (lightSources != nullptr) {
+                    const auto sourceIt = lightSources->find(layerType);
+                    if (sourceIt != lightSources->end() && sourceIt->second != nullptr) {
+                        const LightSource *source = sourceIt->second.get();
+                        const Color *emission = source->GetEmissionColor();
+                        if (emission != nullptr) {
+                            const TileVector2D &center = source->GetCenter();
+                            debugLines_.push_back(DebugLine{
+                                fmt::format(
+                                    fmt::runtime(langsResources->lightSourceInfo),
+                                    std::to_underlying(layerType),
+                                    source->GetMaxRadius(),
+                                    emission->r, emission->g, emission->b, emission->a,
+                                    center.x, center.y
+                                )
+                            });
+                        }
+                    }
+                }
+
+                // Light contributions
+                // 光照贡献详情
+                if (lightContributions != nullptr) {
+                    const auto contributionIt = lightContributions->find(layerType);
+                    if (contributionIt != lightContributions->end()) {
+                        for (const auto &contribution : contributionIt->second) {
+                            if (contribution == nullptr) {
+                                continue;
+                            }
+                            const Color *lightColor = contribution->GetLightColor();
+                            if (lightColor == nullptr) {
+                                continue;
+                            }
+                            const LightSource *source = contribution->GetLightSource();
+                            const TileVector2D center = source != nullptr ? source->GetCenter() : TileVector2D{};
+                            debugLines_.push_back(DebugLine{
+                                fmt::format(
+                                    fmt::runtime(langsResources->lightContributionInfo),
+                                    std::to_underlying(layerType),
+                                    lightColor->r, lightColor->g, lightColor->b, lightColor->a,
+                                    0, center.x, center.y
+                                )
+                            });
+                        }
+                    }
+                }
+            }
+        }
+
+        // Dynamic lights
+        // 动态光源
+        if (const auto *dynamicLights = lightBuffer->GetDynamicLights(); dynamicLights != nullptr) {
+            for (const auto &[id, entry] : *dynamicLights) {
+                if (entry.lightSource == nullptr) {
+                    continue;
+                }
+                const Color *emission = entry.lightSource->GetEmissionColor();
+                if (emission == nullptr) {
+                    continue;
+                }
+                debugLines_.push_back(DebugLine{
+                    fmt::format(
+                        fmt::runtime(langsResources->dynamicLightInfo),
+                        id, entry.position.x, entry.position.y,
+                        std::to_underlying(entry.layer),
+                        entry.lightSource->GetMaxRadius(),
+                        emission->a, emission->r, emission->g, emission->b
                     )
                 });
             }

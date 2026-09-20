@@ -31,15 +31,15 @@
 
 
 glimmer::LightSource::LightSource(const TileVector2D &center, int maxRadius, const Color &emissionColor)
-    : center_(center), maxRadius_(maxRadius), emissionColor_(emissionColor) {
+    : center_(center), maxRadius_(maxRadius), emissionColor_(emissionColor), direction_(LightDirection::Radial) {
 }
 
-glimmer::LightSource::LightSource(const LightSourceType type, const Color &emissionColor)
-    : emissionColor_(emissionColor), type_(type) {
+glimmer::LightSource::LightSource(const LightDirection direction, const Color &emissionColor)
+    : emissionColor_(emissionColor), direction_(direction) {
 }
 
-glimmer::LightSourceType glimmer::LightSource::GetType() const {
-    return type_;
+glimmer::LightDirection glimmer::LightSource::GetDirection() const {
+    return direction_;
 }
 
 int glimmer::LightSource::GetMaxRadius() const {

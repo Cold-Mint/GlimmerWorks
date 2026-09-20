@@ -146,30 +146,30 @@ std::string glimmer::LightCommand::BuildLightSourceString(const TileLightData *l
 std::string glimmer::LightCommand::BuildLightMaskString(const TileLightData *lightData,
                                                         const LangsResources *langsResources) {
     std::stringstream lightMaskStream;
-    AppendMaskList(lightMaskStream, lightData->GetSideLightMasks(), true, langsResources);
-    AppendMaskList(lightMaskStream, lightData->GetBackLightMasks(), false, langsResources);
+    AppendMaskList(lightMaskStream, lightData->GetLightMasks(), langsResources);
     return lightMaskStream.str();
 }
 
 void glimmer::LightCommand::AppendMaskList(std::stringstream &stream,
-                                           const std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > *masks,
-                                           bool isSide,
+                                           const std::unordered_map<TileLayerType, std::unordered_map<LightDirection, std::unique_ptr<LightMask> > > *masks,
                                            const LangsResources *langsResources) {
     if (masks == nullptr) {
         return;
     }
-    for (const auto &[layerType, mask]: *masks) {
-        if (mask == nullptr) {
-            continue;
+    for (const auto &[layerType, directionMap]: *masks) {
+        for (const auto &[direction, mask]: directionMap) {
+            if (mask == nullptr) {
+                continue;
+            }
+            stream << '\n';
+            const Color *maskColor = mask->GetLightMaskColor();
+            stream << fmt::format(fmt::runtime(langsResources->lightMaskInfo),
+                                  std::to_underlying(direction),
+                                  std::to_underlying(layerType), maskColor->r,
+                                  maskColor->g,
+                                  maskColor->b, maskColor->a,
+                                  mask->GetTintFactor());
         }
-        stream << '\n';
-        const Color *maskColor = mask->GetLightMaskColor();
-        stream << fmt::format(fmt::runtime(langsResources->lightMaskInfo),
-                              isSide,
-                              std::to_underlying(layerType), maskColor->r,
-                              maskColor->g,
-                              maskColor->b, maskColor->a,
-                              mask->GetTintFactor());
     }
 }
 

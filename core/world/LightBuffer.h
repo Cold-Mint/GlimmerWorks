@@ -26,6 +26,7 @@
  */
 #pragma once
 
+#include <set>
 #include <unordered_map>
 
 #include "DynamicLightEntry.h"
@@ -66,10 +67,14 @@ namespace glimmer {
          */
         uint64_t revision_ = 0;
 
-        //The highest opaque Ground-layer tile y for each column, used to
-        //derive sky visibility (ambient light only reaches tiles above it).
-        //每列最高的不透明地面层瓦片 y，用于推导天空可见度（环境光只到达其上的瓦片）。
-        std::unordered_map<int, int> columnSkyTopY_;
+        //For each column, the sorted y of Ground-layer tiles that block the
+        //Downward (sky) light. Sky transmittance at a tile is the product of
+        //(1 - occlusion) of every such tile above it, replacing the previous
+        //single-ceiling + depth falloff model with continuous transmittance.
+        //每列中阻挡天光（Downward）的 Ground 层瓦片 y（升序）。某瓦片的天光透射率
+        //等于其上方所有此类瓦片 (1 - 挡光强度) 的连乘，以此取代原先的单天花板 +
+        //深度衰减模型，实现连续透射率。
+        std::unordered_map<int, std::set<int> > columnSkyOccluders_;
 
         //Whether batch mode is active (chunk load suppresses per-tile rebuilds).
         //批量模式是否激活（区块加载时抑制逐瓦片重算）。
@@ -82,8 +87,8 @@ namespace glimmer {
         //环境光源，由 SetLightColor 更新。
         //backLightSource_：来自背景层（-Z）的屏幕光。
         //skyLightSource_：来自上方（+Y）的天光。
-        LightSource backLightSource_{LightSourceType::AmbientBack, Color{}};
-        LightSource skyLightSource_{LightSourceType::AmbientSky, Color{}};
+        LightSource backLightSource_{LightDirection::Backward, Color{}};
+        LightSource skyLightSource_{LightDirection::Downward, Color{}};
 
         TileLightData &GetOrCreate(const TileVector2D &position);
 
@@ -104,7 +109,7 @@ namespace glimmer {
         /**
          * RebuildAmbientLight
          * 重建环境光贡献。清除由环境光源产生的贡献，并根据当前背光/天光颜色、
-         * 背光遮罩与天光可见度重新注入每个瓦片的环境光贡献。
+         * 背光遮罩与天光透射率重新注入每个瓦片的环境光贡献。
          */
         void RebuildAmbientLight();
 
@@ -116,29 +121,52 @@ namespace glimmer {
         void MarkLightDirty();
 
         /**
-         * UpdateColumnSkyTopY
-         * 根据某列 Ground 层瓦片的侧面挡光强度变化，增量维护天光天花板。
+         * GetLightBlockingStrength
+         * 获取某瓦片在指定图层、指定光照方向上的挡光强度（0~1）。
+         * 背光（Backward）查背光遮照，点光（Radial）/天光（Downward）查侧面遮照。
          * @param position position 瓦片世界坐标
-         * @param oldStrength oldStrength 旧挡光强度（0~1）
-         * @param newStrength newStrength 新挡光强度（0~1）
+         * @param layerType layerType 图层类型
+         * @param direction direction 光照方向
+         * @return 0~1 的挡光强度；瓦片不存在或无遮罩时返回 0
          */
-        void UpdateColumnSkyTopY(const TileVector2D &position, float oldStrength, float newStrength);
+        [[nodiscard]] float GetLightBlockingStrength(const TileVector2D &position, TileLayerType layerType,
+                                                     LightDirection direction) const;
 
         /**
-         * RecalculateColumnSkyTopY
-         * 重新计算列SkyTopY
-         * @param x
+         * ComputeAmbientLightColor
+         * 计算一个没有任何光照数据（光源/遮罩）的瓦片的环境光颜色。
+         * 背光无条件注入（空瓦片没有背光遮罩），天光按天光透射率注入。
+         * @param position position 瓦片世界坐标
+         * @return 该空瓦片应得到的最终环境光颜色；无任何环境光时返回黑色。
          */
-        void RecalculateColumnSkyTopY(int x);
+        [[nodiscard]] Color ComputeAmbientLightColor(const TileVector2D &position) const;
+
+        /**
+         * UpdateColumnSkyOccluder
+         * 根据某列 Ground 层瓦片的挡光状态变化，增量维护天光遮挡索引。
+         * @param position position 瓦片世界坐标
+         * @param nowBlocks nowBlocks 该瓦片当前是否阻挡天光
+         */
+        void UpdateColumnSkyOccluder(const TileVector2D &position, bool nowBlocks);
 
     public:
-        void SetSideLightMask(const TileVector2D& position, TileLayerType layerType, std::unique_ptr<LightMask> sideLightMask);
+        /**
+         * SetLightMask
+         * 设置某瓦片在指定图层、指定光照方向上的光线遮罩。
+         * 背光（Backward）存为背光遮照；点光/天光（Radial/Downward）归一化为侧面遮照。
+         * @param position position 瓦片世界坐标
+         * @param layerType layerType 图层类型
+         * @param direction direction 光照方向
+         * @param lightMask lightMask 光线遮罩
+         */
+        void SetLightMask(const TileVector2D &position, TileLayerType layerType, LightDirection direction,
+                          std::unique_ptr<LightMask> lightMask);
 
-        void SetBackLightMask(const TileVector2D& position, TileLayerType layerType, std::unique_ptr<LightMask> backLightMask);
-
-        void ClearSideLightMask(const TileVector2D &position, TileLayerType layerType);
-
-        void ClearBackLightMask(const TileVector2D &position, TileLayerType layerType);
+        /**
+         * ClearLightMask
+         * 清除某瓦片在指定图层、指定光照方向上的光线遮罩。
+         */
+        void ClearLightMask(const TileVector2D &position, TileLayerType layerType, LightDirection direction);
 
         void ClearTileLightData(const TileVector2D &position);
 
@@ -191,19 +219,19 @@ namespace glimmer {
         void SetLightColor(const Color &backLight, const Color &skyLight);
 
         /**
-         * GetSkyFactor
-         * 获取指定瓦片的天光因子
+         * GetSkyTransmittance
+         * 获取指定瓦片的天光透射率（0~1），等于其上方所有阻挡天光的瓦片
+         * (1 - 挡光强度) 的连乘。
          * @param position position 瓦片世界坐标
-         * @return 0~1 的天光强度因子
+         * @return 0~1 的天光透射率
          */
-        [[nodiscard]] float GetSkyFactor(const TileVector2D &position) const;
+        [[nodiscard]] float GetSkyTransmittance(const TileVector2D &position) const;
 
         /**
          * GetColumnSkyTopY
-         * 获取指定列的天光天花板 y（该列最高的不透明地面瓦片），
-         * 用于计算天光的连续深度衰减。
+         * 获取指定列最高的阻挡天光的地面瓦片 y，用于调试显示。
          * @param x x 列坐标
-         * @return 若该列存在不透明地面瓦片则返回其 y，否则返回 WORLD_MIN_Y - 1
+         * @return 若该列存在阻挡天光的地面瓦片则返回其 y，否则返回 WORLD_MIN_Y - 1
          */
         [[nodiscard]] int GetColumnSkyTopY(int x) const;
 
@@ -213,5 +241,23 @@ namespace glimmer {
          * 当前修订计数器。任何对光照缓冲数据（光源、遮罩、贡献）的修改都会使其递增。
          */
         [[nodiscard]] uint64_t GetRevision() const;
+
+        /**
+         * GetBackLightColor
+         * 获取当前背光（背景层，-Z）环境色。
+         */
+        [[nodiscard]] const Color *GetBackLightColor() const;
+
+        /**
+         * GetSkyLightColor
+         * 获取当前天光（上方，+Y）环境色。
+         */
+        [[nodiscard]] const Color *GetSkyLightColor() const;
+
+        /**
+         * GetDynamicLights
+         * 获取全部动态（移动）光源，用于调试显示。
+         */
+        [[nodiscard]] const std::unordered_map<uint64_t, DynamicLightEntry> *GetDynamicLights() const;
     };
 }

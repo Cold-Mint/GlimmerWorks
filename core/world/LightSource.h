@@ -50,17 +50,18 @@ namespace glimmer {
     };
 
     /**
-     * LightSourceType
-     * 光源类型
+     * LightDirection
+     * 光照方向
      *
-     * Point 表示具有中心与半径的点光源；AmbientBack 表示来自背景层（-Z）
-     * 的环境光；AmbientSky 表示来自上方（+Y）的天光。环境光没有中心与半径，
-     * 通过光照贡献系统均匀或按遮挡施加到每个瓦片。
+     * 统一了光源与光线遮照的方向语义：Radial 表示在 X/Y 平面内向四周泛洪的
+     * 点光源，其遮挡来自瓦片的侧面遮罩；Downward 表示来自上方（+Y）向下的
+     * 天光，其遮挡同样复用侧面遮罩；Backward 表示来自背景层（-Z）的背光，
+     * 其遮挡来自瓦片的背面遮罩。环境光（Downward/Backward）没有中心与半径。
      */
-    enum class LightSourceType : uint8_t {
-        Point = 0,
-        AmbientBack = 1,
-        AmbientSky = 2,
+    enum class LightDirection : uint8_t {
+        Radial = 0,
+        Downward = 1,
+        Backward = 2,
     };
 
     class LightSource {
@@ -68,14 +69,14 @@ namespace glimmer {
         int maxRadius_ = 0;
         Color emissionColor_ = {};
         LightAttenuation attenuation_ = LightAttenuation::Linear;
-        LightSourceType type_ = LightSourceType::Point;
+        LightDirection direction_ = LightDirection::Radial;
 
     public:
         explicit LightSource(const TileVector2D &center, int maxRadius, const Color &emissionColor);
 
-        explicit LightSource(LightSourceType type, const Color &emissionColor);
+        explicit LightSource(LightDirection direction, const Color &emissionColor);
 
-        [[nodiscard]] LightSourceType GetType() const;
+        [[nodiscard]] LightDirection GetDirection() const;
 
         [[nodiscard]] int GetMaxRadius() const;
 

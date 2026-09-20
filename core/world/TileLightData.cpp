@@ -31,27 +31,6 @@
 #include "src/core/vector2d.pb.h"
 
 
-void glimmer::TileLightData::SetLightMask(std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > &lightMaskData,
-                                          const TileLayerType layerType, std::unique_ptr<LightMask> lightMask) {
-    if (lightMask == nullptr) {
-        return;
-    }
-    lightMaskData[layerType] = std::move(lightMask);
-}
-
-const glimmer::LightMask *glimmer::TileLightData::GetLightMask(
-    std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > &lightMaskData, TileLayerType layerType) {
-    const auto lightMaskIterator = lightMaskData.find(layerType);
-    if (lightMaskIterator == lightMaskData.end()) {
-        return nullptr;
-    }
-    const auto &lightMaskPtr = lightMaskIterator->second;
-    if (lightMaskPtr == nullptr) {
-        return nullptr;
-    }
-    return lightMaskPtr.get();
-}
-
 std::unique_ptr<glimmer::Color> glimmer::TileLightData::ComputeFinalLightColor() {
     if (lightContributions_.empty()) {
         return nullptr;
@@ -175,14 +154,9 @@ GetLightSources() const {
     return &lightSourceData_;
 }
 
-const std::unordered_map<glimmer::TileLayerType, std::unique_ptr<glimmer::LightMask> > *glimmer::TileLightData::
-GetSideLightMasks() const {
-    return &sideLightMaskData_;
-}
-
-const std::unordered_map<glimmer::TileLayerType, std::unique_ptr<glimmer::LightMask> > *glimmer::TileLightData::
-GetBackLightMasks() const {
-    return &backLightMaskData_;
+const std::unordered_map<glimmer::TileLayerType, std::unordered_map<glimmer::LightDirection, std::unique_ptr<glimmer::LightMask> > > *glimmer::TileLightData::
+GetLightMasks() const {
+    return &lightMaskData_;
 }
 
 const glimmer::LightContribution *glimmer::TileLightData::GetLightContribution(const TileLayerType layerType,
@@ -239,20 +213,30 @@ void glimmer::TileLightData::SetLightSource(const TileLayerType layerType, std::
     lightSourceData_[layerType] = std::move(lightSource);
 }
 
-void glimmer::TileLightData::SetSideLightMask(const TileLayerType layerType, std::unique_ptr<LightMask> lightMask) {
-    SetLightMask(sideLightMaskData_, layerType, std::move(lightMask));
+void glimmer::TileLightData::SetLightMask(const TileLayerType layerType, const LightDirection direction,
+                                          std::unique_ptr<LightMask> lightMask) {
+    if (lightMask == nullptr) {
+        return;
+    }
+    lightMaskData_[layerType][direction] = std::move(lightMask);
 }
 
-void glimmer::TileLightData::SetBackLightMask(const TileLayerType layerType, std::unique_ptr<LightMask> lightMask) {
-    SetLightMask(backLightMaskData_, layerType, std::move(lightMask));
-}
-
-const glimmer::LightMask *glimmer::TileLightData::GetSideLightMask(const TileLayerType layerType) {
-    return GetLightMask(sideLightMaskData_, layerType);
-}
-
-const glimmer::LightMask *glimmer::TileLightData::GetBackLightMask(const TileLayerType layerType) {
-    return GetLightMask(backLightMaskData_, layerType);
+const glimmer::LightMask *glimmer::TileLightData::GetLightMask(const TileLayerType layerType,
+                                                              const LightDirection direction) {
+    const auto lightMaskIterator = lightMaskData_.find(layerType);
+    if (lightMaskIterator == lightMaskData_.end()) {
+        return nullptr;
+    }
+    const auto &directionMap = lightMaskIterator->second;
+    const auto directionIterator = directionMap.find(direction);
+    if (directionIterator == directionMap.end()) {
+        return nullptr;
+    }
+    const auto &lightMaskPtr = directionIterator->second;
+    if (lightMaskPtr == nullptr) {
+        return nullptr;
+    }
+    return lightMaskPtr.get();
 }
 
 
@@ -268,12 +252,15 @@ const glimmer::LightSource *glimmer::TileLightData::GetLightSource(const TileLay
     return lightMaskPtr.get();
 }
 
-void glimmer::TileLightData::ClearSideLightMask(const TileLayerType layerType) {
-    sideLightMaskData_.erase(layerType);
-}
-
-void glimmer::TileLightData::ClearBackLightMask(const TileLayerType layerType) {
-    backLightMaskData_.erase(layerType);
+void glimmer::TileLightData::ClearLightMask(const TileLayerType layerType, const LightDirection direction) {
+    const auto lightMaskIterator = lightMaskData_.find(layerType);
+    if (lightMaskIterator == lightMaskData_.end()) {
+        return;
+    }
+    lightMaskIterator->second.erase(direction);
+    if (lightMaskIterator->second.empty()) {
+        lightMaskData_.erase(layerType);
+    }
 }
 
 
@@ -281,20 +268,17 @@ void glimmer::TileLightData::ClearLightSource(const TileLayerType layerType) {
     lightSourceData_.erase(layerType);
 }
 
-float glimmer::TileLightData::GetSideLightBlockingStrength(const TileLayerType layerType) const {
-    const auto it = sideLightMaskData_.find(layerType);
-    if (it == sideLightMaskData_.end() || it->second == nullptr) {
+float glimmer::TileLightData::GetLightBlockingStrength(const TileLayerType layerType,
+                                                       const LightDirection direction) const {
+    const auto lightMaskIterator = lightMaskData_.find(layerType);
+    if (lightMaskIterator == lightMaskData_.end()) {
         return 0.0F;
     }
-    return it->second->GetBlockingStrength();
-}
-
-float glimmer::TileLightData::GetBackLightBlockingStrength(const TileLayerType layerType) const {
-    const auto it = backLightMaskData_.find(layerType);
-    if (it == backLightMaskData_.end() || it->second == nullptr) {
+    const auto directionIterator = lightMaskIterator->second.find(direction);
+    if (directionIterator == lightMaskIterator->second.end() || directionIterator->second == nullptr) {
         return 0.0F;
     }
-    return it->second->GetBlockingStrength();
+    return directionIterator->second->GetBlockingStrength();
 }
 
 const glimmer::Color *glimmer::TileLightData::GetFinalLightColor() const {

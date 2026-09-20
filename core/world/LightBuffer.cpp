@@ -48,11 +48,7 @@ void glimmer::LightBuffer::SetLightFromSource(const LightSource &source, const T
     const TileVector2D &center = source.GetCenter();
     LightFloodFill::Propagate(center, source.GetMaxRadius(),
                               [this, layerType](const TileVector2D &position) {
-                                  const auto it = tileLightData_.find(position);
-                                  if (it == tileLightData_.end() || it->second == nullptr) {
-                                      return 0.0F;
-                                  }
-                                  return it->second->GetSideLightBlockingStrength(layerType);
+                                  return GetLightBlockingStrength(position, layerType, LightDirection::Radial);
                               },
                               [this, layerType, &source](const TileVector2D &position, const float accumulated) {
                                   SetLightContributionAt(position, layerType, source, accumulated);
@@ -63,11 +59,7 @@ void glimmer::LightBuffer::ClearLightFromSource(const LightSource &source, const
     const TileVector2D &center = source.GetCenter();
     LightFloodFill::Propagate(center, source.GetMaxRadius(),
                               [this, layerType](const TileVector2D &position) {
-                                  const auto it = tileLightData_.find(position);
-                                  if (it == tileLightData_.end() || it->second == nullptr) {
-                                      return 0.0F;
-                                  }
-                                  return it->second->GetSideLightBlockingStrength(layerType);
+                                  return GetLightBlockingStrength(position, layerType, LightDirection::Radial);
                               },
                               [this, layerType, &source](const TileVector2D &position, float) {
                                   ClearLightContributionAt(position, layerType, source);
@@ -133,8 +125,9 @@ void glimmer::LightBuffer::RebuildAmbientLight() {
         }
         for (int i = 0; i < TILE_LAYER_TYPE_COUNT; ++i) {
             const auto layerType = static_cast<TileLayerType>(1 << i);
+            //背光（z 方向）照所有图层，各层用各自的背光遮照遮挡。
             if (backColor != nullptr && backColor->a > 0) {
-                const LightMask *backMask = tileData->GetBackLightMask(layerType);
+                const LightMask *backMask = tileData->GetLightMask(layerType, LightDirection::Backward);
                 std::unique_ptr<Color> color;
                 if (backMask != nullptr) {
                     color = LightUtils::ApplyLightingMask(backColor, backMask->GetLightMaskColor(),
@@ -144,12 +137,13 @@ void glimmer::LightBuffer::RebuildAmbientLight() {
                 }
                 SetAmbientLightContributionAt(position, layerType, backLightSource_, std::move(color));
             }
-            if (skyColor != nullptr && skyColor->a > 0) {
-                const float skyFactor = GetSkyFactor(position);
-                if (skyFactor > 0.0F) {
+            //天光（y 负方向）仅地面层，被侧面遮照遮挡。
+            if (layerType == TileLayerType::Ground && skyColor != nullptr && skyColor->a > 0) {
+                const float transmittance = GetSkyTransmittance(position);
+                if (transmittance > 0.0F) {
                     auto color = std::make_unique<Color>(
                         skyColor->r, skyColor->g, skyColor->b,
-                        static_cast<uint8_t>(std::clamp(static_cast<float>(skyColor->a) * skyFactor, 0.0F, 255.0F)));
+                        static_cast<uint8_t>(std::clamp(static_cast<float>(skyColor->a) * transmittance, 0.0F, 255.0F)));
                     SetAmbientLightContributionAt(position, layerType, skyLightSource_, std::move(color));
                 }
             }
@@ -192,61 +186,48 @@ void glimmer::LightBuffer::RebuildAllLight() {
               revision_);
 }
 
-void glimmer::LightBuffer::SetSideLightMask(const TileVector2D &position, const TileLayerType layerType,
-                                            std::unique_ptr<LightMask> sideLightMask) {
-    if (sideLightMask == nullptr) {
+void glimmer::LightBuffer::SetLightMask(const TileVector2D &position, const TileLayerType layerType,
+                                        const LightDirection direction,
+                                        std::unique_ptr<LightMask> lightMask) {
+    if (lightMask == nullptr) {
         return;
     }
+    //Normalize the light direction to a mask slot: Backward keeps its own back
+    //mask, while Radial/Downward share the side (sky) mask.
+    //将光照方向归一化到遮照槽：背光(Backward)用背光遮照，点光/天光(Radial/Downward)共用侧面遮照。
+    const LightDirection maskDirection = direction == LightDirection::Backward ? LightDirection::Backward : LightDirection::Downward;
     TileLightData &tileLightData = GetOrCreate(position);
-    const LightMask *oldMask = tileLightData.GetSideLightMask(layerType);
+    const LightMask *oldMask = tileLightData.GetLightMask(layerType, maskDirection);
     const float oldStrength = oldMask != nullptr ? oldMask->GetBlockingStrength() : 0.0F;
-    const float newStrength = sideLightMask->GetBlockingStrength();
-    tileLightData.SetSideLightMask(layerType, std::move(sideLightMask));
+    const float newStrength = lightMask->GetBlockingStrength();
+    tileLightData.SetLightMask(layerType, maskDirection, std::move(lightMask));
     ++revision_;
-    if (layerType == TileLayerType::Ground) {
-        UpdateColumnSkyTopY(position, oldStrength, newStrength);
+    //Only the side mask on the Ground layer participates in sky occlusion.
+    //只有地面层的侧面遮照参与天光遮挡。
+    if (maskDirection == LightDirection::Downward && layerType == TileLayerType::Ground) {
+        if (oldStrength > 0.0F != newStrength > 0.0F) {
+            UpdateColumnSkyOccluder(position, newStrength > 0.0F);
+        }
     }
     if (oldStrength != newStrength) {
         MarkLightDirty();
     }
 }
 
-void glimmer::LightBuffer::SetBackLightMask(const TileVector2D &position, const TileLayerType layerType,
-                                            std::unique_ptr<LightMask> backLightMask) {
-    if (backLightMask == nullptr) {
-        return;
-    }
-    GetOrCreate(position).SetBackLightMask(layerType, std::move(backLightMask));
-    ++revision_;
-    MarkLightDirty();
-}
-
-void glimmer::LightBuffer::ClearSideLightMask(const TileVector2D &position, const TileLayerType layerType) {
+void glimmer::LightBuffer::ClearLightMask(const TileVector2D &position, const TileLayerType layerType,
+                                          const LightDirection direction) {
+    const LightDirection maskDirection = direction == LightDirection::Backward ? LightDirection::Backward : LightDirection::Downward;
     const auto it = tileLightData_.find(position);
     if (it == tileLightData_.end() || it->second == nullptr) {
         return;
     }
-    const LightMask *oldMask = it->second->GetSideLightMask(layerType);
+    const LightMask *oldMask = it->second->GetLightMask(layerType, maskDirection);
     const float oldStrength = oldMask != nullptr ? oldMask->GetBlockingStrength() : 0.0F;
-    it->second->ClearSideLightMask(layerType);
+    it->second->ClearLightMask(layerType, maskDirection);
     ++revision_;
-    if (layerType == TileLayerType::Ground) {
-        UpdateColumnSkyTopY(position, oldStrength, 0.0F);
+    if (maskDirection == LightDirection::Downward && layerType == TileLayerType::Ground && oldStrength > 0.0F) {
+        UpdateColumnSkyOccluder(position, false);
     }
-    if (oldStrength != 0.0F) {
-        MarkLightDirty();
-    }
-}
-
-void glimmer::LightBuffer::ClearBackLightMask(const TileVector2D &position, const TileLayerType layerType) {
-    const auto it = tileLightData_.find(position);
-    if (it == tileLightData_.end() || it->second == nullptr) {
-        return;
-    }
-    const LightMask *oldMask = it->second->GetBackLightMask(layerType);
-    const float oldStrength = oldMask != nullptr ? oldMask->GetBlockingStrength() : 0.0F;
-    it->second->ClearBackLightMask(layerType);
-    ++revision_;
     if (oldStrength != 0.0F) {
         MarkLightDirty();
     }
@@ -270,14 +251,11 @@ void glimmer::LightBuffer::ClearTileLightData(const TileVector2D &position) {
         for (const auto layerType: layerTypesToClear) {
             ClearLightSource(position, layerType);
         }
-        wasGroundOpaque = it->second->GetSideLightBlockingStrength(TileLayerType::Ground) > 0.0F;
+        wasGroundOpaque = it->second->GetLightBlockingStrength(TileLayerType::Ground, LightDirection::Downward) > 0.0F;
     }
     tileLightData_.erase(position);
     if (wasGroundOpaque) {
-        const auto skyIt = columnSkyTopY_.find(position.x);
-        if (skyIt != columnSkyTopY_.end() && skyIt->second == position.y) {
-            RecalculateColumnSkyTopY(position.x);
-        }
+        UpdateColumnSkyOccluder(position, false);
     }
     ++revision_;
 }
@@ -323,8 +301,8 @@ void glimmer::LightBuffer::ClearLightSource(const TileVector2D &position, const 
 
 glimmer::Color glimmer::LightBuffer::GetFinalLightColor(const TileVector2D &position) const {
     const auto it = tileLightData_.find(position);
-    if (it == tileLightData_.end()) {
-        return Color{};
+    if (it == tileLightData_.end() || it->second == nullptr) {
+        return ComputeAmbientLightColor(position);
     }
     const TileLightData *tileData = it->second.get();
     const Color *point = tileData->GetFinalLightColor();
@@ -336,6 +314,37 @@ glimmer::Color glimmer::LightBuffer::GetFinalLightColor(const TileVector2D &posi
     result.g = point->g;
     result.b = point->b;
     result.a = point->a;
+    return result;
+}
+
+glimmer::Color glimmer::LightBuffer::ComputeAmbientLightColor(const TileVector2D &position) const {
+    const Color *backColor = backLightSource_.GetEmissionColor();
+    const Color *skyColor = skyLightSource_.GetEmissionColor();
+    Color result{};
+    bool hasLight = false;
+    if (backColor != nullptr && backColor->a > 0) {
+        result = *backColor;
+        hasLight = true;
+    }
+    if (skyColor != nullptr && skyColor->a > 0) {
+        const float transmittance = GetSkyTransmittance(position);
+        if (transmittance > 0.0F) {
+            const Color sky(
+                skyColor->r,
+                skyColor->g,
+                skyColor->b,
+                static_cast<uint8_t>(std::clamp(static_cast<float>(skyColor->a) * transmittance, 0.0F, 255.0F)));
+            if (hasLight) {
+                result = *LightUtils::MixLights(&result, &sky);
+            } else {
+                result = sky;
+                hasLight = true;
+            }
+        }
+    }
+    if (!hasLight) {
+        return Color{};
+    }
     return result;
 }
 
@@ -384,42 +393,79 @@ void glimmer::LightBuffer::RemoveDynamicLight(const uint64_t id) {
     LogCat::d("light_buffer_remove_dynamic_light", "Removed dynamic light: id={}", id);
 }
 
-float glimmer::LightBuffer::GetSkyFactor(const TileVector2D &position) const {
-    const auto it = columnSkyTopY_.find(position.x);
-    if (it == columnSkyTopY_.end()) {
-        //If the opaque square at the top is not found, then set the full-day light to 1.0.
-        //没有找到位于顶部的不透光方块，那么设置为1.0全天光。
+float glimmer::LightBuffer::GetLightBlockingStrength(const TileVector2D &position, const TileLayerType layerType,
+                                                     const LightDirection direction) const {
+    const auto it = tileLightData_.find(position);
+    if (it == tileLightData_.end() || it->second == nullptr) {
+        return 0.0F;
+    }
+    const LightDirection maskDirection = direction == LightDirection::Backward ? LightDirection::Backward : LightDirection::Downward;
+    return it->second->GetLightBlockingStrength(layerType, maskDirection);
+}
+
+float glimmer::LightBuffer::GetSkyTransmittance(const TileVector2D &position) const {
+    const auto it = columnSkyOccluders_.find(position.x);
+    if (it == columnSkyOccluders_.end()) {
+        //No sky-blocking tile in this column: full sky light reaches every tile.
+        //该列没有阻挡天光的瓦片，全天光到达每个瓦片。
         return 1.0F;
     }
-    const int topY = it->second;
-    if (position.y >= topY) {
-        //The topmost opaque tile itself still faces the sky.
-        //最顶部的不透明瓦片本身仍朝向天空。
-        return 1.0F;
+    //Sky light is a directional light cast from the top of the sky downward,
+    //so it is accumulated from the highest occluder down to the queried tile.
+    //天光是从天空顶部自上而下照射的方向光，因此从最高遮挡瓦片向下累积到查询瓦片。
+    //Transmittance below one 1/255 step is treated as invisible: the final
+    //alpha is quantized to uint8_t, so such a value already rounds to 0.
+    //低于 1/255 的透射率视为不可见：最终 alpha 被量化为 uint8_t，该值已四舍五入为 0。
+    constexpr float MIN_TRANSMITTANCE = 1.0F / 255.0F;
+    float transmittance = 1.0F;
+    for (auto occluderIt = it->second.rbegin(); occluderIt != it->second.rend(); ++occluderIt) {
+        if (*occluderIt <= position.y) {
+            break;
+        }
+        const TileVector2D occluder(position.x, *occluderIt);
+        const float occlusion = GetLightBlockingStrength(occluder, TileLayerType::Ground, LightDirection::Downward);
+        transmittance *= 1.0F - occlusion;
+        if (transmittance <= MIN_TRANSMITTANCE) {
+            return 0.0F;
+        }
     }
-    const int depth = topY - position.y;
-    return std::clamp(1.0F - static_cast<float>(depth) / static_cast<float>(SKY_ATTENUATION_DISTANCE), 0.0F, 1.0F);
+    return transmittance;
 }
 
 int glimmer::LightBuffer::GetColumnSkyTopY(const int x) const {
-    const auto it = columnSkyTopY_.find(x);
-    return it != columnSkyTopY_.end() ? it->second : WORLD_MIN_Y - 1;
+    const auto it = columnSkyOccluders_.find(x);
+    if (it == columnSkyOccluders_.end() || it->second.empty()) {
+        return WORLD_MIN_Y - 1;
+    }
+    return *it->second.rbegin();
 }
 
 uint64_t glimmer::LightBuffer::GetRevision() const {
     return revision_;
 }
 
-void glimmer::LightBuffer::RecalculateColumnSkyTopY(const int x) {
-    for (int y = WORLD_MAX_Y - 1; y >= WORLD_MIN_Y; --y) {
-        const auto it = tileLightData_.find(TileVector2D(x, y));
-        if (it != tileLightData_.end() && it->second != nullptr &&
-            it->second->GetSideLightBlockingStrength(TileLayerType::Ground) > 0.0F) {
-            columnSkyTopY_[x] = y;
-            return;
-        }
+const glimmer::Color *glimmer::LightBuffer::GetBackLightColor() const {
+    return backLightSource_.GetEmissionColor();
+}
+
+const glimmer::Color *glimmer::LightBuffer::GetSkyLightColor() const {
+    return skyLightSource_.GetEmissionColor();
+}
+
+const std::unordered_map<uint64_t, glimmer::DynamicLightEntry> *glimmer::LightBuffer::GetDynamicLights() const {
+    return &dynamicLights_;
+}
+
+void glimmer::LightBuffer::UpdateColumnSkyOccluder(const TileVector2D &position, const bool nowBlocks) {
+    auto &occluders = columnSkyOccluders_[position.x];
+    if (nowBlocks) {
+        occluders.insert(position.y);
+    } else {
+        occluders.erase(position.y);
     }
-    columnSkyTopY_[x] = WORLD_MIN_Y - 1;
+    if (occluders.empty()) {
+        columnSkyOccluders_.erase(position.x);
+    }
 }
 
 void glimmer::LightBuffer::MarkLightDirty() {
@@ -427,27 +473,6 @@ void glimmer::LightBuffer::MarkLightDirty() {
         batchDirty_ = true;
     } else {
         RebuildAllLight();
-    }
-}
-
-void glimmer::LightBuffer::UpdateColumnSkyTopY(const TileVector2D &position, const float oldStrength,
-                                               const float newStrength) {
-    const bool wasBlocking = oldStrength > 0.0F;
-    const bool nowBlocks = newStrength > 0.0F;
-    if (wasBlocking == nowBlocks) {
-        return;
-    }
-    if (nowBlocks) {
-        const auto it = columnSkyTopY_.find(position.x);
-        const int currentTop = it != columnSkyTopY_.end() ? it->second : WORLD_MIN_Y - 1;
-        if (position.y > currentTop) {
-            columnSkyTopY_[position.x] = position.y;
-        }
-    } else {
-        const auto it = columnSkyTopY_.find(position.x);
-        if (it != columnSkyTopY_.end() && it->second == position.y) {
-            RecalculateColumnSkyTopY(position.x);
-        }
     }
 }
 

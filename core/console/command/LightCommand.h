@@ -30,6 +30,7 @@
 
 namespace glimmer {
     enum class TileLayerType : uint8_t;
+    enum class LightDirection : uint8_t;
     class LightMask;
     class TileLightData;
     class TileVector2D;
@@ -55,8 +56,8 @@ namespace glimmer {
                                                 const LangsResources *langsResources);
 
         static void AppendMaskList(std::stringstream &stream,
-                                   const std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > *masks,
-                                   bool isSide, const LangsResources *langsResources);
+                                   const std::unordered_map<TileLayerType, std::unordered_map<LightDirection, std::unique_ptr<LightMask> > > *masks,
+                                   const LangsResources *langsResources);
 
         void InitSuggestions(NodeTree<std::string> *suggestionsTree) override;
 

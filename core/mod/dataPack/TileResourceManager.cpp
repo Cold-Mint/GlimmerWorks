@@ -92,7 +92,7 @@ void glimmer::TileResourceManager::InitBuiltinTiles() {
     AddCoreResource({
         TILE_ID_BEDROCK, TilePhysicsType::Static, TileLayerType::Ground, -1.0F,
         STRING_TILE_BEDROCK_NAME, "tiles/bedrock",
-        LIGHT_NONE, LIGHT_MASK_HIGH, LIGHT_MASK_LOW,
+        LIGHT_NONE, LIGHT_MASK_FULL, LIGHT_MASK_FULL,
         false, false, STRING_TILE_BEDROCK_DESCRIPTION
     });
     AddCoreResource({

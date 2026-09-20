@@ -104,6 +104,9 @@ bool glimmer::InitLangsTask::Run(ISystemBucket *systemBucket) {
     langsResources->lightSourceInfo = toml::find<std::string>(tomlValue, "light_source_info");
     langsResources->lightMaskInfo = toml::find<std::string>(tomlValue, "light_mask_info");
     langsResources->notIncludeLighting = toml::find<std::string>(tomlValue, "not_include_lighting");
+    langsResources->ambientLightInfo = toml::find<std::string>(tomlValue, "ambient_light_info");
+    langsResources->dynamicLightInfo = toml::find<std::string>(tomlValue, "dynamic_light_info");
+    langsResources->lightRevisionInfo = toml::find<std::string>(tomlValue, "light_revision_info");
     langsResources->scancodeHookNotFound = toml::find<std::string>(tomlValue, "scancode_hook_not_found");
     langsResources->scancodeHookFoundCount = toml::find<std::string>(tomlValue, "scancode_hook_found_count");
     langsResources->worldNamePrefix = toml::find<std::vector<std::string> >(tomlValue, "world_name_prefix");

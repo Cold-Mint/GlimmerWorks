@@ -43,8 +43,7 @@ namespace glimmer {
     class TileLightData {
         std::unordered_map<TileLayerType, std::vector<std::unique_ptr<LightContribution> > > lightContributions_;
         std::unordered_map<TileLayerType, std::unique_ptr<LightSource> > lightSourceData_;
-        std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > sideLightMaskData_;
-        std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > backLightMaskData_;
+        std::unordered_map<TileLayerType, std::unordered_map<LightDirection, std::unique_ptr<LightMask> > > lightMaskData_;
         std::unique_ptr<Color> finalLightColor_;
 
         /**
@@ -52,14 +51,6 @@ namespace glimmer {
          * 计算总颜色。
          */
         [[nodiscard]] std::unique_ptr<Color> ComputeFinalLightColor();
-
-
-        static void SetLightMask(std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > &lightMaskData,
-                                 TileLayerType layerType, std::unique_ptr<LightMask> lightMask);
-
-        static const LightMask *GetLightMask(
-            std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > &lightMaskData,
-            TileLayerType layerType);
 
     public:
         /**
@@ -82,9 +73,13 @@ namespace glimmer {
 
         [[nodiscard]] const std::unordered_map<TileLayerType, std::unique_ptr<LightSource> > *GetLightSources() const;
 
-        [[nodiscard]] const std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > *GetSideLightMasks() const;
-
-        [[nodiscard]] const std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > *GetBackLightMasks() const;
+        /**
+         * GetLightMasks
+         * 获取按图层与方向组织的光线遮罩。背光遮照（Backward）与侧面遮照
+         * （Downward，点光与天光共用）各占一个方向键。
+         */
+        [[nodiscard]] const std::unordered_map<TileLayerType, std::unordered_map<LightDirection, std::unique_ptr<LightMask> > > *
+        GetLightMasks() const;
 
         /**
          * GetLightContribution
@@ -114,23 +109,18 @@ namespace glimmer {
 
         /**
          * SetLightMask(Does not trigger the overall color calculation)
-         * 设置遮照（不触发总颜色计算）
+         * 设置光线遮罩（不触发总颜色计算）。
          * @param layerType layerType 图层类型
-         * @param lightMask lightMask 光源遮照
+         * @param direction direction 遮照作用的光照方向（Backward=背光，Downward/Radial=侧面遮照）
+         * @param lightMask lightMask 光线遮罩
          */
-        void SetSideLightMask(TileLayerType layerType, std::unique_ptr<LightMask> lightMask);
+        void SetLightMask(TileLayerType layerType, LightDirection direction, std::unique_ptr<LightMask> lightMask);
 
-        void SetBackLightMask(TileLayerType layerType, std::unique_ptr<LightMask> lightMask);
-
-        [[nodiscard]] const LightMask *GetSideLightMask(TileLayerType layerType);
-
-        [[nodiscard]] const LightMask *GetBackLightMask(TileLayerType layerType);
+        [[nodiscard]] const LightMask *GetLightMask(TileLayerType layerType, LightDirection direction);
 
         [[nodiscard]] const LightSource *GetLightSource(TileLayerType layerType);
 
-        void ClearSideLightMask(TileLayerType layerType);
-
-        void ClearBackLightMask(TileLayerType layerType);
+        void ClearLightMask(TileLayerType layerType, LightDirection direction);
 
         /**
          * ClearLightSource(Does not trigger the overall color calculation)
@@ -140,22 +130,14 @@ namespace glimmer {
         void ClearLightSource(TileLayerType layerType);
 
         /**
-         * GetSideLightBlockingStrength
-         * 获取该瓦片在指定图层的侧面挡光强度（0~1，1 = 完全挡光）。
-         * 由 side 遮罩 alpha 推导：挡光强度 = a/255。无遮罩时返回 0（不挡光）。
+         * GetLightBlockingStrength
+         * 获取该瓦片在指定图层、指定光照方向上的挡光强度（0~1，1 = 完全挡光）。
+         * 由对应方向遮罩 alpha 推导：挡光强度 = a/255。无遮罩时返回 0（不挡光）。
          * @param layerType layerType 图层类型
+         * @param direction direction 光照方向
          * @return 0~1 的挡光强度
          */
-        [[nodiscard]] float GetSideLightBlockingStrength(TileLayerType layerType) const;
-
-        /**
-         * GetBackLightBlockingStrength
-         * 获取该瓦片在指定图层的背景挡光强度（0~1，1 = 完全挡光）。
-         * 由 back 遮罩 alpha 推导：挡光强度 = a/255。无遮罩时返回 0（不挡光）。
-         * @param layerType layerType 图层类型
-         * @return 0~1 的挡光强度
-         */
-        [[nodiscard]] float GetBackLightBlockingStrength(TileLayerType layerType) const;
+        [[nodiscard]] float GetLightBlockingStrength(TileLayerType layerType, LightDirection direction) const;
 
         /**
          * GetFinalLightColor

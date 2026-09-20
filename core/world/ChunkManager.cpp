@@ -86,34 +86,13 @@ void glimmer::ChunkManager::UpdateTileLight(const Chunk *chunk, const TileLayerT
     if (tileLightResourceData == nullptr) {
         return;
     }
-    const LightMaskResource *sideLightMaskResource = resourceLocator->FindLightMask(
-        tileLightResourceData->GetSideLightMaskResource());
-    if (sideLightMaskResource == nullptr) {
-        // Tile has no side light mask resource, clear any existing side light mask data
-        // 方块没有侧边光掩码资源，清除已有的侧边光掩码数据
-        lightBuffer_->ClearSideLightMask(lightSourcePosition, layerType);
-    } else {
-        const std::unique_ptr<Color> sideLightMaskColorPtr = resourceLocator->FindColor(
-            &sideLightMaskResource->lightMaskColor);
-        if (sideLightMaskColorPtr == nullptr) {
-            return;
-        }
-        if (sideLightMaskColorPtr->a == 0) {
-            // Resource exists but has zero alpha - clear with re-propagation
-            // 资源存在但alpha为0 - 清除并重新传播
-            lightBuffer_->ClearSideLightMask(lightSourcePosition, layerType);
-        } else {
-            lightBuffer_->SetSideLightMask(lightSourcePosition, layerType,
-                                           std::make_unique<LightMask>(sideLightMaskColorPtr.get(),
-                                                                       sideLightMaskResource->tintFactor));
-        }
-    }
+    //背光遮照（z 方向）：作用于所有瓦片图层。
     const LightMaskResource *backLightMaskResource = resourceLocator->FindLightMask(
         tileLightResourceData->GetBackLightMaskResource());
     if (backLightMaskResource == nullptr) {
         // Tile has no back light mask resource, clear any existing back light mask data
         // 方块没有背光掩码资源，清除已有的背光掩码数据
-        lightBuffer_->ClearBackLightMask(lightSourcePosition, layerType);
+        lightBuffer_->ClearLightMask(lightSourcePosition, layerType, LightDirection::Backward);
     } else {
         const std::unique_ptr<Color> backLightMaskColorPtr = resourceLocator->FindColor(
             &backLightMaskResource->lightMaskColor);
@@ -123,11 +102,37 @@ void glimmer::ChunkManager::UpdateTileLight(const Chunk *chunk, const TileLayerT
         if (backLightMaskColorPtr->a == 0) {
             // Resource exists but has zero alpha - clear with re-propagation
             // 资源存在但alpha为0 - 清除并重新传播
-            lightBuffer_->ClearBackLightMask(lightSourcePosition, layerType);
+            lightBuffer_->ClearLightMask(lightSourcePosition, layerType, LightDirection::Backward);
         } else {
-            lightBuffer_->SetBackLightMask(lightSourcePosition, layerType,
-                                           std::make_unique<LightMask>(backLightMaskColorPtr.get(),
-                                                                       backLightMaskResource->tintFactor));
+            lightBuffer_->SetLightMask(lightSourcePosition, layerType, LightDirection::Backward,
+                                       std::make_unique<LightMask>(backLightMaskColorPtr.get(),
+                                                                   backLightMaskResource->tintFactor));
+        }
+    }
+
+    //侧面遮照（天光遮照）与点光源仅存在于地面层。
+    if (layerType == TileLayerType::Ground) {
+        const LightMaskResource *sideLightMaskResource = resourceLocator->FindLightMask(
+            tileLightResourceData->GetSideLightMaskResource());
+        if (sideLightMaskResource == nullptr) {
+            // Tile has no side light mask resource, clear any existing side light mask data
+            // 方块没有侧面光掩码资源，清除已有的侧面光掩码数据
+            lightBuffer_->ClearLightMask(lightSourcePosition, layerType, LightDirection::Downward);
+        } else {
+            const std::unique_ptr<Color> sideLightMaskColorPtr = resourceLocator->FindColor(
+                &sideLightMaskResource->lightMaskColor);
+            if (sideLightMaskColorPtr == nullptr) {
+                return;
+            }
+            if (sideLightMaskColorPtr->a == 0) {
+                // Resource exists but has zero alpha - clear with re-propagation
+                // 资源存在但alpha为0 - 清除并重新传播
+                lightBuffer_->ClearLightMask(lightSourcePosition, layerType, LightDirection::Downward);
+            } else {
+                lightBuffer_->SetLightMask(lightSourcePosition, layerType, LightDirection::Downward,
+                                           std::make_unique<LightMask>(sideLightMaskColorPtr.get(),
+                                                                       sideLightMaskResource->tintFactor));
+            }
         }
     }
     const LightSourceResource *lightSourceResource = resourceLocator->FindLightSource(

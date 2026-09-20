@@ -263,9 +263,6 @@ static constexpr int CHUNK_ALIGN = ~CHUNK_MASK;
  */
 static constexpr int CHUNK_SHIFT = 4; // Since CHUNK_SIZE = 16 = 2^4
 static constexpr int SKY_HEIGHT = 64;
-//The depth (in tiles) below the sky ceiling over which sky light fades to zero.
-//天光从列内天花板向下衰减到零的深度（单位：瓦片）。
-static constexpr int SKY_ATTENUATION_DISTANCE = 32;
 static constexpr int WORLD_MAX_Y = 320;
 static constexpr int WORLD_MIN_Y = 0;
 static constexpr int WORLD_MIN_X = -29984;

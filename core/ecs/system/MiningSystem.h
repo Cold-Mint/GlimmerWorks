@@ -105,7 +105,7 @@ namespace glimmer {
 
         explicit MiningSystem(WorldContext *worldContext);
 
-        void Update(float delta) override;
+        void OnTick(uint64_t tick) override;
 
         void Render(RenderQueue *queue) override;
 

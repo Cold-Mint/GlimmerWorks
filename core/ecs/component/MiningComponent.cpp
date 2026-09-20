@@ -29,25 +29,24 @@
 #include <utility>
 
 bool glimmer::MiningComponent::IsEnable() const {
-    return enable_;
+    return enable_.load(std::memory_order_acquire);
 }
 
 void glimmer::MiningComponent::SetEnable(const bool enable) {
-    enable_ = enable;
+    enable_.store(enable, std::memory_order_release);
 }
 
 void glimmer::MiningComponent::SetMiningRangeData(const MiningRangeData &miningRangeData) {
-    miningRangeData_ = miningRangeData;
-    hasMiningRangeData_ = true;
+    miningRangeData_.store(std::make_shared<const MiningRangeData>(miningRangeData), std::memory_order_release);
 }
 
 void glimmer::MiningComponent::ClearMiningRangeData() {
-    hasMiningRangeData_ = false;
+    miningRangeData_.store(nullptr, std::memory_order_release);
     hasStartPosition_ = false;
 }
 
-const glimmer::MiningRangeData *glimmer::MiningComponent::GetMiningRangeData() const {
-    return hasMiningRangeData_ ? &miningRangeData_ : nullptr;
+std::shared_ptr<const glimmer::MiningRangeData> glimmer::MiningComponent::GetMiningRangeData() const {
+    return miningRangeData_.load(std::memory_order_acquire);
 }
 
 void glimmer::MiningComponent::SetStartPosition(TileVector2D startPosition) {
@@ -64,7 +63,7 @@ bool glimmer::MiningComponent::HasStartPosition() const {
 }
 
 float glimmer::MiningComponent::GetProgress() const {
-    return progress_;
+    return progress_.load(std::memory_order_acquire);
 }
 
 void glimmer::MiningComponent::SetLayerType(const TileLayerType tileLayerType) {
@@ -84,7 +83,7 @@ int glimmer::MiningComponent::GetChainMiningRadius() const {
 }
 
 void glimmer::MiningComponent::SetProgress(const float progress) {
-    progress_ = progress;
+    progress_.store(progress, std::memory_order_release);
 }
 
 void glimmer::MiningComponent::SetPrecisionMining(bool precisionMining) {
@@ -96,7 +95,7 @@ bool glimmer::MiningComponent::IsPrecisionMining() const {
 }
 
 void glimmer::MiningComponent::AddProgress(float progress) {
-    progress_ += progress;
+    progress_.fetch_add(progress, std::memory_order_acq_rel);
 }
 
 void glimmer::MiningComponent::SetEfficiency(float efficiency) {

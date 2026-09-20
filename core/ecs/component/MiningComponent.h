@@ -25,6 +25,9 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <atomic>
+#include <memory>
+
 #include "core/ecs/GameComponent.h"
 #include "core/inventory/ability/MiningRangeData.h"
 #include "core/world/generator/TileLayerType.h"
@@ -38,16 +41,24 @@ namespace glimmer {
      * 此组件保存玩家挖掘方块的状态。
      */
     class MiningComponent : public GameComponent {
-        bool enable_ = false;
+        // enable_ is written on the tick thread and read on the render/main thread.
+        // enable_ 在 tick 线程写入，在渲染/主线程读取。
+        std::atomic<bool> enable_{false};
+        // activeSignal_ is only accessed on the tick thread.
+        // activeSignal_ 仅在 tick 线程访问。
         bool activeSignal_ = false;
 
-        bool hasMiningRangeData_ = false;
-        MiningRangeData miningRangeData_;
+        // miningRangeData_ is written on the tick thread and read on the render/main thread,
+        // so it is published as an atomic shared_ptr snapshot.
+        // miningRangeData_ 在 tick 线程写入，在渲染/主线程读取，因此以原子 shared_ptr 快照发布。
+        std::atomic<std::shared_ptr<const MiningRangeData> > miningRangeData_{};
         //Explore the origin.
         //挖掘原点。
         TileVector2D startPosition_;
         bool hasStartPosition_ = false;
-        float progress_ = 0.0F;
+        // progress_ is written on the tick thread and read on the render/main thread.
+        // progress_ 在 tick 线程写入，在渲染/主线程读取。
+        std::atomic<float> progress_{0.0F};
         TileLayerType layerType_ = TileLayerType::Ground;
         float efficiency_ = 1.0F;
         //precisionMining
@@ -71,7 +82,7 @@ namespace glimmer {
 
         void ClearMiningRangeData();
 
-        [[nodiscard]] const MiningRangeData *GetMiningRangeData() const;
+        [[nodiscard]] std::shared_ptr<const MiningRangeData> GetMiningRangeData() const;
 
         void SetStartPosition(TileVector2D startPosition);
 

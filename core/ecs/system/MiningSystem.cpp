@@ -38,6 +38,8 @@
 #include "core/ecs/component/MiningComponent.h"
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/math/CoordinateTransformer.h"
+#include "core/scene/MainThreadDispatcher.h"
+#include "core/config/Constants.h"
 
 
 bool glimmer::MiningSystem::CanProcessTile(const Tile *tile, bool isPlaceMode) {
@@ -345,7 +347,7 @@ glimmer::MiningSystem::MiningSystem(WorldContext *worldContext) : GameSystem(wor
     Init();
 }
 
-void glimmer::MiningSystem::Update(const float delta) {
+void glimmer::MiningSystem::OnTick(const uint64_t tick) {
     WorldContext *worldContext = GetWorldContext();
     if (worldContext == nullptr) {
         return;
@@ -364,12 +366,12 @@ void glimmer::MiningSystem::Update(const float delta) {
         }
         // Accumulate progress
         // 积累进度
-        const MiningRangeData *rangeData = miningComponent_->GetMiningRangeData();
+        const std::shared_ptr<const MiningRangeData> rangeData = miningComponent_->GetMiningRangeData();
         if (rangeData == nullptr) {
             break;
         }
         miningComponent_->AddProgress(
-            miningComponent_->GetEfficiency() / rangeData->GetMaxHardness() * delta);
+            miningComponent_->GetEfficiency() / rangeData->GetMaxHardness() * FIXED_TIME_STEP);
         if (miningComponent_->GetProgress() >= 1.0F) {
             ProcessMiningComplete(tileLayer, tileLayerType);
         }
@@ -380,31 +382,53 @@ void glimmer::MiningSystem::Update(const float delta) {
 void glimmer::MiningSystem::ProcessMiningComplete(const TileLayerComponent *tileLayer,
                                                   TileLayerType tileLayerType) const {
     WorldContext *worldContext = GetWorldContext();
-    const MiningRangeData *miningRangeData = miningComponent_->GetMiningRangeData();
+    if (worldContext == nullptr) {
+        return;
+    }
+    const AppContext *appContext = worldContext->GetAppContext();
+    if (appContext == nullptr) {
+        return;
+    }
+    MainThreadDispatcher *mainThreadDispatcher = appContext->GetMainThreadDispatcher();
+    if (mainThreadDispatcher == nullptr) {
+        return;
+    }
+    const std::shared_ptr<const MiningRangeData> miningRangeData = miningComponent_->GetMiningRangeData();
     if (miningRangeData == nullptr) {
         return;
     }
-    const size_t pointsCount = miningRangeData->GetPointsCount();
-    LogCat::i("mining_complete_processing", "Mining complete, processing {} mining points", pointsCount);
-    for (size_t i = 0; i < pointsCount; i++) {
-        const MiningRangeDataPoint *point = miningRangeData->GetPoint(i);
-        if (point == nullptr) {
-            continue;
-        }
-        uint16_t broken = BreakTile({
-            BreakSource::PlayerMining, worldContext, tileLayer, point->GetTileTopLeftPosition(),
-            miningComponent_->IsPrecisionMining(), false, point->GetWidth(),
-            point->GetHeight(),
-            TileResourceManager::GetAirResourceRef(tileLayerType)
-        });
-        if (broken > 0) {
-            LogCat::i("broken_tiles_at_position", "Broken tiles at position ({}, {}): {}",
-                      point->GetTileTopLeftPosition().x, point->GetTileTopLeftPosition().y, broken);
-        }
-    }
+    const bool precisionMining = miningComponent_->IsPrecisionMining();
+    // Reset the mining state on the tick thread immediately so that the completion is
+    // only processed once, while the actual tile breaking runs on the main thread.
+    // If the dispatcher is unavailable, we return before resetting so the completion is
+    // retried on the next tick instead of being silently dropped.
+    // 在 tick 线程立即重置挖掘状态，保证完成逻辑只执行一次；实际的破坏瓦片在主线程执行。
+    // 若调度器不可用，则在重置前返回，使完成逻辑在下一个 tick 重试，而不是被静默丢弃。
     miningComponent_->SetProgress(0.0F);
     miningComponent_->SetEnable(false);
     miningComponent_->ClearMiningRangeData();
+
+    mainThreadDispatcher->PostToNextMainFrame(
+        [worldContext, tileLayer, tileLayerType, miningRangeData, precisionMining] {
+            const size_t pointsCount = miningRangeData->GetPointsCount();
+            LogCat::i("mining_complete_processing", "Mining complete, processing {} mining points", pointsCount);
+            for (size_t i = 0; i < pointsCount; i++) {
+                const MiningRangeDataPoint *point = miningRangeData->GetPoint(i);
+                if (point == nullptr) {
+                    continue;
+                }
+                uint16_t broken = BreakTile({
+                    BreakSource::PlayerMining, worldContext, tileLayer, point->GetTileTopLeftPosition(),
+                    precisionMining, false, point->GetWidth(),
+                    point->GetHeight(),
+                    TileResourceManager::GetAirResourceRef(tileLayerType)
+                });
+                if (broken > 0) {
+                    LogCat::i("broken_tiles_at_position", "Broken tiles at position ({}, {}): {}",
+                              point->GetTileTopLeftPosition().x, point->GetTileTopLeftPosition().y, broken);
+                }
+            }
+        });
 }
 
 void glimmer::MiningSystem::Render(RenderQueue *queue) {
@@ -429,7 +453,7 @@ void glimmer::MiningSystem::Render(RenderQueue *queue) {
     if (!miningComponent_->IsEnable()) {
         return;
     }
-    const MiningRangeData *miningRangeData = miningComponent_->GetMiningRangeData();
+    const std::shared_ptr<const MiningRangeData> miningRangeData = miningComponent_->GetMiningRangeData();
     if (miningRangeData == nullptr) {
         return;
     }

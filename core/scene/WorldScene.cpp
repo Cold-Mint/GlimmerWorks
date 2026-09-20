@@ -96,6 +96,9 @@ void glimmer::WorldScene::OnTick(uint64_t tick) {
     if (systemScheduler_ != nullptr) {
         systemScheduler_->OnTick(tick);
     }
+    if (worldContext_ != nullptr) {
+        worldContext_->OnTick(tick);
+    }
 }
 
 void glimmer::WorldScene::Update(const float delta) {

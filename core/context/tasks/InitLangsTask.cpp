@@ -179,6 +179,7 @@ bool glimmer::InitLangsTask::Run(ISystemBucket *systemBucket) {
     langsResources->noUnlockedRecipes = toml::find<std::string>(tomlValue, "no_unlocked_recipes");
     langsResources->recipesItem = toml::find<std::string>(tomlValue, "recipes_item");
     langsResources->debugChunkInfo = toml::find<std::string>(tomlValue, "debug_chunk_info");
+    langsResources->debugTimeInfo = toml::find<std::string>(tomlValue, "debug_time_info");
     langsResources->fpsInfo = toml::find<std::string>(tomlValue, "fps_info");
     langsResources->lockedTip = toml::find<std::string>(tomlValue, "locked_tip");
     langsResources->timeH = toml::find<std::string>(tomlValue, "time_h");

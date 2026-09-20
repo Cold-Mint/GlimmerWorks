@@ -167,6 +167,9 @@ void glimmer::WorldContext::OnTick(const uint64_t tick) {
         initedTick_ = true;
     }
     lastTick_ = tick;
+    if (dimension_ != nullptr) {
+        dimension_->AdvanceTime(tick);
+    }
 }
 
 uint64_t glimmer::WorldContext::GetGlobalTick() const {

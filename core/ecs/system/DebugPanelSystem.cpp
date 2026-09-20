@@ -34,6 +34,7 @@
 #include "core/log/LogCat.h"
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/world/WorldContext.h"
+#include "core/world/Dimension.h"
 #include "core/world/ChunkManager.h"
 #include "core/ecs/component/CameraComponent.h"
 #include "core/mod/ResourceRef.h"
@@ -145,6 +146,16 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
     chunkText_.clear();
     crosshairX_ = -1;
     crosshairY_ = -1;
+
+    // Current normalized day time (0..1) and time flow speed
+    // 当前归一化日时间（0..1）与时间流动速度
+    if (const Dimension *dimension = worldContext->GetDimension(); dimension != nullptr) {
+        const DimensionResource *dimensionResource = dimension->GetDimensionResource();
+        const float timeFlowSpeed = dimensionResource != nullptr ? dimensionResource->timeFlowSpeed : 0.0F;
+        debugLines_.push_back(DebugLine{
+            fmt::format(fmt::runtime(langsResources->debugTimeInfo), dimension->GetNormalizedTime(), timeFlowSpeed)
+        });
+    }
 
     if (cameraComponent_->IsPointInViewport(cameraTransform2DComponent_->GetPosition(), mousePosition_)) {
         ChunkGenerator *chunkGenerator = worldContext->GetChunkGenerator();

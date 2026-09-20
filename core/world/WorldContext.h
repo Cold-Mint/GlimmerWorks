@@ -64,7 +64,7 @@ namespace glimmer {
     class WorldContext : public ITickListener {
         friend class WorldBuilder;
 
-        int worldSeed_;
+        int worldSeed_ = 0;
         Saves *saves_;
         //The initial tick number when this context was created
         //创建此上下文时的初始tick数

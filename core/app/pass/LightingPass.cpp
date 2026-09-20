@@ -211,7 +211,7 @@ void glimmer::LightingPass::UpdateLightMap(UniformInjectContext *injectContext) 
         LogCat::w(std::source_location::current(), "dimension_resource_is_null", "dimensionResource == nullptr");
         return;
     }
-    const float timeOfDay = dimensionResource->initialTime;
+    const float timeOfDay = dimension->GetNormalizedTime();
     const std::vector<LightKeyframe> &backLightKeyFrames = dimensionResource->backLightKeyframes;
     const std::vector<LightKeyframe> &skyKeyframes = dimensionResource->skyLightKeyframes;
     const Color screenLight = ColorUtils::ComputeAmbientLight(resourceLocator_, timeOfDay, backLightKeyFrames);

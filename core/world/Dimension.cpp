@@ -26,13 +26,58 @@
  */
 #include "Dimension.h"
 
+#include <cmath>
+
+#include "core/config/Constants.h"
 #include "core/mod/Resource.h"
 
 
 void glimmer::Dimension::SetDimensionResource(DimensionResource *dimensionResource) {
     dimensionResource_ = dimensionResource;
+    if (dimensionResource_ != nullptr) {
+        normalizedTime_.store(Normalize(dimensionResource_->initialTime));
+    }
+    lastTick_ = 0;
+    initedTick_ = false;
 }
 
 glimmer::DimensionResource *glimmer::Dimension::GetDimensionResource() const {
     return dimensionResource_;
+}
+
+void glimmer::Dimension::AdvanceTime(const uint64_t tick) {
+    if (!initedTick_) {
+        lastTick_ = tick;
+        initedTick_ = true;
+        return;
+    }
+    const uint64_t tickDelta = tick - lastTick_;
+    lastTick_ = tick;
+    if (tickDelta == 0) {
+        return;
+    }
+    const DimensionResource *dimensionResource = dimensionResource_;
+    if (dimensionResource == nullptr || dimensionResource->timeFlowSpeed <= 0.0F) {
+        return;
+    }
+    const DayNormalizedTime advanced = normalizedTime_.load(std::memory_order_relaxed) +
+                                       dimensionResource->timeFlowSpeed * static_cast<DayNormalizedTime>(tickDelta) /
+                                       static_cast<DayNormalizedTime>(DAY_LENGTH);
+    normalizedTime_.store(Normalize(advanced), std::memory_order_relaxed);
+}
+
+glimmer::DayNormalizedTime glimmer::Dimension::GetNormalizedTime() const {
+    return normalizedTime_.load(std::memory_order_relaxed);
+}
+
+void glimmer::Dimension::SetNormalizedTime(const DayNormalizedTime normalizedTime) {
+    normalizedTime_.store(Normalize(normalizedTime), std::memory_order_relaxed);
+}
+
+glimmer::DayNormalizedTime glimmer::Dimension::Normalize(DayNormalizedTime time) {
+    time = std::fmod(time, 1.0F);
+    if (time < 0.0F) {
+        time += 1.0F;
+    }
+    return time;
 }

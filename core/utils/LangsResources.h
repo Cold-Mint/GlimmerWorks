@@ -147,6 +147,7 @@ namespace glimmer {
         std::string noUnlockedRecipes;
         std::string recipesItem;
         std::string debugChunkInfo;
+        std::string debugTimeInfo;
         std::string fpsInfo;
         std::string lockedTip;
         std::string timeS;

@@ -76,10 +76,21 @@ namespace glimmer {
         //深度衰减模型，实现连续透射率。
         std::unordered_map<int, std::set<int> > columnSkyOccluders_;
 
-        //Whether batch mode is active (chunk load suppresses per-tile rebuilds).
-        //批量模式是否激活（区块加载时抑制逐瓦片重算）。
-        bool batching_ = false;
-        bool batchDirty_ = false;
+        //Whether any static light data (tile sources, masks or ambient color)
+        //changed since the last flush. Static changes trigger a full recompute
+        //(RebuildAllLight) in Flush(); dynamic lights are updated incrementally
+        //and do not set this flag.
+        //自上次 flush 以来是否有静态光照数据（瓦片光源、遮罩或环境光颜色）变化。
+        //静态变化在 Flush() 中触发一次全量重算（RebuildAllLight）；动态光源走
+        //增量更新，不置此标记。
+        bool staticDirty_ = false;
+
+        //Whether only the ambient light color changed since the last flush. This
+        //triggers an ambient-only rebuild (RebuildAmbientLight) instead of a full
+        //re-propagation of every point light source.
+        //自上次 flush 以来是否仅环境光颜色发生变化。仅触发环境光重建
+        //（RebuildAmbientLight），而非重新传播所有点光源。
+        bool ambientDirty_ = false;
 
         //Ambient light sources, updated by SetLightColor.
         //backLightSource_: light coming from the background layer (-Z).
@@ -96,7 +107,14 @@ namespace glimmer {
 
         void ClearLightFromSource(const LightSource &source, TileLayerType layerType);
 
-        void SetLightContributionAt(const TileVector2D &position, TileLayerType layerType, const LightSource &source,
+        /**
+         * SetDynamicLightFromSource
+         * 传播一个动态点光源：与 SetLightFromSource 相同，但对本次传播新建的
+         * 瓦片即时注入环境光贡献（否则这些瓦片缺少背光/天光）。用于增量更新。
+         */
+        void SetDynamicLightFromSource(const LightSource &source, TileLayerType layerType);
+
+        bool SetLightContributionAt(const TileVector2D &position, TileLayerType layerType, const LightSource &source,
                                     float accumulated);
 
         void ClearLightContributionAt(const TileVector2D &position, TileLayerType layerType, const LightSource &source);
@@ -114,9 +132,16 @@ namespace glimmer {
         void RebuildAmbientLight();
 
         /**
+         * InjectAmbientLightAt
+         * 向单个瓦片注入环境光贡献（背光 + 天光，逐图层）。供 RebuildAmbientLight
+         * 与动态光源增量传播复用。
+         */
+        void InjectAmbientLightAt(const TileVector2D &position, TileLightData &tileData);
+
+        /**
          * MarkLightDirty
-         * 标记挡光状态已变化，需要重新传播光线。批量模式下延迟到 EndBatch，
-         * 否则立即触发一次全量重算。
+         * 标记静态光照状态已变化，需要重新传播光线。仅置静态脏标记，
+         * 实际重算延迟到 Flush()。
          */
         void MarkLightDirty();
 
@@ -180,8 +205,9 @@ namespace glimmer {
 
         /**
          * SetDynamicLight
-         * 设置/更新一个动态（移动）光源。若 id 已存在且位置/光源参数变化，
-         * 会先清除旧贡献再设置新贡献（原子移动，不残留）。
+         * 设置/更新一个动态（移动）光源。若 id 已存在且位置/光源参数不变，
+         * 则跳过；否则立即增量更新其贡献（清除旧区域、传播新区域并补注新建
+         * 瓦片的环境光），不触发全量重算。
          * @param id id 光源唯一标识（如实体 id）
          * @param position position 光源所在瓦片
          * @param layerType layerType 图层
@@ -192,27 +218,24 @@ namespace glimmer {
 
         /**
          * RemoveDynamicLight
-         * 移除指定 id 的动态光源。
+         * 移除指定 id 的动态光源，并立即增量清除其贡献。
          * @param id id 光源唯一标识
          */
         void RemoveDynamicLight(uint64_t id);
 
         /**
-         * BeginBatch
-         * 进入批量模式。保留用于区块加载期间批量处理光照修改。
+         * Flush
+         * 若自上次刷新以来存在静态光照修改（静态脏标记），则执行一次全量重算
+         * （传播所有光源 + 重建环境光），并递增修订号；若仅有环境光颜色变化，
+         * 则只重建环境光。动态光源已增量更新，无需在此处理。每帧在渲染读取
+         * 光照结果前调用一次即可合并当帧所有静态更新。
          */
-        void BeginBatch();
-
-        /**
-         * EndBatch
-         * 退出批量模式；若期间光照数据发生了需要重算的变化，则统一重算一次。
-         */
-        void EndBatch();
+        void Flush();
 
         /**
          * SetLightColor
-         * 设置光照颜色。值变化时会递增 revision，
-         * 触发光照贴图重建。
+         * 设置光照颜色。值变化时仅置环境光脏标记，随下一次 Flush() 触发
+         * 环境光重建与修订号递增，从而重建光照贴图（不重新传播点光源）。
          * @param backLight backLight 背光颜色（背景层，来自 -Z）
          * @param skyLight skyLight 天光颜色（来自 +Y）
          */

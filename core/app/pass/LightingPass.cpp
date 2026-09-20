@@ -229,6 +229,10 @@ void glimmer::LightingPass::UpdateLightMap(UniformInjectContext *injectContext) 
     //将解析出的颜色并入光照缓冲，作为屏幕光（背景层）与天光（上方），二者独立配置。
     if (injectContext->lightBuffer != nullptr) {
         injectContext->lightBuffer->SetLightColor(screenLight, skyLight);
+        //Coalesce every light mutation of this frame into a single recompute
+        //right before the light map is sampled.
+        //在光图被采样之前，将本帧所有光照修改合并为一次重算。
+        injectContext->lightBuffer->Flush();
     }
     lightMapTexture_.Update(device_, injectContext->lightBuffer,
                             originX, originY, sizeX, sizeY);

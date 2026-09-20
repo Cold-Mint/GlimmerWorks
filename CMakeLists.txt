@@ -649,7 +649,6 @@ target_sources(GlimmerWorks
         core/inventory/ability/MiningRangeData.cpp
         core/inventory/ability/MiningRangeDataPoint.cpp
         core/inventory/ability/NoneAbility.cpp
-        core/log/LogCat.cpp
         core/lootTable/LootEntry.cpp
         core/lootTable/LootTableRegistry.cpp
         core/math/BackwardAllocStrategy.cpp

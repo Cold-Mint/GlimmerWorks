@@ -1,6 +1,6 @@
 #Variable definitions are generated through GlimmerWorksCli. Please do not edit them.
 #The dependencies of the repository can be defined through comments.
-#Last updated date: 2026-09-08 10:29:28
+#Last updated date: 2026-09-22 23:50:42
 #libsdl-org/SDL@latest
 #libsdl-org/SDL-release-3.4.16
 set(LIBSDL-ORG_SDL_VERSION "fa2c02bb6e21974a89ea9824bc53c9932abe5f9c")
@@ -29,8 +29,8 @@ set(ERINCATTO_BOX2D_VERSION "8c661469c9507d3ad6fbd2fea3f1aa71669c2fe3")
 #ToruNiina/toml11-v4.4.0
 set(TORUNIINA_TOML11_VERSION "be08ba2be2a964edcdb3d3e3ea8d100abc26f286")
 #protocolbuffers/protobuf@latest
-#protocolbuffers/protobuf-v36.1
-set(PROTOCOLBUFFERS_PROTOBUF_VERSION "f377bfefc5e2cfab68b816903c25b23e091c439d")
+#protocolbuffers/protobuf-v36.2
+set(PROTOCOLBUFFERS_PROTOBUF_VERSION "2c74169b34066ceb8ddb6b882fcb3fb32d737a55")
 #BLAKE3-team/BLAKE3@latest
 #BLAKE3-team/BLAKE3-1.8.7
 set(BLAKE3-TEAM_BLAKE3_VERSION "f3149ec5bb5449af877ba20377a11008ff499fa2")
@@ -47,8 +47,8 @@ set(KHRONOSGROUP_SPIRV-HEADERS_VERSION "29981f65241605e08b0ede4cfeb999fe3b723c6a
 #KhronosGroup/SPIRV-Tools-v2026.3
 set(KHRONOSGROUP_SPIRV-TOOLS_VERSION "b707790a898e44038547df54580022fc1cf89c3d")
 #KhronosGroup/glslang@latest
-#KhronosGroup/glslang-16.5.0
-set(KHRONOSGROUP_GLSLANG_VERSION "a8d28bd082bff18ffbe80996e922b012f915cf07")
+#KhronosGroup/glslang-16.6.0
+set(KHRONOSGROUP_GLSLANG_VERSION "e1b562a8bed273a02f30b59b66a5d499793cede5")
 #Cold-Mint/GlimmerworksAssets@latest
 #Cold-Mint/GlimmerworksAssets-v0.0.2-b1
 set(COLD-MINT_GLIMMERWORKSASSETS_VERSION "25a4bd99e4f005e06415d8a942e89b5a656b1b53")

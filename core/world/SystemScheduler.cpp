@@ -34,6 +34,7 @@
 #include "core/ecs/system/BlueprintSystem.h"
 #include "core/ecs/system/CameraSystem.h"
 #include "core/ecs/system/ChunkSystem.h"
+#include "core/ecs/system/CropSystem.h"
 #include "core/ecs/system/DebugChunkSystem.h"
 #include "core/ecs/system/DebugDrawBox2dSystem.h"
 #include "core/ecs/system/DebugDrawSystem.h"
@@ -369,6 +370,7 @@ void glimmer::SystemScheduler::InitSystem() {
     RegisterSystem(std::make_unique<DynamicLightSystem>(worldContext_));
     RegisterSystem(std::make_unique<BlueprintSystem>(worldContext_));
     RegisterSystem(std::make_unique<TechProviderSystem>(worldContext_));
+    RegisterSystem(std::make_unique<CropSystem>(worldContext_));
     RegisterGuiSystem(std::make_unique<PauseSystem>(worldContext_));
     RegisterGuiSystem(std::make_unique<HotBarGUISystem>(worldContext_));
     RegisterGuiSystem(std::make_unique<InventoryGUISystem>(worldContext_));

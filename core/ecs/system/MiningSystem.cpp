@@ -78,7 +78,9 @@ bool glimmer::MiningSystem::TryPlaceTile(const TileLayerComponent *tileLayerComp
                                          const TileVector2D &currentVector,
                                          const TileVector2D &topLeftVector,
                                          const TilePlacementConfig &config,
-                                         TileStateBackup &backup) {
+                                         TileStateBackup &backup,
+                                         const TileResource *tileResource,
+                                         const uint64_t tick) {
     SaveTileState(tileState, backup);
     config.WriteResourceRefMessage(*tileState->mutable_resourceref());
     tileState->set_width(config.GetTileWidth());
@@ -93,6 +95,7 @@ bool glimmer::MiningSystem::TryPlaceTile(const TileLayerComponent *tileLayerComp
     if (tileLayerComponent->CommitTileState(config.GetBreakSource(), tileLayerComponent->GetTileLayerType(),
                                             currentVector,
                                             false)) {
+        Chunk::InitGrowthState(tileState, tileResource, tick);
         return true;
     }
     RestoreTileState(tileState, backup);
@@ -217,7 +220,8 @@ static bool CheckMiningEfficiency(const glimmer::Tile *tile, const glimmer::Abil
 }
 
 void glimmer::MiningSystem::ProcessSingleTile(const TileBreakParams &params, const TileVector2D &currentVector,
-                                              Item *item, Item *emptyHandAutoUseItem, bool isCenter, uint8_t &sum) {
+                                              Item *item, const Item *emptyHandAutoUseItem, bool isCenter,
+                                              uint8_t &sum) {
     const AppContext *appContext = params.worldContext->GetAppContext();
     EntityManager *entityManager = params.worldContext->GetEntityManager();
     const auto currentTile = params.tileLayerComponent->GetSelfLayerTileShared(currentVector);
@@ -232,8 +236,9 @@ void glimmer::MiningSystem::ProcessSingleTile(const TileBreakParams &params, con
     config.SetResourceRef(params.newTileRef);
     config.SetPlaceMode(params.isPlaceMode);
     config.SetBreakSource(params.breakSource);
+    const TileResource *tileResource = appContext->GetResourceLocator()->FindTileRaw(&params.newTileRef);
     if (!TryPlaceTile(params.tileLayerComponent, tileStateMessage, currentVector, params.topLeftVector,
-                      config, backup)) {
+                      config, backup, tileResource, params.worldContext->GetGlobalTick())) {
         return;
     }
     sum++;

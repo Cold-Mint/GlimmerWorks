@@ -33,6 +33,7 @@
 #include "BiomeDecoratorType.h"
 #include "core/mod/PackManifest.h"
 #include "core/shape/ShapeType.h"
+#include "core/world/growth/GrowthConditionProcessorType.h"
 #include "core/world/structure/StructureConditionProcessorType.h"
 #include "core/world/structure/StructureGeneratorType.h"
 #include "toml11/spec.hpp"
@@ -61,8 +62,8 @@ namespace glimmer {
     class LightSourceManager;
     class BiomeDecoratorRegistry;
     class StructurePlacementConditionsRegistry;
+    class GrowthConditionsRegistry;
     class RecipeManager;
-
     /**
      * ResourceFileLoader
      * 资源文件加载器
@@ -140,6 +141,10 @@ namespace glimmer {
                                                               StructurePlacementConditionsRegistry *
                                                               structurePlacementConditionsRegistry,
                                                               StructureConditionProcessorType processorType) const;
+
+        void LoadGrowthConditionsResourceFromFile(const toml::value &value,
+                                                  GrowthConditionsRegistry *growthConditionsRegistry,
+                                                  GrowthConditionProcessorType processorType) const;
 
         void LoadRecipeResourceFromFile(const toml::value &value, RecipeManager *recipeManager) const;
 

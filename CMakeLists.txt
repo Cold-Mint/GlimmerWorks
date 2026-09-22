@@ -596,6 +596,7 @@ target_sources(GlimmerWorks
         core/ecs/component/RayCast2DComponent.cpp
         core/ecs/component/RigidBody2DComponent.cpp
         core/ecs/component/LightComponent.cpp
+        core/ecs/component/CropComponent.cpp
         core/ecs/component/SpiritRendererComponent.cpp
         core/ecs/component/TechProviderComponent.cpp
         core/ecs/component/TileLayerComponent.cpp
@@ -624,6 +625,7 @@ target_sources(GlimmerWorks
         core/ecs/system/PlayerControlSystem.cpp
         core/ecs/system/RayCast2DSystem.cpp
         core/ecs/system/SpiritRendererSystem.cpp
+        core/ecs/system/CropSystem.cpp
         core/ecs/system/TechProviderSystem.cpp
         core/ecs/system/TileLayerSystem.cpp
         core/inventory/AbilityItem.cpp
@@ -675,7 +677,9 @@ target_sources(GlimmerWorks
         core/mod/ResourceLocator.cpp
         core/mod/ResourceRef.cpp
         core/mod/StructurePlacementConditionsProcessorManager.cpp
+        core/mod/GrowthConditionProcessorManager.cpp
         core/mod/dataPack/StructurePlacementConditionsRegistry.cpp
+        core/mod/dataPack/GrowthConditionsRegistry.cpp
         core/mod/TomlTemplateExpander.cpp
         core/mod/dataPack/BiomeDecoratorRegistry.cpp
         core/mod/dataPack/BiomeDecoratorType.cpp
@@ -814,6 +818,12 @@ target_sources(GlimmerWorks
         core/ecs/system/RecipeDetailGUISystem.cpp
         core/world/structure/SurfaceStructureConditionProcessor.cpp
         core/world/structure/TreeStructureGenerator.cpp
+        core/world/growth/AdjacentTileGrowthConditionProcessor.cpp
+        core/world/growth/BiomeGrowthConditionProcessor.cpp
+        core/world/growth/HeightGrowthConditionProcessor.cpp
+        core/world/growth/IGrowthConditionProcessor.cpp
+        core/world/growth/LightGrowthConditionProcessor.cpp
+        core/world/growth/TimeGrowthConditionProcessor.cpp
         core/ecs/system/ItemTooltipSystem.cpp
         core/rmi/DecoratorNinePatchTextureInstancer.cpp
         core/ecs/system/InventoryGUISystem.cpp
@@ -1046,6 +1056,7 @@ target_sources(GlimmerWorks
         core/ecs/component/RayCast2DComponent.h
         core/ecs/component/RigidBody2DComponent.h
         core/ecs/component/LightComponent.h
+        core/ecs/component/CropComponent.h
         core/ecs/component/SpiritRendererComponent.h
         core/ecs/component/TechProviderComponent.h
         core/ecs/component/TileLayerComponent.h
@@ -1072,6 +1083,7 @@ target_sources(GlimmerWorks
         core/ecs/system/RayCast2DSystem.h
         core/ecs/system/SpiritRendererSystem.h
         core/ecs/system/TechProviderSystem.h
+        core/ecs/system/CropSystem.h
         core/ecs/system/TileLayerSystem.h
         core/inventory/AbilityItem.h
         core/inventory/AbilityItemCreateParams.h
@@ -1090,6 +1102,7 @@ target_sources(GlimmerWorks
         core/inventory/ItemTagModule.h
         core/inventory/MaterialItem.h
         core/mod/dataPack/StructurePlacementConditionsRegistry.h
+        core/mod/dataPack/GrowthConditionsRegistry.h
         core/inventory/TileItem.h
         core/inventory/ability/AreaMarkerAbility.h
         core/inventory/ability/ItemAbility.h
@@ -1125,6 +1138,7 @@ target_sources(GlimmerWorks
         core/mod/ResourceLocator.h
         core/mod/ResourceRef.h
         core/mod/StructurePlacementConditionsProcessorManager.h
+        core/mod/GrowthConditionProcessorManager.h
         core/ecs/system/RecipeDetailGUISystem.h
         core/mod/TomlTemplateExpander.h
         core/mod/dataPack/BiomeDecoratorRegistry.h
@@ -1274,6 +1288,13 @@ target_sources(GlimmerWorks
         core/rmi/dataModel/RecipeItemChoiceDataModel.h
         core/ecs/component/RecipeSelectionComponent.h
         core/world/structure/StructureConditionProcessorType.h
+        core/world/growth/AdjacentTileGrowthConditionProcessor.h
+        core/world/growth/BiomeGrowthConditionProcessor.h
+        core/world/growth/GrowthConditionProcessorType.h
+        core/world/growth/HeightGrowthConditionProcessor.h
+        core/world/growth/IGrowthConditionProcessor.h
+        core/world/growth/LightGrowthConditionProcessor.h
+        core/world/growth/TimeGrowthConditionProcessor.h
         core/inventory/ability/AbilityType.h
         core/rmi/dataModel/ItemTooltipDataModel.h
         core/rmi/dataModel/AbilityTipDataModel.h

@@ -82,6 +82,6 @@ namespace glimmer {
          * @return vector of (block name, binding). Empty on failure.
          */
         static std::vector<std::pair<std::string, uint32_t> > ReflectUniformBlocks(const std::string &source,
-                                                                                   bool vertex);
+            bool vertex);
     };
 }

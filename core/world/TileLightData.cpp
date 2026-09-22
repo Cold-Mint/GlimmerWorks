@@ -154,7 +154,8 @@ GetLightSources() const {
     return &lightSourceData_;
 }
 
-const std::unordered_map<glimmer::TileLayerType, std::unordered_map<glimmer::LightDirection, std::unique_ptr<glimmer::LightMask> > > *glimmer::TileLightData::
+const std::unordered_map<glimmer::TileLayerType, std::unordered_map<glimmer::LightDirection, std::unique_ptr<
+    glimmer::LightMask> > > *glimmer::TileLightData::
 GetLightMasks() const {
     return &lightMaskData_;
 }
@@ -222,7 +223,7 @@ void glimmer::TileLightData::SetLightMask(const TileLayerType layerType, const L
 }
 
 const glimmer::LightMask *glimmer::TileLightData::GetLightMask(const TileLayerType layerType,
-                                                              const LightDirection direction) {
+                                                               const LightDirection direction) {
     const auto lightMaskIterator = lightMaskData_.find(layerType);
     if (lightMaskIterator == lightMaskData_.end()) {
         return nullptr;

@@ -54,6 +54,17 @@ void glimmer::BiomeStructurePlacementConditionsResource::RefreshCache() {
     }
 }
 
+const std::unordered_set<std::string> &glimmer::BiomeGrowthConditionResource::GetCachedBiomeIds() const {
+    return cachedBiomeIds_;
+}
+
+void glimmer::BiomeGrowthConditionResource::RefreshCache() {
+    cachedBiomeIds_.clear();
+    for (auto &ref: targetBiomes) {
+        cachedBiomeIds_.insert(GenerateId(ref.GetPackageId(), ref.GetResourceKey()));
+    }
+}
+
 
 glimmer::Color glimmer::ColorResource::ToColor() const {
     return Color{r, g, b, a};
@@ -78,13 +89,13 @@ FastNoiseLite *glimmer::MineralBiomeDecoratorResource::GetFastNoiseLite(const in
 void glimmer::LootResource::TryRollSingleLoot(uint32_t totalWeight, const LootResource *lootResource,
                                               std::vector<ItemMessage> &itemMessageList) {
     auto rollsRandomValue = RandomUtils::Random<uint32_t>(0, totalWeight - 1);
-    if (rollsRandomValue <= lootResource->empty_weight) {
+    if (rollsRandomValue < lootResource->empty_weight) {
         return;
     }
-    uint32_t currentWeight = 0;
+    uint32_t currentWeight = lootResource->empty_weight;
     for (auto &pool: lootResource->pool) {
         currentWeight += pool.weight;
-        if (rollsRandomValue > currentWeight) {
+        if (rollsRandomValue >= currentWeight) {
             continue;
         }
         ItemMessage itemMessage;

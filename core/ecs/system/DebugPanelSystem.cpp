@@ -292,7 +292,7 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
                 if (lightMasks != nullptr) {
                     const auto maskLayerIt = lightMasks->find(layerType);
                     if (maskLayerIt != lightMasks->end()) {
-                        for (const auto &[direction, mask] : maskLayerIt->second) {
+                        for (const auto &[direction, mask]: maskLayerIt->second) {
                             if (mask == nullptr) {
                                 continue;
                             }
@@ -340,7 +340,7 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
                 if (lightContributions != nullptr) {
                     const auto contributionIt = lightContributions->find(layerType);
                     if (contributionIt != lightContributions->end()) {
-                        for (const auto &contribution : contributionIt->second) {
+                        for (const auto &contribution: contributionIt->second) {
                             if (contribution == nullptr) {
                                 continue;
                             }
@@ -367,7 +367,7 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
         // Dynamic lights
         // 动态光源
         if (const auto *dynamicLights = lightBuffer->GetDynamicLights(); dynamicLights != nullptr) {
-            for (const auto &[id, entry] : *dynamicLights) {
+            for (const auto &[id, entry]: *dynamicLights) {
                 if (entry.lightSource == nullptr) {
                     continue;
                 }

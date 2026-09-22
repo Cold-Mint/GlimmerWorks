@@ -34,6 +34,7 @@
 #include "core/context/CacheContext.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/ecs/component/TechProviderComponent.h"
+#include "core/ecs/component/CropComponent.h"
 #include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
 
@@ -52,8 +53,20 @@ bool glimmer::Tile::IsOverwritable() const {
     return isOverwritable_;
 }
 
+const glimmer::ResourceRef *glimmer::Tile::GetGrowthTarget() const {
+    return &growthTarget_;
+}
+
 bool glimmer::Tile::IsWorkBlock() const {
     return technologyLevel_ > 0;
+}
+
+bool glimmer::Tile::IsCropsBlock() const {
+    return IsCropsBlock(growthMinTicks_, growthTarget_);
+}
+
+bool glimmer::Tile::IsCropsBlock(const uint64_t growthMinTicks, const ResourceRef &growthTarget) {
+    return growthMinTicks > 0 && growthTarget.IsValid();
 }
 
 const std::string &glimmer::Tile::GetName() const {
@@ -62,6 +75,10 @@ const std::string &glimmer::Tile::GetName() const {
 
 glimmer::TileLayerType glimmer::Tile::GetLayerType() const {
     return layerType_;
+}
+
+const std::vector<glimmer::ResourceRef> &glimmer::Tile::GetGrowthConditions() const {
+    return growthConditions_;
 }
 
 const std::optional<std::string> &glimmer::Tile::GetDescription() const {
@@ -172,6 +189,11 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     tile->lightData_.SetLightSource(tileResource->lightSource);
     tile->isOverwritable_ = tileResource->isOverwritable;
     tile->lootData_.SetCanDropLoot(tileResource->canDropLoot);
+    tile->growthMinTicks_ = tileResource->growthMinTicks;
+    tile->growthMaxTicks_ = tileResource->growthMaxTicks;
+    tile->growthTarget_ = tileResource->growthTarget;
+    tile->destroySelfOnGrowth_ = tileResource->destroySelfOnGrowth;
+    tile->growthConditions_ = tileResource->growthConditions;
     uint8_t tileHeight = tileResource->tileHeight;
     if (tileHeight > CHUNK_SIZE) {
         tileHeight = CHUNK_SIZE;
@@ -243,9 +265,9 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
 }
 
 void glimmer::Tile::OnPlace(const WorldContext *worldContext, PlaceSourceMessage placeSource,
-                            const TileVector2D &position) {
+                            const TileVector2D &position, const TileStateMessage *tileState) {
     EntityManager *entityManager = worldContext->GetEntityManager();
-    if (entityManager == nullptr) {
+    if (entityManager == nullptr || tileState == nullptr) {
         return;
     }
     const Vector2DIFingerprint fingerprint = position.GetFingerprint();
@@ -259,17 +281,33 @@ void glimmer::Tile::OnPlace(const WorldContext *worldContext, PlaceSourceMessage
         return;
 #endif
     }
+    GameEntityID entity = GAME_ENTITY_ID_INVALID;
     if (IsWorkBlock()) {
-        GameEntityID entity = entityManager->AddEntity();
-        const auto transform2dComponent = entityManager->AddComponent<Transform2DComponent>(entity);
-        transform2dComponent->SetPosition(CoordinateTransformer::TileToWorld(position));
+        if (entity == GAME_ENTITY_ID_INVALID) {
+            entity = entityManager->AddEntity();
+        }
         const auto teachProviderComponent = entityManager->AddComponent<TechProviderComponent>(entity);
         teachProviderComponent->SetRecipeGroup(static_cast<RecipeGroup>(recipeGroup_));
         teachProviderComponent->SetTechnologyLevel(technologyLevel_);
-        gameEntities_[fingerprint] = entity;
         LogCat::d("tile_on_place_entity_created", "Placed work block, created entity: id={}, position=({}, {})",
                   entity, position.x, position.y);
     }
+    if (IsCropsBlock()) {
+        if (entity == GAME_ENTITY_ID_INVALID) {
+            entity = entityManager->AddEntity();
+        }
+        const auto cropComponent = entityManager->AddComponent<CropComponent>(entity);
+        cropComponent->SetPosition(position);
+        cropComponent->SetLayerType(layerType_);
+        LogCat::d("tile_on_place_entity_created", "Placed crop block, created entity: id={}, position=({}, {})",
+                  entity, position.x, position.y);
+    }
+    if (entity == GAME_ENTITY_ID_INVALID) {
+        return;
+    }
+    const auto transform2dComponent = entityManager->AddComponent<Transform2DComponent>(entity);
+    transform2dComponent->SetPosition(CoordinateTransformer::TileToWorld(position));
+    gameEntities_[fingerprint] = entity;
 }
 
 void glimmer::Tile::OnBreak(const WorldContext *worldContext, BreakSource breakSource, const TileVector2D &position) {

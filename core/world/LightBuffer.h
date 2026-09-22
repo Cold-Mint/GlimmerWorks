@@ -119,7 +119,8 @@ namespace glimmer {
 
         void ClearLightContributionAt(const TileVector2D &position, TileLayerType layerType, const LightSource &source);
 
-        void SetAmbientLightContributionAt(const TileVector2D &position, TileLayerType layerType, const LightSource &source,
+        void SetAmbientLightContributionAt(const TileVector2D &position, TileLayerType layerType,
+                                           const LightSource &source,
                                            std::unique_ptr<Color> lightColor);
 
         void RebuildAllLight();
@@ -197,11 +198,12 @@ namespace glimmer {
 
         [[nodiscard]] const TileLightData *GetTileLightData(const TileVector2D &position) const;
 
-        void SetLightSource(const TileVector2D& position, TileLayerType layerType, std::unique_ptr<LightSource> lightSource);
+        void SetLightSource(const TileVector2D &position, TileLayerType layerType,
+                            std::unique_ptr<LightSource> lightSource);
 
-        void ClearLightSource(const TileVector2D& position, TileLayerType layerType);
+        void ClearLightSource(const TileVector2D &position, TileLayerType layerType);
 
-        [[nodiscard]] Color GetFinalLightColor(const TileVector2D& position) const;
+        [[nodiscard]] Color GetFinalLightColor(const TileVector2D &position) const;
 
         /**
          * SetDynamicLight
@@ -213,7 +215,7 @@ namespace glimmer {
          * @param layerType layerType 图层
          * @param lightSource lightSource 光源数据
          */
-        void SetDynamicLight(uint64_t id, const TileVector2D& position, TileLayerType layerType,
+        void SetDynamicLight(uint64_t id, const TileVector2D &position, TileLayerType layerType,
                              std::unique_ptr<LightSource> lightSource);
 
         /**

@@ -40,12 +40,14 @@
 #include "core/mod/dataPack/DataPackManager.h"
 #include "core/mod/TomlTemplateExpander.h"
 #include "core/mod/StructurePlacementConditionsProcessorManager.h"
+#include "core/mod/GrowthConditionProcessorManager.h"
 #include "core/contributor/ContributorManager.h"
 #include "core/inventory/InitialInventoryManager.h"
 #include "core/mod/dataPack/AbilityItemRegistry.h"
 #include "core/mod/dataPack/ComposableItemRegistry.h"
 #include "core/mod/dataPack/MaterialItemRegistry.h"
 #include "core/mod/dataPack/StructurePlacementConditionsRegistry.h"
+#include "core/mod/dataPack/GrowthConditionsRegistry.h"
 #include "core/world/generator/BiomeDecoratorManager.h"
 #include "core/world/structure/StructureGeneratorManager.h"
 #include "core/shape/ShapeManager.h"
@@ -73,6 +75,8 @@ namespace glimmer {
         std::unique_ptr<StructureGeneratorManager> structureGeneratorManager_;
         std::unique_ptr<StructurePlacementConditionsProcessorManager> structurePlacementConditionsProcessorManager_;
         std::unique_ptr<StructurePlacementConditionsRegistry> structurePlacementConditionsRegistry_;
+        std::unique_ptr<GrowthConditionProcessorManager> growthConditionProcessorManager_;
+        std::unique_ptr<GrowthConditionsRegistry> growthConditionsRegistry_;
         std::unique_ptr<LootTableRegistry> lootTableRegistry_;
         std::unique_ptr<InitialInventoryManager> initialInventoryManager_;
         std::unique_ptr<ContributorManager> contributorManager_;
@@ -119,6 +123,12 @@ namespace glimmer {
 
         [[nodiscard]] StructurePlacementConditionsRegistry *
         GetStructurePlacementConditionsRegistry() const;
+
+        [[nodiscard]] GrowthConditionProcessorManager *
+        GetGrowthConditionProcessorManager() const;
+
+        [[nodiscard]] GrowthConditionsRegistry *
+        GetGrowthConditionsRegistry() const;
 
         [[nodiscard]] LootTableRegistry *GetLootTableRegistry() const;
 

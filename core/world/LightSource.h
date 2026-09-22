@@ -59,9 +59,9 @@ namespace glimmer {
      * 其遮挡来自瓦片的背面遮罩。环境光（Downward/Backward）没有中心与半径。
      */
     enum class LightDirection : uint8_t {
-        Radial = 0,
-        Downward = 1,
-        Backward = 2,
+        Radial = 1,
+        Downward = 2,
+        Backward = 4,
     };
 
     class LightSource {

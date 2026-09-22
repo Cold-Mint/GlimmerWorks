@@ -333,6 +333,68 @@ namespace glimmer {
         int minDistance = 0;
     };
 
+    //@genNextLine(GrowthConditionResource|生长条件资源)
+    struct IGrowthConditionResource : Resource {
+        virtual ~IGrowthConditionResource() = default;
+
+        //@genNextLine(processorId|处理器ID)
+        uint8_t processorId = 0;
+    };
+
+    //@genNextLine(NoneGrowthConditionResource|空生长条件资源)
+    struct NoneGrowthConditionResource : IGrowthConditionResource {
+    };
+
+    //@genNextLine(LightGrowthConditionResource|光照生长条件资源)
+    struct LightGrowthConditionResource : IGrowthConditionResource {
+        //@genNextLine(minLight|最低光照强度 0-255)
+        uint8_t minLight = 0;
+        //@genNextLine(maxLight|最高光照强度 0-255)
+        uint8_t maxLight = 255;
+        //@genNextLine(lightSourceMask|参与判定的光源位掩码：1=人工光(点光)，2=天光，4=背光；默认7=任意光)
+        uint8_t lightSourceMask = 7;
+    };
+
+    //@genNextLine(BiomeGrowthConditionResource|生物群系生长条件资源)
+    struct BiomeGrowthConditionResource : IGrowthConditionResource {
+    private:
+        std::unordered_set<std::string> cachedBiomeIds_;
+
+    public:
+        //@genNextLine(targetBiomes|目标生物群系列表)
+        std::vector<ResourceRef> targetBiomes;
+
+        const std::unordered_set<std::string> &GetCachedBiomeIds() const;
+
+        void RefreshCache();
+    };
+
+    //@genNextLine(AdjacentTileGrowthConditionResource|相邻瓦片生长条件资源)
+    struct AdjacentTileGrowthConditionResource : IGrowthConditionResource {
+        //@genNextLine(targetTile|目标瓦片资源引用，相邻瓦片需为此瓦片)
+        ResourceRef targetTile = {};
+        //@genNextLine(offset|相对自身瓦片的偏移坐标，例如 [x=0, y=1] 表示正上方，[x=-1, y=0] 表示左侧)
+        Vector2DIResource offset = {0, -1};
+    };
+
+    //@genNextLine(HeightGrowthConditionResource|高度生长条件资源)
+    struct HeightGrowthConditionResource : IGrowthConditionResource {
+        //@genNextLine(minHeightPercent|最低高度百分比)
+        float minHeightPercent = 0.0F;
+
+        //@genNextLine(maxHeightPercent|最高高度百分比)
+        float maxHeightPercent = 1.0F;
+    };
+
+    //@genNextLine(TimeGrowthConditionResource|时间生长条件资源)
+    struct TimeGrowthConditionResource : IGrowthConditionResource {
+        //@genNextLine(minTime|一天中的最小时间 0-1（0=清晨，0.5=午夜，1=次日清晨）)
+        float minTime = 0.0F;
+
+        //@genNextLine(maxTime|一天中的最大时间 0-1)
+        float maxTime = 1.0F;
+    };
+
     //@genNextLine(TileInfo|瓦片信息)
     struct TileInfo {
         //@genNextLine(position|位置)
@@ -574,6 +636,18 @@ namespace glimmer {
         Vector2DIResource customTileAnchor = {1, 1};
         //@genNextLine(Allow anchor adjustment by facing direction.|允许按朝向调整锚点，放置瓦片时，开启就会跟着左右朝向自动调换锚点，让瓦片顺着朝向方向延伸，关闭则固定原始锚点不动。)
         bool allowDirAdjustAnchor = true;
+        //@genNextLine(growthMinTicks|生长所需的最小tick数)
+        uint64_t growthMinTicks = 0;
+        //@genNextLine(growthMaxTicks|生长所需的最大tick数)
+        uint64_t growthMaxTicks = 0;
+        //@genNextLine(growthTarget|生长目标瓦片资源引用 引用可以是瓦片，物品，结构，战利品表)
+        ResourceRef growthTarget = {};
+        //@genNextLine(destroySelfOnGrowth|长成后是否将自己销毁掉，把当前位置替换为空气)
+        bool destroySelfOnGrowth = false;
+        //@genNextLine(allowOfflineGrowth|是否允许离线生长，区块卸载后再次加载补时间插值)
+        bool allowOfflineGrowth = true;
+        //@genNextLine(growthConditions|生长条件资源引用列表)
+        std::vector<ResourceRef> growthConditions = {};
         //@genNextLine(tags|标签)
         std::vector<ItemTagResource> tags = {};
     };

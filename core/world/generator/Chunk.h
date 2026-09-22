@@ -113,6 +113,15 @@ namespace glimmer {
 
         [[nodiscard]] TileStateMessage *GetOrCreateTileState(TileLayerType layerType, int index);
 
+        /**
+         * Initialize the growth state of a tile state to its default values for a freshly placed tile.
+         * 将瓦片状态的生长相关字段初始化为"刚放置"的默认值。
+         * @param msg 目标瓦片状态
+         * @param tileResource tileResource 瓦片资源
+         * @param tick 当前全局 tick
+         */
+        static void InitGrowthState(TileStateMessage *msg, const TileResource *tileResource, uint64_t tick);
+
         [[nodiscard]] TileVector2D GetPosition() const;
 
         [[nodiscard]] const Tile *GetTile(TileLayerType layerType, uint8_t index) const;

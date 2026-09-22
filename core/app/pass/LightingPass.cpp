@@ -165,7 +165,8 @@ void glimmer::LightingPass::FlushLightingPass(RenderFrameContext &ctx) {
         {lightMapTexture_.GetTexture(), sampler}
     };
     SDL_BindGPUFragmentSamplers(renderPass, 0, bindings, 2);
-    FillAndPushUniformBlock(commandBuffer, lightingPipeline_->GetUniformBlocks(), *injectContext, lightingStagingBuffer_);
+    FillAndPushUniformBlock(commandBuffer, lightingPipeline_->GetUniformBlocks(), *injectContext,
+                            lightingStagingBuffer_);
     SDL_DrawGPUPrimitives(renderPass, 3, 1, 0, 0);
     SDL_EndGPURenderPass(renderPass);
 }
@@ -321,7 +322,8 @@ void glimmer::LightingPass::BlitScene(RenderFrameContext &ctx) {
     //and push them, so the quad uses the same camera/viewport transform as the scene.
     //用共享注入上下文填充调试管线的 uniform 块并推送，使四边形使用与场景相同的相机/视口变换。
     if (ctx.injectContext != nullptr) {
-        FillAndPushUniformBlock(ctx.commandBuffer, debugPipeline_->GetUniformBlocks(), *ctx.injectContext, lightingStagingBuffer_);
+        FillAndPushUniformBlock(ctx.commandBuffer, debugPipeline_->GetUniformBlocks(), *ctx.injectContext,
+                                lightingStagingBuffer_);
     }
 
     SDL_GPUBufferBinding vertexBinding = {debugVertexBuffer_, 0};
@@ -448,7 +450,8 @@ void glimmer::LightingPass::DrawLightMapDebug(RenderFrameContext &ctx) {
     //and push them, so the quad uses the same camera/viewport transform as the scene.
     //用共享注入上下文填充调试管线的 uniform 块并推送，使四边形使用与场景相同的相机/视口变换。
     if (ctx.injectContext != nullptr) {
-        FillAndPushUniformBlock(ctx.commandBuffer, debugPipeline_->GetUniformBlocks(), *ctx.injectContext, lightingStagingBuffer_);
+        FillAndPushUniformBlock(ctx.commandBuffer, debugPipeline_->GetUniformBlocks(), *ctx.injectContext,
+                                lightingStagingBuffer_);
     }
 
     SDL_GPUBufferBinding vertexBinding = {debugVertexBuffer_, 0};

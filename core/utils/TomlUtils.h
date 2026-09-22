@@ -63,6 +63,17 @@ namespace toml {
     };
 
     template<>
+    struct from<glimmer::BiomeGrowthConditionResource> {
+        static glimmer::BiomeGrowthConditionResource from_toml(const value &v) {
+            glimmer::BiomeGrowthConditionResource r;
+            r.processorId = toml::find_or<uint8_t>(v, "processor_id", 0);
+            r.resourceId = toml::find<std::string>(v, "resource_id");
+            r.targetBiomes = toml::find<std::vector<glimmer::ResourceRef> >(v, "target_biomes");
+            return r;
+        }
+    };
+
+    template<>
     struct from<glimmer::BiomeStructurePlacementConditionsResource> {
         static glimmer::BiomeStructurePlacementConditionsResource from_toml(const value &v) {
             glimmer::BiomeStructurePlacementConditionsResource r;
@@ -149,6 +160,30 @@ namespace toml {
     };
 
     template<>
+    struct from<glimmer::HeightGrowthConditionResource> {
+        static glimmer::HeightGrowthConditionResource from_toml(const value &v) {
+            glimmer::HeightGrowthConditionResource r;
+            r.maxHeightPercent = toml::find_or<float>(v, "max_height_percent", 1.0F);
+            r.minHeightPercent = toml::find_or<float>(v, "min_height_percent", 0.0F);
+            r.processorId = toml::find_or<uint8_t>(v, "processor_id", 0);
+            r.resourceId = toml::find<std::string>(v, "resource_id");
+            return r;
+        }
+    };
+
+    template<>
+    struct from<glimmer::TimeGrowthConditionResource> {
+        static glimmer::TimeGrowthConditionResource from_toml(const value &v) {
+            glimmer::TimeGrowthConditionResource r;
+            r.maxTime = toml::find_or<float>(v, "max_time", 1.0F);
+            r.minTime = toml::find_or<float>(v, "min_time", 0.0F);
+            r.processorId = toml::find_or<uint8_t>(v, "processor_id", 0);
+            r.resourceId = toml::find<std::string>(v, "resource_id");
+            return r;
+        }
+    };
+
+    template<>
     struct from<glimmer::HeightStructureConditionsResource> {
         static glimmer::HeightStructureConditionsResource from_toml(const value &v) {
             glimmer::HeightStructureConditionsResource r;
@@ -177,6 +212,16 @@ namespace toml {
             glimmer::IBiomeDecoratorResource r;
             r.biomeDecoratorType = toml::find_or<uint8_t>(v, "biome_decorator_type", 0);
             r.layerType = toml::find_or<uint8_t>(v, "layer_type", 0);
+            r.resourceId = toml::find<std::string>(v, "resource_id");
+            return r;
+        }
+    };
+
+    template<>
+    struct from<glimmer::IGrowthConditionResource> {
+        static glimmer::IGrowthConditionResource from_toml(const value &v) {
+            glimmer::IGrowthConditionResource r;
+            r.processorId = toml::find_or<uint8_t>(v, "processor_id", 0);
             r.resourceId = toml::find<std::string>(v, "resource_id");
             return r;
         }
@@ -235,6 +280,19 @@ namespace toml {
     };
 
     template<>
+    struct from<glimmer::LightGrowthConditionResource> {
+        static glimmer::LightGrowthConditionResource from_toml(const value &v) {
+            glimmer::LightGrowthConditionResource r;
+            r.lightSourceMask = toml::find_or<uint8_t>(v, "light_source_mask", 7);
+            r.maxLight = toml::find_or<uint8_t>(v, "max_light", 255);
+            r.minLight = toml::find_or<uint8_t>(v, "min_light", 0);
+            r.processorId = toml::find_or<uint8_t>(v, "processor_id", 0);
+            r.resourceId = toml::find<std::string>(v, "resource_id");
+            return r;
+        }
+    };
+
+    template<>
     struct from<glimmer::LootResource> {
         static glimmer::LootResource from_toml(const value &v) {
             glimmer::LootResource r;
@@ -278,6 +336,16 @@ namespace toml {
             r.pingPongStrength = toml::find_or<float>(v, "ping_pong_strength", 2.0F);
             r.seedOffset = toml::find_or<int>(v, "seed_offset", 0);
             r.weightedStrength = toml::find_or<float>(v, "weighted_strength", 0.0F);
+            return r;
+        }
+    };
+
+    template<>
+    struct from<glimmer::NoneGrowthConditionResource> {
+        static glimmer::NoneGrowthConditionResource from_toml(const value &v) {
+            glimmer::NoneGrowthConditionResource r;
+            r.processorId = toml::find_or<uint8_t>(v, "processor_id", 0);
+            r.resourceId = toml::find<std::string>(v, "resource_id");
             return r;
         }
     };
@@ -732,6 +800,18 @@ namespace toml {
     };
 
     template<>
+    struct from<glimmer::AdjacentTileGrowthConditionResource> {
+        static glimmer::AdjacentTileGrowthConditionResource from_toml(const value &v) {
+            glimmer::AdjacentTileGrowthConditionResource r;
+            r.offset = toml::find_or<glimmer::Vector2DIResource>(v, "offset", {0, -1});
+            r.processorId = toml::find_or<uint8_t>(v, "processor_id", 0);
+            r.resourceId = toml::find<std::string>(v, "resource_id");
+            r.targetTile = toml::find_or<glimmer::ResourceRef>(v, "target_tile", {});
+            return r;
+        }
+    };
+
+    template<>
     struct from<glimmer::TileInfo> {
         static glimmer::TileInfo from_toml(const value &v) {
             glimmer::TileInfo r;
@@ -748,6 +828,7 @@ namespace toml {
             glimmer::TileResource r;
             r.allowChainMining = toml::find_or<bool>(v, "allow_chain_mining", false);
             r.allowDirAdjustAnchor = toml::find_or<bool>(v, "allow_dir_adjust_anchor", true);
+            r.allowOfflineGrowth = toml::find_or<bool>(v, "allow_offline_growth", true);
             r.autoDigCostScale = toml::find_or<bool>(v, "auto_dig_cost_scale", true);
             r.autoHardnessScale = toml::find_or<bool>(v, "auto_hardness_scale", true);
             r.backLightMask = toml::find<glimmer::ResourceRef>(v, "back_light_mask");
@@ -757,9 +838,14 @@ namespace toml {
             r.customLootTable = toml::find_or<bool>(v, "custom_loot_table", false);
             r.customTileAnchor = toml::find_or<glimmer::Vector2DIResource>(v, "custom_tile_anchor", {1, 1});
             r.description = toml::find_or<glimmer::ResourceRef>(v, "description", {});
+            r.destroySelfOnGrowth = toml::find_or<bool>(v, "destroy_self_on_growth", false);
             r.drawValidBlueprintColor = toml::find_or<bool>(v, "draw_valid_blueprint_color", true);
             r.enableBlueprint = toml::find_or<bool>(v, "enable_blueprint", true);
             r.enableBlueprintMask = toml::find_or<bool>(v, "enable_blueprint_mask", true);
+            r.growthConditions = toml::find_or<std::vector<glimmer::ResourceRef> >(v, "growth_conditions", {});
+            r.growthMaxTicks = toml::find_or<uint64_t>(v, "growth_max_ticks", 0);
+            r.growthMinTicks = toml::find_or<uint64_t>(v, "growth_min_ticks", 0);
+            r.growthTarget = toml::find_or<glimmer::ResourceRef>(v, "growth_target", {});
             r.isOverwritable = toml::find_or<bool>(v, "is_overwritable", false);
             r.layerType = toml::find_or<uint8_t>(v, "layer_type", 0);
             r.lightSource = toml::find<glimmer::ResourceRef>(v, "light_source");

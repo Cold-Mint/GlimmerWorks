@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
+ * 
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,47 +24,28 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
-#include <cstdint>
+#include "CropComponent.h"
 
-namespace glimmer {
-    enum class GameSystemType : uint8_t {
-        None,
-        AndroidControlSystem,
-        AutoPickSystem,
-        BiomeBGMSystem,
-        BlueprintSystem,
-        Box2dSystemContext,
-        CameraSystem,
-        ChunkSystem,
-        DebugChunkSystem,
-        DebugDrawBox2dSystem,
-        DebugDrawSystem,
-        DebugMultiMapSystem,
-        DebugPanelSystem,
-        DiggingSystem,
-        DraggableSystem,
-        DroppedItemSystem,
-        DynamicLightSystem,
-        FloatingTextSystem,
-        HotBarGUISystem,
-        ItemSlotSystem,
-        MagnetSystem,
-        PauseSystem,
-        PhysicsSystem,
-        PlayerControlSystem,
-        RayCast2DSystem,
-        SpiritRendererSystem,
-        TileLayerSystem,
-        Transform2DSystem,
-        InventoryGUISystem,
-        CraftPreviewSlotSystem,
-        MaterialSelectCraftUISystem,
-        ItemToolTipSystem,
-        ItemSlotQuantitySystem,
-        ButtonSystem,
-        TeachProviderSystem,
-        RecipeDetailGUISystem,
-        CropSystem,
-    };
+void glimmer::CropComponent::SetPosition(const TileVector2D &position) {
+    position_ = position;
+}
+
+const glimmer::TileVector2D &glimmer::CropComponent::GetPosition() const {
+    return position_;
+}
+
+void glimmer::CropComponent::SetLayerType(const TileLayerType layerType) {
+    layerType_ = layerType;
+}
+
+glimmer::TileLayerType glimmer::CropComponent::GetLayerType() const {
+    return layerType_;
+}
+
+GameComponentTypeMessage glimmer::CropComponent::GetComponentTypeStatic() {
+    return COMPONENT_CROP;
+}
+
+GameComponentTypeMessage glimmer::CropComponent::GetComponentType() {
+    return GetComponentTypeStatic();
 }

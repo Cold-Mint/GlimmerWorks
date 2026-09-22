@@ -151,7 +151,8 @@ std::string glimmer::LightCommand::BuildLightMaskString(const TileLightData *lig
 }
 
 void glimmer::LightCommand::AppendMaskList(std::stringstream &stream,
-                                           const std::unordered_map<TileLayerType, std::unordered_map<LightDirection, std::unique_ptr<LightMask> > > *masks,
+                                           const std::unordered_map<TileLayerType, std::unordered_map<LightDirection,
+                                               std::unique_ptr<LightMask> > > *masks,
                                            const LangsResources *langsResources) {
     if (masks == nullptr) {
         return;

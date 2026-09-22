@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
+ * 
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -25,46 +25,38 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <cstdint>
+#include <vector>
+
+#include "core/ecs/GameSystem.h"
 
 namespace glimmer {
-    enum class GameSystemType : uint8_t {
-        None,
-        AndroidControlSystem,
-        AutoPickSystem,
-        BiomeBGMSystem,
-        BlueprintSystem,
-        Box2dSystemContext,
-        CameraSystem,
-        ChunkSystem,
-        DebugChunkSystem,
-        DebugDrawBox2dSystem,
-        DebugDrawSystem,
-        DebugMultiMapSystem,
-        DebugPanelSystem,
-        DiggingSystem,
-        DraggableSystem,
-        DroppedItemSystem,
-        DynamicLightSystem,
-        FloatingTextSystem,
-        HotBarGUISystem,
-        ItemSlotSystem,
-        MagnetSystem,
-        PauseSystem,
-        PhysicsSystem,
-        PlayerControlSystem,
-        RayCast2DSystem,
-        SpiritRendererSystem,
-        TileLayerSystem,
-        Transform2DSystem,
-        InventoryGUISystem,
-        CraftPreviewSlotSystem,
-        MaterialSelectCraftUISystem,
-        ItemToolTipSystem,
-        ItemSlotQuantitySystem,
-        ButtonSystem,
-        TeachProviderSystem,
-        RecipeDetailGUISystem,
-        CropSystem,
+    class CropComponent;
+
+    /**
+     * CropSystem
+     * 作物系统
+     *
+     * Iterates over all CropComponent each tick and, using the growth condition
+     * processors, decides whether each crop should grow. Crops that meet their
+     * conditions accumulate ticks in their TileStateMessage.
+     * 每个 tick 遍历所有作物组件，并使用生长条件处理器判断作物是否应该生长；
+     * 满足条件的作物在其 TileStateMessage 中累积生长 tick。
+     */
+    class CropSystem final : public GameSystem {
+        uint32_t cropCount_ = 0;
+        std::vector<CropComponent *> cropComponents_;
+
+    public:
+        explicit CropSystem(WorldContext *worldContext);
+
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
+
+
+        void OnGrowMature(Chunk *chunk, const TileVector2D &position, TileLayerType layerType,
+                          const ResourceRef *growthTargetRef);
+
+        void OnTick(uint64_t tick) override;
+
+        [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };
 }

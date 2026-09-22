@@ -24,47 +24,32 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
-#include <cstdint>
+#include "TimeGrowthConditionProcessor.h"
 
-namespace glimmer {
-    enum class GameSystemType : uint8_t {
-        None,
-        AndroidControlSystem,
-        AutoPickSystem,
-        BiomeBGMSystem,
-        BlueprintSystem,
-        Box2dSystemContext,
-        CameraSystem,
-        ChunkSystem,
-        DebugChunkSystem,
-        DebugDrawBox2dSystem,
-        DebugDrawSystem,
-        DebugMultiMapSystem,
-        DebugPanelSystem,
-        DiggingSystem,
-        DraggableSystem,
-        DroppedItemSystem,
-        DynamicLightSystem,
-        FloatingTextSystem,
-        HotBarGUISystem,
-        ItemSlotSystem,
-        MagnetSystem,
-        PauseSystem,
-        PhysicsSystem,
-        PlayerControlSystem,
-        RayCast2DSystem,
-        SpiritRendererSystem,
-        TileLayerSystem,
-        Transform2DSystem,
-        InventoryGUISystem,
-        CraftPreviewSlotSystem,
-        MaterialSelectCraftUISystem,
-        ItemToolTipSystem,
-        ItemSlotQuantitySystem,
-        ButtonSystem,
-        TeachProviderSystem,
-        RecipeDetailGUISystem,
-        CropSystem,
-    };
+#include "core/mod/Resource.h"
+#include "core/world/Dimension.h"
+#include "core/world/WorldContext.h"
+
+glimmer::GrowthConditionProcessorType
+glimmer::TimeGrowthConditionProcessor::GetGrowthConditionProcessorType() {
+    return GrowthConditionProcessorType::Time;
+}
+
+bool glimmer::TimeGrowthConditionProcessor::Match(const WorldContext *worldContext, const TileVector2D &position,
+                                                  const IGrowthConditionResource *growthConditionResource) {
+    const auto timeCondition = dynamic_cast<const TimeGrowthConditionResource *>(growthConditionResource);
+    if (timeCondition == nullptr || worldContext == nullptr) {
+        return false;
+    }
+    const Dimension *dimension = worldContext->GetDimension();
+    if (dimension == nullptr) {
+        return false;
+    }
+    const float time = dimension->GetNormalizedTime();
+    const float minTime = timeCondition->minTime;
+    const float maxTime = timeCondition->maxTime;
+    if (minTime <= maxTime) {
+        return time >= minTime && time <= maxTime;
+    }
+    return time >= minTime || time <= maxTime;
 }

@@ -39,6 +39,11 @@
 #include "core/world/structure/StaticStructureGenerator.h"
 #include "core/world/structure/TreeStructureGenerator.h"
 #include "core/world/structure/SurfaceStructureConditionProcessor.h"
+#include "core/world/growth/AdjacentTileGrowthConditionProcessor.h"
+#include "core/world/growth/BiomeGrowthConditionProcessor.h"
+#include "core/world/growth/HeightGrowthConditionProcessor.h"
+#include "core/world/growth/LightGrowthConditionProcessor.h"
+#include "core/world/growth/TimeGrowthConditionProcessor.h"
 
 
 glimmer::ModContext::ModContext() = default;
@@ -92,6 +97,19 @@ void glimmer::ModContext::Init(VirtualFileSystem *vfs, const LangsResources *lan
 
     structurePlacementConditionsRegistry_ = std::make_unique<StructurePlacementConditionsRegistry>();
 
+    LogCat::d("creating_growth_conditions_manager", "Creating GrowthConditionProcessorManager");
+    growthConditionProcessorManager_ = std::make_unique<GrowthConditionProcessorManager>();
+    growthConditionProcessorManager_->AddConditionProcessor(
+        std::make_unique<LightGrowthConditionProcessor>());
+    growthConditionProcessorManager_->AddConditionProcessor(
+        std::make_unique<BiomeGrowthConditionProcessor>());
+    growthConditionProcessorManager_->AddConditionProcessor(
+        std::make_unique<AdjacentTileGrowthConditionProcessor>());
+    growthConditionProcessorManager_->AddConditionProcessor(
+        std::make_unique<HeightGrowthConditionProcessor>());
+    growthConditionProcessorManager_->AddConditionProcessor(
+        std::make_unique<TimeGrowthConditionProcessor>());
+    growthConditionsRegistry_ = std::make_unique<GrowthConditionsRegistry>();
     LogCat::d("creating_initial_inventory_manager", "Creating InitialInventoryManager");
     initialInventoryManager_ = std::make_unique<InitialInventoryManager>();
 
@@ -196,6 +214,16 @@ glimmer::ModContext::GetStructurePlacementConditionsProcessorManager() const {
 glimmer::StructurePlacementConditionsRegistry *glimmer::ModContext::
 GetStructurePlacementConditionsRegistry() const {
     return structurePlacementConditionsRegistry_.get();
+}
+
+glimmer::GrowthConditionProcessorManager *
+glimmer::ModContext::GetGrowthConditionProcessorManager() const {
+    return growthConditionProcessorManager_.get();
+}
+
+glimmer::GrowthConditionsRegistry *glimmer::ModContext::
+GetGrowthConditionsRegistry() const {
+    return growthConditionsRegistry_.get();
 }
 
 glimmer::LootTableRegistry *glimmer::ModContext::GetLootTableRegistry() const {

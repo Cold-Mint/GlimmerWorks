@@ -31,6 +31,7 @@
 #include "tweeny/tweeny.h"
 #include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
+#include "core/utils/RandomUtils.h"
 #include "core/world/TileInstancePool.h"
 #include "core/world/WorldContext.h"
 #include "src/saves/tile_state.pb.h"
@@ -148,7 +149,7 @@ bool glimmer::Chunk::CommitTileState(const BreakSource breakSource, const TileLa
         oldTile = tileIterator->second[index];
         oldTile->OnBreak(worldContext_, breakSource, tileVector2D);
         tileIterator->second[index] = newTile;
-        newTile->OnPlace(worldContext_, tileStateMessage->placesource(), tileVector2D);
+        newTile->OnPlace(worldContext_, tileStateMessage->placesource(), tileVector2D, tileStateMessage);
         auto [tileFingerprintIterator, tileFingerprintInserted] = tileFingerprint_.try_emplace(layerType);
         tileFingerprintIterator->second[index] = fingerprint;
         auto [tileSnapshotIterator,tileSnapshotInserted] = tileSnapshots_.try_emplace(layerType);
@@ -197,6 +198,27 @@ TileStateMessage *glimmer::Chunk::GetOrCreateTileState(const TileLayerType layer
         return tileStateIterator->second[index].get();
     }
     return tileStateMessage;
+}
+
+void glimmer::Chunk::InitGrowthState(TileStateMessage *msg, const TileResource *tileResource, uint64_t tick) {
+    if (msg == nullptr || tileResource == nullptr) {
+        return;
+    }
+    msg->set_tileplacedtick(tick);
+    msg->set_tilegrowthstarttick(tick);
+    msg->set_tilegrowthaccumulatedtick(0);
+    msg->set_maturecount(0);
+    msg->set_tilegrowthconditionsmet(false);
+    if (Tile::IsCropsBlock(tileResource->growthMinTicks, tileResource->growthTarget)) {
+        if (tileResource->growthMinTicks == tileResource->growthMaxTicks) {
+            msg->set_tilegrowthrequiredtick(tileResource->growthMinTicks);
+        } else {
+            msg->set_tilegrowthrequiredtick(
+                RandomUtils::Random(tileResource->growthMinTicks, tileResource->growthMaxTicks));
+        }
+    } else {
+        msg->set_tilegrowthrequiredtick(0);
+    }
 }
 
 glimmer::TileVector2D glimmer::Chunk::GetPosition() const {

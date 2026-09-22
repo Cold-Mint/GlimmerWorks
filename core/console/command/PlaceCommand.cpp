@@ -30,7 +30,6 @@
 #include "core/context/AppContext.h"
 #include "core/world/WorldContext.h"
 #include "core/world/ChunkManager.h"
-#include "core/world/generator/ChunkPhysicsHelper.h"
 #include "fmt/format.h"
 
 
@@ -40,6 +39,23 @@ void glimmer::PlaceCommand::InitSuggestions(NodeTree<std::string> *suggestionsTr
     }
     suggestionsTree->AddChild("structure")->AddChild(STRUCTURE_DYNAMIC_SUGGESTIONS_NAME)->
             AddChild(X_DYNAMIC_SUGGESTIONS_NAME)->AddChild(Y_DYNAMIC_SUGGESTIONS_NAME);
+}
+
+void glimmer::PlaceCommand::PlaceTileAt(const WorldContext *worldContext, Chunk *chunk, TileLayerType tileLayerType,
+                                        int index, const ResourceRef &resourceRef, const TileResource *tileResource,
+                                        int x, int y) {
+    TileStateMessage *tileStateMessage = chunk->GetTileState(tileLayerType, index);
+    if (tileStateMessage == nullptr) {
+        return;
+    }
+    tileStateMessage->set_width(tileResource->tileWidth);
+    tileStateMessage->set_height(tileResource->tileHeight);
+    tileStateMessage->set_placesource(PLACE_SOURCE_CONSOLE);
+    tileStateMessage->mutable_offset()->set_x(x);
+    tileStateMessage->mutable_offset()->set_y(y);
+    resourceRef.WriteResourceRefMessage(*tileStateMessage->mutable_resourceref());
+    Chunk::InitGrowthState(tileStateMessage, tileResource, worldContext->GetGlobalTick());
+    chunk->CommitTileState(BreakSource::Console, tileLayerType, index, false);
 }
 
 glimmer::PlaceCommand::PlaceCommand(AppContext *appContext) : Command(appContext) {
@@ -67,27 +83,13 @@ bool glimmer::PlaceCommand::RequiresCheatEnabled() const {
     return true;
 }
 
-void glimmer::PlaceCommand::PlaceTileAt(Chunk *chunk, TileLayerType tileLayerType, int index,
-                                        const ResourceRef &resourceRef, const TileResource *tileResource, int x,
-                                        int y) {
-    TileStateMessage *tileStateMessage = chunk->GetTileState(tileLayerType, index);
-    if (tileStateMessage == nullptr) {
-        return;
-    }
-    tileStateMessage->set_width(tileResource->tileWidth);
-    tileStateMessage->set_height(tileResource->tileHeight);
-    tileStateMessage->set_placesource(PLACE_SOURCE_CONSOLE);
-    tileStateMessage->mutable_offset()->set_x(x);
-    tileStateMessage->mutable_offset()->set_y(y);
-    resourceRef.WriteResourceRefMessage(*tileStateMessage->mutable_resourceref());
-    chunk->CommitTileState(BreakSource::Console, tileLayerType, index, false);
-}
-
-void glimmer::PlaceCommand::PlaceTileAtWithSize(Chunk *chunk, TileLayerType tileLayerType, int index,
-                                                const ResourceRef &resourceRef, const TileResource *tileResource) {
+void glimmer::PlaceCommand::PlaceTileAtWithSize(const WorldContext *worldContext, Chunk *chunk,
+                                                TileLayerType tileLayerType,
+                                                int index, const ResourceRef &resourceRef,
+                                                const TileResource *tileResource) {
     for (int x = 0; x < tileResource->tileWidth; x++) {
         for (int y = 0; y < tileResource->tileHeight; y++) {
-            PlaceTileAt(chunk, tileLayerType, index, resourceRef, tileResource, x, y);
+            PlaceTileAt(worldContext, chunk, tileLayerType, index, resourceRef, tileResource, x, y);
         }
     }
 }
@@ -156,7 +158,7 @@ bool glimmer::PlaceCommand::ExecuteStructure(const CommandArgs *commandArgs, con
                 continue;
             }
             const int index = relativeY << CHUNK_SHIFT | relativeX;
-            PlaceTileAtWithSize(currentChunk, tileLayerType, index, resourceRef, tileResource);
+            PlaceTileAtWithSize(worldContext, currentChunk, tileLayerType, index, resourceRef, tileResource);
         }
     }
 

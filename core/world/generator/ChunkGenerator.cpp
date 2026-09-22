@@ -33,7 +33,6 @@
 #include "core/context/ModContext.h"
 #include "core/log/LogCat.h"
 #include "core/mod/Resource.h"
-#include "core/mod/ResourceLocator.h"
 #include "BiomeDecoratorManager.h"
 #include "core/mod/dataPack/BiomeRegistry.h"
 #include "core/world/TerrainManager.h"
@@ -117,7 +116,7 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const T
     TileRefResolver::Initialize(terrainResult, tileRefs_, tilesRefMap, biomeResourcesSet);
     BiomeDecoratorApplier::Apply(biomeResourcesSet, resourceLocator, biomeDecoratorManager, worldContext_,
                                  terrainResult, tilesRefMap);
-    ChunkTilePopulator::Populate(chunk.get(), resourceLocator, tilesRefMap);
+    ChunkTilePopulator::Populate(worldContext_, chunk.get(), resourceLocator, tilesRefMap);
 
     LogCat::i("chunk_generation_completed", "Chunk generation completed at: ({}, {})", position.x, position.y);
     return chunk;

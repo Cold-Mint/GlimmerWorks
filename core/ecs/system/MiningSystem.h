@@ -43,6 +43,7 @@ namespace glimmer {
     class Transform2DComponent;
     class TileVector2D;
     class Item;
+    struct TileResource;
 
     class MiningSystem : public GameSystem {
         bool cacheTexture_ = false;
@@ -63,7 +64,9 @@ namespace glimmer {
                                  const TileVector2D &currentVector,
                                  const TileVector2D &topLeftVector,
                                  const TilePlacementConfig &config,
-                                 TileStateBackup &backup);
+                                 TileStateBackup &backup,
+                                 const TileResource *tileResource,
+                                 uint64_t tick);
 
         static void ApplyItemDurability(Item *item, const Tile *tile, bool isCenter);
 
@@ -90,7 +93,7 @@ namespace glimmer {
 
         static void ProcessSingleTile(const TileBreakParams &params,
                                       const TileVector2D &currentVector,
-                                      Item *item, Item *emptyHandAutoUseItem,
+                                      Item *item, const Item *emptyHandAutoUseItem,
                                       bool isCenter,
                                       uint8_t &sum);
 

@@ -128,7 +128,7 @@ std::shared_ptr<glimmer::ShaderResourceResult> glimmer::ShaderCache::LoadResourc
         shaderInfo.code_size = shaderCacheMessagePtr->spirvbinary().size();
         shaderInfo.num_samplers = shaderCacheMessagePtr->numsamplers();
         shaderInfo.num_uniform_buffers = shaderCacheMessagePtr->numuniformbuffers();
-        for (const auto &binding : shaderCacheMessagePtr->uniformblockbindings()) {
+        for (const auto &binding: shaderCacheMessagePtr->uniformblockbindings()) {
             uniformBlockBindings.emplace_back(binding.name(), binding.binding());
         }
     }
@@ -229,7 +229,7 @@ void glimmer::ShaderCache::WriteShaderCacheStoreToMessage(const ShaderCacheStore
     cacheMessage->set_spirvbinary(shaderCacheStoreData->spirV, shaderCacheStoreData->spirVSize);
     cacheMessage->set_numsamplers(shaderCacheStoreData->numSamplers);
     cacheMessage->set_numuniformbuffers(shaderCacheStoreData->numUniformBuffers);
-    for (const auto &binding : *shaderCacheStoreData->uniformBlockBindings) {
+    for (const auto &binding: *shaderCacheStoreData->uniformBlockBindings) {
         auto *bindingMessage = cacheMessage->add_uniformblockbindings();
         bindingMessage->set_name(binding.first);
         bindingMessage->set_binding(binding.second);

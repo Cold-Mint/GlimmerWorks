@@ -225,7 +225,9 @@ void glimmer::LightBuffer::SetLightMask(const TileVector2D &position, const Tile
     //Normalize the light direction to a mask slot: Backward keeps its own back
     //mask, while Radial/Downward share the side (sky) mask.
     //将光照方向归一化到遮照槽：背光(Backward)用背光遮照，点光/天光(Radial/Downward)共用侧面遮照。
-    const LightDirection maskDirection = direction == LightDirection::Backward ? LightDirection::Backward : LightDirection::Downward;
+    const LightDirection maskDirection = direction == LightDirection::Backward
+                                             ? LightDirection::Backward
+                                             : LightDirection::Downward;
     TileLightData &tileLightData = GetOrCreate(position);
     const LightMask *oldMask = tileLightData.GetLightMask(layerType, maskDirection);
     const float oldStrength = oldMask != nullptr ? oldMask->GetBlockingStrength() : 0.0F;
@@ -249,7 +251,9 @@ void glimmer::LightBuffer::SetLightMask(const TileVector2D &position, const Tile
 
 void glimmer::LightBuffer::ClearLightMask(const TileVector2D &position, const TileLayerType layerType,
                                           const LightDirection direction) {
-    const LightDirection maskDirection = direction == LightDirection::Backward ? LightDirection::Backward : LightDirection::Downward;
+    const LightDirection maskDirection = direction == LightDirection::Backward
+                                             ? LightDirection::Backward
+                                             : LightDirection::Downward;
     const auto it = tileLightData_.find(position);
     if (it == tileLightData_.end() || it->second == nullptr) {
         return;
@@ -447,7 +451,9 @@ float glimmer::LightBuffer::GetLightBlockingStrength(const TileVector2D &positio
     if (it == tileLightData_.end() || it->second == nullptr) {
         return 0.0F;
     }
-    const LightDirection maskDirection = direction == LightDirection::Backward ? LightDirection::Backward : LightDirection::Downward;
+    const LightDirection maskDirection = direction == LightDirection::Backward
+                                             ? LightDirection::Backward
+                                             : LightDirection::Downward;
     return it->second->GetLightBlockingStrength(layerType, maskDirection);
 }
 

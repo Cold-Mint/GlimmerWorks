@@ -43,7 +43,8 @@ namespace glimmer {
     class TileLightData {
         std::unordered_map<TileLayerType, std::vector<std::unique_ptr<LightContribution> > > lightContributions_;
         std::unordered_map<TileLayerType, std::unique_ptr<LightSource> > lightSourceData_;
-        std::unordered_map<TileLayerType, std::unordered_map<LightDirection, std::unique_ptr<LightMask> > > lightMaskData_;
+        std::unordered_map<TileLayerType, std::unordered_map<LightDirection, std::unique_ptr<LightMask> > >
+        lightMaskData_;
         std::unique_ptr<Color> finalLightColor_;
 
         /**
@@ -78,7 +79,8 @@ namespace glimmer {
          * 获取按图层与方向组织的光线遮罩。背光遮照（Backward）与侧面遮照
          * （Downward，点光与天光共用）各占一个方向键。
          */
-        [[nodiscard]] const std::unordered_map<TileLayerType, std::unordered_map<LightDirection, std::unique_ptr<LightMask> > > *
+        [[nodiscard]] const std::unordered_map<TileLayerType, std::unordered_map<LightDirection, std::unique_ptr<
+            LightMask> > > *
         GetLightMasks() const;
 
         /**

@@ -40,6 +40,8 @@
 #include "generator/TilePhysicsType.h"
 #include "src/core/place_source_message.pb.h"
 
+class TileStateMessage;
+
 namespace glimmer {
     enum class TileAnchorType : uint8_t;
 
@@ -55,7 +57,11 @@ namespace glimmer {
         TileLayerType layerType_ = TileLayerType::Ground;
         uint8_t technologyLevel_ = 0;
         uint8_t recipeGroup_ = 0;
-
+        uint64_t growthMinTicks_ = 0;
+        uint64_t growthMaxTicks_ = 0;
+        ResourceRef growthTarget_ = {};
+        bool destroySelfOnGrowth_ = false;
+        std::vector<ResourceRef> growthConditions_ = {};
         TileResourceData resourceData_;
         TileBlueprintData blueprintData_;
         TileDimensions dimensions_;
@@ -76,15 +82,41 @@ namespace glimmer {
 
         [[nodiscard]] bool IsOverwritable() const;
 
+        const ResourceRef *GetGrowthTarget() const;
+
+        /**
+         * IsWorkBlock
+         * 是否为工作方块？
+         * @return
+         */
         [[nodiscard]] bool IsWorkBlock() const;
+
+        /**
+         * IsCropsBlock
+         * 是否为作物方块？
+         * @return
+         */
+        [[nodiscard]] bool IsCropsBlock() const;
+
+        /**
+         * Static，IsCropsBlock
+         * 静态方法，判断是否为作物方块
+         * @param growthMinTicks
+         * @param growthTarget
+         * @return
+         */
+        static bool IsCropsBlock(uint64_t growthMinTicks, const ResourceRef &growthTarget);
 
         [[nodiscard]] const std::string &GetName() const;
 
         [[nodiscard]] TileLayerType GetLayerType() const;
 
+        [[nodiscard]] const std::vector<ResourceRef> &GetGrowthConditions() const;
+
         [[nodiscard]] const std::optional<std::string> &GetDescription() const;
 
-        void OnPlace(const WorldContext *worldContext, PlaceSourceMessage placeSource, const TileVector2D &position);
+        void OnPlace(const WorldContext *worldContext, PlaceSourceMessage placeSource, const TileVector2D &position,
+                     const TileStateMessage *tileState);
 
         void OnBreak(const WorldContext *worldContext, BreakSource breakSource, const TileVector2D &position);
 

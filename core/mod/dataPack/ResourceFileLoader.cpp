@@ -176,6 +176,31 @@ void glimmer::ResourceFileLoader::RegisterHandlers() {
         LoadStructurePlacementConditionsResourceFromFile(v, m->GetStructurePlacementConditionsRegistry(),
                                                          StructureConditionProcessorType::Surface);
     };
+    handlerMap_[DATA_FILE_TYPE_LIGHT_GROWTH_CONDITION] = [this](const toml::value &v, const ModContext *m,
+                                                                const GraphicsContext *) {
+        LoadGrowthConditionsResourceFromFile(v, m->GetGrowthConditionsRegistry(),
+                                             GrowthConditionProcessorType::Light);
+    };
+    handlerMap_[DATA_FILE_TYPE_BIOME_GROWTH_CONDITION] = [this](const toml::value &v, const ModContext *m,
+                                                                const GraphicsContext *) {
+        LoadGrowthConditionsResourceFromFile(v, m->GetGrowthConditionsRegistry(),
+                                             GrowthConditionProcessorType::Biome);
+    };
+    handlerMap_[DATA_FILE_TYPE_ADJACENT_TILE_GROWTH_CONDITION] = [this](const toml::value &v, const ModContext *m,
+                                                                        const GraphicsContext *) {
+        LoadGrowthConditionsResourceFromFile(v, m->GetGrowthConditionsRegistry(),
+                                             GrowthConditionProcessorType::AdjacentTile);
+    };
+    handlerMap_[DATA_FILE_TYPE_HEIGHT_GROWTH_CONDITION] = [this](const toml::value &v, const ModContext *m,
+                                                                 const GraphicsContext *) {
+        LoadGrowthConditionsResourceFromFile(v, m->GetGrowthConditionsRegistry(),
+                                             GrowthConditionProcessorType::Height);
+    };
+    handlerMap_[DATA_FILE_TYPE_TIME_GROWTH_CONDITION] = [this](const toml::value &v, const ModContext *m,
+                                                               const GraphicsContext *) {
+        LoadGrowthConditionsResourceFromFile(v, m->GetGrowthConditionsRegistry(),
+                                             GrowthConditionProcessorType::Time);
+    };
 }
 
 std::vector<std::filesystem::path> glimmer::ResourceFileLoader::GetActuallyTemplateSearchPath(
@@ -309,6 +334,13 @@ void glimmer::ResourceFileLoader::LoadTileResourceFromFile(const toml::value &va
     tileResource->lightSource.SetSelfPackageId(manifest_->id);
     tileResource->sideLightMask.SetSelfPackageId(manifest_->id);
     tileResource->backLightMask.SetSelfPackageId(manifest_->id);
+    tileResource->growthTarget.SetSelfPackageId(manifest_->id);
+    for (auto &growthCondition: tileResource->growthConditions) {
+        growthCondition.SetSelfPackageId(manifest_->id);
+    }
+    if (tileResource->growthMaxTicks < tileResource->growthMinTicks) {
+        tileResource->growthMaxTicks = tileResource->growthMinTicks;
+    }
     for (auto &tag: tileResource->tags) {
         tag.MakeCachedTag();
     }
@@ -565,6 +597,66 @@ void glimmer::ResourceFileLoader::LoadStructurePlacementConditionsResourceFromFi
             surfaceStructurePlacementConditionsResource->processorId = std::to_underlying(processorType);
             structurePlacementConditionsRegistry->Register(
                 std::move(surfaceStructurePlacementConditionsResource));
+            break;
+        }
+    }
+}
+
+void glimmer::ResourceFileLoader::LoadGrowthConditionsResourceFromFile(
+    const toml::value &value, GrowthConditionsRegistry *growthConditionsRegistry,
+    GrowthConditionProcessorType processorType) const {
+    switch (processorType) {
+        case GrowthConditionProcessorType::None: {
+            auto noneGrowthConditionResource = std::make_unique<NoneGrowthConditionResource>(
+                toml::get<NoneGrowthConditionResource>(value));
+            noneGrowthConditionResource->packId = manifest_->id;
+            noneGrowthConditionResource->processorId = std::to_underlying(processorType);
+            growthConditionsRegistry->Register(std::move(noneGrowthConditionResource));
+            break;
+        }
+        case GrowthConditionProcessorType::Light: {
+            auto lightGrowthConditionResource = std::make_unique<LightGrowthConditionResource>(
+                toml::get<LightGrowthConditionResource>(value));
+            lightGrowthConditionResource->packId = manifest_->id;
+            lightGrowthConditionResource->processorId = std::to_underlying(processorType);
+            growthConditionsRegistry->Register(std::move(lightGrowthConditionResource));
+            break;
+        }
+        case GrowthConditionProcessorType::Biome: {
+            auto biomeGrowthConditionResource = std::make_unique<BiomeGrowthConditionResource>(
+                toml::get<BiomeGrowthConditionResource>(value));
+            biomeGrowthConditionResource->packId = manifest_->id;
+            biomeGrowthConditionResource->processorId = std::to_underlying(processorType);
+            for (auto &targetBiome: biomeGrowthConditionResource->targetBiomes) {
+                targetBiome.SetSelfPackageId(manifest_->id);
+            }
+            biomeGrowthConditionResource->RefreshCache();
+            growthConditionsRegistry->Register(std::move(biomeGrowthConditionResource));
+            break;
+        }
+        case GrowthConditionProcessorType::AdjacentTile: {
+            auto adjacentTileGrowthConditionResource = std::make_unique<AdjacentTileGrowthConditionResource>(
+                toml::get<AdjacentTileGrowthConditionResource>(value));
+            adjacentTileGrowthConditionResource->packId = manifest_->id;
+            adjacentTileGrowthConditionResource->processorId = std::to_underlying(processorType);
+            adjacentTileGrowthConditionResource->targetTile.SetSelfPackageId(manifest_->id);
+            growthConditionsRegistry->Register(std::move(adjacentTileGrowthConditionResource));
+            break;
+        }
+        case GrowthConditionProcessorType::Height: {
+            auto heightGrowthConditionResource = std::make_unique<HeightGrowthConditionResource>(
+                toml::get<HeightGrowthConditionResource>(value));
+            heightGrowthConditionResource->packId = manifest_->id;
+            heightGrowthConditionResource->processorId = std::to_underlying(processorType);
+            growthConditionsRegistry->Register(std::move(heightGrowthConditionResource));
+            break;
+        }
+        case GrowthConditionProcessorType::Time: {
+            auto timeGrowthConditionResource = std::make_unique<TimeGrowthConditionResource>(
+                toml::get<TimeGrowthConditionResource>(value));
+            timeGrowthConditionResource->packId = manifest_->id;
+            timeGrowthConditionResource->processorId = std::to_underlying(processorType);
+            growthConditionsRegistry->Register(std::move(timeGrowthConditionResource));
             break;
         }
     }

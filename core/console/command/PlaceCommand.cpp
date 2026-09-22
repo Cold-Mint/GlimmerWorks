@@ -103,9 +103,15 @@ bool glimmer::PlaceCommand::ExecuteStructure(const CommandArgs *commandArgs, con
     if (appContext == nullptr) {
         return false;
     }
-    auto structureId = commandArgs->AsResourceRef(2, RESOURCE_STRUCTURE);
-    IStructureResource *structureResource = appContext->GetModContext()->GetStructureRegistry()->Find(
-        structureId->GetPackageId(), structureId->GetResourceKey());
+    const auto structureId = commandArgs->AsResourceRef(2, RESOURCE_STRUCTURE);
+    if (!structureId.has_value()) {
+        return false;
+    }
+    const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+    if (resourceLocator == nullptr) {
+        return false;
+    }
+    IStructureResource *structureResource = resourceLocator->FindStructure(&structureId.value());
     if (structureResource == nullptr) {
         return false;
     }

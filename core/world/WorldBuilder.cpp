@@ -46,7 +46,6 @@
 #include "core/log/LogCat.h"
 #include "core/mod/Resource.h"
 #include "core/mod/ResourceRef.h"
-#include "core/mod/dataPack/DimensionRegistry.h"
 #include "core/saves/Saves.h"
 #include "core/utils/StringUtils.h"
 #include "generator/TileLayerType.h"
@@ -90,14 +89,10 @@ void glimmer::WorldBuilder::Build() {
     worldContext_->entityManager_ = std::make_unique<EntityManager>();
     worldContext_->entityShortCut_ = std::make_unique<EntityShortCut>();
     worldContext_->entityManager_->SetEntityIndex(worldContext_->mapManifest_->entityIDIndex);
-    DimensionRegistry *dimensionRegistry = modContext->GetDimensionRegistry();
-    if (dimensionRegistry == nullptr) {
-        return;
-    }
     ResourceRef &customDimension = worldContext_->playerManifest_->customDimension;
     worldContext_->dimension_ = std::make_unique<Dimension>();
-    DimensionResource *dimensionResource = dimensionRegistry->Find(customDimension.GetPackageId(),
-                                                                   customDimension.GetResourceKey());
+    DimensionResource *dimensionResource = worldContext_->appContext_->GetResourceLocator()->FindDimension(
+        &customDimension);
     if (dimensionResource == nullptr) {
         LogCat::w(std::source_location::current(), "world_builder_dimension_resource_null",
                   "Dimension resource is not found, cannot build world");

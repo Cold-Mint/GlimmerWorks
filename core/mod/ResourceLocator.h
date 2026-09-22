@@ -57,6 +57,8 @@ namespace glimmer {
     class MobRegistry;
     class ItemManager;
     class LootTableRegistry;
+    class StructureRegistry;
+    class DimensionRegistry;
     class WorldContext;
     enum class TileLayerType : uint8_t;
     class AppContext;
@@ -77,6 +79,8 @@ namespace glimmer {
         ComposableItemRegistry *composableItemRegistry_ = nullptr;
         MaterialItemRegistry *materialItemRegistry_ = nullptr;
         MobRegistry *mobRegistry_ = nullptr;
+        StructureRegistry *structureRegistry_ = nullptr;
+        DimensionRegistry *dimensionRegistry_ = nullptr;
         TileResourceManager *tileResourceManager_ = nullptr;
         LightMaskManager *lightMaskManager_ = nullptr;
         LightSourceManager *lightSourceManager_ = nullptr;
@@ -208,6 +212,22 @@ namespace glimmer {
         [[nodiscard]] TileResource *FindTileRaw(const ResourceRef *resourceRef) const;
 
         [[nodiscard]] MobResource *FindMob(const ResourceRef *resourceRef) const;
+
+        /**
+         * FindStructure
+         * 获取结构资源
+         * @param resourceRef resourceRef 结构引用
+         * @return
+         */
+        [[nodiscard]] IStructureResource *FindStructure(const ResourceRef *resourceRef) const;
+
+        /**
+         * FindDimension
+         * 获取维度资源
+         * @param resourceRef resourceRef 维度引用
+         * @return
+         */
+        [[nodiscard]] DimensionResource *FindDimension(const ResourceRef *resourceRef) const;
 
         /**
          * FindComposableItem

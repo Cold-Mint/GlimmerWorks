@@ -116,6 +116,16 @@ glimmer::ResourceLocator::ResourceLocator(AppContext *appContext) : appContext_(
         LogCat::e(std::source_location::current(), "mob_manager_is_null", "mobManager_ == nullptr");
         return;
     }
+    structureRegistry_ = modContext->GetStructureRegistry();
+    if (structureRegistry_ == nullptr) {
+        LogCat::e(std::source_location::current(), "structure_registry_is_null", "structureRegistry_ == nullptr");
+        return;
+    }
+    dimensionRegistry_ = modContext->GetDimensionRegistry();
+    if (dimensionRegistry_ == nullptr) {
+        LogCat::e(std::source_location::current(), "dimension_registry_is_null", "dimensionRegistry_ == nullptr");
+        return;
+    }
     tileResourceManager_ = modContext->GetTileResourceManager();
     if (tileResourceManager_ == nullptr) {
         LogCat::e(std::source_location::current(), "tile_resource_manager_is_null", "tileResourceManager_ == nullptr");
@@ -445,6 +455,34 @@ glimmer::MobResource *glimmer::ResourceLocator::FindMob(const ResourceRef *resou
         return mobRegistry_->Find(resourceRef->GetPackageId(),
                                   resourceRef->GetResourceKey());
     });
+}
+
+glimmer::IStructureResource *glimmer::ResourceLocator::FindStructure(const ResourceRef *resourceRef) const {
+    return FindRegistered<IStructureResource>(resourceRef, RESOURCE_STRUCTURE,
+                                              [this, resourceRef]() -> IStructureResource * {
+                                                  if (structureRegistry_ == nullptr) {
+                                                      LogCat::w(std::source_location::current(),
+                                                                "structure_registry_is_null",
+                                                                "structureRegistry_ == nullptr");
+                                                      return nullptr;
+                                                  }
+                                                  return structureRegistry_->Find(resourceRef->GetPackageId(),
+                                                                                  resourceRef->GetResourceKey());
+                                              });
+}
+
+glimmer::DimensionResource *glimmer::ResourceLocator::FindDimension(const ResourceRef *resourceRef) const {
+    return FindRegistered<DimensionResource>(resourceRef, RESOURCE_DIMENSION,
+                                             [this, resourceRef]() -> DimensionResource * {
+                                                 if (dimensionRegistry_ == nullptr) {
+                                                     LogCat::w(std::source_location::current(),
+                                                               "dimension_registry_is_null",
+                                                               "dimensionRegistry_ == nullptr");
+                                                     return nullptr;
+                                                 }
+                                                 return dimensionRegistry_->Find(resourceRef->GetPackageId(),
+                                                                                 resourceRef->GetResourceKey());
+                                             });
 }
 
 glimmer::ComposableItemResource *glimmer::ResourceLocator::FindComposableItem(

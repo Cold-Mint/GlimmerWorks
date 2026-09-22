@@ -105,6 +105,7 @@ glimmer::GameSystemType glimmer::SystemScheduler::GetTopGuiSystemType() const {
 
 std::vector<glimmer::GameSystemType> glimmer::SystemScheduler::GetAllActiveSystemType() const {
     std::vector<GameSystemType> result;
+    std::lock_guard lock(systemMutex_);
     for (auto &activeSystem: activeSystems_) {
         if (activeSystem == nullptr) {
             continue;
@@ -116,6 +117,7 @@ std::vector<glimmer::GameSystemType> glimmer::SystemScheduler::GetAllActiveSyste
 
 void glimmer::SystemScheduler::OnWatchedComponentChanged(const GameComponentTypeMessage type,
                                                          const uint32_t count) {
+    std::lock_guard lock(systemMutex_);
     onComponentCountChangeBuffer_[type] = count;
 }
 
@@ -124,6 +126,7 @@ bool glimmer::SystemScheduler::HasAnyModalGuiOpen() const {
 }
 
 glimmer::GameSystem *glimmer::SystemScheduler::GetGameSystem(GameSystemType type) const {
+    std::lock_guard lock(systemMutex_);
     for (const auto &system: activeSystems_) {
         if (system && system->GetGameSystemType() == type) {
             return system.get();
@@ -175,7 +178,21 @@ bool glimmer::SystemScheduler::HandleEvent(const SDL_Event &event) {
 }
 
 void glimmer::SystemScheduler::OnTick(uint64_t tick) {
-    for (auto &activeSystem: activeSystems_) {
+    std::vector<GameSystem *> activeSystems;
+    {
+        std::lock_guard lock(systemMutex_);
+        activeSystems.reserve(activeSystems_.size());
+        for (auto &activeSystem: activeSystems_) {
+            activeSystems.emplace_back(activeSystem.get());
+        }
+    }
+    for (GameSystem *activeSystem: activeSystems) {
+        if (activeSystem == nullptr) {
+            LogCat::d("system_scheduler_tick_system_null", "[SystemScheduler] active system is null, skip");
+            continue;
+        }
+        LogCat::d("system_scheduler_on_tick", "[SystemScheduler] tick={}, systemType={}", tick,
+                  std::to_underlying(activeSystem->GetGameSystemType()));
         activeSystem->OnTick(tick);
     }
 }
@@ -276,43 +293,49 @@ void glimmer::SystemScheduler::OnFrameStart() {
     std::queue<GameSystem *> toActivate;
     std::queue<GameSystem *> toDeactivate;
     bool changed = false;
-    for (auto &buffer: onComponentCountChangeBuffer_) {
-        const GameComponentTypeMessage gameComponentType = buffer.first;
-        const uint32_t count = buffer.second;
-        NotifySystemsOfComponentChange(gameComponentType, count);
+    std::vector<GameSystem *> systemsToStartFrame;
+    {
+        std::lock_guard lock(systemMutex_);
+        for (auto &buffer: onComponentCountChangeBuffer_) {
+            const GameComponentTypeMessage gameComponentType = buffer.first;
+            const uint32_t count = buffer.second;
+            NotifySystemsOfComponentChange(gameComponentType, count);
+        }
+        for (auto &system: inactiveSystems_) {
+            if (system == nullptr) {
+                continue;
+            }
+            if (system->IsAllWatchComponentsReady() && system->CanActive()) {
+                toActivate.emplace(system.get());
+                changed = true;
+            }
+        }
+        for (auto &system: activeSystems_) {
+            if (system == nullptr) {
+                continue;
+            }
+            if (!system->IsAllWatchComponentsReady() || !system->CanActive()) {
+                toDeactivate.emplace(system.get());
+                changed = true;
+            }
+        }
+        onComponentCountChangeBuffer_.clear();
+        MoveSystemsToActive(toActivate);
+        MoveSystemsToInactive(toDeactivate);
+        if (changed) {
+            std::ranges::stable_sort(activeSystems_,
+                                     [](const std::unique_ptr<GameSystem> &systemA,
+                                        const std::unique_ptr<GameSystem> &systemB) {
+                                         return systemA->GetExecutionOrder() < systemB->GetExecutionOrder();
+                                     });
+        }
+        for (auto &system: activeSystems_) {
+            if (system != nullptr) {
+                systemsToStartFrame.emplace_back(system.get());
+            }
+        }
     }
-    for (auto &system: inactiveSystems_) {
-        if (system == nullptr) {
-            continue;
-        }
-        if (system->IsAllWatchComponentsReady() && system->CanActive()) {
-            toActivate.emplace(system.get());
-            changed = true;
-        }
-    }
-    for (auto &system: activeSystems_) {
-        if (system == nullptr) {
-            continue;
-        }
-        if (!system->IsAllWatchComponentsReady() || !system->CanActive()) {
-            toDeactivate.emplace(system.get());
-            changed = true;
-        }
-    }
-    onComponentCountChangeBuffer_.clear();
-    MoveSystemsToActive(toActivate);
-    MoveSystemsToInactive(toDeactivate);
-    if (changed) {
-        std::ranges::stable_sort(activeSystems_,
-                                 [](const std::unique_ptr<GameSystem> &systemA,
-                                    const std::unique_ptr<GameSystem> &systemB) {
-                                     return systemA->GetExecutionOrder() < systemB->GetExecutionOrder();
-                                 });
-    }
-    for (auto &system: activeSystems_) {
-        if (system == nullptr) {
-            continue;
-        }
+    for (GameSystem *system: systemsToStartFrame) {
         system->OnFrameStart();
     }
 }

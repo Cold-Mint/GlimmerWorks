@@ -53,6 +53,10 @@ bool glimmer::Tile::IsOverwritable() const {
     return isOverwritable_;
 }
 
+bool glimmer::Tile::DestroySelfOnGrowth() const {
+    return destroySelfOnGrowth_;
+}
+
 const glimmer::ResourceRef *glimmer::Tile::GetGrowthTarget() const {
     return &growthTarget_;
 }

@@ -26,8 +26,8 @@
  */
 #pragma once
 
-#include <cstdint>
 #include <memory>
+#include <mutex>
 #include <queue>
 #include <stack>
 #include <unordered_map>
@@ -60,6 +60,15 @@ namespace glimmer {
         uint32_t onComponentCountChangedId_ = 0;
         std::unordered_map<GameComponentTypeMessage, uint32_t> onComponentCountChangeBuffer_;
         WorldContext *worldContext_ = nullptr;
+        /**
+         * Protects activeSystems_, inactiveSystems_, onComponentCountChangeBuffer_
+         * and activeSystemStack_ against concurrent access from the tick thread
+         * (OnTick) and the main thread (OnFrameStart / HandleEvent).
+         * 保护 activeSystems_、inactiveSystems_、onComponentCountChangeBuffer_
+         * 和 activeSystemStack_ 免受 tick 线程（OnTick）与主线程（OnFrameStart / HandleEvent）
+         * 的并发访问。
+         */
+        mutable std::mutex systemMutex_;
         /**
          * Shortcut keys to the corresponding system types.
          * 快捷键到对应的系统类型。

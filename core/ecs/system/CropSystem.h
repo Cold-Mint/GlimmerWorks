@@ -25,6 +25,7 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <mutex>
 #include <vector>
 
 #include "core/ecs/GameSystem.h"
@@ -45,6 +46,15 @@ namespace glimmer {
     class CropSystem final : public GameSystem {
         uint32_t cropCount_ = 0;
         std::vector<CropComponent *> cropComponents_;
+        /**
+         * Protects cropComponents_ (and cropCount_) against concurrent rebuild on
+         * the main thread (OnWatchedComponentChanged, called from OnFrameStart)
+         * and iteration on the tick thread (OnTick).
+         * 保护 cropComponents_（以及 cropCount_）免受主线程
+         * （OnWatchedComponentChanged，由 OnFrameStart 调用）重建
+         * 与 tick 线程（OnTick）遍历的并发访问。
+         */
+        mutable std::mutex cropMutex_;
 
     public:
         explicit CropSystem(WorldContext *worldContext);
@@ -52,8 +62,17 @@ namespace glimmer {
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
 
-        void OnGrowMature(Chunk *chunk, const TileVector2D &position, TileLayerType layerType,
-                          const ResourceRef *growthTargetRef);
+        /**
+         * OnGrowMature
+         * 当生长完毕后。
+         * @param worldContext worldContext 世界上下文
+         * @param chunk chunk 区块
+         * @param position position  位置
+         * @param layerType layerType  图层类型
+         * @param growthTargetRef growthTargetRef 目标资源引用
+         */
+        static bool OnGrowMature(WorldContext *worldContext, Chunk *chunk, const TileVector2D &position,
+                                 TileLayerType layerType, const ResourceRef *growthTargetRef);
 
         void OnTick(uint64_t tick) override;
 

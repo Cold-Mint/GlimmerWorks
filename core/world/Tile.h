@@ -82,6 +82,8 @@ namespace glimmer {
 
         [[nodiscard]] bool IsOverwritable() const;
 
+        [[nodiscard]] bool DestroySelfOnGrowth() const;
+
         const ResourceRef *GetGrowthTarget() const;
 
         /**

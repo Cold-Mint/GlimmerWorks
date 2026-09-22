@@ -39,6 +39,22 @@ namespace glimmer {
 
         static ResourceRef GetResourceRef();
 
+        /**
+         * SpawnDroppedItem
+         * 生成掉落物
+         *
+         * Centralizes the creation of a dropped-item entity (AddEntity + template components + merge item message).
+         * 集中处理掉落物实体的创建（AddEntity + 模板组件 + 合并物品消息）。
+         *
+         * @param worldContext worldContext 世界上下文
+         * @param position position 掉落位置（世界坐标）
+         * @param item item 要掉落的物品
+         * @param pickupCooldown pickupCooldown 拾取冷却
+         * @return Whether the dropped item was spawned 是否成功生成
+         */
+        static bool SpawnDroppedItem(WorldContext *worldContext, const WorldVector2D &position,
+                                     std::unique_ptr<Item> item, float pickupCooldown);
+
         void LoadTemplateComponents(uint32_t id, const ResourceRef &resourceRef) override;
 
         void MergeEntityItemMessage(uint32_t id, const EntityItemMessage &entityItemMessage) override;

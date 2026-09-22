@@ -35,10 +35,10 @@ namespace glimmer {
     class PlaceCommand final : public Command {
         void InitSuggestions(NodeTree<std::string> *suggestionsTree) override;
 
-        static void PlaceTileAt(const WorldContext *worldContext, Chunk *chunk, TileLayerType tileLayerType, int index,
+        static void PlaceTileAt(Chunk *chunk, TileLayerType tileLayerType, int index,
                                 const ResourceRef &resourceRef, const TileResource *tileResource, int x, int y);
 
-        static void PlaceTileAtWithSize(const WorldContext *worldContext, Chunk *chunk, TileLayerType tileLayerType,
+        static void PlaceTileAtWithSize(Chunk *chunk, TileLayerType tileLayerType,
                                         int index,
                                         const ResourceRef &resourceRef, const TileResource *tileResource);
 

@@ -115,23 +115,18 @@ void glimmer::MiningSystem::ApplyItemDurability(Item *item, const Tile *tile, bo
     }
 }
 
-void glimmer::MiningSystem::DropDefaultLoot(WorldContext *worldContext, EntityManager *entityManager,
+void glimmer::MiningSystem::DropDefaultLoot(WorldContext *worldContext,
                                             const std::shared_ptr<Tile> &tile, const TileVector2D &position,
                                             const ResourceRef &oldResourceRef) {
-    const uint32_t droppedEntity = entityManager->AddEntity();
-    LogCat::d("mining_drop_default_loot", "Dropping default loot: entity={}, tile=({}, {})",
-              droppedEntity, position.x, position.y);
-    DroppedItemCreator droppedItemCreator{worldContext};
-    droppedItemCreator.LoadTemplateComponents(droppedEntity,
-                                              DroppedItemCreator::GetResourceRef());
-    droppedItemCreator.MergeEntityItemMessage(droppedEntity,
-                                              DroppedItemCreator::GetEntityItemMessage(
-                                                  CoordinateTransformer::TileToWorld(position),
-                                                  std::make_unique<TileItem>(tile, oldResourceRef),
-                                                  0));
+    LogCat::d("mining_drop_default_loot", "Dropping default loot: tile=({}, {})",
+              position.x, position.y);
+    DroppedItemCreator::SpawnDroppedItem(worldContext,
+                                         CoordinateTransformer::TileToWorld(position),
+                                         std::make_unique<TileItem>(tile, oldResourceRef),
+                                         0);
 }
 
-void glimmer::MiningSystem::DropTileLoot(WorldContext *worldContext, EntityManager *entityManager,
+void glimmer::MiningSystem::DropTileLoot(WorldContext *worldContext,
                                          const std::shared_ptr<Tile> &tile, const TileVector2D &position,
                                          const ResourceRef &oldResourceRef, bool precisionMining) {
     const AppContext *appContext = worldContext->GetAppContext();
@@ -147,13 +142,13 @@ void glimmer::MiningSystem::DropTileLoot(WorldContext *worldContext, EntityManag
     }
     const auto lootResource = appContext->GetResourceLocator()->FindLoot(tileLootData->GetLootTableRef());
     if (precisionMining || !tileLootData->IsCustomLootTable() || lootResource == nullptr) {
-        DropDefaultLoot(worldContext, entityManager, tile, position, oldResourceRef);
+        DropDefaultLoot(worldContext, tile, position, oldResourceRef);
         return;
     }
-    DropCustomLoot(worldContext, entityManager, appContext, lootResource, position);
+    DropCustomLoot(worldContext, appContext, lootResource, position);
 }
 
-void glimmer::MiningSystem::DropCustomLoot(WorldContext *worldContext, EntityManager *entityManager,
+void glimmer::MiningSystem::DropCustomLoot(WorldContext *worldContext,
                                            const AppContext *appContext, const LootResource *lootResource,
                                            const TileVector2D &topLeftVector) {
     std::vector<ItemMessage> itemMessageList = LootResource::GetLootItems(lootResource);
@@ -165,14 +160,9 @@ void glimmer::MiningSystem::DropCustomLoot(WorldContext *worldContext, EntityMan
             continue;
         }
         itemPtr->ReadItemMessage(worldContext, itemMessage);
-        const uint32_t droppedEntity = entityManager->AddEntity();
-        DroppedItemCreator droppedItemCreator{worldContext};
-        droppedItemCreator.LoadTemplateComponents(droppedEntity,
-                                                  DroppedItemCreator::GetResourceRef());
-        droppedItemCreator.MergeEntityItemMessage(droppedEntity,
-                                                  DroppedItemCreator::GetEntityItemMessage(
-                                                      CoordinateTransformer::TileToWorld(topLeftVector),
-                                                      std::move(itemPtr), 0));
+        DroppedItemCreator::SpawnDroppedItem(worldContext,
+                                             CoordinateTransformer::TileToWorld(topLeftVector),
+                                             std::move(itemPtr), 0);
     }
 }
 
@@ -223,7 +213,6 @@ void glimmer::MiningSystem::ProcessSingleTile(const TileBreakParams &params, con
                                               Item *item, const Item *emptyHandAutoUseItem, bool isCenter,
                                               uint8_t &sum) {
     const AppContext *appContext = params.worldContext->GetAppContext();
-    EntityManager *entityManager = params.worldContext->GetEntityManager();
     const auto currentTile = params.tileLayerComponent->GetSelfLayerTileShared(currentVector);
     if (!CanProcessTile(currentTile.get(), params.isPlaceMode)) {
         return;
@@ -270,7 +259,7 @@ void glimmer::MiningSystem::ProcessSingleTile(const TileBreakParams &params, con
     if (!isCenter && !tileLootData->LootScaleBySize()) {
         return;
     }
-    DropTileLoot(params.worldContext, entityManager, currentTile, currentVector,
+    DropTileLoot(params.worldContext, currentTile, currentVector,
                  backup.GetResourceRef(), params.precisionMining);
 }
 

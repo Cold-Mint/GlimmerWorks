@@ -209,7 +209,6 @@ bool glimmer::PlayerControlSystem::OnGround(const PlayerComponent *playerControl
 }
 
 void glimmer::PlayerControlSystem::DropItem(const ItemContainer *itemContainer, const uint8_t index) const {
-    EntityManager *entityManager = GetEntityManager();
     WorldContext *worldContext = GetWorldContext();
 
     if (itemContainer == nullptr) {
@@ -238,14 +237,8 @@ void glimmer::PlayerControlSystem::DropItem(const ItemContainer *itemContainer, 
             audioManager_->TryPlayFree(AudioType::AMBIENT, audio, 0);
         }
     }
-    const uint32_t droppedEntity = entityManager->AddEntity();
-    DroppedItemCreator droppedItemCreator{worldContext};
-    droppedItemCreator.LoadTemplateComponents(droppedEntity,
-                                              DroppedItemCreator::GetResourceRef());
-    droppedItemCreator.MergeEntityItemMessage(droppedEntity,
-                                              DroppedItemCreator::GetEntityItemMessage(
-                                                  cameraTransform2DComponent_->
-                                                  GetPosition(), std::move(takeItem), 2));
+    DroppedItemCreator::SpawnDroppedItem(worldContext,
+                                         cameraTransform2DComponent_->GetPosition(), std::move(takeItem), 2);
 }
 
 bool glimmer::PlayerControlSystem::UseItem(const bool mouseLeft, Item *item) {

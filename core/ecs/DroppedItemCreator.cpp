@@ -71,6 +71,27 @@ glimmer::ResourceRef glimmer::DroppedItemCreator::GetResourceRef() {
     return resourceRef;
 }
 
+bool glimmer::DroppedItemCreator::SpawnDroppedItem(WorldContext *worldContext, const WorldVector2D &position,
+                                                   std::unique_ptr<Item> item, const float pickupCooldown) {
+    if (worldContext == nullptr || item == nullptr) {
+        LogCat::w(std::source_location::current(), "dropped_item_spawn_invalid_args",
+                  "SpawnDroppedItem: worldContext or item is null");
+        return false;
+    }
+    EntityManager *entityManager = worldContext->GetEntityManager();
+    if (entityManager == nullptr) {
+        LogCat::w(std::source_location::current(), "entity_manager_is_null", "entityManager == nullptr");
+        return false;
+    }
+    const uint32_t droppedEntity = entityManager->AddEntity();
+    DroppedItemCreator droppedItemCreator{worldContext};
+    droppedItemCreator.LoadTemplateComponents(droppedEntity, DroppedItemCreator::GetResourceRef());
+    droppedItemCreator.MergeEntityItemMessage(droppedEntity,
+                                              DroppedItemCreator::GetEntityItemMessage(position, std::move(item),
+                                                                                        pickupCooldown));
+    return true;
+}
+
 void glimmer::DroppedItemCreator::LoadTemplateComponents(const uint32_t id, const ResourceRef &resourceRef) {
     uint32_t type = resourceRef.GetResourceType();
     if (type != RESOURCE_DROPPED_ITEM) {

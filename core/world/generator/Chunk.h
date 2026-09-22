@@ -109,6 +109,29 @@ namespace glimmer {
 
         bool CommitTileState(BreakSource breakSource, TileLayerType layerType, int index, bool fallback);
 
+        /**
+         * PlaceTile
+         * 放置瓦片
+         *
+         * Writes a tile resource into the tile state at the given index (resource ref, width/height,
+         * place source, offset, growth state) and commits the change.
+         * 将瓦片资源写入指定索引处的瓦片状态（资源引用、宽高、放置来源、偏移、生长状态）并提交变更。
+         *
+         * @param layerType layerType 目标图层
+         * @param index index 区块内索引
+         * @param resourceRef resourceRef 瓦片资源引用
+         * @param tileResource tileResource 瓦片资源
+         * @param breakSource breakSource 破坏来源（提交时触发旧瓦片 OnBreak）
+         * @param placeSource placeSource 放置来源
+         * @param offsetX offsetX 偏移X
+         * @param offsetY offsetY 偏移Y
+         * @param fallback fallback 提交时是否允许 fallback 瓦片
+         * @return Whether the tile was placed successfully 是否成功放置
+         */
+        bool PlaceTile(TileLayerType layerType, int index, const ResourceRef &resourceRef,
+                       const TileResource *tileResource, BreakSource breakSource, PlaceSourceMessage placeSource,
+                       int offsetX, int offsetY, bool fallback);
+
         [[nodiscard]] TileStateMessage *GetTileState(TileLayerType layerType, uint8_t index) const;
 
         [[nodiscard]] TileStateMessage *GetOrCreateTileState(TileLayerType layerType, int index);

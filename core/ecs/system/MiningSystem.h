@@ -71,20 +71,17 @@ namespace glimmer {
         static void ApplyItemDurability(Item *item, const Tile *tile, bool isCenter);
 
         static void DropDefaultLoot(WorldContext *worldContext,
-                                    EntityManager *entityManager,
                                     const std::shared_ptr<Tile> &tile,
                                     const TileVector2D &position,
                                     const ResourceRef &oldResourceRef);
 
         static void DropTileLoot(WorldContext *worldContext,
-                                 EntityManager *entityManager,
                                  const std::shared_ptr<Tile> &tile,
                                  const TileVector2D &position,
                                  const ResourceRef &oldResourceRef,
                                  bool precisionMining);
 
         static void DropCustomLoot(WorldContext *worldContext,
-                                   EntityManager *entityManager,
                                    const AppContext *appContext,
                                    const LootResource *lootResource,
                                    const TileVector2D &topLeftVector);

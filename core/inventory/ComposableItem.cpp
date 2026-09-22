@@ -152,11 +152,6 @@ const glimmer::AbilityConfig *glimmer::ComposableItem::GetAbilityConfig() const 
 
 bool glimmer::ComposableItem::OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user,
                                     const AbilityConfig *abilityConfig, std::unordered_set<AbilityType> &popupAbility) {
-    EntityManager *entityManager = worldContext->GetEntityManager();
-    if (entityManager == nullptr) {
-        LogCat::w(std::source_location::current(), "entity_manager_is_null", "entityManager == nullptr");
-        return false;
-    }
     bool handle = false;
     const uint8_t max = itemContainer_->GetCapacity();
     //The ability to pop up
@@ -182,14 +177,10 @@ bool glimmer::ComposableItem::OnUse(bool mouseLeft, WorldContext *worldContext, 
         if (popupAbility.contains(itemAbility->GetAbilityType())) {
             //Mutual exclusivity
             //互斥
-            const uint32_t droppedEntity = entityManager->AddEntity();
-            DroppedItemCreator droppedItemCreator{worldContext};
-            droppedItemCreator.LoadTemplateComponents(droppedEntity, DroppedItemCreator::GetResourceRef());
-            droppedItemCreator.MergeEntityItemMessage(droppedEntity, DroppedItemCreator::GetEntityItemMessage(
-                                                          worldContext->
-                                                          GetEntityShortCut()->GetCameraTransform2DComponent()->
-                                                          GetPosition(),
-                                                          itemContainer_->TakeAllItem(index), 2));
+            DroppedItemCreator::SpawnDroppedItem(worldContext,
+                                                 worldContext->GetEntityShortCut()->GetCameraTransform2DComponent()->
+                                                 GetPosition(),
+                                                 itemContainer_->TakeAllItem(index), 2);
             continue;
         }
         const bool result = itemAbility->OnUse(mouseLeft, worldContext, user, abilityConfig, popupAbility);

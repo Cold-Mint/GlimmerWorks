@@ -47,14 +47,13 @@ namespace glimmer {
         /**
          * PopulateSingleTilePosition
          * 填充单个瓦片位置
-         * @param worldContext
          * @param chunk chunk 目标区块
          * @param resourceLocator resourceLocator 资源定位器
          * @param tilesRefMap tilesRefMap 瓦片引用映射
          * @param topLeftIndex topLeftIndex 左上角索引
          */
         static void PopulateSingleTilePosition(
-            const WorldContext *worldContext, Chunk *chunk, const ResourceLocator *resourceLocator,
+            Chunk *chunk, const ResourceLocator *resourceLocator,
             const std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > &tilesRefMap,
             int topLeftIndex);
 
@@ -62,12 +61,11 @@ namespace glimmer {
         /**
          * Populate
          * 填充区块瓦片
-         * @param worldContext
          * @param chunk chunk 目标区块
          * @param resourceLocator resourceLocator 资源定位器
          * @param tilesRefMap tilesRefMap 瓦片引用映射
          */
-        static void Populate(const WorldContext *worldContext, Chunk *chunk, const ResourceLocator *resourceLocator,
+        static void Populate(Chunk *chunk, const ResourceLocator *resourceLocator,
                              const std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > &
                              tilesRefMap);
     };

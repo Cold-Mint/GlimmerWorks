@@ -221,6 +221,28 @@ void glimmer::Chunk::InitGrowthState(TileStateMessage *msg, const TileResource *
     }
 }
 
+bool glimmer::Chunk::PlaceTile(const TileLayerType layerType, const int index, const ResourceRef &resourceRef,
+                               const TileResource *tileResource, const BreakSource breakSource,
+                               const PlaceSourceMessage placeSource, const int offsetX, const int offsetY,
+                               const bool fallback) {
+    if (tileResource == nullptr) {
+        return false;
+    }
+    TileStateMessage *tileStateMessage = GetOrCreateTileState(layerType, index);
+    if (tileStateMessage == nullptr) {
+        return false;
+    }
+    tileStateMessage->set_width(tileResource->tileWidth);
+    tileStateMessage->set_height(tileResource->tileHeight);
+    tileStateMessage->set_placesource(placeSource);
+    tileStateMessage->mutable_offset()->set_x(offsetX);
+    tileStateMessage->mutable_offset()->set_y(offsetY);
+    resourceRef.WriteResourceRefMessage(*tileStateMessage->mutable_resourceref());
+    const uint64_t tick = worldContext_ != nullptr ? worldContext_->GetGlobalTick() : 0;
+    InitGrowthState(tileStateMessage, tileResource, tick);
+    return CommitTileState(breakSource, layerType, index, fallback);
+}
+
 glimmer::TileVector2D glimmer::Chunk::GetPosition() const {
     return position_;
 }

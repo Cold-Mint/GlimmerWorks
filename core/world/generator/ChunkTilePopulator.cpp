@@ -32,7 +32,7 @@
 #include "core/world/WorldContext.h"
 
 
-void glimmer::ChunkTilePopulator::PopulateSingleTilePosition(const WorldContext *worldContext, Chunk *chunk,
+void glimmer::ChunkTilePopulator::PopulateSingleTilePosition(Chunk *chunk,
                                                              const ResourceLocator *resourceLocator,
                                                              const std::unordered_map<TileLayerType, std::array<
                                                                  ResourceRef, CHUNK_AREA> > &tilesRefMap,
@@ -46,28 +46,21 @@ void glimmer::ChunkTilePopulator::PopulateSingleTilePosition(const WorldContext 
         for (int x = 0; x < tileResource->tileWidth; x++) {
             for (int y = 0; y < tileResource->tileHeight; y++) {
                 const int unitIndex = topLeftIndex + y * CHUNK_SIZE + x;
-                TileStateMessage *tileStateMessage = chunk->GetOrCreateTileState(tileLayerType, unitIndex);
-                tileStateMessage->set_placesource(PLACE_SOURCE_WORLD_GEN);
-                tileStateMessage->set_width(tileResource->tileWidth);
-                tileStateMessage->set_height(tileResource->tileHeight);
-                tileStateMessage->mutable_offset()->set_x(x);
-                tileStateMessage->mutable_offset()->set_y(y);
-                resourceRef.WriteResourceRefMessage(*tileStateMessage->mutable_resourceref());
-                Chunk::InitGrowthState(tileStateMessage, tileResource, worldContext->GetGlobalTick());
-                chunk->CommitTileState(BreakSource::ChunkGenerate, tileLayerType, unitIndex, true);
+                chunk->PlaceTile(tileLayerType, unitIndex, resourceRef, tileResource, BreakSource::ChunkGenerate,
+                                 PLACE_SOURCE_WORLD_GEN, x, y, true);
             }
         }
     }
 }
 
-void glimmer::ChunkTilePopulator::Populate(const WorldContext *worldContext, Chunk *chunk,
+void glimmer::ChunkTilePopulator::Populate(Chunk *chunk,
                                            const ResourceLocator *resourceLocator,
                                            const std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> >
                                            &tilesRefMap) {
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
         for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
             const int topLeftIndex = localY * CHUNK_SIZE + localX;
-            PopulateSingleTilePosition(worldContext, chunk, resourceLocator, tilesRefMap, topLeftIndex);
+            PopulateSingleTilePosition(chunk, resourceLocator, tilesRefMap, topLeftIndex);
         }
     }
 }

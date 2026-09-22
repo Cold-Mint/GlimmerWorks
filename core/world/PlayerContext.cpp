@@ -177,12 +177,7 @@ void glimmer::PlayerContext::InitPlayerInventory(const uint32_t playerEntity) co
             if (returnItem == nullptr) {
                 continue;
             }
-            const uint32_t droppedEntity = entityManager->AddEntity();
-            DroppedItemCreator droppedItemCreator{worldContext_};
-            droppedItemCreator.LoadTemplateComponents(droppedEntity, DroppedItemCreator::GetResourceRef());
-            droppedItemCreator.MergeEntityItemMessage(droppedEntity,
-                                                      DroppedItemCreator::GetEntityItemMessage(
-                                                          playerPos, std::move(returnItem), 2));
+            DroppedItemCreator::SpawnDroppedItem(worldContext_, playerPos, std::move(returnItem), 2);
         }
     }
 }
@@ -277,11 +272,6 @@ void glimmer::PlayerContext::DropComposableItemAbilities(const ComposableItem *c
             continue;
         }
         std::unique_ptr<Item> takeItem = itemContainer->TakeItem(i, itemStackModule->GetAmount());
-        const uint32_t droppedEntity = worldContext_->GetEntityManager()->AddEntity();
-        DroppedItemCreator droppedItemCreator{worldContext_};
-        droppedItemCreator.LoadTemplateComponents(droppedEntity, DroppedItemCreator::GetResourceRef());
-        droppedItemCreator.MergeEntityItemMessage(droppedEntity,
-                                                  DroppedItemCreator::GetEntityItemMessage(
-                                                      dropPos, std::move(takeItem), 2));
+        DroppedItemCreator::SpawnDroppedItem(worldContext_, dropPos, std::move(takeItem), 2);
     }
 }

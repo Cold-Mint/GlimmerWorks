@@ -25,7 +25,10 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <unordered_map>
+
 #include "TerrainResultType.h"
+#include "TileLayerType.h"
 #include "core/mod/Resource.h"
 #include "core/math/TileVector2D.h"
 
@@ -38,5 +41,5 @@ struct TerrainTileResult {
     glimmer::TileVector2D world;
     glimmer::TerrainResultType terrainType = glimmer::TerrainResultType::AIR;
     glimmer::BiomeResource *biomeResource = nullptr;
-    glimmer::ResourceRef structureResRef;
+    std::unordered_map<glimmer::TileLayerType, glimmer::ResourceRef> structureResRefs;
 };

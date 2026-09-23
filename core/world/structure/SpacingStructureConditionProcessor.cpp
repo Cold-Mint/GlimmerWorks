@@ -26,25 +26,14 @@
  */
 #include "SpacingStructureConditionProcessor.h"
 
-namespace {
-    int CalculateFirstIndex(const int globalCoordinate, const int minDistance) {
-        int remainder = globalCoordinate % minDistance;
-        if (remainder < 0) {
-            //Fix negative numbers
-            //修复负数
-            remainder += minDistance;
-        }
-        return remainder == 0 ? 0 : minDistance - remainder;
-    }
-}
-
 glimmer::StructureConditionProcessorType glimmer::SpacingStructureConditionProcessor::
 GetStructureConditionProcessorType() {
     return StructureConditionProcessorType::Spacing;
 }
 
 std::bitset<CHUNK_AREA> glimmer::SpacingStructureConditionProcessor::Match(TerrainResult *terrainResult,
-    const IStructurePlacementConditionsResource *placementConditionsResource) {
+                                                                           const IStructurePlacementConditionsResource *
+                                                                           placementConditionsResource) {
     const auto spacingStructureConditions = dynamic_cast<const SpacingStructureConditionsResource *>(
         placementConditionsResource);
     int minDistance = spacingStructureConditions->minDistance;
@@ -53,17 +42,21 @@ std::bitset<CHUNK_AREA> glimmer::SpacingStructureConditionProcessor::Match(Terra
     }
     std::bitset<CHUNK_AREA> result;
     if (spacingStructureConditions->isVertical) {
-        const int y0 = CalculateFirstIndex(terrainResult->GetPosition().y, minDistance);
-        for (int y = y0; y < CHUNK_SIZE; y += minDistance) {
-            for (int x = 0; x < CHUNK_SIZE; ++x) {
-                result.set(y * CHUNK_SIZE + x);
+        for (int y = 0; y < CHUNK_SIZE; ++y) {
+            int globalY = y + terrainResult->GetPosition().y;
+            if (globalY % minDistance == 0) {
+                for (int x = 0; x < CHUNK_SIZE; ++x) {
+                    result.set(y * CHUNK_SIZE + x);
+                }
             }
         }
     } else {
-        const int x0 = CalculateFirstIndex(terrainResult->GetPosition().x, minDistance);
-        for (int y = 0; y < CHUNK_SIZE; ++y) {
-            for (int x = x0; x < CHUNK_SIZE; x += minDistance) {
-                result.set(y * CHUNK_SIZE + x);
+        for (int x = 0; x < CHUNK_SIZE; ++x) {
+            int globalX = x + terrainResult->GetPosition().x;
+            if (globalX % minDistance == 0) {
+                for (int y = 0; y < CHUNK_SIZE; ++y) {
+                    result.set(y * CHUNK_SIZE + x);
+                }
             }
         }
     }

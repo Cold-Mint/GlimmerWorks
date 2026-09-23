@@ -55,10 +55,12 @@ namespace glimmer {
          * 将某个坐标标记为结构。
          * @param tileIndex
          * @param structureResource
+         * @param layerType The tile layer the structure tile belongs to 结构瓦片所属的图层
          */
         void SetTerrainTileStructure(
             int tileIndex,
-            const ResourceRef *structureResource);
+            const ResourceRef *structureResource,
+            TileLayerType layerType);
 
         /**
          * Set the terrain data of the last column on the left side of the block.

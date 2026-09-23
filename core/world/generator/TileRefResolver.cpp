@@ -89,7 +89,10 @@ void glimmer::TileRefResolver::SetTileRefForTerrainType(const int idx,
             tilesRefMap[Ground][idx] = bedrockTileRef;
             break;
         case STRUCTURE:
-            tilesRefMap[Ground][idx] = terrainTileResult.structureResRef;
+            tilesRefMap[Ground][idx] = TileResourceManager::GetAirResourceRef(Ground);
+            for (const auto &[structureLayerType, structureResRef]: terrainTileResult.structureResRefs) {
+                tilesRefMap[structureLayerType][idx] = structureResRef;
+            }
             break;
         case SOLID:
             tilesRefMap[Ground][idx] = TileResourceManager::GetAirResourceRef(Ground);

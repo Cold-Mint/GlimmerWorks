@@ -108,7 +108,7 @@ void glimmer::StructurePlacer::PlaceStructureTiles(TerrainManager *terrainManage
                 continue;
             }
             const int index = relativeY << CHUNK_SHIFT | relativeX;
-            currentTerrain->SetTerrainTileStructure(index, &tileResource);
+            currentTerrain->SetTerrainTileStructure(index, &tileResource, tileLayerType);
         }
     }
 }

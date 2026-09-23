@@ -85,7 +85,7 @@ namespace glimmer {
          * Blit the screenshot target texture to the real swapchain texture.
          * 将截图目标纹理 Blit 到真正的交换链纹理。
          */
-        void BlitScreenshotToSwapChain(SDL_GPUCommandBuffer *commandBuffer,
+        static void BlitScreenshotToSwapChain(SDL_GPUCommandBuffer *commandBuffer,
                                        SDL_GPUTexture *source,
                                        SDL_GPUTexture *destination,
                                        Uint32 width, Uint32 height);

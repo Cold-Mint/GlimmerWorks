@@ -79,6 +79,10 @@ glimmer::MapManifest *glimmer::WorldContext::GetMapManifest() const {
     return mapManifest_.get();
 }
 
+glimmer::PlayerManifest *glimmer::WorldContext::GetPlayerManifest() const {
+    return playerManifest_.get();
+}
+
 glimmer::ChunkGenerator *glimmer::WorldContext::GetChunkGenerator() const {
     return chunkGenerator_.get();
 }
@@ -92,7 +96,7 @@ glimmer::AppContext *glimmer::WorldContext::GetAppContext() const {
 }
 
 b2WorldId glimmer::WorldContext::GetWorldId() const {
-    return worldId_;
+    return box2DWorldId_.GetWorldId();
 }
 
 int glimmer::WorldContext::GetWorldSeed() const {
@@ -144,8 +148,6 @@ glimmer::Dimension *glimmer::WorldContext::GetDimension() const {
 }
 
 glimmer::WorldContext::~WorldContext() {
-    b2DestroyWorld(worldId_);
-    worldId_ = b2_nullWorldId;
     if (appContext_ != nullptr) {
         if (const ConsoleContext *consoleContext = appContext_->GetConsoleContext(); consoleContext != nullptr) {
             if (CommandManager *commandManager = consoleContext->GetCommandManager(); commandManager != nullptr) {

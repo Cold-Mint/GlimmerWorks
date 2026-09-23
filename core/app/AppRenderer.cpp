@@ -133,9 +133,6 @@ void glimmer::AppRenderer::RenderFrame(const int windowWidth, const int windowHe
     if (uniformInjectContext != nullptr) {
         uniformInjectContext->width = static_cast<float>(logicalWidth);
         uniformInjectContext->height = static_cast<float>(logicalHeight);
-    } else {
-        LogCat::w(std::source_location::current(), "app_renderer_uniform_inject_context_is_null",
-                  "UniformInjectContext is null, lighting pass will be skipped (black screen)");
     }
 
     RenderFrameContext ctx;

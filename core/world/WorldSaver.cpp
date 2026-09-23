@@ -88,8 +88,10 @@ void glimmer::WorldSaver::SaveGame() {
     auto player = worldContext_->GetEntityShortCut()->GetPlayer();
     if (!WorldContext::IsEmptyEntityId(player) && worldContext_->GetEntityManager()->IsPersistable(player)) {
         PlayerMessage playerMessage;
-        playerMessage.set_lastplayedtime(endTime);
-
+        if (PlayerManifest *playerManifest = worldContext_->GetPlayerManifest(); playerManifest != nullptr) {
+            playerManifest->lastPlayedTime = endTime;
+            playerManifest->ToMessage(playerMessage);
+        }
         SaveEntity(playerMessage.mutable_entity(), player);
         (void) saves->WriteLocalPlayer(playerMessage);
         LogCat::i("world_context_player_saved", "Player saved");

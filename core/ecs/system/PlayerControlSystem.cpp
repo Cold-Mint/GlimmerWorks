@@ -253,8 +253,8 @@ bool glimmer::PlayerControlSystem::UseItem(const bool mouseLeft, Item *item) {
 void glimmer::PlayerControlSystem::UpdateFlying(const PlayerInputHandler *playerInputHandler,
                                                 Transform2DComponent *transform2DComponent) {
     WorldVector2D velocity = {};
-    velocity.x = playerInputHandler->GetHorizontalInput() * FLY_SPEED;
-    velocity.y = playerInputHandler->GetVerticalInput() * FLY_SPEED;
+    velocity.x = playerInputHandler->GetHorizontalInput() * FLY_SPEED * FIXED_TIME_STEP;
+    velocity.y = playerInputHandler->GetVerticalInput() * FLY_SPEED * FIXED_TIME_STEP;
     transform2DComponent->SetPosition(transform2DComponent->GetPosition() + velocity);
 }
 

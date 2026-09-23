@@ -26,7 +26,6 @@
  */
 #include "RigidBody2DComponent.h"
 
-#include "core/log/LogCat.h"
 #include "core/utils/Box2DUtils.h"
 #include "box2d/box2d.h"
 #include "core/config/Constants.h"
@@ -133,8 +132,6 @@ void glimmer::RigidBody2DComponent::CreateBody(const ResourceLocator *resourceLo
             b2CreatePolygonShape(bodyId_, &shapeDef, &box2dShape);
         }
     }
-
-
     ready_ = true;
 }
 

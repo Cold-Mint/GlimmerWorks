@@ -215,7 +215,6 @@ app_renderer_light_map_texture_is_null = "光照贴图纹理为空，跳过光�
 app_renderer_scene_pass_info = "FlushScenePass：命令数={}，目标纹理={}，顶点缓冲={}，索引缓冲={}"
 app_renderer_scene_texture_format = "场景离屏纹理已创建：{}x{}，格式={}"
 app_renderer_scene_texture_is_null = "场景离屏纹理为空，跳过光照合成"
-app_renderer_uniform_inject_context_is_null = "UniformInjectContext 为空，将跳过光照合成（画面可能全黑）"
 area_marker_component_null = "EntityShortCut：区域标记组件指针为空，区域标记渲染缺失"
 args_empty = "参数为空"
 asset_manager_is_null = "资源管理器为空"

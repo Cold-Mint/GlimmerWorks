@@ -28,6 +28,7 @@
 
 #include <memory>
 
+#include "Box2dWorldId.h"
 #include "LightBuffer.h"
 #include "core/saves/PlayerManifest.h"
 #include "core/saves/Saves.h"
@@ -55,7 +56,6 @@ namespace glimmer {
     class ResourceRef;
     struct LightKeyframe;
     struct SkyColorKeyframe;
-    class WorldBuilder;
 
     /**
      * GameEntity has been restricted to be accessed directly only within the WorldContext. uint32_t is provided externally.
@@ -82,7 +82,7 @@ namespace glimmer {
         //Whether it is running or not, if false, it indicates that the game has been paused.
         //是否正在运行中，为false则表示游戏已被暂停。
         bool running = true;
-        b2WorldId worldId_ = b2_nullWorldId;
+        Box2dWorldId box2DWorldId_;
         AppContext *appContext_ = nullptr;
         std::unique_ptr<MapManifest> mapManifest_ = nullptr;
         std::unique_ptr<PlayerManifest> playerManifest_ = nullptr;
@@ -120,6 +120,8 @@ namespace glimmer {
         [[nodiscard]] Saves *GetSaves() const;
 
         [[nodiscard]] MapManifest *GetMapManifest() const;
+
+        [[nodiscard]] PlayerManifest *GetPlayerManifest() const;
 
         [[nodiscard]] AppContext *GetAppContext() const;
 

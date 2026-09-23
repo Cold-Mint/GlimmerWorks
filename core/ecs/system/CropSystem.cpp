@@ -330,7 +330,7 @@ void glimmer::CropSystem::OnTick(const uint64_t tick) {
                 if (chunk == nullptr) {
                     return;
                 }
-                if (CropSystem::OnGrowMature(worldContext, chunk, relative, layerType, &growthTarget)) {
+                if (OnGrowMature(worldContext, chunk, relative, layerType, &growthTarget)) {
                     LogCat::d("crop_system_grow_mature_success",
                               "[CropSystem] crop matured: position=({}, {}), layerType={}, targetPackageId={}, targetResourceKey={}, isTileTarget={}, destroySelfOnGrowth={}",
                               position.x, position.y, static_cast<int>(layerType), growthTarget.GetPackageId(),

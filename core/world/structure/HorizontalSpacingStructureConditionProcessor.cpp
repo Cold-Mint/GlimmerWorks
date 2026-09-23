@@ -42,14 +42,14 @@ std::bitset<CHUNK_AREA> glimmer::HorizontalSpacingStructureConditionProcessor::M
     }
     std::bitset<CHUNK_AREA> result;
     for (int y = 0; y < CHUNK_SIZE; ++y) {
-        int globalX0 = terrainResult->GetPosition().x;
+        const int globalX0 = terrainResult->GetPosition().x;
         int remainder = globalX0 % minDistance;
         if (remainder < 0) {
             //Fix negative numbers
             //修复负数
             remainder += minDistance;
         }
-        int x0 = remainder == 0 ? 0 : minDistance - remainder;
+        const int x0 = remainder == 0 ? 0 : minDistance - remainder;
         for (int x = x0; x < CHUNK_SIZE; x += minDistance) {
             result.set(y * CHUNK_SIZE + x);
         }

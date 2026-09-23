@@ -828,6 +828,7 @@ target_sources(GlimmerWorks
         core/rmi/DecoratorNinePatchTextureInstancer.cpp
         core/ecs/system/InventoryGUISystem.cpp
         core/ecs/component/RecipeSelectionComponent.cpp
+        core/world/Box2dWorldId.cpp
         main.cpp
         PUBLIC
         FILE_SET HEADERS
@@ -837,6 +838,7 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Platform_SDL.h"
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL_GPU.h"
         core/app/App.h
+        core/world/Box2dWorldId.h
         core/log/WarningCode.h
         core/world/DayNormalizedTime.h
         core/log/ErrorCode.h

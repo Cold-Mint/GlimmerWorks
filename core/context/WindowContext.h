@@ -37,6 +37,8 @@ namespace glimmer {
         SDL_GPUDevice *device_ = nullptr;
 
     public:
+        ~WindowContext();
+
         /**
          * Create windows and devices
          * 创建窗口和设备
@@ -61,7 +63,5 @@ namespace glimmer {
         [[nodiscard]] int GetWindowWidth() const;
 
         [[nodiscard]] int GetWindowHeight() const;
-
-        void Shutdown();
     };
 }

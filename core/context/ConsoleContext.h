@@ -40,20 +40,18 @@ namespace glimmer {
     class AppContext;
 
     class ConsoleContext {
-        std::unique_ptr<CommandManager> commandManager_;
-        std::unique_ptr<ConsoleWorker> consoleWorker_;
-        std::unique_ptr<LocalConsoleInput> localConsoleInput_;
-        std::shared_ptr<CommandHistoryManager> commandHistoryManager_;
-        std::unique_ptr<CommandHookManager> commandHookManager_;
-        std::unique_ptr<DynamicSuggestionsManager> dynamicSuggestionsManager_;
+        std::unique_ptr<CommandManager> commandManager_ = nullptr;
+        std::unique_ptr<ConsoleWorker> consoleWorker_ = nullptr;
+        std::unique_ptr<LocalConsoleInput> localConsoleInput_ = nullptr;
+        std::shared_ptr<CommandHistoryManager> commandHistoryManager_ = nullptr;
+        std::unique_ptr<CommandHookManager> commandHookManager_ = nullptr;
+        std::unique_ptr<DynamicSuggestionsManager> dynamicSuggestionsManager_ = nullptr;
 
         void RegisterCommands(AppContext *appContext) const;
 
     public:
         bool Init(AppContext *appContext, VirtualFileSystem *vfs, const std::string &runtimePath,
                   int maxHistoryEntries);
-
-        void StopConsoleWorker() const;
 
         void SaveCommandHistory() const;
 

@@ -95,6 +95,11 @@ void glimmer::ConsoleWorker::WorkLoop(std::stop_token stopToken) {
     LogCat::i("console_worker_thread_stopped", "ConsoleWorker thread stopped");
 }
 
+glimmer::ConsoleWorker::~ConsoleWorker() {
+    thread_.request_stop();
+    conditionVariable_.notify_one();
+}
+
 glimmer::ConsoleWorker::ConsoleWorker(CommandManager *commandManager, AppContext *appContext)
     : commandManager_(commandManager), appContext_(appContext) {
     thread_ = std::jthread([this](const std::stop_token &stopToken) { this->WorkLoop(stopToken); });
@@ -130,11 +135,6 @@ void glimmer::ConsoleWorker::PopOnMessage() {
     if (!onMessageStack_.empty()) {
         onMessageStack_.pop();
     }
-    conditionVariable_.notify_one();
-}
-
-void glimmer::ConsoleWorker::Stop() {
-    thread_.request_stop();
     conditionVariable_.notify_one();
 }
 

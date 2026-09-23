@@ -197,19 +197,6 @@ bool glimmer::ConsoleContext::Init(AppContext *appContext, VirtualFileSystem *vf
     return true;
 }
 
-void glimmer::ConsoleContext::StopConsoleWorker() const {
-    if (consoleWorker_ == nullptr) {
-        LogCat::w(std::source_location::current(), "console_worker_is_null", "consoleWorker_ == nullptr");
-    } else {
-        consoleWorker_->Stop();
-    }
-    if (localConsoleInput_ == nullptr) {
-        LogCat::w(std::source_location::current(), "local_console_input_is_null", "localConsoleInput_ == nullptr");
-    } else {
-        localConsoleInput_->Stop();
-    }
-}
-
 void glimmer::ConsoleContext::SaveCommandHistory() const {
     if (commandHistoryManager_ == nullptr) {
         LogCat::w(std::source_location::current(), "command_history_manager_is_null",

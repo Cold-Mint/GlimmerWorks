@@ -32,9 +32,13 @@
 #include "core/context/WindowContext.h"
 #include "core/gpu/GpuShaderCompiler.h"
 #include "core/log/LogCat.h"
-#include "core/mod/ResourceLocator.h"
-#include "core/mod/resourcePack/ResourcePackManager.h"
-#include "core/vfs/VirtualFileSystem.h"
+
+void glimmer::InitWindowAndRendererTask::ShutdownGpuShaderCompiler() {
+    if (initShaderCompiler_) {
+        GpuShaderCompiler::Shutdown();
+        initShaderCompiler_ = false;
+    }
+}
 
 bool glimmer::InitWindowAndRendererTask::Run(ISystemBucket *systemBucket) {
     Config *config = systemBucket->GetConfig();
@@ -58,6 +62,7 @@ bool glimmer::InitWindowAndRendererTask::Run(ISystemBucket *systemBucket) {
         return false;
     }
     GpuShaderCompiler::Init();
+    initShaderCompiler_ = true;
     LogCat::i("gpu_renderer_created", "GpuRenderer created successfully");
     RmlContext *rmlContext = systemBucket->GetRmlContext();
     if (rmlContext == nullptr) {
@@ -73,16 +78,13 @@ bool glimmer::InitWindowAndRendererTask::Run(ISystemBucket *systemBucket) {
 }
 
 void glimmer::InitWindowAndRendererTask::Rollback(ISystemBucket *systemBucket) {
-    Shutdown(systemBucket);
-}
-
-void glimmer::InitWindowAndRendererTask::Shutdown(ISystemBucket *systemBucket) {
-    GpuShaderCompiler::Shutdown();
-    if (WindowContext *windowContext = systemBucket->GetWindowContext(); windowContext != nullptr) {
-        windowContext->Shutdown();
-    }
+    ShutdownGpuShaderCompiler();
 }
 
 std::string glimmer::InitWindowAndRendererTask::GetTaskName() {
     return "InitWindowAndRendererTask";
+}
+
+glimmer::InitWindowAndRendererTask::~InitWindowAndRendererTask() {
+    ShutdownGpuShaderCompiler();
 }

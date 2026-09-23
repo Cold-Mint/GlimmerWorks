@@ -110,15 +110,15 @@ glimmer::LocalConsoleInput::LocalConsoleInput (std::function<void(const std::str
 }
 
 glimmer::LocalConsoleInput::~LocalConsoleInput() {
-    CloseHandle(static_cast<HANDLE>(wakeupEvent_));
-}
-
-void glimmer::LocalConsoleInput::Stop() {
     thread_.request_stop();
     SetEvent(static_cast<HANDLE>(wakeupEvent_));
+    if (thread_.joinable()) {
+        thread_.join();
+    }
+    CloseHandle(static_cast<HANDLE>(wakeupEvent_));
 }
 #else
-void glimmer::LocalConsoleInput::InputLoop(std::stop_token stopToken) {
+void glimmer::LocalConsoleInput::InputLoop(const std::stop_token& stopToken) const {
     LogCat::i("local_console_input_thread_started", "LocalConsoleInput thread started");
     std::string line;
     pollfd pfds[2];
@@ -161,13 +161,13 @@ glimmer::LocalConsoleInput::LocalConsoleInput(std::function<void(const std::stri
 }
 
 glimmer::LocalConsoleInput::~LocalConsoleInput() {
+    thread_.request_stop();
+    constexpr char dummy = 0;
+    write(wakeupPipe_[1], &dummy, 1);
+    if (thread_.joinable()) {
+        thread_.join();
+    }
     close(wakeupPipe_[0]);
     close(wakeupPipe_[1]);
-}
-
-void glimmer::LocalConsoleInput::Stop() {
-    thread_.request_stop();
-    char dummy = 0;
-    write(wakeupPipe_[1], &dummy, 1);
 }
 #endif

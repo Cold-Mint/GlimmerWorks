@@ -52,6 +52,8 @@ namespace glimmer {
         void WorkLoop(std::stop_token stopToken);
 
     public:
+        ~ConsoleWorker();
+
         ConsoleWorker(CommandManager *commandManager, AppContext *appContext);
 
         [[nodiscard]] std::unique_ptr<CommandResponse> TakeCommandResponse(uint32_t id);
@@ -67,8 +69,6 @@ namespace glimmer {
         uint32_t CreateRequest(const std::string &command, CommandSender *commandSender);
 
         void PopOnMessage();
-
-        void Stop();
 
         void PushOnMessage(std::unique_ptr<std::function<void(const std::string &text)> > onMessage);
     };

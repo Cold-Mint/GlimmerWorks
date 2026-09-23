@@ -60,14 +60,17 @@ bool glimmer::InitSDLTask::Run(ISystemBucket *) {
 
 void glimmer::InitSDLTask::QuitSubsystems() {
     if (initSDLMixSuccess_) {
+        LogCat::d("quit_subsystem", "Quitting subsystem: {}", "MIX");
         MIX_Quit();
         initSDLMixSuccess_ = false;
     }
     if (initSDLTtfSuccess_) {
+        LogCat::d("quit_subsystem", "Quitting subsystem: {}", "TTF");
         TTF_Quit();
         initSDLTtfSuccess_ = false;
     }
     if (initSDLSuccess_) {
+        LogCat::d("quit_subsystem", "Quitting subsystem: {}", "SDL");
         SDL_Quit();
         initSDLSuccess_ = false;
     }
@@ -77,10 +80,10 @@ void glimmer::InitSDLTask::Rollback(ISystemBucket *) {
     QuitSubsystems();
 }
 
-void glimmer::InitSDLTask::Shutdown() {
-    QuitSubsystems();
-}
-
 std::string glimmer::InitSDLTask::GetTaskName() {
     return "InitSDLTask";
+}
+
+glimmer::InitSDLTask::~InitSDLTask() {
+    QuitSubsystems();
 }

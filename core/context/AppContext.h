@@ -49,18 +49,16 @@
 
 namespace glimmer {
     class AppContext {
-        mutable std::optional<PendingScreenshot> pendingScreenshot_;
-        std::unique_ptr<ISystemBucket> systemBucket_;
-        std::vector<std::unique_ptr<IAppContextInitTask> > initTasks_;
-        std::vector<UIMessage> uiMessages_;
         bool isRunning_ = true;
+        mutable std::optional<PendingScreenshot> pendingScreenshot_;
+        std::vector<std::unique_ptr<IAppContextInitTask> > initTasks_;
+        std::unique_ptr<ISystemBucket> systemBucket_;
+        std::vector<UIMessage> uiMessages_;
 
         void RegisterInitTask(std::unique_ptr<IAppContextInitTask> initTask);
 
     public:
         AppContext();
-
-        ~AppContext();
 
         bool IsRunning() const;
 

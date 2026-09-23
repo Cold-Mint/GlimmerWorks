@@ -35,6 +35,10 @@ namespace glimmer {
      * 创建窗口/GPU设备，初始化着色器编译器与 RmlUi 上下文。
      */
     class InitWindowAndRendererTask : public IAppContextInitTask {
+        bool initShaderCompiler_ = false;
+
+        void ShutdownGpuShaderCompiler();
+
     public:
         bool Run(ISystemBucket *systemBucket) override;
 
@@ -42,11 +46,6 @@ namespace glimmer {
 
         std::string GetTaskName() override;
 
-        /**
-         * Shutdown
-         * 正常退出时释放着色器编译器与窗口/设备（幂等）
-         * @param systemBucket systemBucket 系统桶
-         */
-        static void Shutdown(ISystemBucket *systemBucket);
+        ~InitWindowAndRendererTask() override;
     };
 }

@@ -29,15 +29,6 @@
 #include <algorithm>
 #include "core/log/LogCat.h"
 
-void glimmer::SceneManager::ClearScenes() {
-    LogCat::i("clearing_all_scenes", "Clearing all scenes: overlayScenes count={}, sceneStack count={}",
-              overlayScenes_.size(), sceneStack_.size());
-    overlayScenes_.clear();
-    while (!sceneStack_.empty()) {
-        sceneStack_.pop();
-    }
-}
-
 void glimmer::SceneManager::AddOverlayScene(std::unique_ptr<Scene> overlay) {
     if (overlay == nullptr) {
         LogCat::w(std::source_location::current(), "add_overlay_scene_called_with_null",

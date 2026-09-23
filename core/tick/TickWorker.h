@@ -44,6 +44,7 @@ namespace glimmer {
         void TickLoop(std::stop_token stopToken);
 
     public:
+        ~TickWorker();
         /**
          * Create a TickWorker that ticks at a fixed rate.
          * 创建一个以固定速率 tick 的 TickWorker。
@@ -63,7 +64,5 @@ namespace glimmer {
          * @param listener The listener to remove. 要移除的监听器。
          */
         void RemoveCallback(ITickListener *listener);
-
-        void Stop();
     };
 }

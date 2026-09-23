@@ -31,6 +31,21 @@
 #include "core/log/LogCat.h"
 
 
+glimmer::WindowContext::~WindowContext() {
+    if (device_ != nullptr && window_ != nullptr) {
+        SDL_ReleaseWindowFromGPUDevice(device_, window_);
+    }
+    if (device_ != nullptr) {
+        LogCat::d("destroy_gpu_device", "Destroying GPU device: {}", static_cast<const void *>(device_));
+        SDL_DestroyGPUDevice(device_);
+        device_ = nullptr;
+    }
+    if (window_ != nullptr) {
+        SDL_DestroyWindow(window_);
+        window_ = nullptr;
+    }
+}
+
 bool glimmer::WindowContext::CreateWindowAndDevice(const int width, const int height, const bool fullscreen) {
     SDL_Window *window = SDL_CreateWindow(
         "GlimmerWorks",
@@ -57,6 +72,7 @@ bool glimmer::WindowContext::CreateWindowAndDevice(const int width, const int he
     if (!SDL_ClaimWindowForGPUDevice(gpuDevice, window)) {
         LogCat::e(std::source_location::current(), "failed_to_claim_window_for_gpu_device",
                   "Failed to claim window for GPU device: {}", SDL_GetError());
+        LogCat::d("destroy_gpu_device", "Destroying GPU device: {}", static_cast<const void *>(gpuDevice));
         SDL_DestroyGPUDevice(gpuDevice);
         return false;
     }
@@ -91,18 +107,4 @@ int glimmer::WindowContext::GetWindowWidth() const {
 
 int glimmer::WindowContext::GetWindowHeight() const {
     return windowHeight_;
-}
-
-void glimmer::WindowContext::Shutdown() {
-    if (device_ != nullptr && window_ != nullptr) {
-        SDL_ReleaseWindowFromGPUDevice(device_, window_);
-    }
-    if (device_ != nullptr) {
-        SDL_DestroyGPUDevice(device_);
-        device_ = nullptr;
-    }
-    if (window_ != nullptr) {
-        SDL_DestroyWindow(window_);
-        window_ = nullptr;
-    }
 }

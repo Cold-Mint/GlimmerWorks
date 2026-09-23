@@ -49,6 +49,7 @@ namespace glimmer {
         std::string language_ = LanguageUtils::getLanguage();
         std::unique_ptr<WindowContext> windowContext_ = nullptr;
         std::unique_ptr<Config> config_ = nullptr;
+        std::unique_ptr<RmlContext> rmlContext_ = nullptr;
         std::unique_ptr<SceneManager> sceneManager_ = nullptr;
         std::unique_ptr<VirtualFileSystem> virtualFileSystem_ = nullptr;
         std::unique_ptr<ResourcePackManager> resourcePackManager_ = nullptr;
@@ -56,7 +57,6 @@ namespace glimmer {
         std::unique_ptr<LangsResources> langsResources_ = nullptr;
         std::unique_ptr<SavesManager> savesManager_ = nullptr;
         std::unique_ptr<ModContext> modContext_ = nullptr;
-        std::unique_ptr<RmlContext> rmlContext_ = nullptr;
         std::unique_ptr<ConsoleContext> consoleContext_ = nullptr;
         std::unique_ptr<TickWorker> tickWorker_ = nullptr;
         std::unique_ptr<GraphicsContext> graphicsContext_ = nullptr;

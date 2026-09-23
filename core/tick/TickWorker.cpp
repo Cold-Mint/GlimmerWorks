@@ -62,6 +62,11 @@ void glimmer::TickWorker::TickLoop(std::stop_token stopToken) {
     LogCat::i("tick_worker_thread_stopped", "TickWorker thread stopped");
 }
 
+glimmer::TickWorker::~TickWorker() {
+    thread_.request_stop();
+    conditionVariable_.notify_all();
+}
+
 glimmer::TickWorker::TickWorker() {
     thread_ = std::jthread([this](const std::stop_token &stopToken) { this->TickLoop(stopToken); });
 }
@@ -80,9 +85,4 @@ void glimmer::TickWorker::RemoveCallback(ITickListener *listener) {
     }
     std::lock_guard lock(mutex_);
     std::erase(listeners_, listener);
-}
-
-void glimmer::TickWorker::Stop() {
-    thread_.request_stop();
-    conditionVariable_.notify_all();
 }

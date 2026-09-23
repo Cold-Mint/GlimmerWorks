@@ -35,15 +35,15 @@ namespace glimmer {
      * 初始化 SDL / SDL_mixer / SDL_ttf 子系统，并负责其关闭。
      */
     class InitSDLTask : public IAppContextInitTask {
-        inline static bool initSDLSuccess_ = false;
-        inline static bool initSDLMixSuccess_ = false;
-        inline static bool initSDLTtfSuccess_ = false;
+        bool initSDLSuccess_ = false;
+        bool initSDLMixSuccess_ = false;
+        bool initSDLTtfSuccess_ = false;
 
         /**
          * QuitSubsystems
          * 关闭已初始化的子系统（幂等）
          */
-        static void QuitSubsystems();
+        void QuitSubsystems();
 
     public:
         bool Run(ISystemBucket *systemBucket) override;
@@ -52,10 +52,6 @@ namespace glimmer {
 
         std::string GetTaskName() override;
 
-        /**
-         * Shutdown
-         * 正常退出时关闭已初始化的 SDL 子系统（幂等）
-         */
-        static void Shutdown();
+        ~InitSDLTask() override;
     };
 }

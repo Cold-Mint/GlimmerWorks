@@ -56,10 +56,6 @@ bool glimmer::InitConsoleContextTask::Run(ISystemBucket *systemBucket) {
 }
 
 void glimmer::InitConsoleContextTask::Rollback(ISystemBucket *systemBucket) {
-    ConsoleContext *consoleContext = systemBucket->GetConsoleContext();
-    if (consoleContext != nullptr) {
-        consoleContext->StopConsoleWorker();
-    }
     systemBucket->SetConsoleContext(nullptr);
 }
 

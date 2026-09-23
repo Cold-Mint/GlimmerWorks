@@ -84,25 +84,6 @@ glimmer::AppContext::AppContext() {
     RegisterInitTask(std::make_unique<InitAudioTask>());
 }
 
-glimmer::AppContext::~AppContext() {
-    if (const ConsoleContext *consoleContext = systemBucket_->GetConsoleContext(); consoleContext != nullptr) {
-        consoleContext->StopConsoleWorker();
-        if (const Config *config = systemBucket_->GetConfig();
-            config != nullptr && config->console.maxHistoryEntries > 0) {
-            consoleContext->SaveCommandHistory();
-        }
-    }
-    SceneManager *sceneManager = systemBucket_->GetSceneManager();
-    if (sceneManager != nullptr) {
-        sceneManager->ClearScenes();
-    }
-    if (TickWorker *tickWorker = systemBucket_->GetTickWorker(); tickWorker != nullptr) {
-        tickWorker->Stop();
-    }
-    InitWindowAndRendererTask::Shutdown(systemBucket_.get());
-    InitSDLTask::Shutdown();
-}
-
 bool glimmer::AppContext::IsRunning() const {
     return isRunning_;
 }

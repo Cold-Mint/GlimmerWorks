@@ -55,8 +55,6 @@ namespace glimmer {
                                                             GameComponentTypeMessage typeMessage);
 
     public:
-        void Clear();
-
         /**
          * CreateEntity
          * 创建实体

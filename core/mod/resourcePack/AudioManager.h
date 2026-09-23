@@ -145,7 +145,7 @@ namespace glimmer {
          * @param type track type / 音轨类型
          * @param fadeOutMs fade-out duration in ms (<= 0 = immediate stop) / 淡出时长（毫秒，<=0 为立即停止）
          */
-        void FadeOut(AudioType type, int fadeOutMs);
+        void FadeOut(AudioType type, int fadeOutMs) const;
 
         /**
          * Create track

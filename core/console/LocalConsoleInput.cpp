@@ -118,7 +118,7 @@ glimmer::LocalConsoleInput::~LocalConsoleInput() {
     CloseHandle(static_cast<HANDLE>(wakeupEvent_));
 }
 #else
-void glimmer::LocalConsoleInput::InputLoop(const std::stop_token& stopToken) const {
+void glimmer::LocalConsoleInput::InputLoop(const std::stop_token &stopToken) const {
     LogCat::i("local_console_input_thread_started", "LocalConsoleInput thread started");
     std::string line;
     pollfd pfds[2];

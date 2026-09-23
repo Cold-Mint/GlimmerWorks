@@ -166,7 +166,7 @@ void glimmer::AudioManager::TryPlayFreeFade(const AudioType audioType, MIX_Audio
     PlayOnTrack(track, audio, loopsNumber, fadeInMs);
 }
 
-void glimmer::AudioManager::FadeOut(const AudioType type, const int fadeOutMs) {
+void glimmer::AudioManager::FadeOut(const AudioType type, const int fadeOutMs) const {
     if (mixer_ == nullptr) {
         return;
     }

@@ -90,13 +90,13 @@ namespace glimmer {
         std::unique_ptr<TileInstancePool> tileInstancePool_;
         std::unique_ptr<EntityManager> entityManager_;
         std::unique_ptr<EntityShortCut> entityShortCut_;
-        std::unique_ptr<SystemScheduler> systemScheduler_;
-        std::unique_ptr<PlayerContext> playerContext_;
         std::unique_ptr<ChunkLoader> chunkLoader_;
         std::unique_ptr<ChunkGenerator> chunkGenerator_;
         std::unique_ptr<ChunkManager> chunkManager_;
         std::unique_ptr<TerrainManager> terrainManager_;
         WorldSaver worldSaver_;
+        std::unique_ptr<SystemScheduler> systemScheduler_;
+        std::unique_ptr<PlayerContext> playerContext_;
 
     public:
         ~WorldContext() override;

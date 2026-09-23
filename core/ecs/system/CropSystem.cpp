@@ -321,7 +321,7 @@ void glimmer::CropSystem::OnTick(const uint64_t tick) {
 
         mainThreadDispatcher->PostToNextMainFrame(
             [worldContext, chunkPosition, relative, layerType, index, growthTarget, isTileTarget,
-             destroySelfOnGrowth, tick, position] {
+                destroySelfOnGrowth, tick, position] {
                 ChunkManager *chunkManager = worldContext->GetChunkManager();
                 if (chunkManager == nullptr) {
                     return;

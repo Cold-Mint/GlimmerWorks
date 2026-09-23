@@ -32,9 +32,6 @@ namespace glimmer {
         MIX_Mixer *mixer_ = nullptr;
 
     protected:
-        std::shared_ptr<AudioResourceResult> CreatePlaceholderResource(const AppContext *appContext,
-                                                                       const ResourceRef *resourceRef) override;
-
         std::shared_ptr<AudioResourceResult> LoadResourceFromPack(AppContext *appContext,
                                                                   const ResourceRef *resourceRef,
                                                                   const ResourcePack *resourcePack) override;

@@ -144,19 +144,14 @@ glimmer::Dimension *glimmer::WorldContext::GetDimension() const {
 }
 
 glimmer::WorldContext::~WorldContext() {
-    LogCat::i("world_context_destroying", "Destroying WorldContext: worldName={}",
-              mapManifest_ ? mapManifest_->name : "unknown");
-    playerContext_.reset();
-    systemScheduler_.reset();
-    LogCat::d("world_context_player_scheduler_released", "PlayerContext and SystemScheduler released");
-    if (entityManager_) {
-        entityManager_->Clear();
-    }
-    LogCat::d("world_context_entity_manager_cleared", "EntityManager cleared, dimensions released");
     b2DestroyWorld(worldId_);
     worldId_ = b2_nullWorldId;
-    if (appContext_) {
-        appContext_->GetConsoleContext()->GetCommandManager()->UnbindWorldContext();
+    if (appContext_ != nullptr) {
+        if (const ConsoleContext *consoleContext = appContext_->GetConsoleContext(); consoleContext != nullptr) {
+            if (CommandManager *commandManager = consoleContext->GetCommandManager(); commandManager != nullptr) {
+                commandManager->UnbindWorldContext();
+            }
+        }
     }
     LogCat::i("world_context_destroyed", "WorldContext destroyed");
 }

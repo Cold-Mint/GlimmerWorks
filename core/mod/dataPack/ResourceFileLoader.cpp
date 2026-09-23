@@ -711,11 +711,11 @@ int glimmer::ResourceFileLoader::LoadResourceByType(const std::string &dataType,
         it->second(value, modContext, graphicsContext);
     } catch (const toml::type_error &e) {
         const toml::source_location &location = e.location();
-        LogCat::w(std::source_location::current(), "resource_file_load_failure_at_line",
+        LogCat::e(std::source_location::current(), "resource_file_load_failure_at_line",
                   "Failed to load resource file: {}, at line {}: {}", file,
                   location.first_line_number(), e.what());
     } catch (const std::exception &e) {
-        LogCat::w(std::source_location::current(), "resource_file_load_failure",
+        LogCat::e(std::source_location::current(), "resource_file_load_failure",
                   "Failed to load resource file: {}, error: {}", file, e.what());
     }
     return 1;

@@ -467,7 +467,7 @@ glimmer::IStructureResource *glimmer::ResourceLocator::FindStructure(const Resou
                                                       return nullptr;
                                                   }
                                                   return structureRegistry_->Find(resourceRef->GetPackageId(),
-                                                                                  resourceRef->GetResourceKey());
+                                                      resourceRef->GetResourceKey());
                                               });
 }
 
@@ -481,7 +481,7 @@ glimmer::DimensionResource *glimmer::ResourceLocator::FindDimension(const Resour
                                                      return nullptr;
                                                  }
                                                  return dimensionRegistry_->Find(resourceRef->GetPackageId(),
-                                                                                 resourceRef->GetResourceKey());
+                                                     resourceRef->GetResourceKey());
                                              });
 }
 

@@ -858,7 +858,7 @@ namespace glimmer {
          * 必然掉落
          */
         //@genNextLine(mandatory|必然掉落列表)
-        std::vector<LootEntry> mandatory;
+        std::vector<LootEntry> mandatory = {};
 
         /**
          * empty weight

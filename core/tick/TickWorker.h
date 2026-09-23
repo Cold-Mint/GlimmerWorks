@@ -45,6 +45,7 @@ namespace glimmer {
 
     public:
         ~TickWorker();
+
         /**
          * Create a TickWorker that ticks at a fixed rate.
          * 创建一个以固定速率 tick 的 TickWorker。

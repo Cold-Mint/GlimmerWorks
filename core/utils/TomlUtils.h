@@ -172,18 +172,6 @@ namespace toml {
     };
 
     template<>
-    struct from<glimmer::TimeGrowthConditionResource> {
-        static glimmer::TimeGrowthConditionResource from_toml(const value &v) {
-            glimmer::TimeGrowthConditionResource r;
-            r.maxTime = toml::find_or<float>(v, "max_time", 1.0F);
-            r.minTime = toml::find_or<float>(v, "min_time", 0.0F);
-            r.processorId = toml::find_or<uint8_t>(v, "processor_id", 0);
-            r.resourceId = toml::find<std::string>(v, "resource_id");
-            return r;
-        }
-    };
-
-    template<>
     struct from<glimmer::HeightStructureConditionsResource> {
         static glimmer::HeightStructureConditionsResource from_toml(const value &v) {
             glimmer::HeightStructureConditionsResource r;
@@ -297,7 +285,7 @@ namespace toml {
         static glimmer::LootResource from_toml(const value &v) {
             glimmer::LootResource r;
             r.empty_weight = toml::find_or<uint32_t>(v, "empty_weight", 0);
-            r.mandatory = toml::find<std::vector<glimmer::LootEntry> >(v, "mandatory");
+            r.mandatory = toml::find_or<std::vector<glimmer::LootEntry> >(v, "mandatory", {});
             r.pool = toml::find_or<std::vector<glimmer::LootEntry> >(v, "pool", {});
             r.resourceId = toml::find<std::string>(v, "resource_id");
             r.rolls = toml::find_or<uint32_t>(v, "rolls", 1);
@@ -474,6 +462,18 @@ namespace toml {
             r.offsetX = toml::find_or<int>(v, "offset_x", 0);
             r.offsetY = toml::find_or<int>(v, "offset_y", 0);
             r.width = toml::find_or<int>(v, "width", 1);
+            return r;
+        }
+    };
+
+    template<>
+    struct from<glimmer::TimeGrowthConditionResource> {
+        static glimmer::TimeGrowthConditionResource from_toml(const value &v) {
+            glimmer::TimeGrowthConditionResource r;
+            r.maxTime = toml::find_or<float>(v, "max_time", 1.0F);
+            r.minTime = toml::find_or<float>(v, "min_time", 0.0F);
+            r.processorId = toml::find_or<uint8_t>(v, "processor_id", 0);
+            r.resourceId = toml::find<std::string>(v, "resource_id");
             return r;
         }
     };

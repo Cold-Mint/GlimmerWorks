@@ -28,26 +28,15 @@
 
 #include "component/AutoPickComponent.h"
 #include "core/log/LogCat.h"
-#include "component/DebugDrawComponent.h"
 #include "component/DroppedItemComponent.h"
 #include "component/ItemContainerComponent.h"
 #include "component/MagnetComponent.h"
-#include "component/MagneticComponent.h"
 #include "core/world/WorldContext.h"
 
 ComponentFingerprint glimmer::EntityManager::GenComponentFingerprint(const GameEntityID gameEntityId,
                                                                      const GameComponentTypeMessage typeMessage) {
     const auto rawType = static_cast<std::uint32_t>(typeMessage);
     return static_cast<std::uint64_t>(gameEntityId) << 32 | rawType;
-}
-
-void glimmer::EntityManager::Clear() {
-    LogCat::d("entity_manager_clearing", "EntityManager clearing: {} entities", entityMap_.size());
-    entityMap_.clear();
-    entityToGameComponentType_.clear();
-    components_.clear();
-    componentCount_.clear();
-    onComponentCountChanged_.clear();
 }
 
 GameEntityID glimmer::EntityManager::AddEntity(GameEntityID gameEntityId) {

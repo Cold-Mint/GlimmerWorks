@@ -49,10 +49,6 @@ glimmer::ChunkManager::ChunkManager(WorldContext *worldContext, std::string dime
     LogCat::i("chunk_manager_created", "ChunkManager created for dimension folder: {}", dimensionFolderName_);
 }
 
-glimmer::ChunkManager::~ChunkManager() {
-    chunks_.clear();
-}
-
 void glimmer::ChunkManager::OnChunkTileChange(Chunk *chunk, [[maybe_unused]] const std::shared_ptr<Tile> &tile,
                                               TileLayerType layerType, int index) const {
     if (layerType == TileLayerType::Ground) {

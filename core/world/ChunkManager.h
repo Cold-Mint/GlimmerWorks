@@ -78,8 +78,6 @@ namespace glimmer {
     public:
         explicit ChunkManager(WorldContext *worldContext, std::string dimensionFolderName);
 
-        ~ChunkManager();
-
         /**
         * Load Chunk
         * 加载区块

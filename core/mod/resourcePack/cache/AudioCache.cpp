@@ -29,12 +29,6 @@
 
 #include "core/log/LogCat.h"
 
-
-std::shared_ptr<glimmer::AudioResourceResult> glimmer::AudioCache::CreatePlaceholderResource(
-    const AppContext *appContext, const ResourceRef *resourceRef) {
-    return nullptr;
-}
-
 std::shared_ptr<glimmer::AudioResourceResult> glimmer::AudioCache::LoadResourceFromPack(AppContext *appContext,
     const ResourceRef *resourceRef, const ResourcePack *resourcePack) {
     std::filesystem::path audioPath = resourcePack->GetPath() / "audios" / resourceRef->GetPackageId() / resourceRef->

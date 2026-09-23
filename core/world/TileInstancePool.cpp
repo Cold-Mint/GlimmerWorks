@@ -38,7 +38,6 @@ glimmer::TileInstancePool::~TileInstancePool() {
             break;
         }
     }
-    tileInstanceMap_.clear();
 }
 
 std::shared_ptr<glimmer::Tile> glimmer::TileInstancePool::CreateTile(const AppContext *appContext,

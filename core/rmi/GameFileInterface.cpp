@@ -144,6 +144,4 @@ bool glimmer::GameFileInterface::LoadFile(const Rml::String &path, Rml::String &
     return false;
 }
 
-glimmer::GameFileInterface::~GameFileInterface() {
-    streamMap_.clear();
-}
+glimmer::GameFileInterface::~GameFileInterface() = default;

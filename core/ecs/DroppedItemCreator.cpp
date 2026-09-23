@@ -88,7 +88,7 @@ bool glimmer::DroppedItemCreator::SpawnDroppedItem(WorldContext *worldContext, c
     droppedItemCreator.LoadTemplateComponents(droppedEntity, DroppedItemCreator::GetResourceRef());
     droppedItemCreator.MergeEntityItemMessage(droppedEntity,
                                               DroppedItemCreator::GetEntityItemMessage(position, std::move(item),
-                                                                                        pickupCooldown));
+                                                  pickupCooldown));
     return true;
 }
 

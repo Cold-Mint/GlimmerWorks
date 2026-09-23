@@ -39,7 +39,7 @@ namespace glimmer {
         int wakeupPipe_[2]{};
 #endif
 
-        void InputLoop(const std::stop_token& stopToken) const;
+        void InputLoop(const std::stop_token &stopToken) const;
 
     public:
         explicit LocalConsoleInput(std::function<void(const std::string &)> onCommandCallback);

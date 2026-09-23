@@ -316,11 +316,21 @@ bool glimmer::ChunkManager::SaveChunk(TileVector2D position) {
     return true;
 }
 
-bool glimmer::ChunkManager::HasChunk(const TileVector2D position) const {
+bool glimmer::ChunkManager::SaveAllChunks() {
+    bool saveAllChunks = true;
+    for (const auto &position: chunks_ | std::views::keys) {
+        if (!SaveChunk(position)) {
+            saveAllChunks = false;
+        }
+    }
+    return saveAllChunks;
+}
+
+bool glimmer::ChunkManager::HasChunk(const TileVector2D &position) const {
     return chunks_.contains(position);
 }
 
-bool glimmer::ChunkManager::ChunkIsOutOfBounds(const TileVector2D position) {
+bool glimmer::ChunkManager::ChunkIsOutOfBounds(const TileVector2D &position) {
     return position.y >= WORLD_MAX_Y || position.y < WORLD_MIN_Y || position.x >= WORLD_MAX_X || position.x <
            WORLD_MIN_X;
 }

@@ -243,7 +243,7 @@ int glimmer::ResourceFileLoader::LoadStringResourceFromFile(const std::filesyste
         count++;
     }
 
-    auto tagArray = toml::find<std::vector<StringResource> >(value, "tag_string");
+    auto tagArray = toml::find_or<std::vector<StringResource> >(value, "tag_string", {});
     for (auto &stringRes: tagArray) {
         stringRes.packId = manifest_->id;
         stringManager->SetTagTranslate(

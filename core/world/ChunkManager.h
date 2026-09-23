@@ -113,7 +113,7 @@ namespace glimmer {
          * @param position
          * @return
          */
-        [[nodiscard]] bool HasChunk(TileVector2D position) const;
+        [[nodiscard]] bool HasChunk(const TileVector2D &position) const;
 
         /**
          * SaveChunk
@@ -123,12 +123,19 @@ namespace glimmer {
         [[nodiscard]] bool SaveChunk(TileVector2D position);
 
         /**
+         * SaveAllChunks
+         * 保存所有已加载的区块
+         * @return Did all the data get saved successfully? 是否全部保存成功
+         */
+        bool SaveAllChunks();
+
+        /**
          * Check whether the block exceeds the boundary
          * 检查区块是否超出边界
          * @param position 区块位置 position
          * @return Whether it exceeds the boundary 是否超出边界
          */
-        [[nodiscard]] static bool ChunkIsOutOfBounds(TileVector2D position);
+        [[nodiscard]] static bool ChunkIsOutOfBounds(const TileVector2D &position);
 
         [[nodiscard]] LightBuffer *GetLightingBuffer() const;
 

@@ -26,6 +26,7 @@
  */
 #include "WorldSaver.h"
 
+#include "ChunkManager.h"
 #include "core/log/LogCat.h"
 #include "core/mod/ResourceRef.h"
 #include "core/utils/TimeUtils.h"
@@ -84,6 +85,9 @@ void glimmer::WorldSaver::SaveGame() {
                   "Failed to write map manifest");
         saving_ = false;
         return;
+    }
+    if (ChunkManager *chunkManager = worldContext_->GetChunkManager(); chunkManager != nullptr) {
+        chunkManager->SaveAllChunks();
     }
     auto player = worldContext_->GetEntityShortCut()->GetPlayer();
     if (!WorldContext::IsEmptyEntityId(player) && worldContext_->GetEntityManager()->IsPersistable(player)) {

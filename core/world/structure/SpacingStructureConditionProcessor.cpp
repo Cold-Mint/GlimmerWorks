@@ -24,34 +24,47 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "HorizontalSpacingStructureConditionProcessor.h"
+#include "SpacingStructureConditionProcessor.h"
 
-glimmer::StructureConditionProcessorType glimmer::HorizontalSpacingStructureConditionProcessor::
-GetStructureConditionProcessorType() {
-    return StructureConditionProcessorType::HorizontalSpacing;
-}
-
-std::bitset<CHUNK_AREA> glimmer::HorizontalSpacingStructureConditionProcessor::Match(TerrainResult *terrainResult,
-    const IStructurePlacementConditionsResource *placementConditionsResource) {
-    const auto horizontalSpacingStructureConditions = dynamic_cast<const HorizontalSpacingStructureConditionsResource *>
-    (
-        placementConditionsResource);
-    int minDistance = horizontalSpacingStructureConditions->minDistance;
-    if (minDistance <= 0) {
-        minDistance = 4;
-    }
-    std::bitset<CHUNK_AREA> result;
-    for (int y = 0; y < CHUNK_SIZE; ++y) {
-        const int globalX0 = terrainResult->GetPosition().x;
-        int remainder = globalX0 % minDistance;
+namespace {
+    int CalculateFirstIndex(const int globalCoordinate, const int minDistance) {
+        int remainder = globalCoordinate % minDistance;
         if (remainder < 0) {
             //Fix negative numbers
             //修复负数
             remainder += minDistance;
         }
-        const int x0 = remainder == 0 ? 0 : minDistance - remainder;
-        for (int x = x0; x < CHUNK_SIZE; x += minDistance) {
-            result.set(y * CHUNK_SIZE + x);
+        return remainder == 0 ? 0 : minDistance - remainder;
+    }
+}
+
+glimmer::StructureConditionProcessorType glimmer::SpacingStructureConditionProcessor::
+GetStructureConditionProcessorType() {
+    return StructureConditionProcessorType::Spacing;
+}
+
+std::bitset<CHUNK_AREA> glimmer::SpacingStructureConditionProcessor::Match(TerrainResult *terrainResult,
+    const IStructurePlacementConditionsResource *placementConditionsResource) {
+    const auto spacingStructureConditions = dynamic_cast<const SpacingStructureConditionsResource *>(
+        placementConditionsResource);
+    int minDistance = spacingStructureConditions->minDistance;
+    if (minDistance <= 0) {
+        minDistance = 4;
+    }
+    std::bitset<CHUNK_AREA> result;
+    if (spacingStructureConditions->isVertical) {
+        const int y0 = CalculateFirstIndex(terrainResult->GetPosition().y, minDistance);
+        for (int y = y0; y < CHUNK_SIZE; y += minDistance) {
+            for (int x = 0; x < CHUNK_SIZE; ++x) {
+                result.set(y * CHUNK_SIZE + x);
+            }
+        }
+    } else {
+        const int x0 = CalculateFirstIndex(terrainResult->GetPosition().x, minDistance);
+        for (int y = 0; y < CHUNK_SIZE; ++y) {
+            for (int x = x0; x < CHUNK_SIZE; x += minDistance) {
+                result.set(y * CHUNK_SIZE + x);
+            }
         }
     }
     return result;

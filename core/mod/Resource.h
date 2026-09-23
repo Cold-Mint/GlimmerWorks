@@ -327,10 +327,13 @@ namespace glimmer {
         std::vector<UniformMemberResource> members = {};
     };
 
-    //@genNextLine(HorizontalSpacingStructureConditionsResource|横向间隔结构放置条件资源)
-    struct HorizontalSpacingStructureConditionsResource : IStructurePlacementConditionsResource {
+    //@genNextLine(SpacingStructureConditionsResource|间隔结构放置条件资源)
+    struct SpacingStructureConditionsResource : IStructurePlacementConditionsResource {
         //@genNextLine(minDistance|最小距离)
         int minDistance = 0;
+
+        //@genNextLine(isVertical|true 为垂直间距，false 为水平间距)
+        bool isVertical = false;
     };
 
     //@genNextLine(GrowthConditionResource|生长条件资源)

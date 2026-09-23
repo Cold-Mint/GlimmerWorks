@@ -35,7 +35,7 @@
 #include "core/world/generator/SurfaceBiomeDecorator.h"
 #include "core/world/structure/BiomeStructureConditionProcessor.h"
 #include "core/world/structure/HeightStructureConditionProcessor.h"
-#include "core/world/structure/HorizontalSpacingStructureConditionProcessor.h"
+#include "core/world/structure/SpacingStructureConditionProcessor.h"
 #include "core/world/structure/StaticStructureGenerator.h"
 #include "core/world/structure/TreeStructureGenerator.h"
 #include "core/world/structure/SurfaceStructureConditionProcessor.h"
@@ -91,7 +91,7 @@ void glimmer::ModContext::Init(VirtualFileSystem *vfs, const LangsResources *lan
     structurePlacementConditionsProcessorManager_->AddConditionProcessor(
         std::make_unique<HeightStructureConditionProcessor>());
     structurePlacementConditionsProcessorManager_->AddConditionProcessor(
-        std::make_unique<HorizontalSpacingStructureConditionProcessor>());
+        std::make_unique<SpacingStructureConditionProcessor>());
     structurePlacementConditionsProcessorManager_->AddConditionProcessor(
         std::make_unique<BiomeStructureConditionProcessor>());
 

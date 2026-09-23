@@ -32,7 +32,7 @@ namespace glimmer {
         None,
         Biome,
         Height,
-        HorizontalSpacing,
+        Spacing,
         Surface
     };
 }

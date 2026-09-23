@@ -184,10 +184,11 @@ namespace toml {
     };
 
     template<>
-    struct from<glimmer::HorizontalSpacingStructureConditionsResource> {
-        static glimmer::HorizontalSpacingStructureConditionsResource from_toml(const value &v) {
-            glimmer::HorizontalSpacingStructureConditionsResource r;
+    struct from<glimmer::SpacingStructureConditionsResource> {
+        static glimmer::SpacingStructureConditionsResource from_toml(const value &v) {
+            glimmer::SpacingStructureConditionsResource r;
             r.minDistance = toml::find_or<int>(v, "min_distance", 0);
+            r.isVertical = toml::find_or<bool>(v, "is_vertical", false);
             r.processorId = toml::find_or<uint8_t>(v, "processor_id", 0);
             r.resourceId = toml::find<std::string>(v, "resource_id");
             return r;

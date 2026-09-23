@@ -28,7 +28,7 @@
 #include "IStructureConditionProcessor.h"
 
 namespace glimmer {
-    class HorizontalSpacingStructureConditionProcessor : public IStructureConditionProcessor {
+    class SpacingStructureConditionProcessor : public IStructureConditionProcessor {
     public:
         StructureConditionProcessorType GetStructureConditionProcessorType() override;
 

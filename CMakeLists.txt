@@ -809,7 +809,7 @@ target_sources(GlimmerWorks
         core/world/generator/TileSnapshot.cpp
         core/world/structure/BiomeStructureConditionProcessor.cpp
         core/world/structure/HeightStructureConditionProcessor.cpp
-        core/world/structure/HorizontalSpacingStructureConditionProcessor.cpp
+        core/world/structure/SpacingStructureConditionProcessor.cpp
         core/world/structure/IStructureConditionProcessor.cpp
         core/world/structure/IStructureGenerator.cpp
         core/world/structure/StaticStructureGenerator.cpp
@@ -1275,7 +1275,7 @@ target_sources(GlimmerWorks
         core/world/generator/TileSnapshot.h
         core/world/structure/BiomeStructureConditionProcessor.h
         core/world/structure/HeightStructureConditionProcessor.h
-        core/world/structure/HorizontalSpacingStructureConditionProcessor.h
+        core/world/structure/SpacingStructureConditionProcessor.h
         core/world/structure/IStructureConditionProcessor.h
         core/world/structure/IStructureGenerator.h
         core/world/structure/StaticStructureGenerator.h

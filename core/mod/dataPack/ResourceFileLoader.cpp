@@ -166,10 +166,10 @@ void glimmer::ResourceFileLoader::RegisterHandlers() {
         LoadStructurePlacementConditionsResourceFromFile(v, m->GetStructurePlacementConditionsRegistry(),
                                                          StructureConditionProcessorType::Height);
     };
-    handlerMap_[DATA_FILE_TYPE_HORIZONTAL_STRUCTURE_CONDITION] = [this](const toml::value &v, const ModContext *m,
-                                                                        const GraphicsContext *) {
+    handlerMap_[DATA_FILE_TYPE_SPACING_STRUCTURE_CONDITION] = [this](const toml::value &v, const ModContext *m,
+                                                                    const GraphicsContext *) {
         LoadStructurePlacementConditionsResourceFromFile(v, m->GetStructurePlacementConditionsRegistry(),
-                                                         StructureConditionProcessorType::HorizontalSpacing);
+                                                         StructureConditionProcessorType::Spacing);
     };
     handlerMap_[DATA_FILE_TYPE_SURFACE_STRUCTURE_CONDITION] = [this](const toml::value &v, const ModContext *m,
                                                                      const GraphicsContext *) {
@@ -579,14 +579,14 @@ void glimmer::ResourceFileLoader::LoadStructurePlacementConditionsResourceFromFi
             structurePlacementConditionsRegistry->Register(std::move(heightStructureConditionsResource));
             break;
         }
-        case StructureConditionProcessorType::HorizontalSpacing: {
-            auto horizontalSpacingStructureConditionsResource = std::make_unique<
-                HorizontalSpacingStructureConditionsResource>(
-                toml::get<HorizontalSpacingStructureConditionsResource>(value));
-            horizontalSpacingStructureConditionsResource->packId = manifest_->id;
-            horizontalSpacingStructureConditionsResource->processorId = std::to_underlying(processorType);
+        case StructureConditionProcessorType::Spacing: {
+            auto spacingStructureConditionsResource = std::make_unique<
+                SpacingStructureConditionsResource>(
+                toml::get<SpacingStructureConditionsResource>(value));
+            spacingStructureConditionsResource->packId = manifest_->id;
+            spacingStructureConditionsResource->processorId = std::to_underlying(processorType);
             structurePlacementConditionsRegistry->Register(
-                std::move(horizontalSpacingStructureConditionsResource));
+                std::move(spacingStructureConditionsResource));
             break;
         }
         case StructureConditionProcessorType::Surface: {

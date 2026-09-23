@@ -25,6 +25,9 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <mutex>
+#include <vector>
+
 #include "core/ecs/GameSystem.h"
 
 namespace glimmer {
@@ -34,6 +37,13 @@ namespace glimmer {
         Transform2DComponent *cameraTransform2DComponent_ = nullptr;
         uint32_t transform2dCount = 0;
         uint32_t droppedItemCount = 0;
+        /**
+         * Protects droppedEntities_ against concurrent rebuild on the main
+         * thread (OnWatchedComponentChanged) and iteration on the tick thread
+         * (OnTick) / main thread (Render).
+         * 保护 droppedEntities_ 免受主线程重建与 tick 线程/主线程遍历的并发访问。
+         */
+        mutable std::mutex droppedEntitiesMutex_;
 
     public:
         explicit DroppedItemSystem(WorldContext *worldContext);
@@ -42,7 +52,7 @@ namespace glimmer {
 
         uint8_t GetExecutionOrder() override;
 
-        void Update(float delta) override;
+        void OnTick(uint64_t tick) override;
 
         void Render(RenderQueue *queue) override;
 

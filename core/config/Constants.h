@@ -127,6 +127,12 @@ static constexpr float FIXED_TIME_STEP = 1 / TICK_RATE;
 //How many ticks after the player drops an item can it be picked up?
 //玩家丢出物品后多少Tick后可被捡起。
 static constexpr uint32_t DROP_INTERVAL = TICK_RATE * 1.5;
+//How many ticks before a dropped item despawns.
+//掉落物经过多少个Tick后消失。
+static constexpr uint64_t DROPPED_ITEM_DESPAWN_TICKS = TICK_RATE * 60;
+//How many ticks a dropped item cannot be picked up after being spawned.
+//掉落物生成后多少个Tick内不可被拾取。
+static constexpr uint64_t DROPPED_ITEM_PICKUP_COOLDOWN_TICKS = TICK_RATE * 2;
 //15 minutes, one game day.
 //15分钟，一游戏Day。
 static constexpr uint32_t DAY_LENGTH = TICK_RATE * 15 * 60;

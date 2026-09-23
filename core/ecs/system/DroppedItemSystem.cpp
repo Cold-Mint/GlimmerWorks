@@ -26,7 +26,9 @@
  */
 #include "DroppedItemSystem.h"
 
+#include "core/context/AppContext.h"
 #include "core/log/LogCat.h"
+#include "core/scene/MainThreadDispatcher.h"
 #include "core/world/WorldContext.h"
 #include "core/ecs/component/CameraComponent.h"
 #include "core/ecs/component/DroppedItemComponent.h"
@@ -50,6 +52,7 @@ void glimmer::DroppedItemSystem::OnWatchedComponentChanged(GameComponentTypeMess
         cameraComponent_ = entityShortCut->GetCameraComponent();
     }
     if (transform2dCount > 0 && droppedItemCount > 0) {
+        std::lock_guard lock(droppedEntitiesMutex_);
         droppedEntities_ = entityManager->GetEntityIDWithComponents({COMPONENT_TRANSFORM_2D, COMPONENT_DROPPED_ITEM});
         LogCat::d("dropped_item_entities_rebuilt", "Dropped item entities rebuilt: {} entities",
                   droppedEntities_.size());
@@ -67,28 +70,48 @@ glimmer::DroppedItemSystem::DroppedItemSystem(WorldContext *worldContext) : Game
     Init();
 }
 
-void glimmer::DroppedItemSystem::Update(float delta) {
+void glimmer::DroppedItemSystem::OnTick(const uint64_t tick) {
+    WorldContext *worldContext = GetWorldContext();
     EntityManager *entityManager = GetEntityManager();
-    for (const auto &gameEntity: droppedEntities_) {
-        auto droppedItemComponent = entityManager->GetComponent<DroppedItemComponent>(
-            gameEntity);
-        auto transform2DComponent = entityManager->GetComponent<Transform2DComponent>(gameEntity);
-        if (droppedItemComponent == nullptr || transform2DComponent == nullptr) {
+    if (worldContext == nullptr || entityManager == nullptr) {
+        return;
+    }
+    std::vector<GameEntityID> droppedEntities;
+    {
+        std::lock_guard lock(droppedEntitiesMutex_);
+        if (droppedEntities_.empty()) {
+            return;
+        }
+        droppedEntities = droppedEntities_;
+    }
+    for (const GameEntityID gameEntity : droppedEntities) {
+        auto droppedItemComponent = entityManager->GetComponent<DroppedItemComponent>(gameEntity);
+        if (droppedItemComponent == nullptr) {
             continue;
         }
         if (droppedItemComponent->IsExpired()) {
-            LogCat::d("dropped_item_expired", "Dropped item expired, removing entity: id={}", gameEntity);
-            entityManager->RemoveEntity(gameEntity);
+            if (droppedItemComponent->IsDespawnScheduled()) {
+                continue;
+            }
+            droppedItemComponent->SetDespawnScheduled(true);
+            LogCat::d("dropped_item_expired", "Dropped item expired, scheduling removal: id={}", gameEntity);
+            const AppContext *appContext = worldContext->GetAppContext();
+            if (appContext == nullptr) {
+                continue;
+            }
+            MainThreadDispatcher *mainThreadDispatcher = appContext->GetMainThreadDispatcher();
+            if (mainThreadDispatcher == nullptr) {
+                continue;
+            }
+            mainThreadDispatcher->PostToNextMainFrame([entityManager, gameEntity] {
+                entityManager->RemoveEntity(gameEntity);
+            });
             continue;
         }
-        float remaining = droppedItemComponent->GetRemainingTime();
-        remaining -= delta;
-        droppedItemComponent->SetRemainingTime(remaining);
-
-        float cooldown = droppedItemComponent->GetPickupCooldown();
-        if (cooldown > 0.0F) {
-            cooldown -= delta;
-            droppedItemComponent->SetPickupCooldown(cooldown);
+        droppedItemComponent->SetRemainingTicks(droppedItemComponent->GetRemainingTicks() - 1);
+        const uint64_t cooldownTicks = droppedItemComponent->GetPickupCooldownTicks();
+        if (cooldownTicks > 0) {
+            droppedItemComponent->SetPickupCooldownTicks(cooldownTicks - 1);
         }
     }
 }
@@ -100,7 +123,12 @@ void glimmer::DroppedItemSystem::Render(RenderQueue *queue) {
     }
     float size = DROPPED_ITEM_SIZE * cameraComponent_->GetZoom();
 
-    for (auto gameEntity: droppedEntities_) {
+    std::vector<GameEntityID> droppedEntities;
+    {
+        std::lock_guard lock(droppedEntitiesMutex_);
+        droppedEntities = droppedEntities_;
+    }
+    for (auto gameEntity: droppedEntities) {
         auto droppedItemComponent = entityManager->GetComponent<DroppedItemComponent>(
             gameEntity);
         auto transform2DComponent = entityManager->GetComponent<Transform2DComponent>(gameEntity);

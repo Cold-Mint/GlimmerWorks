@@ -238,7 +238,8 @@ void glimmer::PlayerControlSystem::DropItem(const ItemContainer *itemContainer, 
         }
     }
     DroppedItemCreator::SpawnDroppedItem(worldContext,
-                                         cameraTransform2DComponent_->GetPosition(), std::move(takeItem), 2);
+                                         cameraTransform2DComponent_->GetPosition(), std::move(takeItem),
+                                         DROPPED_ITEM_PICKUP_COOLDOWN_TICKS);
 }
 
 bool glimmer::PlayerControlSystem::UseItem(const bool mouseLeft, Item *item) {

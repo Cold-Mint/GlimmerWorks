@@ -27,6 +27,7 @@
 #include "ComposableItem.h"
 
 #include "AbilityItem.h"
+#include "core/config/Constants.h"
 #include "core/context/CacheContext.h"
 #include "core/log/LogCat.h"
 #include "core/ecs/component/Transform2DComponent.h"
@@ -180,7 +181,8 @@ bool glimmer::ComposableItem::OnUse(bool mouseLeft, WorldContext *worldContext, 
             DroppedItemCreator::SpawnDroppedItem(worldContext,
                                                  worldContext->GetEntityShortCut()->GetCameraTransform2DComponent()->
                                                  GetPosition(),
-                                                 itemContainer_->TakeAllItem(index), 2);
+                                                 itemContainer_->TakeAllItem(index),
+                                                 DROPPED_ITEM_PICKUP_COOLDOWN_TICKS);
             continue;
         }
         const bool result = itemAbility->OnUse(mouseLeft, worldContext, user, abilityConfig, popupAbility);

@@ -38,7 +38,7 @@ glimmer::DroppedItemCreator::DroppedItemCreator(WorldContext *worldContext) : IP
 
 EntityItemMessage glimmer::DroppedItemCreator::GetEntityItemMessage(const WorldVector2D &position,
                                                                     std::unique_ptr<Item> item,
-                                                                    const float pickupCooldown) {
+                                                                    const uint64_t pickupCooldownTicks) {
     EntityItemMessage entityItemMessage{};
     Transform2DComponent transform2DComponent{};
     transform2DComponent.SetPosition(position);
@@ -52,7 +52,7 @@ EntityItemMessage glimmer::DroppedItemCreator::GetEntityItemMessage(const WorldV
 
     DroppedItemComponent droppedItemComponent{};
     droppedItemComponent.SetItem(std::move(item));
-    droppedItemComponent.SetPickupCooldown(pickupCooldown);
+    droppedItemComponent.SetPickupCooldownTicks(pickupCooldownTicks);
     auto droppedItemString = droppedItemComponent.Serialize();
     if (droppedItemString.has_value()) {
         ComponentMessage *droppedItemComponentMessage =
@@ -72,7 +72,7 @@ glimmer::ResourceRef glimmer::DroppedItemCreator::GetResourceRef() {
 }
 
 bool glimmer::DroppedItemCreator::SpawnDroppedItem(WorldContext *worldContext, const WorldVector2D &position,
-                                                   std::unique_ptr<Item> item, const float pickupCooldown) {
+                                                   std::unique_ptr<Item> item, const uint64_t pickupCooldownTicks) {
     if (worldContext == nullptr || item == nullptr) {
         LogCat::w(std::source_location::current(), "dropped_item_spawn_invalid_args",
                   "SpawnDroppedItem: worldContext or item is null");
@@ -85,10 +85,10 @@ bool glimmer::DroppedItemCreator::SpawnDroppedItem(WorldContext *worldContext, c
     }
     const uint32_t droppedEntity = entityManager->AddEntity();
     DroppedItemCreator droppedItemCreator{worldContext};
-    droppedItemCreator.LoadTemplateComponents(droppedEntity, DroppedItemCreator::GetResourceRef());
+    droppedItemCreator.LoadTemplateComponents(droppedEntity, GetResourceRef());
     droppedItemCreator.MergeEntityItemMessage(droppedEntity,
-                                              DroppedItemCreator::GetEntityItemMessage(position, std::move(item),
-                                                  pickupCooldown));
+                                              GetEntityItemMessage(position, std::move(item),
+                                                  pickupCooldownTicks));
     return true;
 }
 

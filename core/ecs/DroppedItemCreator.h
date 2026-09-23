@@ -35,7 +35,7 @@ namespace glimmer {
         explicit DroppedItemCreator(WorldContext *worldContext);
 
         static EntityItemMessage GetEntityItemMessage(const WorldVector2D &position, std::unique_ptr<Item> item,
-                                                      float pickupCooldown);
+                                                      uint64_t pickupCooldownTicks);
 
         static ResourceRef GetResourceRef();
 
@@ -49,11 +49,11 @@ namespace glimmer {
          * @param worldContext worldContext 世界上下文
          * @param position position 掉落位置（世界坐标）
          * @param item item 要掉落的物品
-         * @param pickupCooldown pickupCooldown 拾取冷却
+         * @param pickupCooldownTicks pickupCooldownTicks 拾取冷却Tick
          * @return Whether the dropped item was spawned 是否成功生成
          */
         static bool SpawnDroppedItem(WorldContext *worldContext, const WorldVector2D &position,
-                                     std::unique_ptr<Item> item, float pickupCooldown);
+                                     std::unique_ptr<Item> item, uint64_t pickupCooldownTicks);
 
         void LoadTemplateComponents(uint32_t id, const ResourceRef &resourceRef) override;
 

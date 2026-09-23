@@ -33,16 +33,24 @@
 
 glimmer::DroppedItemComponent::DroppedItemComponent() = default;
 
-float glimmer::DroppedItemComponent::GetRemainingTime() const {
-    return remainingTime_;
+uint64_t glimmer::DroppedItemComponent::GetRemainingTicks() const {
+    return remainingTicks_.load(std::memory_order_relaxed);
 }
 
-void glimmer::DroppedItemComponent::SetRemainingTime(const float remainingTime) {
-    remainingTime_ = remainingTime;
+void glimmer::DroppedItemComponent::SetRemainingTicks(const uint64_t remainingTicks) {
+    remainingTicks_.store(remainingTicks, std::memory_order_relaxed);
 }
 
 bool glimmer::DroppedItemComponent::IsExpired() const {
-    return remainingTime_ <= 0.0F;
+    return GetRemainingTicks() == 0;
+}
+
+bool glimmer::DroppedItemComponent::IsDespawnScheduled() const {
+    return despawnScheduled_;
+}
+
+void glimmer::DroppedItemComponent::SetDespawnScheduled(const bool scheduled) {
+    despawnScheduled_ = scheduled;
 }
 
 void glimmer::DroppedItemComponent::SetItem(std::unique_ptr<Item> item) {
@@ -57,16 +65,16 @@ glimmer::Item *glimmer::DroppedItemComponent::GetItem() const {
     return item_.get();
 }
 
-void glimmer::DroppedItemComponent::SetPickupCooldown(const float cooldown) {
-    pickupCooldown_ = cooldown;
+void glimmer::DroppedItemComponent::SetPickupCooldownTicks(const uint64_t cooldownTicks) {
+    pickupCooldownTicks_.store(cooldownTicks, std::memory_order_relaxed);
 }
 
-float glimmer::DroppedItemComponent::GetPickupCooldown() const {
-    return pickupCooldown_;
+uint64_t glimmer::DroppedItemComponent::GetPickupCooldownTicks() const {
+    return pickupCooldownTicks_.load(std::memory_order_relaxed);
 }
 
 bool glimmer::DroppedItemComponent::CanBePickedUp() const {
-    return pickupCooldown_ <= 0.0F;
+    return GetPickupCooldownTicks() == 0;
 }
 
 GameComponentTypeMessage glimmer::DroppedItemComponent::GetComponentTypeStatic() {
@@ -82,8 +90,8 @@ std::optional<std::string> glimmer::DroppedItemComponent::Serialize() {
     if (item_ != nullptr) {
         item_->WriteItemMessage(*droppedItemMessage.mutable_item());
     }
-    droppedItemMessage.set_pickupcooldown(pickupCooldown_);
-    droppedItemMessage.set_remainingtime(remainingTime_);
+    droppedItemMessage.set_pickupcooldown(static_cast<float>(GetPickupCooldownTicks()));
+    droppedItemMessage.set_remainingtime(static_cast<float>(GetRemainingTicks()));
     return droppedItemMessage.SerializeAsString();
 }
 
@@ -101,7 +109,7 @@ void glimmer::DroppedItemComponent::Deserialize(WorldContext *worldContext, cons
             item_ = std::move(item);
             item_->ReadItemMessage(worldContext, droppedItemMessage.item());
         }
-        pickupCooldown_ = droppedItemMessage.pickupcooldown();
-        remainingTime_ = droppedItemMessage.remainingtime();
+        SetPickupCooldownTicks(static_cast<uint64_t>(droppedItemMessage.pickupcooldown()));
+        SetRemainingTicks(static_cast<uint64_t>(droppedItemMessage.remainingtime()));
     }
 }

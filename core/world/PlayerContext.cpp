@@ -177,7 +177,8 @@ void glimmer::PlayerContext::InitPlayerInventory(const uint32_t playerEntity) co
             if (returnItem == nullptr) {
                 continue;
             }
-            DroppedItemCreator::SpawnDroppedItem(worldContext_, playerPos, std::move(returnItem), 2);
+            DroppedItemCreator::SpawnDroppedItem(worldContext_, playerPos, std::move(returnItem),
+                                                 DROPPED_ITEM_PICKUP_COOLDOWN_TICKS);
         }
     }
 }
@@ -272,6 +273,7 @@ void glimmer::PlayerContext::DropComposableItemAbilities(const ComposableItem *c
             continue;
         }
         std::unique_ptr<Item> takeItem = itemContainer->TakeItem(i, itemStackModule->GetAmount());
-        DroppedItemCreator::SpawnDroppedItem(worldContext_, dropPos, std::move(takeItem), 2);
+        DroppedItemCreator::SpawnDroppedItem(worldContext_, dropPos, std::move(takeItem),
+                                             DROPPED_ITEM_PICKUP_COOLDOWN_TICKS);
     }
 }

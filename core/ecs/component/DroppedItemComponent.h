@@ -25,33 +25,41 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <atomic>
+
+#include "core/config/Constants.h"
 #include "core/ecs/GameComponent.h"
 #include "core/inventory/Item.h"
 
 namespace glimmer {
     class DroppedItemComponent : public GameComponent {
         std::unique_ptr<Item> item_ = nullptr;
-        //How long will it be before it disappears
-        //还剩多久会消失(秒)
-        float remainingTime_ = 60.0F;
-        float pickupCooldown_ = 0.0F;
+        //How many ticks remain before it disappears
+        //还剩多少个Tick会消失
+        std::atomic<uint64_t> remainingTicks_{DROPPED_ITEM_DESPAWN_TICKS};
+        //How many ticks remain before it can be picked up
+        //还剩多少个Tick可被拾取
+        std::atomic<uint64_t> pickupCooldownTicks_{0};
+        //Whether the despawn has been scheduled. Only accessed from the tick thread.
+        //是否已经安排消失。仅在tick线程访问。
+        bool despawnScheduled_ = false;
 
     public:
         explicit DroppedItemComponent();
 
         /**
-         * Get Remaining Time
-         * 获取剩余时间
+         * Get Remaining Ticks
+         * 获取剩余Tick
          * @return
          */
-        [[nodiscard]] float GetRemainingTime() const;
+        [[nodiscard]] uint64_t GetRemainingTicks() const;
 
         /**
-         * Set Remaining Time
-         * 设置剩余时间
-         * @param remainingTime
+         * Set Remaining Ticks
+         * 设置剩余Tick
+         * @param remainingTicks
          */
-        void SetRemainingTime(float remainingTime);
+        void SetRemainingTicks(uint64_t remainingTicks);
 
         /**
          * Is Expired
@@ -59,6 +67,20 @@ namespace glimmer {
          * @return
          */
         [[nodiscard]] bool IsExpired() const;
+
+        /**
+         * Is Despawn Scheduled
+         * 是否已经安排了消失
+         * @return
+         */
+        [[nodiscard]] bool IsDespawnScheduled() const;
+
+        /**
+         * Set Despawn Scheduled
+         * 设置已经安排消失
+         * @param scheduled
+         */
+        void SetDespawnScheduled(bool scheduled);
 
         void SetItem(std::unique_ptr<Item> item);
 
@@ -72,18 +94,18 @@ namespace glimmer {
         [[nodiscard]] Item *GetItem() const;
 
         /**
-         * Set Pickup Cooldown
-         * 设置拾取冷却
-         * @param cooldown
+         * Set Pickup Cooldown Ticks
+         * 设置拾取冷却Tick
+         * @param cooldownTicks
          */
-        void SetPickupCooldown(float cooldown);
+        void SetPickupCooldownTicks(uint64_t cooldownTicks);
 
         /**
-         * Get Pickup Cooldown
-         * 获取拾取冷却
+         * Get Pickup Cooldown Ticks
+         * 获取拾取冷却Tick
          * @return
          */
-        [[nodiscard]] float GetPickupCooldown() const;
+        [[nodiscard]] uint64_t GetPickupCooldownTicks() const;
 
         /**
          * Can Be Picked Up

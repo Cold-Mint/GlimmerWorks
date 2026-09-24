@@ -153,13 +153,19 @@ void glimmer::ChunkPhysicsHelper::DetachPhysicsBodyToChunk(AppContext *appContex
     }
     LogCat::d("chunk_physics_detach", "Detaching physics body from chunk: position=({}, {})",
               chunk->GetPosition().x, chunk->GetPosition().y);
-    appContext->GetMainThreadDispatcher()->RunOnMainThread([chunk] {
-        for (const b2BodyId bodyId: chunk->GetAttachedBodies()) {
+    //Copy the body ids out first so the deferred lambda does not depend on the
+    //chunk (which may be destroyed on the tick thread before the main thread
+    //runs the task).
+    //先把 body id 拷贝出来，避免推迟的 lambda 依赖区块（区块可能在主线程执行
+    //任务前已于 tick 线程销毁）。
+    std::vector<b2BodyId> bodies = chunk->GetAttachedBodies();
+    chunk->ClearAttachedBodies();
+    appContext->GetMainThreadDispatcher()->RunOnMainThread([bodies = std::move(bodies)] {
+        for (const b2BodyId bodyId: bodies) {
             if (b2Body_IsValid(bodyId)) {
                 b2DestroyBody(bodyId);
             }
         }
-        chunk->ClearAttachedBodies();
     });
 }
 

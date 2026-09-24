@@ -266,7 +266,7 @@ void glimmer::ChunkSystem::GenerateUnloadChunkTasks(const TileVector2D &startChu
     if (chunkManager == nullptr) {
         return;
     }
-    std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> &allChunks = *chunkManager->
+    std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> allChunks = chunkManager->
             GetAllChunks();
     for (const auto &chunkVertexCoordinates: allChunks | std::views::keys) {
         if (chunkVertexCoordinates.x >= startChunk.x && chunkVertexCoordinates.x <= endChunk.x &&
@@ -292,7 +292,7 @@ void glimmer::ChunkSystem::GenerateUnloadTerrainTasks(const TileVector2D &startT
     if (terrainManager == nullptr) {
         return;
     }
-    std::unordered_map<TileVector2D, TerrainResult *, Vector2DIHash> &terrain = *terrainManager->
+    std::unordered_map<TileVector2D, TerrainResult *, Vector2DIHash> terrain = terrainManager->
             GetTerrainResults();
     for (const auto &chunkVertexCoordinates: terrain | std::views::keys) {
         if (chunkVertexCoordinates.x >= startTerrain.x && chunkVertexCoordinates.x <= endTerrain.x &&
@@ -308,22 +308,31 @@ void glimmer::ChunkSystem::GenerateUnloadTerrainTasks(const TileVector2D &startT
     }
 }
 
-void glimmer::ChunkSystem::Update(const float delta) {
-    WorldContext *worldContext = GetWorldContext();
-    if (worldContext == nullptr) {
+void glimmer::ChunkSystem::OnFrameStart() {
+    if (cameraComponent_ == nullptr || cameraTransform2DComponent_ == nullptr) {
         return;
     }
-    if (cameraComponent_ == nullptr) {
-        return;
-    }
-    if (cameraTransform2DComponent_ == nullptr) {
-        return;
-    }
-    constexpr float chunkWorldSize = CHUNK_SIZE * TILE_SIZE;
     const auto viewportRect = CoordinateTransformer::GetViewportRect(cameraTransform2DComponent_->GetPosition(),
                                                                      cameraComponent_->GetSize(),
                                                                      cameraComponent_->GetZoom());
     UpdateChunkFadeAnimation(viewportRect);
+}
+
+void glimmer::ChunkSystem::OnTick(const uint64_t tick) {
+    WorldContext *worldContext = GetWorldContext();
+    if (worldContext == nullptr || cameraTransform2DComponent_ == nullptr) {
+        return;
+    }
+    ScreenVector2D cameraSize;
+    float cameraZoom;
+    {
+        std::lock_guard lock(cameraMutex_);
+        cameraSize = cameraSize_;
+        cameraZoom = cameraZoom_;
+    }
+    constexpr float chunkWorldSize = CHUNK_SIZE * TILE_SIZE;
+    const auto viewportRect = CoordinateTransformer::GetViewportRect(cameraTransform2DComponent_->GetPosition(),
+                                                                     cameraSize, cameraZoom);
 
     const AppContext *appContext = worldContext->GetAppContext();
     if (appContext == nullptr) {
@@ -333,13 +342,13 @@ void glimmer::ChunkSystem::Update(const float delta) {
     if (config == nullptr) {
         return;
     }
-    ExecuteTimedTask(delta, config->world.loadTerrainInterval, loadTerrainAccumTime_,
+    ExecuteTimedTask(FIXED_TIME_STEP, config->world.loadTerrainInterval, loadTerrainAccumTime_,
                      config->world.loadTerrainBatch, [this](uint16_t batch) { ExecuteLoadTerrainTask(batch); });
-    ExecuteTimedTask(delta, config->world.loadChunkInterval, loadChunkAccumTime_,
+    ExecuteTimedTask(FIXED_TIME_STEP, config->world.loadChunkInterval, loadChunkAccumTime_,
                      config->world.loadChunkBatch, [this](uint16_t batch) { ExecuteLoadChunkTask(batch); });
-    ExecuteTimedTask(delta, config->world.unloadChunkInterval, unloadChunkAccumTime_,
+    ExecuteTimedTask(FIXED_TIME_STEP, config->world.unloadChunkInterval, unloadChunkAccumTime_,
                      config->world.unloadChunkBatch, [this](uint16_t batch) { ExecuteUnloadChunkTask(batch); });
-    ExecuteTimedTask(delta, config->world.unloadTerrainInterval, unloadTerrainAccumTime_,
+    ExecuteTimedTask(FIXED_TIME_STEP, config->world.unloadTerrainInterval, unloadTerrainAccumTime_,
                      config->world.unloadTerrainBatch, [this](uint16_t batch) { ExecuteUnloadTerrainTask(batch); });
 
     const float interval = config->world.chunkSpawnCleanInterval;
@@ -347,7 +356,7 @@ void glimmer::ChunkSystem::Update(const float delta) {
         accumTime_ = 0.0F;
         firstTime_ = false;
     } else {
-        accumTime_ += delta;
+        accumTime_ += FIXED_TIME_STEP;
         if (!firstTime_ && accumTime_ < interval) {
             return;
         }
@@ -399,6 +408,19 @@ void glimmer::ChunkSystem::Update(const float delta) {
     LogCat::d("chunk_system_tasks_generated",
               "ChunkSystem tasks: loadTerrain={}, loadChunk={}, unloadChunk={}, unloadTerrain={}",
               loadTerrainTasks_.size(), loadChunkTasks_.size(), unloadChunkTasks_.size(), unloadTerrainTasks_.size());
+}
+
+void glimmer::ChunkSystem::OnWindowSizeChanged(const int &width, const int &height) {
+    std::lock_guard lock(cameraMutex_);
+    cameraSize_ = ScreenVector2D(static_cast<float>(width), static_cast<float>(height));
+}
+
+void glimmer::ChunkSystem::OnConfigChanged(const Config *config) {
+    if (config == nullptr) {
+        return;
+    }
+    std::lock_guard lock(cameraMutex_);
+    cameraZoom_ = config->window.cameraScale;
 }
 
 glimmer::GameSystemType glimmer::ChunkSystem::GetGameSystemType() const {

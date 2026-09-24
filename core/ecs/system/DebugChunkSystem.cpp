@@ -97,10 +97,7 @@ void glimmer::DebugChunkSystem::RenderChunkView(RenderQueue *queue, AppContext *
     if (worldContext == nullptr) {
         return;
     }
-    const auto *chunksPtr = worldContext->GetChunkManager()->GetAllChunks();
-    if (chunksPtr == nullptr) {
-        return;
-    }
+    const auto chunks = worldContext->GetChunkManager()->GetAllChunks();
     const WindowContext *windowContext = appContext->GetWindowContext();
     if (windowContext == nullptr) {
         return;
@@ -123,7 +120,7 @@ void glimmer::DebugChunkSystem::RenderChunkView(RenderQueue *queue, AppContext *
     // Draw Loaded Chunks (Blue)
     // 绘制已加载的区块（蓝色）
     const SDL_Color loadedChunkColor = {100, 149, 237, 128};
-    for (const auto &[pos, chunk]: *chunksPtr) {
+    for (const auto &[pos, chunk]: chunks) {
         const int chunkIndexX = pos.x >> CHUNK_SHIFT;
         const int chunkIndexY = pos.y >> CHUNK_SHIFT;
         const float drawX = gridCenterX + static_cast<float>(chunkIndexX - playerChunkX) * cellSize;

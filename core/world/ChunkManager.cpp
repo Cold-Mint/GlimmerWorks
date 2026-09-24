@@ -29,12 +29,14 @@
 #include <utility>
 
 #include "core/config/Constants.h"
+#include "core/context/AppContext.h"
 #include "core/ecs/EntityManager.h"
 #include "core/ecs/EntityShortCut.h"
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/log/LogCat.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/saves/Saves.h"
+#include "core/scene/MainThreadDispatcher.h"
 #include "core/world/Tile.h"
 #include "core/world/WorldContext.h"
 #include "generator/ChunkGenerator.h"
@@ -174,25 +176,28 @@ void glimmer::ChunkManager::UpdateChunkLight(const Chunk *chunk) const {
     }
 }
 
-std::unordered_map<glimmer::TileVector2D, glimmer::Chunk *, glimmer::Vector2DIHash> *
+std::unordered_map<glimmer::TileVector2D, glimmer::Chunk *, glimmer::Vector2DIHash>
 glimmer::ChunkManager::GetAllChunks() {
-    if (lastChunkSnapshot_ != chunkSnapshot_) {
-        chunksCache_.clear();
-        chunksCache_.reserve(chunks_.size());
-
-        for (const auto &[pos, chunkPtr]: chunks_) {
-            chunksCache_[pos] = chunkPtr.get();
-        }
-        lastChunkSnapshot_ = chunkSnapshot_;
+    std::lock_guard lock(mutex_);
+    std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> result;
+    result.reserve(chunks_.size());
+    for (const auto &[pos, chunkPtr]: chunks_) {
+        result.emplace(pos, chunkPtr.get());
     }
-    return &chunksCache_;
+    return result;
 }
 
 void glimmer::ChunkManager::LoadChunkAt(TileVector2D position) {
-    if (chunks_.contains(position)) {
-        return;
+    {
+        std::lock_guard lock(mutex_);
+        if (chunks_.contains(position)) {
+            return;
+        }
     }
     LogCat::d("chunk_loading", "Loading chunk at position: ({}, {})", position.x, position.y);
+    //The heavy generation runs outside the lock so the render thread is never
+    //blocked while reading the chunk map.
+    //重的地形生成在锁外执行，避免阻塞渲染线程读取区块表。
     std::unique_ptr<Chunk> newlyCreatedChunk = worldContext_->GetChunkLoader()->LoadChunkFromSaves(position);
     if (newlyCreatedChunk == nullptr) {
         LogCat::d("chunk_not_found_generating", "Chunk not found in saves, generating new chunk");
@@ -204,41 +209,88 @@ void glimmer::ChunkManager::LoadChunkAt(TileVector2D position) {
                   position.y);
         return;
     }
-    UpdateChunkLight(newlyCreatedChunk.get());
-    ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldContext_->GetAppContext(), worldContext_->GetWorldId(),
-                                                 newlyCreatedChunk.get());
+    Chunk *chunkPtr = newlyCreatedChunk.get();
     newlyCreatedChunk->AddReplaceTileCallback([this](Chunk *chunk, TileLayerType layerType,
-                                                     int index,
-                                                     std::shared_ptr<Tile>, const std::shared_ptr<Tile> &newTile) {
+                                                      int index,
+                                                      std::shared_ptr<Tile>, const std::shared_ptr<Tile> &newTile) {
         OnChunkTileChange(chunk, newTile, layerType, index);
     });
-    chunks_.insert({position, std::move(newlyCreatedChunk)});
-    chunkSnapshot_++;
+    {
+        std::lock_guard lock(mutex_);
+        if (chunks_.contains(position)) {
+            //Another load won the race; discard this copy.
+            //其它加载先完成了，丢弃本次结果。
+            return;
+        }
+        chunks_.insert({position, std::move(newlyCreatedChunk)});
+    }
     LogCat::d("chunk_loaded", "Chunk loaded successfully at: ({}, {})", position.x, position.y);
+
+    AppContext *appContext = worldContext_->GetAppContext();
+    if (appContext == nullptr) {
+        return;
+    }
+    //Lighting and physics mutate shared resources owned by the main thread, so
+    //defer them to the main thread.
+    //光照与物理会修改主线程拥有的共享资源，因此推迟到主线程执行。
+    MainThreadDispatcher *dispatcher = appContext->GetMainThreadDispatcher();
+    if (dispatcher != nullptr) {
+        dispatcher->RunOnMainThread([this, position] {
+            std::lock_guard lock(mutex_);
+            const auto it = chunks_.find(position);
+            if (it == chunks_.end()) {
+                return;
+            }
+            UpdateChunkLight(it->second.get());
+        });
+    }
+    ChunkPhysicsHelper::AttachPhysicsBodyToChunk(appContext, worldContext_->GetWorldId(), chunkPtr);
 }
 
 
 void glimmer::ChunkManager::UnloadChunkAt(const TileVector2D &position) {
-    auto it = chunks_.find(position);
-    if (it == chunks_.end()) {
-        return;
+    Chunk *chunk = nullptr;
+    {
+        std::lock_guard lock(mutex_);
+        const auto it = chunks_.find(position);
+        if (it == chunks_.end()) {
+            return;
+        }
+        chunk = it->second.get();
     }
     LogCat::d("chunk_unloading", "Unloading chunk at position: ({}, {})", position.x, position.y);
-    if (SaveChunk(position)) {
+    if (!SaveChunk(position)) {
+        LogCat::w(std::source_location::current(), "chunk_save_failed_during_unload",
+                  "Failed to save chunk during unload at: ({}, {})", position.x,
+                  position.y);
+        return;
+    }
+    //Clearing the light buffer mutates a resource shared with the render thread,
+    //so defer it to the main thread.
+    //清除光照缓冲会修改与渲染线程共享的资源，因此推迟到主线程执行。
+    AppContext *appContext = worldContext_->GetAppContext();
+    MainThreadDispatcher *dispatcher = appContext != nullptr ? appContext->GetMainThreadDispatcher() : nullptr;
+    if (dispatcher != nullptr) {
+        dispatcher->RunOnMainThread([this, position] {
+            for (int x = 0; x < CHUNK_SIZE; x++) {
+                for (int y = 0; y < CHUNK_SIZE; y++) {
+                    lightBuffer_->ClearTileLightData(TileVector2D(position.x + x, position.y + y));
+                }
+            }
+        });
+    } else {
         for (int x = 0; x < CHUNK_SIZE; x++) {
             for (int y = 0; y < CHUNK_SIZE; y++) {
                 lightBuffer_->ClearTileLightData(TileVector2D(position.x + x, position.y + y));
             }
         }
-        ChunkPhysicsHelper::DetachPhysicsBodyToChunk(worldContext_->GetAppContext(), it->second.get());
-        chunks_.erase(it);
-        chunkSnapshot_++;
-        LogCat::d("chunk_unloaded", "Chunk unloaded successfully at: ({}, {})", position.x, position.y);
-    } else {
-        LogCat::w(std::source_location::current(), "chunk_save_failed_during_unload",
-                  "Failed to save chunk during unload at: ({}, {})", position.x,
-                  position.y);
     }
+    ChunkPhysicsHelper::DetachPhysicsBodyToChunk(appContext, chunk);
+    {
+        std::lock_guard lock(mutex_);
+        chunks_.erase(position);
+    }
+    LogCat::d("chunk_unloaded", "Chunk unloaded successfully at: ({}, {})", position.x, position.y);
 }
 
 glimmer::Chunk *glimmer::ChunkManager::GetChunk(const TileVector2D &position) {
@@ -249,6 +301,7 @@ glimmer::Chunk *glimmer::ChunkManager::GetChunk(const TileVector2D &position) {
     }
 #endif
 
+    std::lock_guard lock(mutex_);
     const auto it = chunks_.find(position);
     if (it == chunks_.end()) {
         return nullptr;
@@ -261,13 +314,17 @@ glimmer::TileInstancePool *glimmer::ChunkManager::GetTileInstancePool() const {
 }
 
 bool glimmer::ChunkManager::SaveChunk(TileVector2D position) {
-    const auto it = chunks_.find(position);
-    if (it == chunks_.end()) {
-        return false;
+    Chunk *chunk = nullptr;
+    {
+        std::lock_guard lock(mutex_);
+        const auto it = chunks_.find(position);
+        if (it == chunks_.end()) {
+            return false;
+        }
+        chunk = it->second.get();
     }
     LogCat::d("chunk_saving", "Saving chunk: position=({}, {})", position.x, position.y);
     ChunkMessage chunkMessage;
-    Chunk *chunk = it->second.get();
     chunk->WriteChunkMessage(chunkMessage);
     (void) worldContext_->GetSaves()->WriteChunk(dimensionFolderName_, position, chunkMessage);
     const WorldVector2D startWorldVector2d = chunk->GetStartWorldPosition();
@@ -308,8 +365,23 @@ bool glimmer::ChunkManager::SaveChunk(TileVector2D position) {
     } else {
         (void) worldContext_->GetSaves()->DeleteChunkEntity(dimensionFolderName_, position);
     }
-    for (auto id: entitiesToRemove) {
-        entityManager->RemoveEntity(id);
+    //Removing entities mutates the entity manager, which is owned by the main
+    //thread. Run on the main thread (immediately when already there, e.g. during
+    //a save triggered from the main thread).
+    //移除实体会修改主线程拥有的实体管理器。在主线程执行（若已在主线程，
+    //例如主线程触发的保存，则立即执行）。
+    AppContext *appContext = worldContext_->GetAppContext();
+    MainThreadDispatcher *dispatcher = appContext != nullptr ? appContext->GetMainThreadDispatcher() : nullptr;
+    if (dispatcher != nullptr) {
+        dispatcher->RunOnMainThread([entityManager, entities = std::move(entitiesToRemove)] {
+            for (const auto id: entities) {
+                entityManager->RemoveEntity(id);
+            }
+        });
+    } else {
+        for (const auto id: entitiesToRemove) {
+            entityManager->RemoveEntity(id);
+        }
     }
     LogCat::d("chunk_saved", "Chunk saved: position=({}, {}), entities={}", position.x, position.y,
               chunkEntityMessage.entities_size());
@@ -317,8 +389,9 @@ bool glimmer::ChunkManager::SaveChunk(TileVector2D position) {
 }
 
 bool glimmer::ChunkManager::SaveAllChunks() {
+    const std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> chunks = GetAllChunks();
     bool saveAllChunks = true;
-    for (const auto &position: chunks_ | std::views::keys) {
+    for (const auto &position: chunks | std::views::keys) {
         if (!SaveChunk(position)) {
             saveAllChunks = false;
         }
@@ -327,6 +400,7 @@ bool glimmer::ChunkManager::SaveAllChunks() {
 }
 
 bool glimmer::ChunkManager::HasChunk(const TileVector2D &position) const {
+    std::lock_guard lock(mutex_);
     return chunks_.contains(position);
 }
 

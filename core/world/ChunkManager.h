@@ -28,6 +28,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <unordered_map>
 
@@ -46,14 +47,20 @@ namespace glimmer {
      * 从 WorldContext 拆分而来。
      */
     class ChunkManager {
-        uint32_t chunkSnapshot_ = 0;
-        uint32_t lastChunkSnapshot_ = UINT32_MAX;
         std::unordered_map<TileVector2D, std::unique_ptr<Chunk>, Vector2DIHash> chunks_;
-        std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> chunksCache_;
         std::unique_ptr<LightBuffer> lightBuffer_ = nullptr;
         std::unique_ptr<TileInstancePool> tileInstancePool_;
         WorldContext *worldContext_ = nullptr;
         std::string dimensionFolderName_;
+
+        /**
+         * Protects chunks_ against concurrent access from the tick thread
+         * (load/unload in ChunkSystem) and the main thread (rendering, debugging,
+         * saving).
+         * 保护 chunks_ 免受 tick 线程（ChunkSystem 的加载/卸载）与主线程
+         * （渲染、调试、保存）的并发访问。
+         */
+        mutable std::mutex mutex_;
 
         /**
          * OnChunkTileChange
@@ -103,9 +110,10 @@ namespace glimmer {
         /**
          * GetChunks
          * 获取区块
-         * @return
+         * @return A snapshot copy of the loaded chunks (thread-safe).
+         *         已加载区块的快照副本（线程安全）。
          */
-        [[nodiscard]] std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> *GetAllChunks();
+        [[nodiscard]] std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> GetAllChunks();
 
         /**
          * Determine whether a block at a certain position has been loaded

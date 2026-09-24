@@ -27,6 +27,7 @@
 #pragma once
 
 #include <memory>
+#include <mutex>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -48,6 +49,15 @@ namespace glimmer {
         std::unordered_set<TileVector2D, Vector2DIHash> processedTerrainTiles_;
         WorldContext *worldContext_ = nullptr;
 
+        /**
+         * Protects the terrain maps against concurrent access from the tick
+         * thread (load/unload in ChunkSystem) and the main thread (BGM system,
+         * structure placement).
+         * 保护地形数据表免受 tick 线程（ChunkSystem 的加载/卸载）与主线程
+         * （BGM 系统、结构放置）的并发访问。
+         */
+        mutable std::mutex mutex_;
+
     public:
         explicit TerrainManager(WorldContext *worldContext);
 
@@ -62,7 +72,13 @@ namespace glimmer {
         */
         [[nodiscard]] TerrainResult *GetOrCreateTerrainData(const TileVector2D &position);
 
-        [[nodiscard]] std::unordered_map<TileVector2D, TerrainResult *, Vector2DIHash> *GetTerrainResults();
+        /**
+         * GetTerrainResults
+         * 获取所有地形数据。
+         * @return A snapshot copy of the terrain data (thread-safe).
+         *         地形数据的快照副本（线程安全）。
+         */
+        [[nodiscard]] std::unordered_map<TileVector2D, TerrainResult *, Vector2DIHash> GetTerrainResults();
 
         /**
          * LoadTerrainAt

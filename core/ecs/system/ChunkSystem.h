@@ -26,7 +26,10 @@
  */
 #pragma once
 
+#include <mutex>
+
 #include "core/ecs/GameSystem.h"
+#include "core/math/ScreenVector2D.h"
 #include "core/world/ChunkTask.h"
 #include "SDL3/SDL_rect.h"
 
@@ -34,11 +37,19 @@ namespace glimmer {
     class Transform2DComponent;
     class CameraComponent;
     class TileVector2D;
+    class Config;
 
     class ChunkSystem final : public GameSystem {
         CameraComponent *cameraComponent_ = nullptr;
         Transform2DComponent *cameraTransform2DComponent_ = nullptr;
         WorldVector2D cameraPosition_;
+        //Cached camera view parameters, written on the main thread
+        //(OnWindowSizeChanged/OnConfigChanged) and read on the tick thread (OnTick).
+        //缓存相机视图参数：在主线程（OnWindowSizeChanged/OnConfigChanged）写入，
+        //在 tick 线程（OnTick）读取。
+        ScreenVector2D cameraSize_{800.0F, 600.0F};
+        float cameraZoom_ = 2.0F;
+        mutable std::mutex cameraMutex_;
         float accumTime_ = 0.0F;
         float loadTerrainAccumTime_ = 0.0F;
         float loadChunkAccumTime_ = 0.0F;
@@ -109,7 +120,13 @@ namespace glimmer {
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t number) override;
 
-        void Update(float delta) override;
+        void OnFrameStart() override;
+
+        void OnTick(uint64_t tick) override;
+
+        void OnWindowSizeChanged(const int &width, const int &height) override;
+
+        void OnConfigChanged(const Config *config) override;
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };

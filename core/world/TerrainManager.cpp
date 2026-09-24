@@ -36,6 +36,7 @@ glimmer::TerrainManager::TerrainManager(WorldContext *worldContext) : worldConte
 }
 
 glimmer::TerrainResult *glimmer::TerrainManager::GetTerrainData(const TileVector2D &position) {
+    std::lock_guard lock(mutex_);
     if (auto it = terrainTileData_.find(position); it != terrainTileData_.end()) {
         return it->second.get();
     }
@@ -43,10 +44,15 @@ glimmer::TerrainResult *glimmer::TerrainManager::GetTerrainData(const TileVector
 }
 
 glimmer::TerrainResult *glimmer::TerrainManager::GetOrCreateTerrainData(const TileVector2D &position) {
-    if (auto it = terrainTileData_.find(position); it != terrainTileData_.end()) {
-        return it->second.get();
+    {
+        std::lock_guard lock(mutex_);
+        if (auto it = terrainTileData_.find(position); it != terrainTileData_.end()) {
+            return it->second.get();
+        }
     }
 
+    //The heavy terrain generation runs outside the lock.
+    //重的地形生成在锁外执行。
     auto terrainResult = worldContext_->GetChunkGenerator()->GenerateTerrain(position);
     if (terrainResult == nullptr) {
         LogCat::w(std::source_location::current(), "terrain_generate_failed",
@@ -54,28 +60,44 @@ glimmer::TerrainResult *glimmer::TerrainManager::GetOrCreateTerrainData(const Ti
         return nullptr;
     }
     auto terrainPtr = terrainResult.get();
-    terrainTileData_.emplace(position, std::move(terrainResult));
-    terrainTileDataCache_.emplace(position, terrainPtr);
+    {
+        std::lock_guard lock(mutex_);
+        if (auto it = terrainTileData_.find(position); it != terrainTileData_.end()) {
+            //Another thread generated it first; discard ours.
+            //其它线程先生成了，丢弃本次结果。
+            return it->second.get();
+        }
+        terrainTileData_.emplace(position, std::move(terrainResult));
+        terrainTileDataCache_.emplace(position, terrainPtr);
+    }
     LogCat::d("terrain_data_created", "Created terrain data: position=({}, {})", position.x, position.y);
     return terrainPtr;
 }
 
-std::unordered_map<glimmer::TileVector2D, glimmer::TerrainResult *, glimmer::Vector2DIHash> *
+std::unordered_map<glimmer::TileVector2D, glimmer::TerrainResult *, glimmer::Vector2DIHash>
 glimmer::TerrainManager::GetTerrainResults() {
-    return &terrainTileDataCache_;
+    std::lock_guard lock(mutex_);
+    return terrainTileDataCache_;
 }
 
 void glimmer::TerrainManager::LoadTerrainAt(TileVector2D position) {
-    if (processedTerrainTiles_.contains(position)) {
-        return;
+    {
+        std::lock_guard lock(mutex_);
+        if (processedTerrainTiles_.contains(position)) {
+            return;
+        }
     }
     LogCat::d("terrain_loading", "Loading terrain (structure generation): position=({}, {})", position.x,
               position.y);
+    //The heavy structure generation runs outside the lock.
+    //重的结构生成在锁外执行。
     worldContext_->GetChunkGenerator()->GenerateStructure(position);
+    std::lock_guard lock(mutex_);
     processedTerrainTiles_.emplace(position);
 }
 
 void glimmer::TerrainManager::UnloadTerrainAt(TileVector2D position) {
+    std::lock_guard lock(mutex_);
     if (!processedTerrainTiles_.contains(position)) {
         return;
     }

@@ -389,7 +389,7 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
 
         // Chunk info text
         // 区块信息文本
-        const auto *chunksPtr = worldContext->GetChunkManager()->GetAllChunks();
+        const auto chunks = worldContext->GetChunkManager()->GetAllChunks();
         int playerTileX = static_cast<int>(std::floor(mousePosition_.x / TILE_SIZE));
         int playerTileY = static_cast<int>(std::floor(mousePosition_.y / TILE_SIZE));
 
@@ -410,7 +410,7 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
         int visibleChunkCount = (endChunkX - startChunkX + 1) * (endChunkY - startChunkY + 1);
 
         chunkText_ = fmt::format(fmt::runtime(langsResources->debugChunkInfo), playerChunkX,
-                                 playerChunkY, visibleChunkCount, chunksPtr->size());
+                                 playerChunkY, visibleChunkCount, chunks.size());
 
         crosshairX_ = static_cast<int>(screenPos.x);
         crosshairY_ = static_cast<int>(screenPos.y);

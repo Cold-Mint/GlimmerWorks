@@ -25,6 +25,9 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <atomic>
+#include <mutex>
+
 #include "core/ecs/GameSystem.h"
 #include "core/math/WorldVector2D.h"
 
@@ -33,8 +36,19 @@ namespace glimmer {
         uint32_t transform2DCount_ = 0;
         uint32_t techProviderCount_ = 0;
         std::vector<GameEntityID> techProviderEntities_;
+        /**
+         * Protects techProviderEntities_ against concurrent rebuild on the main
+         * thread (OnWatchedComponentChanged) and iteration on the tick thread
+         * (OnTick).
+         * 保护 techProviderEntities_ 免受主线程（OnWatchedComponentChanged）
+         * 重建与 tick 线程（OnTick）遍历的并发访问。
+         */
+        mutable std::mutex techProviderMutex_;
         GameEntityID player_ = 0;
-        bool changed = false;
+        //Whether the technology map needs to be recomputed. Set on the main
+        //thread (OnWatchedComponentChanged), consumed on the tick thread (OnTick).
+        //是否需要重新计算科技表。在主线程（OnWatchedComponentChanged）设置，在 tick 线程（OnTick）消费。
+        std::atomic<bool> changed = false;
         WorldVector2D lastPlayerPosition_{};
 
     public:
@@ -42,7 +56,7 @@ namespace glimmer {
 
         void OnActivationChanged(bool activeStatus) override;
 
-        void OnFrameStart() override;
+        void OnTick(uint64_t tick) override;
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 

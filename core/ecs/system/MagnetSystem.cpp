@@ -63,6 +63,7 @@ void glimmer::MagnetSystem::OnWatchedComponentChanged(GameComponentTypeMessage g
         itemContainerCount_ = count;
     }
     if (transform2DComponentCount_ > 0 && magnetComponentCount_ > 0) {
+        std::lock_guard lock(magnetMutex_);
         magnetEntities_ = entityManager->GetEntityIDWithComponents({
             COMPONENT_TRANSFORM_2D, COMPONENT_MAGNET, COMPONENT_ITEM_CONTAINER
         });
@@ -70,6 +71,7 @@ void glimmer::MagnetSystem::OnWatchedComponentChanged(GameComponentTypeMessage g
     }
     if (magneticComponentCount_ > 0 && transform2DComponentCount_ > 0 && rigidComponentCount_ > 0 &&
         rayCast2dComponentCount_ > 0 && droppedItemComponentCount_ > 0) {
+        std::lock_guard lock(magnetMutex_);
         magneticEntities_ = entityManager->GetEntityIDWithComponents({
             COMPONENT_MAGNETIC, COMPONENT_TRANSFORM_2D, COMPONENT_RIGID_BODY_2D, COMPONENT_RAY_CAST_2D,
             COMPONENT_DROPPED_ITEM
@@ -166,7 +168,8 @@ bool glimmer::MagnetSystem::ProcessMagneticEntity(GameEntityID magneticEntity,
     return true;
 }
 
-void glimmer::MagnetSystem::ProcessMagnetEntity(GameEntityID magnetEntity) {
+void glimmer::MagnetSystem::ProcessMagnetEntity(GameEntityID magnetEntity,
+                                                const std::vector<GameEntityID> &magneticEntities) {
     EntityManager *entityManager = GetEntityManager();
     auto magnet = entityManager->GetComponent<MagnetComponent>(magnetEntity);
     if (magnet == nullptr) {
@@ -185,28 +188,28 @@ void glimmer::MagnetSystem::ProcessMagnetEntity(GameEntityID magnetEntity) {
         return;
     }
     const WorldVector2D magnetPos = magnetTransform->GetPosition();
-    for (auto magneticEntity: magneticEntities_) {
+    for (auto magneticEntity: magneticEntities) {
         ProcessMagneticEntity(magneticEntity, magnet, magnetPos, itemContainer);
     }
 }
 
-void glimmer::MagnetSystem::Update(const float delta) {
+void glimmer::MagnetSystem::OnTick(const uint64_t tick) {
     WorldContext *worldContext = GetWorldContext();
-    EntityManager *entityManager = GetEntityManager();
-    if (worldContext == nullptr) {
+    if (worldContext == nullptr || GetEntityManager() == nullptr) {
         return;
     }
-    if (entityManager == nullptr) {
-        return;
+    std::vector<GameEntityID> magnetEntities;
+    std::vector<GameEntityID> magneticEntities;
+    {
+        std::lock_guard lock(magnetMutex_);
+        if (magnetEntities_.empty() || magneticEntities_.empty()) {
+            return;
+        }
+        magnetEntities = magnetEntities_;
+        magneticEntities = magneticEntities_;
     }
-    if (magnetEntities_.empty()) {
-        return;
-    }
-    if (magneticEntities_.empty()) {
-        return;
-    }
-    for (auto magnetEntity: magnetEntities_) {
-        ProcessMagnetEntity(magnetEntity);
+    for (const GameEntityID magnetEntity: magnetEntities) {
+        ProcessMagnetEntity(magnetEntity, magneticEntities);
     }
 }
 

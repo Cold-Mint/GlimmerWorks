@@ -29,6 +29,8 @@
 #include <strstream>
 
 #include "core/log/LogCat.h"
+#include "core/context/AppContext.h"
+#include "core/scene/MainThreadDispatcher.h"
 #include "core/world/WorldContext.h"
 #include "core/ecs/component/DroppedItemComponent.h"
 #include "core/ecs/component/MagnetComponent.h"
@@ -47,6 +49,7 @@ void glimmer::AutoPickSystem::OnWatchedComponentChanged(GameComponentTypeMessage
         itemContainerCount_ = count;
     }
     if (autoPickCount_ > 0 && magnetCount_ > 0 && itemContainerCount_ > 0) {
+        std::lock_guard lock(entitiesMutex_);
         entities_ = entityManager->GetEntityIDWithComponents({
             COMPONENT_MAGNET, COMPONENT_ITEM_CONTAINER
         });
@@ -135,11 +138,23 @@ void glimmer::AutoPickSystem::ProcessMagnetEntity(GameEntityID entity) {
                 audioManager_->TryPlayFree(AudioType::AMBIENT, audio, 0);
             }
         }
-        entityManager->RemoveEntity(entityId);
+        // Removing an entity mutates the entity manager, which is owned by the
+        // main thread. Defer the removal so it runs on the main thread.
+        // 移除实体会修改实体管理器，而它归主线程所有。将移除推迟到主线程执行。
+        const WorldContext *worldContext = GetWorldContext();
+        const AppContext *appContext = worldContext != nullptr ? worldContext->GetAppContext() : nullptr;
+        MainThreadDispatcher *dispatcher = appContext != nullptr ? appContext->GetMainThreadDispatcher() : nullptr;
+        if (dispatcher != nullptr) {
+            dispatcher->PostToNextMainFrame([entityManager, entityId] {
+                entityManager->RemoveEntity(entityId);
+            });
+        } else {
+            entityManager->RemoveEntity(entityId);
+        }
     }
 }
 
-void glimmer::AutoPickSystem::Update(const float delta) {
+void glimmer::AutoPickSystem::OnTick(const uint64_t tick) {
     if (audioManager_ == nullptr) {
         return;
     }
@@ -147,8 +162,16 @@ void glimmer::AutoPickSystem::Update(const float delta) {
         TryMergeFlowingText();
         remainingTime_ = MERGE_DURATION;
     }
-    remainingTime_ -= delta;
-    for (const auto entity: entities_) {
+    remainingTime_ -= FIXED_TIME_STEP;
+    std::vector<GameEntityID> entities;
+    {
+        std::lock_guard lock(entitiesMutex_);
+        if (entities_.empty()) {
+            return;
+        }
+        entities = entities_;
+    }
+    for (const GameEntityID entity: entities) {
         ProcessMagnetEntity(entity);
     }
 }

@@ -25,6 +25,8 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <mutex>
+
 #include "core/config/Constants.h"
 #include "core/ecs/GameSystem.h"
 #include "core/math/WorldVector2D.h"
@@ -42,6 +44,13 @@ namespace glimmer {
         uint32_t magnetCount_ = 0;
         uint32_t itemContainerCount_ = 0;
         std::vector<GameEntityID> entities_;
+        /**
+         * Protects entities_ against concurrent rebuild on the main thread
+         * (OnWatchedComponentChanged) and iteration on the tick thread (OnTick).
+         * 保护 entities_ 免受主线程（OnWatchedComponentChanged）重建与
+         * tick 线程（OnTick）遍历的并发访问。
+         */
+        mutable std::mutex entitiesMutex_;
 
         std::unordered_map<std::string, size_t, TransparentStringHash, std::equal_to<> > frameItemCounts_ = {};
 
@@ -54,7 +63,7 @@ namespace glimmer {
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
-        void Update(float delta) override;
+        void OnTick(uint64_t tick) override;
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };

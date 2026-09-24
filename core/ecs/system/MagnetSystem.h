@@ -25,6 +25,8 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <mutex>
+
 #include "core/ecs/GameSystem.h"
 
 namespace glimmer {
@@ -47,19 +49,28 @@ namespace glimmer {
         //磁吸物
         std::vector<GameEntityID> magneticEntities_;
 
+        /**
+         * Protects magnetEntities_ and magneticEntities_ against concurrent rebuild
+         * on the main thread (OnWatchedComponentChanged) and iteration on the tick
+         * thread (OnTick).
+         * 保护 magnetEntities_ 和 magneticEntities_ 免受主线程
+         * （OnWatchedComponentChanged）重建与 tick 线程（OnTick）遍历的并发访问。
+         */
+        mutable std::mutex magnetMutex_;
+
         bool ProcessMagneticEntity(GameEntityID magneticEntity,
                                    MagnetComponent *magnet,
                                    const WorldVector2D &magnetPos,
                                    ItemContainer *itemContainer);
 
-        void ProcessMagnetEntity(GameEntityID magnetEntity);
+        void ProcessMagnetEntity(GameEntityID magnetEntity, const std::vector<GameEntityID> &magneticEntities);
 
     public:
         explicit MagnetSystem(WorldContext *worldContext);
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
-        void Update(float delta) override;
+        void OnTick(uint64_t tick) override;
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };

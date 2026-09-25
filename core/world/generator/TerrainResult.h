@@ -39,10 +39,14 @@ namespace glimmer {
         std::array<TerrainTileResult, CHUNK_SIZE> upTerrainTileResult_;
         std::array<TerrainTileResult, CHUNK_SIZE> downTerrainTileResult_;
         TileVector2D position_;
+        bool ready_ = false;
 
     public:
         void SetTerrainTileResult(int x, int y, const TerrainTileResult &result);
 
+        void MakeReady();
+
+        bool IsReady() const;
 
         void SetPosition(const TileVector2D &position);
 

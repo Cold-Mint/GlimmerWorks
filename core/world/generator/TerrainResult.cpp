@@ -31,6 +31,14 @@ void glimmer::TerrainResult::SetTerrainTileResult(const int x, const int y, cons
     terrainTileResult_[idx] = result;
 }
 
+void glimmer::TerrainResult::MakeReady() {
+    ready_ = true;
+}
+
+bool glimmer::TerrainResult::IsReady() const {
+    return ready_;
+}
+
 void glimmer::TerrainResult::SetPosition(const TileVector2D &position) {
     position_ = position;
 }

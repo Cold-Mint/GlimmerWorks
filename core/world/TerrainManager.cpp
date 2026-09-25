@@ -28,11 +28,48 @@
 
 #include <utility>
 
+#include "core/config/Constants.h"
 #include "core/log/LogCat.h"
 #include "core/world/WorldContext.h"
 #include "generator/ChunkGenerator.h"
 
 glimmer::TerrainManager::TerrainManager(WorldContext *worldContext) : worldContext_(worldContext) {
+}
+
+const std::array<glimmer::TileVector2D, 8> &glimmer::TerrainManager::NeighborOffsets() {
+    static const std::array offsets = {
+        TileVector2D(0, CHUNK_SIZE),            // up 上
+        TileVector2D(0, -CHUNK_SIZE),           // down 下
+        TileVector2D(-CHUNK_SIZE, 0),           // left 左
+        TileVector2D(CHUNK_SIZE, 0),            // right 右
+        TileVector2D(-CHUNK_SIZE, CHUNK_SIZE),  // up-left 左上
+        TileVector2D(CHUNK_SIZE, CHUNK_SIZE),   // up-right 右上
+        TileVector2D(-CHUNK_SIZE, -CHUNK_SIZE), // down-left 左下
+        TileVector2D(CHUNK_SIZE, -CHUNK_SIZE),  // down-right 右下
+    };
+    return offsets;
+}
+
+void glimmer::TerrainManager::MarkReadyIfNeighborsGeneratedLocked(const TileVector2D &position) {
+    if (!processedTerrainTiles_.contains(position)) {
+        return;
+    }
+    for (const auto &offset: NeighborOffsets()) {
+        const TileVector2D neighbor = position + offset;
+        if (neighbor.y >= WORLD_MAX_Y || neighbor.y < WORLD_MIN_Y ||
+            neighbor.x >= WORLD_MAX_X || neighbor.x < WORLD_MIN_X) {
+            continue;
+        }
+        if (!processedTerrainTiles_.contains(neighbor)) {
+            return;
+        }
+    }
+    const auto it = terrainTileData_.find(position);
+    if (it != terrainTileData_.end() && !it->second->IsReady()) {
+        it->second->MakeReady();
+        LogCat::d(LogLabel::TERRAIN, "terrain_marked_ready", "Terrain marked ready: position=({}, {})",
+                  position.x, position.y);
+    }
 }
 
 glimmer::TerrainResult *glimmer::TerrainManager::GetTerrainData(const TileVector2D &position) {
@@ -85,6 +122,8 @@ void glimmer::TerrainManager::LoadTerrainAt(TileVector2D position) {
     {
         std::lock_guard lock(mutex_);
         if (processedTerrainTiles_.contains(position)) {
+            LogCat::e(LogLabel::TERRAIN, std::source_location::current(), "terrain_already_processed",
+                      "Terrain is already processed: position=({}, {})", position.x, position.y);
             return;
         }
     }
@@ -94,13 +133,24 @@ void glimmer::TerrainManager::LoadTerrainAt(TileVector2D position) {
     //The heavy structure generation runs outside the lock.
     //重的结构生成在锁外执行。
     worldContext_->GetChunkGenerator()->GenerateStructure(position);
-    std::lock_guard lock(mutex_);
-    processedTerrainTiles_.emplace(position);
+    {
+        std::lock_guard lock(mutex_);
+        processedTerrainTiles_.emplace(position);
+        //The newly processed terrain may complete the readiness of itself or any
+        //of its eight neighbors.
+        //新完成结构生成的地形，可能使自己或八个邻居中的某一个达到就绪状态。
+        MarkReadyIfNeighborsGeneratedLocked(position);
+        for (const auto &offset: NeighborOffsets()) {
+            MarkReadyIfNeighborsGeneratedLocked(position + offset);
+        }
+    }
 }
 
 void glimmer::TerrainManager::UnloadTerrainAt(TileVector2D position) {
     std::lock_guard lock(mutex_);
     if (!processedTerrainTiles_.contains(position)) {
+        LogCat::e(LogLabel::TERRAIN, std::source_location::current(), "terrain_not_processed",
+                  "Terrain is not processed: position=({}, {})", position.x, position.y);
         return;
     }
     LogCat::d(LogLabel::TERRAIN, "terrain_unloading", "Unloading terrain: position=({}, {})", position.x, position.y);

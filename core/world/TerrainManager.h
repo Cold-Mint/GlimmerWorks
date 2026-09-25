@@ -26,6 +26,7 @@
  */
 #pragma once
 
+#include <array>
 #include <memory>
 #include <mutex>
 #include <unordered_map>
@@ -57,6 +58,23 @@ namespace glimmer {
          * （BGM 系统、结构放置）的并发访问。
          */
         mutable std::mutex mutex_;
+
+        /**
+         * The eight neighboring chunk offsets (up/down/left/right and diagonals)
+         * that a structure may span into.
+         * 结构可能跨入的八个邻居区块偏移（上下左右及对角线）。
+         */
+        static const std::array<TileVector2D, 8> &NeighborOffsets();
+
+        /**
+         * Mark the terrain at the given position as ready when it and its eight
+         * neighbors have all completed structure generation.
+         * Must be called with mutex_ held.
+         * 当该位置及其八个邻居都完成结构生成后，将居中的地形标记为就绪。
+         * 必须在持有 mutex_ 时调用。
+         * @param position position 区块位置
+         */
+        void MarkReadyIfNeighborsGeneratedLocked(const TileVector2D &position);
 
     public:
         explicit TerrainManager(WorldContext *worldContext);

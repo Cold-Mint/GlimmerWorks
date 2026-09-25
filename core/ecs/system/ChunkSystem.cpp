@@ -143,12 +143,12 @@ void glimmer::ChunkSystem::PushTask(std::vector<std::unique_ptr<ChunkTask> > &ta
     taskFingerprintSet_.insert(fingerprint);
 }
 
-void glimmer::ChunkSystem::SetOriginAndSort(std::vector<std::unique_ptr<ChunkTask> > &taskList, TileVector2D origin,
+void glimmer::ChunkSystem::SetOriginAndSort(std::vector<std::unique_ptr<ChunkTask> > &taskList, const TileVector2D& origin,
                                             bool sortAscending) {
     for (const auto &task: taskList) {
         task->SetOrigin(origin);
     }
-    std::sort(taskList.begin(), taskList.end(), [sortAscending](const auto &a, const auto &b) {
+    std::ranges::sort(taskList, [sortAscending](const auto &a, const auto &b) {
         const auto distA = a->GetDistance();
         const auto distB = b->GetDistance();
         return sortAscending ? distA < distB : distA > distB;
@@ -360,13 +360,13 @@ void glimmer::ChunkSystem::OnTick(const uint64_t tick) {
                                                                      cameraSize, cameraZoom);
 
     ExecuteTimedTask(tick, loadTerrainInterval, loadTerrainBatch,
-                     [this](uint16_t batch) { ExecuteLoadTerrainTask(batch); });
+                     [this](const uint16_t batch) { ExecuteLoadTerrainTask(batch); });
     ExecuteTimedTask(tick, loadChunkInterval, loadChunkBatch,
-                     [this](uint16_t batch) { ExecuteLoadChunkTask(batch); });
+                     [this](const uint16_t batch) { ExecuteLoadChunkTask(batch); });
     ExecuteTimedTask(tick, unloadChunkInterval, unloadChunkBatch,
-                     [this](uint16_t batch) { ExecuteUnloadChunkTask(batch); });
+                     [this](const uint16_t batch) { ExecuteUnloadChunkTask(batch); });
     ExecuteTimedTask(tick, unloadTerrainInterval, unloadTerrainBatch,
-                     [this](uint16_t batch) { ExecuteUnloadTerrainTask(batch); });
+                     [this](const uint16_t batch) { ExecuteUnloadTerrainTask(batch); });
 
     if (chunkSpawnCleanInterval != 0) {
         accumTime_++;

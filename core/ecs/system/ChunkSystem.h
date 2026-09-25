@@ -52,7 +52,6 @@ namespace glimmer {
         mutable std::mutex cameraMutex_;
         //累加tick
         uint64_t accumTime_ = 0;
-
         //Cached world configuration parameters, written on the main thread
         //(OnConfigChanged) and read on the tick thread (OnTick).
         //缓存世界配置参数：在主线程（OnConfigChanged）写入，在 tick 线程（OnTick）读取。
@@ -85,12 +84,12 @@ namespace glimmer {
         void ExecuteUnloadTerrainTask(uint16_t unloadTerrainBatch);
 
         /**
-      * PushTask
-      * 推送任务到列表
-      * @param taskList taskList 任务列表
-      * @param chunkTask chunkTask 区块任务
-      * @param fingerprint fingerprint 指纹
-      */
+        * PushTask
+        * 推送任务到列表
+        * @param taskList taskList 任务列表
+        * @param chunkTask chunkTask 区块任务
+        * @param fingerprint fingerprint 指纹
+        */
         void PushTask(std::vector<std::unique_ptr<ChunkTask> > &taskList, std::unique_ptr<ChunkTask> chunkTask,
                       uint64_t fingerprint);
 
@@ -101,7 +100,7 @@ namespace glimmer {
          * @param origin origin 原点
          * @param sortAscending sortAscending 是否升序（从小到大）
          */
-        static void SetOriginAndSort(std::vector<std::unique_ptr<ChunkTask> > &taskList, TileVector2D origin,
+        static void SetOriginAndSort(std::vector<std::unique_ptr<ChunkTask> > &taskList, const TileVector2D& origin,
                                      bool sortAscending);
 
         void UpdateChunkFadeAnimation(const SDL_FRect &viewportRect) const;

@@ -103,9 +103,14 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const T
     auto chunk = std::make_unique<Chunk>(worldContext_, position, config);
     TerrainResult *terrainResult = worldContext_->GetTerrainManager()->GetTerrainData(position);
     if (terrainResult == nullptr) {
-        LogCat::w(LogLabel::CHUNK, std::source_location::current(), "chunk_terrain_data_failed",
+        LogCat::e(LogLabel::CHUNK, std::source_location::current(), "chunk_terrain_data_failed",
                   "Failed to get terrain data for chunk: ({}, {})", position.x,
                   position.y);
+        return nullptr;
+    }
+    if (!terrainResult->IsReady()) {
+        LogCat::e(LogLabel::CHUNK, std::source_location::current(), "chunk_terrain_not_ready",
+                  "Terrain data is not ready for chunk: position=({}, {})", position.x, position.y);
         return nullptr;
     }
     std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > tilesRefMap = {

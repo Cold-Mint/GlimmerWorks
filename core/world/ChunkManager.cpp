@@ -193,6 +193,8 @@ void glimmer::ChunkManager::LoadChunkAt(TileVector2D position) {
     {
         std::lock_guard lock(mutex_);
         if (chunks_.contains(position)) {
+            LogCat::e(LogLabel::CHUNK, std::source_location::current(), "chunk_already_loaded",
+                      "Chunk is already loaded: position=({}, {})", position.x, position.y);
             return;
         }
     }
@@ -256,6 +258,8 @@ void glimmer::ChunkManager::UnloadChunkAt(const TileVector2D &position) {
         std::lock_guard lock(mutex_);
         const auto it = chunks_.find(position);
         if (it == chunks_.end()) {
+            LogCat::e(LogLabel::CHUNK, std::source_location::current(), "chunk_not_loaded",
+                      "Chunk is not loaded: position=({}, {})", position.x, position.y);
             return;
         }
         chunk = it->second.get();

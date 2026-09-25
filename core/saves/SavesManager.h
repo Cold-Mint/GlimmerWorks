@@ -32,6 +32,8 @@
 #include "core/mod/resourcePack/BaseManager.h"
 
 namespace glimmer {
+    class SavesCreateRequest;
+
     class SavesManager : public BaseManager<Saves> {
         VirtualFileSystem *virtualFileSystem_;
         std::vector<std::unique_ptr<MapManifest> > manifestList_;
@@ -77,8 +79,7 @@ namespace glimmer {
         * @param mapManifest mapManifest 清单文件
         * @param playerManifest playerManifest 玩家清单文件
         */
-        Saves *Create(const std::filesystem::path &runtimePath, MapManifest &mapManifest,
-                      PlayerManifest &playerManifest);
+        Saves *Create(const std::filesystem::path &runtimePath, const SavesCreateRequest &request);
 
 
         /**

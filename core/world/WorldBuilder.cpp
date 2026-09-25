@@ -88,18 +88,23 @@ void glimmer::WorldBuilder::Build() {
     worldContext_->entityManager_ = std::make_unique<EntityManager>();
     worldContext_->entityShortCut_ = std::make_unique<EntityShortCut>();
     worldContext_->entityManager_->SetEntityIndex(worldContext_->mapManifest_->entityIDIndex);
-    ResourceRef &customDimension = worldContext_->playerManifest_->customDimension;
+    const PlayerDimensionMessage *playerDimensionMessage = worldContext_->playerManifest_->GetCurrentDimension();
+    if (playerDimensionMessage == nullptr) {
+        return;
+    }
+    ResourceRef dimensionResourceRef;
+    dimensionResourceRef.ReadResourceRefMessage(playerDimensionMessage->dimension());
     worldContext_->dimension_ = std::make_unique<Dimension>();
     DimensionResource *dimensionResource = worldContext_->appContext_->GetResourceLocator()->FindDimension(
-        &customDimension);
+        &dimensionResourceRef);
     if (dimensionResource == nullptr) {
         LogCat::w(std::source_location::current(), "world_builder_dimension_resource_null",
                   "Dimension resource is not found, cannot build world");
         return;
     }
     std::string dimensionFolderName = StringUtils::GetDimensionFolderName(
-        customDimension.GetPackageId(),
-        customDimension.GetResourceKey());
+        dimensionResourceRef.GetPackageId(),
+        dimensionResourceRef.GetResourceKey());
     worldContext_->dimension_->SetDimensionResource(dimensionResource);
     worldContext_->chunkLoader_ = std::make_unique<ChunkLoader>(worldContext_, worldContext_->saves_,
                                                                 dimensionFolderName);

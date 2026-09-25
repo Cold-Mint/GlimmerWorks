@@ -403,6 +403,7 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL_GPU.cpp"
         core/app/App.cpp
         core/mod/PackScanRequest.cpp
+        core/saves/SavesCreateRequest.cpp
         core/context/tasks/InitValidateGameTask.cpp
         core/mod/resourcePack/GPUSamplerResource.cpp
         core/mod/resourcePack/cache/GpuSamplerCache.cpp
@@ -857,6 +858,7 @@ target_sources(GlimmerWorks
         core/mod/BasePackManager.h
         core/context/CacheContext.h
         core/mod/resourcePack/cache/ColorCache.h
+        core/saves/SavesCreateRequest.h
         core/gpu/BlendMode.h
         core/gpu/RenderQueue.h
         core/gpu/LightMapTexture.h

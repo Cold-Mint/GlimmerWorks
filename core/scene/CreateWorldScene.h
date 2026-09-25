@@ -36,6 +36,14 @@ namespace glimmer {
     class DimensionRegistry;
 
     class CreateWorldScene : public Scene {
+        std::filesystem::path runtimePath_;
+        Rml::DataModelHandle modelHandle_;
+        CreateWorldDataModel createWorldDataModel_;
+        SceneManager *sceneManager_ = nullptr;
+        DimensionRegistry *dimensionRegistry_ = nullptr;
+        ResourceLocator *resourceLocator_ = nullptr;
+        MainThreadDispatcher *mainThreadDispatcher_ = nullptr;
+
         void OnCreateWorldClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
         void OnBackClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
@@ -49,14 +57,6 @@ namespace glimmer {
         void RandomizeName();
 
         void RandomizeSeed();
-
-        Rml::DataModelHandle modelHandle_;
-        CreateWorldDataModel createWorldDataModel_;
-        SceneManager *sceneManager_ = nullptr;
-        DimensionRegistry *dimensionRegistry_ = nullptr;
-        ResourceLocator *resourceLocator_ = nullptr;
-        MainThreadDispatcher *mainThreadDispatcher_ = nullptr;
-
 
         void CreateWorld() const;
 
@@ -72,7 +72,6 @@ namespace glimmer {
         void OnPauseScene() override;
 
         void LoadDocuments() override;
-
 
         void OnConfigChanged(const Config *config) override;
 

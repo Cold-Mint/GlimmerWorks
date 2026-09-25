@@ -30,9 +30,11 @@
 #include <cctype>
 
 #include "PlayerManifest.h"
+#include "SavesCreateRequest.h"
 #include "core/context/AppContext.h"
 #include "core/log/LogCat.h"
 #include "core/utils/StringUtils.h"
+#include "core/utils/TimeUtils.h"
 #include "src/saves/map_manifest.pb.h"
 
 
@@ -149,8 +151,23 @@ bool glimmer::SavesManager::DeleteSave(const size_t index) {
     return false;
 }
 
-glimmer::Saves *glimmer::SavesManager::Create(const std::filesystem::path &runtimePath, MapManifest &mapManifest,
-                                              PlayerManifest &playerManifest) {
+glimmer::Saves *glimmer::SavesManager::Create(const std::filesystem::path &runtimePath,
+                                              const SavesCreateRequest &request) {
+    MapManifest mapManifest;
+    mapManifest.seed = request.GetSeed();
+    mapManifest.name = request.GetWorldName();
+    mapManifest.gameVersionName = GAME_VERSION_STRING;
+    mapManifest.gameVersionNumber = GAME_VERSION_NUMBER;
+    mapManifest.createTime = TimeUtils::GetCurrentTimeMs();
+    mapManifest.globalTickCount = 0;
+    PlayerManifest playerManifest;
+    playerManifest.lastPlayedTime = TimeUtils::GetCurrentTimeMs();
+    if (request.GetAllowCheats()) {
+        playerManifest.permissionLevel = PLAYER_PERMISSION_LEVEL_ADMIN;
+    } else {
+        playerManifest.permissionLevel = PLAYER_PERMISSION_LEVEL_NORMAL;
+    }
+    playerManifest.SwitchDimension(request.GetDimensionsResourceRef());
     LogCat::i("saves_manager_creating", "Creating save: name={}", mapManifest.name);
     std::filesystem::path path = runtimePath / "saves" / StringUtils::ToSafeSaveName(mapManifest.name);
     if (!virtualFileSystem_->Exists(path)) {

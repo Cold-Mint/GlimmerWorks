@@ -35,6 +35,7 @@
 #include "core/log/LogCat.h"
 #include "core/rmi/dataModel/DimensionItem.h"
 #include "core/saves/Saves.h"
+#include "core/saves/SavesCreateRequest.h"
 #include "core/saves/SavesManager.h"
 #include "core/utils/RandomUtils.h"
 #include "core/utils/StringUtils.h"
@@ -178,28 +179,11 @@ void glimmer::CreateWorldScene::CreateWorld() const {
         seedValue = static_cast<int>(StringUtils::StringToUint64Blake3(seedInput));
     }
     LogCat::i("world_seed", "World seed: {} (input: {})", seedValue, seedInput);
-
-    MapManifest mapManifest;
-    mapManifest.seed = seedValue;
-    mapManifest.name = worldName;
-    mapManifest.gameVersionName = GAME_VERSION_STRING;
-    mapManifest.gameVersionNumber = GAME_VERSION_NUMBER;
-    mapManifest.createTime = TimeUtils::GetCurrentTimeMs();
-    mapManifest.globalTickCount = 0;
-
-    PlayerManifest playerManifest;
-    playerManifest.lastPlayedTime = TimeUtils::GetCurrentTimeMs();
-    if (createWorldDataModel_.allowCheats) {
-        playerManifest.permissionLevel = PLAYER_PERMISSION_LEVEL_ADMIN;
-    } else {
-        playerManifest.permissionLevel = PLAYER_PERMISSION_LEVEL_NORMAL;
-    }
     std::optional<ResourceRef> resourceRefOptional = ResourceRef::ParseFromId(createWorldDataModel_.selectedDimensionId,
                                                                               RESOURCE_DIMENSION);
     if (!resourceRefOptional.has_value()) {
         return;
     }
-    playerManifest.customDimension = resourceRefOptional.value();
     LogCat::i("world_manifest", "World manifest: version={}, allowCheats={}", GAME_VERSION_STRING,
               createWorldDataModel_.allowCheats);
     auto savesManager = GetAppContext()->GetSavesManager();
@@ -207,8 +191,12 @@ void glimmer::CreateWorldScene::CreateWorld() const {
         LogCat::e(std::source_location::current(), "saves_manager_is_null", "savesManager is nullptr");
         return;
     }
-
-    Saves *saves = savesManager->Create(GetAppContext()->GetConfig()->runtimePath, mapManifest, playerManifest);
+    SavesCreateRequest createRequest;
+    createRequest.SetAllowCheats(createWorldDataModel_.allowCheats);
+    createRequest.SetWorldName(worldName);
+    createRequest.SetSeed(seedValue);
+    createRequest.SetDimensionsResourceRef(resourceRefOptional.value());
+    Saves *saves = savesManager->Create(runtimePath_, createRequest);
     if (saves == nullptr) {
         LogCat::e(std::source_location::current(), "failed_to_create_saves", "Failed to create saves");
         return;
@@ -251,6 +239,7 @@ void glimmer::CreateWorldScene::LoadDimensions() {
 
 void glimmer::CreateWorldScene::OnConfigChanged(const Config *config) {
     uiScale_ = config->window.uiScale;
+    runtimePath_ = config->runtimePath;
 }
 
 std::optional<std::string> glimmer::CreateWorldScene::RandomName() const {

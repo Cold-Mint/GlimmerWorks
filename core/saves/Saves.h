@@ -38,7 +38,7 @@
 namespace glimmer {
     class Saves : public IUniqueAble {
         std::filesystem::path path_;
-        VirtualFileSystem *virtualFileSystem_;
+        VirtualFileSystem *virtualFileSystem_ = nullptr;
         uint64_t uniqueId_ = 0;
         std::function<void(const MapManifestMessage &)> onMapManifestChanged_;
 

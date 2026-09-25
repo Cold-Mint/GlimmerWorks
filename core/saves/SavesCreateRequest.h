@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+ * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -25,50 +25,32 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <string>
+
 #include "core/mod/ResourceRef.h"
-#include "src/core/player.pb.h"
 
 namespace glimmer {
-    /**
-     * PlayerManifest
-     * 玩家的清单文件
-     */
-    struct PlayerManifest {
-    private:
-        std::vector<PlayerDimensionMessage> visitedDimensions_;
-        uint32_t currentDimensionIndex_ = 0;
+    class SavesCreateRequest {
+        int seed_ = 0;
+        std::string worldName_;
+        bool allowCheats_ = false;
+        ResourceRef dimensionsResourceRef_;
 
     public:
-        long lastPlayedTime = 0;
-        PlayerPermissionLevelMessage permissionLevel = PLAYER_PERMISSION_LEVEL_NORMAL;
-        EntityItemMessage entityItemMessage;
+        void SetSeed(int seed);
 
-        /**
-         * Check if the player has visited a certain dimension.
-         * 获取玩家是否访问过某个维度。
-         * @param dimensionsResourceRef
-         * @return 如果为-1表示未访问过。
-         */
-        uint32_t Visited(const ResourceRef &dimensionsResourceRef) const;
+        [[nodiscard]] int GetSeed() const;
 
+        void SetDimensionsResourceRef(const ResourceRef &dimensionsResourceRef);
 
-        /**
-         * SwitchDimension
-         * 切换到某个维度
-         * @param dimensionsResourceRef
-         */
-        void SwitchDimension(const ResourceRef &dimensionsResourceRef);
+        [[nodiscard]] const ResourceRef &GetDimensionsResourceRef() const;
 
-        /**
-         * CurrentDimension
-         * 获取当前的维度信息
-         * @return If the retrieval fails, return nullptr. 如果获取不到返回nullptr
-         */
-        const PlayerDimensionMessage *GetCurrentDimension() const;
+        void SetWorldName(const std::string &worldName);
 
+        [[nodiscard]] const std::string &GetWorldName() const;
 
-        void FromMessage(const PlayerMessage &playerMessage);
+        void SetAllowCheats(bool allowCheats);
 
-        void ToMessage(PlayerMessage &playerMessage) const;
+        [[nodiscard]] bool GetAllowCheats() const;
     };
 }

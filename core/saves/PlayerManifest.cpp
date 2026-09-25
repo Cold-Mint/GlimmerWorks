@@ -28,28 +28,77 @@
 
 #include "core/log/LogCat.h"
 
+
+uint32_t glimmer::PlayerManifest::Visited(const ResourceRef &dimensionsResourceRef) const {
+    if (dimensionsResourceRef.GetResourceType() != RESOURCE_DIMENSION) {
+        LogCat::w(std::source_location::current(), "invalid_dimension_resource_type",
+                  "Expected RESOURCE_DIMENSION, but got resource type = {}",
+                  std::to_underlying(dimensionsResourceRef.GetResourceType()));
+        return -1;
+    }
+    const auto dimensionsResourceRefFingerprint = dimensionsResourceRef.GetFingerprint();
+    ResourceRef tempResourceRef;
+    const uint32_t size = visitedDimensions_.size();
+    for (int i = 0; i < size; ++i) {
+        tempResourceRef.ReadResourceRefMessage(visitedDimensions_[i].dimension());
+        if (tempResourceRef.GetFingerprint() == dimensionsResourceRefFingerprint) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void glimmer::PlayerManifest::SwitchDimension(const ResourceRef &dimensionsResourceRef) {
+    if (dimensionsResourceRef.GetResourceType() != RESOURCE_DIMENSION) {
+        LogCat::w(std::source_location::current(), "invalid_dimension_resource_type",
+                  "Expected RESOURCE_DIMENSION, but got resource type = {}",
+                  std::to_underlying(dimensionsResourceRef.GetResourceType()));
+        return;
+    }
+    const uint32_t index = Visited(dimensionsResourceRef);
+    if (index == -1) {
+        //If the target dimension has not been visited, add a visit record for the corresponding dimension.
+        //没有访问过目标维度，添加对应维度的访问记录。
+        PlayerDimensionMessage playerDimensionMessage;
+        dimensionsResourceRef.WriteResourceRefMessage(*playerDimensionMessage.mutable_dimension());
+        playerDimensionMessage.set_needautomaticspawn(true);
+        visitedDimensions_.push_back(playerDimensionMessage);
+        currentDimensionIndex_ = visitedDimensions_.size() - 1;
+        return;
+    }
+    currentDimensionIndex_ = index;
+}
+
+
+const PlayerDimensionMessage *glimmer::PlayerManifest::GetCurrentDimension() const {
+    if (const size_t size = visitedDimensions_.size(); currentDimensionIndex_ >= size) {
+        return nullptr;
+    }
+    return &visitedDimensions_.at(currentDimensionIndex_);
+}
+
 void glimmer::PlayerManifest::FromMessage(const PlayerMessage &playerMessage) {
     lastPlayedTime = playerMessage.lastplayedtime();
     permissionLevel = playerMessage.permissionlevel();
     int visitedDimensionsSize = playerMessage.visiteddimensions_size();
-    visitedDimensions.clear();
-    visitedDimensions.reserve(visitedDimensionsSize);
+    visitedDimensions_.clear();
+    visitedDimensions_.reserve(visitedDimensionsSize);
     for (int i = 0; i < visitedDimensionsSize; ++i) {
-        visitedDimensions[i] = playerMessage.visiteddimensions(i);
+        visitedDimensions_.push_back(playerMessage.visiteddimensions(i));
     }
     entityItemMessage = playerMessage.entity();
-    customDimension.ReadResourceRefMessage(playerMessage.currentdimension());
+    currentDimensionIndex_ = playerMessage.currentdimensionindex();
     LogCat::d("player_manifest_from_message", "Player manifest parsed: visitedDimensions={}", visitedDimensionsSize);
 }
 
 void glimmer::PlayerManifest::ToMessage(PlayerMessage &playerMessage) const {
     playerMessage.set_lastplayedtime(lastPlayedTime);
     playerMessage.set_permissionlevel(permissionLevel);
-    customDimension.WriteResourceRefMessage(*playerMessage.mutable_currentdimension());
+    playerMessage.set_currentdimensionindex(currentDimensionIndex_);
     playerMessage.mutable_visiteddimensions()->Clear();
-    size_t visitedDimensionsSize = visitedDimensions.size();
+    size_t visitedDimensionsSize = visitedDimensions_.size();
     for (int i = 0; i < visitedDimensionsSize; ++i) {
-        playerMessage.mutable_visiteddimensions()->Add()->CopyFrom(visitedDimensions[i]);
+        playerMessage.mutable_visiteddimensions()->Add()->CopyFrom(visitedDimensions_[i]);
     }
     playerMessage.mutable_entity()->CopyFrom(entityItemMessage);
     LogCat::d("player_manifest_to_message", "Player manifest serialized: visitedDimensions={}", visitedDimensionsSize);

@@ -319,7 +319,7 @@ void glimmer::ChunkSystem::OnFrameStart() {
 }
 
 void glimmer::ChunkSystem::OnTick(const uint64_t tick) {
-    WorldContext *worldContext = GetWorldContext();
+    const WorldContext *worldContext = GetWorldContext();
     if (worldContext == nullptr || cameraTransform2DComponent_ == nullptr) {
         return;
     }

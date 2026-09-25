@@ -41,12 +41,6 @@ namespace glimmer {
      * 用于游戏引擎内部常用的颜色值。
      */
     struct PreloadColors {
-        struct ConsoleColors {
-            Color titleColor;
-            Color keywordColor;
-            Color textColor;
-            Color backgroundColor;
-        };
 
 
         struct TextureColors {
@@ -138,143 +132,8 @@ namespace glimmer {
 
         DebugColors debugColor;
 
-        /**
-         * Default text color
-         * 默认文本颜色
-         */
-        Color textColor;
-        /**
-         * Text disable color
-         * 文本禁用颜色
-         */
-        Color textDisabledColor;
-        /**
-         *The color of the hyperlinked text
-         *超连接颜色
-         */
-        Color textLinkColor;
-        /**
-         * The background color of the selected text in the input box / text area
-         * 输入框 / 文本区域中被选中文字的背景色
-         */
-        Color textSelectedBgColor;
-        /**
-         * Background color
-         * 背景颜色
-         */
-        Color backgroundColor;
-
-        /**
-         * Border color
-         * 边框颜色
-         */
-        Color borderColor;
-
-        /**
-         * Border Shadow Color
-         * 边框阴影颜色
-         */
-        Color borderShadowColor;
-
-
-        /**
-         *Separator line color
-         * 分隔线颜色
-         */
-        Color separatorColor;
-
-        /**
-         * separator Hovered Color
-         * 分隔线颜色
-         */
-        Color separatorHoveredColor;
-
-        /**
-         *Separator activation color
-         * 分割线激活颜色
-         */
-        Color separatorActiveColor;
-
-        /**
-         * Input class control backgrounds (checkboxes, radio buttons, sliders, input boxes, dropdown boxes' backgrounds)
-         * 输入类控件背景（复选框、单选框、滑块、输入框、下拉框的背景）
-         */
-        Color frameBgColor;
-        /**
-         *鼠标悬停在上述输入控件上时的背景色
-         */
-        Color frameBgHoveredColor;
-        /**
-         *鼠标点击 / 激活上述输入控件时的背景色（比如按住滑块拖动时）
-         */
-        Color frameBgActiveColor;
-        /**
-         *按钮默认背景色（普通 ImGui::Button () 的底色）
-         */
-        Color buttonColor;
-        Color buttonTextColor;
-        /**
-         *鼠标悬停在按钮上时的背景色
-         */
-        Color buttonHoveredColor;
-        Color buttonHoveredTextColor;
-        /**
-         *鼠标点击按钮时的背景色
-         */
-        Color buttonPressedColor;
-        Color buttonPressedTextColor;
-        Color buttonDisableTextColor;
-
-        /**
-         * The background color of the scroll bar (the base color of the scroll bar track)
-         * 滚动条的背景色（滚动条轨道的底色）
-         */
-        Color scrollbarBgColor;
-        /**
-         * The default color of the scroll bar drag block (the draggable scroll bar slider)
-         * 滚动条拖动块的默认颜色（可拖动的滚动条滑块）
-         */
-        Color scrollbarGrabColor;
-        /**
-         * The color when the mouse hovers over the slider of the scroll bar
-         * 鼠标悬停在滚动条滑块上时的颜色
-         */
-        Color scrollbarGrabHoveredColor;
-        /**
-         * The color when dragging the slider of the scroll bar
-         * 按住滚动条滑块拖动时的颜色
-         */
-        Color scrollbarGrabActiveColor;
-        /**
-         * The color of the cursor (caret) in the input box
-         * 输入框中光标（caret）的颜色
-         */
-        Color inputTextCursorColor;
-
-        /**
-         * The cursor color during keyboard/handle navigation (when no mouse is used, the highlighted box of the selected control is shown using the arrow keys)
-         * 键盘 / 手柄导航时的光标颜色（无鼠标时用方向键选中控件的高亮框）
-         */
-        Color navCursorColor;
-
-        /**
-         * 折叠面板、树节点、可选菜单项的默认背景色（比如 CollapsingHeader）
-         */
-        Color headerColor;
-        /**
-         * 鼠标悬停在上述头部控件上时的背景色
-         */
-        Color headerHoveredColor;
-        /**
-         * 点击 / 展开上述头部控件时的背景色
-         */
-        Color headerActiveColor;
-
         Color areaMarkerBorderColor;
         Color areaMarkerColor;
-
-
-        ConsoleColors console;
         TextureColors error;
         TextureColors accessDenied;
         GameColors game;

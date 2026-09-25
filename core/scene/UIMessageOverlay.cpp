@@ -47,7 +47,8 @@ void glimmer::UIMessageOverlay::LoadDocuments() {
     resourceRef.SetResourceKey("ui_message/ui_message");
     uiMessageDocument_ = LoadSingleDocument(&resourceRef);
     if (uiMessageDocument_ == nullptr) {
-        LogCat::w(std::source_location::current(), "ui_message_document_is_null", "uiMessageDocument == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "ui_message_document_is_null",
+                  "uiMessageDocument == nullptr");
         return;
     }
     uiMessageDocument_->Show();

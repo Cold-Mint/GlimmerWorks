@@ -40,7 +40,7 @@ bool glimmer::InitValidateGameTask::Run(ISystemBucket *systemBucket) {
     }
     const std::vector<DimensionResource *> &dimensionResources = dimensionRegistry->GetStartingDimensions();
     if (dimensionResources.empty()) {
-        LogCat::e(std::source_location::current(), "initial_dimension_required",
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "initial_dimension_required",
                   "At least one usable initial dimension is required.");
         return false;
     }

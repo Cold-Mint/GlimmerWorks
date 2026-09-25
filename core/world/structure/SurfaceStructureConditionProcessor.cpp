@@ -54,6 +54,7 @@ std::bitset<CHUNK_AREA> glimmer::SurfaceStructureConditionProcessor::Match(Terra
             result[localY * CHUNK_SIZE + localX] = true;
         }
     }
-    LogCat::d("surface_condition_matched_count", "Surface condition matched tiles: {}", result.count());
+    LogCat::d(LogLabel::DEFAULT, "surface_condition_matched_count", "Surface condition matched tiles: {}",
+              result.count());
     return result;
 }

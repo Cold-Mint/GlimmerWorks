@@ -38,39 +38,39 @@ bool glimmer::InitSDLTask::Run(ISystemBucket *) {
     SDL_SetHint("SDL_ANDROID_TRAP_BACK_BUTTON", "1");
 #endif
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
-        LogCat::e(std::source_location::current(), "sdl_init_failed", "SDL_Init failed");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "sdl_init_failed", "SDL_Init failed");
         return false;
     }
     initSDLSuccess_ = true;
-    LogCat::i("sdl_init_succeeded", "SDL_Init succeeded");
+    LogCat::i(LogLabel::DEFAULT, "sdl_init_succeeded", "SDL_Init succeeded");
     if (!MIX_Init()) {
-        LogCat::e(std::source_location::current(), "mix_init_failed", "MIX_Init failed");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "mix_init_failed", "MIX_Init failed");
         return false;
     }
     initSDLMixSuccess_ = true;
-    LogCat::i("mix_init_succeeded", "MIX_Init succeeded");
+    LogCat::i(LogLabel::DEFAULT, "mix_init_succeeded", "MIX_Init succeeded");
     if (!TTF_Init()) {
-        LogCat::e(std::source_location::current(), "ttf_init_failed", "TTF_Init failed");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "ttf_init_failed", "TTF_Init failed");
         return false;
     }
     initSDLTtfSuccess_ = true;
-    LogCat::i("ttf_init_succeeded", "TTF_Init succeeded");
+    LogCat::i(LogLabel::DEFAULT, "ttf_init_succeeded", "TTF_Init succeeded");
     return true;
 }
 
 void glimmer::InitSDLTask::QuitSubsystems() {
     if (initSDLMixSuccess_) {
-        LogCat::d("quit_subsystem", "Quitting subsystem: {}", "MIX");
+        LogCat::d(LogLabel::DEFAULT, "quit_subsystem", "Quitting subsystem: {}", "MIX");
         MIX_Quit();
         initSDLMixSuccess_ = false;
     }
     if (initSDLTtfSuccess_) {
-        LogCat::d("quit_subsystem", "Quitting subsystem: {}", "TTF");
+        LogCat::d(LogLabel::DEFAULT, "quit_subsystem", "Quitting subsystem: {}", "TTF");
         TTF_Quit();
         initSDLTtfSuccess_ = false;
     }
     if (initSDLSuccess_) {
-        LogCat::d("quit_subsystem", "Quitting subsystem: {}", "SDL");
+        LogCat::d(LogLabel::DEFAULT, "quit_subsystem", "Quitting subsystem: {}", "SDL");
         SDL_Quit();
         initSDLSuccess_ = false;
     }

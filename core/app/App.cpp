@@ -72,10 +72,10 @@ glimmer::App::App(AppContext *appContext) : appContext_(appContext) {
 }
 
 void glimmer::App::Run() const {
-    LogCat::i("starting_app_main_loop", "Starting application main loop");
+    LogCat::i(LogLabel::DEFAULT, "starting_app_main_loop", "Starting application main loop");
     const auto config = appContext_->GetConfig();
 
-    LogCat::i("initializing_scenes_and_console", "Initializing scenes and console");
+    LogCat::i(LogLabel::DEFAULT, "initializing_scenes_and_console", "Initializing scenes and console");
     InitScenesAndConsole();
 
     Uint64 frameStart = SDL_GetTicks();
@@ -83,45 +83,49 @@ void glimmer::App::Run() const {
     float deltaTime = 0.0F;
     uint64_t configFingerprint = config->GetFingerprint() + 1;
 
-    LogCat::i("creating_event_loop_and_renderer", "Creating event loop and renderer");
+    LogCat::i(LogLabel::DEFAULT, "creating_event_loop_and_renderer", "Creating event loop and renderer");
     AppEventLoop eventLoop(appContext_, lastInputTime);
     AppRenderer renderer(appContext_);
 
     WindowContext *windowContext = appContext_->GetWindowContext();
     if (windowContext == nullptr) {
-        LogCat::e(std::source_location::current(), "window_context_is_null", "windowContext is nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "window_context_is_null",
+                  "windowContext is nullptr");
         return;
     }
     MainThreadDispatcher *mainThreadDispatcher = appContext_->GetMainThreadDispatcher();
     if (mainThreadDispatcher == nullptr) {
-        LogCat::e(std::source_location::current(), "main_thread_dispatcher_is_null", "mainThreadDispatcher is nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "main_thread_dispatcher_is_null",
+                  "mainThreadDispatcher is nullptr");
         return;
     }
     RmlContext *rmlContext = appContext_->GetRmlContext();
     if (rmlContext == nullptr) {
-        LogCat::e(std::source_location::current(), "rml_context_is_null", "rmlContext is nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "rml_context_is_null", "rmlContext is nullptr");
         return;
     }
     Rml::Context *rmlContextCore = rmlContext->GetRmlContext();
-    LogCat::i("entering_main_game_loop", "Entering main game loop");
+    LogCat::i(LogLabel::DEFAULT, "entering_main_game_loop", "Entering main game loop");
     int windowWidth = 0;
     int windowHeight = 0;
     SDL_Window *window = windowContext->GetWindow();
     if (window == nullptr) {
-        LogCat::e(std::source_location::current(), "window_is_null", "window is nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "window_is_null", "window is nullptr");
         return;
     }
     while (appContext_->IsRunning()) {
+        LogCat::IncrementFrameCount();
         SDL_GetWindowSize(window, &windowWidth, &windowHeight);
         if (CheckWindowSizeChange(windowContext, windowWidth, windowHeight)) {
-            LogCat::i("window_size_changed", "Window size changed: {}x{}", windowWidth, windowHeight);
+            LogCat::i(LogLabel::DEFAULT, "window_size_changed", "Window size changed: {}x{}", windowWidth,
+                      windowHeight);
             if (rmlContextCore != nullptr) {
                 rmlContextCore->SetDimensions({windowWidth, windowHeight});
             }
             HandleWindowSizeChange(windowWidth, windowHeight);
         }
         if (CheckConfigChange(configFingerprint)) {
-            LogCat::i("configuration_changed", "Configuration changed, reloading hooks and scenes");
+            LogCat::i(LogLabel::DEFAULT, "configuration_changed", "Configuration changed, reloading hooks and scenes");
         }
         const float targetFrameTime = CalculateTargetFrameTime(frameStart, lastInputTime);
         const auto targetFrameTimeMs = static_cast<Uint32>(targetFrameTime * 1000.0F);
@@ -139,7 +143,7 @@ void glimmer::App::Run() const {
         deltaTime = static_cast<float>(actualFrameEnd - frameStart) / 1000.0F;
         frameStart = actualFrameEnd;
     }
-    LogCat::i("main_game_loop_exited", "Main game loop exited");
+    LogCat::i(LogLabel::DEFAULT, "main_game_loop_exited", "Main game loop exited");
 }
 
 void glimmer::App::HandleWindowSizeChange(const int &windowWidth, const int &windowHeight) const {

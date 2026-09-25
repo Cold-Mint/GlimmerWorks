@@ -34,12 +34,13 @@
 bool glimmer::InitModContextTask::Run(ISystemBucket *systemBucket) {
     VirtualFileSystem *virtualFileSystem = systemBucket->GetVirtualFileSystem();
     if (virtualFileSystem == nullptr) {
-        LogCat::e(std::source_location::current(), "vfs_is_null", "virtualFileSystem is nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "vfs_is_null", "virtualFileSystem is nullptr");
         return false;
     }
     const LangsResources *langsResources = systemBucket->GetLangsResources();
     if (langsResources == nullptr) {
-        LogCat::e(std::source_location::current(), "langs_resources_is_null", "langsResources is nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "langs_resources_is_null",
+                  "langsResources is nullptr");
         return false;
     }
     auto modContext = std::make_unique<ModContext>();

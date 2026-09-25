@@ -41,41 +41,45 @@ void glimmer::RecipeDetailGUISystem::LoadRecipeDetail() {
     canCraft_ = false;
     craftCount_ = 1;
     maxCraftCount_ = 1;
-    LogCat::i("recipe_detail_loading", "RecipeDetail loading");
+    LogCat::i(LogLabel::DEFAULT, "recipe_detail_loading", "RecipeDetail loading");
     if (currentRecipe_ == nullptr) {
-        LogCat::w(std::source_location::current(), "current_recipe_is_null", "currentRecipe_ == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "current_recipe_is_null",
+                  "currentRecipe_ == nullptr");
         return;
     }
 
     WorldContext *worldContext = GetWorldContext();
     if (worldContext == nullptr) {
-        LogCat::w(std::source_location::current(), "world_context_is_null", "worldContext == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "world_context_is_null",
+                  "worldContext == nullptr");
         return;
     }
 
     AppContext *appContext = worldContext->GetAppContext();
     if (appContext == nullptr) {
-        LogCat::w(std::source_location::current(), "app_context_is_null", "appContext == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "app_context_is_null", "appContext == nullptr");
         return;
     }
     ModContext *modContext = appContext->GetModContext();
     if (modContext == nullptr) {
-        LogCat::w(std::source_location::current(), "mod_context_is_null", "modContext == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "mod_context_is_null", "modContext == nullptr");
         return;
     }
     StringManager *stringManager = modContext->GetStringManager();
     if (stringManager == nullptr) {
-        LogCat::w(std::source_location::current(), "string_manager_is_null", "stringManager == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "string_manager_is_null",
+                  "stringManager == nullptr");
         return;
     }
     ResourceLocator *resourceLocator = appContext->GetResourceLocator();
     if (resourceLocator == nullptr) {
-        LogCat::w(std::source_location::current(), "resource_locator_is_null", "resourceLocator == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "resource_locator_is_null",
+                  "resourceLocator == nullptr");
         return;
     }
     auto outputItem = resourceLocator->FindItem(worldContext, currentRecipe_->output);
     if (outputItem == nullptr) {
-        LogCat::w(std::source_location::current(), "output_item_is_null", "outputItem == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "output_item_is_null", "outputItem == nullptr");
         return;
     }
     outputName_ = outputItem->GetName();
@@ -88,7 +92,7 @@ void glimmer::RecipeDetailGUISystem::LoadRecipeDetail() {
     }
     const ItemStackModule *stackModule = outputItem->GetStackModule();
     if (stackModule == nullptr) {
-        LogCat::w(std::source_location::current(), "stack_module_is_null", "stackModule == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "stack_module_is_null", "stackModule == nullptr");
         return;
     }
     outputAmount_ = static_cast<int>(currentRecipe_->output.amount);
@@ -265,7 +269,7 @@ void glimmer::RecipeDetailGUISystem::ExecuteCraftBatch(int count) {
     if (!canCraft_ || currentRecipe_ == nullptr || itemContainer_ == nullptr || count <= 0) {
         return;
     }
-    LogCat::i("recipe_detail_craft", "RecipeDetail crafting {} batches", count);
+    LogCat::i(LogLabel::DEFAULT, "recipe_detail_craft", "RecipeDetail crafting {} batches", count);
     WorldContext *worldContext = GetWorldContext();
     if (worldContext == nullptr) {
         return;

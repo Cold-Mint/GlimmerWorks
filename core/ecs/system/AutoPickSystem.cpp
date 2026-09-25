@@ -53,7 +53,8 @@ void glimmer::AutoPickSystem::OnWatchedComponentChanged(GameComponentTypeMessage
         entities_ = entityManager->GetEntityIDWithComponents({
             COMPONENT_MAGNET, COMPONENT_ITEM_CONTAINER
         });
-        LogCat::d("auto_pick_entities_rebuilt", "AutoPick entities rebuilt: {} magnets", entities_.size());
+        LogCat::d(LogLabel::DEFAULT, "auto_pick_entities_rebuilt", "AutoPick entities rebuilt: {} magnets",
+                  entities_.size());
     }
 }
 
@@ -63,7 +64,7 @@ glimmer::AutoPickSystem::AutoPickSystem(WorldContext *worldContext) : GameSystem
     WatchComponent(COMPONENT_ITEM_CONTAINER);
     const AppContext *appContext = worldContext->GetAppContext();
     if (appContext == nullptr) {
-        LogCat::w(std::source_location::current(), "app_context_is_null", "appContext is nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "app_context_is_null", "appContext is nullptr");
         return;
     }
     ResourceRef ref;
@@ -128,10 +129,11 @@ void glimmer::AutoPickSystem::ProcessMagnetEntity(GameEntityID entity) {
         if (item != nullptr) {
             //Failed to add the item.
             //添加物品失败。
-            LogCat::d("auto_pick_add_failed", "AutoPick failed to add item: entity={}", entityId);
+            LogCat::d(LogLabel::DEFAULT, "auto_pick_add_failed", "AutoPick failed to add item: entity={}", entityId);
             continue;
         }
-        LogCat::d("auto_pick_picked_item", "AutoPick picked item: entity={}, item={}", entityId, itemName);
+        LogCat::d(LogLabel::DEFAULT, "auto_pick_picked_item", "AutoPick picked item: entity={}, item={}", entityId,
+                  itemName);
         if (pickItemSFXResult_ != nullptr) {
             MIX_Audio *audio = pickItemSFXResult_->GetResource();
             if (audio != nullptr) {

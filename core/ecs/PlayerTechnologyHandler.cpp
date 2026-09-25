@@ -32,20 +32,20 @@
 void glimmer::PlayerTechnologyHandler::ResetTechnologyMap() {
     technologyMap_.clear();
     technologyMap_[RecipeGroup::None] = 1;
-    LogCat::i("player_technology_map_reset", "Technology map reset");
+    LogCat::i(LogLabel::DEFAULT, "player_technology_map_reset", "Technology map reset");
 }
 
 void glimmer::PlayerTechnologyHandler::SetTechnology(RecipeGroup recipeGroup, uint8_t technologyLevel) {
     auto iterator = technologyMap_.find(recipeGroup);
     if (iterator == technologyMap_.end()) {
         technologyMap_[recipeGroup] = technologyLevel;
-        LogCat::d("player_technology_set", "Technology set: group={}, level={}",
+        LogCat::d(LogLabel::DEFAULT, "player_technology_set", "Technology set: group={}, level={}",
                   std::to_underlying(recipeGroup), static_cast<int>(technologyLevel));
     } else {
         if (technologyLevel > iterator->second) {
             const uint8_t oldLevel = iterator->second;
             technologyMap_[recipeGroup] = technologyLevel;
-            LogCat::d("player_technology_upgraded", "Technology upgraded: group={}, level={} -> {}",
+            LogCat::d(LogLabel::DEFAULT, "player_technology_upgraded", "Technology upgraded: group={}, level={} -> {}",
                       std::to_underlying(recipeGroup), static_cast<int>(oldLevel),
                       static_cast<int>(technologyLevel));
         }

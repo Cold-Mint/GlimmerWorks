@@ -40,7 +40,7 @@
 bool glimmer::InitAudioTask::Run(ISystemBucket *systemBucket) {
     Config *config = systemBucket->GetConfig();
     if (config == nullptr) {
-        LogCat::e(std::source_location::current(), "config_is_null", "config is nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "config_is_null", "config is nullptr");
         return false;
     }
     SDL_AudioSpec audioSpec;
@@ -57,53 +57,60 @@ bool glimmer::InitAudioTask::Run(ISystemBucket *systemBucket) {
 
     audioSpec.channels = config->audio.channels;
     audioSpec.freq = config->audio.freq;
-    LogCat::i("creating_audio_mixer", "Creating audio mixer: format={}, channels={}, freq={}", audioFormat,
+    LogCat::i(LogLabel::DEFAULT, "creating_audio_mixer", "Creating audio mixer: format={}, channels={}, freq={}",
+              audioFormat,
               config->audio.channels, config->audio.freq);
 
     MIX_Mixer *mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audioSpec);
     if (mixer == nullptr) {
-        LogCat::e(std::source_location::current(), "mix_create_mixer_device_failed", "MIX_CreateMixerDevice failed");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "mix_create_mixer_device_failed",
+                  "MIX_CreateMixerDevice failed");
         return false;
     }
-    LogCat::i("audio_mixer_created", "Audio mixer created successfully");
+    LogCat::i(LogLabel::DEFAULT, "audio_mixer_created", "Audio mixer created successfully");
 
     ResourcePackManager *resourcePackManager = systemBucket->GetResourcePackManager();
     if (resourcePackManager == nullptr) {
-        LogCat::e(std::source_location::current(), "resource_pack_manager_is_null", "ResourcePackManager is nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "resource_pack_manager_is_null",
+                  "ResourcePackManager is nullptr");
         return false;
     }
-    LogCat::i("loading_main_menu_bgm", "Loading main menu BGM");
+    LogCat::i(LogLabel::DEFAULT, "loading_main_menu_bgm", "Loading main menu BGM");
     AudioContext *audioContext = systemBucket->GetAudioContext();
     if (audioContext == nullptr) {
-        LogCat::e(std::source_location::current(), "audio_context_is_null", "audioContext is nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "audio_context_is_null",
+                  "audioContext is nullptr");
         return false;
     }
     ResourceLocator *resourceLocator = systemBucket->GetResourceLocator();
     if (resourceLocator == nullptr) {
-        LogCat::e(std::source_location::current(), "resource_locator_is_null", "resourceLocator is nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "resource_locator_is_null",
+                  "resourceLocator is nullptr");
         return false;
     }
     audioContext->LoadMainMenuBGM(resourceLocator);
     AudioManager *audioManager = audioContext->GetAudioManager();
     if (audioManager == nullptr) {
-        LogCat::e(std::source_location::current(), "audio_manager_is_null", "audioManager is nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "audio_manager_is_null",
+                  "audioManager is nullptr");
         return false;
     }
     audioManager->SetMixer(mixer);
 
-    LogCat::i("configuring_audio_tracks", "Configuring audio tracks: count={}", config->audio.track.size());
+    LogCat::i(LogLabel::DEFAULT, "configuring_audio_tracks", "Configuring audio tracks: count={}",
+              config->audio.track.size());
     for (const AudioTrack &trackConfig: config->audio.track) {
         audioManager->CreateTracks(trackConfig.type, trackConfig.trackCount);
         audioManager->SetTypeVolume(trackConfig.type, trackConfig.volume);
-        LogCat::i("audio_track", "  Track: type={}, count={}, volume={}",
+        LogCat::i(LogLabel::DEFAULT, "audio_track", "  Track: type={}, count={}, volume={}",
                   static_cast<int>(std::to_underlying(trackConfig.type)),
                   trackConfig.trackCount,
                   trackConfig.volume);
     }
     audioManager->SetMasterVolume(config->audio.masterVolume);
-    LogCat::i("master_volume_set", "Master volume set to: {}", config->audio.masterVolume);
+    LogCat::i(LogLabel::DEFAULT, "master_volume_set", "Master volume set to: {}", config->audio.masterVolume);
 
-    LogCat::i("init_audio_completed", "InitAudio completed successfully");
+    LogCat::i(LogLabel::DEFAULT, "init_audio_completed", "InitAudio completed successfully");
     return true;
 }
 

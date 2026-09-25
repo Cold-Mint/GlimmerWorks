@@ -90,38 +90,40 @@ std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::GpuPipelineCache::L
     pipelinePath.replace_extension("pipeline.toml");
     VirtualFileSystem *virtualFileSystem = appContext->GetVirtualFileSystem();
     if (virtualFileSystem == nullptr) {
-        LogCat::w(std::source_location::current(), "vfs_is_null", "virtualFileSystem == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "vfs_is_null", "virtualFileSystem == nullptr");
         return nullptr;
     }
     if (!virtualFileSystem->Exists(pipelinePath)) {
-        LogCat::w(std::source_location::current(), "gpu_pipeline_file_not_found",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "gpu_pipeline_file_not_found",
                   "GPU pipeline configuration file not found: {}", pipelinePath.string());
         return nullptr;
     }
     auto data = virtualFileSystem->ReadFileAsString(pipelinePath);
     if (!data.has_value()) {
-        LogCat::w(std::source_location::current(), "gpu_pipeline_read_failed",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "gpu_pipeline_read_failed",
                   "Failed to read GPU pipeline configuration file: {}", pipelinePath.string());
         return nullptr;
     }
     const WindowContext *windowContext = appContext->GetWindowContext();
     if (windowContext == nullptr) {
-        LogCat::w(std::source_location::current(), "window_context_is_null", "windowContext == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "window_context_is_null",
+                  "windowContext == nullptr");
         return nullptr;
     }
     SDL_Window *window = windowContext->GetWindow();
     if (window == nullptr) {
-        LogCat::w(std::source_location::current(), "window_is_null", "window == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "window_is_null", "window == nullptr");
         return nullptr;
     }
     SDL_GPUDevice *device = windowContext->GetDevice();
     if (device == nullptr) {
-        LogCat::w(std::source_location::current(), "gpu_device_is_null", "device == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "gpu_device_is_null", "device == nullptr");
         return nullptr;
     }
     ResourceLocator *resourceLocator = appContext->GetResourceLocator();
     if (resourceLocator == nullptr) {
-        LogCat::w(std::source_location::current(), "resource_locator_is_null", "resourceLocator == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "resource_locator_is_null",
+                  "resourceLocator == nullptr");
         return nullptr;
     }
     const std::string &manifestId = resourcePack->GetManifest()->id;
@@ -172,7 +174,7 @@ std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::GpuPipelineCache::L
     vertexShaderResult_ = resourceLocator->FindShader(
         &gpuPipelineResource->vertexShader);
     if (vertexShaderResult_ == nullptr) {
-        LogCat::w(std::source_location::current(), "gpu_pipeline_vertex_shader_null",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "gpu_pipeline_vertex_shader_null",
                   "Vertex shader is null for pipeline: {}", pipelinePath.string());
         return nullptr;
     }
@@ -180,7 +182,7 @@ std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::GpuPipelineCache::L
     fragmentShaderResult_ = resourceLocator->FindShader(
         &gpuPipelineResource->fragmentShader);
     if (fragmentShaderResult_ == nullptr) {
-        LogCat::w(std::source_location::current(), "gpu_pipeline_fragment_shader_null",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "gpu_pipeline_fragment_shader_null",
                   "Fragment shader is null for pipeline: {}", pipelinePath.string());
         return nullptr;
     }
@@ -188,7 +190,7 @@ std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::GpuPipelineCache::L
 
     SDL_GPUGraphicsPipeline *gpuGraphicsPipeline = SDL_CreateGPUGraphicsPipeline(device, &createInfo);
     if (gpuGraphicsPipeline == nullptr) {
-        LogCat::e(std::source_location::current(), "gpu_pipeline_create_failed",
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "gpu_pipeline_create_failed",
                   "Failed to create GPU GraphicsPipeline");
         return nullptr;
     }
@@ -211,7 +213,7 @@ std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::GpuPipelineCache::L
         const std::optional<uint32_t> binding = vertexShaderResult_->GetUniformBlockBinding(
             compiledUniformBlock->GetName());
         if (!binding.has_value()) {
-            LogCat::w(std::source_location::current(), "uniform_block_binding_not_found",
+            LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "uniform_block_binding_not_found",
                       "Vertex shader has no uniform block named '{}'", compiledUniformBlock->GetName());
             continue;
         }
@@ -232,7 +234,7 @@ std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::GpuPipelineCache::L
         const std::optional<uint32_t> binding = fragmentShaderResult_->GetUniformBlockBinding(
             compiledUniformBlock->GetName());
         if (!binding.has_value()) {
-            LogCat::w(std::source_location::current(), "uniform_block_binding_not_found",
+            LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "uniform_block_binding_not_found",
                       "Fragment shader has no uniform block named '{}'", compiledUniformBlock->GetName());
             continue;
         }

@@ -40,12 +40,13 @@ using namespace glimmer;
 namespace fs = std::filesystem;
 
 int main() {
+    LogCat::SetThreadName("Main");
     SDL_SetAppMetadata(
         PROJECT_NAME.c_str(), GAME_VERSION_STRING,
         APP_PACKNAME);
     AppContext appContext;
     if (!appContext.InitSystem()) {
-        LogCat::e(std::source_location::current(), "app_context_init_failed", "appContext Init failed");
+        LogCat::e(LogLabel::DEFAULT,std::source_location::current(), "app_context_init_failed", "appContext Init failed");
         return EXIT_FAILURE;
     }
     App app(&appContext);

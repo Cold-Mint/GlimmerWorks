@@ -31,7 +31,7 @@
 
 uint32_t glimmer::PlayerManifest::Visited(const ResourceRef &dimensionsResourceRef) const {
     if (dimensionsResourceRef.GetResourceType() != RESOURCE_DIMENSION) {
-        LogCat::w(std::source_location::current(), "invalid_dimension_resource_type",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "invalid_dimension_resource_type",
                   "Expected RESOURCE_DIMENSION, but got resource type = {}",
                   std::to_underlying(dimensionsResourceRef.GetResourceType()));
         return -1;
@@ -50,7 +50,7 @@ uint32_t glimmer::PlayerManifest::Visited(const ResourceRef &dimensionsResourceR
 
 void glimmer::PlayerManifest::SwitchDimension(const ResourceRef &dimensionsResourceRef) {
     if (dimensionsResourceRef.GetResourceType() != RESOURCE_DIMENSION) {
-        LogCat::w(std::source_location::current(), "invalid_dimension_resource_type",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "invalid_dimension_resource_type",
                   "Expected RESOURCE_DIMENSION, but got resource type = {}",
                   std::to_underlying(dimensionsResourceRef.GetResourceType()));
         return;
@@ -88,7 +88,8 @@ void glimmer::PlayerManifest::FromMessage(const PlayerMessage &playerMessage) {
     }
     entityItemMessage = playerMessage.entity();
     currentDimensionIndex_ = playerMessage.currentdimensionindex();
-    LogCat::d("player_manifest_from_message", "Player manifest parsed: visitedDimensions={}", visitedDimensionsSize);
+    LogCat::d(LogLabel::DEFAULT, "player_manifest_from_message", "Player manifest parsed: visitedDimensions={}",
+              visitedDimensionsSize);
 }
 
 void glimmer::PlayerManifest::ToMessage(PlayerMessage &playerMessage) const {
@@ -101,5 +102,6 @@ void glimmer::PlayerManifest::ToMessage(PlayerMessage &playerMessage) const {
         playerMessage.mutable_visiteddimensions()->Add()->CopyFrom(visitedDimensions_[i]);
     }
     playerMessage.mutable_entity()->CopyFrom(entityItemMessage);
-    LogCat::d("player_manifest_to_message", "Player manifest serialized: visitedDimensions={}", visitedDimensionsSize);
+    LogCat::d(LogLabel::DEFAULT, "player_manifest_to_message", "Player manifest serialized: visitedDimensions={}",
+              visitedDimensionsSize);
 }

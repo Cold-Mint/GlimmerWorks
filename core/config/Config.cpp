@@ -68,13 +68,13 @@ void glimmer::Config::SetConfigValue(std::unique_ptr<toml::value> configValue) {
         configValue_ = std::move(configValue);
         return;
     }
-    LogCat::e(std::source_location::current(), "toml_config_cannot_be_set_repeatedly",
+    LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "toml_config_cannot_be_set_repeatedly",
               "The toml configuration data cannot be set repeatedly.");
 }
 
 toml::value *glimmer::Config::GetConfigValue() const {
     if (configValue_ == nullptr) {
-        LogCat::w(std::source_location::current(), "toml_config_not_found",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "toml_config_not_found",
                   "The toml configuration data cannot be found.");
         return nullptr;
     }
@@ -83,12 +83,13 @@ toml::value *glimmer::Config::GetConfigValue() const {
 
 bool glimmer::Config::ReloadConfig() {
     if (configValue_ == nullptr) {
-        LogCat::w(std::source_location::current(), "config_value_is_null", "configValue_ == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "config_value_is_null",
+                  "configValue_ == nullptr");
         return false;
     }
     const toml::value *valuePtr = configValue_.get();
     if (valuePtr == nullptr) {
-        LogCat::w(std::source_location::current(), "value_ptr_is_null", "valuePtr == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "value_ptr_is_null", "valuePtr == nullptr");
         return false;
     }
     const toml::value &tomlRef = *valuePtr;

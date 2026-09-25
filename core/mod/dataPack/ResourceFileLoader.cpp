@@ -167,7 +167,7 @@ void glimmer::ResourceFileLoader::RegisterHandlers() {
                                                          StructureConditionProcessorType::Height);
     };
     handlerMap_[DATA_FILE_TYPE_SPACING_STRUCTURE_CONDITION] = [this](const toml::value &v, const ModContext *m,
-                                                                    const GraphicsContext *) {
+                                                                     const GraphicsContext *) {
         LoadStructurePlacementConditionsResourceFromFile(v, m->GetStructurePlacementConditionsRegistry(),
                                                          StructureConditionProcessorType::Spacing);
     };
@@ -223,7 +223,7 @@ int glimmer::ResourceFileLoader::LoadStringResourceFromFile(const std::filesyste
                                                             StringManager *stringManager) const {
     const auto contentOptional = virtualFileSystem_->ReadFileAsString(path);
     if (!contentOptional.has_value()) {
-        LogCat::w(std::source_location::current(), "resource_file_loader_string_read_failed",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "resource_file_loader_string_read_failed",
                   "Failed to read string resource file: {}", path.string());
         return 0;
     }
@@ -251,7 +251,8 @@ int glimmer::ResourceFileLoader::LoadStringResourceFromFile(const std::filesyste
         );
         count++;
     }
-    LogCat::d("resource_file_loader_strings_loaded", "Loaded string resources: file={}, count={}", path.string(),
+    LogCat::d(LogLabel::DEFAULT, "resource_file_loader_strings_loaded", "Loaded string resources: file={}, count={}",
+              path.string(),
               count);
     return count;
 }
@@ -685,7 +686,8 @@ int glimmer::ResourceFileLoader::LoadLanguageFiles(const std::vector<std::filesy
     for (const auto &file: filesToLoad) {
         total += LoadStringResourceFromFile(file, modContext->GetStringManager());
     }
-    LogCat::d("resource_file_loader_language_files_loaded", "Loaded language files: files={}, strings={}",
+    LogCat::d(LogLabel::DEFAULT, "resource_file_loader_language_files_loaded",
+              "Loaded language files: files={}, strings={}",
               filesToLoad.size(), total);
     return total;
 }
@@ -704,18 +706,18 @@ int glimmer::ResourceFileLoader::LoadResourceByType(const std::string &dataType,
 
         const auto it = handlerMap_.find(dataType);
         if (it == handlerMap_.end()) {
-            LogCat::w(std::source_location::current(), "resource_file_loader_unknown_type",
+            LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "resource_file_loader_unknown_type",
                       "Unknown resource file type: {}, file: {}", dataType, file);
             return 0;
         }
         it->second(value, modContext, graphicsContext);
     } catch (const toml::type_error &e) {
         const toml::source_location &location = e.location();
-        LogCat::e(std::source_location::current(), "resource_file_load_failure_at_line",
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "resource_file_load_failure_at_line",
                   "Failed to load resource file: {}, at line {}: {}", file,
                   location.first_line_number(), e.what());
     } catch (const std::exception &e) {
-        LogCat::e(std::source_location::current(), "resource_file_load_failure",
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "resource_file_load_failure",
                   "Failed to load resource file: {}, error: {}", file, e.what());
     }
     return 1;

@@ -31,7 +31,7 @@
 
 glimmer::AudioContext::AudioContext() {
     audioManager_ = std::make_unique<AudioManager>();
-    LogCat::i("audio_context_created", "AudioContext created");
+    LogCat::i(LogLabel::DEFAULT, "audio_context_created", "AudioContext created");
 }
 
 glimmer::AudioContext::~AudioContext() = default;

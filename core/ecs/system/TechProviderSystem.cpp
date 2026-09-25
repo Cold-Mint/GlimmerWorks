@@ -58,7 +58,7 @@ void glimmer::TechProviderSystem::OnActivationChanged(bool activeStatus) {
             return;
         }
         playerTechnologyHandler->ResetTechnologyMap();
-        LogCat::d("tech_provider_reset_on_deactivate",
+        LogCat::d(LogLabel::DEFAULT, "tech_provider_reset_on_deactivate",
                   "TechProvider reset technology map on deactivate");
     }
 }
@@ -113,7 +113,8 @@ void glimmer::TechProviderSystem::OnTick(const uint64_t tick) {
         technologies.emplace_back(techProviderComponent->GetRecipeGroup(),
                                   techProviderComponent->GetTechnologyLevel());
     }
-    LogCat::d("tech_provider_technology_applied", "TechProvider applied technology from {} providers",
+    LogCat::d(LogLabel::DEFAULT, "tech_provider_technology_applied",
+              "TechProvider applied technology from {} providers",
               technologies.size());
 
     //The technology map is read by GUI systems on the main thread, so apply the
@@ -153,7 +154,7 @@ void glimmer::TechProviderSystem::OnWatchedComponentChanged(GameComponentTypeMes
             COMPONENT_TRANSFORM_2D, COMPONENT_TECH_PROVIDER
         });
         changed.store(true, std::memory_order_relaxed);
-        LogCat::d("tech_provider_entities_rebuilt", "TechProvider entities rebuilt: {} providers",
+        LogCat::d(LogLabel::DEFAULT, "tech_provider_entities_rebuilt", "TechProvider entities rebuilt: {} providers",
                   techProviderEntities_.size());
     }
 }

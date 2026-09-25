@@ -35,15 +35,16 @@ void glimmer::CameraSystem::OnWatchedComponentChanged(GameComponentTypeMessage g
     const WorldContext *worldContext = GetWorldContext();
     if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr) {
         cameraComponent_ = entityShortCut->GetCameraComponent();
-        LogCat::i("camera_system_component_bound", "CameraSystem camera component bound");
+        LogCat::i(LogLabel::DEFAULT, "camera_system_component_bound", "CameraSystem camera component bound");
         const AppContext *appContext = worldContext->GetAppContext();
         if (appContext == nullptr) {
-            LogCat::w(std::source_location::current(), "app_context_is_null", "appContext is nullptr");
+            LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "app_context_is_null",
+                      "appContext is nullptr");
             return;
         }
         const Config *config = appContext->GetConfig();
         if (config == nullptr) {
-            LogCat::w(std::source_location::current(), "config_is_null", "config is nullptr");
+            LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "config_is_null", "config is nullptr");
             return;
         }
         cameraComponent_->SetZoom(config->window.cameraScale);
@@ -55,7 +56,7 @@ void glimmer::CameraSystem::OnWatchedComponentChanged(GameComponentTypeMessage g
 
 void glimmer::CameraSystem::OnWindowSizeChanged(const int &width, const int &height) {
     if (cameraComponent_ == nullptr || appContext_ == nullptr) {
-        LogCat::w(std::source_location::current(), "camera_system_not_ready",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "camera_system_not_ready",
                   "CameraSystem not ready for window resize: cameraComponent_ or appContext_ is nullptr");
         return;
     }
@@ -78,7 +79,7 @@ void glimmer::CameraSystem::OnConfigChanged(const Config *config) {
     if (oldZoom == newZoom) {
         return;
     }
-    LogCat::i("camera_system_zoom_changed", "CameraSystem zoom changed: {} -> {}", oldZoom, newZoom);
+    LogCat::i(LogLabel::DEFAULT, "camera_system_zoom_changed", "CameraSystem zoom changed: {} -> {}", oldZoom, newZoom);
     cameraComponent_->SetZoom(newZoom);
 }
 

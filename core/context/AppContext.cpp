@@ -105,7 +105,8 @@ bool glimmer::AppContext::InitSystem() const {
         }
     }
     if (success) {
-        LogCat::i("app_context_initialization_completed", "AppContext initialization completed successfully");
+        LogCat::i(LogLabel::DEFAULT, "app_context_initialization_completed",
+                  "AppContext initialization completed successfully");
         return true;
     }
     while (!initTaskStack.empty()) {
@@ -113,7 +114,7 @@ bool glimmer::AppContext::InitSystem() const {
         if (topTask == nullptr) {
             continue;
         }
-        LogCat::d("rollback_task", "Roll back the {} task", topTask->GetTaskName());
+        LogCat::d(LogLabel::DEFAULT, "rollback_task", "Roll back the {} task", topTask->GetTaskName());
         topTask->Rollback(systemBucket);
         initTaskStack.pop();
     }

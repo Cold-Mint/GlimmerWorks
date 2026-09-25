@@ -86,9 +86,9 @@ namespace glimmer {
          * 将截图目标纹理 Blit 到真正的交换链纹理。
          */
         static void BlitScreenshotToSwapChain(SDL_GPUCommandBuffer *commandBuffer,
-                                       SDL_GPUTexture *source,
-                                       SDL_GPUTexture *destination,
-                                       Uint32 width, Uint32 height);
+                                              SDL_GPUTexture *source,
+                                              SDL_GPUTexture *destination,
+                                              Uint32 width, Uint32 height);
 
         /**
          * Download the current scene image and save it to the path stored in

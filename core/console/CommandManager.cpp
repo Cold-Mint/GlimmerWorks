@@ -38,7 +38,7 @@ void glimmer::CommandManager::RegisterCommand(std::unique_ptr<Command> command) 
     const std::string &name = command->GetName();
     command->Initialize();
     commandMap_[name] = std::move(command);
-    LogCat::i("command_registered", "Command registered: {}", name);
+    LogCat::i(LogLabel::DEFAULT, "command_registered", "Command registered: {}", name);
 }
 
 glimmer::Command *glimmer::CommandManager::GetCommand(const std::string &name) const {
@@ -55,18 +55,20 @@ glimmer::Command *glimmer::CommandManager::GetCommand(const std::string &name) c
 glimmer::CommandSender *glimmer::CommandManager::GetDefaultCommandSender() {
     defaultCommandSender_.SetPosition({0, 0});
     if (entityShortCut_ == nullptr || entityManager_ == nullptr) {
-        LogCat::w(std::source_location::current(), "entity_shortcut_or_entity_manager_is_null",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "entity_shortcut_or_entity_manager_is_null",
                   "entityShortCut_ == nullptr || entityManager_ == nullptr");
         return &defaultCommandSender_;
     }
     const GameEntityID player = entityShortCut_->GetPlayer();
     if (WorldContext::IsEmptyEntityId(player)) {
-        LogCat::w(std::source_location::current(), "empty_player_entity_id", "WorldContext::IsEmptyEntityId(player)");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "empty_player_entity_id",
+                  "WorldContext::IsEmptyEntityId(player)");
         return &defaultCommandSender_;
     }
     auto transform2dComponent = entityManager_->GetComponent<Transform2DComponent>(player);
     if (transform2dComponent == nullptr) {
-        LogCat::w(std::source_location::current(), "transform2d_component_is_null", "transform2dComponent == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "transform2d_component_is_null",
+                  "transform2dComponent == nullptr");
         return &defaultCommandSender_;
     }
     defaultCommandSender_.SetPosition(transform2dComponent->GetPosition());
@@ -99,12 +101,14 @@ void glimmer::CommandManager::BindWorldContext(WorldContext *worldContext) {
     commandEnvironment_.worldContext = worldContext;
     entityManager_ = worldContext->GetEntityManager();
     if (entityManager_ == nullptr) {
-        LogCat::e(std::source_location::current(), "entity_manager_is_null", "entityManager_ == nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "entity_manager_is_null",
+                  "entityManager_ == nullptr");
         return;
     }
     entityShortCut_ = worldContext->GetEntityShortCut();
     if (entityShortCut_ == nullptr) {
-        LogCat::e(std::source_location::current(), "entity_shortcut_is_null", "entityShortCut_ == nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "entity_shortcut_is_null",
+                  "entityShortCut_ == nullptr");
         return;
     }
     int bindCount = 0;
@@ -114,7 +118,7 @@ void glimmer::CommandManager::BindWorldContext(WorldContext *worldContext) {
             bindCount++;
         }
     }
-    LogCat::i("world_context_bound", "World context bound, commands bound: {}", bindCount);
+    LogCat::i(LogLabel::DEFAULT, "world_context_bound", "World context bound, commands bound: {}", bindCount);
 }
 
 void glimmer::CommandManager::UnbindWorldContext() {
@@ -128,7 +132,7 @@ void glimmer::CommandManager::UnbindWorldContext() {
             unbindCount++;
         }
     }
-    LogCat::i("world_context_unbound", "World context unbound, commands unbound: {}", unbindCount);
+    LogCat::i(LogLabel::DEFAULT, "world_context_unbound", "World context unbound, commands unbound: {}", unbindCount);
 }
 
 void glimmer::CommandManager::SetAllowCheats(const bool allowCheats) {

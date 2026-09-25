@@ -36,7 +36,7 @@ void glimmer::MapManifest::FromMessage(const MapManifestMessage &manifestMessage
     createTime = manifestMessage.createtime();
     entityIDIndex = manifestMessage.entityidindex();
     globalTickCount = manifestMessage.globaltickcount();
-    LogCat::d("map_manifest_from_message", "Map manifest parsed: name={}, seed={}", name, seed);
+    LogCat::d(LogLabel::DEFAULT, "map_manifest_from_message", "Map manifest parsed: name={}, seed={}", name, seed);
 }
 
 void glimmer::MapManifest::ToMessage(MapManifestMessage &manifestMessage) {
@@ -47,5 +47,5 @@ void glimmer::MapManifest::ToMessage(MapManifestMessage &manifestMessage) {
     manifestMessage.set_createtime(createTime);
     manifestMessage.set_entityidindex(entityIDIndex);
     manifestMessage.set_globaltickcount(globalTickCount);
-    LogCat::d("map_manifest_to_message", "Map manifest serialized: name={}, seed={}", name, seed);
+    LogCat::d(LogLabel::DEFAULT, "map_manifest_to_message", "Map manifest serialized: name={}, seed={}", name, seed);
 }

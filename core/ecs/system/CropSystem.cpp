@@ -71,7 +71,8 @@ void glimmer::CropSystem::OnWatchedComponentChanged(const GameComponentTypeMessa
             cropComponents_.emplace_back(cropComponent);
         }
     }
-    LogCat::d("crop_system_entities_rebuilt", "CropSystem rebuilt entities: {}", cropComponents_.size());
+    LogCat::d(LogLabel::DEFAULT, "crop_system_entities_rebuilt", "CropSystem rebuilt entities: {}",
+              cropComponents_.size());
 }
 
 bool glimmer::CropSystem::OnGrowMature(WorldContext *worldContext, Chunk *chunk, const TileVector2D &position,
@@ -216,14 +217,14 @@ void glimmer::CropSystem::OnTick(const uint64_t tick) {
     }
     for (CropComponent *cropComponent: cropComponents) {
         if (cropComponent == nullptr) {
-            LogCat::d("crop_system_component_null", "[CropSystem] cropComponent is null, skip");
+            LogCat::d(LogLabel::DEFAULT, "crop_system_component_null", "[CropSystem] cropComponent is null, skip");
             continue;
         }
         const TileVector2D &position = cropComponent->GetPosition();
         const TileLayerType layerType = cropComponent->GetLayerType();
         Chunk *chunk = chunkManager->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(position));
         if (chunk == nullptr) {
-            LogCat::d("crop_system_chunk_not_found",
+            LogCat::d(LogLabel::DEFAULT, "crop_system_chunk_not_found",
                       "[CropSystem] chunk not found: position=({}, {}), layerType={}, skip", position.x, position.y,
                       static_cast<int>(layerType));
             continue;
@@ -232,7 +233,7 @@ void glimmer::CropSystem::OnTick(const uint64_t tick) {
         const int index = relative.y << CHUNK_SHIFT | relative.x;
         const Tile *tile = chunk->GetTile(layerType, index);
         if (tile == nullptr || !tile->IsCropsBlock()) {
-            LogCat::d("crop_system_tile_not_crop",
+            LogCat::d(LogLabel::DEFAULT, "crop_system_tile_not_crop",
                       "[CropSystem] tile is null or not a crops block: position=({}, {}), layerType={}, index={}, skip",
                       position.x, position.y, static_cast<int>(layerType), index);
             continue;
@@ -243,7 +244,8 @@ void glimmer::CropSystem::OnTick(const uint64_t tick) {
             IGrowthConditionResource *conditionResource = growthConditionsRegistry->Find(
                 conditionRef.GetPackageId(), conditionRef.GetResourceKey());
             if (conditionResource == nullptr) {
-                LogCat::w(std::source_location::current(), "crop_system_condition_resource_not_found",
+                LogCat::w(LogLabel::DEFAULT, std::source_location::current(),
+                          "crop_system_condition_resource_not_found",
                           "[CropSystem] growth condition resource not found: packageId={}, resourceKey={}",
                           conditionRef.GetPackageId(), conditionRef.GetResourceKey());
                 conditionsMet = false;
@@ -253,14 +255,15 @@ void glimmer::CropSystem::OnTick(const uint64_t tick) {
             IGrowthConditionProcessor *processor = growthConditionProcessorManager->FindConditionProcessors(
                 processorType);
             if (processor == nullptr) {
-                LogCat::w(std::source_location::current(), "crop_system_condition_processor_not_found",
+                LogCat::w(LogLabel::DEFAULT, std::source_location::current(),
+                          "crop_system_condition_processor_not_found",
                           "[CropSystem] growth condition processor not found: processorType={}",
                           static_cast<int>(processorType));
                 conditionsMet = false;
                 break;
             }
             if (!processor->Match(worldContext, position, conditionResource)) {
-                LogCat::d("crop_system_condition_not_met",
+                LogCat::d(LogLabel::DEFAULT, "crop_system_condition_not_met",
                           "[CropSystem] growth condition not met: processorType={}, packageId={}, resourceKey={}, position=({}, {})",
                           static_cast<int>(processorType), conditionRef.GetPackageId(),
                           conditionRef.GetResourceKey(), position.x, position.y);
@@ -269,7 +272,7 @@ void glimmer::CropSystem::OnTick(const uint64_t tick) {
             }
         }
         if (!conditionsMet) {
-            LogCat::d("crop_system_conditions_not_met",
+            LogCat::d(LogLabel::DEFAULT, "crop_system_conditions_not_met",
                       "[CropSystem] growth conditions not fully met, skip growth: position=({}, {}), layerType={}",
                       position.x, position.y, static_cast<int>(layerType));
             continue;
@@ -277,18 +280,18 @@ void glimmer::CropSystem::OnTick(const uint64_t tick) {
 
         TileStateMessage *tileState = chunk->GetOrCreateTileState(layerType, index);
         if (tileState == nullptr) {
-            LogCat::w(std::source_location::current(), "crop_system_tile_state_null",
+            LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "crop_system_tile_state_null",
                       "[CropSystem] tile state is null: position=({}, {}), layerType={}, index={}",
                       position.x, position.y, static_cast<int>(layerType), index);
             continue;
         }
         tileState->set_tilegrowthaccumulatedtick(tileState->tilegrowthaccumulatedtick() + 1);
-        LogCat::d("crop_system_growth_ticks",
+        LogCat::d(LogLabel::DEFAULT, "crop_system_growth_ticks",
                   "[CropSystem] growth ticks: required={}, accumulated={}, position=({}, {})",
                   tileState->tilegrowthrequiredtick(), tileState->tilegrowthaccumulatedtick(), position.x,
                   position.y);
         if (tileState->tilegrowthrequiredtick() > tileState->tilegrowthaccumulatedtick()) {
-            LogCat::d("crop_system_growth_not_ready",
+            LogCat::d(LogLabel::DEFAULT, "crop_system_growth_not_ready",
                       "[CropSystem] growth tick not ready: accumulated={}, required={}, position=({}, {})",
                       tileState->tilegrowthaccumulatedtick(), tileState->tilegrowthrequiredtick(), position.x,
                       position.y);
@@ -296,7 +299,7 @@ void glimmer::CropSystem::OnTick(const uint64_t tick) {
         }
         const ResourceRef *growthTargetRef = tile->GetGrowthTarget();
         if (growthTargetRef == nullptr) {
-            LogCat::w(std::source_location::current(), "crop_system_growth_target_null",
+            LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "crop_system_growth_target_null",
                       "[CropSystem] growth target is null: position=({}, {}), layerType={}, index={}",
                       position.x, position.y, static_cast<int>(layerType), index);
             continue;
@@ -307,7 +310,7 @@ void glimmer::CropSystem::OnTick(const uint64_t tick) {
         //需要推送到下一刷新帧。
         MainThreadDispatcher *mainThreadDispatcher = appContext->GetMainThreadDispatcher();
         if (mainThreadDispatcher == nullptr) {
-            LogCat::w(std::source_location::current(), "crop_system_main_thread_dispatcher_null",
+            LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "crop_system_main_thread_dispatcher_null",
                       "[CropSystem] main thread dispatcher is null, skip growth: position=({}, {}), layerType={}",
                       position.x, position.y, static_cast<int>(layerType));
             continue;
@@ -331,7 +334,7 @@ void glimmer::CropSystem::OnTick(const uint64_t tick) {
                     return;
                 }
                 if (OnGrowMature(worldContext, chunk, relative, layerType, &growthTarget)) {
-                    LogCat::d("crop_system_grow_mature_success",
+                    LogCat::d(LogLabel::DEFAULT, "crop_system_grow_mature_success",
                               "[CropSystem] crop matured: position=({}, {}), layerType={}, targetPackageId={}, targetResourceKey={}, isTileTarget={}, destroySelfOnGrowth={}",
                               position.x, position.y, static_cast<int>(layerType), growthTarget.GetPackageId(),
                               growthTarget.GetResourceKey(), isTileTarget, destroySelfOnGrowth);
@@ -347,7 +350,7 @@ void glimmer::CropSystem::OnTick(const uint64_t tick) {
                             if (airTileResource != nullptr) {
                                 chunk->PlaceTile(layerType, index, airRef, airTileResource, BreakSource::Unknown,
                                                  PLACE_SOURCE_WORLD_GEN, 0, 0, false);
-                                LogCat::d("crop_system_replace_with_air",
+                                LogCat::d(LogLabel::DEFAULT, "crop_system_replace_with_air",
                                           "[CropSystem] crop replaced with air after growth: position=({}, {}), layerType={}, index={}",
                                           position.x, position.y, static_cast<int>(layerType), index);
                             }
@@ -361,12 +364,12 @@ void glimmer::CropSystem::OnTick(const uint64_t tick) {
                         tileState->set_tilegrowthaccumulatedtick(0);
                         tileState->set_tilegrowthstarttick(tick);
                         tileState->set_tilegrowthconditionsmet(false);
-                        LogCat::d("crop_system_growth_reset",
+                        LogCat::d(LogLabel::DEFAULT, "crop_system_growth_reset",
                                   "[CropSystem] crop growth reset after mature: matureCount={}, position=({}, {})",
                                   tileState->maturecount(), position.x, position.y);
                     }
                 } else {
-                    LogCat::w(std::source_location::current(), "crop_system_grow_mature_failed",
+                    LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "crop_system_grow_mature_failed",
                               "[CropSystem] OnGrowMature failed: position=({}, {}), layerType={}, targetPackageId={}, targetResourceKey={}",
                               position.x, position.y, static_cast<int>(layerType), growthTarget.GetPackageId(),
                               growthTarget.GetResourceKey());

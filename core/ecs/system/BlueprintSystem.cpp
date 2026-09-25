@@ -99,7 +99,7 @@ void glimmer::BlueprintSystem::OnWatchedComponentChanged(GameComponentTypeMessag
         auto tileLayerEntities = entityManager->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
         if (!tileLayerEntities.empty()) {
             tileLayerComponent_ = entityManager->GetComponent<TileLayerComponent>(tileLayerEntities[0]);
-            LogCat::i("blueprint_tile_layer_bound", "BlueprintSystem tile layer component bound");
+            LogCat::i(LogLabel::DEFAULT, "blueprint_tile_layer_bound", "BlueprintSystem tile layer component bound");
         }
     }
     if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr) {
@@ -113,19 +113,21 @@ void glimmer::BlueprintSystem::OnWatchedComponentChanged(GameComponentTypeMessag
     }
     if (gameComponentType == COMPONENT_BLUEPRINT && blueprintComponent_ == nullptr) {
         blueprintComponent_ = entityShortCut->GetBlueprintComponent();
-        LogCat::i("blueprint_component_bound", "BlueprintSystem blueprint component bound");
+        LogCat::i(LogLabel::DEFAULT, "blueprint_component_bound", "BlueprintSystem blueprint component bound");
     }
     if (gameComponentType == COMPONENT_MINING && miningComponent_ == nullptr) {
         miningComponent_ = entityShortCut->GetMiningComponent();
         if (miningComponent_ == nullptr) {
-            LogCat::e(std::source_location::current(), "mining_component_is_null", "miningComponent_ == nullptr");
+            LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "mining_component_is_null",
+                      "miningComponent_ == nullptr");
         }
     }
     if (gameComponentType == COMPONENT_PLAYER && WorldContext::IsEmptyEntityId(player)) {
         player = entityShortCut->GetPlayer();
         playerComponent_ = entityManager->GetComponent<PlayerComponent>(player);
         if (playerComponent_ == nullptr) {
-            LogCat::e(std::source_location::current(), "player_component_is_null", "playerComponent_ == nullptr");
+            LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "player_component_is_null",
+                      "playerComponent_ == nullptr");
         }
     }
     if (gameComponentType == COMPONENT_TILE_PLACEMENT_FORBIDDEN_ZONE) {

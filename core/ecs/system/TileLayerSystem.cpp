@@ -59,7 +59,7 @@ void glimmer::TileLayerSystem::OnWatchedComponentChanged(GameComponentTypeMessag
             }
             tileLayerComponents_.emplace_back(tileLayerComponent);
         }
-        LogCat::d("tile_layer_components_rebuilt", "TileLayer components rebuilt: {} layers",
+        LogCat::d(LogLabel::DEFAULT, "tile_layer_components_rebuilt", "TileLayer components rebuilt: {} layers",
                   tileLayerComponents_.size());
     }
 }

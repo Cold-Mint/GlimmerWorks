@@ -405,7 +405,7 @@ void glimmer::ChunkSystem::OnTick(const uint64_t tick) {
     SetOriginAndSort(loadChunkTasks_, originPosition, false);
     SetOriginAndSort(unloadChunkTasks_, originPosition, true);
     SetOriginAndSort(unloadTerrainTasks_, originPosition, true);
-    LogCat::d("chunk_system_tasks_generated",
+    LogCat::d(LogLabel::DEFAULT, "chunk_system_tasks_generated",
               "ChunkSystem tasks: loadTerrain={}, loadChunk={}, unloadChunk={}, unloadTerrain={}",
               loadTerrainTasks_.size(), loadChunkTasks_.size(), unloadChunkTasks_.size(), unloadTerrainTasks_.size());
 }

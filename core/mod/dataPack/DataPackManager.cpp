@@ -32,7 +32,8 @@
 void glimmer::DataPackManager::AfterRegister(DataPack *resource) {
     BasePackManager::AfterRegister(resource);
     packIdVector.emplace_back(resource->GetManifest()->id);
-    LogCat::i("data_pack_registered", "Data pack registered: Id={}, total={}", resource->GetManifest()->id,
+    LogCat::i(LogLabel::DEFAULT, "data_pack_registered", "Data pack registered: Id={}, total={}",
+              resource->GetManifest()->id,
               packIdVector.size());
 }
 
@@ -42,40 +43,43 @@ void glimmer::DataPackManager::BeforeUnRegister(DataPack *resource) {
     if (it != packIdVector.end()) {
         packIdVector.erase(it);
     }
-    LogCat::d("data_pack_unregistered", "Data pack unregistered: Id={}", resource->GetManifest()->id);
+    LogCat::d(LogLabel::DEFAULT, "data_pack_unregistered", "Data pack unregistered: Id={}",
+              resource->GetManifest()->id);
 }
 
 std::unique_ptr<glimmer::DataPack> glimmer::DataPackManager::LoadPack(const PackScanRequest *packScanRequest,
                                                                       std::filesystem::path path) {
-    LogCat::i("data_pack_load_start", "Loading data pack from path: {}", path.string());
+    LogCat::i(LogLabel::DEFAULT, "data_pack_load_start", "Loading data pack from path: {}", path.string());
     AppContext *appContext = packScanRequest->GetAppContext();
     if (appContext == nullptr) {
-        LogCat::w(std::source_location::current(), "app_context_is_null", "appContext == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "app_context_is_null", "appContext == nullptr");
         return nullptr;
     }
     VirtualFileSystem *virtualFileSystem = appContext->GetVirtualFileSystem();
     if (virtualFileSystem == nullptr) {
-        LogCat::w(std::source_location::current(), "vfs_is_null", "virtualFileSystem == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "vfs_is_null", "virtualFileSystem == nullptr");
         return nullptr;
     }
     ModContext *modContext = appContext->GetModContext();
     if (modContext == nullptr) {
-        LogCat::w(std::source_location::current(), "mod_context_is_null", "modContext == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "mod_context_is_null", "modContext == nullptr");
         return nullptr;
     }
 
     auto dataPack = std::make_unique<DataPack>(path, virtualFileSystem, modContext->GetTomlTemplateExpander(),
                                                TOML_VERSION);
     if (!dataPack->LoadManifest()) {
-        LogCat::w(std::source_location::current(), "data_pack_manifest_load_failed",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "data_pack_manifest_load_failed",
                   "Failed to load manifest for data pack");
         return nullptr;
     }
     if (!dataPack->LoadPack(appContext)) {
-        LogCat::w(std::source_location::current(), "data_pack_load_failed", "Failed to load data pack");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "data_pack_load_failed",
+                  "Failed to load data pack");
         return nullptr;
     }
-    LogCat::i("data_pack_load_success", "Data pack loaded successfully: Id={}", dataPack->GetManifest()->id);
+    LogCat::i(LogLabel::DEFAULT, "data_pack_load_success", "Data pack loaded successfully: Id={}",
+              dataPack->GetManifest()->id);
     return dataPack;
 }
 

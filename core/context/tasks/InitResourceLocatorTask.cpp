@@ -37,23 +37,25 @@ glimmer::InitResourceLocatorTask::InitResourceLocatorTask(AppContext *appContext
 bool glimmer::InitResourceLocatorTask::Run(ISystemBucket *systemBucket) {
     const ModContext *modContext = systemBucket->GetModContext();
     if (modContext == nullptr) {
-        LogCat::e(std::source_location::current(), "mod_context_is_null", "modContext is nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "mod_context_is_null", "modContext is nullptr");
         return false;
     }
     const MobRegistry *mobRegistry = modContext->GetMobRegistry();
     if (mobRegistry == nullptr) {
-        LogCat::e(std::source_location::current(), "mob_manager_is_null", "mobManager is nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "mob_manager_is_null", "mobManager is nullptr");
         return false;
     }
     if (const size_t number = mobRegistry->GetPlayerResourceList().size(); number == 0) {
-        LogCat::publicError(ErrorCode::MISSING_PLAYER, std::source_location::current(), "player_resource_required",
+        LogCat::publicError(LogLabel::DEFAULT, ErrorCode::MISSING_PLAYER, std::source_location::current(),
+                            "player_resource_required",
                             "At least one player resource is required.");
         return false;
     }
     systemBucket->SetResourceLocator(std::make_unique<ResourceLocator>(appContext_));
     GraphicsContext *graphicsContext = systemBucket->GetGraphicsContext();
     if (graphicsContext == nullptr) {
-        LogCat::e(std::source_location::current(), "graphics_context_is_null", "graphicsContext is nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "graphics_context_is_null",
+                  "graphicsContext is nullptr");
         return false;
     }
     graphicsContext->Init(systemBucket->GetResourceLocator());

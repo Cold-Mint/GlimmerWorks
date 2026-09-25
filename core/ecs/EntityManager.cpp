@@ -48,11 +48,11 @@ GameEntityID glimmer::EntityManager::AddEntity(GameEntityID gameEntityId) {
             ++entityIndex_;
         }
         entityMap_.emplace(entityIndex_, std::make_unique<GameEntity>(entityIndex_));
-        LogCat::d("entity_created", "Entity created: id={}", entityIndex_);
+        LogCat::d(LogLabel::DEFAULT, "entity_created", "Entity created: id={}", entityIndex_);
         return entityIndex_;
     }
     entityMap_.emplace(gameEntityId, std::make_unique<GameEntity>(gameEntityId));
-    LogCat::d("entity_created", "Entity created: id={}", gameEntityId);
+    LogCat::d(LogLabel::DEFAULT, "entity_created", "Entity created: id={}", gameEntityId);
     return gameEntityId;
 }
 
@@ -112,7 +112,7 @@ uint32_t glimmer::EntityManager::GetComponentCount(const GameComponentTypeMessag
 }
 
 void glimmer::EntityManager::RemoveEntity(const GameEntityID gameEntityId) {
-    LogCat::d("entity_removing", "Entity removing: id={}", gameEntityId);
+    LogCat::d(LogLabel::DEFAULT, "entity_removing", "Entity removing: id={}", gameEntityId);
     entityMap_.erase(gameEntityId);
     auto entityToGameComponentTypeIterator = entityToGameComponentType_.find(gameEntityId);
     if (entityToGameComponentTypeIterator != entityToGameComponentType_.end()) {
@@ -136,7 +136,8 @@ void glimmer::EntityManager::RemoveEntity(const GameEntityID gameEntityId) {
                 }
             }
         }
-        LogCat::d("entity_removed", "Entity removed: id={}, components removed: {}", gameEntityId, componentCount);
+        LogCat::d(LogLabel::DEFAULT, "entity_removed", "Entity removed: id={}, components removed: {}", gameEntityId,
+                  componentCount);
     }
     entityIndex_++;
 }
@@ -166,7 +167,7 @@ void glimmer::EntityManager::RemoveComponent(const GameEntityID gameEntityId,
     }
 
     components_.erase(componentIterator);
-    LogCat::d("component_removed", "Component removed: entityId={}, type={}", gameEntityId,
+    LogCat::d(LogLabel::DEFAULT, "component_removed", "Component removed: entityId={}, type={}", gameEntityId,
               static_cast<int>(typeMessage));
     auto entityToGameComponentTypeIterator = entityToGameComponentType_.find(gameEntityId);
     if (entityToGameComponentTypeIterator != entityToGameComponentType_.end()) {
@@ -262,7 +263,7 @@ void glimmer::EntityManager::RecoveryComponent(WorldContext *worldContext, GameE
                                                const ComponentMessage &componentMessage) {
     //Note: Within this method, this part of the code only includes components that can be serialized. That is, components that override the Serialize() method.
     //注意：在这个方法内，这部分代码只写可被序列化的组件。即覆盖了Serialize()方法的组件。
-    LogCat::d("component_recovering", "Recovering component type {} for entity id={}",
+    LogCat::d(LogLabel::DEFAULT, "component_recovering", "Recovering component type {} for entity id={}",
               std::to_underlying(componentMessage.type()), gameEntityId);
     GameComponent *gameComponent = nullptr;
     switch (componentMessage.type()) {
@@ -276,12 +277,12 @@ void glimmer::EntityManager::RecoveryComponent(WorldContext *worldContext, GameE
             gameComponent = AddComponent<Transform2DComponent>(gameEntityId);
             break;
         default:
-            LogCat::w(std::source_location::current(), "irrecoverable_component_type",
+            LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "irrecoverable_component_type",
                       "Irrecoverable component type {}", std::to_underlying(componentMessage.type()));
             return;
     }
     if (gameComponent == nullptr) {
-        LogCat::w(std::source_location::current(), "restore_component_empty",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "restore_component_empty",
                   "When restoring the component, an empty object was returned. ");
         return;
     }

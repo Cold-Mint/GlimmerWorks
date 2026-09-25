@@ -74,13 +74,14 @@ glimmer::Color glimmer::ColorUtils::AdditiveBlend(const Color &firstColor, const
 glimmer::Color glimmer::ColorUtils::ComputeAmbientLight(ResourceLocator *resourceLocator, const float timeOfDay,
                                                         const std::vector<LightKeyframe> &keyframes) {
     if (keyframes.empty()) {
-        LogCat::w(std::source_location::current(), "compute_back_light_keyframes_empty",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "compute_back_light_keyframes_empty",
                   "compute ambient light keyframes empty");
         return {};
     }
     const auto resolveColor = [resourceLocator](const ResourceRef &ref) -> Color {
         if (resourceLocator == nullptr) {
-            LogCat::w(std::source_location::current(), "compute_ambient_light_resource_locator_is_null",
+            LogCat::w(LogLabel::DEFAULT, std::source_location::current(),
+                      "compute_ambient_light_resource_locator_is_null",
                       "compute ambient light resource locator is null");
             return {};
         }
@@ -89,7 +90,7 @@ glimmer::Color glimmer::ColorUtils::ComputeAmbientLight(ResourceLocator *resourc
     };
     if (keyframes.size() == 1) {
         const Color color = resolveColor(keyframes.front().color);
-        LogCat::i("compute_ambient_light_single_keyframe",
+        LogCat::i(LogLabel::DEFAULT, "compute_ambient_light_single_keyframe",
                   "Compute ambient light single keyframe: rgba=({},{},{},{}), timeOfDay={}, keyframeT={}",
                   static_cast<int>(color.r), static_cast<int>(color.g), static_cast<int>(color.b),
                   static_cast<int>(color.a), timeOfDay, keyframes.front().t);
@@ -103,12 +104,12 @@ glimmer::Color glimmer::ColorUtils::ComputeAmbientLight(ResourceLocator *resourc
             const Color endColor = resolveColor(end.color);
             const float span = end.t - start.t;
             if (span <= 0.0F) {
-                LogCat::w(std::source_location::current(), "compute_ambient_light_zero_span",
+                LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "compute_ambient_light_zero_span",
                           "Compute ambient light zero span: startT={}, endT={}", start.t, end.t);
             }
             const float u = span > 0.0F ? (timeOfDay - start.t) / span : 0.0F;
             const Color color = LinearInterpolateColor(startColor, endColor, u);
-            LogCat::i("compute_ambient_light_interpolate",
+            LogCat::i(LogLabel::DEFAULT, "compute_ambient_light_interpolate",
                       "Compute ambient light interpolate: timeOfDay={}, startT={}, endT={}, u={}, rgba=({},{},{},{})",
                       timeOfDay, start.t, end.t, u, static_cast<int>(color.r), static_cast<int>(color.g),
                       static_cast<int>(color.b), static_cast<int>(color.a));
@@ -121,14 +122,14 @@ glimmer::Color glimmer::ColorUtils::ComputeAmbientLight(ResourceLocator *resourc
     }
     const float span = keyframes.front().t + 1.0F - keyframes.back().t;
     if (span <= 0.0F) {
-        LogCat::w(std::source_location::current(), "compute_ambient_light_zero_span",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "compute_ambient_light_zero_span",
                   "Compute ambient light zero span: startT={}, endT={}", keyframes.back().t, keyframes.front().t);
     }
     const float u = span > 0.0F ? (t - keyframes.back().t) / span : 0.0F;
     const Color startColor = resolveColor(keyframes.back().color);
     const Color endColor = resolveColor(keyframes.front().color);
     const Color color = LinearInterpolateColor(startColor, endColor, u);
-    LogCat::i("compute_ambient_light_wrap_interpolate",
+    LogCat::i(LogLabel::DEFAULT, "compute_ambient_light_wrap_interpolate",
               "Compute ambient light wrap interpolate: timeOfDay={}, backT={}, frontT={}, u={}, rgba=({},{},{},{})",
               timeOfDay, keyframes.back().t, keyframes.front().t, u, static_cast<int>(color.r),
               static_cast<int>(color.g), static_cast<int>(color.b), static_cast<int>(color.a));

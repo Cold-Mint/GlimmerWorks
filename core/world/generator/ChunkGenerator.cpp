@@ -98,11 +98,12 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const T
     if (config == nullptr) {
         return nullptr;
     }
-    LogCat::i("chunk_generating", "Generating new chunk at position: ({}, {})", position.x, position.y);
+    LogCat::i(LogLabel::DEFAULT, "chunk_generating", "Generating new chunk at position: ({}, {})", position.x,
+              position.y);
     auto chunk = std::make_unique<Chunk>(worldContext_, position, config);
     TerrainResult *terrainResult = worldContext_->GetTerrainManager()->GetTerrainData(position);
     if (terrainResult == nullptr) {
-        LogCat::w(std::source_location::current(), "chunk_terrain_data_failed",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "chunk_terrain_data_failed",
                   "Failed to get terrain data for chunk: ({}, {})", position.x,
                   position.y);
         return nullptr;
@@ -118,7 +119,8 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const T
                                  terrainResult, tilesRefMap);
     ChunkTilePopulator::Populate(chunk.get(), resourceLocator, tilesRefMap);
 
-    LogCat::i("chunk_generation_completed", "Chunk generation completed at: ({}, {})", position.x, position.y);
+    LogCat::i(LogLabel::DEFAULT, "chunk_generation_completed", "Chunk generation completed at: ({}, {})", position.x,
+              position.y);
     return chunk;
 }
 

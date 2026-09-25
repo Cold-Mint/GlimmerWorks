@@ -48,7 +48,7 @@ void glimmer::BiomeBGMSystem::OnWatchedComponentChanged(GameComponentTypeMessage
 void glimmer::BiomeBGMSystem::SwitchToBiome(BiomeResource *biomeResource) {
     std::shared_ptr<AudioResourceResult> audioResourceResult = resourceLocator_->FindAudio(&biomeResource->bgm);
     if (audioResourceResult == nullptr) {
-        LogCat::w(std::source_location::current(), "biome_bgm_audio_is_null",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "biome_bgm_audio_is_null",
                   "SwitchToBiome: bgm audio resource is nullptr for biome {}", biomeResource->resourceId);
         return;
     }
@@ -57,7 +57,7 @@ void glimmer::BiomeBGMSystem::SwitchToBiome(BiomeResource *biomeResource) {
         audioManager_->ForcePlayReplace(AudioType::BGM, audio, -1);
     }
     biomeResource_ = biomeResource;
-    LogCat::i("biome_bgm_switched", "Biome BGM switched to {}", biomeResource->resourceId);
+    LogCat::i(LogLabel::DEFAULT, "biome_bgm_switched", "Biome BGM switched to {}", biomeResource->resourceId);
 }
 
 glimmer::BiomeBGMSystem::BiomeBGMSystem(WorldContext *worldContext) : GameSystem(worldContext) {

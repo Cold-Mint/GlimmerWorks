@@ -50,17 +50,18 @@ glimmer::StructurePlacer::StructurePlacer(WorldContext *worldContext) : worldCon
 }
 
 void glimmer::StructurePlacer::GenerateStructure(const TileVector2D &position) const {
-    LogCat::i("structure_placing_start", "Placing structures: position=({}, {})", position.x, position.y);
+    LogCat::i(LogLabel::DEFAULT, "structure_placing_start", "Placing structures: position=({}, {})", position.x,
+              position.y);
     const AppContext *appContext = worldContext_->GetAppContext();
     const auto &all = appContext->GetModContext()->GetStructureRegistry()->GetAll();
     if (all.empty()) {
-        LogCat::d("structure_registry_empty", "Structure registry is empty, skipping");
+        LogCat::d(LogLabel::DEFAULT, "structure_registry_empty", "Structure registry is empty, skipping");
         return;
     }
 
     TerrainManager *terrainManager = worldContext_->GetTerrainManager();
     if (terrainManager == nullptr) {
-        LogCat::w(std::source_location::current(), "terrain_manager_is_null",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "terrain_manager_is_null",
                   "Terrain manager is null, cannot place structures");
         return;
     }
@@ -79,7 +80,8 @@ void glimmer::StructurePlacer::GenerateStructure(const TileVector2D &position) c
         totalPlaced += PlaceStructureAtCandidatePoints(appContext, terrainManager, position,
                                                        candidatePoints.value(), structureResource);
     }
-    LogCat::d("structure_placed_count", "Structure placement completed: position=({}, {}), placed={}", position.x,
+    LogCat::d(LogLabel::DEFAULT, "structure_placed_count",
+              "Structure placement completed: position=({}, {}), placed={}", position.x,
               position.y, totalPlaced);
 }
 

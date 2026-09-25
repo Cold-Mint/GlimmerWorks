@@ -32,7 +32,7 @@
 #include "core/mod/ResourceLocator.h"
 
 void glimmer::PreloadColors::LoadAllColors(const ResourceLocator *resourceLocator) {
-    LogCat::i("preload_colors_start", "Preloading colors");
+    LogCat::i(LogLabel::DEFAULT, "preload_colors_start", "Preloading colors");
     Color areaMarkerBorder;
     areaMarkerBorder.r = 45;
     areaMarkerBorder.g = 65;
@@ -190,19 +190,6 @@ void glimmer::PreloadColors::LoadAllColors(const ResourceLocator *resourceLocato
     weirdnessMapTo.b = 255;
     weirdnessMapTo.a = debugMapAlpha;
     debugColor.weirdnessMapTo = LoadColor(resourceLocator, "debug/weirdness_map_to", weirdnessMapTo);
-    Color defaultEmission;
-    defaultEmission.r = 0;
-    defaultEmission.g = 0;
-    defaultEmission.b = 0;
-    defaultEmission.a = 0;
-    light.defaultEmissionColor = LoadColor(resourceLocator, "light/default_emission_color", defaultEmission);
-    Color defaultLightTransmission;
-    defaultLightTransmission.r = 0;
-    defaultLightTransmission.g = 0;
-    defaultLightTransmission.b = 0;
-    defaultLightTransmission.a = 0;
-    light.defaultLightTransmissionColor = LoadColor(resourceLocator, "light/default_light_transmission_color",
-                                                    defaultLightTransmission);
     Color defaultBlueprintValid;
     defaultBlueprintValid.r = 65;
     defaultBlueprintValid.g = 175;
@@ -245,7 +232,7 @@ void glimmer::PreloadColors::LoadAllColors(const ResourceLocator *resourceLocato
     defaultDurabilityDanger.b = 60;
     defaultDurabilityDanger.a = 96;
     durability.durabilityDanger = LoadColor(resourceLocator, "durability/danger", defaultDurabilityDanger);
-    LogCat::i("preload_colors_completed", "Preloading colors completed");
+    LogCat::i(LogLabel::DEFAULT, "preload_colors_completed", "Preloading colors completed");
 }
 
 glimmer::Color glimmer::PreloadColors::LoadColor(const ResourceLocator *resourceLocator, const std::string &key,
@@ -256,7 +243,7 @@ glimmer::Color glimmer::PreloadColors::LoadColor(const ResourceLocator *resource
     resourceRef.SetResourceKey(key);
     const std::unique_ptr<Color> targetColor = resourceLocator->FindColor(&resourceRef);
     if (targetColor == nullptr) {
-        LogCat::w(std::source_location::current(), "preload_color_not_found",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "preload_color_not_found",
                   "Color not found, using default: key={}", key);
         return defaultColor;
     }

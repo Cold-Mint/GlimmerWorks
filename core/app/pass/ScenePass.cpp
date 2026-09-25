@@ -110,11 +110,12 @@ void glimmer::ScenePass::EnsureSceneTexture(RenderFrameContext &ctx) {
     info.props = 0;
     sceneTexture_ = SDL_CreateGPUTexture(device_, &info);
     if (sceneTexture_ == nullptr) {
-        LogCat::w(std::source_location::current(), "sdl_create_gpu_texture_failed", "SDL_CreateGPUTexture failed: {}",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "sdl_create_gpu_texture_failed",
+                  "SDL_CreateGPUTexture failed: {}",
                   SDL_GetError());
         return;
     }
-    LogCat::i("app_renderer_scene_texture_format", "Scene texture created: {}x{}, format={}",
+    LogCat::i(LogLabel::DEFAULT, "app_renderer_scene_texture_format", "Scene texture created: {}x{}, format={}",
               width, height, static_cast<int>(info.format));
     sceneTextureWidth_ = width;
     sceneTextureHeight_ = height;
@@ -193,7 +194,8 @@ void glimmer::ScenePass::EnsureSolidColorTexture() {
     textureInfo.props = 0;
     solidColorTexture_ = SDL_CreateGPUTexture(device_, &textureInfo);
     if (solidColorTexture_ == nullptr) {
-        LogCat::w(std::source_location::current(), "sdl_create_gpu_texture_failed", "SDL_CreateGPUTexture failed: {}",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "sdl_create_gpu_texture_failed",
+                  "SDL_CreateGPUTexture failed: {}",
                   SDL_GetError());
         return;
     }
@@ -204,7 +206,7 @@ void glimmer::ScenePass::EnsureSolidColorTexture() {
     transferInfo.props = 0;
     SDL_GPUTransferBuffer *transferBuffer = SDL_CreateGPUTransferBuffer(device_, &transferInfo);
     if (transferBuffer == nullptr) {
-        LogCat::w(std::source_location::current(), "sdl_create_gpu_transfer_buffer_failed",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "sdl_create_gpu_transfer_buffer_failed",
                   "SDL_CreateGPUTransferBuffer failed: {}", SDL_GetError());
         return;
     }

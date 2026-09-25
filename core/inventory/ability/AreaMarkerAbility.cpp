@@ -44,15 +44,15 @@ glimmer::AbilityType glimmer::AreaMarkerAbility::GetAbilityType() const {
 bool glimmer::AreaMarkerAbility::OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user,
                                        const AbilityConfig *abilityConfig,
                                        std::unordered_set<AbilityType> &popupAbility) {
-    LogCat::d("area_marker_use_start", "AreaMarkerAbility::OnUse start, mouseLeft={}", mouseLeft);
+    LogCat::d(LogLabel::DEFAULT, "area_marker_use_start", "AreaMarkerAbility::OnUse start, mouseLeft={}", mouseLeft);
     if (mouseLeft) {
-        LogCat::d("area_marker_left_button_skip", "AreaMarkerAbility: left button, skip");
+        LogCat::d(LogLabel::DEFAULT, "area_marker_left_button_skip", "AreaMarkerAbility: left button, skip");
         return false;
     }
     auto entityManager = worldContext->GetEntityManager();
     auto tileLayerEntityList = entityManager->GetEntityIDWithComponents({COMPONENT_TILE_LAYER, COMPONENT_AREA_MARKER});
     if (tileLayerEntityList.empty()) {
-        LogCat::d("area_marker_no_entity", "AreaMarkerAbility: no area marker entity found, skip");
+        LogCat::d(LogLabel::DEFAULT, "area_marker_no_entity", "AreaMarkerAbility: no area marker entity found, skip");
         return false;
     }
     const uint32_t gameEntity = tileLayerEntityList[0];
@@ -60,13 +60,13 @@ bool glimmer::AreaMarkerAbility::OnUse(bool mouseLeft, WorldContext *worldContex
         gameEntity);
     auto areaMarkerComponent = entityManager->GetComponent<AreaMarkerComponent>(gameEntity);
     if (tileLayerComponent == nullptr || areaMarkerComponent == nullptr) {
-        LogCat::w(std::source_location::current(), "area_marker_component_null_on_use",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "area_marker_component_null_on_use",
                   "AreaMarkerAbility: tileLayerComponent or areaMarkerComponent is null");
         return false;
     }
     const TileVector2D &focusPosition = tileLayerComponent->GetFocusPosition();
     areaMarkerComponent->SetPoint(focusPosition);
-    LogCat::d("area_marker_point_set", "AreaMarkerAbility: marker point set at ({}, {})",
+    LogCat::d(LogLabel::DEFAULT, "area_marker_point_set", "AreaMarkerAbility: marker point set at ({}, {})",
               focusPosition.x, focusPosition.y);
     return true;
 }

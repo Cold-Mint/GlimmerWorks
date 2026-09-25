@@ -207,7 +207,7 @@ namespace glimmer {
             for (auto &callBack: onComponentCountChanged_) {
                 callBack.second(typeMessage, count);
             }
-            LogCat::d("component_added", "Component added: entityId={}, type={}", gameEntityId,
+            LogCat::d(LogLabel::DEFAULT, "component_added", "Component added: entityId={}, type={}", gameEntityId,
                       static_cast<int>(typeMessage));
             return ptr;
         }

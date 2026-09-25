@@ -29,7 +29,8 @@
 #include "core/log/LogCat.h"
 
 void glimmer::GuiGameSystem::SetElementDocument(Rml::ElementDocument *document) {
-    LogCat::d("gui_system_set_element_document", "GuiGameSystem set element document: {}", document != nullptr);
+    LogCat::d(LogLabel::DEFAULT, "gui_system_set_element_document", "GuiGameSystem set element document: {}",
+              document != nullptr);
     elementDocument_ = document;
 }
 

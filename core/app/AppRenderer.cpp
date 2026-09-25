@@ -62,7 +62,8 @@ glimmer::AppRenderer::AppRenderer(AppContext *appContext) : appContext_(appConte
     defaultPipelineResourceRef.SetResourceKey("default");
     auto defaultPipeline = resourceLocator_->FindGPUGraphicsPipeline(&defaultPipelineResourceRef);
     if (defaultPipeline == nullptr) {
-        LogCat::e(std::source_location::current(), "default_pipeline_failed", "defaultPipeline failed: {}",
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "default_pipeline_failed",
+                  "defaultPipeline failed: {}",
                   SDL_GetError());
     }
     ResourceRef defaultSamplerResourceRef;
@@ -71,7 +72,8 @@ glimmer::AppRenderer::AppRenderer(AppContext *appContext) : appContext_(appConte
     defaultSamplerResourceRef.SetResourceKey("default");
     auto defaultSampler = resourceLocator_->FindGPUGraphicsSampler(&defaultSamplerResourceRef);
     if (defaultSampler == nullptr) {
-        LogCat::e(std::source_location::current(), "default_sampler_failed", "defaultSampler failed: {}",
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "default_sampler_failed",
+                  "defaultSampler failed: {}",
                   SDL_GetError());
     }
     ResourceRef lightingPipelineResourceRef;
@@ -121,7 +123,7 @@ void glimmer::AppRenderer::RenderFrame(const int windowWidth, const int windowHe
     Uint32 swapChainWidth = 0;
     Uint32 swapChainHeight = 0;
     if (!SDL_AcquireGPUSwapchainTexture(commandBuffer, window_, &swapChainTexture, &swapChainWidth, &swapChainHeight)) {
-        LogCat::w(std::source_location::current(), "sdl_acquire_gpu_swapchain_texture_failed",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "sdl_acquire_gpu_swapchain_texture_failed",
                   "SDL_AcquireGPUSwapChainTexture failed: {}", SDL_GetError());
         SDL_CancelGPUCommandBuffer(commandBuffer);
         return;
@@ -179,12 +181,12 @@ void glimmer::AppRenderer::RenderFrame(const int windowWidth, const int windowHe
         if (SaveScreenshot(pendingScreenshot.value(), ctx)) {
             return;
         }
-        LogCat::w(std::source_location::current(), "screenshot_save_failed",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "screenshot_save_failed",
                   "Failed to save screenshot, falling back to normal frame submission");
     }
 
     if (!SDL_SubmitGPUCommandBuffer(commandBuffer)) {
-        LogCat::w(std::source_location::current(), "sdl_submit_gpu_command_buffer_failed",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "sdl_submit_gpu_command_buffer_failed",
                   "SDL_SubmitGPUCommandBuffer failed: {}", SDL_GetError());
     }
 }
@@ -221,7 +223,7 @@ void glimmer::AppRenderer::EnsureScreenshotTexture(const Uint32 width, const Uin
     info.props = 0;
     screenshotTexture_ = SDL_CreateGPUTexture(device_, &info);
     if (screenshotTexture_ == nullptr) {
-        LogCat::w(std::source_location::current(), "sdl_create_screenshot_texture_failed",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "sdl_create_screenshot_texture_failed",
                   "SDL_CreateGPUTexture failed: {}", SDL_GetError());
         return;
     }

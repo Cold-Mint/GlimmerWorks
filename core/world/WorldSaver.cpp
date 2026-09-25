@@ -36,7 +36,7 @@ glimmer::WorldSaver::WorldSaver(WorldContext *worldContext) : worldContext_(worl
 }
 
 void glimmer::WorldSaver::SaveEntity(EntityItemMessage *entityItemMessage, const GameEntityID entityId) const {
-    LogCat::d("world_context_save_entity", "SaveEntity: entityId={}", entityId);
+    LogCat::d(LogLabel::DEFAULT, "world_context_save_entity", "SaveEntity: entityId={}", entityId);
     entityItemMessage->mutable_gameentity()->set_id(entityId);
     const ResourceRef *resourceRef = worldContext_->GetEntityManager()->GetResourceRef(entityId);
     if (resourceRef != nullptr) {
@@ -52,27 +52,29 @@ void glimmer::WorldSaver::SaveEntity(EntityItemMessage *entityItemMessage, const
             componentMessage->set_data(stringOptional.value());
         }
     }
-    LogCat::d("world_context_save_entity_completed", "SaveEntity completed: entityId={}, components={}", entityId,
+    LogCat::d(LogLabel::DEFAULT, "world_context_save_entity_completed",
+              "SaveEntity completed: entityId={}, components={}", entityId,
               components.size());
 }
 
 void glimmer::WorldSaver::SaveGame() {
     if (saving_) {
-        LogCat::w(std::source_location::current(), "world_context_save_in_progress",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "world_context_save_in_progress",
                   "Save already in progress, ignoring");
         return;
     }
-    LogCat::i("world_context_save_starting", "Starting game save: {}", worldContext_->GetMapManifest()->name);
+    LogCat::i(LogLabel::DEFAULT, "world_context_save_starting", "Starting game save: {}",
+              worldContext_->GetMapManifest()->name);
     saving_ = true;
     const Saves *saves = worldContext_->GetSaves();
     if (saves == nullptr) {
-        LogCat::e(std::source_location::current(), "saves_is_null", "saves is nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "saves_is_null", "saves is nullptr");
         saving_ = false;
         return;
     }
     auto mapManifestMessageData = saves->ReadMapManifest();
     if (!mapManifestMessageData.has_value()) {
-        LogCat::w(std::source_location::current(), "world_context_read_map_manifest_failed",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "world_context_read_map_manifest_failed",
                   "Failed to read map manifest");
         saving_ = false;
         return;
@@ -81,7 +83,7 @@ void glimmer::WorldSaver::SaveGame() {
     mapManifestMessageData->set_globaltickcount(worldContext_->GetGlobalTick());
     mapManifestMessageData->set_entityidindex(worldContext_->GetEntityManager()->GetEntityIndex());
     if (!saves->WriteMapManifest(mapManifestMessageData.value())) {
-        LogCat::w(std::source_location::current(), "world_context_write_map_manifest_failed",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "world_context_write_map_manifest_failed",
                   "Failed to write map manifest");
         saving_ = false;
         return;
@@ -98,11 +100,12 @@ void glimmer::WorldSaver::SaveGame() {
         }
         SaveEntity(playerMessage.mutable_entity(), player);
         (void) saves->WriteLocalPlayer(playerMessage);
-        LogCat::i("world_context_player_saved", "Player saved");
+        LogCat::i(LogLabel::DEFAULT, "world_context_player_saved", "Player saved");
     } else {
-        LogCat::d("world_context_player_save_skipped", "Player save skipped: isEmpty={}, persistable={}",
+        LogCat::d(LogLabel::DEFAULT, "world_context_player_save_skipped",
+                  "Player save skipped: isEmpty={}, persistable={}",
                   WorldContext::IsEmptyEntityId(player), worldContext_->GetEntityManager()->IsPersistable(player));
     }
     saving_ = false;
-    LogCat::i("world_saved_successfully", "World saved successfully");
+    LogCat::i(LogLabel::DEFAULT, "world_saved_successfully", "World saved successfully");
 }

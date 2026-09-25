@@ -33,7 +33,7 @@
 glimmer::TileInstancePool::~TileInstancePool() {
     for (auto &[fingerprint, weakTile]: tileInstanceMap_) {
         if (!weakTile.expired()) {
-            LogCat::e(std::source_location::current(), "tile_memory_leak",
+            LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "tile_memory_leak",
                       "A memory leak of the tile fingerprint ({}) has been detected.", fingerprint);
             break;
         }
@@ -45,7 +45,8 @@ std::shared_ptr<glimmer::Tile> glimmer::TileInstancePool::CreateTile(const AppCo
                                                                      uint64_t fingerprint) {
     if (const auto cache = tileInstanceMap_.find(fingerprint); cache != tileInstanceMap_.end()) {
         if (auto cachePtr = cache->second.lock()) {
-            LogCat::d("tile_instance_cache_hit", "Tile instance cache hit: fingerprint={}", fingerprint);
+            LogCat::d(LogLabel::DEFAULT, "tile_instance_cache_hit", "Tile instance cache hit: fingerprint={}",
+                      fingerprint);
             return cachePtr;
         }
         tileInstanceMap_.erase(cache);
@@ -56,6 +57,6 @@ std::shared_ptr<glimmer::Tile> glimmer::TileInstancePool::CreateTile(const AppCo
     };
     std::shared_ptr<Tile> tile(unique_tile.release(), std::move(deleter));
     tileInstanceMap_.try_emplace(fingerprint, tile);
-    LogCat::d("tile_instance_created", "Created tile instance: fingerprint={}", fingerprint);
+    LogCat::d(LogLabel::DEFAULT, "tile_instance_created", "Created tile instance: fingerprint={}", fingerprint);
     return tile;
 }

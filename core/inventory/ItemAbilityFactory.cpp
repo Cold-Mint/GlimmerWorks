@@ -35,7 +35,7 @@
 
 std::shared_ptr<glimmer::ItemAbility> glimmer::ItemAbilityFactory::CreateItemAbility(const AbilityType abilityType,
     const AbilityConfig &abilityConfig) {
-    LogCat::d("ability_factory_create", "CreateItemAbility, abilityType={}",
+    LogCat::d(LogLabel::DEFAULT, "ability_factory_create", "CreateItemAbility, abilityType={}",
               std::to_underlying(abilityType));
     if (abilityType == AbilityType::None) {
         return std::make_shared<NoneAbility>(abilityConfig);
@@ -46,7 +46,7 @@ std::shared_ptr<glimmer::ItemAbility> glimmer::ItemAbilityFactory::CreateItemAbi
     if (abilityType == AbilityType::AreaMarker) {
         return std::make_shared<AreaMarkerAbility>(abilityConfig);
     }
-    LogCat::w(std::source_location::current(), "ability_factory_unknown_type",
+    LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "ability_factory_unknown_type",
               "Unknown ability type: {}", std::to_underlying(abilityType));
     return nullptr;
 }

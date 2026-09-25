@@ -60,6 +60,7 @@ std::bitset<CHUNK_AREA> glimmer::BiomeStructureConditionProcessor::Match(Terrain
             }
         }
     }
-    LogCat::d("biome_condition_matched_count", "Biome condition matched tiles: {}", matchedTileCount);
+    LogCat::d(LogLabel::DEFAULT, "biome_condition_matched_count", "Biome condition matched tiles: {}",
+              matchedTileCount);
     return result;
 }

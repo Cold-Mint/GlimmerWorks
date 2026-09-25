@@ -188,11 +188,9 @@ void glimmer::SystemScheduler::OnTick(uint64_t tick) {
     }
     for (GameSystem *activeSystem: activeSystems) {
         if (activeSystem == nullptr) {
-            LogCat::d("system_scheduler_tick_system_null", "[SystemScheduler] active system is null, skip");
+            LogCat::d(LogLabel::DEFAULT, "system_scheduler_tick_system_null", " active system is null, skip");
             continue;
         }
-        LogCat::d("system_scheduler_on_tick", "[SystemScheduler] tick={}, systemType={}", tick,
-                  std::to_underlying(activeSystem->GetGameSystemType()));
         activeSystem->OnTick(tick);
     }
 }
@@ -253,7 +251,8 @@ void glimmer::SystemScheduler::NotifySystemsOfComponentChange(const GameComponen
 void glimmer::SystemScheduler::NotifyActiveSystems(const GameComponentTypeMessage gameComponentType,
                                                    const uint32_t count) const {
     if (activeSystems_.empty()) {
-        LogCat::w(std::source_location::current(), "system_scheduler_active_systems_empty", "activeSystems_.empty()");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "system_scheduler_active_systems_empty",
+                  "activeSystems_.empty()");
         return;
     }
     for (auto &system: activeSystems_) {
@@ -273,7 +272,7 @@ void glimmer::SystemScheduler::NotifyActiveSystems(const GameComponentTypeMessag
 void glimmer::SystemScheduler::NotifyInactiveSystems(const GameComponentTypeMessage gameComponentType,
                                                      const uint32_t count) const {
     if (inactiveSystems_.empty()) {
-        LogCat::w(std::source_location::current(), "system_scheduler_inactive_systems_empty",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "system_scheduler_inactive_systems_empty",
                   "inactiveSystems_.empty()");
         return;
     }
@@ -375,7 +374,7 @@ void glimmer::SystemScheduler::MoveSystemsToInactive(std::queue<GameSystem *> &t
 }
 
 void glimmer::SystemScheduler::InitSystem() {
-    LogCat::i("system_scheduler_init", "Initializing system scheduler");
+    LogCat::i(LogLabel::DEFAULT, "system_scheduler_init", "Initializing system scheduler");
     allowRegisterSystem_ = true;
     RegisterSystem(std::make_unique<CameraSystem>(worldContext_));
     RegisterSystem(std::make_unique<PlayerControlSystem>(worldContext_));
@@ -428,13 +427,13 @@ void glimmer::SystemScheduler::RegisterSystem(std::unique_ptr<GameSystem> system
 #if  !defined(NDEBUG)
         auto guiGameSystem = dynamic_cast<GuiGameSystem *>(system.get());
         if (guiGameSystem != nullptr) {
-            LogCat::e(std::source_location::current(), "system_scheduler_use_register_gui_system",
+            LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "system_scheduler_use_register_gui_system",
                       "You should use RegisterGuiSystem instead of RegisterSystem.");
             return;
         }
 #endif
         system->LockWatchComponent();
-        LogCat::d("system_registered", "Registered system: type={}",
+        LogCat::d(LogLabel::DEFAULT, "system_registered", "Registered system: type={}",
                   std::to_underlying(system->GetGameSystemType()));
         inactiveSystems_.emplace_back(std::move(system));
     }
@@ -443,7 +442,7 @@ void glimmer::SystemScheduler::RegisterSystem(std::unique_ptr<GameSystem> system
 void glimmer::SystemScheduler::RegisterGuiSystem(std::unique_ptr<GuiGameSystem> system) {
     if (allowRegisterSystem_) {
         system->LockWatchComponent();
-        LogCat::d("system_registered", "Registered GUI system: type={}",
+        LogCat::d(LogLabel::DEFAULT, "system_registered", "Registered GUI system: type={}",
                   std::to_underlying(system->GetGameSystemType()));
         inactiveSystems_.emplace_back(std::move(system));
         auto &guiGameSystemUniquePtr = inactiveSystems_.back();

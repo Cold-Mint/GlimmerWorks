@@ -40,7 +40,8 @@
 glimmer::ItemSlotDataModel *glimmer::HotBarGUISystem::GetItemSlotDataModel(const uint8_t index) {
     const uint8_t size = itemSlots_.size();
     if (index >= size) {
-        LogCat::w(std::source_location::current(), "item_slot_data_model_is_null", "itemSlotDataModel == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "item_slot_data_model_is_null",
+                  "itemSlotDataModel == nullptr");
         return nullptr;
     }
     return &itemSlots_[index];
@@ -68,31 +69,34 @@ void glimmer::HotBarGUISystem::OnWatchedComponentChanged(GameComponentTypeMessag
         return;
     }
     if (itemContainer_ != nullptr) {
-        LogCat::i("item_container_already_set", "itemContainer already set, skipping");
+        LogCat::i(LogLabel::DEFAULT, "item_container_already_set", "itemContainer already set, skipping");
         return;
     }
     const EntityShortCut *entityShortCut = GetEntityShortCut();
     if (entityShortCut == nullptr) {
-        LogCat::w(std::source_location::current(), "entity_shortcut_is_null", "entityShortCut == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "entity_shortcut_is_null",
+                  "entityShortCut == nullptr");
         return;
     }
 
     const ItemContainerComponent *itemContainerComponent = entityShortCut->GetItemContainerComponent();
     if (itemContainerComponent == nullptr) {
-        LogCat::w(std::source_location::current(), "item_container_component_is_null",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "item_container_component_is_null",
                   "itemContainerComponent == nullptr");
         return;
     }
     itemContainer_ = itemContainerComponent->GetItemContainer();
     if (itemContainer_ == nullptr) {
-        LogCat::w(std::source_location::current(), "item_container_is_null", "itemContainer == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "item_container_is_null",
+                  "itemContainer == nullptr");
         return;
     }
     callback_ = itemContainer_->AddOnContentChanged(
         [this](const uint8_t index, const Item *item, const ContainerChangeType changeType) {
             const auto dataModel = GetItemSlotDataModel(index);
             if (dataModel == nullptr) {
-                LogCat::w(std::source_location::current(), "data_model_is_null", "dataModel == nullptr");
+                LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "data_model_is_null",
+                          "dataModel == nullptr");
                 return;
             }
             if (changeType == ContainerChangeType::STACK_DESTROY ||
@@ -137,9 +141,9 @@ void glimmer::HotBarGUISystem::LoadDocuments(IDocumentRegistry *documentRegistry
 }
 
 void glimmer::HotBarGUISystem::OnCreateDataModels(IDocumentRegistry *documentRegistry) {
-    LogCat::i("on_create_data_models_called", "OnCreateDataModels called");
+    LogCat::i(LogLabel::DEFAULT, "on_create_data_models_called", "OnCreateDataModels called");
     constructor_ = documentRegistry->CreateDataModel("hotbar");
-    LogCat::i("data_model_hotbar_created", "DataModel 'hotbar' created");
+    LogCat::i(LogLabel::DEFAULT, "data_model_hotbar_created", "DataModel 'hotbar' created");
     if (auto linkStruct = constructor_->RegisterStruct<ItemSlotDataModel>()) {
         linkStruct.RegisterMember("image", &ItemSlotDataModel::image);
         linkStruct.RegisterMember("amount", &ItemSlotDataModel::amount);
@@ -147,10 +151,10 @@ void glimmer::HotBarGUISystem::OnCreateDataModels(IDocumentRegistry *documentReg
         linkStruct.RegisterMember("index", &ItemSlotDataModel::index);
         linkStruct.RegisterMember("durability", &ItemSlotDataModel::durability);
         constructor_->RegisterArray<std::vector<ItemSlotDataModel> >();
-        LogCat::i("struct_members_registered", "Struct members registered: image, amount, selected");
+        LogCat::i(LogLabel::DEFAULT, "struct_members_registered", "Struct members registered: image, amount, selected");
     }
     constructor_->Bind("item_slots", &itemSlots_);
-    LogCat::i("item_slots_bound_to_data_model", "item_slots bound to data model");
+    LogCat::i(LogLabel::DEFAULT, "item_slots_bound_to_data_model", "item_slots bound to data model");
     constructor_->BindEventCallback("on_item_hover", &HotBarGUISystem::OnItemHover, this);
     constructor_->BindEventCallback("on_item_out", &HotBarGUISystem::OnItemOut, this);
     LoadInitialHotbarItems();
@@ -158,10 +162,12 @@ void glimmer::HotBarGUISystem::OnCreateDataModels(IDocumentRegistry *documentReg
 
 void glimmer::HotBarGUISystem::LoadInitialHotbarItems() {
     if (itemContainer_ == nullptr) {
-        LogCat::i("load_initial_hotbar_item_container_is_null", "LoadInitialHotbarItems: itemContainer_ is nullptr");
+        LogCat::i(LogLabel::DEFAULT, "load_initial_hotbar_item_container_is_null",
+                  "LoadInitialHotbarItems: itemContainer_ is nullptr");
         return;
     }
-    LogCat::i("loading_initial_hotbar_items", "Loading initial hotbar items after data model created...");
+    LogCat::i(LogLabel::DEFAULT, "loading_initial_hotbar_items",
+              "Loading initial hotbar items after data model created...");
     for (uint8_t i = 0; i < HOT_BAR_SIZE; ++i) {
         const Item *item = itemContainer_->GetItem(i);
         auto dataModel = GetItemSlotDataModel(i);
@@ -187,12 +193,12 @@ void glimmer::HotBarGUISystem::LoadInitialHotbarItems() {
     }
     if (constructor_ != nullptr) {
         constructor_->GetModelHandle().DirtyVariable("item_slots");
-        LogCat::i("item_slots_variable_dirtied", "item_slots variable dirtied");
+        LogCat::i(LogLabel::DEFAULT, "item_slots_variable_dirtied", "item_slots variable dirtied");
     }
 }
 
 void glimmer::HotBarGUISystem::UpdateSelectedSlot(const uint8_t beforeIndex, const uint8_t nextIndex) {
-    LogCat::d("hotbar_slot_changed", "HotBar selected slot changed: {} -> {}",
+    LogCat::d(LogLabel::DEFAULT, "hotbar_slot_changed", "HotBar selected slot changed: {} -> {}",
               static_cast<int>(beforeIndex), static_cast<int>(nextIndex));
     auto beforeDataModel = GetItemSlotDataModel(beforeIndex);
     if (beforeDataModel != nullptr) {
@@ -211,7 +217,8 @@ void glimmer::HotBarGUISystem::UpdateSelectedSlot(const uint8_t beforeIndex, con
 
 bool glimmer::HotBarGUISystem::HandleEvent(const SDL_Event &event) {
     if (itemContainer_ == nullptr) {
-        LogCat::w(std::source_location::current(), "item_container_is_null", "itemContainer == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "item_container_is_null",
+                  "itemContainer == nullptr");
         return false;
     }
     if (event.type == SDL_EVENT_MOUSE_WHEEL) {

@@ -52,7 +52,7 @@ void glimmer::SpiritRendererSystem::OnWatchedComponentChanged(GameComponentTypeM
         spiritRendererEntities_ = entityManager->GetEntityIDWithComponents({
             COMPONENT_TRANSFORM_2D, COMPONENT_SPIRIT_RENDERER
         });
-        LogCat::d("spirit_renderer_entities_rebuilt", "SpiritRenderer entities rebuilt: {} entities",
+        LogCat::d(LogLabel::DEFAULT, "spirit_renderer_entities_rebuilt", "SpiritRenderer entities rebuilt: {} entities",
                   spiritRendererEntities_.size());
     }
 }

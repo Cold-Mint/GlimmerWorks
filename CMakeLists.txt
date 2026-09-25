@@ -435,6 +435,7 @@ target_sources(GlimmerWorks
         core/context/tasks/InitConsoleContextTask.cpp
         core/context/tasks/InitCoreContextsTask.cpp
         core/context/tasks/InitDataPackTask.cpp
+          core/log/LogLabel.cpp
         core/context/tasks/InitFontTask.cpp
         core/context/tasks/InitLangsTask.cpp
         core/context/tasks/InitModContextTask.cpp
@@ -845,6 +846,7 @@ target_sources(GlimmerWorks
         core/log/ErrorCode.h
         core/rmi/dataModel/DimensionItem.h
         core/context/tasks/InitValidateGameTask.h
+        core/log/LogLabel.h
         core/saves/PlayerManifest.h
         core/world/DynamicLightEntry.h
         core/mod/PackScanRequest.h

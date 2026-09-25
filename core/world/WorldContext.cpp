@@ -49,7 +49,8 @@ void glimmer::WorldContext::SetDragMode(const bool dragMode) {
 
 glimmer::EntityManager *glimmer::WorldContext::GetEntityManager() const {
     if (entityManager_ == nullptr) {
-        LogCat::w(std::source_location::current(), "entity_manager_is_null", "entityManager is nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "entity_manager_is_null",
+                  "entityManager is nullptr");
         return nullptr;
     }
     return entityManager_.get();
@@ -69,7 +70,7 @@ void glimmer::WorldContext::SetRuning(const bool run) {
 
 glimmer::Saves *glimmer::WorldContext::GetSaves() const {
     if (saves_ == nullptr) {
-        LogCat::w(std::source_location::current(), "saves_is_null", "saves is nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "saves_is_null", "saves is nullptr");
         return nullptr;
     }
     return saves_;
@@ -134,7 +135,7 @@ void glimmer::WorldContext::SaveGame() {
 glimmer::LightBuffer *glimmer::WorldContext::GetLightingBuffer() const {
     LightBuffer *result = chunkManager_->GetLightingBuffer();
     if (result == nullptr) {
-        LogCat::w(std::source_location::current(), "light_buffer_is_null", "light buffer is null");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "light_buffer_is_null", "light buffer is null");
     }
     return result;
 }
@@ -155,7 +156,7 @@ glimmer::WorldContext::~WorldContext() {
             }
         }
     }
-    LogCat::i("world_context_destroyed", "WorldContext destroyed");
+    LogCat::i(LogLabel::DEFAULT, "world_context_destroyed", "WorldContext destroyed");
 }
 
 void glimmer::WorldContext::OnTick(const uint64_t tick) {

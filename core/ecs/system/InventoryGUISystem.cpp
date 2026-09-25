@@ -44,7 +44,8 @@
 glimmer::ItemSlotDataModel *glimmer::InventoryGUISystem::GetItemSlotDataModel(uint8_t index) {
     const uint8_t size = itemSlots_.size();
     if (index >= size) {
-        LogCat::w(std::source_location::current(), "item_slot_data_model_is_null", "itemSlotDataModel == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "item_slot_data_model_is_null",
+                  "itemSlotDataModel == nullptr");
         return nullptr;
     }
     return &itemSlots_[index];
@@ -52,10 +53,12 @@ glimmer::ItemSlotDataModel *glimmer::InventoryGUISystem::GetItemSlotDataModel(ui
 
 void glimmer::InventoryGUISystem::LoadInitialItems() {
     if (itemContainer_ == nullptr) {
-        LogCat::i("load_initial_hotbar_item_container_is_null", "LoadInitialHotbarItems: itemContainer_ is nullptr");
+        LogCat::i(LogLabel::DEFAULT, "load_initial_hotbar_item_container_is_null",
+                  "LoadInitialHotbarItems: itemContainer_ is nullptr");
         return;
     }
-    LogCat::i("loading_initial_hotbar_items", "Loading initial hotbar items after data model created...");
+    LogCat::i(LogLabel::DEFAULT, "loading_initial_hotbar_items",
+              "Loading initial hotbar items after data model created...");
     uint8_t capacity = itemContainer_->GetCapacity();
     for (uint8_t i = 0; i < capacity; ++i) {
         const Item *item = itemContainer_->GetItem(i);
@@ -82,7 +85,7 @@ void glimmer::InventoryGUISystem::LoadInitialItems() {
     }
     if (constructor_ != nullptr) {
         constructor_->GetModelHandle().DirtyVariable("item_slots");
-        LogCat::i("item_slots_variable_dirtied", "item_slots variable dirtied");
+        LogCat::i(LogLabel::DEFAULT, "item_slots_variable_dirtied", "item_slots variable dirtied");
     }
 }
 
@@ -134,7 +137,8 @@ void glimmer::InventoryGUISystem::RefreshRecipeList() {
     }
     unlockedRecipes_ = recipeManager->FindUnlockedRecipes(techHandler->GetTechnologyMap(),
                                                           itemContainer_->GetTotalTags());
-    LogCat::d("inventory_recipes_refreshed", "Inventory unlocked recipes: {}", unlockedRecipes_.size());
+    LogCat::d(LogLabel::DEFAULT, "inventory_recipes_refreshed", "Inventory unlocked recipes: {}",
+              unlockedRecipes_.size());
     recipeOutputItems_.resize(unlockedRecipes_.size());
     recipeSlots_.reserve(unlockedRecipes_.size());
     const uint32_t maxSize = unlockedRecipes_.size();
@@ -188,24 +192,26 @@ void glimmer::InventoryGUISystem::OnWatchedComponentChanged(GameComponentTypeMes
         return;
     }
     if (itemContainer_ != nullptr) {
-        LogCat::i("item_container_already_set", "itemContainer already set, skipping");
+        LogCat::i(LogLabel::DEFAULT, "item_container_already_set", "itemContainer already set, skipping");
         return;
     }
     const EntityShortCut *entityShortCut = GetEntityShortCut();
     if (entityShortCut == nullptr) {
-        LogCat::w(std::source_location::current(), "entity_shortcut_is_null", "entityShortCut == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "entity_shortcut_is_null",
+                  "entityShortCut == nullptr");
         return;
     }
 
     const ItemContainerComponent *itemContainerComponent = entityShortCut->GetItemContainerComponent();
     if (itemContainerComponent == nullptr) {
-        LogCat::w(std::source_location::current(), "item_container_component_is_null",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "item_container_component_is_null",
                   "itemContainerComponent == nullptr");
         return;
     }
     itemContainer_ = itemContainerComponent->GetItemContainer();
     if (itemContainer_ == nullptr) {
-        LogCat::w(std::source_location::current(), "item_container_is_null", "itemContainer == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "item_container_is_null",
+                  "itemContainer == nullptr");
         return;
     }
     itemSlots_.resize(itemContainer_->GetCapacity());
@@ -213,7 +219,8 @@ void glimmer::InventoryGUISystem::OnWatchedComponentChanged(GameComponentTypeMes
         [this](const uint8_t index, const Item *item, const ContainerChangeType changeType) {
             const auto dataModel = GetItemSlotDataModel(index);
             if (dataModel == nullptr) {
-                LogCat::w(std::source_location::current(), "data_model_is_null", "dataModel == nullptr");
+                LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "data_model_is_null",
+                          "dataModel == nullptr");
                 return;
             }
             if (changeType == ContainerChangeType::STACK_DESTROY ||
@@ -279,18 +286,19 @@ void glimmer::InventoryGUISystem::OnCreateDataModels(IDocumentRegistry *document
 
 void glimmer::InventoryGUISystem::SetupDragAndDrop() {
     if (dragListener_ != nullptr) {
-        LogCat::e(std::source_location::current(), "drag_listener_is_null", "dragListener_ == nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "drag_listener_is_null",
+                  "dragListener_ == nullptr");
         return;
     }
     if (itemContainer_ == nullptr) {
-        LogCat::e(std::source_location::current(), "item_container_null_cannot_setup_drag_drop",
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "item_container_null_cannot_setup_drag_drop",
                   "itemContainer_ is nullptr, cannot setup drag and drop");
         return;
     }
 
     Rml::ElementDocument *document = GetElementDocument();
     if (document == nullptr) {
-        LogCat::e(std::source_location::current(), "document_is_null",
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "document_is_null",
                   "document is nullptr, cannot setup drag and drop");
         return;
     }
@@ -304,14 +312,14 @@ void glimmer::InventoryGUISystem::SetupDragAndDrop() {
     }
 
     if (container == nullptr) {
-        LogCat::w(std::source_location::current(), "item_container_element_not_found",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "item_container_element_not_found",
                   "item_container element not found in document");
         return;
     }
 
     dragListener_ = std::make_unique<InventoryDragListener>(itemContainer_);
     dragListener_->RegisterContainer(container);
-    LogCat::i("inventory_drag_and_drop_setup_complete", "Inventory drag and drop setup complete");
+    LogCat::i(LogLabel::DEFAULT, "inventory_drag_and_drop_setup_complete", "Inventory drag and drop setup complete");
 }
 
 void glimmer::InventoryGUISystem::OnActivationChanged(bool activeStatus) {
@@ -345,7 +353,8 @@ void glimmer::InventoryGUISystem::OnRecipeClick(Rml::DataModelHandle handle, Rml
     }
     int index = args[0].Get<int>();
     if (index < 0 || index >= static_cast<int>(unlockedRecipes_.size())) {
-        LogCat::w(std::source_location::current(), "invalid_recipe_index", "invalid recipe index: {}", index);
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "invalid_recipe_index",
+                  "invalid recipe index: {}", index);
         return;
     }
     WorldContext *worldContext = GetWorldContext();

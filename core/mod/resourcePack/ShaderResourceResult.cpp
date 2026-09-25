@@ -32,7 +32,8 @@ void glimmer::ShaderResourceResult::DestroyResourceImpl(SDL_GPUShader *resource)
     if (device_ == nullptr) {
         return;
     }
-    LogCat::d("destroy_shader", "Destroying shader resource: {}", static_cast<const void *>(resource));
+    LogCat::d(LogLabel::DEFAULT, "destroy_shader", "Destroying shader resource: {}",
+              static_cast<const void *>(resource));
     SDL_ReleaseGPUShader(device_, resource);
 }
 

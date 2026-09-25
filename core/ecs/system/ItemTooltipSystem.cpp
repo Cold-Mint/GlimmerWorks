@@ -42,7 +42,7 @@
 #include "core/world/generator/TileLayerType.h"
 
 void glimmer::ItemTooltipSystem::OnItemChanged(const Item *item) {
-    LogCat::d("item_tooltip_item_changed", "ItemTooltip item changed: {}", item->GetName());
+    LogCat::d(LogLabel::DEFAULT, "item_tooltip_item_changed", "ItemTooltip item changed: {}", item->GetName());
     itemTooltipDataModel_.tooltipName = item->GetName();
     const auto &description = item->GetDescription();
     itemTooltipDataModel_.tooltipDesc = description.has_value() ? *description : "";
@@ -103,7 +103,7 @@ void glimmer::ItemTooltipSystem::OnWatchedComponentChanged(GameComponentTypeMess
     if (gameComponentType == COMPONENT_ITEM_TOOL_TIP) {
         itemToolTipComponent_ = GetEntityShortCut()->GetItemToolTipComponent();
         if (itemToolTipComponent_ == nullptr) {
-            LogCat::e(std::source_location::current(), "item_tooltip_component_is_null",
+            LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "item_tooltip_component_is_null",
                       "itemToolTipComponent_ == nullptr");
         }
     }

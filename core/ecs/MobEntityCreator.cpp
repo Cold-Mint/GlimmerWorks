@@ -58,29 +58,30 @@ EntityItemMessage glimmer::MobEntityCreator::GetEntityItemMessage(const WorldVec
 void glimmer::MobEntityCreator::LoadTemplateComponents(const uint32_t id, const ResourceRef &resourceRef) {
     WorldContext *worldContext = GetWorldContext();
     if (worldContext == nullptr || WorldContext::IsEmptyEntityId(id)) {
-        LogCat::w(std::source_location::current(), "mob_creator_invalid_context",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "mob_creator_invalid_context",
                   "MobEntityCreator: worldContext is null or entity id is empty (id={})", id);
         return;
     }
     const AppContext *appContext = worldContext->GetAppContext();
     if (appContext == nullptr) {
-        LogCat::w(std::source_location::current(), "app_context_is_null", "appContext is nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "app_context_is_null", "appContext is nullptr");
         return;
     }
     uint32_t resourceType = resourceRef.GetResourceType();
     if (resourceType != RESOURCE_MOB) {
-        LogCat::w(std::source_location::current(), "mob_creator_wrong_type",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "mob_creator_wrong_type",
                   "MobEntityCreator: expected RESOURCE_MOB but got {}", resourceType);
         return;
     }
     ResourceLocator *resourceLocator = appContext->GetResourceLocator();
     if (resourceLocator == nullptr) {
-        LogCat::w(std::source_location::current(), "resource_locator_is_null", "resourceLocator == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "resource_locator_is_null",
+                  "resourceLocator == nullptr");
         return;
     }
     MobResource *mobResource = resourceLocator->FindMob(&resourceRef);
     if (mobResource == nullptr) {
-        LogCat::w(std::source_location::current(), "mob_creator_mob_resource_is_null",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "mob_creator_mob_resource_is_null",
                   "MobEntityCreator: mobResource == nullptr");
         return;
     }
@@ -184,7 +185,8 @@ void glimmer::MobEntityCreator::LoadTemplateComponents(const uint32_t id, const 
             }
         }
     }
-    LogCat::i("mob_entity_template_loaded", "Mob entity template loaded: id={}, isPlayer={}, resourceId={}",
+    LogCat::i(LogLabel::DEFAULT, "mob_entity_template_loaded",
+              "Mob entity template loaded: id={}, isPlayer={}, resourceId={}",
               id, mobResource->isPlayer, mobResource->resourceId);
 }
 

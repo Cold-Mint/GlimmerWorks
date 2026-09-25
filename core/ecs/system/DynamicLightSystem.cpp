@@ -57,7 +57,8 @@ void glimmer::DynamicLightSystem::Update(const float delta) {
 
     const std::vector<GameEntityID> lightEntities = entityManager->GetEntityIDWithComponents(
         {COMPONENT_LIGHT, COMPONENT_TRANSFORM_2D});
-    LogCat::d("dynamic_light_update", "DynamicLight updating: {} light entities", lightEntities.size());
+    LogCat::d(LogLabel::DEFAULT, "dynamic_light_update", "DynamicLight updating: {} light entities",
+              lightEntities.size());
 
     std::unordered_set<GameEntityID> currentEntities;
     for (const GameEntityID entityId: lightEntities) {
@@ -86,7 +87,7 @@ void glimmer::DynamicLightSystem::Update(const float delta) {
 
     for (const GameEntityID entityId: lastLightEntities_) {
         if (!currentEntities.contains(entityId)) {
-            LogCat::d("dynamic_light_removed", "DynamicLight removed for entity {}", entityId);
+            LogCat::d(LogLabel::DEFAULT, "dynamic_light_removed", "DynamicLight removed for entity {}", entityId);
             lightBuffer->RemoveDynamicLight(entityId);
         }
     }

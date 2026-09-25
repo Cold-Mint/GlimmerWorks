@@ -32,7 +32,7 @@
 
 void glimmer::GuiStackGameSystem::SetAndHideElementDocument(Rml::ElementDocument *document) {
     if (document == nullptr) {
-        LogCat::w(std::source_location::current(), "gui_stack_document_is_null",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "gui_stack_document_is_null",
                   "SetAndHideElementDocument: document is nullptr");
     }
     SetElementDocument(document);
@@ -47,7 +47,7 @@ glimmer::GuiStackGameSystem::GuiStackGameSystem(WorldContext *worldContext) : Gu
 void glimmer::GuiStackGameSystem::OnActivationChanged(bool activeStatus) {
     Rml::ElementDocument *elementDocument = GetElementDocument();
     if (elementDocument == nullptr) {
-        LogCat::w(std::source_location::current(), "gui_stack_element_document_is_null",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "gui_stack_element_document_is_null",
                   "GuiStackGameSystem activation changed: element document is nullptr");
         return;
     }

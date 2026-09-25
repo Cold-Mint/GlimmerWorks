@@ -44,7 +44,7 @@ std::unique_ptr<glimmer::CompiledUniformBlock> glimmer::CompiledUniformBlock::Co
         compiled.staticValue = member.value;
         compiled.type = Std140LayoutBuilder::ParseType(member.type);
         if (compiled.type == UniformScalarType::Invalid) {
-            LogCat::w(std::source_location::current(), "invalid_uniform_member_type",
+            LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "invalid_uniform_member_type",
                       "Invalid uniform member type: {} for member {}", member.type, member.name);
             return nullptr;
         }
@@ -98,7 +98,8 @@ void glimmer::CompiledUniformBlock::Fill(const UniformInjectContext &ctx, std::v
         const CompiledUniformMember &member = members_[memberIndex];
         const UniformInjector injector = UniformInjectorRegistry::Find(member.source);
         if (injector == nullptr) {
-            LogCat::w(std::source_location::current(), "uniform_injector_not_found", "Uniform injector not found: {}",
+            LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "uniform_injector_not_found",
+                      "Uniform injector not found: {}",
                       member.source);
             continue;
         }

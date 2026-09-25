@@ -49,7 +49,8 @@ void glimmer::ComposableItem::SwapItem(uint8_t index, ItemContainer *otherContai
 
 void glimmer::ComposableItem::RefreshAttributes() {
     const uint8_t max = itemContainer_->GetCapacity();
-    LogCat::d("composable_item_refresh_attributes", "Refresh composable item attributes, capacity={}",
+    LogCat::d(LogLabel::DEFAULT, "composable_item_refresh_attributes",
+              "Refresh composable item attributes, capacity={}",
               static_cast<int>(max));
     totalAbilityConfig_.Reset();
     for (uint8_t index = 0; index < max; index++) {
@@ -80,12 +81,13 @@ uint8_t glimmer::ComposableItem::RemoveItemAbility(const std::string &id, const 
 std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResource(WorldContext *worldContext,
     const ComposableItemResource *itemResource, const ResourceRef &resourceRef) {
     if (worldContext == nullptr) {
-        LogCat::w(std::source_location::current(), "world_context_is_null", "worldContext == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "world_context_is_null",
+                  "worldContext == nullptr");
         return nullptr;
     }
     const AppContext *appContext = worldContext->GetAppContext();
     if (itemResource == nullptr) {
-        LogCat::w(std::source_location::current(), "composable_item_resource_null",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "composable_item_resource_null",
                   "composableItemResource == nullptr");
         return nullptr;
     }
@@ -140,7 +142,7 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
             }
         }
     }
-    LogCat::i("composable_item_from_resource",
+    LogCat::i(LogLabel::DEFAULT, "composable_item_from_resource",
               "Create composable item from resource: itemId={} slotSize={} defaultAbilityCount={}", name,
               static_cast<int>(itemResource->slotSize),
               static_cast<int>(itemResource->defaultAbilityList.size()));
@@ -160,18 +162,21 @@ bool glimmer::ComposableItem::OnUse(bool mouseLeft, WorldContext *worldContext, 
     for (uint8_t index = 0; index < max; index++) {
         Item *item = itemContainer_->GetItem(index);
         if (item == nullptr) {
-            LogCat::w(std::source_location::current(), "composable_item_at_index_is_null", "item at {} is nullptr",
+            LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "composable_item_at_index_is_null",
+                      "item at {} is nullptr",
                       std::to_string(index));
             continue;
         }
         const auto abilityItem = dynamic_cast<AbilityItem *>(item);
         if (abilityItem == nullptr) {
-            LogCat::w(std::source_location::current(), "ability_item_is_null", "abilityItem == nullptr");
+            LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "ability_item_is_null",
+                      "abilityItem == nullptr");
             continue;
         }
         ItemAbility *itemAbility = abilityItem->GetItemAbility();
         if (itemAbility == nullptr) {
-            LogCat::w(std::source_location::current(), "item_ability_is_null", "itemAbility == nullptr");
+            LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "item_ability_is_null",
+                      "itemAbility == nullptr");
             continue;
         }
 
@@ -223,7 +228,7 @@ glimmer::ComposableItem::ComposableItem(const ComposableItemCreateParams &params
     SetResourceRef(params.GetResourceRef());
     itemContainer_ = std::make_shared<ItemContainer>();
     itemContainer_->Resize(params.GetMaxSize());
-    LogCat::d("composable_item_created", "Composable item created: itemId={} slotSize={}", id_,
+    LogCat::d(LogLabel::DEFAULT, "composable_item_created", "Composable item created: itemId={} slotSize={}", id_,
               static_cast<int>(params.GetMaxSize()));
     SetTags(params.GetTags());
     AddCallback();
@@ -277,7 +282,8 @@ void glimmer::ComposableItem::ReadItemMessage(WorldContext *worldContext, const 
     if (itemContainer_ != nullptr) {
         const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
         auto abilityItemRefSize = itemMessage.abilityitemref_size();
-        LogCat::d("composable_item_read_message", "Read composable item from save: abilityItemCount={}",
+        LogCat::d(LogLabel::DEFAULT, "composable_item_read_message",
+                  "Read composable item from save: abilityItemCount={}",
                   static_cast<int>(abilityItemRefSize));
         for (int i = 0; i < itemContainer_->GetCapacity(); i++) {
             if (i >= abilityItemRefSize) {
@@ -311,7 +317,7 @@ void glimmer::ComposableItem::WriteItemMessage(ItemMessage &itemMessage) const {
 }
 
 void glimmer::ComposableItem::Reduce(const unsigned value) {
-    LogCat::d("composable_item_reduce", "Reduce composable item durability by {}", value);
+    LogCat::d(LogLabel::DEFAULT, "composable_item_reduce", "Reduce composable item durability by {}", value);
     if (itemContainer_ != nullptr) {
         std::vector<IAllocatable *> itemsList;
         for (uint8_t index = 0; index < itemContainer_->GetCapacity(); index++) {
@@ -329,7 +335,7 @@ void glimmer::ComposableItem::Reduce(const unsigned value) {
 }
 
 glimmer::ComposableItem::~ComposableItem() {
-    LogCat::d("composable_item_destroyed", "Composable item destroyed: itemId={}", id_);
+    LogCat::d(LogLabel::DEFAULT, "composable_item_destroyed", "Composable item destroyed: itemId={}", id_);
     if (itemContainer_ != nullptr) {
         itemContainer_->RemoveOnContentChanged(callback_);
     }

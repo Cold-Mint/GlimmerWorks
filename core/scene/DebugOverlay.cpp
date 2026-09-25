@@ -37,7 +37,7 @@
 
 glimmer::DebugOverlay::DebugOverlay(AppContext *context)
     : Scene(context), langsResources_(context->GetLangsResources()) {
-    LogCat::i("creating_debug_overlay", "Creating DebugOverlay");
+    LogCat::i(LogLabel::DEFAULT, "creating_debug_overlay", "Creating DebugOverlay");
     Init();
 }
 
@@ -75,7 +75,8 @@ void glimmer::DebugOverlay::LoadDocuments() {
     resourceRef.SetResourceKey("debug_overlay/debug_overlay");
     debugDocument_ = LoadSingleDocument(&resourceRef);
     if (debugDocument_ == nullptr) {
-        LogCat::w(std::source_location::current(), "debug_document_is_null", "debugDocument_ == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "debug_document_is_null",
+                  "debugDocument_ == nullptr");
         return;
     }
     UpdateDocumentVisibility();

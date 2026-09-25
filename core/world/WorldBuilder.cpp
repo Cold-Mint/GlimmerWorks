@@ -55,13 +55,13 @@ glimmer::WorldBuilder::WorldBuilder(WorldContext *worldContext) : worldContext_(
 void glimmer::WorldBuilder::Build() {
     std::optional<MapManifestMessage> mapManifestOptional = worldContext_->saves_->ReadMapManifest();
     if (!mapManifestOptional.has_value()) {
-        LogCat::w(std::source_location::current(), "world_builder_map_manifest_missing",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "world_builder_map_manifest_missing",
                   "Map manifest is missing, cannot build world");
         return;
     }
     std::optional<PlayerMessage> playerOptional = worldContext_->saves_->ReadLocalPlayer();
     if (!playerOptional.has_value()) {
-        LogCat::w(std::source_location::current(), "world_builder_player_missing",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "world_builder_player_missing",
                   "Player data is missing, cannot build world");
         return;
     }
@@ -76,7 +76,7 @@ void glimmer::WorldBuilder::Build() {
     worldContext_->box2DWorldId_.SetWorldId(b2CreateWorld(&worldDef));
     ModContext *modContext = worldContext_->appContext_->GetModContext();
     if (modContext == nullptr) {
-        LogCat::w(std::source_location::current(), "world_builder_mod_context_null",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "world_builder_mod_context_null",
                   "Mod context is null, cannot build world");
         return;
     }
@@ -98,7 +98,7 @@ void glimmer::WorldBuilder::Build() {
     DimensionResource *dimensionResource = worldContext_->appContext_->GetResourceLocator()->FindDimension(
         &dimensionResourceRef);
     if (dimensionResource == nullptr) {
-        LogCat::w(std::source_location::current(), "world_builder_dimension_resource_null",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "world_builder_dimension_resource_null",
                   "Dimension resource is not found, cannot build world");
         return;
     }
@@ -135,7 +135,8 @@ void glimmer::WorldBuilder::Build() {
     worldContext_->entityManager_->AddComponent<
         TileLayerComponent>(backgroundTileLayerEntity, worldContext_, TileLayerType::BackGround);
     worldContext_->playerContext_ = std::make_unique<PlayerContext>(worldContext_);
-    LogCat::i("world_context_core_subsystems_created", "Core subsystems created: dimensions, PlayerContext");
+    LogCat::i(LogLabel::DEFAULT, "world_context_core_subsystems_created",
+              "Core subsystems created: dimensions, PlayerContext");
 
     ResourceRef playerResourceRef{};
     playerResourceRef.ReadResource(
@@ -151,6 +152,6 @@ void glimmer::WorldBuilder::Build() {
             worldContext_->entityManager_->AddEntity()));
     worldContext_->systemScheduler_ = std::make_unique<SystemScheduler>(worldContext_);
     worldContext_->systemScheduler_->InitSystem();
-    LogCat::i("world_context_player_initialized", "Player initialized, SystemScheduler initialized");
-    LogCat::i("world_context_created", "WorldContext created successfully");
+    LogCat::i(LogLabel::DEFAULT, "world_context_player_initialized", "Player initialized, SystemScheduler initialized");
+    LogCat::i(LogLabel::DEFAULT, "world_context_created", "WorldContext created successfully");
 }

@@ -38,17 +38,17 @@ std::shared_ptr<glimmer::UniformBlockResourceResult> glimmer::UniformBlockCache:
     path.replace_extension("uniforms.toml");
     const VirtualFileSystem *virtualFileSystem = appContext->GetVirtualFileSystem();
     if (virtualFileSystem == nullptr) {
-        LogCat::w(std::source_location::current(), "vfs_is_null", "virtualFileSystem == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "vfs_is_null", "virtualFileSystem == nullptr");
         return nullptr;
     }
     if (!virtualFileSystem->Exists(path)) {
-        LogCat::w(std::source_location::current(), "uniform_block_file_not_found",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "uniform_block_file_not_found",
                   "Uniform block description file not found: {}", path.string());
         return nullptr;
     }
     auto data = virtualFileSystem->ReadFileAsString(path);
     if (!data.has_value()) {
-        LogCat::w(std::source_location::current(), "uniform_block_file_read_failed",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "uniform_block_file_read_failed",
                   "Failed to read uniform block description file: {}", path.string());
         return nullptr;
     }
@@ -56,7 +56,7 @@ std::shared_ptr<glimmer::UniformBlockResourceResult> glimmer::UniformBlockCache:
         toml::get<UniformBlockResource>(toml::parse_str(data.value(), TOML_VERSION)));
     std::unique_ptr<CompiledUniformBlock> block = CompiledUniformBlock::Compile(*resource);
     if (block == nullptr) {
-        LogCat::w(std::source_location::current(), "uniform_block_compile_failed",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "uniform_block_compile_failed",
                   "Failed to compile uniform block: {}", path.string());
         return nullptr;
     }

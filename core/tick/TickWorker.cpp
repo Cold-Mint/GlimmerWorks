@@ -32,7 +32,8 @@
 #include "core/log/LogCat.h"
 
 void glimmer::TickWorker::TickLoop(std::stop_token stopToken) {
-    LogCat::i("tick_worker_thread_started", "TickWorker thread started");
+    LogCat::SetThreadName("TickWorker");
+    LogCat::i(LogLabel::DEFAULT, "tick_worker_thread_started", "TickWorker thread started");
     using Clock = std::chrono::steady_clock;
     const auto tickInterval = std::chrono::duration_cast<Clock::duration>(
         std::chrono::duration<double>(1.0 / TICK_RATE));
@@ -48,6 +49,7 @@ void glimmer::TickWorker::TickLoop(std::stop_token stopToken) {
             break;
         }
         ++tickCount_;
+        LogCat::SetTickCount(tickCount_);
         std::vector<ITickListener *> listeners;
         {
             std::lock_guard snapshotLock(mutex_);
@@ -59,7 +61,7 @@ void glimmer::TickWorker::TickLoop(std::stop_token stopToken) {
             }
         }
     }
-    LogCat::i("tick_worker_thread_stopped", "TickWorker thread stopped");
+    LogCat::i(LogLabel::DEFAULT, "tick_worker_thread_stopped", "TickWorker thread stopped");
 }
 
 glimmer::TickWorker::~TickWorker() {

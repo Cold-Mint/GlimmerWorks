@@ -36,7 +36,8 @@ glimmer::WindowContext::~WindowContext() {
         SDL_ReleaseWindowFromGPUDevice(device_, window_);
     }
     if (device_ != nullptr) {
-        LogCat::d("destroy_gpu_device", "Destroying GPU device: {}", static_cast<const void *>(device_));
+        LogCat::d(LogLabel::DEFAULT, "destroy_gpu_device", "Destroying GPU device: {}",
+                  static_cast<const void *>(device_));
         SDL_DestroyGPUDevice(device_);
         device_ = nullptr;
     }
@@ -54,7 +55,7 @@ bool glimmer::WindowContext::CreateWindowAndDevice(const int width, const int he
         fullscreen ? SDL_WINDOW_FULLSCREEN : SDL_WINDOW_RESIZABLE
     );
     if (window == nullptr) {
-        LogCat::e(std::source_location::current(), "window_is_null", "window is nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "window_is_null", "window is nullptr");
         return false;
     }
     SDL_PropertiesID gpuProps = SDL_CreateProperties();
@@ -65,14 +66,16 @@ bool glimmer::WindowContext::CreateWindowAndDevice(const int width, const int he
     SDL_GPUDevice *gpuDevice = SDL_CreateGPUDeviceWithProperties(gpuProps);
     SDL_DestroyProperties(gpuProps);
     if (gpuDevice == nullptr) {
-        LogCat::e(std::source_location::current(), "failed_to_create_gpu_device", "Failed to create GPU device: {}",
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "failed_to_create_gpu_device",
+                  "Failed to create GPU device: {}",
                   SDL_GetError());
         return false;
     }
     if (!SDL_ClaimWindowForGPUDevice(gpuDevice, window)) {
-        LogCat::e(std::source_location::current(), "failed_to_claim_window_for_gpu_device",
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "failed_to_claim_window_for_gpu_device",
                   "Failed to claim window for GPU device: {}", SDL_GetError());
-        LogCat::d("destroy_gpu_device", "Destroying GPU device: {}", static_cast<const void *>(gpuDevice));
+        LogCat::d(LogLabel::DEFAULT, "destroy_gpu_device", "Destroying GPU device: {}",
+                  static_cast<const void *>(gpuDevice));
         SDL_DestroyGPUDevice(gpuDevice);
         return false;
     }

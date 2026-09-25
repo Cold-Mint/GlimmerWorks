@@ -41,8 +41,6 @@ namespace glimmer {
      * 用于游戏引擎内部常用的颜色值。
      */
     struct PreloadColors {
-
-
         struct TextureColors {
             Color accentColor;
             Color baseColor;
@@ -62,19 +60,6 @@ namespace glimmer {
             //Item slot text color(Quantity of items text color)
             //物品槽文本颜色（物品数量文本颜色）
             Color itemSlotTextColor;
-        };
-
-        struct Light2dColors {
-            /**
-            * Default emission color
-            * 默认发光颜色
-            */
-            Color defaultEmissionColor;
-            /**
-             * Default transparent color
-             * 默认透光颜色
-             */
-            Color defaultLightTransmissionColor;
         };
 
         struct BlueprintColors {
@@ -137,7 +122,6 @@ namespace glimmer {
         TextureColors error;
         TextureColors accessDenied;
         GameColors game;
-        Light2dColors light;
         BlueprintColors blueprint;
         DurabilityColors durability;
 

@@ -39,13 +39,13 @@ void glimmer::MineralBiomeDecorator::DecorationImpl(WorldContext *worldContext, 
                                                         CHUNK_AREA> > *tilesRefMap) {
     const FastNoiseLite *noiseLite = decoratorResource->GetFastNoiseLite(GetWorldSeed());
     if (noiseLite == nullptr) {
-        LogCat::w(std::source_location::current(), "mineral_decorator_noise_is_null",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "mineral_decorator_noise_is_null",
                   "Mineral decorator noise is null, skipping");
         return;
     }
     const float heightRange = decoratorResource->maxSpawnElevation - decoratorResource->minSpawnElevation;
     if (heightRange <= 0.0001F) {
-        LogCat::w(std::source_location::current(), "mineral_decorator_invalid_height_range",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "mineral_decorator_invalid_height_range",
                   "Mineral decorator has invalid height range: min={}, max={}",
                   decoratorResource->minSpawnElevation, decoratorResource->maxSpawnElevation);
         return;

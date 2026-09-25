@@ -105,11 +105,12 @@ namespace glimmer {
         [[nodiscard]] ResultT *FindRegistered(const ResourceRef *resourceRef, ResourceTypeMessage expectedType,
                                               Lookup &&lookup) const {
             if (resourceRef == nullptr) {
-                LogCat::w(std::source_location::current(), "resource_ref_is_null", "resourceRef == nullptr");
+                LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "resource_ref_is_null",
+                          "resourceRef == nullptr");
                 return nullptr;
             }
             if (resourceRef->GetResourceType() != expectedType || !ValidateAccessPermission(resourceRef)) {
-                LogCat::w(std::source_location::current(), "type_mismatch_or_access_denied",
+                LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "type_mismatch_or_access_denied",
                           "Type mismatch or access permission denied: expected type = {}, actual type = {}",
                           std::to_underlying(expectedType), std::to_underlying(resourceRef->GetResourceType()));
                 return nullptr;

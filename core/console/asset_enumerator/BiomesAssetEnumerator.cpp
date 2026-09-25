@@ -35,12 +35,13 @@ std::string_view glimmer::BiomesAssetEnumerator::GetAssetType() const {
 
 std::optional<std::string> glimmer::BiomesAssetEnumerator::ListAsset(const AppContext *appContext) {
     if (appContext == nullptr) {
-        LogCat::w(std::source_location::current(), "app_context_is_null", "appContext is nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "app_context_is_null", "appContext is nullptr");
         return std::nullopt;
     }
     const BiomeRegistry *biomeRegistry = appContext->GetModContext()->GetBiomeRegistry();
     if (biomeRegistry == nullptr) {
-        LogCat::w(std::source_location::current(), "biomes_manager_is_null", "biomesManager is nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "biomes_manager_is_null",
+                  "biomesManager is nullptr");
         return std::nullopt;
     }
     return biomeRegistry->ListString();

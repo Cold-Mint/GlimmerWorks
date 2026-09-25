@@ -38,19 +38,19 @@ glimmer::InitResourcePackTask::InitResourcePackTask(AppContext *appContext) {
 bool glimmer::InitResourcePackTask::Run(ISystemBucket *systemBucket) {
     VirtualFileSystem *virtualFileSystem = systemBucket->GetVirtualFileSystem();
     if (virtualFileSystem == nullptr) {
-        LogCat::e(std::source_location::current(), "vfs_is_null", "virtualFileSystem is nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "vfs_is_null", "virtualFileSystem is nullptr");
         return false;
     }
     const Config *config = systemBucket->GetConfig();
     if (config == nullptr) {
-        LogCat::e(std::source_location::current(), "config_is_null", "config is nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "config_is_null", "config is nullptr");
         return false;
     }
     auto resourcePackManager = std::make_unique<ResourcePackManager>();
     PackScanRequest packScanRequest;
     packScanRequest.SetAppContext(appContext_);
     if (resourcePackManager->Scan(&packScanRequest) == 0) {
-        LogCat::publicError(ErrorCode::MISSING_RESPACK, std::source_location::current(),
+        LogCat::publicError(LogLabel::DEFAULT, ErrorCode::MISSING_RESPACK, std::source_location::current(),
                             "missing_required_resource_pack",
                             "At least one available resource pack must be installed.");
         return false;

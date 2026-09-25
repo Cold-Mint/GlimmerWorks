@@ -54,7 +54,7 @@ void glimmer::DroppedItemSystem::OnWatchedComponentChanged(GameComponentTypeMess
     if (transform2dCount > 0 && droppedItemCount > 0) {
         std::lock_guard lock(droppedEntitiesMutex_);
         droppedEntities_ = entityManager->GetEntityIDWithComponents({COMPONENT_TRANSFORM_2D, COMPONENT_DROPPED_ITEM});
-        LogCat::d("dropped_item_entities_rebuilt", "Dropped item entities rebuilt: {} entities",
+        LogCat::d(LogLabel::DEFAULT, "dropped_item_entities_rebuilt", "Dropped item entities rebuilt: {} entities",
                   droppedEntities_.size());
     }
 }
@@ -84,7 +84,7 @@ void glimmer::DroppedItemSystem::OnTick(const uint64_t tick) {
         }
         droppedEntities = droppedEntities_;
     }
-    for (const GameEntityID gameEntity : droppedEntities) {
+    for (const GameEntityID gameEntity: droppedEntities) {
         auto droppedItemComponent = entityManager->GetComponent<DroppedItemComponent>(gameEntity);
         if (droppedItemComponent == nullptr) {
             continue;
@@ -94,7 +94,8 @@ void glimmer::DroppedItemSystem::OnTick(const uint64_t tick) {
                 continue;
             }
             droppedItemComponent->SetDespawnScheduled(true);
-            LogCat::d("dropped_item_expired", "Dropped item expired, scheduling removal: id={}", gameEntity);
+            LogCat::d(LogLabel::DEFAULT, "dropped_item_expired", "Dropped item expired, scheduling removal: id={}",
+                      gameEntity);
             const AppContext *appContext = worldContext->GetAppContext();
             if (appContext == nullptr) {
                 continue;

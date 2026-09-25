@@ -37,24 +37,27 @@ glimmer::InitDataPackTask::InitDataPackTask(AppContext *appContext) : appContext
 bool glimmer::InitDataPackTask::Run(ISystemBucket *systemBucket) {
     const ModContext *modContext = systemBucket->GetModContext();
     if (modContext == nullptr) {
-        LogCat::e(std::source_location::current(), "mod_context_is_null", "modContext is nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "mod_context_is_null", "modContext is nullptr");
         return false;
     }
     DataPackManager *dataPackManager = modContext->GetDataPackManager();
     if (dataPackManager == nullptr) {
-        LogCat::e(std::source_location::current(), "data_pack_manager_is_null", "dataPackManager is nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "data_pack_manager_is_null",
+                  "dataPackManager is nullptr");
         return false;
     }
     PackScanRequest packScanRequest;
     packScanRequest.SetAppContext(appContext_);
     if (dataPackManager->Scan(&packScanRequest) == 0) {
-        LogCat::publicError(ErrorCode::MISSING_RESPACK, std::source_location::current(), "missing_required_data_pack",
+        LogCat::publicError(LogLabel::DEFAULT, ErrorCode::MISSING_RESPACK, std::source_location::current(),
+                            "missing_required_data_pack",
                             "At least one available datapack must be installed.");
         return false;
     }
     RecipeManager *recipeManager = modContext->GetRecipeManager();
     if (recipeManager == nullptr) {
-        LogCat::e(std::source_location::current(), "recipe_manager_is_null", "recipeManager is nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "recipe_manager_is_null",
+                  "recipeManager is nullptr");
         return false;
     }
     recipeManager->PreSortRecipes();

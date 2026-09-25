@@ -121,12 +121,12 @@ void glimmer::LightingPass::FlushLightingPass(RenderFrameContext &ctx) {
     SDL_GPUTexture *targetTexture = ctx.swapChainTexture;
     const UniformInjectContext *injectContext = ctx.injectContext;
     if (ctx.sceneTexture == nullptr) {
-        LogCat::w(std::source_location::current(), "app_renderer_scene_texture_is_null",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "app_renderer_scene_texture_is_null",
                   "sceneTexture_ is null, lighting pass skipped");
         return;
     }
     if (lightMapTexture_.GetTexture() == nullptr) {
-        LogCat::w(std::source_location::current(), "app_renderer_light_map_texture_is_null",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "app_renderer_light_map_texture_is_null",
                   "lightMapTexture_ is null, lighting pass skipped");
         return;
     }
@@ -138,25 +138,28 @@ void glimmer::LightingPass::FlushLightingPass(RenderFrameContext &ctx) {
 
     SDL_GPURenderPass *renderPass = SDL_BeginGPURenderPass(commandBuffer, &colorTarget, 1, nullptr);
     if (renderPass == nullptr) {
-        LogCat::e(std::source_location::current(), "render_pass_is_null", "renderPass == nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "render_pass_is_null", "renderPass == nullptr");
         return;
     }
     if (lightingPipeline_ == nullptr) {
-        LogCat::e(std::source_location::current(), "lighting_pipeline_not_found", "lighting pipeline not found");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "lighting_pipeline_not_found",
+                  "lighting pipeline not found");
         return;
     }
     SDL_GPUGraphicsPipeline *pipeline = lightingPipeline_->GetResource();
     if (pipeline == nullptr) {
-        LogCat::e(std::source_location::current(), "pipeline_is_null", "pipeline == nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "pipeline_is_null", "pipeline == nullptr");
         return;
     }
     if (lightingSampler_ == nullptr) {
-        LogCat::e(std::source_location::current(), "lighting_sampler_failed", "lightingSampler failed: ");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "lighting_sampler_failed",
+                  "lightingSampler failed: ");
         return;
     }
     SDL_GPUSampler *sampler = lightingSampler_->GetResource();
     if (sampler == nullptr) {
-        LogCat::e(std::source_location::current(), "sdl_gpu_sampler_is_null", "SDL_GPUSampler == nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "sdl_gpu_sampler_is_null",
+                  "SDL_GPUSampler == nullptr");
         return;
     }
     SDL_BindGPUGraphicsPipeline(renderPass, pipeline);
@@ -184,32 +187,23 @@ void glimmer::LightingPass::UpdateLightMap(UniformInjectContext *injectContext) 
     const int originY = tileMin.y - 1;
     const auto sizeX = static_cast<Uint32>(tileMax.x - tileMin.x + 3);
     const auto sizeY = static_cast<Uint32>(tileMax.y - tileMin.y + 3);
-    LogCat::i("app_renderer_light_map_camera",
-              "UpdateLightMap camera: zoom={}, cameraSize=({},{}), cameraPosition=({},{})",
-              zoom, cameraSize.x, cameraSize.y, cameraPosition.x, cameraPosition.y);
-    LogCat::i("app_renderer_light_map_tile_range",
-              "UpdateLightMap tile range: tileMin=({},{}), tileMax=({},{})",
-              tileMin.x, tileMin.y, tileMax.x, tileMax.y);
-    LogCat::i("app_renderer_light_map_info",
-              "UpdateLightMap: viewport=({},{},{},{}), origin=({},{}), size=({}x{})",
-              viewportRect.x, viewportRect.y, viewportRect.w, viewportRect.h,
-              originX, originY, sizeX, sizeY);
-
     WorldContext *worldContext = injectContext->worldContext;
     const DimensionResource *dimensionResource = nullptr;
     Dimension *dimension = nullptr;
     if (worldContext == nullptr) {
-        LogCat::w(std::source_location::current(), "world_context_is_null", "worldContext == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "world_context_is_null",
+                  "worldContext == nullptr");
         return;
     }
     dimension = worldContext->GetDimension();
     if (dimension == nullptr) {
-        LogCat::w(std::source_location::current(), "dimension_is_null", "dimension is nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "dimension_is_null", "dimension is nullptr");
         return;
     }
     dimensionResource = dimension->GetDimensionResource();
     if (dimensionResource == nullptr) {
-        LogCat::w(std::source_location::current(), "dimension_resource_is_null", "dimensionResource == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "dimension_resource_is_null",
+                  "dimensionResource == nullptr");
         return;
     }
     const float timeOfDay = dimension->GetNormalizedTime();
@@ -217,7 +211,7 @@ void glimmer::LightingPass::UpdateLightMap(UniformInjectContext *injectContext) 
     const std::vector<LightKeyframe> &skyKeyframes = dimensionResource->skyLightKeyframes;
     const Color screenLight = ColorUtils::ComputeAmbientLight(resourceLocator_, timeOfDay, backLightKeyFrames);
     const Color skyLight = ColorUtils::ComputeAmbientLight(resourceLocator_, timeOfDay, skyKeyframes);
-    LogCat::i("app_renderer_ambient_light",
+    LogCat::i(LogLabel::DEFAULT, "app_renderer_ambient_light",
               "Ambient light: screen rgba=({},{},{},{}), sky rgba=({},{},{},{}), timeOfDay={}, backLightKeyFrames={}, skyKeyframes={}",
               static_cast<int>(screenLight.r), static_cast<int>(screenLight.g),
               static_cast<int>(screenLight.b), static_cast<int>(screenLight.a),
@@ -269,8 +263,8 @@ void glimmer::LightingPass::BlitScene(RenderFrameContext &ctx) {
         return;
     }
 
-    const float logicalW = static_cast<float>(ctx.logicalWidth);
-    const float logicalH = static_cast<float>(ctx.logicalHeight);
+    const auto logicalW = static_cast<float>(ctx.logicalWidth);
+    const auto logicalH = static_cast<float>(ctx.logicalHeight);
     //Build a fullscreen quad in logical pixel coordinates with a white
     //vertex color, so the sprite shader outputs the sampled texture as-is.
     //构建逻辑像素坐标下的全屏四边形，顶点色为白色，使精灵着色器原样输出采样纹理。
@@ -392,12 +386,12 @@ void glimmer::LightingPass::DrawLightMapDebug(RenderFrameContext &ctx) {
         return;
     }
 
-    const float logicalW = static_cast<float>(ctx.logicalWidth);
-    const float logicalH = static_cast<float>(ctx.logicalHeight);
+    const auto logicalW = static_cast<float>(ctx.logicalWidth);
+    const auto logicalH = static_cast<float>(ctx.logicalHeight);
     constexpr float margin = 16.0F;
     constexpr float maxSize = 256.0F;
-    const float texW = static_cast<float>(lightMapTexture_.GetWidth());
-    const float texH = static_cast<float>(lightMapTexture_.GetHeight());
+    const auto texW = static_cast<float>(lightMapTexture_.GetWidth());
+    const auto texH = static_cast<float>(lightMapTexture_.GetHeight());
     float w = maxSize;
     float h = maxSize;
     if (texW > 0.0F && texH > 0.0F) {

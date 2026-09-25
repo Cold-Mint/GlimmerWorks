@@ -128,7 +128,7 @@ bool glimmer::ConsoleContext::Init(AppContext *appContext, VirtualFileSystem *vf
                                    int maxHistoryEntries) {
     const ModContext *modContext = appContext->GetModContext();
     if (modContext == nullptr) {
-        LogCat::e(std::source_location::current(), "mod_context_is_null", "modContext == nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "mod_context_is_null", "modContext == nullptr");
         return false;
     }
     commandHookManager_ = std::make_unique<CommandHookManager>();
@@ -199,7 +199,7 @@ bool glimmer::ConsoleContext::Init(AppContext *appContext, VirtualFileSystem *vf
 
 void glimmer::ConsoleContext::SaveCommandHistory() const {
     if (commandHistoryManager_ == nullptr) {
-        LogCat::w(std::source_location::current(), "command_history_manager_is_null",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "command_history_manager_is_null",
                   "commandHistoryManager_ == nullptr");
         return;
     }
@@ -216,7 +216,8 @@ CommandHistoryMessage *glimmer::ConsoleContext::GetCommandHistoryMessage() const
 
 glimmer::CommandManager *glimmer::ConsoleContext::GetCommandManager() const {
     if (commandManager_ == nullptr) {
-        LogCat::w(std::source_location::current(), "command_manager_is_null", "commandManager_ == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "command_manager_is_null",
+                  "commandManager_ == nullptr");
         return nullptr;
     }
     return commandManager_.get();
@@ -224,7 +225,8 @@ glimmer::CommandManager *glimmer::ConsoleContext::GetCommandManager() const {
 
 glimmer::ConsoleWorker *glimmer::ConsoleContext::GetConsoleWorker() const {
     if (consoleWorker_ == nullptr) {
-        LogCat::w(std::source_location::current(), "console_worker_is_null", "consoleWorker_ == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "console_worker_is_null",
+                  "consoleWorker_ == nullptr");
         return nullptr;
     }
     return consoleWorker_.get();
@@ -232,7 +234,8 @@ glimmer::ConsoleWorker *glimmer::ConsoleContext::GetConsoleWorker() const {
 
 glimmer::CommandHookManager *glimmer::ConsoleContext::GetCommandHookManager() const {
     if (commandHookManager_ == nullptr) {
-        LogCat::w(std::source_location::current(), "command_hook_manager_is_null", "commandHookManager_ == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "command_hook_manager_is_null",
+                  "commandHookManager_ == nullptr");
         return nullptr;
     }
     return commandHookManager_.get();
@@ -240,7 +243,7 @@ glimmer::CommandHookManager *glimmer::ConsoleContext::GetCommandHookManager() co
 
 glimmer::DynamicSuggestionsManager *glimmer::ConsoleContext::GetDynamicSuggestionsManager() const {
     if (dynamicSuggestionsManager_ == nullptr) {
-        LogCat::w(std::source_location::current(), "dynamic_suggestions_manager_is_null",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "dynamic_suggestions_manager_is_null",
                   "dynamicSuggestionsManager_ == nullptr");
         return nullptr;
     }

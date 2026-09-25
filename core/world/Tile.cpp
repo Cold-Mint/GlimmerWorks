@@ -158,13 +158,13 @@ glimmer::TileVector2D glimmer::Tile::CalculateTileAnchor(const TileAnchorType ti
 std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext *appContext,
                                                                const TileResource *tileResource) {
     if (appContext == nullptr) {
-        LogCat::w(std::source_location::current(), "tile_from_resource_null_context",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "tile_from_resource_null_context",
                   "Cannot create tile: app context is null");
         return nullptr;
     }
     const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
     if (resourceLocator == nullptr) {
-        LogCat::w(std::source_location::current(), "tile_from_resource_null_locator",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "tile_from_resource_null_locator",
                   "Cannot create tile: resource locator is null");
         return nullptr;
     }
@@ -278,7 +278,7 @@ void glimmer::Tile::OnPlace(const WorldContext *worldContext, PlaceSourceMessage
     auto gameEntityIterator = gameEntities_.find(fingerprint);
     if (gameEntityIterator != gameEntities_.end()) {
 #if  !defined(NDEBUG)
-        LogCat::e(std::source_location::current(), "tile_place_entity_exists",
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "tile_place_entity_exists",
                   "Before generating a new entity, it is necessary to ensure that there are no other entities at the current location.");
         assert(false);
 #else
@@ -293,7 +293,8 @@ void glimmer::Tile::OnPlace(const WorldContext *worldContext, PlaceSourceMessage
         const auto teachProviderComponent = entityManager->AddComponent<TechProviderComponent>(entity);
         teachProviderComponent->SetRecipeGroup(static_cast<RecipeGroup>(recipeGroup_));
         teachProviderComponent->SetTechnologyLevel(technologyLevel_);
-        LogCat::d("tile_on_place_entity_created", "Placed work block, created entity: id={}, position=({}, {})",
+        LogCat::d(LogLabel::DEFAULT, "tile_on_place_entity_created",
+                  "Placed work block, created entity: id={}, position=({}, {})",
                   entity, position.x, position.y);
     }
     if (IsCropsBlock()) {
@@ -303,7 +304,8 @@ void glimmer::Tile::OnPlace(const WorldContext *worldContext, PlaceSourceMessage
         const auto cropComponent = entityManager->AddComponent<CropComponent>(entity);
         cropComponent->SetPosition(position);
         cropComponent->SetLayerType(layerType_);
-        LogCat::d("tile_on_place_entity_created", "Placed crop block, created entity: id={}, position=({}, {})",
+        LogCat::d(LogLabel::DEFAULT, "tile_on_place_entity_created",
+                  "Placed crop block, created entity: id={}, position=({}, {})",
                   entity, position.x, position.y);
     }
     if (entity == GAME_ENTITY_ID_INVALID) {
@@ -328,7 +330,8 @@ void glimmer::Tile::OnBreak(const WorldContext *worldContext, BreakSource breakS
         return;
     }
     entityManager->RemoveEntity(gameEntityIterator->second);
-    LogCat::d("tile_on_break_entity_removed", "Broke block, removed entity: id={}, position=({}, {})",
+    LogCat::d(LogLabel::DEFAULT, "tile_on_break_entity_removed",
+              "Broke block, removed entity: id={}, position=({}, {})",
               gameEntityIterator->second, position.x, position.y);
     gameEntities_.erase(gameEntityIterator);
 }

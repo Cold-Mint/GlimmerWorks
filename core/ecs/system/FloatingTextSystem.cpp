@@ -48,7 +48,8 @@ void glimmer::FloatingTextSystem::OnWatchedComponentChanged(GameComponentTypeMes
     }
     if (transform2DCount_ > 0 && floatingTextCount_ > 0) {
         entities_ = entityManager->GetEntityIDWithComponents({COMPONENT_TRANSFORM_2D, COMPONENT_FLOATING_TEXT});
-        LogCat::d("floating_text_entities_rebuilt", "FloatingText entities rebuilt: {} entities", entities_.size());
+        LogCat::d(LogLabel::DEFAULT, "floating_text_entities_rebuilt", "FloatingText entities rebuilt: {} entities",
+                  entities_.size());
     }
 }
 
@@ -155,7 +156,7 @@ void glimmer::FloatingTextSystem::Render(RenderQueue *queue) {
 
 void glimmer::FloatingTextSystem::OnConfigChanged(const Config *config) {
     normalTargetFps_ = config->window.normalTargetFps;
-    LogCat::i("floating_text_fps_config", "FloatingText normal target fps: {}", normalTargetFps_);
+    LogCat::i(LogLabel::DEFAULT, "floating_text_fps_config", "FloatingText normal target fps: {}", normalTargetFps_);
 }
 
 uint8_t glimmer::FloatingTextSystem::GetExecutionOrder() {

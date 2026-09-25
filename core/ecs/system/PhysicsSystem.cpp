@@ -45,7 +45,8 @@ void glimmer::PhysicsSystem::OnWatchedComponentChanged(GameComponentTypeMessage 
     if (rigidBody2dCount_ > 0 && transform2dCount_ > 0) {
         entities_.clear();
         entities_ = entityManager_->GetEntityIDWithComponents({COMPONENT_RIGID_BODY_2D, COMPONENT_TRANSFORM_2D});
-        LogCat::d("physics_entities_rebuilt", "Physics entities rebuilt: {} entities", entities_.size());
+        LogCat::d(LogLabel::DEFAULT, "physics_entities_rebuilt", "Physics entities rebuilt: {} entities",
+                  entities_.size());
     }
 }
 

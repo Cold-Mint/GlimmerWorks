@@ -36,7 +36,8 @@ void glimmer::RayCast2DSystem::OnWatchedComponentChanged(GameComponentTypeMessag
     EntityManager *entityManager = GetEntityManager();
     if (gameComponentType == COMPONENT_RAY_CAST_2D) {
         entities_ = entityManager->GetEntityIDWithComponents({COMPONENT_RAY_CAST_2D});
-        LogCat::d("raycast_entities_rebuilt", "RayCast2D entities rebuilt: {} entities", entities_.size());
+        LogCat::d(LogLabel::DEFAULT, "raycast_entities_rebuilt", "RayCast2D entities rebuilt: {} entities",
+                  entities_.size());
     }
 }
 

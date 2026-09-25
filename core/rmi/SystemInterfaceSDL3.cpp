@@ -58,16 +58,18 @@ int glimmer::SystemInterfaceSDL3::TranslateString(Rml::String &translated, const
 
 bool glimmer::SystemInterfaceSDL3::LogMessage(const Rml::Log::Type type, const Rml::String &message) {
     if (type == Rml::Log::LT_ERROR) {
-        LogCat::e(std::source_location::current(), "rml_log_message", "From rml :{}", message.c_str());
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "rml_log_message", "From rml :{}",
+                  message.c_str());
     }
     if (type == Rml::Log::LT_WARNING) {
-        LogCat::w(std::source_location::current(), "rml_log_message", "From rml :{}", message.c_str());
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "rml_log_message", "From rml :{}",
+                  message.c_str());
     }
     if (type == Rml::Log::LT_INFO) {
-        LogCat::i("rml_log_message", "From rml :{}", message.c_str());
+        LogCat::i(LogLabel::DEFAULT, "rml_log_message", "From rml :{}", message.c_str());
     }
     if (type == Rml::Log::LT_DEBUG) {
-        LogCat::d("rml_log_message", "From rml :{}", message.c_str());
+        LogCat::d(LogLabel::DEFAULT, "rml_log_message", "From rml :{}", message.c_str());
     }
     return true;
 }

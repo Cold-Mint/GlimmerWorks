@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,30 +24,14 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "AbilityItemsAssetEnumerator.h"
-#if  !defined(NDEBUG)
-#include "core/log/LogCat.h"
-#include "core/context/AppContext.h"
+#include "LogLabel.h"
 
-std::string_view glimmer::AbilityItemsAssetEnumerator::GetAssetType() const {
-    return assetName;
+const char *glimmer::ToString(const LogLabel label) {
+    switch (label) {
+        case LogLabel::DEFAULT:
+            return "DEFAULT";
+        case LogLabel::WORLD_GEN:
+            return "WORLD_GEN";
+    }
+    return "UNKNOWN";
 }
-
-std::optional<std::string> glimmer::AbilityItemsAssetEnumerator::ListAsset(const AppContext *appContext) {
-    if (appContext == nullptr) {
-        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "app_context_is_null", "appContext is nullptr");
-        return std::nullopt;
-    }
-    const ModContext *modContext = appContext->GetModContext();
-    if (modContext == nullptr) {
-        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "mod_context_is_null", "modContext is nullptr");
-        return std::nullopt;
-    }
-    const AbilityItemRegistry *abilityItemRegistry = modContext->GetAbilityItemRegistry();
-    if (abilityItemRegistry == nullptr) {
-        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "item_manager_is_null", "itemManager is nullptr");
-        return std::nullopt;
-    }
-    return abilityItemRegistry->ListString();
-}
-#endif

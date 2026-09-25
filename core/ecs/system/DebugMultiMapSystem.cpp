@@ -106,7 +106,7 @@ void glimmer::DebugMultiMapSystem::OnWatchedComponentChanged(GameComponentTypeMe
     }
     if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr) {
         cameraComponent_ = entityShortCut->GetCameraComponent();
-        LogCat::i("debug_multi_map_camera_bound", "DebugMultiMap camera component bound");
+        LogCat::i(LogLabel::DEFAULT, "debug_multi_map_camera_bound", "DebugMultiMap camera component bound");
     }
 }
 

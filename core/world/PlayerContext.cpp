@@ -79,7 +79,7 @@ void glimmer::PlayerContext::InitPlayer(const ResourceRef &resourceRef) {
     EntityManager *entityManager = worldContext_->GetEntityManager();
     EntityShortCut *entityShortCut = worldContext_->GetEntityShortCut();
     if (entityManager == nullptr || entityShortCut == nullptr) {
-        LogCat::w(std::source_location::current(), "player_context_init_null",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "player_context_init_null",
                   "Cannot init player: entity manager or entity shortcut is null");
         return;
     }
@@ -109,7 +109,7 @@ void glimmer::PlayerContext::InitPlayer(const ResourceRef &resourceRef) {
     itemCallback_ = itemContainer->AddOnContentChanged(
         [this, playerComponent, itemContainer](const uint8_t index, Item *item, ContainerChangeType changeType) {
             if (playerComponent == nullptr) {
-                LogCat::e(std::source_location::current(), "player_context_player_component_is_null",
+                LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "player_context_player_component_is_null",
                           "itemContainer->AddOnSelectIndexChanged playerComponent == nullptr");
                 return;
             }
@@ -118,7 +118,7 @@ void glimmer::PlayerContext::InitPlayer(const ResourceRef &resourceRef) {
 
     itemContainer->AddOnSelectIndexChanged([this, playerComponent, itemContainer, playerEntity](const uint8_t index) {
         if (playerComponent == nullptr) {
-            LogCat::e(std::source_location::current(), "player_context_player_component_is_null",
+            LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "player_context_player_component_is_null",
                       "itemContainer->AddOnSelectIndexChanged playerComponent == nullptr");
             return;
         }
@@ -137,12 +137,12 @@ uint32_t glimmer::PlayerContext::CreateOrLoadPlayer(const ResourceRef &resourceR
         }
     }
     if (!WorldContext::IsEmptyEntityId(playerEntity)) {
-        LogCat::i("player_context_loaded", "Loaded player from saves: id={}", playerEntity);
+        LogCat::i(LogLabel::DEFAULT, "player_context_loaded", "Loaded player from saves: id={}", playerEntity);
         return playerEntity;
     }
     const auto firstTileTerrainY = worldContext_->GetChunkGenerator()->GetFirstTileTerrainY(0);
     playerEntity = worldContext_->GetEntityManager()->AddEntity();
-    LogCat::i("player_context_created", "Created new player entity: id={}", playerEntity);
+    LogCat::i(LogLabel::DEFAULT, "player_context_created", "Created new player entity: id={}", playerEntity);
     MobEntityCreator mobEntityCreator{worldContext_};
     mobEntityCreator.LoadTemplateComponents(playerEntity, resourceRef);
     mobEntityCreator.MergeEntityItemMessage(playerEntity,

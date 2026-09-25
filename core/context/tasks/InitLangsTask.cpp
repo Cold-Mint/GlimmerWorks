@@ -37,7 +37,7 @@
 bool glimmer::InitLangsTask::Run(ISystemBucket *systemBucket) {
     const VirtualFileSystem *virtualFileSystem = systemBucket->GetVirtualFileSystem();
     if (virtualFileSystem == nullptr) {
-        LogCat::e(std::source_location::current(), "vfs_is_null", "virtualFileSystem is nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "vfs_is_null", "virtualFileSystem is nullptr");
         return false;
     }
     std::filesystem::path langFile = "langs" / std::filesystem::path(systemBucket->GetLanguage());
@@ -47,7 +47,8 @@ bool glimmer::InitLangsTask::Run(ISystemBucket *systemBucket) {
     }
     const auto langData = virtualFileSystem->ReadFileAsString(langFile);
     if (!langData.has_value()) {
-        LogCat::publicError(ErrorCode::CAN_NOT_READ_LANG, std::source_location::current(), "can_not_read_language",
+        LogCat::publicError(LogLabel::DEFAULT, ErrorCode::CAN_NOT_READ_LANG, std::source_location::current(),
+                            "can_not_read_language",
                             "can not read language file at langs folder");
         return false;
     }

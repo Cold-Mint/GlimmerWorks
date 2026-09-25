@@ -118,7 +118,7 @@ void glimmer::MiningSystem::ApplyItemDurability(Item *item, const Tile *tile, bo
 void glimmer::MiningSystem::DropDefaultLoot(WorldContext *worldContext,
                                             const std::shared_ptr<Tile> &tile, const TileVector2D &position,
                                             const ResourceRef &oldResourceRef) {
-    LogCat::d("mining_drop_default_loot", "Dropping default loot: tile=({}, {})",
+    LogCat::d(LogLabel::DEFAULT, "mining_drop_default_loot", "Dropping default loot: tile=({}, {})",
               position.x, position.y);
     DroppedItemCreator::SpawnDroppedItem(worldContext,
                                          CoordinateTransformer::TileToWorld(position),
@@ -152,7 +152,7 @@ void glimmer::MiningSystem::DropCustomLoot(WorldContext *worldContext,
                                            const AppContext *appContext, const LootResource *lootResource,
                                            const TileVector2D &topLeftVector) {
     std::vector<ItemMessage> itemMessageList = LootResource::GetLootItems(lootResource);
-    LogCat::d("mining_drop_custom_loot", "Dropping custom loot: {} items at ({}, {})",
+    LogCat::d(LogLabel::DEFAULT, "mining_drop_custom_loot", "Dropping custom loot: {} items at ({}, {})",
               itemMessageList.size(), topLeftVector.x, topLeftVector.y);
     for (auto &itemMessage: itemMessageList) {
         auto itemPtr = appContext->GetResourceLocator()->FindItem(worldContext, itemMessage);
@@ -194,15 +194,17 @@ void glimmer::MiningSystem::PlayBreakSFX(const AppContext *appContext, const Til
 static bool CheckMiningEfficiency(const glimmer::Tile *tile, const glimmer::AbilityConfig *abilityConfig) {
     const glimmer::TileMiningData *tileMiningData = tile->GetMiningData();
     if (tileMiningData == nullptr) {
-        glimmer::LogCat::w(std::source_location::current(), "tile_mining_data_is_null", "tileMiningData == nullptr");
+        glimmer::LogCat::w(glimmer::LogLabel::DEFAULT, std::source_location::current(), "tile_mining_data_is_null",
+                           "tileMiningData == nullptr");
         return true;
     }
     if (abilityConfig == nullptr) {
-        glimmer::LogCat::w(std::source_location::current(), "ability_config_is_null", "abilityConfig == nullptr");
+        glimmer::LogCat::w(glimmer::LogLabel::DEFAULT, std::source_location::current(), "ability_config_is_null",
+                           "abilityConfig == nullptr");
         return true;
     }
     if (tileMiningData->GetMinMiningEfficiency() > abilityConfig->miningEfficiency) {
-        glimmer::LogCat::w(std::source_location::current(), "mining_efficiency_exceeded",
+        glimmer::LogCat::w(glimmer::LogLabel::DEFAULT, std::source_location::current(), "mining_efficiency_exceeded",
                            "tileMiningData->GetMinMiningEfficiency() > abilityConfig->miningEfficiency");
         return false;
     }
@@ -265,7 +267,7 @@ void glimmer::MiningSystem::ProcessSingleTile(const TileBreakParams &params, con
 
 uint16_t glimmer::MiningSystem::BreakTile(const TileBreakParams &params) {
     if (params.worldContext == nullptr || params.tileLayerComponent == nullptr) {
-        LogCat::w(std::source_location::current(), "mining_break_tile_invalid_params",
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "mining_break_tile_invalid_params",
                   "BreakTile: worldContext or tileLayerComponent is nullptr");
         return 0;
     }
@@ -303,7 +305,8 @@ uint16_t glimmer::MiningSystem::BreakTile(const TileBreakParams &params) {
                               x == centerX && y == centerY, sum);
         }
     }
-    LogCat::d("mining_break_tile_complete", "BreakTile complete: {} tiles broken", static_cast<int>(sum));
+    LogCat::d(LogLabel::DEFAULT, "mining_break_tile_complete", "BreakTile complete: {} tiles broken",
+              static_cast<int>(sum));
     return sum;
 }
 
@@ -405,7 +408,8 @@ void glimmer::MiningSystem::ProcessMiningComplete(const TileLayerComponent *tile
     mainThreadDispatcher->PostToNextMainFrame(
         [worldContext, tileLayer, tileLayerType, miningRangeData, precisionMining] {
             const size_t pointsCount = miningRangeData->GetPointsCount();
-            LogCat::i("mining_complete_processing", "Mining complete, processing {} mining points", pointsCount);
+            LogCat::i(LogLabel::DEFAULT, "mining_complete_processing", "Mining complete, processing {} mining points",
+                      pointsCount);
             for (size_t i = 0; i < pointsCount; i++) {
                 const MiningRangeDataPoint *point = miningRangeData->GetPoint(i);
                 if (point == nullptr) {
@@ -418,7 +422,7 @@ void glimmer::MiningSystem::ProcessMiningComplete(const TileLayerComponent *tile
                     TileResourceManager::GetAirResourceRef(tileLayerType)
                 });
                 if (broken > 0) {
-                    LogCat::i("broken_tiles_at_position", "Broken tiles at position ({}, {}): {}",
+                    LogCat::i(LogLabel::DEFAULT, "broken_tiles_at_position", "Broken tiles at position ({}, {}): {}",
                               point->GetTileTopLeftPosition().x, point->GetTileTopLeftPosition().y, broken);
                 }
             }

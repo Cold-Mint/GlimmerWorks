@@ -31,7 +31,7 @@
 
 
 void glimmer::GameSystem::OnActivationChanged(const bool activeStatus) {
-    LogCat::i("game_system_activation_changed", "GameSystem {} activation changed: {}",
+    LogCat::i(LogLabel::DEFAULT, "game_system_activation_changed", "GameSystem {} activation changed: {}",
               std::to_underlying(GetGameSystemType()), activeStatus ? "active" : "inactive");
 }
 
@@ -56,7 +56,7 @@ void glimmer::GameSystem::WatchComponent(const GameComponentTypeMessage gameComp
         return;
     }
     watchComponents_.insert(gameComponentType);
-    LogCat::d("game_system_watch_component", "GameSystem watching component type {}",
+    LogCat::d(LogLabel::DEFAULT, "game_system_watch_component", "GameSystem watching component type {}",
               std::to_underlying(gameComponentType));
     //When observing the changes of a certain component, a callback will be triggered first.
     //当开始观察某个组件的变化时，会优先进行一次回调。
@@ -92,7 +92,7 @@ void glimmer::GameSystem::OnWatchedComponentChanged(GameComponentTypeMessage gam
 glimmer::GameSystem::GameSystem(WorldContext *worldContext) : worldContext_(worldContext) {
     entityManager_ = worldContext_->GetEntityManager();
     entityShortCut_ = worldContext_->GetEntityShortCut();
-    LogCat::i("game_system_created", "GameSystem created");
+    LogCat::i(LogLabel::DEFAULT, "game_system_created", "GameSystem created");
 }
 
 void glimmer::GameSystem::OnTick(uint64_t tick) {
@@ -101,11 +101,11 @@ void glimmer::GameSystem::OnTick(uint64_t tick) {
 }
 
 void glimmer::GameSystem::Init() {
-    LogCat::i("game_system_initializing", "GameSystem initializing");
+    LogCat::i(LogLabel::DEFAULT, "game_system_initializing", "GameSystem initializing");
     initSubclassFinish_ = true;
     const AppContext *appContext = worldContext_->GetAppContext();
     if (appContext == nullptr) {
-        LogCat::w(std::source_location::current(), "app_context_is_null", "appContext is nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "app_context_is_null", "appContext is nullptr");
         return;
     }
     OnWindowSizeChanged(appContext->GetWindowContext()->GetWindowWidth(),
@@ -114,7 +114,7 @@ void glimmer::GameSystem::Init() {
     if (config != nullptr) {
         OnConfigChanged(config);
     }
-    LogCat::i("game_system_initialized", "GameSystem initialized");
+    LogCat::i(LogLabel::DEFAULT, "game_system_initialized", "GameSystem initialized");
 }
 
 bool glimmer::GameSystem::IsWatchingComponent(GameComponentTypeMessage gameComponentType) const {
@@ -149,7 +149,7 @@ void glimmer::GameSystem::Update(const float delta) {
     if (!initSubclassFinish_) {
         initTimeOut_ += delta;
         if (initTimeOut_ > 2) {
-            LogCat::e(std::source_location::current(), "game_system_init_not_called",
+            LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "game_system_init_not_called",
                       "systemType = {} ,Did not be called within two seconds GameSystem::Init()",
                       static_cast<int>(GetGameSystemType()));
         }

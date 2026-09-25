@@ -31,7 +31,7 @@
 
 glimmer::ItemAbility::ItemAbility(const AbilityConfig &abilityConfig)
     : abilityConfig_(abilityConfig) {
-    LogCat::d("item_ability_created", "ItemAbility created");
+    LogCat::d(LogLabel::DEFAULT, "item_ability_created", "ItemAbility created");
 }
 
 const glimmer::AbilityConfig *glimmer::ItemAbility::GetAbilityConfig() const {

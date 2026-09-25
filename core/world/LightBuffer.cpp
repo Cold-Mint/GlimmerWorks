@@ -46,7 +46,7 @@ glimmer::TileLightData &glimmer::LightBuffer::GetOrCreate(const TileVector2D &po
 
 void glimmer::LightBuffer::SetLightFromSource(const LightSource &source, const TileLayerType layerType) {
     const TileVector2D &center = source.GetCenter();
-    LogCat::d("light_buffer_set_light_from_source",
+    LogCat::d(LogLabel::DEFAULT, "light_buffer_set_light_from_source",
               "LightBuffer: SetLightFromSource: center=({}, {}), layer={}, radius={}", center.x, center.y,
               static_cast<int>(layerType), source.GetMaxRadius());
     LightFloodFill::Propagate(center, source.GetMaxRadius(),
@@ -60,7 +60,7 @@ void glimmer::LightBuffer::SetLightFromSource(const LightSource &source, const T
 
 void glimmer::LightBuffer::ClearLightFromSource(const LightSource &source, const TileLayerType layerType) {
     const TileVector2D &center = source.GetCenter();
-    LogCat::d("light_buffer_clear_light_from_source",
+    LogCat::d(LogLabel::DEFAULT, "light_buffer_clear_light_from_source",
               "LightBuffer: ClearLightFromSource: center=({}, {}), layer={}, radius={}", center.x, center.y,
               static_cast<int>(layerType), source.GetMaxRadius());
     LightFloodFill::Propagate(center, source.GetMaxRadius(),
@@ -161,7 +161,8 @@ void glimmer::LightBuffer::InjectAmbientLightAt(const TileVector2D &position, Ti
 }
 
 void glimmer::LightBuffer::RebuildAmbientLight() {
-    LogCat::d("light_buffer_rebuild_ambient_light", "LightBuffer: RebuildAmbientLight: tile count={}",
+    LogCat::d(LogLabel::DEFAULT, "light_buffer_rebuild_ambient_light",
+              "LightBuffer: RebuildAmbientLight: tile count={}",
               tileLightData_.size());
     for (const auto &[position, tileData]: tileLightData_) {
         if (tileData == nullptr) {
@@ -212,7 +213,8 @@ void glimmer::LightBuffer::RebuildAllLight() {
     }
     RebuildAmbientLight();
     ++revision_;
-    LogCat::d("light_buffer_rebuild_all", "LightBuffer: RebuildAllLight: source count={}, revision={}", sources.size(),
+    LogCat::d(LogLabel::DEFAULT, "light_buffer_rebuild_all",
+              "LightBuffer: RebuildAllLight: source count={}, revision={}", sources.size(),
               revision_);
 }
 
@@ -243,7 +245,7 @@ void glimmer::LightBuffer::SetLightMask(const TileVector2D &position, const Tile
     if (oldStrength != newStrength) {
         MarkLightDirty();
     }
-    LogCat::d("light_buffer_set_light_mask",
+    LogCat::d(LogLabel::DEFAULT, "light_buffer_set_light_mask",
               "LightBuffer: SetLightMask: position=({}, {}), layer={}, direction={}, maskDirection={}, blockingStrength={}",
               position.x, position.y, static_cast<int>(layerType), static_cast<int>(direction),
               static_cast<int>(maskDirection), newStrength);
@@ -267,7 +269,7 @@ void glimmer::LightBuffer::ClearLightMask(const TileVector2D &position, const Ti
     if (oldStrength != 0.0F) {
         MarkLightDirty();
     }
-    LogCat::d("light_buffer_clear_light_mask",
+    LogCat::d(LogLabel::DEFAULT, "light_buffer_clear_light_mask",
               "LightBuffer: ClearLightMask: position=({}, {}), layer={}, direction={}, maskDirection={}",
               position.x, position.y, static_cast<int>(layerType), static_cast<int>(direction),
               static_cast<int>(maskDirection));
@@ -298,7 +300,8 @@ void glimmer::LightBuffer::ClearTileLightData(const TileVector2D &position) {
         UpdateColumnSkyOccluder(position, false);
     }
     MarkLightDirty();
-    LogCat::d("light_buffer_clear_tile_light_data", "LightBuffer: ClearTileLightData: position=({}, {})",
+    LogCat::d(LogLabel::DEFAULT, "light_buffer_clear_tile_light_data",
+              "LightBuffer: ClearTileLightData: position=({}, {})",
               position.x, position.y);
 }
 
@@ -320,7 +323,7 @@ void glimmer::LightBuffer::SetLightSource(const TileVector2D &position, const Ti
     //清除该位置+图层上已有的光源，避免新光源替换后残留旧的贡献。
     ClearLightSource(position, layerType);
     const Color *emission = lightSource->GetEmissionColor();
-    LogCat::d("light_buffer_set_light_source",
+    LogCat::d(LogLabel::DEFAULT, "light_buffer_set_light_source",
               "LightBuffer: SetLightSource: position=({}, {}), layer={}, radius={}, emission rgba=({},{},{},{})",
               position.x, position.y, static_cast<int>(layerType), lightSource->GetMaxRadius(),
               static_cast<int>(emission->r), static_cast<int>(emission->g),
@@ -339,7 +342,7 @@ void glimmer::LightBuffer::ClearLightSource(const TileVector2D &position, const 
     }
     it->second->ClearLightSource(layerType);
     MarkLightDirty();
-    LogCat::d("light_buffer_clear_light_source",
+    LogCat::d(LogLabel::DEFAULT, "light_buffer_clear_light_source",
               "LightBuffer: ClearLightSource: position=({}, {}), layer={}", position.x, position.y,
               static_cast<int>(layerType));
 }
@@ -427,7 +430,7 @@ void glimmer::LightBuffer::SetDynamicLight(const uint64_t id, const TileVector2D
     DynamicLightEntry entry{position, layerType, std::move(lightSource)};
     dynamicLights_.emplace(id, std::move(entry));
     ++revision_;
-    LogCat::d("light_buffer_set_dynamic_light",
+    LogCat::d(LogLabel::DEFAULT, "light_buffer_set_dynamic_light",
               "LightBuffer: SetDynamicLight: id={}, position=({}, {}), layer={}, radius={}", id, position.x,
               position.y, static_cast<int>(layerType), radius);
 }
@@ -442,7 +445,7 @@ void glimmer::LightBuffer::RemoveDynamicLight(const uint64_t id) {
     }
     dynamicLights_.erase(it);
     ++revision_;
-    LogCat::d("light_buffer_remove_dynamic_light", "LightBuffer: RemoveDynamicLight: id={}", id);
+    LogCat::d(LogLabel::DEFAULT, "light_buffer_remove_dynamic_light", "LightBuffer: RemoveDynamicLight: id={}", id);
 }
 
 float glimmer::LightBuffer::GetLightBlockingStrength(const TileVector2D &position, const TileLayerType layerType,
@@ -520,7 +523,7 @@ void glimmer::LightBuffer::UpdateColumnSkyOccluder(const TileVector2D &position,
     if (occluders.empty()) {
         columnSkyOccluders_.erase(position.x);
     }
-    LogCat::d("light_buffer_update_column_sky_occluder",
+    LogCat::d(LogLabel::DEFAULT, "light_buffer_update_column_sky_occluder",
               "LightBuffer: UpdateColumnSkyOccluder: position=({}, {}), nowBlocks={}", position.x, position.y,
               nowBlocks);
 }
@@ -556,7 +559,7 @@ void glimmer::LightBuffer::SetLightColor(const Color &backLight, const Color &sk
     backLightSource_.SetEmissionColor(backLight);
     skyLightSource_.SetEmissionColor(skyLight);
     ambientDirty_ = true;
-    LogCat::d("light_buffer_set_light_color",
+    LogCat::d(LogLabel::DEFAULT, "light_buffer_set_light_color",
               "LightBuffer: SetLightColor: backLight rgba=({},{},{},{}), skyLight rgba=({},{},{},{})",
               static_cast<int>(backLight.r), static_cast<int>(backLight.g),
               static_cast<int>(backLight.b), static_cast<int>(backLight.a),

@@ -47,7 +47,8 @@ glimmer::MainScene::MainScene(AppContext *context)
     virtualFileSystem_ = context->GetVirtualFileSystem();
     const ResourceLocator *resourceLocator = context->GetResourceLocator();
     if (resourceLocator == nullptr) {
-        LogCat::e(std::source_location::current(), "resource_locator_is_null", "resourceLocator == nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "resource_locator_is_null",
+                  "resourceLocator == nullptr");
         return;
     }
     nextBackgroundResourceRef_.SetSelfPackageId(RESOURCE_REF_CORE);
@@ -57,12 +58,12 @@ glimmer::MainScene::MainScene(AppContext *context)
     const std::shared_ptr<TextureResourceResult> textureResourceResult = resourceLocator->FindTexture(
         &nextBackgroundResourceRef_, false);
     if (textureResourceResult == nullptr) {
-        LogCat::e(std::source_location::current(), "texture_resource_result_is_null",
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "texture_resource_result_is_null",
                   "textureResourceResult == nullptr");
         return;
     }
     textureFolder_ = textureResourceResult->GetTexturePath().parent_path();
-    LogCat::i("old_texture_folder", "old textureFolder {}", textureFolder_.string());
+    LogCat::i(LogLabel::DEFAULT, "old_texture_folder", "old textureFolder {}", textureFolder_.string());
     Init();
 }
 
@@ -121,12 +122,13 @@ void glimmer::MainScene::OnStartGameClick(Rml::DataModelHandle handle, Rml::Even
                                           const Rml::VariantList &args) {
     AppContext *context = GetAppContext();
     if (context == nullptr) {
-        LogCat::w(std::source_location::current(), "context_is_null", "context == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "context_is_null", "context == nullptr");
         return;
     }
     SavesManager *savesManager = context->GetSavesManager();
     if (savesManager == nullptr) {
-        LogCat::w(std::source_location::current(), "saves_manager_is_null", "savesManager == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "saves_manager_is_null",
+                  "savesManager == nullptr");
         return;
     }
     if (savesManager->GetSavesListSize() > 0) {
@@ -143,7 +145,7 @@ void glimmer::MainScene::OnStartGameClick(Rml::DataModelHandle handle, Rml::Even
 void glimmer::MainScene::OnExitGameClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args) {
     AppContext *context = GetAppContext();
     if (context == nullptr) {
-        LogCat::w(std::source_location::current(), "context_is_null", "context == nullptr");
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "context_is_null", "context == nullptr");
         return;
     }
     context->ExitApp();

@@ -36,48 +36,52 @@
 bool glimmer::InitFontTask::Run(ISystemBucket *systemBucket) {
     const Config *config = systemBucket->GetConfig();
     if (config == nullptr) {
-        LogCat::e(std::source_location::current(), "config_is_null", "config is nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "config_is_null", "config is nullptr");
         return false;
     }
     ResourcePackManager *resourcePackManager = systemBucket->GetResourcePackManager();
     if (resourcePackManager == nullptr) {
-        LogCat::e(std::source_location::current(), "resource_pack_manager_is_null", "ResourcePackManager is nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "resource_pack_manager_is_null",
+                  "ResourcePackManager is nullptr");
         return false;
     }
-    LogCat::i("loading_font_for_language", "Loading font for language: {}", systemBucket->GetLanguage());
+    LogCat::i(LogLabel::DEFAULT, "loading_font_for_language", "Loading font for language: {}",
+              systemBucket->GetLanguage());
     const auto fontPathOpt = resourcePackManager->GetFontPath(
         config->mods.enabledResourcePack,
         systemBucket->GetLanguage(),
         systemBucket->GetVirtualFileSystem());
 
     if (!fontPathOpt.has_value()) {
-        LogCat::i("no_font_configured", "No font configured, skipping font initialization");
+        LogCat::i(LogLabel::DEFAULT, "no_font_configured", "No font configured, skipping font initialization");
         return true;
     }
 
     const std::filesystem::path &fontPath = fontPathOpt.value();
-    LogCat::i("font_path", "Font path: {}", fontPath.string());
+    LogCat::i(LogLabel::DEFAULT, "font_path", "Font path: {}", fontPath.string());
     const VirtualFileSystem *virtualFileSystem = systemBucket->GetVirtualFileSystem();
     if (virtualFileSystem == nullptr) {
-        LogCat::e(std::source_location::current(), "vfs_is_null", "virtualFileSystem is nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "vfs_is_null", "virtualFileSystem is nullptr");
         return false;
     }
     if (!virtualFileSystem->Exists(fontPath)) {
-        LogCat::w(std::source_location::current(), "font_file_not_found", "Font file not found: {}", fontPath.string());
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "font_file_not_found", "Font file not found: {}",
+                  fontPath.string());
         return false;
     }
 
     RmlContext *rmlContext = systemBucket->GetRmlContext();
     if (rmlContext == nullptr) {
-        LogCat::e(std::source_location::current(), "rml_context_is_null", "rmlContext is nullptr");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "rml_context_is_null", "rmlContext is nullptr");
         return false;
     }
     if (!rmlContext->LoadFont(virtualFileSystem, fontPath)) {
-        LogCat::e(std::source_location::current(), "rml_context_load_font_failed", "RmlContext Failed to load font: {}",
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "rml_context_load_font_failed",
+                  "RmlContext Failed to load font: {}",
                   fontPath.string());
         return false;
     }
-    LogCat::i("font_loaded", "Font loaded successfully: {}", fontPath.string());
+    LogCat::i(LogLabel::DEFAULT, "font_loaded", "Font loaded successfully: {}", fontPath.string());
     return true;
 }
 

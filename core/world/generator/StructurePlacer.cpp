@@ -44,24 +44,39 @@
 #include "core/world/structure/IStructureConditionProcessor.h"
 #include "core/world/structure/StructureConditionProcessorType.h"
 #include "core/world/structure/StructureGeneratorManager.h"
+#include "core/world/structure/StructureGeneratorType.h"
 #include "core/world/structure/StructureInfo.h"
+
+namespace {
+    const char *StructureGeneratorTypeName(const uint8_t generatorId) {
+        switch (static_cast<glimmer::StructureGeneratorType>(generatorId)) {
+            case glimmer::StructureGeneratorType::Static:
+                return "Static";
+            case glimmer::StructureGeneratorType::Tree:
+                return "Tree";
+            case glimmer::StructureGeneratorType::None:
+            default:
+                return "None";
+        }
+    }
+}
 
 glimmer::StructurePlacer::StructurePlacer(WorldContext *worldContext) : worldContext_(worldContext) {
 }
 
 void glimmer::StructurePlacer::GenerateStructure(const TileVector2D &position) const {
-    LogCat::i(LogLabel::DEFAULT, "structure_placing_start", "Placing structures: position=({}, {})", position.x,
+    LogCat::i(LogLabel::TERRAIN, "structure_placing_start", "Placing structures: position=({}, {})", position.x,
               position.y);
     const AppContext *appContext = worldContext_->GetAppContext();
     const auto &all = appContext->GetModContext()->GetStructureRegistry()->GetAll();
     if (all.empty()) {
-        LogCat::d(LogLabel::DEFAULT, "structure_registry_empty", "Structure registry is empty, skipping");
+        LogCat::d(LogLabel::TERRAIN, "structure_registry_empty", "Structure registry is empty, skipping");
         return;
     }
 
     TerrainManager *terrainManager = worldContext_->GetTerrainManager();
     if (terrainManager == nullptr) {
-        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "terrain_manager_is_null",
+        LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "terrain_manager_is_null",
                   "Terrain manager is null, cannot place structures");
         return;
     }
@@ -77,10 +92,15 @@ void glimmer::StructurePlacer::GenerateStructure(const TileVector2D &position) c
             continue;
         }
 
-        totalPlaced += PlaceStructureAtCandidatePoints(appContext, terrainManager, position,
-                                                       candidatePoints.value(), structureResource);
+        const int placedCount = PlaceStructureAtCandidatePoints(appContext, terrainManager, position,
+                                                                candidatePoints.value(), structureResource);
+        LogCat::d(LogLabel::TERRAIN, "structure_placed_per_resource",
+                  "Placed structure: resource={}, generator={}, position=({}, {}), placed={}",
+                  Resource::GenerateId(*structureResource), StructureGeneratorTypeName(structureResource->generatorId),
+                  position.x, position.y, placedCount);
+        totalPlaced += placedCount;
     }
-    LogCat::d(LogLabel::DEFAULT, "structure_placed_count",
+    LogCat::d(LogLabel::TERRAIN, "structure_placed_count",
               "Structure placement completed: position=({}, {}), placed={}", position.x,
               position.y, totalPlaced);
 }
@@ -117,12 +137,16 @@ void glimmer::StructurePlacer::PlaceStructureTiles(TerrainManager *terrainManage
 
 std::optional<std::bitset<CHUNK_AREA> > glimmer::StructurePlacer::MatchStructureConditions(
     const AppContext *appContext, TerrainResult *terrainResult, const IStructureResource *structureResource) {
+    const std::string resId = Resource::GenerateId(*structureResource);
     const size_t totalConditions = structureResource->condition.size();
     if (totalConditions == 0) {
+        LogCat::d(LogLabel::TERRAIN, "structure_condition_no_conditions",
+                  "Structure has no placement conditions: resource={}", resId);
         return std::nullopt;
     }
+    LogCat::d(LogLabel::TERRAIN, "structure_condition_match_start",
+              "Matching structure placement conditions: resource={}, condition count={}", resId, totalConditions);
 
-    std::string resId = Resource::GenerateId(*structureResource);
     std::bitset<CHUNK_AREA> totalBitset;
     bool hasAnyConditionMatched = false;
     const int endIndex = static_cast<int>(totalConditions) - 1;
@@ -148,6 +172,9 @@ std::optional<std::bitset<CHUNK_AREA> > glimmer::StructurePlacer::MatchStructure
                 structurePlacementConditionsRegistry->Find(conditionRef.GetPackageId(),
                                                            conditionRef.GetResourceKey());
         if (structurePlacementConditionsResource == nullptr) {
+            LogCat::d(LogLabel::TERRAIN, "structure_condition_resource_not_found",
+                      "Structure placement condition resource not found: resource={}, condition index={}, condition={}:{}",
+                      resId, i, conditionRef.GetPackageId(), conditionRef.GetResourceKey());
             continue;
         }
         const auto processorType = static_cast<StructureConditionProcessorType>(structurePlacementConditionsResource->
@@ -155,6 +182,9 @@ std::optional<std::bitset<CHUNK_AREA> > glimmer::StructurePlacer::MatchStructure
         IStructureConditionProcessor *structureConditionProcessor = structurePlacementConditionsProcessorManager->
                 FindConditionProcessors(processorType);
         if (structureConditionProcessor == nullptr) {
+            LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "structure_condition_processor_not_found",
+                      "Structure condition processor not found: resource={}, type={}", resId,
+                      std::to_underlying(processorType));
             continue;
         }
 
@@ -162,6 +192,8 @@ std::optional<std::bitset<CHUNK_AREA> > glimmer::StructurePlacer::MatchStructure
             terrainResult, structurePlacementConditionsResource);
 
         if (bitset.none()) {
+            LogCat::d(LogLabel::TERRAIN, "structure_condition_no_match",
+                      "Structure condition matched no tiles: resource={}, condition index={}", resId, i);
             return std::nullopt;
         }
 
@@ -173,6 +205,8 @@ std::optional<std::bitset<CHUNK_AREA> > glimmer::StructurePlacer::MatchStructure
         }
 
         if (totalBitset.none()) {
+            LogCat::d(LogLabel::TERRAIN, "structure_condition_intersection_empty",
+                      "No candidate points left after intersecting conditions: resource={}", resId);
             return std::nullopt;
         }
     }
@@ -181,6 +215,8 @@ std::optional<std::bitset<CHUNK_AREA> > glimmer::StructurePlacer::MatchStructure
         return std::nullopt;
     }
 
+    LogCat::d(LogLabel::TERRAIN, "structure_condition_matched",
+              "Structure conditions matched: resource={}, points={}", resId, totalBitset.count());
     return totalBitset;
 }
 

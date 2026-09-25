@@ -41,7 +41,7 @@ void glimmer::ChunkLoader::LoadEntityFromSaves(TileVector2D position) const {
         if (chunkEntityMessageOptional.has_value()) {
             ChunkEntityMessage &chunkEntityMessage = chunkEntityMessageOptional.value();
             int entitySize = chunkEntityMessage.entities_size();
-            LogCat::i(LogLabel::DEFAULT, "chunk_loader_load_entity",
+            LogCat::i(LogLabel::CHUNK, "chunk_loader_load_entity",
                       "Loading chunk entities from saves: position=({}, {}), count={}",
                       position.x, position.y, entitySize);
             for (int i = 0; i < entitySize; i++) {
@@ -59,7 +59,7 @@ glimmer::ChunkLoader::ChunkLoader(WorldContext *worldContext, Saves *saves, std:
 
 GameEntityID glimmer::ChunkLoader::RecoveryEntity(const EntityItemMessage &entityItemMessage) const {
     const auto id = entityItemMessage.gameentity().id();
-    LogCat::d(LogLabel::DEFAULT, "chunk_loader_entity_recovered", "Recovering entity from saves: id={}", id);
+    LogCat::d(LogLabel::CHUNK, "chunk_loader_entity_recovered", "Recovering entity from saves: id={}", id);
     entityManager_->AddEntity(id);
     if (entityItemMessage.has_resourceref()) {
         const ResourceRefMessage &resourceRefMessage = entityItemMessage.resourceref();
@@ -98,7 +98,7 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkLoader::LoadChunkFromSaves(TileVec
     }
     if (saves_->ChunkExists(dimensionFolderName_, position)) {
         if (const auto chunkMessage = saves_->ReadChunk(dimensionFolderName_, position); chunkMessage.has_value()) {
-            LogCat::i(LogLabel::DEFAULT, "chunk_loading_from_saves", "Loading chunk from saves at: ({}, {})",
+            LogCat::i(LogLabel::CHUNK, "chunk_loading_from_saves", "Loading chunk from saves at: ({}, {})",
                       position.x, position.y);
             auto chunk = std::make_unique<Chunk>(worldContext_, position, config);
             chunk.get()->ReadChunkMessage(chunkMessage.value());

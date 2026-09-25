@@ -29,8 +29,12 @@ namespace glimmer {
     enum class LogLabel {
         DEFAULT,
         //世界生成器相关
-        WORLD_GEN
+        WORLD_GEN,
+        //区块相关
+        CHUNK,
+        //地形相关
+        TERRAIN
     };
 
-    const char *ToString(LogLabel label);
+
 }

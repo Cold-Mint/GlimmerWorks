@@ -325,55 +325,65 @@ void glimmer::ChunkSystem::OnTick(const uint64_t tick) {
     }
     ScreenVector2D cameraSize;
     float cameraZoom;
+    uint64_t chunkSpawnCleanInterval;
+    uint64_t loadTerrainInterval;
+    uint16_t loadTerrainBatch;
+    uint64_t loadChunkInterval;
+    uint16_t loadChunkBatch;
+    uint64_t unloadChunkInterval;
+    uint16_t unloadChunkBatch;
+    uint64_t unloadTerrainInterval;
+    uint16_t unloadTerrainBatch;
+    float preloadStructureRadius;
+    float preloadChunkRadius;
     {
         std::lock_guard lock(cameraMutex_);
         cameraSize = cameraSize_;
         cameraZoom = cameraZoom_;
     }
+    {
+        std::lock_guard lock(worldConfigMutex_);
+        chunkSpawnCleanInterval = chunkSpawnCleanInterval_;
+        loadTerrainInterval = loadTerrainInterval_;
+        loadTerrainBatch = loadTerrainBatch_;
+        loadChunkInterval = loadChunkInterval_;
+        loadChunkBatch = loadChunkBatch_;
+        unloadChunkInterval = unloadChunkInterval_;
+        unloadChunkBatch = unloadChunkBatch_;
+        unloadTerrainInterval = unloadTerrainInterval_;
+        unloadTerrainBatch = unloadTerrainBatch_;
+        preloadStructureRadius = preloadStructureRadius_;
+        preloadChunkRadius = preloadChunkRadius_;
+    }
     constexpr float chunkWorldSize = CHUNK_SIZE * TILE_SIZE;
     const auto viewportRect = CoordinateTransformer::GetViewportRect(cameraTransform2DComponent_->GetPosition(),
                                                                      cameraSize, cameraZoom);
 
-    const AppContext *appContext = worldContext->GetAppContext();
-    if (appContext == nullptr) {
-        return;
-    }
-    const Config *config = appContext->GetConfig();
-    if (config == nullptr) {
-        return;
-    }
-    ExecuteTimedTask(FIXED_TIME_STEP, config->world.loadTerrainInterval, loadTerrainAccumTime_,
-                     config->world.loadTerrainBatch, [this](uint16_t batch) { ExecuteLoadTerrainTask(batch); });
-    ExecuteTimedTask(FIXED_TIME_STEP, config->world.loadChunkInterval, loadChunkAccumTime_,
-                     config->world.loadChunkBatch, [this](uint16_t batch) { ExecuteLoadChunkTask(batch); });
-    ExecuteTimedTask(FIXED_TIME_STEP, config->world.unloadChunkInterval, unloadChunkAccumTime_,
-                     config->world.unloadChunkBatch, [this](uint16_t batch) { ExecuteUnloadChunkTask(batch); });
-    ExecuteTimedTask(FIXED_TIME_STEP, config->world.unloadTerrainInterval, unloadTerrainAccumTime_,
-                     config->world.unloadTerrainBatch, [this](uint16_t batch) { ExecuteUnloadTerrainTask(batch); });
+    ExecuteTimedTask(tick, loadTerrainInterval, loadTerrainBatch,
+                     [this](uint16_t batch) { ExecuteLoadTerrainTask(batch); });
+    ExecuteTimedTask(tick, loadChunkInterval, loadChunkBatch,
+                     [this](uint16_t batch) { ExecuteLoadChunkTask(batch); });
+    ExecuteTimedTask(tick, unloadChunkInterval, unloadChunkBatch,
+                     [this](uint16_t batch) { ExecuteUnloadChunkTask(batch); });
+    ExecuteTimedTask(tick, unloadTerrainInterval, unloadTerrainBatch,
+                     [this](uint16_t batch) { ExecuteUnloadTerrainTask(batch); });
 
-    const float interval = config->world.chunkSpawnCleanInterval;
-    if (interval == 0.0F) {
-        accumTime_ = 0.0F;
-        firstTime_ = false;
-    } else {
-        accumTime_ += FIXED_TIME_STEP;
-        if (!firstTime_ && accumTime_ < interval) {
+    if (chunkSpawnCleanInterval != 0) {
+        accumTime_++;
+        if (accumTime_ < chunkSpawnCleanInterval) {
             return;
         }
-        firstTime_ = false;
-        accumTime_ -= interval;
+        accumTime_ -= chunkSpawnCleanInterval;
     }
     if (!UpdateCameraPosition()) {
         return;
     }
     auto preloadedTerrainViewportRect = viewportRect;
-    const float preloadStructureRadius = config->world.preloadStructureRadius;
     preloadedTerrainViewportRect.x -= preloadStructureRadius * chunkWorldSize;
     preloadedTerrainViewportRect.y -= preloadStructureRadius * chunkWorldSize;
     preloadedTerrainViewportRect.w += preloadStructureRadius * 2 * chunkWorldSize;
     preloadedTerrainViewportRect.h += preloadStructureRadius * 2 * chunkWorldSize;
     auto preloadedChunkViewportRect = viewportRect;
-    const float preloadChunkRadius = config->world.preloadChunkRadius;
     preloadedChunkViewportRect.x -= preloadChunkRadius * chunkWorldSize;
     preloadedChunkViewportRect.y -= preloadChunkRadius * chunkWorldSize;
     preloadedChunkViewportRect.w += preloadChunkRadius * 2 * chunkWorldSize;
@@ -419,8 +429,24 @@ void glimmer::ChunkSystem::OnConfigChanged(const Config *config) {
     if (config == nullptr) {
         return;
     }
-    std::lock_guard lock(cameraMutex_);
-    cameraZoom_ = config->window.cameraScale;
+    {
+        std::lock_guard lock(cameraMutex_);
+        cameraZoom_ = config->window.cameraScale;
+    }
+    {
+        std::lock_guard lock(worldConfigMutex_);
+        chunkSpawnCleanInterval_ = config->world.chunkSpawnCleanInterval;
+        loadTerrainInterval_ = config->world.loadTerrainInterval;
+        loadTerrainBatch_ = config->world.loadTerrainBatch;
+        loadChunkInterval_ = config->world.loadChunkInterval;
+        loadChunkBatch_ = config->world.loadChunkBatch;
+        unloadChunkInterval_ = config->world.unloadChunkInterval;
+        unloadChunkBatch_ = config->world.unloadChunkBatch;
+        unloadTerrainInterval_ = config->world.unloadTerrainInterval;
+        unloadTerrainBatch_ = config->world.unloadTerrainBatch;
+        preloadStructureRadius_ = config->world.preloadStructureRadius;
+        preloadChunkRadius_ = config->world.preloadChunkRadius;
+    }
 }
 
 glimmer::GameSystemType glimmer::ChunkSystem::GetGameSystemType() const {

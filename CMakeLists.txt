@@ -435,7 +435,6 @@ target_sources(GlimmerWorks
         core/context/tasks/InitConsoleContextTask.cpp
         core/context/tasks/InitCoreContextsTask.cpp
         core/context/tasks/InitDataPackTask.cpp
-          core/log/LogLabel.cpp
         core/context/tasks/InitFontTask.cpp
         core/context/tasks/InitLangsTask.cpp
         core/context/tasks/InitModContextTask.cpp

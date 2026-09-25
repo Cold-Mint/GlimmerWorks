@@ -50,11 +50,25 @@ namespace glimmer {
         ScreenVector2D cameraSize_{800.0F, 600.0F};
         float cameraZoom_ = 2.0F;
         mutable std::mutex cameraMutex_;
-        float accumTime_ = 0.0F;
-        float loadTerrainAccumTime_ = 0.0F;
-        float loadChunkAccumTime_ = 0.0F;
-        float unloadChunkAccumTime_ = 0.0F;
-        float unloadTerrainAccumTime_ = 0.0F;
+        //累加tick
+        uint64_t accumTime_ = 0;
+
+        //Cached world configuration parameters, written on the main thread
+        //(OnConfigChanged) and read on the tick thread (OnTick).
+        //缓存世界配置参数：在主线程（OnConfigChanged）写入，在 tick 线程（OnTick）读取。
+        uint64_t chunkSpawnCleanInterval_ = 0;
+        uint64_t loadTerrainInterval_ = 0;
+        uint16_t loadTerrainBatch_ = 0;
+        uint64_t loadChunkInterval_ = 0;
+        uint16_t loadChunkBatch_ = 0;
+        uint64_t unloadChunkInterval_ = 0;
+        uint16_t unloadChunkBatch_ = 0;
+        uint64_t unloadTerrainInterval_ = 0;
+        uint16_t unloadTerrainBatch_ = 0;
+        float preloadStructureRadius_ = 0.0F;
+        float preloadChunkRadius_ = 0.0F;
+        mutable std::mutex worldConfigMutex_;
+
         bool firstTime_ = true;
         std::vector<std::unique_ptr<ChunkTask> > loadTerrainTasks_;
         std::vector<std::unique_ptr<ChunkTask> > loadChunkTasks_;
@@ -93,15 +107,13 @@ namespace glimmer {
         void UpdateChunkFadeAnimation(const SDL_FRect &viewportRect) const;
 
         template<typename Func>
-        void ExecuteTimedTask(float delta, float interval, float &accumTime, uint16_t batch, Func &&executeFunc) {
-            if (interval == 0.0F) {
+        static void ExecuteTimedTask(const uint64_t tick, const uint64_t interval, uint16_t batch, Func &&executeFunc) {
+            if (interval == 0) {
                 executeFunc(batch);
                 return;
             }
-            accumTime += delta;
-            if (accumTime > interval) {
+            if (tick % interval == 0) {
                 executeFunc(batch);
-                accumTime -= interval;
             }
         }
 

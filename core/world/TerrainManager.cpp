@@ -55,7 +55,7 @@ glimmer::TerrainResult *glimmer::TerrainManager::GetOrCreateTerrainData(const Ti
     //重的地形生成在锁外执行。
     auto terrainResult = worldContext_->GetChunkGenerator()->GenerateTerrain(position);
     if (terrainResult == nullptr) {
-        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "terrain_generate_failed",
+        LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "terrain_generate_failed",
                   "Failed to generate terrain data: position=({}, {})", position.x, position.y);
         return nullptr;
     }
@@ -70,7 +70,7 @@ glimmer::TerrainResult *glimmer::TerrainManager::GetOrCreateTerrainData(const Ti
         terrainTileData_.emplace(position, std::move(terrainResult));
         terrainTileDataCache_.emplace(position, terrainPtr);
     }
-    LogCat::d(LogLabel::DEFAULT, "terrain_data_created", "Created terrain data: position=({}, {})", position.x,
+    LogCat::d(LogLabel::TERRAIN, "terrain_data_created", "Created terrain data: position=({}, {})", position.x,
               position.y);
     return terrainPtr;
 }
@@ -88,7 +88,7 @@ void glimmer::TerrainManager::LoadTerrainAt(TileVector2D position) {
             return;
         }
     }
-    LogCat::d(LogLabel::DEFAULT, "terrain_loading", "Loading terrain (structure generation): position=({}, {})",
+    LogCat::d(LogLabel::TERRAIN, "terrain_loading", "Loading terrain (structure generation): position=({}, {})",
               position.x,
               position.y);
     //The heavy structure generation runs outside the lock.
@@ -103,7 +103,7 @@ void glimmer::TerrainManager::UnloadTerrainAt(TileVector2D position) {
     if (!processedTerrainTiles_.contains(position)) {
         return;
     }
-    LogCat::d(LogLabel::DEFAULT, "terrain_unloading", "Unloading terrain: position=({}, {})", position.x, position.y);
+    LogCat::d(LogLabel::TERRAIN, "terrain_unloading", "Unloading terrain: position=({}, {})", position.x, position.y);
     processedTerrainTiles_.erase(position);
     terrainTileDataCache_.erase(position);
     terrainTileData_.erase(position);

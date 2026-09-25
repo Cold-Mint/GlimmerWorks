@@ -72,6 +72,20 @@ namespace glimmer {
 
         static inline std::chrono::steady_clock::time_point startTime_ = std::chrono::steady_clock::now();
 
+        static const char *ToString(LogLabel label) {
+            switch (label) {
+                case LogLabel::DEFAULT:
+                    return "DEFAULT";
+                case LogLabel::WORLD_GEN:
+                    return "WORLD_GEN";
+                case LogLabel::CHUNK:
+                    return "CHUNK";
+                case LogLabel::TERRAIN:
+                    return "TERRAIN";
+            }
+            return "UNKNOWN";
+        }
+
         static std::string Resolve(std::string_view key, std::string_view fallback) {
             const auto table = localizer_.load();
             if (table != nullptr) {

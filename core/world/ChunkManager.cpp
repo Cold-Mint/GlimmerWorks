@@ -48,7 +48,7 @@ glimmer::ChunkManager::ChunkManager(WorldContext *worldContext, std::string dime
     : worldContext_(worldContext), dimensionFolderName_(std::move(dimensionFolderName)) {
     lightBuffer_ = std::make_unique<LightBuffer>();
     tileInstancePool_ = std::make_unique<TileInstancePool>();
-    LogCat::i(LogLabel::DEFAULT, "chunk_manager_created", "ChunkManager created for dimension folder: {}",
+    LogCat::i(LogLabel::CHUNK, "chunk_manager_created", "ChunkManager created for dimension folder: {}",
               dimensionFolderName_);
 }
 
@@ -168,7 +168,7 @@ void glimmer::ChunkManager::UpdateTileLight(const Chunk *chunk, const TileLayerT
 
 
 void glimmer::ChunkManager::UpdateChunkLight(const Chunk *chunk) const {
-    LogCat::d(LogLabel::DEFAULT, "chunk_update_light", "Updating chunk light: position=({}, {})",
+    LogCat::d(LogLabel::CHUNK, "chunk_update_light", "Updating chunk light: position=({}, {})",
               chunk->GetPosition().x,
               chunk->GetPosition().y);
     for (int index = 0; index < CHUNK_AREA; ++index) {
@@ -196,17 +196,17 @@ void glimmer::ChunkManager::LoadChunkAt(TileVector2D position) {
             return;
         }
     }
-    LogCat::d(LogLabel::DEFAULT, "chunk_loading", "Loading chunk at position: ({}, {})", position.x, position.y);
+    LogCat::d(LogLabel::CHUNK, "chunk_loading", "Loading chunk at position: ({}, {})", position.x, position.y);
     //The heavy generation runs outside the lock so the render thread is never
     //blocked while reading the chunk map.
     //重的地形生成在锁外执行，避免阻塞渲染线程读取区块表。
     std::unique_ptr<Chunk> newlyCreatedChunk = worldContext_->GetChunkLoader()->LoadChunkFromSaves(position);
     if (newlyCreatedChunk == nullptr) {
-        LogCat::d(LogLabel::DEFAULT, "chunk_not_found_generating", "Chunk not found in saves, generating new chunk");
+        LogCat::d(LogLabel::CHUNK, "chunk_not_found_generating", "Chunk not found in saves, generating new chunk");
         newlyCreatedChunk = worldContext_->GetChunkGenerator()->GenerateChunkAt(position);
     }
     if (newlyCreatedChunk == nullptr) {
-        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "chunk_load_generate_failed",
+        LogCat::w(LogLabel::CHUNK, std::source_location::current(), "chunk_load_generate_failed",
                   "Failed to load or generate chunk at: ({}, {})", position.x,
                   position.y);
         return;
@@ -226,7 +226,7 @@ void glimmer::ChunkManager::LoadChunkAt(TileVector2D position) {
         }
         chunks_.insert({position, std::move(newlyCreatedChunk)});
     }
-    LogCat::d(LogLabel::DEFAULT, "chunk_loaded", "Chunk loaded successfully at: ({}, {})", position.x, position.y);
+    LogCat::d(LogLabel::CHUNK, "chunk_loaded", "Chunk loaded successfully at: ({}, {})", position.x, position.y);
 
     AppContext *appContext = worldContext_->GetAppContext();
     if (appContext == nullptr) {
@@ -260,9 +260,9 @@ void glimmer::ChunkManager::UnloadChunkAt(const TileVector2D &position) {
         }
         chunk = it->second.get();
     }
-    LogCat::d(LogLabel::DEFAULT, "chunk_unloading", "Unloading chunk at position: ({}, {})", position.x, position.y);
+    LogCat::d(LogLabel::CHUNK, "chunk_unloading", "Unloading chunk at position: ({}, {})", position.x, position.y);
     if (!SaveChunk(position)) {
-        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "chunk_save_failed_during_unload",
+        LogCat::w(LogLabel::CHUNK, std::source_location::current(), "chunk_save_failed_during_unload",
                   "Failed to save chunk during unload at: ({}, {})", position.x,
                   position.y);
         return;
@@ -292,7 +292,7 @@ void glimmer::ChunkManager::UnloadChunkAt(const TileVector2D &position) {
         std::lock_guard lock(mutex_);
         chunks_.erase(position);
     }
-    LogCat::d(LogLabel::DEFAULT, "chunk_unloaded", "Chunk unloaded successfully at: ({}, {})", position.x, position.y);
+    LogCat::d(LogLabel::CHUNK, "chunk_unloaded", "Chunk unloaded successfully at: ({}, {})", position.x, position.y);
 }
 
 glimmer::Chunk *glimmer::ChunkManager::GetChunk(const TileVector2D &position) {
@@ -325,7 +325,7 @@ bool glimmer::ChunkManager::SaveChunk(TileVector2D position) {
         }
         chunk = it->second.get();
     }
-    LogCat::d(LogLabel::DEFAULT, "chunk_saving", "Saving chunk: position=({}, {})", position.x, position.y);
+    LogCat::d(LogLabel::CHUNK, "chunk_saving", "Saving chunk: position=({}, {})", position.x, position.y);
     ChunkMessage chunkMessage;
     chunk->WriteChunkMessage(chunkMessage);
     (void) worldContext_->GetSaves()->WriteChunk(dimensionFolderName_, position, chunkMessage);
@@ -385,19 +385,21 @@ bool glimmer::ChunkManager::SaveChunk(TileVector2D position) {
             entityManager->RemoveEntity(id);
         }
     }
-    LogCat::d(LogLabel::DEFAULT, "chunk_saved", "Chunk saved: position=({}, {}), entities={}", position.x, position.y,
+    LogCat::d(LogLabel::CHUNK, "chunk_saved", "Chunk saved: position=({}, {}), entities={}", position.x, position.y,
               chunkEntityMessage.entities_size());
     return true;
 }
 
 bool glimmer::ChunkManager::SaveAllChunks() {
     const std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> chunks = GetAllChunks();
+    LogCat::i(LogLabel::CHUNK, "chunk_save_all_start", "Saving all loaded chunks: count={}", chunks.size());
     bool saveAllChunks = true;
     for (const auto &position: chunks | std::views::keys) {
         if (!SaveChunk(position)) {
             saveAllChunks = false;
         }
     }
+    LogCat::i(LogLabel::CHUNK, "chunk_save_all_completed", "All chunks saved: success={}", saveAllChunks);
     return saveAllChunks;
 }
 

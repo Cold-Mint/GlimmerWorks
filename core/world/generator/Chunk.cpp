@@ -126,7 +126,7 @@ bool glimmer::Chunk::CommitTileState(const BreakSource breakSource, const TileLa
             tileResource = resourceLocator->FindTileRaw(&resourceRef);
         }
         if (tileResource == nullptr) {
-            LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "chunk_tile_resource_null",
+            LogCat::w(LogLabel::CHUNK, std::source_location::current(), "chunk_tile_resource_null",
                       "Tile resource is null, cannot rebuild tile: layer={}, index={}",
                       std::to_underlying(layerType), index);
             return false;
@@ -139,7 +139,7 @@ bool glimmer::Chunk::CommitTileState(const BreakSource breakSource, const TileLa
         const std::shared_ptr<Tile> newTile = tileInstancePool->CreateTile(appContext, tileResource,
                                                                            fingerprint);
         if (newTile == nullptr) {
-            LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "chunk_create_tile_failed",
+            LogCat::w(LogLabel::CHUNK, std::source_location::current(), "chunk_create_tile_failed",
                       "Failed to create tile instance: layer={}, index={}", std::to_underlying(layerType),
                       index);
             return false;
@@ -299,7 +299,7 @@ void glimmer::Chunk::ReadChunkMessage(const ChunkMessage &chunkMessage) {
     position_.ReadVector2DIMessage(chunkMessage.position());
     tiles_.clear();
     tileState_.clear();
-    LogCat::i(LogLabel::DEFAULT, "chunk_read_message", "Reading chunk message: position=({}, {}), layer count={}",
+    LogCat::i(LogLabel::CHUNK, "chunk_read_message", "Reading chunk message: position=({}, {}), layer count={}",
               position_.x,
               position_.y, chunkMessage.tilestates().size());
     auto &map = chunkMessage.tilestates();
@@ -348,7 +348,7 @@ glimmer::Chunk::Chunk(WorldContext *worldContext, const TileVector2D &pos, const
 void glimmer::Chunk::WriteChunkMessage(ChunkMessage &chunkMessage) {
     position_.WriteVector2DIMessage(*chunkMessage.mutable_position());
     chunkMessage.clear_tilestates();
-    LogCat::d(LogLabel::DEFAULT, "chunk_write_message", "Writing chunk message: position=({}, {})", position_.x,
+    LogCat::d(LogLabel::CHUNK, "chunk_write_message", "Writing chunk message: position=({}, {})", position_.x,
               position_.y);
     for (const auto &[layerType, tileArray]: tileState_) {
         auto &tileData =

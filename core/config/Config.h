@@ -111,14 +111,14 @@ namespace glimmer {
         float preloadChunkRadius;
         float preloadStructureRadius;
         float preloadLightingRadius;
-        float chunkSpawnCleanInterval;
-        float loadTerrainInterval;
+        uint64_t chunkSpawnCleanInterval;
+        uint64_t loadTerrainInterval;
         uint16_t loadTerrainBatch;
-        float loadChunkInterval;
+        uint64_t loadChunkInterval;
         uint16_t loadChunkBatch;
-        float unloadChunkInterval;
+        uint64_t unloadChunkInterval;
         uint16_t unloadChunkBatch;
-        float unloadTerrainInterval;
+        uint64_t unloadTerrainInterval;
         uint16_t unloadTerrainBatch;
     };
 

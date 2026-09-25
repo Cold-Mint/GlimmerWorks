@@ -107,7 +107,7 @@ void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(AppContext *appContex
     if (appContext == nullptr || chunk == nullptr) {
         return;
     }
-    LogCat::d(LogLabel::DEFAULT, "chunk_physics_attach", "Attaching physics body to chunk: position=({}, {})",
+    LogCat::d(LogLabel::CHUNK, "chunk_physics_attach", "Attaching physics body to chunk: position=({}, {})",
               chunk->GetPosition().x, chunk->GetPosition().y);
     appContext->GetMainThreadDispatcher()->RunOnMainThread([worldId, chunk] {
         const std::vector<bool> isStaticTile = CollectStaticTiles(chunk);
@@ -151,7 +151,7 @@ void glimmer::ChunkPhysicsHelper::DetachPhysicsBodyToChunk(AppContext *appContex
     if (appContext == nullptr || chunk == nullptr) {
         return;
     }
-    LogCat::d(LogLabel::DEFAULT, "chunk_physics_detach", "Detaching physics body from chunk: position=({}, {})",
+    LogCat::d(LogLabel::CHUNK, "chunk_physics_detach", "Detaching physics body from chunk: position=({}, {})",
               chunk->GetPosition().x, chunk->GetPosition().y);
     //Copy the body ids out first so the deferred lambda does not depend on the
     //chunk (which may be destroyed on the tick thread before the main thread

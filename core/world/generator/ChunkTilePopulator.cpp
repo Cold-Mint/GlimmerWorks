@@ -27,6 +27,7 @@
 #include "ChunkTilePopulator.h"
 
 #include "Chunk.h"
+#include "core/log/LogCat.h"
 #include "core/mod/Resource.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/world/WorldContext.h"
@@ -57,10 +58,14 @@ void glimmer::ChunkTilePopulator::Populate(Chunk *chunk,
                                            const ResourceLocator *resourceLocator,
                                            const std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> >
                                            &tilesRefMap) {
+    LogCat::d(LogLabel::CHUNK, "chunk_tile_populate_start", "Populating chunk tiles: position=({}, {})",
+              chunk->GetPosition().x, chunk->GetPosition().y);
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
         for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
             const int topLeftIndex = localY * CHUNK_SIZE + localX;
             PopulateSingleTilePosition(chunk, resourceLocator, tilesRefMap, topLeftIndex);
         }
     }
+    LogCat::d(LogLabel::CHUNK, "chunk_tile_populate_completed", "Chunk tiles populated: position=({}, {})",
+              chunk->GetPosition().x, chunk->GetPosition().y);
 }

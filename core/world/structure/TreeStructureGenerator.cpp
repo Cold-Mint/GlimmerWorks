@@ -71,6 +71,24 @@ std::optional<glimmer::StructureInfo> glimmer::TreeStructureGenerator::Generate(
     return structureInfo;
 }
 
+uint32_t glimmer::TreeStructureGenerator::GetMaxExtent(IStructureResource *structureResource) const {
+    auto treeStructureResource = dynamic_cast<TreeStructureResource *>(structureResource);
+    if (treeStructureResource == nullptr) {
+        return 0;
+    }
+    int width = treeStructureResource->trunkWidth;
+    int height = treeStructureResource->trunkHeightMax;
+    if (treeStructureResource->hasLeaves) {
+        const int leafRadius = treeStructureResource->leafRadius;
+        const int halfWidth = treeStructureResource->trunkWidth / 2;
+        const int minX = std::min(0, halfWidth - leafRadius);
+        const int maxX = std::max(treeStructureResource->trunkWidth - 1, halfWidth + leafRadius);
+        width = maxX - minX + 1;
+        height += leafRadius + 1;
+    }
+    return std::max(width, height);
+}
+
 glimmer::StructureGeneratorType glimmer::TreeStructureGenerator::GetStructureGeneratorType() const {
     return StructureGeneratorType::Tree;
 }

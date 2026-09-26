@@ -100,7 +100,7 @@ namespace glimmer {
          * @param origin origin 原点
          * @param sortAscending sortAscending 是否升序（从小到大）
          */
-        static void SetOriginAndSort(std::vector<std::unique_ptr<ChunkTask> > &taskList, const TileVector2D& origin,
+        static void SetOriginAndSort(std::vector<std::unique_ptr<ChunkTask> > &taskList, const TileVector2D &origin,
                                      bool sortAscending);
 
         void UpdateChunkFadeAnimation(const SDL_FRect &viewportRect) const;

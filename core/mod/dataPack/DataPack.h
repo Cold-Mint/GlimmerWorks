@@ -93,7 +93,7 @@ namespace glimmer {
 
         [[nodiscard]] PackVerifyState GetPackVerifyState() const;
 
-        [[nodiscard]] bool LoadPack(AppContext *appContext);
+        [[nodiscard]] bool LoadPack(const AppContext *appContext);
 
         [[nodiscard]] const DataPackManifest *GetManifest() const;
     };

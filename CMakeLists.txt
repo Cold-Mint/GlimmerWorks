@@ -811,8 +811,6 @@ target_sources(GlimmerWorks
         core/world/structure/BiomeStructureConditionProcessor.cpp
         core/world/structure/HeightStructureConditionProcessor.cpp
         core/world/structure/SpacingStructureConditionProcessor.cpp
-        core/world/structure/IStructureConditionProcessor.cpp
-        core/world/structure/IStructureGenerator.cpp
         core/world/structure/StaticStructureGenerator.cpp
         core/world/structure/StructureGeneratorManager.cpp
         core/world/structure/StructureInfo.cpp

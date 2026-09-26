@@ -38,14 +38,14 @@ glimmer::TerrainManager::TerrainManager(WorldContext *worldContext) : worldConte
 
 const std::array<glimmer::TileVector2D, 8> &glimmer::TerrainManager::NeighborOffsets() {
     static const std::array offsets = {
-        TileVector2D(0, CHUNK_SIZE),            // up 上
-        TileVector2D(0, -CHUNK_SIZE),           // down 下
-        TileVector2D(-CHUNK_SIZE, 0),           // left 左
-        TileVector2D(CHUNK_SIZE, 0),            // right 右
-        TileVector2D(-CHUNK_SIZE, CHUNK_SIZE),  // up-left 左上
-        TileVector2D(CHUNK_SIZE, CHUNK_SIZE),   // up-right 右上
+        TileVector2D(0, CHUNK_SIZE), // up 上
+        TileVector2D(0, -CHUNK_SIZE), // down 下
+        TileVector2D(-CHUNK_SIZE, 0), // left 左
+        TileVector2D(CHUNK_SIZE, 0), // right 右
+        TileVector2D(-CHUNK_SIZE, CHUNK_SIZE), // up-left 左上
+        TileVector2D(CHUNK_SIZE, CHUNK_SIZE), // up-right 右上
         TileVector2D(-CHUNK_SIZE, -CHUNK_SIZE), // down-left 左下
-        TileVector2D(CHUNK_SIZE, -CHUNK_SIZE),  // down-right 右下
+        TileVector2D(CHUNK_SIZE, -CHUNK_SIZE), // down-right 右下
     };
     return offsets;
 }

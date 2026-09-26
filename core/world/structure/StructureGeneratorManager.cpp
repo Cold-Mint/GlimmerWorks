@@ -34,6 +34,18 @@ void glimmer::StructureGeneratorManager::RegisterStructureGenerator(
     structureGeneratorMap_.emplace(type, std::move(structureGenerator));
 }
 
+void glimmer::StructureGeneratorManager::ResetMaxChunksOccupiedByStructure() {
+    maxChunksOccupiedByStructure_ = 0;
+}
+
+void glimmer::StructureGeneratorManager::UpdateMaxChunksOccupied(const uint32_t maxChunks) {
+    maxChunksOccupiedByStructure_ = std::max(maxChunksOccupiedByStructure_, maxChunks);
+}
+
+uint32_t glimmer::StructureGeneratorManager::GetMaxChunksOccupiedByStructure() const {
+    return maxChunksOccupiedByStructure_;
+}
+
 std::optional<glimmer::StructureInfo> glimmer::StructureGeneratorManager::Generate(WorldContext *worldContext,
     const TileVector2D &structuralOrigin, IStructureResource *structureResource) {
     const auto type = static_cast<StructureGeneratorType>(structureResource->generatorId);

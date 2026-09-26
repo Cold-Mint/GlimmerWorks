@@ -35,8 +35,6 @@
 #include "core/config/Config.h"
 #include "core/config/Constants.h"
 #include "core/context/AppContext.h"
-#include "core/context/GraphicsContext.h"
-#include "core/context/ModContext.h"
 #include "core/log/LogCat.h"
 #include "core/utils/StringUtils.h"
 #include "core/utils/TomlUtils.h"
@@ -64,7 +62,6 @@ glimmer::DataPack::DataPack(std::filesystem::path path, const VirtualFileSystem 
       tomlVersion_(tomlVersion),
       virtualFileSystem_(virtualFileSystem),
       tomlTemplateExpander_(tomlTemplateExpander),
-      packVerifyState_(PackVerifyState::Unsigned),
       resourceFileLoader_(rootPath_, &manifest_, virtualFileSystem_, tomlTemplateExpander_, tomlVersion_) {
 }
 
@@ -139,10 +136,10 @@ int glimmer::DataPack::ProcessFile(const std::filesystem::path &file, const AppC
         return 0;
     }
     return resourceFileLoader_.LoadResourceByType(dataType, file.string(), content,
-                                                  appContext->GetModContext(), appContext->GetGraphicsContext());
+                                                  appContext);
 }
 
-bool glimmer::DataPack::LoadPack(AppContext *appContext) {
+bool glimmer::DataPack::LoadPack(const AppContext *appContext) {
     packVerifyState_ = PackVerifyState::Unsigned;
     LogCat::i(LogLabel::DEFAULT, "data_pack_load_content_start", "Loading data pack content: Id={}", manifest_.id);
     if (appContext == nullptr) {

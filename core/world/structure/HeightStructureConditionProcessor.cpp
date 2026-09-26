@@ -33,7 +33,7 @@ GetStructureConditionProcessorType() {
     return StructureConditionProcessorType::Height;
 }
 
-std::bitset<CHUNK_AREA> glimmer::HeightStructureConditionProcessor::Match(TerrainResult *terrainResult,
+std::bitset<CHUNK_AREA> glimmer::HeightStructureConditionProcessor::Match(const TerrainResult *terrainResult,
                                                                           const IStructurePlacementConditionsResource *
                                                                           placementConditionsResource) {
     const auto heightStructureConditions = dynamic_cast<const HeightStructureConditionsResource *>(

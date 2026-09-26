@@ -35,7 +35,7 @@ namespace glimmer {
         virtual ~IStructureGenerator() = default;
 
         /**
-         *
+         * Generate
          * 生成结构
          * @param worldContext
          * @param startPosition
@@ -44,6 +44,13 @@ namespace glimmer {
          */
         virtual std::optional<StructureInfo> Generate(WorldContext *worldContext, const TileVector2D &startPosition,
                                                       IStructureResource *structureResource) = 0;
+
+        /**
+         * Get the dimension of the longest edge of the structure (in tiles)
+         * 获取结构最长边的尺寸（单位：瓦片）
+         * @return
+         */
+        [[nodiscard]] virtual uint32_t GetMaxExtent(IStructureResource *structureResource) const = 0;
 
         /**
          * Get the structure generator ID

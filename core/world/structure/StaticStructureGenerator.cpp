@@ -45,6 +45,21 @@ std::optional<glimmer::StructureInfo> glimmer::StaticStructureGenerator::Generat
     return structureInfo;
 }
 
+uint32_t glimmer::StaticStructureGenerator::GetMaxExtent(IStructureResource *structureResource) const {
+    const auto staticStructureResource = dynamic_cast<StaticStructureResource *>(structureResource);
+    if (staticStructureResource == nullptr || staticStructureResource->tileInfo.empty()) {
+        return 0;
+    }
+    int minX = INT_MAX, maxX = INT_MIN, minY = INT_MAX, maxY = INT_MIN;
+    for (const auto &tile: staticStructureResource->tileInfo) {
+        minX = std::min(minX, tile.position.x);
+        maxX = std::max(maxX, tile.position.x);
+        minY = std::min(minY, tile.position.y);
+        maxY = std::max(maxY, tile.position.y);
+    }
+    return std::max(maxX - minX, maxY - minY) + 1;
+}
+
 glimmer::StructureGeneratorType glimmer::StaticStructureGenerator::GetStructureGeneratorType() const {
     return StructureGeneratorType::Static;
 }

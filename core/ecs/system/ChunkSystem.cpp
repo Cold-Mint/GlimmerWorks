@@ -143,7 +143,8 @@ void glimmer::ChunkSystem::PushTask(std::vector<std::unique_ptr<ChunkTask> > &ta
     taskFingerprintSet_.insert(fingerprint);
 }
 
-void glimmer::ChunkSystem::SetOriginAndSort(std::vector<std::unique_ptr<ChunkTask> > &taskList, const TileVector2D& origin,
+void glimmer::ChunkSystem::SetOriginAndSort(std::vector<std::unique_ptr<ChunkTask> > &taskList,
+                                            const TileVector2D &origin,
                                             bool sortAscending) {
     for (const auto &task: taskList) {
         task->SetOrigin(origin);

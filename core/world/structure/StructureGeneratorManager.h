@@ -33,8 +33,35 @@ namespace glimmer {
     class StructureGeneratorManager {
         std::unordered_map<StructureGeneratorType, std::unique_ptr<IStructureGenerator> > structureGeneratorMap_{};
 
+        /**
+        * The maximum number of chunks occupied by the structure
+        * 结构最大占用区块数量
+        */
+        uint32_t maxChunksOccupiedByStructure_ = 1;
+
     public:
         void RegisterStructureGenerator(std::unique_ptr<IStructureGenerator> structureGenerator);
+
+
+        /**
+         * ResetMaxChunksOccupiedByStructure
+         * 重置最大结构占用区块数量。
+         */
+        void ResetMaxChunksOccupiedByStructure();
+
+        /**
+         * UpdateMaxChunksOccupied
+         * 更新结构最大占用数量
+         * @param maxChunks
+         */
+        void UpdateMaxChunksOccupied(uint32_t maxChunks);
+
+        /**
+         * GetMaxChunksOccupiedByStructure
+         * 获取最大结构占用的区块数量
+         * @return
+         */
+        [[nodiscard]] uint32_t GetMaxChunksOccupiedByStructure() const;
 
         std::optional<StructureInfo> Generate(WorldContext *worldContext, const TileVector2D &structuralOrigin,
                                               IStructureResource *structureResource);

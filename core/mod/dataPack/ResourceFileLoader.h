@@ -40,6 +40,8 @@
 #include "toml11/types.hpp"
 
 namespace glimmer {
+    class AppContext;
+    class StructureGeneratorManager;
     class VirtualFileSystem;
     class TomlTemplateExpander;
     class ModContext;
@@ -84,7 +86,7 @@ namespace glimmer {
          * A handler receives the parsed TOML value and the contexts used to locate target managers.
          * 处理器接收解析后的 TOML 值以及用于定位目标管理器的上下文。
          */
-        using LoadHandler = std::function<void(const toml::value &, const ModContext *, const GraphicsContext *)>;
+        using LoadHandler = std::function<void(const toml::value &, const AppContext *appContext)>;
 
         std::unordered_map<std::string, LoadHandler> handlerMap_;
 
@@ -99,54 +101,48 @@ namespace glimmer {
 
         int LoadStringResourceFromFile(const std::filesystem::path &path, StringManager *stringManager) const;
 
-        void LoadLootTableResourceFromFile(const toml::value &value, LootTableRegistry *lootTableRegistry) const;
+        void LoadLootTableResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 
-        void LoadInitialInventoryResourceFromFile(const toml::value &value,
-                                                  InitialInventoryManager *initialInventoryManager) const;
+        void LoadInitialInventoryResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 
-        void LoadStructureResourceFromFile(const toml::value &value, StructureRegistry *structureRegistry,
+        void LoadStructureResourceFromFile(const toml::value &value, const AppContext *appContext,
                                            StructureGeneratorType structureGeneratorType) const;
 
-        void LoadTileResourceFromFile(const toml::value &value, TileResourceManager *tileManager) const;
+        void LoadTileResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 
-        void LoadBiomeResourceFromFile(const toml::value &value, BiomeRegistry *biomeRegistry) const;
+        void LoadBiomeResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 
-        void LoadDimensionResourceFromFile(const toml::value &value, DimensionRegistry *dimensionRegistry) const;
+        void LoadDimensionResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 
-        void LoadComposableItemResourceFromFile(const toml::value &value,
-                                                ComposableItemRegistry *composableItemRegistry) const;
+        void LoadComposableItemResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 
-        void LoadAbilityItemResourceFromFile(const toml::value &value, AbilityItemRegistry *abilityItemRegistry) const;
+        void LoadAbilityItemResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 
-        void LoadMaterialItemResourceResourceFromFile(const toml::value &value,
-                                                      MaterialItemRegistry *materialItemRegistry) const;
+        void LoadMaterialItemResourceResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 
-        void LoadContributorResourceFromFile(const toml::value &value, ContributorManager *contributorManager) const;
+        void LoadContributorResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 
-        void LoadMobResourceFromFile(const toml::value &value, MobRegistry *mobRegistry) const;
+        void LoadMobResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 
-        void LoadShapeResourceFromFile(const toml::value &value, ShapeManager *shapeManager, ShapeType type) const;
+        void LoadShapeResourceFromFile(const toml::value &value, const AppContext *appContext, ShapeType type) const;
 
-        void LoadFixedColorResourceFromFile(const toml::value &value, FixedColorManager *fixedColorManager) const;
+        void LoadFixedColorResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 
-        void LoadLightMaskResourceFromFile(const toml::value &value, LightMaskManager *lightMaskManager) const;
+        void LoadLightMaskResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 
-        void LoadLightSourceResourceFromFile(const toml::value &value, LightSourceManager *lightSourceManager) const;
+        void LoadLightSourceResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 
-        void LoadBiomeDecoratorResourceFromFile(const toml::value &value,
-                                                BiomeDecoratorRegistry *biomeDecoratorRegistry,
+        void LoadBiomeDecoratorResourceFromFile(const toml::value &value, const AppContext *appContext,
                                                 BiomeDecoratorType type) const;
 
         void LoadStructurePlacementConditionsResourceFromFile(const toml::value &value,
-                                                              StructurePlacementConditionsRegistry *
-                                                              structurePlacementConditionsRegistry,
+                                                              const AppContext *appContext,
                                                               StructureConditionProcessorType processorType) const;
 
-        void LoadGrowthConditionsResourceFromFile(const toml::value &value,
-                                                  GrowthConditionsRegistry *growthConditionsRegistry,
+        void LoadGrowthConditionsResourceFromFile(const toml::value &value, const AppContext *appContext,
                                                   GrowthConditionProcessorType processorType) const;
 
-        void LoadRecipeResourceFromFile(const toml::value &value, RecipeManager *recipeManager) const;
+        void LoadRecipeResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 
         /**
          * RegisterHandlers
@@ -186,12 +182,10 @@ namespace glimmer {
          * @param dataType dataType 数据类型
          * @param file file 文件路径
          * @param content content 文件内容
-         * @param modContext modContext 模组上下文
-         * @param graphicsContext graphicsContext 图形上下文
+         * @param appContext appContext 应用上下文
          * @return 1 if loaded, 0 otherwise 加载成功返回1，否则返回0
          */
         int LoadResourceByType(const std::string &dataType, const std::string &file,
-                               const std::string &content, const ModContext *modContext,
-                               const GraphicsContext *graphicsContext) const;
+                               const std::string &content, const AppContext *appContext) const;
     };
 }

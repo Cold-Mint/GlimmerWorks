@@ -35,9 +35,21 @@ namespace glimmer {
     public:
         virtual ~IStructureConditionProcessor() = default;
 
+        /**
+         * GetStructureConditionProcessorType
+         * 获取结构条件处理器类型
+         * @return
+         */
         virtual StructureConditionProcessorType GetStructureConditionProcessorType() = 0;
 
-        virtual std::bitset<CHUNK_AREA> Match(TerrainResult *terrainResult,
+        /**
+         * Calculate the feasible placement points for the structure within the terrain data.
+         * 在地形数据内计算可行的结构放置点。
+         * @param terrainResult terrainResult 地形数据
+         * @param placementConditionsResource placementConditionsResource 放置条件资源
+         * @return The bitset for the structure placement points. If a certain point is 1, it indicates that a structure can be placed at that point. 结构放置点的bitset，若某个点为1,那么表示可以在该点放置。
+         */
+        virtual std::bitset<CHUNK_AREA> Match(const TerrainResult *terrainResult,
                                               const IStructurePlacementConditionsResource *placementConditionsResource)
         = 0;
     };

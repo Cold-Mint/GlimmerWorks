@@ -33,7 +33,7 @@ glimmer::BiomeStructureConditionProcessor::GetStructureConditionProcessorType() 
     return StructureConditionProcessorType::Biome;
 }
 
-std::bitset<CHUNK_AREA> glimmer::BiomeStructureConditionProcessor::Match(TerrainResult *terrainResult,
+std::bitset<CHUNK_AREA> glimmer::BiomeStructureConditionProcessor::Match(const TerrainResult *terrainResult,
                                                                          const IStructurePlacementConditionsResource *
                                                                          placementConditionsResource) {
     const auto biomeStructurePlacementConditions = dynamic_cast<const BiomeStructurePlacementConditionsResource *>(

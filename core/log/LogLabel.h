@@ -35,6 +35,4 @@ namespace glimmer {
         //地形相关
         TERRAIN
     };
-
-
 }

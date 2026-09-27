@@ -42,6 +42,8 @@ void glimmer::StringManager::LoadLangsString(const LangsResources *langsResource
     AddCoreResource(STRING_TILE_ACCESS_DENIED_NAME, langsResources->tileNameAccessDenied);
     AddCoreResource(STRING_TILE_ACCESS_DENIED_WALL_NAME, langsResources->tileNameAccessDeniedWall);
     AddCoreResource(STRING_TILE_BEDROCK_NAME, langsResources->tileNameBedrock);
+    AddCoreResource(STRING_TILE_VOID_NAME, langsResources->tileNameVoid);
+    AddCoreResource(STRING_TILE_VOID_DESCRIPTION, langsResources->tileDescriptionVoid);
     AddCoreResource(STRING_TILE_VOID_WALL_NAME, langsResources->tileNameVoidWall);
     AddCoreResource(STRING_TILE_VOID_WALL_DESCRIPTION, langsResources->tileDescriptionVoidWall);
     AddCoreResource(STRING_TILE_AIR_DESCRIPTION, langsResources->tileDescriptionAir);

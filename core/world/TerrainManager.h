@@ -26,13 +26,10 @@
  */
 #pragma once
 
-#include <array>
 #include <memory>
-#include <mutex>
 #include <unordered_map>
 #include <unordered_set>
 
-#include "core/ecs/EcsTypes.h"
 #include "core/math/Vector2DIHash.h"
 #include "generator/TerrainResult.h"
 
@@ -45,36 +42,10 @@ namespace glimmer {
      * 从 WorldContext 拆分而来。
      */
     class TerrainManager {
-        std::unordered_map<TileVector2D, std::unique_ptr<TerrainResult>, Vector2DIHash> terrainTileData_;
+        std::unordered_map<TileVector2D, std::shared_ptr<TerrainResult>, Vector2DIHash> terrainTileData_;
         std::unordered_map<TileVector2D, TerrainResult *, Vector2DIHash> terrainTileDataCache_;
         std::unordered_set<TileVector2D, Vector2DIHash> processedTerrainTiles_;
         WorldContext *worldContext_ = nullptr;
-
-        /**
-         * Protects the terrain maps against concurrent access from the tick
-         * thread (load/unload in ChunkSystem) and the main thread (BGM system,
-         * structure placement).
-         * 保护地形数据表免受 tick 线程（ChunkSystem 的加载/卸载）与主线程
-         * （BGM 系统、结构放置）的并发访问。
-         */
-        mutable std::mutex mutex_;
-
-        /**
-         * The eight neighboring chunk offsets (up/down/left/right and diagonals)
-         * that a structure may span into.
-         * 结构可能跨入的八个邻居区块偏移（上下左右及对角线）。
-         */
-        static const std::array<TileVector2D, 8> &NeighborOffsets();
-
-        /**
-         * Mark the terrain at the given position as ready when it and its eight
-         * neighbors have all completed structure generation.
-         * Must be called with mutex_ held.
-         * 当该位置及其八个邻居都完成结构生成后，将居中的地形标记为就绪。
-         * 必须在持有 mutex_ 时调用。
-         * @param position position 区块位置
-         */
-        void MarkReadyIfNeighborsGeneratedLocked(const TileVector2D &position);
 
     public:
         explicit TerrainManager(WorldContext *worldContext);

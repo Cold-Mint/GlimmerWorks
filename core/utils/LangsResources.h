@@ -104,6 +104,8 @@ namespace glimmer {
         std::string tileNameAccessDenied;
         std::string tileNameAccessDeniedWall;
         std::string tileNameBedrock;
+        std::string tileNameVoid;
+        std::string tileDescriptionVoid;
         std::string tileNameVoidWall;
         std::string tileDescriptionVoidWall;
         std::string tileNameWater;

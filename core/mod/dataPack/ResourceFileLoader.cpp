@@ -288,6 +288,10 @@ void glimmer::ResourceFileLoader::LoadStructureResourceFromFile(const toml::valu
     if (structureRegistry == nullptr) {
         return;
     }
+    StructureGeneratorManager *structureGeneratorManager = modContext->GetStructureGeneratorManager();
+    if (structureGeneratorManager == nullptr) {
+        return;
+    }
     std::unique_ptr<IStructureResource> structureResource;
     switch (structureGeneratorType) {
         case StructureGeneratorType::Tree:
@@ -315,6 +319,23 @@ void glimmer::ResourceFileLoader::LoadStructureResourceFromFile(const toml::valu
     for (auto &condition: structureResource->condition) {
         condition.SetSelfPackageId(manifest_->id);
     }
+    const uint32_t maxExtent = structureGeneratorManager->GetMaxExtent(structureResource.get());
+    // Calculate the number of chunks corresponding to the maximum tile extent of this structure, rounded up (ceil).
+    // Example: maxExtent = 35, CHUNK_SIZE = 16: 35 / 16 = 2 (remainder 3), but at least 3 chunks are required in practice.
+    // Therefore, direct integer division cannot be used; ceiling rounding is mandatory.
+    // Since CHUNK_SIZE = 16 = 2^4, a power of two, x / CHUNK_SIZE is equivalent to x >> CHUNK_SHIFT (CHUNK_SHIFT = 4).
+    // Ceiling rounding method: add CHUNK_SIZE - 1 (i.e., 15) first, then right-shift, equivalent to (maxExtent + CHUNK_SIZE - 1) / CHUNK_SIZE.
+    // Principle: If maxExtent is divisible by CHUNK_SIZE, adding 15 will not fill an extra chunk, and the right-shift result remains unchanged.
+    // If there is a remainder (even a remainder of 1), adding 15 causes a carry, incrementing the right-shift result by 1 to implement ceil.
+    // 计算该结构占用的最大瓦片数对应的区块数，向上取整（ceil）。
+    // 例如 maxExtent = 35，CHUNK_SIZE = 16：35 / 16 = 2（余 3），但实际至少需要 3 个区块，
+    // 因此不能直接整数相除，必须向上取整。
+    // 由于 CHUNK_SIZE = 16 = 2^4 为 2 的幂，x / CHUNK_SIZE 等价于 x >> CHUNK_SHIFT（CHUNK_SHIFT = 4）。
+    // 向上取整的做法：先加 CHUNK_SIZE - 1（即 15），再做右移，等价于 (maxExtent + CHUNK_SIZE - 1) / CHUNK_SIZE。
+    // 原理：若 maxExtent 能整除 CHUNK_SIZE，加 15 后仍不足一个区块，右移结果不变；
+    //       若有余数（哪怕余 1），加 15 后会进位，使右移结果 +1，从而实现 ceil。
+    structureGeneratorManager->
+            UpdateMaxChunksOccupied((maxExtent + CHUNK_SIZE - 1) >> CHUNK_SHIFT);
     structureRegistry->Register(std::move(structureResource));
 }
 

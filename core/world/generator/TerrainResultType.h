@@ -29,6 +29,7 @@
 
 namespace glimmer {
     enum class TerrainResultType :uint8_t {
+        VOID,
         AIR,
         WATER,
         SOLID,

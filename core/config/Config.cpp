@@ -119,21 +119,6 @@ bool glimmer::Config::ReloadConfig() {
     for (const auto &resourcePack: enabledResourcePack) {
         mods.enabledResourcePack.emplace_back(StringUtils::StringToUint64(resourcePack));
     }
-    world.preloadChunkRadius = toml::find<float>(tomlRef, "world", "preload_chunk_radius");
-    world.preloadStructureRadius = toml::find<float>(tomlRef, "world", "preload_structure_radius");
-    world.preloadLightingRadius = toml::find<float>(tomlRef, "world", "preload_lighting_radius");
-    if (world.preloadLightingRadius > world.preloadChunkRadius) {
-        world.preloadLightingRadius = world.preloadChunkRadius;
-    }
-    world.chunkSpawnCleanInterval = toml::find<uint64_t>(tomlRef, "world", "chunk_spawn_clean_interval");
-    world.loadTerrainInterval = toml::find<uint64_t>(tomlRef, "world", "load_terrain_interval");
-    world.loadTerrainBatch = toml::find<uint16_t>(tomlRef, "world", "load_terrain_batch");
-    world.loadChunkInterval = toml::find<uint64_t>(tomlRef, "world", "load_chunk_interval");
-    world.loadChunkBatch = toml::find<uint16_t>(tomlRef, "world", "load_chunk_batch");
-    world.unloadChunkInterval = toml::find<uint64_t>(tomlRef, "world", "unload_chunk_interval");
-    world.unloadChunkBatch = toml::find<uint16_t>(tomlRef, "world", "unload_chunk_batch");
-    world.unloadTerrainInterval = toml::find<uint64_t>(tomlRef, "world", "unload_terrain_interval");
-    world.unloadTerrainBatch = toml::find<uint16_t>(tomlRef, "world", "unload_terrain_batch");
     audio.channels = toml::find<int>(tomlRef, "audio", "channels");
     audio.masterVolume = toml::find<float>(tomlRef, "audio", "master_volume");
     audio.freq = toml::find<int>(tomlRef, "audio", "freq");

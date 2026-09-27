@@ -30,8 +30,8 @@
 namespace glimmer {
     class StaticStructureGenerator : public IStructureGenerator {
     public:
-        std::optional<StructureInfo> Generate(WorldContext *worldContext, const TileVector2D &startPosition,
-                                              IStructureResource *structureResource) override;
+        std::unique_ptr<StructureInfo> Generate(WorldContext *worldContext, const TileVector2D &startPosition,
+            IStructureResource *structureResource) override;
 
         [[nodiscard]] uint32_t GetMaxExtent(IStructureResource *structureResource) const override;
 

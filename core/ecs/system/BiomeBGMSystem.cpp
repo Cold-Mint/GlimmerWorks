@@ -98,7 +98,7 @@ void glimmer::BiomeBGMSystem::Update(float delta) {
     }
     TileVector2D chunkRelative = Chunk::TileCoordinatesToChunkRelativeCoordinates(tileVector2d);
     const TerrainTileResult &terrainTileResult = terrainResult->QueryTerrain(chunkRelative.x, chunkRelative.y);
-    BiomeResource *biomeResource = terrainTileResult.biomeResource;
+    BiomeResource *biomeResource = terrainTileResult.GetBiomeResource();
     if (biomeResource == nullptr) {
         return;
     }

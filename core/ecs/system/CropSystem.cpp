@@ -151,13 +151,13 @@ bool glimmer::CropSystem::OnGrowMature(WorldContext *worldContext, Chunk *chunk,
         if (chunkManager == nullptr) {
             return false;
         }
-        std::optional<StructureInfo> structureInfoOptional = structureGeneratorManager->Generate(
+        const std::unique_ptr<StructureInfo> structureInfo = structureGeneratorManager->Generate(
             worldContext, absolutePosition, structureResource);
-        if (!structureInfoOptional.has_value()) {
+        if (structureInfo == nullptr) {
             return false;
         }
-        StructureInfo &structureInfo = structureInfoOptional.value();
-        for (const auto &[structureLayerType, tileMap]: structureInfo.GetStructureMap()) {
+        for (const StructureInfo *structureInfoPtr = structureInfo.get(); const auto &[structureLayerType, tileMap]:
+             structureInfoPtr->GetStructureMap()) {
             for (const auto &[coord, resourceRef]: tileMap) {
                 const TileResource *tileResource = resourceLocator->FindTileRaw(&resourceRef);
                 if (tileResource == nullptr) {
@@ -343,11 +343,13 @@ void glimmer::CropSystem::OnTick(const uint64_t tick) {
                         if (appContext == nullptr) {
                             return;
                         }
-                        const ResourceRef airRef = TileResourceManager::GetAirResourceRef(layerType);
-                        ResourceLocator *resourceLocator = appContext->GetResourceLocator();
-                        if (resourceLocator != nullptr) {
-                            const TileResource *airTileResource = resourceLocator->FindTileRaw(&airRef);
-                            if (airTileResource != nullptr) {
+
+                        ResourceRef airRef;
+                        TileResourceManager::WriteAirResourceRef(layerType, airRef);
+                        if (ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+                            resourceLocator != nullptr) {
+                            if (const TileResource *airTileResource = resourceLocator->FindTileRaw(&airRef);
+                                airTileResource != nullptr) {
                                 chunk->PlaceTile(layerType, index, airRef, airTileResource, BreakSource::Unknown,
                                                  PLACE_SOURCE_WORLD_GEN, 0, 0, false);
                                 LogCat::d(LogLabel::DEFAULT, "crop_system_replace_with_air",

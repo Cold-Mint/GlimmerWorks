@@ -392,7 +392,13 @@ if (ANDROID)
     add_library(GlimmerWorks SHARED)
 else ()
     message(STATUS "Building for Desktop → Executable")
-    add_executable(GlimmerWorks)
+    add_executable(GlimmerWorks
+            core/world/scheduler/ChunkTaskScheduler.cpp
+            core/world/scheduler/ChunkTaskScheduler.h
+            core/world/scheduler/ChunkTask.cpp
+            core/world/scheduler/ChunkTask.h
+            core/world/scheduler/ChunkTaskType.h
+            core/ecs/TileBreakParams.cpp)
 endif ()
 
 target_sources(GlimmerWorks

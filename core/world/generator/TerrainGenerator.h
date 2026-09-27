@@ -65,16 +65,15 @@ namespace glimmer {
          * @param position position 区块位置
          * @return The generated terrain result 生成的地形结果
          */
-        std::unique_ptr<TerrainResult> GenerateTerrain(const TileVector2D &position);
+        std::shared_ptr<TerrainResult> GenerateTerrain(const TileVector2D &position);
 
         /**
-         * GetTerrainTileResult
-         * 获取瓦片地形结果
+         * WriteTerrainTileResult
+         * 写瓦片地形结果
          * @param world world 世界坐标
          * @param firstTileTerrainY firstTileTerrainY 地表第一格Y坐标
-         * @return The terrain classification for the given coordinate 该坐标的地形分类
          */
-        TerrainTileResult GetTerrainTileResult(const TileVector2D &world, int firstTileTerrainY);
+        void WriteTerrainTileResult(const TileVector2D &world, int firstTileTerrainY,TerrainTileResult& terrainTileResult);
 
         /**
          * GetFirstTileTerrainY

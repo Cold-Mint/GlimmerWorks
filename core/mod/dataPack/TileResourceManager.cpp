@@ -90,6 +90,12 @@ void glimmer::TileResourceManager::InitBuiltinTiles() {
         true, false, STRING_TILE_AIR_WALL_DESCRIPTION
     });
     AddCoreResource({
+        TILE_ID_VOID, TilePhysicsType::None, TileLayerType::Ground, -1.0F,
+        STRING_TILE_VOID_NAME, "tiles/void",
+        LIGHT_NONE, LIGHT_MASK_NONE, LIGHT_MASK_NONE,
+        false, false, STRING_TILE_VOID_DESCRIPTION
+    });
+    AddCoreResource({
         TILE_ID_BEDROCK, TilePhysicsType::Static, TileLayerType::Ground, -1.0F,
         STRING_TILE_BEDROCK_NAME, "tiles/bedrock",
         LIGHT_NONE, LIGHT_MASK_FULL, LIGHT_MASK_FULL,
@@ -186,16 +192,14 @@ uint64_t glimmer::TileResourceManager::GetAirResourceRefFingerprint(const TileLa
     return airWallResourceRefFingerprint_;
 }
 
-glimmer::ResourceRef glimmer::TileResourceManager::GetAirResourceRef(TileLayerType tileLayerType) {
-    ResourceRef airResourceRef;
-    airResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    airResourceRef.SetResourceType(RESOURCE_TILE);
+void glimmer::TileResourceManager::WriteAirResourceRef(const TileLayerType tileLayerType, ResourceRef &resourceRef) {
+    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetResourceType(RESOURCE_TILE);
     if (tileLayerType == TileLayerType::Ground) {
-        airResourceRef.SetResourceKey(TILE_ID_AIR);
+        resourceRef.SetResourceKey(TILE_ID_AIR);
     } else {
-        airResourceRef.SetResourceKey(TILE_ID_AIR_WALL);
+        resourceRef.SetResourceKey(TILE_ID_AIR_WALL);
     }
-    return airResourceRef;
 }
 
 glimmer::TileResource *glimmer::TileResourceManager::FindTileRaw(std::string_view packId, std::string_view key) {

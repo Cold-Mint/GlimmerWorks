@@ -26,118 +26,14 @@
  */
 #pragma once
 
-#include <mutex>
-
 #include "core/ecs/GameSystem.h"
-#include "core/math/ScreenVector2D.h"
-#include "core/world/ChunkTask.h"
-#include "SDL3/SDL_rect.h"
+#include "core/world/scheduler/ChunkTaskScheduler.h"
 
 namespace glimmer {
-    class Transform2DComponent;
-    class CameraComponent;
-    class TileVector2D;
-    class Config;
-
     class ChunkSystem final : public GameSystem {
-        CameraComponent *cameraComponent_ = nullptr;
-        Transform2DComponent *cameraTransform2DComponent_ = nullptr;
-        WorldVector2D cameraPosition_;
-        //Cached camera view parameters, written on the main thread
-        //(OnWindowSizeChanged/OnConfigChanged) and read on the tick thread (OnTick).
-        //缓存相机视图参数：在主线程（OnWindowSizeChanged/OnConfigChanged）写入，
-        //在 tick 线程（OnTick）读取。
-        ScreenVector2D cameraSize_{800.0F, 600.0F};
-        float cameraZoom_ = 2.0F;
-        mutable std::mutex cameraMutex_;
-        //累加tick
-        uint64_t accumTime_ = 0;
-        //Cached world configuration parameters, written on the main thread
-        //(OnConfigChanged) and read on the tick thread (OnTick).
-        //缓存世界配置参数：在主线程（OnConfigChanged）写入，在 tick 线程（OnTick）读取。
-        uint64_t chunkSpawnCleanInterval_ = 0;
-        uint64_t loadTerrainInterval_ = 0;
-        uint16_t loadTerrainBatch_ = 0;
-        uint64_t loadChunkInterval_ = 0;
-        uint16_t loadChunkBatch_ = 0;
-        uint64_t unloadChunkInterval_ = 0;
-        uint16_t unloadChunkBatch_ = 0;
-        uint64_t unloadTerrainInterval_ = 0;
-        uint16_t unloadTerrainBatch_ = 0;
-        float preloadStructureRadius_ = 0.0F;
-        float preloadChunkRadius_ = 0.0F;
-        mutable std::mutex worldConfigMutex_;
-
-        bool firstTime_ = true;
-        std::vector<std::unique_ptr<ChunkTask> > loadTerrainTasks_;
-        std::vector<std::unique_ptr<ChunkTask> > loadChunkTasks_;
-        std::vector<std::unique_ptr<ChunkTask> > unloadChunkTasks_;
-        std::vector<std::unique_ptr<ChunkTask> > unloadTerrainTasks_;
-        std::unordered_set<uint64_t> taskFingerprintSet_;
-
-        void ExecuteLoadTerrainTask(uint16_t loadTerrainBatch);
-
-        void ExecuteLoadChunkTask(uint16_t loadChunkBatch);
-
-        void ExecuteUnloadChunkTask(uint16_t unloadChunkBatch);
-
-        void ExecuteUnloadTerrainTask(uint16_t unloadTerrainBatch);
-
-        /**
-        * PushTask
-        * 推送任务到列表
-        * @param taskList taskList 任务列表
-        * @param chunkTask chunkTask 区块任务
-        * @param fingerprint fingerprint 指纹
-        */
-        void PushTask(std::vector<std::unique_ptr<ChunkTask> > &taskList, std::unique_ptr<ChunkTask> chunkTask,
-                      uint64_t fingerprint);
-
-        /**
-         * SetOriginAndSort
-         * 设置原点和排序。
-         * @param taskList taskList 任务列表
-         * @param origin origin 原点
-         * @param sortAscending sortAscending 是否升序（从小到大）
-         */
-        static void SetOriginAndSort(std::vector<std::unique_ptr<ChunkTask> > &taskList, const TileVector2D &origin,
-                                     bool sortAscending);
-
-        void UpdateChunkFadeAnimation(const SDL_FRect &viewportRect) const;
-
-        template<typename Func>
-        static void ExecuteTimedTask(const uint64_t tick, const uint64_t interval, uint16_t batch, Func &&executeFunc) {
-            if (interval == 0) {
-                executeFunc(batch);
-                return;
-            }
-            if (tick % interval == 0) {
-                executeFunc(batch);
-            }
-        }
-
-        bool UpdateCameraPosition();
-
-        void GenerateLoadTerrainTasks(const TileVector2D &startTerrain, const TileVector2D &endTerrain);
-
-        void GenerateLoadChunkTasks(const TileVector2D &startChunk, const TileVector2D &endChunk);
-
-        void GenerateUnloadChunkTasks(const TileVector2D &startChunk, const TileVector2D &endChunk);
-
-        void GenerateUnloadTerrainTasks(const TileVector2D &startTerrain, const TileVector2D &endTerrain);
-
+        ChunkTaskScheduler chunkTaskScheduler_;
     public:
         explicit ChunkSystem(WorldContext *worldContext);
-
-        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t number) override;
-
-        void OnFrameStart() override;
-
-        void OnTick(uint64_t tick) override;
-
-        void OnWindowSizeChanged(const int &width, const int &height) override;
-
-        void OnConfigChanged(const Config *config) override;
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };

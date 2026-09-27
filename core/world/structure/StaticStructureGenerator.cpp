@@ -29,18 +29,18 @@
 #include "core/log/LogCat.h"
 
 
-std::optional<glimmer::StructureInfo> glimmer::StaticStructureGenerator::Generate(WorldContext *worldContext,
+std::unique_ptr<glimmer::StructureInfo> glimmer::StaticStructureGenerator::Generate(WorldContext *worldContext,
     const TileVector2D &startPosition, IStructureResource *structureResource) {
     if (structureResource == nullptr || worldContext == nullptr) {
         LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "structure_generator_null_input",
                   "Static structure generator received null input");
-        return std::nullopt;
+        return nullptr;
     }
-    StructureInfo structureInfo;
-    auto staticStructureResource = dynamic_cast<StaticStructureResource *>(structureResource);
-    for (auto &tileInfo: staticStructureResource->tileInfo) {
-        structureInfo.SetTile(static_cast<TileLayerType>(tileInfo.layerType),
-                              {tileInfo.position.x, tileInfo.position.y}, tileInfo.tile);
+    auto structureInfo = std::make_unique<StructureInfo>();
+    for (auto staticStructureResource = dynamic_cast<StaticStructureResource *>(structureResource); auto &tileInfo:
+         staticStructureResource->tileInfo) {
+        structureInfo->SetTile(static_cast<TileLayerType>(tileInfo.layerType),
+                               {tileInfo.position.x, tileInfo.position.y}, tileInfo.tile);
     }
     return structureInfo;
 }

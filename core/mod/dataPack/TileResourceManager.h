@@ -76,7 +76,7 @@ namespace glimmer {
 
         [[nodiscard]] static uint64_t GetAirResourceRefFingerprint(TileLayerType tileLayerType);
 
-        [[nodiscard]] static ResourceRef GetAirResourceRef(TileLayerType tileLayerType);
+        static void WriteAirResourceRef(TileLayerType tileLayerType, ResourceRef &resourceRef);
 
         /**
          * Search for the tile. If not found, return nullptr.

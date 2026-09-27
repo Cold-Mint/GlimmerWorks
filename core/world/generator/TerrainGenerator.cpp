@@ -32,7 +32,6 @@
 #include "TerrainMath.h"
 #include "core/config/Constants.h"
 #include "core/log/LogCat.h"
-#include "core/mod/Resource.h"
 
 glimmer::TerrainGenerator::TerrainGenerator(const int worldSeed, const DimensionResource *dimensionResource,
                                             std::string dimensionId, BiomeRegistry *biomeRegistry)
@@ -40,98 +39,59 @@ glimmer::TerrainGenerator::TerrainGenerator(const int worldSeed, const Dimension
       biomeMatcher_(std::move(dimensionId), biomeRegistry) {
 }
 
-std::unique_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerrain(const TileVector2D &position) {
+std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerrain(const TileVector2D &position) {
     LogCat::d(LogLabel::TERRAIN, "terrain_generating", "Generating terrain: position=({}, {})", position.x, position.y);
-    auto terrainResult = std::make_unique<TerrainResult>();
+    auto terrainResult = std::make_shared<TerrainResult>();
     terrainResult->SetPosition(position);
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
         const int firstTileTerrainY = GetFirstTileTerrainY(position.x + localX);
         for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
-            terrainResult->SetTerrainTileResult(localX, localY,
-                                                GetTerrainTileResult(position + TileVector2D(localX, localY),
-                                                                     firstTileTerrainY));
+            auto localPosition = TileVector2D(localX, localY);
+            WriteTerrainTileResult(localPosition + position, firstTileTerrainY,
+                                   terrainResult->GetMutableTerrainTileResult(localPosition));
         }
     }
-    const int leftWorldX = position.x - 1;
-
-    for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
-        const int worldY = position.y + localY;
-        const int firstTileTerrainY = GetFirstTileTerrainY(leftWorldX);
-
-        terrainResult->SetLeftTerrainTileResult(
-            localY,
-            GetTerrainTileResult({leftWorldX, worldY}, firstTileTerrainY)
-        );
-    }
-
-    const int rightWorldX = position.x + CHUNK_SIZE;
-
-    for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
-        const int worldY = position.y + localY;
-        const int firstTileTerrainY = GetFirstTileTerrainY(rightWorldX);
-
-        terrainResult->SetRightTerrainTileResult(
-            localY,
-            GetTerrainTileResult({rightWorldX, worldY}, firstTileTerrainY)
-        );
-    }
-
-    const int downWorldY = position.y - 1;
-
-    for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
-        const int worldX = position.x + localX;
-        const int firstTileTerrainY = GetFirstTileTerrainY(worldX);
-
-        terrainResult->SetDownTerrainTileResult(
-            localX,
-            GetTerrainTileResult({worldX, downWorldY}, firstTileTerrainY)
-        );
-    }
-
     const int upWorldY = position.y + CHUNK_SIZE;
-
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
         const int worldX = position.x + localX;
         const int firstTileTerrainY = GetFirstTileTerrainY(worldX);
-
-        terrainResult->SetUpTerrainTileResult(
-            localX,
-            GetTerrainTileResult({worldX, upWorldY}, firstTileTerrainY)
-        );
+        auto worldPosition = TileVector2D(position.x + localX, upWorldY);
+        WriteTerrainTileResult(worldPosition, firstTileTerrainY,
+                               terrainResult->GetMutableUpTerrainTileResult(localX));
     }
-
     LogCat::d(LogLabel::TERRAIN, "terrain_generation_completed", "Terrain generation completed: position=({}, {})",
               position.x,
               position.y);
     return terrainResult;
 }
 
-TerrainTileResult glimmer::TerrainGenerator::GetTerrainTileResult(const TileVector2D &world,
-                                                                  const int firstTileTerrainY) {
-    TerrainTileResult terrainTileResult;
+void glimmer::TerrainGenerator::WriteTerrainTileResult(const TileVector2D &world, const int firstTileTerrainY,
+                                                       TerrainTileResult &terrainTileResult) {
     const float elevation = TerrainMath::GetElevation(world.y);
     const auto humidity = GetHumidity(world);
     const auto temperature = GetTemperature(world, elevation);
     const auto weirdness = GetWeirdness(world);
     const auto erosion = GetErosion(world);
     const auto surfaceProximity = TerrainMath::GetSurfaceProximity(firstTileTerrainY, world.y);
-    terrainTileResult.biomeResource = biomeMatcher_.Resolve(
-        humidity, temperature, weirdness, erosion, elevation, surfaceProximity);
-    if (world.y <= WORLD_MIN_Y || world.x == WORLD_MAX_X || world.x == WORLD_MIN_X) {
-        terrainTileResult.terrainType = TerrainResultType::BEDROCK;
-        return terrainTileResult;
+    terrainTileResult.SetWorldPosition(world);
+    terrainTileResult.SetBiomeResource(biomeMatcher_.Resolve(
+        humidity, temperature, weirdness, erosion, elevation, surfaceProximity));
+    if (world.y > WORLD_MAX_Y || world.y < WORLD_MIN_Y || world.x > WORLD_MAX_X || world.x < WORLD_MIN_X) {
+        terrainTileResult.SetTerrainType(TerrainResultType::VOID);
+        return;
+    }
+    if (world.y == WORLD_MIN_Y) {
+        terrainTileResult.SetTerrainType(TerrainResultType::BEDROCK);
     }
     if (world.y > firstTileTerrainY) {
         if (world.y < SEA_LEVEL_HEIGHT) {
-            terrainTileResult.terrainType = TerrainResultType::WATER;
-            return terrainTileResult;
+            terrainTileResult.SetTerrainType(TerrainResultType::WATER);
+            return;
         }
-        terrainTileResult.terrainType = TerrainResultType::AIR;
-        return terrainTileResult;
+        terrainTileResult.SetTerrainType(TerrainResultType::AIR);
+        return;
     }
-    terrainTileResult.world = world;
-    terrainTileResult.terrainType = TerrainResultType::SOLID;
-    return terrainTileResult;
+    terrainTileResult.SetTerrainType(TerrainResultType::SOLID);
 }
 
 int glimmer::TerrainGenerator::GetFirstTileTerrainY(const int x) {

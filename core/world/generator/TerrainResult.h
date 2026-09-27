@@ -34,23 +34,17 @@ namespace glimmer {
      */
     class TerrainResult {
         std::array<TerrainTileResult, CHUNK_AREA> terrainTileResult_;
-        std::array<TerrainTileResult, CHUNK_SIZE> leftTerrainTileResult_;
-        std::array<TerrainTileResult, CHUNK_SIZE> rightTerrainTileResult_;
         std::array<TerrainTileResult, CHUNK_SIZE> upTerrainTileResult_;
-        std::array<TerrainTileResult, CHUNK_SIZE> downTerrainTileResult_;
         TileVector2D position_;
-        bool ready_ = false;
 
     public:
-        void SetTerrainTileResult(int x, int y, const TerrainTileResult &result);
+        TerrainTileResult &GetMutableTerrainTileResult(const TileVector2D &localPosition);
 
-        void MakeReady();
-
-        bool IsReady() const;
+        TerrainTileResult &GetMutableUpTerrainTileResult(int localX);
 
         void SetPosition(const TileVector2D &position);
 
-        [[nodiscard]] TileVector2D GetPosition() const;
+        [[nodiscard]] const TileVector2D &GetPosition() const;
 
         [[nodiscard]] const TerrainTileResult &QueryTerrain(int x, int y) const;
 
@@ -65,37 +59,5 @@ namespace glimmer {
             int tileIndex,
             const ResourceRef *structureResource,
             TileLayerType layerType);
-
-        /**
-         * Set the terrain data of the last column on the left side of the block.
-         * 设置左侧区块的最右侧的一列的地形数据
-         * @param y
-         * @param result
-         */
-        void SetLeftTerrainTileResult(int y, const TerrainTileResult &result);
-
-        /**
-         *Set the terrain data of the leftmost column of the right-side block
-         *设置右侧区块的最左侧的一列的地形数据
-         * @param y
-         * @param result
-         */
-        void SetRightTerrainTileResult(int y, const TerrainTileResult &result);
-
-        /**
-         *Set the terrain data of the bottom row of the top block
-         *设置顶部区块的最底部的一行的地形数据
-         * @param x
-         * @param result
-         */
-        void SetUpTerrainTileResult(int x, const TerrainTileResult &result);
-
-        /***
-         *Set the terrain data of the top row of the bottom block
-         *设置底部区块的最顶部的一行的地形数据
-         * @param x
-         * @param result
-         */
-        void SetDownTerrainTileResult(int x, const TerrainTileResult &result);
     };
 }

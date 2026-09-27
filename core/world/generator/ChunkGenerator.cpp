@@ -34,6 +34,7 @@
 #include "core/log/LogCat.h"
 #include "core/mod/Resource.h"
 #include "BiomeDecoratorManager.h"
+#include "TileRefResolver.h"
 #include "core/mod/dataPack/BiomeRegistry.h"
 #include "core/world/TerrainManager.h"
 #include "core/world/WorldContext.h"
@@ -66,11 +67,10 @@ glimmer::ChunkGenerator::ChunkGenerator(WorldContext *worldContext, const int wo
     : worldContext_(worldContext),
       dimensionId_(ResolveDimensionId(dimensionResource)),
       terrainGenerator_(worldSeed, dimensionResource, dimensionId_, ResolveBiomeRegistry(worldContext)),
-      structurePlacer_(worldContext),
-      tileRefs_(TerrainTileRefs::Create()) {
+      structurePlacer_(worldContext) {
 }
 
-std::unique_ptr<glimmer::TerrainResult> glimmer::ChunkGenerator::GenerateTerrain(const TileVector2D &position) {
+std::shared_ptr<glimmer::TerrainResult> glimmer::ChunkGenerator::GenerateTerrain(const TileVector2D &position) {
     return terrainGenerator_.GenerateTerrain(position);
 }
 
@@ -108,18 +108,13 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const T
                   position.y);
         return nullptr;
     }
-    if (!terrainResult->IsReady()) {
-        LogCat::e(LogLabel::CHUNK, std::source_location::current(), "chunk_terrain_not_ready",
-                  "Terrain data is not ready for chunk: position=({}, {})", position.x, position.y);
-        return nullptr;
-    }
     std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > tilesRefMap = {
         {TileLayerType::Ground, {}},
         {TileLayerType::BackGround, {}}
     };
     std::unordered_set<BiomeResource *> biomeResourcesSet;
 
-    TileRefResolver::Initialize(terrainResult, tileRefs_, tilesRefMap, biomeResourcesSet);
+    TileRefResolver::Initialize(terrainResult, tilesRefMap, biomeResourcesSet);
     BiomeDecoratorApplier::Apply(biomeResourcesSet, resourceLocator, biomeDecoratorManager, worldContext_,
                                  terrainResult, tilesRefMap);
     ChunkTilePopulator::Populate(chunk.get(), resourceLocator, tilesRefMap);

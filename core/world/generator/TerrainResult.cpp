@@ -26,24 +26,19 @@
  */
 #include "TerrainResult.h"
 
-void glimmer::TerrainResult::SetTerrainTileResult(const int x, const int y, const TerrainTileResult &result) {
-    const int idx = y * CHUNK_SIZE + x;
-    terrainTileResult_[idx] = result;
+TerrainTileResult &glimmer::TerrainResult::GetMutableTerrainTileResult(const TileVector2D &localPosition) {
+    return terrainTileResult_[localPosition.y * CHUNK_SIZE + localPosition.x];
 }
 
-void glimmer::TerrainResult::MakeReady() {
-    ready_ = true;
-}
-
-bool glimmer::TerrainResult::IsReady() const {
-    return ready_;
+TerrainTileResult &glimmer::TerrainResult::GetMutableUpTerrainTileResult(const int localX) {
+    return upTerrainTileResult_[localX];
 }
 
 void glimmer::TerrainResult::SetPosition(const TileVector2D &position) {
     position_ = position;
 }
 
-glimmer::TileVector2D glimmer::TerrainResult::GetPosition() const {
+const glimmer::TileVector2D &glimmer::TerrainResult::GetPosition() const {
     return position_;
 }
 
@@ -54,24 +49,6 @@ const TerrainTileResult &glimmer::TerrainResult::QueryTerrain(const int x, const
     if (y == CHUNK_SIZE && x >= 0 && x < CHUNK_SIZE) {
         return upTerrainTileResult_[x];
     }
-
-    // down
-    // 下
-    if (y == -1 && x >= 0 && x < CHUNK_SIZE) {
-        return downTerrainTileResult_[x];
-    }
-
-    // left
-    // 左
-    if (x == -1 && y >= 0 && y < CHUNK_SIZE) {
-        return leftTerrainTileResult_[y];
-    }
-
-    // right
-    // 右
-    if (x == CHUNK_SIZE && y >= 0 && y < CHUNK_SIZE) {
-        return rightTerrainTileResult_[y];
-    }
     // within the chunk
     // 在 chunk 内
     return terrainTileResult_[idx];
@@ -81,23 +58,7 @@ void glimmer::TerrainResult::SetTerrainTileStructure(const int tileIndex, const 
                                                      const TileLayerType layerType) {
     if (tileIndex >= 0 && tileIndex < CHUNK_AREA) {
         TerrainTileResult &terrainTileResult = terrainTileResult_[tileIndex];
-        terrainTileResult.terrainType = TerrainResultType::STRUCTURE;
-        terrainTileResult.structureResRefs[layerType] = *structureResource;
+        terrainTileResult.SetTerrainType(TerrainResultType::STRUCTURE);
+        terrainTileResult.SetStructure(layerType, structureResource);
     }
-}
-
-void glimmer::TerrainResult::SetLeftTerrainTileResult(const int y, const TerrainTileResult &result) {
-    leftTerrainTileResult_[y] = result;
-}
-
-void glimmer::TerrainResult::SetRightTerrainTileResult(const int y, const TerrainTileResult &result) {
-    rightTerrainTileResult_[y] = result;
-}
-
-void glimmer::TerrainResult::SetUpTerrainTileResult(const int x, const TerrainTileResult &result) {
-    upTerrainTileResult_[x] = result;
-}
-
-void glimmer::TerrainResult::SetDownTerrainTileResult(const int x, const TerrainTileResult &result) {
-    downTerrainTileResult_[x] = result;
 }

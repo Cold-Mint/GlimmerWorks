@@ -29,15 +29,54 @@
 #include "core/world/WorldContext.h"
 
 namespace glimmer {
-    struct TileBreakParams {
-        BreakSource breakSource = BreakSource::Unknown;
-        WorldContext *worldContext = nullptr;
-        const TileLayerComponent *tileLayerComponent = nullptr;
-        TileVector2D topLeftVector;
-        bool precisionMining = false;
-        bool isPlaceMode = false;
-        uint8_t tileWidth = 1;
-        uint8_t tileHeight = 1;
-        ResourceRef newTileRef;
+    class TileBreakParams {
+        BreakSource breakSource_ = BreakSource::Unknown;
+        WorldContext *worldContext_ = nullptr;
+        const TileLayerComponent *tileLayerComponent_ = nullptr;
+        TileVector2D topLeftPosition_;
+        bool precisionMining_ = false;
+        bool isPlaceMode_ = false;
+        uint8_t tileWidth_ = 1;
+        uint8_t tileHeight_ = 1;
+        ResourceRef newTileRef_;
+
+    public:
+        void SetBreakSource(const BreakSource &breakSource);
+
+        void SetWorldContext(WorldContext *worldContext);
+
+        void SetTileLayerComponent(const TileLayerComponent *tileLayerComponent);
+
+        void SetTopLeftPosition(const TileVector2D &topLeftPosition);
+
+        void SetPrecisionMining(bool precisionMining);
+
+        void SetPlaceMode(bool placeMode);
+
+        void SetTileWidth(uint8_t tileWidth);
+
+        void SetTileHeight(uint8_t tileHeight);
+
+        void SetNewTileRef(const ResourceRef &newTileRef);
+
+        [[nodiscard]] BreakSource GetBreakSource() const;
+
+        [[nodiscard]] WorldContext *GetWorldContext() const;
+
+        [[nodiscard]] const TileLayerComponent *GetTileLayerComponent() const;
+
+        [[nodiscard]] const TileVector2D &GetTopLeftPosition() const;
+
+        [[nodiscard]] bool IsPrecisionMining() const;
+
+        [[nodiscard]] bool IsPlaceMode() const;
+
+        [[nodiscard]] uint8_t GetTileWidth() const;
+
+        [[nodiscard]] uint8_t GetTileHeight() const;
+
+        [[nodiscard]] ResourceRef &GetMutableNewTileRef();
+
+        [[nodiscard]] const ResourceRef &GetNewTileRef() const;
     };
 }

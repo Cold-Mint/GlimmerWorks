@@ -31,7 +31,6 @@
 #include "Chunk.h"
 #include "StructurePlacer.h"
 #include "TerrainGenerator.h"
-#include "TileRefResolver.h"
 
 namespace glimmer {
     class WorldContext;
@@ -49,9 +48,9 @@ namespace glimmer {
     class ChunkGenerator {
         WorldContext *worldContext_;
         std::string dimensionId_;
+        //FixMe：在区块生成器内拆分处地形生成器，他们不再依赖。
         TerrainGenerator terrainGenerator_;
         StructurePlacer structurePlacer_;
-        TerrainTileRefs tileRefs_;
 
         /**
          * ResolveDimensionId
@@ -85,7 +84,7 @@ namespace glimmer {
          * @param position position 区块位置
          * @return The generated terrain result 生成的地形结果
          */
-        std::unique_ptr<TerrainResult> GenerateTerrain(const TileVector2D &position);
+        std::shared_ptr<TerrainResult> GenerateTerrain(const TileVector2D &position);
 
         /**
          * GenerateStructure

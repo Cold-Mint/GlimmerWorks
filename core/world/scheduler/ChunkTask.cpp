@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,39 +24,22 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
-#include <unordered_map>
+#include "ChunkTask.h"
 
-#include "TerrainResultType.h"
-#include "TileLayerType.h"
-#include "core/mod/Resource.h"
-#include "core/math/TileVector2D.h"
+#include <utility>
 
+void glimmer::ChunkTask::SetPosition(TileVector2D position) {
+    position_ = std::move(position);
+}
 
-/**
- * TerrainTileResult
- * 瓦片地形结果
- */
-class TerrainTileResult {
-    glimmer::TileVector2D worldPosition_;
-    glimmer::TerrainResultType terrainType_ = glimmer::TerrainResultType::AIR;
-    glimmer::BiomeResource *biomeResource_ = nullptr;
-    std::unordered_map<glimmer::TileLayerType, glimmer::ResourceRef> structureResRefs_;
+glimmer::TileVector2D glimmer::ChunkTask::GetPosition() {
+    return position_;
+}
 
-public:
-    void SetBiomeResource(glimmer::BiomeResource *biomeResource);
+void glimmer::ChunkTask::SetTaskType(const ChunkTaskType taskType) {
+    taskType_ = taskType;
+}
 
-    [[nodiscard]] glimmer::BiomeResource *GetBiomeResource() const;
-
-    void SetTerrainType(glimmer::TerrainResultType terrainType);
-
-    glimmer::TerrainResultType GetTerrainType() const;
-
-    void SetWorldPosition(const glimmer::TileVector2D &worldPosition);
-
-    const glimmer::TileVector2D &worldPosition() const;
-
-    void SetStructure(glimmer::TileLayerType layerType, const glimmer::ResourceRef *structureResourceRef);
-
-    [[nodiscard]] const std::unordered_map<glimmer::TileLayerType, glimmer::ResourceRef> &GetStructureResRefs() const;
-};
+glimmer::ChunkTaskType glimmer::ChunkTask::GetTaskType() const {
+    return taskType_;
+}

@@ -214,28 +214,40 @@ static bool CheckMiningEfficiency(const glimmer::Tile *tile, const glimmer::Abil
 void glimmer::MiningSystem::ProcessSingleTile(const TileBreakParams &params, const TileVector2D &currentVector,
                                               Item *item, const Item *emptyHandAutoUseItem, bool isCenter,
                                               uint8_t &sum) {
-    const AppContext *appContext = params.worldContext->GetAppContext();
-    const auto currentTile = params.tileLayerComponent->GetSelfLayerTileShared(currentVector);
-    if (!CanProcessTile(currentTile.get(), params.isPlaceMode)) {
+    WorldContext *worldContext = params.GetWorldContext();
+    if (worldContext == nullptr) {
         return;
     }
-    TileStateMessage *tileStateMessage = params.tileLayerComponent->GetSelfLayerTileStateMutable(currentVector);
+    const AppContext *appContext = worldContext->GetAppContext();
+    if (appContext == nullptr) {
+        return;
+    }
+    const TileLayerComponent *tileLayerComponent = params.GetTileLayerComponent();
+    if (tileLayerComponent == nullptr) {
+        return;
+    }
+    const auto currentTile = tileLayerComponent->GetSelfLayerTileShared(currentVector);
+    if (!CanProcessTile(currentTile.get(), params.IsPlaceMode())) {
+        return;
+    }
+    const ResourceRef &newTileRef = params.GetNewTileRef();
+    TileStateMessage *tileStateMessage = tileLayerComponent->GetSelfLayerTileStateMutable(currentVector);
     TileStateBackup backup;
     TilePlacementConfig config;
-    config.SetTileHeight(params.tileHeight);
-    config.SetTileWidth(params.tileWidth);
-    config.SetResourceRef(params.newTileRef);
-    config.SetPlaceMode(params.isPlaceMode);
-    config.SetBreakSource(params.breakSource);
-    const TileResource *tileResource = appContext->GetResourceLocator()->FindTileRaw(&params.newTileRef);
-    if (!TryPlaceTile(params.tileLayerComponent, tileStateMessage, currentVector, params.topLeftVector,
-                      config, backup, tileResource, params.worldContext->GetGlobalTick())) {
+    config.SetTileHeight(params.GetTileHeight());
+    config.SetTileWidth(params.GetTileWidth());
+    config.SetResourceRef(newTileRef);
+    config.SetPlaceMode(params.IsPlaceMode());
+    config.SetBreakSource(params.GetBreakSource());
+    if (const TileResource *tileResource = appContext->GetResourceLocator()->FindTileRaw(&newTileRef); !TryPlaceTile(
+        tileLayerComponent, tileStateMessage, currentVector, params.GetTopLeftPosition(),
+        config, backup, tileResource, worldContext->GetGlobalTick())) {
         return;
     }
     sum++;
     const AbilityConfig *abilityConfigPtr = item->GetAbilityConfig();
     ApplyItemDurability(item, currentTile.get(), isCenter);
-    if (isCenter && !params.isPlaceMode) {
+    if (isCenter && !params.IsPlaceMode()) {
         PlayBreakSFX(appContext, currentTile.get());
     }
     if (abilityConfigPtr == nullptr) {
@@ -261,21 +273,22 @@ void glimmer::MiningSystem::ProcessSingleTile(const TileBreakParams &params, con
     if (!isCenter && !tileLootData->LootScaleBySize()) {
         return;
     }
-    DropTileLoot(params.worldContext, currentTile, currentVector,
-                 backup.GetResourceRef(), params.precisionMining);
+    DropTileLoot(worldContext, currentTile, currentVector,
+                 backup.GetResourceRef(), params.IsPrecisionMining());
 }
 
 uint16_t glimmer::MiningSystem::BreakTile(const TileBreakParams &params) {
-    if (params.worldContext == nullptr || params.tileLayerComponent == nullptr) {
+    WorldContext *worldContext = params.GetWorldContext();
+    if (worldContext == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "mining_break_tile_invalid_params",
                   "BreakTile: worldContext or tileLayerComponent is nullptr");
         return 0;
     }
-    const AppContext *appContext = params.worldContext->GetAppContext();
+    const AppContext *appContext = worldContext->GetAppContext();
     if (appContext == nullptr) {
         return 0;
     }
-    const EntityShortCut *entityShortCut = params.worldContext->GetEntityShortCut();
+    const EntityShortCut *entityShortCut = worldContext->GetEntityShortCut();
     if (entityShortCut == nullptr) {
         return 0;
     }
@@ -283,7 +296,7 @@ uint16_t glimmer::MiningSystem::BreakTile(const TileBreakParams &params) {
     if (WorldContext::IsEmptyEntityId(player)) {
         return 0;
     }
-    EntityManager *entityManager = params.worldContext->GetEntityManager();
+    EntityManager *entityManager = worldContext->GetEntityManager();
     if (entityManager == nullptr) {
         return 0;
     }
@@ -296,11 +309,14 @@ uint16_t glimmer::MiningSystem::BreakTile(const TileBreakParams &params) {
         }
     }
     uint8_t sum = 0;
-    auto centerX = params.tileWidth / 2;
-    auto centerY = params.tileHeight / 2;
-    for (int x = 0; x < params.tileWidth; x++) {
-        for (int y = 0; y < params.tileHeight; y++) {
-            ProcessSingleTile(params, TileVector2D(params.topLeftVector.x + x, params.topLeftVector.y - y), item,
+    const uint8_t tileWidth = params.GetTileWidth();
+    const uint8_t tileHeight = params.GetTileHeight();
+    const TileVector2D &topLeftPosition = params.GetTopLeftPosition();
+    const auto centerX = tileWidth / 2;
+    const auto centerY = tileHeight / 2;
+    for (int x = 0; x < tileWidth; x++) {
+        for (int y = 0; y < tileHeight; y++) {
+            ProcessSingleTile(params, TileVector2D(topLeftPosition.x + x, topLeftPosition.y - y), item,
                               playerComponent->GetEmptyHandAutoUseItem(),
                               x == centerX && y == centerY, sum);
         }
@@ -376,7 +392,7 @@ void glimmer::MiningSystem::OnTick(const uint64_t tick) {
     }
 }
 
-void glimmer::MiningSystem::ProcessMiningComplete(const TileLayerComponent *tileLayer,
+void glimmer::MiningSystem::ProcessMiningComplete(const TileLayerComponent *tileLayerComponent,
                                                   TileLayerType tileLayerType) const {
     WorldContext *worldContext = GetWorldContext();
     if (worldContext == nullptr) {
@@ -406,7 +422,7 @@ void glimmer::MiningSystem::ProcessMiningComplete(const TileLayerComponent *tile
     miningComponent_->ClearMiningRangeData();
 
     mainThreadDispatcher->PostToNextMainFrame(
-        [worldContext, tileLayer, tileLayerType, miningRangeData, precisionMining] {
+        [worldContext, tileLayerComponent, tileLayerType, miningRangeData, precisionMining] {
             const size_t pointsCount = miningRangeData->GetPointsCount();
             LogCat::i(LogLabel::DEFAULT, "mining_complete_processing", "Mining complete, processing {} mining points",
                       pointsCount);
@@ -415,13 +431,17 @@ void glimmer::MiningSystem::ProcessMiningComplete(const TileLayerComponent *tile
                 if (point == nullptr) {
                     continue;
                 }
-                uint16_t broken = BreakTile({
-                    BreakSource::PlayerMining, worldContext, tileLayer, point->GetTileTopLeftPosition(),
-                    precisionMining, false, point->GetWidth(),
-                    point->GetHeight(),
-                    TileResourceManager::GetAirResourceRef(tileLayerType)
-                });
-                if (broken > 0) {
+                TileBreakParams tileBreakParams;
+                tileBreakParams.SetBreakSource(BreakSource::PlayerMining);
+                tileBreakParams.SetWorldContext(worldContext);
+                tileBreakParams.SetTileLayerComponent(tileLayerComponent);
+                tileBreakParams.SetTopLeftPosition(point->GetTileTopLeftPosition());
+                tileBreakParams.SetPrecisionMining(precisionMining);
+                tileBreakParams.SetPlaceMode(false);
+                tileBreakParams.SetTileWidth(point->GetWidth());
+                tileBreakParams.SetTileHeight(point->GetHeight());
+                TileResourceManager::WriteAirResourceRef(tileLayerType, tileBreakParams.GetMutableNewTileRef());
+                if (uint16_t broken = BreakTile(tileBreakParams); broken > 0) {
                     LogCat::i(LogLabel::DEFAULT, "broken_tiles_at_position", "Broken tiles at position ({}, {}): {}",
                               point->GetTileTopLeftPosition().x, point->GetTileTopLeftPosition().y, broken);
                 }

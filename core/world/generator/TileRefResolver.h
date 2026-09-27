@@ -38,58 +38,30 @@ namespace glimmer {
     struct BiomeResource;
 
     /**
-     * TerrainTileRefs
-     * 地形瓦片引用
-     * The built-in core tile references (water / bedrock / void wall) used during terrain generation.
-     * 地形生成时使用到的内置核心瓦片引用（水/基岩/虚空墙）。
-     */
-    struct TerrainTileRefs {
-        ResourceRef water;
-        ResourceRef bedrock;
-        ResourceRef voidWall;
-
-        /**
-         * Create
-         * 创建默认的核心瓦片引用
-         * @return The default core tile references 默认的核心瓦片引用
-         */
-        static TerrainTileRefs Create();
-    };
-
-    /**
      * TileRefResolver
      * 瓦片引用解析器
      * Maps each terrain tile result into concrete tile resource references.
      * 将每个瓦片地形结果映射为具体的瓦片资源引用。
      */
     class TileRefResolver {
-        /**
-         * SetTileRefForTerrainType
-         * 按地形类型设置瓦片引用
-         * @param idx idx 区块内索引
-         * @param terrainTileResult terrainTileResult 瓦片地形结果
-         * @param tilesRefMap tilesRefMap 瓦片引用映射（会被修改）
-         * @param biomeResourcesSet biomeResourcesSet 生物群系集合（会被修改）
-         * @param waterTileRef waterTileRef 水瓦片引用
-         * @param bedrockTileRef bedrockTileRef 基岩瓦片引用
-         */
-        static void SetTileRefForTerrainType(int idx, const TerrainTileResult &terrainTileResult,
-                                             std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > &
-                                             tilesRefMap,
-                                             std::unordered_set<BiomeResource *> &biomeResourcesSet,
-                                             const ResourceRef &waterTileRef,
-                                             const ResourceRef &bedrockTileRef);
+        static void WriteWaterResourceRef(TileLayerType layerType, ResourceRef &resourceRef);
+
+        static void WriteAirResourceRef(TileLayerType layerType, ResourceRef &resourceRef);
+
+        static void WriteBedRockResourceRef(TileLayerType layerType, ResourceRef &resourceRef);
+
+
+        static void WriteVoidResourceRef(TileLayerType layerType, ResourceRef &resourceRef);
 
     public:
         /**
          * Initialize
          * 初始化瓦片引用
          * @param terrainResult terrainResult 地形结果
-         * @param tileRefs tileRefs 地形瓦片引用
          * @param tilesRefMap tilesRefMap 瓦片引用映射（会被修改）
          * @param biomeResourcesSet biomeResourcesSet 生物群系集合（会被修改）
          */
-        static void Initialize(const TerrainResult *terrainResult, const TerrainTileRefs &tileRefs,
+        static void Initialize(const TerrainResult *terrainResult,
                                std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > &tilesRefMap,
                                std::unordered_set<BiomeResource *> &biomeResourcesSet);
     };

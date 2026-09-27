@@ -50,10 +50,11 @@ std::bitset<CHUNK_AREA> glimmer::BiomeStructureConditionProcessor::Match(const T
     for (int localX = 0; localX < CHUNK_SIZE; localX++) {
         for (int localY = 0; localY < CHUNK_SIZE; localY++) {
             const TerrainTileResult &self = terrainResult->QueryTerrain(localX, localY);
-            if (self.terrainType != TerrainResultType::SOLID || self.biomeResource == nullptr) {
+            const BiomeResource* biomeResource = self.GetBiomeResource();
+            if (self.GetTerrainType() != TerrainResultType::SOLID || biomeResource == nullptr) {
                 continue;
             }
-            if (biomeSet.contains(Resource::GenerateId(*self.biomeResource))) {
+            if (biomeSet.contains(Resource::GenerateId(*biomeResource))) {
                 const int tileIndex = localY * CHUNK_SIZE + localX;
                 result[tileIndex] = true;
                 matchedTileCount++;

@@ -29,47 +29,6 @@
 #include "core/log/LogCat.h"
 #include "core/world/WorldContext.h"
 
-std::optional<glimmer::StructureInfo> glimmer::TreeStructureGenerator::Generate(WorldContext *worldContext,
-    const TileVector2D &startPosition, IStructureResource *structureResource) {
-    if (structureResource == nullptr || worldContext == nullptr) {
-        LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "structure_generator_null_input",
-                  "Tree structure generator received null input");
-        return std::nullopt;
-    }
-    ChunkGenerator *chunkGenerator = worldContext->GetChunkGenerator();
-    if (chunkGenerator == nullptr) {
-        LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "tree_structure_chunk_generator_null",
-                  "Chunk generator is null, cannot generate tree");
-        return std::nullopt;
-    }
-    auto treeStructureResource = dynamic_cast<TreeStructureResource *>(structureResource);
-    ResourceRef &trunkRef = treeStructureResource->data.at(treeStructureResource->trunkDataIndex);
-    ResourceRef &leafRef = treeStructureResource->data.at(treeStructureResource->leafDataIndex);
-    auto structureInfo = StructureInfo();
-    int trunkHeight = treeStructureResource->trunkHeightMin + static_cast<uint8_t>(chunkGenerator->
-                          GetHumidity(startPosition) *
-                          static_cast<float>(treeStructureResource->trunkHeightMax - treeStructureResource->
-                                             trunkHeightMin));
-    auto trunkTileLayer = static_cast<TileLayerType>(treeStructureResource->trunkTileLayer);
-    for (int y = 0; y < trunkHeight; ++y) {
-        for (int x = 0; x < treeStructureResource->trunkWidth; ++x) {
-            structureInfo.SetTile(trunkTileLayer, TileVector2D(x, y), trunkRef);
-        }
-    }
-    if (treeStructureResource->hasLeaves) {
-        auto leafTileLayer = static_cast<TileLayerType>(treeStructureResource->leafTileLayer);
-        uint8_t leafRadius = treeStructureResource->leafRadius;
-        for (int i = 0; i < treeStructureResource->leafClusterCount; ++i) {
-            int clusterY = trunkHeight - i * treeStructureResource->leafVerticalSpacing;
-            AddLeafCluster(structureInfo, leafTileLayer, leafRadius, clusterY,
-                           treeStructureResource->trunkWidth, leafRef);
-        }
-    }
-    LogCat::d(LogLabel::TERRAIN, "tree_structure_generate",
-              "Generated tree structure: position=({}, {}), trunkHeight={}",
-              startPosition.x, startPosition.y, trunkHeight);
-    return structureInfo;
-}
 
 uint32_t glimmer::TreeStructureGenerator::GetMaxExtent(IStructureResource *structureResource) const {
     auto treeStructureResource = dynamic_cast<TreeStructureResource *>(structureResource);
@@ -93,17 +52,60 @@ glimmer::StructureGeneratorType glimmer::TreeStructureGenerator::GetStructureGen
     return StructureGeneratorType::Tree;
 }
 
-void glimmer::TreeStructureGenerator::AddLeafCluster(StructureInfo &structureInfo, TileLayerType leafTileLayer,
-                                                     uint8_t leafRadius, int clusterY, int trunkWidth,
-                                                     ResourceRef &leafRef) {
+void glimmer::TreeStructureGenerator::AddLeafCluster(StructureInfo *structureInfo, const TileLayerType leafTileLayer,
+                                                     const uint8_t leafRadius, const int clusterY, const int trunkWidth,
+                                                     const ResourceRef &leafRef) {
     for (int x = -leafRadius; x <= leafRadius; ++x) {
         for (int y = -leafRadius; y <= leafRadius; ++y) {
             if (x * x + y * y > leafRadius * leafRadius || y < 0) {
                 continue;
             }
-            structureInfo.SetTile(leafTileLayer,
-                                  TileVector2D{x + trunkWidth / 2, clusterY + y},
-                                  leafRef);
+            structureInfo->SetTile(leafTileLayer,
+                                   TileVector2D{x + trunkWidth / 2, clusterY + y},
+                                   leafRef);
         }
     }
+}
+
+std::unique_ptr<glimmer::StructureInfo> glimmer::TreeStructureGenerator::Generate(WorldContext *worldContext,
+    const TileVector2D &startPosition, IStructureResource *structureResource) {
+    if (structureResource == nullptr || worldContext == nullptr) {
+        LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "structure_generator_null_input",
+                  "Tree structure generator received null input");
+        return nullptr;
+    }
+    ChunkGenerator *chunkGenerator = worldContext->GetChunkGenerator();
+    if (chunkGenerator == nullptr) {
+        LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "tree_structure_chunk_generator_null",
+                  "Chunk generator is null, cannot generate tree");
+        return nullptr;
+    }
+    const auto treeStructureResource = dynamic_cast<TreeStructureResource *>(structureResource);
+    const ResourceRef &trunkRef = treeStructureResource->data.at(treeStructureResource->trunkDataIndex);
+    const ResourceRef &leafRef = treeStructureResource->data.at(treeStructureResource->leafDataIndex);
+    auto structureInfo = std::make_unique<StructureInfo>();
+    int trunkHeight = treeStructureResource->trunkHeightMin + static_cast<uint8_t>(chunkGenerator->
+                          GetHumidity(startPosition) *
+                          static_cast<float>(treeStructureResource->trunkHeightMax - treeStructureResource->
+                                             trunkHeightMin));
+    const auto trunkTileLayer = static_cast<TileLayerType>(treeStructureResource->trunkTileLayer);
+    for (int y = 0; y < trunkHeight; ++y) {
+        for (int x = 0; x < treeStructureResource->trunkWidth; ++x) {
+            structureInfo->SetTile(trunkTileLayer, TileVector2D(x, y), trunkRef);
+        }
+    }
+    if (treeStructureResource->hasLeaves) {
+        const auto structureInfoPtr = structureInfo.get();
+        const auto leafTileLayer = static_cast<TileLayerType>(treeStructureResource->leafTileLayer);
+        const uint8_t leafRadius = treeStructureResource->leafRadius;
+        for (int i = 0; i < treeStructureResource->leafClusterCount; ++i) {
+            const int clusterY = trunkHeight - i * treeStructureResource->leafVerticalSpacing;
+            AddLeafCluster(structureInfoPtr, leafTileLayer, leafRadius, clusterY,
+                           treeStructureResource->trunkWidth, leafRef);
+        }
+    }
+    LogCat::d(LogLabel::TERRAIN, "tree_structure_generate",
+              "Generated tree structure: position=({}, {}), trunkHeight={}",
+              startPosition.x, startPosition.y, trunkHeight);
+    return structureInfo;
 }

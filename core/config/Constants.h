@@ -364,6 +364,7 @@ static constexpr uint8_t EXECUTION_ORDER_GUI_SYSTEM = 255;
 
 static constexpr std::string TILE_ID_AIR = "air";
 static constexpr std::string TILE_ID_AIR_WALL = "air_wall";
+static constexpr std::string TILE_ID_VOID = "void";
 static constexpr std::string TILE_ID_VOID_WALL = "void_wall";
 static constexpr std::string TILE_ID_WATER = "water";
 static constexpr std::string TILE_ID_BEDROCK = "bedrock";
@@ -376,6 +377,8 @@ static constexpr std::string DROPPED_ITEM_ID_DEFAULT = "default";
 
 static const std::string STRING_TILE_AIR_NAME = "tile_name_air";
 static const std::string STRING_TILE_AIR_WALL_NAME = "tile_name_air_wall";
+static const std::string STRING_TILE_VOID_NAME = "tile_name_void";
+static const std::string STRING_TILE_VOID_DESCRIPTION = "tile_description_void";
 static const std::string STRING_TILE_VOID_WALL_NAME = "tile_name_void_wall";
 static const std::string STRING_TILE_VOID_WALL_DESCRIPTION = "tile_description_void_wall";
 static const std::string STRING_TILE_ERROR_NAME = "tile_name_error";

@@ -129,6 +129,8 @@ bool glimmer::InitLangsTask::Run(ISystemBucket *systemBucket) {
     langsResources->tileNameAccessDenied = toml::find<std::string>(tomlValue, STRING_TILE_ACCESS_DENIED_NAME);
     langsResources->tileNameAccessDeniedWall = toml::find<std::string>(tomlValue, STRING_TILE_ACCESS_DENIED_WALL_NAME);
     langsResources->tileNameBedrock = toml::find<std::string>(tomlValue, STRING_TILE_BEDROCK_NAME);
+    langsResources->tileNameVoid = toml::find<std::string>(tomlValue, STRING_TILE_VOID_NAME);
+    langsResources->tileDescriptionVoid = toml::find<std::string>(tomlValue, STRING_TILE_VOID_DESCRIPTION);
     langsResources->tileNameVoidWall = toml::find<std::string>(tomlValue, STRING_TILE_VOID_WALL_NAME);
     langsResources->tileDescriptionVoidWall = toml::find<std::string>(tomlValue, STRING_TILE_VOID_WALL_DESCRIPTION);
     langsResources->tileNameWater = toml::find<std::string>(tomlValue, STRING_TILE_WATER_NAME);

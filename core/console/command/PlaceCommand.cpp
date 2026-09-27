@@ -111,18 +111,25 @@ bool glimmer::PlaceCommand::ExecuteStructure(const CommandArgs *commandArgs, con
             commandArgs->AsCoordinate(3, commandSenderPosition.x),
             commandArgs->AsCoordinate(4, commandSenderPosition.y)
         });
-    std::optional<StructureInfo> structureInfoOptional = appContext->GetModContext()->GetStructureGeneratorManager()->
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
+        return false;
+    }
+    StructureGeneratorManager *structureGeneratorManager = modContext->GetStructureGeneratorManager();
+    if (structureGeneratorManager == nullptr) {
+        return false;
+    }
+    const std::unique_ptr<StructureInfo> structureInfo = structureGeneratorManager->
             Generate(
                 worldContext,
                 tilePosition, structureResource);
-    if (!structureInfoOptional.has_value()) {
+    if (structureInfo == nullptr) {
         return false;
     }
-    TileInstancePool *tileInstancePool = worldContext->GetTileInstancePool();
-    if (tileInstancePool == nullptr) {
+    if (TileInstancePool *tileInstancePool = worldContext->GetTileInstancePool(); tileInstancePool == nullptr) {
         return false;
     }
-    StructureInfo &structureInfo = structureInfoOptional.value();
+    StructureInfo *structureInfoPtr = structureInfo.get();
     const int baseX = tilePosition.x;
     const int baseY = tilePosition.y;
 
@@ -132,7 +139,7 @@ bool glimmer::PlaceCommand::ExecuteStructure(const CommandArgs *commandArgs, con
     if (chunkManager == nullptr) {
         return false;
     }
-    for (auto &[tileLayerType, tileMap]: structureInfo.GetStructureMap()) {
+    for (auto &[tileLayerType, tileMap]: structureInfoPtr->GetStructureMap()) {
         for (auto &[coord, resourceRef]: tileMap) {
             const int worldX = baseX + coord.x;
             const int worldY = baseY + coord.y;

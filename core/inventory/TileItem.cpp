@@ -129,14 +129,17 @@ bool glimmer::TileItem::OnUse(bool mouseLeft, WorldContext *worldContext, uint32
                 }
             }
             if (tileDimensions_ != nullptr) {
-                MiningSystem::BreakTile({
-                    .breakSource = BreakSource::PlayerOverride, .worldContext = worldContext,
-                    .tileLayerComponent = tileLayer,
-                    .topLeftVector = blueprintComponent->GetTopLeftVector(), .precisionMining = false,
-                    .isPlaceMode = true,
-                    .tileWidth = tileDimensions_->GetTileWidth(), .tileHeight = tileDimensions_->GetTileHeight(),
-                    .newTileRef = GetResourceRef()
-                });
+                TileBreakParams tileBreakParams;
+                tileBreakParams.SetBreakSource(BreakSource::PlayerOverride);
+                tileBreakParams.SetWorldContext(worldContext);
+                tileBreakParams.SetTileLayerComponent(tileLayer);
+                tileBreakParams.SetTopLeftPosition(blueprintComponent->GetTopLeftVector());
+                tileBreakParams.SetPrecisionMining(false);
+                tileBreakParams.SetPlaceMode(true);
+                tileBreakParams.SetTileWidth(tileDimensions_->GetTileWidth());
+                tileBreakParams.SetTileHeight(tileDimensions_->GetTileHeight());
+                tileBreakParams.SetNewTileRef(GetResourceRef());
+                MiningSystem::BreakTile(tileBreakParams);
             }
 
             itemStackModule->RemoveAmount(1);

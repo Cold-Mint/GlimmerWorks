@@ -61,7 +61,7 @@ void glimmer::MineralBiomeDecorator::DecorationImpl(WorldContext *worldContext, 
                 continue;
             }
             const TerrainTileResult &self = terrainResult->QueryTerrain(localX, localY);
-            if (self.terrainType != TerrainResultType::SOLID || self.biomeResource != biomeResource) {
+            if (self.GetTerrainType() != TerrainResultType::SOLID || self.GetBiomeResource() != biomeResource) {
                 continue;
             }
             const float normalizedOreNoise = (noiseLite->GetNoise(

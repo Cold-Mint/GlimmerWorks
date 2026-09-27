@@ -39,12 +39,12 @@ void glimmer::FillBiomeDecorator::DecorationImpl(WorldContext *worldContext, Ter
         for (int localY = 0; localY < CHUNK_SIZE; localY++) {
             const int idx = localY * CHUNK_SIZE + localX;
             const TerrainTileResult &self = terrainResult->QueryTerrain(localX, localY);
-            if (self.terrainType != TerrainResultType::SOLID) {
+            if (self.GetTerrainType() != TerrainResultType::SOLID) {
                 //Not solid tiles.
                 //不是固体瓦片。
                 continue;
             }
-            if (self.biomeResource != biomeResource) {
+            if (self.GetBiomeResource() != biomeResource) {
                 //Tiles do not belong to the current biome.
                 //瓦片不属于当前生物群系。
                 continue;

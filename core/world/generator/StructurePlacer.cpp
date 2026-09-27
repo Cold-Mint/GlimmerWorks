@@ -105,15 +105,14 @@ void glimmer::StructurePlacer::GenerateStructure(const TileVector2D &position) c
               position.y, totalPlaced);
 }
 
-void glimmer::StructurePlacer::PlaceStructureTiles(TerrainManager *terrainManager,
-                                                   const StructureInfo &structureInfo,
+void glimmer::StructurePlacer::PlaceStructureTiles(TerrainManager *terrainManager, const StructureInfo *structureInfo,
                                                    const TileVector2D &globalOrigin) {
     const int baseX = globalOrigin.x;
     const int baseY = globalOrigin.y;
 
     TerrainResult *currentTerrain = nullptr;
     TileVector2D currentChunk = {INT_MIN, INT_MIN};
-    for (auto &[tileLayerType, tileMap]: structureInfo.GetStructureMap()) {
+    for (auto &[tileLayerType, tileMap]: structureInfo->GetStructureMap()) {
         for (auto &[coord, tileResource]: tileMap) {
             const int worldX = baseX + coord.x;
             const int worldY = baseY + coord.y;
@@ -136,7 +135,7 @@ void glimmer::StructurePlacer::PlaceStructureTiles(TerrainManager *terrainManage
 }
 
 std::optional<std::bitset<CHUNK_AREA> > glimmer::StructurePlacer::MatchStructureConditions(
-    const AppContext *appContext, TerrainResult *terrainResult, const IStructureResource *structureResource) {
+    const AppContext *appContext, const TerrainResult *terrainResult, const IStructureResource *structureResource) {
     const std::string resId = Resource::GenerateId(*structureResource);
     const size_t totalConditions = structureResource->condition.size();
     if (totalConditions == 0) {
@@ -237,11 +236,11 @@ int glimmer::StructurePlacer::PlaceStructureAtCandidatePoints(const AppContext *
         const int localY = i >> CHUNK_SHIFT;
         TileVector2D structuralOrigin{localX, localY};
         TileVector2D globalOrigin = position + structuralOrigin;
-        std::optional<StructureInfo> structureInfoOptional = structureGeneratorManager->
+        std::unique_ptr<StructureInfo> structureInfo = structureGeneratorManager->
                 Generate(worldContext_, globalOrigin, structureResource);
 
-        if (structureInfoOptional.has_value()) {
-            PlaceStructureTiles(terrainManager, structureInfoOptional.value(), globalOrigin);
+        if (structureInfo != nullptr) {
+            PlaceStructureTiles(terrainManager, structureInfo.get(), globalOrigin);
         }
 
         ++markedCount;

@@ -55,7 +55,7 @@ namespace glimmer {
          * @param structureInfo structureInfo 结构信息
          * @param globalOrigin globalOrigin 全局原点
          */
-        static void PlaceStructureTiles(TerrainManager *terrainManager, const StructureInfo &structureInfo,
+        static void PlaceStructureTiles(TerrainManager *terrainManager, const StructureInfo *structureInfo,
                                         const TileVector2D &globalOrigin);
 
         /**
@@ -67,7 +67,7 @@ namespace glimmer {
          * @return A bitset of candidate points, or nullopt if no condition matched 候选点集合，未匹配到条件时返回nullopt
          */
         static std::optional<std::bitset<CHUNK_AREA> > MatchStructureConditions(
-            const AppContext *appContext, TerrainResult *terrainResult, const IStructureResource *structureResource);
+            const AppContext *appContext, const TerrainResult *terrainResult, const IStructureResource *structureResource);
 
         /**
          * PlaceStructureAtCandidatePoints

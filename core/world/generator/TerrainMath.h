@@ -33,7 +33,7 @@ namespace glimmer {
      * Stateless pure functions shared by the world generator and various debug / command tools.
      * 无状态纯函数，供世界生成器与各类调试、命令工具共用。
      */
-    namespace TerrainMath {
+    struct TerrainMath {
         /**
          * GetElevation
          * 获取海拔
@@ -42,7 +42,7 @@ namespace glimmer {
          * @param y y 世界Y坐标
          * @return Elevation in [0,1] 海拔值，范围0-1
          */
-        float GetElevation(int y);
+        static float GetElevation(int y);
 
         /**
          * GetSurfaceProximity
@@ -53,6 +53,6 @@ namespace glimmer {
          * @param worldY worldY 世界Y坐标
          * @return Proximity in [0,1] 贴近度，范围0-1
          */
-        float GetSurfaceProximity(int firstTileTerrainY, int worldY);
-    }
+        static float GetSurfaceProximity(int firstTileTerrainY, int worldY);
+    };
 }

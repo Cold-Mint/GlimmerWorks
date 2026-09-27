@@ -32,24 +32,52 @@
 #include "core/mod/Resource.h"
 #include "core/mod/dataPack/TileResourceManager.h"
 
-glimmer::TerrainTileRefs glimmer::TerrainTileRefs::Create() {
-    TerrainTileRefs refs;
-    refs.water.SetResourceType(RESOURCE_TILE);
-    refs.water.SetPackageId(RESOURCE_REF_CORE);
-    refs.water.SetSelfPackageId(RESOURCE_REF_CORE);
-    refs.water.SetResourceKey(TILE_ID_WATER);
-    refs.voidWall.SetResourceType(RESOURCE_TILE);
-    refs.voidWall.SetPackageId(RESOURCE_REF_CORE);
-    refs.voidWall.SetSelfPackageId(RESOURCE_REF_CORE);
-    refs.voidWall.SetResourceKey(TILE_ID_VOID_WALL);
-    refs.bedrock.SetResourceType(RESOURCE_TILE);
-    refs.bedrock.SetPackageId(RESOURCE_REF_CORE);
-    refs.bedrock.SetSelfPackageId(RESOURCE_REF_CORE);
-    refs.bedrock.SetResourceKey(TILE_ID_BEDROCK);
-    return refs;
+
+void glimmer::TileRefResolver::WriteWaterResourceRef(const TileLayerType layerType, ResourceRef &resourceRef) {
+    //The ground layer is set to water, while the other layers are set to air.
+    //地面层设置为水，其他层设置为空气。
+    if (layerType == TileLayerType::Ground) {
+        resourceRef.SetResourceType(RESOURCE_TILE);
+        resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+        resourceRef.SetResourceKey(TILE_ID_WATER);
+    } else {
+        TileResourceManager::WriteAirResourceRef(
+            layerType, resourceRef);
+    }
 }
 
-void glimmer::TileRefResolver::Initialize(const TerrainResult *terrainResult, const TerrainTileRefs &tileRefs,
+void glimmer::TileRefResolver::WriteAirResourceRef(const TileLayerType layerType, ResourceRef &resourceRef) {
+    TileResourceManager::WriteAirResourceRef(
+        layerType, resourceRef);
+}
+
+void glimmer::TileRefResolver::WriteBedRockResourceRef(const TileLayerType layerType, ResourceRef &resourceRef) {
+    //The ground layer is equipped with bedrock, while the other layers are fitted with void walls.
+    //地面层设置基岩，其他层设置虚空墙壁。
+    if (layerType == TileLayerType::Ground) {
+        resourceRef.SetResourceType(RESOURCE_TILE);
+        resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+        resourceRef.SetResourceKey(TILE_ID_BEDROCK);
+    } else {
+        resourceRef.SetResourceType(RESOURCE_TILE);
+        resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+        resourceRef.SetResourceKey(TILE_ID_VOID_WALL);
+    }
+}
+
+void glimmer::TileRefResolver::WriteVoidResourceRef(const TileLayerType layerType, ResourceRef &resourceRef) {
+    if (layerType == TileLayerType::Ground) {
+        resourceRef.SetResourceType(RESOURCE_TILE);
+        resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+        resourceRef.SetResourceKey(TILE_ID_VOID);
+    } else {
+        resourceRef.SetResourceType(RESOURCE_TILE);
+        resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+        resourceRef.SetResourceKey(TILE_ID_VOID_WALL);
+    }
+}
+
+void glimmer::TileRefResolver::Initialize(const TerrainResult *terrainResult,
                                           std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > &
                                           tilesRefMap,
                                           std::unordered_set<BiomeResource *> &biomeResourcesSet) {
@@ -57,48 +85,37 @@ void glimmer::TileRefResolver::Initialize(const TerrainResult *terrainResult, co
         for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
             const int idx = localY * CHUNK_SIZE + localX;
             const auto &terrainTileResult = terrainResult->QueryTerrain(localX, localY);
-            if (terrainTileResult.terrainType == TerrainResultType::BEDROCK) {
-                tilesRefMap[TileLayerType::BackGround][idx] = tileRefs.voidWall;
-            } else {
-                tilesRefMap[TileLayerType::BackGround][idx] = TileResourceManager::GetAirResourceRef(
-                    TileLayerType::BackGround);
+            const TerrainResultType terrainType = terrainTileResult.GetTerrainType();
+            if (terrainType == TerrainResultType::VOID) {
+                for (auto &[layerType, refsArray]: tilesRefMap) {
+                    WriteVoidResourceRef(layerType, refsArray[idx]);
+                }
             }
-            SetTileRefForTerrainType(idx, terrainTileResult, tilesRefMap, biomeResourcesSet, tileRefs.water,
-                                     tileRefs.bedrock);
+            if (terrainType == TerrainResultType::AIR) {
+                for (auto &[layerType, refsArray]: tilesRefMap) {
+                    WriteAirResourceRef(layerType, refsArray[idx]);
+                }
+            }
+            if (terrainType == TerrainResultType::WATER) {
+                for (auto &[layerType, refsArray]: tilesRefMap) {
+                    WriteWaterResourceRef(layerType, refsArray[idx]);
+                }
+            }
+            if (terrainType == TerrainResultType::SOLID) {
+                if (BiomeResource *biomeResource = terrainTileResult.GetBiomeResource(); biomeResource != nullptr) {
+                    biomeResourcesSet.insert(biomeResource);
+                }
+            }
+            if (terrainType == TerrainResultType::STRUCTURE) {
+                for (const auto &[structureLayerType, structureResRef]: terrainTileResult.GetStructureResRefs()) {
+                    tilesRefMap[structureLayerType][idx] = structureResRef;
+                }
+            }
+            if (terrainType == TerrainResultType::BEDROCK) {
+                for (auto &[layerType, refsArray]: tilesRefMap) {
+                    WriteBedRockResourceRef(layerType, refsArray[idx]);
+                }
+            }
         }
-    }
-}
-
-void glimmer::TileRefResolver::SetTileRefForTerrainType(const int idx,
-                                                        const TerrainTileResult &terrainTileResult,
-                                                        std::unordered_map<TileLayerType, std::array<ResourceRef,
-                                                            CHUNK_AREA> > &tilesRefMap,
-                                                        std::unordered_set<BiomeResource *> &biomeResourcesSet,
-                                                        const ResourceRef &waterTileRef,
-                                                        const ResourceRef &bedrockTileRef) {
-    using enum TerrainResultType;
-    using enum TileLayerType;
-    switch (terrainTileResult.terrainType) {
-        case AIR:
-            tilesRefMap[Ground][idx] = TileResourceManager::GetAirResourceRef(Ground);
-            break;
-        case WATER:
-            tilesRefMap[Ground][idx] = waterTileRef;
-            break;
-        case BEDROCK:
-            tilesRefMap[Ground][idx] = bedrockTileRef;
-            break;
-        case STRUCTURE:
-            tilesRefMap[Ground][idx] = TileResourceManager::GetAirResourceRef(Ground);
-            for (const auto &[structureLayerType, structureResRef]: terrainTileResult.structureResRefs) {
-                tilesRefMap[structureLayerType][idx] = structureResRef;
-            }
-            break;
-        case SOLID:
-            tilesRefMap[Ground][idx] = TileResourceManager::GetAirResourceRef(Ground);
-            if (terrainTileResult.biomeResource != nullptr) {
-                biomeResourcesSet.insert(terrainTileResult.biomeResource);
-            }
-            break;
     }
 }

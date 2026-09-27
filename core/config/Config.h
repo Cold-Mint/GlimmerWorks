@@ -108,18 +108,6 @@ namespace glimmer {
     };
 
     struct World {
-        float preloadChunkRadius;
-        float preloadStructureRadius;
-        float preloadLightingRadius;
-        uint64_t chunkSpawnCleanInterval;
-        uint64_t loadTerrainInterval;
-        uint16_t loadTerrainBatch;
-        uint64_t loadChunkInterval;
-        uint16_t loadChunkBatch;
-        uint64_t unloadChunkInterval;
-        uint16_t unloadChunkBatch;
-        uint64_t unloadTerrainInterval;
-        uint16_t unloadTerrainBatch;
     };
 
     struct AudioTrack {

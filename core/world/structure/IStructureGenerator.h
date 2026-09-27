@@ -42,8 +42,8 @@ namespace glimmer {
          * @param structureResource
          * @return
          */
-        virtual std::optional<StructureInfo> Generate(WorldContext *worldContext, const TileVector2D &startPosition,
-                                                      IStructureResource *structureResource) = 0;
+        virtual std::unique_ptr<StructureInfo> Generate(WorldContext *worldContext, const TileVector2D &startPosition,
+                                                        IStructureResource *structureResource) = 0;
 
         /**
          * Get the dimension of the longest edge of the structure (in tiles)

@@ -46,13 +46,22 @@ uint32_t glimmer::StructureGeneratorManager::GetMaxChunksOccupiedByStructure() c
     return maxChunksOccupiedByStructure_;
 }
 
-std::optional<glimmer::StructureInfo> glimmer::StructureGeneratorManager::Generate(WorldContext *worldContext,
+std::unique_ptr<glimmer::StructureInfo> glimmer::StructureGeneratorManager::Generate(WorldContext *worldContext,
     const TileVector2D &structuralOrigin, IStructureResource *structureResource) {
     const auto type = static_cast<StructureGeneratorType>(structureResource->generatorId);
     if (!structureGeneratorMap_.contains(type)) {
         LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "structure_generator_not_registered",
                   "Structure generator is not registered: type={}", std::to_underlying(type));
-        return std::nullopt;
+        return nullptr;
     }
     return structureGeneratorMap_[type]->Generate(worldContext, structuralOrigin, structureResource);
+}
+
+
+uint32_t glimmer::StructureGeneratorManager::GetMaxExtent(IStructureResource *structureResource) {
+    if (const auto type = static_cast<StructureGeneratorType>(structureResource->generatorId); structureGeneratorMap_.
+        contains(type)) {
+        return structureGeneratorMap_[type]->GetMaxExtent(structureResource);
+    }
+    return 0;
 }

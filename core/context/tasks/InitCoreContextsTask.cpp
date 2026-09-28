@@ -30,6 +30,7 @@
 
 #include "core/context/CacheContext.h"
 #include "core/context/ISystemBucket.h"
+#include "core/task/TaskWorker.h"
 #include "core/tick/TickWorker.h"
 
 glimmer::InitCoreContextsTask::InitCoreContextsTask(AppContext *appContext) : appContext_(appContext) {
@@ -43,10 +44,12 @@ bool glimmer::InitCoreContextsTask::Run(ISystemBucket *systemBucket) {
     systemBucket->SetSceneManager(std::make_unique<SceneManager>());
     systemBucket->SetCacheContext(std::make_unique<CacheContext>(appContext_));
     systemBucket->SetTickWorker(std::make_unique<TickWorker>());
+    systemBucket->SetTaskWorker(std::make_unique<TaskWorker>());
     return true;
 }
 
 void glimmer::InitCoreContextsTask::Rollback(ISystemBucket *systemBucket) {
+    systemBucket->SetTaskWorker(nullptr);
     systemBucket->SetTickWorker(nullptr);
     systemBucket->SetSceneManager(nullptr);
     systemBucket->SetGraphicsContext(nullptr);

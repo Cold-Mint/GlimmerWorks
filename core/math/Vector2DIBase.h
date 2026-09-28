@@ -48,6 +48,10 @@ namespace glimmer {
 
         void WriteVector2DIMessage(Vector2DIMessage &vector2di) const;
 
+        bool operator==(const Derived &other) {
+            return other.x == x && other.y == y;
+        }
+
 
         /**
          * Vector addition

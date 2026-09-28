@@ -38,7 +38,6 @@
 #include "core/mod/StructurePlacementConditionsProcessorManager.h"
 #include "core/mod/dataPack/StructurePlacementConditionsRegistry.h"
 #include "core/mod/dataPack/StructureRegistry.h"
-#include "core/world/TerrainManager.h"
 #include "core/world/WorldContext.h"
 #include "core/world/generator/TerrainResult.h"
 #include "core/world/structure/IStructureConditionProcessor.h"
@@ -74,35 +73,37 @@ void glimmer::StructurePlacer::GenerateStructure(const TileVector2D &position) c
         return;
     }
 
-    TerrainManager *terrainManager = worldContext_->GetTerrainManager();
-    if (terrainManager == nullptr) {
-        LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "terrain_manager_is_null",
-                  "Terrain manager is null, cannot place structures");
-        return;
-    }
+    //TODO：修复我
 
-    TerrainResult *terrainResult = terrainManager->GetOrCreateTerrainData(position);
+    // TerrainManager *terrainManager = worldContext_->GetTerrainManager();
+    // if (terrainManager == nullptr) {
+    //     LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "terrain_manager_is_null",
+    //               "Terrain manager is null, cannot place structures");
+    //     return;
+    // }
+    //
+    // TerrainResult *terrainResult = terrainManager->GetOrCreateTerrainData(position);
 
-    int totalPlaced = 0;
-    for (auto structureResource: all) {
-        std::optional<std::bitset<CHUNK_AREA> > candidatePoints = MatchStructureConditions(
-            appContext, terrainResult, structureResource);
-
-        if (!candidatePoints.has_value()) {
-            continue;
-        }
-
-        const int placedCount = PlaceStructureAtCandidatePoints(appContext, terrainManager, position,
-                                                                candidatePoints.value(), structureResource);
-        LogCat::d(LogLabel::TERRAIN, "structure_placed_per_resource",
-                  "Placed structure: resource={}, generator={}, position=({}, {}), placed={}",
-                  Resource::GenerateId(*structureResource), StructureGeneratorTypeName(structureResource->generatorId),
-                  position.x, position.y, placedCount);
-        totalPlaced += placedCount;
-    }
-    LogCat::d(LogLabel::TERRAIN, "structure_placed_count",
-              "Structure placement completed: position=({}, {}), placed={}", position.x,
-              position.y, totalPlaced);
+    // int totalPlaced = 0;
+    // for (auto structureResource: all) {
+    //     std::optional<std::bitset<CHUNK_AREA> > candidatePoints = MatchStructureConditions(
+    //         appContext, terrainResult, structureResource);
+    //
+    //     if (!candidatePoints.has_value()) {
+    //         continue;
+    //     }
+    //
+    //     const int placedCount = PlaceStructureAtCandidatePoints(appContext, terrainManager, position,
+    //                                                             candidatePoints.value(), structureResource);
+    //     LogCat::d(LogLabel::TERRAIN, "structure_placed_per_resource",
+    //               "Placed structure: resource={}, generator={}, position=({}, {}), placed={}",
+    //               Resource::GenerateId(*structureResource), StructureGeneratorTypeName(structureResource->generatorId),
+    //               position.x, position.y, placedCount);
+    //     totalPlaced += placedCount;
+    // }
+    // LogCat::d(LogLabel::TERRAIN, "structure_placed_count",
+    //           "Structure placement completed: position=({}, {}), placed={}", position.x,
+    //           position.y, totalPlaced);
 }
 
 void glimmer::StructurePlacer::PlaceStructureTiles(TerrainManager *terrainManager, const StructureInfo *structureInfo,

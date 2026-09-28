@@ -29,7 +29,6 @@
 #include "WorldContext.h"
 #include "Dimension.h"
 #include "ChunkManager.h"
-#include "TerrainManager.h"
 #include "SystemScheduler.h"
 #include "PlayerContext.h"
 #include "box2d/box2d.h"
@@ -111,7 +110,6 @@ void glimmer::WorldBuilder::Build() {
     worldContext_->chunkManager_ = std::make_unique<ChunkManager>(worldContext_, dimensionFolderName);
     worldContext_->chunkGenerator_ = std::make_unique<ChunkGenerator>(worldContext_, worldContext_->worldSeed_,
                                                                       dimensionResource);
-    worldContext_->terrainManager_ = std::make_unique<TerrainManager>(worldContext_);
     worldContext_->tileInstancePool_ = std::make_unique<TileInstancePool>();
     worldContext_->fixedGlobalTick_ = worldContext_->mapManifest_->globalTickCount;
     auto *commandManager = worldContext_->appContext_->GetConsoleContext()->GetCommandManager();
@@ -150,6 +148,7 @@ void glimmer::WorldBuilder::Build() {
     worldContext_->entityShortCut_->SetItemToolTipComponent(
         worldContext_->entityManager_->AddComponent<ItemToolTipComponent>(
             worldContext_->entityManager_->AddEntity()));
+    worldContext_->chunkTaskScheduler_ = std::make_unique<ChunkTaskScheduler>();
     worldContext_->systemScheduler_ = std::make_unique<SystemScheduler>(worldContext_);
     worldContext_->systemScheduler_->InitSystem();
     LogCat::i(LogLabel::DEFAULT, "world_context_player_initialized", "Player initialized, SystemScheduler initialized");

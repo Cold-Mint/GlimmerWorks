@@ -184,6 +184,18 @@ glimmer::TickWorker *glimmer::SystemBucket::GetTickWorker() const {
     return tickWorker;
 }
 
+void glimmer::SystemBucket::SetTaskWorker(std::unique_ptr<TaskWorker> taskWorker) {
+    taskWorker_ = std::move(taskWorker);
+}
+
+glimmer::TaskWorker *glimmer::SystemBucket::GetTaskWorker() const {
+    TaskWorker *taskWorker = taskWorker_.get();
+    if (taskWorker == nullptr) {
+        return nullptr;
+    }
+    return taskWorker;
+}
+
 void glimmer::SystemBucket::SetGraphicsContext(std::unique_ptr<GraphicsContext> graphicsContext) {
     graphicsContext_ = std::move(graphicsContext);
 }

@@ -26,14 +26,60 @@
  */
 #pragma once
 
+#include <mutex>
+
 #include "core/ecs/GameSystem.h"
-#include "core/world/scheduler/ChunkTaskScheduler.h"
+#include "core/math/TileVector2D.h"
 
 namespace glimmer {
+    class ChunkManager;
+    class CameraComponent;
+    class Transform2DComponent;
+    class ChunkTaskScheduler;
+    class Config;
+
     class ChunkSystem final : public GameSystem {
-        ChunkTaskScheduler chunkTaskScheduler_;
+        std::mutex worldConfigMutex_;
+        uint32_t cameraLastVersion_ = 0;
+        uint32_t cameraTransformLastVersion_ = 0;
+        uint8_t preloadChunkRadius_ = 1;
+        uint8_t chunkScanTaskTickInterval_ = 1;
+        CameraComponent *cameraComponent_ = nullptr;
+        Transform2DComponent *cameraTransform2DComponent_ = nullptr;
+        //Has the block generation task been dispatched to the worker thread?
+        //区块生成任务是否投递到了工作线程。
+        std::atomic_bool chunkTaskInProgress_ = false;
+
+        /**
+         * Generate load tasks for chunks within [startChunk, endChunk].
+         * 为 [startChunk, endChunk] 范围内的区块生成加载任务。
+         */
+        static void GenerateLoadTasks(const ChunkManager *chunkManager, ChunkTaskScheduler *scheduler,
+                                      const TileVector2D &startChunk,
+                                      const TileVector2D &endChunk);
+
+        /**
+         * Generate unload tasks for loaded chunks outside [startChunk, endChunk].
+         * 为 [startChunk, endChunk] 范围之外的已加载区块生成卸载任务。
+         */
+        static void GenerateUnloadTasks(ChunkManager *chunkManager, ChunkTaskScheduler *scheduler,
+                                        const TileVector2D &startChunk,
+                                        const TileVector2D &endChunk);
+
+        /**
+         * Submit the task to the worker thread
+         * 提交任务到工作线程
+         */
+        void PostTask();
+
     public:
         explicit ChunkSystem(WorldContext *worldContext);
+
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
+
+        void OnTick(uint64_t tick) override;
+
+        void OnConfigChanged(const Config *config) override;
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };

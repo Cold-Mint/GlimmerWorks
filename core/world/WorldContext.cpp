@@ -29,11 +29,7 @@
 #include "WorldBuilder.h"
 #include "Dimension.h"
 #include "ChunkManager.h"
-#include "TerrainManager.h"
 #include "SystemScheduler.h"
-#include "PlayerContext.h"
-#include "TileInstancePool.h"
-#include "box2d/box2d.h"
 #include "core/config/Constants.h"
 #include "core/log/LogCat.h"
 #include "core/context/AppContext.h"
@@ -112,10 +108,6 @@ glimmer::ChunkManager *glimmer::WorldContext::GetChunkManager() const {
     return chunkManager_.get();
 }
 
-glimmer::TerrainManager *glimmer::WorldContext::GetTerrainManager() const {
-    return terrainManager_.get();
-}
-
 glimmer::SystemScheduler *glimmer::WorldContext::GetSystemScheduler() const {
     return systemScheduler_.get();
 }
@@ -179,4 +171,8 @@ glimmer::WorldContext::WorldContext(AppContext *appContext, Saves *saves) : save
                                                                             worldSaver_(this) {
     WorldBuilder builder(this);
     builder.Build();
+}
+
+glimmer::ChunkTaskScheduler *glimmer::WorldContext::GetChunkTaskScheduler() const {
+    return chunkTaskScheduler_.get();
 }

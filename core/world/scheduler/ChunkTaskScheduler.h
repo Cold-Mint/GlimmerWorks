@@ -25,10 +25,10 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <mutex>
 #include <vector>
 
 #include "ChunkTask.h"
-#include "core/world/ChunkManager.h"
 
 namespace glimmer {
     class ChunkTaskScheduler {
@@ -36,13 +36,13 @@ namespace glimmer {
          * pendingTasks
          * 等待队列
          */
-        std::vector<ChunkTask> pendingTasks_;
+        std::vector<std::unique_ptr<ChunkTask> > pendingTasks_;
 
         /**
          * The coordinate key for the block task.
          * 区块任务的坐标Key。
          */
-        std::vector<TileVector2D> mainTask_;
+        std::deque<TileVector2D> mainTask_;
 
         /**
          * The task queue waiting to be deleted within the main task
@@ -54,9 +54,9 @@ namespace glimmer {
          * The status of the chunk task
          * 区块任务的Map
          */
-        std::unordered_map<uint64_t, ChunkTask> chunkTaskMap_;
+        std::unordered_map<uint64_t, std::unique_ptr<ChunkTask> > chunkTaskMap_;
 
-        ChunkManager *chunkManager_ = nullptr;
+        std::mutex chunkTaskMutex_;
 
     public:
         /**
@@ -64,7 +64,7 @@ namespace glimmer {
          * 向等待队列添加一个任务
          * @param chunkTask
          */
-        void PushPendingTask(const ChunkTask &chunkTask);
+        void PushPendingTask(std::unique_ptr<ChunkTask> chunkTask);
 
         /**
          * Sorting main task
@@ -83,10 +83,17 @@ namespace glimmer {
         void Commit();
 
         /**
-         *
-         * @param chunkTaskSize 执行多少个区块任务
-         * @param terrainTaskSize 执行多少个地形任务
+         * GetMainTaskCount
+         * 获取有多少个主任务待执行。
+         * @return
          */
-        void Execute(uint8_t chunkTaskSize, uint8_t terrainTaskSize);
+        [[nodiscard]] size_t GetMainTaskCount();
+
+        /**
+         * Pop up the task located at the top
+         * 弹出位于顶部的任务
+         * @return
+         */
+        [[nodiscard]] std::unique_ptr<ChunkTask> PopFrontTask();
     };
 }

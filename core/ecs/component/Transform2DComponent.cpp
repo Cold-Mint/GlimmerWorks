@@ -30,32 +30,36 @@
 #include "src/saves/transform2d.pb.h"
 #include "core/math/WorldVector2D.h"
 
-glimmer::Transform2DComponent::Transform2DComponent(WorldVector2D position) : position_(position) {
+glimmer::Transform2DComponent::Transform2DComponent(const WorldVector2D &position) : position_(position) {
 }
 
-void glimmer::Transform2DComponent::SetPosition(WorldVector2D newPosition) {
+void glimmer::Transform2DComponent::SetPosition(const WorldVector2D &newPosition) {
+    if (newPosition == position_) {
+        return;
+    }
     position_ = newPosition;
+    AddVersion();
 }
 
 void glimmer::Transform2DComponent::SetRotation(const float newRotation) {
+    if (newRotation == rotation_) {
+        return;
+    }
     rotation_ = newRotation;
+    AddVersion();
 }
 
 float glimmer::Transform2DComponent::GetRotation() const {
     return rotation_;
 }
 
-void glimmer::Transform2DComponent::Translate(WorldVector2D deltaPosition) {
-    position_ += deltaPosition;
-}
-
-glimmer::WorldVector2D glimmer::Transform2DComponent::GetPosition() const {
+const glimmer::WorldVector2D &glimmer::Transform2DComponent::GetPosition() const {
     return position_;
 }
 
 std::optional<std::string> glimmer::Transform2DComponent::Serialize() {
     Transform2dMessage transform2DMessage;
-    auto pos = transform2DMessage.mutable_position();
+    const auto pos = transform2DMessage.mutable_position();
     pos->set_x(position_.x);
     pos->set_y(position_.y);
     transform2DMessage.set_rotation(rotation_);
@@ -64,11 +68,10 @@ std::optional<std::string> glimmer::Transform2DComponent::Serialize() {
 
 
 void glimmer::Transform2DComponent::Deserialize(WorldContext *worldContext, const std::string &data) {
-    Transform2dMessage transform2DMessage;
-    transform2DMessage.ParseFromString(data);
-    position_.x = transform2DMessage.position().x();
-    position_.y = transform2DMessage.position().y();
-    rotation_ = transform2DMessage.rotation();
+    if (Transform2dMessage transform2DMessage; transform2DMessage.ParseFromString(data)) {
+        SetPosition({transform2DMessage.position().x(), transform2DMessage.position().y()});
+        SetRotation(transform2DMessage.rotation());
+    }
 }
 
 GameComponentTypeMessage glimmer::Transform2DComponent::GetComponentTypeStatic() {

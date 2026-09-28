@@ -58,6 +58,10 @@ namespace glimmer {
             return result;
         }
 
+        bool operator==(const Derived &other) {
+            return other.x == x && other.y == y;
+        }
+
         /**
          * Vector subtraction
          * 向量减法

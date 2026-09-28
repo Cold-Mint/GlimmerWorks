@@ -119,6 +119,8 @@ bool glimmer::Config::ReloadConfig() {
     for (const auto &resourcePack: enabledResourcePack) {
         mods.enabledResourcePack.emplace_back(StringUtils::StringToUint64(resourcePack));
     }
+    world.preloadChunkRadius = toml::find<uint8_t>(tomlRef, "world", "preload_chunk_radius");
+    world.chunkScanTaskTickInterval = toml::find<uint8_t>(tomlRef, "world", "chunk_scan_task_tick_interval");
     audio.channels = toml::find<int>(tomlRef, "audio", "channels");
     audio.masterVolume = toml::find<float>(tomlRef, "audio", "master_volume");
     audio.freq = toml::find<int>(tomlRef, "audio", "freq");

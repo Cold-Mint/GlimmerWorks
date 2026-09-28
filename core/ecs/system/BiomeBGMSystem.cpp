@@ -31,7 +31,6 @@
 #include "core/math/CoordinateTransformer.h"
 #include "core/mod/resourcePack/AudioResourceResult.h"
 #include "core/world/WorldContext.h"
-#include "core/world/TerrainManager.h"
 #include "core/world/generator/Chunk.h"
 
 void glimmer::BiomeBGMSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) {
@@ -71,75 +70,77 @@ glimmer::BiomeBGMSystem::BiomeBGMSystem(WorldContext *worldContext) : GameSystem
 }
 
 void glimmer::BiomeBGMSystem::Update(float delta) {
-    WorldContext *worldContext = GetWorldContext();
-    if (worldContext == nullptr) {
-        return;
-    }
-    if (playerTransform2DComponent_ == nullptr) {
-        return;
-    }
-    if (resourceLocator_ == nullptr) {
-        return;
-    }
-    if (audioManager_ == nullptr) {
-        return;
-    }
-    TerrainManager *terrainManager = worldContext->GetTerrainManager();
-    if (terrainManager == nullptr) {
-        return;
-    }
-    const WorldVector2D position = playerTransform2DComponent_->GetPosition();
-    const TileVector2D tileVector2d = CoordinateTransformer::WorldToTile(position);
-    const TileVector2D chunkVertex = Chunk::TileCoordinatesToChunkVertexCoordinates(tileVector2d);
+    //TODO:恢复我
 
-    const TerrainResult *terrainResult = terrainManager->GetTerrainData(chunkVertex);
-    if (terrainResult == nullptr) {
-        return;
-    }
-    TileVector2D chunkRelative = Chunk::TileCoordinatesToChunkRelativeCoordinates(tileVector2d);
-    const TerrainTileResult &terrainTileResult = terrainResult->QueryTerrain(chunkRelative.x, chunkRelative.y);
-    BiomeResource *biomeResource = terrainTileResult.GetBiomeResource();
-    if (biomeResource == nullptr) {
-        return;
-    }
-
-    // Player is back in the biome whose BGM is already playing: cancel any pending switch.
-    // 玩家回到了正在播放 BGM 的生物群系：取消待切换。
-    if (biomeResource == biomeResource_) {
-        candidateBiomeResource_ = nullptr;
-        candidateTimeAccumulator_ = 0.0F;
-        return;
-    }
-
-    // No BGM playing yet (initial spawn): switch immediately without debouncing.
-    // 尚未播放任何 BGM（初次进入）：立即切换，不做防抖。
-    if (biomeResource_ == nullptr) {
-        SwitchToBiome(biomeResource);
-        return;
-    }
-
-    // Debounce: only switch after the player stays in the new biome for a while,
-    // so brief crossings (e.g. a single jump) don't trigger BGM churn.
-    // 防抖：只有当玩家在新生物群系中连续停留一段时间后才切换，
-    // 避免短暂跨越（如单次跳跃）导致 BGM 频繁切换。
-    if (biomeResource != candidateBiomeResource_) {
-        candidateBiomeResource_ = biomeResource;
-        candidateTimeAccumulator_ = 0.0F;
-    }
-    candidateTimeAccumulator_ += delta;
-
-    const AppContext *appContext = worldContext->GetAppContext();
-    const Config *config = appContext != nullptr ? appContext->GetConfig() : nullptr;
-    const float debounceSeconds = config != nullptr
-                                      ? config->biomeBgm.debounceSeconds
-                                      : kDefaultBiomeBGMDebounceSeconds;
-    if (candidateTimeAccumulator_ < debounceSeconds) {
-        return;
-    }
-
-    SwitchToBiome(biomeResource);
-    candidateBiomeResource_ = nullptr;
-    candidateTimeAccumulator_ = 0.0F;
+    // WorldContext *worldContext = GetWorldContext();
+    // if (worldContext == nullptr) {
+    //     return;
+    // }
+    // if (playerTransform2DComponent_ == nullptr) {
+    //     return;
+    // }
+    // if (resourceLocator_ == nullptr) {
+    //     return;
+    // }
+    // if (audioManager_ == nullptr) {
+    //     return;
+    // }
+    // TerrainManager *terrainManager = worldContext->GetTerrainManager();
+    // if (terrainManager == nullptr) {
+    //     return;
+    // }
+    // const WorldVector2D position = playerTransform2DComponent_->GetPosition();
+    // const TileVector2D tileVector2d = CoordinateTransformer::WorldToTile(position);
+    // const TileVector2D chunkVertex = Chunk::TileCoordinatesToChunkVertexCoordinates(tileVector2d);
+    //
+    // const TerrainResult *terrainResult = terrainManager->GetTerrainData(chunkVertex);
+    // if (terrainResult == nullptr) {
+    //     return;
+    // }
+    // TileVector2D chunkRelative = Chunk::TileCoordinatesToChunkRelativeCoordinates(tileVector2d);
+    // const TerrainTileResult &terrainTileResult = terrainResult->QueryTerrain(chunkRelative.x, chunkRelative.y);
+    // BiomeResource *biomeResource = terrainTileResult.GetBiomeResource();
+    // if (biomeResource == nullptr) {
+    //     return;
+    // }
+    //
+    // // Player is back in the biome whose BGM is already playing: cancel any pending switch.
+    // // 玩家回到了正在播放 BGM 的生物群系：取消待切换。
+    // if (biomeResource == biomeResource_) {
+    //     candidateBiomeResource_ = nullptr;
+    //     candidateTimeAccumulator_ = 0.0F;
+    //     return;
+    // }
+    //
+    // // No BGM playing yet (initial spawn): switch immediately without debouncing.
+    // // 尚未播放任何 BGM（初次进入）：立即切换，不做防抖。
+    // if (biomeResource_ == nullptr) {
+    //     SwitchToBiome(biomeResource);
+    //     return;
+    // }
+    //
+    // // Debounce: only switch after the player stays in the new biome for a while,
+    // // so brief crossings (e.g. a single jump) don't trigger BGM churn.
+    // // 防抖：只有当玩家在新生物群系中连续停留一段时间后才切换，
+    // // 避免短暂跨越（如单次跳跃）导致 BGM 频繁切换。
+    // if (biomeResource != candidateBiomeResource_) {
+    //     candidateBiomeResource_ = biomeResource;
+    //     candidateTimeAccumulator_ = 0.0F;
+    // }
+    // candidateTimeAccumulator_ += delta;
+    //
+    // const AppContext *appContext = worldContext->GetAppContext();
+    // const Config *config = appContext != nullptr ? appContext->GetConfig() : nullptr;
+    // const float debounceSeconds = config != nullptr
+    //                                   ? config->biomeBgm.debounceSeconds
+    //                                   : kDefaultBiomeBGMDebounceSeconds;
+    // if (candidateTimeAccumulator_ < debounceSeconds) {
+    //     return;
+    // }
+    //
+    // SwitchToBiome(biomeResource);
+    // candidateBiomeResource_ = nullptr;
+    // candidateTimeAccumulator_ = 0.0F;
 }
 
 glimmer::GameSystemType glimmer::BiomeBGMSystem::GetGameSystemType() const {

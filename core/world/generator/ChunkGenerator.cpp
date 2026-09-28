@@ -36,7 +36,6 @@
 #include "BiomeDecoratorManager.h"
 #include "TileRefResolver.h"
 #include "core/mod/dataPack/BiomeRegistry.h"
-#include "core/world/TerrainManager.h"
 #include "core/world/WorldContext.h"
 
 std::string glimmer::ChunkGenerator::ResolveDimensionId(const DimensionResource *dimensionResource) {
@@ -101,22 +100,25 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const T
     LogCat::i(LogLabel::CHUNK, "chunk_generating", "Generating new chunk at position: ({}, {})", position.x,
               position.y);
     auto chunk = std::make_unique<Chunk>(worldContext_, position, config);
-    TerrainResult *terrainResult = worldContext_->GetTerrainManager()->GetTerrainData(position);
-    if (terrainResult == nullptr) {
-        LogCat::e(LogLabel::CHUNK, std::source_location::current(), "chunk_terrain_data_failed",
-                  "Failed to get terrain data for chunk: ({}, {})", position.x,
-                  position.y);
-        return nullptr;
-    }
+    //TODO：修复我！
+
+    // TerrainResult *terrainResult = worldContext_->GetTerrainManager()->GetTerrainData(position);
+    // if (terrainResult == nullptr) {
+    //     LogCat::e(LogLabel::CHUNK, std::source_location::current(), "chunk_terrain_data_failed",
+    //               "Failed to get terrain data for chunk: ({}, {})", position.x,
+    //               position.y);
+    //     return nullptr;
+    // }
     std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > tilesRefMap = {
         {TileLayerType::Ground, {}},
         {TileLayerType::BackGround, {}}
     };
     std::unordered_set<BiomeResource *> biomeResourcesSet;
-
-    TileRefResolver::Initialize(terrainResult, tilesRefMap, biomeResourcesSet);
-    BiomeDecoratorApplier::Apply(biomeResourcesSet, resourceLocator, biomeDecoratorManager, worldContext_,
-                                 terrainResult, tilesRefMap);
+    //TODO：修复我！
+    //
+    // TileRefResolver::Initialize(terrainResult, tilesRefMap, biomeResourcesSet);
+    // BiomeDecoratorApplier::Apply(biomeResourcesSet, resourceLocator, biomeDecoratorManager, worldContext_,
+    //                              terrainResult, tilesRefMap);
     ChunkTilePopulator::Populate(chunk.get(), resourceLocator, tilesRefMap);
 
     LogCat::i(LogLabel::CHUNK, "chunk_generation_completed", "Chunk generation completed at: ({}, {})", position.x,

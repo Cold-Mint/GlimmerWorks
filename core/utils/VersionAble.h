@@ -24,4 +24,26 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "IUniqueAble.h"
+#pragma once
+#include <cstdint>
+
+namespace glimmer {
+    class VersionAble {
+        uint32_t version_ = 0;
+
+    protected:
+        /**
+         * Add Version (indicate that this object has been modified)
+         * 添加版本（标记此对象已改变）
+         */
+        void AddVersion();
+
+    public:
+        /**
+         * GetVersion
+         * 获取对象的版本
+         * @return
+         */
+        [[nodiscard]] uint32_t GetVersion() const;
+    };
+}

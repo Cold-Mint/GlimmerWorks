@@ -77,6 +77,8 @@ namespace glimmer {
 
         [[nodiscard]] TickWorker *GetTickWorker() const;
 
+        [[nodiscard]] TaskWorker *GetTaskWorker() const;
+
         [[nodiscard]] GraphicsContext *GetGraphicsContext() const;
 
         [[nodiscard]] AudioContext *GetAudioContext() const;

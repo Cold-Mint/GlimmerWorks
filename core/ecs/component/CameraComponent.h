@@ -30,13 +30,14 @@
 
 #include "core/math/ScreenVector2D.h"
 #include "core/math/WorldVector2D.h"
+#include "core/utils/VersionAble.h"
 
 namespace glimmer {
     /**
      * Camera component, used to control the game view
      * 相机组件，用于控制游戏视图
      */
-    class CameraComponent : public GameComponent {
+    class CameraComponent : public GameComponent, public VersionAble {
         /**
          * Size: Camera size (pixel coordinates)
          * Size 相机尺寸（像素坐标）
@@ -81,7 +82,7 @@ namespace glimmer {
          * 获取相机尺寸
          * @return
          */
-        [[nodiscard]] ScreenVector2D GetSize() const;
+        [[nodiscard]] const ScreenVector2D &GetSize() const;
 
 
         /**

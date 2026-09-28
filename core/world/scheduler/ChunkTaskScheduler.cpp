@@ -30,11 +30,13 @@
 #include <algorithm>
 #include <unordered_set>
 
-void glimmer::ChunkTaskScheduler::PushPendingTask(const ChunkTask &chunkTask) {
-    pendingTasks_.push_back(chunkTask);
+void glimmer::ChunkTaskScheduler::PushPendingTask(std::unique_ptr<ChunkTask> chunkTask) {
+    std::lock_guard lock(chunkTaskMutex_);
+    pendingTasks_.push_back(std::move(chunkTask));
 }
 
 void glimmer::ChunkTaskScheduler::SortTask(const TileVector2D &center) {
+    std::lock_guard lock(chunkTaskMutex_);
     std::ranges::sort(mainTask_,
                       [&center](const TileVector2D &lhs, const TileVector2D &rhs) {
                           return lhs.DistanceSquared(center) < rhs.DistanceSquared(center);
@@ -42,87 +44,72 @@ void glimmer::ChunkTaskScheduler::SortTask(const TileVector2D &center) {
 }
 
 void glimmer::ChunkTaskScheduler::Commit() {
+    std::lock_guard lock(chunkTaskMutex_);
     if (pendingTasks_.empty()) {
         return;
     }
     for (auto &pendingTask: pendingTasks_) {
-        const ChunkTaskType chunkTaskType = pendingTask.GetTaskType();
+        if (pendingTask == nullptr) {
+            continue;
+        }
+        const ChunkTaskType chunkTaskType = pendingTask->GetTaskType();
         if (chunkTaskType == ChunkTaskType::CANCELLED) {
             continue;
         }
-        uint64_t fingerprint = pendingTask.GetPosition().GetFingerprint();
+        const TileVector2D &position = pendingTask->GetPosition();
+        uint64_t fingerprint = position.GetFingerprint();
         auto iterator = chunkTaskMap_.find(fingerprint);
         if (iterator == chunkTaskMap_.end()) {
             //There are currently no tasks in this block.
             //当前区块没有任务。
-            chunkTaskMap_[fingerprint] = pendingTask;
-            mainTask_.push_back(pendingTask.GetPosition());
+            mainTask_.push_back(position);
+            chunkTaskMap_[fingerprint] = std::move(pendingTask);
             continue;
         }
-        ChunkTask &oldChunkTask = iterator->second;
-        const ChunkTaskType oldTaskType = oldChunkTask.GetTaskType();
+        std::unique_ptr<ChunkTask> &oldChunkTask = iterator->second;
+        if (oldChunkTask == nullptr) {
+            //The task has become invalid.
+            //任务已失效
+            mainTask_.push_back(position);
+            chunkTaskMap_[fingerprint] = std::move(pendingTask);
+            continue;
+        }
+        const ChunkTaskType oldTaskType = oldChunkTask->GetTaskType();
         if (oldTaskType == chunkTaskType) {
             //Re-requesting the task. The required additional task already exists.
             //重复请求任务，需要添加的任务已经存在。
             continue;
         }
         if (oldTaskType == ChunkTaskType::LOAD && chunkTaskType == ChunkTaskType::UNLOAD) {
-            oldChunkTask.SetTaskType(ChunkTaskType::CANCELLED);
+            oldChunkTask->SetTaskType(ChunkTaskType::CANCELLED);
             continue;
         }
         if (oldTaskType == ChunkTaskType::UNLOAD && chunkTaskType == ChunkTaskType::LOAD) {
-            oldChunkTask.SetTaskType(ChunkTaskType::CANCELLED);
+            oldChunkTask->SetTaskType(ChunkTaskType::CANCELLED);
             continue;
         }
-        oldChunkTask.SetTaskType(pendingTask.GetTaskType());
+        oldChunkTask->SetTaskType(pendingTask->GetTaskType());
     }
     pendingTasks_.clear();
 }
 
-void glimmer::ChunkTaskScheduler::Execute(uint8_t chunkTaskSize, uint8_t terrainTaskSize) {
+size_t glimmer::ChunkTaskScheduler::GetMainTaskCount() {
+    std::lock_guard lock(chunkTaskMutex_);
+    return mainTask_.size();
+}
+
+std::unique_ptr<glimmer::ChunkTask> glimmer::ChunkTaskScheduler::PopFrontTask() {
+    std::lock_guard lock(chunkTaskMutex_);
     if (mainTask_.empty()) {
-        return;
+        return nullptr;
     }
-    //The number of effective block generation tasks
-    //有效的区块生成任务数量
-    uint8_t effectiveTasksCount = 0;
-    for (auto &tileVector2D: mainTask_) {
-        if (effectiveTasksCount >= chunkTaskSize) {
-            //Reaching the upper limit of the block tasks for each run.
-            //抵达每次运行的区块任务上限。
-            break;
-        }
-        auto fingerprint = tileVector2D.GetFingerprint();
-        auto iterator = chunkTaskMap_.find(fingerprint);
-        if (iterator == chunkTaskMap_.end()) {
-            //The task located in tileVector2D does not exist.
-            //位于tileVector2D的任务不存在。
-            continue;
-        }
-        ChunkTask &chunkTask = iterator->second;
-        const ChunkTaskType chunkTaskType = chunkTask.GetTaskType();
-        if (chunkTaskType == ChunkTaskType::CANCELLED) {
-            //The task located in tileVector2D has been cancelled.
-            //位于tileVector2D的任务已取消。
-            continue;
-        }
-        effectiveTasksCount++;
-        if (chunkTaskType == ChunkTaskType::LOAD) {
-            chunkManager_->LoadChunkAt(chunkTask.GetPosition());
-            pendingDeleteTasks_.insert(fingerprint);
-            chunkTaskMap_.erase(iterator);
-        }
-        if (chunkTaskType == ChunkTaskType::UNLOAD) {
-            chunkManager_->UnloadChunkAt(chunkTask.GetPosition());
-            pendingDeleteTasks_.insert(fingerprint);
-            chunkTaskMap_.erase(iterator);
-        }
+    const TileVector2D &position = mainTask_.front();
+    mainTask_.pop_front();
+    const uint64_t fingerprint = position.GetFingerprint();
+    const auto iterator = chunkTaskMap_.find(fingerprint);
+    if (iterator == chunkTaskMap_.end()) {
+        return nullptr;
     }
-    //Delete invalid or executed tasks.
-    //删除无效或者已执行的任务。
-    std::erase_if(mainTask_,
-                  [ this](const TileVector2D &task) {
-                      return pendingDeleteTasks_.contains(task.GetFingerprint());
-                  });
-    pendingDeleteTasks_.clear();
+    const auto node = chunkTaskMap_.extract(iterator);
+    return std::move(node.mapped());
 }

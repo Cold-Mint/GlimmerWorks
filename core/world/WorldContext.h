@@ -41,6 +41,7 @@
 
 #include "generator/ChunkGenerator.h"
 #include "generator/ChunkLoader.h"
+#include "scheduler/ChunkTaskScheduler.h"
 #include "src/saves/entity_item.pb.h"
 
 namespace glimmer {
@@ -92,8 +93,8 @@ namespace glimmer {
         std::unique_ptr<EntityShortCut> entityShortCut_;
         std::unique_ptr<ChunkLoader> chunkLoader_;
         std::unique_ptr<ChunkGenerator> chunkGenerator_;
+        std::unique_ptr<ChunkTaskScheduler> chunkTaskScheduler_;
         std::unique_ptr<ChunkManager> chunkManager_;
-        std::unique_ptr<TerrainManager> terrainManager_;
         WorldSaver worldSaver_;
         std::unique_ptr<SystemScheduler> systemScheduler_;
         std::unique_ptr<PlayerContext> playerContext_;
@@ -112,6 +113,8 @@ namespace glimmer {
 
 
         WorldContext(AppContext *appContext, Saves *saves);
+
+        [[nodiscard]] ChunkTaskScheduler *GetChunkTaskScheduler() const;
 
         [[nodiscard]] EntityManager *GetEntityManager() const;
 
@@ -134,8 +137,6 @@ namespace glimmer {
         [[nodiscard]] ChunkLoader *GetChunkLoader() const;
 
         [[nodiscard]] ChunkManager *GetChunkManager() const;
-
-        [[nodiscard]] TerrainManager *GetTerrainManager() const;
 
         [[nodiscard]] SystemScheduler *GetSystemScheduler() const;
 

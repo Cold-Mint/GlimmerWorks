@@ -31,7 +31,7 @@
 bool glimmer::CameraComponent::IsPointInViewport(const WorldVector2D &cameraPosition,
                                                  const WorldVector2D &worldPos) const {
     const auto viewportRect = CoordinateTransformer::GetViewportRect(cameraPosition, size_, zoom_);
-    const SDL_FPoint point = SDL_FPoint(worldPos.x, worldPos.y);
+    const auto point = SDL_FPoint(worldPos.x, worldPos.y);
     return SDL_PointInRectFloat(&point, &viewportRect);
 }
 
@@ -41,11 +41,14 @@ bool glimmer::CameraComponent::IsRectInViewport(const WorldVector2D &cameraPosit
 }
 
 void glimmer::CameraComponent::SetSize(const ScreenVector2D &size) {
+    if (size_ == size) {
+        return;
+    }
     this->size_ = size;
+    AddVersion();
 }
 
-
-glimmer::ScreenVector2D glimmer::CameraComponent::GetSize() const {
+const glimmer::ScreenVector2D &glimmer::CameraComponent::GetSize() const {
     return size_;
 }
 
@@ -55,8 +58,14 @@ float glimmer::CameraComponent::GetZoom() const {
 }
 
 void glimmer::CameraComponent::SetZoom(const float zoom) {
-    this->zoom_ = std::clamp(zoom, 0.2F, 4.0F);
+    const float newZoom = std::clamp(zoom, 0.2F, 4.0F);
+    if (newZoom == zoom_) {
+        return;
+    }
+    this->zoom_ = newZoom;
+    AddVersion();
 }
+
 
 GameComponentTypeMessage glimmer::CameraComponent::GetComponentTypeStatic() {
     return COMPONENT_CAMERA;

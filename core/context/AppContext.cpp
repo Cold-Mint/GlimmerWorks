@@ -26,8 +26,6 @@
  */
 #include "AppContext.h"
 
-#include <random>
-
 #include "SystemBucket.h"
 #include "core/gpu/PendingScreenshot.h"
 #include "core/log/LogCat.h"
@@ -177,6 +175,10 @@ glimmer::ConsoleContext *glimmer::AppContext::GetConsoleContext() const {
 
 glimmer::TickWorker *glimmer::AppContext::GetTickWorker() const {
     return systemBucket_->GetTickWorker();
+}
+
+glimmer::TaskWorker *glimmer::AppContext::GetTaskWorker() const {
+    return systemBucket_->GetTaskWorker();
 }
 
 glimmer::GraphicsContext *glimmer::AppContext::GetGraphicsContext() const {

@@ -51,11 +51,10 @@ namespace glimmer {
         /**
          * PlaceStructureTiles
          * 放置结构瓦片
-         * @param terrainManager terrainManager 地形管理器
          * @param structureInfo structureInfo 结构信息
          * @param globalOrigin globalOrigin 全局原点
          */
-        static void PlaceStructureTiles(TerrainManager *terrainManager, const StructureInfo *structureInfo,
+        static void PlaceStructureTiles(const StructureInfo *structureInfo,
                                         const TileVector2D &globalOrigin);
 
         /**

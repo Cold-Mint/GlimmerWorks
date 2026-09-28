@@ -108,6 +108,13 @@ namespace glimmer {
     };
 
     struct World {
+        //Every few ticks, tasks are initiated to remove remote blocks and load nearby blocks.
+        //每多少tick创建卸载远程区块，加载近距离区块的任务。
+        uint8_t chunkScanTaskTickInterval = 1;
+        //How many blocks with a certain radius beyond the screen need to be preloaded?
+        //需要预加载屏幕外多少半径的区块
+        uint8_t preloadChunkRadius = 1;
+
     };
 
     struct AudioTrack {

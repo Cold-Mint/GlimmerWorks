@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+ * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -24,22 +24,12 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "ChunkTask.h"
+#include "VersionAble.h"
 
-#include <utility>
-
-void glimmer::ChunkTask::SetPosition(TileVector2D position) {
-    position_ = std::move(position);
+void glimmer::VersionAble::AddVersion() {
+    version_++;
 }
 
-const glimmer::TileVector2D &glimmer::ChunkTask::GetPosition() const {
-    return position_;
-}
-
-void glimmer::ChunkTask::SetTaskType(const ChunkTaskType taskType) {
-    taskType_ = taskType;
-}
-
-glimmer::ChunkTaskType glimmer::ChunkTask::GetTaskType() const {
-    return taskType_;
+uint32_t glimmer::VersionAble::GetVersion() const {
+    return version_;
 }

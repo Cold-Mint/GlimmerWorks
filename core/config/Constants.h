@@ -294,6 +294,8 @@ static constexpr int CONTINENT_MAX_HEIGHT = TERRAIN_HEIGHT_RANGE * 0.2F;
 
 static constexpr int TILE_SIZE = 16;
 static constexpr int HALF_TILE_SIZE = TILE_SIZE >> 1;
+
+static constexpr int CHUNK_WORLD_SIZE = CHUNK_SIZE * TILE_SIZE;
 static constexpr std::string ERROR_TEXTURE_KEY = "@error";
 static constexpr std::string ACCESS_DENIED_TEXTURE_KEY = "@access_denied";
 /**

@@ -46,7 +46,7 @@ namespace glimmer {
          * 获取位置
          * @return
          */
-        TileVector2D GetPosition();
+        [[nodiscard]] const TileVector2D &GetPosition() const;
 
         /**
          * SetTaskType

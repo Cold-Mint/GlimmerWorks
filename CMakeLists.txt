@@ -393,12 +393,8 @@ if (ANDROID)
 else ()
     message(STATUS "Building for Desktop → Executable")
     add_executable(GlimmerWorks
-            core/world/scheduler/ChunkTaskScheduler.cpp
-            core/world/scheduler/ChunkTaskScheduler.h
-            core/world/scheduler/ChunkTask.cpp
-            core/world/scheduler/ChunkTask.h
-            core/world/scheduler/ChunkTaskType.h
-            core/ecs/TileBreakParams.cpp)
+            core/utils/VersionAble.cpp
+            core/utils/VersionAble.h)
 endif ()
 
 target_sources(GlimmerWorks
@@ -410,6 +406,9 @@ target_sources(GlimmerWorks
         core/app/App.cpp
         core/mod/PackScanRequest.cpp
         core/saves/SavesCreateRequest.cpp
+        core/world/scheduler/ChunkTask.cpp
+        core/world/scheduler/ChunkTaskScheduler.cpp
+        core/ecs/TileBreakParams.cpp
         core/context/tasks/InitValidateGameTask.cpp
         core/mod/resourcePack/GPUSamplerResource.cpp
         core/mod/resourcePack/cache/GpuSamplerCache.cpp
@@ -420,7 +419,6 @@ target_sources(GlimmerWorks
         core/mod/resourcePack/cache/ColorCache.cpp
         core/context/CacheContext.cpp
         core/mod/resourcePack/cache/RmlCache.cpp
-        core/utils/IUniqueAble.cpp
         core/mod/resourcePack/cache/TextureCache.cpp
         core/mod/resourcePack/cache/AudioCache.cpp
         core/mod/resourcePack/cache/GpuPipelineCache.cpp
@@ -467,7 +465,6 @@ target_sources(GlimmerWorks
         core/console/hook/CommandHookManager.cpp
         core/config/Config.cpp
         core/ui/Hyperlink.cpp
-        core/utils/IFingerprintable.cpp
         core/inventory/SelectedItemRuntimeData.cpp
         core/inventory/TagRuntimeData.cpp
         core/world/TilePlacementConfig.cpp
@@ -486,6 +483,7 @@ target_sources(GlimmerWorks
         core/console/ConsoleWorker.cpp
         core/console/LocalConsoleInput.cpp
         core/tick/TickWorker.cpp
+        core/task/TaskWorker.cpp
         core/console/asset_enumerator/AbilityItemsAssetEnumerator.cpp
         core/console/asset_enumerator/BiomeDecorsAssetEnumerator.cpp
         core/console/asset_enumerator/BiomesAssetEnumerator.cpp
@@ -776,7 +774,6 @@ target_sources(GlimmerWorks
         core/world/PlayerContext.cpp
         core/world/PreloadColors.cpp
         core/world/SystemScheduler.cpp
-        core/world/TerrainManager.cpp
         core/world/Tile.cpp
         core/world/TileAnchorType.cpp
         core/world/TileBlueprintData.cpp
@@ -849,6 +846,9 @@ target_sources(GlimmerWorks
         core/log/ErrorCode.h
         core/rmi/dataModel/DimensionItem.h
         core/context/tasks/InitValidateGameTask.h
+        core/world/scheduler/ChunkTaskScheduler.h
+        core/world/scheduler/ChunkTask.h
+        core/world/scheduler/ChunkTaskType.h
         core/log/LogLabel.h
         core/saves/PlayerManifest.h
         core/world/DynamicLightEntry.h
@@ -944,6 +944,7 @@ target_sources(GlimmerWorks
         core/console/LocalConsoleInput.h
         core/tick/TickWorker.h
         core/tick/ITickListener.h
+        core/task/TaskWorker.h
         core/console/asset_enumerator/AbilityItemsAssetEnumerator.h
         core/console/asset_enumerator/BiomeDecorsAssetEnumerator.h
         core/console/asset_enumerator/BiomesAssetEnumerator.h
@@ -1243,7 +1244,6 @@ target_sources(GlimmerWorks
         core/world/PlayerContext.h
         core/world/PreloadColors.h
         core/world/SystemScheduler.h
-        core/world/TerrainManager.h
         core/world/Tile.h
         core/world/TileAnchorType.h
         core/world/TileBlueprintData.h

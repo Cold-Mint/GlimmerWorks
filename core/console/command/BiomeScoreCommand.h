@@ -29,14 +29,15 @@
 #include "core/console/Command.h"
 
 namespace glimmer {
-    class ChunkGenerator;
+    class ClimateSampler;
+    class TerrainGenerator;
     class BiomeRegistry;
     class TileVector2D;
     struct LangsResources;
 
     class BiomeScoreCommand final : public Command {
         static std::string CalculateAndFormatBiomeScores(const TileVector2D &tileVector2D,
-                                                         ChunkGenerator *chunkGenerator,
+                                                         ClimateSampler *climateSampler,
                                                          BiomeRegistry *biomeRegistry,
                                                          const LangsResources *langsResources);
 

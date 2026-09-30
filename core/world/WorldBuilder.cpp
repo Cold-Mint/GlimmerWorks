@@ -108,7 +108,8 @@ void glimmer::WorldBuilder::Build() {
     worldContext_->chunkLoader_ = std::make_unique<ChunkLoader>(worldContext_, worldContext_->saves_,
                                                                 dimensionFolderName);
     worldContext_->chunkManager_ = std::make_unique<ChunkManager>(worldContext_, dimensionFolderName);
-    worldContext_->chunkGenerator_ = std::make_unique<ChunkGenerator>(worldContext_, worldContext_->worldSeed_,
+    worldContext_->terrainGenerator_ = std::make_unique<TerrainGenerator>();
+    worldContext_->chunkGenerator_ = std::make_unique<ChunkGenerator>(worldContext_,
                                                                       dimensionResource);
     worldContext_->tileInstancePool_ = std::make_unique<TileInstancePool>();
     worldContext_->fixedGlobalTick_ = worldContext_->mapManifest_->globalTickCount;

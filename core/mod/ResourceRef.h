@@ -59,6 +59,8 @@ namespace glimmer {
         bool bindPackage_ = false;
 
     public:
+        bool operator==(const ResourceRef &other) const;
+
         /**
          * SetSelfPackageId
          * 设置自身的包ID

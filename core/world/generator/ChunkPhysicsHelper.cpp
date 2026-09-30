@@ -36,7 +36,7 @@
 
 
 std::vector<bool> glimmer::ChunkPhysicsHelper::CollectStaticTiles(const Chunk *chunk) {
-    std::vector<bool> isStaticTile(CHUNK_AREA, false);
+    std::vector isStaticTile(CHUNK_AREA, false);
     for (int idx = 0; idx < CHUNK_AREA; ++idx) {
         const auto tile = chunk->GetTile(TileLayerType::Ground, idx);
         if (tile != nullptr && tile->GetTilePhysicsType() == TilePhysicsType::Static) {
@@ -46,7 +46,7 @@ std::vector<bool> glimmer::ChunkPhysicsHelper::CollectStaticTiles(const Chunk *c
     return isStaticTile;
 }
 
-glimmer::Vector2DI glimmer::ChunkPhysicsHelper::FindRectSize(int startX, int startY,
+glimmer::Vector2DI glimmer::ChunkPhysicsHelper::FindRectSize(const int startX, const int startY,
                                                              const std::vector<bool> &isStaticTile,
                                                              std::vector<bool> &visited) {
     int width = 1;
@@ -81,7 +81,7 @@ glimmer::Vector2DI glimmer::ChunkPhysicsHelper::FindRectSize(int startX, int sta
     return {width, height};
 }
 
-void glimmer::ChunkPhysicsHelper::MarkVisited(int startX, int startY, int width, int height,
+void glimmer::ChunkPhysicsHelper::MarkVisited(const int startX, const int startY, const int width, const int height,
                                               std::vector<bool> &visited) {
     for (int j = 0; j < height; ++j) {
         const int rowOffset = (startY + j) << CHUNK_SHIFT;
@@ -91,8 +91,8 @@ void glimmer::ChunkPhysicsHelper::MarkVisited(int startX, int startY, int width,
     }
 }
 
-void glimmer::ChunkPhysicsHelper::CreateBodyForRect(b2WorldId worldId, Chunk *chunk,
-                                                    int x, int y, int width, int height) {
+void glimmer::ChunkPhysicsHelper::CreateBodyForRect(const b2WorldId worldId, Chunk *chunk,
+                                                    const int x, const int y, int width, int height) {
     const TileVector2D chunkPos = chunk->GetPosition();
     const float localCenterX = static_cast<float>(x) + static_cast<float>(width - 1) * 0.5F;
     const float localCenterY = static_cast<float>(y) + static_cast<float>(height - 1) * 0.5F;
@@ -103,7 +103,8 @@ void glimmer::ChunkPhysicsHelper::CreateBodyForRect(b2WorldId worldId, Chunk *ch
     chunk->AddBodyId(b2BodyId);
 }
 
-void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(AppContext *appContext, b2WorldId worldId, Chunk *chunk) {
+void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const AppContext *appContext, b2WorldId worldId,
+                                                           Chunk *chunk) {
     if (appContext == nullptr || chunk == nullptr) {
         return;
     }
@@ -111,7 +112,7 @@ void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(AppContext *appContex
               chunk->GetPosition().x, chunk->GetPosition().y);
     appContext->GetMainThreadDispatcher()->RunOnMainThread([worldId, chunk] {
         const std::vector<bool> isStaticTile = CollectStaticTiles(chunk);
-        std::vector<bool> visited(CHUNK_AREA, false);
+        std::vector visited(CHUNK_AREA, false);
 
         for (int y = 0; y < CHUNK_SIZE; ++y) {
             for (int x = 0; x < CHUNK_SIZE; ++x) {
@@ -127,12 +128,12 @@ void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(AppContext *appContex
     });
 }
 
-b2BodyId glimmer::ChunkPhysicsHelper::CreateStaticBody(const b2WorldId worldId, const WorldVector2D pos,
-                                                       const Vector2DI size) {
+b2BodyId glimmer::ChunkPhysicsHelper::CreateStaticBody(const b2WorldId worldId, const WorldVector2D &pos,
+                                                       const Vector2DI &size) {
     auto bodyDef_ = b2DefaultBodyDef();
     bodyDef_.type = b2_staticBody;
     bodyDef_.position = b2Vec2(Box2DUtils::ToMeters(pos.x), Box2DUtils::ToMeters(pos.y));
-    auto bodyId_ = b2CreateBody(worldId, &bodyDef_);
+    const auto bodyId_ = b2CreateBody(worldId, &bodyDef_);
     b2ShapeDef shapeDef = b2DefaultShapeDef();
     shapeDef.density = 1.0F;
     shapeDef.material.friction = 0.3F;
@@ -147,7 +148,7 @@ b2BodyId glimmer::ChunkPhysicsHelper::CreateStaticBody(const b2WorldId worldId, 
     return bodyId_;
 }
 
-void glimmer::ChunkPhysicsHelper::DetachPhysicsBodyToChunk(AppContext *appContext, Chunk *chunk) {
+void glimmer::ChunkPhysicsHelper::DetachPhysicsBodyToChunk(const AppContext *appContext, Chunk *chunk) {
     if (appContext == nullptr || chunk == nullptr) {
         return;
     }
@@ -158,13 +159,13 @@ void glimmer::ChunkPhysicsHelper::DetachPhysicsBodyToChunk(AppContext *appContex
     //runs the task).
     //先把 body id 拷贝出来，避免推迟的 lambda 依赖区块（区块可能在主线程执行
     //任务前已于 tick 线程销毁）。
-    std::vector<b2BodyId> bodies = chunk->GetAttachedBodies();
-    chunk->ClearAttachedBodies();
-    appContext->GetMainThreadDispatcher()->RunOnMainThread([bodies = std::move(bodies)] {
+    const std::vector<b2BodyId> &bodies = chunk->GetAttachedBodies();
+    appContext->GetMainThreadDispatcher()->RunOnMainThread([bodies, chunk] {
         for (const b2BodyId bodyId: bodies) {
             if (b2Body_IsValid(bodyId)) {
                 b2DestroyBody(bodyId);
             }
+            chunk->ClearAttachedBodies();
         }
     });
 }

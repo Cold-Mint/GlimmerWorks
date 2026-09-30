@@ -35,6 +35,8 @@
 #include "TileInstancePool.h"
 #include "core/math/Vector2DIHash.h"
 #include "generator/Chunk.h"
+#include "generator/ChunkLoader.h"
+#include "generator/TerrainGenerator.h"
 
 namespace glimmer {
     class WorldContext;
@@ -46,20 +48,14 @@ namespace glimmer {
      * 从 WorldContext 拆分而来。
      */
     class ChunkManager {
+        TerrainGenerator *terrainGenerator_ = nullptr;
+        ChunkLoader *chunkLoader_ = nullptr;
+
         std::unordered_map<TileVector2D, std::unique_ptr<Chunk>, Vector2DIHash> chunks_;
         std::unique_ptr<LightBuffer> lightBuffer_ = nullptr;
-        std::unique_ptr<TileInstancePool> tileInstancePool_;
+        std::unique_ptr<TileInstancePool> tileInstancePool_ = nullptr;
         WorldContext *worldContext_ = nullptr;
         std::string dimensionFolderName_;
-
-        /**
-         * Protects chunks_ against concurrent access from the tick thread
-         * (load/unload in ChunkSystem) and the main thread (rendering, debugging,
-         * saving).
-         * 保护 chunks_ 免受 tick 线程（ChunkSystem 的加载/卸载）与主线程
-         * （渲染、调试、保存）的并发访问。
-         */
-        mutable std::mutex mutex_;
 
         /**
          * OnChunkTileChange
@@ -87,9 +83,10 @@ namespace glimmer {
         /**
         * Load Chunk
         * 加载区块
+        * @param maxChunksOccupiedByStructure maxChunksOccupiedByStructure 结构占用的最大区块数
         * @param position position 位置
         */
-        void LoadChunkAt(TileVector2D position);
+        void LoadChunkAt(uint32_t maxChunksOccupiedByStructure, const TileVector2D &position);
 
         /**
          * Unload Chunk

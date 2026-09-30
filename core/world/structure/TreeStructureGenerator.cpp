@@ -74,17 +74,21 @@ std::unique_ptr<glimmer::StructureInfo> glimmer::TreeStructureGenerator::Generat
                   "Tree structure generator received null input");
         return nullptr;
     }
-    ChunkGenerator *chunkGenerator = worldContext->GetChunkGenerator();
-    if (chunkGenerator == nullptr) {
+    TerrainGenerator *terrainGenerator = worldContext->GetTerrainGenerator();
+    if (terrainGenerator == nullptr) {
         LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "tree_structure_chunk_generator_null",
                   "Chunk generator is null, cannot generate tree");
+        return nullptr;
+    }
+    ClimateSampler *climateSampler = terrainGenerator->GetMutableClimateSampler();
+    if (climateSampler == nullptr) {
         return nullptr;
     }
     const auto treeStructureResource = dynamic_cast<TreeStructureResource *>(structureResource);
     const ResourceRef &trunkRef = treeStructureResource->data.at(treeStructureResource->trunkDataIndex);
     const ResourceRef &leafRef = treeStructureResource->data.at(treeStructureResource->leafDataIndex);
     auto structureInfo = std::make_unique<StructureInfo>();
-    int trunkHeight = treeStructureResource->trunkHeightMin + static_cast<uint8_t>(chunkGenerator->
+    int trunkHeight = treeStructureResource->trunkHeightMin + static_cast<uint8_t>(climateSampler->
                           GetHumidity(startPosition) *
                           static_cast<float>(treeStructureResource->trunkHeightMax - treeStructureResource->
                                              trunkHeightMin));

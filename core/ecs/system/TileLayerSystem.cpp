@@ -64,18 +64,8 @@ void glimmer::TileLayerSystem::OnWatchedComponentChanged(GameComponentTypeMessag
     }
 }
 
-glimmer::TileLayerSystem::TileLayerSystem(WorldContext *worldContext)
-    : GameSystem(worldContext) {
-    WatchComponent(COMPONENT_CAMERA);
-    WatchComponent(COMPONENT_TRANSFORM_2D);
-    WatchComponent(COMPONENT_TILE_LAYER);
-    Init();
-}
-
-
 void glimmer::TileLayerSystem::RenderTileSnapshot(RenderQueue *queue, const TileSnapshot *tileSnapshot,
-                                                  const TileVector2D &tileCoord, Uint8 alpha,
-                                                  std::unordered_set<uint64_t> &drawnTiles) const {
+    const TileVector2D &tileCoord, std::unordered_set<uint64_t> &drawnTiles) const {
     if (tileSnapshot == nullptr) {
         return;
     }
@@ -117,8 +107,16 @@ void glimmer::TileLayerSystem::RenderTileSnapshot(RenderQueue *queue, const Tile
         return;
     }
     queue->DrawTexture(RenderLayer::Tile, 0.0F, textureResourceResult, nullptr, &renderQuad,
-                       {255, 255, 255, alpha}, tileResourceData->GetPipeline(), tileResourceData->GetSampler(),
+                       {255, 255, 255, 255}, tileResourceData->GetPipeline(), tileResourceData->GetSampler(),
                        tileResourceData->GetUniformBlocks());
+}
+
+glimmer::TileLayerSystem::TileLayerSystem(WorldContext *worldContext)
+    : GameSystem(worldContext) {
+    WatchComponent(COMPONENT_CAMERA);
+    WatchComponent(COMPONENT_TRANSFORM_2D);
+    WatchComponent(COMPONENT_TILE_LAYER);
+    Init();
 }
 
 void glimmer::TileLayerSystem::Render(RenderQueue *queue) {
@@ -169,13 +167,8 @@ void glimmer::TileLayerSystem::Render(RenderQueue *queue) {
         return;
     }
     for (auto &[tileCoord, tileList]: *visibleTiles) {
-        const Chunk *chunk = chunkManager->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tileCoord));
-        Uint8 alpha = 255;
-        if (chunk != nullptr) {
-            alpha = static_cast<Uint8>(chunk->GetChunkFadeAlpha() * 255.0F);
-        }
         for (const auto &tileSnapshot: tileList) {
-            RenderTileSnapshot(queue, tileSnapshot, tileCoord, alpha, drawnTiles);
+            RenderTileSnapshot(queue, tileSnapshot, tileCoord, drawnTiles);
         }
     }
 }

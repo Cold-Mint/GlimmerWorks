@@ -34,7 +34,6 @@
 
 namespace glimmer {
     class IBiomeDecorator {
-    private:
         int worldSeed_ = 0;
 
     public:

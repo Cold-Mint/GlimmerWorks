@@ -29,7 +29,6 @@
 
 #include "TileSnapshot.h"
 #include "src/saves/chunk.pb.h"
-#include "tweeny/tweeny.h"
 #include "box2d/id.h"
 #include "core/ecs/component/TileLayerComponent.h"
 #include "core/config/Constants.h"
@@ -52,10 +51,6 @@ namespace glimmer {
         tileState_;
         std::unordered_map<TileLayerType, std::array<std::unique_ptr<TileSnapshot>, CHUNK_AREA> > tileSnapshots_;
         std::vector<b2BodyId> attachedBodies_;
-        //chunk fade-in easing animation
-        //区块淡入缓动动画
-        tweeny::tween<float> chunkFadeInTween_;
-        float chunkFadeAlpha_ = 0.0F;
         std::vector<std::function<void(Chunk *chunk, int index, std::shared_ptr<Tile> tile, TileLayerType layerType)> >
         onTileRebuilt_;
 
@@ -72,13 +67,9 @@ namespace glimmer {
             TileStateArrayMessage &layerMessage);
 
     public:
-        explicit Chunk(WorldContext *worldContext, const TileVector2D &pos, const Config *config);
-
-        void UpdateFadeInAnimation();
+        explicit Chunk(WorldContext *worldContext, const TileVector2D &pos);
 
         void AddBodyId(b2BodyId bodyId);
-
-        [[nodiscard]] float GetChunkFadeAlpha() const;
 
         [[nodiscard]] const std::vector<b2BodyId> &GetAttachedBodies();
 

@@ -33,6 +33,12 @@
 #include "core/utils/TomlUtils.h"
 #include "toml11/parser.hpp"
 
+bool glimmer::ResourceRef::operator==(const ResourceRef &other) const {
+    return packId_ == other.packId_
+           && resourceKey_ == other.resourceKey_
+           && resourceType_ == other.resourceType_;
+}
+
 void glimmer::ResourceRef::SetSelfPackageId(std::string_view selfPackageId) {
     if (packId_ == RESOURCE_REF_SELF) {
         packId_ = selfPackageId;
@@ -115,7 +121,7 @@ ResourceTypeMessage glimmer::ResourceRef::GetResourceType() const {
 }
 
 
-void glimmer::ResourceRef::SetResourceKey(std::string_view resourceKey) {
+void glimmer::ResourceRef::SetResourceKey(const std::string_view resourceKey) {
     resourceKey_ = resourceKey;
 }
 

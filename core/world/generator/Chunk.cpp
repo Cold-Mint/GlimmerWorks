@@ -28,7 +28,6 @@
 
 #include <utility>
 
-#include "tweeny/tweeny.h"
 #include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/utils/RandomUtils.h"
@@ -38,10 +37,6 @@
 
 void glimmer::Chunk::AddBodyId(b2BodyId bodyId) {
     attachedBodies_.emplace_back(bodyId);
-}
-
-float glimmer::Chunk::GetChunkFadeAlpha() const {
-    return chunkFadeAlpha_;
 }
 
 const std::vector<b2BodyId> &glimmer::Chunk::GetAttachedBodies() {
@@ -87,9 +82,9 @@ bool glimmer::Chunk::CommitTileState(const BreakSource breakSource, const TileLa
     if (index < 0 || index >= CHUNK_AREA) {
         return false;
     }
-    TileVector2D tileVector2D;
-    tileVector2D.x = (index & CHUNK_MASK) + position_.x;
-    tileVector2D.y = (index >> CHUNK_SHIFT) + position_.y;
+    TileVector2D worldTileVector2D;
+    worldTileVector2D.x = (index & CHUNK_MASK) + position_.x;
+    worldTileVector2D.y = (index >> CHUNK_SHIFT) + position_.y;
     const TileStateMessage *tileStateMessage = GetTileState(layerType, index);
     if (tileStateMessage == nullptr) {
         return false;
@@ -100,8 +95,7 @@ bool glimmer::Chunk::CommitTileState(const BreakSource breakSource, const TileLa
     resourceRef.ReadResourceRefMessage(tileStateMessage->resourceref());
     const uint64_t fingerprint = resourceRef.GetFingerprint();
     bool rebuildTile = false;
-    auto iterator = tileFingerprint_.find(layerType);
-    if (iterator == tileFingerprint_.end()) {
+    if (const auto iterator = tileFingerprint_.find(layerType); iterator == tileFingerprint_.end()) {
         rebuildTile = true;
     } else {
         rebuildTile = iterator->second[index] != fingerprint;
@@ -147,9 +141,9 @@ bool glimmer::Chunk::CommitTileState(const BreakSource breakSource, const TileLa
         std::shared_ptr<Tile> oldTile = nullptr;
         auto [tileIterator, tileInserted] = tiles_.try_emplace(layerType);
         oldTile = tileIterator->second[index];
-        oldTile->OnBreak(worldContext_, breakSource, tileVector2D);
+        oldTile->OnBreak(worldContext_, breakSource, worldTileVector2D);
         tileIterator->second[index] = newTile;
-        newTile->OnPlace(worldContext_, tileStateMessage->placesource(), tileVector2D, tileStateMessage);
+        newTile->OnPlace(worldContext_, tileStateMessage->placesource(), worldTileVector2D, tileStateMessage);
         auto [tileFingerprintIterator, tileFingerprintInserted] = tileFingerprint_.try_emplace(layerType);
         tileFingerprintIterator->second[index] = fingerprint;
         auto [tileSnapshotIterator,tileSnapshotInserted] = tileSnapshots_.try_emplace(layerType);
@@ -181,13 +175,6 @@ void glimmer::Chunk::InvokeReplaceTileCallback(Chunk *chunk, const TileLayerType
     }
 }
 
-
-void glimmer::Chunk::UpdateFadeInAnimation() {
-    if (chunkFadeInTween_.progress() < 1.0f) {
-        chunkFadeInTween_.step(1);
-        chunkFadeAlpha_ = chunkFadeInTween_.peek();
-    }
-}
 
 TileStateMessage *glimmer::Chunk::GetOrCreateTileState(const TileLayerType layerType, const int index) {
     TileStateMessage *tileStateMessage = GetTileState(layerType, index);
@@ -302,15 +289,12 @@ void glimmer::Chunk::ReadChunkMessage(const ChunkMessage &chunkMessage) {
     LogCat::i(LogLabel::CHUNK, "chunk_read_message", "Reading chunk message: position=({}, {}), layer count={}",
               position_.x,
               position_.y, chunkMessage.tilestates().size());
-    auto &map = chunkMessage.tilestates();
-    for (const auto &mapPair: map) {
-        const auto layerType = static_cast<TileLayerType>(mapPair.first);
-        const TileStateArrayMessage &tileData = mapPair.second;
-        auto tileResourceRefSize = tileData.tilestatemessage_size();
-        std::array<std::unique_ptr<Tile>, CHUNK_AREA> value;
+    for (auto &map = chunkMessage.tilestates(); const auto &[layerTypeNumber, tileData]: map) {
+        const auto layerType = static_cast<TileLayerType>(layerTypeNumber);
+        const auto tileResourceRefSize = tileData.tilestatemessage_size();
         for (int i = 0; i < tileResourceRefSize; i++) {
             auto &tileStateMessage = tileData.tilestatemessage(i);
-            auto tileStatePtr = GetOrCreateTileState(layerType, i);
+            const auto tileStatePtr = GetOrCreateTileState(layerType, i);
             tileStatePtr->CopyFrom(tileStateMessage);
             CommitTileState(BreakSource::ChunkLoad, layerType, i, true);
         }
@@ -335,14 +319,8 @@ void glimmer::Chunk::WriteTileStatesToMessage(
     }
 }
 
-glimmer::Chunk::Chunk(WorldContext *worldContext, const TileVector2D &pos, const Config *config) : position_(pos),
-    worldContext_(worldContext),
-    chunkFadeInTween_(tweeny::from(config->anim.chunkFadeInFrom)
-        .to(config->anim.chunkFadeInTo)
-        .during(static_cast<uint32_t>(config->anim.chunkFadeinDuration * config->window.normalTargetFps))
-        .via(tweeny::easing::cubicOut)
-        .build()),
-    chunkFadeAlpha_(config->anim.chunkFadeInFrom) {
+glimmer::Chunk::Chunk(WorldContext *worldContext, const TileVector2D &pos) : worldContext_(worldContext) {
+    position_ = pos;
 }
 
 void glimmer::Chunk::WriteChunkMessage(ChunkMessage &chunkMessage) {

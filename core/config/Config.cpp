@@ -134,9 +134,6 @@ bool glimmer::Config::ReloadConfig() {
     command.locateMaxRadiusSearchChunks = toml::find<uint16_t>(tomlRef, "command",
                                                                "locate_max_radius_search_chunks");
     commandHooks = toml::find<std::vector<CommandHookResource> >(tomlRef, "command_hooks");
-    anim.chunkFadeinDuration = toml::find<float>(tomlRef, "animation", "chunk_fadein_duration");
-    anim.chunkFadeInFrom = toml::find<float>(tomlRef, "animation", "chunk_fadein_from");
-    anim.chunkFadeInTo = toml::find<float>(tomlRef, "animation", "chunk_fadein_to");
     biomeBgm.debounceSeconds = toml::find<float>(tomlRef, "biome_bgm", "debounce_seconds");
 #if  !defined(NDEBUG)
     debug.displayDebugPanel = toml::find<bool>(tomlRef, "debug", "display_debug_panel");

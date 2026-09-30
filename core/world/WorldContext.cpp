@@ -100,6 +100,10 @@ int glimmer::WorldContext::GetWorldSeed() const {
     return worldSeed_;
 }
 
+glimmer::TerrainGenerator *glimmer::WorldContext::GetTerrainGenerator() const {
+    return terrainGenerator_.get();
+}
+
 bool glimmer::WorldContext::IsEmptyEntityId(const uint32_t id) {
     return id == GAME_ENTITY_ID_INVALID;
 }

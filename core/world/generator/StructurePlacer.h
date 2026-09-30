@@ -48,14 +48,14 @@ namespace glimmer {
     class StructurePlacer {
         WorldContext *worldContext_;
 
-        /**
-         * PlaceStructureTiles
-         * 放置结构瓦片
-         * @param structureInfo structureInfo 结构信息
-         * @param globalOrigin globalOrigin 全局原点
-         */
-        static void PlaceStructureTiles(const StructureInfo *structureInfo,
-                                        const TileVector2D &globalOrigin);
+        // /**
+        //  * PlaceStructureTiles
+        //  * 放置结构瓦片
+        //  * @param structureInfo structureInfo 结构信息
+        //  * @param globalOrigin globalOrigin 全局原点
+        //  */
+        // static void PlaceStructureTiles(const StructureInfo *structureInfo,
+        //                                 const TileVector2D &globalOrigin);
 
         /**
          * MatchStructureConditions

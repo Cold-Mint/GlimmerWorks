@@ -27,6 +27,8 @@
 #pragma once
 #include <string>
 
+#include "core/mod/ResourceRef.h"
+
 namespace glimmer {
     struct BiomeResource;
     class BiomeRegistry;
@@ -38,21 +40,20 @@ namespace glimmer {
      * 根据一组采样得到的气候/地形字段值解析出生物群系。
      */
     class BiomeMatcher {
-        std::string dimensionId_;
-        BiomeRegistry *biomeRegistry_;
+        BiomeRegistry *biomeRegistry_ = nullptr;
 
     public:
         /**
          * BiomeMatcher
          * 生物群系匹配器构造
-         * @param dimensionId dimensionId 当前维度Id（packId:resourceId）
          * @param biomeRegistry biomeRegistry 生物群系注册表
          */
-        BiomeMatcher(std::string dimensionId, BiomeRegistry *biomeRegistry);
+        explicit BiomeMatcher(BiomeRegistry *biomeRegistry);
 
         /**
          * Resolve
          * 解析生物群系
+         * @param dimension
          * @param humidity humidity 湿度
          * @param temperature temperature 温度
          * @param weirdness weirdness 奇异度
@@ -61,7 +62,8 @@ namespace glimmer {
          * @param surfaceProximity surfaceProximity 地表贴近度
          * @return The best matching biome, or nullptr if unavailable 最佳匹配的生物群系，不可用时返回nullptr
          */
-        [[nodiscard]] BiomeResource *Resolve(float humidity, float temperature, float weirdness,
+        [[nodiscard]] BiomeResource *Resolve(const ResourceRef &dimension, float humidity, float temperature,
+                                             float weirdness,
                                              float erosion, float elevation, float surfaceProximity) const;
     };
 }

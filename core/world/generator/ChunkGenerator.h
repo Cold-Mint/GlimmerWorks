@@ -48,8 +48,6 @@ namespace glimmer {
     class ChunkGenerator {
         WorldContext *worldContext_;
         std::string dimensionId_;
-        //FixMe：在区块生成器内拆分处地形生成器，他们不再依赖。
-        TerrainGenerator terrainGenerator_;
         StructurePlacer structurePlacer_;
 
         /**
@@ -73,18 +71,10 @@ namespace glimmer {
          * ChunkGenerator
          * 区块生成器构造
          * @param worldContext worldContext 世界上下文
-         * @param worldSeed worldSeed 世界种子
          * @param dimensionResource dimensionResource 维度资源
          */
-        ChunkGenerator(WorldContext *worldContext, int worldSeed, const DimensionResource *dimensionResource);
+        ChunkGenerator(WorldContext *worldContext, const DimensionResource *dimensionResource);
 
-        /**
-         * GenerateTerrain
-         * 生成地形
-         * @param position position 区块位置
-         * @return The generated terrain result 生成的地形结果
-         */
-        std::shared_ptr<TerrainResult> GenerateTerrain(const TileVector2D &position);
 
         /**
          * GenerateStructure
@@ -99,15 +89,7 @@ namespace glimmer {
          * @param position position 区块位置
          * @return The generated chunk, or nullptr on failure 生成的区块，失败时返回nullptr
          */
-        std::unique_ptr<Chunk> GenerateChunkAt(const TileVector2D &position) const;
-
-        /**
-         * GetFirstTileTerrainY
-         * 获取地表第一格的Y坐标
-         * @param x x 起点x坐标
-         * @return The terrain surface Y for the given column 该列的地表Y坐标
-         */
-        int GetFirstTileTerrainY(int x);
+        [[nodiscard]] std::unique_ptr<Chunk> GenerateChunkAt(const TileVector2D &position) const;
 
         /**
          * GetDimensionId
@@ -115,38 +97,5 @@ namespace glimmer {
          * @return The dimension id 维度Id
          */
         [[nodiscard]] const std::string &GetDimensionId() const;
-
-        /**
-         * GetHumidity
-         * 获取某个坐标的湿度值
-         * @param pos pos 瓦片坐标
-         * @return Humidity in [0,1] 湿度0-1
-         */
-        float GetHumidity(const TileVector2D &pos);
-
-        /**
-         * GetTemperature
-         * 获取某个坐标的温度值
-         * @param pos pos 瓦片坐标
-         * @param elevation elevation 海拔
-         * @return Temperature in [0,1] 温度0-1
-         */
-        float GetTemperature(const TileVector2D &pos, float elevation);
-
-        /**
-         * GetWeirdness
-         * 获取某个坐标的怪异值
-         * @param pos pos 瓦片坐标
-         * @return Weirdness in [0,1] 怪异0-1
-         */
-        float GetWeirdness(const TileVector2D &pos);
-
-        /**
-         * GetErosion
-         * 获取某个坐标的侵蚀度
-         * @param pos pos 瓦片坐标
-         * @return Erosion in [0,1] 侵蚀0-1
-         */
-        float GetErosion(const TileVector2D &pos);
     };
 }

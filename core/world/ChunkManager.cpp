@@ -48,12 +48,61 @@ glimmer::ChunkManager::ChunkManager(WorldContext *worldContext, std::string dime
     : worldContext_(worldContext), dimensionFolderName_(std::move(dimensionFolderName)) {
     lightBuffer_ = std::make_unique<LightBuffer>();
     tileInstancePool_ = std::make_unique<TileInstancePool>();
+    chunkLoader_ = worldContext_->GetChunkLoader();
+
     LogCat::i(LogLabel::CHUNK, "chunk_manager_created", "ChunkManager created for dimension folder: {}",
               dimensionFolderName_);
 }
 
+void glimmer::ChunkManager::LoadChunkAt(const uint32_t maxChunksOccupiedByStructure, const TileVector2D &position) {
+    if (chunks_.contains(position)) {
+        LogCat::e(LogLabel::CHUNK, std::source_location::current(), "chunk_already_loaded",
+                  "Chunk is already loaded: position=({}, {})", position.x, position.y);
+        return;
+    }
+    std::vector<TileVector2D> outDependencies = StructureGeneratorManager::GetChunkDependencyTerrain(
+        maxChunksOccupiedByStructure, position);
+    for (const auto &dependency: outDependencies) {
+
+    }
+
+
+    LogCat::d(LogLabel::CHUNK, "chunk_loading", "Loading chunk at position: ({}, {})", position.x, position.y);
+    std::unique_ptr<Chunk> newlyCreatedChunk = chunkLoader_->LoadChunkFromSaves(position);
+    if (newlyCreatedChunk == nullptr) {
+        LogCat::d(LogLabel::CHUNK, "chunk_not_found_generating", "Chunk not found in saves, generating new chunk");
+        newlyCreatedChunk = worldContext_->GetChunkGenerator()->GenerateChunkAt(position);
+    }
+    if (newlyCreatedChunk == nullptr) {
+        LogCat::w(LogLabel::CHUNK, std::source_location::current(), "chunk_load_generate_failed",
+                  "Failed to load or generate chunk at: ({}, {})", position.x,
+                  position.y);
+        return;
+    }
+    Chunk *chunkPtr = newlyCreatedChunk.get();
+    newlyCreatedChunk->AddReplaceTileCallback([this](Chunk *chunk, const TileLayerType layerType,
+                                                     const int index,
+                                                     std::shared_ptr<Tile>, const std::shared_ptr<Tile> &newTile) {
+        OnChunkTileChange(chunk, newTile, layerType, index);
+    });
+    chunks_.insert({position, std::move(newlyCreatedChunk)});
+    LogCat::d(LogLabel::CHUNK, "chunk_loaded", "Chunk loaded successfully at: ({}, {})", position.x, position.y);
+
+    AppContext *appContext = worldContext_->GetAppContext();
+    if (appContext == nullptr) {
+        return;
+    }
+    const auto it = chunks_.find(position);
+    if (it == chunks_.end()) {
+        return;
+    }
+    UpdateChunkLight(it->second.get());
+    ChunkPhysicsHelper::AttachPhysicsBodyToChunk(appContext, worldContext_->GetWorldId(), chunkPtr);
+}
+
+
 void glimmer::ChunkManager::OnChunkTileChange(Chunk *chunk, [[maybe_unused]] const std::shared_ptr<Tile> &tile,
-                                              TileLayerType layerType, int index) const {
+                                              const TileLayerType layerType, const int index) const {
     if (layerType == TileLayerType::Ground) {
         ChunkPhysicsHelper::UpdatePhysicsBodyToChunk(worldContext_, chunk);
     }
@@ -180,7 +229,6 @@ void glimmer::ChunkManager::UpdateChunkLight(const Chunk *chunk) const {
 
 std::unordered_map<glimmer::TileVector2D, glimmer::Chunk *, glimmer::Vector2DIHash>
 glimmer::ChunkManager::GetAllChunks() {
-    std::lock_guard lock(mutex_);
     std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> result;
     result.reserve(chunks_.size());
     for (const auto &[pos, chunkPtr]: chunks_) {
@@ -189,73 +237,10 @@ glimmer::ChunkManager::GetAllChunks() {
     return result;
 }
 
-void glimmer::ChunkManager::LoadChunkAt(TileVector2D position) {
-    {
-        std::lock_guard lock(mutex_);
-        if (chunks_.contains(position)) {
-            LogCat::e(LogLabel::CHUNK, std::source_location::current(), "chunk_already_loaded",
-                      "Chunk is already loaded: position=({}, {})", position.x, position.y);
-            return;
-        }
-    }
-    LogCat::d(LogLabel::CHUNK, "chunk_loading", "Loading chunk at position: ({}, {})", position.x, position.y);
-    //The heavy generation runs outside the lock so the render thread is never
-    //blocked while reading the chunk map.
-    //重的地形生成在锁外执行，避免阻塞渲染线程读取区块表。
-    std::unique_ptr<Chunk> newlyCreatedChunk = worldContext_->GetChunkLoader()->LoadChunkFromSaves(position);
-    if (newlyCreatedChunk == nullptr) {
-        LogCat::d(LogLabel::CHUNK, "chunk_not_found_generating", "Chunk not found in saves, generating new chunk");
-        newlyCreatedChunk = worldContext_->GetChunkGenerator()->GenerateChunkAt(position);
-    }
-    if (newlyCreatedChunk == nullptr) {
-        LogCat::w(LogLabel::CHUNK, std::source_location::current(), "chunk_load_generate_failed",
-                  "Failed to load or generate chunk at: ({}, {})", position.x,
-                  position.y);
-        return;
-    }
-    Chunk *chunkPtr = newlyCreatedChunk.get();
-    newlyCreatedChunk->AddReplaceTileCallback([this](Chunk *chunk, TileLayerType layerType,
-                                                     int index,
-                                                     std::shared_ptr<Tile>, const std::shared_ptr<Tile> &newTile) {
-        OnChunkTileChange(chunk, newTile, layerType, index);
-    });
-    {
-        std::lock_guard lock(mutex_);
-        if (chunks_.contains(position)) {
-            //Another load won the race; discard this copy.
-            //其它加载先完成了，丢弃本次结果。
-            return;
-        }
-        chunks_.insert({position, std::move(newlyCreatedChunk)});
-    }
-    LogCat::d(LogLabel::CHUNK, "chunk_loaded", "Chunk loaded successfully at: ({}, {})", position.x, position.y);
-
-    AppContext *appContext = worldContext_->GetAppContext();
-    if (appContext == nullptr) {
-        return;
-    }
-    //Lighting and physics mutate shared resources owned by the main thread, so
-    //defer them to the main thread.
-    //光照与物理会修改主线程拥有的共享资源，因此推迟到主线程执行。
-    MainThreadDispatcher *dispatcher = appContext->GetMainThreadDispatcher();
-    if (dispatcher != nullptr) {
-        dispatcher->RunOnMainThread([this, position] {
-            std::lock_guard lock(mutex_);
-            const auto it = chunks_.find(position);
-            if (it == chunks_.end()) {
-                return;
-            }
-            UpdateChunkLight(it->second.get());
-        });
-    }
-    ChunkPhysicsHelper::AttachPhysicsBodyToChunk(appContext, worldContext_->GetWorldId(), chunkPtr);
-}
-
 
 void glimmer::ChunkManager::UnloadChunkAt(const TileVector2D &position) {
     Chunk *chunk = nullptr;
     {
-        std::lock_guard lock(mutex_);
         const auto it = chunks_.find(position);
         if (it == chunks_.end()) {
             LogCat::e(LogLabel::CHUNK, std::source_location::current(), "chunk_not_loaded",
@@ -293,7 +278,6 @@ void glimmer::ChunkManager::UnloadChunkAt(const TileVector2D &position) {
     }
     ChunkPhysicsHelper::DetachPhysicsBodyToChunk(appContext, chunk);
     {
-        std::lock_guard lock(mutex_);
         chunks_.erase(position);
     }
     LogCat::d(LogLabel::CHUNK, "chunk_unloaded", "Chunk unloaded successfully at: ({}, {})", position.x, position.y);
@@ -307,7 +291,6 @@ glimmer::Chunk *glimmer::ChunkManager::GetChunk(const TileVector2D &position) {
     }
 #endif
 
-    std::lock_guard lock(mutex_);
     const auto it = chunks_.find(position);
     if (it == chunks_.end()) {
         return nullptr;
@@ -322,7 +305,6 @@ glimmer::TileInstancePool *glimmer::ChunkManager::GetTileInstancePool() const {
 bool glimmer::ChunkManager::SaveChunk(TileVector2D position) {
     Chunk *chunk = nullptr;
     {
-        std::lock_guard lock(mutex_);
         const auto it = chunks_.find(position);
         if (it == chunks_.end()) {
             return false;
@@ -408,7 +390,6 @@ bool glimmer::ChunkManager::SaveAllChunks() {
 }
 
 bool glimmer::ChunkManager::HasChunk(const TileVector2D &position) const {
-    std::lock_guard lock(mutex_);
     return chunks_.contains(position);
 }
 

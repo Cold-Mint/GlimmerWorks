@@ -28,7 +28,6 @@
 
 #include "BiomeDecorator.h"
 #include "BiomeDecoratorManager.h"
-#include "TerrainResult.h"
 #include "core/log/LogCat.h"
 #include "core/mod/Resource.h"
 #include "core/mod/ResourceLocator.h"
@@ -44,11 +43,15 @@ void glimmer::BiomeDecoratorApplier::Apply(const std::unordered_set<BiomeResourc
                                            tilesRefMap) {
     LogCat::d(LogLabel::CHUNK, "biome_decorator_apply_start", "Applying biome decorators: biome count={}",
               biomeResourcesSet.size());
-    for (auto biomeResources: biomeResourcesSet) {
-        if (biomeResources->decors.empty()) {
+    for (const auto biomeResources: biomeResourcesSet) {
+        if (biomeResources == nullptr) {
             continue;
         }
-        for (auto &decRef: biomeResources->decors) {
+        const std::vector<ResourceRef> &decors = biomeResources->decors;
+        if (decors.empty()) {
+            continue;
+        }
+        for (auto &decRef: decors) {
             IBiomeDecoratorResource *decoratorResource = resourceLocator->FindBiomeDecorator(&decRef);
             if (decoratorResource == nullptr) {
                 LogCat::d(LogLabel::CHUNK, "biome_decorator_resource_is_null",

@@ -34,7 +34,6 @@
 #include "core/log/LogCat.h"
 #include "core/mod/Resource.h"
 #include "BiomeDecoratorManager.h"
-#include "TileRefResolver.h"
 #include "core/mod/dataPack/BiomeRegistry.h"
 #include "core/world/WorldContext.h"
 
@@ -61,16 +60,10 @@ glimmer::BiomeRegistry *glimmer::ChunkGenerator::ResolveBiomeRegistry(WorldConte
     return modContext->GetBiomeRegistry();
 }
 
-glimmer::ChunkGenerator::ChunkGenerator(WorldContext *worldContext, const int worldSeed,
-                                        const DimensionResource *dimensionResource)
-    : worldContext_(worldContext),
-      dimensionId_(ResolveDimensionId(dimensionResource)),
-      terrainGenerator_(worldSeed, dimensionResource, dimensionId_, ResolveBiomeRegistry(worldContext)),
-      structurePlacer_(worldContext) {
-}
-
-std::shared_ptr<glimmer::TerrainResult> glimmer::ChunkGenerator::GenerateTerrain(const TileVector2D &position) {
-    return terrainGenerator_.GenerateTerrain(position);
+glimmer::ChunkGenerator::ChunkGenerator(WorldContext *worldContext,
+                                        const DimensionResource *dimensionResource) : worldContext_(worldContext),
+    dimensionId_(ResolveDimensionId(dimensionResource)),
+    structurePlacer_(worldContext) {
 }
 
 void glimmer::ChunkGenerator::GenerateStructure(const TileVector2D &position) const {
@@ -81,25 +74,21 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const T
     if (worldContext_ == nullptr) {
         return nullptr;
     }
-    AppContext *appContext = worldContext_->GetAppContext();
+    const AppContext *appContext = worldContext_->GetAppContext();
     if (appContext == nullptr) {
         return nullptr;
     }
-    ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+    const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
     if (resourceLocator == nullptr) {
         return nullptr;
     }
-    BiomeDecoratorManager *biomeDecoratorManager = appContext->GetModContext()->GetBiomeDecoratorManager();
-    if (biomeDecoratorManager == nullptr) {
-        return nullptr;
-    }
-    Config *config = appContext->GetConfig();
-    if (config == nullptr) {
+    if (const BiomeDecoratorManager *biomeDecoratorManager = appContext->GetModContext()->GetBiomeDecoratorManager();
+        biomeDecoratorManager == nullptr) {
         return nullptr;
     }
     LogCat::i(LogLabel::CHUNK, "chunk_generating", "Generating new chunk at position: ({}, {})", position.x,
               position.y);
-    auto chunk = std::make_unique<Chunk>(worldContext_, position, config);
+    auto chunk = std::make_unique<Chunk>(worldContext_, position);
     //TODO：修复我！
 
     // TerrainResult *terrainResult = worldContext_->GetTerrainManager()->GetTerrainData(position);
@@ -118,7 +107,10 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const T
     //
     // TileRefResolver::Initialize(terrainResult, tilesRefMap, biomeResourcesSet);
     // BiomeDecoratorApplier::Apply(biomeResourcesSet, resourceLocator, biomeDecoratorManager, worldContext_,
-    //                              terrainResult, tilesRefMap);
+    // terrainResult, tilesRefMap);
+
+    //Convert the tile references into actual tiles and write them into the block.
+    //将瓦片引用转为实际的瓦片，并写入区块。
     ChunkTilePopulator::Populate(chunk.get(), resourceLocator, tilesRefMap);
 
     LogCat::i(LogLabel::CHUNK, "chunk_generation_completed", "Chunk generation completed at: ({}, {})", position.x,
@@ -126,26 +118,6 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const T
     return chunk;
 }
 
-int glimmer::ChunkGenerator::GetFirstTileTerrainY(const int x) {
-    return terrainGenerator_.GetFirstTileTerrainY(x);
-}
-
 const std::string &glimmer::ChunkGenerator::GetDimensionId() const {
     return dimensionId_;
-}
-
-float glimmer::ChunkGenerator::GetHumidity(const TileVector2D &pos) {
-    return terrainGenerator_.GetHumidity(pos);
-}
-
-float glimmer::ChunkGenerator::GetTemperature(const TileVector2D &pos, const float elevation) {
-    return terrainGenerator_.GetTemperature(pos, elevation);
-}
-
-float glimmer::ChunkGenerator::GetWeirdness(const TileVector2D &pos) {
-    return terrainGenerator_.GetWeirdness(pos);
-}
-
-float glimmer::ChunkGenerator::GetErosion(const TileVector2D &pos) {
-    return terrainGenerator_.GetErosion(pos);
 }

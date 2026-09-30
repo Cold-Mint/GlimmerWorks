@@ -37,7 +37,7 @@ namespace glimmer {
         std::vector<TileLayerComponent *> tileLayerComponents_;
 
         void RenderTileSnapshot(RenderQueue *queue, const TileSnapshot *tileSnapshot,
-                                const TileVector2D &tileCoord, Uint8 alpha,
+                                const TileVector2D &tileCoord,
                                 std::unordered_set<uint64_t> &drawnTiles) const;
 
     public:

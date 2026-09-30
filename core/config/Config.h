@@ -62,12 +62,6 @@ namespace glimmer {
         float targetFps;
     };
 
-    struct AnimConfig {
-        float chunkFadeinDuration = 0.35F;
-        float chunkFadeInFrom = 0.0F;
-        float chunkFadeInTo = 1.0F;
-    };
-
     struct BiomeBGMConfig {
         // Player must stay in a different biome this long before the BGM switches.
         // 玩家须在新生物群系连续停留该时长后才会切换 BGM。
@@ -150,7 +144,6 @@ namespace glimmer {
         World world{};
         Audio audio{};
         Console console{};
-        AnimConfig anim{};
         BiomeBGMConfig biomeBgm{};
         CommandConfig command{};
         MainMenuBackground mainMenuBackground{};

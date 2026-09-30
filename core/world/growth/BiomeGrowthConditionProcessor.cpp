@@ -31,6 +31,7 @@
 #include "core/math/TileVector2D.h"
 #include "core/mod/Resource.h"
 #include "core/mod/dataPack/BiomeRegistry.h"
+#include "core/world/Dimension.h"
 #include "core/world/WorldContext.h"
 #include "core/world/generator/ChunkGenerator.h"
 #include "core/world/generator/TerrainMath.h"
@@ -62,19 +63,35 @@ bool glimmer::BiomeGrowthConditionProcessor::Match(const WorldContext *worldCont
     if (biomeRegistry == nullptr) {
         return false;
     }
-    ChunkGenerator *chunkGenerator = worldContext->GetChunkGenerator();
-    if (chunkGenerator == nullptr) {
+    const TerrainGenerator *terrainGenerator = worldContext->GetTerrainGenerator();
+    if (terrainGenerator == nullptr) {
         return false;
     }
+    ClimateSampler *climateSampler = terrainGenerator->GetMutableClimateSampler();
+    if (climateSampler == nullptr) {
+        return false;
+    }
+    Dimension *dimension = worldContext->GetDimension();
+    if (dimension == nullptr) {
+        return false;
+    }
+    DimensionResource *dimensionResource = dimension->GetDimensionResource();
+    if (dimensionResource == nullptr) {
+        return false;
+    }
+    ResourceRef resourceRef;
+    resourceRef.SetSelfPackageId(dimensionResource->packId);
+    resourceRef.SetResourceType(RESOURCE_DIMENSION);
+    resourceRef.SetResourceKey(dimensionResource->resourceId);
     const float elevation = TerrainMath::GetElevation(position.y);
     const BiomeResource *biomeResource = biomeRegistry->FindBestBiome(
-        chunkGenerator->GetDimensionId(),
-        chunkGenerator->GetHumidity(position),
-        chunkGenerator->GetTemperature(position, elevation),
-        chunkGenerator->GetWeirdness(position),
-        chunkGenerator->GetErosion(position),
+        resourceRef,
+        climateSampler->GetHumidity(position),
+        climateSampler->GetTemperature(position, elevation),
+        climateSampler->GetWeirdness(position),
+        climateSampler->GetErosion(position),
         elevation,
-        TerrainMath::GetSurfaceProximity(chunkGenerator->GetFirstTileTerrainY(position.x), position.y));
+        TerrainMath::GetSurfaceProximity(climateSampler->GetFirstTileTerrainY(position.x), position.y));
     if (biomeResource == nullptr) {
         return false;
     }

@@ -69,14 +69,14 @@ namespace glimmer {
          * Erosion
          * 侵蚀度噪声
          */
-        Erosion
-    };
+        Erosion,
 
-    /**
-     * The total number of noise fields.
-     * 噪声字段的总数。
-     */
-    constexpr uint8_t kNoiseFieldCount = 5;
+        /**
+         * The total number of parameters must be placed at the very bottom of the enumeration.
+         * 参数总数，必须放在枚举最下面。
+         */
+        Count
+    };
 
     /**
      * ClimateSampler
@@ -85,7 +85,8 @@ namespace glimmer {
      * 持有所有地形/气候噪声生成器以及它们按坐标缓存的结果。
      */
     class ClimateSampler {
-        std::array<std::unique_ptr<FastNoiseLite>, kNoiseFieldCount> noises_;
+        static constexpr uint8_t fieldCount_ = std::to_underlying(NoiseField::Count);
+        std::array<std::unique_ptr<FastNoiseLite>, fieldCount_> noises_;
         std::unordered_map<int, int> heightMap_;
         std::unordered_map<TileVector2D, float, Vector2DIHash> humidityMap_;
         std::unordered_map<TileVector2D, float, Vector2DIHash> temperatureMap_;
@@ -98,7 +99,7 @@ namespace glimmer {
          * @param field field 噪声字段
          * @return The noise generator for the given field 对应字段的噪声生成器
          */
-        [[nodiscard]] FastNoiseLite *GetNoise(NoiseField field);
+        [[nodiscard]] FastNoiseLite *GetNoise(NoiseField field) const;
 
         /**
          * GetNoiseConfig
@@ -120,12 +121,12 @@ namespace glimmer {
 
     public:
         /**
-         * ClimateSampler
-         * 气候采样器构造
+         * BindDimension
+         * 绑定维度
          * @param worldSeed worldSeed 世界种子
          * @param dimensionResource dimensionResource 维度资源
          */
-        explicit ClimateSampler(int worldSeed, const DimensionResource *dimensionResource);
+        void BindDimension(int worldSeed, const DimensionResource *dimensionResource);
 
         /**
          * GetFirstTileTerrainY

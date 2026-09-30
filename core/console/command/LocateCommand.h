@@ -34,18 +34,25 @@ namespace glimmer {
     class LocateCommand final : public Command {
         void InitSuggestions(NodeTree<std::string> *suggestionsTree) override;
 
-        static std::optional<TileVector2D> SearchBiomes(int tileX, const BiomeRegistry *biomeRegistry,
-                                                        ChunkGenerator *chunkGenerator,
+        static std::optional<TileVector2D> SearchBiomes(int tileX, const ResourceRef &dimension,
+                                                        const BiomeRegistry *biomeRegistry,
+                                                        ClimateSampler *climateSampler,
                                                         const std::string &targetBiomeId);
+
+        static bool ExecuteBiome(const CommandArgs *commandArgs,
+                                 const std::function<void(const std::string &text)> &onMessageRef,
+                                 const AppContext *appContext, const WorldContext *worldContext);
+
+        static std::optional<TileVector2D> SearchBiomeInRadius(const TileVector2D &position,
+                                                               const ResourceRef &dimension,
+                                                               const BiomeRegistry *biomeRegistry,
+                                                               ClimateSampler *climateSampler,
+                                                               const std::string &targetBiomeId,
+                                                               uint16_t maxRadiusChunks);
 
     public:
         explicit LocateCommand(AppContext *appContext);
 
-        static std::optional<TileVector2D> SearchBiomeInRadius(const TileVector2D &position,
-                                                               const BiomeRegistry *biomeRegistry,
-                                                               ChunkGenerator *chunkGenerator,
-                                                               const std::string &targetBiomeId,
-                                                               uint16_t maxRadiusChunks);
 
         [[nodiscard]] const std::string &GetName() const override;
 

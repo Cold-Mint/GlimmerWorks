@@ -35,7 +35,7 @@
 #include "core/world/WorldContext.h"
 
 
-void glimmer::ChunkLoader::LoadEntityFromSaves(TileVector2D position) const {
+void glimmer::ChunkLoader::LoadEntityFromSaves(const TileVector2D &position) const {
     if (saves_->EntityExists(dimensionFolderName_, position)) {
         auto chunkEntityMessageOptional = saves_->ReadChunkEntity(dimensionFolderName_, position);
         if (chunkEntityMessageOptional.has_value()) {
@@ -55,6 +55,23 @@ glimmer::ChunkLoader::ChunkLoader(WorldContext *worldContext, Saves *saves, std:
     : saves_(saves),
       worldContext_(worldContext),
       dimensionFolderName_(std::move(dimensionFolderName)), entityManager_(worldContext_->GetEntityManager()) {
+}
+
+std::unique_ptr<glimmer::Chunk> glimmer::ChunkLoader::LoadChunkFromSaves(const TileVector2D &position) const {
+    if (worldContext_ == nullptr) {
+        return nullptr;
+    }
+    if (saves_->ChunkExists(dimensionFolderName_, position)) {
+        if (const auto chunkMessage = saves_->ReadChunk(dimensionFolderName_, position); chunkMessage.has_value()) {
+            LogCat::i(LogLabel::CHUNK, "chunk_loading_from_saves", "Loading chunk from saves at: ({}, {})",
+                      position.x, position.y);
+            auto chunk = std::make_unique<Chunk>(worldContext_, position);
+            chunk->ReadChunkMessage(chunkMessage.value());
+            LoadEntityFromSaves(position);
+            return chunk;
+        }
+    }
+    return nullptr;
 }
 
 GameEntityID glimmer::ChunkLoader::RecoveryEntity(const EntityItemMessage &entityItemMessage) const {
@@ -81,30 +98,4 @@ GameEntityID glimmer::ChunkLoader::RecoveryEntity(const EntityItemMessage &entit
         }
     }
     return id;
-}
-
-
-std::unique_ptr<glimmer::Chunk> glimmer::ChunkLoader::LoadChunkFromSaves(TileVector2D position) const {
-    if (worldContext_ == nullptr) {
-        return nullptr;
-    }
-    const AppContext *appContext = worldContext_->GetAppContext();
-    if (appContext == nullptr) {
-        return nullptr;
-    }
-    const Config *config = appContext->GetConfig();
-    if (config == nullptr) {
-        return nullptr;
-    }
-    if (saves_->ChunkExists(dimensionFolderName_, position)) {
-        if (const auto chunkMessage = saves_->ReadChunk(dimensionFolderName_, position); chunkMessage.has_value()) {
-            LogCat::i(LogLabel::CHUNK, "chunk_loading_from_saves", "Loading chunk from saves at: ({}, {})",
-                      position.x, position.y);
-            auto chunk = std::make_unique<Chunk>(worldContext_, position, config);
-            chunk.get()->ReadChunkMessage(chunkMessage.value());
-            LoadEntityFromSaves(position);
-            return chunk;
-        }
-    }
-    return nullptr;
 }

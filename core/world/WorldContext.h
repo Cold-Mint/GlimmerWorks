@@ -30,6 +30,7 @@
 
 #include "Box2dWorldId.h"
 #include "LightBuffer.h"
+#include "PlayerContext.h"
 #include "core/saves/PlayerManifest.h"
 #include "core/saves/Saves.h"
 #include "core/tick/ITickListener.h"
@@ -51,7 +52,6 @@ namespace glimmer {
     class ChunkManager;
     class TerrainManager;
     class SystemScheduler;
-    class PlayerContext;
     class Dimension;
     struct DimensionResource;
     class ResourceRef;
@@ -92,6 +92,7 @@ namespace glimmer {
         std::unique_ptr<EntityManager> entityManager_;
         std::unique_ptr<EntityShortCut> entityShortCut_;
         std::unique_ptr<ChunkLoader> chunkLoader_;
+        std::unique_ptr<TerrainGenerator> terrainGenerator_;
         std::unique_ptr<ChunkGenerator> chunkGenerator_;
         std::unique_ptr<ChunkTaskScheduler> chunkTaskScheduler_;
         std::unique_ptr<ChunkManager> chunkManager_;
@@ -131,6 +132,8 @@ namespace glimmer {
         [[nodiscard]] b2WorldId GetWorldId() const;
 
         [[nodiscard]] int GetWorldSeed() const;
+
+        [[nodiscard]] TerrainGenerator *GetTerrainGenerator() const;
 
         [[nodiscard]] ChunkGenerator *GetChunkGenerator() const;
 

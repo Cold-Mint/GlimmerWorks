@@ -30,21 +30,11 @@
 #include <utility>
 
 #include "core/config/Constants.h"
+#include "core/log/LogCat.h"
 #include "core/mod/Resource.h"
 
-glimmer::ClimateSampler::ClimateSampler(const int worldSeed, const DimensionResource *dimensionResource) {
-    const DimensionResource defaultDimension;
-    if (dimensionResource == nullptr) {
-        dimensionResource = &defaultDimension;
-    }
-    for (uint8_t i = 0; i < kNoiseFieldCount; ++i) {
-        const auto field = static_cast<NoiseField>(i);
-        noises_[i] = std::make_unique<FastNoiseLite>();
-        ApplyNoiseConfig(noises_[i].get(), GetNoiseConfig(dimensionResource, field), worldSeed);
-    }
-}
 
-FastNoiseLite *glimmer::ClimateSampler::GetNoise(const NoiseField field) {
+FastNoiseLite *glimmer::ClimateSampler::GetNoise(const NoiseField field) const {
     return noises_[std::to_underlying(field)].get();
 }
 
@@ -61,6 +51,8 @@ const glimmer::NoiseConfig &glimmer::ClimateSampler::GetNoiseConfig(const Dimens
             return dimensionResource->weirdnessNoise;
         case NoiseField::Erosion:
             return dimensionResource->erosionNoise;
+        case NoiseField::Count:
+            break;
     }
     return dimensionResource->continentNoise;
 }
@@ -82,6 +74,18 @@ void glimmer::ClimateSampler::ApplyNoiseConfig(FastNoiseLite *noise, const Noise
         static_cast<FastNoiseLite::CellularDistanceFunction>(config.cellularDistanceFunction));
     noise->SetCellularReturnType(static_cast<FastNoiseLite::CellularReturnType>(config.cellularReturnType));
     noise->SetCellularJitter(config.cellularJitter);
+}
+
+void glimmer::ClimateSampler::BindDimension(const int worldSeed, const DimensionResource *dimensionResource) {
+    if (dimensionResource == nullptr) {
+        LogCat::e(LogLabel::WORLD_GEN, std::source_location::current(), "dimension_resource_is_null",
+                  "dimensionResource is nullptr");
+        return;
+    }
+    for (uint8_t i = 0; i < fieldCount_; ++i) {
+        noises_[i] = std::make_unique<FastNoiseLite>();
+        ApplyNoiseConfig(noises_[i].get(), GetNoiseConfig(dimensionResource, static_cast<NoiseField>(i)), worldSeed);
+    }
 }
 
 int glimmer::ClimateSampler::GetFirstTileTerrainY(const int x) {

@@ -36,8 +36,9 @@
 glimmer::BiomeScoreCommand::BiomeScoreCommand(AppContext *appContext) : Command(appContext) {
 }
 
+
 std::string glimmer::BiomeScoreCommand::CalculateAndFormatBiomeScores(const TileVector2D &tileVector2D,
-                                                                      ChunkGenerator *chunkGenerator,
+                                                                      ClimateSampler *climateSampler,
                                                                       BiomeRegistry *biomeRegistry,
                                                                       const LangsResources *langsResources) {
     std::stringstream biomeStream;
@@ -52,7 +53,7 @@ std::string glimmer::BiomeScoreCommand::CalculateAndFormatBiomeScores(const Tile
                                    biomeResource->elevation, elevation, biomeResource->strictnessElevation,
                                    elevationScore);
         biomeStream << '\n';
-        const auto humidity = chunkGenerator->GetHumidity(tileVector2D);
+        const auto humidity = climateSampler->GetHumidity(tileVector2D);
         float humidityScore = BiomeRegistry::CalculateBiomeScoreDelta(
             biomeResource->humidity, humidity, biomeResource->strictnessHumidity);
         total += humidityScore;
@@ -60,7 +61,7 @@ std::string glimmer::BiomeScoreCommand::CalculateAndFormatBiomeScores(const Tile
                                    biomeResource->humidity, humidity, biomeResource->strictnessHumidity,
                                    humidityScore);
         biomeStream << '\n';
-        const auto temperature = chunkGenerator->GetTemperature(tileVector2D, elevation);
+        const auto temperature = climateSampler->GetTemperature(tileVector2D, elevation);
         float temperatureScore = BiomeRegistry::CalculateBiomeScoreDelta(
             biomeResource->temperature, temperature, biomeResource->strictnessTemperature);
         total += temperatureScore;
@@ -68,7 +69,7 @@ std::string glimmer::BiomeScoreCommand::CalculateAndFormatBiomeScores(const Tile
                                    biomeResource->temperature, temperature, biomeResource->strictnessTemperature,
                                    temperatureScore);
         biomeStream << '\n';
-        const auto weirdness = chunkGenerator->GetWeirdness(tileVector2D);
+        const auto weirdness = climateSampler->GetWeirdness(tileVector2D);
         float weirdnessScore = BiomeRegistry::CalculateBiomeScoreDelta(
             biomeResource->weirdness, weirdness, biomeResource->strictnessWeirdness);
         total += weirdnessScore;
@@ -76,7 +77,7 @@ std::string glimmer::BiomeScoreCommand::CalculateAndFormatBiomeScores(const Tile
                                    biomeResource->weirdness, weirdness, biomeResource->strictnessWeirdness,
                                    weirdnessScore);
         biomeStream << '\n';
-        const auto erosion = chunkGenerator->GetErosion(tileVector2D);
+        const auto erosion = climateSampler->GetErosion(tileVector2D);
         float erosionScore = BiomeRegistry::CalculateBiomeScoreDelta(
             biomeResource->erosion, erosion, biomeResource->strictnessErosion);
         total += erosionScore;
@@ -85,7 +86,7 @@ std::string glimmer::BiomeScoreCommand::CalculateAndFormatBiomeScores(const Tile
                                    erosionScore);
         biomeStream << '\n';
         const auto surfaceProximity = TerrainMath::GetSurfaceProximity(
-            chunkGenerator->GetFirstTileTerrainY(tileVector2D.x), tileVector2D.y);
+            climateSampler->GetFirstTileTerrainY(tileVector2D.x), tileVector2D.y);
         float surfaceProximityScore = BiomeRegistry::CalculateBiomeScoreDelta(
             biomeResource->surfaceProximity, surfaceProximity, biomeResource->strictnessSurfaceProximity);
         total += surfaceProximityScore;
@@ -194,15 +195,23 @@ bool glimmer::BiomeScoreCommand::Execute(const CommandSender *commandSender, con
             commandArgs->AsCoordinate(2, commandSenderPosition.x),
             commandArgs->AsCoordinate(
                 3, commandSenderPosition.y)));
-        ChunkGenerator *chunkGenerator = worldContext->GetChunkGenerator();
-        if (chunkGenerator == nullptr) {
+        const TerrainGenerator *terrainGenerator = worldContext->GetTerrainGenerator();
+        if (terrainGenerator == nullptr) {
             return false;
         }
-        BiomeRegistry *biomeRegistry = appContext->GetModContext()->GetBiomeRegistry();
+        ModContext *modContext = appContext->GetModContext();
+        if (modContext == nullptr) {
+            return false;
+        }
+        BiomeRegistry *biomeRegistry = modContext->GetBiomeRegistry();
         if (biomeRegistry == nullptr) {
             return false;
         }
-        onMessageRef(CalculateAndFormatBiomeScores(tileVector2D, chunkGenerator, biomeRegistry, langsResources));
+        ClimateSampler *climateSampler = terrainGenerator->GetMutableClimateSampler();
+        if (climateSampler == nullptr) {
+            return false;
+        }
+        onMessageRef(CalculateAndFormatBiomeScores(tileVector2D, climateSampler, biomeRegistry, langsResources));
         return true;
     }
     return false;

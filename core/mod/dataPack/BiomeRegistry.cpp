@@ -25,6 +25,7 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "BiomeRegistry.h"
+#include <algorithm>
 
 
 float glimmer::BiomeRegistry::CalculateBiomeScoreDelta(const float targetValue, const float actualValue,
@@ -41,26 +42,9 @@ void glimmer::BiomeRegistry::OnRegister(BiomeResource *resource) {
     biomeVector_.emplace_back(resource);
 }
 
-bool glimmer::BiomeRegistry::BelongsToDimension(const BiomeResource *biome, const std::string &dimensionId) {
-    if (biome == nullptr) {
-        return false;
-    }
-    if (biome->dimensions.empty()) {
-        return true;
-    }
-    for (const auto &dimension: biome->dimensions) {
-        if (Resource::GenerateId(dimension.GetPackageId(), dimension.GetResourceKey()) == dimensionId) {
-            return true;
-        }
-    }
-    return false;
-}
-
-glimmer::BiomeResource *glimmer::BiomeRegistry::FindBestBiome(const std::string &dimensionId,
-                                                              const float humidity, const float temperature,
-                                                              const float weirdness,
-                                                              const float erosion, const float elevation,
-                                                              const float surfaceProximity) const {
+glimmer::BiomeResource *glimmer::BiomeRegistry::FindBestBiome(const ResourceRef &dimension, const float humidity,
+                                                              const float temperature, const float weirdness, const float erosion,
+                                                              const float elevation, const float surfaceProximity) const {
     if (biomeVector_.empty()) {
         return nullptr;
     }
@@ -69,7 +53,7 @@ glimmer::BiomeResource *glimmer::BiomeRegistry::FindBestBiome(const std::string 
     float bestDistance = std::numeric_limits<float>::max();
 
     for (auto &biome: biomeVector_) {
-        if (!BelongsToDimension(biome, dimensionId)) {
+        if (!BelongsToDimension(biome, dimension)) {
             continue;
         }
         const float scoreHumidity = CalculateBiomeScoreDelta(biome->humidity, humidity, biome->strictnessHumidity);
@@ -88,4 +72,17 @@ glimmer::BiomeResource *glimmer::BiomeRegistry::FindBestBiome(const std::string 
         }
     }
     return bestBiome;
+}
+
+bool glimmer::BiomeRegistry::BelongsToDimension(const BiomeResource *biome, const ResourceRef &dimension) {
+    if (biome == nullptr) {
+        return false;
+    }
+    if (biome->dimensions.empty()) {
+        return false;
+    }
+    return std::ranges::any_of(biome->dimensions, [&dimension](const ResourceRef &dependenceDimension) {
+        return dependenceDimension == dimension;
+    });
+    return false;
 }

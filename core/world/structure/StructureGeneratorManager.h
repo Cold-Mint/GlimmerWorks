@@ -40,6 +40,17 @@ namespace glimmer {
         uint32_t maxChunksOccupiedByStructure_ = 1;
 
     public:
+        /**
+         * GetChunkDependencyTerrainPosition
+         * 获取区块依赖的地形数据位置
+         *
+         * @param maxChunksOccupiedByStructure What is the maximum number of blocks (radius) occupied by the structure? 最大的结构占用多少区块（半径）
+         * @param centerChunkPosition The upper-left coordinate of the central block (the coordinate point used when creating the block) 中心区块的左上角坐标（创建区块时使用的坐标点）
+         * @return
+         */
+        static std::vector<TileVector2D> GetChunkDependencyTerrain(uint32_t maxChunksOccupiedByStructure,
+                                                                   const TileVector2D &centerChunkPosition);
+
         void RegisterStructureGenerator(std::unique_ptr<IStructureGenerator> structureGenerator);
 
 
@@ -66,6 +77,11 @@ namespace glimmer {
         std::unique_ptr<StructureInfo> Generate(WorldContext *worldContext, const TileVector2D &structuralOrigin,
                                                 IStructureResource *structureResource);
 
+        /**
+         * Get the dimension of the longest edge of the structure (in tiles)
+         * 获取结构最长边的尺寸（单位：瓦片）
+         * @return
+         */
         uint32_t GetMaxExtent(IStructureResource *structureResource);
     };
 }

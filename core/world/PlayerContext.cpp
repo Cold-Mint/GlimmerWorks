@@ -130,17 +130,36 @@ void glimmer::PlayerContext::InitPlayer(const ResourceRef &resourceRef) {
 
 uint32_t glimmer::PlayerContext::CreateOrLoadPlayer(const ResourceRef &resourceRef) const {
     uint32_t playerEntity = GAME_ENTITY_ID_INVALID;
-    if (worldContext_->GetSaves()->PlayerExists()) {
-        auto playerMessage = worldContext_->GetSaves()->ReadLocalPlayer();
+    if (worldContext_ == nullptr) {
+        return playerEntity;
+    }
+    const Saves *saves = worldContext_->GetSaves();
+    if (saves == nullptr) {
+        return playerEntity;
+    }
+    if (saves->PlayerExists()) {
+        auto playerMessage = saves->ReadLocalPlayer();
         if (playerMessage.has_value()) {
-            playerEntity = worldContext_->GetChunkLoader()->RecoveryEntity(playerMessage->entity());
+            const ChunkLoader *chunkLoader = worldContext_->GetChunkLoader();
+            if (chunkLoader == nullptr) {
+                return playerEntity;
+            }
+            playerEntity = chunkLoader->RecoveryEntity(playerMessage->entity());
         }
     }
     if (!WorldContext::IsEmptyEntityId(playerEntity)) {
         LogCat::i(LogLabel::DEFAULT, "player_context_loaded", "Loaded player from saves: id={}", playerEntity);
         return playerEntity;
     }
-    const auto firstTileTerrainY = worldContext_->GetChunkGenerator()->GetFirstTileTerrainY(0);
+    TerrainGenerator *terrainGenerator = worldContext_->GetTerrainGenerator();
+    if (terrainGenerator == nullptr) {
+        return playerEntity;
+    }
+    ClimateSampler *climateSampler = terrainGenerator->GetMutableClimateSampler();
+    if (climateSampler == nullptr) {
+        return playerEntity;
+    }
+    const auto firstTileTerrainY = climateSampler->GetFirstTileTerrainY(0);
     playerEntity = worldContext_->GetEntityManager()->AddEntity();
     LogCat::i(LogLabel::DEFAULT, "player_context_created", "Created new player entity: id={}", playerEntity);
     MobEntityCreator mobEntityCreator{worldContext_};

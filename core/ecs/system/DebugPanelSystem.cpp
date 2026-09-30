@@ -158,7 +158,6 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
     }
 
     if (cameraComponent_->IsPointInViewport(cameraTransform2DComponent_->GetPosition(), mousePosition_)) {
-        ChunkGenerator *chunkGenerator = worldContext->GetChunkGenerator();
         ScreenVector2D screenPos = CoordinateTransformer::WorldToScreen(
             cameraTransform2DComponent_->GetPosition(), mousePosition_,
             cameraComponent_->GetSize(), cameraComponent_->GetZoom());
@@ -172,40 +171,48 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
 
         bool firstLayer = true;
         TileVector2D tileCoord = CoordinateTransformer::WorldToTile(mousePosition_);
-        for (auto tileLayerComponent: tileLayerComponents_) {
-            TileVector2D chunkRelative = Chunk::TileCoordinatesToChunkRelativeCoordinates(tileCoord);
-            if (firstLayer) {
-                float elevation = TerrainMath::GetElevation(tileCoord.y);
-                debugLines_.push_back(DebugLine{
-                    fmt::format(
-                        fmt::runtime(langsResources->tileDebugInfo),
-                        tileCoord.x, tileCoord.y,
-                        chunkRelative.x, chunkRelative.y,
-                        chunkGenerator->GetHumidity(tileCoord),
-                        chunkGenerator->GetTemperature(tileCoord, elevation),
-                        chunkGenerator->GetErosion(tileCoord),
-                        elevation,
-                        chunkGenerator->GetWeirdness(tileCoord)
-                    )
-                });
-                firstLayer = false;
-            }
+        TerrainGenerator *terrainGenerator = worldContext->GetTerrainGenerator();
+        if (terrainGenerator != nullptr) {
+            ClimateSampler *climateSampler = terrainGenerator->GetMutableClimateSampler();
+            if (climateSampler != nullptr) {
+                for (auto tileLayerComponent: tileLayerComponents_) {
+                    TileVector2D chunkRelative = Chunk::TileCoordinatesToChunkRelativeCoordinates(tileCoord);
+                    if (firstLayer) {
+                        float elevation = TerrainMath::GetElevation(tileCoord.y);
+                        debugLines_.push_back(DebugLine{
+                            fmt::format(
+                                fmt::runtime(langsResources->tileDebugInfo),
+                                tileCoord.x, tileCoord.y,
+                                chunkRelative.x, chunkRelative.y,
+                                climateSampler->GetHumidity(tileCoord),
+                                climateSampler->GetTemperature(tileCoord, elevation),
+                                climateSampler->GetErosion(tileCoord),
+                                elevation,
+                                climateSampler->GetWeirdness(tileCoord)
+                            )
+                        });
+                        firstLayer = false;
+                    }
 
-            auto tile = tileLayerComponent->GetSelfLayerTile(tileCoord);
-            if (tile == nullptr) {
-                continue;
+                    auto tile = tileLayerComponent->GetSelfLayerTile(tileCoord);
+                    if (tile == nullptr) {
+                        continue;
+                    }
+                    const TileMiningData *miningData = tile->GetMiningData();
+                    if (miningData == nullptr) {
+                        continue;
+                    }
+                    debugLines_.push_back(DebugLine{
+                        fmt::format(
+                            fmt::runtime(langsResources->tileResDebugInfo),
+                            std::to_underlying(tile->GetLayerType()), tile->GetId(), miningData->GetHardness(),
+                            tile->GetName()
+                        )
+                    });
+                }
             }
-            const TileMiningData *miningData = tile->GetMiningData();
-            if (miningData == nullptr) {
-                continue;
-            }
-            debugLines_.push_back(DebugLine{
-                fmt::format(
-                    fmt::runtime(langsResources->tileResDebugInfo),
-                    std::to_underlying(tile->GetLayerType()), tile->GetId(), miningData->GetHardness(), tile->GetName()
-                )
-            });
         }
+
 
         const LightBuffer *lightBuffer = worldContext->GetLightingBuffer();
 

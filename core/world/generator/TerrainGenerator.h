@@ -44,76 +44,43 @@ namespace glimmer {
      * 通过组合气候采样器与生物群系匹配器，将噪声转化为地形类型。
      */
     class TerrainGenerator {
-        ClimateSampler climateSampler_;
-        BiomeMatcher biomeMatcher_;
-
-    public:
-        /**
-         * TerrainGenerator
-         * 地形生成器构造
-         * @param worldSeed worldSeed 世界种子
-         * @param dimensionResource dimensionResource 维度资源
-         * @param dimensionId dimensionId 当前维度Id（packId:resourceId）
-         * @param biomeRegistry biomeRegistry 生物群系注册表
-         */
-        TerrainGenerator(int worldSeed, const DimensionResource *dimensionResource,
-                         std::string dimensionId, BiomeRegistry *biomeRegistry);
+        std::unordered_map<TileVector2D, std::weak_ptr<TerrainResult>, Vector2DIHash> terrainResults_;
+        std::unique_ptr<ClimateSampler> climateSampler_;
+        std::unique_ptr<BiomeMatcher> biomeMatcher_;
 
         /**
          * GenerateTerrain
          * 生成地形
+         * @param dimension dimension 维度
          * @param position position 区块位置
          * @return The generated terrain result 生成的地形结果
          */
-        std::shared_ptr<TerrainResult> GenerateTerrain(const TileVector2D &position);
+        std::shared_ptr<TerrainResult>
+        GenerateTerrain(const ResourceRef &dimension, const TileVector2D &position) const;
+
+    public:
+        /**
+         * GenerateOrGetTerrain
+         * 生成或者获取地形
+         * @param dimension
+         * @param position
+         * @return 可能返回null!
+         */
+        std::shared_ptr<TerrainResult> GenerateOrGetTerrain(const ResourceRef &dimension,
+                                                            const TileVector2D &position);
+
 
         /**
          * WriteTerrainTileResult
          * 写瓦片地形结果
+         * @param dimension
          * @param world world 世界坐标
          * @param firstTileTerrainY firstTileTerrainY 地表第一格Y坐标
+         * @param terrainTileResult
          */
-        void WriteTerrainTileResult(const TileVector2D &world, int firstTileTerrainY,TerrainTileResult& terrainTileResult);
+        void WriteTerrainTileResult(const ResourceRef &dimension, const TileVector2D &world, int firstTileTerrainY,
+                                    TerrainTileResult &terrainTileResult) const;
 
-        /**
-         * GetFirstTileTerrainY
-         * 获取地表第一格的Y坐标
-         * @param x x 起点x坐标
-         * @return The terrain surface Y for the given column 该列的地表Y坐标
-         */
-        int GetFirstTileTerrainY(int x);
-
-        /**
-         * GetHumidity
-         * 获取某个坐标的湿度值
-         * @param pos pos 瓦片坐标
-         * @return Humidity in [0,1] 湿度0-1
-         */
-        float GetHumidity(const TileVector2D &pos);
-
-        /**
-         * GetTemperature
-         * 获取某个坐标的温度值
-         * @param pos pos 瓦片坐标
-         * @param elevation elevation 海拔
-         * @return Temperature in [0,1] 温度0-1
-         */
-        float GetTemperature(const TileVector2D &pos, float elevation);
-
-        /**
-         * GetWeirdness
-         * 获取某个坐标的怪异值
-         * @param pos pos 瓦片坐标
-         * @return Weirdness in [0,1] 怪异0-1
-         */
-        float GetWeirdness(const TileVector2D &pos);
-
-        /**
-         * GetErosion
-         * 获取某个坐标的侵蚀度
-         * @param pos pos 瓦片坐标
-         * @return Erosion in [0,1] 侵蚀0-1
-         */
-        float GetErosion(const TileVector2D &pos);
+        ClimateSampler *GetMutableClimateSampler() const;
     };
 }

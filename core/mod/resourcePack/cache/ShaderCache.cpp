@@ -153,7 +153,7 @@ std::shared_ptr<glimmer::ShaderResourceResult> glimmer::ShaderCache::LoadResourc
 
 std::unique_ptr<ShaderCacheMessage> glimmer::ShaderCache::TryLoad(const std::filesystem::path &cacheFilePath,
                                                                   const VirtualFileSystem *virtualFileSystem,
-                                                                  int64_t mtime, const ResourceRef *resourceRef,
+                                                                  const int64_t mtime, const ResourceRef *resourceRef,
                                                                   const std::string &code) {
     if (!virtualFileSystem->Exists(cacheFilePath)) {
         return nullptr;
@@ -180,7 +180,7 @@ std::unique_ptr<ShaderCacheMessage> glimmer::ShaderCache::TryLoad(const std::fil
     }
     auto oldResourceRef = ResourceRef();
     oldResourceRef.ReadResourceRefMessage(cacheMessage->shaderresourceref());
-    if (resourceRef->GetFingerprint() != oldResourceRef.GetFingerprint()) {
+    if (*resourceRef != oldResourceRef) {
         //The cache file belongs to a different shader; do not trust it.
         //缓存文件属于其他着色器，不可信。
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "shader_cache_resource_mismatch_discarding",

@@ -103,13 +103,6 @@ preload_chunk_radius = 1
 # 区块扫描的间隔
 chunk_scan_task_tick_interval = 1
 
-[animation]
-# Duration of the block fade-in animation (unit: seconds)
-# 区块淡入动画时长 单位：秒
-chunk_fadein_duration = 0.2
-chunk_fadein_from = 0.0
-chunk_fadein_to = 1.0
-
 [biome_bgm]
 # Player must stay in a different biome this long before the BGM switches.
 # Filters out brief crossings such as a single jump across a tile boundary (unit: seconds).

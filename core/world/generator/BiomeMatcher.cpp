@@ -26,21 +26,20 @@
  */
 #include "BiomeMatcher.h"
 
-#include <utility>
-
 #include "core/mod/Resource.h"
 #include "core/mod/dataPack/BiomeRegistry.h"
 
-glimmer::BiomeMatcher::BiomeMatcher(std::string dimensionId, BiomeRegistry *biomeRegistry)
-    : dimensionId_(std::move(dimensionId)), biomeRegistry_(biomeRegistry) {
+
+glimmer::BiomeMatcher::BiomeMatcher(BiomeRegistry *biomeRegistry) : biomeRegistry_(biomeRegistry) {
 }
 
-glimmer::BiomeResource *glimmer::BiomeMatcher::Resolve(const float humidity, const float temperature,
+glimmer::BiomeResource *glimmer::BiomeMatcher::Resolve(const ResourceRef &dimension, const float humidity,
+                                                       const float temperature,
                                                        const float weirdness, const float erosion,
                                                        const float elevation, const float surfaceProximity) const {
     if (biomeRegistry_ == nullptr) {
         return nullptr;
     }
-    return biomeRegistry_->FindBestBiome(dimensionId_, humidity, temperature, weirdness, erosion,
+    return biomeRegistry_->FindBestBiome(dimension, humidity, temperature, weirdness, erosion,
                                          elevation, surfaceProximity);
 }

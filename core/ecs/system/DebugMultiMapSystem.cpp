@@ -48,6 +48,9 @@ glimmer::GameSystemType glimmer::DebugMultiMapSystem::GetGameSystemType() const 
 glimmer::Color glimmer::DebugMultiMapSystem::GetTileDebugColor(const TileVector2D &tile) const {
     const WorldContext *worldContext = GetWorldContext();
     auto color = Color(0, 0, 0, 0);
+    if (worldContext == nullptr) {
+        return color;
+    }
     const AppContext *appContext = worldContext->GetAppContext();
     if (appContext == nullptr) {
         return color;
@@ -56,9 +59,16 @@ glimmer::Color glimmer::DebugMultiMapSystem::GetTileDebugColor(const TileVector2
     if (config == nullptr) {
         return color;
     }
+    TerrainGenerator *terrainGenerator = worldContext->GetTerrainGenerator();
+    if (terrainGenerator == nullptr) {
+        return color;
+    }
+    ClimateSampler *climateSampler = terrainGenerator->GetMutableClimateSampler();
+    if (climateSampler == nullptr) {
+        return color;
+    }
     auto debugColor = appContext->GetGraphicsContext()->GetPreloadColors()->debugColor;
     float elevation = TerrainMath::GetElevation(tile.x);
-    ChunkGenerator *chunkGenerator = worldContext->GetChunkGenerator();
     std::vector<Color> activeColors;
 
     if (config->debug.displayElevationMap) {
@@ -66,28 +76,29 @@ glimmer::Color glimmer::DebugMultiMapSystem::GetTileDebugColor(const TileVector2
             ColorUtils::LinearInterpolateColor(debugColor.elevationMapFrom, debugColor.elevationMapTo, elevation)
         );
     }
+
     if (config->debug.displayTempMap) {
         activeColors.emplace_back(
             ColorUtils::LinearInterpolateColor(debugColor.tempMapFrom, debugColor.tempMapTo,
-                                               chunkGenerator->GetTemperature(tile, elevation))
+                                               climateSampler->GetTemperature(tile, elevation))
         );
     }
     if (config->debug.displayHumidityMap) {
         activeColors.emplace_back(
             ColorUtils::LinearInterpolateColor(debugColor.humidityMapFrom, debugColor.humidityMapTo,
-                                               chunkGenerator->GetHumidity(tile))
+                                               climateSampler->GetHumidity(tile))
         );
     }
     if (config->debug.displayErosionMap) {
         activeColors.emplace_back(
             ColorUtils::LinearInterpolateColor(debugColor.erosionMapFrom, debugColor.erosionMapTo,
-                                               chunkGenerator->GetErosion(tile))
+                                               climateSampler->GetErosion(tile))
         );
     }
     if (config->debug.displayWeirdnessMap) {
         activeColors.emplace_back(
             ColorUtils::LinearInterpolateColor(debugColor.weirdnessMapFrom, debugColor.weirdnessMapTo,
-                                               chunkGenerator->GetWeirdness(tile))
+                                               climateSampler->GetWeirdness(tile))
         );
     }
     return ColorUtils::AverageColors(activeColors);

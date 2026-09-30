@@ -90,18 +90,25 @@ void glimmer::ChunkSystem::PostTask() {
     if (appContext == nullptr) {
         return;
     }
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
+        return;
+    }
     TaskWorker *taskWorker = appContext->GetTaskWorker();
     ChunkManager *chunkManager = worldContext->GetChunkManager();
     ChunkTaskScheduler *chunkTaskScheduler = worldContext->GetChunkTaskScheduler();
-    if (taskWorker == nullptr || chunkManager == nullptr || chunkTaskScheduler == nullptr) {
+    StructureGeneratorManager *structureGeneratorManager = modContext->GetStructureGeneratorManager();
+    if (taskWorker == nullptr || chunkManager == nullptr || chunkTaskScheduler == nullptr || structureGeneratorManager
+        == nullptr) {
         return;
     }
     chunkTaskInProgress_.store(true);
-    taskWorker->PostTask([chunkManager, chunkTaskScheduler, this] {
+    taskWorker->PostTask([chunkManager, chunkTaskScheduler, this, structureGeneratorManager] {
         while (const std::unique_ptr<ChunkTask> chunkTask = chunkTaskScheduler->PopFrontTask()) {
+            uint32_t maxChunksOccupiedByStructure = structureGeneratorManager->GetMaxChunksOccupiedByStructure();
             switch (chunkTask->GetTaskType()) {
                 case ChunkTaskType::LOAD:
-                    chunkManager->LoadChunkAt(chunkTask->GetPosition());
+                    chunkManager->LoadChunkAt(maxChunksOccupiedByStructure, chunkTask->GetPosition());
                     break;
                 case ChunkTaskType::UNLOAD:
                     chunkManager->UnloadChunkAt(chunkTask->GetPosition());

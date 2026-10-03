@@ -26,8 +26,6 @@
  */
 #include "RecipeManager.h"
 
-#include "google/protobuf/compiler/csharp/csharp_field_base.h"
-
 glimmer::RecipeResource *glimmer::RecipeManager::RegisterRecipe(std::unique_ptr<RecipeResource> recipeResource) {
     auto &slot =
             recipeMap_[recipeResource->packId][recipeResource->resourceId];

@@ -26,9 +26,6 @@
  */
 #include "FixedColorManager.h"
 
-#include "google/protobuf/compiler/csharp/csharp_field_base.h"
-
-
 void glimmer::FixedColorManager::RegisterCoreRef(std::string_view resourceId, uint8_t r, uint8_t b,
                                                  uint8_t g, uint8_t a) {
     auto fixedColorResource = std::make_unique<FixedColorResource>();

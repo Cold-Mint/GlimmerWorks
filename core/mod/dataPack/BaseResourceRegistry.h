@@ -30,7 +30,6 @@
 
 #include "core/mod/Resource.h"
 #include "core/utils/TransparentStringHash.h"
-#include "google/protobuf/compiler/csharp/csharp_field_base.h"
 
 namespace glimmer {
     /**

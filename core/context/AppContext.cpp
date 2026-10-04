@@ -82,9 +82,6 @@ glimmer::AppContext::AppContext() {
     RegisterInitTask(std::make_unique<InitAudioTask>());
 }
 
-bool glimmer::AppContext::IsRunning() const {
-    return isRunning_;
-}
 
 bool glimmer::AppContext::InitSystem() const {
     bool success = true;
@@ -269,8 +266,4 @@ void glimmer::AppContext::AddUIMessage(const std::string &text) {
 
 std::vector<glimmer::UIMessage> &glimmer::AppContext::GetUIMessages() {
     return uiMessages_;
-}
-
-void glimmer::AppContext::ExitApp() {
-    isRunning_ = false;
 }

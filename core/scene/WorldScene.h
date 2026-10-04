@@ -47,8 +47,6 @@ namespace glimmer {
 
         bool OnBackPressed() override;
 
-        void OnWindowClose() override;
-
         void OnTick(uint64_t tick) override;
 
         void Update(float delta) override;

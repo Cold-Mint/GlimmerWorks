@@ -41,6 +41,16 @@ bool glimmer::ExitCommand::Execute(const CommandSender *commandSender, const Com
     if (appContext == nullptr) {
         return false;
     }
-    appContext->ExitApp();
+    SceneManager *sceneManager = appContext->GetSceneManager();
+    if (sceneManager == nullptr) {
+        return false;
+    }
+    MainThreadDispatcher *mainThreadDispatcher = appContext->GetMainThreadDispatcher();
+    if (mainThreadDispatcher == nullptr) {
+        return false;
+    }
+    mainThreadDispatcher->PostToNextMainFrame([sceneManager] {
+        sceneManager->RemoveAllScenes();
+    });
     return true;
 }

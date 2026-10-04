@@ -406,7 +406,6 @@ target_sources(GlimmerWorks
         core/saves/SavesCreateRequest.cpp
         core/world/scheduler/ChunkTask.cpp
         core/world/scheduler/ChunkTaskScheduler.cpp
-        core/world/generator/NoiseField.cpp
         core/event/Subscription.cpp
         core/utils/VersionAble.cpp
         core/ecs/TileBreakParams.cpp

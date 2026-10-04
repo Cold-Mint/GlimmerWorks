@@ -70,8 +70,6 @@ namespace glimmer {
 
         void OnWindowSizeChanged(const int &width, const int &height) override;
 
-        bool OnBackPressed() override;
-
         ~MainScene() override;
     };
 }

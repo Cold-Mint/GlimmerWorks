@@ -113,7 +113,7 @@ void glimmer::App::Run() const {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "window_is_null", "window is nullptr");
         return;
     }
-    while (appContext_->IsRunning()) {
+    while (sceneManager_->GetSceneCount() > 0) {
         LogCat::IncrementFrameCount();
         SDL_GetWindowSize(window, &windowWidth, &windowHeight);
         if (CheckWindowSizeChange(windowContext, windowWidth, windowHeight)) {
@@ -228,10 +228,10 @@ void glimmer::App::InitScenesAndConsole() const {
     }
     consoleWorker->PushOnMessage(
         std::make_unique<std::function<void(const std::string &)> >([this](const std::string &text) {
-            // if (appContext_ == nullptr) {
-            //     return;
-            // }
-            // appContext_->AddUIMessage(text);
+            if (appContext_ == nullptr) {
+                return;
+            }
+            appContext_->AddUIMessage(text);
         })
     );
 }

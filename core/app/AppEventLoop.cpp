@@ -163,8 +163,8 @@ bool glimmer::AppEventLoop::HandleSystemEvent(const SDL_Event &event) const {
                 break;
             }
         }
-        Scene *topScene = sceneManager->GetTopScene();
-        if (!handled && topScene != nullptr && !topScene->OnBackPressed()) {
+        if (Scene *topScene = sceneManager->GetTopScene();
+            !handled && topScene != nullptr && !topScene->OnBackPressed()) {
             LogCat::i(LogLabel::DEFAULT, "escape_key_popping_scene", "Escape key: popping scene");
             sceneManager->PopScene();
         }
@@ -173,14 +173,7 @@ bool glimmer::AppEventLoop::HandleSystemEvent(const SDL_Event &event) const {
 #endif
     if (event.type == SDL_EVENT_QUIT) {
         LogCat::i(LogLabel::DEFAULT, "quit_event_received", "Quit event received");
-        const auto &overlayScenes = sceneManager->GetOverlayScenes();
-        for (const auto overlayScene: std::ranges::reverse_view(overlayScenes)) {
-            overlayScene->OnWindowClose();
-        }
-        if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
-            topScene->OnWindowClose();
-        }
-        appContext_->ExitApp();
+        sceneManager->RemoveAllScenes();
         return true;
     }
     return false;

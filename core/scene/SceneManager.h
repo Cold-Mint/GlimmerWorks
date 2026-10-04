@@ -90,6 +90,12 @@ namespace glimmer {
         void PopScene();
 
         /**
+         * RemoveAllScenes
+         * 移除全部场景
+         */
+        void RemoveAllScenes();
+
+        /**
          * The scene of obtaining the top of the stack
          * 获取栈顶的场景
          * @return Scene 场景

@@ -148,7 +148,17 @@ void glimmer::MainScene::OnExitGameClick(Rml::DataModelHandle handle, Rml::Event
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "context_is_null", "context == nullptr");
         return;
     }
-    context->ExitApp();
+    SceneManager *sceneManager = context->GetSceneManager();
+    if (sceneManager == nullptr) {
+        return;
+    }
+    MainThreadDispatcher *mainThreadDispatcher = context->GetMainThreadDispatcher();
+    if (mainThreadDispatcher == nullptr) {
+        return;
+    }
+    mainThreadDispatcher->PostToNextMainFrame([sceneManager] {
+        sceneManager->RemoveAllScenes();
+    });
 }
 
 void glimmer::MainScene::OnLinkClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args) {
@@ -193,11 +203,6 @@ void glimmer::MainScene::OnConfigChanged(const Config *config) {
 void glimmer::MainScene::OnWindowSizeChanged(const int &width, const int &height) {
     windowWidth_ = width;
     windowHeight_ = height;
-}
-
-bool glimmer::MainScene::OnBackPressed() {
-    GetAppContext()->ExitApp();
-    return true;
 }
 
 glimmer::MainScene::~MainScene() = default;

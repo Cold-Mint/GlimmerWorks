@@ -107,12 +107,19 @@ void glimmer::SceneManager::PopScene() {
     LogCat::i(LogLabel::DEFAULT, "popping_scene", "Popping scene, scene count: {}", sceneStack_.size());
     sceneStack_.top()->OnPauseScene();
     sceneStack_.pop();
-    if (!sceneStack_.empty()) {
+    if (sceneStack_.empty()) {
+        LogCat::i(LogLabel::DEFAULT, "scene_stack_empty_after_pop", "Scene stack is now empty after pop");
+    } else {
         LogCat::i(LogLabel::DEFAULT, "resuming_previous_scene", "Resuming previous scene, scene count: {}",
                   sceneStack_.size());
         sceneStack_.top()->OnResumeScene();
-    } else {
-        LogCat::i(LogLabel::DEFAULT, "scene_stack_empty_after_pop", "Scene stack is now empty after pop");
+    }
+}
+
+void glimmer::SceneManager::RemoveAllScenes() {
+    while (!sceneStack_.empty()) {
+        sceneStack_.top()->OnPauseScene();
+        sceneStack_.pop();
     }
 }
 

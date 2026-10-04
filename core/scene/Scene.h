@@ -162,8 +162,6 @@ namespace glimmer {
          */
         virtual bool OnBackPressed();
 
-        virtual void OnWindowClose();
-
         virtual void OnWindowSizeChanged(const int &width, const int &height);
 
 

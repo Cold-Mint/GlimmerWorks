@@ -51,7 +51,6 @@ namespace glimmer {
     class EventBus;
 
     class AppContext {
-        bool isRunning_ = true;
         mutable std::optional<PendingScreenshot> pendingScreenshot_;
         std::vector<std::unique_ptr<IAppContextInitTask> > initTasks_;
         std::unique_ptr<ISystemBucket> systemBucket_;
@@ -61,8 +60,6 @@ namespace glimmer {
 
     public:
         AppContext();
-
-        bool IsRunning() const;
 
         bool InitSystem() const;
 
@@ -122,7 +119,6 @@ namespace glimmer {
          */
         [[nodiscard]] std::vector<UIMessage> &GetUIMessages();
 
-        void ExitApp();
 
         void CreateScreenshot(const std::function<void(const std::string &text)> *onMessage) const;
 

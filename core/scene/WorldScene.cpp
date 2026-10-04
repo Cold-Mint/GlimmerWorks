@@ -86,16 +86,6 @@ bool glimmer::WorldScene::OnBackPressed() {
     return systemScheduler_->OnBackPressed();
 }
 
-void glimmer::WorldScene::OnWindowClose() {
-    if (worldContext_ == nullptr) {
-        return;
-    }
-    LogCat::i(LogLabel::DEFAULT, "saving_game_on_window_close", "Saving game on window close: worldName={}",
-              worldContext_->GetMapManifest()->name);
-    worldContext_->SaveGame();
-    LogCat::i(LogLabel::DEFAULT, "game_saved_successfully", "Game saved successfully");
-}
-
 void glimmer::WorldScene::OnTick(uint64_t tick) {
     if (systemScheduler_ != nullptr) {
         systemScheduler_->OnTick(tick);

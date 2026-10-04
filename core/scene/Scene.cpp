@@ -59,10 +59,6 @@ bool glimmer::Scene::OnBackPressed() {
     return false;
 }
 
-void glimmer::Scene::OnWindowClose() {
-    // Intentionally empty default implementation for base class
-}
-
 void glimmer::Scene::OnWindowSizeChanged(const int &width, const int &height) {
     // Intentionally empty default implementation for base class
 }

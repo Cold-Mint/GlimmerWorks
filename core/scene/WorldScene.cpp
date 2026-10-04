@@ -53,7 +53,7 @@ glimmer::WorldScene::WorldScene(AppContext *context, std::unique_ptr<WorldContex
     Init();
     uniformInjectContext_ = std::make_unique<UniformInjectContext>();
     uniformInjectContext_->worldContext = worldContext_.get();
-    EntityShortCut *entityShortCut = worldContext_->GetEntityShortCut();
+    const EntityShortCut *entityShortCut = worldContext_->GetEntityShortCut();
     if (entityShortCut == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "entity_short_cut_is_null",
                   "EntityShortCut is nullptr");
@@ -73,6 +73,9 @@ void glimmer::WorldScene::OnFrameStart() {
 }
 
 bool glimmer::WorldScene::HandleEvent(const SDL_Event &event) {
+    if (!worldContext_->IsRuning()) {
+        return false;
+    }
     if (systemScheduler_ == nullptr) {
         return false;
     }
@@ -87,6 +90,9 @@ bool glimmer::WorldScene::OnBackPressed() {
 }
 
 void glimmer::WorldScene::OnTick(uint64_t tick) {
+    if (!worldContext_->IsRuning()) {
+        return;
+    }
     if (systemScheduler_ != nullptr) {
         systemScheduler_->OnTick(tick);
     }
@@ -96,6 +102,9 @@ void glimmer::WorldScene::OnTick(uint64_t tick) {
 }
 
 void glimmer::WorldScene::Update(const float delta) {
+    if (!worldContext_->IsRuning()) {
+        return;
+    }
     if (systemScheduler_ != nullptr) {
         systemScheduler_->Update(delta);
     }

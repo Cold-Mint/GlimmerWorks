@@ -141,10 +141,6 @@ glimmer::GameSystem *glimmer::SystemScheduler::GetGameSystem(GameSystemType type
 }
 
 bool glimmer::SystemScheduler::HandleEvent(const SDL_Event &event) {
-    if (!worldContext_->IsRuning()) {
-        return false;
-    }
-
     if (event.type == SDL_EVENT_KEY_DOWN) {
         auto iterator = scancodeToSystemType_.find(event.key.scancode);
         if (iterator != scancodeToSystemType_.end()) {
@@ -196,9 +192,6 @@ void glimmer::SystemScheduler::OnTick(uint64_t tick) {
 }
 
 void glimmer::SystemScheduler::Update(const float delta) const {
-    if (!worldContext_->IsRuning()) {
-        return;
-    }
     for (auto &system: activeSystems_) {
         if (system == nullptr) {
             continue;

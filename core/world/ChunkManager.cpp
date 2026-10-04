@@ -27,6 +27,7 @@
 #include "ChunkManager.h"
 
 #include <utility>
+#include <vector>
 
 #include "core/config/Constants.h"
 #include "core/context/AppContext.h"
@@ -39,6 +40,7 @@
 #include "core/scene/MainThreadDispatcher.h"
 #include "core/world/Tile.h"
 #include "core/world/WorldContext.h"
+#include "core/world/structure/StructureGeneratorManager.h"
 #include "generator/ChunkGenerator.h"
 #include "generator/ChunkLoader.h"
 #include "generator/ChunkPhysicsHelper.h"
@@ -237,7 +239,33 @@ void glimmer::ChunkManager::LoadChunkAt(uint32_t maxChunksOccupiedByStructure,
     if (HasChunk(dimensionRef, position)) {
         return;
     }
+    const AppContext *appContext = worldContext_->GetAppContext();
+    if (appContext == nullptr) {
+        return;
+    }
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
+        return;
+    }
+    const BiomeRegistry *biomeRegistry = modContext->GetBiomeRegistry();
+    if (biomeRegistry == nullptr) {
+        return;
+    }
+    std::vector<std::shared_ptr<TerrainResult> > dependencyTerrain;
 
+    if (TerrainGenerator *terrainGenerator = worldContext_->GetTerrainGenerator(); terrainGenerator != nullptr) {
+        const std::vector<TileVector2D> dependencyTerrainPositions =
+                StructureGeneratorManager::GetChunkDependencyTerrain(maxChunksOccupiedByStructure, position);
+        dependencyTerrain.reserve(dependencyTerrainPositions.size());
+        for (const TileVector2D &terrainPosition: dependencyTerrainPositions) {
+            std::shared_ptr<TerrainResult> terrain = terrainGenerator->GenerateOrGetTerrain(biomeRegistry,
+                dimensionRef, terrainPosition);
+            if (terrain == nullptr) {
+                continue;
+            }
+            dependencyTerrain.emplace_back(std::move(terrain));
+        }
+    }
     LogCat::d(LogLabel::CHUNK, "chunk_loading", "Loading chunk at position: ({}, {})", position.x, position.y);
     std::unique_ptr<Chunk> newlyCreatedChunk = chunkLoader_->LoadChunkFromSaves(dimensionRef, position);
     if (newlyCreatedChunk == nullptr) {
@@ -256,6 +284,7 @@ void glimmer::ChunkManager::LoadChunkAt(uint32_t maxChunksOccupiedByStructure,
                                                      std::shared_ptr<Tile>, const std::shared_ptr<Tile> &newTile) {
         OnChunkTileChange(chunk, newTile, layerType, index);
     });
+    newlyCreatedChunk->SetDependencyTerrain(std::move(dependencyTerrain));
     dimensionMap_[dimensionRef].insert({position, std::move(newlyCreatedChunk)});
     LogCat::d(LogLabel::CHUNK, "chunk_loaded", "Chunk loaded successfully at: ({}, {})", position.x, position.y);
     UpdateChunkLight(chunkPtr);
@@ -331,13 +360,18 @@ bool glimmer::ChunkManager::SaveChunk(const ResourceRef &dimensionRef, const Til
     return true;
 }
 
-void glimmer::ChunkManager::SaveAllChunk() {
+size_t glimmer::ChunkManager::SaveAllChunk() {
+    size_t chunkCount = 0;
     for (const auto &[dimensionRef, chunkMap]: dimensionMap_) {
-        for (const auto &[position, chunk]: chunkMap) {
-            SaveChunk(dimensionRef, position);
+        for (const auto &position: chunkMap | std::views::keys) {
+            if (SaveChunk(dimensionRef, position)) {
+                chunkCount++;
+            }
         }
     }
+    return chunkCount;
 }
+
 
 size_t glimmer::ChunkManager::GetLoadedChunkCount(const ResourceRef &dimensionRef) const {
     const auto dimensionIterator = dimensionMap_.find(dimensionRef);

@@ -27,7 +27,6 @@
 #pragma once
 #include <memory>
 
-#include "BiomeMatcher.h"
 #include "ClimateSampler.h"
 #include "TerrainResult.h"
 #include "TerrainTileResult.h"
@@ -45,40 +44,44 @@ namespace glimmer {
      */
     class TerrainGenerator {
         std::unordered_map<TileVector2D, std::weak_ptr<TerrainResult>, Vector2DIHash> terrainResults_;
-        std::unique_ptr<ClimateSampler> climateSampler_;
-        std::unique_ptr<BiomeMatcher> biomeMatcher_;
+        std::unique_ptr<ClimateSampler> climateSampler_ = std::make_unique<ClimateSampler>();
 
         /**
          * GenerateTerrain
          * 生成地形
+         * @param biomeRegistry biomeRegistry 生物群系注册表
          * @param dimension dimension 维度
          * @param position position 区块位置
          * @return The generated terrain result 生成的地形结果
          */
         std::shared_ptr<TerrainResult>
-        GenerateTerrain(const ResourceRef &dimension, const TileVector2D &position) const;
+        GenerateTerrain(const BiomeRegistry *biomeRegistry, const ResourceRef &dimension,
+                        const TileVector2D &position) const;
 
     public:
         /**
          * GenerateOrGetTerrain
          * 生成或者获取地形
+         * @param biomeRegistry
          * @param dimension
          * @param position
          * @return 可能返回null!
          */
-        std::shared_ptr<TerrainResult> GenerateOrGetTerrain(const ResourceRef &dimension,
+        std::shared_ptr<TerrainResult> GenerateOrGetTerrain(const BiomeRegistry *biomeRegistry,const ResourceRef &dimension,
                                                             const TileVector2D &position);
 
 
         /**
          * WriteTerrainTileResult
          * 写瓦片地形结果
-         * @param dimension
+         * @param biomeRegistry biomeRegistry 生物群系注册表
+         * @param dimension dimension 维度
          * @param world world 世界坐标
          * @param firstTileTerrainY firstTileTerrainY 地表第一格Y坐标
-         * @param terrainTileResult
+         * @param terrainTileResult terrainTileResult 地形瓦片结果
          */
-        void WriteTerrainTileResult(const ResourceRef &dimension, const TileVector2D &world, int firstTileTerrainY,
+        void WriteTerrainTileResult(const BiomeRegistry *biomeRegistry, const ResourceRef &dimension,
+                                    const TileVector2D &world, int firstTileTerrainY,
                                     TerrainTileResult &terrainTileResult) const;
 
         ClimateSampler *GetMutableClimateSampler() const;

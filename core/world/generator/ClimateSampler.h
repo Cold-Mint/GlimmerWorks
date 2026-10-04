@@ -27,7 +27,6 @@
 #pragma once
 #include <FastNoiseLite.h>
 #include <array>
-#include <cstdint>
 #include <memory>
 #include <unordered_map>
 

@@ -32,10 +32,11 @@
 #include "TerrainMath.h"
 #include "core/config/Constants.h"
 #include "core/log/LogCat.h"
+#include "core/mod/dataPack/BiomeRegistry.h"
 
 
-std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerrain(const ResourceRef &dimension,
-    const TileVector2D &position) const {
+std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerrain(const BiomeRegistry *biomeRegistry,
+    const ResourceRef &dimension, const TileVector2D &position) const {
     if (climateSampler_ == nullptr) {
         return nullptr;
     }
@@ -46,7 +47,7 @@ std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerra
         const int firstTileTerrainY = climateSampler_->GetFirstTileTerrainY(position.x + localX);
         for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
             auto localPosition = TileVector2D(localX, localY);
-            WriteTerrainTileResult(dimension, localPosition + position, firstTileTerrainY,
+            WriteTerrainTileResult(biomeRegistry, dimension, localPosition + position, firstTileTerrainY,
                                    terrainResult->GetMutableTerrainTileResult(localPosition));
         }
     }
@@ -55,7 +56,7 @@ std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerra
         const int worldX = position.x + localX;
         const int firstTileTerrainY = climateSampler_->GetFirstTileTerrainY(worldX);
         auto worldPosition = TileVector2D(position.x + localX, upWorldY);
-        WriteTerrainTileResult(dimension, worldPosition, firstTileTerrainY,
+        WriteTerrainTileResult(biomeRegistry, dimension, worldPosition, firstTileTerrainY,
                                terrainResult->GetMutableUpTerrainTileResult(localX));
     }
     LogCat::d(LogLabel::TERRAIN, "terrain_generation_completed", "Terrain generation completed: position=({}, {})",
@@ -64,15 +65,15 @@ std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerra
     return terrainResult;
 }
 
-std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateOrGetTerrain(const ResourceRef &dimension,
-    const TileVector2D &position) {
+std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateOrGetTerrain(
+    const BiomeRegistry *biomeRegistry, const ResourceRef &dimension, const TileVector2D &position) {
     if (const auto iterator = terrainResults_.find(position); iterator != terrainResults_.end()) {
         if (auto terrainResult = iterator->second.lock()) {
             return terrainResult;
         }
         terrainResults_.erase(iterator);
     }
-    auto terrainResult = GenerateTerrain(dimension, position);
+    auto terrainResult = GenerateTerrain(biomeRegistry, dimension, position);
     if (terrainResult == nullptr) {
         return nullptr;
     }
@@ -80,10 +81,10 @@ std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateOrGet
     return terrainResult;
 }
 
-void glimmer::TerrainGenerator::WriteTerrainTileResult(const ResourceRef &dimension, const TileVector2D &world,
-                                                       const int firstTileTerrainY,
+void glimmer::TerrainGenerator::WriteTerrainTileResult(const BiomeRegistry *biomeRegistry, const ResourceRef &dimension,
+                                                       const TileVector2D &world, const int firstTileTerrainY,
                                                        TerrainTileResult &terrainTileResult) const {
-    if (biomeMatcher_ == nullptr || climateSampler_ == nullptr) {
+    if (climateSampler_ == nullptr) {
         return;
     }
     const float elevation = TerrainMath::GetElevation(world.y);
@@ -93,9 +94,10 @@ void glimmer::TerrainGenerator::WriteTerrainTileResult(const ResourceRef &dimens
     const auto erosion = climateSampler_->GetErosion(world);
     const auto surfaceProximity = TerrainMath::GetSurfaceProximity(firstTileTerrainY, world.y);
     terrainTileResult.SetWorldPosition(world);
-    terrainTileResult.SetBiomeResource(biomeMatcher_->Resolve(dimension,
-                                                              humidity, temperature, weirdness, erosion, elevation,
-                                                              surfaceProximity));
+    terrainTileResult.SetBiomeResource(biomeRegistry->FindBestBiome(dimension,
+                                                                    humidity, temperature, weirdness, erosion,
+                                                                    elevation,
+                                                                    surfaceProximity));
     if (world.y > WORLD_MAX_Y || world.y < WORLD_MIN_Y || world.x > WORLD_MAX_X || world.x < WORLD_MIN_X) {
         terrainTileResult.SetTerrainType(TerrainResultType::VOID);
         return;

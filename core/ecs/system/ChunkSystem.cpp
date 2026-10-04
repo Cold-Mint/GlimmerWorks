@@ -57,6 +57,7 @@ void glimmer::ChunkSystem::GenerateLoadTasks(const ResourceRef &dimensionRef, co
                 continue;
             }
             auto chunkTask = std::make_unique<ChunkTask>();
+            chunkTask->SetDimensionResourceRef(dimensionRef);
             chunkTask->SetPosition(chunkVertexCoordinates);
             chunkTask->SetTaskType(ChunkTaskType::LOAD);
             scheduler->PushPendingTask(std::move(chunkTask));
@@ -82,6 +83,7 @@ void glimmer::ChunkSystem::GenerateUnloadTasks(const ResourceRef &dimensionRef, 
             continue;
         }
         auto chunkTask = std::make_unique<ChunkTask>();
+        chunkTask->SetDimensionResourceRef(dimensionRef);
         chunkTask->SetPosition(chunkVertexCoordinates);
         chunkTask->SetTaskType(ChunkTaskType::UNLOAD);
         scheduler->PushPendingTask(std::move(chunkTask));
@@ -112,7 +114,7 @@ void glimmer::ChunkSystem::PostTask() {
     chunkTaskInProgress_.store(true);
     taskWorker->PostTask([chunkManager, chunkTaskScheduler, this, structureGeneratorManager] {
         while (const std::unique_ptr<ChunkTask> chunkTask = chunkTaskScheduler->PopFrontTask()) {
-            uint32_t maxChunksOccupiedByStructure = structureGeneratorManager->GetMaxChunksOccupiedByStructure();
+            const uint32_t maxChunksOccupiedByStructure = structureGeneratorManager->GetMaxChunksOccupiedByStructure();
             switch (chunkTask->GetTaskType()) {
                 case ChunkTaskType::LOAD:
                     chunkManager->LoadChunkAt(maxChunksOccupiedByStructure, chunkTask->GetDimensionResourceRef(),

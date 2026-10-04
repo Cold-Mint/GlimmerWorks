@@ -137,8 +137,9 @@ namespace glimmer {
         /**
          * SaveAllChunk
          * 保存所有的区块
+         * @return 成功保存了多少个区块
          */
-        void SaveAllChunk();
+        size_t SaveAllChunk();
 
         /**
          * GetChunkCount

@@ -25,8 +25,11 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <memory>
 #include <unordered_map>
+#include <vector>
 
+#include "TerrainResult.h"
 #include "TileSnapshot.h"
 #include "src/saves/chunk.pb.h"
 #include "box2d/id.h"
@@ -51,6 +54,12 @@ namespace glimmer {
         tileState_;
         std::unordered_map<TileLayerType, std::array<std::unique_ptr<TileSnapshot>, CHUNK_AREA> > tileSnapshots_;
         std::vector<b2BodyId> attachedBodies_;
+
+        //The terrain data that this chunk depends on. Holding the shared_ptr keeps the terrain alive and allows
+        //neighboring chunks to reuse it until this chunk is unloaded.
+        //此区块依赖的地形数据。持有 shared_ptr 使地形保持存活，直到此区块卸载前可被邻近区块复用。
+        std::vector<std::shared_ptr<TerrainResult>> dependencyTerrain_;
+
         std::vector<std::function<void(Chunk *chunk, int index, std::shared_ptr<Tile> tile, TileLayerType layerType)> >
         onTileRebuilt_;
 
@@ -68,6 +77,12 @@ namespace glimmer {
 
     public:
         explicit Chunk(WorldContext *worldContext, const TileVector2D &pos);
+
+        /**
+         * SetDependencyTerrain
+         * 设置此区块依赖的地形数据，持有引用以保持其存活直至区块卸载。
+         */
+        void SetDependencyTerrain(std::vector<std::shared_ptr<TerrainResult>> dependencyTerrain);
 
         void AddBodyId(b2BodyId bodyId);
 

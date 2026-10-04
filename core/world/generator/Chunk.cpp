@@ -323,6 +323,10 @@ glimmer::Chunk::Chunk(WorldContext *worldContext, const TileVector2D &pos) : wor
     position_ = pos;
 }
 
+void glimmer::Chunk::SetDependencyTerrain(std::vector<std::shared_ptr<TerrainResult> > dependencyTerrain) {
+    dependencyTerrain_ = std::move(dependencyTerrain);
+}
+
 void glimmer::Chunk::WriteChunkMessage(ChunkMessage &chunkMessage) {
     position_.WriteVector2DIMessage(*chunkMessage.mutable_position());
     chunkMessage.clear_tilestates();

@@ -794,7 +794,6 @@ target_sources(GlimmerWorks
         core/world/generator/BiomeDecorator.cpp
         core/world/generator/BiomeDecoratorApplier.cpp
         core/world/generator/BiomeDecoratorManager.cpp
-        core/world/generator/BiomeMatcher.cpp
         core/world/generator/Chunk.cpp
         core/world/generator/ChunkGenerator.cpp
         core/world/generator/ChunkLoader.cpp
@@ -1266,7 +1265,6 @@ target_sources(GlimmerWorks
         core/world/generator/BiomeDecorator.h
         core/world/generator/BiomeDecoratorApplier.h
         core/world/generator/BiomeDecoratorManager.h
-        core/world/generator/BiomeMatcher.h
         core/world/generator/Chunk.h
         core/world/generator/ChunkGenerator.h
         core/world/generator/ChunkLoader.h

@@ -34,12 +34,15 @@ namespace glimmer {
     class BiomeRegistry;
     class TileVector2D;
     struct LangsResources;
+    struct DimensionResource;
 
     class BiomeScoreCommand final : public Command {
         static std::string CalculateAndFormatBiomeScores(const TileVector2D &tileVector2D,
                                                          ClimateSampler *climateSampler,
                                                          BiomeRegistry *biomeRegistry,
-                                                         const LangsResources *langsResources);
+                                                         const LangsResources *langsResources,
+                                                         int worldSeed,
+                                                         const DimensionResource *dimensionResource);
 
         void InitSuggestions(NodeTree<std::string> *suggestionsTree) override;
 

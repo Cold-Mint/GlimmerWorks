@@ -185,6 +185,7 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
         if (terrainGenerator != nullptr) {
             ClimateSampler *climateSampler = terrainGenerator->GetMutableClimateSampler();
             if (climateSampler != nullptr) {
+                const int worldSeed = worldContext->GetWorldSeed();
                 for (auto tileLayerComponent: tileLayerComponents_) {
                     TileVector2D chunkRelative = Chunk::TileCoordinatesToChunkRelativeCoordinates(tileCoord);
                     if (firstLayer) {
@@ -194,11 +195,11 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
                                 fmt::runtime(langsResources->tileDebugInfo),
                                 tileCoord.x, tileCoord.y,
                                 chunkRelative.x, chunkRelative.y,
-                                climateSampler->GetHumidity(tileCoord),
-                                climateSampler->GetTemperature(tileCoord, elevation),
-                                climateSampler->GetErosion(tileCoord),
+                                climateSampler->GetHumidity(worldSeed, dimensionResource, tileCoord),
+                                climateSampler->GetTemperature(worldSeed, dimensionResource, tileCoord, elevation),
+                                climateSampler->GetErosion(worldSeed, dimensionResource, tileCoord),
                                 elevation,
-                                climateSampler->GetWeirdness(tileCoord)
+                                climateSampler->GetWeirdness(worldSeed, dimensionResource, tileCoord)
                             )
                         });
                         firstLayer = false;

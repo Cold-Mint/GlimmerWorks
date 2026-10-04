@@ -76,43 +76,65 @@ void glimmer::ClimateSampler::ApplyNoiseConfig(FastNoiseLite *noise, const Noise
     noise->SetCellularJitter(config.cellularJitter);
 }
 
-void glimmer::ClimateSampler::BindDimension(const int worldSeed, const DimensionResource *dimensionResource) {
+void glimmer::ClimateSampler::EnsureNoiseBound(const int worldSeed,
+                                               const DimensionResource *dimensionResource) {
     if (dimensionResource == nullptr) {
-        LogCat::e(LogLabel::WORLD_GEN, std::source_location::current(), "dimension_resource_is_null",
-                  "dimensionResource is nullptr");
+        return;
+    }
+    if (boundWorldSeed_ == worldSeed && boundDimensionResource_ == dimensionResource) {
         return;
     }
     for (uint8_t i = 0; i < fieldCount_; ++i) {
         noises_[i] = std::make_unique<FastNoiseLite>();
         ApplyNoiseConfig(noises_[i].get(), GetNoiseConfig(dimensionResource, static_cast<NoiseField>(i)), worldSeed);
     }
+    boundWorldSeed_ = worldSeed;
+    boundDimensionResource_ = dimensionResource;
 }
 
-int glimmer::ClimateSampler::GetFirstTileTerrainY(const int x) {
-    const auto it = heightMap_.find(x);
-    if (it != heightMap_.end()) {
+int glimmer::ClimateSampler::GetFirstTileTerrainY(const int worldSeed, const DimensionResource *dimensionResource,
+                                                  const int x) {
+    if (dimensionResource == nullptr) {
+        return GROUND_START_HEIGHT;
+    }
+    EnsureNoiseBound(worldSeed, dimensionResource);
+    auto &heightMap = heightMap_[dimensionResource];
+    const auto it = heightMap.find(x);
+    if (it != heightMap.end()) {
         return it->second;
     }
     const auto sampleX = static_cast<float>(x);
     const float continentNoise = (GetNoise(NoiseField::ContinentHeight)->GetNoise(sampleX, 0.0F) + 1.0F) * 0.5F;
     const int height = GROUND_START_HEIGHT + CONTINENT_MAX_HEIGHT * continentNoise;
-    heightMap_[x] = height;
+    heightMap[x] = height;
     return height;
 }
 
-float glimmer::ClimateSampler::GetHumidity(const TileVector2D &pos) {
-    const auto it = humidityMap_.find(pos);
-    if (it != humidityMap_.end()) {
+float glimmer::ClimateSampler::GetHumidity(const int worldSeed, const DimensionResource *dimensionResource,
+                                           const TileVector2D &pos) {
+    if (dimensionResource == nullptr) {
+        return 0.5F;
+    }
+    EnsureNoiseBound(worldSeed, dimensionResource);
+    auto &humidityMap = humidityMap_[dimensionResource];
+    const auto it = humidityMap.find(pos);
+    if (it != humidityMap.end()) {
         return it->second;
     }
-    humidityMap_[pos] = (GetNoise(NoiseField::Humidity)->GetNoise(static_cast<float>(pos.x),
-                                                                  static_cast<float>(pos.y)) + 1) * 0.5F;
-    return humidityMap_[pos];
+    humidityMap[pos] = (GetNoise(NoiseField::Humidity)->GetNoise(static_cast<float>(pos.x),
+                                                                 static_cast<float>(pos.y)) + 1) * 0.5F;
+    return humidityMap[pos];
 }
 
-float glimmer::ClimateSampler::GetTemperature(const TileVector2D &pos, const float elevation) {
-    const auto it = temperatureMap_.find(pos);
-    if (it != temperatureMap_.end()) {
+float glimmer::ClimateSampler::GetTemperature(const int worldSeed, const DimensionResource *dimensionResource,
+                                              const TileVector2D &pos, const float elevation) {
+    if (dimensionResource == nullptr) {
+        return 0.5F;
+    }
+    EnsureNoiseBound(worldSeed, dimensionResource);
+    auto &temperatureMap = temperatureMap_[dimensionResource];
+    const auto it = temperatureMap.find(pos);
+    if (it != temperatureMap.end()) {
         return it->second;
     }
     const float noiseTemp = (GetNoise(NoiseField::Temperature)->GetNoise(
@@ -121,28 +143,39 @@ float glimmer::ClimateSampler::GetTemperature(const TileVector2D &pos, const flo
                              ) + 1.0F) * 0.5F;
     const float altitudePenalty = std::pow(1.0F - elevation, 1.5F);
     const float temperature = noiseTemp * altitudePenalty;
-
-    temperatureMap_[pos] = temperature;
-    return temperatureMap_[pos];
+    temperatureMap[pos] = temperature;
+    return temperatureMap[pos];
 }
 
-float glimmer::ClimateSampler::GetWeirdness(const TileVector2D &pos) {
-    const auto it = weirdnessMap_.find(pos);
-    if (it != weirdnessMap_.end()) {
+float glimmer::ClimateSampler::GetWeirdness(const int worldSeed, const DimensionResource *dimensionResource,
+                                            const TileVector2D &pos) {
+    if (dimensionResource == nullptr) {
+        return 0.5F;
+    }
+    EnsureNoiseBound(worldSeed, dimensionResource);
+    auto &weirdnessMap = weirdnessMap_[dimensionResource];
+    const auto it = weirdnessMap.find(pos);
+    if (it != weirdnessMap.end()) {
         return it->second;
     }
-    weirdnessMap_[pos] = (GetNoise(NoiseField::Weirdness)->GetNoise(static_cast<float>(pos.x * 0.000285714),
-                                                                    static_cast<float>(pos.y * 0.000285714)) + 1) *
-                         0.5F;
-    return weirdnessMap_[pos];
+    weirdnessMap[pos] = (GetNoise(NoiseField::Weirdness)->GetNoise(static_cast<float>(pos.x * 0.000285714),
+                                                                   static_cast<float>(pos.y * 0.000285714)) + 1) *
+                        0.5F;
+    return weirdnessMap[pos];
 }
 
-float glimmer::ClimateSampler::GetErosion(const TileVector2D &pos) {
-    const auto it = erosionMap_.find(pos);
-    if (it != erosionMap_.end()) {
+float glimmer::ClimateSampler::GetErosion(const int worldSeed, const DimensionResource *dimensionResource,
+                                          const TileVector2D &pos) {
+    if (dimensionResource == nullptr) {
+        return 0.5F;
+    }
+    EnsureNoiseBound(worldSeed, dimensionResource);
+    auto &erosionMap = erosionMap_[dimensionResource];
+    const auto it = erosionMap.find(pos);
+    if (it != erosionMap.end()) {
         return it->second;
     }
-    erosionMap_[pos] = (GetNoise(NoiseField::Erosion)->GetNoise(static_cast<float>(pos.x),
-                                                                static_cast<float>(pos.y)) + 1) * 0.5F;
-    return erosionMap_[pos];
+    erosionMap[pos] = (GetNoise(NoiseField::Erosion)->GetNoise(static_cast<float>(pos.x),
+                                                               static_cast<float>(pos.y)) + 1) * 0.5F;
+    return erosionMap[pos];
 }

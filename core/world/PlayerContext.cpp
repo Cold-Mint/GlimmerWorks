@@ -43,6 +43,7 @@
 #include "core/mod/ResourceRef.h"
 #include "core/mod/resourcePack/AudioResourceResult.h"
 #include "core/context/AppContext.h"
+#include "core/world/Dimension.h"
 #include "core/world/WorldContext.h"
 
 glimmer::PlayerContext::PlayerContext(WorldContext *worldContext) : worldContext_(worldContext) {
@@ -159,7 +160,16 @@ uint32_t glimmer::PlayerContext::CreateOrLoadPlayer(const ResourceRef &resourceR
     if (climateSampler == nullptr) {
         return playerEntity;
     }
-    const auto firstTileTerrainY = climateSampler->GetFirstTileTerrainY(0);
+    const Dimension *dimension = worldContext_->GetDimension();
+    if (dimension == nullptr) {
+        return playerEntity;
+    }
+    const DimensionResource *dimensionResource = dimension->GetDimensionResource();
+    if (dimensionResource == nullptr) {
+        return playerEntity;
+    }
+    const int worldSeed = worldContext_->GetWorldSeed();
+    const auto firstTileTerrainY = climateSampler->GetFirstTileTerrainY(worldSeed, dimensionResource, 0);
     playerEntity = worldContext_->GetEntityManager()->AddEntity();
     LogCat::i(LogLabel::DEFAULT, "player_context_created", "Created new player entity: id={}", playerEntity);
     MobEntityCreator mobEntityCreator{worldContext_};

@@ -46,14 +46,16 @@ void glimmer::LocateCommand::InitSuggestions(NodeTree<std::string> *suggestionsT
 std::optional<glimmer::TileVector2D> glimmer::LocateCommand::SearchBiomes(int tileX, const ResourceRef &dimension,
                                                                           const BiomeRegistry *biomeRegistry,
                                                                           ClimateSampler *climateSampler,
-                                                                          const std::string &targetBiomeId) {
+                                                                          const std::string &targetBiomeId,
+                                                                          const int worldSeed,
+                                                                          const DimensionResource *dimensionResource) {
     if (climateSampler == nullptr || biomeRegistry == nullptr) {
         return std::nullopt;
     }
     TileVector2D chunkCenter = Chunk::TileCoordinatesToChunkVertexCoordinates({tileX, 0}) + TileVector2D{
                                    HALF_CHUNK_SIZE, HALF_CHUNK_SIZE
                                };
-    const int firstTileTerrainY = climateSampler->GetFirstTileTerrainY(tileX);
+    const int firstTileTerrainY = climateSampler->GetFirstTileTerrainY(worldSeed, dimensionResource, tileX);
     for (int y = WORLD_MAX_Y - HALF_CHUNK_SIZE; y > WORLD_MIN_Y; y -= CHUNK_SIZE) {
         if (y > firstTileTerrainY) {
             continue;
@@ -61,10 +63,10 @@ std::optional<glimmer::TileVector2D> glimmer::LocateCommand::SearchBiomes(int ti
         chunkCenter.y = y;
         float elevation = TerrainMath::GetElevation(y);
         const BiomeResource *nowBiomeResource = biomeRegistry->FindBestBiome(
-            dimension, climateSampler->GetHumidity(chunkCenter),
-            climateSampler->GetTemperature(chunkCenter, elevation),
-            climateSampler->GetWeirdness(chunkCenter),
-            climateSampler->GetErosion(chunkCenter),
+            dimension, climateSampler->GetHumidity(worldSeed, dimensionResource, chunkCenter),
+            climateSampler->GetTemperature(worldSeed, dimensionResource, chunkCenter, elevation),
+            climateSampler->GetWeirdness(worldSeed, dimensionResource, chunkCenter),
+            climateSampler->GetErosion(worldSeed, dimensionResource, chunkCenter),
             elevation,
             TerrainMath::GetSurfaceProximity(firstTileTerrainY, y));
         if (nowBiomeResource == nullptr) {
@@ -141,8 +143,10 @@ bool glimmer::LocateCommand::ExecuteBiome(const CommandArgs *commandArgs,
     }
     TileVector2D position = CoordinateTransformer::WorldToTile(transform2dComponent->GetPosition());
     uint16_t locateMaxRadiusSearchChunks = appContext->GetConfig()->command.locateMaxRadiusSearchChunks;
+    const int worldSeed = worldContext->GetWorldSeed();
     std::optional<TileVector2D> target = SearchBiomeInRadius(
-        position, dimensionResourceRef, biomeRegistry, climateSampler, targetBiomeID, locateMaxRadiusSearchChunks);
+        position, dimensionResourceRef, biomeRegistry, climateSampler, targetBiomeID, locateMaxRadiusSearchChunks,
+        worldSeed, dimensionResource);
     if (target.has_value()) {
         onMessageRef(fmt::format(
             fmt::runtime(appContext->GetLangsResources()->biomeHasFound), targetBiomeID, target.value().x,
@@ -158,18 +162,22 @@ bool glimmer::LocateCommand::ExecuteBiome(const CommandArgs *commandArgs,
 
 std::optional<glimmer::TileVector2D> glimmer::LocateCommand::SearchBiomeInRadius(const TileVector2D &position,
     const ResourceRef &dimension, const BiomeRegistry *biomeRegistry, ClimateSampler *climateSampler,
-    const std::string &targetBiomeId, uint16_t maxRadiusChunks) {
-    auto target = SearchBiomes(position.x, dimension, biomeRegistry, climateSampler, targetBiomeId);
+    const std::string &targetBiomeId, const uint16_t maxRadiusChunks, const int worldSeed,
+    const DimensionResource *dimensionResource) {
+    auto target = SearchBiomes(position.x, dimension, biomeRegistry, climateSampler, targetBiomeId, worldSeed,
+                               dimensionResource);
     if (target.has_value()) {
         return target;
     }
     for (int searchRadius = 1; searchRadius < maxRadiusChunks; searchRadius++) {
         const int distance = searchRadius * CHUNK_SIZE;
-        target = SearchBiomes(position.x + distance, dimension, biomeRegistry, climateSampler, targetBiomeId);
+        target = SearchBiomes(position.x + distance, dimension, biomeRegistry, climateSampler, targetBiomeId,
+                              worldSeed, dimensionResource);
         if (target.has_value()) {
             return target;
         }
-        target = SearchBiomes(position.x - distance, dimension, biomeRegistry, climateSampler, targetBiomeId);
+        target = SearchBiomes(position.x - distance, dimension, biomeRegistry, climateSampler, targetBiomeId,
+                              worldSeed, dimensionResource);
         if (target.has_value()) {
             return target;
         }

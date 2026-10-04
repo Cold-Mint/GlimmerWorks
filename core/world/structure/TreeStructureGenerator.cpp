@@ -27,6 +27,7 @@
 #include "TreeStructureGenerator.h"
 
 #include "core/log/LogCat.h"
+#include "core/world/Dimension.h"
 #include "core/world/WorldContext.h"
 
 
@@ -84,12 +85,21 @@ std::unique_ptr<glimmer::StructureInfo> glimmer::TreeStructureGenerator::Generat
     if (climateSampler == nullptr) {
         return nullptr;
     }
+    const Dimension *dimension = worldContext->GetDimension();
+    if (dimension == nullptr) {
+        return nullptr;
+    }
+    const DimensionResource *dimensionResource = dimension->GetDimensionResource();
+    if (dimensionResource == nullptr) {
+        return nullptr;
+    }
+    const int worldSeed = worldContext->GetWorldSeed();
     const auto treeStructureResource = dynamic_cast<TreeStructureResource *>(structureResource);
     const ResourceRef &trunkRef = treeStructureResource->data.at(treeStructureResource->trunkDataIndex);
     const ResourceRef &leafRef = treeStructureResource->data.at(treeStructureResource->leafDataIndex);
     auto structureInfo = std::make_unique<StructureInfo>();
     int trunkHeight = treeStructureResource->trunkHeightMin + static_cast<uint8_t>(climateSampler->
-                          GetHumidity(startPosition) *
+                          GetHumidity(worldSeed, dimensionResource, startPosition) *
                           static_cast<float>(treeStructureResource->trunkHeightMax - treeStructureResource->
                                              trunkHeightMin));
     const auto trunkTileLayer = static_cast<TileLayerType>(treeStructureResource->trunkTileLayer);

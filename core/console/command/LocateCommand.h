@@ -31,13 +31,17 @@
 
 
 namespace glimmer {
+    struct DimensionResource;
+
     class LocateCommand final : public Command {
         void InitSuggestions(NodeTree<std::string> *suggestionsTree) override;
 
         static std::optional<TileVector2D> SearchBiomes(int tileX, const ResourceRef &dimension,
                                                         const BiomeRegistry *biomeRegistry,
                                                         ClimateSampler *climateSampler,
-                                                        const std::string &targetBiomeId);
+                                                        const std::string &targetBiomeId,
+                                                        int worldSeed,
+                                                        const DimensionResource *dimensionResource);
 
         static bool ExecuteBiome(const CommandArgs *commandArgs,
                                  const std::function<void(const std::string &text)> &onMessageRef,
@@ -48,7 +52,9 @@ namespace glimmer {
                                                                const BiomeRegistry *biomeRegistry,
                                                                ClimateSampler *climateSampler,
                                                                const std::string &targetBiomeId,
-                                                               uint16_t maxRadiusChunks);
+                                                               uint16_t maxRadiusChunks,
+                                                               int worldSeed,
+                                                               const DimensionResource *dimensionResource);
 
     public:
         explicit LocateCommand(AppContext *appContext);

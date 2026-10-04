@@ -392,11 +392,7 @@ if (ANDROID)
     add_library(GlimmerWorks SHARED)
 else ()
     message(STATUS "Building for Desktop → Executable")
-    add_executable(GlimmerWorks
-            core/utils/VersionAble.cpp
-            core/utils/VersionAble.h
-            core/event/Subscription.cpp
-            core/event/Subscription.h)
+    add_executable(GlimmerWorks)
 endif ()
 
 target_sources(GlimmerWorks
@@ -410,6 +406,9 @@ target_sources(GlimmerWorks
         core/saves/SavesCreateRequest.cpp
         core/world/scheduler/ChunkTask.cpp
         core/world/scheduler/ChunkTaskScheduler.cpp
+        core/world/generator/NoiseField.cpp
+        core/event/Subscription.cpp
+        core/utils/VersionAble.cpp
         core/ecs/TileBreakParams.cpp
         core/context/tasks/InitValidateGameTask.cpp
         core/mod/resourcePack/GPUSamplerResource.cpp
@@ -843,6 +842,9 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL_GPU.h"
         core/app/App.h
         core/world/Box2dWorldId.h
+        core/utils/VersionAble.h
+        core/event/Subscription.h
+        core/world/generator/NoiseField.h
         core/log/WarningCode.h
         core/world/DayNormalizedTime.h
         core/log/ErrorCode.h

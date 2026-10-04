@@ -38,6 +38,7 @@
 #include "core/mod/ResourceLocator.h"
 #include "core/saves/Saves.h"
 #include "core/scene/MainThreadDispatcher.h"
+#include "core/world/Dimension.h"
 #include "core/world/Tile.h"
 #include "core/world/WorldContext.h"
 #include "core/world/structure/StructureGeneratorManager.h"
@@ -251,6 +252,15 @@ void glimmer::ChunkManager::LoadChunkAt(uint32_t maxChunksOccupiedByStructure,
     if (biomeRegistry == nullptr) {
         return;
     }
+    const int worldSeed = worldContext_->GetWorldSeed();
+    Dimension *dimension = worldContext_->GetDimension();
+    if (dimension == nullptr) {
+        return;
+    }
+    const DimensionResource *dimensionResource = dimension->GetDimensionResource();
+    if (dimensionResource == nullptr) {
+        return;
+    }
     std::vector<std::shared_ptr<TerrainResult> > dependencyTerrain;
 
     if (TerrainGenerator *terrainGenerator = worldContext_->GetTerrainGenerator(); terrainGenerator != nullptr) {
@@ -258,8 +268,8 @@ void glimmer::ChunkManager::LoadChunkAt(uint32_t maxChunksOccupiedByStructure,
                 StructureGeneratorManager::GetChunkDependencyTerrain(maxChunksOccupiedByStructure, position);
         dependencyTerrain.reserve(dependencyTerrainPositions.size());
         for (const TileVector2D &terrainPosition: dependencyTerrainPositions) {
-            std::shared_ptr<TerrainResult> terrain = terrainGenerator->GenerateOrGetTerrain(biomeRegistry,
-                dimensionRef, terrainPosition);
+            std::shared_ptr<TerrainResult> terrain = terrainGenerator->GenerateOrGetTerrain(biomeRegistry, worldSeed,
+                dimensionResource, dimensionRef, terrainPosition);
             if (terrain == nullptr) {
                 continue;
             }

@@ -50,24 +50,30 @@ namespace glimmer {
          * GenerateTerrain
          * 生成地形
          * @param biomeRegistry biomeRegistry 生物群系注册表
+         * @param worldSeed worldSeed 世界种子
+         * @param dimensionResource dimensionResource 维度资源
          * @param dimension dimension 维度
          * @param position position 区块位置
          * @return The generated terrain result 生成的地形结果
          */
         std::shared_ptr<TerrainResult>
-        GenerateTerrain(const BiomeRegistry *biomeRegistry, const ResourceRef &dimension,
-                        const TileVector2D &position) const;
+        GenerateTerrain(const BiomeRegistry *biomeRegistry, int worldSeed, const DimensionResource *dimensionResource,
+                        const ResourceRef &dimension, const TileVector2D &position) const;
 
     public:
         /**
          * GenerateOrGetTerrain
          * 生成或者获取地形
          * @param biomeRegistry
+         * @param worldSeed
+         * @param dimensionResource
          * @param dimension
          * @param position
          * @return 可能返回null!
          */
-        std::shared_ptr<TerrainResult> GenerateOrGetTerrain(const BiomeRegistry *biomeRegistry,const ResourceRef &dimension,
+        std::shared_ptr<TerrainResult> GenerateOrGetTerrain(const BiomeRegistry *biomeRegistry, int worldSeed,
+                                                            const DimensionResource *dimensionResource,
+                                                            const ResourceRef &dimension,
                                                             const TileVector2D &position);
 
 
@@ -75,12 +81,15 @@ namespace glimmer {
          * WriteTerrainTileResult
          * 写瓦片地形结果
          * @param biomeRegistry biomeRegistry 生物群系注册表
+         * @param worldSeed worldSeed 世界种子
+         * @param dimensionResource dimensionResource 维度资源
          * @param dimension dimension 维度
          * @param world world 世界坐标
          * @param firstTileTerrainY firstTileTerrainY 地表第一格Y坐标
          * @param terrainTileResult terrainTileResult 地形瓦片结果
          */
-        void WriteTerrainTileResult(const BiomeRegistry *biomeRegistry, const ResourceRef &dimension,
+        void WriteTerrainTileResult(const BiomeRegistry *biomeRegistry, int worldSeed,
+                                    const DimensionResource *dimensionResource, const ResourceRef &dimension,
                                     const TileVector2D &world, int firstTileTerrainY,
                                     TerrainTileResult &terrainTileResult) const;
 

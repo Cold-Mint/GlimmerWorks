@@ -32,6 +32,7 @@
 #include "core/math/CoordinateTransformer.h"
 #include "core/context/AppContext.h"
 #include "core/utils/ColorUtils.h"
+#include "core/world/Dimension.h"
 #include "core/world/WorldContext.h"
 #include "core/world/generator/TerrainMath.h"
 
@@ -67,6 +68,15 @@ glimmer::Color glimmer::DebugMultiMapSystem::GetTileDebugColor(const TileVector2
     if (climateSampler == nullptr) {
         return color;
     }
+    Dimension *dimension = worldContext->GetDimension();
+    if (dimension == nullptr) {
+        return color;
+    }
+    const DimensionResource *dimensionResource = dimension->GetDimensionResource();
+    if (dimensionResource == nullptr) {
+        return color;
+    }
+    const int worldSeed = worldContext->GetWorldSeed();
     auto debugColor = appContext->GetGraphicsContext()->GetPreloadColors()->debugColor;
     float elevation = TerrainMath::GetElevation(tile.x);
     std::vector<Color> activeColors;
@@ -80,25 +90,26 @@ glimmer::Color glimmer::DebugMultiMapSystem::GetTileDebugColor(const TileVector2
     if (config->debug.displayTempMap) {
         activeColors.emplace_back(
             ColorUtils::LinearInterpolateColor(debugColor.tempMapFrom, debugColor.tempMapTo,
-                                               climateSampler->GetTemperature(tile, elevation))
+                                               climateSampler->GetTemperature(worldSeed, dimensionResource, tile,
+                                                                              elevation))
         );
     }
     if (config->debug.displayHumidityMap) {
         activeColors.emplace_back(
             ColorUtils::LinearInterpolateColor(debugColor.humidityMapFrom, debugColor.humidityMapTo,
-                                               climateSampler->GetHumidity(tile))
+                                               climateSampler->GetHumidity(worldSeed, dimensionResource, tile))
         );
     }
     if (config->debug.displayErosionMap) {
         activeColors.emplace_back(
             ColorUtils::LinearInterpolateColor(debugColor.erosionMapFrom, debugColor.erosionMapTo,
-                                               climateSampler->GetErosion(tile))
+                                               climateSampler->GetErosion(worldSeed, dimensionResource, tile))
         );
     }
     if (config->debug.displayWeirdnessMap) {
         activeColors.emplace_back(
             ColorUtils::LinearInterpolateColor(debugColor.weirdnessMapFrom, debugColor.weirdnessMapTo,
-                                               climateSampler->GetWeirdness(tile))
+                                               climateSampler->GetWeirdness(worldSeed, dimensionResource, tile))
         );
     }
     return ColorUtils::AverageColors(activeColors);

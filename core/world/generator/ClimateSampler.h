@@ -27,55 +27,16 @@
 #pragma once
 #include <FastNoiseLite.h>
 #include <array>
+#include <climits>
 #include <memory>
 #include <unordered_map>
 
+#include "NoiseField.h"
 #include "core/math/TileVector2D.h"
 #include "core/math/Vector2DIHash.h"
 
 namespace glimmer {
-    struct NoiseConfig;
     struct DimensionResource;
-
-    /**
-     * NoiseField
-     * 噪声字段
-     * Identifiers for every noise generator owned by the climate sampler.
-     * 气候采样器所拥有的每一个噪声生成器的标识。
-     */
-    enum class NoiseField : uint8_t {
-        /**
-         * ContinentHeight
-         * 大陆高度噪声
-         */
-        ContinentHeight,
-        /**
-         * Humidity
-         * 湿度噪声
-         */
-        Humidity,
-        /**
-         * Temperature
-         * 温度噪声
-         */
-        Temperature,
-        /**
-         * Weirdness
-         * 怪异度噪声
-         */
-        Weirdness,
-        /**
-         * Erosion
-         * 侵蚀度噪声
-         */
-        Erosion,
-
-        /**
-         * The total number of parameters must be placed at the very bottom of the enumeration.
-         * 参数总数，必须放在枚举最下面。
-         */
-        Count
-    };
 
     /**
      * ClimateSampler
@@ -86,11 +47,21 @@ namespace glimmer {
     class ClimateSampler {
         static constexpr uint8_t fieldCount_ = std::to_underlying(NoiseField::Count);
         std::array<std::unique_ptr<FastNoiseLite>, fieldCount_> noises_;
-        std::unordered_map<int, int> heightMap_;
-        std::unordered_map<TileVector2D, float, Vector2DIHash> humidityMap_;
-        std::unordered_map<TileVector2D, float, Vector2DIHash> temperatureMap_;
-        std::unordered_map<TileVector2D, float, Vector2DIHash> weirdnessMap_;
-        std::unordered_map<TileVector2D, float, Vector2DIHash> erosionMap_;
+
+        //The world seed and dimension the noises_ array is currently configured for. Used to lazily reconfigure.
+        //noises_ 当前所绑定的世界种子与维度。用于惰性重新配置。
+        int boundWorldSeed_ = INT_MIN;
+        const DimensionResource *boundDimensionResource_ = nullptr;
+
+        std::unordered_map<const DimensionResource *, std::unordered_map<int, int> > heightMap_;
+        std::unordered_map<const DimensionResource *, std::unordered_map<TileVector2D, float, Vector2DIHash> >
+        humidityMap_;
+        std::unordered_map<const DimensionResource *, std::unordered_map<TileVector2D, float, Vector2DIHash> >
+        temperatureMap_;
+        std::unordered_map<const DimensionResource *, std::unordered_map<TileVector2D, float, Vector2DIHash> >
+        weirdnessMap_;
+        std::unordered_map<const DimensionResource *, std::unordered_map<TileVector2D, float, Vector2DIHash> >
+        erosionMap_;
 
         /**
          * GetNoise
@@ -99,6 +70,15 @@ namespace glimmer {
          * @return The noise generator for the given field 对应字段的噪声生成器
          */
         [[nodiscard]] FastNoiseLite *GetNoise(NoiseField field) const;
+
+        /**
+         * EnsureNoiseBound
+         * 确保噪声生成器已按给定的世界种子与维度完成配置。
+         * 仅当 (worldSeed, dimensionResource) 与上次绑定的不同时才重新配置。
+         * @param worldSeed worldSeed 世界种子
+         * @param dimensionResource dimensionResource 维度资源
+         */
+        void EnsureNoiseBound(int worldSeed, const DimensionResource *dimensionResource);
 
         /**
          * GetNoiseConfig
@@ -120,52 +100,55 @@ namespace glimmer {
 
     public:
         /**
-         * BindDimension
-         * 绑定维度
-         * @param worldSeed worldSeed 世界种子
-         * @param dimensionResource dimensionResource 维度资源
-         */
-        void BindDimension(int worldSeed, const DimensionResource *dimensionResource);
-
-        /**
          * GetFirstTileTerrainY
          * 获取地表第一格的Y坐标
+         * @param worldSeed worldSeed 世界种子
+         * @param dimensionResource dimensionResource 维度资源
          * @param x x 起点x坐标
          * @return The terrain surface Y for the given column 该列的地表Y坐标
          */
-        int GetFirstTileTerrainY(int x);
+        int GetFirstTileTerrainY(int worldSeed, const DimensionResource *dimensionResource, int x);
 
         /**
          * GetHumidity
          * 获取某个坐标的湿度值
+         * @param worldSeed worldSeed 世界种子
+         * @param dimensionResource dimensionResource 维度资源
          * @param pos pos 瓦片坐标
          * @return Humidity in [0,1] 湿度0-1
          */
-        float GetHumidity(const TileVector2D &pos);
+        float GetHumidity(int worldSeed, const DimensionResource *dimensionResource, const TileVector2D &pos);
 
         /**
          * GetTemperature
          * 获取某个坐标的温度值
+         * @param worldSeed worldSeed 世界种子
+         * @param dimensionResource dimensionResource 维度资源
          * @param pos pos 瓦片坐标
          * @param elevation elevation 海拔
          * @return Temperature in [0,1] 温度0-1
          */
-        float GetTemperature(const TileVector2D &pos, float elevation);
+        float GetTemperature(int worldSeed, const DimensionResource *dimensionResource, const TileVector2D &pos,
+                             float elevation);
 
         /**
          * GetWeirdness
          * 获取某个坐标的怪异值
+         * @param worldSeed worldSeed 世界种子
+         * @param dimensionResource dimensionResource 维度资源
          * @param pos pos 瓦片坐标
          * @return Weirdness in [0,1] 怪异0-1
          */
-        float GetWeirdness(const TileVector2D &pos);
+        float GetWeirdness(int worldSeed, const DimensionResource *dimensionResource, const TileVector2D &pos);
 
         /**
          * GetErosion
          * 获取某个坐标的侵蚀度
+         * @param worldSeed worldSeed 世界种子
+         * @param dimensionResource dimensionResource 维度资源
          * @param pos pos 瓦片坐标
          * @return Erosion in [0,1] 侵蚀0-1
          */
-        float GetErosion(const TileVector2D &pos);
+        float GetErosion(int worldSeed, const DimensionResource *dimensionResource, const TileVector2D &pos);
     };
 }

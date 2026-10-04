@@ -29,6 +29,7 @@
 #include "core/utils/LangsResources.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/context/AppContext.h"
+#include "core/world/Dimension.h"
 #include "core/world/WorldContext.h"
 #include "core/world/generator/TerrainMath.h"
 #include "fmt/xchar.h"
@@ -40,7 +41,9 @@ glimmer::BiomeScoreCommand::BiomeScoreCommand(AppContext *appContext) : Command(
 std::string glimmer::BiomeScoreCommand::CalculateAndFormatBiomeScores(const TileVector2D &tileVector2D,
                                                                       ClimateSampler *climateSampler,
                                                                       BiomeRegistry *biomeRegistry,
-                                                                      const LangsResources *langsResources) {
+                                                                      const LangsResources *langsResources,
+                                                                      const int worldSeed,
+                                                                      const DimensionResource *dimensionResource) {
     std::stringstream biomeStream;
     for (auto biomeResource: biomeRegistry->GetBiomeVector()) {
         float total = 0;
@@ -53,7 +56,7 @@ std::string glimmer::BiomeScoreCommand::CalculateAndFormatBiomeScores(const Tile
                                    biomeResource->elevation, elevation, biomeResource->strictnessElevation,
                                    elevationScore);
         biomeStream << '\n';
-        const auto humidity = climateSampler->GetHumidity(tileVector2D);
+        const auto humidity = climateSampler->GetHumidity(worldSeed, dimensionResource, tileVector2D);
         float humidityScore = BiomeRegistry::CalculateBiomeScoreDelta(
             biomeResource->humidity, humidity, biomeResource->strictnessHumidity);
         total += humidityScore;
@@ -61,7 +64,7 @@ std::string glimmer::BiomeScoreCommand::CalculateAndFormatBiomeScores(const Tile
                                    biomeResource->humidity, humidity, biomeResource->strictnessHumidity,
                                    humidityScore);
         biomeStream << '\n';
-        const auto temperature = climateSampler->GetTemperature(tileVector2D, elevation);
+        const auto temperature = climateSampler->GetTemperature(worldSeed, dimensionResource, tileVector2D, elevation);
         float temperatureScore = BiomeRegistry::CalculateBiomeScoreDelta(
             biomeResource->temperature, temperature, biomeResource->strictnessTemperature);
         total += temperatureScore;
@@ -69,7 +72,7 @@ std::string glimmer::BiomeScoreCommand::CalculateAndFormatBiomeScores(const Tile
                                    biomeResource->temperature, temperature, biomeResource->strictnessTemperature,
                                    temperatureScore);
         biomeStream << '\n';
-        const auto weirdness = climateSampler->GetWeirdness(tileVector2D);
+        const auto weirdness = climateSampler->GetWeirdness(worldSeed, dimensionResource, tileVector2D);
         float weirdnessScore = BiomeRegistry::CalculateBiomeScoreDelta(
             biomeResource->weirdness, weirdness, biomeResource->strictnessWeirdness);
         total += weirdnessScore;
@@ -77,7 +80,7 @@ std::string glimmer::BiomeScoreCommand::CalculateAndFormatBiomeScores(const Tile
                                    biomeResource->weirdness, weirdness, biomeResource->strictnessWeirdness,
                                    weirdnessScore);
         biomeStream << '\n';
-        const auto erosion = climateSampler->GetErosion(tileVector2D);
+        const auto erosion = climateSampler->GetErosion(worldSeed, dimensionResource, tileVector2D);
         float erosionScore = BiomeRegistry::CalculateBiomeScoreDelta(
             biomeResource->erosion, erosion, biomeResource->strictnessErosion);
         total += erosionScore;
@@ -86,7 +89,7 @@ std::string glimmer::BiomeScoreCommand::CalculateAndFormatBiomeScores(const Tile
                                    erosionScore);
         biomeStream << '\n';
         const auto surfaceProximity = TerrainMath::GetSurfaceProximity(
-            climateSampler->GetFirstTileTerrainY(tileVector2D.x), tileVector2D.y);
+            climateSampler->GetFirstTileTerrainY(worldSeed, dimensionResource, tileVector2D.x), tileVector2D.y);
         float surfaceProximityScore = BiomeRegistry::CalculateBiomeScoreDelta(
             biomeResource->surfaceProximity, surfaceProximity, biomeResource->strictnessSurfaceProximity);
         total += surfaceProximityScore;
@@ -211,7 +214,17 @@ bool glimmer::BiomeScoreCommand::Execute(const CommandSender *commandSender, con
         if (climateSampler == nullptr) {
             return false;
         }
-        onMessageRef(CalculateAndFormatBiomeScores(tileVector2D, climateSampler, biomeRegistry, langsResources));
+        const Dimension *dimension = worldContext->GetDimension();
+        if (dimension == nullptr) {
+            return false;
+        }
+        const DimensionResource *dimensionResource = dimension->GetDimensionResource();
+        if (dimensionResource == nullptr) {
+            return false;
+        }
+        const int worldSeed = worldContext->GetWorldSeed();
+        onMessageRef(CalculateAndFormatBiomeScores(tileVector2D, climateSampler, biomeRegistry, langsResources,
+                                                   worldSeed, dimensionResource));
         return true;
     }
     return false;

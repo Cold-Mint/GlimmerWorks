@@ -36,7 +36,8 @@
 
 
 std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerrain(const BiomeRegistry *biomeRegistry,
-    const ResourceRef &dimension, const TileVector2D &position) const {
+    const int worldSeed, const DimensionResource *dimensionResource, const ResourceRef &dimension,
+    const TileVector2D &position) const {
     if (climateSampler_ == nullptr) {
         return nullptr;
     }
@@ -44,20 +45,21 @@ std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerra
     auto terrainResult = std::make_shared<TerrainResult>();
     terrainResult->SetPosition(position);
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
-        const int firstTileTerrainY = climateSampler_->GetFirstTileTerrainY(position.x + localX);
+        const int firstTileTerrainY = climateSampler_->GetFirstTileTerrainY(worldSeed, dimensionResource,
+                                                                            position.x + localX);
         for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
             auto localPosition = TileVector2D(localX, localY);
-            WriteTerrainTileResult(biomeRegistry, dimension, localPosition + position, firstTileTerrainY,
-                                   terrainResult->GetMutableTerrainTileResult(localPosition));
+            WriteTerrainTileResult(biomeRegistry, worldSeed, dimensionResource, dimension, localPosition + position,
+                                   firstTileTerrainY, terrainResult->GetMutableTerrainTileResult(localPosition));
         }
     }
     const int upWorldY = position.y + CHUNK_SIZE;
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
         const int worldX = position.x + localX;
-        const int firstTileTerrainY = climateSampler_->GetFirstTileTerrainY(worldX);
+        const int firstTileTerrainY = climateSampler_->GetFirstTileTerrainY(worldSeed, dimensionResource, worldX);
         auto worldPosition = TileVector2D(position.x + localX, upWorldY);
-        WriteTerrainTileResult(biomeRegistry, dimension, worldPosition, firstTileTerrainY,
-                               terrainResult->GetMutableUpTerrainTileResult(localX));
+        WriteTerrainTileResult(biomeRegistry, worldSeed, dimensionResource, dimension, worldPosition,
+                               firstTileTerrainY, terrainResult->GetMutableUpTerrainTileResult(localX));
     }
     LogCat::d(LogLabel::TERRAIN, "terrain_generation_completed", "Terrain generation completed: position=({}, {})",
               position.x,
@@ -66,14 +68,15 @@ std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerra
 }
 
 std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateOrGetTerrain(
-    const BiomeRegistry *biomeRegistry, const ResourceRef &dimension, const TileVector2D &position) {
+    const BiomeRegistry *biomeRegistry, const int worldSeed, const DimensionResource *dimensionResource,
+    const ResourceRef &dimension, const TileVector2D &position) {
     if (const auto iterator = terrainResults_.find(position); iterator != terrainResults_.end()) {
         if (auto terrainResult = iterator->second.lock()) {
             return terrainResult;
         }
         terrainResults_.erase(iterator);
     }
-    auto terrainResult = GenerateTerrain(biomeRegistry, dimension, position);
+    auto terrainResult = GenerateTerrain(biomeRegistry, worldSeed, dimensionResource, dimension, position);
     if (terrainResult == nullptr) {
         return nullptr;
     }
@@ -81,17 +84,19 @@ std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateOrGet
     return terrainResult;
 }
 
-void glimmer::TerrainGenerator::WriteTerrainTileResult(const BiomeRegistry *biomeRegistry, const ResourceRef &dimension,
-                                                       const TileVector2D &world, const int firstTileTerrainY,
+void glimmer::TerrainGenerator::WriteTerrainTileResult(const BiomeRegistry *biomeRegistry, const int worldSeed,
+                                                       const DimensionResource *dimensionResource,
+                                                       const ResourceRef &dimension, const TileVector2D &world,
+                                                       const int firstTileTerrainY,
                                                        TerrainTileResult &terrainTileResult) const {
     if (climateSampler_ == nullptr) {
         return;
     }
     const float elevation = TerrainMath::GetElevation(world.y);
-    const auto humidity = climateSampler_->GetHumidity(world);
-    const auto temperature = climateSampler_->GetTemperature(world, elevation);
-    const auto weirdness = climateSampler_->GetWeirdness(world);
-    const auto erosion = climateSampler_->GetErosion(world);
+    const auto humidity = climateSampler_->GetHumidity(worldSeed, dimensionResource, world);
+    const auto temperature = climateSampler_->GetTemperature(worldSeed, dimensionResource, world, elevation);
+    const auto weirdness = climateSampler_->GetWeirdness(worldSeed, dimensionResource, world);
+    const auto erosion = climateSampler_->GetErosion(worldSeed, dimensionResource, world);
     const auto surfaceProximity = TerrainMath::GetSurfaceProximity(firstTileTerrainY, world.y);
     terrainTileResult.SetWorldPosition(world);
     terrainTileResult.SetBiomeResource(biomeRegistry->FindBestBiome(dimension,

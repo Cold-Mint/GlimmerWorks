@@ -97,13 +97,29 @@ void glimmer::DebugChunkSystem::RenderChunkView(RenderQueue *queue, AppContext *
     if (worldContext == nullptr) {
         return;
     }
-    const auto chunks = worldContext->GetChunkManager()->GetAllChunks();
+    const auto chunkManager = worldContext->GetChunkManager();
+    if (chunkManager == nullptr) {
+        return;
+    }
     const WindowContext *windowContext = appContext->GetWindowContext();
     if (windowContext == nullptr) {
         return;
     }
-    const int windowHeight = windowContext->GetWindowHeight();
+    Dimension *dimension = worldContext->GetDimension();
+    if (dimension == nullptr) {
+        return;
+    }
+    const ResourceRef &dimensionResourceRef = dimension->GetDimensionResourceRef();
+    if (!dimensionResourceRef.IsValid()) {
+        return;
+    }
+    const std::unordered_map<TileVector2D, std::unique_ptr<Chunk>, Vector2DIHash> *loadedChunks = chunkManager->
+            GetLoadedChunks(dimensionResourceRef);
+    if (loadedChunks == nullptr) {
+        return;
+    }
 
+    const int windowHeight = windowContext->GetWindowHeight();
     const auto getChunkIndex = [](const int tileCoord) {
         return static_cast<int>(std::floor(static_cast<float>(tileCoord) / CHUNK_SIZE));
     };
@@ -119,8 +135,8 @@ void glimmer::DebugChunkSystem::RenderChunkView(RenderQueue *queue, AppContext *
 
     // Draw Loaded Chunks (Blue)
     // 绘制已加载的区块（蓝色）
-    const SDL_Color loadedChunkColor = {100, 149, 237, 128};
-    for (const auto &[pos, chunk]: chunks) {
+    for (const auto &pos: *loadedChunks | std::views::keys) {
+        constexpr SDL_Color loadedChunkColor = {100, 149, 237, 128};
         const int chunkIndexX = pos.x >> CHUNK_SHIFT;
         const int chunkIndexY = pos.y >> CHUNK_SHIFT;
         const float drawX = gridCenterX + static_cast<float>(chunkIndexX - playerChunkX) * cellSize;

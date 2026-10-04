@@ -41,8 +41,9 @@
 #include "core/world/scheduler/ChunkTaskScheduler.h"
 #include "core/world/scheduler/ChunkTaskType.h"
 
-void glimmer::ChunkSystem::GenerateLoadTasks(const ChunkManager *chunkManager, ChunkTaskScheduler *scheduler,
-                                             const TileVector2D &startChunk, const TileVector2D &endChunk) {
+void glimmer::ChunkSystem::GenerateLoadTasks(const ResourceRef &dimensionRef, const ChunkManager *chunkManager,
+                                             ChunkTaskScheduler *scheduler, const TileVector2D &startChunk,
+                                             const TileVector2D &endChunk) {
     if (chunkManager == nullptr || scheduler == nullptr) {
         return;
     }
@@ -52,7 +53,7 @@ void glimmer::ChunkSystem::GenerateLoadTasks(const ChunkManager *chunkManager, C
             if (ChunkManager::ChunkIsOutOfBounds(chunkVertexCoordinates)) {
                 continue;
             }
-            if (chunkManager->HasChunk(chunkVertexCoordinates)) {
+            if (chunkManager->HasChunk(dimensionRef, chunkVertexCoordinates)) {
                 continue;
             }
             auto chunkTask = std::make_unique<ChunkTask>();
@@ -63,13 +64,19 @@ void glimmer::ChunkSystem::GenerateLoadTasks(const ChunkManager *chunkManager, C
     }
 }
 
-void glimmer::ChunkSystem::GenerateUnloadTasks(ChunkManager *chunkManager, ChunkTaskScheduler *scheduler,
-                                               const TileVector2D &startChunk, const TileVector2D &endChunk) {
+void glimmer::ChunkSystem::GenerateUnloadTasks(const ResourceRef &dimensionRef, const ChunkManager *chunkManager,
+                                               ChunkTaskScheduler *scheduler, const TileVector2D &startChunk,
+                                               const TileVector2D &endChunk) {
     if (chunkManager == nullptr || scheduler == nullptr) {
         return;
     }
-    for (std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> allChunks = chunkManager->GetAllChunks(); const auto &
-         chunkVertexCoordinates: allChunks | std::views::keys) {
+    const std::unordered_map<TileVector2D, std::unique_ptr<Chunk>, Vector2DIHash> *loadedChunks = chunkManager->
+            GetLoadedChunks(dimensionRef);
+    if (loadedChunks == nullptr) {
+        return;
+    }
+    for (const auto &
+         chunkVertexCoordinates: *loadedChunks | std::views::keys) {
         if (chunkVertexCoordinates.x >= startChunk.x && chunkVertexCoordinates.x <= endChunk.x &&
             chunkVertexCoordinates.y >= startChunk.y && chunkVertexCoordinates.y <= endChunk.y) {
             continue;
@@ -108,10 +115,11 @@ void glimmer::ChunkSystem::PostTask() {
             uint32_t maxChunksOccupiedByStructure = structureGeneratorManager->GetMaxChunksOccupiedByStructure();
             switch (chunkTask->GetTaskType()) {
                 case ChunkTaskType::LOAD:
-                    chunkManager->LoadChunkAt(maxChunksOccupiedByStructure, chunkTask->GetPosition());
+                    chunkManager->LoadChunkAt(maxChunksOccupiedByStructure, chunkTask->GetDimensionResourceRef(),
+                                              chunkTask->GetPosition());
                     break;
                 case ChunkTaskType::UNLOAD:
-                    chunkManager->UnloadChunkAt(chunkTask->GetPosition());
+                    chunkManager->UnloadChunkAt(chunkTask->GetDimensionResourceRef(), chunkTask->GetPosition());
                     break;
                 case ChunkTaskType::CANCELLED:
                 default:
@@ -144,6 +152,14 @@ void glimmer::ChunkSystem::OnWatchedComponentChanged(const GameComponentTypeMess
 void glimmer::ChunkSystem::OnTick(const uint64_t tick) {
     const WorldContext *worldContext = GetWorldContext();
     if (worldContext == nullptr || cameraComponent_ == nullptr || cameraTransform2DComponent_ == nullptr) {
+        return;
+    }
+    const Dimension *dimension = worldContext->GetDimension();
+    if (dimension == nullptr) {
+        return;
+    }
+    const ResourceRef &dimensionResourceRef = dimension->GetDimensionResourceRef();
+    if (!dimensionResourceRef.IsValid()) {
         return;
     }
     float preloadChunkRadius;
@@ -202,8 +218,8 @@ void glimmer::ChunkSystem::OnTick(const uint64_t tick) {
         return;
     }
 
-    GenerateLoadTasks(chunkManager, chunkTaskScheduler, startChunk, endChunk);
-    GenerateUnloadTasks(chunkManager, chunkTaskScheduler, startChunk, endChunk);
+    GenerateLoadTasks(dimensionResourceRef, chunkManager, chunkTaskScheduler, startChunk, endChunk);
+    GenerateUnloadTasks(dimensionResourceRef, chunkManager, chunkTaskScheduler, startChunk, endChunk);
 
     chunkTaskScheduler->Commit();
     const TileVector2D originPosition = CoordinateTransformer::WorldToTile(cameraTransform2DComponent_->GetPosition());

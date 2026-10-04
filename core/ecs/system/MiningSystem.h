@@ -59,7 +59,7 @@ namespace glimmer {
 
         static void RestoreTileState(TileStateMessage *tileState, const TileStateBackup &backup);
 
-        static bool TryPlaceTile(const TileLayerComponent *tileLayerComponent,
+        static bool TryPlaceTile(const ResourceRef &dimensionRef, const TileLayerComponent *tileLayerComponent,
                                  TileStateMessage *tileState,
                                  const TileVector2D &currentVector,
                                  const TileVector2D &topLeftVector,
@@ -88,7 +88,7 @@ namespace glimmer {
 
         static void PlayBreakSFX(const AppContext *appContext, const Tile *tile);
 
-        static void ProcessSingleTile(const TileBreakParams &params,
+        static void ProcessSingleTile(const TileBreakParams &params, const ResourceRef &dimensionRef,
                                       const TileVector2D &currentVector,
                                       Item *item, const Item *emptyHandAutoUseItem,
                                       bool isCenter,

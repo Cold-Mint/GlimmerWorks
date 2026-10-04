@@ -28,6 +28,10 @@
 #include "IGrowthConditionProcessor.h"
 
 namespace glimmer {
+    /**
+     * AdjacentTileGrowthConditionProcessor
+     * 相邻瓷砖生长条件处理器
+     */
     class AdjacentTileGrowthConditionProcessor : public IGrowthConditionProcessor {
     public:
         GrowthConditionProcessorType GetGrowthConditionProcessorType() override;

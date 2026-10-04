@@ -43,8 +43,10 @@ void glimmer::BiomeRegistry::OnRegister(BiomeResource *resource) {
 }
 
 glimmer::BiomeResource *glimmer::BiomeRegistry::FindBestBiome(const ResourceRef &dimension, const float humidity,
-                                                              const float temperature, const float weirdness, const float erosion,
-                                                              const float elevation, const float surfaceProximity) const {
+                                                              const float temperature, const float weirdness,
+                                                              const float erosion,
+                                                              const float elevation,
+                                                              const float surfaceProximity) const {
     if (biomeVector_.empty()) {
         return nullptr;
     }

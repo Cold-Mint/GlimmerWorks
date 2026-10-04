@@ -32,22 +32,22 @@
 #include "core/log/LogCat.h"
 
 
-std::filesystem::path glimmer::Saves::ToDimensionPath(const std::string &dimensionFolderName) const {
-    return path_ / DIMENSIONS_FOLDER_NAME / dimensionFolderName;
+std::filesystem::path glimmer::Saves::ToDimensionPath(const ResourceRef &dimensionRef) const {
+    return path_ / DIMENSIONS_FOLDER_NAME / StringUtils::GetDimensionFolderName(
+               dimensionRef.GetPackageId(), dimensionRef.GetResourceKey());
 }
 
-std::filesystem::path glimmer::Saves::ToChunkPath(const std::string &dimensionFolderName,
-                                                  const TileVector2D &position) const {
+std::filesystem::path glimmer::Saves::ToChunkPath(const ResourceRef &dimensionRef, const TileVector2D &position) const {
     std::stringstream fileNameStream;
     fileNameStream << "chunk_";
     fileNameStream << std::to_string(position.x);
     fileNameStream << "_";
     fileNameStream << std::to_string(position.y);
     fileNameStream << ".bin";
-    return ToDimensionPath(dimensionFolderName) / "chunks" / fileNameStream.str();
+    return ToDimensionPath(dimensionRef) / "chunks" / fileNameStream.str();
 }
 
-std::filesystem::path glimmer::Saves::ToChunkEntityPath(const std::string &dimensionFolderName,
+std::filesystem::path glimmer::Saves::ToChunkEntityPath(const ResourceRef &dimensionRef,
                                                         const TileVector2D &position) const {
     std::stringstream fileNameStream;
     fileNameStream << "entity_";
@@ -55,7 +55,7 @@ std::filesystem::path glimmer::Saves::ToChunkEntityPath(const std::string &dimen
     fileNameStream << "_";
     fileNameStream << std::to_string(position.y);
     fileNameStream << ".bin";
-    return ToDimensionPath(dimensionFolderName) / "entities" / fileNameStream.str();
+    return ToDimensionPath(dimensionRef) / "entities" / fileNameStream.str();
 }
 
 std::filesystem::path glimmer::Saves::ToLocalPlayerPath() const {
@@ -81,23 +81,23 @@ const std::filesystem::path &glimmer::Saves::GetPath() const {
     return path_;
 }
 
-bool glimmer::Saves::ChunkExists(const std::string &dimensionFolderName, const TileVector2D &position) const {
+bool glimmer::Saves::ChunkExists(const ResourceRef &dimensionRef, const TileVector2D &position) const {
     return virtualFileSystem_->Exists(
-        ToChunkPath(dimensionFolderName, position));
+        ToChunkPath(dimensionRef, position));
 }
 
-bool glimmer::Saves::EntityExists(const std::string &dimensionFolderName, const TileVector2D &position) const {
+bool glimmer::Saves::EntityExists(const ResourceRef &dimensionRef, const TileVector2D &position) const {
     return virtualFileSystem_->Exists(
-        ToChunkEntityPath(dimensionFolderName, position));
+        ToChunkEntityPath(dimensionRef, position));
 }
 
-std::optional<ChunkMessage> glimmer::Saves::ReadChunk(const std::string &dimensionFolderName,
+std::optional<ChunkMessage> glimmer::Saves::ReadChunk(const ResourceRef &dimensionRef,
                                                       const TileVector2D &position) const {
-    const auto streamUnique = virtualFileSystem_->ReadFileAsStream(ToChunkPath(dimensionFolderName, position));
+    const auto streamUnique = virtualFileSystem_->ReadFileAsStream(ToChunkPath(dimensionRef, position));
     if (streamUnique == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "chunk_file_open_failed",
                   "Failed to open chunk file: {}",
-                  ToChunkPath(dimensionFolderName, position).string());
+                  ToChunkPath(dimensionRef, position).string());
         return std::nullopt;
     }
     const auto stream = streamUnique.get();
@@ -106,37 +106,37 @@ std::optional<ChunkMessage> glimmer::Saves::ReadChunk(const std::string &dimensi
     }
     if (ChunkMessage chunkMessage; chunkMessage.ParseFromIstream(stream)) {
         LogCat::d(LogLabel::DEFAULT, "saves_chunk_read_success", "Read chunk successfully: {}",
-                  ToChunkPath(dimensionFolderName, position).string());
+                  ToChunkPath(dimensionRef, position).string());
         return chunkMessage;
     }
     LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "chunk_data_parse_failed",
               "Failed to parse chunk data: {}",
-              ToChunkPath(dimensionFolderName, position).string());
+              ToChunkPath(dimensionRef, position).string());
     return std::nullopt;
 }
 
-bool glimmer::Saves::WriteChunk(const std::string &dimensionFolderName, const TileVector2D &position,
+bool glimmer::Saves::WriteChunk(const ResourceRef &dimensionRef, const TileVector2D &position,
                                 const ChunkMessage &chunkMessage) const {
-    bool result = virtualFileSystem_->WriteFile(ToChunkPath(dimensionFolderName, position),
+    bool result = virtualFileSystem_->WriteFile(ToChunkPath(dimensionRef, position),
                                                 chunkMessage.SerializeAsString());
     if (!result) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "chunk_write_failed", "Failed to write chunk: {}",
-                  ToChunkPath(dimensionFolderName, position).string());
+                  ToChunkPath(dimensionRef, position).string());
     } else {
         LogCat::d(LogLabel::DEFAULT, "saves_chunk_write_success", "Wrote chunk successfully: {}",
-                  ToChunkPath(dimensionFolderName, position).string());
+                  ToChunkPath(dimensionRef, position).string());
     }
     return result;
 }
 
-std::optional<ChunkEntityMessage> glimmer::Saves::ReadChunkEntity(const std::string &dimensionFolderName,
+std::optional<ChunkEntityMessage> glimmer::Saves::ReadChunkEntity(const ResourceRef &dimensionRef,
                                                                   const TileVector2D &position) const {
     const auto streamUnique = virtualFileSystem_->ReadFileAsStream(
-        ToChunkEntityPath(dimensionFolderName, position));
+        ToChunkEntityPath(dimensionRef, position));
     if (streamUnique == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "saves_chunk_entity_open_failed",
                   "Failed to open chunk entity file: {}",
-                  ToChunkEntityPath(dimensionFolderName, position).string());
+                  ToChunkEntityPath(dimensionRef, position).string());
         return std::nullopt;
     }
     const auto stream = streamUnique.get();
@@ -146,51 +146,50 @@ std::optional<ChunkEntityMessage> glimmer::Saves::ReadChunkEntity(const std::str
     ChunkEntityMessage chunkMessage;
     if (chunkMessage.ParseFromIstream(stream)) {
         LogCat::d(LogLabel::DEFAULT, "saves_chunk_entity_read_success", "Read chunk entity successfully: {}",
-                  ToChunkEntityPath(dimensionFolderName, position).string());
+                  ToChunkEntityPath(dimensionRef, position).string());
         return chunkMessage;
     }
     LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "saves_chunk_entity_parse_failed",
               "Failed to parse chunk entity data: {}",
-              ToChunkEntityPath(dimensionFolderName, position).string());
+              ToChunkEntityPath(dimensionRef, position).string());
     return std::nullopt;
 }
 
-bool glimmer::Saves::WriteChunkEntity(const std::string &dimensionFolderName, const TileVector2D &position,
+bool glimmer::Saves::WriteChunkEntity(const ResourceRef &dimensionRef, const TileVector2D &position,
                                       const ChunkEntityMessage &chunkEntityMessage) const {
-    bool result = virtualFileSystem_->WriteFile(ToChunkEntityPath(dimensionFolderName, position),
+    bool result = virtualFileSystem_->WriteFile(ToChunkEntityPath(dimensionRef, position),
                                                 chunkEntityMessage.SerializeAsString());
     if (!result) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "saves_chunk_entity_write_failed",
                   "Failed to write chunk entity: {}",
-                  ToChunkEntityPath(dimensionFolderName, position).string());
+                  ToChunkEntityPath(dimensionRef, position).string());
     } else {
         LogCat::d(LogLabel::DEFAULT, "saves_chunk_entity_write_success", "Wrote chunk entity successfully: {}",
-                  ToChunkEntityPath(dimensionFolderName, position).string());
+                  ToChunkEntityPath(dimensionRef, position).string());
     }
     return result;
 }
 
-bool glimmer::Saves::DeleteChunkEntity(const std::string &dimensionFolderName, const TileVector2D &position) const {
-    bool result = virtualFileSystem_->DeleteFileOrFolder(ToChunkEntityPath(dimensionFolderName, position));
+bool glimmer::Saves::DeleteChunkEntity(const ResourceRef &dimensionRef, const TileVector2D &position) const {
+    bool result = virtualFileSystem_->DeleteFileOrFolder(ToChunkEntityPath(dimensionRef, position));
     if (!result) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "saves_chunk_entity_delete_failed",
                   "Failed to delete chunk entity: {}",
-                  ToChunkEntityPath(dimensionFolderName, position).string());
+                  ToChunkEntityPath(dimensionRef, position).string());
     } else {
         LogCat::d(LogLabel::DEFAULT, "saves_chunk_entity_delete_success", "Deleted chunk entity successfully: {}",
-                  ToChunkEntityPath(dimensionFolderName, position).string());
+                  ToChunkEntityPath(dimensionRef, position).string());
     }
     return result;
 }
 
-std::optional<DimensionManifestMessage> glimmer::Saves::ReadDimensionManifest(
-    const std::string &dimensionFolderName) const {
+std::optional<DimensionManifestMessage> glimmer::Saves::ReadDimensionManifest(const ResourceRef &dimensionRef) const {
     const auto streamUnique = virtualFileSystem_->ReadFileAsStream(
-        ToDimensionPath(dimensionFolderName) / DIMENSION_MANIFEST_FILE_NAME);
+        ToDimensionPath(dimensionRef) / DIMENSION_MANIFEST_FILE_NAME);
     if (streamUnique == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "saves_dimension_manifest_open_failed",
                   "Failed to open dimension manifest: {}",
-                  (ToDimensionPath(dimensionFolderName) / DIMENSION_MANIFEST_FILE_NAME).string());
+                  (ToDimensionPath(dimensionRef) / DIMENSION_MANIFEST_FILE_NAME).string());
         return std::nullopt;
     }
     const auto stream = streamUnique.get();
@@ -200,27 +199,27 @@ std::optional<DimensionManifestMessage> glimmer::Saves::ReadDimensionManifest(
     if (DimensionManifestMessage dimensionManifestMessage; dimensionManifestMessage.ParseFromIstream(stream)) {
         LogCat::d(LogLabel::DEFAULT, "saves_dimension_manifest_read_success",
                   "Read dimension manifest successfully: {}",
-                  (ToDimensionPath(dimensionFolderName) / DIMENSION_MANIFEST_FILE_NAME).string());
+                  (ToDimensionPath(dimensionRef) / DIMENSION_MANIFEST_FILE_NAME).string());
         return dimensionManifestMessage;
     }
     LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "saves_dimension_manifest_parse_failed",
               "Failed to parse dimension manifest: {}",
-              (ToDimensionPath(dimensionFolderName) / DIMENSION_MANIFEST_FILE_NAME).string());
+              (ToDimensionPath(dimensionRef) / DIMENSION_MANIFEST_FILE_NAME).string());
     return std::nullopt;
 }
 
-bool glimmer::Saves::WriteDimensionManifest(const std::string &dimensionFolderName,
+bool glimmer::Saves::WriteDimensionManifest(const ResourceRef &dimensionRef,
                                             const DimensionManifestMessage &dimensionManifestMessage) const {
-    bool result = virtualFileSystem_->WriteFile(ToDimensionPath(dimensionFolderName) / DIMENSION_MANIFEST_FILE_NAME,
+    bool result = virtualFileSystem_->WriteFile(ToDimensionPath(dimensionRef) / DIMENSION_MANIFEST_FILE_NAME,
                                                 dimensionManifestMessage.SerializeAsString());
     if (!result) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "saves_dimension_manifest_write_failed",
                   "Failed to write dimension manifest: {}",
-                  (ToDimensionPath(dimensionFolderName) / DIMENSION_MANIFEST_FILE_NAME).string());
+                  (ToDimensionPath(dimensionRef) / DIMENSION_MANIFEST_FILE_NAME).string());
     } else {
         LogCat::d(LogLabel::DEFAULT, "saves_dimension_manifest_write_success",
                   "Wrote dimension manifest successfully: {}",
-                  (ToDimensionPath(dimensionFolderName) / DIMENSION_MANIFEST_FILE_NAME).string());
+                  (ToDimensionPath(dimensionRef) / DIMENSION_MANIFEST_FILE_NAME).string());
     }
     return result;
 }

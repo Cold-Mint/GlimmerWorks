@@ -65,7 +65,8 @@ void glimmer::TileLayerSystem::OnWatchedComponentChanged(GameComponentTypeMessag
 }
 
 void glimmer::TileLayerSystem::RenderTileSnapshot(RenderQueue *queue, const TileSnapshot *tileSnapshot,
-    const TileVector2D &tileCoord, std::unordered_set<uint64_t> &drawnTiles) const {
+                                                  const TileVector2D &tileCoord,
+                                                  std::unordered_set<uint64_t> &drawnTiles) const {
     if (tileSnapshot == nullptr) {
         return;
     }
@@ -124,6 +125,14 @@ void glimmer::TileLayerSystem::Render(RenderQueue *queue) {
     if (worldContext == nullptr) {
         return;
     }
+    Dimension *dimension = worldContext->GetDimension();
+    if (dimension == nullptr) {
+        return;
+    }
+    const ResourceRef &dimensionResourceRef = dimension->GetDimensionResourceRef();
+    if (!dimensionResourceRef.IsValid()) {
+        return;
+    }
     if (cameraComponent_ == nullptr) {
         return;
     }
@@ -148,16 +157,17 @@ void glimmer::TileLayerSystem::Render(RenderQueue *queue) {
         return;
     }
     std::vector<std::pair<TileVector2D, std::vector<TileSnapshot *> > > *visibleTiles =
-            tileLayerComponent->GetTopVisibleTileSnapshotsInViewport(
-                std::byte{
-                    std::to_underlying(TileLayerType::Ground)
-                } | std::byte{
-                    std::to_underlying(
-                        TileLayerType::BackGround)
-                },
-                CoordinateTransformer::GetViewportRect(cameraTransform2DComponent_->GetPosition(),
-                                                       cameraComponent_->GetSize(),
-                                                       cameraComponent_->GetZoom()));
+            tileLayerComponent->GetTopVisibleTileSnapshotsInViewport(dimensionResourceRef,
+                                                                     std::byte{
+                                                                         std::to_underlying(TileLayerType::Ground)
+                                                                     } | std::byte{
+                                                                         std::to_underlying(
+                                                                             TileLayerType::BackGround)
+                                                                     },
+                                                                     CoordinateTransformer::GetViewportRect(
+                                                                         cameraTransform2DComponent_->GetPosition(),
+                                                                         cameraComponent_->GetSize(),
+                                                                         cameraComponent_->GetZoom()));
     if (visibleTiles == nullptr) {
         return;
     }

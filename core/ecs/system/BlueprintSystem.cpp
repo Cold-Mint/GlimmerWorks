@@ -31,12 +31,15 @@
 #include "core/inventory/TileItem.h"
 #include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
+#include "core/world/Dimension.h"
 #include "core/world/WorldContext.h"
 
-std::vector<bool> glimmer::BlueprintSystem::CheckRectPlacementValidity(const Tile *tile, const TileVector2D &leftBottom,
+
+std::vector<bool> glimmer::BlueprintSystem::CheckRectPlacementValidity(const ResourceRef &dimensionRef,
+                                                                       const Tile *tile, const TileVector2D &leftBottom,
                                                                        const WorldVector2D &playerPosition,
-                                                                       const uint8_t tileWidth,
-                                                                       const uint8_t tileHeight) const {
+                                                                       uint8_t tileWidth,
+                                                                       uint8_t tileHeight) const {
     std::vector result(tileHeight * tileWidth + 1, false);
     bool sum = true;
     for (int x = 0; x < tileWidth; ++x) {
@@ -44,7 +47,7 @@ std::vector<bool> glimmer::BlueprintSystem::CheckRectPlacementValidity(const Til
             TileVector2D point = {x + leftBottom.x, y + leftBottom.y};
             const int index = y * tileWidth + x;
 
-            bool valid = CheckSinglePointValidity(tile, point, playerPosition);
+            bool valid = CheckSinglePointValidity(dimensionRef, tile, point, playerPosition);
             result[index] = valid;
             sum = sum && valid;
         }
@@ -63,7 +66,8 @@ bool glimmer::BlueprintSystem::IsPointBlocked(const TileVector2D &point) const {
     return false;
 }
 
-bool glimmer::BlueprintSystem::CheckSinglePointValidity(const Tile *tile, const TileVector2D &point,
+bool glimmer::BlueprintSystem::CheckSinglePointValidity(const ResourceRef &dimensionRef, const Tile *tile,
+                                                        const TileVector2D &point,
                                                         const WorldVector2D &playerPosition) const {
     if (point.y > WORLD_MAX_Y || point.y < WORLD_MIN_Y ||
         point.x > WORLD_MAX_X || point.x < WORLD_MIN_X) {
@@ -74,7 +78,7 @@ bool glimmer::BlueprintSystem::CheckSinglePointValidity(const Tile *tile, const 
         return false;
     }
 
-    const Tile *currentTile = tileLayerComponent_->GetTile(tile->GetLayerType(), point);
+    const Tile *currentTile = tileLayerComponent_->GetTile(dimensionRef, tile->GetLayerType(), point);
     if (currentTile == nullptr) {
         return false;
     }
@@ -335,6 +339,14 @@ void glimmer::BlueprintSystem::Render(RenderQueue *queue) {
         miningComponent_ == nullptr) {
         return;
     }
+    const Dimension *dimension = worldContext->GetDimension();
+    if (dimension == nullptr) {
+        return;
+    }
+    const ResourceRef &dimensionResourceRef = dimension->GetDimensionResourceRef();
+    if (!dimensionResourceRef.IsValid()) {
+        return;
+    }
     if (WorldContext::IsEmptyEntityId(player)) {
         return;
     }
@@ -367,7 +379,8 @@ void glimmer::BlueprintSystem::Render(RenderQueue *queue) {
     }
     if (!miningComponent_->IsEnable()) {
         RenderBlueprintTexture(queue, renderQuad);
-        std::vector<bool> checkRectResult = CheckRectPlacementValidity(heldTile_, leftBottom, playerPosition, tileWidth,
+        std::vector<bool> checkRectResult = CheckRectPlacementValidity(dimensionResourceRef, heldTile_, leftBottom,
+                                                                       playerPosition, tileWidth,
                                                                        tileHeight);
         if (checkRectResult.empty()) {
             blueprintComponent_->SetCanPlace(false);

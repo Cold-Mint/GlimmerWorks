@@ -35,6 +35,7 @@
 #include "ModContext.h"
 #include "WindowContext.h"
 #include "core/config/Config.h"
+#include "core/event/EventBus.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/mod/resourcePack/ResourcePackManager.h"
 #include "core/saves/SavesManager.h"
@@ -66,6 +67,7 @@ namespace glimmer {
         std::unique_ptr<MainThreadDispatcher> mainThreadDispatcher_ = nullptr;
         std::unique_ptr<toml::value> langsValue_ = nullptr;
         std::unique_ptr<CacheContext> cacheContext_ = nullptr;
+        std::unique_ptr<EventBus> eventBus_ = std::make_unique<EventBus>();
 
     public:
         ~SystemBucket() override;
@@ -146,5 +148,7 @@ namespace glimmer {
         void SetLanguage(const std::string &language) override;
 
         [[nodiscard]] const std::string &GetLanguage() const override;
+
+        [[nodiscard]] EventBus *GetEventBus() const override;
     };
 }

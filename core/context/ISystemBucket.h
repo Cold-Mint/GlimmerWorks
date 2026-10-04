@@ -51,6 +51,7 @@ namespace glimmer {
     class Config;
     class CacheContext;
     class WindowContext;
+    class EventBus;
 
     //This class is used to address circular dependencies.
     //这个类用于解决循环依赖。
@@ -133,5 +134,7 @@ namespace glimmer {
         virtual void SetLanguage(const std::string &language) = 0;
 
         [[nodiscard]] virtual const std::string &GetLanguage() const = 0;
+
+        [[nodiscard]] virtual EventBus *GetEventBus() const = 0;
     };
 }

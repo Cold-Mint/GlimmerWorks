@@ -33,6 +33,7 @@
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/inventory/TileItem.h"
 #include "core/math/CoordinateTransformer.h"
+#include "core/world/ChunkManager.h"
 
 
 glimmer::MiningAbility::MiningAbility(const AbilityConfig &abilityConfig) : ItemAbility(
@@ -82,7 +83,19 @@ bool glimmer::MiningAbility::OnUse(const bool mouseLeft, WorldContext *worldCont
         LogCat::d(LogLabel::DEFAULT, "mining_entity_shortcut_null", "MiningAbility: entityShortCut is null, skip");
         return false;
     }
-    const WorldVector2D playerWorldPos = playerTransform->GetPosition();
+    ChunkManager *chunkManager = worldContext->GetChunkManager();
+    if (chunkManager == nullptr) {
+        return false;
+    }
+    Dimension *dimension = worldContext->GetDimension();
+    if (dimension == nullptr) {
+        return false;
+    }
+    const ResourceRef &dimensionResourceRef = dimension->GetDimensionResourceRef();
+    if (!dimensionResourceRef.IsValid()) {
+        return false;
+    }
+    const WorldVector2D &playerWorldPos = playerTransform->GetPosition();
     MiningComponent *miningComponent = entityShortCut->GetMiningComponent();
     if (miningComponent == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "mining_component_is_null",
@@ -106,7 +119,7 @@ bool glimmer::MiningAbility::OnUse(const bool mouseLeft, WorldContext *worldCont
                 continue;
             }
             const Tile *tile = tileLayerComponent->GetSelfLayerTile(
-                tileVector2D);
+                dimensionResourceRef, tileVector2D);
             if (tile == nullptr) {
                 continue;
             }
@@ -126,7 +139,8 @@ bool glimmer::MiningAbility::OnUse(const bool mouseLeft, WorldContext *worldCont
                 miningRangeData_.Reset();
                 miningComponent->SetChainMiningRadius(abilityConfig->chainMiningRadius);
                 miningRangeData_.
-                        CalculateChainMining(tileLayerComponent, tileVector2D, abilityConfig->chainMiningRadius);
+                        CalculateChainMining(dimensionResourceRef, tileLayerComponent, tileVector2D,
+                                             abilityConfig->chainMiningRadius);
                 miningComponent->SetPrecisionMining(abilityConfig->enablePrecisionMining);
                 size_t pointCount = miningRangeData_.GetPointsCount();
                 if (pointCount == 0) {
@@ -134,7 +148,7 @@ bool glimmer::MiningAbility::OnUse(const bool mouseLeft, WorldContext *worldCont
                     //如果没有发现可挖掘的瓦片，那么计算默认的挖掘范围。
                     LogCat::d(LogLabel::DEFAULT, "mining_no_exploitable_tiles",
                               "No exploitable tiles found, calculate default mining range");
-                    miningRangeData_.CalculateMining(tileLayerComponent, tileVector2D);
+                    miningRangeData_.CalculateMining(dimensionResourceRef, tileLayerComponent, tileVector2D);
                 }
                 miningComponent->SetEfficiency(abilityConfig->miningEfficiency);
                 miningComponent->SetMiningRangeData(miningRangeData_);

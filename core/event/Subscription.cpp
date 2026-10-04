@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,43 +24,33 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
+#include "Subscription.h"
 
-#include "core/ecs/EntityManager.h"
-#include "core/saves/Saves.h"
+#include "EventBus.h"
 
-namespace glimmer {
-    class ChunkLoader {
-        Saves *saves_ = nullptr;
-        WorldContext *worldContext_ = nullptr;
-        EntityManager *entityManager_ = nullptr;
+glimmer::Subscription &glimmer::Subscription::operator=(Subscription &&other) noexcept {
+    if (this != &other) {
+        Reset();
+        bus_ = other.bus_;
+        id_ = other.id_;
+        other.bus_ = nullptr;
+        other.id_ = 0;
+    }
+    return *this;
+}
 
-        /**
-         * Load entity from saves
-         * 从存档加载实体
-         * @param dimensionRef
-         * @param position
-         */
-        void LoadEntityFromSaves(const ResourceRef &dimensionRef, const TileVector2D &position) const;
+glimmer::Subscription::~Subscription() {
+    Reset();
+}
 
-    public:
-        ChunkLoader(WorldContext *worldContext, Saves *saves);
+void glimmer::Subscription::Reset() {
+    if (bus_ != nullptr && id_ != 0) {
+        bus_->Unsubscribe(id_);
+    }
+    bus_ = nullptr;
+    id_ = 0;
+}
 
-        /**
-         * Load block from saves
-         * 从存档加载区块
-         * @param dimensionRef dimensionRef
-         * @param position position 位置
-         */
-        [[nodiscard]] std::unique_ptr<Chunk> LoadChunkFromSaves(const ResourceRef &dimensionRef,
-                                                                const TileVector2D &position) const;
-
-        /**
-        * Recovery Entity
-        * 恢复实体
-        * @param entityItemMessage
-        * @return
-        */
-        [[nodiscard]] GameEntityID RecoveryEntity(const EntityItemMessage &entityItemMessage) const;
-    };
+bool glimmer::Subscription::IsValid() const {
+    return bus_ != nullptr && id_ != 0;
 }

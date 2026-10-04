@@ -89,7 +89,7 @@ void glimmer::WorldSaver::SaveGame() {
         return;
     }
     if (ChunkManager *chunkManager = worldContext_->GetChunkManager(); chunkManager != nullptr) {
-        chunkManager->SaveAllChunks();
+        chunkManager->SaveAllChunk();
     }
     auto player = worldContext_->GetEntityShortCut()->GetPlayer();
     if (!WorldContext::IsEmptyEntityId(player) && worldContext_->GetEntityManager()->IsPersistable(player)) {

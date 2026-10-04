@@ -37,7 +37,8 @@ void glimmer::PlaceCommand::InitSuggestions(NodeTree<std::string> *suggestionsTr
     if (suggestionsTree == nullptr) {
         return;
     }
-    suggestionsTree->AddChild("structure")->AddChild(STRUCTURE_DYNAMIC_SUGGESTIONS_NAME)->
+    suggestionsTree->AddChild("structure")->AddChild(STRUCTURE_DYNAMIC_SUGGESTIONS_NAME)->AddChild(
+                DIMENSION_DYNAMIC_SUGGESTIONS_NAME)->
             AddChild(X_DYNAMIC_SUGGESTIONS_NAME)->AddChild(Y_DYNAMIC_SUGGESTIONS_NAME);
 }
 
@@ -61,6 +62,7 @@ void glimmer::PlaceCommand::PutCommandStructure(const CommandArgs *commandArgs, 
     }
     strings->emplace_back("[structure:string]");
     strings->emplace_back("[structureId:string]");
+    strings->emplace_back("[dimensionId:string]");
     strings->emplace_back("[x:int]");
     strings->emplace_back("[y:int]");
 }
@@ -74,8 +76,8 @@ bool glimmer::PlaceCommand::RequiresCheatEnabled() const {
 }
 
 void glimmer::PlaceCommand::PlaceTileAtWithSize(Chunk *chunk,
-                                                TileLayerType tileLayerType,
-                                                int index, const ResourceRef &resourceRef,
+                                                const TileLayerType tileLayerType,
+                                                const int index, const ResourceRef &resourceRef,
                                                 const TileResource *tileResource) {
     for (int x = 0; x < tileResource->tileWidth; x++) {
         for (int y = 0; y < tileResource->tileHeight; y++) {
@@ -106,10 +108,14 @@ bool glimmer::PlaceCommand::ExecuteStructure(const CommandArgs *commandArgs, con
         return false;
     }
     const WorldVector2D commandSenderPosition = commandSender->GetPosition();
+    const std::optional<ResourceRef> dimensionRef = commandArgs->AsResourceRef(3, RESOURCE_DIMENSION);
+    if (!dimensionRef.has_value()) {
+        return false;
+    }
     auto tilePosition = CoordinateTransformer::WorldToTile(
         {
-            commandArgs->AsCoordinate(3, commandSenderPosition.x),
-            commandArgs->AsCoordinate(4, commandSenderPosition.y)
+            commandArgs->AsCoordinate(4, commandSenderPosition.x),
+            commandArgs->AsCoordinate(5, commandSenderPosition.y)
         });
     const ModContext *modContext = appContext->GetModContext();
     if (modContext == nullptr) {
@@ -149,8 +155,8 @@ bool glimmer::PlaceCommand::ExecuteStructure(const CommandArgs *commandArgs, con
             const int relativeY = worldY & CHUNK_MASK;
             if (TileVector2D chunkCoord{chunkX, chunkY}; chunkCoord != currentChunkCoord) {
                 currentChunkCoord = chunkCoord;
-                currentChunk = chunkManager->GetChunk(
-                    Chunk::TileCoordinatesToChunkVertexCoordinates(chunkCoord)
+                currentChunk = chunkManager->GetChunk(dimensionRef.value(),
+                                                      Chunk::TileCoordinatesToChunkVertexCoordinates(chunkCoord)
                 );
             }
             if (currentChunk == nullptr) {

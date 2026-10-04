@@ -27,11 +27,13 @@
 #pragma once
 #include "ChunkTaskType.h"
 #include "core/math/TileVector2D.h"
+#include "core/mod/ResourceRef.h"
 
 namespace glimmer {
     class ChunkTask {
         ChunkTaskType taskType_ = ChunkTaskType::CANCELLED;
         TileVector2D position_;
+        ResourceRef dimensionRef_;
 
     public:
         /**
@@ -47,6 +49,22 @@ namespace glimmer {
          * @return
          */
         [[nodiscard]] const TileVector2D &GetPosition() const;
+
+
+        /**
+         * GetDimensionResourceRef
+         * 获取维度资源引用
+         * @return
+         */
+        [[nodiscard]] const ResourceRef &GetDimensionResourceRef() const;
+
+
+        /**
+         * SetDimensionResourceRef
+         * 设置维度资源引用
+         * @param dimensionResourceRef
+         */
+        void SetDimensionResourceRef(const ResourceRef &dimensionResourceRef);
 
         /**
          * SetTaskType

@@ -39,8 +39,11 @@ namespace glimmer {
      * A dimension holds its own world generation, chunk storage, terrain and time state.
      * 维度持有独立的世界生成、区块存储、地形和时间状态。
      */
+    using DimensionFingerprint = uint64_t;
+
     class Dimension {
         DimensionResource *dimensionResource_ = nullptr;
+        ResourceRef dimensionResourceRef_;
 
         /**
          * The current time of day in this dimension, normalized to 0..1.
@@ -67,7 +70,7 @@ namespace glimmer {
         static DayNormalizedTime Normalize(DayNormalizedTime time);
 
     public:
-        void SetDimensionResource(DimensionResource *dimensionResource);
+        void SetDimensionResource(const ResourceRef &dimensionResourceRef, DimensionResource *dimensionResource);
 
         [[nodiscard]] DimensionResource *GetDimensionResource() const;
 
@@ -88,6 +91,13 @@ namespace glimmer {
          * @return The current normalized day time (0..1). 当前归一化日时间（0..1）。
          */
         [[nodiscard]] DayNormalizedTime GetNormalizedTime() const;
+
+        /**
+         * GetDimensionResourceRef
+         * 获取维度资源引用
+         * @return
+         */
+        [[nodiscard]] const ResourceRef &GetDimensionResourceRef() const;
 
         /**
          * SetNormalizedTime

@@ -31,6 +31,7 @@
 
 #include "MiningRangeDataPoint.h"
 #include "core/ecs/component/TileLayerComponent.h"
+#include "core/mod/ResourceRef.h"
 #include "core/world/TileMiningData.h"
 
 
@@ -44,17 +45,22 @@ namespace glimmer {
         //正在被挖掘的坐标数组。
         std::vector<MiningRangeDataPoint> points_;
         std::unordered_set<Vector2DIFingerprint> pointsFingerprint_;
+        ResourceRef dimensionResourceRef_;
         float maxHardness_ = 0;
 
-        void TryPushPoint(const TileLayerComponent *tileLayerComponent, const TileVector2D &position);
+        void TryPushPoint(const ResourceRef &dimensionResourceRef, const TileLayerComponent *tileLayerComponent,
+                          const TileVector2D &position);
 
-        [[nodiscard]] static bool IsValidForChainMining(const TileLayerComponent *tileLayerComponent,
+        [[nodiscard]] static bool IsValidForChainMining(const ResourceRef &dimensionResourceRef,
+                                                        const TileLayerComponent *tileLayerComponent,
                                                         const TileVector2D &position);
 
-        [[nodiscard]] static const TileMiningData *GetValidStartMiningData(const TileLayerComponent *tileLayerComponent,
-                                                                           const TileVector2D &startVector);
+        [[nodiscard]] static const TileMiningData *GetValidStartMiningData(
+            const ResourceRef &dimensionResourceRef, const TileLayerComponent *tileLayerComponent,
+            const TileVector2D &startVector);
 
-        void ProcessChainMiningNeighbor(const TileLayerComponent *tileLayerComponent,
+        void ProcessChainMiningNeighbor(const ResourceRef &dimensionResourceRef,
+                                        const TileLayerComponent *tileLayerComponent,
                                         const TileVector2D &nextPos,
                                         const TileVector2D &startVector,
                                         uint8_t radius,
@@ -78,9 +84,11 @@ namespace glimmer {
         void Reset();
 
 
-        void CalculateMining(const TileLayerComponent *tileLayerComponent, const TileVector2D &startVector);
+        void CalculateMining(const ResourceRef &dimensionResourceRef, const TileLayerComponent *tileLayerComponent,
+                             const TileVector2D &startVector);
 
-        void CalculateChainMining(const TileLayerComponent *tileLayerComponent, const TileVector2D &startVector,
+        void CalculateChainMining(const ResourceRef &dimensionResourceRef, const TileLayerComponent *tileLayerComponent,
+                                  const TileVector2D &startVector,
                                   uint8_t radius);
     };
 }

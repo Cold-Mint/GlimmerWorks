@@ -42,7 +42,8 @@ void glimmer::TileSnapshotCommand::InitSuggestions(NodeTree<std::string> *sugges
         return;
     }
     suggestionsTree->AddChild("inspector");
-    suggestionsTree->AddChild("info")->AddChild(X_DYNAMIC_SUGGESTIONS_NAME)->AddChild(Y_DYNAMIC_SUGGESTIONS_NAME);
+    suggestionsTree->AddChild("info")->AddChild(DIMENSION_DYNAMIC_SUGGESTIONS_NAME)->
+            AddChild(X_DYNAMIC_SUGGESTIONS_NAME)->AddChild(Y_DYNAMIC_SUGGESTIONS_NAME);
 }
 
 glimmer::TileSnapshotCommand::TileSnapshotCommand(AppContext *appContext)
@@ -113,12 +114,16 @@ bool glimmer::TileSnapshotCommand::ExecuteInfo(const CommandSender *commandSende
         return false;
     }
     const WorldVector2D commandSenderPosition = commandSender->GetPosition();
+    const auto dimensionRefOptional = commandArgs->AsResourceRef(2, RESOURCE_DIMENSION);
+    if (!dimensionRefOptional.has_value()) {
+        return false;
+    }
     const TileVector2D tileVector2D = CoordinateTransformer::WorldToTile(WorldVector2D(
-        commandArgs->AsCoordinate(2, commandSenderPosition.x),
+        commandArgs->AsCoordinate(3, commandSenderPosition.x),
         commandArgs->AsCoordinate(
-            3, commandSenderPosition.y)));
+            4, commandSenderPosition.y)));
     const auto chunkVertex = Chunk::TileCoordinatesToChunkVertexCoordinates(tileVector2D);
-    Chunk *chunk = worldContext->GetChunkManager()->GetChunk(chunkVertex);
+    Chunk *chunk = worldContext->GetChunkManager()->GetChunk(dimensionRefOptional.value(), chunkVertex);
     if (chunk == nullptr) {
         onMessageRef(fmt::format(fmt::runtime(langsResources->chunkHasNotBeenLoadedYet), tileVector2D.x,
                                  tileVector2D.y));

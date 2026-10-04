@@ -251,3 +251,7 @@ void glimmer::SystemBucket::SetLanguage(const std::string &language) {
 const std::string &glimmer::SystemBucket::GetLanguage() const {
     return language_;
 }
+
+glimmer::EventBus *glimmer::SystemBucket::GetEventBus() const {
+    return eventBus_.get();
+}

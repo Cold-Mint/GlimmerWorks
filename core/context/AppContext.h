@@ -48,6 +48,8 @@
 #include "core/gpu/PendingScreenshot.h"
 
 namespace glimmer {
+    class EventBus;
+
     class AppContext {
         bool isRunning_ = true;
         mutable std::optional<PendingScreenshot> pendingScreenshot_;
@@ -102,6 +104,8 @@ namespace glimmer {
         [[nodiscard]] SceneManager *GetSceneManager() const;
 
         [[nodiscard]] SavesManager *GetSavesManager() const;
+
+        [[nodiscard]] EventBus *GetEventBus() const;
 
         [[nodiscard]] const std::string &GetLanguage() const;
 

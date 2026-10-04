@@ -108,7 +108,6 @@ namespace glimmer {
         //How many blocks with a certain radius beyond the screen need to be preloaded?
         //需要预加载屏幕外多少半径的区块
         uint8_t preloadChunkRadius = 1;
-
     };
 
     struct AudioTrack {

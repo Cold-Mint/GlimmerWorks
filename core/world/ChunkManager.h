@@ -31,9 +31,11 @@
 #include <string>
 #include <unordered_map>
 
+#include "Dimension.h"
 #include "LightBuffer.h"
 #include "TileInstancePool.h"
 #include "core/math/Vector2DIHash.h"
+#include "core/mod/ResourceRefHash.h"
 #include "generator/Chunk.h"
 #include "generator/ChunkLoader.h"
 #include "generator/TerrainGenerator.h"
@@ -51,11 +53,19 @@ namespace glimmer {
         TerrainGenerator *terrainGenerator_ = nullptr;
         ChunkLoader *chunkLoader_ = nullptr;
 
-        std::unordered_map<TileVector2D, std::unique_ptr<Chunk>, Vector2DIHash> chunks_;
+        /**
+         * Save the map of the block.
+         * 保存区块的Map。
+         *
+         * Key is a pointer for referencing dimension resources.
+         * Key为维度资源引用的指针。
+         */
+        std::unordered_map<ResourceRef, std::unordered_map<TileVector2D, std::unique_ptr<Chunk>,
+            Vector2DIHash>, ResourceRefHash>
+        dimensionMap_;
         std::unique_ptr<LightBuffer> lightBuffer_ = nullptr;
         std::unique_ptr<TileInstancePool> tileInstancePool_ = nullptr;
         WorldContext *worldContext_ = nullptr;
-        std::string dimensionFolderName_;
 
         /**
          * OnChunkTileChange
@@ -78,60 +88,69 @@ namespace glimmer {
         void UpdateChunkLight(const Chunk *chunk) const;
 
     public:
-        explicit ChunkManager(WorldContext *worldContext, std::string dimensionFolderName);
+        explicit ChunkManager(WorldContext *worldContext);
 
         /**
         * Load Chunk
         * 加载区块
         * @param maxChunksOccupiedByStructure maxChunksOccupiedByStructure 结构占用的最大区块数
+        * @param dimensionRef dimensionRef 维度资源引用
         * @param position position 位置
         */
-        void LoadChunkAt(uint32_t maxChunksOccupiedByStructure, const TileVector2D &position);
+        void LoadChunkAt(uint32_t maxChunksOccupiedByStructure, const ResourceRef &dimensionRef,
+                         const TileVector2D &position);
 
         /**
          * Unload Chunk
          * 卸载区块
+         * @param dimensionRef dimensionRef
          * @param position position 位置
          */
-        void UnloadChunkAt(const TileVector2D &position);
+        void UnloadChunkAt(const ResourceRef &dimensionRef, const TileVector2D &position);
 
         /**
          * GetChunk
          * 获取指定位置的区块。
-         * @param chunkVertex chunkVertex 区块顶点位置
+         * @param dimensionRef dimensionRef 维度资源引用
+         * @param position position 区块顶点位置
          * @return
          */
-        [[nodiscard]] Chunk *GetChunk(const TileVector2D &chunkVertex);
-
-        /**
-         * GetChunks
-         * 获取区块
-         * @return A snapshot copy of the loaded chunks (thread-safe).
-         *         已加载区块的快照副本（线程安全）。
-         */
-        [[nodiscard]] std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> GetAllChunks();
+        [[nodiscard]] Chunk *GetChunk(const ResourceRef &dimensionRef, const TileVector2D &position) const;
 
         /**
          * Determine whether a block at a certain position has been loaded
          * 判断某个位置的区块是否被加载
-         * @param position
+         * @param dimensionRef dimensionRef 维度资源引用
+         * @param position position 位置
          * @return
          */
-        [[nodiscard]] bool HasChunk(const TileVector2D &position) const;
+        [[nodiscard]] bool HasChunk(const ResourceRef &dimensionRef, const TileVector2D &position) const;
 
         /**
          * SaveChunk
          * 保存某个区块
+         * @param dimensionRef
          * @param position
          */
-        [[nodiscard]] bool SaveChunk(TileVector2D position);
+        [[nodiscard]] bool SaveChunk(const ResourceRef &dimensionRef, const TileVector2D &position) const;
 
         /**
-         * SaveAllChunks
-         * 保存所有已加载的区块
-         * @return Did all the data get saved successfully? 是否全部保存成功
+         * SaveAllChunk
+         * 保存所有的区块
          */
-        bool SaveAllChunks();
+        void SaveAllChunk();
+
+        /**
+         * GetChunkCount
+         * 获取某个维度的区块数
+         * @param dimensionRef
+         * @return
+         */
+        size_t GetLoadedChunkCount(const ResourceRef &dimensionRef) const;
+
+        const std::unordered_map<TileVector2D, std::unique_ptr<Chunk>,
+            Vector2DIHash> *GetLoadedChunks(const ResourceRef &dimensionRef) const;
+
 
         /**
          * Check whether the block exceeds the boundary

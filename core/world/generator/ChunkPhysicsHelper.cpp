@@ -103,29 +103,25 @@ void glimmer::ChunkPhysicsHelper::CreateBodyForRect(const b2WorldId worldId, Chu
     chunk->AddBodyId(b2BodyId);
 }
 
-void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const AppContext *appContext, b2WorldId worldId,
-                                                           Chunk *chunk) {
-    if (appContext == nullptr || chunk == nullptr) {
+void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const b2WorldId worldId, Chunk *chunk) {
+    if (chunk == nullptr) {
         return;
     }
     LogCat::d(LogLabel::CHUNK, "chunk_physics_attach", "Attaching physics body to chunk: position=({}, {})",
               chunk->GetPosition().x, chunk->GetPosition().y);
-    appContext->GetMainThreadDispatcher()->RunOnMainThread([worldId, chunk] {
-        const std::vector<bool> isStaticTile = CollectStaticTiles(chunk);
-        std::vector visited(CHUNK_AREA, false);
-
-        for (int y = 0; y < CHUNK_SIZE; ++y) {
-            for (int x = 0; x < CHUNK_SIZE; ++x) {
-                const int baseIdx = y << CHUNK_SHIFT | x;
-                if (visited[baseIdx] || !isStaticTile[baseIdx]) {
-                    continue;
-                }
-                const Vector2DI rectSize = FindRectSize(x, y, isStaticTile, visited);
-                MarkVisited(x, y, rectSize.x, rectSize.y, visited);
-                CreateBodyForRect(worldId, chunk, x, y, rectSize.x, rectSize.y);
+    const std::vector<bool> isStaticTile = CollectStaticTiles(chunk);
+    std::vector visited(CHUNK_AREA, false);
+    for (int y = 0; y < CHUNK_SIZE; ++y) {
+        for (int x = 0; x < CHUNK_SIZE; ++x) {
+            const int baseIdx = y << CHUNK_SHIFT | x;
+            if (visited[baseIdx] || !isStaticTile[baseIdx]) {
+                continue;
             }
+            const Vector2DI rectSize = FindRectSize(x, y, isStaticTile, visited);
+            MarkVisited(x, y, rectSize.x, rectSize.y, visited);
+            CreateBodyForRect(worldId, chunk, x, y, rectSize.x, rectSize.y);
         }
-    });
+    }
 }
 
 b2BodyId glimmer::ChunkPhysicsHelper::CreateStaticBody(const b2WorldId worldId, const WorldVector2D &pos,
@@ -148,30 +144,23 @@ b2BodyId glimmer::ChunkPhysicsHelper::CreateStaticBody(const b2WorldId worldId, 
     return bodyId_;
 }
 
-void glimmer::ChunkPhysicsHelper::DetachPhysicsBodyToChunk(const AppContext *appContext, Chunk *chunk) {
-    if (appContext == nullptr || chunk == nullptr) {
+void glimmer::ChunkPhysicsHelper::DetachPhysicsBodyToChunk(Chunk *chunk) {
+    if (chunk == nullptr) {
         return;
     }
     LogCat::d(LogLabel::CHUNK, "chunk_physics_detach", "Detaching physics body from chunk: position=({}, {})",
               chunk->GetPosition().x, chunk->GetPosition().y);
-    //Copy the body ids out first so the deferred lambda does not depend on the
-    //chunk (which may be destroyed on the tick thread before the main thread
-    //runs the task).
-    //先把 body id 拷贝出来，避免推迟的 lambda 依赖区块（区块可能在主线程执行
-    //任务前已于 tick 线程销毁）。
     const std::vector<b2BodyId> &bodies = chunk->GetAttachedBodies();
-    appContext->GetMainThreadDispatcher()->RunOnMainThread([bodies, chunk] {
-        for (const b2BodyId bodyId: bodies) {
-            if (b2Body_IsValid(bodyId)) {
-                b2DestroyBody(bodyId);
-            }
-            chunk->ClearAttachedBodies();
+    for (const b2BodyId bodyId: bodies) {
+        if (b2Body_IsValid(bodyId)) {
+            b2DestroyBody(bodyId);
         }
-    });
+        chunk->ClearAttachedBodies();
+    }
 }
 
+
 void glimmer::ChunkPhysicsHelper::UpdatePhysicsBodyToChunk(const WorldContext *worldContext, Chunk *chunk) {
-    AppContext *appContext = worldContext->GetAppContext();
-    DetachPhysicsBodyToChunk(appContext, chunk);
-    AttachPhysicsBodyToChunk(appContext, worldContext->GetWorldId(), chunk);
+    DetachPhysicsBodyToChunk(chunk);
+    AttachPhysicsBodyToChunk(worldContext->GetWorldId(), chunk);
 }

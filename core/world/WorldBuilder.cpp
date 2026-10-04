@@ -34,6 +34,8 @@
 #include "box2d/box2d.h"
 #include "core/context/AppContext.h"
 #include "core/context/ModContext.h"
+#include "core/event/DimensionChangedEvent.h"
+#include "core/event/EventBus.h"
 #include "core/ecs/component/AreaMarkerComponent.h"
 #include "core/ecs/component/BlueprintComponent.h"
 #include "core/ecs/component/ItemContainerComponent.h"
@@ -101,13 +103,14 @@ void glimmer::WorldBuilder::Build() {
                   "Dimension resource is not found, cannot build world");
         return;
     }
-    std::string dimensionFolderName = StringUtils::GetDimensionFolderName(
-        dimensionResourceRef.GetPackageId(),
-        dimensionResourceRef.GetResourceKey());
-    worldContext_->dimension_->SetDimensionResource(dimensionResource);
-    worldContext_->chunkLoader_ = std::make_unique<ChunkLoader>(worldContext_, worldContext_->saves_,
-                                                                dimensionFolderName);
-    worldContext_->chunkManager_ = std::make_unique<ChunkManager>(worldContext_, dimensionFolderName);
+    worldContext_->dimension_->SetDimensionResource(dimensionResourceRef, dimensionResource);
+    if (EventBus *eventBus = worldContext_->appContext_->GetEventBus(); eventBus != nullptr) {
+        DimensionChangedEvent dimensionChangedEvent;
+        dimensionChangedEvent.newDimension = dimensionResourceRef;
+        eventBus->Publish(dimensionChangedEvent);
+    }
+    worldContext_->chunkLoader_ = std::make_unique<ChunkLoader>(worldContext_, worldContext_->saves_);
+    worldContext_->chunkManager_ = std::make_unique<ChunkManager>(worldContext_);
     worldContext_->terrainGenerator_ = std::make_unique<TerrainGenerator>();
     worldContext_->chunkGenerator_ = std::make_unique<ChunkGenerator>(worldContext_,
                                                                       dimensionResource);

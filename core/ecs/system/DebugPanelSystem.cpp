@@ -149,13 +149,23 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
 
     // Current normalized day time (0..1) and time flow speed
     // 当前归一化日时间（0..1）与时间流动速度
-    if (const Dimension *dimension = worldContext->GetDimension(); dimension != nullptr) {
-        const DimensionResource *dimensionResource = dimension->GetDimensionResource();
-        const float timeFlowSpeed = dimensionResource != nullptr ? dimensionResource->timeFlowSpeed : 0.0F;
-        debugLines_.push_back(DebugLine{
-            fmt::format(fmt::runtime(langsResources->debugTimeInfo), dimension->GetNormalizedTime(), timeFlowSpeed)
-        });
+
+    const Dimension *dimension = worldContext->GetDimension();
+    if (dimension == nullptr) {
+        return;
     }
+    const DimensionResource *dimensionResource = dimension->GetDimensionResource();
+    if (dimensionResource == nullptr) {
+        return;
+    }
+    auto dimensionResourceRef = ResourceRef();
+    dimensionResourceRef.SetSelfPackageId(dimensionResource->packId);
+    dimensionResourceRef.SetResourceType(RESOURCE_DIMENSION);
+    dimensionResourceRef.SetResourceKey(dimensionResource->resourceId);
+    const float timeFlowSpeed = dimensionResource->timeFlowSpeed;
+    debugLines_.push_back(DebugLine{
+        fmt::format(fmt::runtime(langsResources->debugTimeInfo), dimension->GetNormalizedTime(), timeFlowSpeed)
+    });
 
     if (cameraComponent_->IsPointInViewport(cameraTransform2DComponent_->GetPosition(), mousePosition_)) {
         ScreenVector2D screenPos = CoordinateTransformer::WorldToScreen(
@@ -194,7 +204,7 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
                         firstLayer = false;
                     }
 
-                    auto tile = tileLayerComponent->GetSelfLayerTile(tileCoord);
+                    auto tile = tileLayerComponent->GetSelfLayerTile(dimensionResourceRef, tileCoord);
                     if (tile == nullptr) {
                         continue;
                     }
@@ -396,7 +406,10 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
 
         // Chunk info text
         // 区块信息文本
-        const auto chunks = worldContext->GetChunkManager()->GetAllChunks();
+        const auto chunkManager = worldContext->GetChunkManager();
+        if (chunkManager == nullptr) {
+            return;
+        }
         int playerTileX = static_cast<int>(std::floor(mousePosition_.x / TILE_SIZE));
         int playerTileY = static_cast<int>(std::floor(mousePosition_.y / TILE_SIZE));
 
@@ -417,7 +430,8 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
         int visibleChunkCount = (endChunkX - startChunkX + 1) * (endChunkY - startChunkY + 1);
 
         chunkText_ = fmt::format(fmt::runtime(langsResources->debugChunkInfo), playerChunkX,
-                                 playerChunkY, visibleChunkCount, chunks.size());
+                                 playerChunkY, visibleChunkCount,
+                                 chunkManager->GetLoadedChunkCount(dimensionResourceRef));
 
         crosshairX_ = static_cast<int>(screenPos.x);
         crosshairY_ = static_cast<int>(screenPos.y);

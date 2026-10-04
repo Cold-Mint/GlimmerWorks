@@ -394,7 +394,9 @@ else ()
     message(STATUS "Building for Desktop → Executable")
     add_executable(GlimmerWorks
             core/utils/VersionAble.cpp
-            core/utils/VersionAble.h)
+            core/utils/VersionAble.h
+            core/event/Subscription.cpp
+            core/event/Subscription.h)
 endif ()
 
 target_sources(GlimmerWorks
@@ -434,6 +436,7 @@ target_sources(GlimmerWorks
         core/app/AppEventLoop.cpp
         core/context/tasks/IAppContextInitTask.cpp
         core/context/SystemBucket.cpp
+        core/event/EventBus.cpp
         core/context/tasks/InitAudioTask.cpp
         core/context/tasks/InitConfigTask.cpp
         core/context/tasks/InitConsoleContextTask.cpp
@@ -860,6 +863,8 @@ target_sources(GlimmerWorks
         core/mod/resourcePack/GPUSamplerResource.h
         core/mod/resourcePack/cache/RmlCache.h
         core/context/ISystemBucket.h
+        core/event/EventBus.h
+        core/event/DimensionChangedEvent.h
         core/mod/BasePackManager.h
         core/context/CacheContext.h
         core/mod/resourcePack/cache/ColorCache.h
@@ -1147,6 +1152,7 @@ target_sources(GlimmerWorks
         core/mod/Resource.h
         core/mod/ResourceLocator.h
         core/mod/ResourceRef.h
+        core/mod/ResourceRefHash.h
         core/mod/StructurePlacementConditionsProcessorManager.h
         core/mod/GrowthConditionProcessorManager.h
         core/ecs/system/RecipeDetailGUISystem.h

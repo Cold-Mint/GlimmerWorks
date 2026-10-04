@@ -104,31 +104,31 @@ void glimmer::StructurePlacer::GenerateStructure(const TileVector2D &position) c
 
 // void glimmer::StructurePlacer::PlaceStructureTiles(TerrainManager *terrainManager, const StructureInfo *structureInfo,
 //                                                    const TileVector2D &globalOrigin) {
-    // const int baseX = globalOrigin.x;
-    // const int baseY = globalOrigin.y;
-    //
-    // TerrainResult *currentTerrain = nullptr;
-    // TileVector2D currentChunk = {INT_MIN, INT_MIN};
-    // for (auto &[tileLayerType, tileMap]: structureInfo->GetStructureMap()) {
-    //     for (auto &[coord, tileResource]: tileMap) {
-    //         const int worldX = baseX + coord.x;
-    //         const int worldY = baseY + coord.y;
-    //         const int chunkX = worldX & ~CHUNK_MASK;
-    //         const int chunkY = worldY & ~CHUNK_MASK;
-    //         const int relativeX = worldX & CHUNK_MASK;
-    //         const int relativeY = worldY & CHUNK_MASK;
-    //         TileVector2D chunkCoord{chunkX, chunkY};
-    //         if (chunkCoord != currentChunk) {
-    //             currentChunk = chunkCoord;
-    //             currentTerrain = terrainManager->GetOrCreateTerrainData(chunkCoord);
-    //         }
-    //         if (currentTerrain == nullptr) {
-    //             continue;
-    //         }
-    //         const int index = relativeY << CHUNK_SHIFT | relativeX;
-    //         currentTerrain->SetTerrainTileStructure(index, &tileResource, tileLayerType);
-    //     }
-    // }
+// const int baseX = globalOrigin.x;
+// const int baseY = globalOrigin.y;
+//
+// TerrainResult *currentTerrain = nullptr;
+// TileVector2D currentChunk = {INT_MIN, INT_MIN};
+// for (auto &[tileLayerType, tileMap]: structureInfo->GetStructureMap()) {
+//     for (auto &[coord, tileResource]: tileMap) {
+//         const int worldX = baseX + coord.x;
+//         const int worldY = baseY + coord.y;
+//         const int chunkX = worldX & ~CHUNK_MASK;
+//         const int chunkY = worldY & ~CHUNK_MASK;
+//         const int relativeX = worldX & CHUNK_MASK;
+//         const int relativeY = worldY & CHUNK_MASK;
+//         TileVector2D chunkCoord{chunkX, chunkY};
+//         if (chunkCoord != currentChunk) {
+//             currentChunk = chunkCoord;
+//             currentTerrain = terrainManager->GetOrCreateTerrainData(chunkCoord);
+//         }
+//         if (currentTerrain == nullptr) {
+//             continue;
+//         }
+//         const int index = relativeY << CHUNK_SHIFT | relativeX;
+//         currentTerrain->SetTerrainTileStructure(index, &tileResource, tileLayerType);
+//     }
+// }
 // }
 
 std::optional<std::bitset<CHUNK_AREA> > glimmer::StructurePlacer::MatchStructureConditions(

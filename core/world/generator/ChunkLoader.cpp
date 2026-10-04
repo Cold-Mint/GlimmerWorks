@@ -35,11 +35,11 @@
 #include "core/world/WorldContext.h"
 
 
-void glimmer::ChunkLoader::LoadEntityFromSaves(const TileVector2D &position) const {
-    if (saves_->EntityExists(dimensionFolderName_, position)) {
-        auto chunkEntityMessageOptional = saves_->ReadChunkEntity(dimensionFolderName_, position);
-        if (chunkEntityMessageOptional.has_value()) {
-            ChunkEntityMessage &chunkEntityMessage = chunkEntityMessageOptional.value();
+void glimmer::ChunkLoader::LoadEntityFromSaves(const ResourceRef &dimensionRef, const TileVector2D &position) const {
+    if (saves_->EntityExists(dimensionRef, position)) {
+        if (auto chunkEntityMessageOptional = saves_->ReadChunkEntity(dimensionRef, position);
+            chunkEntityMessageOptional.has_value()) {
+            const ChunkEntityMessage &chunkEntityMessage = chunkEntityMessageOptional.value();
             int entitySize = chunkEntityMessage.entities_size();
             LogCat::i(LogLabel::CHUNK, "chunk_loader_load_entity",
                       "Loading chunk entities from saves: position=({}, {}), count={}",
@@ -51,28 +51,30 @@ void glimmer::ChunkLoader::LoadEntityFromSaves(const TileVector2D &position) con
     }
 }
 
-glimmer::ChunkLoader::ChunkLoader(WorldContext *worldContext, Saves *saves, std::string dimensionFolderName)
-    : saves_(saves),
-      worldContext_(worldContext),
-      dimensionFolderName_(std::move(dimensionFolderName)), entityManager_(worldContext_->GetEntityManager()) {
+glimmer::ChunkLoader::ChunkLoader(WorldContext *worldContext, Saves *saves) : saves_(saves),
+                                                                              worldContext_(worldContext),
+                                                                              entityManager_(
+                                                                                  worldContext_->GetEntityManager()) {
 }
 
-std::unique_ptr<glimmer::Chunk> glimmer::ChunkLoader::LoadChunkFromSaves(const TileVector2D &position) const {
+std::unique_ptr<glimmer::Chunk> glimmer::ChunkLoader::LoadChunkFromSaves(const ResourceRef &dimensionRef,
+                                                                         const TileVector2D &position) const {
     if (worldContext_ == nullptr) {
         return nullptr;
     }
-    if (saves_->ChunkExists(dimensionFolderName_, position)) {
-        if (const auto chunkMessage = saves_->ReadChunk(dimensionFolderName_, position); chunkMessage.has_value()) {
+    if (saves_->ChunkExists(dimensionRef, position)) {
+        if (const auto chunkMessage = saves_->ReadChunk(dimensionRef, position); chunkMessage.has_value()) {
             LogCat::i(LogLabel::CHUNK, "chunk_loading_from_saves", "Loading chunk from saves at: ({}, {})",
                       position.x, position.y);
             auto chunk = std::make_unique<Chunk>(worldContext_, position);
             chunk->ReadChunkMessage(chunkMessage.value());
-            LoadEntityFromSaves(position);
+            LoadEntityFromSaves(dimensionRef, position);
             return chunk;
         }
     }
     return nullptr;
 }
+
 
 GameEntityID glimmer::ChunkLoader::RecoveryEntity(const EntityItemMessage &entityItemMessage) const {
     const auto id = entityItemMessage.gameentity().id();

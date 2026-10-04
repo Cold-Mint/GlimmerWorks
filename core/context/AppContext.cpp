@@ -229,6 +229,10 @@ glimmer::SavesManager *glimmer::AppContext::GetSavesManager() const {
     return systemBucket_->GetSavesManager();
 }
 
+glimmer::EventBus *glimmer::AppContext::GetEventBus() const {
+    return systemBucket_->GetEventBus();
+}
+
 void glimmer::AppContext::SetRandomSlogan() const {
     const WindowContext *windowContext = systemBucket_->GetWindowContext();
     if (windowContext == nullptr) {

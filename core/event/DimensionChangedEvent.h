@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -26,41 +26,26 @@
  */
 #pragma once
 
-#include "core/ecs/EntityManager.h"
-#include "core/saves/Saves.h"
+#include "core/mod/ResourceRef.h"
 
 namespace glimmer {
-    class ChunkLoader {
-        Saves *saves_ = nullptr;
-        WorldContext *worldContext_ = nullptr;
-        EntityManager *entityManager_ = nullptr;
-
+    /**
+     * DimensionChangedEvent
+     * 维度切换事件
+     * Published after the active dimension resource changes.
+     * 在激活的维度资源发生变化后发布。
+     */
+    struct DimensionChangedEvent {
         /**
-         * Load entity from saves
-         * 从存档加载实体
-         * @param dimensionRef
-         * @param position
+         * The dimension before the switch. Invalid on initial load.
+         * 切换前的维度。初次加载时为无效值。
          */
-        void LoadEntityFromSaves(const ResourceRef &dimensionRef, const TileVector2D &position) const;
-
-    public:
-        ChunkLoader(WorldContext *worldContext, Saves *saves);
+        ResourceRef oldDimension;
 
         /**
-         * Load block from saves
-         * 从存档加载区块
-         * @param dimensionRef dimensionRef
-         * @param position position 位置
+         * The dimension after the switch.
+         * 切换后的维度。
          */
-        [[nodiscard]] std::unique_ptr<Chunk> LoadChunkFromSaves(const ResourceRef &dimensionRef,
-                                                                const TileVector2D &position) const;
-
-        /**
-        * Recovery Entity
-        * 恢复实体
-        * @param entityItemMessage
-        * @return
-        */
-        [[nodiscard]] GameEntityID RecoveryEntity(const EntityItemMessage &entityItemMessage) const;
+        ResourceRef newDimension;
     };
 }

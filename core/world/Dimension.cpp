@@ -32,15 +32,6 @@
 #include "core/mod/Resource.h"
 
 
-void glimmer::Dimension::SetDimensionResource(DimensionResource *dimensionResource) {
-    dimensionResource_ = dimensionResource;
-    if (dimensionResource_ != nullptr) {
-        normalizedTime_.store(Normalize(dimensionResource_->initialTime));
-    }
-    lastTick_ = 0;
-    initedTick_ = false;
-}
-
 glimmer::DimensionResource *glimmer::Dimension::GetDimensionResource() const {
     return dimensionResource_;
 }
@@ -70,6 +61,11 @@ glimmer::DayNormalizedTime glimmer::Dimension::GetNormalizedTime() const {
     return normalizedTime_.load(std::memory_order_relaxed);
 }
 
+const glimmer::ResourceRef &glimmer::Dimension::GetDimensionResourceRef() const {
+    return dimensionResourceRef_;
+}
+
+
 void glimmer::Dimension::SetNormalizedTime(const DayNormalizedTime normalizedTime) {
     normalizedTime_.store(Normalize(normalizedTime), std::memory_order_relaxed);
 }
@@ -80,4 +76,15 @@ glimmer::DayNormalizedTime glimmer::Dimension::Normalize(DayNormalizedTime time)
         time += 1.0F;
     }
     return time;
+}
+
+void glimmer::Dimension::SetDimensionResource(const ResourceRef &dimensionResourceRef,
+                                              DimensionResource *dimensionResource) {
+    dimensionResourceRef_ = dimensionResourceRef;
+    dimensionResource_ = dimensionResource;
+    if (dimensionResource_ != nullptr) {
+        normalizedTime_.store(Normalize(dimensionResource_->initialTime));
+    }
+    lastTick_ = 0;
+    initedTick_ = false;
 }

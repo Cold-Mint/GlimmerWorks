@@ -66,7 +66,8 @@ namespace glimmer {
          * @return A bitset of candidate points, or nullopt if no condition matched 候选点集合，未匹配到条件时返回nullopt
          */
         static std::optional<std::bitset<CHUNK_AREA> > MatchStructureConditions(
-            const AppContext *appContext, const TerrainResult *terrainResult, const IStructureResource *structureResource);
+            const AppContext *appContext, const TerrainResult *terrainResult,
+            const IStructureResource *structureResource);
 
         /**
          * PlaceStructureAtCandidatePoints

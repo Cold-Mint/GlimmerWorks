@@ -48,6 +48,9 @@ void glimmer::RigidBody2DComponent::SetShapeRef(const ResourceRef &shapeRef) {
 
 void glimmer::RigidBody2DComponent::Disable() {
     enabled_ = false;
+    if (ready_) {
+        b2Body_Disable(bodyId_);
+    }
 }
 
 bool glimmer::RigidBody2DComponent::IsEnabled() const {
@@ -56,6 +59,9 @@ bool glimmer::RigidBody2DComponent::IsEnabled() const {
 
 void glimmer::RigidBody2DComponent::Enable() {
     enabled_ = true;
+    if (ready_) {
+        b2Body_Enable(bodyId_);
+    }
 }
 
 void glimmer::RigidBody2DComponent::SetDensity(const float density) {
@@ -88,6 +94,7 @@ void glimmer::RigidBody2DComponent::CreateBody(const ResourceLocator *resourceLo
     bodyDef_.position = Box2DUtils::ToMeters(vector2d);
     bodyDef_.enableSleep = allowBodySleep_;
     bodyDef_.fixedRotation = fixedRotation_;
+    bodyDef_.isEnabled = enabled_;
     bodyId_ = b2CreateBody(worldId, &bodyDef_);
     b2Filter filter{};
     filter.categoryBits = filter_.categoryBits;

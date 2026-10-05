@@ -34,6 +34,7 @@
 #include "core/log/LogCat.h"
 #include "core/mod/Resource.h"
 #include "BiomeDecoratorManager.h"
+#include "TileRefResolver.h"
 #include "core/mod/dataPack/BiomeRegistry.h"
 #include "core/world/WorldContext.h"
 
@@ -70,7 +71,8 @@ void glimmer::ChunkGenerator::GenerateStructure(const TileVector2D &position) co
     structurePlacer_.GenerateStructure(position);
 }
 
-std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const TileVector2D &position) const {
+std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const TileVector2D &position,
+                                                                         TerrainResult *terrainResult) const {
     if (worldContext_ == nullptr) {
         return nullptr;
     }
@@ -89,25 +91,14 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const T
     LogCat::i(LogLabel::CHUNK, "chunk_generating", "Generating new chunk at position: ({}, {})", position.x,
               position.y);
     auto chunk = std::make_unique<Chunk>(worldContext_, position);
-    //TODO：修复我！
-
-    // TerrainResult *terrainResult = worldContext_->GetTerrainManager()->GetTerrainData(position);
-    // if (terrainResult == nullptr) {
-    //     LogCat::e(LogLabel::CHUNK, std::source_location::current(), "chunk_terrain_data_failed",
-    //               "Failed to get terrain data for chunk: ({}, {})", position.x,
-    //               position.y);
-    //     return nullptr;
-    // }
     std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > tilesRefMap = {
         {TileLayerType::Ground, {}},
         {TileLayerType::BackGround, {}}
     };
     std::unordered_set<BiomeResource *> biomeResourcesSet;
-    //TODO：修复我！
-    //
-    // TileRefResolver::Initialize(terrainResult, tilesRefMap, biomeResourcesSet);
-    // BiomeDecoratorApplier::Apply(biomeResourcesSet, resourceLocator, biomeDecoratorManager, worldContext_,
-    // terrainResult, tilesRefMap);
+    TileRefResolver::Initialize(terrainResult, tilesRefMap, biomeResourcesSet);
+    BiomeDecoratorApplier::Apply(biomeResourcesSet, resourceLocator, worldContext_,
+                                 terrainResult, tilesRefMap);
 
     //Convert the tile references into actual tiles and write them into the block.
     //将瓦片引用转为实际的瓦片，并写入区块。

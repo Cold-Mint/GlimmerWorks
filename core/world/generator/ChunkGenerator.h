@@ -89,7 +89,7 @@ namespace glimmer {
          * @param position position 区块位置
          * @return The generated chunk, or nullptr on failure 生成的区块，失败时返回nullptr
          */
-        [[nodiscard]] std::unique_ptr<Chunk> GenerateChunkAt(const TileVector2D &position) const;
+        [[nodiscard]] std::unique_ptr<Chunk> GenerateChunkAt(const TileVector2D &position,TerrainResult* terrainResult) const;
 
         /**
          * GetDimensionId

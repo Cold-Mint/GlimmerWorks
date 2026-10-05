@@ -53,14 +53,12 @@ namespace glimmer {
          * 应用装饰器
          * @param biomeResourcesSet biomeResourcesSet 区块内的生物群系集合
          * @param resourceLocator resourceLocator 资源定位器
-         * @param biomeDecoratorManager biomeDecoratorManager 装饰器管理器
          * @param worldContext worldContext 世界上下文
          * @param terrainResult terrainResult 地形结果
          * @param tilesRefMap tilesRefMap 瓦片引用映射（会被修改）
          */
         static void Apply(const std::unordered_set<BiomeResource *> &biomeResourcesSet,
                           const ResourceLocator *resourceLocator,
-                          BiomeDecoratorManager *biomeDecoratorManager,
                           WorldContext *worldContext,
                           TerrainResult *terrainResult,
                           std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > &tilesRefMap);

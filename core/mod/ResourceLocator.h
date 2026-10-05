@@ -102,7 +102,7 @@ namespace glimmer {
          * @return The located resource, or nullptr on failure 定位到的资源，失败时返回nullptr
          */
         template<typename ResultT, typename Lookup>
-        [[nodiscard]] ResultT *FindRegistered(const ResourceRef *resourceRef, ResourceTypeMessage expectedType,
+        [[nodiscard]] ResultT *FindRegistered(const ResourceRef *resourceRef, const ResourceTypeMessage expectedType,
                                               Lookup &&lookup) const {
             if (resourceRef == nullptr) {
                 LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "resource_ref_is_null",

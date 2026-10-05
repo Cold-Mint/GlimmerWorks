@@ -262,7 +262,7 @@ void glimmer::ChunkManager::LoadChunkAt(uint32_t maxChunksOccupiedByStructure,
         return;
     }
     std::vector<std::shared_ptr<TerrainResult> > dependencyTerrain;
-
+    std::shared_ptr<TerrainResult> centralTerrain = nullptr;
     if (TerrainGenerator *terrainGenerator = worldContext_->GetTerrainGenerator(); terrainGenerator != nullptr) {
         const std::vector<TileVector2D> dependencyTerrainPositions =
                 StructureGeneratorManager::GetChunkDependencyTerrain(maxChunksOccupiedByStructure, position);
@@ -273,14 +273,22 @@ void glimmer::ChunkManager::LoadChunkAt(uint32_t maxChunksOccupiedByStructure,
             if (terrain == nullptr) {
                 continue;
             }
+            if (position == terrainPosition) {
+                //The judgment is the central chunk.
+                //判断是中心区块。
+                centralTerrain = terrain;
+            }
             dependencyTerrain.emplace_back(std::move(terrain));
         }
+    }
+    if (centralTerrain == nullptr) {
+        return;
     }
     LogCat::d(LogLabel::CHUNK, "chunk_loading", "Loading chunk at position: ({}, {})", position.x, position.y);
     std::unique_ptr<Chunk> newlyCreatedChunk = chunkLoader_->LoadChunkFromSaves(dimensionRef, position);
     if (newlyCreatedChunk == nullptr) {
         LogCat::d(LogLabel::CHUNK, "chunk_not_found_generating", "Chunk not found in saves, generating new chunk");
-        newlyCreatedChunk = worldContext_->GetChunkGenerator()->GenerateChunkAt(position);
+        newlyCreatedChunk = worldContext_->GetChunkGenerator()->GenerateChunkAt(position, centralTerrain.get());
     }
     if (newlyCreatedChunk == nullptr) {
         LogCat::w(LogLabel::CHUNK, std::source_location::current(), "chunk_load_generate_failed",

@@ -36,13 +36,24 @@
 
 void glimmer::BiomeDecoratorApplier::Apply(const std::unordered_set<BiomeResource *> &biomeResourcesSet,
                                            const ResourceLocator *resourceLocator,
-                                           BiomeDecoratorManager *biomeDecoratorManager,
                                            WorldContext *worldContext,
                                            TerrainResult *terrainResult,
                                            std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > &
                                            tilesRefMap) {
     LogCat::d(LogLabel::CHUNK, "biome_decorator_apply_start", "Applying biome decorators: biome count={}",
               biomeResourcesSet.size());
+    const AppContext *appContext = worldContext->GetAppContext();
+    if (appContext == nullptr) {
+        return;
+    }
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
+        return;
+    }
+    BiomeDecoratorManager *biomeDecoratorManager = modContext->GetBiomeDecoratorManager();
+    if (biomeDecoratorManager == nullptr) {
+        return;
+    }
     for (const auto biomeResources: biomeResourcesSet) {
         if (biomeResources == nullptr) {
             continue;

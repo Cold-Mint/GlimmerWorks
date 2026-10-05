@@ -40,7 +40,7 @@ namespace glimmer {
         b2BodyType bodyType_ = b2_staticBody;
         bool allowBodySleep_ = true;
         bool fixedRotation_ = false;
-        bool enabled_ = true;
+        bool enabled_ = false;
         float friction_ = 0.0F;
         float restitution_ = 0.0F;
         //Density

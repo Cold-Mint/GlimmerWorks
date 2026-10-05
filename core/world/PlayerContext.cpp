@@ -36,6 +36,7 @@
 #include "core/ecs/component/ItemContainerComponent.h"
 #include "core/ecs/component/LightComponent.h"
 #include "core/ecs/component/PlayerComponent.h"
+#include "core/ecs/component/RigidBody2DComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/log/LogCat.h"
@@ -43,6 +44,7 @@
 #include "core/mod/ResourceRef.h"
 #include "core/mod/resourcePack/AudioResourceResult.h"
 #include "core/context/AppContext.h"
+#include "core/world/ChunkManager.h"
 #include "core/world/Dimension.h"
 #include "core/world/WorldContext.h"
 
@@ -170,14 +172,15 @@ uint32_t glimmer::PlayerContext::CreateOrLoadPlayer(const ResourceRef &resourceR
     }
     const int worldSeed = worldContext_->GetWorldSeed();
     const auto firstTileTerrainY = climateSampler->GetFirstTileTerrainY(worldSeed, dimensionResource, 0);
+    const TileVector2D spawnTile(0, firstTileTerrainY + 3);
     playerEntity = worldContext_->GetEntityManager()->AddEntity();
     LogCat::i(LogLabel::DEFAULT, "player_context_created", "Created new player entity: id={}", playerEntity);
     MobEntityCreator mobEntityCreator{worldContext_};
     mobEntityCreator.LoadTemplateComponents(playerEntity, resourceRef);
     mobEntityCreator.MergeEntityItemMessage(playerEntity,
                                             MobEntityCreator::GetEntityItemMessage(
-                                                CoordinateTransformer::TileToWorld(
-                                                    TileVector2D(0, firstTileTerrainY + 3))));
+                                                CoordinateTransformer::TileToWorld(spawnTile)));
+    DisablePlayerRigidBody(playerEntity);
     return playerEntity;
 }
 
@@ -210,6 +213,18 @@ void glimmer::PlayerContext::InitPlayerInventory(const uint32_t playerEntity) co
                                                  DROPPED_ITEM_PICKUP_COOLDOWN_TICKS);
         }
     }
+}
+
+void glimmer::PlayerContext::DisablePlayerRigidBody(const uint32_t playerEntity) const {
+    EntityManager *entityManager = worldContext_->GetEntityManager();
+    if (entityManager == nullptr) {
+        return;
+    }
+    auto *rigidBody = entityManager->GetComponent<RigidBody2DComponent>(playerEntity);
+    if (rigidBody == nullptr) {
+        return;
+    }
+    rigidBody->Disable();
 }
 
 void glimmer::PlayerContext::OnPlayerItemChanged(const ItemContainer *itemContainer, uint8_t index, Item *item,

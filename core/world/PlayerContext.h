@@ -54,6 +54,8 @@ namespace glimmer {
 
         void InitPlayerInventory(uint32_t playerEntity) const;
 
+        void DisablePlayerRigidBody(uint32_t playerEntity) const;
+
         void OnPlayerItemChanged(const ItemContainer *itemContainer, uint8_t index, Item *item,
                                  ContainerChangeType changeType, PlayerComponent *playerComponent) const;
 
@@ -69,11 +71,11 @@ namespace glimmer {
         ~PlayerContext();
 
         /**
-     * Initialize the player
-     * 初始化玩家
-     * This method will load the player data from the disk and then supplement the player's components after the loading process.
-     * 这个方法将从磁盘加载玩家数据，并在加载后补充玩家的组件。
-     */
+        * Initialize the player
+        * 初始化玩家
+        * This method will load the player data from the disk and then supplement the player's components after the loading process.
+        * 这个方法将从磁盘加载玩家数据，并在加载后补充玩家的组件。
+        */
         void InitPlayer(const ResourceRef &resourceRef);
     };
 }

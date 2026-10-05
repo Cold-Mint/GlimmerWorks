@@ -57,10 +57,6 @@ namespace glimmer {
         //AdvanceTime 上次看到的 tick；用于计算 tick 差值。
         uint64_t lastTick_ = 0;
 
-        //Whether the tick baseline has been initialized.
-        //tick 基线是否已初始化。
-        bool initedTick_ = false;
-
         /**
          * Normalize
          * 归一化

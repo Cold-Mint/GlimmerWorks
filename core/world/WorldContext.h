@@ -26,6 +26,7 @@
  */
 #pragma once
 
+#include <atomic>
 #include <memory>
 
 #include "Box2dWorldId.h"
@@ -67,22 +68,18 @@ namespace glimmer {
 
         int worldSeed_ = 0;
         Saves *saves_;
-        //The initial tick number when this context was created
-        //创建此上下文时的初始tick数
-        uint64_t startTick_ = 0;
         //The fixed tick count is obtained from the saved list file.
         //固定的tick数，来自清单文件保存的。
         uint64_t fixedGlobalTick_ = 0;
-        uint64_t lastTick_ = 0;
-        //Has Tick been initialized?
-        //是否初始化了Tick?
-        bool initedTick_ = false;
+        //The total number of ticks played during this session; safe to read across threads.
+        //本次会话已游玩的 tick 数；可跨线程安全读取。
+        std::atomic<uint64_t> gameTick_{0};
         //Whether to enable the item dragging mode
         //是否启用物品拖拽模式
         bool dragMode_ = false;
         //Whether it is running or not, if false, it indicates that the game has been paused.
         //是否正在运行中，为false则表示游戏已被暂停。
-        bool running = true;
+        std::atomic<bool> running{true};
         Box2dWorldId box2DWorldId_;
         AppContext *appContext_ = nullptr;
         std::unique_ptr<MapManifest> mapManifest_ = nullptr;

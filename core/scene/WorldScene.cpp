@@ -90,6 +90,8 @@ bool glimmer::WorldScene::OnBackPressed() {
 }
 
 void glimmer::WorldScene::OnTick(uint64_t tick) {
+    LogCat::d(LogLabel::DEFAULT, "world_scene_tick_info", "tick: {} globalTick: {}",
+              tick, worldContext_->GetGlobalTick());
     if (!worldContext_->IsRuning()) {
         return;
     }

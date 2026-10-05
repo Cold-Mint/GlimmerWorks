@@ -57,11 +57,11 @@ glimmer::EntityShortCut *glimmer::WorldContext::GetEntityShortCut() const {
 }
 
 bool glimmer::WorldContext::IsRuning() const {
-    return running;
+    return running.load(std::memory_order_acquire);
 }
 
 void glimmer::WorldContext::SetRuning(const bool run) {
-    running = run;
+    running.store(run, std::memory_order_release);
 }
 
 glimmer::Saves *glimmer::WorldContext::GetSaves() const {
@@ -156,18 +156,14 @@ glimmer::WorldContext::~WorldContext() {
 }
 
 void glimmer::WorldContext::OnTick(const uint64_t tick) {
-    if (!initedTick_) {
-        startTick_ = tick;
-        initedTick_ = true;
-    }
-    lastTick_ = tick;
+    ++gameTick_;
     if (dimension_ != nullptr) {
         dimension_->AdvanceTime(tick);
     }
 }
 
 uint64_t glimmer::WorldContext::GetGlobalTick() const {
-    return fixedGlobalTick_ + (lastTick_ - startTick_);
+    return fixedGlobalTick_ + gameTick_.load(std::memory_order_acquire);
 }
 
 glimmer::WorldContext::WorldContext(AppContext *appContext, Saves *saves) : saves_(saves),

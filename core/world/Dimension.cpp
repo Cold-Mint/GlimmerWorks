@@ -37,11 +37,6 @@ glimmer::DimensionResource *glimmer::Dimension::GetDimensionResource() const {
 }
 
 void glimmer::Dimension::AdvanceTime(const uint64_t tick) {
-    if (!initedTick_) {
-        lastTick_ = tick;
-        initedTick_ = true;
-        return;
-    }
     const uint64_t tickDelta = tick - lastTick_;
     lastTick_ = tick;
     if (tickDelta == 0) {
@@ -86,5 +81,4 @@ void glimmer::Dimension::SetDimensionResource(const ResourceRef &dimensionResour
         normalizedTime_.store(Normalize(dimensionResource_->initialTime));
     }
     lastTick_ = 0;
-    initedTick_ = false;
 }

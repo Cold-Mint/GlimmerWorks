@@ -28,6 +28,7 @@
 
 #include "core/math/TileVector2D.h"
 #include "core/mod/Resource.h"
+#include "core/world/Dimension.h"
 #include "core/world/WorldContext.h"
 #include "core/world/generator/TerrainMath.h"
 
@@ -38,10 +39,18 @@ glimmer::HeightGrowthConditionProcessor::GetGrowthConditionProcessorType() {
 
 bool glimmer::HeightGrowthConditionProcessor::Match(const WorldContext *worldContext, const TileVector2D &position,
                                                     const IGrowthConditionResource *growthConditionResource) {
+    const Dimension *dimension = worldContext->GetDimension();
+    if (dimension == nullptr) {
+        return false;
+    }
+    const DimensionResource *dimensionResource = dimension->GetDimensionResource();
+    if (dimensionResource == nullptr) {
+        return false;
+    }
     const auto heightCondition = dynamic_cast<const HeightGrowthConditionResource *>(growthConditionResource);
     if (heightCondition == nullptr) {
         return false;
     }
-    const float percent = TerrainMath::GetElevation(position.y);
+    const float percent = TerrainMath::GetElevation(dimensionResource, position.y);
     return percent >= heightCondition->minHeightPercent && percent <= heightCondition->maxHeightPercent;
 }

@@ -77,8 +77,8 @@ glimmer::Color glimmer::DebugMultiMapSystem::GetTileDebugColor(const TileVector2
         return color;
     }
     const int worldSeed = worldContext->GetWorldSeed();
-    auto debugColor = appContext->GetGraphicsContext()->GetPreloadColors()->debugColor;
-    float elevation = TerrainMath::GetElevation(tile.x);
+    auto &debugColor = appContext->GetGraphicsContext()->GetPreloadColors()->debugColor;
+    float elevation = TerrainMath::GetElevation(dimensionResource, tile.x);
     std::vector<Color> activeColors;
 
     if (config->debug.displayElevationMap) {

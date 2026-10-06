@@ -492,7 +492,7 @@ float glimmer::LightBuffer::GetSkyTransmittance(const TileVector2D &position) co
 int glimmer::LightBuffer::GetColumnSkyTopY(const int x) const {
     const auto it = columnSkyOccluders_.find(x);
     if (it == columnSkyOccluders_.end() || it->second.empty()) {
-        return WORLD_MIN_Y - 1;
+        return std::numeric_limits<int>::min();
     }
     return *it->second.rbegin();
 }

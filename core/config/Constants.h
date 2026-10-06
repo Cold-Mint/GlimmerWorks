@@ -223,6 +223,11 @@ static constexpr uint16_t MAGNETIC_TYPE_ITEM = 0x0001;
  * 设计为2的幂次(16=2^4)，便于后续通过位运算快速计算
  */
 static constexpr int CHUNK_SIZE = 16;
+/**
+ * The size (side length) of the terrain block
+ * 地形块的尺寸（边长）
+ */
+static constexpr int TERRAIN_SIZE = CHUNK_SIZE;
 static constexpr int HALF_CHUNK_SIZE = CHUNK_SIZE * 0.5;
 
 /**
@@ -234,11 +239,6 @@ static constexpr int HALF_CHUNK_SIZE = CHUNK_SIZE * 0.5;
 static constexpr int CHUNK_AREA = CHUNK_SIZE * CHUNK_SIZE;
 static constexpr int TILE_LAYER_TYPE_COUNT = 2;
 
-/**
- * Number of moon phases.
- * 月相数量。
- */
-static constexpr int MOON_PHASE_COUNT = 8;
 
 /**
  * Block mask (used for fast modulo operation / obtaining offset within the block)
@@ -273,24 +273,6 @@ static constexpr int CHUNK_ALIGN = ~CHUNK_MASK;
  * 作用：x >> CHUNK_SHIFT 等价于 x / CHUNK_SIZE（仅当CHUNK_SIZE为2的幂时成立）
  */
 static constexpr int CHUNK_SHIFT = 4; // Since CHUNK_SIZE = 16 = 2^4
-static constexpr int SKY_HEIGHT = 64;
-static constexpr int WORLD_MAX_Y = 320;
-static constexpr int WORLD_MIN_Y = 0;
-static constexpr int WORLD_MIN_X = -29984;
-static constexpr int WORLD_MAX_X = 29984;
-
-//Total distributable height.
-//总的可供分配高度。
-static constexpr int TERRAIN_HEIGHT_RANGE = WORLD_MAX_Y - WORLD_MIN_Y - SKY_HEIGHT;
-//The height of the lowest point on the ground.
-//地面最低点的高度。
-static constexpr int GROUND_START_HEIGHT = WORLD_MIN_Y + TERRAIN_HEIGHT_RANGE * 0.45F;
-//Sea level height
-//海平面高度
-static constexpr int SEA_LEVEL_HEIGHT = WORLD_MIN_Y + TERRAIN_HEIGHT_RANGE * 0.55F;
-//Continent noise, the maximum height that can be allocated.
-//大陆噪声，可分配的最大高度。
-static constexpr int CONTINENT_MAX_HEIGHT = TERRAIN_HEIGHT_RANGE * 0.2F;
 
 static constexpr int TILE_SIZE = 16;
 static constexpr int HALF_TILE_SIZE = TILE_SIZE >> 1;

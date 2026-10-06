@@ -33,7 +33,8 @@ GetStructureConditionProcessorType() {
     return StructureConditionProcessorType::Height;
 }
 
-std::bitset<CHUNK_AREA> glimmer::HeightStructureConditionProcessor::Match(const TerrainResult *terrainResult,
+std::bitset<CHUNK_AREA> glimmer::HeightStructureConditionProcessor::Match(const DimensionResource *dimensionResource,
+                                                                          const TerrainResult *terrainResult,
                                                                           const IStructurePlacementConditionsResource *
                                                                           placementConditionsResource) {
     const auto heightStructureConditions = dynamic_cast<const HeightStructureConditionsResource *>(
@@ -44,12 +45,12 @@ std::bitset<CHUNK_AREA> glimmer::HeightStructureConditionProcessor::Match(const 
     }
     const float maxHeightPercent = heightStructureConditions->maxHeightPercent;
     const float minHeightPercent = heightStructureConditions->minHeightPercent;
-    TileVector2D position = terrainResult->GetPosition();
+    const TileVector2D &position = terrainResult->GetPosition();
     int matchedTileCount = 0;
     for (int localX = 0; localX < CHUNK_SIZE; localX++) {
         for (int localY = 0; localY < CHUNK_SIZE; localY++) {
             int globalY = localY + position.y;
-            float percent = static_cast<float>(globalY) / WORLD_MAX_Y;
+            float percent = static_cast<float>(globalY) / static_cast<float>(dimensionResource->maxY);
             if (percent >= minHeightPercent && percent <= maxHeightPercent) {
                 int tileIndex = localX + localY * CHUNK_SIZE;
                 result[tileIndex] = true;

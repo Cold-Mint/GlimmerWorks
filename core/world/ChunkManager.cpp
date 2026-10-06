@@ -408,13 +408,15 @@ ChunkManager::GetLoadedChunks(const ResourceRef &dimensionRef) const {
     return &dimensionIterator->second;
 }
 
-glimmer::TileInstancePool *glimmer::ChunkManager::GetTileInstancePool() const {
-    return tileInstancePool_.get();
+bool glimmer::ChunkManager::ChunkIsOutOfBounds(const DimensionResource *dimensionResource,
+                                               const TileVector2D &position) {
+    return position.y >= dimensionResource->maxY || position.y < dimensionResource->minY || position.x >=
+           dimensionResource->maxX || position.x <
+           dimensionResource->minX;
 }
 
-bool glimmer::ChunkManager::ChunkIsOutOfBounds(const TileVector2D &position) {
-    return position.y >= WORLD_MAX_Y || position.y < WORLD_MIN_Y || position.x >= WORLD_MAX_X || position.x <
-           WORLD_MIN_X;
+glimmer::TileInstancePool *glimmer::ChunkManager::GetTileInstancePool() const {
+    return tileInstancePool_.get();
 }
 
 glimmer::LightBuffer *glimmer::ChunkManager::GetLightingBuffer() const {

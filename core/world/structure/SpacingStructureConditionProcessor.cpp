@@ -31,7 +31,8 @@ GetStructureConditionProcessorType() {
     return StructureConditionProcessorType::Spacing;
 }
 
-std::bitset<CHUNK_AREA> glimmer::SpacingStructureConditionProcessor::Match(const TerrainResult *terrainResult,
+std::bitset<CHUNK_AREA> glimmer::SpacingStructureConditionProcessor::Match(const DimensionResource *dimensionResource,
+                                                                           const TerrainResult *terrainResult,
                                                                            const IStructurePlacementConditionsResource *
                                                                            placementConditionsResource) {
     const auto spacingStructureConditions = dynamic_cast<const SpacingStructureConditionsResource *>(

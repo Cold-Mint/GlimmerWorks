@@ -27,6 +27,7 @@
 #pragma once
 
 namespace glimmer {
+    struct DimensionResource;
     /**
      * TerrainMath
      * 地形数学工具
@@ -39,20 +40,22 @@ namespace glimmer {
          * 获取海拔
          * Normalize a world Y coordinate into a 0-1 elevation value.
          * 将世界Y坐标归一化为0-1的海拔值。
+         * @param dimensionResource
          * @param y y 世界Y坐标
          * @return Elevation in [0,1] 海拔值，范围0-1
          */
-        static float GetElevation(int y);
+        static float GetElevation(const DimensionResource *dimensionResource, int y);
 
         /**
          * GetSurfaceProximity
          * 获取地表贴近度
          * Compute how close a world Y coordinate is to the surface.
          * 计算某个世界Y坐标距离地表的贴近程度。
+         * @param dimensionResource
          * @param firstTileTerrainY firstTileTerrainY 地表第一格Y坐标
          * @param worldY worldY 世界Y坐标
          * @return Proximity in [0,1] 贴近度，范围0-1
          */
-        static float GetSurfaceProximity(int firstTileTerrainY, int worldY);
+        static float GetSurfaceProximity(const DimensionResource *dimensionResource, int firstTileTerrainY, int worldY);
     };
 }

@@ -156,10 +156,12 @@ namespace glimmer {
         /**
          * Check whether the block exceeds the boundary
          * 检查区块是否超出边界
+         * @param dimensionResource
          * @param position 区块位置 position
          * @return Whether it exceeds the boundary 是否超出边界
          */
-        [[nodiscard]] static bool ChunkIsOutOfBounds(const TileVector2D &position);
+        [[nodiscard]] static bool
+        ChunkIsOutOfBounds(const DimensionResource *dimensionResource, const TileVector2D &position);
 
         [[nodiscard]] LightBuffer *GetLightingBuffer() const;
 

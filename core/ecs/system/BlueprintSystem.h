@@ -34,6 +34,7 @@
 #include "core/world/PreloadColors.h"
 
 namespace glimmer {
+    class Dimension;
     class AppContext;
 
     class BlueprintSystem final : public GameSystem {
@@ -59,12 +60,14 @@ namespace glimmer {
          * @param playerPosition
          * @param tileWidth
          * @param tileHeight
+         * @param dimensionResource
          * @return
          */
         std::vector<bool> CheckRectPlacementValidity(const ResourceRef &dimensionRef, const Tile *tile,
                                                      const TileVector2D &leftBottom,
                                                      const WorldVector2D &playerPosition, uint8_t tileWidth,
-                                                     uint8_t tileHeight) const;
+                                                     uint8_t tileHeight,
+                                                     const DimensionResource *dimensionResource) const;
 
         /**
          * Determine whether a certain point is blocked by an obstacle rectangle
@@ -75,7 +78,8 @@ namespace glimmer {
         bool IsPointBlocked(const TileVector2D &point) const;
 
         bool CheckSinglePointValidity(const ResourceRef &dimensionRef, const Tile *tile, const TileVector2D &point,
-                                      const WorldVector2D &playerPosition) const;
+                                      const WorldVector2D &playerPosition,
+                                      const DimensionResource *dimensionResource) const;
 
         void UpdateBlockRects();
 

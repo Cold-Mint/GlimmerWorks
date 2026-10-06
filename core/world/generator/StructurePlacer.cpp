@@ -35,6 +35,7 @@
 #include "core/mod/StructurePlacementConditionsProcessorManager.h"
 #include "core/mod/dataPack/StructurePlacementConditionsRegistry.h"
 #include "core/mod/dataPack/StructureRegistry.h"
+#include "core/world/Dimension.h"
 #include "core/world/WorldContext.h"
 #include "core/world/structure/IStructureConditionProcessor.h"
 #include "core/world/structure/StructureConditionProcessorType.h"
@@ -131,8 +132,21 @@ void glimmer::StructurePlacer::GenerateStructure(const TileVector2D &position) c
 // }
 // }
 
+
 std::optional<std::bitset<CHUNK_AREA> > glimmer::StructurePlacer::MatchStructureConditions(
-    const AppContext *appContext, const TerrainResult *terrainResult, const IStructureResource *structureResource) {
+    const WorldContext *worldContext, const TerrainResult *terrainResult, const IStructureResource *structureResource) {
+    AppContext *appContext = worldContext->GetAppContext();
+    if (appContext == nullptr) {
+        return std::nullopt;
+    }
+    Dimension *dimension = worldContext->GetDimension();
+    if (dimension == nullptr) {
+        return std::nullopt;
+    }
+    DimensionResource *dimensionResource = dimension->GetDimensionResource();
+    if (dimensionResource == nullptr) {
+        return std::nullopt;
+    }
     const std::string resId = Resource::GenerateId(*structureResource);
     const size_t totalConditions = structureResource->condition.size();
     if (totalConditions == 0) {
@@ -184,8 +198,9 @@ std::optional<std::bitset<CHUNK_AREA> > glimmer::StructurePlacer::MatchStructure
             continue;
         }
 
-        std::bitset<CHUNK_AREA> bitset = structureConditionProcessor->Match(
-            terrainResult, structurePlacementConditionsResource);
+        std::bitset<CHUNK_AREA> bitset = structureConditionProcessor->Match(dimensionResource,
+                                                                            terrainResult,
+                                                                            structurePlacementConditionsResource);
 
         if (bitset.none()) {
             LogCat::d(LogLabel::TERRAIN, "structure_condition_no_match",

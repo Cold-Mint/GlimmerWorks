@@ -30,6 +30,8 @@
 
 #include "TerrainMath.h"
 #include "core/log/LogCat.h"
+#include "core/world/Dimension.h"
+#include "core/world/WorldContext.h"
 
 
 void glimmer::MineralBiomeDecorator::DecorationImpl(WorldContext *worldContext, TerrainResult *terrainResult,
@@ -37,6 +39,14 @@ void glimmer::MineralBiomeDecorator::DecorationImpl(WorldContext *worldContext, 
                                                     BiomeResource *biomeResource,
                                                     std::unordered_map<TileLayerType, std::array<ResourceRef,
                                                         CHUNK_AREA> > *tilesRefMap) {
+    Dimension *dimension = worldContext->GetDimension();
+    if (dimension == nullptr) {
+        return;
+    }
+    DimensionResource *dimensionResource = dimension->GetDimensionResource();
+    if (dimensionResource == nullptr) {
+        return;
+    }
     const FastNoiseLite *noiseLite = decoratorResource->GetFastNoiseLite(GetWorldSeed());
     if (noiseLite == nullptr) {
         LogCat::w(LogLabel::CHUNK, std::source_location::current(), "mineral_decorator_noise_is_null",
@@ -56,7 +66,7 @@ void glimmer::MineralBiomeDecorator::DecorationImpl(WorldContext *worldContext, 
         for (int localY = 0; localY < CHUNK_SIZE; localY++) {
             const int idx = localY * CHUNK_SIZE + localX;
             const TileVector2D absolutePosition = terrainResult->GetPosition() + TileVector2D(localX, localY);
-            float elevation = TerrainMath::GetElevation(absolutePosition.y);
+            float elevation = TerrainMath::GetElevation(dimensionResource, absolutePosition.y);
             if (elevation > decoratorResource->maxSpawnElevation || elevation < decoratorResource->minSpawnElevation) {
                 continue;
             }

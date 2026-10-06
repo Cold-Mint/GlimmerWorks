@@ -41,16 +41,17 @@
 #include "core/world/scheduler/ChunkTaskScheduler.h"
 #include "core/world/scheduler/ChunkTaskType.h"
 
-void glimmer::ChunkSystem::GenerateLoadTasks(const ResourceRef &dimensionRef, const ChunkManager *chunkManager,
-                                             ChunkTaskScheduler *scheduler, const TileVector2D &startChunk,
-                                             const TileVector2D &endChunk) {
+void glimmer::ChunkSystem::GenerateLoadTasks(const DimensionResource *dimensionResource,
+                                             const ResourceRef &dimensionRef, const ChunkManager *chunkManager,
+                                             ChunkTaskScheduler *scheduler,
+                                             const TileVector2D &startChunk, const TileVector2D &endChunk) {
     if (chunkManager == nullptr || scheduler == nullptr) {
         return;
     }
     for (int cy = startChunk.y; cy <= endChunk.y; cy += CHUNK_SIZE) {
         for (int cx = startChunk.x; cx <= endChunk.x; cx += CHUNK_SIZE) {
             const TileVector2D chunkVertexCoordinates(cx, cy);
-            if (ChunkManager::ChunkIsOutOfBounds(chunkVertexCoordinates)) {
+            if (ChunkManager::ChunkIsOutOfBounds(dimensionResource, chunkVertexCoordinates)) {
                 continue;
             }
             if (chunkManager->HasChunk(dimensionRef, chunkVertexCoordinates)) {
@@ -160,6 +161,10 @@ void glimmer::ChunkSystem::OnTick(const uint64_t tick) {
     if (dimension == nullptr) {
         return;
     }
+    const DimensionResource *dimensionResource = dimension->GetDimensionResource();
+    if (dimensionResource == nullptr) {
+        return;
+    }
     const ResourceRef &dimensionResourceRef = dimension->GetDimensionResourceRef();
     if (!dimensionResourceRef.IsValid()) {
         return;
@@ -220,7 +225,7 @@ void glimmer::ChunkSystem::OnTick(const uint64_t tick) {
         return;
     }
 
-    GenerateLoadTasks(dimensionResourceRef, chunkManager, chunkTaskScheduler, startChunk, endChunk);
+    GenerateLoadTasks(dimensionResource, dimensionResourceRef, chunkManager, chunkTaskScheduler, startChunk, endChunk);
     GenerateUnloadTasks(dimensionResourceRef, chunkManager, chunkTaskScheduler, startChunk, endChunk);
 
     chunkTaskScheduler->Commit();

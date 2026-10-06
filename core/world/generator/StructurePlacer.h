@@ -31,6 +31,7 @@
 #include "core/config/Constants.h"
 
 namespace glimmer {
+    class WindowContext;
     class WorldContext;
     class TerrainManager;
     class TileVector2D;
@@ -60,13 +61,13 @@ namespace glimmer {
         /**
          * MatchStructureConditions
          * 匹配结构放置条件
-         * @param appContext appContext 应用上下文
+         * @param worldContext worldContext 上下文
          * @param terrainResult terrainResult 地形结果
          * @param structureResource structureResource 结构资源
          * @return A bitset of candidate points, or nullopt if no condition matched 候选点集合，未匹配到条件时返回nullopt
          */
         static std::optional<std::bitset<CHUNK_AREA> > MatchStructureConditions(
-            const AppContext *appContext, const TerrainResult *terrainResult,
+            const WorldContext *worldContext, const TerrainResult *terrainResult,
             const IStructureResource *structureResource);
 
         /**

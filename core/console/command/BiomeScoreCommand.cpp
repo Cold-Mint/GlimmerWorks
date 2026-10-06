@@ -48,7 +48,7 @@ std::string glimmer::BiomeScoreCommand::CalculateAndFormatBiomeScores(const Tile
     for (auto biomeResource: biomeRegistry->GetBiomeVector()) {
         float total = 0;
         std::string biomeId = Resource::GenerateId(*biomeResource);
-        const float elevation = TerrainMath::GetElevation(tileVector2D.y);
+        const float elevation = TerrainMath::GetElevation(dimensionResource, tileVector2D.y);
         float elevationScore = BiomeRegistry::CalculateBiomeScoreDelta(
             biomeResource->elevation, elevation, biomeResource->strictnessElevation);
         total += elevationScore;
@@ -88,8 +88,10 @@ std::string glimmer::BiomeScoreCommand::CalculateAndFormatBiomeScores(const Tile
                                    biomeResource->erosion, erosion, biomeResource->strictnessErosion,
                                    erosionScore);
         biomeStream << '\n';
-        const auto surfaceProximity = TerrainMath::GetSurfaceProximity(
-            climateSampler->GetFirstTileTerrainY(worldSeed, dimensionResource, tileVector2D.x), tileVector2D.y);
+        const auto surfaceProximity = TerrainMath::GetSurfaceProximity(dimensionResource,
+                                                                       climateSampler->GetFirstTileTerrainY(
+                                                                           worldSeed, dimensionResource,
+                                                                           tileVector2D.x), tileVector2D.y);
         float surfaceProximityScore = BiomeRegistry::CalculateBiomeScoreDelta(
             biomeResource->surfaceProximity, surfaceProximity, biomeResource->strictnessSurfaceProximity);
         total += surfaceProximityScore;

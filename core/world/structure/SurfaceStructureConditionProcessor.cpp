@@ -33,7 +33,8 @@ GetStructureConditionProcessorType() {
     return StructureConditionProcessorType::Surface;
 }
 
-std::bitset<CHUNK_AREA> glimmer::SurfaceStructureConditionProcessor::Match(const TerrainResult *terrainResult,
+std::bitset<CHUNK_AREA> glimmer::SurfaceStructureConditionProcessor::Match(const DimensionResource *dimensionResource,
+                                                                           const TerrainResult *terrainResult,
                                                                            const IStructurePlacementConditionsResource *
                                                                            placementConditionsResource) {
     std::bitset<CHUNK_AREA> result;

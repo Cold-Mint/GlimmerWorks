@@ -26,16 +26,18 @@
  */
 #include "TerrainMath.h"
 
-#include "core/config/Constants.h"
+#include "core/mod/Resource.h"
 
-float glimmer::TerrainMath::GetElevation(const int y) {
-    return static_cast<float>(y - WORLD_MIN_Y) / static_cast<float>(WORLD_MAX_Y - WORLD_MIN_Y);
+float glimmer::TerrainMath::GetElevation(const DimensionResource *dimensionResource, int y) {
+    return static_cast<float>(y - dimensionResource->minY) / static_cast<float>(
+               dimensionResource->maxY - dimensionResource->minY);
 }
 
-float glimmer::TerrainMath::GetSurfaceProximity(const int firstTileTerrainY, const int worldY) {
-    constexpr float totalHeight = WORLD_MAX_Y - WORLD_MIN_Y;
-    const float surfaceNormalized = static_cast<float>(firstTileTerrainY - WORLD_MIN_Y) / totalHeight;
-    const float currentNormalized = static_cast<float>(worldY - WORLD_MIN_Y) / totalHeight;
+float glimmer::TerrainMath::GetSurfaceProximity(const DimensionResource *dimensionResource, int firstTileTerrainY,
+                                                int worldY) {
+    float totalHeight = static_cast<float>(dimensionResource->maxY) - static_cast<float>(dimensionResource->minY);
+    const float surfaceNormalized = static_cast<float>(firstTileTerrainY - dimensionResource->minY) / totalHeight;
+    const float currentNormalized = static_cast<float>(worldY - dimensionResource->minY) / totalHeight;
     const float offset = currentNormalized - surfaceNormalized;
     float proximity = 0.5F + offset * 0.5F;
     if (proximity < 0.0F) {

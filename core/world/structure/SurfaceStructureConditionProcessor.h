@@ -32,7 +32,7 @@ namespace glimmer {
     public:
         StructureConditionProcessorType GetStructureConditionProcessorType() override;
 
-        std::bitset<CHUNK_AREA> Match(const TerrainResult *terrainResult,
+        std::bitset<CHUNK_AREA> Match(const DimensionResource *dimensionResource, const TerrainResult *terrainResult,
                                       const IStructurePlacementConditionsResource *
                                       placementConditionsResource) override;
     };

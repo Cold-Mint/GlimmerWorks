@@ -44,17 +44,17 @@ std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerra
     LogCat::d(LogLabel::TERRAIN, "terrain_generating", "Generating terrain: position=({}, {})", position.x, position.y);
     auto terrainResult = std::make_shared<TerrainResult>();
     terrainResult->SetPosition(position);
-    for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
+    for (int localX = 0; localX < TERRAIN_SIZE; ++localX) {
         const int firstTileTerrainY = climateSampler_->GetFirstTileTerrainY(worldSeed, dimensionResource,
                                                                             position.x + localX);
-        for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
+        for (int localY = 0; localY < TERRAIN_SIZE; ++localY) {
             auto localPosition = TileVector2D(localX, localY);
             WriteTerrainTileResult(biomeRegistry, worldSeed, dimensionResource, dimension, localPosition + position,
                                    firstTileTerrainY, terrainResult->GetMutableTerrainTileResult(localPosition));
         }
     }
-    const int upWorldY = position.y + CHUNK_SIZE;
-    for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
+    const int upWorldY = position.y + TERRAIN_SIZE;
+    for (int localX = 0; localX < TERRAIN_SIZE; ++localX) {
         const int worldX = position.x + localX;
         const int firstTileTerrainY = climateSampler_->GetFirstTileTerrainY(worldSeed, dimensionResource, worldX);
         auto worldPosition = TileVector2D(position.x + localX, upWorldY);
@@ -92,26 +92,27 @@ void glimmer::TerrainGenerator::WriteTerrainTileResult(const BiomeRegistry *biom
     if (climateSampler_ == nullptr) {
         return;
     }
-    const float elevation = TerrainMath::GetElevation(world.y);
+    const float elevation = TerrainMath::GetElevation(dimensionResource, world.y);
     const auto humidity = climateSampler_->GetHumidity(worldSeed, dimensionResource, world);
     const auto temperature = climateSampler_->GetTemperature(worldSeed, dimensionResource, world, elevation);
     const auto weirdness = climateSampler_->GetWeirdness(worldSeed, dimensionResource, world);
     const auto erosion = climateSampler_->GetErosion(worldSeed, dimensionResource, world);
-    const auto surfaceProximity = TerrainMath::GetSurfaceProximity(firstTileTerrainY, world.y);
+    const auto surfaceProximity = TerrainMath::GetSurfaceProximity(dimensionResource, firstTileTerrainY, world.y);
     terrainTileResult.SetWorldPosition(world);
     terrainTileResult.SetBiomeResource(biomeRegistry->FindBestBiome(dimension,
                                                                     humidity, temperature, weirdness, erosion,
                                                                     elevation,
                                                                     surfaceProximity));
-    if (world.y > WORLD_MAX_Y || world.y < WORLD_MIN_Y || world.x > WORLD_MAX_X || world.x < WORLD_MIN_X) {
+    if (world.y > dimensionResource->maxY || world.y < dimensionResource->minY || world.x > dimensionResource->maxX ||
+        world.x < dimensionResource->minX) {
         terrainTileResult.SetTerrainType(TerrainResultType::VOID);
         return;
     }
-    if (world.y == WORLD_MIN_Y) {
+    if (world.y == dimensionResource->minY) {
         terrainTileResult.SetTerrainType(TerrainResultType::BEDROCK);
     }
     if (world.y > firstTileTerrainY) {
-        if (world.y < SEA_LEVEL_HEIGHT) {
+        if (world.y < dimensionResource->seaLevelY) {
             terrainTileResult.SetTerrainType(TerrainResultType::WATER);
             return;
         }

@@ -54,7 +54,8 @@ namespace glimmer {
          * Generate load tasks for chunks within [startChunk, endChunk].
          * 为 [startChunk, endChunk] 范围内的区块生成加载任务。
          */
-        static void GenerateLoadTasks(const ResourceRef &dimensionRef, const ChunkManager *chunkManager,
+        static void GenerateLoadTasks(const DimensionResource *dimensionResource, const ResourceRef &dimensionRef,
+                                      const ChunkManager *chunkManager,
                                       ChunkTaskScheduler *scheduler,
                                       const TileVector2D &startChunk,
                                       const TileVector2D &endChunk);

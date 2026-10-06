@@ -56,19 +56,19 @@ std::optional<glimmer::TileVector2D> glimmer::LocateCommand::SearchBiomes(int ti
                                    HALF_CHUNK_SIZE, HALF_CHUNK_SIZE
                                };
     const int firstTileTerrainY = climateSampler->GetFirstTileTerrainY(worldSeed, dimensionResource, tileX);
-    for (int y = WORLD_MAX_Y - HALF_CHUNK_SIZE; y > WORLD_MIN_Y; y -= CHUNK_SIZE) {
+    for (int y = dimensionResource->maxY - HALF_CHUNK_SIZE; y > dimensionResource->minY; y -= CHUNK_SIZE) {
         if (y > firstTileTerrainY) {
             continue;
         }
         chunkCenter.y = y;
-        float elevation = TerrainMath::GetElevation(y);
+        float elevation = TerrainMath::GetElevation(dimensionResource, y);
         const BiomeResource *nowBiomeResource = biomeRegistry->FindBestBiome(
             dimension, climateSampler->GetHumidity(worldSeed, dimensionResource, chunkCenter),
             climateSampler->GetTemperature(worldSeed, dimensionResource, chunkCenter, elevation),
             climateSampler->GetWeirdness(worldSeed, dimensionResource, chunkCenter),
             climateSampler->GetErosion(worldSeed, dimensionResource, chunkCenter),
             elevation,
-            TerrainMath::GetSurfaceProximity(firstTileTerrainY, y));
+            TerrainMath::GetSurfaceProximity(dimensionResource, firstTileTerrainY, y));
         if (nowBiomeResource == nullptr) {
             continue;
         }

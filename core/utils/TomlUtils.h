@@ -184,18 +184,6 @@ namespace toml {
     };
 
     template<>
-    struct from<glimmer::SpacingStructureConditionsResource> {
-        static glimmer::SpacingStructureConditionsResource from_toml(const value &v) {
-            glimmer::SpacingStructureConditionsResource r;
-            r.minDistance = toml::find_or<int>(v, "min_distance", 0);
-            r.isVertical = toml::find_or<bool>(v, "is_vertical", false);
-            r.processorId = toml::find_or<uint8_t>(v, "processor_id", 0);
-            r.resourceId = toml::find<std::string>(v, "resource_id");
-            return r;
-        }
-    };
-
-    template<>
     struct from<glimmer::IBiomeDecoratorResource> {
         static glimmer::IBiomeDecoratorResource from_toml(const value &v) {
             glimmer::IBiomeDecoratorResource r;
@@ -423,6 +411,18 @@ namespace toml {
     };
 
     template<>
+    struct from<glimmer::SpacingStructureConditionsResource> {
+        static glimmer::SpacingStructureConditionsResource from_toml(const value &v) {
+            glimmer::SpacingStructureConditionsResource r;
+            r.isVertical = toml::find_or<bool>(v, "is_vertical", false);
+            r.minDistance = toml::find_or<int>(v, "min_distance", 0);
+            r.processorId = toml::find_or<uint8_t>(v, "processor_id", 0);
+            r.resourceId = toml::find<std::string>(v, "resource_id");
+            return r;
+        }
+    };
+
+    template<>
     struct from<glimmer::StaticStructureResource> {
         static glimmer::StaticStructureResource from_toml(const value &v) {
             glimmer::StaticStructureResource r;
@@ -628,9 +628,17 @@ namespace toml {
             glimmer::DimensionResource r;
             r.allowAsStarting = toml::find_or<bool>(v, "allow_as_starting", false);
             r.backLightKeyframes = toml::find<std::vector<glimmer::LightKeyframe> >(v, "back_light_keyframes");
+            r.continentMaxY = toml::find_or<int>(v, "continent_max_y", 176);
+            r.continentMinY = toml::find_or<int>(v, "continent_min_y", 64);
             r.initialTime = toml::find_or<float>(v, "initial_time", 0.0F);
+            r.maxX = toml::find_or<int>(v, "max_x", 30000);
+            r.maxY = toml::find_or<int>(v, "max_y", 320);
+            r.minX = toml::find_or<int>(v, "min_x", -30000);
+            r.minY = toml::find_or<int>(v, "min_y", 0);
             r.name = toml::find<glimmer::ResourceRef>(v, "name");
             r.resourceId = toml::find<std::string>(v, "resource_id");
+            r.seaLevelY = toml::find_or<int>(v, "sea_level_y", 160);
+            r.skyHeight = toml::find_or<int>(v, "sky_height", 16);
             r.skyLightKeyframes = toml::find<std::vector<glimmer::LightKeyframe> >(v, "sky_light_keyframes");
             r.timeFlowSpeed = toml::find_or<float>(v, "time_flow_speed", 1.0F);
             return r;

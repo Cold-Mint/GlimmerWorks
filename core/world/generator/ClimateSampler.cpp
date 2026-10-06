@@ -95,7 +95,7 @@ void glimmer::ClimateSampler::EnsureNoiseBound(const int worldSeed,
 int glimmer::ClimateSampler::GetFirstTileTerrainY(const int worldSeed, const DimensionResource *dimensionResource,
                                                   const int x) {
     if (dimensionResource == nullptr) {
-        return GROUND_START_HEIGHT;
+        return std::numeric_limits<int>::min();
     }
     EnsureNoiseBound(worldSeed, dimensionResource);
     auto &heightMap = heightMap_[dimensionResource];
@@ -105,7 +105,10 @@ int glimmer::ClimateSampler::GetFirstTileTerrainY(const int worldSeed, const Dim
     }
     const auto sampleX = static_cast<float>(x);
     const float continentNoise = (GetNoise(NoiseField::ContinentHeight)->GetNoise(sampleX, 0.0F) + 1.0F) * 0.5F;
-    const int height = GROUND_START_HEIGHT + CONTINENT_MAX_HEIGHT * continentNoise;
+    const int continentMaxHeight = dimensionResource->continentMaxY - dimensionResource->
+                                   continentMinY;
+    const int height = dimensionResource->continentMinY + static_cast<int>(
+                           static_cast<float>(continentMaxHeight) * continentNoise);
     heightMap[x] = height;
     return height;
 }

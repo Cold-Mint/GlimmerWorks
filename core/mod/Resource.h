@@ -774,6 +774,7 @@ namespace glimmer {
         ResourceRef horizon;
     };
 
+
     /**
      * DimensionResource
      * 维度
@@ -806,6 +807,22 @@ namespace glimmer {
         std::vector<LightKeyframe> backLightKeyframes;
         //@genNextLine(skyLightKeyframes|天光关键帧列表（时间点+RGB+强度）。)
         std::vector<LightKeyframe> skyLightKeyframes;
+        //@genNextLine(minX|最小x坐标)
+        int minX = -30000;
+        //@genNextLine(maxX|最大x坐标)
+        int maxX = 30000;
+        //@genNextLine(minY|最小y坐标)
+        int minY = 0;
+        //@genNextLine(maxY|最大y坐标)
+        int maxY = 320;
+        //@genNextLine(skyHeight|天空占用的高度)
+        int skyHeight = 16;
+        //@genNextLine(seaLevelY|海平面y)
+        int seaLevelY = 160;
+        //@genNextLine(continentMaxYt|山脉最大的Y)
+        int continentMaxY = 176;
+        //@genNextLine(continentMinY|山脉最小的Y)
+        int continentMinY = 64;
     };
 
     /**

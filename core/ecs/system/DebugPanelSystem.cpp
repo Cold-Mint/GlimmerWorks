@@ -189,7 +189,7 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
                 for (auto tileLayerComponent: tileLayerComponents_) {
                     TileVector2D chunkRelative = Chunk::TileCoordinatesToChunkRelativeCoordinates(tileCoord);
                     if (firstLayer) {
-                        float elevation = TerrainMath::GetElevation(tileCoord.y);
+                        float elevation = TerrainMath::GetElevation(dimensionResource, tileCoord.y);
                         debugLines_.push_back(DebugLine{
                             fmt::format(
                                 fmt::runtime(langsResources->tileDebugInfo),

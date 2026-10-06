@@ -83,7 +83,7 @@ bool glimmer::BiomeGrowthConditionProcessor::Match(const WorldContext *worldCont
     resourceRef.SetSelfPackageId(dimensionResource->packId);
     resourceRef.SetResourceType(RESOURCE_DIMENSION);
     resourceRef.SetResourceKey(dimensionResource->resourceId);
-    const float elevation = TerrainMath::GetElevation(position.y);
+    const float elevation = TerrainMath::GetElevation(dimensionResource, position.y);
     const int worldSeed = worldContext->GetWorldSeed();
     const BiomeResource *biomeResource = biomeRegistry->FindBestBiome(
         resourceRef,
@@ -92,7 +92,8 @@ bool glimmer::BiomeGrowthConditionProcessor::Match(const WorldContext *worldCont
         climateSampler->GetWeirdness(worldSeed, dimensionResource, position),
         climateSampler->GetErosion(worldSeed, dimensionResource, position),
         elevation,
-        TerrainMath::GetSurfaceProximity(climateSampler->GetFirstTileTerrainY(worldSeed, dimensionResource, position.x),
+        TerrainMath::GetSurfaceProximity(dimensionResource,
+                                         climateSampler->GetFirstTileTerrainY(worldSeed, dimensionResource, position.x),
                                          position.y));
     if (biomeResource == nullptr) {
         return false;

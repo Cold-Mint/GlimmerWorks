@@ -30,6 +30,7 @@
 #include <unordered_set>
 
 #include "core/config/Constants.h"
+#include "core/math/ChunkVertexVector2D.h"
 #include "core/mod/ResourceRef.h"
 #include "core/world/generator/TileLayerType.h"
 
@@ -51,13 +52,15 @@ namespace glimmer {
         /**
          * Apply
          * 应用装饰器
+         * @param chunkVertex
          * @param biomeResourcesSet biomeResourcesSet 区块内的生物群系集合
          * @param resourceLocator resourceLocator 资源定位器
          * @param worldContext worldContext 世界上下文
          * @param terrainResult terrainResult 地形结果
          * @param tilesRefMap tilesRefMap 瓦片引用映射（会被修改）
          */
-        static void Apply(const std::unordered_set<BiomeResource *> &biomeResourcesSet,
+        static void Apply(const ChunkVertexVector2D &chunkVertex,
+                          const std::unordered_set<BiomeResource *> &biomeResourcesSet,
                           const ResourceLocator *resourceLocator,
                           WorldContext *worldContext,
                           TerrainResult *terrainResult,

@@ -27,6 +27,7 @@
 #include "AdjacentTileGrowthConditionProcessor.h"
 
 #include "core/context/AppContext.h"
+#include "core/math/CoordinateTransformer.h"
 #include "core/math/TileVector2D.h"
 #include "core/mod/Resource.h"
 #include "core/mod/ResourceLocator.h"
@@ -68,11 +69,11 @@ bool glimmer::AdjacentTileGrowthConditionProcessor::Match(const WorldContext *wo
 
     const TileVector2D adjacentPosition(position.x + adjacentTileCondition->offset.x,
                                         position.y + adjacentTileCondition->offset.y);
-    ChunkManager *chunkManager = worldContext->GetChunkManager();
+    const ChunkManager *chunkManager = worldContext->GetChunkManager();
     if (chunkManager == nullptr) {
         return false;
     }
-    Dimension *dimension = worldContext->GetDimension();
+    const Dimension *dimension = worldContext->GetDimension();
     if (dimension == nullptr) {
         return false;
     }
@@ -80,13 +81,13 @@ bool glimmer::AdjacentTileGrowthConditionProcessor::Match(const WorldContext *wo
     if (!dimensionResourceRef.IsValid()) {
         return false;
     }
-    Chunk *chunk = chunkManager->GetChunk(dimensionResourceRef,
-                                          Chunk::TileCoordinatesToChunkVertexCoordinates(adjacentPosition));
+    const Chunk *chunk = chunkManager->GetChunk(dimensionResourceRef,
+                                          CoordinateTransformer::TileToChunkVertex(adjacentPosition));
     if (chunk == nullptr) {
         return false;
     }
-    const TileVector2D relative = Chunk::TileCoordinatesToChunkRelativeCoordinates(adjacentPosition);
-    const int index = relative.y << CHUNK_SHIFT | relative.x;
+    const ChunkRelativeVector2D relative = CoordinateTransformer::TileToChunkRelative(adjacentPosition);
+    const uint32_t index = relative.y << CHUNK_SHIFT | relative.x;
     const Tile *tile = chunk->GetTile(targetLayerType, index);
     if (tile == nullptr) {
         return false;

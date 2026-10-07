@@ -30,11 +30,14 @@
 
 #include "TerrainMath.h"
 #include "core/log/LogCat.h"
+#include "core/math/ChunkRelativeVector2D.h"
+#include "core/math/CoordinateTransformer.h"
 #include "core/world/Dimension.h"
 #include "core/world/WorldContext.h"
 
 
-void glimmer::MineralBiomeDecorator::DecorationImpl(WorldContext *worldContext, TerrainResult *terrainResult,
+void glimmer::MineralBiomeDecorator::DecorationImpl(const ChunkVertexVector2D &chunkVertex, WorldContext *worldContext,
+                                                    TerrainResult *terrainResult,
                                                     MineralBiomeDecoratorResource *decoratorResource,
                                                     BiomeResource *biomeResource,
                                                     std::unordered_map<TileLayerType, std::array<ResourceRef,
@@ -65,12 +68,15 @@ void glimmer::MineralBiomeDecorator::DecorationImpl(WorldContext *worldContext, 
     for (int localX = 0; localX < CHUNK_SIZE; localX++) {
         for (int localY = 0; localY < CHUNK_SIZE; localY++) {
             const int idx = localY * CHUNK_SIZE + localX;
-            const TileVector2D absolutePosition = terrainResult->GetPosition() + TileVector2D(localX, localY);
+            ChunkRelativeVector2D chunkRelativeVector2D(localX, localY);
+            const TileVector2D absolutePosition = CoordinateTransformer::ChunkRelativeToTile(
+                chunkVertex, chunkRelativeVector2D);
             float elevation = TerrainMath::GetElevation(dimensionResource, absolutePosition.y);
             if (elevation > decoratorResource->maxSpawnElevation || elevation < decoratorResource->minSpawnElevation) {
                 continue;
             }
-            const TerrainTileResult &self = terrainResult->QueryTerrain(localX, localY);
+            const auto &self = terrainResult->QueryTerrain(CoordinateTransformer::TileToTerrainRelative(
+                absolutePosition));
             if (self.GetTerrainType() != TerrainResultType::SOLID || self.GetBiomeResource() != biomeResource) {
                 continue;
             }

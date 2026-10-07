@@ -29,6 +29,7 @@
 #include "TerrainResult.h"
 #include "TerrainResultType.h"
 #include "TerrainTileResult.h"
+#include "core/math/CoordinateTransformer.h"
 #include "core/mod/Resource.h"
 #include "core/mod/dataPack/TileResourceManager.h"
 
@@ -78,13 +79,17 @@ void glimmer::TileRefResolver::WriteVoidResourceRef(const TileLayerType layerTyp
 }
 
 void glimmer::TileRefResolver::Initialize(const TerrainResult *terrainResult,
+                                          const ChunkVertexVector2D &chunkVertexVector2D,
                                           std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > &
                                           tilesRefMap,
                                           std::unordered_set<BiomeResource *> &biomeResourcesSet) {
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
         for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
+            ChunkRelativeVector2D chunkRelativeVector2D(localX, localY);
+            const auto &terrainTileResult = terrainResult->QueryTerrain(CoordinateTransformer::TileToTerrainRelative(
+                CoordinateTransformer::ChunkRelativeToTile(
+                    chunkVertexVector2D, chunkRelativeVector2D)));
             const int idx = localY * CHUNK_SIZE + localX;
-            const auto &terrainTileResult = terrainResult->QueryTerrain(localX, localY);
             const TerrainResultType terrainType = terrainTileResult.GetTerrainType();
             if (terrainType == TerrainResultType::VOID) {
                 for (auto &[layerType, refsArray]: tilesRefMap) {

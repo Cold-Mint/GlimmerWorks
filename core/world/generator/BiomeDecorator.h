@@ -43,7 +43,7 @@ namespace glimmer {
 
         [[nodiscard]] int GetWorldSeed() const;
 
-        virtual void Decoration(WorldContext *worldContext,
+        virtual void Decoration(const ChunkVertexVector2D &chunkVertex, WorldContext *worldContext,
                                 TerrainResult *terrainResult,
                                 IBiomeDecoratorResource *decoratorResource,
                                 BiomeResource *biomeResource,
@@ -55,18 +55,20 @@ namespace glimmer {
 
     template<typename ResourceT>
     class BiomeDecorator : public IBiomeDecorator {
-        virtual void DecorationImpl(WorldContext *worldContext, TerrainResult *terrainResult,
+        virtual void DecorationImpl(const ChunkVertexVector2D &chunkVertex, WorldContext *worldContext,
+                                    TerrainResult *terrainResult,
                                     ResourceT *decoratorResource, BiomeResource *biomeResource,
                                     std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > *
                                     tilesRefMap)
         = 0;
 
     public:
-        void Decoration(WorldContext *worldContext, TerrainResult *terrainResult,
+        void Decoration(const ChunkVertexVector2D &chunkVertex, WorldContext *worldContext,
+                        TerrainResult *terrainResult,
                         IBiomeDecoratorResource *decoratorResource, BiomeResource *biomeResource,
                         std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > *tilesRefMap) override {
             auto *concreteResource = static_cast<ResourceT *>(decoratorResource);
-            DecorationImpl(worldContext, terrainResult, concreteResource, biomeResource, tilesRefMap);
+            DecorationImpl(chunkVertex, worldContext, terrainResult, concreteResource, biomeResource, tilesRefMap);
         }
     };
 }

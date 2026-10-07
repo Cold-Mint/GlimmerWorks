@@ -62,20 +62,6 @@ bool glimmer::Chunk::RemoveReplaceTileCallback(const long index) {
     return true;
 }
 
-glimmer::TileVector2D glimmer::Chunk::TileCoordinatesToChunkVertexCoordinates(const TileVector2D &tileVector2d) {
-    return {
-        tileVector2d.x & CHUNK_ALIGN,
-        tileVector2d.y & CHUNK_ALIGN
-    };
-}
-
-
-glimmer::TileVector2D glimmer::Chunk::TileCoordinatesToChunkRelativeCoordinates(const TileVector2D &tileVector2d) {
-    return {
-        tileVector2d.x & CHUNK_MASK,
-        tileVector2d.y & CHUNK_MASK
-    };
-}
 
 bool glimmer::Chunk::CommitTileState(const BreakSource breakSource, const TileLayerType layerType, const int index,
                                      const bool fallback) {
@@ -208,6 +194,11 @@ void glimmer::Chunk::InitGrowthState(TileStateMessage *msg, const TileResource *
     }
 }
 
+const glimmer::ChunkVertexVector2D &glimmer::Chunk::GetPosition() const {
+    return position_;
+}
+
+
 bool glimmer::Chunk::PlaceTile(const TileLayerType layerType, const int index, const ResourceRef &resourceRef,
                                const TileResource *tileResource, const BreakSource breakSource,
                                const PlaceSourceMessage placeSource, const int offsetX, const int offsetY,
@@ -230,9 +221,6 @@ bool glimmer::Chunk::PlaceTile(const TileLayerType layerType, const int index, c
     return CommitTileState(breakSource, layerType, index, fallback);
 }
 
-glimmer::TileVector2D glimmer::Chunk::GetPosition() const {
-    return position_;
-}
 
 const glimmer::Tile *glimmer::Chunk::GetTile(const TileLayerType layerType, const uint8_t index) const {
     const auto it = tiles_.find(layerType);
@@ -319,11 +307,11 @@ void glimmer::Chunk::WriteTileStatesToMessage(
     }
 }
 
-glimmer::Chunk::Chunk(WorldContext *worldContext, const TileVector2D &pos) : worldContext_(worldContext) {
-    position_ = pos;
+glimmer::Chunk::Chunk(WorldContext *worldContext, ChunkVertexVector2D pos) : position_(std::move(pos)),
+                                                                             worldContext_(worldContext) {
 }
 
-void glimmer::Chunk::SetDependencyTerrain(std::vector<std::shared_ptr<TerrainResult> > dependencyTerrain) {
+void glimmer::Chunk::SetDependencyTerrain(std::shared_ptr<TerrainResult> dependencyTerrain) {
     dependencyTerrain_ = std::move(dependencyTerrain);
 }
 
@@ -340,9 +328,10 @@ void glimmer::Chunk::WriteChunkMessage(ChunkMessage &chunkMessage) {
 }
 
 glimmer::WorldVector2D glimmer::Chunk::GetStartWorldPosition() const {
-    return CoordinateTransformer::TileToWorld(position_);
+    return CoordinateTransformer::TileToWorld(CoordinateTransformer::ChunkVertexToTile(position_));
 }
 
 glimmer::WorldVector2D glimmer::Chunk::GetEndWorldPosition() const {
-    return CoordinateTransformer::TileToWorld(position_ + TileVector2D(CHUNK_SIZE, CHUNK_SIZE));
+    return CoordinateTransformer::TileToWorld(
+        CoordinateTransformer::ChunkVertexToTile(position_) + TileVector2D(CHUNK_SIZE, CHUNK_SIZE));
 }

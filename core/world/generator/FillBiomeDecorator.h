@@ -29,10 +29,9 @@
 
 namespace glimmer {
     class FillBiomeDecorator : public BiomeDecorator<FillBiomeDecoratorResource> {
-        void DecorationImpl(WorldContext *worldContext, TerrainResult *terrainResult,
-                            FillBiomeDecoratorResource *decoratorResource, BiomeResource *biomeResource,
-                            std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > *
-                            tilesRefMap) override;
+        void DecorationImpl(const ChunkVertexVector2D &chunkVertex, WorldContext *worldContext,
+            TerrainResult *terrainResult, FillBiomeDecoratorResource *decoratorResource, BiomeResource *biomeResource,
+            std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>> *tilesRefMap) override;
 
     public:
         BiomeDecoratorType GetBiomeDecoratorType() override;

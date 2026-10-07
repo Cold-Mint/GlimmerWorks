@@ -133,7 +133,7 @@ void glimmer::StructurePlacer::GenerateStructure(const TileVector2D &position) c
 // }
 
 
-std::optional<std::bitset<CHUNK_AREA> > glimmer::StructurePlacer::MatchStructureConditions(
+std::optional<std::bitset<TERRAIN_AREA> > glimmer::StructurePlacer::MatchStructureConditions(
     const WorldContext *worldContext, const TerrainResult *terrainResult, const IStructureResource *structureResource) {
     AppContext *appContext = worldContext->GetAppContext();
     if (appContext == nullptr) {
@@ -157,7 +157,7 @@ std::optional<std::bitset<CHUNK_AREA> > glimmer::StructurePlacer::MatchStructure
     LogCat::d(LogLabel::TERRAIN, "structure_condition_match_start",
               "Matching structure placement conditions: resource={}, condition count={}", resId, totalConditions);
 
-    std::bitset<CHUNK_AREA> totalBitset;
+    std::bitset<TERRAIN_AREA> totalBitset;
     bool hasAnyConditionMatched = false;
     const int endIndex = static_cast<int>(totalConditions) - 1;
     ModContext *modContext = appContext->
@@ -198,9 +198,10 @@ std::optional<std::bitset<CHUNK_AREA> > glimmer::StructurePlacer::MatchStructure
             continue;
         }
 
-        std::bitset<CHUNK_AREA> bitset = structureConditionProcessor->Match(dimensionResource,
-                                                                            terrainResult,
-                                                                            structurePlacementConditionsResource);
+        std::bitset<TERRAIN_AREA> bitset;
+        structureConditionProcessor->Match(dimensionResource,
+                                           terrainResult,
+                                           structurePlacementConditionsResource, bitset);
 
         if (bitset.none()) {
             LogCat::d(LogLabel::TERRAIN, "structure_condition_no_match",

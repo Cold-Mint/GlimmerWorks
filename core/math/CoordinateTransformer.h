@@ -27,14 +27,16 @@
 #pragma once
 #include <SDL3/SDL_rect.h>
 
+#include "ChunkRelativeVector2D.h"
+#include "ChunkVertexVector2D.h"
 #include "ScreenVector2D.h"
-#include "DesignVector2D.h"
+#include "TerrainRelativeVector2D.h"
+#include "TerrainVertexVector2D.h"
 #include "TileVector2D.h"
 #include "WorldVector2D.h"
 
 namespace glimmer {
-    class CoordinateTransformer final {
-    public:
+    struct CoordinateTransformer final {
         /**
          * Get the camera viewport rectangle (in world coordinates)
          * 获取相机的视口矩形（世界坐标）
@@ -92,12 +94,78 @@ namespace glimmer {
         [[nodiscard]] static TileVector2D WorldToTile(const WorldVector2D &worldPos);
 
         /**
-         * Design coordinates to camera coordinates
-         * 设计坐标转相机坐标
-         * @param designPos DesignVector2D Design coordinates 设计坐标
-         * @param uiScale UI scale factor UI缩放比例
-         * @return ScreenVector2D Camera coordinates 相机坐标
+         * TileCoordinatesToChunkCoordinates
+         * 瓦片坐标转区块顶点坐标
+         * @param tileVector2d
+         * @return
          */
-        [[nodiscard]] static ScreenVector2D DesignToScreen(const DesignVector2D &designPos, float uiScale);
+        [[nodiscard]] static ChunkVertexVector2D TileToChunkVertex(
+            const TileVector2D &tileVector2d);
+
+        /**
+         * Convert block vertex to tile coordinate
+         * 区块顶点转瓦片坐标
+         * @param chunkVertexVector2d
+         * @return
+         */
+        [[nodiscard]] static TileVector2D ChunkVertexToTile(const ChunkVertexVector2D &chunkVertexVector2d);
+
+        /**
+         * TileCoordinatesToChunkRelativeCoordinates
+         * 瓦片坐标转区块相对坐标
+         * @param tileVector2d
+         * @return
+         */
+        [[nodiscard]] static ChunkRelativeVector2D TileToChunkRelative(const TileVector2D &tileVector2d);
+
+
+        /**
+         * ChunkRelativeToTile
+         * 区块内坐标转瓦片坐标
+         * @param chunkVertex
+         * @param relative
+         * @return
+         */
+        [[nodiscard]] static TileVector2D ChunkRelativeToTile(const ChunkVertexVector2D &chunkVertex,
+                                                              const ChunkRelativeVector2D &relative);
+
+
+        /**
+         * ChunkVertexToTerrainVertex
+         * 区块顶点到地形顶点
+         * @param chunkVertexVector2D
+         * @return
+         */
+        [[nodiscard]] static TerrainVertexVector2D ChunkVertexToTerrainVertex(
+            const ChunkVertexVector2D &chunkVertexVector2D);
+
+        /**
+         * TileToTerrainVertex
+         * 瓦片坐标转地形顶点坐标
+         * @param tileVector2D
+         * @return
+         */
+        [[nodiscard]] static TerrainVertexVector2D TileToTerrainVertex(const TileVector2D &tileVector2D);
+
+        /**
+         * TileToTerrainRelative
+         * 瓦片坐标转地形相对坐标
+         * @param tileVector2D
+         * @return
+         */
+        [[nodiscard]] static TerrainRelativeVector2D TileToTerrainRelative(const TileVector2D &tileVector2D);
+
+
+        static size_t GetArrayIndex(int x, int y, int width);
+
+        /**
+         * TerrainRelativeToTile
+         * 地形相对坐标转瓦片坐标
+         * @param terrainVertex
+         * @param relative
+         * @return
+         */
+        [[nodiscard]] static TileVector2D TerrainRelativeToTile(const TerrainVertexVector2D &terrainVertex,
+                                                                const TerrainRelativeVector2D &relative);
     };
 }

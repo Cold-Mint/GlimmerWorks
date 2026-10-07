@@ -33,32 +33,31 @@ GetStructureConditionProcessorType() {
     return StructureConditionProcessorType::Height;
 }
 
-std::bitset<CHUNK_AREA> glimmer::HeightStructureConditionProcessor::Match(const DimensionResource *dimensionResource,
-                                                                          const TerrainResult *terrainResult,
-                                                                          const IStructurePlacementConditionsResource *
-                                                                          placementConditionsResource) {
+void glimmer::HeightStructureConditionProcessor::Match(const DimensionResource *dimensionResource,
+                                                       const TerrainResult *terrainResult,
+                                                       const IStructurePlacementConditionsResource *
+                                                       placementConditionsResource,
+                                                       std::bitset<TERRAIN_AREA> &outBitset) {
     const auto heightStructureConditions = dynamic_cast<const HeightStructureConditionsResource *>(
         placementConditionsResource);
-    std::bitset<CHUNK_AREA> result;
     if (heightStructureConditions == nullptr) {
-        return result;
+        return;
     }
     const float maxHeightPercent = heightStructureConditions->maxHeightPercent;
     const float minHeightPercent = heightStructureConditions->minHeightPercent;
-    const TileVector2D &position = terrainResult->GetPosition();
+    const TerrainVertexVector2D &position = terrainResult->GetPosition();
     int matchedTileCount = 0;
-    for (int localX = 0; localX < CHUNK_SIZE; localX++) {
-        for (int localY = 0; localY < CHUNK_SIZE; localY++) {
+    for (int localX = 0; localX < TERRAIN_SIZE; localX++) {
+        for (int localY = 0; localY < TERRAIN_SIZE; localY++) {
             int globalY = localY + position.y;
             float percent = static_cast<float>(globalY) / static_cast<float>(dimensionResource->maxY);
             if (percent >= minHeightPercent && percent <= maxHeightPercent) {
-                int tileIndex = localX + localY * CHUNK_SIZE;
-                result[tileIndex] = true;
+                int tileIndex = localX + localY * TERRAIN_SIZE;
+                outBitset[tileIndex] = true;
                 matchedTileCount++;
             }
         }
     }
     LogCat::d(LogLabel::TERRAIN, "height_condition_matched_count", "Height condition matched tiles: {}",
               matchedTileCount);
-    return result;
 }

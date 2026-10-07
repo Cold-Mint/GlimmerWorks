@@ -35,7 +35,8 @@
 #include "core/world/WorldContext.h"
 
 
-void glimmer::ChunkLoader::LoadEntityFromSaves(const ResourceRef &dimensionRef, const TileVector2D &position) const {
+void glimmer::ChunkLoader::LoadEntityFromSaves(const ResourceRef &dimensionRef,
+                                               const ChunkVertexVector2D &position) const {
     if (saves_->EntityExists(dimensionRef, position)) {
         if (auto chunkEntityMessageOptional = saves_->ReadChunkEntity(dimensionRef, position);
             chunkEntityMessageOptional.has_value()) {
@@ -58,7 +59,7 @@ glimmer::ChunkLoader::ChunkLoader(WorldContext *worldContext, Saves *saves) : sa
 }
 
 std::unique_ptr<glimmer::Chunk> glimmer::ChunkLoader::LoadChunkFromSaves(const ResourceRef &dimensionRef,
-                                                                         const TileVector2D &position) const {
+                                                                         const ChunkVertexVector2D &position) const {
     if (worldContext_ == nullptr) {
         return nullptr;
     }

@@ -71,7 +71,7 @@ void glimmer::ChunkGenerator::GenerateStructure(const TileVector2D &position) co
     structurePlacer_.GenerateStructure(position);
 }
 
-std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const TileVector2D &position,
+std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const ChunkVertexVector2D &position,
                                                                          TerrainResult *terrainResult) const {
     if (worldContext_ == nullptr) {
         return nullptr;
@@ -96,8 +96,8 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const T
         {TileLayerType::BackGround, {}}
     };
     std::unordered_set<BiomeResource *> biomeResourcesSet;
-    TileRefResolver::Initialize(terrainResult, tilesRefMap, biomeResourcesSet);
-    BiomeDecoratorApplier::Apply(biomeResourcesSet, resourceLocator, worldContext_,
+    TileRefResolver::Initialize(terrainResult, position, tilesRefMap, biomeResourcesSet);
+    BiomeDecoratorApplier::Apply(position, biomeResourcesSet, resourceLocator, worldContext_,
                                  terrainResult, tilesRefMap);
 
     //Convert the tile references into actual tiles and write them into the block.
@@ -108,6 +108,7 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const T
               position.y);
     return chunk;
 }
+
 
 const std::string &glimmer::ChunkGenerator::GetDimensionId() const {
     return dimensionId_;

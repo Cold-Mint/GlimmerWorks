@@ -42,7 +42,7 @@ namespace glimmer {
          * The coordinate key for the block task.
          * 区块任务的坐标Key。
          */
-        std::deque<TileVector2D> mainTask_;
+        std::deque<ChunkVertexVector2D> mainTask_;
 
         /**
          * The task queue waiting to be deleted within the main task
@@ -74,7 +74,7 @@ namespace glimmer {
          * 距离中心近的排在前面。
          * @param center 中心
          */
-        void SortTask(const TileVector2D &center);
+        void SortTask(const ChunkVertexVector2D &center);
 
         /**
          * Submit the tasks in the waiting queue to the main queue

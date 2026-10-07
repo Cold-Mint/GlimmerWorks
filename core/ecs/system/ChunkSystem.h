@@ -32,6 +32,7 @@
 #include "core/math/TileVector2D.h"
 
 namespace glimmer {
+    class ChunkVertexVector2D;
     class ChunkManager;
     class CameraComponent;
     class Transform2DComponent;
@@ -57,8 +58,8 @@ namespace glimmer {
         static void GenerateLoadTasks(const DimensionResource *dimensionResource, const ResourceRef &dimensionRef,
                                       const ChunkManager *chunkManager,
                                       ChunkTaskScheduler *scheduler,
-                                      const TileVector2D &startChunk,
-                                      const TileVector2D &endChunk);
+                                      const ChunkVertexVector2D &startChunk,
+                                      const ChunkVertexVector2D &endChunk);
 
         /**
          * Generate unload tasks for loaded chunks outside [startChunk, endChunk].
@@ -66,8 +67,8 @@ namespace glimmer {
          */
         static void GenerateUnloadTasks(const ResourceRef &dimensionRef, const ChunkManager *chunkManager,
                                         ChunkTaskScheduler *scheduler,
-                                        const TileVector2D &startChunk,
-                                        const TileVector2D &endChunk);
+                                        const ChunkVertexVector2D &startChunk,
+                                        const ChunkVertexVector2D &endChunk);
 
         /**
          * Submit the task to the worker thread

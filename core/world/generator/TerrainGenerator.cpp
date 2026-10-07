@@ -32,12 +32,14 @@
 #include "TerrainMath.h"
 #include "core/config/Constants.h"
 #include "core/log/LogCat.h"
+#include "core/math/CoordinateTransformer.h"
+#include "core/math/TerrainRelativeVector2D.h"
 #include "core/mod/dataPack/BiomeRegistry.h"
 
 
 std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerrain(const BiomeRegistry *biomeRegistry,
-    const int worldSeed, const DimensionResource *dimensionResource, const ResourceRef &dimension,
-    const TileVector2D &position) const {
+    int worldSeed, const DimensionResource *dimensionResource, const ResourceRef &dimension,
+    const TerrainVertexVector2D &position) const {
     if (climateSampler_ == nullptr) {
         return nullptr;
     }
@@ -48,18 +50,11 @@ std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerra
         const int firstTileTerrainY = climateSampler_->GetFirstTileTerrainY(worldSeed, dimensionResource,
                                                                             position.x + localX);
         for (int localY = 0; localY < TERRAIN_SIZE; ++localY) {
-            auto localPosition = TileVector2D(localX, localY);
-            WriteTerrainTileResult(biomeRegistry, worldSeed, dimensionResource, dimension, localPosition + position,
+            auto localPosition = TerrainRelativeVector2D(localX, localY);
+            WriteTerrainTileResult(biomeRegistry, worldSeed, dimensionResource, dimension,
+                                   CoordinateTransformer::TerrainRelativeToTile(position, localPosition),
                                    firstTileTerrainY, terrainResult->GetMutableTerrainTileResult(localPosition));
         }
-    }
-    const int upWorldY = position.y + TERRAIN_SIZE;
-    for (int localX = 0; localX < TERRAIN_SIZE; ++localX) {
-        const int worldX = position.x + localX;
-        const int firstTileTerrainY = climateSampler_->GetFirstTileTerrainY(worldSeed, dimensionResource, worldX);
-        auto worldPosition = TileVector2D(position.x + localX, upWorldY);
-        WriteTerrainTileResult(biomeRegistry, worldSeed, dimensionResource, dimension, worldPosition,
-                               firstTileTerrainY, terrainResult->GetMutableUpTerrainTileResult(localX));
     }
     LogCat::d(LogLabel::TERRAIN, "terrain_generation_completed", "Terrain generation completed: position=({}, {})",
               position.x,
@@ -69,7 +64,7 @@ std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerra
 
 std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateOrGetTerrain(
     const BiomeRegistry *biomeRegistry, const int worldSeed, const DimensionResource *dimensionResource,
-    const ResourceRef &dimension, const TileVector2D &position) {
+    const ResourceRef &dimension, const TerrainVertexVector2D &position) {
     if (const auto iterator = terrainResults_.find(position); iterator != terrainResults_.end()) {
         if (auto terrainResult = iterator->second.lock()) {
             return terrainResult;

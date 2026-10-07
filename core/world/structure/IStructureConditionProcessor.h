@@ -48,11 +48,13 @@ namespace glimmer {
          * @param dimensionResource
          * @param terrainResult terrainResult 地形数据
          * @param placementConditionsResource placementConditionsResource 放置条件资源
+         * @param outBitset
          * @return The bitset for the structure placement points. If a certain point is 1, it indicates that a structure can be placed at that point. 结构放置点的bitset，若某个点为1,那么表示可以在该点放置。
          */
-        virtual std::bitset<CHUNK_AREA> Match(const DimensionResource *dimensionResource,
-                                              const TerrainResult *terrainResult,
-                                              const IStructurePlacementConditionsResource *placementConditionsResource)
+        virtual void Match(const DimensionResource *dimensionResource,
+                           const TerrainResult *terrainResult,
+                           const IStructurePlacementConditionsResource *placementConditionsResource,
+                           std::bitset<TERRAIN_AREA> &outBitset)
         = 0;
     };
 }

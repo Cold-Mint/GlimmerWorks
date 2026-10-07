@@ -35,10 +35,10 @@ void glimmer::ChunkTaskScheduler::PushPendingTask(std::unique_ptr<ChunkTask> chu
     pendingTasks_.push_back(std::move(chunkTask));
 }
 
-void glimmer::ChunkTaskScheduler::SortTask(const TileVector2D &center) {
+void glimmer::ChunkTaskScheduler::SortTask(const ChunkVertexVector2D &center) {
     std::lock_guard lock(chunkTaskMutex_);
     std::ranges::sort(mainTask_,
-                      [&center](const TileVector2D &lhs, const TileVector2D &rhs) {
+                      [&center](const ChunkVertexVector2D &lhs, const ChunkVertexVector2D &rhs) {
                           return lhs.DistanceSquared(center) < rhs.DistanceSquared(center);
                       });
 }
@@ -56,7 +56,7 @@ void glimmer::ChunkTaskScheduler::Commit() {
         if (chunkTaskType == ChunkTaskType::CANCELLED) {
             continue;
         }
-        const TileVector2D &position = pendingTask->GetPosition();
+        const ChunkVertexVector2D &position = pendingTask->GetPosition();
         uint64_t fingerprint = position.GetFingerprint();
         auto iterator = chunkTaskMap_.find(fingerprint);
         if (iterator == chunkTaskMap_.end()) {
@@ -103,7 +103,7 @@ std::unique_ptr<glimmer::ChunkTask> glimmer::ChunkTaskScheduler::PopFrontTask() 
     if (mainTask_.empty()) {
         return nullptr;
     }
-    const TileVector2D &position = mainTask_.front();
+    const ChunkVertexVector2D &position = mainTask_.front();
     mainTask_.pop_front();
     const uint64_t fingerprint = position.GetFingerprint();
     const auto iterator = chunkTaskMap_.find(fingerprint);

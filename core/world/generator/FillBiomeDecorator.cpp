@@ -26,8 +26,12 @@
  */
 #include "FillBiomeDecorator.h"
 
+#include "core/math/ChunkRelativeVector2D.h"
+#include "core/math/CoordinateTransformer.h"
 
-void glimmer::FillBiomeDecorator::DecorationImpl(WorldContext *worldContext, TerrainResult *terrainResult,
+
+void glimmer::FillBiomeDecorator::DecorationImpl(const ChunkVertexVector2D &chunkVertex, WorldContext *worldContext,
+                                                 TerrainResult *terrainResult,
                                                  FillBiomeDecoratorResource *decoratorResource,
                                                  BiomeResource *biomeResource,
                                                  std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> >
@@ -38,7 +42,10 @@ void glimmer::FillBiomeDecorator::DecorationImpl(WorldContext *worldContext, Ter
     for (int localX = 0; localX < CHUNK_SIZE; localX++) {
         for (int localY = 0; localY < CHUNK_SIZE; localY++) {
             const int idx = localY * CHUNK_SIZE + localX;
-            const TerrainTileResult &self = terrainResult->QueryTerrain(localX, localY);
+            ChunkRelativeVector2D chunkRelativeVector2D(localX, localY);
+            const auto &self = terrainResult->QueryTerrain(CoordinateTransformer::TileToTerrainRelative(
+                CoordinateTransformer::ChunkRelativeToTile(
+                    chunkVertex, chunkRelativeVector2D)));
             if (self.GetTerrainType() != TerrainResultType::SOLID) {
                 //Not solid tiles.
                 //不是固体瓦片。

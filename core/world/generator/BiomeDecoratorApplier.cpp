@@ -34,10 +34,10 @@
 #include "core/mod/dataPack/BiomeDecoratorType.h"
 #include "core/world/WorldContext.h"
 
-void glimmer::BiomeDecoratorApplier::Apply(const std::unordered_set<BiomeResource *> &biomeResourcesSet,
+void glimmer::BiomeDecoratorApplier::Apply(const ChunkVertexVector2D &chunkVertex,
+                                           const std::unordered_set<BiomeResource *> &biomeResourcesSet,
                                            const ResourceLocator *resourceLocator,
-                                           WorldContext *worldContext,
-                                           TerrainResult *terrainResult,
+                                           WorldContext *worldContext, TerrainResult *terrainResult,
                                            std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > &
                                            tilesRefMap) {
     LogCat::d(LogLabel::CHUNK, "biome_decorator_apply_start", "Applying biome decorators: biome count={}",
@@ -77,7 +77,7 @@ void glimmer::BiomeDecoratorApplier::Apply(const std::unordered_set<BiomeResourc
                 continue;
             }
             biomeDecorator->Decoration(
-                worldContext, terrainResult, decoratorResource, biomeResources, &tilesRefMap);
+                chunkVertex, worldContext, terrainResult, decoratorResource, biomeResources, &tilesRefMap);
         }
     }
 }

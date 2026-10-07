@@ -26,62 +26,106 @@
  */
 #include "CoordinateTransformer.h"
 
+#include "TerrainRelativeVector2D.h"
 #include "core/config/Constants.h"
 
-namespace glimmer {
-    SDL_FRect CoordinateTransformer::GetViewportRect(const WorldVector2D &cameraPosition,
-                                                     const ScreenVector2D &cameraSize,
-                                                     float zoom) {
-        const float scaledWidth = cameraSize.x / zoom;
-        const float scaledHeight = cameraSize.y / zoom;
-        return {
-            cameraPosition.x - scaledWidth * 0.5F,
-            cameraPosition.y - scaledHeight * 0.5F,
-            scaledWidth,
-            scaledHeight
-        };
-    }
+SDL_FRect glimmer::CoordinateTransformer::GetViewportRect(const WorldVector2D &cameraPosition,
+                                                          const ScreenVector2D &cameraSize, const float zoom) {
+    const float scaledWidth = cameraSize.x / zoom;
+    const float scaledHeight = cameraSize.y / zoom;
+    return {
+        .x = cameraPosition.x - scaledWidth * 0.5F,
+        .y = cameraPosition.y - scaledHeight * 0.5F,
+        .w = scaledWidth,
+        .h = scaledHeight
+    };
+}
 
-    ScreenVector2D CoordinateTransformer::WorldToScreen(const WorldVector2D &cameraPosition,
-                                                        const WorldVector2D &worldPosition,
-                                                        const ScreenVector2D &cameraSize,
-                                                        float zoom) {
-        const float offsetX = (worldPosition.x - cameraPosition.x) * zoom;
-        const float offsetY = (worldPosition.y - cameraPosition.y) * zoom;
-        return {
-            cameraSize.x * 0.5F + offsetX,
-            cameraSize.y * 0.5F - offsetY
-        };
-    }
+glimmer::ScreenVector2D glimmer::CoordinateTransformer::WorldToScreen(const WorldVector2D &cameraPosition,
+                                                                      const WorldVector2D &worldPosition,
+                                                                      const ScreenVector2D &cameraSize,
+                                                                      const float zoom) {
+    const float offsetX = (worldPosition.x - cameraPosition.x) * zoom;
+    const float offsetY = (worldPosition.y - cameraPosition.y) * zoom;
+    return {
+        cameraSize.x * 0.5F + offsetX,
+        cameraSize.y * 0.5F - offsetY
+    };
+}
 
-    WorldVector2D CoordinateTransformer::ScreenToWorld(const WorldVector2D &cameraPosition,
-                                                       const ScreenVector2D &screenPosition,
-                                                       const ScreenVector2D &cameraSize,
-                                                       float zoom) {
-        return {
-            cameraPosition.x + (screenPosition.x - cameraSize.x * 0.5F) / zoom,
-            cameraPosition.y + (cameraSize.y * 0.5F - screenPosition.y) / zoom
-        };
-    }
+glimmer::WorldVector2D glimmer::CoordinateTransformer::ScreenToWorld(const WorldVector2D &cameraPosition,
+                                                                     const ScreenVector2D &screenPosition,
+                                                                     const ScreenVector2D &cameraSize,
+                                                                     const float zoom) {
+    return {
+        cameraPosition.x + (screenPosition.x - cameraSize.x * 0.5F) / zoom,
+        cameraPosition.y + (cameraSize.y * 0.5F - screenPosition.y) / zoom
+    };
+}
 
-    WorldVector2D CoordinateTransformer::TileToWorld(const TileVector2D &tilePos) {
-        return {
-            static_cast<float>(tilePos.x) * TILE_SIZE,
-            static_cast<float>(tilePos.y) * TILE_SIZE
-        };
-    }
+glimmer::WorldVector2D glimmer::CoordinateTransformer::TileToWorld(const TileVector2D &tilePos) {
+    return {
+        static_cast<float>(tilePos.x) * TILE_SIZE,
+        static_cast<float>(tilePos.y) * TILE_SIZE
+    };
+}
 
-    TileVector2D CoordinateTransformer::WorldToTile(const WorldVector2D &worldPos) {
-        return {
-            static_cast<int>(std::floor(worldPos.x / TILE_SIZE + 0.5F)),
-            static_cast<int>(std::floor(worldPos.y / TILE_SIZE + 0.5F))
-        };
-    }
+glimmer::TileVector2D glimmer::CoordinateTransformer::WorldToTile(const WorldVector2D &worldPos) {
+    return {
+        static_cast<int>(std::floor(worldPos.x / TILE_SIZE + 0.5F)),
+        static_cast<int>(std::floor(worldPos.y / TILE_SIZE + 0.5F))
+    };
+}
 
-    ScreenVector2D CoordinateTransformer::DesignToScreen(const DesignVector2D &designPos, float uiScale) {
-        return {
-            designPos.x * uiScale,
-            designPos.y * uiScale
-        };
-    }
+glimmer::ChunkVertexVector2D glimmer::CoordinateTransformer::TileToChunkVertex(const TileVector2D &tileVector2d) {
+    return {
+        tileVector2d.x & CHUNK_ALIGN,
+        tileVector2d.y & CHUNK_ALIGN
+    };
+}
+
+glimmer::TileVector2D glimmer::CoordinateTransformer::
+ChunkVertexToTile(const ChunkVertexVector2D &chunkVertexVector2d) {
+    return {
+        chunkVertexVector2d.x,
+        chunkVertexVector2d.y
+    };
+}
+
+glimmer::ChunkRelativeVector2D glimmer::CoordinateTransformer::TileToChunkRelative(const TileVector2D &tileVector2d) {
+    return {
+        tileVector2d.x & CHUNK_MASK,
+        tileVector2d.y & CHUNK_MASK
+    };
+}
+
+glimmer::TileVector2D glimmer::CoordinateTransformer::ChunkRelativeToTile(const ChunkVertexVector2D &chunkVertex,
+                                                                          const ChunkRelativeVector2D &relative) {
+    return {chunkVertex.x + relative.x, chunkVertex.y + relative.y};
+}
+
+glimmer::TerrainVertexVector2D glimmer::CoordinateTransformer::ChunkVertexToTerrainVertex(
+    const ChunkVertexVector2D &chunkVertexVector2D) {
+    return {chunkVertexVector2D.x & TERRAIN_ALIGN, chunkVertexVector2D.y & TERRAIN_ALIGN};
+}
+
+glimmer::TerrainVertexVector2D glimmer::CoordinateTransformer::TileToTerrainVertex(const TileVector2D &tileVector2D) {
+    return {tileVector2D.x & TERRAIN_ALIGN, tileVector2D.y & TERRAIN_ALIGN};
+}
+
+glimmer::TerrainRelativeVector2D glimmer::CoordinateTransformer::
+TileToTerrainRelative(const TileVector2D &tileVector2D) {
+    return {
+        tileVector2D.x & TERRAIN_MASK,
+        tileVector2D.y & TERRAIN_MASK
+    };
+}
+
+size_t glimmer::CoordinateTransformer::GetArrayIndex(int x, int y, int width) {
+    return y * width + x;
+}
+
+glimmer::TileVector2D glimmer::CoordinateTransformer::TerrainRelativeToTile(const TerrainVertexVector2D &terrainVertex,
+                                                                            const TerrainRelativeVector2D &relative) {
+    return {terrainVertex.x + relative.x, terrainVertex.y + relative.y};
 }

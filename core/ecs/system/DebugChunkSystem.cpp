@@ -113,7 +113,7 @@ void glimmer::DebugChunkSystem::RenderChunkView(RenderQueue *queue, AppContext *
     if (!dimensionResourceRef.IsValid()) {
         return;
     }
-    const std::unordered_map<TileVector2D, std::unique_ptr<Chunk>, Vector2DIHash> *loadedChunks = chunkManager->
+    const std::unordered_map<ChunkVertexVector2D, std::unique_ptr<Chunk>, Vector2DIHash> *loadedChunks = chunkManager->
             GetLoadedChunks(dimensionResourceRef);
     if (loadedChunks == nullptr) {
         return;

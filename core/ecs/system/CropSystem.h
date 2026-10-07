@@ -29,6 +29,7 @@
 #include <vector>
 
 #include "core/ecs/GameSystem.h"
+#include "core/math/ChunkRelativeVector2D.h"
 
 namespace glimmer {
     class CropComponent;
@@ -71,7 +72,7 @@ namespace glimmer {
          * @param layerType layerType  图层类型
          * @param growthTargetRef growthTargetRef 目标资源引用
          */
-        static bool OnGrowMature(WorldContext *worldContext, Chunk *chunk, const TileVector2D &position,
+        static bool OnGrowMature(WorldContext *worldContext, Chunk *chunk, const ChunkRelativeVector2D &position,
                                  TileLayerType layerType, const ResourceRef *growthTargetRef);
 
         void OnTick(uint64_t tick) override;

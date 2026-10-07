@@ -31,6 +31,7 @@
 #include "core/log/LogCat.h"
 #include "core/utils/Box2DUtils.h"
 #include "box2d/types.h"
+#include "core/math/CoordinateTransformer.h"
 #include "core/world/Tile.h"
 #include "core/world/WorldContext.h"
 
@@ -91,14 +92,11 @@ void glimmer::ChunkPhysicsHelper::MarkVisited(const int startX, const int startY
     }
 }
 
-void glimmer::ChunkPhysicsHelper::CreateBodyForRect(const b2WorldId worldId, Chunk *chunk,
-                                                    const int x, const int y, int width, int height) {
-    const TileVector2D chunkPos = chunk->GetPosition();
-    const float localCenterX = static_cast<float>(x) + static_cast<float>(width - 1) * 0.5F;
-    const float localCenterY = static_cast<float>(y) + static_cast<float>(height - 1) * 0.5F;
-    const float worldX = (static_cast<float>(chunkPos.x) + localCenterX) * TILE_SIZE;
-    const float worldY = (static_cast<float>(chunkPos.y) + localCenterY) * TILE_SIZE;
-    const WorldVector2D worldPos = {worldX, worldY};
+void glimmer::ChunkPhysicsHelper::CreateBodyForRect(b2WorldId worldId, Chunk *chunk,
+                                                    const ChunkRelativeVector2D &chunkRelativeVector2d, int width,
+                                                    int height) {
+    const WorldVector2D worldPos = CoordinateTransformer::TileToWorld(
+        CoordinateTransformer::ChunkRelativeToTile(chunk->GetPosition(), chunkRelativeVector2d));
     const auto b2BodyId = CreateStaticBody(worldId, worldPos, {width, height});
     chunk->AddBodyId(b2BodyId);
 }
@@ -119,7 +117,8 @@ void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const b2WorldId world
             }
             const Vector2DI rectSize = FindRectSize(x, y, isStaticTile, visited);
             MarkVisited(x, y, rectSize.x, rectSize.y, visited);
-            CreateBodyForRect(worldId, chunk, x, y, rectSize.x, rectSize.y);
+            ChunkRelativeVector2D chunkRelativeVector2d(x, y);
+            CreateBodyForRect(worldId, chunk, chunkRelativeVector2d, rectSize.x, rectSize.y);
         }
     }
 }

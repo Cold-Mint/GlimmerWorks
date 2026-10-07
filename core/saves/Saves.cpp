@@ -37,7 +37,8 @@ std::filesystem::path glimmer::Saves::ToDimensionPath(const ResourceRef &dimensi
                dimensionRef.GetPackageId(), dimensionRef.GetResourceKey());
 }
 
-std::filesystem::path glimmer::Saves::ToChunkPath(const ResourceRef &dimensionRef, const TileVector2D &position) const {
+std::filesystem::path glimmer::Saves::ToChunkPath(const ResourceRef &dimensionRef,
+                                                  const ChunkVertexVector2D &position) const {
     std::stringstream fileNameStream;
     fileNameStream << "chunk_";
     fileNameStream << std::to_string(position.x);
@@ -48,7 +49,7 @@ std::filesystem::path glimmer::Saves::ToChunkPath(const ResourceRef &dimensionRe
 }
 
 std::filesystem::path glimmer::Saves::ToChunkEntityPath(const ResourceRef &dimensionRef,
-                                                        const TileVector2D &position) const {
+                                                        const ChunkVertexVector2D &position) const {
     std::stringstream fileNameStream;
     fileNameStream << "entity_";
     fileNameStream << std::to_string(position.x);
@@ -81,18 +82,18 @@ const std::filesystem::path &glimmer::Saves::GetPath() const {
     return path_;
 }
 
-bool glimmer::Saves::ChunkExists(const ResourceRef &dimensionRef, const TileVector2D &position) const {
+bool glimmer::Saves::ChunkExists(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position) const {
     return virtualFileSystem_->Exists(
         ToChunkPath(dimensionRef, position));
 }
 
-bool glimmer::Saves::EntityExists(const ResourceRef &dimensionRef, const TileVector2D &position) const {
+bool glimmer::Saves::EntityExists(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position) const {
     return virtualFileSystem_->Exists(
         ToChunkEntityPath(dimensionRef, position));
 }
 
 std::optional<ChunkMessage> glimmer::Saves::ReadChunk(const ResourceRef &dimensionRef,
-                                                      const TileVector2D &position) const {
+                                                      const ChunkVertexVector2D &position) const {
     const auto streamUnique = virtualFileSystem_->ReadFileAsStream(ToChunkPath(dimensionRef, position));
     if (streamUnique == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "chunk_file_open_failed",
@@ -115,7 +116,7 @@ std::optional<ChunkMessage> glimmer::Saves::ReadChunk(const ResourceRef &dimensi
     return std::nullopt;
 }
 
-bool glimmer::Saves::WriteChunk(const ResourceRef &dimensionRef, const TileVector2D &position,
+bool glimmer::Saves::WriteChunk(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position,
                                 const ChunkMessage &chunkMessage) const {
     bool result = virtualFileSystem_->WriteFile(ToChunkPath(dimensionRef, position),
                                                 chunkMessage.SerializeAsString());
@@ -130,7 +131,7 @@ bool glimmer::Saves::WriteChunk(const ResourceRef &dimensionRef, const TileVecto
 }
 
 std::optional<ChunkEntityMessage> glimmer::Saves::ReadChunkEntity(const ResourceRef &dimensionRef,
-                                                                  const TileVector2D &position) const {
+                                                                  const ChunkVertexVector2D &position) const {
     const auto streamUnique = virtualFileSystem_->ReadFileAsStream(
         ToChunkEntityPath(dimensionRef, position));
     if (streamUnique == nullptr) {
@@ -155,7 +156,7 @@ std::optional<ChunkEntityMessage> glimmer::Saves::ReadChunkEntity(const Resource
     return std::nullopt;
 }
 
-bool glimmer::Saves::WriteChunkEntity(const ResourceRef &dimensionRef, const TileVector2D &position,
+bool glimmer::Saves::WriteChunkEntity(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position,
                                       const ChunkEntityMessage &chunkEntityMessage) const {
     bool result = virtualFileSystem_->WriteFile(ToChunkEntityPath(dimensionRef, position),
                                                 chunkEntityMessage.SerializeAsString());
@@ -170,7 +171,7 @@ bool glimmer::Saves::WriteChunkEntity(const ResourceRef &dimensionRef, const Til
     return result;
 }
 
-bool glimmer::Saves::DeleteChunkEntity(const ResourceRef &dimensionRef, const TileVector2D &position) const {
+bool glimmer::Saves::DeleteChunkEntity(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position) const {
     bool result = virtualFileSystem_->DeleteFileOrFolder(ToChunkEntityPath(dimensionRef, position));
     if (!result) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "saves_chunk_entity_delete_failed",

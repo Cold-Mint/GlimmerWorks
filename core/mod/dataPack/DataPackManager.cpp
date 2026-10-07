@@ -80,14 +80,6 @@ std::unique_ptr<glimmer::DataPack> glimmer::DataPackManager::LoadPack(const Pack
     }
     LogCat::i(LogLabel::DEFAULT, "data_pack_load_success", "Data pack loaded successfully: Id={}",
               dataPack->GetManifest()->id);
-#if  !defined(NDEBUG)
-    if (const StructureGeneratorManager *structureGeneratorManager = modContext->GetStructureGeneratorManager();
-        structureGeneratorManager != nullptr) {
-        LogCat::i(LogLabel::DEFAULT, "structure_max_chunks_occupied",
-                  "Max chunks occupied by structures: {}",
-                  structureGeneratorManager->GetMaxChunksOccupiedByStructure());
-    }
-#endif
     return dataPack;
 }
 

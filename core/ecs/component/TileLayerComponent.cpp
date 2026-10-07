@@ -55,12 +55,12 @@ std::shared_ptr<glimmer::Tile> glimmer::TileLayerComponent::GetTileShared(const 
         return nullptr;
     }
     const auto chunk = worldContext_->GetChunkManager()->GetChunk(dimensionRef,
-                                                                  Chunk::TileCoordinatesToChunkVertexCoordinates(
+                                                                  CoordinateTransformer::TileToChunkVertex(
                                                                       tilePos));
     if (chunk == nullptr) {
         return nullptr;
     }
-    const TileVector2D pos = Chunk::TileCoordinatesToChunkRelativeCoordinates(tilePos);
+    const ChunkRelativeVector2D pos = CoordinateTransformer::TileToChunkRelative(tilePos);
     return chunk->GetTileShared(layerType, pos.y << CHUNK_SHIFT | pos.x);
 }
 
@@ -69,7 +69,7 @@ std::vector<glimmer::TileSnapshot *> glimmer::TileLayerComponent::GetTopVisibleT
     if (chunk == nullptr) {
         return {};
     }
-    const TileVector2D pos = Chunk::TileCoordinatesToChunkRelativeCoordinates(tilePos);
+    const ChunkRelativeVector2D pos = CoordinateTransformer::TileToChunkRelative(tilePos);
     return chunk->GetTopVisibleTileSnapshots(layerFilter, pos.y << CHUNK_SHIFT | pos.x);
 }
 
@@ -84,11 +84,11 @@ TileStateMessage *glimmer::TileLayerComponent::GetTileStatePtr(const ResourceRef
         return nullptr;
     }
     const auto chunk = chunkManager->GetChunk(dimensionRef,
-                                              Chunk::TileCoordinatesToChunkVertexCoordinates(tilePos));
+                                              CoordinateTransformer::TileToChunkVertex(tilePos));
     if (chunk == nullptr) {
         return nullptr;
     }
-    const TileVector2D pos = Chunk::TileCoordinatesToChunkRelativeCoordinates(tilePos);
+    const ChunkRelativeVector2D pos = CoordinateTransformer::TileToChunkRelative(tilePos);
     return chunk->GetTileState(layerType, pos.y << CHUNK_SHIFT | pos.x);
 }
 
@@ -102,11 +102,11 @@ bool glimmer::TileLayerComponent::CommitTileState(const ResourceRef &dimensionRe
     if (chunkManager == nullptr) {
         return false;
     }
-    auto chunk = chunkManager->GetChunk(dimensionRef, Chunk::TileCoordinatesToChunkVertexCoordinates(tilePos));
+    auto chunk = chunkManager->GetChunk(dimensionRef, CoordinateTransformer::TileToChunkVertex(tilePos));
     if (chunk == nullptr) {
         return false;
     }
-    const TileVector2D pos = Chunk::TileCoordinatesToChunkRelativeCoordinates(tilePos);
+    const ChunkRelativeVector2D pos = CoordinateTransformer::TileToChunkRelative(tilePos);
     return chunk->CommitTileState(breakSource, layerType, pos.y << CHUNK_SHIFT | pos.x, fallback);
 }
 
@@ -139,11 +139,11 @@ const glimmer::Tile *glimmer::TileLayerComponent::GetTile(const ResourceRef &dim
     if (chunkManager == nullptr) {
         return nullptr;
     }
-    const auto chunk = chunkManager->GetChunk(dimensionRef, Chunk::TileCoordinatesToChunkVertexCoordinates(tilePos));
+    const auto chunk = chunkManager->GetChunk(dimensionRef, CoordinateTransformer::TileToChunkVertex(tilePos));
     if (chunk == nullptr) {
         return nullptr;
     }
-    const TileVector2D pos = Chunk::TileCoordinatesToChunkRelativeCoordinates(tilePos);
+    const ChunkRelativeVector2D pos = CoordinateTransformer::TileToChunkRelative(tilePos);
     return chunk->GetTile(layerType, pos.y << CHUNK_SHIFT | pos.x);
 }
 
@@ -183,7 +183,7 @@ GetTopVisibleTileSnapshotsInViewport(const ResourceRef &dimensionRef, const std:
         for (int x = topLeft.x; x <= bottomRight.x; ++x) {
             TileVector2D tileVector2D(x, y);
             const auto chunk = chunkManager->GetChunk(dimensionRef,
-                                                      Chunk::TileCoordinatesToChunkVertexCoordinates(tileVector2D));
+                                                      CoordinateTransformer::TileToChunkVertex(tileVector2D));
             if (chunk == nullptr) {
                 allChunkExist = false;
                 continue;

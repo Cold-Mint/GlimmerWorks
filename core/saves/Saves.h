@@ -28,6 +28,7 @@
 
 #include "MapManifest.h"
 #include "core/ecs/component/TileLayerComponent.h"
+#include "core/math/ChunkVertexVector2D.h"
 #include "core/utils/IUniqueAble.h"
 #include "core/vfs/VirtualFileSystem.h"
 #include "src/core/player.pb.h"
@@ -45,10 +46,10 @@ namespace glimmer {
         [[nodiscard]] std::filesystem::path ToDimensionPath(const ResourceRef &dimensionRef) const;
 
         [[nodiscard]] std::filesystem::path ToChunkPath(const ResourceRef &dimensionRef,
-                                                        const TileVector2D &position) const;
+                                                        const ChunkVertexVector2D &position) const;
 
         [[nodiscard]] std::filesystem::path ToChunkEntityPath(const ResourceRef &dimensionRef,
-                                                              const TileVector2D &position) const;
+                                                              const ChunkVertexVector2D &position) const;
 
         [[nodiscard]] std::filesystem::path ToLocalPlayerPath() const;
 
@@ -78,7 +79,7 @@ namespace glimmer {
          * @param position position 区块位置
          * @return
          */
-        [[nodiscard]] bool ChunkExists(const ResourceRef &dimensionRef, const TileVector2D &position) const;
+        [[nodiscard]] bool ChunkExists(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position) const;
 
         /**
          * Check whether the specified entity file exists.
@@ -87,22 +88,22 @@ namespace glimmer {
          * @param position position 区块位置
          * @return
          */
-        [[nodiscard]] bool EntityExists(const ResourceRef &dimensionRef, const TileVector2D &position) const;
+        [[nodiscard]] bool EntityExists(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position) const;
 
         [[nodiscard]] std::optional<ChunkMessage> ReadChunk(const ResourceRef &dimensionRef,
-                                                            const TileVector2D &position) const;
+                                                            const ChunkVertexVector2D &position) const;
 
-        [[nodiscard]] bool WriteChunk(const ResourceRef &dimensionRef, const TileVector2D &position,
+        [[nodiscard]] bool WriteChunk(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position,
                                       const ChunkMessage &chunkMessage) const;
 
         [[nodiscard]] std::optional<ChunkEntityMessage> ReadChunkEntity(const ResourceRef &dimensionRef,
-                                                                        const TileVector2D &position) const;
+                                                                        const ChunkVertexVector2D &position) const;
 
-        [[nodiscard]] bool WriteChunkEntity(const ResourceRef &dimensionRef, const TileVector2D &position,
+        [[nodiscard]] bool WriteChunkEntity(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position,
                                             const ChunkEntityMessage &chunkEntityMessage) const;
 
         [[nodiscard]] bool DeleteChunkEntity(const ResourceRef &dimensionRef,
-                                             const TileVector2D &position) const;
+                                             const ChunkVertexVector2D &position) const;
 
         [[nodiscard]] std::optional<DimensionManifestMessage> ReadDimensionManifest(
             const ResourceRef &dimensionRef) const;

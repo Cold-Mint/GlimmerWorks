@@ -34,6 +34,7 @@
 #include "Dimension.h"
 #include "LightBuffer.h"
 #include "TileInstancePool.h"
+#include "core/math/ChunkVertexVector2D.h"
 #include "core/math/Vector2DIHash.h"
 #include "core/mod/ResourceRefHash.h"
 #include "generator/Chunk.h"
@@ -60,7 +61,7 @@ namespace glimmer {
          * Key is a pointer for referencing dimension resources.
          * Key为维度资源引用的指针。
          */
-        std::unordered_map<ResourceRef, std::unordered_map<TileVector2D, std::unique_ptr<Chunk>,
+        std::unordered_map<ResourceRef, std::unordered_map<ChunkVertexVector2D, std::unique_ptr<Chunk>,
             Vector2DIHash>, ResourceRefHash>
         dimensionMap_;
         std::unique_ptr<LightBuffer> lightBuffer_ = nullptr;
@@ -93,12 +94,11 @@ namespace glimmer {
         /**
         * Load Chunk
         * 加载区块
-        * @param maxChunksOccupiedByStructure maxChunksOccupiedByStructure 结构占用的最大区块数
         * @param dimensionRef dimensionRef 维度资源引用
         * @param position position 位置
         */
-        void LoadChunkAt(uint32_t maxChunksOccupiedByStructure, const ResourceRef &dimensionRef,
-                         const TileVector2D &position);
+        void LoadChunkAt(const ResourceRef &dimensionRef,
+                         const ChunkVertexVector2D &position);
 
         /**
          * Unload Chunk
@@ -106,7 +106,7 @@ namespace glimmer {
          * @param dimensionRef dimensionRef
          * @param position position 位置
          */
-        void UnloadChunkAt(const ResourceRef &dimensionRef, const TileVector2D &position);
+        void UnloadChunkAt(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position);
 
         /**
          * GetChunk
@@ -115,7 +115,7 @@ namespace glimmer {
          * @param position position 区块顶点位置
          * @return
          */
-        [[nodiscard]] Chunk *GetChunk(const ResourceRef &dimensionRef, const TileVector2D &position) const;
+        [[nodiscard]] Chunk *GetChunk(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position) const;
 
         /**
          * Determine whether a block at a certain position has been loaded
@@ -124,7 +124,7 @@ namespace glimmer {
          * @param position position 位置
          * @return
          */
-        [[nodiscard]] bool HasChunk(const ResourceRef &dimensionRef, const TileVector2D &position) const;
+        [[nodiscard]] bool HasChunk(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position) const;
 
         /**
          * SaveChunk
@@ -132,7 +132,7 @@ namespace glimmer {
          * @param dimensionRef
          * @param position
          */
-        [[nodiscard]] bool SaveChunk(const ResourceRef &dimensionRef, const TileVector2D &position) const;
+        [[nodiscard]] bool SaveChunk(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position) const;
 
         /**
          * SaveAllChunk
@@ -149,7 +149,7 @@ namespace glimmer {
          */
         size_t GetLoadedChunkCount(const ResourceRef &dimensionRef) const;
 
-        const std::unordered_map<TileVector2D, std::unique_ptr<Chunk>,
+        const std::unordered_map<ChunkVertexVector2D, std::unique_ptr<Chunk>,
             Vector2DIHash> *GetLoadedChunks(const ResourceRef &dimensionRef) const;
 
 
@@ -161,7 +161,7 @@ namespace glimmer {
          * @return Whether it exceeds the boundary 是否超出边界
          */
         [[nodiscard]] static bool
-        ChunkIsOutOfBounds(const DimensionResource *dimensionResource, const TileVector2D &position);
+        ChunkIsOutOfBounds(const DimensionResource *dimensionResource, const ChunkVertexVector2D &position);
 
         [[nodiscard]] LightBuffer *GetLightingBuffer() const;
 

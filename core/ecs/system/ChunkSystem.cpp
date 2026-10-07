@@ -44,13 +44,14 @@
 void glimmer::ChunkSystem::GenerateLoadTasks(const DimensionResource *dimensionResource,
                                              const ResourceRef &dimensionRef, const ChunkManager *chunkManager,
                                              ChunkTaskScheduler *scheduler,
-                                             const TileVector2D &startChunk, const TileVector2D &endChunk) {
+                                             const ChunkVertexVector2D &startChunk,
+                                             const ChunkVertexVector2D &endChunk) {
     if (chunkManager == nullptr || scheduler == nullptr) {
         return;
     }
     for (int cy = startChunk.y; cy <= endChunk.y; cy += CHUNK_SIZE) {
         for (int cx = startChunk.x; cx <= endChunk.x; cx += CHUNK_SIZE) {
-            const TileVector2D chunkVertexCoordinates(cx, cy);
+            const ChunkVertexVector2D chunkVertexCoordinates(cx, cy);
             if (ChunkManager::ChunkIsOutOfBounds(dimensionResource, chunkVertexCoordinates)) {
                 continue;
             }
@@ -67,12 +68,12 @@ void glimmer::ChunkSystem::GenerateLoadTasks(const DimensionResource *dimensionR
 }
 
 void glimmer::ChunkSystem::GenerateUnloadTasks(const ResourceRef &dimensionRef, const ChunkManager *chunkManager,
-                                               ChunkTaskScheduler *scheduler, const TileVector2D &startChunk,
-                                               const TileVector2D &endChunk) {
+                                               ChunkTaskScheduler *scheduler, const ChunkVertexVector2D &startChunk,
+                                               const ChunkVertexVector2D &endChunk) {
     if (chunkManager == nullptr || scheduler == nullptr) {
         return;
     }
-    const std::unordered_map<TileVector2D, std::unique_ptr<Chunk>, Vector2DIHash> *loadedChunks = chunkManager->
+    const std::unordered_map<ChunkVertexVector2D, std::unique_ptr<Chunk>, Vector2DIHash> *loadedChunks = chunkManager->
             GetLoadedChunks(dimensionRef);
     if (loadedChunks == nullptr) {
         return;
@@ -107,18 +108,15 @@ void glimmer::ChunkSystem::PostTask() {
     TaskWorker *taskWorker = appContext->GetTaskWorker();
     ChunkManager *chunkManager = worldContext->GetChunkManager();
     ChunkTaskScheduler *chunkTaskScheduler = worldContext->GetChunkTaskScheduler();
-    StructureGeneratorManager *structureGeneratorManager = modContext->GetStructureGeneratorManager();
-    if (taskWorker == nullptr || chunkManager == nullptr || chunkTaskScheduler == nullptr || structureGeneratorManager
-        == nullptr) {
+    if (taskWorker == nullptr || chunkManager == nullptr || chunkTaskScheduler == nullptr) {
         return;
     }
     chunkTaskInProgress_.store(true);
-    taskWorker->PostTask([chunkManager, chunkTaskScheduler, this, structureGeneratorManager] {
+    taskWorker->PostTask([chunkManager, chunkTaskScheduler, this] {
         while (const std::unique_ptr<ChunkTask> chunkTask = chunkTaskScheduler->PopFrontTask()) {
-            const uint32_t maxChunksOccupiedByStructure = structureGeneratorManager->GetMaxChunksOccupiedByStructure();
             switch (chunkTask->GetTaskType()) {
                 case ChunkTaskType::LOAD:
-                    chunkManager->LoadChunkAt(maxChunksOccupiedByStructure, chunkTask->GetDimensionResourceRef(),
+                    chunkManager->LoadChunkAt(chunkTask->GetDimensionResourceRef(),
                                               chunkTask->GetPosition());
                     break;
                 case ChunkTaskType::UNLOAD:
@@ -213,8 +211,8 @@ void glimmer::ChunkSystem::OnTick(const uint64_t tick) {
     const TileVector2D lowerRightChunkCorner = CoordinateTransformer::WorldToTile(
         WorldVector2D(preloadedChunkViewportRect.x + preloadedChunkViewportRect.w,
                       preloadedChunkViewportRect.y + preloadedChunkViewportRect.h));
-    const TileVector2D startChunk = Chunk::TileCoordinatesToChunkVertexCoordinates(topLeftChunkCorner);
-    const TileVector2D endChunk = Chunk::TileCoordinatesToChunkVertexCoordinates(lowerRightChunkCorner);
+    const ChunkVertexVector2D startChunk = CoordinateTransformer::TileToChunkVertex(topLeftChunkCorner);
+    const ChunkVertexVector2D endChunk = CoordinateTransformer::TileToChunkVertex(lowerRightChunkCorner);
 
     ChunkTaskScheduler *chunkTaskScheduler = worldContext->GetChunkTaskScheduler();
     if (chunkTaskScheduler == nullptr) {
@@ -229,8 +227,9 @@ void glimmer::ChunkSystem::OnTick(const uint64_t tick) {
     GenerateUnloadTasks(dimensionResourceRef, chunkManager, chunkTaskScheduler, startChunk, endChunk);
 
     chunkTaskScheduler->Commit();
-    const TileVector2D originPosition = CoordinateTransformer::WorldToTile(cameraTransform2DComponent_->GetPosition());
-    chunkTaskScheduler->SortTask(originPosition);
+    chunkTaskScheduler->SortTask(
+        CoordinateTransformer::TileToChunkVertex(
+            CoordinateTransformer::WorldToTile(cameraTransform2DComponent_->GetPosition())));
 
     if (chunkTaskScheduler->GetMainTaskCount() > 0 && !chunkTaskInProgress_.load()) {
         //If it is discovered that there are tasks that have not been delivered to the worker thread and have not been delivered before, then the delivery will be executed.

@@ -28,40 +28,11 @@
 
 #include "core/log/LogCat.h"
 
-std::vector<glimmer::TileVector2D> glimmer::StructureGeneratorManager::GetChunkDependencyTerrain(
-    const uint32_t maxChunksOccupiedByStructure, const TileVector2D &centerChunkPosition) {
-    std::vector<TileVector2D> result;
-    //Center 1 block, add the left side edge maxChunksOccupiedByStructure and the right side edge, to obtain the total edge length. The square of the edge length equals the total area.
-    //居中1个区块，加上左侧的边maxChunksOccupiedByStructure，右侧的边，得到总的边长。边长*边长等于总面积。
-    const uint32_t sizeLength = maxChunksOccupiedByStructure * 2 + 1;
-    result.reserve(sizeLength * sizeLength);
-    const int radius = static_cast<int>(maxChunksOccupiedByStructure);
-    const int startX = centerChunkPosition.x - radius * CHUNK_SIZE;
-    const int startY = centerChunkPosition.y - radius * CHUNK_SIZE;
-    for (int y = 0; y < static_cast<int>(sizeLength); ++y) {
-        for (int x = 0; x < static_cast<int>(sizeLength); ++x) {
-            result.emplace_back(startX + x * CHUNK_SIZE, startY + y * CHUNK_SIZE);
-        }
-    }
-    return result;
-}
 
 void glimmer::StructureGeneratorManager::RegisterStructureGenerator(
     std::unique_ptr<IStructureGenerator> structureGenerator) {
     const StructureGeneratorType type = structureGenerator->GetStructureGeneratorType();
     structureGeneratorMap_.emplace(type, std::move(structureGenerator));
-}
-
-void glimmer::StructureGeneratorManager::ResetMaxChunksOccupiedByStructure() {
-    maxChunksOccupiedByStructure_ = 0;
-}
-
-void glimmer::StructureGeneratorManager::UpdateMaxChunksOccupied(const uint32_t maxChunks) {
-    maxChunksOccupiedByStructure_ = std::max(maxChunksOccupiedByStructure_, maxChunks);
-}
-
-uint32_t glimmer::StructureGeneratorManager::GetMaxChunksOccupiedByStructure() const {
-    return maxChunksOccupiedByStructure_;
 }
 
 std::unique_ptr<glimmer::StructureInfo> glimmer::StructureGeneratorManager::Generate(WorldContext *worldContext,
@@ -78,18 +49,4 @@ std::unique_ptr<glimmer::StructureInfo> glimmer::StructureGeneratorManager::Gene
         return nullptr;
     }
     return structureGenerator->Generate(worldContext, structuralOrigin, structureResource);
-}
-
-
-uint32_t glimmer::StructureGeneratorManager::GetMaxExtent(IStructureResource *structureResource) {
-    const auto type = static_cast<StructureGeneratorType>(structureResource->generatorId);
-    const auto iterator = structureGeneratorMap_.find(type);
-    if (iterator == structureGeneratorMap_.end()) {
-        return 0;
-    }
-    const std::unique_ptr<IStructureGenerator> &structureGenerator = iterator->second;
-    if (structureGenerator == nullptr) {
-        return 0;
-    }
-    return structureGenerator->GetMaxExtent(structureResource);
 }

@@ -46,13 +46,6 @@ namespace glimmer {
                                                         IStructureResource *structureResource) = 0;
 
         /**
-         * Get the dimension of the longest edge of the structure (in tiles)
-         * 获取结构最长边的尺寸（单位：瓦片）
-         * @return
-         */
-        [[nodiscard]] virtual uint32_t GetMaxExtent(IStructureResource *structureResource) const = 0;
-
-        /**
          * Get the structure generator ID
          * 获取结构生成器Id
          * @return

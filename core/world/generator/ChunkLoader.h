@@ -41,7 +41,7 @@ namespace glimmer {
          * @param dimensionRef
          * @param position
          */
-        void LoadEntityFromSaves(const ResourceRef &dimensionRef, const TileVector2D &position) const;
+        void LoadEntityFromSaves(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position) const;
 
     public:
         ChunkLoader(WorldContext *worldContext, Saves *saves);
@@ -53,7 +53,7 @@ namespace glimmer {
          * @param position position 位置
          */
         [[nodiscard]] std::unique_ptr<Chunk> LoadChunkFromSaves(const ResourceRef &dimensionRef,
-                                                                const TileVector2D &position) const;
+                                                                const ChunkVertexVector2D &position) const;
 
         /**
         * Recovery Entity

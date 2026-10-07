@@ -35,18 +35,15 @@ namespace glimmer {
     using Vector2DIFingerprint = uint64_t;
 
     template<typename Derived>
-    class Vector2DIBase : public IFingerprintAble {
+    class Vector2DUIBase : public IFingerprintAble {
     public:
-        int x = 0;
-        int y = 0;
+        uint32_t x = 0;
+        uint32_t y = 0;
 
-        Vector2DIBase() = default;
+        Vector2DUIBase() = default;
 
-        Vector2DIBase(int tempX, int tempY);
+        Vector2DUIBase(uint32_t tempX, uint32_t tempY);
 
-        void ReadVector2DIMessage(const Vector2DIMessage &vector2di);
-
-        void WriteVector2DIMessage(Vector2DIMessage &vector2di) const;
 
         /**
          * Vector addition
@@ -184,75 +181,63 @@ namespace glimmer {
     };
 
     template<typename Derived>
-    Vector2DIBase<Derived>::Vector2DIBase(int tempX, int tempY)
-        : x(tempX), y(tempY) {
+    Vector2DUIBase<Derived>::Vector2DUIBase(const uint32_t tempX, const uint32_t tempY) : x(tempX), y(tempY) {
     }
 
     template<typename Derived>
-    void Vector2DIBase<Derived>::ReadVector2DIMessage(const Vector2DIMessage &vector2di) {
-        x = vector2di.x();
-        y = vector2di.y();
-    }
-
-    template<typename Derived>
-    void Vector2DIBase<Derived>::WriteVector2DIMessage(Vector2DIMessage &vector2di) const {
-        vector2di.set_x(x);
-        vector2di.set_y(y);
-    }
-
-    template<typename Derived>
-    Derived &Vector2DIBase<Derived>::operator+=(const Derived &rhs) {
+    Derived &Vector2DUIBase<Derived>::operator+=(const Derived &rhs) {
         x += rhs.x;
         y += rhs.y;
         return static_cast<Derived &>(*this);
     }
 
+
     template<typename Derived>
-    bool Vector2DIBase<Derived>::operator==(const Derived &rhs) const noexcept {
+    bool Vector2DUIBase<Derived>::operator==(const Derived &rhs) const noexcept {
         return rhs.x == x && rhs.y == y;
     }
 
     template<typename Derived>
-    bool Vector2DIBase<Derived>::operator!=(const Derived &rhs) const noexcept {
+    bool Vector2DUIBase<Derived>::operator!=(const Derived &rhs) const noexcept {
         return rhs.x != x || rhs.y != y;
     }
 
     template<typename Derived>
-    Derived &Vector2DIBase<Derived>::operator-=(const Derived &rhs) {
+    Derived &Vector2DUIBase<Derived>::operator-=(const Derived &rhs) {
         x -= rhs.x;
         y -= rhs.y;
         return static_cast<Derived &>(*this);
     }
 
     template<typename Derived>
-    float Vector2DIBase<Derived>::Dot(const Derived &rhs) const {
+    float Vector2DUIBase<Derived>::Dot(const Derived &rhs) const {
         return x * rhs.x + y * rhs.y;
     }
 
     template<typename Derived>
-    uint32_t Vector2DIBase<Derived>::Length() const {
+    uint32_t Vector2DUIBase<Derived>::Length() const {
         return static_cast<uint32_t>(std::sqrt(static_cast<float>(LengthSquared())));
     }
 
     template<typename Derived>
-    uint32_t Vector2DIBase<Derived>::LengthSquared() const {
+    uint32_t Vector2DUIBase<Derived>::LengthSquared() const {
         return x * x + y * y;
     }
 
     template<typename Derived>
-    uint32_t Vector2DIBase<Derived>::Distance(const Derived &rhs) const {
+    uint32_t Vector2DUIBase<Derived>::Distance(const Derived &rhs) const {
         auto self = static_cast<const Derived &>(*this);
         return (self - rhs).Length();
     }
 
     template<typename Derived>
-    uint32_t Vector2DIBase<Derived>::DistanceSquared(const Derived &rhs) const {
+    uint32_t Vector2DUIBase<Derived>::DistanceSquared(const Derived &rhs) const {
         auto self = static_cast<const Derived &>(*this);
         return (self - rhs).LengthSquared();
     }
 
     template<typename Derived>
-    Derived Vector2DIBase<Derived>::Normalized() const {
+    Derived Vector2DUIBase<Derived>::Normalized() const {
         const uint32_t lenSq = LengthSquared();
         if (lenSq < 1U) {
             return Derived(0, 0);
@@ -263,7 +248,7 @@ namespace glimmer {
     }
 
     template<typename Derived>
-    float Vector2DIBase<Derived>::ToAngle(const Derived &to) const {
+    float Vector2DUIBase<Derived>::ToAngle(const Derived &to) const {
         const auto dx = static_cast<float>(to.x - x);
         const auto dy = static_cast<float>(to.y - y);
         const float ang = std::atan2(dy, dx) * 180.0F / std::numbers::pi_v<float>;
@@ -271,9 +256,9 @@ namespace glimmer {
     }
 
     template<typename Derived>
-    Vector2DIFingerprint Vector2DIBase<Derived>::GetFingerprint() const {
-        const auto bitsX = std::bit_cast<uint32_t>(x);
-        const auto bitsY = std::bit_cast<uint32_t>(y);
+    Vector2DIFingerprint Vector2DUIBase<Derived>::GetFingerprint() const {
+        const auto bitsX = x;
+        const auto bitsY = y;
         return static_cast<uint64_t>(bitsX) << 32 | bitsY;
     }
 }

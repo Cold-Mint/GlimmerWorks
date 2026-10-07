@@ -122,14 +122,14 @@ bool glimmer::TileSnapshotCommand::ExecuteInfo(const CommandSender *commandSende
         commandArgs->AsCoordinate(3, commandSenderPosition.x),
         commandArgs->AsCoordinate(
             4, commandSenderPosition.y)));
-    const auto chunkVertex = Chunk::TileCoordinatesToChunkVertexCoordinates(tileVector2D);
+    const auto chunkVertex = CoordinateTransformer::TileToChunkVertex(tileVector2D);
     Chunk *chunk = worldContext->GetChunkManager()->GetChunk(dimensionRefOptional.value(), chunkVertex);
     if (chunk == nullptr) {
         onMessageRef(fmt::format(fmt::runtime(langsResources->chunkHasNotBeenLoadedYet), tileVector2D.x,
                                  tileVector2D.y));
         return false;
     }
-    const auto chunkRelative = Chunk::TileCoordinatesToChunkRelativeCoordinates(tileVector2D);
+    const auto chunkRelative = CoordinateTransformer::TileToChunkRelative(tileVector2D);
     std::vector<TileSnapshot *> tileSnapshotVectorPtr = chunk->GetTopVisibleTileSnapshots(
         std::byte{std::to_underlying(TileLayerType::Ground)}
         | std::byte{std::to_underlying(TileLayerType::BackGround)},

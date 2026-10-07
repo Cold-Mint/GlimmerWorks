@@ -659,23 +659,8 @@ target_sources(GlimmerWorks
         core/inventory/ability/NoneAbility.cpp
         core/lootTable/LootEntry.cpp
         core/lootTable/LootTableRegistry.cpp
-        core/math/BackwardAllocStrategy.cpp
-        core/math/BalanceAllocStrategy.cpp
         core/math/Color.cpp
-        core/math/ColorF.cpp
         core/math/CoordinateTransformer.cpp
-        core/math/ForwardAllocStrategy.cpp
-        core/math/IAllocStrategy.cpp
-        core/math/IAllocatable.cpp
-        core/math/RandomAllocStrategy.cpp
-        core/math/ScreenVector2D.cpp
-        core/math/TileVector2D.cpp
-        core/math/Vector2D.cpp
-        core/math/Vector2DBase.cpp
-        core/math/Vector2DI.cpp
-        core/math/Vector2DIBase.cpp
-        core/math/Vector2DIHash.cpp
-        core/math/WorldVector2D.cpp
         core/mod/ITemplateCommand.cpp
         core/mod/PackManifest.cpp
         core/mod/PackVerifyState.cpp
@@ -872,6 +857,11 @@ target_sources(GlimmerWorks
         core/gpu/BlendMode.h
         core/gpu/RenderQueue.h
         core/gpu/LightMapTexture.h
+        core/math/ChunkVertexVector2D.h
+        core/math/ChunkRelativeVector2D.h
+        core/math/TerrainVertexVector2D.h
+        core/math/TerrainRelativeVector2D.h
+        core/math/Vector2DUIBase.h
         core/gpu/IPass.h
         core/gpu/RenderFrameContext.h
         core/utils/IUniqueAble.h
@@ -1133,7 +1123,6 @@ target_sources(GlimmerWorks
         core/math/Color.h
         core/math/ColorF.h
         core/math/CoordinateTransformer.h
-        core/math/DesignVector2D.h
         core/math/ForwardAllocStrategy.h
         core/math/IAllocStrategy.h
         core/math/IAllocatable.h

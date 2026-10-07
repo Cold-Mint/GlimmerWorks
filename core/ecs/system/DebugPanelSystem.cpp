@@ -187,7 +187,7 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
             if (climateSampler != nullptr) {
                 const int worldSeed = worldContext->GetWorldSeed();
                 for (auto tileLayerComponent: tileLayerComponents_) {
-                    TileVector2D chunkRelative = Chunk::TileCoordinatesToChunkRelativeCoordinates(tileCoord);
+                    ChunkRelativeVector2D chunkRelative = CoordinateTransformer::TileToChunkRelative(tileCoord);
                     if (firstLayer) {
                         float elevation = TerrainMath::GetElevation(dimensionResource, tileCoord.y);
                         debugLines_.push_back(DebugLine{

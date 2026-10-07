@@ -52,7 +52,8 @@ std::optional<glimmer::TileVector2D> glimmer::LocateCommand::SearchBiomes(int ti
     if (climateSampler == nullptr || biomeRegistry == nullptr) {
         return std::nullopt;
     }
-    TileVector2D chunkCenter = Chunk::TileCoordinatesToChunkVertexCoordinates({tileX, 0}) + TileVector2D{
+    TileVector2D chunkCenter = CoordinateTransformer::ChunkVertexToTile(
+                                   CoordinateTransformer::TileToChunkVertex({tileX, 0})) + TileVector2D{
                                    HALF_CHUNK_SIZE, HALF_CHUNK_SIZE
                                };
     const int firstTileTerrainY = climateSampler->GetFirstTileTerrainY(worldSeed, dimensionResource, tileX);

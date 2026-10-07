@@ -26,37 +26,28 @@
  */
 #include "TerrainResult.h"
 
-TerrainTileResult &glimmer::TerrainResult::GetMutableTerrainTileResult(const TileVector2D &localPosition) {
-    return terrainTileResult_[localPosition.y * CHUNK_SIZE + localPosition.x];
+#include "core/math/ChunkRelativeVector2D.h"
+
+
+TerrainTileResult &glimmer::TerrainResult::GetMutableTerrainTileResult(const TerrainRelativeVector2D &localPosition) {
+    return terrainTileResult_[localPosition.y * TERRAIN_SIZE + localPosition.x];
 }
 
-TerrainTileResult &glimmer::TerrainResult::GetMutableUpTerrainTileResult(const int localX) {
-    return upTerrainTileResult_[localX];
-}
-
-void glimmer::TerrainResult::SetPosition(const TileVector2D &position) {
+void glimmer::TerrainResult::SetPosition(const TerrainVertexVector2D &position) {
     position_ = position;
 }
 
-const glimmer::TileVector2D &glimmer::TerrainResult::GetPosition() const {
+const glimmer::TerrainVertexVector2D &glimmer::TerrainResult::GetPosition() const {
     return position_;
 }
 
-const TerrainTileResult &glimmer::TerrainResult::QueryTerrain(const int x, const int y) const {
-    const int idx = y * CHUNK_SIZE + x;
-    // up
-    // 上
-    if (y == CHUNK_SIZE && x >= 0 && x < CHUNK_SIZE) {
-        return upTerrainTileResult_[x];
-    }
-    // within the chunk
-    // 在 chunk 内
-    return terrainTileResult_[idx];
+const TerrainTileResult &glimmer::TerrainResult::QueryTerrain(const TerrainRelativeVector2D &localPosition) const {
+    return terrainTileResult_[localPosition.y * TERRAIN_SIZE + localPosition.x];
 }
 
 void glimmer::TerrainResult::SetTerrainTileStructure(const int tileIndex, const ResourceRef *structureResource,
                                                      const TileLayerType layerType) {
-    if (tileIndex >= 0 && tileIndex < CHUNK_AREA) {
+    if (tileIndex >= 0 && tileIndex < TERRAIN_AREA) {
         TerrainTileResult &terrainTileResult = terrainTileResult_[tileIndex];
         terrainTileResult.SetTerrainType(TerrainResultType::STRUCTURE);
         terrainTileResult.SetStructure(layerType, structureResource);

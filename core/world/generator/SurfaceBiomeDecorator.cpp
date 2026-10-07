@@ -26,10 +26,12 @@
  */
 #include "SurfaceBiomeDecorator.h"
 
+#include "core/math/CoordinateTransformer.h"
 #include "core/world/WorldContext.h"
 
 
-void glimmer::SurfaceBiomeDecorator::DecorationImpl(WorldContext *worldContext, TerrainResult *terrainResult,
+void glimmer::SurfaceBiomeDecorator::DecorationImpl(const ChunkVertexVector2D &chunkVertex, WorldContext *worldContext,
+                                                    TerrainResult *terrainResult,
                                                     SurfaceBiomeDecoratorResource *decoratorResource,
                                                     BiomeResource *biomeResource,
                                                     std::unordered_map<TileLayerType, std::array<ResourceRef,
@@ -41,7 +43,12 @@ void glimmer::SurfaceBiomeDecorator::DecorationImpl(WorldContext *worldContext, 
     for (int localX = 0; localX < CHUNK_SIZE; localX++) {
         for (int localY = 0; localY < CHUNK_SIZE; localY++) {
             const int idx = localY * CHUNK_SIZE + localX;
-            const TerrainTileResult &self = terrainResult->QueryTerrain(localX, localY);
+            ChunkRelativeVector2D chunkRelativeVector2D(localX, localY);
+            const TileVector2D absolutePosition = CoordinateTransformer::ChunkRelativeToTile(
+                chunkVertex, chunkRelativeVector2D);
+            const TerrainRelativeVector2D terrainRelativeVector2D = CoordinateTransformer::TileToTerrainRelative(
+                absolutePosition);
+            const auto &self = terrainResult->QueryTerrain(terrainRelativeVector2D);
             if (self.GetTerrainType() != TerrainResultType::SOLID) {
                 //Not solid tiles.
                 //不是固体瓦片。
@@ -52,7 +59,14 @@ void glimmer::SurfaceBiomeDecorator::DecorationImpl(WorldContext *worldContext, 
                 //瓦片不属于当前生物群系。
                 continue;
             }
-            const TerrainTileResult &up = terrainResult->QueryTerrain(localX, localY + 1);
+            if (terrainRelativeVector2D.y == TERRAIN_MASK) {
+                //It is already at the topmost position. The next level is outside the local shape block and is skipped.
+                //已是最顶端，上一格在本地形块之外，跳过
+                continue;
+            }
+            const TileVector2D upAbsolutePosition = TileVector2D(absolutePosition.x, absolutePosition.y + 1);
+            const TerrainTileResult &up = terrainResult->QueryTerrain(CoordinateTransformer::TileToTerrainRelative(
+                upAbsolutePosition));
             const TerrainResultType upTerrainType = up.GetTerrainType();
             if (airValid && upTerrainType == TerrainResultType::AIR) {
                 targetLayer[idx] = decoratorResource->openAirTile;

@@ -26,6 +26,8 @@
  */
 #pragma once
 #include "TerrainTileResult.h"
+#include "core/math/TerrainRelativeVector2D.h"
+#include "core/math/TerrainVertexVector2D.h"
 
 namespace glimmer {
     /**
@@ -33,20 +35,17 @@ namespace glimmer {
      * 地形生成结果
      */
     class TerrainResult {
-        std::array<TerrainTileResult, CHUNK_AREA> terrainTileResult_;
-        std::array<TerrainTileResult, CHUNK_SIZE> upTerrainTileResult_;
-        TileVector2D position_;
+        std::array<TerrainTileResult, TERRAIN_AREA> terrainTileResult_;
+        TerrainVertexVector2D position_;
 
     public:
-        TerrainTileResult &GetMutableTerrainTileResult(const TileVector2D &localPosition);
+        TerrainTileResult &GetMutableTerrainTileResult(const TerrainRelativeVector2D &localPosition);
 
-        TerrainTileResult &GetMutableUpTerrainTileResult(int localX);
+        void SetPosition(const TerrainVertexVector2D &position);
 
-        void SetPosition(const TileVector2D &position);
+        [[nodiscard]] const TerrainVertexVector2D &GetPosition() const;
 
-        [[nodiscard]] const TileVector2D &GetPosition() const;
-
-        [[nodiscard]] const TerrainTileResult &QueryTerrain(int x, int y) const;
+        [[nodiscard]] const TerrainTileResult &QueryTerrain(const TerrainRelativeVector2D &localPosition) const;
 
         /**
          * Mark a certain coordinate as a structure.

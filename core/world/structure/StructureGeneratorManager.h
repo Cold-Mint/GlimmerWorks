@@ -27,61 +27,19 @@
 #pragma once
 #include "IStructureGenerator.h"
 #include "StructureInfo.h"
+#include "core/math/TerrainVertexVector2D.h"
 #include "core/mod/Resource.h"
 
 namespace glimmer {
+    class ChunkVertexVector2D;
+
     class StructureGeneratorManager {
         std::unordered_map<StructureGeneratorType, std::unique_ptr<IStructureGenerator> > structureGeneratorMap_{};
 
-        /**
-        * The maximum number of chunks occupied by the structure
-        * 结构最大占用区块数量
-        */
-        uint32_t maxChunksOccupiedByStructure_ = 1;
-
     public:
-        /**
-         * GetChunkDependencyTerrainPosition
-         * 获取区块依赖的地形数据位置
-         *
-         * @param maxChunksOccupiedByStructure What is the maximum number of blocks (radius) occupied by the structure? 最大的结构占用多少区块（半径）
-         * @param centerChunkPosition The upper-left coordinate of the central block (the coordinate point used when creating the block) 中心区块的左上角坐标（创建区块时使用的坐标点）
-         * @return
-         */
-        static std::vector<TileVector2D> GetChunkDependencyTerrain(uint32_t maxChunksOccupiedByStructure,
-                                                                   const TileVector2D &centerChunkPosition);
-
         void RegisterStructureGenerator(std::unique_ptr<IStructureGenerator> structureGenerator);
-
-
-        /**
-         * ResetMaxChunksOccupiedByStructure
-         * 重置最大结构占用区块数量。
-         */
-        void ResetMaxChunksOccupiedByStructure();
-
-        /**
-         * UpdateMaxChunksOccupied
-         * 更新结构最大占用数量
-         * @param maxChunks
-         */
-        void UpdateMaxChunksOccupied(uint32_t maxChunks);
-
-        /**
-         * GetMaxChunksOccupiedByStructure
-         * 获取最大结构占用的区块数量
-         * @return
-         */
-        [[nodiscard]] uint32_t GetMaxChunksOccupiedByStructure() const;
 
         std::unique_ptr<StructureInfo> Generate(WorldContext *worldContext, const TileVector2D &structuralOrigin,
                                                 IStructureResource *structureResource);
-
-        /**
-         * Get the dimension of the longest edge of the structure (in tiles)
-         * 获取结构最长边的尺寸（单位：瓦片）
-         * @return
-         */
-        uint32_t GetMaxExtent(IStructureResource *structureResource);
     };
 }

@@ -26,6 +26,7 @@
  */
 #pragma once
 #include "Chunk.h"
+#include "core/math/ChunkRelativeVector2D.h"
 
 namespace glimmer {
     class ChunkPhysicsHelper {
@@ -39,7 +40,7 @@ namespace glimmer {
                                 std::vector<bool> &visited);
 
         static void CreateBodyForRect(b2WorldId worldId, Chunk *chunk,
-                                      int x, int y, int width, int height);
+                                     const ChunkRelativeVector2D& chunkRelativeVector2d, int width, int height);
 
     public:
         /**

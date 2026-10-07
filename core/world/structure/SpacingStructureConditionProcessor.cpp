@@ -31,35 +31,34 @@ GetStructureConditionProcessorType() {
     return StructureConditionProcessorType::Spacing;
 }
 
-std::bitset<CHUNK_AREA> glimmer::SpacingStructureConditionProcessor::Match(const DimensionResource *dimensionResource,
-                                                                           const TerrainResult *terrainResult,
-                                                                           const IStructurePlacementConditionsResource *
-                                                                           placementConditionsResource) {
+void glimmer::SpacingStructureConditionProcessor::Match(const DimensionResource *dimensionResource,
+                                                        const TerrainResult *terrainResult,
+                                                        const IStructurePlacementConditionsResource *
+                                                        placementConditionsResource,
+                                                        std::bitset<TERRAIN_AREA> &outBitset) {
     const auto spacingStructureConditions = dynamic_cast<const SpacingStructureConditionsResource *>(
         placementConditionsResource);
     int minDistance = spacingStructureConditions->minDistance;
     if (minDistance <= 0) {
         minDistance = 4;
     }
-    std::bitset<CHUNK_AREA> result;
     if (spacingStructureConditions->isVertical) {
-        for (int y = 0; y < CHUNK_SIZE; ++y) {
+        for (int y = 0; y < TERRAIN_SIZE; ++y) {
             int globalY = y + terrainResult->GetPosition().y;
             if (globalY % minDistance == 0) {
-                for (int x = 0; x < CHUNK_SIZE; ++x) {
-                    result.set(y * CHUNK_SIZE + x);
+                for (int x = 0; x < TERRAIN_SIZE; ++x) {
+                    outBitset.set(y * TERRAIN_SIZE + x);
                 }
             }
         }
     } else {
-        for (int x = 0; x < CHUNK_SIZE; ++x) {
+        for (int x = 0; x < TERRAIN_SIZE; ++x) {
             int globalX = x + terrainResult->GetPosition().x;
             if (globalX % minDistance == 0) {
-                for (int y = 0; y < CHUNK_SIZE; ++y) {
-                    result.set(y * CHUNK_SIZE + x);
+                for (int y = 0; y < TERRAIN_SIZE; ++y) {
+                    outBitset.set(y * TERRAIN_SIZE + x);
                 }
             }
         }
     }
-    return result;
 }

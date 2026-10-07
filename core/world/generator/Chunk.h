@@ -41,7 +41,7 @@
 
 namespace glimmer {
     class Chunk {
-        TileVector2D position_;
+        ChunkVertexVector2D position_;
         WorldContext *worldContext_;
         std::unordered_map<TileLayerType, std::array<std::shared_ptr<Tile>, CHUNK_AREA> >
         tiles_;
@@ -58,7 +58,7 @@ namespace glimmer {
         //The terrain data that this chunk depends on. Holding the shared_ptr keeps the terrain alive and allows
         //neighboring chunks to reuse it until this chunk is unloaded.
         //此区块依赖的地形数据。持有 shared_ptr 使地形保持存活，直到此区块卸载前可被邻近区块复用。
-        std::vector<std::shared_ptr<TerrainResult> > dependencyTerrain_;
+        std::shared_ptr<TerrainResult> dependencyTerrain_;
 
         std::vector<std::function<void(Chunk *chunk, int index, std::shared_ptr<Tile> tile, TileLayerType layerType)> >
         onTileRebuilt_;
@@ -76,13 +76,13 @@ namespace glimmer {
             TileStateArrayMessage &layerMessage);
 
     public:
-        explicit Chunk(WorldContext *worldContext, const TileVector2D &pos);
+        explicit Chunk(WorldContext *worldContext, ChunkVertexVector2D pos);
 
         /**
          * SetDependencyTerrain
          * 设置此区块依赖的地形数据，持有引用以保持其存活直至区块卸载。
          */
-        void SetDependencyTerrain(std::vector<std::shared_ptr<TerrainResult> > dependencyTerrain);
+        void SetDependencyTerrain(std::shared_ptr<TerrainResult> dependencyTerrain);
 
         void AddBodyId(b2BodyId bodyId);
 
@@ -97,21 +97,6 @@ namespace glimmer {
 
         bool RemoveReplaceTileCallback(long index);
 
-        /**
-         * TileCoordinatesToChunkCoordinates
-         * 瓦片坐标转区块顶点坐标
-         * @param tileVector2d
-         * @return
-         */
-        [[nodiscard]] static TileVector2D TileCoordinatesToChunkVertexCoordinates(const TileVector2D &tileVector2d);
-
-        /**
-         * TileCoordinatesToChunkRelativeCoordinates
-         * 瓦片坐标转区块相对坐标
-         * @param tileVector2d
-         * @return
-         */
-        [[nodiscard]] static TileVector2D TileCoordinatesToChunkRelativeCoordinates(const TileVector2D &tileVector2d);
 
         bool CommitTileState(BreakSource breakSource, TileLayerType layerType, int index, bool fallback);
 
@@ -151,7 +136,7 @@ namespace glimmer {
          */
         static void InitGrowthState(TileStateMessage *msg, const TileResource *tileResource, uint64_t tick);
 
-        [[nodiscard]] TileVector2D GetPosition() const;
+        [[nodiscard]] const ChunkVertexVector2D &GetPosition() const;
 
         [[nodiscard]] const Tile *GetTile(TileLayerType layerType, uint8_t index) const;
 

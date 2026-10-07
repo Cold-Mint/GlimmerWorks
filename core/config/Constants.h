@@ -81,7 +81,7 @@ static constexpr std::string VFS_COMMAND_NAME = "vfs";
 static constexpr std::string HOOK_COMMAND_NAME = "commandHook";
 static constexpr std::string TECHNOLOGY_COMMAND_NAME = "technology";
 static constexpr std::string TAG_COMMAND_NAME = "tag";
-static const std::string UNLOCKED_RECIPES_COMMAND_NAME = "unlockedRecipes";
+static constexpr std::string UNLOCKED_RECIPES_COMMAND_NAME = "unlockedRecipes";
 static constexpr std::string RML_DEBUG_COMMAND_NAME = "rmlDebug";
 #endif
 static constexpr std::string BOOL_DYNAMIC_SUGGESTIONS_NAME = "&bool";
@@ -227,7 +227,12 @@ static constexpr int CHUNK_SIZE = 16;
  * The size (side length) of the terrain block
  * 地形块的尺寸（边长）
  */
-static constexpr int TERRAIN_SIZE = CHUNK_SIZE;
+static constexpr int TERRAIN_SIZE = CHUNK_SIZE * 32;
+
+
+static constexpr int TERRAIN_MASK = TERRAIN_SIZE - 1;
+static constexpr int TERRAIN_ALIGN = ~TERRAIN_MASK;
+
 static constexpr int HALF_CHUNK_SIZE = CHUNK_SIZE * 0.5;
 
 /**
@@ -237,6 +242,13 @@ static constexpr int HALF_CHUNK_SIZE = CHUNK_SIZE * 0.5;
  * 由区块边长的平方计算得出：16 * 16 = 256
  */
 static constexpr int CHUNK_AREA = CHUNK_SIZE * CHUNK_SIZE;
+
+/**
+ * The area of a single terrain
+ * 单个地形的面积
+ * 512 * 512 = 262144
+ */
+static constexpr int TERRAIN_AREA = TERRAIN_SIZE * TERRAIN_SIZE;
 static constexpr int TILE_LAYER_TYPE_COUNT = 2;
 
 
@@ -273,6 +285,7 @@ static constexpr int CHUNK_ALIGN = ~CHUNK_MASK;
  * 作用：x >> CHUNK_SHIFT 等价于 x / CHUNK_SIZE（仅当CHUNK_SIZE为2的幂时成立）
  */
 static constexpr int CHUNK_SHIFT = 4; // Since CHUNK_SIZE = 16 = 2^4
+static constexpr int TERRAIN_SHIFT = 9; //TERRAIN_SIZE = 512 = 2^9
 
 static constexpr int TILE_SIZE = 16;
 static constexpr int HALF_TILE_SIZE = TILE_SIZE >> 1;
@@ -359,18 +372,18 @@ static const std::string TILE_ID_ACCESS_DENIED_WALL = "access_denied_wall";
 static constexpr std::string SHAPE_ID_DROPPED_ITEM = "droppedItem";
 static constexpr std::string DROPPED_ITEM_ID_DEFAULT = "default";
 
-static const std::string STRING_TILE_AIR_NAME = "tile_name_air";
+static constexpr std::string STRING_TILE_AIR_NAME = "tile_name_air";
 static const std::string STRING_TILE_AIR_WALL_NAME = "tile_name_air_wall";
-static const std::string STRING_TILE_VOID_NAME = "tile_name_void";
+static constexpr std::string STRING_TILE_VOID_NAME = "tile_name_void";
 static const std::string STRING_TILE_VOID_DESCRIPTION = "tile_description_void";
 static const std::string STRING_TILE_VOID_WALL_NAME = "tile_name_void_wall";
 static const std::string STRING_TILE_VOID_WALL_DESCRIPTION = "tile_description_void_wall";
-static const std::string STRING_TILE_ERROR_NAME = "tile_name_error";
+static constexpr std::string STRING_TILE_ERROR_NAME = "tile_name_error";
 static const std::string STRING_TILE_ERROR_WALL_NAME = "tile_name_error_wall";
 static const std::string STRING_TILE_ACCESS_DENIED_NAME = "tile_name_access_denied";
 static const std::string STRING_TILE_ACCESS_DENIED_WALL_NAME = "tile_name_access_denied_wall";
 static const std::string STRING_TILE_BEDROCK_NAME = "tile_name_bedrock";
-static const std::string STRING_TILE_WATER_NAME = "tile_name_water";
+static constexpr std::string STRING_TILE_WATER_NAME = "tile_name_water";
 static const std::string STRING_TILE_AIR_DESCRIPTION = "tile_description_air";
 static const std::string STRING_TILE_AIR_WALL_DESCRIPTION = "tile_description_air_wall";
 static const std::string STRING_TILE_ERROR_DESCRIPTION = "tile_description_error";

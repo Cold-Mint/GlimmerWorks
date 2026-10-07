@@ -34,10 +34,10 @@ namespace glimmer {
      * 矿脉生物群系装饰器
      */
     class MineralBiomeDecorator : public BiomeDecorator<MineralBiomeDecoratorResource> {
-        void DecorationImpl(WorldContext *worldContext, TerrainResult *terrainResult,
-                            MineralBiomeDecoratorResource *decoratorResource, BiomeResource *biomeResource,
-                            std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > *
-                            tilesRefMap) override;
+        void DecorationImpl(const ChunkVertexVector2D &chunkVertex, WorldContext *worldContext,
+            TerrainResult *terrainResult, MineralBiomeDecoratorResource *decoratorResource,
+            BiomeResource *biomeResource,
+            std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>> *tilesRefMap) override;
 
     public:
         BiomeDecoratorType GetBiomeDecoratorType() override;

@@ -28,13 +28,14 @@
 
 #include <utility>
 
-void glimmer::ChunkTask::SetPosition(TileVector2D position) {
+void glimmer::ChunkTask::SetPosition(ChunkVertexVector2D position) {
     position_ = std::move(position);
 }
 
-const glimmer::TileVector2D &glimmer::ChunkTask::GetPosition() const {
+const glimmer::ChunkVertexVector2D &glimmer::ChunkTask::GetPosition() const {
     return position_;
 }
+
 
 const glimmer::ResourceRef &glimmer::ChunkTask::GetDimensionResourceRef() const {
     return dimensionRef_;

@@ -43,7 +43,7 @@ namespace glimmer {
      * 通过组合气候采样器与生物群系匹配器，将噪声转化为地形类型。
      */
     class TerrainGenerator {
-        std::unordered_map<TileVector2D, std::weak_ptr<TerrainResult>, Vector2DIHash> terrainResults_;
+        std::unordered_map<TerrainVertexVector2D, std::weak_ptr<TerrainResult>, Vector2DIHash> terrainResults_;
         std::unique_ptr<ClimateSampler> climateSampler_ = std::make_unique<ClimateSampler>();
 
         /**
@@ -58,7 +58,7 @@ namespace glimmer {
          */
         std::shared_ptr<TerrainResult>
         GenerateTerrain(const BiomeRegistry *biomeRegistry, int worldSeed, const DimensionResource *dimensionResource,
-                        const ResourceRef &dimension, const TileVector2D &position) const;
+                        const ResourceRef &dimension, const TerrainVertexVector2D &position) const;
 
     public:
         /**
@@ -74,7 +74,7 @@ namespace glimmer {
         std::shared_ptr<TerrainResult> GenerateOrGetTerrain(const BiomeRegistry *biomeRegistry, int worldSeed,
                                                             const DimensionResource *dimensionResource,
                                                             const ResourceRef &dimension,
-                                                            const TileVector2D &position);
+                                                            const TerrainVertexVector2D &position);
 
 
         /**

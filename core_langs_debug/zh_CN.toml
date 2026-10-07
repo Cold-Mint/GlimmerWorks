@@ -763,4 +763,3 @@ structure_condition_processor_not_found = "未找到结构条件处理器：资�
 structure_condition_no_match = "结构条件未匹配到任何方块：资源={}，条件索引={}"
 structure_condition_intersection_empty = "结构条件取交集后无候选点：资源={}"
 structure_condition_matched = "结构条件匹配完成：资源={}，候选点={}"
-structure_max_chunks_occupied = "结构占用的最大区块数：{}"

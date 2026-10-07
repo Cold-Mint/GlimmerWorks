@@ -40,6 +40,6 @@ namespace glimmer {
         std::string packId;
         //@genNextLine(PackDependence.minVersion|依赖包的最低版本号)
         uint32_t minVersion;
-        uint64_t packIdUint;
+        uint64_t packIdUint = 0;
     };
 }

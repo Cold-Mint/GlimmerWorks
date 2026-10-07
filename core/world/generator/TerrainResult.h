@@ -35,8 +35,8 @@ namespace glimmer {
      * 地形生成结果
      */
     class TerrainResult {
-        std::array<TerrainTileResult, TERRAIN_AREA> terrainTileResult_;
         TerrainVertexVector2D position_;
+        std::array<TerrainTileResult, TERRAIN_AREA> terrainTileResult_;
 
     public:
         TerrainTileResult &GetMutableTerrainTileResult(const TerrainRelativeVector2D &localPosition);

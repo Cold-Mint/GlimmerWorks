@@ -36,9 +36,10 @@ namespace glimmer {
     class CommandHookManager;
 
     struct Window {
+        bool vSync = true;
+        bool fullscreen = false;
         int width = 1920;
         int height = 1080;
-        bool fullscreen = false;
         //How long (in seconds) should the frame rate be reduced after being idle and without any operation? -1 indicates that the function is turned off.
         // 闲置无操作多久后开始降帧 (单位：秒)，-1为关闭功能。
         float idleDelay;
@@ -55,7 +56,6 @@ namespace glimmer {
         //ui缩放
         float uiScale = 1.0F;
         float cameraScale = 2.0F;
-        bool vSync = true;
     };
 
     struct MainMenuBackground {
@@ -120,14 +120,14 @@ namespace glimmer {
         float masterVolume;
         int channels;
         int freq;
-        std::string format = "F32";
         std::vector<AudioTrack> track;
+        std::string format = "F32";
     };
 
     struct CommandHookResource {
+        bool keyRepeat;
         std::string hookId;
         std::string command;
-        bool keyRepeat;
         std::string code;
         std::string eventType;
     };
@@ -138,6 +138,8 @@ namespace glimmer {
         std::unique_ptr<toml::value> configValue_ = nullptr;
 
     public:
+        int configVersion = 1;
+        std::vector<CommandHookResource> commandHooks;
         Window window{};
         Mods mods{};
         World world{};
@@ -146,14 +148,12 @@ namespace glimmer {
         BiomeBGMConfig biomeBgm{};
         CommandConfig command{};
         MainMenuBackground mainMenuBackground{};
-        int configVersion = 1;
         std::string runtimePath;
         /**
          * Cache storage path (compiled shader binaries, etc.).
          * 缓存存放路径（编译后的着色器二进制等）。
          */
         std::string cachePath = ".cache";
-        std::vector<CommandHookResource> commandHooks;
 #if  !defined(NDEBUG)
         Debug debug{};
 #endif

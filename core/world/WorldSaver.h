@@ -38,8 +38,8 @@ namespace glimmer {
      * 将游戏实体或整个世界（玩家 + 地图清单）序列化到存档数据。
      */
     class WorldSaver {
-        WorldContext *worldContext_;
         bool saving_ = false;
+        WorldContext *worldContext_;
 
     public:
         explicit WorldSaver(WorldContext *worldContext);

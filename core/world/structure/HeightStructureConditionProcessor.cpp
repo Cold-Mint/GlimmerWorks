@@ -33,15 +33,15 @@ GetStructureConditionProcessorType() {
     return StructureConditionProcessorType::Height;
 }
 
-void glimmer::HeightStructureConditionProcessor::Match(const DimensionResource *dimensionResource,
-                                                       const TerrainResult *terrainResult,
-                                                       const IStructurePlacementConditionsResource *
-                                                       placementConditionsResource,
-                                                       std::bitset<TERRAIN_AREA> &outBitset) {
+std::bitset<TERRAIN_AREA> glimmer::HeightStructureConditionProcessor::Match(const DimensionResource *dimensionResource,
+                                                                            const TerrainResult *terrainResult,
+                                                                            const IStructurePlacementConditionsResource
+                                                                            *placementConditionsResource) {
+    std::bitset<TERRAIN_AREA> result;
     const auto heightStructureConditions = dynamic_cast<const HeightStructureConditionsResource *>(
         placementConditionsResource);
     if (heightStructureConditions == nullptr) {
-        return;
+        return result;
     }
     const float maxHeightPercent = heightStructureConditions->maxHeightPercent;
     const float minHeightPercent = heightStructureConditions->minHeightPercent;
@@ -53,11 +53,12 @@ void glimmer::HeightStructureConditionProcessor::Match(const DimensionResource *
             float percent = static_cast<float>(globalY) / static_cast<float>(dimensionResource->maxY);
             if (percent >= minHeightPercent && percent <= maxHeightPercent) {
                 int tileIndex = localX + localY * TERRAIN_SIZE;
-                outBitset[tileIndex] = true;
+                result[tileIndex] = true;
                 matchedTileCount++;
             }
         }
     }
     LogCat::d(LogLabel::TERRAIN, "height_condition_matched_count", "Height condition matched tiles: {}",
               matchedTileCount);
+    return result;
 }

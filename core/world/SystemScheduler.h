@@ -37,7 +37,6 @@
 
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/GuiGameSystem.h"
-#include "core/gpu/RenderQueue.h"
 #include "core/scene/WorldScene.h"
 #include "src/core/game_component_type.pb.h"
 
@@ -51,30 +50,31 @@ namespace glimmer {
      * 从 WorldContext 拆分而来。
      */
     class SystemScheduler {
+        bool allowRegisterSystem_ = false;
+        uint32_t onComponentCountChangedId_ = 0;
+        uint64_t persistentGuiSystemCount_ = 0;
+        WorldContext *worldContext_ = nullptr;
         std::vector<std::unique_ptr<GameSystem> > activeSystems_;
         std::vector<std::unique_ptr<GameSystem> > inactiveSystems_;
         std::vector<GuiGameSystem *> guiGameSystems_;
-        std::stack<GameSystemType> activeSystemStack_;
-        uint64_t persistentGuiSystemCount_ = 0;
-        bool allowRegisterSystem_ = false;
-        uint32_t onComponentCountChangedId_ = 0;
-        std::unordered_map<GameComponentTypeMessage, uint32_t> onComponentCountChangeBuffer_;
-        WorldContext *worldContext_ = nullptr;
         /**
-         * Protects activeSystems_, inactiveSystems_, onComponentCountChangeBuffer_
-         * and activeSystemStack_ against concurrent access from the tick thread
-         * (OnTick) and the main thread (OnFrameStart / HandleEvent).
-         * 保护 activeSystems_、inactiveSystems_、onComponentCountChangeBuffer_
-         * 和 activeSystemStack_ 免受 tick 线程（OnTick）与主线程（OnFrameStart / HandleEvent）
-         * 的并发访问。
-         */
+        * Protects activeSystems_, inactiveSystems_, onComponentCountChangeBuffer_
+        * and activeSystemStack_ against concurrent access from the tick thread
+        * (OnTick) and the main thread (OnFrameStart / HandleEvent).
+        * 保护 activeSystems_、inactiveSystems_、onComponentCountChangeBuffer_
+        * 和 activeSystemStack_ 免受 tick 线程（OnTick）与主线程（OnFrameStart / HandleEvent）
+        * 的并发访问。
+        */
         mutable std::mutex systemMutex_;
+        std::unordered_map<GameComponentTypeMessage, uint32_t> onComponentCountChangeBuffer_;
         /**
          * Shortcut keys to the corresponding system types.
          * 快捷键到对应的系统类型。
          */
         std::unordered_map<SDL_Scancode, GameSystemType> scancodeToSystemType_;
         std::unordered_map<GameSystemType, SDL_Scancode> systemTypeToScancode_;
+        std::stack<GameSystemType> activeSystemStack_;
+
 
         void RegisterSystem(std::unique_ptr<GameSystem> system);
 

@@ -751,7 +751,6 @@ target_sources(GlimmerWorks
         core/world/ChunkManager.cpp
         core/rmi/dataModel/ItemSlotDataModel.cpp
         core/world/ChunkTask.cpp
-        core/world/ChunkType.cpp
         core/world/LightBuffer.cpp
         core/world/LightContribution.cpp
         core/world/LightFloodFill.cpp

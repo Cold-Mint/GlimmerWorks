@@ -53,6 +53,9 @@ namespace glimmer {
     class ChunkManager {
         TerrainGenerator *terrainGenerator_ = nullptr;
         ChunkLoader *chunkLoader_ = nullptr;
+        WorldContext *worldContext_ = nullptr;
+        std::unique_ptr<LightBuffer> lightBuffer_ = nullptr;
+        std::unique_ptr<TileInstancePool> tileInstancePool_ = nullptr;
 
         /**
          * Save the map of the block.
@@ -64,9 +67,7 @@ namespace glimmer {
         std::unordered_map<ResourceRef, std::unordered_map<ChunkVertexVector2D, std::unique_ptr<Chunk>,
             Vector2DIHash>, ResourceRefHash>
         dimensionMap_;
-        std::unique_ptr<LightBuffer> lightBuffer_ = nullptr;
-        std::unique_ptr<TileInstancePool> tileInstancePool_ = nullptr;
-        WorldContext *worldContext_ = nullptr;
+
 
         /**
          * OnChunkTileChange

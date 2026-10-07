@@ -231,6 +231,7 @@ namespace toml {
             resource.condition = toml::find_or<std::vector<glimmer::ResourceRef> >(v, "condition", {});
             resource.data = toml::find_or<std::vector<glimmer::ResourceRef> >(v, "data", {});
             resource.generatorId = toml::find_or<uint8_t>(v, "generator_id", 0);
+            resource.priority = toml::find_or<uint8_t>(v, "priority", 0);
             resource.resourceId = toml::find<std::string>(v, "resource_id");
             return resource;
         }
@@ -429,6 +430,7 @@ namespace toml {
             resource.condition = toml::find_or<std::vector<glimmer::ResourceRef> >(v, "condition", {});
             resource.data = toml::find_or<std::vector<glimmer::ResourceRef> >(v, "data", {});
             resource.generatorId = toml::find_or<uint8_t>(v, "generator_id", 0);
+            resource.priority = toml::find_or<uint8_t>(v, "priority", 0);
             resource.resourceId = toml::find<std::string>(v, "resource_id");
             resource.tileInfo = toml::find_or<std::vector<glimmer::TileInfo> >(v, "tile_info", {});
             return resource;
@@ -492,6 +494,7 @@ namespace toml {
             resource.leafRadius = toml::find_or<uint8_t>(v, "leaf_radius", 2);
             resource.leafTileLayer = toml::find_or<uint8_t>(v, "leaf_tile_layer", 0);
             resource.leafVerticalSpacing = toml::find_or<uint8_t>(v, "leaf_vertical_spacing", 0);
+            resource.priority = toml::find_or<uint8_t>(v, "priority", 0);
             resource.resourceId = toml::find<std::string>(v, "resource_id");
             resource.trunkDataIndex = toml::find_or<uint8_t>(v, "trunk_data_index", 0);
             resource.trunkHeightMax = toml::find_or<uint8_t>(v, "trunk_height_max", 9);

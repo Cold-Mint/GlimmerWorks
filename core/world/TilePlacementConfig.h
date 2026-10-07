@@ -33,9 +33,9 @@ namespace glimmer {
     class TilePlacementConfig {
         uint8_t tileWidth_ = 1;
         uint8_t tileHeight_ = 1;
-        ResourceRef resourceRef_;
         bool isPlaceMode_ = false;
         BreakSource breakSource_ = BreakSource::Unknown;
+        ResourceRef resourceRef_;
 
     public:
         void SetTileWidth(uint8_t tileWidth);

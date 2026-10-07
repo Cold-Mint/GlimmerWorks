@@ -51,10 +51,8 @@ namespace glimmer {
     //@genNextLine(Resource|资源类)
     struct Resource {
         std::string packId;
-
         //@genNextLine(resourceId|资源Id)
         std::string resourceId;
-
         /**
          * Was not found
          * 是否未找到
@@ -79,10 +77,10 @@ namespace glimmer {
 
     //@genNextLine(LightMaskResource|光源遮照资源)
     struct LightMaskResource : Resource {
-        //@genNextLine(lightMaskColor The A channel is the light blocking strength (0 = no blocking, 255 = full blocking); RGB controls the light tint mixing.|光线遮照颜色：A通道为挡光强度（0=不挡光，255=完全挡光）；RGB控制光线混合染色)
-        ResourceRef lightMaskColor;
         //@genNextLine(tintFactor|染色系数 0为光照颜色，1为光源遮照颜色，输入0不染色，输入0.5染色50%光照颜色)
         float tintFactor = 0.0F;
+        //@genNextLine(lightMaskColor The A channel is the light blocking strength (0 = no blocking, 255 = full blocking); RGB controls the light tint mixing.|光线遮照颜色：A通道为挡光强度（0=不挡光，255=完全挡光）；RGB控制光线混合染色)
+        ResourceRef lightMaskColor;
     };
 
     //@genNextLine(FixedColorResource|固定颜色资源)
@@ -414,6 +412,8 @@ namespace glimmer {
 
         //@genNextLine(generatorId|生成器ID)
         uint8_t generatorId = 0;
+        //@genNextLine(priority|优先级 优先级越高，会先生成，某个位置属于抢占式)
+        uint8_t priority = 0;
         //@genNextLine(condition|结构放置条件列表)
         std::vector<ResourceRef> condition = {};
         //@genNextLine(data|数据资源引用列表)

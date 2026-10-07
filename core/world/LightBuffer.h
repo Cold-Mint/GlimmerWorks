@@ -52,30 +52,6 @@ namespace glimmer {
      * 传播光照，取代此前的射线方案。
      */
     class LightBuffer {
-        std::unordered_map<TileVector2D, std::unique_ptr<TileLightData>, Vector2DIHash> tileLightData_;
-
-        //Dynamic (mobile) light sources keyed by an arbitrary id (e.g. entity id).
-        //动态（移动）光源，以任意 id（如实体 id）为键。
-        std::unordered_map<uint64_t, DynamicLightEntry> dynamicLights_;
-
-        /**
-         * Monotonic counter bumped by every mutating operation. The renderer
-         * compares it frame to frame to know when the cached light map
-         * texture must be rebuilt (dirty tracking).
-         * 每次修改操作都会递增的单调计数器。渲染器逐帧比较它，
-         * 以判断缓存的光照贴图纹理是否需要重建（脏标记跟踪）。
-         */
-        uint64_t revision_ = 0;
-
-        //For each column, the sorted y of Ground-layer tiles that block the
-        //Downward (sky) light. Sky transmittance at a tile is the product of
-        //(1 - occlusion) of every such tile above it, replacing the previous
-        //single-ceiling + depth falloff model with continuous transmittance.
-        //每列中阻挡天光（Downward）的 Ground 层瓦片 y（升序）。某瓦片的天光透射率
-        //等于其上方所有此类瓦片 (1 - 挡光强度) 的连乘，以此取代原先的单天花板 +
-        //深度衰减模型，实现连续透射率。
-        std::unordered_map<int, std::set<int> > columnSkyOccluders_;
-
         //Whether any static light data (tile sources, masks or ambient color)
         //changed since the last flush. Static changes trigger a full recompute
         //(RebuildAllLight) in Flush(); dynamic lights are updated incrementally
@@ -91,7 +67,14 @@ namespace glimmer {
         //自上次 flush 以来是否仅环境光颜色发生变化。仅触发环境光重建
         //（RebuildAmbientLight），而非重新传播所有点光源。
         bool ambientDirty_ = false;
-
+        /**
+        * Monotonic counter bumped by every mutating operation. The renderer
+        * compares it frame to frame to know when the cached light map
+        * texture must be rebuilt (dirty tracking).
+        * 每次修改操作都会递增的单调计数器。渲染器逐帧比较它，
+        * 以判断缓存的光照贴图纹理是否需要重建（脏标记跟踪）。
+        */
+        uint64_t revision_ = 0;
         //Ambient light sources, updated by SetLightColor.
         //backLightSource_: light coming from the background layer (-Z).
         //skyLightSource_:  light coming from above (+Y).
@@ -100,6 +83,18 @@ namespace glimmer {
         //skyLightSource_：来自上方（+Y）的天光。
         LightSource backLightSource_{LightDirection::Backward, Color{}};
         LightSource skyLightSource_{LightDirection::Downward, Color{}};
+        std::unordered_map<TileVector2D, std::unique_ptr<TileLightData>, Vector2DIHash> tileLightData_;
+        //Dynamic (mobile) light sources keyed by an arbitrary id (e.g. entity id).
+        //动态（移动）光源，以任意 id（如实体 id）为键。
+        std::unordered_map<uint64_t, DynamicLightEntry> dynamicLights_;
+        //For each column, the sorted y of Ground-layer tiles that block the
+        //Downward (sky) light. Sky transmittance at a tile is the product of
+        //(1 - occlusion) of every such tile above it, replacing the previous
+        //single-ceiling + depth falloff model with continuous transmittance.
+        //每列中阻挡天光（Downward）的 Ground 层瓦片 y（升序）。某瓦片的天光透射率
+        //等于其上方所有此类瓦片 (1 - 挡光强度) 的连乘，以此取代原先的单天花板 +
+        //深度衰减模型，实现连续透射率。
+        std::unordered_map<int, std::set<int> > columnSkyOccluders_;
 
         TileLightData &GetOrCreate(const TileVector2D &position);
 

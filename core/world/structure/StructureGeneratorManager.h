@@ -27,7 +27,6 @@
 #pragma once
 #include "IStructureGenerator.h"
 #include "StructureInfo.h"
-#include "core/math/TerrainVertexVector2D.h"
 #include "core/mod/Resource.h"
 
 namespace glimmer {

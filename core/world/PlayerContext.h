@@ -37,7 +37,7 @@ namespace glimmer {
     class WorldContext;
     class AudioResourceResult;
     class AudioManager;
-    struct ResourceRef;
+    class ResourceRef;
 
     /**
      * PlayerContext
@@ -45,10 +45,11 @@ namespace glimmer {
      * 从 WorldContext 拆分而来。
      */
     class PlayerContext {
-        std::shared_ptr<std::function<void(uint8_t, Item *, ContainerChangeType)> > itemCallback_;
-        std::shared_ptr<AudioResourceResult> itemBreakSFXResult_ = nullptr;
         AudioManager *audioManager_ = nullptr;
         WorldContext *worldContext_ = nullptr;
+        std::shared_ptr<std::function<void(uint8_t, Item *, ContainerChangeType)> > itemCallback_;
+        std::shared_ptr<AudioResourceResult> itemBreakSFXResult_ = nullptr;
+
 
         [[nodiscard]] uint32_t CreateOrLoadPlayer(const ResourceRef &resourceRef) const;
 

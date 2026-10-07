@@ -31,11 +31,11 @@ GetStructureConditionProcessorType() {
     return StructureConditionProcessorType::Spacing;
 }
 
-void glimmer::SpacingStructureConditionProcessor::Match(const DimensionResource *dimensionResource,
-                                                        const TerrainResult *terrainResult,
-                                                        const IStructurePlacementConditionsResource *
-                                                        placementConditionsResource,
-                                                        std::bitset<TERRAIN_AREA> &outBitset) {
+std::bitset<TERRAIN_AREA> glimmer::SpacingStructureConditionProcessor::Match(const DimensionResource *dimensionResource,
+                                                                             const TerrainResult *terrainResult,
+                                                                             const IStructurePlacementConditionsResource
+                                                                             *placementConditionsResource) {
+    std::bitset<TERRAIN_AREA> result;
     const auto spacingStructureConditions = dynamic_cast<const SpacingStructureConditionsResource *>(
         placementConditionsResource);
     int minDistance = spacingStructureConditions->minDistance;
@@ -47,7 +47,7 @@ void glimmer::SpacingStructureConditionProcessor::Match(const DimensionResource 
             int globalY = y + terrainResult->GetPosition().y;
             if (globalY % minDistance == 0) {
                 for (int x = 0; x < TERRAIN_SIZE; ++x) {
-                    outBitset.set(y * TERRAIN_SIZE + x);
+                    result.set(y * TERRAIN_SIZE + x);
                 }
             }
         }
@@ -56,9 +56,10 @@ void glimmer::SpacingStructureConditionProcessor::Match(const DimensionResource 
             int globalX = x + terrainResult->GetPosition().x;
             if (globalX % minDistance == 0) {
                 for (int y = 0; y < TERRAIN_SIZE; ++y) {
-                    outBitset.set(y * TERRAIN_SIZE + x);
+                    result.set(y * TERRAIN_SIZE + x);
                 }
             }
         }
     }
+    return result;
 }

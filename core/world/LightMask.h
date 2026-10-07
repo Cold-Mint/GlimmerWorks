@@ -34,8 +34,8 @@ namespace glimmer {
      * 光线遮照
      */
     class LightMask {
-        Color lightMaskColor_ = {};
         float tintFactor_ = 0.0F;
+        Color lightMaskColor_ = {};
 
     public:
         explicit LightMask(const Color *lightMaskColor, float tintFactor);

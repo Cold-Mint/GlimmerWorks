@@ -27,7 +27,6 @@
 #pragma once
 #include "ChunkTaskType.h"
 #include "core/math/ChunkVertexVector2D.h"
-#include "core/math/TileVector2D.h"
 #include "core/mod/ResourceRef.h"
 
 namespace glimmer {

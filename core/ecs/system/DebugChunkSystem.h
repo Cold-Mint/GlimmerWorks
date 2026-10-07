@@ -41,7 +41,7 @@ namespace glimmer {
      * 显示区块边界和左下角的区块视图。
      */
     class DebugChunkSystem : public GameSystem {
-        WorldVector2D mousePosition_ = WorldVector2D{};
+        WorldVector2D mousePosition_;
         CameraComponent *cameraComponent_ = nullptr;
         Transform2DComponent *cameraTransform2DComponent_ = nullptr;
         bool displayChunkView_ = false;

@@ -33,19 +33,19 @@ glimmer::BiomeStructureConditionProcessor::GetStructureConditionProcessorType() 
     return StructureConditionProcessorType::Biome;
 }
 
-void glimmer::BiomeStructureConditionProcessor::Match(const DimensionResource *dimensionResource,
-                                                      const TerrainResult *terrainResult,
-                                                      const IStructurePlacementConditionsResource *
-                                                      placementConditionsResource,
-                                                      std::bitset<TERRAIN_AREA> &outBitset) {
+std::bitset<TERRAIN_AREA> glimmer::BiomeStructureConditionProcessor::Match(const DimensionResource *dimensionResource,
+                                                                           const TerrainResult *terrainResult,
+                                                                           const IStructurePlacementConditionsResource *
+                                                                           placementConditionsResource) {
+    std::bitset<TERRAIN_AREA> result;
     const auto biomeStructurePlacementConditions = dynamic_cast<const BiomeStructurePlacementConditionsResource *>(
         placementConditionsResource);
     if (biomeStructurePlacementConditions == nullptr) {
-        return;
+        return result;
     }
     const std::unordered_set<std::string> &biomeSet = biomeStructurePlacementConditions->GetCachedBiomeIds();
     if (biomeSet.empty()) {
-        return;
+        return result;
     }
     int matchedTileCount = 0;
     for (int localX = 0; localX < TERRAIN_SIZE; localX++) {
@@ -58,11 +58,12 @@ void glimmer::BiomeStructureConditionProcessor::Match(const DimensionResource *d
             }
             if (biomeSet.contains(Resource::GenerateId(*biomeResource))) {
                 const int tileIndex = localY * TERRAIN_SIZE + localX;
-                outBitset[tileIndex] = true;
+                result[tileIndex] = true;
                 matchedTileCount++;
             }
         }
     }
     LogCat::d(LogLabel::TERRAIN, "biome_condition_matched_count", "Biome condition matched tiles: {}",
               matchedTileCount);
+    return result;
 }

@@ -39,15 +39,15 @@ namespace glimmer {
     class AppContext;
 
     class ConsoleWorker {
+        uint32_t commandId_ = 0;
+        CommandManager *commandManager_ = nullptr;
+        AppContext *appContext_ = nullptr;
         std::jthread thread_;
         std::mutex commandMutex_;
         std::condition_variable conditionVariable_;
-        CommandManager *commandManager_ = nullptr;
-        AppContext *appContext_ = nullptr;
+        std::unordered_map<uint32_t, std::unique_ptr<CommandResponse> > responseMap_;
         std::queue<std::unique_ptr<CommandRequest> > taskCommandRequestQueue_;
         std::stack<std::unique_ptr<std::function<void(const std::string &text)> > > onMessageStack_;
-        std::unordered_map<uint32_t, std::unique_ptr<CommandResponse> > responseMap_;
-        uint32_t commandId_ = 0;
 
         void WorkLoop(std::stop_token stopToken);
 

@@ -25,7 +25,6 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <cstdint>
 
 #include "core/math/Color.h"
 #include "core/math/TileVector2D.h"
@@ -65,11 +64,11 @@ namespace glimmer {
     };
 
     class LightSource {
-        TileVector2D center_ = {};
-        int maxRadius_ = 0;
-        Color emissionColor_ = {};
         LightAttenuation attenuation_ = LightAttenuation::Linear;
         LightDirection direction_ = LightDirection::Radial;
+        int maxRadius_ = 0;
+        TileVector2D center_ = {};
+        Color emissionColor_ = {};
 
     public:
         explicit LightSource(const TileVector2D &center, int maxRadius, const Color &emissionColor);

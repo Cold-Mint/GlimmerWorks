@@ -30,7 +30,6 @@
 #include <memory>
 
 #include "Box2dWorldId.h"
-#include "LightBuffer.h"
 #include "PlayerContext.h"
 #include "core/saves/PlayerManifest.h"
 #include "core/saves/Saves.h"
@@ -65,7 +64,9 @@ namespace glimmer {
      */
     class WorldContext : public ITickListener {
         friend class WorldBuilder;
-
+        //Whether to enable the item dragging mode
+        //是否启用物品拖拽模式
+        bool dragMode_ = false;
         int worldSeed_ = 0;
         Saves *saves_;
         //The fixed tick count is obtained from the saved list file.
@@ -74,13 +75,10 @@ namespace glimmer {
         //The total number of ticks played during this session; safe to read across threads.
         //本次会话已游玩的 tick 数；可跨线程安全读取。
         std::atomic<uint64_t> gameTick_{0};
-        //Whether to enable the item dragging mode
-        //是否启用物品拖拽模式
-        bool dragMode_ = false;
+        Box2dWorldId box2DWorldId_;
         //Whether it is running or not, if false, it indicates that the game has been paused.
         //是否正在运行中，为false则表示游戏已被暂停。
         std::atomic<bool> running{true};
-        Box2dWorldId box2DWorldId_;
         AppContext *appContext_ = nullptr;
         std::unique_ptr<MapManifest> mapManifest_ = nullptr;
         std::unique_ptr<PlayerManifest> playerManifest_ = nullptr;

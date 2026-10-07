@@ -37,13 +37,7 @@ namespace glimmer {
          * 等待队列
          */
         std::vector<std::unique_ptr<ChunkTask> > pendingTasks_;
-
-        /**
-         * The coordinate key for the block task.
-         * 区块任务的坐标Key。
-         */
-        std::deque<ChunkVertexVector2D> mainTask_;
-
+        std::mutex chunkTaskMutex_;
         /**
          * The task queue waiting to be deleted within the main task
          * 等待在主任务内删除的任务队列
@@ -55,8 +49,11 @@ namespace glimmer {
          * 区块任务的Map
          */
         std::unordered_map<uint64_t, std::unique_ptr<ChunkTask> > chunkTaskMap_;
-
-        std::mutex chunkTaskMutex_;
+        /**
+         * The coordinate key for the block task.
+         * 区块任务的坐标Key。
+         */
+        std::deque<ChunkVertexVector2D> mainTask_;
 
     public:
         /**

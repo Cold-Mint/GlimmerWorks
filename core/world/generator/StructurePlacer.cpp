@@ -198,10 +198,9 @@ std::optional<std::bitset<TERRAIN_AREA> > glimmer::StructurePlacer::MatchStructu
             continue;
         }
 
-        std::bitset<TERRAIN_AREA> bitset;
-        structureConditionProcessor->Match(dimensionResource,
-                                           terrainResult,
-                                           structurePlacementConditionsResource, bitset);
+        std::bitset<TERRAIN_AREA> bitset = structureConditionProcessor->Match(dimensionResource,
+                                                                              terrainResult,
+                                                                              structurePlacementConditionsResource);
 
         if (bitset.none()) {
             LogCat::d(LogLabel::TERRAIN, "structure_condition_no_match",

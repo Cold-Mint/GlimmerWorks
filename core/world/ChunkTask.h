@@ -32,8 +32,8 @@
 namespace glimmer {
     class ChunkTask : public IFingerprintAble {
         ChunkType chunkType_ = ChunkType::None;
-        TileVector2D chunkVertexCoordinates_;
         uint32_t distance_ = 0;
+        TileVector2D chunkVertexCoordinates_;
 
     public:
         ChunkTask(ChunkType chunkType, const TileVector2D &chunkVertexCoordinates);

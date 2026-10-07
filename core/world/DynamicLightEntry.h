@@ -38,8 +38,8 @@ namespace glimmer {
      * 适用于移动光源。
      */
     struct DynamicLightEntry {
-        TileVector2D position;
         TileLayerType layer;
+        TileVector2D position;
         std::unique_ptr<LightSource> lightSource;
     };
 }

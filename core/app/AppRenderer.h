@@ -54,23 +54,22 @@ namespace glimmer {
      * 最后提交这一帧。
      */
     class AppRenderer {
+        Uint32 screenshotTextureWidth_ = 0;
+        Uint32 screenshotTextureHeight_ = 0;
         AppContext *appContext_ = nullptr;
-        RenderQueue renderQueue_;
         SDL_GPUDevice *device_ = nullptr;
         SDL_Window *window_ = nullptr;
         ResourceLocator *resourceLocator_ = nullptr;
         SceneManager *sceneManager_ = nullptr;
-        std::vector<std::unique_ptr<IPass> > passes_;
-#if  !defined(NDEBUG)
-        LightingPass *lightingPass_ = nullptr;
-#endif
-
         //When a screenshot is requested, passes render into this texture instead
         //of the swapchain. It is then blitted to the swapchain and downloaded.
         //截图请求时，各 pass 先渲染到此纹理而非交换链，然后再 blit 到交换链并下载。
         SDL_GPUTexture *screenshotTexture_ = nullptr;
-        Uint32 screenshotTextureWidth_ = 0;
-        Uint32 screenshotTextureHeight_ = 0;
+        RenderQueue renderQueue_;
+        std::vector<std::unique_ptr<IPass> > passes_;
+#if  !defined(NDEBUG)
+        LightingPass *lightingPass_ = nullptr;
+#endif
 
         void RenderOverlays();
 

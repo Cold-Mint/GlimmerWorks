@@ -30,10 +30,10 @@
 
 namespace glimmer {
     class TileStateBackup {
-        ResourceRef resourceRef_;
         uint8_t width_ = 1;
         uint8_t height_ = 1;
         Vector2DI offset_;
+        ResourceRef resourceRef_;
 
     public:
         void SetResourceRef(const ResourceRef &resourceRef);

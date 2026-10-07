@@ -98,7 +98,9 @@ bool glimmer::CropSystem::OnGrowMature(WorldContext *worldContext, Chunk *chunk,
     }
     const ResourceTypeMessage resourceType = growthTargetRef->GetResourceType();
     const int index = position.y << CHUNK_SHIFT | position.x;
-    const TileVector2D absolutePosition = {chunk->GetPosition().x + position.x, chunk->GetPosition().y + position.y};
+    const TileVector2D absolutePosition = {
+        static_cast<int>(chunk->GetPosition().x + position.x), static_cast<int>(chunk->GetPosition().y + position.y)
+    };
     const WorldVector2D worldPosition = CoordinateTransformer::TileToWorld(absolutePosition);
     if (resourceType == RESOURCE_TILE) {
         const TileResource *tileResource = resourceLocator->FindTileRaw(growthTargetRef);

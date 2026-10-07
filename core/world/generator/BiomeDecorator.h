@@ -26,13 +26,16 @@
  */
 #pragma once
 
-#include "Chunk.h"
 #include "TerrainResult.h"
 #include "core/config/Constants.h"
+#include "core/math/ChunkVertexVector2D.h"
 #include "core/mod/Resource.h"
 #include "core/mod/ResourceRef.h"
+#include "core/mod/dataPack/BiomeDecoratorType.h"
 
 namespace glimmer {
+    class WorldContext;
+
     class IBiomeDecorator {
         int worldSeed_ = 0;
 

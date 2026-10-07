@@ -48,20 +48,20 @@ namespace glimmer {
     class Tile {
         friend class TileInstancePool;
 
-        std::string id_;
-        std::string name_;
-        std::optional<std::string> description_;
-        std::unordered_map<Vector2DIFingerprint, GameEntityID> gameEntities_;
+        uint8_t technologyLevel_ = 0;
+        uint8_t recipeGroup_ = 0;
+        bool destroySelfOnGrowth_ = false;
         bool isOverwritable_ = false;
         TilePhysicsType physicsType_ = TilePhysicsType::None;
         TileLayerType layerType_ = TileLayerType::Ground;
-        uint8_t technologyLevel_ = 0;
-        uint8_t recipeGroup_ = 0;
         uint64_t growthMinTicks_ = 0;
         uint64_t growthMaxTicks_ = 0;
-        ResourceRef growthTarget_ = {};
-        bool destroySelfOnGrowth_ = false;
+        std::string id_;
+        std::string name_;
         std::vector<ResourceRef> growthConditions_ = {};
+        std::optional<std::string> description_;
+        std::unordered_map<Vector2DIFingerprint, GameEntityID> gameEntities_;
+        ResourceRef growthTarget_ = {};
         TileResourceData resourceData_;
         TileBlueprintData blueprintData_;
         TileDimensions dimensions_;

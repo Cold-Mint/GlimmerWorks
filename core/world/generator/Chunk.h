@@ -41,8 +41,13 @@
 
 namespace glimmer {
     class Chunk {
-        ChunkVertexVector2D position_;
         WorldContext *worldContext_;
+        ChunkVertexVector2D position_;
+        //The terrain data that this chunk depends on. Holding the shared_ptr keeps the terrain alive and allows
+        //neighboring chunks to reuse it until this chunk is unloaded.
+        //此区块依赖的地形数据。持有 shared_ptr 使地形保持存活，直到此区块卸载前可被邻近区块复用。
+        std::shared_ptr<TerrainResult> dependencyTerrain_;
+        std::vector<b2BodyId> attachedBodies_;
         std::unordered_map<TileLayerType, std::array<std::shared_ptr<Tile>, CHUNK_AREA> >
         tiles_;
 
@@ -53,13 +58,6 @@ namespace glimmer {
         std::unordered_map<TileLayerType, std::array<std::unique_ptr<TileStateMessage>, CHUNK_AREA> >
         tileState_;
         std::unordered_map<TileLayerType, std::array<std::unique_ptr<TileSnapshot>, CHUNK_AREA> > tileSnapshots_;
-        std::vector<b2BodyId> attachedBodies_;
-
-        //The terrain data that this chunk depends on. Holding the shared_ptr keeps the terrain alive and allows
-        //neighboring chunks to reuse it until this chunk is unloaded.
-        //此区块依赖的地形数据。持有 shared_ptr 使地形保持存活，直到此区块卸载前可被邻近区块复用。
-        std::shared_ptr<TerrainResult> dependencyTerrain_;
-
         std::vector<std::function<void(Chunk *chunk, int index, std::shared_ptr<Tile> tile, TileLayerType layerType)> >
         onTileRebuilt_;
 

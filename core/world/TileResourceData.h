@@ -35,13 +35,13 @@
 
 namespace glimmer {
     class TileResourceData {
+        std::shared_ptr<GPUPipelineResourceResult> pipeline_ = nullptr;
+        std::shared_ptr<GPUSamplerResourceResult> sampler_ = nullptr;
         std::shared_ptr<TextureResourceResult> textureResult_ = nullptr;
         std::shared_ptr<AudioResourceResult> breakSFXResult_ = nullptr;
         std::shared_ptr<AudioResourceResult> placeSFXResult_ = nullptr;
         std::vector<ItemTagResource> tags_;
         ResourceRef textureRef_;
-        std::shared_ptr<GPUPipelineResourceResult> pipeline_ = nullptr;
-        std::shared_ptr<GPUSamplerResourceResult> sampler_ = nullptr;
 
     public:
         [[nodiscard]] TextureResourceResult *GetTexture() const;

@@ -28,28 +28,30 @@
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/component/TileLayerComponent.h"
 
-namespace glimmer {
+namespace glimmer
+{
     enum class TileLayerType : uint8_t;
 
-    class TileLayerSystem final : public GameSystem {
-        CameraComponent *cameraComponent_ = nullptr;
-        Transform2DComponent *cameraTransform2DComponent_ = nullptr;
-        std::vector<TileLayerComponent *> tileLayerComponents_;
+    class TileLayerSystem final : public GameSystem
+    {
+        std::vector<TileLayerComponent*> tileLayerComponents_;
+        CameraComponent* cameraComponent_ = nullptr;
+        Transform2DComponent* cameraTransform2DComponent_ = nullptr;
 
-        void RenderTileSnapshot(RenderQueue *queue, const TileSnapshot *tileSnapshot,
-                                const TileVector2D &tileCoord,
-                                std::unordered_set<uint64_t> &drawnTiles) const;
+        void RenderTileSnapshot(RenderQueue* queue, const TileSnapshot* tileSnapshot,
+                                const TileVector2D& tileCoord,
+                                std::unordered_set<uint64_t>& drawnTiles) const;
 
     public:
-        explicit TileLayerSystem(WorldContext *worldContext);
+        explicit TileLayerSystem(WorldContext* worldContext);
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
-        void Render(RenderQueue *queue) override;
+        void Render(RenderQueue* queue) override;
 
         uint8_t GetExecutionOrder() override;
 
-        void OnConfigChanged(const Config *config) override;
+        void OnConfigChanged(const Config* config) override;
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };

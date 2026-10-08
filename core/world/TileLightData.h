@@ -35,15 +35,17 @@
 #include "generator/TileLayerType.h"
 
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * TileLightData
      * 瓦片光照数据
      */
-    class TileLightData {
-        std::unordered_map<TileLayerType, std::vector<std::unique_ptr<LightContribution> > > lightContributions_;
-        std::unordered_map<TileLayerType, std::unique_ptr<LightSource> > lightSourceData_;
-        std::unordered_map<TileLayerType, std::unordered_map<LightDirection, std::unique_ptr<LightMask> > >
+    class TileLightData
+    {
+        std::unordered_map<TileLayerType, std::vector<std::unique_ptr<LightContribution>>> lightContributions_;
+        std::unordered_map<TileLayerType, std::unique_ptr<LightSource>> lightSourceData_;
+        std::unordered_map<TileLayerType, std::unordered_map<LightDirection, std::unique_ptr<LightMask>>>
         lightMaskData_;
         std::unique_ptr<Color> finalLightColor_;
 
@@ -68,11 +70,11 @@ namespace glimmer {
          */
         void ClearAllLightContributions();
 
-        [[nodiscard]] const std::unordered_map<TileLayerType, std::vector<std::unique_ptr<LightContribution> > > *
+        [[nodiscard]] const std::unordered_map<TileLayerType, std::vector<std::unique_ptr<LightContribution>>>*
         GetLightContributions() const;
 
 
-        [[nodiscard]] const std::unordered_map<TileLayerType, std::unique_ptr<LightSource> > *GetLightSources() const;
+        [[nodiscard]] const std::unordered_map<TileLayerType, std::unique_ptr<LightSource>>* GetLightSources() const;
 
         /**
          * GetLightMasks
@@ -80,7 +82,7 @@ namespace glimmer {
          * （Downward，点光与天光共用）各占一个方向键。
          */
         [[nodiscard]] const std::unordered_map<TileLayerType, std::unordered_map<LightDirection, std::unique_ptr<
-            LightMask> > > *
+                                                       LightMask>>>*
         GetLightMasks() const;
 
         /**
@@ -90,8 +92,8 @@ namespace glimmer {
          * @param targetLightSource 目标光源。
          * @return
          */
-        [[nodiscard]] const LightContribution *GetLightContribution(TileLayerType layerType,
-                                                                    const LightSource *targetLightSource);
+        [[nodiscard]] const LightContribution* GetLightContribution(TileLayerType layerType,
+                                                                    const LightSource* targetLightSource);
 
         /**
          * GetLightContributionVector
@@ -99,7 +101,7 @@ namespace glimmer {
          * @param layerType  layerType 图层类型
          * @return
          */
-        [[nodiscard]] std::vector<const LightContribution *> GetLightContributionVector(TileLayerType layerType);
+        [[nodiscard]] std::vector<const LightContribution*> GetLightContributionVector(TileLayerType layerType);
 
         /**
          * SetLightSource(Does not trigger the overall color calculation)
@@ -118,9 +120,9 @@ namespace glimmer {
          */
         void SetLightMask(TileLayerType layerType, LightDirection direction, std::unique_ptr<LightMask> lightMask);
 
-        [[nodiscard]] const LightMask *GetLightMask(TileLayerType layerType, LightDirection direction);
+        [[nodiscard]] const LightMask* GetLightMask(TileLayerType layerType, LightDirection direction);
 
-        [[nodiscard]] const LightSource *GetLightSource(TileLayerType layerType);
+        [[nodiscard]] const LightSource* GetLightSource(TileLayerType layerType);
 
         void ClearLightMask(TileLayerType layerType, LightDirection direction);
 
@@ -146,7 +148,7 @@ namespace glimmer {
          * 获取最终的光照。
          * @return
          */
-        [[nodiscard]] const Color *GetFinalLightColor() const;
+        [[nodiscard]] const Color* GetFinalLightColor() const;
 
 
         /**
@@ -155,6 +157,6 @@ namespace glimmer {
          * @param layerType  layerType 图层类型
          * @param lightSource lightSource 光源指针
          */
-        void ClearLightContribution(TileLayerType layerType, const LightSource *lightSource);
+        void ClearLightContribution(TileLayerType layerType, const LightSource* lightSource);
     };
 }

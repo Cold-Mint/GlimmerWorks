@@ -42,49 +42,50 @@
 
 class TileStateMessage;
 
-namespace glimmer {
+namespace glimmer
+{
     enum class TileAnchorType : uint8_t;
 
-    class Tile {
+    class Tile
+    {
         friend class TileInstancePool;
-
-        uint8_t technologyLevel_ = 0;
-        uint8_t recipeGroup_ = 0;
-        bool destroySelfOnGrowth_ = false;
-        bool isOverwritable_ = false;
-        TilePhysicsType physicsType_ = TilePhysicsType::None;
-        TileLayerType layerType_ = TileLayerType::Ground;
-        uint64_t growthMinTicks_ = 0;
-        uint64_t growthMaxTicks_ = 0;
+        TileLightResourceData lightData_;
+        TileResourceData resourceData_;
+        TileLootData lootData_;
+        ResourceRef growthTarget_ = {};
+        std::unordered_map<Vector2DIFingerprint, GameEntityID> gameEntities_;
+        std::optional<std::string> description_;
         std::string id_;
         std::string name_;
-        std::vector<ResourceRef> growthConditions_ = {};
-        std::optional<std::string> description_;
-        std::unordered_map<Vector2DIFingerprint, GameEntityID> gameEntities_;
-        ResourceRef growthTarget_ = {};
-        TileResourceData resourceData_;
-        TileBlueprintData blueprintData_;
         TileDimensions dimensions_;
+        TileBlueprintData blueprintData_;
+        std::vector<ResourceRef> growthConditions_ = {};
         TileMiningData miningData_;
-        TileLootData lootData_;
-        TileLightResourceData lightData_;
+        uint64_t growthMinTicks_ = 0;
+        uint64_t growthMaxTicks_ = 0;
+        uint8_t technologyLevel_ = 0;
+        uint8_t recipeGroup_ = 0;
+        TileLayerType layerType_ = TileLayerType::Ground;
+        TilePhysicsType physicsType_ = TilePhysicsType::None;
+        bool destroySelfOnGrowth_ = false;
+        bool isOverwritable_ = false;
 
         static TileVector2D CalculateTileAnchor(TileAnchorType tileAnchorType, uint8_t tileWidth, uint8_t tileHeight,
-                                                const Vector2DIResource &customTileAnchor);
+                                                const Vector2DIResource& customTileAnchor);
 
-        static std::unique_ptr<Tile> FromTileResource(const AppContext *appContext,
-                                                      const TileResource *tileResource);
+        static std::unique_ptr<Tile> FromTileResource(const AppContext* appContext,
+                                                      const TileResource* tileResource);
 
     public:
         [[nodiscard]] TilePhysicsType GetTilePhysicsType() const;
 
-        [[nodiscard]] const std::string &GetId() const;
+        [[nodiscard]] const std::string& GetId() const;
 
         [[nodiscard]] bool IsOverwritable() const;
 
         [[nodiscard]] bool DestroySelfOnGrowth() const;
 
-        const ResourceRef *GetGrowthTarget() const;
+        const ResourceRef* GetGrowthTarget() const;
 
         /**
          * IsWorkBlock
@@ -107,43 +108,43 @@ namespace glimmer {
          * @param growthTarget
          * @return
          */
-        static bool IsCropsBlock(uint64_t growthMinTicks, const ResourceRef &growthTarget);
+        static bool IsCropsBlock(uint64_t growthMinTicks, const ResourceRef& growthTarget);
 
-        [[nodiscard]] const std::string &GetName() const;
+        [[nodiscard]] const std::string& GetName() const;
 
         [[nodiscard]] TileLayerType GetLayerType() const;
 
-        [[nodiscard]] const std::vector<ResourceRef> &GetGrowthConditions() const;
+        [[nodiscard]] const std::vector<ResourceRef>& GetGrowthConditions() const;
 
-        [[nodiscard]] const std::optional<std::string> &GetDescription() const;
+        [[nodiscard]] const std::optional<std::string>& GetDescription() const;
 
-        void OnPlace(const WorldContext *worldContext, PlaceSourceMessage placeSource, const TileVector2D &position,
-                     const TileStateMessage *tileState);
+        void OnPlace(const WorldContext* worldContext, PlaceSourceMessage placeSource, const TileVector2D& position,
+                     const TileStateMessage* tileState);
 
-        void OnBreak(const WorldContext *worldContext, BreakSource breakSource, const TileVector2D &position);
+        void OnBreak(const WorldContext* worldContext, BreakSource breakSource, const TileVector2D& position);
 
-        [[nodiscard]] TileResourceData *GetMutableResourceData();
+        [[nodiscard]] TileResourceData* GetMutableResourceData();
 
-        [[nodiscard]] const TileResourceData *GetResourceData() const;
+        [[nodiscard]] const TileResourceData* GetResourceData() const;
 
-        [[nodiscard]] TileBlueprintData *GetMutableBlueprintData();
+        [[nodiscard]] TileBlueprintData* GetMutableBlueprintData();
 
-        [[nodiscard]] const TileBlueprintData *GetBlueprintData() const;
+        [[nodiscard]] const TileBlueprintData* GetBlueprintData() const;
 
-        [[nodiscard]] TileDimensions *GetMutableDimensions();
+        [[nodiscard]] TileDimensions* GetMutableDimensions();
 
-        [[nodiscard]] const TileDimensions *GetDimensions() const;
+        [[nodiscard]] const TileDimensions* GetDimensions() const;
 
-        [[nodiscard]] TileMiningData *GetMutableMiningData();
+        [[nodiscard]] TileMiningData* GetMutableMiningData();
 
-        [[nodiscard]] const TileMiningData *GetMiningData() const;
+        [[nodiscard]] const TileMiningData* GetMiningData() const;
 
-        [[nodiscard]] TileLootData *GetMutableLootData();
+        [[nodiscard]] TileLootData* GetMutableLootData();
 
-        [[nodiscard]] const TileLootData *GetLootData() const;
+        [[nodiscard]] const TileLootData* GetLootData() const;
 
-        [[nodiscard]] TileLightResourceData *GetMutableLightResourceData();
+        [[nodiscard]] TileLightResourceData* GetMutableLightResourceData();
 
-        [[nodiscard]] const TileLightResourceData *GetLightResourceData() const;
+        [[nodiscard]] const TileLightResourceData* GetLightResourceData() const;
     };
 }

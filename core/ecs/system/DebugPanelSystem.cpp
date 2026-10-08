@@ -46,26 +46,33 @@
 #include "core/world/generator/TileLayerType.h"
 #include "fmt/xchar.h"
 
-bool glimmer::DebugPanelSystem::CanActive() const {
+bool glimmer::DebugPanelSystem::CanActive() const
+{
     return displayDebugPanel_;
 }
 
-void glimmer::DebugPanelSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) {
-    const EntityShortCut *entityShortCut = GetEntityShortCut();
-    EntityManager *entityManager = GetEntityManager();
-    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr) {
+void glimmer::DebugPanelSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
+{
+    const EntityShortCut* entityShortCut = GetEntityShortCut();
+    EntityManager* entityManager = GetEntityManager();
+    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
+    {
         cameraComponent_ = entityShortCut->GetCameraComponent();
     }
-    if (gameComponentType == COMPONENT_TRANSFORM_2D && cameraTransform2DComponent_ == nullptr) {
+    if (gameComponentType == COMPONENT_TRANSFORM_2D && cameraTransform2DComponent_ == nullptr)
+    {
         cameraTransform2DComponent_ = entityShortCut->GetCameraTransform2DComponent();
     }
-    if (gameComponentType == COMPONENT_TILE_LAYER) {
+    if (gameComponentType == COMPONENT_TILE_LAYER)
+    {
         tileLayerComponents_.clear();
         auto tileLayerEntities = entityManager->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
         std::sort(tileLayerEntities.begin(), tileLayerEntities.end());
-        for (GameEntityID tileLayerEntity: tileLayerEntities) {
+        for (GameEntityID tileLayerEntity : tileLayerEntities)
+        {
             auto tileLayerComponent = entityManager->GetComponent<TileLayerComponent>(tileLayerEntity);
-            if (tileLayerComponent == nullptr) {
+            if (tileLayerComponent == nullptr)
+            {
                 continue;
             }
             tileLayerComponents_.emplace_back(tileLayerComponent);
@@ -74,53 +81,65 @@ void glimmer::DebugPanelSystem::OnWatchedComponentChanged(GameComponentTypeMessa
 }
 
 
-glimmer::DebugPanelSystem::DebugPanelSystem(WorldContext *worldContext) : GuiGameSystem(worldContext) {
+glimmer::DebugPanelSystem::DebugPanelSystem(WorldContext* worldContext) : GuiGameSystem(worldContext)
+{
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_TILE_LAYER);
-    WorldContext *worldContextPtr = GetWorldContext();
+    WorldContext* worldContextPtr = GetWorldContext();
     appContext_ = worldContextPtr->GetAppContext();
     Init();
 }
 
-void glimmer::DebugPanelSystem::OnConfigChanged(const Config *config) {
+void glimmer::DebugPanelSystem::OnConfigChanged(const Config* config)
+{
     displayDebugPanel_ = config->debug.displayDebugPanel;
     LogCat::i(LogLabel::DEFAULT, "debug_panel_display_changed", "DebugPanel display changed: {}", displayDebugPanel_);
 }
 
-void glimmer::DebugPanelSystem::OnActivationChanged(bool activeStatus) {
-    Rml::ElementDocument *elementDocument = GetElementDocument();
-    if (elementDocument == nullptr) {
+void glimmer::DebugPanelSystem::OnActivationChanged(bool activeStatus)
+{
+    Rml::ElementDocument* elementDocument = GetElementDocument();
+    if (elementDocument == nullptr)
+    {
         return;
     }
-    if (activeStatus) {
+    if (activeStatus)
+    {
         elementDocument->Show();
-    } else {
+    }
+    else
+    {
         elementDocument->Hide();
     }
 }
 
-void glimmer::DebugPanelSystem::LoadDocuments(IDocumentRegistry *documentRegistry) {
+void glimmer::DebugPanelSystem::LoadDocuments(IDocumentRegistry* documentRegistry)
+{
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
     resourceRef.SetResourceKey("debug_panel/debug_panel");
-    Rml::ElementDocument *elementDocument = documentRegistry->LoadSingleDocument(&resourceRef);
+    Rml::ElementDocument* elementDocument = documentRegistry->LoadSingleDocument(&resourceRef);
     SetElementDocument(elementDocument);
-    if (elementDocument != nullptr && !displayDebugPanel_) {
+    if (elementDocument != nullptr && !displayDebugPanel_)
+    {
         elementDocument->Hide();
     }
 }
 
 
-void glimmer::DebugPanelSystem::OnCreateDataModels(IDocumentRegistry *documentRegistry) {
-    Rml::DataModelConstructor *constructor = documentRegistry->CreateDataModel("debug_panel");
-    if (constructor == nullptr) {
+void glimmer::DebugPanelSystem::OnCreateDataModels(IDocumentRegistry* documentRegistry)
+{
+    Rml::DataModelConstructor* constructor = documentRegistry->CreateDataModel("debug_panel");
+    if (constructor == nullptr)
+    {
         return;
     }
-    if (auto lineStruct = constructor->RegisterStruct<DebugLine>()) {
+    if (auto lineStruct = constructor->RegisterStruct<DebugLine>())
+    {
         lineStruct.RegisterMember("text", &DebugLine::text);
-        constructor->RegisterArray<std::vector<DebugLine> >();
+        constructor->RegisterArray<std::vector<DebugLine>>();
     }
     constructor->Bind("debug_lines", &debugLines_);
     constructor->Bind("chunk_text", &chunkText_);
@@ -129,17 +148,21 @@ void glimmer::DebugPanelSystem::OnCreateDataModels(IDocumentRegistry *documentRe
     debugModelHandle_ = constructor->GetModelHandle();
 }
 
-void glimmer::DebugPanelSystem::Update(const float delta) {
+void glimmer::DebugPanelSystem::Update(const float delta)
+{
     if (cameraComponent_ == nullptr || cameraTransform2DComponent_ == nullptr || appContext_ == nullptr ||
-        tileLayerComponents_.empty()) {
+        tileLayerComponents_.empty())
+    {
         return;
     }
-    WorldContext *worldContext = GetWorldContext();
-    if (worldContext == nullptr) {
+    WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr)
+    {
         return;
     }
-    const LangsResources *langsResources = appContext_->GetLangsResources();
-    if (langsResources == nullptr) {
+    const LangsResources* langsResources = appContext_->GetLangsResources();
+    if (langsResources == nullptr)
+    {
         return;
     }
     debugLines_.clear();
@@ -150,12 +173,14 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
     // Current normalized day time (0..1) and time flow speed
     // 当前归一化日时间（0..1）与时间流动速度
 
-    const Dimension *dimension = worldContext->GetDimension();
-    if (dimension == nullptr) {
+    const Dimension* dimension = worldContext->GetDimension();
+    if (dimension == nullptr)
+    {
         return;
     }
-    const DimensionResource *dimensionResource = dimension->GetDimensionResource();
-    if (dimensionResource == nullptr) {
+    const DimensionResource* dimensionResource = dimension->GetDimensionResource();
+    if (dimensionResource == nullptr)
+    {
         return;
     }
     auto dimensionResourceRef = ResourceRef();
@@ -167,7 +192,8 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
         fmt::format(fmt::runtime(langsResources->debugTimeInfo), dimension->GetNormalizedTime(), timeFlowSpeed)
     });
 
-    if (cameraComponent_->IsPointInViewport(cameraTransform2DComponent_->GetPosition(), mousePosition_)) {
+    if (cameraComponent_->IsPointInViewport(cameraTransform2DComponent_->GetPosition(), mousePosition_))
+    {
         ScreenVector2D screenPos = CoordinateTransformer::WorldToScreen(
             cameraTransform2DComponent_->GetPosition(), mousePosition_,
             cameraComponent_->GetSize(), cameraComponent_->GetZoom());
@@ -181,14 +207,18 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
 
         bool firstLayer = true;
         TileVector2D tileCoord = CoordinateTransformer::WorldToTile(mousePosition_);
-        TerrainGenerator *terrainGenerator = worldContext->GetTerrainGenerator();
-        if (terrainGenerator != nullptr) {
-            ClimateSampler *climateSampler = terrainGenerator->GetMutableClimateSampler();
-            if (climateSampler != nullptr) {
+        TerrainGenerator* terrainGenerator = worldContext->GetTerrainGenerator();
+        if (terrainGenerator != nullptr)
+        {
+            ClimateSampler* climateSampler = terrainGenerator->GetMutableClimateSampler();
+            if (climateSampler != nullptr)
+            {
                 const int worldSeed = worldContext->GetWorldSeed();
-                for (auto tileLayerComponent: tileLayerComponents_) {
+                for (auto tileLayerComponent : tileLayerComponents_)
+                {
                     ChunkRelativeVector2D chunkRelative = CoordinateTransformer::TileToChunkRelative(tileCoord);
-                    if (firstLayer) {
+                    if (firstLayer)
+                    {
                         float elevation = TerrainMath::GetElevation(dimensionResource, tileCoord.y);
                         debugLines_.push_back(DebugLine{
                             fmt::format(
@@ -206,11 +236,13 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
                     }
 
                     auto tile = tileLayerComponent->GetSelfLayerTile(dimensionResourceRef, tileCoord);
-                    if (tile == nullptr) {
+                    if (tile == nullptr)
+                    {
                         continue;
                     }
-                    const TileMiningData *miningData = tile->GetMiningData();
-                    if (miningData == nullptr) {
+                    const TileMiningData* miningData = tile->GetMiningData();
+                    if (miningData == nullptr)
+                    {
                         continue;
                     }
                     debugLines_.push_back(DebugLine{
@@ -225,13 +257,14 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
         }
 
 
-        const LightBuffer *lightBuffer = worldContext->GetLightingBuffer();
+        const LightBuffer* lightBuffer = worldContext->GetLightingBuffer();
 
         // Ambient light colors
         // 环境光颜色
-        const Color *backLightColor = lightBuffer->GetBackLightColor();
-        const Color *skyLightColor = lightBuffer->GetSkyLightColor();
-        if (backLightColor != nullptr && skyLightColor != nullptr) {
+        const Color* backLightColor = lightBuffer->GetBackLightColor();
+        const Color* skyLightColor = lightBuffer->GetSkyLightColor();
+        if (backLightColor != nullptr && skyLightColor != nullptr)
+        {
             debugLines_.push_back(DebugLine{
                 fmt::format(
                     fmt::runtime(langsResources->ambientLightInfo),
@@ -269,31 +302,38 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
         });
         // Per-layer lighting data
         // 各图层光照数据
-        if (const TileLightData *tileLightData = lightBuffer->GetTileLightData(tileCoord);
-            tileLightData == nullptr) {
+        if (const TileLightData* tileLightData = lightBuffer->GetTileLightData(tileCoord);
+            tileLightData == nullptr)
+        {
             debugLines_.push_back(DebugLine{
                 fmt::format(
                     fmt::runtime(langsResources->notIncludeLighting),
                     tileCoord.x, tileCoord.y
                 )
             });
-        } else {
-            const auto *lightSources = tileLightData->GetLightSources();
-            const auto *lightContributions = tileLightData->GetLightContributions();
-            const auto *lightMasks = tileLightData->GetLightMasks();
-            for (int i = 0; i < TILE_LAYER_TYPE_COUNT; ++i) {
+        }
+        else
+        {
+            const auto* lightSources = tileLightData->GetLightSources();
+            const auto* lightContributions = tileLightData->GetLightContributions();
+            const auto* lightMasks = tileLightData->GetLightMasks();
+            for (int i = 0; i < TILE_LAYER_TYPE_COUNT; ++i)
+            {
                 const auto layerType = static_cast<TileLayerType>(1 << i);
                 const float sideBlocking = tileLightData->GetLightBlockingStrength(layerType, LightDirection::Downward);
                 const float backBlocking = tileLightData->GetLightBlockingStrength(layerType, LightDirection::Backward);
                 bool hasSource = false;
-                if (lightSources != nullptr) {
+                if (lightSources != nullptr)
+                {
                     const auto sourceIt = lightSources->find(layerType);
                     hasSource = sourceIt != lightSources->end() && sourceIt->second != nullptr;
                 }
                 std::size_t contributionCount = 0;
-                if (lightContributions != nullptr) {
+                if (lightContributions != nullptr)
+                {
                     const auto contributionIt = lightContributions->find(layerType);
-                    if (contributionIt != lightContributions->end()) {
+                    if (contributionIt != lightContributions->end())
+                    {
                         contributionCount = contributionIt->second.size();
                     }
                 }
@@ -307,15 +347,20 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
 
                 // Light masks
                 // 光线遮照详情
-                if (lightMasks != nullptr) {
+                if (lightMasks != nullptr)
+                {
                     const auto maskLayerIt = lightMasks->find(layerType);
-                    if (maskLayerIt != lightMasks->end()) {
-                        for (const auto &[direction, mask]: maskLayerIt->second) {
-                            if (mask == nullptr) {
+                    if (maskLayerIt != lightMasks->end())
+                    {
+                        for (const auto& [direction, mask] : maskLayerIt->second)
+                        {
+                            if (mask == nullptr)
+                            {
                                 continue;
                             }
-                            const Color *maskColor = mask->GetLightMaskColor();
-                            if (maskColor == nullptr) {
+                            const Color* maskColor = mask->GetLightMaskColor();
+                            if (maskColor == nullptr)
+                            {
                                 continue;
                             }
                             debugLines_.push_back(DebugLine{
@@ -333,13 +378,16 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
 
                 // Light source
                 // 光源详情
-                if (lightSources != nullptr) {
+                if (lightSources != nullptr)
+                {
                     const auto sourceIt = lightSources->find(layerType);
-                    if (sourceIt != lightSources->end() && sourceIt->second != nullptr) {
-                        const LightSource *source = sourceIt->second.get();
-                        const Color *emission = source->GetEmissionColor();
-                        if (emission != nullptr) {
-                            const TileVector2D &center = source->GetCenter();
+                    if (sourceIt != lightSources->end() && sourceIt->second != nullptr)
+                    {
+                        const LightSource* source = sourceIt->second.get();
+                        const Color* emission = source->GetEmissionColor();
+                        if (emission != nullptr)
+                        {
+                            const TileVector2D& center = source->GetCenter();
                             debugLines_.push_back(DebugLine{
                                 fmt::format(
                                     fmt::runtime(langsResources->lightSourceInfo),
@@ -355,18 +403,23 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
 
                 // Light contributions
                 // 光照贡献详情
-                if (lightContributions != nullptr) {
+                if (lightContributions != nullptr)
+                {
                     const auto contributionIt = lightContributions->find(layerType);
-                    if (contributionIt != lightContributions->end()) {
-                        for (const auto &contribution: contributionIt->second) {
-                            if (contribution == nullptr) {
+                    if (contributionIt != lightContributions->end())
+                    {
+                        for (const auto& contribution : contributionIt->second)
+                        {
+                            if (contribution == nullptr)
+                            {
                                 continue;
                             }
-                            const Color *lightColor = contribution->GetLightColor();
-                            if (lightColor == nullptr) {
+                            const Color* lightColor = contribution->GetLightColor();
+                            if (lightColor == nullptr)
+                            {
                                 continue;
                             }
-                            const LightSource *source = contribution->GetLightSource();
+                            const LightSource* source = contribution->GetLightSource();
                             const TileVector2D center = source != nullptr ? source->GetCenter() : TileVector2D{};
                             debugLines_.push_back(DebugLine{
                                 fmt::format(
@@ -384,13 +437,17 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
 
         // Dynamic lights
         // 动态光源
-        if (const auto *dynamicLights = lightBuffer->GetDynamicLights(); dynamicLights != nullptr) {
-            for (const auto &[id, entry]: *dynamicLights) {
-                if (entry.lightSource == nullptr) {
+        if (const auto* dynamicLights = lightBuffer->GetDynamicLights(); dynamicLights != nullptr)
+        {
+            for (const auto& [id, entry] : *dynamicLights)
+            {
+                if (entry.lightSource == nullptr)
+                {
                     continue;
                 }
-                const Color *emission = entry.lightSource->GetEmissionColor();
-                if (emission == nullptr) {
+                const Color* emission = entry.lightSource->GetEmissionColor();
+                if (emission == nullptr)
+                {
                     continue;
                 }
                 debugLines_.push_back(DebugLine{
@@ -408,13 +465,15 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
         // Chunk info text
         // 区块信息文本
         const auto chunkManager = worldContext->GetChunkManager();
-        if (chunkManager == nullptr) {
+        if (chunkManager == nullptr)
+        {
             return;
         }
         int playerTileX = static_cast<int>(std::floor(mousePosition_.x / TILE_SIZE));
         int playerTileY = static_cast<int>(std::floor(mousePosition_.y / TILE_SIZE));
 
-        auto getChunkIndex = [](const int tileCoord) {
+        auto getChunkIndex = [](const int tileCoord)
+        {
             return static_cast<int>(std::floor(static_cast<float>(tileCoord) / CHUNK_SIZE));
         };
 
@@ -438,7 +497,8 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
         crosshairY_ = static_cast<int>(screenPos.y);
     }
 
-    if (debugModelHandle_) {
+    if (debugModelHandle_)
+    {
         debugModelHandle_.DirtyVariable("debug_lines");
         debugModelHandle_.DirtyVariable("chunk_text");
         debugModelHandle_.DirtyVariable("crosshair_x");
@@ -446,14 +506,18 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
     }
 }
 
-bool glimmer::DebugPanelSystem::HandleEvent(const SDL_Event &event) {
-    if (cameraComponent_ == nullptr) {
+bool glimmer::DebugPanelSystem::HandleEvent(const SDL_Event& event)
+{
+    if (cameraComponent_ == nullptr)
+    {
         return false;
     }
-    if (cameraTransform2DComponent_ == nullptr) {
+    if (cameraTransform2DComponent_ == nullptr)
+    {
         return false;
     }
-    if (event.type == SDL_EVENT_MOUSE_MOTION) {
+    if (event.type == SDL_EVENT_MOUSE_MOTION)
+    {
         mousePosition_ = CoordinateTransformer::ScreenToWorld(
             cameraTransform2DComponent_->GetPosition(),
             ScreenVector2D{
@@ -465,11 +529,13 @@ bool glimmer::DebugPanelSystem::HandleEvent(const SDL_Event &event) {
     return false;
 }
 
-uint8_t glimmer::DebugPanelSystem::GetExecutionOrder() {
+uint8_t glimmer::DebugPanelSystem::GetExecutionOrder()
+{
     return EXECUTION_ORDER_DEBUG_PANEL;
 }
 
-glimmer::GameSystemType glimmer::DebugPanelSystem::GetGameSystemType() const {
+glimmer::GameSystemType glimmer::DebugPanelSystem::GetGameSystemType() const
+{
     return GameSystemType::DebugPanelSystem;
 }
 

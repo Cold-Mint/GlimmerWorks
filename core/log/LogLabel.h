@@ -25,8 +25,10 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-namespace glimmer {
-    enum class LogLabel {
+namespace glimmer
+{
+    enum class LogLabel
+    {
         DEFAULT,
         //世界生成器相关
         WORLD_GEN,

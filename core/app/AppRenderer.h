@@ -34,7 +34,8 @@
 #include "core/gpu/PendingScreenshot.h"
 #include "core/gpu/RenderQueue.h"
 
-namespace glimmer {
+namespace glimmer
+{
     class ResourceLocator;
     class SceneManager;
     class RmlContext;
@@ -53,23 +54,24 @@ namespace glimmer {
      * 实际 GPU 工作委托给有序的 Pass 序列（场景、清屏、光照、UI），
      * 最后提交这一帧。
      */
-    class AppRenderer {
-        uint32_t screenshotTextureWidth_ = 0;
-        uint32_t screenshotTextureHeight_ = 0;
-        AppContext *appContext_ = nullptr;
-        SDL_GPUDevice *device_ = nullptr;
-        SDL_Window *window_ = nullptr;
-        ResourceLocator *resourceLocator_ = nullptr;
-        SceneManager *sceneManager_ = nullptr;
+    class AppRenderer
+    {
+        RenderQueue renderQueue_;
+        std::vector<std::unique_ptr<IPass>> passes_;
+        AppContext* appContext_ = nullptr;
+        SDL_GPUDevice* device_ = nullptr;
+        SDL_Window* window_ = nullptr;
+        ResourceLocator* resourceLocator_ = nullptr;
+        SceneManager* sceneManager_ = nullptr;
         //When a screenshot is requested, passes render into this texture instead
         //of the swapchain. It is then blitted to the swapchain and downloaded.
         //截图请求时，各 pass 先渲染到此纹理而非交换链，然后再 blit 到交换链并下载。
-        SDL_GPUTexture *screenshotTexture_ = nullptr;
+        SDL_GPUTexture* screenshotTexture_ = nullptr;
 #if  !defined(NDEBUG)
-        LightingPass *lightingPass_ = nullptr;
+        LightingPass* lightingPass_ = nullptr;
 #endif
-        RenderQueue renderQueue_;
-        std::vector<std::unique_ptr<IPass> > passes_;
+        uint32_t screenshotTextureWidth_ = 0;
+        uint32_t screenshotTextureHeight_ = 0;
 
         void RenderOverlays();
 
@@ -84,9 +86,9 @@ namespace glimmer {
          * Blit the screenshot target texture to the real swapchain texture.
          * 将截图目标纹理 Blit 到真正的交换链纹理。
          */
-        static void BlitScreenshotToSwapChain(SDL_GPUCommandBuffer *commandBuffer,
-                                              SDL_GPUTexture *source,
-                                              SDL_GPUTexture *destination,
+        static void BlitScreenshotToSwapChain(SDL_GPUCommandBuffer* commandBuffer,
+                                              SDL_GPUTexture* source,
+                                              SDL_GPUTexture* destination,
                                               uint32_t width, uint32_t height);
 
         /**
@@ -97,10 +99,10 @@ namespace glimmer {
          * 下载当前场景图像并保存到截图请求指定的路径。此函数会内部提交并等待
          * 命令缓冲，因此处理截图后 RenderFrame 必须跳过正常提交。
          */
-        bool SaveScreenshot(const PendingScreenshot &pendingScreenshot, const struct RenderFrameContext &ctx);
+        bool SaveScreenshot(const PendingScreenshot& pendingScreenshot, const struct RenderFrameContext& ctx);
 
     public:
-        explicit AppRenderer(AppContext *appContext);
+        explicit AppRenderer(AppContext* appContext);
 
         ~AppRenderer();
 

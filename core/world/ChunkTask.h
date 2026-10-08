@@ -29,22 +29,24 @@
 #include "core/utils/IFingerprintable.h"
 #include "core/ecs/component/TileLayerComponent.h"
 
-namespace glimmer {
-    class ChunkTask : public IFingerprintAble {
-        ChunkType chunkType_ = ChunkType::None;
-        uint32_t distance_ = 0;
+namespace glimmer
+{
+    class ChunkTask : public IFingerprintAble
+    {
         TileVector2D chunkVertexCoordinates_;
+        uint32_t distance_ = 0;
+        ChunkType chunkType_ = ChunkType::None;
 
     public:
-        ChunkTask(ChunkType chunkType, const TileVector2D &chunkVertexCoordinates);
+        ChunkTask(ChunkType chunkType, const TileVector2D& chunkVertexCoordinates);
 
         [[nodiscard]] ChunkType GetChunkType() const;
 
         [[nodiscard]] uint32_t GetDistance() const;
 
-        void SetOrigin(const TileVector2D &origin);
+        void SetOrigin(const TileVector2D& origin);
 
-        [[nodiscard]] const TileVector2D &GetChunkVertexCoordinates() const;
+        [[nodiscard]] const TileVector2D& GetChunkVertexCoordinates() const;
 
         [[nodiscard]] uint64_t GetFingerprint() const override;
     };

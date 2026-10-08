@@ -32,7 +32,8 @@
 #include "core/inventory/ability/MiningRangeData.h"
 #include "core/world/generator/TileLayerType.h"
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * MiningComponent
      * 正在挖掘组件
@@ -40,29 +41,15 @@ namespace glimmer {
      * This component saves the state of the player digging blocks.
      * 此组件保存玩家挖掘方块的状态。
      */
-    class MiningComponent : public GameComponent {
-        //precisionMining
-        //精准采集
-        bool precisionMining_ = false;
-        bool hasStartPosition_ = false;
-        // activeSignal_ is only accessed on the tick thread.
-        // activeSignal_ 仅在 tick 线程访问。
-        bool activeSignal_ = false;
-        TileLayerType layerType_ = TileLayerType::Ground;
-
-        // enable_ is written on the tick thread and read on the render/main thread.
-        // enable_ 在 tick 线程写入，在渲染/主线程读取。
-        std::atomic<bool> enable_{false};
-
-
+    class MiningComponent : public GameComponent
+    {
         // miningRangeData_ is written on the tick thread and read on the render/main thread,
         // so it is published as an atomic shared_ptr snapshot.
         // miningRangeData_ 在 tick 线程写入，在渲染/主线程读取，因此以原子 shared_ptr 快照发布。
-        std::atomic<std::shared_ptr<const MiningRangeData> > miningRangeData_ = nullptr;
+        std::atomic<std::shared_ptr<const MiningRangeData>> miningRangeData_ = nullptr;
         //Explore the origin.
         //挖掘原点。
         TileVector2D startPosition_;
-
         // progress_ is written on the tick thread and read on the render/main thread.
         // progress_ 在 tick 线程写入，在渲染/主线程读取。
         std::atomic<float> progress_{0.0F};
@@ -71,6 +58,18 @@ namespace glimmer {
         //Chain collection radius
         //连锁采集半径
         int chainMiningRadius_ = 0;
+        TileLayerType layerType_ = TileLayerType::Ground;
+        //precisionMining
+        //精准采集
+        bool precisionMining_ = false;
+        bool hasStartPosition_ = false;
+        // activeSignal_ is only accessed on the tick thread.
+        // activeSignal_ 仅在 tick 线程访问。
+        bool activeSignal_ = false;
+
+        // enable_ is written on the tick thread and read on the render/main thread.
+        // enable_ 在 tick 线程写入，在渲染/主线程读取。
+        std::atomic<bool> enable_{false};
 
     public:
         /**
@@ -82,7 +81,7 @@ namespace glimmer {
 
         void SetEnable(bool enable);
 
-        void SetMiningRangeData(const MiningRangeData &miningRangeData);
+        void SetMiningRangeData(const MiningRangeData& miningRangeData);
 
         void ClearMiningRangeData();
 
@@ -90,7 +89,7 @@ namespace glimmer {
 
         void SetStartPosition(TileVector2D startPosition);
 
-        [[nodiscard]] const TileVector2D &GetStartPosition() const;
+        [[nodiscard]] const TileVector2D& GetStartPosition() const;
 
         [[nodiscard]] bool HasStartPosition() const;
 

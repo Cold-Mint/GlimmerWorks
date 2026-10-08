@@ -26,8 +26,10 @@
  */
 #pragma once
 
-namespace glimmer {
-    enum class ContainerChangeType {
+namespace glimmer
+{
+    enum class ContainerChangeType
+    {
         /**
          * The quantity of items has increased.
          * 物品数量增加

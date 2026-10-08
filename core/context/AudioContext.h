@@ -31,22 +31,24 @@
 #include "core/mod/resourcePack/AudioManager.h"
 #include "core/mod/resourcePack/AudioResourceResult.h"
 
-namespace glimmer {
+namespace glimmer
+{
     class ResourceLocator;
 
-    class AudioContext {
-        std::unique_ptr<AudioManager> audioManager_ = nullptr;
+    class AudioContext
+    {
         std::shared_ptr<AudioResourceResult> mainMenuBGM_ = nullptr;
+        std::unique_ptr<AudioManager> audioManager_ = nullptr;
 
     public:
         AudioContext();
 
         ~AudioContext();
 
-        void LoadMainMenuBGM(const ResourceLocator *resourceLocator);
+        void LoadMainMenuBGM(const ResourceLocator* resourceLocator);
 
         void PlayMainMenuBGM() const;
 
-        [[nodiscard]] AudioManager *GetAudioManager() const;
+        [[nodiscard]] AudioManager* GetAudioManager() const;
     };
 }

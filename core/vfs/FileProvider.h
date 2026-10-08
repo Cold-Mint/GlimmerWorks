@@ -31,12 +31,14 @@
 #include <string>
 #include <vector>
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * File provider
      * 文件提供者
      */
-    class IFileProvider {
+    class IFileProvider
+    {
     public:
         virtual ~IFileProvider() = default;
 
@@ -54,7 +56,7 @@ namespace glimmer {
          * @param path path 路径
          * @return
          */
-        [[nodiscard]] virtual std::optional<std::string> GetFileOrFolderName(const std::filesystem::path &path) const =
+        [[nodiscard]] virtual std::optional<std::string> GetFileOrFolderName(const std::filesystem::path& path) const =
         0;
 
 
@@ -63,7 +65,7 @@ namespace glimmer {
          * 删除文件或者文件夹
          * @return
          */
-        [[nodiscard]] virtual bool DeleteFileOrFolder(const std::filesystem::path &path) = 0;
+        [[nodiscard]] virtual bool DeleteFileOrFolder(const std::filesystem::path& path) = 0;
 
         /**
          * Read Stream
@@ -71,7 +73,7 @@ namespace glimmer {
          * @param path  path 文件路径
          * @return stream Failed to read, returning nullptr. 文件流 读取失败返回nullptr
          */
-        [[nodiscard]] virtual std::unique_ptr<std::istream> ReadStream(const std::filesystem::path &path) = 0;
+        [[nodiscard]] virtual std::unique_ptr<std::istream> ReadStream(const std::filesystem::path& path) = 0;
 
 
         /**
@@ -80,7 +82,7 @@ namespace glimmer {
          * @param path path 文件路径
          * @return 是否存在
          */
-        [[nodiscard]] virtual bool Exists(const std::filesystem::path &path) = 0;
+        [[nodiscard]] virtual bool Exists(const std::filesystem::path& path) = 0;
 
 
         /**
@@ -89,7 +91,7 @@ namespace glimmer {
          * @param path path 文件路径
          * @return 是否为文件
          */
-        [[nodiscard]] virtual bool IsFile(const std::filesystem::path &path) = 0;
+        [[nodiscard]] virtual bool IsFile(const std::filesystem::path& path) = 0;
 
         /**
          * Write the file
@@ -98,8 +100,8 @@ namespace glimmer {
          * @param content content文件内容
          * @return 是否写出成功
          */
-        [[nodiscard]] virtual bool WriteFile(const std::filesystem::path &path,
-                                             const std::string &content) const = 0;
+        [[nodiscard]] virtual bool WriteFile(const std::filesystem::path& path,
+                                             const std::string& content) const = 0;
 
         /**
          * List the files in the folder
@@ -109,7 +111,7 @@ namespace glimmer {
          * @return
          */
         [[nodiscard]] virtual std::vector<std::filesystem::path> ListFile(
-            const std::filesystem::path &path, bool recursive) = 0;
+            const std::filesystem::path& path, bool recursive) = 0;
 
         /**
          * Obtain the modification time of the file
@@ -118,14 +120,14 @@ namespace glimmer {
          * @return
          */
         [[nodiscard]] virtual std::optional<std::filesystem::file_time_type>
-        GetMtime(const std::filesystem::path &path) = 0;
+        GetMtime(const std::filesystem::path& path) = 0;
 
         [[nodiscard]] virtual std::optional<std::filesystem::path> GetParentPath(
-            const std::filesystem::path &path) const = 0;
+            const std::filesystem::path& path) const = 0;
 
         [[nodiscard]] virtual std::optional<std::filesystem::path> GetActualPath(
-            const std::filesystem::path &path) const = 0;
+            const std::filesystem::path& path) const = 0;
 
-        [[nodiscard]] virtual bool CreateFolder(const std::filesystem::path &path) = 0;
+        [[nodiscard]] virtual bool CreateFolder(const std::filesystem::path& path) = 0;
     };
 }

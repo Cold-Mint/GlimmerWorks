@@ -26,36 +26,44 @@
  */
 #include "TerrainTileResult.h"
 
-void TerrainTileResult::SetBiomeResource(glimmer::BiomeResource *biomeResource) {
+void TerrainTileResult::SetBiomeResource(glimmer::BiomeResource* biomeResource)
+{
     biomeResource_ = biomeResource;
 }
 
-glimmer::BiomeResource *TerrainTileResult::GetBiomeResource() const {
+glimmer::BiomeResource* TerrainTileResult::GetBiomeResource() const
+{
     return biomeResource_;
 }
 
-void TerrainTileResult::SetTerrainType(const glimmer::TerrainResultType terrainType) {
+void TerrainTileResult::SetTerrainType(const glimmer::TerrainResultType terrainType)
+{
     terrainType_ = terrainType;
 }
 
-glimmer::TerrainResultType TerrainTileResult::GetTerrainType() const {
+glimmer::TerrainResultType TerrainTileResult::GetTerrainType() const
+{
     return terrainType_;
 }
 
-void TerrainTileResult::SetWorldPosition(const glimmer::TileVector2D &worldPosition) {
+void TerrainTileResult::SetWorldPosition(const glimmer::TileVector2D& worldPosition)
+{
     worldPosition_ = worldPosition;
 }
 
-const glimmer::TileVector2D &TerrainTileResult::worldPosition() const {
+const glimmer::TileVector2D& TerrainTileResult::worldPosition() const
+{
     return worldPosition_;
 }
 
 void TerrainTileResult::SetStructure(const glimmer::TileLayerType layerType,
-                                     const glimmer::ResourceRef *structureResourceRef) {
+                                     const glimmer::ResourceRef* structureResourceRef)
+{
     structureResRefs_[layerType] = *structureResourceRef;
 }
 
-const std::unordered_map<glimmer::TileLayerType, glimmer::ResourceRef> &TerrainTileResult::
-GetStructureResRefs() const {
+const std::unordered_map<glimmer::TileLayerType, glimmer::ResourceRef>& TerrainTileResult::
+GetStructureResRefs() const
+{
     return structureResRefs_;
 }

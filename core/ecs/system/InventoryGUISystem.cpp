@@ -41,9 +41,11 @@
 #include "core/world/SystemScheduler.h"
 #include "core/world/WorldContext.h"
 
-glimmer::ItemSlotDataModel *glimmer::InventoryGUISystem::GetItemSlotDataModel(uint8_t index) {
+glimmer::ItemSlotDataModel* glimmer::InventoryGUISystem::GetItemSlotDataModel(uint8_t index)
+{
     const uint8_t size = itemSlots_.size();
-    if (index >= size) {
+    if (index >= size)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "item_slot_data_model_is_null",
                   "itemSlotDataModel == nullptr");
         return nullptr;
@@ -51,8 +53,10 @@ glimmer::ItemSlotDataModel *glimmer::InventoryGUISystem::GetItemSlotDataModel(ui
     return &itemSlots_[index];
 }
 
-void glimmer::InventoryGUISystem::LoadInitialItems() {
-    if (itemContainer_ == nullptr) {
+void glimmer::InventoryGUISystem::LoadInitialItems()
+{
+    if (itemContainer_ == nullptr)
+    {
         LogCat::i(LogLabel::DEFAULT, "load_initial_hotbar_item_container_is_null",
                   "LoadInitialHotbarItems: itemContainer_ is nullptr");
         return;
@@ -60,79 +64,97 @@ void glimmer::InventoryGUISystem::LoadInitialItems() {
     LogCat::i(LogLabel::DEFAULT, "loading_initial_hotbar_items",
               "Loading initial hotbar items after data model created...");
     uint8_t capacity = itemContainer_->GetCapacity();
-    for (uint8_t i = 0; i < capacity; ++i) {
-        const Item *item = itemContainer_->GetItem(i);
+    for (uint8_t i = 0; i < capacity; ++i)
+    {
+        const Item* item = itemContainer_->GetItem(i);
         auto dataModel = GetItemSlotDataModel(i);
-        if (dataModel == nullptr) {
+        if (dataModel == nullptr)
+        {
             continue;
         }
         dataModel->selected = i == itemContainer_->GetSelectIndex();
-        if (item == nullptr) {
+        if (item == nullptr)
+        {
             dataModel->image = "";
             dataModel->amount = 0;
             dataModel->durability = -1;
-        } else {
-            const ResourceRef *iconResourceRef = item->GetIconResourceRef();
+        }
+        else
+        {
+            const ResourceRef* iconResourceRef = item->GetIconResourceRef();
             dataModel->image = StringUtils::MakeTextureUrl(Resource::GenerateId(iconResourceRef->GetPackageId(),
                 iconResourceRef->GetResourceKey()));
-            const ItemStackModule *stackModule = item->GetStackModule();
+            const ItemStackModule* stackModule = item->GetStackModule();
             dataModel->amount = stackModule != nullptr ? stackModule->GetAmount() : 1;
-            const ItemDurabilityModule *durabilityModule = item->GetDurabilityModule();
+            const ItemDurabilityModule* durabilityModule = item->GetDurabilityModule();
             dataModel->durability = ItemSlotDataModel::CalculateDurabilityPercentage(
                 durabilityModule->GetMaxDurability(), durabilityModule->GetUsedDurability(),
                 durabilityModule->IsUnbreakable());
         }
     }
-    if (constructor_ != nullptr) {
+    if (constructor_ != nullptr)
+    {
         constructor_->GetModelHandle().DirtyVariable("item_slots");
         LogCat::i(LogLabel::DEFAULT, "item_slots_variable_dirtied", "item_slots variable dirtied");
     }
 }
 
-void glimmer::InventoryGUISystem::RefreshRecipeList() {
+void glimmer::InventoryGUISystem::RefreshRecipeList()
+{
     recipeSlots_.clear();
     recipeOutputItems_.clear();
-    WorldContext *worldContext = GetWorldContext();
-    if (worldContext == nullptr) {
+    WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr)
+    {
         return;
     }
-    const AppContext *appContext = worldContext->GetAppContext();
-    if (appContext == nullptr) {
+    const AppContext* appContext = worldContext->GetAppContext();
+    if (appContext == nullptr)
+    {
         return;
     }
-    const ModContext *modContext = appContext->GetModContext();
-    if (modContext == nullptr) {
+    const ModContext* modContext = appContext->GetModContext();
+    if (modContext == nullptr)
+    {
         return;
     }
-    const RecipeManager *recipeManager = modContext->GetRecipeManager();
-    if (recipeManager == nullptr) {
+    const RecipeManager* recipeManager = modContext->GetRecipeManager();
+    if (recipeManager == nullptr)
+    {
         return;
     }
-    ResourceLocator *resourceLocator = appContext->GetResourceLocator();
-    if (resourceLocator == nullptr) {
+    ResourceLocator* resourceLocator = appContext->GetResourceLocator();
+    if (resourceLocator == nullptr)
+    {
         return;
     }
-    const EntityShortCut *entityShortCut = GetEntityShortCut();
-    if (entityShortCut == nullptr) {
+    const EntityShortCut* entityShortCut = GetEntityShortCut();
+    if (entityShortCut == nullptr)
+    {
         return;
     }
-    EntityManager *entityManager = worldContext->GetEntityManager();
-    if (entityManager == nullptr) {
+    EntityManager* entityManager = worldContext->GetEntityManager();
+    if (entityManager == nullptr)
+    {
         return;
     }
     const GameEntityID playerEntity = entityShortCut->GetPlayer();
-    if (WorldContext::IsEmptyEntityId(playerEntity)) {
+    if (WorldContext::IsEmptyEntityId(playerEntity))
+    {
         return;
     }
-    auto *playerComponent = entityManager->GetComponent<PlayerComponent>(playerEntity);
-    if (playerComponent == nullptr) {
+    auto* playerComponent = entityManager->GetComponent<PlayerComponent>(playerEntity);
+    if (playerComponent == nullptr)
+    {
         return;
     }
-    const PlayerTechnologyHandler *techHandler = playerComponent->GetTechnologyHandler();
-    if (techHandler == nullptr) {
+    const PlayerTechnologyHandler* techHandler = playerComponent->GetTechnologyHandler();
+    if (techHandler == nullptr)
+    {
         return;
     }
-    if (itemContainer_ == nullptr) {
+    if (itemContainer_ == nullptr)
+    {
         return;
     }
     unlockedRecipes_ = recipeManager->FindUnlockedRecipes(techHandler->GetTechnologyMap(),
@@ -142,137 +164,169 @@ void glimmer::InventoryGUISystem::RefreshRecipeList() {
     recipeOutputItems_.resize(unlockedRecipes_.size());
     recipeSlots_.reserve(unlockedRecipes_.size());
     const uint32_t maxSize = unlockedRecipes_.size();
-    for (uint32_t i = 0; i < maxSize; ++i) {
-        const auto *recipe = unlockedRecipes_[i];
-        if (recipe == nullptr) {
+    for (uint32_t i = 0; i < maxSize; ++i)
+    {
+        const auto* recipe = unlockedRecipes_[i];
+        if (recipe == nullptr)
+        {
             continue;
         }
         std::unique_ptr<Item> item = resourceLocator->FindItem(worldContext, recipe->output);
         recipeOutputItems_[i] = std::move(item); //Process finished with exit code 134 (interrupted by signal 6:SIGABRT)
-        const Item *itemPtr = recipeOutputItems_[i].get();
+        const Item* itemPtr = recipeOutputItems_[i].get();
         ItemSlotDataModel slot;
         slot.selected = false;
         slot.index = static_cast<int>(i);
-        if (itemPtr != nullptr) {
-            const ResourceRef *iconRef = itemPtr->GetIconResourceRef();
-            if (iconRef != nullptr) {
+        if (itemPtr != nullptr)
+        {
+            const ResourceRef* iconRef = itemPtr->GetIconResourceRef();
+            if (iconRef != nullptr)
+            {
                 slot.image = StringUtils::MakeTextureUrl(
                     Resource::GenerateId(iconRef->GetPackageId(), iconRef->GetResourceKey()));
-            } else {
+            }
+            else
+            {
                 slot.image = "";
             }
-        } else {
+        }
+        else
+        {
             slot.image = "";
         }
         slot.amount = static_cast<int>(recipe->output.amount);
         recipeSlots_.push_back(std::move(slot));
     }
-    if (constructor_ != nullptr) {
+    if (constructor_ != nullptr)
+    {
         constructor_->GetModelHandle().DirtyVariable("recipe_slots");
     }
 }
 
-glimmer::InventoryGUISystem::~InventoryGUISystem() {
-    if (dragListener_ != nullptr) {
+glimmer::InventoryGUISystem::~InventoryGUISystem()
+{
+    if (dragListener_ != nullptr)
+    {
         dragListener_->UnregisterContainer();
         dragListener_.reset();
     }
-    if (itemContainer_ != nullptr && callback_ != nullptr) {
+    if (itemContainer_ != nullptr && callback_ != nullptr)
+    {
         itemContainer_->RemoveOnContentChanged(callback_);
     }
 }
 
 void glimmer::InventoryGUISystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType,
-                                                            uint32_t count) {
-    if (gameComponentType == COMPONENT_ITEM_TOOL_TIP) {
+                                                            uint32_t count)
+{
+    if (gameComponentType == COMPONENT_ITEM_TOOL_TIP)
+    {
         itemToolTipComponent_ = GetEntityShortCut()->GetItemToolTipComponent();
         return;
     }
-    if (gameComponentType != COMPONENT_ITEM_CONTAINER) {
+    if (gameComponentType != COMPONENT_ITEM_CONTAINER)
+    {
         return;
     }
-    if (itemContainer_ != nullptr) {
+    if (itemContainer_ != nullptr)
+    {
         LogCat::i(LogLabel::DEFAULT, "item_container_already_set", "itemContainer already set, skipping");
         return;
     }
-    const EntityShortCut *entityShortCut = GetEntityShortCut();
-    if (entityShortCut == nullptr) {
+    const EntityShortCut* entityShortCut = GetEntityShortCut();
+    if (entityShortCut == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "entity_shortcut_is_null",
                   "entityShortCut == nullptr");
         return;
     }
 
-    const ItemContainerComponent *itemContainerComponent = entityShortCut->GetItemContainerComponent();
-    if (itemContainerComponent == nullptr) {
+    const ItemContainerComponent* itemContainerComponent = entityShortCut->GetItemContainerComponent();
+    if (itemContainerComponent == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "item_container_component_is_null",
                   "itemContainerComponent == nullptr");
         return;
     }
     itemContainer_ = itemContainerComponent->GetItemContainer();
-    if (itemContainer_ == nullptr) {
+    if (itemContainer_ == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "item_container_is_null",
                   "itemContainer == nullptr");
         return;
     }
     itemSlots_.resize(itemContainer_->GetCapacity());
     callback_ = itemContainer_->AddOnContentChanged(
-        [this](const uint8_t index, const Item *item, const ContainerChangeType changeType) {
+        [this](const uint8_t index, const Item* item, const ContainerChangeType changeType)
+        {
             const auto dataModel = GetItemSlotDataModel(index);
-            if (dataModel == nullptr) {
+            if (dataModel == nullptr)
+            {
                 LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "data_model_is_null",
                           "dataModel == nullptr");
                 return;
             }
             if (changeType == ContainerChangeType::STACK_DESTROY ||
                 changeType == ContainerChangeType::STACK_AMOUNT_EXHAUSTED ||
-                changeType == ContainerChangeType::STACK_DURABILITY_EXHAUSTED) {
+                changeType == ContainerChangeType::STACK_DURABILITY_EXHAUSTED)
+            {
                 dataModel->image = "";
                 dataModel->amount = 0;
                 dataModel->durability = -1;
-            } else {
+            }
+            else
+            {
                 const auto stackModule = item->GetStackModule();
                 auto amount = 0;
-                if (stackModule != nullptr) {
+                if (stackModule != nullptr)
+                {
                     amount = stackModule->GetAmount();
                 }
-                if (amount == 0) {
+                if (amount == 0)
+                {
                     dataModel->image = "";
                     dataModel->amount = 0;
                     dataModel->durability = -1;
-                } else {
-                    const ResourceRef *iconResourceRef = item->GetIconResourceRef();
+                }
+                else
+                {
+                    const ResourceRef* iconResourceRef = item->GetIconResourceRef();
                     dataModel->image = StringUtils::MakeTextureUrl(
                         Resource::GenerateId(iconResourceRef->GetPackageId(), iconResourceRef->GetResourceKey()));
                     dataModel->amount = amount;
-                    const ItemDurabilityModule *durabilityModule = item->GetDurabilityModule();
+                    const ItemDurabilityModule* durabilityModule = item->GetDurabilityModule();
                     dataModel->durability = ItemSlotDataModel::CalculateDurabilityPercentage(
                         durabilityModule->GetMaxDurability(), durabilityModule->GetUsedDurability(),
                         durabilityModule->IsUnbreakable());
                 }
             }
-            if (constructor_ != nullptr) {
+            if (constructor_ != nullptr)
+            {
                 constructor_->GetModelHandle().DirtyVariable("item_slots");
             }
             RefreshRecipeList();
         });
 }
 
-glimmer::InventoryGUISystem::InventoryGUISystem(WorldContext *worldContext)
-    : GuiStackGameSystem(worldContext) {
+glimmer::InventoryGUISystem::InventoryGUISystem(WorldContext* worldContext)
+    : GuiStackGameSystem(worldContext)
+{
     WatchComponent(COMPONENT_ITEM_CONTAINER);
     WatchComponent(COMPONENT_ITEM_TOOL_TIP);
     Init();
 }
 
-void glimmer::InventoryGUISystem::OnCreateDataModels(IDocumentRegistry *documentRegistry) {
+void glimmer::InventoryGUISystem::OnCreateDataModels(IDocumentRegistry* documentRegistry)
+{
     constructor_ = documentRegistry->CreateDataModel("inventory");
-    if (auto linkStruct = constructor_->RegisterStruct<ItemSlotDataModel>()) {
+    if (auto linkStruct = constructor_->RegisterStruct<ItemSlotDataModel>())
+    {
         linkStruct.RegisterMember("image", &ItemSlotDataModel::image);
         linkStruct.RegisterMember("amount", &ItemSlotDataModel::amount);
         linkStruct.RegisterMember("selected", &ItemSlotDataModel::selected);
         linkStruct.RegisterMember("index", &ItemSlotDataModel::index);
         linkStruct.RegisterMember("durability", &ItemSlotDataModel::durability);
-        constructor_->RegisterArray<std::vector<ItemSlotDataModel> >();
+        constructor_->RegisterArray<std::vector<ItemSlotDataModel>>();
     }
     constructor_->Bind("item_slots", &itemSlots_);
     constructor_->Bind("recipe_slots", &recipeSlots_);
@@ -284,34 +338,41 @@ void glimmer::InventoryGUISystem::OnCreateDataModels(IDocumentRegistry *document
     LoadInitialItems();
 }
 
-void glimmer::InventoryGUISystem::SetupDragAndDrop() {
-    if (dragListener_ != nullptr) {
+void glimmer::InventoryGUISystem::SetupDragAndDrop()
+{
+    if (dragListener_ != nullptr)
+    {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "drag_listener_is_null",
                   "dragListener_ == nullptr");
         return;
     }
-    if (itemContainer_ == nullptr) {
+    if (itemContainer_ == nullptr)
+    {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "item_container_null_cannot_setup_drag_drop",
                   "itemContainer_ is nullptr, cannot setup drag and drop");
         return;
     }
 
-    Rml::ElementDocument *document = GetElementDocument();
-    if (document == nullptr) {
+    Rml::ElementDocument* document = GetElementDocument();
+    if (document == nullptr)
+    {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "document_is_null",
                   "document is nullptr, cannot setup drag and drop");
         return;
     }
 
-    Rml::Element *container = document->GetElementById("item_container");
-    if (container == nullptr) {
+    Rml::Element* container = document->GetElementById("item_container");
+    if (container == nullptr)
+    {
         container = document->GetFirstChild();
-        while (container != nullptr && !container->IsClassSet("item_container")) {
+        while (container != nullptr && !container->IsClassSet("item_container"))
+        {
             container = container->GetNextSibling();
         }
     }
 
-    if (container == nullptr) {
+    if (container == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "item_container_element_not_found",
                   "item_container element not found in document");
         return;
@@ -322,22 +383,27 @@ void glimmer::InventoryGUISystem::SetupDragAndDrop() {
     LogCat::i(LogLabel::DEFAULT, "inventory_drag_and_drop_setup_complete", "Inventory drag and drop setup complete");
 }
 
-void glimmer::InventoryGUISystem::OnActivationChanged(bool activeStatus) {
+void glimmer::InventoryGUISystem::OnActivationChanged(bool activeStatus)
+{
     GuiStackGameSystem::OnActivationChanged(activeStatus);
-    if (activeStatus) {
+    if (activeStatus)
+    {
         RefreshRecipeList();
     }
 }
 
-SDL_Scancode glimmer::InventoryGUISystem::GetHotKey() const {
+SDL_Scancode glimmer::InventoryGUISystem::GetHotKey() const
+{
     return SDL_SCANCODE_E;
 }
 
-glimmer::GameSystemType glimmer::InventoryGUISystem::GetGameSystemType() const {
+glimmer::GameSystemType glimmer::InventoryGUISystem::GetGameSystemType() const
+{
     return GameSystemType::InventoryGUISystem;
 }
 
-void glimmer::InventoryGUISystem::LoadDocuments(IDocumentRegistry *documentRegistry) {
+void glimmer::InventoryGUISystem::LoadDocuments(IDocumentRegistry* documentRegistry)
+{
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
@@ -346,67 +412,83 @@ void glimmer::InventoryGUISystem::LoadDocuments(IDocumentRegistry *documentRegis
     SetupDragAndDrop();
 }
 
-void glimmer::InventoryGUISystem::OnRecipeClick(Rml::DataModelHandle handle, Rml::Event &event,
-                                                const Rml::VariantList &args) {
-    if (args.empty()) {
+void glimmer::InventoryGUISystem::OnRecipeClick(Rml::DataModelHandle handle, Rml::Event& event,
+                                                const Rml::VariantList& args)
+{
+    if (args.empty())
+    {
         return;
     }
     int index = args[0].Get<int>();
-    if (index < 0 || index >= static_cast<int>(unlockedRecipes_.size())) {
+    if (index < 0 || index >= static_cast<int>(unlockedRecipes_.size()))
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "invalid_recipe_index",
                   "invalid recipe index: {}", index);
         return;
     }
-    WorldContext *worldContext = GetWorldContext();
-    if (worldContext == nullptr) {
+    WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr)
+    {
         return;
     }
-    SystemScheduler *scheduler = worldContext->GetSystemScheduler();
-    if (scheduler == nullptr) {
+    SystemScheduler* scheduler = worldContext->GetSystemScheduler();
+    if (scheduler == nullptr)
+    {
         return;
     }
-    EntityShortCut *entityShortCut = worldContext->GetEntityShortCut();
-    if (entityShortCut == nullptr) {
+    EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
+    if (entityShortCut == nullptr)
+    {
         return;
     }
-    RecipeSelectionComponent *recipeSelectionComponent = entityShortCut->GetRecipeSelectionComponent();
-    if (recipeSelectionComponent == nullptr) {
+    RecipeSelectionComponent* recipeSelectionComponent = entityShortCut->GetRecipeSelectionComponent();
+    if (recipeSelectionComponent == nullptr)
+    {
         return;
     }
     recipeSelectionComponent->SetRecipeResource(unlockedRecipes_[index]);
     scheduler->PushGuiSystemType(GameSystemType::RecipeDetailGUISystem);
 }
 
-void glimmer::InventoryGUISystem::OnItemHover(Rml::DataModelHandle handle, Rml::Event &event,
-                                              const Rml::VariantList &args) {
-    if (args.empty() || itemContainer_ == nullptr || itemToolTipComponent_ == nullptr) {
+void glimmer::InventoryGUISystem::OnItemHover(Rml::DataModelHandle handle, Rml::Event& event,
+                                              const Rml::VariantList& args)
+{
+    if (args.empty() || itemContainer_ == nullptr || itemToolTipComponent_ == nullptr)
+    {
         return;
     }
     const int index = args[0].Get<int>();
-    if (index < 0 || index >= static_cast<int>(itemContainer_->GetCapacity())) {
+    if (index < 0 || index >= static_cast<int>(itemContainer_->GetCapacity()))
+    {
         return;
     }
     itemToolTipComponent_->SetItem(itemContainer_->GetItem(static_cast<uint8_t>(index)));
 }
 
-void glimmer::InventoryGUISystem::OnItemOut(Rml::DataModelHandle handle, Rml::Event &event,
-                                            const Rml::VariantList &args) {
-    if (itemToolTipComponent_ == nullptr) {
+void glimmer::InventoryGUISystem::OnItemOut(Rml::DataModelHandle handle, Rml::Event& event,
+                                            const Rml::VariantList& args)
+{
+    if (itemToolTipComponent_ == nullptr)
+    {
         return;
     }
     itemToolTipComponent_->ResetItem();
 }
 
-void glimmer::InventoryGUISystem::OnRecipeHover(Rml::DataModelHandle handle, Rml::Event &event,
-                                                const Rml::VariantList &args) {
-    if (args.empty() || itemToolTipComponent_ == nullptr) {
+void glimmer::InventoryGUISystem::OnRecipeHover(Rml::DataModelHandle handle, Rml::Event& event,
+                                                const Rml::VariantList& args)
+{
+    if (args.empty() || itemToolTipComponent_ == nullptr)
+    {
         return;
     }
     const int index = args[0].Get<int>();
-    if (index < 0 || index >= static_cast<int>(recipeOutputItems_.size())) {
+    if (index < 0 || index >= static_cast<int>(recipeOutputItems_.size()))
+    {
         return;
     }
-    if (recipeOutputItems_[index] == nullptr) {
+    if (recipeOutputItems_[index] == nullptr)
+    {
         return;
     }
     itemToolTipComponent_->SetItem(recipeOutputItems_[index].get());

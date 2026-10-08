@@ -34,8 +34,10 @@
 #include "RenderLayer.h"
 #include "core/mod/resourcePack/TextureResourceResult.h"
 
-namespace glimmer {
-    class RenderQueue {
+namespace glimmer
+{
+    class RenderQueue
+    {
         std::vector<RenderCommand> commands_;
 
         /**
@@ -51,11 +53,11 @@ namespace glimmer {
          * @param sampler sampler 采样器（nullptr 表示使用默认采样器）
          * @param uniformBlocks uniformBlocks 可选 uniform 块列表
          */
-        void AppendQuad(RenderLayer layer, float depth, const TextureResourceResult *texture,
-                        const SDL_FPoint positions[4], const SDL_FPoint uvs[4], const SDL_Color &color,
-                        SDL_GPUGraphicsPipeline *pipeline = nullptr,
-                        SDL_GPUSampler *sampler = nullptr,
-                        const std::vector<PipelineUniformBlock> *uniformBlocks = nullptr);
+        void AppendQuad(RenderLayer layer, float depth, const TextureResourceResult* texture,
+                        const SDL_FPoint positions[4], const SDL_FPoint uvs[4], const SDL_Color& color,
+                        SDL_GPUGraphicsPipeline* pipeline = nullptr,
+                        SDL_GPUSampler* sampler = nullptr,
+                        const std::vector<PipelineUniformBlock>* uniformBlocks = nullptr);
 
     public:
         RenderQueue() = default;
@@ -99,7 +101,7 @@ namespace glimmer {
          * 当前顺序（提交顺序或排序后顺序）下的全部命令。供 GpuRenderer
          * 在冲刷时使用。
          */
-        [[nodiscard]] const std::vector<RenderCommand> &GetCommands() const;
+        [[nodiscard]] const std::vector<RenderCommand>& GetCommands() const;
 
         /**
          * Queue a texture region drawn to a destination rectangle
@@ -112,12 +114,12 @@ namespace glimmer {
          * @param dst dst 目标矩形（像素，nullptr 表示 (0,0,纹理宽,纹理高)）
          * @param mod mod 颜色调制（替代 SDL_SetTextureColorMod/AlphaMod）
          */
-        void DrawTexture(RenderLayer layer, float depth, TextureResourceResult *texture,
-                         const SDL_FRect *src, const SDL_FRect *dst,
-                         const SDL_Color &mod = {255, 255, 255, 255},
-                         SDL_GPUGraphicsPipeline *pipeline = nullptr,
-                         SDL_GPUSampler *sampler = nullptr,
-                         const std::vector<PipelineUniformBlock> *uniformBlocks = nullptr);
+        void DrawTexture(RenderLayer layer, float depth, TextureResourceResult* texture,
+                         const SDL_FRect* src, const SDL_FRect* dst,
+                         const SDL_Color& mod = {255, 255, 255, 255},
+                         SDL_GPUGraphicsPipeline* pipeline = nullptr,
+                         SDL_GPUSampler* sampler = nullptr,
+                         const std::vector<PipelineUniformBlock>* uniformBlocks = nullptr);
 
         /**
          * Queue a texture region rotated around a center point, with
@@ -134,13 +136,13 @@ namespace glimmer {
          * @param flip flip FLIP_HORIZONTAL/FLIP_VERTICAL 的按位或
          * @param mod mod 颜色调制
          */
-        void DrawTextureRotated(RenderLayer layer, float depth, const TextureResourceResult *texture,
-                                const SDL_FRect *src, const SDL_FRect *dst,
-                                double angleDegrees, const SDL_FPoint *center, Uint8 flip,
-                                const SDL_Color &mod = {255, 255, 255, 255},
-                                SDL_GPUGraphicsPipeline *pipeline = nullptr,
-                                SDL_GPUSampler *sampler = nullptr,
-                                const std::vector<PipelineUniformBlock> *uniformBlocks = nullptr);
+        void DrawTextureRotated(RenderLayer layer, float depth, const TextureResourceResult* texture,
+                                const SDL_FRect* src, const SDL_FRect* dst,
+                                double angleDegrees, const SDL_FPoint* center, Uint8 flip,
+                                const SDL_Color& mod = {255, 255, 255, 255},
+                                SDL_GPUGraphicsPipeline* pipeline = nullptr,
+                                SDL_GPUSampler* sampler = nullptr,
+                                const std::vector<PipelineUniformBlock>* uniformBlocks = nullptr);
 
         /**
          * Queue a full-screen quad with a custom pipeline and optional uniform block.
@@ -155,9 +157,9 @@ namespace glimmer {
          * @param sampler sampler 采样器
          * @param uniformBlocks uniformBlocks uniform 块列表
          */
-        void DrawFullScreenQuad(RenderLayer layer, float depth, const SDL_FRect *dst,
-                                SDL_GPUGraphicsPipeline *pipeline, SDL_GPUSampler *sampler,
-                                const std::vector<PipelineUniformBlock> *uniformBlocks);
+        void DrawFullScreenQuad(RenderLayer layer, float depth, const SDL_FRect* dst,
+                                SDL_GPUGraphicsPipeline* pipeline, SDL_GPUSampler* sampler,
+                                const std::vector<PipelineUniformBlock>* uniformBlocks);
 
         /**
          * Queue a rectangle filled with a solid color
@@ -169,7 +171,7 @@ namespace glimmer {
          * @param rect rect 目标矩形（像素）
          * @param color color 填充颜色
          */
-        void FillRect(RenderLayer layer, float depth, const SDL_FRect *rect, const SDL_Color &color);
+        void FillRect(RenderLayer layer, float depth, const SDL_FRect* rect, const SDL_Color& color);
 
         /**
          * Queue a 1-pixel rectangle outline with a solid color
@@ -180,7 +182,7 @@ namespace glimmer {
          * @param rect rect 目标矩形（像素）
          * @param color color 边框颜色
          */
-        void DrawRect(RenderLayer layer, float depth, const SDL_FRect *rect, const SDL_Color &color);
+        void DrawRect(RenderLayer layer, float depth, const SDL_FRect* rect, const SDL_Color& color);
 
         /**
          * Queue a 1-pixel line with a solid color (replaces SDL_RenderLine).
@@ -190,7 +192,7 @@ namespace glimmer {
          * @param color color 线段颜色
          */
         void DrawLine(RenderLayer layer, float depth, float x1, float y1, float x2, float y2,
-                      const SDL_Color &color);
+                      const SDL_Color& color);
 
         /**
          * Queue a single pixel with a solid color (replaces SDL_RenderPoint).
@@ -199,6 +201,6 @@ namespace glimmer {
          * @param depth depth 层内深度
          * @param color color 像素颜色
          */
-        void DrawPoint(RenderLayer layer, float depth, float x, float y, const SDL_Color &color);
+        void DrawPoint(RenderLayer layer, float depth, float x, float y, const SDL_Color& color);
     };
 }

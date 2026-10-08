@@ -34,17 +34,19 @@
 #include "core/utils/TransparentStringHash.h"
 
 
-namespace glimmer {
-    class ITemplateCommand {
+namespace glimmer
+{
+    class ITemplateCommand
+    {
     public:
         virtual ~ITemplateCommand();
 
         [[nodiscard]] virtual std::optional<std::string> Execute(
-            const std::vector<std::filesystem::path> &templateSearchPath,
-            std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<> > &variable,
-            std::vector<std::string> &args,
-            const VirtualFileSystem *virtualFileSystem) = 0;
+            const std::vector<std::filesystem::path>& templateSearchPath,
+            std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<>>& variable,
+            std::vector<std::string>& args,
+            const VirtualFileSystem* virtualFileSystem) = 0;
 
-        [[nodiscard]] virtual const std::string_view &GetCommandName() const = 0;
+        [[nodiscard]] virtual const std::string_view& GetCommandName() const = 0;
     };
 }

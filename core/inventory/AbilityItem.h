@@ -30,51 +30,53 @@
 #include "ability/ItemAbility.h"
 #include "core/mod/resourcePack/GPUPipelineResourceResult.h"
 
-namespace glimmer {
-    class AbilityItem : public Item {
+namespace glimmer
+{
+    class AbilityItem : public Item
+    {
+        ResourceRef iconResourceRef_;
+        std::optional<std::string> description_;
         std::string id_;
         std::string name_;
-        std::optional<std::string> description_;
         std::shared_ptr<TextureResourceResult> iconResult_;
         std::shared_ptr<ItemAbility> itemAbility_;
+        std::shared_ptr<GPUPipelineResourceResult> pipeline_ = nullptr;
+        std::shared_ptr<GPUSamplerResourceResult> sampler_ = nullptr;
         uint32_t maxDurability_;
         bool unbreakable_;
         bool canUseAlone_;
-        ResourceRef iconResourceRef_;
-        std::shared_ptr<GPUPipelineResourceResult> pipeline_ = nullptr;
-        std::shared_ptr<GPUSamplerResourceResult> sampler_ = nullptr;
 
     public:
-        explicit AbilityItem(const AbilityItemCreateParams &params);
+        explicit AbilityItem(const AbilityItemCreateParams& params);
 
-        static std::unique_ptr<AbilityItem> FromItemResource(const AppContext *appContext,
-                                                             const AbilityItemResource *itemResource,
-                                                             const ResourceRef &resourceRef);
+        static std::unique_ptr<AbilityItem> FromItemResource(const AppContext* appContext,
+                                                             const AbilityItemResource* itemResource,
+                                                             const ResourceRef& resourceRef);
 
-        [[nodiscard]] const std::string &GetId() const override;
+        [[nodiscard]] const std::string& GetId() const override;
 
-        [[nodiscard]] const std::string &GetName() const override;
+        [[nodiscard]] const std::string& GetName() const override;
 
-        [[nodiscard]] const std::optional<std::string> &GetDescription() const override;
+        [[nodiscard]] const std::optional<std::string>& GetDescription() const override;
 
-        [[nodiscard]] TextureResourceResult *GetIcon() const override;
+        [[nodiscard]] TextureResourceResult* GetIcon() const override;
 
-        [[nodiscard]] SDL_GPUGraphicsPipeline *GetPipeline() const override;
+        [[nodiscard]] SDL_GPUGraphicsPipeline* GetPipeline() const override;
 
         void SetPipeline(std::shared_ptr<GPUPipelineResourceResult> pipeline);
 
-        [[nodiscard]] SDL_GPUSampler *GetSampler() const override;
+        [[nodiscard]] SDL_GPUSampler* GetSampler() const override;
 
         void SetSampler(std::shared_ptr<GPUSamplerResourceResult> sampler);
 
-        [[nodiscard]] const ResourceRef *GetIconResourceRef() const override;
+        [[nodiscard]] const ResourceRef* GetIconResourceRef() const override;
 
-        [[nodiscard]] ItemAbility *GetItemAbility() const;
+        [[nodiscard]] ItemAbility* GetItemAbility() const;
 
-        [[nodiscard]] const AbilityConfig *GetAbilityConfig() const override;
+        [[nodiscard]] const AbilityConfig* GetAbilityConfig() const override;
 
-        bool OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user, const AbilityConfig *abilityConfig,
-                   std::unordered_set<AbilityType> &popupAbility) override;
+        bool OnUse(bool mouseLeft, WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
+                   std::unordered_set<AbilityType>& popupAbility) override;
 
         [[nodiscard]] std::unique_ptr<Item> Clone() const override;
     };

@@ -30,23 +30,25 @@
 
 #include "core/ecs/GameSystem.h"
 
-namespace glimmer {
-    class DroppedItemSystem : public GameSystem {
+namespace glimmer
+{
+    class DroppedItemSystem : public GameSystem
+    {
+        /**
+        * Protects droppedEntities_ against concurrent rebuild on the main
+        * thread (OnWatchedComponentChanged) and iteration on the tick thread
+        * (OnTick) / main thread (Render).
+        * 保护 droppedEntities_ 免受主线程重建与 tick 线程/主线程遍历的并发访问。
+        */
+        mutable std::mutex droppedEntitiesMutex_;
         std::vector<GameEntityID> droppedEntities_;
-        CameraComponent *cameraComponent_ = nullptr;
-        Transform2DComponent *cameraTransform2DComponent_ = nullptr;
+        CameraComponent* cameraComponent_ = nullptr;
+        Transform2DComponent* cameraTransform2DComponent_ = nullptr;
         uint32_t transform2dCount = 0;
         uint32_t droppedItemCount = 0;
-        /**
-         * Protects droppedEntities_ against concurrent rebuild on the main
-         * thread (OnWatchedComponentChanged) and iteration on the tick thread
-         * (OnTick) / main thread (Render).
-         * 保护 droppedEntities_ 免受主线程重建与 tick 线程/主线程遍历的并发访问。
-         */
-        mutable std::mutex droppedEntitiesMutex_;
 
     public:
-        explicit DroppedItemSystem(WorldContext *worldContext);
+        explicit DroppedItemSystem(WorldContext* worldContext);
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
@@ -54,7 +56,7 @@ namespace glimmer {
 
         void OnTick(uint64_t tick) override;
 
-        void Render(RenderQueue *queue) override;
+        void Render(RenderQueue* queue) override;
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };

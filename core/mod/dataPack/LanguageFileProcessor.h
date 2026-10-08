@@ -31,7 +31,8 @@
 #include <string_view>
 #include <vector>
 
-namespace glimmer {
+namespace glimmer
+{
     class AppContext;
 
     /**
@@ -40,7 +41,8 @@ namespace glimmer {
      * Stateless helpers for classifying data-pack files and routing language (.strings.toml) files.
      * 无状态工具，用于识别数据包文件类型并路由语言（.strings.toml）文件。
      */
-    class LanguageFileProcessor {
+    class LanguageFileProcessor
+    {
     public:
         /**
          * GetDataType
@@ -50,7 +52,7 @@ namespace glimmer {
          * @param fileName fileName 文件名
          * @return The data type, or nullopt if unrecognized 数据类型，无法识别时返回nullopt
          */
-        static std::optional<std::string> GetDataType(const std::string &fileName);
+        static std::optional<std::string> GetDataType(const std::string& fileName);
 
         /**
          * ExtractLanguageFromFileName
@@ -73,10 +75,10 @@ namespace glimmer {
          * @param appContext appContext 应用上下文
          * @return True if the file was a language file 该文件是否为语言文件
          */
-        static bool ProcessLanguageFile(const std::filesystem::path &file, std::string_view dataType,
+        static bool ProcessLanguageFile(const std::filesystem::path& file, std::string_view dataType,
                                         std::string_view fileName,
-                                        std::vector<std::filesystem::path> &defaultLanguageFiles,
-                                        std::vector<std::filesystem::path> &targetLanguageFiles,
-                                        const AppContext *appContext);
+                                        std::vector<std::filesystem::path>& defaultLanguageFiles,
+                                        std::vector<std::filesystem::path>& targetLanguageFiles,
+                                        const AppContext* appContext);
     };
 }

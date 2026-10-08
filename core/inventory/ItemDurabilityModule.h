@@ -30,13 +30,14 @@
 
 #include "ContainerChangeType.h"
 
-namespace glimmer {
-    class ItemDurabilityModule {
+namespace glimmer
+{
+    class ItemDurabilityModule
+    {
+        std::function<void(ContainerChangeType, uint32_t, uint32_t)> onUsedDurabilityChanged_ = nullptr;
         uint32_t usedDurability_ = 0;
         uint32_t maxDurability_ = 0;
         bool unbreakable_ = false;
-
-        std::function<void(ContainerChangeType, uint32_t, uint32_t)> onUsedDurabilityChanged_ = nullptr;
 
     public:
         [[nodiscard]] uint32_t GetMaxDurability() const;
@@ -60,7 +61,7 @@ namespace glimmer {
          * @param onUsedDurabilityChanged
          */
         void SetOnUsedDurabilityChanged(
-            const std::function<void(ContainerChangeType, uint32_t, uint32_t)> &onUsedDurabilityChanged);
+            const std::function<void(ContainerChangeType, uint32_t, uint32_t)>& onUsedDurabilityChanged);
 
         void AddUsedDurability(uint32_t value);
 

@@ -28,15 +28,17 @@
 #include <memory>
 #include <unordered_map>
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * BaseManager
      * 基础管理器
      * @tparam ResourceType It must inherit from IUniqueAble to return a unique Id. 必须继承自IUniqueAble返回独一无二的Id。
      */
-    template<typename ResourceType>
-    class BaseManager {
-        std::unordered_map<uint64_t, std::unique_ptr<ResourceType> >
+    template <typename ResourceType>
+    class BaseManager
+    {
+        std::unordered_map<uint64_t, std::unique_ptr<ResourceType>>
         resourceMap_;
 
     protected:
@@ -45,14 +47,14 @@ namespace glimmer {
         * 当某个资源注册成功后。
         * @param resource
         */
-        virtual void AfterRegister(ResourceType *resource);
+        virtual void AfterRegister(ResourceType* resource);
 
         /**
          * When the registration of a certain resource is cancelled.
          * 当取消注册某个资源后。
          * @param resource
          */
-        virtual void BeforeUnRegister(ResourceType *resource);
+        virtual void BeforeUnRegister(ResourceType* resource);
 
     public:
         virtual ~BaseManager() = default;
@@ -63,7 +65,7 @@ namespace glimmer {
          * @param id id 资源
          * @return If it cannot be found, then return nullptr. 如果找不到那么返回nullptr
          */
-        ResourceType *Find(uint64_t id);
+        ResourceType* Find(uint64_t id);
 
         /**
          * Register
@@ -71,7 +73,7 @@ namespace glimmer {
          * @param resource
          * @return If the registration fails, return nullptr. 如果注册失败返回nullptr
          */
-        ResourceType *Register(std::unique_ptr<ResourceType> resource);
+        ResourceType* Register(std::unique_ptr<ResourceType> resource);
 
         void Clear();
 
@@ -92,35 +94,43 @@ namespace glimmer {
         [[nodiscard]] bool Contains(uint64_t id);
     };
 
-    template<typename ResourceType>
-    ResourceType *BaseManager<ResourceType>::Find(const uint64_t id) {
+    template <typename ResourceType>
+    ResourceType* BaseManager<ResourceType>::Find(const uint64_t id)
+    {
         auto iterator = resourceMap_.find(id);
-        if (iterator == resourceMap_.end()) {
+        if (iterator == resourceMap_.end())
+        {
             return nullptr;
         }
-        std::unique_ptr<ResourceType> &resourcePtr = iterator->second;
-        if (resourcePtr == nullptr) {
+        std::unique_ptr<ResourceType>& resourcePtr = iterator->second;
+        if (resourcePtr == nullptr)
+        {
             return nullptr;
         }
         return resourcePtr.get();
     }
 
-    template<typename ResourceType>
-    void BaseManager<ResourceType>::AfterRegister(ResourceType *resource) {
+    template <typename ResourceType>
+    void BaseManager<ResourceType>::AfterRegister(ResourceType* resource)
+    {
     }
 
-    template<typename ResourceType>
-    void BaseManager<ResourceType>::BeforeUnRegister(ResourceType *resource) {
+    template <typename ResourceType>
+    void BaseManager<ResourceType>::BeforeUnRegister(ResourceType* resource)
+    {
     }
 
-    template<typename ResourceType>
-    ResourceType *BaseManager<ResourceType>::Register(std::unique_ptr<ResourceType> resource) {
+    template <typename ResourceType>
+    ResourceType* BaseManager<ResourceType>::Register(std::unique_ptr<ResourceType> resource)
+    {
         const auto uniqueId = resource->GetUniqueId();
         auto iterator = resourceMap_.find(uniqueId);
-        if (iterator == resourceMap_.end()) {
+        if (iterator == resourceMap_.end())
+        {
             auto [it, inserted] = resourceMap_.insert(std::make_pair(uniqueId, std::move(resource)));
-            if (inserted) {
-                ResourceType *result = it->second.get();
+            if (inserted)
+            {
+                ResourceType* result = it->second.get();
                 AfterRegister(result);
                 return result;
             }
@@ -129,10 +139,12 @@ namespace glimmer {
         return nullptr;
     }
 
-    template<typename ResourceType>
-    void BaseManager<ResourceType>::Clear() {
+    template <typename ResourceType>
+    void BaseManager<ResourceType>::Clear()
+    {
         auto iterator = resourceMap_.begin();
-        while (iterator != resourceMap_.end()) {
+        while (iterator != resourceMap_.end())
+        {
             BeforeUnRegister(iterator->second.get());
             //"erase" returns the next iterator and updates the "iterator"
             //erase 返回下一个迭代器，更新iterator
@@ -140,10 +152,12 @@ namespace glimmer {
         }
     }
 
-    template<typename ResourceType>
-    bool BaseManager<ResourceType>::Unregister(uint64_t id) {
+    template <typename ResourceType>
+    bool BaseManager<ResourceType>::Unregister(uint64_t id)
+    {
         auto iterator = resourceMap_.find(id);
-        if (iterator == resourceMap_.end()) {
+        if (iterator == resourceMap_.end())
+        {
             return false;
         }
         BeforeUnRegister(iterator->second.get());
@@ -151,8 +165,9 @@ namespace glimmer {
         return true;
     }
 
-    template<typename ResourceType>
-    bool BaseManager<ResourceType>::Contains(uint64_t id) {
+    template <typename ResourceType>
+    bool BaseManager<ResourceType>::Contains(uint64_t id)
+    {
         return resourceMap_.contains(id);
     }
 }

@@ -28,15 +28,19 @@
 
 #include "IStructureGenerator.h"
 
-namespace glimmer {
-    class TreeStructureGenerator : public IStructureGenerator {
-        static void AddLeafCluster(StructureInfo *structureInfo, TileLayerType leafTileLayer,
+namespace glimmer
+{
+    class WorldContext;
+
+    class TreeStructureGenerator : public IStructureGenerator
+    {
+        static void AddLeafCluster(StructureInfo* structureInfo, TileLayerType leafTileLayer,
                                    uint8_t leafRadius, int clusterY, int trunkWidth,
-                                   const ResourceRef &leafRef);
+                                   const ResourceRef& leafRef);
 
     public:
-        std::unique_ptr<StructureInfo> Generate(WorldContext *worldContext, const TileVector2D &startPosition,
-                                                IStructureResource *structureResource) override;
+        std::unique_ptr<StructureInfo> Generate(WorldContext* worldContext, const TileVector2D& startPosition,
+                                                IStructureResource* structureResource) override;
 
         [[nodiscard]] StructureGeneratorType GetStructureGeneratorType() const override;
     };

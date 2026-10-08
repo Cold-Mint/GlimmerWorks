@@ -28,8 +28,10 @@
 
 #include "EventBus.h"
 
-glimmer::Subscription &glimmer::Subscription::operator=(Subscription &&other) noexcept {
-    if (this != &other) {
+glimmer::Subscription& glimmer::Subscription::operator=(Subscription&& other) noexcept
+{
+    if (this != &other)
+    {
         Reset();
         bus_ = other.bus_;
         id_ = other.id_;
@@ -39,18 +41,22 @@ glimmer::Subscription &glimmer::Subscription::operator=(Subscription &&other) no
     return *this;
 }
 
-glimmer::Subscription::~Subscription() {
+glimmer::Subscription::~Subscription()
+{
     Reset();
 }
 
-void glimmer::Subscription::Reset() {
-    if (bus_ != nullptr && id_ != 0) {
+void glimmer::Subscription::Reset()
+{
+    if (bus_ != nullptr && id_ != 0)
+    {
         bus_->Unsubscribe(id_);
     }
     bus_ = nullptr;
     id_ = 0;
 }
 
-bool glimmer::Subscription::IsValid() const {
+bool glimmer::Subscription::IsValid() const
+{
     return bus_ != nullptr && id_ != 0;
 }

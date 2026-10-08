@@ -217,7 +217,7 @@ std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::GpuPipelineCache::L
                       "Vertex shader has no uniform block named '{}'", compiledUniformBlock->GetName());
             continue;
         }
-        pipelineResourceResult->AddUniformBlock({std::move(uniformBlock), UniformBlockStage::Vertex, *binding});
+        pipelineResourceResult->AddUniformBlock({std::move(uniformBlock), *binding, UniformBlockStage::Vertex});
     }
     for (const ResourceRef &uniformBlockRef: gpuPipelineResource->fragmentUniformBlock) {
         if (!uniformBlockRef.IsValid()) {
@@ -238,7 +238,7 @@ std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::GpuPipelineCache::L
                       "Fragment shader has no uniform block named '{}'", compiledUniformBlock->GetName());
             continue;
         }
-        pipelineResourceResult->AddUniformBlock({std::move(uniformBlock), UniformBlockStage::Fragment, *binding});
+        pipelineResourceResult->AddUniformBlock({std::move(uniformBlock), *binding, UniformBlockStage::Fragment});
     }
     return pipelineResourceResult;
 }

@@ -33,25 +33,33 @@
 #include "core/ecs/component/CameraComponent.h"
 #include "core/ecs/component/DroppedItemComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
+#include "core/gpu/RenderLayer.h"
+#include "core/gpu/RenderQueue.h"
 #include "core/math/CoordinateTransformer.h"
 
 
-void glimmer::DroppedItemSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) {
-    EntityShortCut *entityShortCut = GetEntityShortCut();
-    EntityManager *entityManager = GetEntityManager();
-    if (gameComponentType == COMPONENT_TRANSFORM_2D) {
+void glimmer::DroppedItemSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
+{
+    EntityShortCut* entityShortCut = GetEntityShortCut();
+    EntityManager* entityManager = GetEntityManager();
+    if (gameComponentType == COMPONENT_TRANSFORM_2D)
+    {
         transform2dCount = count;
-        if (cameraTransform2DComponent_ == nullptr) {
+        if (cameraTransform2DComponent_ == nullptr)
+        {
             cameraTransform2DComponent_ = entityShortCut->GetCameraTransform2DComponent();
         }
     }
-    if (gameComponentType == COMPONENT_DROPPED_ITEM) {
+    if (gameComponentType == COMPONENT_DROPPED_ITEM)
+    {
         droppedItemCount = count;
     }
-    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr) {
+    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
+    {
         cameraComponent_ = entityShortCut->GetCameraComponent();
     }
-    if (transform2dCount > 0 && droppedItemCount > 0) {
+    if (transform2dCount > 0 && droppedItemCount > 0)
+    {
         std::lock_guard lock(droppedEntitiesMutex_);
         droppedEntities_ = entityManager->GetEntityIDWithComponents({COMPONENT_TRANSFORM_2D, COMPONENT_DROPPED_ITEM});
         LogCat::d(LogLabel::DEFAULT, "dropped_item_entities_rebuilt", "Dropped item entities rebuilt: {} entities",
@@ -59,67 +67,82 @@ void glimmer::DroppedItemSystem::OnWatchedComponentChanged(GameComponentTypeMess
     }
 }
 
-uint8_t glimmer::DroppedItemSystem::GetExecutionOrder() {
+uint8_t glimmer::DroppedItemSystem::GetExecutionOrder()
+{
     return EXECUTION_ORDER_DROPPED_ITEM;
 }
 
-glimmer::DroppedItemSystem::DroppedItemSystem(WorldContext *worldContext) : GameSystem(worldContext) {
+glimmer::DroppedItemSystem::DroppedItemSystem(WorldContext* worldContext) : GameSystem(worldContext)
+{
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_DROPPED_ITEM);
     WatchComponent(COMPONENT_CAMERA);
     Init();
 }
 
-void glimmer::DroppedItemSystem::OnTick(const uint64_t tick) {
-    WorldContext *worldContext = GetWorldContext();
-    EntityManager *entityManager = GetEntityManager();
-    if (worldContext == nullptr || entityManager == nullptr) {
+void glimmer::DroppedItemSystem::OnTick(const uint64_t tick)
+{
+    WorldContext* worldContext = GetWorldContext();
+    EntityManager* entityManager = GetEntityManager();
+    if (worldContext == nullptr || entityManager == nullptr)
+    {
         return;
     }
     std::vector<GameEntityID> droppedEntities;
     {
         std::lock_guard lock(droppedEntitiesMutex_);
-        if (droppedEntities_.empty()) {
+        if (droppedEntities_.empty())
+        {
             return;
         }
         droppedEntities = droppedEntities_;
     }
-    for (const GameEntityID gameEntity: droppedEntities) {
+    for (const GameEntityID gameEntity : droppedEntities)
+    {
         auto droppedItemComponent = entityManager->GetComponent<DroppedItemComponent>(gameEntity);
-        if (droppedItemComponent == nullptr) {
+        if (droppedItemComponent == nullptr)
+        {
             continue;
         }
-        if (droppedItemComponent->IsExpired()) {
-            if (droppedItemComponent->IsDespawnScheduled()) {
+        if (droppedItemComponent->IsExpired())
+        {
+            if (droppedItemComponent->IsDespawnScheduled())
+            {
                 continue;
             }
             droppedItemComponent->SetDespawnScheduled(true);
             LogCat::d(LogLabel::DEFAULT, "dropped_item_expired", "Dropped item expired, scheduling removal: id={}",
                       gameEntity);
-            const AppContext *appContext = worldContext->GetAppContext();
-            if (appContext == nullptr) {
+            const AppContext* appContext = worldContext->GetAppContext();
+            if (appContext == nullptr)
+            {
                 continue;
             }
-            MainThreadDispatcher *mainThreadDispatcher = appContext->GetMainThreadDispatcher();
-            if (mainThreadDispatcher == nullptr) {
+            MainThreadDispatcher* mainThreadDispatcher = appContext->GetMainThreadDispatcher();
+            if (mainThreadDispatcher == nullptr)
+            {
                 continue;
             }
-            mainThreadDispatcher->PostToNextMainFrame([entityManager, gameEntity] {
+            mainThreadDispatcher->PostToNextMainFrame([entityManager, gameEntity]
+            {
                 entityManager->RemoveEntity(gameEntity);
             });
             continue;
         }
         droppedItemComponent->SetRemainingTicks(droppedItemComponent->GetRemainingTicks() - 1);
         const uint64_t cooldownTicks = droppedItemComponent->GetPickupCooldownTicks();
-        if (cooldownTicks > 0) {
+        if (cooldownTicks > 0)
+        {
             droppedItemComponent->SetPickupCooldownTicks(cooldownTicks - 1);
         }
     }
 }
 
-void glimmer::DroppedItemSystem::Render(RenderQueue *queue) {
-    EntityManager *entityManager = GetEntityManager();
-    if (cameraComponent_ == nullptr || cameraTransform2DComponent_ == nullptr) {
+void glimmer::DroppedItemSystem::Render(RenderQueue* queue)
+{
+    EntityManager* entityManager = GetEntityManager();
+    if (cameraComponent_ == nullptr || cameraTransform2DComponent_ == nullptr)
+    {
         return;
     }
     float size = DROPPED_ITEM_SIZE * cameraComponent_->GetZoom();
@@ -129,23 +152,28 @@ void glimmer::DroppedItemSystem::Render(RenderQueue *queue) {
         std::lock_guard lock(droppedEntitiesMutex_);
         droppedEntities = droppedEntities_;
     }
-    for (auto gameEntity: droppedEntities) {
+    for (auto gameEntity : droppedEntities)
+    {
         auto droppedItemComponent = entityManager->GetComponent<DroppedItemComponent>(
             gameEntity);
         auto transform2DComponent = entityManager->GetComponent<Transform2DComponent>(gameEntity);
-        if (droppedItemComponent == nullptr || transform2DComponent == nullptr) {
+        if (droppedItemComponent == nullptr || transform2DComponent == nullptr)
+        {
             continue;
         }
-        Item *item = droppedItemComponent->GetItem();
-        if (item == nullptr) {
+        Item* item = droppedItemComponent->GetItem();
+        if (item == nullptr)
+        {
             continue;
         }
         auto icon = item->GetIcon();
-        if (icon == nullptr) {
+        if (icon == nullptr)
+        {
             continue;
         }
         if (cameraComponent_->IsPointInViewport(cameraTransform2DComponent_->GetPosition(),
-                                                transform2DComponent->GetPosition())) {
+                                                transform2DComponent->GetPosition()))
+        {
             const auto worldPos = transform2DComponent->GetPosition();
             const ScreenVector2D viewport = CoordinateTransformer::WorldToScreen(
                 cameraTransform2DComponent_->GetPosition(), worldPos, cameraComponent_->GetSize(),
@@ -163,6 +191,7 @@ void glimmer::DroppedItemSystem::Render(RenderQueue *queue) {
     }
 }
 
-glimmer::GameSystemType glimmer::DroppedItemSystem::GetGameSystemType() const {
+glimmer::GameSystemType glimmer::DroppedItemSystem::GetGameSystemType() const
+{
     return GameSystemType::DroppedItemSystem;
 }

@@ -28,230 +28,287 @@
 
 glimmer::SystemBucket::~SystemBucket() = default;
 
-void glimmer::SystemBucket::SetWindowContext(std::unique_ptr<WindowContext> windowContext) {
+void glimmer::SystemBucket::SetWindowContext(std::unique_ptr<WindowContext> windowContext)
+{
     windowContext_ = std::move(windowContext);
 }
 
-void glimmer::SystemBucket::SetCacheContext(std::unique_ptr<CacheContext> cacheContext) {
+void glimmer::SystemBucket::SetCacheContext(std::unique_ptr<CacheContext> cacheContext)
+{
     cacheContext_ = std::move(cacheContext);
 }
 
-glimmer::CacheContext *glimmer::SystemBucket::GetCacheContext() const {
-    CacheContext *cacheContext = cacheContext_.get();
-    if (cacheContext == nullptr) {
+glimmer::CacheContext* glimmer::SystemBucket::GetCacheContext() const
+{
+    CacheContext* cacheContext = cacheContext_.get();
+    if (cacheContext == nullptr)
+    {
         return nullptr;
     }
     return cacheContext;
 }
 
-glimmer::WindowContext *glimmer::SystemBucket::GetWindowContext() const {
-    WindowContext *windowContext = windowContext_.get();
-    if (windowContext == nullptr) {
+glimmer::WindowContext* glimmer::SystemBucket::GetWindowContext() const
+{
+    WindowContext* windowContext = windowContext_.get();
+    if (windowContext == nullptr)
+    {
         return nullptr;
     }
     return windowContext;
 }
 
-void glimmer::SystemBucket::SetConfig(std::unique_ptr<Config> config) {
+void glimmer::SystemBucket::SetConfig(std::unique_ptr<Config> config)
+{
     config_ = std::move(config);
 }
 
-glimmer::Config *glimmer::SystemBucket::GetConfig() const {
-    Config *config = config_.get();
-    if (config == nullptr) {
+glimmer::Config* glimmer::SystemBucket::GetConfig() const
+{
+    Config* config = config_.get();
+    if (config == nullptr)
+    {
         return nullptr;
     }
     return config;
 }
 
-void glimmer::SystemBucket::SetSceneManager(std::unique_ptr<SceneManager> sceneManager) {
+void glimmer::SystemBucket::SetSceneManager(std::unique_ptr<SceneManager> sceneManager)
+{
     sceneManager_ = std::move(sceneManager);
 }
 
-glimmer::SceneManager *glimmer::SystemBucket::GetSceneManager() const {
-    SceneManager *sceneManager = sceneManager_.get();
-    if (sceneManager == nullptr) {
+glimmer::SceneManager* glimmer::SystemBucket::GetSceneManager() const
+{
+    SceneManager* sceneManager = sceneManager_.get();
+    if (sceneManager == nullptr)
+    {
         return nullptr;
     }
     return sceneManager;
 }
 
-void glimmer::SystemBucket::SetVirtualFileSystem(std::unique_ptr<VirtualFileSystem> virtualFileSystem) {
+void glimmer::SystemBucket::SetVirtualFileSystem(std::unique_ptr<VirtualFileSystem> virtualFileSystem)
+{
     virtualFileSystem_ = std::move(virtualFileSystem);
 }
 
-glimmer::VirtualFileSystem *glimmer::SystemBucket::GetVirtualFileSystem() const {
-    VirtualFileSystem *virtualFileSystem = virtualFileSystem_.get();
-    if (virtualFileSystem == nullptr) {
+glimmer::VirtualFileSystem* glimmer::SystemBucket::GetVirtualFileSystem() const
+{
+    VirtualFileSystem* virtualFileSystem = virtualFileSystem_.get();
+    if (virtualFileSystem == nullptr)
+    {
         return nullptr;
     }
     return virtualFileSystem;
 }
 
-void glimmer::SystemBucket::SetResourcePackManager(std::unique_ptr<ResourcePackManager> resourcePackManager) {
+void glimmer::SystemBucket::SetResourcePackManager(std::unique_ptr<ResourcePackManager> resourcePackManager)
+{
     resourcePackManager_ = std::move(resourcePackManager);
 }
 
-glimmer::ResourcePackManager *glimmer::SystemBucket::GetResourcePackManager() const {
-    ResourcePackManager *resourcePackManager = resourcePackManager_.get();
-    if (resourcePackManager == nullptr) {
+glimmer::ResourcePackManager* glimmer::SystemBucket::GetResourcePackManager() const
+{
+    ResourcePackManager* resourcePackManager = resourcePackManager_.get();
+    if (resourcePackManager == nullptr)
+    {
         return nullptr;
     }
     return resourcePackManager;
 }
 
-void glimmer::SystemBucket::SetResourceLocator(std::unique_ptr<ResourceLocator> resourceLocator) {
+void glimmer::SystemBucket::SetResourceLocator(std::unique_ptr<ResourceLocator> resourceLocator)
+{
     resourceLocator_ = std::move(resourceLocator);
 }
 
-glimmer::ResourceLocator *glimmer::SystemBucket::GetResourceLocator() const {
-    ResourceLocator *resourceLocator = resourceLocator_.get();
-    if (resourceLocator == nullptr) {
+glimmer::ResourceLocator* glimmer::SystemBucket::GetResourceLocator() const
+{
+    ResourceLocator* resourceLocator = resourceLocator_.get();
+    if (resourceLocator == nullptr)
+    {
         return nullptr;
     }
     return resourceLocator;
 }
 
-void glimmer::SystemBucket::SetLangsResources(std::unique_ptr<LangsResources> langsResources) {
+void glimmer::SystemBucket::SetLangsResources(std::unique_ptr<LangsResources> langsResources)
+{
     langsResources_ = std::move(langsResources);
 }
 
-glimmer::LangsResources *glimmer::SystemBucket::GetLangsResources() const {
-    LangsResources *langsResources = langsResources_.get();
-    if (langsResources == nullptr) {
+glimmer::LangsResources* glimmer::SystemBucket::GetLangsResources() const
+{
+    LangsResources* langsResources = langsResources_.get();
+    if (langsResources == nullptr)
+    {
         return nullptr;
     }
     return langsResources;
 }
 
-void glimmer::SystemBucket::SetSavesManager(std::unique_ptr<SavesManager> savesManager) {
+void glimmer::SystemBucket::SetSavesManager(std::unique_ptr<SavesManager> savesManager)
+{
     savesManager_ = std::move(savesManager);
 }
 
-glimmer::SavesManager *glimmer::SystemBucket::GetSavesManager() const {
-    SavesManager *savesManager = savesManager_.get();
-    if (savesManager == nullptr) {
+glimmer::SavesManager* glimmer::SystemBucket::GetSavesManager() const
+{
+    SavesManager* savesManager = savesManager_.get();
+    if (savesManager == nullptr)
+    {
         return nullptr;
     }
     return savesManager;
 }
 
-void glimmer::SystemBucket::SetModContext(std::unique_ptr<ModContext> modContext) {
+void glimmer::SystemBucket::SetModContext(std::unique_ptr<ModContext> modContext)
+{
     modContext_ = std::move(modContext);
 }
 
-glimmer::ModContext *glimmer::SystemBucket::GetModContext() const {
-    ModContext *modContext = modContext_.get();
-    if (modContext == nullptr) {
+glimmer::ModContext* glimmer::SystemBucket::GetModContext() const
+{
+    ModContext* modContext = modContext_.get();
+    if (modContext == nullptr)
+    {
         return nullptr;
     }
     return modContext;
 }
 
-void glimmer::SystemBucket::SetRmlContext(std::unique_ptr<RmlContext> rmlContext) {
+void glimmer::SystemBucket::SetRmlContext(std::unique_ptr<RmlContext> rmlContext)
+{
     rmlContext_ = std::move(rmlContext);
 }
 
-glimmer::RmlContext *glimmer::SystemBucket::GetRmlContext() const {
-    RmlContext *rmlContext = rmlContext_.get();
-    if (rmlContext == nullptr) {
+glimmer::RmlContext* glimmer::SystemBucket::GetRmlContext() const
+{
+    RmlContext* rmlContext = rmlContext_.get();
+    if (rmlContext == nullptr)
+    {
         return nullptr;
     }
     return rmlContext;
 }
 
-void glimmer::SystemBucket::SetConsoleContext(std::unique_ptr<ConsoleContext> consoleContext) {
+void glimmer::SystemBucket::SetConsoleContext(std::unique_ptr<ConsoleContext> consoleContext)
+{
     consoleContext_ = std::move(consoleContext);
 }
 
-glimmer::ConsoleContext *glimmer::SystemBucket::GetConsoleContext() const {
-    ConsoleContext *consoleContext = consoleContext_.get();
-    if (consoleContext == nullptr) {
+glimmer::ConsoleContext* glimmer::SystemBucket::GetConsoleContext() const
+{
+    ConsoleContext* consoleContext = consoleContext_.get();
+    if (consoleContext == nullptr)
+    {
         return nullptr;
     }
     return consoleContext;
 }
 
-void glimmer::SystemBucket::SetTickWorker(std::unique_ptr<TickWorker> tickWorker) {
+void glimmer::SystemBucket::SetTickWorker(std::unique_ptr<TickWorker> tickWorker)
+{
     tickWorker_ = std::move(tickWorker);
 }
 
-glimmer::TickWorker *glimmer::SystemBucket::GetTickWorker() const {
-    TickWorker *tickWorker = tickWorker_.get();
-    if (tickWorker == nullptr) {
+glimmer::TickWorker* glimmer::SystemBucket::GetTickWorker() const
+{
+    TickWorker* tickWorker = tickWorker_.get();
+    if (tickWorker == nullptr)
+    {
         return nullptr;
     }
     return tickWorker;
 }
 
-void glimmer::SystemBucket::SetTaskWorker(std::unique_ptr<TaskWorker> taskWorker) {
+void glimmer::SystemBucket::SetTaskWorker(std::unique_ptr<TaskWorker> taskWorker)
+{
     taskWorker_ = std::move(taskWorker);
 }
 
-glimmer::TaskWorker *glimmer::SystemBucket::GetTaskWorker() const {
-    TaskWorker *taskWorker = taskWorker_.get();
-    if (taskWorker == nullptr) {
+glimmer::TaskWorker* glimmer::SystemBucket::GetTaskWorker() const
+{
+    TaskWorker* taskWorker = taskWorker_.get();
+    if (taskWorker == nullptr)
+    {
         return nullptr;
     }
     return taskWorker;
 }
 
-void glimmer::SystemBucket::SetGraphicsContext(std::unique_ptr<GraphicsContext> graphicsContext) {
+void glimmer::SystemBucket::SetGraphicsContext(std::unique_ptr<GraphicsContext> graphicsContext)
+{
     graphicsContext_ = std::move(graphicsContext);
 }
 
-glimmer::GraphicsContext *glimmer::SystemBucket::GetGraphicsContext() const {
-    GraphicsContext *graphicsContext = graphicsContext_.get();
-    if (graphicsContext == nullptr) {
+glimmer::GraphicsContext* glimmer::SystemBucket::GetGraphicsContext() const
+{
+    GraphicsContext* graphicsContext = graphicsContext_.get();
+    if (graphicsContext == nullptr)
+    {
         return nullptr;
     }
     return graphicsContext;
 }
 
-void glimmer::SystemBucket::SetMainThreadDispatcher(std::unique_ptr<MainThreadDispatcher> mainThreadDispatcher) {
+void glimmer::SystemBucket::SetMainThreadDispatcher(std::unique_ptr<MainThreadDispatcher> mainThreadDispatcher)
+{
     mainThreadDispatcher_ = std::move(mainThreadDispatcher);
 }
 
-glimmer::MainThreadDispatcher *glimmer::SystemBucket::GetMainThreadDispatcher() const {
-    MainThreadDispatcher *mainThreadDispatcher = mainThreadDispatcher_.get();
-    if (mainThreadDispatcher == nullptr) {
+glimmer::MainThreadDispatcher* glimmer::SystemBucket::GetMainThreadDispatcher() const
+{
+    MainThreadDispatcher* mainThreadDispatcher = mainThreadDispatcher_.get();
+    if (mainThreadDispatcher == nullptr)
+    {
         return nullptr;
     }
     return mainThreadDispatcher;
 }
 
-void glimmer::SystemBucket::SetLangsValue(std::unique_ptr<toml::value> langsValue) {
+void glimmer::SystemBucket::SetLangsValue(std::unique_ptr<toml::value> langsValue)
+{
     langsValue_ = std::move(langsValue);
 }
 
-void glimmer::SystemBucket::SetAudioContext(std::unique_ptr<AudioContext> audioContext) {
+void glimmer::SystemBucket::SetAudioContext(std::unique_ptr<AudioContext> audioContext)
+{
     audioContext_ = std::move(audioContext);
 }
 
-glimmer::AudioContext *glimmer::SystemBucket::GetAudioContext() const {
-    AudioContext *audioContext = audioContext_.get();
-    if (audioContext == nullptr) {
+glimmer::AudioContext* glimmer::SystemBucket::GetAudioContext() const
+{
+    AudioContext* audioContext = audioContext_.get();
+    if (audioContext == nullptr)
+    {
         return nullptr;
     }
     return audioContext;
 }
 
-toml::value *glimmer::SystemBucket::GetLangsValue() const {
-    toml::value *langsValue = langsValue_.get();
-    if (langsValue == nullptr) {
+toml::value* glimmer::SystemBucket::GetLangsValue() const
+{
+    toml::value* langsValue = langsValue_.get();
+    if (langsValue == nullptr)
+    {
         return nullptr;
     }
     return langsValue;
 }
 
-void glimmer::SystemBucket::SetLanguage(const std::string &language) {
+void glimmer::SystemBucket::SetLanguage(const std::string& language)
+{
     language_ = language;
 }
 
-const std::string &glimmer::SystemBucket::GetLanguage() const {
+const std::string& glimmer::SystemBucket::GetLanguage() const
+{
     return language_;
 }
 
-glimmer::EventBus *glimmer::SystemBucket::GetEventBus() const {
+glimmer::EventBus* glimmer::SystemBucket::GetEventBus() const
+{
     return eventBus_.get();
 }

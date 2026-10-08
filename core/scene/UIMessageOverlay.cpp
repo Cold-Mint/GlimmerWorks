@@ -35,18 +35,21 @@
 #include "core/mod/ResourceRef.h"
 
 
-glimmer::UIMessageOverlay::UIMessageOverlay(AppContext *context)
-    : Scene(context) {
+glimmer::UIMessageOverlay::UIMessageOverlay(AppContext* context)
+    : Scene(context)
+{
     Init();
 }
 
-void glimmer::UIMessageOverlay::LoadDocuments() {
+void glimmer::UIMessageOverlay::LoadDocuments()
+{
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
     resourceRef.SetResourceKey("ui_message/ui_message");
     uiMessageDocument_ = LoadSingleDocument(&resourceRef);
-    if (uiMessageDocument_ == nullptr) {
+    if (uiMessageDocument_ == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "ui_message_document_is_null",
                   "uiMessageDocument == nullptr");
         return;
@@ -54,35 +57,42 @@ void glimmer::UIMessageOverlay::LoadDocuments() {
     uiMessageDocument_->Show();
 }
 
-void glimmer::UIMessageOverlay::OnCreateDataModels() {
-    Rml::DataModelConstructor *constructor = CreateDataModel("ui_message");
-    if (constructor == nullptr) {
+void glimmer::UIMessageOverlay::OnCreateDataModels()
+{
+    Rml::DataModelConstructor* constructor = CreateDataModel("ui_message");
+    if (constructor == nullptr)
+    {
         return;
     }
-    if (auto messageStruct = constructor->RegisterStruct<UIMessage>()) {
+    if (auto messageStruct = constructor->RegisterStruct<UIMessage>())
+    {
         messageStruct.RegisterMember("message", &UIMessage::message);
-        constructor->RegisterArray<std::vector<UIMessage> >();
+        constructor->RegisterArray<std::vector<UIMessage>>();
     }
     constructor->Bind("ui_messages", &GetAppContext()->GetUIMessages());
     uiMessageModelHandle_ = constructor->GetModelHandle();
 }
 
-void glimmer::UIMessageOverlay::Update(const float delta) {
-    AppContext *appContext = GetAppContext();
-    if (appContext == nullptr) {
+void glimmer::UIMessageOverlay::Update(const float delta)
+{
+    AppContext* appContext = GetAppContext();
+    if (appContext == nullptr)
+    {
         return;
     }
-    std::vector<UIMessage> &messages = appContext->GetUIMessages();
+    std::vector<UIMessage>& messages = appContext->GetUIMessages();
     const uint64_t now = SDL_GetTicks();
-    const size_t erased = std::erase_if(messages, [now](const UIMessage &message) {
+    const size_t erased = std::erase_if(messages, [now](const UIMessage& message)
+    {
         return now >= message.expireTime;
     });
     // Dirty every frame: the list is small, and this also picks up messages
     // added externally via AppContext::AddUIMessage.
     // 每帧 dirty：列表很小，且这样也能捕获到通过 AppContext::AddUIMessage 在
     // 外部新增的消息。
-    if ((erased != 0 || !messages.empty()) && uiMessageModelHandle_) {
+    if ((erased != 0 || !messages.empty()) && uiMessageModelHandle_)
+    {
         uiMessageModelHandle_.DirtyVariable("ui_messages");
     }
-    (void) delta;
+    (void)delta;
 }

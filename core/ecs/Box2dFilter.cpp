@@ -26,6 +26,7 @@
  */
 #include "core/ecs/Box2dFilter.h"
 
-b2QueryFilter glimmer::Box2dFilter::Tob2QueryFilter() const {
+b2QueryFilter glimmer::Box2dFilter::Tob2QueryFilter() const
+{
     return {categoryBits, maskBits};
 }

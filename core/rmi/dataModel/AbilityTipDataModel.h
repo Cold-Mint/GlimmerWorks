@@ -27,8 +27,10 @@
 #pragma once
 #include <string>
 
-namespace glimmer {
-    struct AbilityTipDataModel {
+namespace glimmer
+{
+    struct AbilityTipDataModel
+    {
         std::string tipText;
         bool isPositive = true;
     };

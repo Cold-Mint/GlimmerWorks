@@ -32,19 +32,23 @@
 
 
 glimmer::AbilityItemDynamicSuggestions::AbilityItemDynamicSuggestions(
-    AbilityItemRegistry *abilityItemRegistry) : abilityItemRegistry_(abilityItemRegistry) {
+    AbilityItemRegistry* abilityItemRegistry) : abilityItemRegistry_(abilityItemRegistry)
+{
 }
 
-std::string glimmer::AbilityItemDynamicSuggestions::GetId() const {
+std::string glimmer::AbilityItemDynamicSuggestions::GetId() const
+{
     return ABILITY_ITEM_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-const std::vector<std::string> &glimmer::AbilityItemDynamicSuggestions::GetSuggestions(
-    const std::optional<std::string> &param) {
+const std::vector<std::string>& glimmer::AbilityItemDynamicSuggestions::GetSuggestions(
+    const std::optional<std::string>& param)
+{
     return abilityItemRegistry_->List();
 }
 
 
-bool glimmer::AbilityItemDynamicSuggestions::Match(const std::string &keyword, const std::string &param) {
+bool glimmer::AbilityItemDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
+{
     return std::ranges::contains(abilityItemRegistry_->List(), keyword);
 }

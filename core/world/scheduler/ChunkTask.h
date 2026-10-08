@@ -29,11 +29,13 @@
 #include "core/math/ChunkVertexVector2D.h"
 #include "core/mod/ResourceRef.h"
 
-namespace glimmer {
-    class ChunkTask {
-        ChunkTaskType taskType_ = ChunkTaskType::CANCELLED;
-        ChunkVertexVector2D position_;
+namespace glimmer
+{
+    class ChunkTask
+    {
         ResourceRef dimensionRef_;
+        ChunkVertexVector2D position_;
+        ChunkTaskType taskType_ = ChunkTaskType::CANCELLED;
 
     public:
         /**
@@ -48,7 +50,7 @@ namespace glimmer {
          * 获取位置
          * @return
          */
-        [[nodiscard]] const ChunkVertexVector2D &GetPosition() const;
+        [[nodiscard]] const ChunkVertexVector2D& GetPosition() const;
 
 
         /**
@@ -56,7 +58,7 @@ namespace glimmer {
          * 获取维度资源引用
          * @return
          */
-        [[nodiscard]] const ResourceRef &GetDimensionResourceRef() const;
+        [[nodiscard]] const ResourceRef& GetDimensionResourceRef() const;
 
 
         /**
@@ -64,7 +66,7 @@ namespace glimmer {
          * 设置维度资源引用
          * @param dimensionResourceRef
          */
-        void SetDimensionResourceRef(const ResourceRef &dimensionResourceRef);
+        void SetDimensionResourceRef(const ResourceRef& dimensionResourceRef);
 
         /**
          * SetTaskType

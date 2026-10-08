@@ -28,7 +28,8 @@
 #include <cstdint>
 #include <string>
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * How long a UI message stays on screen before it is removed (milliseconds).
      * 一条 UI 消息在屏幕上停留多久后被移除（毫秒）。
@@ -45,7 +46,8 @@ namespace glimmer {
      * 一条短暂的屏幕消息。只有 `message` 绑定到 RmlUi 数据模型；`expireTime`
      * 由引擎内部用于清理过期消息。
      */
-    struct UIMessage {
+    struct UIMessage
+    {
         std::string message;
         uint64_t expireTime = 0;
     };

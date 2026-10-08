@@ -35,26 +35,32 @@
 #include "core/scene/MainThreadDispatcher.h"
 #include "core/world/WorldContext.h"
 
-glimmer::TechProviderSystem::TechProviderSystem(WorldContext *worldContext)
-    : GameSystem(worldContext) {
+glimmer::TechProviderSystem::TechProviderSystem(WorldContext* worldContext)
+    : GameSystem(worldContext)
+{
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_TECH_PROVIDER);
     WatchComponent(COMPONENT_PLAYER);
     Init();
 }
 
-void glimmer::TechProviderSystem::OnActivationChanged(bool activeStatus) {
-    EntityManager *entityManager = GetEntityManager();
-    if (!activeStatus) {
-        if (WorldContext::IsEmptyEntityId(player_)) {
+void glimmer::TechProviderSystem::OnActivationChanged(bool activeStatus)
+{
+    EntityManager* entityManager = GetEntityManager();
+    if (!activeStatus)
+    {
+        if (WorldContext::IsEmptyEntityId(player_))
+        {
             return;
         }
         auto playerComponent = entityManager->GetComponent<PlayerComponent>(player_);
-        if (playerComponent == nullptr) {
+        if (playerComponent == nullptr)
+        {
             return;
         }
-        PlayerTechnologyHandler *playerTechnologyHandler = playerComponent->GetTechnologyHandler();
-        if (playerTechnologyHandler == nullptr) {
+        PlayerTechnologyHandler* playerTechnologyHandler = playerComponent->GetTechnologyHandler();
+        if (playerTechnologyHandler == nullptr)
+        {
             return;
         }
         playerTechnologyHandler->ResetTechnologyMap();
@@ -63,13 +69,16 @@ void glimmer::TechProviderSystem::OnActivationChanged(bool activeStatus) {
     }
 }
 
-void glimmer::TechProviderSystem::OnTick(const uint64_t tick) {
-    EntityManager *entityManager = GetEntityManager();
-    if (WorldContext::IsEmptyEntityId(player_)) {
+void glimmer::TechProviderSystem::OnTick(const uint64_t tick)
+{
+    EntityManager* entityManager = GetEntityManager();
+    if (WorldContext::IsEmptyEntityId(player_))
+    {
         return;
     }
     auto playerTransform2DComponent = entityManager->GetComponent<Transform2DComponent>(player_);
-    if (playerTransform2DComponent == nullptr) {
+    if (playerTransform2DComponent == nullptr)
+    {
         return;
     }
     //Consume the "recompute" flag set by OnWatchedComponentChanged. If not
@@ -77,16 +86,19 @@ void glimmer::TechProviderSystem::OnTick(const uint64_t tick) {
     //消费 OnWatchedComponentChanged 设置的"重新计算"标记；若未标记，则仅在玩家移动超过一个图块后重新计算。
     if (!changed.exchange(false, std::memory_order_relaxed) &&
         playerTransform2DComponent->GetPosition().DistanceSquared(lastPlayerPosition_) <
-        TILE_SIZE * TILE_SIZE) {
+        TILE_SIZE * TILE_SIZE)
+    {
         return;
     }
     lastPlayerPosition_ = playerTransform2DComponent->GetPosition();
     auto playerComponent = entityManager->GetComponent<PlayerComponent>(player_);
-    if (playerComponent == nullptr) {
+    if (playerComponent == nullptr)
+    {
         return;
     }
-    PlayerTechnologyHandler *playerTechnologyHandler = playerComponent->GetTechnologyHandler();
-    if (playerTechnologyHandler == nullptr) {
+    PlayerTechnologyHandler* playerTechnologyHandler = playerComponent->GetTechnologyHandler();
+    if (playerTechnologyHandler == nullptr)
+    {
         return;
     }
     std::vector<GameEntityID> techProviderEntities;
@@ -94,20 +106,24 @@ void glimmer::TechProviderSystem::OnTick(const uint64_t tick) {
         std::lock_guard lock(techProviderMutex_);
         techProviderEntities = techProviderEntities_;
     }
-    std::vector<std::pair<RecipeGroup, uint8_t> > technologies;
-    for (GameEntityID techProviderEntity: techProviderEntities) {
+    std::vector<std::pair<RecipeGroup, uint8_t>> technologies;
+    for (GameEntityID techProviderEntity : techProviderEntities)
+    {
         auto providerTransform2DComponent = entityManager->GetComponent<Transform2DComponent>(
             techProviderEntity);
-        if (providerTransform2DComponent == nullptr) {
+        if (providerTransform2DComponent == nullptr)
+        {
             continue;
         }
         if (playerTransform2DComponent->GetPosition().Distance(
-                providerTransform2DComponent->GetPosition()) / TILE_SIZE > WORK_STATION_RANGE) {
+            providerTransform2DComponent->GetPosition()) / TILE_SIZE > WORK_STATION_RANGE)
+        {
             continue;
         }
         auto techProviderComponent = entityManager->GetComponent<TechProviderComponent>(
             techProviderEntity);
-        if (techProviderComponent == nullptr) {
+        if (techProviderComponent == nullptr)
+        {
             continue;
         }
         technologies.emplace_back(techProviderComponent->GetRecipeGroup(),
@@ -120,34 +136,42 @@ void glimmer::TechProviderSystem::OnTick(const uint64_t tick) {
     //The technology map is read by GUI systems on the main thread, so apply the
     //recomputed map on the main thread.
     //科技表会被主线程的 GUI 系统读取，因此在主线程应用重新计算的科技表。
-    WorldContext *worldContext = GetWorldContext();
-    const AppContext *appContext = worldContext != nullptr ? worldContext->GetAppContext() : nullptr;
-    MainThreadDispatcher *dispatcher = appContext != nullptr ? appContext->GetMainThreadDispatcher() : nullptr;
-    if (dispatcher == nullptr) {
+    WorldContext* worldContext = GetWorldContext();
+    const AppContext* appContext = worldContext != nullptr ? worldContext->GetAppContext() : nullptr;
+    MainThreadDispatcher* dispatcher = appContext != nullptr ? appContext->GetMainThreadDispatcher() : nullptr;
+    if (dispatcher == nullptr)
+    {
         return;
     }
-    dispatcher->PostToNextMainFrame([playerTechnologyHandler, technologies] {
+    dispatcher->PostToNextMainFrame([playerTechnologyHandler, technologies]
+    {
         playerTechnologyHandler->ResetTechnologyMap();
-        for (const auto &[recipeGroup, technologyLevel]: technologies) {
+        for (const auto& [recipeGroup, technologyLevel] : technologies)
+        {
             playerTechnologyHandler->SetTechnology(recipeGroup, technologyLevel);
         }
     });
 }
 
 void glimmer::TechProviderSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType,
-                                                            uint32_t count) {
-    EntityShortCut *entityShortCut = GetEntityShortCut();
-    EntityManager *entityManager = GetEntityManager();
-    if (gameComponentType == COMPONENT_TRANSFORM_2D) {
+                                                            uint32_t count)
+{
+    EntityShortCut* entityShortCut = GetEntityShortCut();
+    EntityManager* entityManager = GetEntityManager();
+    if (gameComponentType == COMPONENT_TRANSFORM_2D)
+    {
         transform2DCount_ = count;
     }
-    if (gameComponentType == COMPONENT_PLAYER) {
+    if (gameComponentType == COMPONENT_PLAYER)
+    {
         player_ = entityShortCut->GetPlayer();
     }
-    if (gameComponentType == COMPONENT_TECH_PROVIDER) {
+    if (gameComponentType == COMPONENT_TECH_PROVIDER)
+    {
         techProviderCount_ = count;
     }
-    if (transform2DCount_ > 0 && techProviderCount_ > 0) {
+    if (transform2DCount_ > 0 && techProviderCount_ > 0)
+    {
         std::lock_guard lock(techProviderMutex_);
         techProviderEntities_.clear();
         techProviderEntities_ = entityManager->GetEntityIDWithComponents({
@@ -160,6 +184,7 @@ void glimmer::TechProviderSystem::OnWatchedComponentChanged(GameComponentTypeMes
 }
 
 
-glimmer::GameSystemType glimmer::TechProviderSystem::GetGameSystemType() const {
+glimmer::GameSystemType glimmer::TechProviderSystem::GetGameSystemType() const
+{
     return GameSystemType::TeachProviderSystem;
 }

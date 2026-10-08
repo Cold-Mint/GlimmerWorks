@@ -34,6 +34,7 @@
 #include "NoiseField.h"
 #include "core/math/TileVector2D.h"
 #include "core/math/Vector2DIHash.h"
+#include "core/mod/Resource.h"
 
 namespace glimmer {
     struct DimensionResource;
@@ -46,13 +47,6 @@ namespace glimmer {
      */
     class ClimateSampler {
         static constexpr uint8_t fieldCount_ = std::to_underlying(NoiseField::Count);
-        std::array<std::unique_ptr<FastNoiseLite>, fieldCount_> noises_;
-
-        //The world seed and dimension the noises_ array is currently configured for. Used to lazily reconfigure.
-        //noises_ 当前所绑定的世界种子与维度。用于惰性重新配置。
-        int boundWorldSeed_ = INT_MIN;
-        const DimensionResource *boundDimensionResource_ = nullptr;
-
         std::unordered_map<const DimensionResource *, std::unordered_map<int, int> > heightMap_;
         std::unordered_map<const DimensionResource *, std::unordered_map<TileVector2D, float, Vector2DIHash> >
         humidityMap_;
@@ -62,7 +56,11 @@ namespace glimmer {
         weirdnessMap_;
         std::unordered_map<const DimensionResource *, std::unordered_map<TileVector2D, float, Vector2DIHash> >
         erosionMap_;
-
+        std::array<std::unique_ptr<FastNoiseLite>, fieldCount_> noises_;
+        const DimensionResource *boundDimensionResource_ = nullptr;
+        //The world seed and dimension the noises_ array is currently configured for. Used to lazily reconfigure.
+        //noises_ 当前所绑定的世界种子与维度。用于惰性重新配置。
+        int boundWorldSeed_ = INT_MIN;
         /**
          * GetNoise
          * 获取噪声生成器

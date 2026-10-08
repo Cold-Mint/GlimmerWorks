@@ -38,37 +38,39 @@
 #include "core/mod/resourcePack/GPUSamplerResourceResult.h"
 #include "core/world/TileResourceData.h"
 
-namespace glimmer {
+namespace glimmer
+{
     class WorldContext;
     /**
      * 物品类
      */
 
-    class Item : public IAllocatable<uint32_t> {
+    class Item : public IAllocatable<uint32_t>
+    {
         friend class ItemContainer;
         friend class GiveCommand;
         friend class ItemEditorCommand;
         ResourceRef resourceRef_;
         ResourceRef lightSourceRef_;
+        ItemTagModule itemTagModule_;
         ItemDurabilityModule itemDurabilityModule_;
         ItemLockModule itemLockModule_;
         ItemStackModule itemStackModule_;
-        ItemTagModule itemTagModule_;
 
     protected:
-        [[nodiscard]] const ResourceRef &GetResourceRef() const;
+        [[nodiscard]] const ResourceRef& GetResourceRef() const;
 
-        void SetResourceRef(const ResourceRef &resourceRef);
+        void SetResourceRef(const ResourceRef& resourceRef);
 
-        [[nodiscard]] ItemDurabilityModule *GetMutableDurabilityModule();
+        [[nodiscard]] ItemDurabilityModule* GetMutableDurabilityModule();
 
-        [[nodiscard]] ItemStackModule *GetMutableStackModule();
+        [[nodiscard]] ItemStackModule* GetMutableStackModule();
 
-        [[nodiscard]] ItemTagModule *GetMutableTagModule();
+        [[nodiscard]] ItemTagModule* GetMutableTagModule();
 
-        [[nodiscard]] ItemLockModule *GetMutableLockModule();
+        [[nodiscard]] ItemLockModule* GetMutableLockModule();
 
-        void SetTags(const std::vector<ItemTagResource> &tags);
+        void SetTags(const std::vector<ItemTagResource>& tags);
 
         void SetMaxStack(uint8_t maxStack);
 
@@ -82,75 +84,75 @@ namespace glimmer {
          * 设置物品的光源引用（手持时发光）。
          * @param lightSourceRef lightSourceRef 光源引用
          */
-        void SetLightSourceRef(const ResourceRef &lightSourceRef);
+        void SetLightSourceRef(const ResourceRef& lightSourceRef);
 
         /**
          * GetLightSourceRef
          * 获取物品的光源引用；未设置时返回无效引用（IsValid() == false）。
          */
-        [[nodiscard]] const ResourceRef &GetLightSourceRef() const;
+        [[nodiscard]] const ResourceRef& GetLightSourceRef() const;
 
-        virtual void ReadItemMessage(WorldContext *worldContext, const ItemMessage &itemMessage);
+        virtual void ReadItemMessage(WorldContext* worldContext, const ItemMessage& itemMessage);
 
-        virtual void WriteItemMessage(ItemMessage &itemMessage) const;
+        virtual void WriteItemMessage(ItemMessage& itemMessage) const;
 
-        [[nodiscard]] const ItemDurabilityModule *GetDurabilityModule() const;
+        [[nodiscard]] const ItemDurabilityModule* GetDurabilityModule() const;
 
-        [[nodiscard]] const ItemStackModule *GetStackModule() const;
+        [[nodiscard]] const ItemStackModule* GetStackModule() const;
 
-        [[nodiscard]] const ItemTagModule *GetTagModule() const;
+        [[nodiscard]] const ItemTagModule* GetTagModule() const;
 
-        [[nodiscard]] const ItemLockModule *GetLockModule() const;
+        [[nodiscard]] const ItemLockModule* GetLockModule() const;
 
         /**
           * GetId
           * 获取id
           * @return
           */
-        [[nodiscard]] virtual const std::string &GetId() const = 0;
+        [[nodiscard]] virtual const std::string& GetId() const = 0;
 
         /**
          * GetName
          * 获取物品名称
          * @return
          */
-        [[nodiscard]] virtual const std::string &GetName() const = 0;
+        [[nodiscard]] virtual const std::string& GetName() const = 0;
 
         /**
          * GetDescription
          * 获取描述
          * @return
          */
-        [[nodiscard]] virtual const std::optional<std::string> &GetDescription() const = 0;
+        [[nodiscard]] virtual const std::optional<std::string>& GetDescription() const = 0;
 
         /**
          * Variable configuration for obtaining items
          * 获取物品的变量配置
          * @return
          */
-        [[nodiscard]] virtual const AbilityConfig *GetAbilityConfig() const = 0;
+        [[nodiscard]] virtual const AbilityConfig* GetAbilityConfig() const = 0;
 
         /**
          * 获取图标
          * @return
          */
-        [[nodiscard]] virtual TextureResourceResult *GetIcon() const = 0;
+        [[nodiscard]] virtual TextureResourceResult* GetIcon() const = 0;
 
         /**
          * GetPipeline
          * 获取渲染管线
          * @return 自定义管线；若无则返回 nullptr
          */
-        [[nodiscard]] virtual SDL_GPUGraphicsPipeline *GetPipeline() const;
+        [[nodiscard]] virtual SDL_GPUGraphicsPipeline* GetPipeline() const;
 
         /**
          * GetSampler
          * 获取采样器
          * @return 自定义采样器；若无则返回 nullptr
          */
-        [[nodiscard]] virtual SDL_GPUSampler *GetSampler() const;
+        [[nodiscard]] virtual SDL_GPUSampler* GetSampler() const;
 
-        [[nodiscard]] virtual const ResourceRef *GetIconResourceRef() const = 0;
+        [[nodiscard]] virtual const ResourceRef* GetIconResourceRef() const = 0;
 
         /**
          * OnUse
@@ -162,9 +164,9 @@ namespace glimmer {
          * @param popupAbility The ability to pop up 需要弹出的能力
          * @return  Whether this event has been consumed or not. If it returns true, it will not be passed on to the hands; if it returns false, it will be handed over to the hands for processing. 是否消费了此事件，如果返回true，那么不会传递到手上，如果返回false那么交给手处理。
          */
-        virtual bool OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user,
-                           const AbilityConfig *abilityConfig,
-                           std::unordered_set<AbilityType> &popupAbility) = 0;
+        virtual bool OnUse(bool mouseLeft, WorldContext* worldContext, uint32_t user,
+                           const AbilityConfig* abilityConfig,
+                           std::unordered_set<AbilityType>& popupAbility) = 0;
 
         /**
          * Get the remaining durability.

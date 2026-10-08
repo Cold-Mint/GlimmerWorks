@@ -31,7 +31,8 @@
 #include "core/mod/Resource.h"
 #include "core/mod/ResourceLocator.h"
 
-void glimmer::PreloadColors::LoadAllColors(const ResourceLocator *resourceLocator) {
+void glimmer::PreloadColors::LoadAllColors(const ResourceLocator* resourceLocator)
+{
     LogCat::i(LogLabel::DEFAULT, "preload_colors_start", "Preloading colors");
     Color areaMarkerBorder;
     areaMarkerBorder.r = 45;
@@ -235,14 +236,16 @@ void glimmer::PreloadColors::LoadAllColors(const ResourceLocator *resourceLocato
     LogCat::i(LogLabel::DEFAULT, "preload_colors_completed", "Preloading colors completed");
 }
 
-glimmer::Color glimmer::PreloadColors::LoadColor(const ResourceLocator *resourceLocator, const std::string &key,
-                                                 const Color &defaultColor) {
+glimmer::Color glimmer::PreloadColors::LoadColor(const ResourceLocator* resourceLocator, const std::string& key,
+                                                 const Color& defaultColor)
+{
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_COLOR);
     resourceRef.SetResourceKey(key);
     const std::unique_ptr<Color> targetColor = resourceLocator->FindColor(&resourceRef);
-    if (targetColor == nullptr) {
+    if (targetColor == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "preload_color_not_found",
                   "Color not found, using default: key={}", key);
         return defaultColor;

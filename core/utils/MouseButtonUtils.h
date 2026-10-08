@@ -33,17 +33,19 @@
 
 #include "TransparentStringHash.h"
 
-namespace glimmer {
-    class MouseButtonUtils {
-        static std::unordered_map<std::string, uint8_t, TransparentStringHash, std::equal_to<> >
+namespace glimmer
+{
+    class MouseButtonUtils
+    {
+        static std::unordered_map<std::string, uint8_t, TransparentStringHash, std::equal_to<>>
         stringToMouseButtonMap_;
         static std::vector<std::string> cachedKeys_;
 
     public:
-        [[nodiscard]] static uint8_t StringToMouseButton(const std::string &buttonStr);
+        [[nodiscard]] static uint8_t StringToMouseButton(const std::string& buttonStr);
 
-        [[nodiscard]] static bool ContainsKey(const std::string &buttonStr);
+        [[nodiscard]] static bool ContainsKey(const std::string& buttonStr);
 
-        [[nodiscard]] static const std::vector<std::string> &GetAllMouseButtonKeys();
+        [[nodiscard]] static const std::vector<std::string>& GetAllMouseButtonKeys();
     };
 }

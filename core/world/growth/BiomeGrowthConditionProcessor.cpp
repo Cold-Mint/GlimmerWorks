@@ -37,46 +37,57 @@
 #include "core/world/generator/TerrainMath.h"
 
 glimmer::GrowthConditionProcessorType
-glimmer::BiomeGrowthConditionProcessor::GetGrowthConditionProcessorType() {
+glimmer::BiomeGrowthConditionProcessor::GetGrowthConditionProcessorType()
+{
     return GrowthConditionProcessorType::Biome;
 }
 
-bool glimmer::BiomeGrowthConditionProcessor::Match(const WorldContext *worldContext, const TileVector2D &position,
-                                                   const IGrowthConditionResource *growthConditionResource) {
-    const auto biomeCondition = dynamic_cast<const BiomeGrowthConditionResource *>(growthConditionResource);
-    if (biomeCondition == nullptr || worldContext == nullptr) {
+bool glimmer::BiomeGrowthConditionProcessor::Match(const WorldContext* worldContext, const TileVector2D& position,
+                                                   const IGrowthConditionResource* growthConditionResource)
+{
+    const auto biomeCondition = dynamic_cast<const BiomeGrowthConditionResource*>(growthConditionResource);
+    if (biomeCondition == nullptr || worldContext == nullptr)
+    {
         return false;
     }
-    const std::unordered_set<std::string> &targetBiomeIds = biomeCondition->GetCachedBiomeIds();
-    if (targetBiomeIds.empty()) {
+    const std::unordered_set<std::string>& targetBiomeIds = biomeCondition->GetCachedBiomeIds();
+    if (targetBiomeIds.empty())
+    {
         return false;
     }
-    const AppContext *appContext = worldContext->GetAppContext();
-    if (appContext == nullptr) {
+    const AppContext* appContext = worldContext->GetAppContext();
+    if (appContext == nullptr)
+    {
         return false;
     }
-    const ModContext *modContext = appContext->GetModContext();
-    if (modContext == nullptr) {
+    const ModContext* modContext = appContext->GetModContext();
+    if (modContext == nullptr)
+    {
         return false;
     }
-    const BiomeRegistry *biomeRegistry = modContext->GetBiomeRegistry();
-    if (biomeRegistry == nullptr) {
+    const BiomeRegistry* biomeRegistry = modContext->GetBiomeRegistry();
+    if (biomeRegistry == nullptr)
+    {
         return false;
     }
-    const TerrainGenerator *terrainGenerator = worldContext->GetTerrainGenerator();
-    if (terrainGenerator == nullptr) {
+    const TerrainGenerator* terrainGenerator = worldContext->GetTerrainGenerator();
+    if (terrainGenerator == nullptr)
+    {
         return false;
     }
-    ClimateSampler *climateSampler = terrainGenerator->GetMutableClimateSampler();
-    if (climateSampler == nullptr) {
+    ClimateSampler* climateSampler = terrainGenerator->GetMutableClimateSampler();
+    if (climateSampler == nullptr)
+    {
         return false;
     }
-    Dimension *dimension = worldContext->GetDimension();
-    if (dimension == nullptr) {
+    Dimension* dimension = worldContext->GetDimension();
+    if (dimension == nullptr)
+    {
         return false;
     }
-    DimensionResource *dimensionResource = dimension->GetDimensionResource();
-    if (dimensionResource == nullptr) {
+    DimensionResource* dimensionResource = dimension->GetDimensionResource();
+    if (dimensionResource == nullptr)
+    {
         return false;
     }
     ResourceRef resourceRef;
@@ -85,7 +96,7 @@ bool glimmer::BiomeGrowthConditionProcessor::Match(const WorldContext *worldCont
     resourceRef.SetResourceKey(dimensionResource->resourceId);
     const float elevation = TerrainMath::GetElevation(dimensionResource, position.y);
     const int worldSeed = worldContext->GetWorldSeed();
-    const BiomeResource *biomeResource = biomeRegistry->FindBestBiome(
+    const BiomeResource* biomeResource = biomeRegistry->FindBestBiome(
         resourceRef,
         climateSampler->GetHumidity(worldSeed, dimensionResource, position),
         climateSampler->GetTemperature(worldSeed, dimensionResource, position, elevation),
@@ -95,7 +106,8 @@ bool glimmer::BiomeGrowthConditionProcessor::Match(const WorldContext *worldCont
         TerrainMath::GetSurfaceProximity(dimensionResource,
                                          climateSampler->GetFirstTileTerrainY(worldSeed, dimensionResource, position.x),
                                          position.y));
-    if (biomeResource == nullptr) {
+    if (biomeResource == nullptr)
+    {
         return false;
     }
     return targetBiomeIds.contains(Resource::GenerateId(*biomeResource));

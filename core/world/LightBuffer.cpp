@@ -427,7 +427,7 @@ void glimmer::LightBuffer::SetDynamicLight(const uint64_t id, const TileVector2D
     }
     const int radius = lightSource->GetMaxRadius();
     SetDynamicLightFromSource(*lightSource, layerType);
-    DynamicLightEntry entry{layerType, position, std::move(lightSource)};
+    DynamicLightEntry entry{position, std::move(lightSource), layerType};
     dynamicLights_.emplace(id, std::move(entry));
     ++revision_;
     LogCat::d(LogLabel::DEFAULT, "light_buffer_set_dynamic_light",

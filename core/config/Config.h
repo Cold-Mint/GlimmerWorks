@@ -32,12 +32,12 @@
 #include "toml11/types.hpp"
 
 
-namespace glimmer {
+namespace glimmer
+{
     class CommandHookManager;
 
-    struct Window {
-        bool vSync = true;
-        bool fullscreen = false;
+    struct Window
+    {
         int width = 1920;
         int height = 1080;
         //How long (in seconds) should the frame rate be reduced after being idle and without any operation? -1 indicates that the function is turned off.
@@ -56,32 +56,39 @@ namespace glimmer {
         //ui缩放
         float uiScale = 1.0F;
         float cameraScale = 2.0F;
+        bool vSync = true;
+        bool fullscreen = false;
     };
 
-    struct MainMenuBackground {
+    struct MainMenuBackground
+    {
         float targetFps;
     };
 
-    struct BiomeBGMConfig {
+    struct BiomeBGMConfig
+    {
         // Player must stay in a different biome this long before the BGM switches.
         // 玩家须在新生物群系连续停留该时长后才会切换 BGM。
         float debounceSeconds = 3.0F;
     };
 
-    struct CommandConfig {
+    struct CommandConfig
+    {
         uint16_t locateMaxRadiusSearchChunks = 2048;
     };
 
-    struct Mods {
-        bool enableSignVerify;
-        bool loadOnlyVerified;
+    struct Mods
+    {
         std::string dataPackPath;
         std::string resourcePackPath;
         std::vector<uint64_t> enabledDataPack;
         std::vector<uint64_t> enabledResourcePack;
+        bool enableSignVerify;
+        bool loadOnlyVerified;
     };
 
-    struct Debug {
+    struct Debug
+    {
         bool displayDebugPanel;
         bool displayBox2dShape;
         bool displayDraggableTarget;
@@ -97,11 +104,13 @@ namespace glimmer {
         bool disableLighting;
     };
 
-    struct Console {
+    struct Console
+    {
         uint16_t maxHistoryEntries = 100;
     };
 
-    struct World {
+    struct World
+    {
         //Every few ticks, tasks are initiated to remove remote blocks and load nearby blocks.
         //每多少tick创建卸载远程区块，加载近距离区块的任务。
         uint8_t chunkScanTaskTickInterval = 1;
@@ -110,59 +119,64 @@ namespace glimmer {
         uint8_t preloadChunkRadius = 1;
     };
 
-    struct AudioTrack {
-        AudioType type;
+    struct AudioTrack
+    {
         int trackCount;
         float volume;
+        AudioType type;
     };
 
-    struct Audio {
+    struct Audio
+    {
+        std::string format = "F32";
+        std::vector<AudioTrack> track;
         float masterVolume;
         int channels;
         int freq;
-        std::vector<AudioTrack> track;
-        std::string format = "F32";
     };
 
-    struct CommandHookResource {
-        bool keyRepeat;
+    struct CommandHookResource
+    {
         std::string hookId;
         std::string command;
         std::string code;
         std::string eventType;
+        bool keyRepeat;
     };
 
 
-    class Config {
+    class Config
+    {
         uint64_t fingerprint_ = 0;
         std::unique_ptr<toml::value> configValue_ = nullptr;
 
     public:
-        int configVersion = 1;
-        std::vector<CommandHookResource> commandHooks;
-        Window window{};
         Mods mods{};
-        World world{};
         Audio audio{};
-        Console console{};
-        BiomeBGMConfig biomeBgm{};
-        CommandConfig command{};
-        MainMenuBackground mainMenuBackground{};
+        Window window{};
         std::string runtimePath;
         /**
-         * Cache storage path (compiled shader binaries, etc.).
-         * 缓存存放路径（编译后的着色器二进制等）。
-         */
+     * Cache storage path (compiled shader binaries, etc.).
+     * 缓存存放路径（编译后的着色器二进制等）。
+     */
         std::string cachePath = ".cache";
+        std::vector<CommandHookResource> commandHooks;
 #if  !defined(NDEBUG)
         Debug debug{};
 #endif
+        MainMenuBackground mainMenuBackground{};
+        BiomeBGMConfig biomeBgm{};
+        int configVersion = 1;
+        CommandConfig command{};
+        World world{};
+        Console console{};
+
 
         [[nodiscard]] uint64_t GetFingerprint() const;
 
         void SetConfigValue(std::unique_ptr<toml::value> configValue);
 
-        [[nodiscard]] toml::value *GetConfigValue() const;
+        [[nodiscard]] toml::value* GetConfigValue() const;
 
         bool ReloadConfig();
     };

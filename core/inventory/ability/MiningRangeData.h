@@ -39,40 +39,42 @@
  * Mining Range Data
  * 挖掘范围数据。
  */
-namespace glimmer {
-    class MiningRangeData {
+namespace glimmer
+{
+    class MiningRangeData
+    {
+        ResourceRef dimensionResourceRef_;
+        std::unordered_set<Vector2DIFingerprint> pointsFingerprint_;
         //The array of coordinates being excavated.
         //正在被挖掘的坐标数组。
         std::vector<MiningRangeDataPoint> points_;
-        std::unordered_set<Vector2DIFingerprint> pointsFingerprint_;
-        ResourceRef dimensionResourceRef_;
         float maxHardness_ = 0;
 
-        void TryPushPoint(const ResourceRef &dimensionResourceRef, const TileLayerComponent *tileLayerComponent,
-                          const TileVector2D &position);
+        void TryPushPoint(const ResourceRef& dimensionResourceRef, const TileLayerComponent* tileLayerComponent,
+                          const TileVector2D& position);
 
-        [[nodiscard]] static bool IsValidForChainMining(const ResourceRef &dimensionResourceRef,
-                                                        const TileLayerComponent *tileLayerComponent,
-                                                        const TileVector2D &position);
+        [[nodiscard]] static bool IsValidForChainMining(const ResourceRef& dimensionResourceRef,
+                                                        const TileLayerComponent* tileLayerComponent,
+                                                        const TileVector2D& position);
 
-        [[nodiscard]] static const TileMiningData *GetValidStartMiningData(
-            const ResourceRef &dimensionResourceRef, const TileLayerComponent *tileLayerComponent,
-            const TileVector2D &startVector);
+        [[nodiscard]] static const TileMiningData* GetValidStartMiningData(
+            const ResourceRef& dimensionResourceRef, const TileLayerComponent* tileLayerComponent,
+            const TileVector2D& startVector);
 
-        void ProcessChainMiningNeighbor(const ResourceRef &dimensionResourceRef,
-                                        const TileLayerComponent *tileLayerComponent,
-                                        const TileVector2D &nextPos,
-                                        const TileVector2D &startVector,
+        void ProcessChainMiningNeighbor(const ResourceRef& dimensionResourceRef,
+                                        const TileLayerComponent* tileLayerComponent,
+                                        const TileVector2D& nextPos,
+                                        const TileVector2D& startVector,
                                         uint8_t radius,
-                                        std::unordered_set<Vector2DIFingerprint> &visited,
-                                        std::queue<TileVector2D> &bfsQueue);
+                                        std::unordered_set<Vector2DIFingerprint>& visited,
+                                        std::queue<TileVector2D>& bfsQueue);
 
     public:
         MiningRangeData();
 
         [[nodiscard]] size_t GetPointsCount() const;
 
-        [[nodiscard]] const MiningRangeDataPoint *GetPoint(size_t index) const;
+        [[nodiscard]] const MiningRangeDataPoint* GetPoint(size_t index) const;
 
         /**
          * Achieve maximum hardness
@@ -84,11 +86,11 @@ namespace glimmer {
         void Reset();
 
 
-        void CalculateMining(const ResourceRef &dimensionResourceRef, const TileLayerComponent *tileLayerComponent,
-                             const TileVector2D &startVector);
+        void CalculateMining(const ResourceRef& dimensionResourceRef, const TileLayerComponent* tileLayerComponent,
+                             const TileVector2D& startVector);
 
-        void CalculateChainMining(const ResourceRef &dimensionResourceRef, const TileLayerComponent *tileLayerComponent,
-                                  const TileVector2D &startVector,
+        void CalculateChainMining(const ResourceRef& dimensionResourceRef, const TileLayerComponent* tileLayerComponent,
+                                  const TileVector2D& startVector,
                                   uint8_t radius);
     };
 }

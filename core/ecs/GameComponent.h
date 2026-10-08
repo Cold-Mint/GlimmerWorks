@@ -28,11 +28,13 @@
 #include <string>
 #include "src/core/game_component_type.pb.h"
 
-namespace glimmer {
+namespace glimmer
+{
     class AppContext;
     class WorldContext;
 
-    class GameComponent {
+    class GameComponent
+    {
     public:
         virtual ~GameComponent() = default;
 
@@ -53,7 +55,7 @@ namespace glimmer {
          * @param worldContext worldContext 世界上下文
          * @param data data 数据
          */
-        virtual void Deserialize(WorldContext *worldContext, const std::string &data);
+        virtual void Deserialize(WorldContext* worldContext, const std::string& data);
 
         [[nodiscard]] virtual GameComponentTypeMessage GetComponentType() = 0;
     };

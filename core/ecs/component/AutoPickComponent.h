@@ -27,8 +27,10 @@
 #pragma once
 #include "core/ecs/GameComponent.h"
 
-namespace glimmer {
-    class AutoPickComponent : public GameComponent {
+namespace glimmer
+{
+    class AutoPickComponent : public GameComponent
+    {
     public:
         [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 

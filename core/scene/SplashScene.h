@@ -28,13 +28,15 @@
 
 #include "Scene.h"
 
-namespace glimmer {
-    class SplashScene final : public Scene {
+namespace glimmer
+{
+    class SplashScene final : public Scene
+    {
         Uint64 nextSceneTime_;
         bool sceneJumped_ = false;
 
     public:
-        explicit SplashScene(AppContext *context);
+        explicit SplashScene(AppContext* context);
 
         void LoadDocuments() override;
 

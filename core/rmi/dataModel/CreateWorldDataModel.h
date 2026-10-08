@@ -28,12 +28,14 @@
 #include "DimensionItem.h"
 #include "RmlUi/Config/Config.h"
 
-namespace glimmer {
-    struct CreateWorldDataModel {
+namespace glimmer
+{
+    struct CreateWorldDataModel
+    {
         Rml::String worldName;
         Rml::String seedStr;
         Rml::String selectedDimensionId;
-        bool allowCheats = false;
         std::vector<DimensionItem> dimensions;
+        bool allowCheats = false;
     };
 }

@@ -28,16 +28,20 @@
 
 #include "box2d/box2d.h"
 
-void glimmer::Box2dWorldId::SetWorldId(const b2WorldId worldId) {
+void glimmer::Box2dWorldId::SetWorldId(const b2WorldId worldId)
+{
     worldId_ = worldId;
 }
 
-b2WorldId glimmer::Box2dWorldId::GetWorldId() const {
+b2WorldId glimmer::Box2dWorldId::GetWorldId() const
+{
     return worldId_;
 }
 
-glimmer::Box2dWorldId::~Box2dWorldId() {
-    if (worldId_.index1 != b2_nullWorldId.index1 || worldId_.generation != b2_nullWorldId.generation) {
+glimmer::Box2dWorldId::~Box2dWorldId()
+{
+    if (worldId_.index1 != b2_nullWorldId.index1 || worldId_.generation != b2_nullWorldId.generation)
+    {
         b2DestroyWorld(worldId_);
     }
 }

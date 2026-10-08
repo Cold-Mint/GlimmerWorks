@@ -50,19 +50,21 @@
 #else
 #include <pthread.h>
 #endif
-constexpr const char *COLOR_RESET = "\o{33}[0m";
-constexpr const char *COLOR_INFO = "\o{33}[32m";
-constexpr const char *COLOR_DEBUG = "\o{33}[36m";
-constexpr const char *COLOR_WARN = "\o{33}[33m";
-constexpr const char *COLOR_ERROR = "\o{33}[31m";
+constexpr const char* COLOR_RESET = "\o{33}[0m";
+constexpr const char* COLOR_INFO = "\o{33}[32m";
+constexpr const char* COLOR_DEBUG = "\o{33}[36m";
+constexpr const char* COLOR_WARN = "\o{33}[33m";
+constexpr const char* COLOR_ERROR = "\o{33}[31m";
 
-namespace glimmer {
+namespace glimmer
+{
     inline thread_local std::string logThreadName_;
 
-    class LogCat {
+    class LogCat
+    {
         using LogTable = std::unordered_map<std::string, std::string>;
 
-        static inline std::atomic<std::shared_ptr<const LogTable> > localizer_ = nullptr;
+        static inline std::atomic<std::shared_ptr<const LogTable>> localizer_ = nullptr;
 
         static inline std::atomic<uint64_t> sequence_ = 0;
 
@@ -72,38 +74,45 @@ namespace glimmer {
 
         static inline std::chrono::steady_clock::time_point startTime_ = std::chrono::steady_clock::now();
 
-        static const char *ToString(LogLabel label) {
-            switch (label) {
-                case LogLabel::DEFAULT:
-                    return "DEFAULT";
-                case LogLabel::WORLD_GEN:
-                    return "WORLD_GEN";
-                case LogLabel::CHUNK:
-                    return "CHUNK";
-                case LogLabel::TERRAIN:
-                    return "TERRAIN";
+        static const char* ToString(LogLabel label)
+        {
+            switch (label)
+            {
+            case LogLabel::DEFAULT:
+                return "DEFAULT";
+            case LogLabel::WORLD_GEN:
+                return "WORLD_GEN";
+            case LogLabel::CHUNK:
+                return "CHUNK";
+            case LogLabel::TERRAIN:
+                return "TERRAIN";
             }
             return "UNKNOWN";
         }
 
-        static std::string Resolve(std::string_view key, std::string_view fallback) {
+        static std::string Resolve(std::string_view key, std::string_view fallback)
+        {
             const auto table = localizer_.load();
-            if (table != nullptr) {
+            if (table != nullptr)
+            {
                 const auto it = table->find(std::string(key));
-                if (it != table->end()) {
+                if (it != table->end())
+                {
                     return it->second;
                 }
             }
             return std::string(fallback);
         }
 
-        template<typename... Args>
-        static std::string Format(std::string_view key, std::string_view fallback, Args &&... args) {
+        template <typename... Args>
+        static std::string Format(std::string_view key, std::string_view fallback, Args&&... args)
+        {
             const std::string templateString = Resolve(key, fallback);
             return fmt::vformat(templateString, fmt::make_format_args(args...));
         }
 
-        static std::string CurrentTime() {
+        static std::string CurrentTime()
+        {
             const auto now = std::chrono::system_clock::now();
             const std::time_t t = std::chrono::system_clock::to_time_t(now);
             std::tm tm{};
@@ -118,13 +127,15 @@ namespace glimmer {
             return oss.str();
         }
 
-        static std::string CurrentThreadId() {
+        static std::string CurrentThreadId()
+        {
             std::ostringstream oss;
             oss << std::this_thread::get_id();
             return oss.str();
         }
 
-        static std::string ElapsedTime() {
+        static std::string ElapsedTime()
+        {
             const auto now = std::chrono::steady_clock::now();
             const auto elapsed = now - startTime_;
             const auto secs = std::chrono::duration_cast<std::chrono::seconds>(elapsed);
@@ -134,39 +145,47 @@ namespace glimmer {
             return oss.str();
         }
 
-        static std::string CurrentThreadName() {
-            if (!logThreadName_.empty()) {
+        static std::string CurrentThreadName()
+        {
+            if (!logThreadName_.empty())
+            {
                 return logThreadName_;
             }
             return CurrentThreadId();
         }
 
-        static uint64_t NextSequence() {
+        static uint64_t NextSequence()
+        {
             return sequence_.fetch_add(1, std::memory_order_relaxed);
         }
 
-        static std::string Timestamp(std::string_view level, const LogLabel label) {
+        static std::string Timestamp(std::string_view level, const LogLabel label)
+        {
             std::ostringstream oss;
             oss << "[#" << NextSequence() << "|F:" << frameCount_.load(std::memory_order_relaxed)
-                    << "|T:" << tickCount_.load(std::memory_order_relaxed) << '|' << ElapsedTime() << '|'
-                    << CurrentTime() << '|' << CurrentThreadName() << '|' << level << '|' << ToString(label) << ']';
+                << "|T:" << tickCount_.load(std::memory_order_relaxed) << '|' << ElapsedTime() << '|'
+                << CurrentTime() << '|' << CurrentThreadName() << '|' << level << '|' << ToString(label) << ']';
             return oss.str();
         }
 
     public:
-        static void SetLocalizer(std::shared_ptr<const LogTable> table) {
+        static void SetLocalizer(std::shared_ptr<const LogTable> table)
+        {
             localizer_.store(std::move(table));
         }
 
-        static void IncrementFrameCount() {
+        static void IncrementFrameCount()
+        {
             frameCount_.fetch_add(1, std::memory_order_relaxed);
         }
 
-        static void SetTickCount(const uint64_t tick) {
+        static void SetTickCount(const uint64_t tick)
+        {
             tickCount_.store(tick, std::memory_order_relaxed);
         }
 
-        static void SetThreadName(const std::string_view name) {
+        static void SetThreadName(const std::string_view name)
+        {
             logThreadName_ = std::string(name);
 #if defined(_WIN32)
             const int length = MultiByteToWideChar(CP_UTF8, 0, name.data(), static_cast<int>(name.size()), nullptr, 0);
@@ -180,13 +199,15 @@ namespace glimmer {
 #endif
         }
 
-        static void ClearLocalizer() {
+        static void ClearLocalizer()
+        {
             localizer_.store(nullptr);
         }
 
-        template<typename... Args>
+        template <typename... Args>
         static void i([[maybe_unused]] const LogLabel label, [[maybe_unused]] std::string_view key,
-                      [[maybe_unused]] std::string_view fallback, [[maybe_unused]] Args &&... args) {
+                      [[maybe_unused]] std::string_view fallback, [[maybe_unused]] Args&&... args)
+        {
 #if  !defined(NDEBUG)
             const std::string message = Format(key, fallback, std::forward<Args>(args)...);
 #ifdef __ANDROID__
@@ -198,9 +219,10 @@ namespace glimmer {
 #endif
         }
 
-        template<typename... Args>
+        template <typename... Args>
         static void d([[maybe_unused]] const LogLabel label, [[maybe_unused]] std::string_view key,
-                      [[maybe_unused]] std::string_view fallback, [[maybe_unused]] Args &&... args) {
+                      [[maybe_unused]] std::string_view fallback, [[maybe_unused]] Args&&... args)
+        {
 #if  !defined(NDEBUG)
             const std::string message = Format(key, fallback, std::forward<Args>(args)...);
 #ifdef __ANDROID__
@@ -212,21 +234,22 @@ namespace glimmer {
 #endif
         }
 
-        template<typename... Args>
+        template <typename... Args>
         static void w([[maybe_unused]] const LogLabel label, [[maybe_unused]] const std::source_location sourceLocation,
                       [[maybe_unused]] std::string_view key,
-                      [[maybe_unused]] std::string_view fallback, [[maybe_unused]] Args &&... args) {
+                      [[maybe_unused]] std::string_view fallback, [[maybe_unused]] Args&&... args)
+        {
 #if  !defined(NDEBUG)
             const std::string message = Format(key, fallback, std::forward<Args>(args)...);
 #ifdef __ANDROID__
             std::ostringstream oss;
             oss << Timestamp("w", label) << " At " << sourceLocation.file_name() << ":" << sourceLocation.line()
-                    << " " << message;
+                << " " << message;
             __android_log_print(ANDROID_LOG_WARN, "GlimmerWorks", "%s", oss.str().c_str());
 #else
             std::cout << COLOR_WARN;
             std::cout << Timestamp("w", label) << " At " << sourceLocation.file_name() << ":" << sourceLocation.line()
-                    << " " << message;
+                << " " << message;
             std::cout << COLOR_RESET << std::endl;
 #endif
 #endif
@@ -236,19 +259,20 @@ namespace glimmer {
          * Errors applicable to the internal part of the engine.
          * 适用于引擎内部的错误。
          */
-        template<typename... Args>
+        template <typename... Args>
         static void e(const LogLabel label, const std::source_location sourceLocation, std::string_view key,
-                      std::string_view fallback, Args &&... args) {
+                      std::string_view fallback, Args&&... args)
+        {
             const std::string message = Format(key, fallback, std::forward<Args>(args)...);
 #ifdef __ANDROID__
             std::ostringstream oss;
             oss << Timestamp("e", label) << " At " << sourceLocation.file_name() << ":" << sourceLocation.line()
-                    << " " << message;
+                << " " << message;
             __android_log_print(ANDROID_LOG_ERROR, "GlimmerWorks", "%s", oss.str().c_str());
 #else
             std::cout << COLOR_ERROR;
             std::cout << Timestamp("e", label) << " At " << sourceLocation.file_name() << ":" << sourceLocation.line()
-                    << " " << message;
+                << " " << message;
             std::cout << COLOR_RESET << std::endl;
 #endif
 #if  !defined(NDEBUG)
@@ -260,21 +284,22 @@ namespace glimmer {
          * Used for outputting errors related to data packets and material packages, targeted at players / data packet / material package developers.
          * 用于输出数据包，材质包相关的错误，面向玩家/数据包/材质包开发者。
          */
-        template<typename... Args>
+        template <typename... Args>
         static void publicError(const LogLabel label, const ErrorCode errorCode,
                                 const std::source_location sourceLocation, std::string_view key,
                                 std::string_view fallback,
-                                Args &&... args) {
+                                Args&&... args)
+        {
             const std::string message = Format(key, fallback, std::forward<Args>(args)...);
 #ifdef __ANDROID__
             std::ostringstream oss;
             oss << Timestamp("e", label) << " At " << sourceLocation.file_name() << ":" << sourceLocation.line()
-                    << " " << message;
+                << " " << message;
             __android_log_print(ANDROID_LOG_ERROR, "GlimmerWorks", "%s", oss.str().c_str());
 #else
             std::cout << COLOR_ERROR;
             std::cout << Timestamp("e-" + std::to_string(static_cast<uint32_t>(errorCode)), label) << " At " <<
-                    sourceLocation.file_name() << ":" << sourceLocation.line() << " " << message;
+                sourceLocation.file_name() << ":" << sourceLocation.line() << " " << message;
             std::cout << COLOR_RESET << std::endl;
 #endif
 #if  !defined(NDEBUG)

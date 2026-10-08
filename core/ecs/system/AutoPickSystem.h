@@ -34,32 +34,33 @@
 #include "core/mod/resourcePack/AudioResourceResult.h"
 #include "core/utils/TransparentStringHash.h"
 
-namespace glimmer {
-    class AutoPickSystem : public GameSystem {
+namespace glimmer
+{
+    class AutoPickSystem : public GameSystem
+    {
+        std::unordered_map<std::string, size_t, TransparentStringHash, std::equal_to<>> frameItemCounts_ = {};
+        /**
+        * Protects entities_ against concurrent rebuild on the main thread
+        * (OnWatchedComponentChanged) and iteration on the tick thread (OnTick).
+        * 保护 entities_ 免受主线程（OnWatchedComponentChanged）重建与
+        * tick 线程（OnTick）遍历的并发访问。
+        */
+        mutable std::mutex entitiesMutex_;
+        std::vector<GameEntityID> entities_;
         std::shared_ptr<AudioResourceResult> pickItemSFXResult_ = nullptr;
-        WorldVector2D lastPosition{};
+        WorldVector2D lastPosition;
+        AudioManager* audioManager_ = nullptr;
         float remainingTime_ = MERGE_DURATION;
-        AudioManager *audioManager_ = nullptr;
         uint32_t autoPickCount_ = 0;
         uint32_t magnetCount_ = 0;
         uint32_t itemContainerCount_ = 0;
-        std::vector<GameEntityID> entities_;
-        /**
-         * Protects entities_ against concurrent rebuild on the main thread
-         * (OnWatchedComponentChanged) and iteration on the tick thread (OnTick).
-         * 保护 entities_ 免受主线程（OnWatchedComponentChanged）重建与
-         * tick 线程（OnTick）遍历的并发访问。
-         */
-        mutable std::mutex entitiesMutex_;
-
-        std::unordered_map<std::string, size_t, TransparentStringHash, std::equal_to<> > frameItemCounts_ = {};
 
         void TryMergeFlowingText();
 
         void ProcessMagnetEntity(GameEntityID entity);
 
     public:
-        explicit AutoPickSystem(WorldContext *worldContext);
+        explicit AutoPickSystem(WorldContext* worldContext);
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 

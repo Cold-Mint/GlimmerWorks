@@ -26,10 +26,10 @@
  */
 #pragma once
 #include "Scene.h"
-#include "core/ui/UIMessage.h"
 #include "RmlUi/Core/DataModelHandle.h"
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * UIMessageOverlay
      * UI 消息叠加层
@@ -41,12 +41,13 @@ namespace glimmer {
      * 常驻叠加层，通过 RmlUi 数据模型渲染短暂 UI 消息。视觉呈现完全由资源包
      * 的 RML 文档决定（可被模组覆盖）；本场景只负责维护消息列表与生命周期。
      */
-    class UIMessageOverlay final : public Scene {
+    class UIMessageOverlay final : public Scene
+    {
         Rml::DataModelHandle uiMessageModelHandle_;
-        Rml::ElementDocument *uiMessageDocument_ = nullptr;
+        Rml::ElementDocument* uiMessageDocument_ = nullptr;
 
     public:
-        explicit UIMessageOverlay(AppContext *context);
+        explicit UIMessageOverlay(AppContext* context);
 
         void LoadDocuments() override;
 

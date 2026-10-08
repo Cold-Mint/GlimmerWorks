@@ -28,18 +28,20 @@
 #include "EcsTypes.h"
 #include "core/mod/ResourceRef.h"
 
-namespace glimmer {
-    class GameEntity {
+namespace glimmer
+{
+    class GameEntity
+    {
+        ResourceRef resourceRef_;
         GameEntityID id_;
         bool persistable_ = false;
-        ResourceRef resourceRef_;
 
     public:
         explicit GameEntity(GameEntityID id);
 
-        [[nodiscard]] const ResourceRef &GetResourceRef() const;
+        [[nodiscard]] const ResourceRef& GetResourceRef() const;
 
-        void SetResourceRef(const ResourceRef &resourceRef);
+        void SetResourceRef(const ResourceRef& resourceRef);
 
         [[nodiscard]] GameEntityID GetID() const;
 

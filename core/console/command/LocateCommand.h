@@ -30,45 +30,47 @@
 #include "core/world/generator/ChunkGenerator.h"
 
 
-namespace glimmer {
+namespace glimmer
+{
     struct DimensionResource;
 
-    class LocateCommand final : public Command {
-        void InitSuggestions(NodeTree<std::string> *suggestionsTree) override;
+    class LocateCommand final : public Command
+    {
+        void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
 
-        static std::optional<TileVector2D> SearchBiomes(int tileX, const ResourceRef &dimension,
-                                                        const BiomeRegistry *biomeRegistry,
-                                                        ClimateSampler *climateSampler,
-                                                        const std::string &targetBiomeId,
+        static std::optional<TileVector2D> SearchBiomes(int tileX, const ResourceRef& dimension,
+                                                        const BiomeRegistry* biomeRegistry,
+                                                        ClimateSampler* climateSampler,
+                                                        const std::string& targetBiomeId,
                                                         int worldSeed,
-                                                        const DimensionResource *dimensionResource);
+                                                        const DimensionResource* dimensionResource);
 
-        static bool ExecuteBiome(const CommandArgs *commandArgs,
-                                 const std::function<void(const std::string &text)> &onMessageRef,
-                                 const AppContext *appContext, const WorldContext *worldContext);
+        static bool ExecuteBiome(const CommandArgs* commandArgs,
+                                 const std::function<void(const std::string & text)>& onMessageRef,
+                                 const AppContext* appContext, const WorldContext* worldContext);
 
-        static std::optional<TileVector2D> SearchBiomeInRadius(const TileVector2D &position,
-                                                               const ResourceRef &dimension,
-                                                               const BiomeRegistry *biomeRegistry,
-                                                               ClimateSampler *climateSampler,
-                                                               const std::string &targetBiomeId,
+        static std::optional<TileVector2D> SearchBiomeInRadius(const TileVector2D& position,
+                                                               const ResourceRef& dimension,
+                                                               const BiomeRegistry* biomeRegistry,
+                                                               ClimateSampler* climateSampler,
+                                                               const std::string& targetBiomeId,
                                                                uint16_t maxRadiusChunks,
                                                                int worldSeed,
-                                                               const DimensionResource *dimensionResource);
+                                                               const DimensionResource* dimensionResource);
 
     public:
-        explicit LocateCommand(AppContext *appContext);
+        explicit LocateCommand(AppContext* appContext);
 
 
-        [[nodiscard]] const std::string &GetName() const override;
+        [[nodiscard]] const std::string& GetName() const override;
 
         [[nodiscard]] bool RequiresWorldContext() const override;
 
         [[nodiscard]] bool RequiresCheatEnabled() const override;
 
-        void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
+        void PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) override;
 
-        bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
-                     const std::function<void(const std::string &text)> *onMessage) override;
+        bool Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
+                     const std::function<void(const std::string & text)>* onMessage) override;
     };
 }

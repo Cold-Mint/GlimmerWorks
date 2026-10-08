@@ -27,8 +27,10 @@
 #pragma once
 #include <cstdint>
 
-namespace glimmer {
-    enum class TilePhysicsType : uint8_t {
+namespace glimmer
+{
+    enum class TilePhysicsType : uint8_t
+    {
         /**
          * No physical effects (air, background)
          * 无物理效果（空气、背景）

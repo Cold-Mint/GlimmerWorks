@@ -26,8 +26,9 @@
  */
 #include "ComposableItemRegistry.h"
 
-glimmer::ComposableItemResource *glimmer::ComposableItemRegistry::OnNotFound(const std::string_view packId,
-                                                                             const std::string_view key) {
+glimmer::ComposableItemResource* glimmer::ComposableItemRegistry::OnNotFound(const std::string_view packId,
+                                                                             const std::string_view key)
+{
     auto composableItemResource = std::make_unique<ComposableItemResource>();
     composableItemResource->packId = packId;
     composableItemResource->resourceId = key;

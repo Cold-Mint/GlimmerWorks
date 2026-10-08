@@ -29,16 +29,18 @@
 #include <unordered_map>
 #include "core/mod/dataPack/BiomeDecoratorType.h"
 
-namespace glimmer {
+namespace glimmer
+{
     class IBiomeDecorator;
 
-    class BiomeDecoratorManager {
-        std::unordered_map<BiomeDecoratorType, std::unique_ptr<IBiomeDecorator> > biomeDecoratorMap_;
+    class BiomeDecoratorManager
+    {
+        std::unordered_map<BiomeDecoratorType, std::unique_ptr<IBiomeDecorator>> biomeDecoratorMap_;
 
     public:
         void RegisterBiomeDecorator(std::unique_ptr<IBiomeDecorator> biomeDecorator);
 
-        IBiomeDecorator *GetBiomeDecorator(BiomeDecoratorType biomeDecoratorType);
+        IBiomeDecorator* GetBiomeDecorator(BiomeDecoratorType biomeDecoratorType);
 
         void SetWorldSeed(int worldSeed) const;
     };

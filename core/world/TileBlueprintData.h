@@ -27,12 +27,14 @@
 #pragma once
 #include "core/mod/resourcePack/TextureResourceResult.h"
 
-namespace glimmer {
-    class TileBlueprintData {
+namespace glimmer
+{
+    class TileBlueprintData
+    {
+        std::shared_ptr<TextureResourceResult> blueprintTextureResult_ = nullptr;
         bool enableBlueprint_ = true;
         bool enableBlueprintMask_ = true;
         bool drawValidBlueprintColor_ = true;
-        std::shared_ptr<TextureResourceResult> blueprintTextureResult_ = nullptr;
 
     public:
         [[nodiscard]] bool EnableBlueprint() const;
@@ -43,7 +45,7 @@ namespace glimmer {
 
         [[nodiscard]] std::shared_ptr<TextureResourceResult> GetBlueprintTexture() const;
 
-        void SetBlueprintTexture(const std::shared_ptr<TextureResourceResult> &blueprintTextureResult);
+        void SetBlueprintTexture(const std::shared_ptr<TextureResourceResult>& blueprintTextureResult);
 
         void SetEnableBlueprint(bool enableBlueprint);
 

@@ -30,7 +30,8 @@
 #include "core/ecs/component/CameraComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
 
-namespace glimmer {
+namespace glimmer
+{
     class AppContext;
 
     /**
@@ -40,36 +41,37 @@ namespace glimmer {
      * Displays chunk boundaries and a chunk overview in the bottom-left corner.
      * 显示区块边界和左下角的区块视图。
      */
-    class DebugChunkSystem : public GameSystem {
+    class DebugChunkSystem : public GameSystem
+    {
         WorldVector2D mousePosition_;
-        CameraComponent *cameraComponent_ = nullptr;
-        Transform2DComponent *cameraTransform2DComponent_ = nullptr;
+        CameraComponent* cameraComponent_ = nullptr;
+        Transform2DComponent* cameraTransform2DComponent_ = nullptr;
         bool displayChunkView_ = false;
 
         /**
          * Draw the boundaries of the chunks visible on screen.
          * 绘制屏幕上可见区块的边界。
          */
-        void RenderChunkBounds(RenderQueue *queue);
+        void RenderChunkBounds(RenderQueue* queue);
 
         /**
          * Draw the chunk overview in the bottom-left corner.
          * 在左下角绘制区块视图。
          */
-        void RenderChunkView(RenderQueue *queue, AppContext *appContext);
+        void RenderChunkView(RenderQueue* queue, AppContext* appContext);
 
     public:
-        explicit DebugChunkSystem(WorldContext *worldContext);
+        explicit DebugChunkSystem(WorldContext* worldContext);
 
         bool CanActive() const override;
 
-        void OnConfigChanged(const Config *config) override;
+        void OnConfigChanged(const Config* config) override;
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
-        void Render(RenderQueue *queue) override;
+        void Render(RenderQueue* queue) override;
 
-        bool HandleEvent(const SDL_Event &event) override;
+        bool HandleEvent(const SDL_Event& event) override;
 
         uint8_t GetExecutionOrder() override;
 

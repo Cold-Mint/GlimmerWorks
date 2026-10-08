@@ -37,24 +37,29 @@
 #include "core/config/Constants.h"
 #include "fmt/color.h"
 
-std::string glimmer::StringUtils::ToSafeSaveName(const std::string &utf8Str) {
+std::string glimmer::StringUtils::ToSafeSaveName(const std::string& utf8Str)
+{
     std::ostringstream oss;
     oss << "save_";
     oss << StringToUint64Blake3(utf8Str);
     return oss.str();
 }
 
-std::string glimmer::StringUtils::SanitizeFileName(const std::string &name) {
+std::string glimmer::StringUtils::SanitizeFileName(const std::string& name)
+{
     std::string result = name;
-    for (char &c: result) {
-        if (const auto uc = static_cast<unsigned char>(c); std::isalnum(uc) == 0 && c != '.' && c != '_' && c != '-') {
+    for (char& c : result)
+    {
+        if (const auto uc = static_cast<unsigned char>(c); std::isalnum(uc) == 0 && c != '.' && c != '_' && c != '-')
+        {
             c = '_';
         }
     }
     return result;
 }
 
-uint64_t glimmer::StringUtils::StringToUint64Blake3(const std::string &string) {
+uint64_t glimmer::StringUtils::StringToUint64Blake3(const std::string& string)
+{
     blake3_hasher hasher;
     blake3_hasher_init(&hasher);
     blake3_hasher_update(&hasher, string.data(), string.size());
@@ -65,7 +70,8 @@ uint64_t glimmer::StringUtils::StringToUint64Blake3(const std::string &string) {
     return res;
 }
 
-std::array<uint8_t, BLAKE3_OUT_LEN> glimmer::StringUtils::StringToFullBlake3(const std::string &string) {
+std::array<uint8_t, BLAKE3_OUT_LEN> glimmer::StringUtils::StringToFullBlake3(const std::string& string)
+{
     blake3_hasher hasher;
     blake3_hasher_init(&hasher);
     blake3_hasher_update(&hasher, string.data(), string.size());
@@ -74,73 +80,92 @@ std::array<uint8_t, BLAKE3_OUT_LEN> glimmer::StringUtils::StringToFullBlake3(con
     return out;
 }
 
-bool glimmer::StringUtils::IsInteger(const std::string &str) {
-    if (str.empty()) {
+bool glimmer::StringUtils::IsInteger(const std::string& str)
+{
+    if (str.empty())
+    {
         return false;
     }
 
     size_t checkStart = 0;
-    if (str[0] == '-') {
-        if (str.size() == 1) {
+    if (str[0] == '-')
+    {
+        if (str.size() == 1)
+        {
             return false;
         }
         checkStart = 1;
     }
-    for (size_t i = checkStart; i < str.size(); ++i) {
+    for (size_t i = checkStart; i < str.size(); ++i)
+    {
         auto c = static_cast<unsigned char>(str[i]);
-        if (!std::isdigit(c)) {
+        if (!std::isdigit(c))
+        {
             return false;
         }
     }
     return true;
 }
 
-uint64_t glimmer::StringUtils::StringToUint64(const std::string &string) {
+uint64_t glimmer::StringUtils::StringToUint64(const std::string& string)
+{
     return std::hash<std::string>{}(string);
 }
 
-std::span<const std::byte> glimmer::StringUtils::StringToByteData(const std::string_view string) {
+std::span<const std::byte> glimmer::StringUtils::StringToByteData(const std::string_view string)
+{
     return {
-        reinterpret_cast<const std::byte *>(string.data()), string.size()
+        reinterpret_cast<const std::byte*>(string.data()), string.size()
     };
 }
 
-std::string glimmer::StringUtils::MakeRawText(const std::string_view string) {
-    if (string.empty()) {
+std::string glimmer::StringUtils::MakeRawText(const std::string_view string)
+{
+    if (string.empty())
+    {
         return "";
     }
-    if (string.starts_with(RAW_TEXT_PREFIX)) {
+    if (string.starts_with(RAW_TEXT_PREFIX))
+    {
         return std::string(string);
     }
     return fmt::format("{}{}", RAW_TEXT_PREFIX, string);
 }
 
-std::string glimmer::StringUtils::MakeTextureUrl(const std::string_view resourceKey) {
-    if (resourceKey.empty()) {
+std::string glimmer::StringUtils::MakeTextureUrl(const std::string_view resourceKey)
+{
+    if (resourceKey.empty())
+    {
         return "";
     }
-    if (resourceKey.starts_with(TEXTURE_PREFIX)) {
+    if (resourceKey.starts_with(TEXTURE_PREFIX))
+    {
         return std::string(resourceKey);
     }
     return fmt::format("{}{}", TEXTURE_PREFIX, resourceKey);
 }
 
-std::optional<std::string> glimmer::StringUtils::StreamToString(const std::istream *stream) {
-    if (!stream) {
+std::optional<std::string> glimmer::StringUtils::StreamToString(const std::istream* stream)
+{
+    if (!stream)
+    {
         return std::nullopt;
     }
-    if (stream->fail()) {
+    if (stream->fail())
+    {
         return std::nullopt;
     }
     std::ostringstream oss;
     oss << stream->rdbuf();
-    if (oss.fail()) {
+    if (oss.fail())
+    {
         return std::nullopt;
     }
     return oss.str();
 }
 
-std::string glimmer::StringUtils::GetScreenshotFileName() {
+std::string glimmer::StringUtils::GetScreenshotFileName()
+{
     auto now = std::chrono::system_clock::now();
     auto t = std::chrono::system_clock::to_time_t(now);
     std::tm tm;
@@ -151,21 +176,25 @@ std::string glimmer::StringUtils::GetScreenshotFileName() {
 #endif
     std::ostringstream oss;
     oss << "screenshot_"
-            << std::put_time(&tm, "%Y%m%d_%H%M%S") << "."
-            << TEXTURE_FORMAT;
+        << std::put_time(&tm, "%Y%m%d_%H%M%S") << "."
+        << TEXTURE_FORMAT;
     return oss.str();
 }
 
-std::string glimmer::StringUtils::GetDimensionFolderName(std::string packId, std::string key) {
+std::string glimmer::StringUtils::GetDimensionFolderName(std::string packId, std::string key)
+{
     return fmt::format("{}_{}", packId, key);
 }
 
-void glimmer::StringUtils::ReplaceAll(std::string &str, const std::string_view from, const std::string_view to) {
-    if (from.empty()) {
+void glimmer::StringUtils::ReplaceAll(std::string& str, const std::string_view from, const std::string_view to)
+{
+    if (from.empty())
+    {
         return;
     }
     size_t start_pos = 0;
-    while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+    while ((start_pos = str.find(from, start_pos)) != std::string::npos)
+    {
         str.replace(start_pos, from.length(), to);
         start_pos += to.length();
     }

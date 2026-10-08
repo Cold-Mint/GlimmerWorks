@@ -35,11 +35,12 @@
 #include "core/log/LogCat.h"
 
 
-glimmer::ItemAbility *glimmer::AbilityItem::GetItemAbility() const {
+glimmer::ItemAbility* glimmer::AbilityItem::GetItemAbility() const
+{
     return itemAbility_.get();
 }
 
-glimmer::AbilityItem::AbilityItem(const AbilityItemCreateParams &params) : id_(params.GetId()),
+glimmer::AbilityItem::AbilityItem(const AbilityItemCreateParams& params) : id_(params.GetId()),
                                                                            name_(params.GetName()),
                                                                            description_(params.GetDescription()),
                                                                            iconResult_(params.GetIconResult()),
@@ -48,10 +49,12 @@ glimmer::AbilityItem::AbilityItem(const AbilityItemCreateParams &params) : id_(p
                                                                            unbreakable_(params.IsUnbreakable()),
                                                                            canUseAlone_(params.IsCanUseAlone()),
                                                                            iconResourceRef_(
-                                                                               params.GetIconResourceRef()) {
+                                                                               params.GetIconResourceRef())
+{
     SetTags(params.GetTags());
     SetResourceRef(params.GetResourceRef());
-    if (ItemDurabilityModule *itemDurabilityModule = GetMutableDurabilityModule(); itemDurabilityModule != nullptr) {
+    if (ItemDurabilityModule* itemDurabilityModule = GetMutableDurabilityModule(); itemDurabilityModule != nullptr)
+    {
         // Sync durability settings to the base class ItemDurabilityModule
         // 将耐久度设置同步到基类ItemDurabilityModule，确保存档载入时耐久度回调能正确工作
         itemDurabilityModule->SetMaxDurability(maxDurability_);
@@ -59,29 +62,34 @@ glimmer::AbilityItem::AbilityItem(const AbilityItemCreateParams &params) : id_(p
     }
     LogCat::d(LogLabel::DEFAULT, "ability_item_created", "Ability item created: itemId={} canUseAlone={}", id_,
               canUseAlone_);
-    if (itemAbility_ == nullptr) {
+    if (itemAbility_ == nullptr)
+    {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "item_ability_is_null", "itemAbility is nullptr");
         return;
     }
 }
 
-std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(const AppContext *appContext,
-                                                                             const AbilityItemResource *itemResource,
-                                                                             const ResourceRef &resourceRef) {
+std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(const AppContext* appContext,
+                                                                             const AbilityItemResource* itemResource,
+                                                                             const ResourceRef& resourceRef)
+{
     std::string name = Resource::GenerateId(itemResource->packId, itemResource->resourceId);
-    if (const auto nameRes = appContext->GetResourceLocator()->FindString(&itemResource->name); nameRes != nullptr) {
+    if (const auto nameRes = appContext->GetResourceLocator()->FindString(&itemResource->name); nameRes != nullptr)
+    {
         name = nameRes->value;
     }
     std::optional<std::string> description;
     if (auto descriptionRes = appContext->GetResourceLocator()->FindString(&itemResource->description); descriptionRes
-        != nullptr) {
+        != nullptr)
+    {
         description = descriptionRes->value;
     }
 
     const auto itemAbility =
-            ItemAbilityFactory::CreateItemAbility(static_cast<AbilityType>(itemResource->ability),
-                                                  itemResource->abilityConfig);
-    if (itemAbility == nullptr) {
+        ItemAbilityFactory::CreateItemAbility(static_cast<AbilityType>(itemResource->ability),
+                                              itemResource->abilityConfig);
+    if (itemAbility == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "ability_item_ability_create_failed",
                   "Failed to create item ability. abilityType={}",
                   std::to_underlying(static_cast<AbilityType>(itemResource->ability)));
@@ -101,22 +109,28 @@ std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(con
     params.SetItemAbility(itemAbility);
     auto abilityItem = std::make_unique<AbilityItem>(params);
     abilityItem->SetLightSourceRef(itemResource->lightSource);
-    if (itemResource->pipeline.IsValid()) {
+    if (itemResource->pipeline.IsValid())
+    {
         if (const std::shared_ptr<GPUPipelineResourceResult> pipelineResult = appContext->GetResourceLocator()->
-                FindGPUGraphicsPipeline(
-                    &itemResource->pipeline,
-                    false); pipelineResult != nullptr && pipelineResult->GetResource() != nullptr) {
-            if (CacheContext *cacheContext = appContext->GetCacheContext(); cacheContext != nullptr) {
+            FindGPUGraphicsPipeline(
+                &itemResource->pipeline,
+                false); pipelineResult != nullptr && pipelineResult->GetResource() != nullptr)
+        {
+            if (CacheContext* cacheContext = appContext->GetCacheContext(); cacheContext != nullptr)
+            {
                 abilityItem->SetPipeline(pipelineResult);
             }
         }
     }
-    if (itemResource->sampler.IsValid()) {
+    if (itemResource->sampler.IsValid())
+    {
         if (const std::shared_ptr<GPUSamplerResourceResult> samplerResult = appContext->GetResourceLocator()->
-                FindGPUGraphicsSampler(
-                    &itemResource->sampler,
-                    false); samplerResult != nullptr && samplerResult->GetResource() != nullptr) {
-            if (CacheContext *cacheContext = appContext->GetCacheContext(); cacheContext != nullptr) {
+            FindGPUGraphicsSampler(
+                &itemResource->sampler,
+                false); samplerResult != nullptr && samplerResult->GetResource() != nullptr)
+        {
+            if (CacheContext* cacheContext = appContext->GetCacheContext(); cacheContext != nullptr)
+            {
                 abilityItem->SetSampler(samplerResult);
             }
         }
@@ -127,16 +141,20 @@ std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(con
     return abilityItem;
 }
 
-const glimmer::AbilityConfig *glimmer::AbilityItem::GetAbilityConfig() const {
-    if (itemAbility_ == nullptr) {
+const glimmer::AbilityConfig* glimmer::AbilityItem::GetAbilityConfig() const
+{
+    if (itemAbility_ == nullptr)
+    {
         return nullptr;
     }
     return itemAbility_->GetAbilityConfig();
 }
 
-bool glimmer::AbilityItem::OnUse(const bool mouseLeft, WorldContext *worldContext, uint32_t user,
-                                 const AbilityConfig *abilityConfig, std::unordered_set<AbilityType> &popupAbility) {
-    if (canUseAlone_) {
+bool glimmer::AbilityItem::OnUse(const bool mouseLeft, WorldContext* worldContext, uint32_t user,
+                                 const AbilityConfig* abilityConfig, std::unordered_set<AbilityType>& popupAbility)
+{
+    if (canUseAlone_)
+    {
         return itemAbility_->OnUse(mouseLeft, worldContext, user, abilityConfig, popupAbility);
     }
     LogCat::d(LogLabel::DEFAULT, "ability_item_use_alone_disabled",
@@ -145,51 +163,64 @@ bool glimmer::AbilityItem::OnUse(const bool mouseLeft, WorldContext *worldContex
 }
 
 
-const std::string &glimmer::AbilityItem::GetId() const {
+const std::string& glimmer::AbilityItem::GetId() const
+{
     return id_;
 }
 
-const std::string &glimmer::AbilityItem::GetName() const {
+const std::string& glimmer::AbilityItem::GetName() const
+{
     return name_;
 }
 
-const std::optional<std::string> &glimmer::AbilityItem::GetDescription() const {
+const std::optional<std::string>& glimmer::AbilityItem::GetDescription() const
+{
     return description_;
 }
 
-glimmer::TextureResourceResult *glimmer::AbilityItem::GetIcon() const {
-    if (iconResult_ == nullptr) {
+glimmer::TextureResourceResult* glimmer::AbilityItem::GetIcon() const
+{
+    if (iconResult_ == nullptr)
+    {
         return nullptr;
     }
     return iconResult_.get();
 }
 
-SDL_GPUGraphicsPipeline *glimmer::AbilityItem::GetPipeline() const {
-    if (pipeline_ == nullptr) {
+SDL_GPUGraphicsPipeline* glimmer::AbilityItem::GetPipeline() const
+{
+    if (pipeline_ == nullptr)
+    {
         return nullptr;
     }
     return pipeline_->GetResource();
 }
 
-void glimmer::AbilityItem::SetPipeline(std::shared_ptr<GPUPipelineResourceResult> pipeline) {
+void glimmer::AbilityItem::SetPipeline(std::shared_ptr<GPUPipelineResourceResult> pipeline)
+{
     pipeline_ = std::move(pipeline);
 }
 
-SDL_GPUSampler *glimmer::AbilityItem::GetSampler() const {
-    if (sampler_ == nullptr) {
+SDL_GPUSampler* glimmer::AbilityItem::GetSampler() const
+{
+    if (sampler_ == nullptr)
+    {
         return nullptr;
     }
     return sampler_->GetResource();
 }
 
-void glimmer::AbilityItem::SetSampler(std::shared_ptr<GPUSamplerResourceResult> sampler) {
+void glimmer::AbilityItem::SetSampler(std::shared_ptr<GPUSamplerResourceResult> sampler)
+{
     sampler_ = std::move(sampler);
 }
 
-const glimmer::ResourceRef *glimmer::AbilityItem::GetIconResourceRef() const {
+const glimmer::ResourceRef* glimmer::AbilityItem::GetIconResourceRef() const
+{
     return &iconResourceRef_;
 }
 
-std::unique_ptr<glimmer::Item> glimmer::AbilityItem::Clone() const {
+std::unique_ptr<glimmer::Item> glimmer::AbilityItem::Clone() const
+{
     return std::make_unique<AbilityItem>(*this);
 }

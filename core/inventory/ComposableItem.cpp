@@ -43,26 +43,32 @@
 #include "core/math/RandomAllocStrategy.h"
 #include "core/utils/StringUtils.h"
 
-void glimmer::ComposableItem::SwapItem(uint8_t index, ItemContainer *otherContainer, uint8_t otherIndex) const {
+void glimmer::ComposableItem::SwapItem(uint8_t index, ItemContainer* otherContainer, uint8_t otherIndex) const
+{
     itemContainer_->SwapItem(index, otherContainer, otherIndex);
 }
 
-void glimmer::ComposableItem::RefreshAttributes() {
+void glimmer::ComposableItem::RefreshAttributes()
+{
     const uint8_t max = itemContainer_->GetCapacity();
     LogCat::d(LogLabel::DEFAULT, "composable_item_refresh_attributes",
               "Refresh composable item attributes, capacity={}",
               static_cast<int>(max));
     totalAbilityConfig_.Reset();
-    for (uint8_t index = 0; index < max; index++) {
-        Item *item = itemContainer_->GetItem(index);
-        if (item == nullptr) {
+    for (uint8_t index = 0; index < max; index++)
+    {
+        Item* item = itemContainer_->GetItem(index);
+        if (item == nullptr)
+        {
             continue;
         }
-        if (auto abilityItem = dynamic_cast<AbilityItem *>(item); abilityItem == nullptr) {
+        if (auto abilityItem = dynamic_cast<AbilityItem*>(item); abilityItem == nullptr)
+        {
             continue;
         }
-        const AbilityConfig *abilityConfig = item->GetAbilityConfig();
-        if (abilityConfig == nullptr) {
+        const AbilityConfig* abilityConfig = item->GetAbilityConfig();
+        if (abilityConfig == nullptr)
+        {
             continue;
         }
         totalAbilityConfig_ += *abilityConfig;
@@ -70,34 +76,41 @@ void glimmer::ComposableItem::RefreshAttributes() {
 }
 
 std::unique_ptr<glimmer::Item> glimmer::ComposableItem::ReplaceItem(const uint8_t index,
-                                                                    std::unique_ptr<Item> item) const {
+                                                                    std::unique_ptr<Item> item) const
+{
     return itemContainer_->ReplaceItem(index, std::move(item));
 }
 
-uint8_t glimmer::ComposableItem::RemoveItemAbility(const std::string &id, const uint8_t amount) const {
+uint8_t glimmer::ComposableItem::RemoveItemAbility(const std::string& id, const uint8_t amount) const
+{
     return itemContainer_->RemoveItem(id, amount);
 }
 
-std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResource(WorldContext *worldContext,
-    const ComposableItemResource *itemResource, const ResourceRef &resourceRef) {
-    if (worldContext == nullptr) {
+std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResource(WorldContext* worldContext,
+    const ComposableItemResource* itemResource, const ResourceRef& resourceRef)
+{
+    if (worldContext == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "world_context_is_null",
                   "worldContext == nullptr");
         return nullptr;
     }
-    const AppContext *appContext = worldContext->GetAppContext();
-    if (itemResource == nullptr) {
+    const AppContext* appContext = worldContext->GetAppContext();
+    if (itemResource == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "composable_item_resource_null",
                   "composableItemResource == nullptr");
         return nullptr;
     }
     std::string name = Resource::GenerateId(itemResource->packId, itemResource->resourceId);
-    if (const auto nameRes = appContext->GetResourceLocator()->FindString(&itemResource->name); nameRes != nullptr) {
+    if (const auto nameRes = appContext->GetResourceLocator()->FindString(&itemResource->name); nameRes != nullptr)
+    {
         name = nameRes->value;
     }
     std::optional<std::string> description;
     if (auto descriptionRes = appContext->GetResourceLocator()->FindString(&itemResource->description); descriptionRes
-        != nullptr) {
+        != nullptr)
+    {
         description = descriptionRes->value;
     }
     ComposableItemCreateParams params;
@@ -113,32 +126,41 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
     params.SetIconResourceRef(itemResource->texture);
     auto result = std::make_unique<ComposableItem>(params);
     result->SetLightSourceRef(itemResource->lightSource);
-    if (itemResource->pipeline.IsValid()) {
+    if (itemResource->pipeline.IsValid())
+    {
         if (const std::shared_ptr<GPUPipelineResourceResult> pipelineResult = appContext->GetResourceLocator()->
-                FindGPUGraphicsPipeline(
-                    &itemResource->pipeline,
-                    false); pipelineResult != nullptr && pipelineResult->GetResource() != nullptr) {
-            if (CacheContext *cacheContext = appContext->GetCacheContext(); cacheContext != nullptr) {
+            FindGPUGraphicsPipeline(
+                &itemResource->pipeline,
+                false); pipelineResult != nullptr && pipelineResult->GetResource() != nullptr)
+        {
+            if (CacheContext* cacheContext = appContext->GetCacheContext(); cacheContext != nullptr)
+            {
                 result->SetPipeline(pipelineResult);
             }
         }
     }
-    if (itemResource->sampler.IsValid()) {
+    if (itemResource->sampler.IsValid())
+    {
         if (const std::shared_ptr<GPUSamplerResourceResult> samplerResult = appContext->GetResourceLocator()->
-                FindGPUGraphicsSampler(
-                    &itemResource->sampler,
-                    false); samplerResult != nullptr && samplerResult->GetResource() != nullptr) {
-            if (CacheContext *cacheContext = appContext->GetCacheContext(); cacheContext != nullptr) {
+            FindGPUGraphicsSampler(
+                &itemResource->sampler,
+                false); samplerResult != nullptr && samplerResult->GetResource() != nullptr)
+        {
+            if (CacheContext* cacheContext = appContext->GetCacheContext(); cacheContext != nullptr)
+            {
                 result->SetSampler(samplerResult);
             }
         }
     }
-    if (uint8_t defaultAbilitySize = itemResource->defaultAbilityList.size(); defaultAbilitySize > 0) {
-        for (int i = 0; i < defaultAbilitySize; i++) {
+    if (uint8_t defaultAbilitySize = itemResource->defaultAbilityList.size(); defaultAbilitySize > 0)
+    {
+        for (int i = 0; i < defaultAbilitySize; i++)
+        {
             auto itemObj = appContext->GetResourceLocator()->FindItem(worldContext,
                                                                       itemResource->defaultAbilityList[i]);
-            if (itemObj != nullptr) {
-                (void) result->ReplaceItem(static_cast<uint8_t>(i), std::move(itemObj));
+            if (itemObj != nullptr)
+            {
+                (void)result->ReplaceItem(static_cast<uint8_t>(i), std::move(itemObj));
             }
         }
     }
@@ -149,82 +171,96 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
     return result;
 }
 
-const glimmer::AbilityConfig *glimmer::ComposableItem::GetAbilityConfig() const {
+const glimmer::AbilityConfig* glimmer::ComposableItem::GetAbilityConfig() const
+{
     return &totalAbilityConfig_;
 }
 
-bool glimmer::ComposableItem::OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user,
-                                    const AbilityConfig *abilityConfig, std::unordered_set<AbilityType> &popupAbility) {
+bool glimmer::ComposableItem::OnUse(bool mouseLeft, WorldContext* worldContext, uint32_t user,
+                                    const AbilityConfig* abilityConfig, std::unordered_set<AbilityType>& popupAbility)
+{
     bool handle = false;
     const uint8_t max = itemContainer_->GetCapacity();
     //The ability to pop up
     //需要弹出的能力
-    for (uint8_t index = 0; index < max; index++) {
-        Item *item = itemContainer_->GetItem(index);
-        if (item == nullptr) {
+    for (uint8_t index = 0; index < max; index++)
+    {
+        Item* item = itemContainer_->GetItem(index);
+        if (item == nullptr)
+        {
             LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "composable_item_at_index_is_null",
                       "item at {} is nullptr",
                       std::to_string(index));
             continue;
         }
-        const auto abilityItem = dynamic_cast<AbilityItem *>(item);
-        if (abilityItem == nullptr) {
+        const auto abilityItem = dynamic_cast<AbilityItem*>(item);
+        if (abilityItem == nullptr)
+        {
             LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "ability_item_is_null",
                       "abilityItem == nullptr");
             continue;
         }
-        ItemAbility *itemAbility = abilityItem->GetItemAbility();
-        if (itemAbility == nullptr) {
+        ItemAbility* itemAbility = abilityItem->GetItemAbility();
+        if (itemAbility == nullptr)
+        {
             LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "item_ability_is_null",
                       "itemAbility == nullptr");
             continue;
         }
 
-        if (popupAbility.contains(itemAbility->GetAbilityType())) {
+        if (popupAbility.contains(itemAbility->GetAbilityType()))
+        {
             //Mutual exclusivity
             //互斥
             DroppedItemCreator::SpawnDroppedItem(worldContext,
                                                  worldContext->GetEntityShortCut()->GetCameraTransform2DComponent()->
-                                                 GetPosition(),
+                                                               GetPosition(),
                                                  itemContainer_->TakeAllItem(index),
                                                  DROPPED_ITEM_PICKUP_COOLDOWN_TICKS);
             continue;
         }
         const bool result = itemAbility->OnUse(mouseLeft, worldContext, user, abilityConfig, popupAbility);
-        if (!handle && result) {
+        if (!handle && result)
+        {
             handle = result;
         }
     }
     return handle;
 }
 
-const glimmer::ResourceRef *glimmer::ComposableItem::GetIconResourceRef() const {
+const glimmer::ResourceRef* glimmer::ComposableItem::GetIconResourceRef() const
+{
     return &iconResourceRef_;
 }
 
-glimmer::ItemContainer *glimmer::ComposableItem::GetItemContainer() const {
+glimmer::ItemContainer* glimmer::ComposableItem::GetItemContainer() const
+{
     return itemContainer_.get();
 }
 
-std::unique_ptr<glimmer::Item> glimmer::ComposableItem::Clone() const {
+std::unique_ptr<glimmer::Item> glimmer::ComposableItem::Clone() const
+{
     auto composableItem = std::make_unique<ComposableItem>(*this);
     composableItem->AddCallback();
     return composableItem;
 }
 
-void glimmer::ComposableItem::AddCallback() {
-    callback_ = itemContainer_->AddOnContentChanged([this](uint8_t, Item *, ContainerChangeType) {
+void glimmer::ComposableItem::AddCallback()
+{
+    callback_ = itemContainer_->AddOnContentChanged([this](uint8_t, Item*, ContainerChangeType)
+    {
         RefreshAttributes();
     });
 }
 
-glimmer::ComposableItem::ComposableItem(const ComposableItemCreateParams &params)
+glimmer::ComposableItem::ComposableItem(const ComposableItemCreateParams& params)
     : id_(params.GetId()),
       name_(params.GetName()),
       description_(params.GetDescription()),
       iconResult_(params.GetIconResult()),
       maxDurability_(params.GetMaxDurability()),
-      unbreakable_(params.IsUnbreakable()), iconResourceRef_(params.GetIconResourceRef()) {
+      unbreakable_(params.IsUnbreakable()), iconResourceRef_(params.GetIconResourceRef())
+{
     SetResourceRef(params.GetResourceRef());
     itemContainer_ = std::make_shared<ItemContainer>();
     itemContainer_->Resize(params.GetMaxSize());
@@ -232,7 +268,8 @@ glimmer::ComposableItem::ComposableItem(const ComposableItemCreateParams &params
               static_cast<int>(params.GetMaxSize()));
     SetTags(params.GetTags());
     AddCallback();
-    if (ItemDurabilityModule *itemDurabilityModule = GetMutableDurabilityModule(); itemDurabilityModule != nullptr) {
+    if (ItemDurabilityModule* itemDurabilityModule = GetMutableDurabilityModule(); itemDurabilityModule != nullptr)
+    {
         // Sync durability settings to the base class ItemDurabilityModule
         // 将耐久度设置同步到基类ItemDurabilityModule，确保存档载入时耐久度回调能正确工作
         itemDurabilityModule->SetMaxDurability(maxDurability_);
@@ -240,58 +277,69 @@ glimmer::ComposableItem::ComposableItem(const ComposableItemCreateParams &params
     }
 }
 
-void glimmer::ComposableItem::SetAllocStrategyType(AllocStrategyTypeMessage allocStrategyType) {
-    switch (allocStrategyType) {
-        case ALLOC_STRATEGY_BACKWARD:
-            allocStrategyPtr_ = std::make_unique<BackwardAllocStrategy<uint32_t> >();
-            break;
-        case ALLOC_STRATEGY_FORWARD:
-            allocStrategyPtr_ = std::make_unique<ForwardAllocStrategy<uint32_t> >();
-            break;
-        case ALLOC_STRATEGY_BALANCE:
-            allocStrategyPtr_ = std::make_unique<BalanceAllocStrategy<uint32_t> >();
-            break;
-        case ALLOC_STRATEGY_RANDOM:
-            allocStrategyPtr_ = std::make_unique<RandomAllocStrategy<uint32_t> >();
-            break;
-        case AllocStrategyTypeMessage_INT_MIN_SENTINEL_DO_NOT_USE_:
-        case AllocStrategyTypeMessage_INT_MAX_SENTINEL_DO_NOT_USE_:
-            break;
+void glimmer::ComposableItem::SetAllocStrategyType(AllocStrategyTypeMessage allocStrategyType)
+{
+    switch (allocStrategyType)
+    {
+    case ALLOC_STRATEGY_BACKWARD:
+        allocStrategyPtr_ = std::make_unique<BackwardAllocStrategy<uint32_t>>();
+        break;
+    case ALLOC_STRATEGY_FORWARD:
+        allocStrategyPtr_ = std::make_unique<ForwardAllocStrategy<uint32_t>>();
+        break;
+    case ALLOC_STRATEGY_BALANCE:
+        allocStrategyPtr_ = std::make_unique<BalanceAllocStrategy<uint32_t>>();
+        break;
+    case ALLOC_STRATEGY_RANDOM:
+        allocStrategyPtr_ = std::make_unique<RandomAllocStrategy<uint32_t>>();
+        break;
+    case AllocStrategyTypeMessage_INT_MIN_SENTINEL_DO_NOT_USE_:
+    case AllocStrategyTypeMessage_INT_MAX_SENTINEL_DO_NOT_USE_:
+        break;
     }
 }
 
-AllocStrategyTypeMessage glimmer::ComposableItem::GetAllocStrategyType() const {
-    if (allocStrategyPtr_ == nullptr) {
+AllocStrategyTypeMessage glimmer::ComposableItem::GetAllocStrategyType() const
+{
+    if (allocStrategyPtr_ == nullptr)
+    {
         return ALLOC_STRATEGY_FORWARD;
     }
     return allocStrategyPtr_->GetStrategyType();
 }
 
 
-void glimmer::ComposableItem::ReadItemMessage(WorldContext *worldContext, const ItemMessage &itemMessage) {
+void glimmer::ComposableItem::ReadItemMessage(WorldContext* worldContext, const ItemMessage& itemMessage)
+{
     Item::ReadItemMessage(worldContext, itemMessage);
-    if (worldContext == nullptr) {
+    if (worldContext == nullptr)
+    {
         return;
     }
-    const AppContext *appContext = worldContext->GetAppContext();
-    if (appContext == nullptr) {
+    const AppContext* appContext = worldContext->GetAppContext();
+    if (appContext == nullptr)
+    {
         return;
     }
     //Filling ability.
     //填充能力。
-    if (itemContainer_ != nullptr) {
-        const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+    if (itemContainer_ != nullptr)
+    {
+        const ResourceLocator* resourceLocator = appContext->GetResourceLocator();
         auto abilityItemRefSize = itemMessage.abilityitemref_size();
         LogCat::d(LogLabel::DEFAULT, "composable_item_read_message",
                   "Read composable item from save: abilityItemCount={}",
                   static_cast<int>(abilityItemRefSize));
-        for (int i = 0; i < itemContainer_->GetCapacity(); i++) {
-            if (i >= abilityItemRefSize) {
+        for (int i = 0; i < itemContainer_->GetCapacity(); i++)
+        {
+            if (i >= abilityItemRefSize)
+            {
                 break;
             }
-            const ItemMessage &abilityItemMessage = itemMessage.abilityitemref(i);
+            const ItemMessage& abilityItemMessage = itemMessage.abilityitemref(i);
             std::unique_ptr<Item> item = resourceLocator->FindItem(worldContext, abilityItemMessage);
-            if (item != nullptr) {
+            if (item != nullptr)
+            {
                 std::unique_ptr<Item> result = ReplaceItem(static_cast<uint8_t>(i), std::move(item));
             }
         }
@@ -300,15 +348,19 @@ void glimmer::ComposableItem::ReadItemMessage(WorldContext *worldContext, const 
 }
 
 
-void glimmer::ComposableItem::WriteItemMessage(ItemMessage &itemMessage) const {
+void glimmer::ComposableItem::WriteItemMessage(ItemMessage& itemMessage) const
+{
     Item::WriteItemMessage(itemMessage);
     itemMessage.clear_abilityitemref();
     itemMessage.set_durabilitystrategy(allocStrategyPtr_->GetStrategyType());
-    if (itemContainer_ != nullptr) {
-        for (int i = 0; i < itemContainer_->GetCapacity(); i++) {
-            ItemMessage *abilityItemMessage = itemMessage.add_abilityitemref();
-            const Item *item = itemContainer_->GetItem(i);
-            if (item == nullptr) {
+    if (itemContainer_ != nullptr)
+    {
+        for (int i = 0; i < itemContainer_->GetCapacity(); i++)
+        {
+            ItemMessage* abilityItemMessage = itemMessage.add_abilityitemref();
+            const Item* item = itemContainer_->GetItem(i);
+            if (item == nullptr)
+            {
                 continue;
             }
             item->WriteItemMessage(*abilityItemMessage);
@@ -316,69 +368,87 @@ void glimmer::ComposableItem::WriteItemMessage(ItemMessage &itemMessage) const {
     }
 }
 
-void glimmer::ComposableItem::Reduce(const unsigned value) {
+void glimmer::ComposableItem::Reduce(const unsigned value)
+{
     LogCat::d(LogLabel::DEFAULT, "composable_item_reduce", "Reduce composable item durability by {}", value);
-    if (itemContainer_ != nullptr) {
-        std::vector<IAllocatable *> itemsList;
-        for (uint8_t index = 0; index < itemContainer_->GetCapacity(); index++) {
-            Item *item = itemContainer_->GetItem(index);
-            if (item == nullptr) {
+    if (itemContainer_ != nullptr)
+    {
+        std::vector<IAllocatable*> itemsList;
+        for (uint8_t index = 0; index < itemContainer_->GetCapacity(); index++)
+        {
+            Item* item = itemContainer_->GetItem(index);
+            if (item == nullptr)
+            {
                 continue;
             }
             itemsList.emplace_back(item);
         }
         allocStrategyPtr_->Allocate(itemsList, value);
     }
-    if (ItemDurabilityModule *itemDurabilityModule = GetMutableDurabilityModule(); itemDurabilityModule != nullptr) {
+    if (ItemDurabilityModule* itemDurabilityModule = GetMutableDurabilityModule(); itemDurabilityModule != nullptr)
+    {
         itemDurabilityModule->AddUsedDurability(value);
     }
 }
 
-glimmer::ComposableItem::~ComposableItem() {
+glimmer::ComposableItem::~ComposableItem()
+{
     LogCat::d(LogLabel::DEFAULT, "composable_item_destroyed", "Composable item destroyed: itemId={}", id_);
-    if (itemContainer_ != nullptr) {
+    if (itemContainer_ != nullptr)
+    {
         itemContainer_->RemoveOnContentChanged(callback_);
     }
 }
 
-const std::string &glimmer::ComposableItem::GetId() const {
+const std::string& glimmer::ComposableItem::GetId() const
+{
     return id_;
 }
 
-const std::string &glimmer::ComposableItem::GetName() const {
+const std::string& glimmer::ComposableItem::GetName() const
+{
     return name_;
 }
 
-const std::optional<std::string> &glimmer::ComposableItem::GetDescription() const {
+const std::optional<std::string>& glimmer::ComposableItem::GetDescription() const
+{
     return description_;
 }
 
-glimmer::TextureResourceResult *glimmer::ComposableItem::GetIcon() const {
-    if (iconResult_ == nullptr) {
+glimmer::TextureResourceResult* glimmer::ComposableItem::GetIcon() const
+{
+    if (iconResult_ == nullptr)
+    {
         return nullptr;
     }
     return iconResult_.get();
 }
 
-SDL_GPUGraphicsPipeline *glimmer::ComposableItem::GetPipeline() const {
-    if (pipeline_ == nullptr) {
+SDL_GPUGraphicsPipeline* glimmer::ComposableItem::GetPipeline() const
+{
+    if (pipeline_ == nullptr)
+    {
         return nullptr;
     }
     return pipeline_->GetResource();
 }
 
-void glimmer::ComposableItem::SetPipeline(std::shared_ptr<GPUPipelineResourceResult> pipeline) {
+void glimmer::ComposableItem::SetPipeline(std::shared_ptr<GPUPipelineResourceResult> pipeline)
+{
     pipeline_ = std::move(pipeline);
 }
 
-SDL_GPUSampler *glimmer::ComposableItem::GetSampler() const {
-    if (sampler_ == nullptr) {
+SDL_GPUSampler* glimmer::ComposableItem::GetSampler() const
+{
+    if (sampler_ == nullptr)
+    {
         return nullptr;
     }
     return sampler_->GetResource();
 }
 
 
-void glimmer::ComposableItem::SetSampler(std::shared_ptr<GPUSamplerResourceResult> sampler) {
+void glimmer::ComposableItem::SetSampler(std::shared_ptr<GPUSamplerResourceResult> sampler)
+{
     sampler_ = std::move(sampler);
 }

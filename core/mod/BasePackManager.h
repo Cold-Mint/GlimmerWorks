@@ -30,23 +30,24 @@
 #include <vector>
 
 #include "PackScanRequest.h"
-#include "core/log/LogCat.h"
 #include "core/mod/PackManifest.h"
 #include "resourcePack/BaseManager.h"
 
-namespace glimmer {
+namespace glimmer
+{
     class AppContext;
     class Config;
     class VirtualFileSystem;
 
-    template<typename ResourceType>
-    class BasePackManager : public BaseManager<ResourceType> {
-        std::vector<ResourceType *> resourceVector_;
+    template <typename ResourceType>
+    class BasePackManager : public BaseManager<ResourceType>
+    {
+        std::vector<ResourceType*> resourceVector_;
 
     protected:
-        void AfterRegister(ResourceType *resource) override;
+        void AfterRegister(ResourceType* resource) override;
 
-        void BeforeUnRegister(ResourceType *resource) override;
+        void BeforeUnRegister(ResourceType* resource) override;
 
         /**
          * GetEnabledPack
@@ -54,7 +55,7 @@ namespace glimmer {
          * @param config
          * @return
          */
-        virtual std::vector<uint64_t> *GetEnabledPack(Config *config) const = 0;
+        virtual std::vector<uint64_t>* GetEnabledPack(Config* config) const = 0;
 
         /**
          * Obtain the path for package loading
@@ -62,7 +63,7 @@ namespace glimmer {
          * @param config
          * @return
          */
-        virtual std::filesystem::path GetPackPath(Config *config) const = 0;
+        virtual std::filesystem::path GetPackPath(Config* config) const = 0;
 
         /**
         * Load a certain package
@@ -71,7 +72,7 @@ namespace glimmer {
         * @param path
         * @return
         */
-        virtual std::unique_ptr<ResourceType> LoadPack(const PackScanRequest *packScanRequest,
+        virtual std::unique_ptr<ResourceType> LoadPack(const PackScanRequest* packScanRequest,
                                                        std::filesystem::path path) = 0;
 
         /**
@@ -81,8 +82,8 @@ namespace glimmer {
         * @param enabledPack
         * @return
         */
-        static bool IsPackEnabled(const uint64_t &uuid,
-                                  std::vector<uint64_t> *enabledPack);
+        static bool IsPackEnabled(const uint64_t& uuid,
+                                  std::vector<uint64_t>* enabledPack);
 
         /**
          * Check if the bag is usable
@@ -90,7 +91,7 @@ namespace glimmer {
          * @param packManifest
          * @return
          */
-        [[nodiscard]] static bool IsPackAvailable(const PackManifest *packManifest);
+        [[nodiscard]] static bool IsPackAvailable(const PackManifest* packManifest);
 
     public:
         /**
@@ -98,36 +99,42 @@ namespace glimmer {
          * 列出所有资源
          * @return
          */
-        const std::vector<ResourceType *> *List() const;
+        const std::vector<ResourceType*>* List() const;
 
-        int Scan(const PackScanRequest *packScanRequest);
+        int Scan(const PackScanRequest* packScanRequest);
     };
 
-    template<typename ResourceType>
-    void BasePackManager<ResourceType>::AfterRegister(ResourceType *resource) {
+    template <typename ResourceType>
+    void BasePackManager<ResourceType>::AfterRegister(ResourceType* resource)
+    {
         resourceVector_.emplace_back(resource);
     }
 
-    template<typename ResourceType>
-    void BasePackManager<ResourceType>::BeforeUnRegister(ResourceType *resource) {
+    template <typename ResourceType>
+    void BasePackManager<ResourceType>::BeforeUnRegister(ResourceType* resource)
+    {
         auto it = std::ranges::find(resourceVector_, resource);
-        if (it != resourceVector_.end()) {
+        if (it != resourceVector_.end())
+        {
             resourceVector_.erase(it);
         }
     }
 
-    template<typename ResourceType>
-    const std::vector<ResourceType *> *BasePackManager<ResourceType>::List() const {
+    template <typename ResourceType>
+    const std::vector<ResourceType*>* BasePackManager<ResourceType>::List() const
+    {
         return &resourceVector_;
     }
 
-    template<typename ResourceType>
-    bool BasePackManager<ResourceType>::IsPackEnabled(const uint64_t &uuid, std::vector<uint64_t> *enabledPack) {
+    template <typename ResourceType>
+    bool BasePackManager<ResourceType>::IsPackEnabled(const uint64_t& uuid, std::vector<uint64_t>* enabledPack)
+    {
         return std::ranges::find(*enabledPack, uuid) != enabledPack->end();
     }
 
-    template<typename ResourceType>
-    bool BasePackManager<ResourceType>::IsPackAvailable(const PackManifest *packManifest) {
+    template <typename ResourceType>
+    bool BasePackManager<ResourceType>::IsPackAvailable(const PackManifest* packManifest)
+    {
         return packManifest->minGameVersion <= GAME_VERSION_NUMBER;
     }
 }

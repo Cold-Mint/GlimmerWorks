@@ -31,23 +31,23 @@
 #include "core/config/Constants.h"
 #include "core/ecs/EcsTypes.h"
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * Magnet (the side that generates suction)
      * 吸铁石（产生吸力的一方）
      */
-    class MagnetComponent : public GameComponent {
+    class MagnetComponent : public GameComponent
+    {
         /**
-   * Types of magnetic adsorbates that can be adsorbed(Multiple can be set.)
-   * magnetic_type_item | magnetic_type_money
-   * 可被吸附的磁吸物类型(可以设置多个。)
-   * 例如：MAGNETIC_TYPE_ITEM|MAGNETIC_TYPE_MONEY
-   */
-        uint16_t type_ = 0;
+        *The id of the adsorbed entity
+        * 被吸附的实体id
+        */
+        std::vector<GameEntityID> entities_;
         /**
-         * radius(Add it to entities when the radius is less than or equal to this)
-         * 吸附半径(当小于等于此半径时将其加入到entities内)
-         */
+       * radius(Add it to entities when the radius is less than or equal to this)
+       * 吸附半径(当小于等于此半径时将其加入到entities内)
+       */
         float adsorptionRadius_ = TILE_SIZE;
 
         /**
@@ -56,10 +56,12 @@ namespace glimmer {
          */
         float detectionRadius_ = TILE_SIZE * 5;
         /**
-         *The id of the adsorbed entity
-         * 被吸附的实体id
-         */
-        std::vector<GameEntityID> entities_;
+   * Types of magnetic adsorbates that can be adsorbed(Multiple can be set.)
+   * magnetic_type_item | magnetic_type_money
+   * 可被吸附的磁吸物类型(可以设置多个。)
+   * 例如：MAGNETIC_TYPE_ITEM|MAGNETIC_TYPE_MONEY
+   */
+        uint16_t type_ = 0;
 
     public:
         void SetType(uint16_t type);
@@ -80,7 +82,7 @@ namespace glimmer {
 
         void AddEntity(GameEntityID entityId);
 
-        [[nodiscard]] const std::vector<GameEntityID> &GetEntities() const;
+        [[nodiscard]] const std::vector<GameEntityID>& GetEntities() const;
 
         [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 

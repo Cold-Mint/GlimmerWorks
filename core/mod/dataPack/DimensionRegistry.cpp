@@ -27,12 +27,15 @@
 #include "DimensionRegistry.h"
 
 
-const std::vector<glimmer::DimensionResource *> &glimmer::DimensionRegistry::GetStartingDimensions() const {
+const std::vector<glimmer::DimensionResource*>& glimmer::DimensionRegistry::GetStartingDimensions() const
+{
     return startingDimensions_;
 }
 
-void glimmer::DimensionRegistry::OnRegister(DimensionResource *resource) {
-    if (resource->allowAsStarting) {
+void glimmer::DimensionRegistry::OnRegister(DimensionResource* resource)
+{
+    if (resource->allowAsStarting)
+    {
         startingDimensions_.push_back(resource);
     }
 }

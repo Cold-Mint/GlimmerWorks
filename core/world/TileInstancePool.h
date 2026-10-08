@@ -29,20 +29,22 @@
 #include <unordered_map>
 #include <cstdint>
 
-namespace glimmer {
+namespace glimmer
+{
     class AppContext;
     class Tile;
     struct TileResource;
     class ResourceRef;
 
-    class TileInstancePool {
+    class TileInstancePool
+    {
         friend class Chunk;
-        std::unordered_map<uint64_t, std::weak_ptr<Tile> > tileInstanceMap_;
+        std::unordered_map<uint64_t, std::weak_ptr<Tile>> tileInstanceMap_;
 
     public:
         ~TileInstancePool();
 
-        std::shared_ptr<Tile> CreateTile(const AppContext *appContext,
-                                         const TileResource *tileResource, uint64_t fingerprint);
+        std::shared_ptr<Tile> CreateTile(const AppContext* appContext,
+                                         const TileResource* tileResource, uint64_t fingerprint);
     };
 }

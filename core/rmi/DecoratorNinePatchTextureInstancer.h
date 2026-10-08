@@ -27,22 +27,24 @@
 #pragma once
 #include "RmlUi/Core/Decorator.h"
 
-namespace glimmer {
-    class DecoratorNinePatchTextureInstancer : public Rml::DecoratorInstancer {
-        Rml::PropertyId srcId_ = Rml::PropertyId::Invalid;
+namespace glimmer
+{
+    class DecoratorNinePatchTextureInstancer : public Rml::DecoratorInstancer
+    {
         Rml::PropertyId edgeIds_[4] = {
             Rml::PropertyId::Invalid, Rml::PropertyId::Invalid,
             Rml::PropertyId::Invalid, Rml::PropertyId::Invalid
         };
+        Rml::PropertyId srcId_ = Rml::PropertyId::Invalid;
 
     public:
         /// Registering attributes must be done after calling Rml::Initialise()
         /// 注册属性，必须在 Rml::Initialise() 之后调用
         void RegisterProperties();
 
-        Rml::SharedPtr<Rml::Decorator> InstanceDecorator(const Rml::String &name,
-                                                         const Rml::PropertyDictionary &properties,
-                                                         const Rml::DecoratorInstancerInterface &
+        Rml::SharedPtr<Rml::Decorator> InstanceDecorator(const Rml::String& name,
+                                                         const Rml::PropertyDictionary& properties,
+                                                         const Rml::DecoratorInstancerInterface&
                                                          instancer_interface) override;
     };
 }

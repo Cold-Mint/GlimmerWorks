@@ -29,14 +29,16 @@
 #include "core/vfs/VirtualFileSystem.h"
 #include "src/saves/command_history.pb.h"
 
-namespace glimmer {
-    class CommandHistoryManager {
-        VirtualFileSystem *virtualFileSystem_;
+namespace glimmer
+{
+    class CommandHistoryManager
+    {
         CommandHistoryMessage commandHistoryMessage_;
         std::filesystem::path commandHistoryPath_;
+        VirtualFileSystem* virtualFileSystem_ = nullptr;
 
     public:
-        explicit CommandHistoryManager(const std::filesystem::path &runtimePath, VirtualFileSystem *virtualFileSystem);
+        explicit CommandHistoryManager(const std::filesystem::path& runtimePath, VirtualFileSystem* virtualFileSystem);
 
         /**
          * Save
@@ -49,7 +51,7 @@ namespace glimmer {
          * 获取命令历史消息
          * @return
          */
-        [[nodiscard]] CommandHistoryMessage *GetCommandHistoryMessage();
+        [[nodiscard]] CommandHistoryMessage* GetCommandHistoryMessage();
 
         /**
          * Read

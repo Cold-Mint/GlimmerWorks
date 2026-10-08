@@ -31,64 +31,78 @@
 #include "RmlUi/Core/Context.h"
 #include "RmlUi/Core/DataModelHandle.h"
 
-void glimmer::Scene::OnFrameStart() {
+void glimmer::Scene::OnFrameStart()
+{
     // Intentionally empty default implementation for base class
 }
 
-void glimmer::Scene::OnPauseScene() {
+void glimmer::Scene::OnPauseScene()
+{
     HideAllElementDocuments();
 }
 
-void glimmer::Scene::OnCreateDataModels() {
+void glimmer::Scene::OnCreateDataModels()
+{
     //Create the RML data model here
 }
 
-void glimmer::Scene::LoadDocuments() {
+void glimmer::Scene::LoadDocuments()
+{
     //Load the rml document within this method.
 }
 
-void glimmer::Scene::OnResumeScene() {
+void glimmer::Scene::OnResumeScene()
+{
     RestoreHiddenElementDocuments();
 }
 
-void glimmer::Scene::OnConfigChanged(const Config *config) {
+void glimmer::Scene::OnConfigChanged(const Config* config)
+{
     // Intentionally empty default implementation for base class
 }
 
-bool glimmer::Scene::OnBackPressed() {
+bool glimmer::Scene::OnBackPressed()
+{
     return false;
 }
 
-void glimmer::Scene::OnWindowSizeChanged(const int &width, const int &height) {
+void glimmer::Scene::OnWindowSizeChanged(const int& width, const int& height)
+{
     // Intentionally empty default implementation for base class
 }
 
-glimmer::Scene::~Scene() {
+glimmer::Scene::~Scene()
+{
     RemoveAllDataModel();
     CloseAllElementDocuments();
 }
 
-glimmer::AppContext *glimmer::Scene::GetAppContext() const {
+glimmer::AppContext* glimmer::Scene::GetAppContext() const
+{
     return appContext_;
 }
 
-void glimmer::Scene::Init() {
+void glimmer::Scene::Init()
+{
     LogCat::i(LogLabel::DEFAULT, "scene_init_started", "Scene init started");
     initSubclassFinish_ = true;
-    const AppContext *appContext = GetAppContext();
-    if (appContext == nullptr) {
+    const AppContext* appContext = GetAppContext();
+    if (appContext == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "scene_init_app_context_is_null",
                   "Scene init failed: appContext is nullptr");
         return;
     }
-    const WindowContext *windowContext = appContext->GetWindowContext();
-    if (windowContext == nullptr) {
+    const WindowContext* windowContext = appContext->GetWindowContext();
+    if (windowContext == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "scene_init_window_context_is_null",
                   "Scene init failed: windowContext is nullptr");
         return;
     }
     OnWindowSizeChanged(windowContext->GetWindowWidth(), windowContext->GetWindowHeight());
-    if (const Config *config = appContext->GetConfig(); config != nullptr) {
+    if (const Config* config = appContext->GetConfig(); config != nullptr)
+    {
         OnConfigChanged(config);
     }
     rmlContext_ = appContext->GetRmlContext();
@@ -97,20 +111,24 @@ void glimmer::Scene::Init() {
     LogCat::i(LogLabel::DEFAULT, "scene_init_completed", "Scene init completed");
 }
 
-Rml::ElementDocument *glimmer::Scene::LoadSingleDocument(const ResourceRef *resourceRef) {
-    if (appContext_ == nullptr || rmlContext_ == nullptr || resourceRef == nullptr) {
+Rml::ElementDocument* glimmer::Scene::LoadSingleDocument(const ResourceRef* resourceRef)
+{
+    if (appContext_ == nullptr || rmlContext_ == nullptr || resourceRef == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "load_document_missing_vars",
                   "The required variables for LoadDocument are missing. It is necessary to check if they are called after the init method.");
         return nullptr;
     }
-    Rml::ElementDocument *elementDocument = rmlContext_->LoadDocument(appContext_, resourceRef);
-    if (elementDocument == nullptr) {
+    Rml::ElementDocument* elementDocument = rmlContext_->LoadDocument(appContext_, resourceRef);
+    if (elementDocument == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "element_document_is_null",
                   "elementDocument_ == nullptr");
         return nullptr;
     }
 #if  !defined(NDEBUG)
-    if (elementDocumentSet_.contains(elementDocument)) {
+    if (elementDocumentSet_.contains(elementDocument))
+    {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "duplicate_document_loading",
                   "A duplicate loading of the document has been detected.");
         return nullptr;
@@ -120,15 +138,19 @@ Rml::ElementDocument *glimmer::Scene::LoadSingleDocument(const ResourceRef *reso
     return elementDocument;
 }
 
-Rml::DataModelConstructor *glimmer::Scene::CreateDataModel(const Rml::String &name) {
-    if (rmlContext_ == nullptr) {
+Rml::DataModelConstructor* glimmer::Scene::CreateDataModel(const Rml::String& name)
+{
+    if (rmlContext_ == nullptr)
+    {
         return nullptr;
     }
-    Rml::Context *rmlContextCore = rmlContext_->GetRmlContext();
-    if (rmlContextCore == nullptr) {
+    Rml::Context* rmlContextCore = rmlContext_->GetRmlContext();
+    if (rmlContextCore == nullptr)
+    {
         return nullptr;
     }
-    if (rmlConstructorNames_.contains(name)) {
+    if (rmlConstructorNames_.contains(name))
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "recreate_data_model",
                   "Recreate the dataModel:{}", name);
         return nullptr;
@@ -138,41 +160,52 @@ Rml::DataModelConstructor *glimmer::Scene::CreateDataModel(const Rml::String &na
     return &rmlConstructors_.back();
 }
 
-void glimmer::Scene::RemoveAllDataModel() {
-    if (rmlContext_ == nullptr) {
+void glimmer::Scene::RemoveAllDataModel()
+{
+    if (rmlContext_ == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "remove_all_data_model_rml_context_is_null",
                   "RemoveAllDataModel rmlContext_ == nullptr");
         return;
     }
-    Rml::Context *rmlContextCore = rmlContext_->GetRmlContext();
-    if (rmlContextCore == nullptr) {
+    Rml::Context* rmlContextCore = rmlContext_->GetRmlContext();
+    if (rmlContextCore == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "remove_all_data_model_rml_context_core_is_null",
                   "RemoveAllDataModel rmlContextCore == nullptr");
         return;
     }
     rmlConstructors_.clear();
-    for (auto &rmlConstructorName: rmlConstructorNames_) {
+    for (auto& rmlConstructorName : rmlConstructorNames_)
+    {
         rmlContextCore->RemoveDataModel(rmlConstructorName);
     }
     rmlConstructorNames_.clear();
 }
 
-void glimmer::Scene::HideAllElementDocuments() {
+void glimmer::Scene::HideAllElementDocuments()
+{
     visibleElementDocumentsSnapshot_.clear();
-    for (auto elementDocument: elementDocumentSet_) {
-        if (elementDocument == nullptr) {
+    for (auto elementDocument : elementDocumentSet_)
+    {
+        if (elementDocument == nullptr)
+        {
             continue;
         }
-        if (elementDocument->IsVisible()) {
+        if (elementDocument->IsVisible())
+        {
             elementDocument->Hide();
             visibleElementDocumentsSnapshot_.insert(elementDocument);
         }
     }
 }
 
-void glimmer::Scene::RestoreHiddenElementDocuments() {
-    for (auto elementDocument: visibleElementDocumentsSnapshot_) {
-        if (elementDocument == nullptr) {
+void glimmer::Scene::RestoreHiddenElementDocuments()
+{
+    for (auto elementDocument : visibleElementDocumentsSnapshot_)
+    {
+        if (elementDocument == nullptr)
+        {
             continue;
         }
         elementDocument->Show();
@@ -181,24 +214,32 @@ void glimmer::Scene::RestoreHiddenElementDocuments() {
 }
 
 
-std::vector<Rml::ElementDocument *> glimmer::Scene::GetAllDocuments() const {
-    std::vector<Rml::ElementDocument *> docs;
-    for (auto doc: elementDocumentSet_) {
-        if (doc != nullptr) {
+std::vector<Rml::ElementDocument*> glimmer::Scene::GetAllDocuments() const
+{
+    std::vector<Rml::ElementDocument*> docs;
+    for (auto doc : elementDocumentSet_)
+    {
+        if (doc != nullptr)
+        {
             docs.push_back(doc);
         }
     }
     return docs;
 }
 
-glimmer::UniformInjectContext *glimmer::Scene::GetUniformInjectContext() {
+glimmer::UniformInjectContext* glimmer::Scene::GetUniformInjectContext()
+{
     return nullptr;
 }
 
-Rml::Element *glimmer::Scene::FindElementById(const Rml::String &elementId) const {
-    for (Rml::ElementDocument *doc: elementDocumentSet_) {
-        if (doc != nullptr) {
-            if (Rml::Element *element = doc->GetElementById(elementId); element != nullptr) {
+Rml::Element* glimmer::Scene::FindElementById(const Rml::String& elementId) const
+{
+    for (Rml::ElementDocument* doc : elementDocumentSet_)
+    {
+        if (doc != nullptr)
+        {
+            if (Rml::Element* element = doc->GetElementById(elementId); element != nullptr)
+            {
                 return element;
             }
         }
@@ -206,51 +247,65 @@ Rml::Element *glimmer::Scene::FindElementById(const Rml::String &elementId) cons
     return nullptr;
 }
 
-void FindElementRecursively(Rml::Element *parent, const Rml::String &attrName, const Rml::String &attrValue,
-                            Rml::Element *&result) {
-    if (parent == nullptr || result != nullptr) {
+void FindElementRecursively(Rml::Element* parent, const Rml::String& attrName, const Rml::String& attrValue,
+                            Rml::Element*& result)
+{
+    if (parent == nullptr || result != nullptr)
+    {
         return;
     }
     auto value = parent->GetAttribute<Rml::String>(attrName, "");
-    if (value == attrValue) {
+    if (value == attrValue)
+    {
         result = parent;
         return;
     }
     int childCount = parent->GetNumChildren();
-    for (int i = 0; i < childCount; ++i) {
-        Rml::Element *child = parent->GetChild(i);
+    for (int i = 0; i < childCount; ++i)
+    {
+        Rml::Element* child = parent->GetChild(i);
         FindElementRecursively(child, attrName, attrValue, result);
-        if (result != nullptr) {
+        if (result != nullptr)
+        {
             return;
         }
     }
 }
 
-void FindElementByTextRecursively(Rml::Element *parent, const Rml::String &text, Rml::Element *&result) {
-    if (parent == nullptr || result != nullptr) {
+void FindElementByTextRecursively(Rml::Element* parent, const Rml::String& text, Rml::Element*& result)
+{
+    if (parent == nullptr || result != nullptr)
+    {
         return;
     }
     Rml::String innerRml = parent->GetInnerRML();
-    if (innerRml.find(text) != Rml::String::npos) {
+    if (innerRml.find(text) != Rml::String::npos)
+    {
         result = parent;
         return;
     }
     int childCount = parent->GetNumChildren();
-    for (int i = 0; i < childCount; ++i) {
-        Rml::Element *child = parent->GetChild(i);
+    for (int i = 0; i < childCount; ++i)
+    {
+        Rml::Element* child = parent->GetChild(i);
         FindElementByTextRecursively(child, text, result);
-        if (result != nullptr) {
+        if (result != nullptr)
+        {
             return;
         }
     }
 }
 
-Rml::Element *glimmer::Scene::FindElementByAttribute(const Rml::String &attrName, const Rml::String &attrValue) const {
-    for (Rml::ElementDocument *doc: elementDocumentSet_) {
-        if (doc != nullptr) {
-            Rml::Element *result = nullptr;
+Rml::Element* glimmer::Scene::FindElementByAttribute(const Rml::String& attrName, const Rml::String& attrValue) const
+{
+    for (Rml::ElementDocument* doc : elementDocumentSet_)
+    {
+        if (doc != nullptr)
+        {
+            Rml::Element* result = nullptr;
             FindElementRecursively(doc, attrName, attrValue, result);
-            if (result != nullptr) {
+            if (result != nullptr)
+            {
                 return result;
             }
         }
@@ -258,12 +313,16 @@ Rml::Element *glimmer::Scene::FindElementByAttribute(const Rml::String &attrName
     return nullptr;
 }
 
-Rml::Element *glimmer::Scene::FindElementByText(const Rml::String &text) const {
-    for (Rml::ElementDocument *doc: elementDocumentSet_) {
-        if (doc != nullptr) {
-            Rml::Element *result = nullptr;
+Rml::Element* glimmer::Scene::FindElementByText(const Rml::String& text) const
+{
+    for (Rml::ElementDocument* doc : elementDocumentSet_)
+    {
+        if (doc != nullptr)
+        {
+            Rml::Element* result = nullptr;
             FindElementByTextRecursively(doc, text, result);
-            if (result != nullptr) {
+            if (result != nullptr)
+            {
                 return result;
             }
         }
@@ -271,9 +330,12 @@ Rml::Element *glimmer::Scene::FindElementByText(const Rml::String &text) const {
     return nullptr;
 }
 
-void glimmer::Scene::CloseAllElementDocuments() {
-    for (auto elementDocument: elementDocumentSet_) {
-        if (elementDocument == nullptr || rmlContext_ == nullptr) {
+void glimmer::Scene::CloseAllElementDocuments()
+{
+    for (auto elementDocument : elementDocumentSet_)
+    {
+        if (elementDocument == nullptr || rmlContext_ == nullptr)
+        {
             continue;
         }
         rmlContext_->CloseDocument(elementDocument);
@@ -281,20 +343,25 @@ void glimmer::Scene::CloseAllElementDocuments() {
     elementDocumentSet_.clear();
 }
 
-bool glimmer::Scene::HandleEvent(const SDL_Event &event) {
+bool glimmer::Scene::HandleEvent(const SDL_Event& event)
+{
     return false;
 }
 
-void glimmer::Scene::Update(float delta) {
+void glimmer::Scene::Update(float delta)
+{
     //Cover this method to achieve the initialization of data before each frame rendering.
     //覆盖此方法以实现在每帧渲染前初始化数据。
 }
 
-void glimmer::Scene::OnTick(const uint64_t tick) {
+void glimmer::Scene::OnTick(const uint64_t tick)
+{
 #if  !defined(NDEBUG)
-    if (!initSubclassFinish_) {
+    if (!initSubclassFinish_)
+    {
         initTick_ += tick;
-        if (tick > static_cast<uint64_t>(TICK_RATE) * 2) {
+        if (tick > static_cast<uint64_t>(TICK_RATE) * 2)
+        {
             assert(false);
         }
     }
@@ -302,9 +369,11 @@ void glimmer::Scene::OnTick(const uint64_t tick) {
 }
 
 
-void glimmer::Scene::Render(RenderQueue *queue) {
+void glimmer::Scene::Render(RenderQueue* queue)
+{
     // Intentionally empty default implementation for base class
 }
 
-glimmer::Scene::Scene(AppContext *context) : appContext_(context) {
+glimmer::Scene::Scene(AppContext* context) : appContext_(context)
+{
 }

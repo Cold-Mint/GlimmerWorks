@@ -38,7 +38,8 @@
 #include "core/math/Vector2DIHash.h"
 
 
-namespace glimmer {
+namespace glimmer
+{
     class TileVector2D;
 
     /**
@@ -51,38 +52,8 @@ namespace glimmer {
      * 存储逐瓦片光照（光源、遮罩、贡献与最终颜色），并采用 8 方向泛洪
      * 传播光照，取代此前的射线方案。
      */
-    class LightBuffer {
-        //Whether any static light data (tile sources, masks or ambient color)
-        //changed since the last flush. Static changes trigger a full recompute
-        //(RebuildAllLight) in Flush(); dynamic lights are updated incrementally
-        //and do not set this flag.
-        //自上次 flush 以来是否有静态光照数据（瓦片光源、遮罩或环境光颜色）变化。
-        //静态变化在 Flush() 中触发一次全量重算（RebuildAllLight）；动态光源走
-        //增量更新，不置此标记。
-        bool staticDirty_ = false;
-
-        //Whether only the ambient light color changed since the last flush. This
-        //triggers an ambient-only rebuild (RebuildAmbientLight) instead of a full
-        //re-propagation of every point light source.
-        //自上次 flush 以来是否仅环境光颜色发生变化。仅触发环境光重建
-        //（RebuildAmbientLight），而非重新传播所有点光源。
-        bool ambientDirty_ = false;
-        /**
-        * Monotonic counter bumped by every mutating operation. The renderer
-        * compares it frame to frame to know when the cached light map
-        * texture must be rebuilt (dirty tracking).
-        * 每次修改操作都会递增的单调计数器。渲染器逐帧比较它，
-        * 以判断缓存的光照贴图纹理是否需要重建（脏标记跟踪）。
-        */
-        uint64_t revision_ = 0;
-        //Ambient light sources, updated by SetLightColor.
-        //backLightSource_: light coming from the background layer (-Z).
-        //skyLightSource_:  light coming from above (+Y).
-        //环境光源，由 SetLightColor 更新。
-        //backLightSource_：来自背景层（-Z）的屏幕光。
-        //skyLightSource_：来自上方（+Y）的天光。
-        LightSource backLightSource_{LightDirection::Backward, Color{}};
-        LightSource skyLightSource_{LightDirection::Downward, Color{}};
+    class LightBuffer
+    {
         std::unordered_map<TileVector2D, std::unique_ptr<TileLightData>, Vector2DIHash> tileLightData_;
         //Dynamic (mobile) light sources keyed by an arbitrary id (e.g. entity id).
         //动态（移动）光源，以任意 id（如实体 id）为键。
@@ -94,28 +65,59 @@ namespace glimmer {
         //每列中阻挡天光（Downward）的 Ground 层瓦片 y（升序）。某瓦片的天光透射率
         //等于其上方所有此类瓦片 (1 - 挡光强度) 的连乘，以此取代原先的单天花板 +
         //深度衰减模型，实现连续透射率。
-        std::unordered_map<int, std::set<int> > columnSkyOccluders_;
+        std::unordered_map<int, std::set<int>> columnSkyOccluders_;
+        //Ambient light sources, updated by SetLightColor.
+        //backLightSource_: light coming from the background layer (-Z).
+        //skyLightSource_:  light coming from above (+Y).
+        //环境光源，由 SetLightColor 更新。
+        //backLightSource_：来自背景层（-Z）的屏幕光。
+        //skyLightSource_：来自上方（+Y）的天光。
+        LightSource backLightSource_{LightDirection::Backward, Color{}};
+        LightSource skyLightSource_{LightDirection::Downward, Color{}};
+        /**
+        * Monotonic counter bumped by every mutating operation. The renderer
+        * compares it frame to frame to know when the cached light map
+        * texture must be rebuilt (dirty tracking).
+        * 每次修改操作都会递增的单调计数器。渲染器逐帧比较它，
+        * 以判断缓存的光照贴图纹理是否需要重建（脏标记跟踪）。
+        */
+        uint64_t revision_ = 0;
+        //Whether any static light data (tile sources, masks or ambient color)
+        //changed since the last flush. Static changes trigger a full recompute
+        //(RebuildAllLight) in Flush(); dynamic lights are updated incrementally
+        //and do not set this flag.
+        //自上次 flush 以来是否有静态光照数据（瓦片光源、遮罩或环境光颜色）变化。
+        //静态变化在 Flush() 中触发一次全量重算（RebuildAllLight）；动态光源走
+        //增量更新，不置此标记。
+        bool staticDirty_ = false;
+        //Whether only the ambient light color changed since the last flush. This
+        //triggers an ambient-only rebuild (RebuildAmbientLight) instead of a full
+        //re-propagation of every point light source.
+        //自上次 flush 以来是否仅环境光颜色发生变化。仅触发环境光重建
+        //（RebuildAmbientLight），而非重新传播所有点光源。
+        bool ambientDirty_ = false;
 
-        TileLightData &GetOrCreate(const TileVector2D &position);
 
-        void SetLightFromSource(const LightSource &source, TileLayerType layerType);
+        TileLightData& GetOrCreate(const TileVector2D& position);
 
-        void ClearLightFromSource(const LightSource &source, TileLayerType layerType);
+        void SetLightFromSource(const LightSource& source, TileLayerType layerType);
+
+        void ClearLightFromSource(const LightSource& source, TileLayerType layerType);
 
         /**
          * SetDynamicLightFromSource
          * 传播一个动态点光源：与 SetLightFromSource 相同，但对本次传播新建的
          * 瓦片即时注入环境光贡献（否则这些瓦片缺少背光/天光）。用于增量更新。
          */
-        void SetDynamicLightFromSource(const LightSource &source, TileLayerType layerType);
+        void SetDynamicLightFromSource(const LightSource& source, TileLayerType layerType);
 
-        bool SetLightContributionAt(const TileVector2D &position, TileLayerType layerType, const LightSource &source,
+        bool SetLightContributionAt(const TileVector2D& position, TileLayerType layerType, const LightSource& source,
                                     float accumulated);
 
-        void ClearLightContributionAt(const TileVector2D &position, TileLayerType layerType, const LightSource &source);
+        void ClearLightContributionAt(const TileVector2D& position, TileLayerType layerType, const LightSource& source);
 
-        void SetAmbientLightContributionAt(const TileVector2D &position, TileLayerType layerType,
-                                           const LightSource &source,
+        void SetAmbientLightContributionAt(const TileVector2D& position, TileLayerType layerType,
+                                           const LightSource& source,
                                            std::unique_ptr<Color> lightColor);
 
         void RebuildAllLight();
@@ -132,7 +134,7 @@ namespace glimmer {
          * 向单个瓦片注入环境光贡献（背光 + 天光，逐图层）。供 RebuildAmbientLight
          * 与动态光源增量传播复用。
          */
-        void InjectAmbientLightAt(const TileVector2D &position, TileLightData &tileData);
+        void InjectAmbientLightAt(const TileVector2D& position, TileLightData& tileData);
 
         /**
          * MarkLightDirty
@@ -150,7 +152,7 @@ namespace glimmer {
          * @param direction direction 光照方向
          * @return 0~1 的挡光强度；瓦片不存在或无遮罩时返回 0
          */
-        [[nodiscard]] float GetLightBlockingStrength(const TileVector2D &position, TileLayerType layerType,
+        [[nodiscard]] float GetLightBlockingStrength(const TileVector2D& position, TileLayerType layerType,
                                                      LightDirection direction) const;
 
         /**
@@ -160,7 +162,7 @@ namespace glimmer {
          * @param position position 瓦片世界坐标
          * @return 该空瓦片应得到的最终环境光颜色；无任何环境光时返回黑色。
          */
-        [[nodiscard]] Color ComputeAmbientLightColor(const TileVector2D &position) const;
+        [[nodiscard]] Color ComputeAmbientLightColor(const TileVector2D& position) const;
 
         /**
          * UpdateColumnSkyOccluder
@@ -168,7 +170,7 @@ namespace glimmer {
          * @param position position 瓦片世界坐标
          * @param nowBlocks nowBlocks 该瓦片当前是否阻挡天光
          */
-        void UpdateColumnSkyOccluder(const TileVector2D &position, bool nowBlocks);
+        void UpdateColumnSkyOccluder(const TileVector2D& position, bool nowBlocks);
 
     public:
         /**
@@ -180,25 +182,25 @@ namespace glimmer {
          * @param direction direction 光照方向
          * @param lightMask lightMask 光线遮罩
          */
-        void SetLightMask(const TileVector2D &position, TileLayerType layerType, LightDirection direction,
+        void SetLightMask(const TileVector2D& position, TileLayerType layerType, LightDirection direction,
                           std::unique_ptr<LightMask> lightMask);
 
         /**
          * ClearLightMask
          * 清除某瓦片在指定图层、指定光照方向上的光线遮罩。
          */
-        void ClearLightMask(const TileVector2D &position, TileLayerType layerType, LightDirection direction);
+        void ClearLightMask(const TileVector2D& position, TileLayerType layerType, LightDirection direction);
 
-        void ClearTileLightData(const TileVector2D &position);
+        void ClearTileLightData(const TileVector2D& position);
 
-        [[nodiscard]] const TileLightData *GetTileLightData(const TileVector2D &position) const;
+        [[nodiscard]] const TileLightData* GetTileLightData(const TileVector2D& position) const;
 
-        void SetLightSource(const TileVector2D &position, TileLayerType layerType,
+        void SetLightSource(const TileVector2D& position, TileLayerType layerType,
                             std::unique_ptr<LightSource> lightSource);
 
-        void ClearLightSource(const TileVector2D &position, TileLayerType layerType);
+        void ClearLightSource(const TileVector2D& position, TileLayerType layerType);
 
-        [[nodiscard]] Color GetFinalLightColor(const TileVector2D &position) const;
+        [[nodiscard]] Color GetFinalLightColor(const TileVector2D& position) const;
 
         /**
          * SetDynamicLight
@@ -210,7 +212,7 @@ namespace glimmer {
          * @param layerType layerType 图层
          * @param lightSource lightSource 光源数据
          */
-        void SetDynamicLight(uint64_t id, const TileVector2D &position, TileLayerType layerType,
+        void SetDynamicLight(uint64_t id, const TileVector2D& position, TileLayerType layerType,
                              std::unique_ptr<LightSource> lightSource);
 
         /**
@@ -236,7 +238,7 @@ namespace glimmer {
          * @param backLight backLight 背光颜色（背景层，来自 -Z）
          * @param skyLight skyLight 天光颜色（来自 +Y）
          */
-        void SetLightColor(const Color &backLight, const Color &skyLight);
+        void SetLightColor(const Color& backLight, const Color& skyLight);
 
         /**
          * GetSkyTransmittance
@@ -245,7 +247,7 @@ namespace glimmer {
          * @param position position 瓦片世界坐标
          * @return 0~1 的天光透射率
          */
-        [[nodiscard]] float GetSkyTransmittance(const TileVector2D &position) const;
+        [[nodiscard]] float GetSkyTransmittance(const TileVector2D& position) const;
 
         /**
          * GetColumnSkyTopY
@@ -266,18 +268,18 @@ namespace glimmer {
          * GetBackLightColor
          * 获取当前背光（背景层，-Z）环境色。
          */
-        [[nodiscard]] const Color *GetBackLightColor() const;
+        [[nodiscard]] const Color* GetBackLightColor() const;
 
         /**
          * GetSkyLightColor
          * 获取当前天光（上方，+Y）环境色。
          */
-        [[nodiscard]] const Color *GetSkyLightColor() const;
+        [[nodiscard]] const Color* GetSkyLightColor() const;
 
         /**
          * GetDynamicLights
          * 获取全部动态（移动）光源，用于调试显示。
          */
-        [[nodiscard]] const std::unordered_map<uint64_t, DynamicLightEntry> *GetDynamicLights() const;
+        [[nodiscard]] const std::unordered_map<uint64_t, DynamicLightEntry>* GetDynamicLights() const;
     };
 }

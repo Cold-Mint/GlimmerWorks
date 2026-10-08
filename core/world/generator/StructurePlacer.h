@@ -30,7 +30,8 @@
 
 #include "core/config/Constants.h"
 
-namespace glimmer {
+namespace glimmer
+{
     class WindowContext;
     class WorldContext;
     class TerrainManager;
@@ -46,8 +47,9 @@ namespace glimmer {
      * Matches structure placement conditions and writes structure tiles into the terrain.
      * 匹配结构放置条件，并将结构瓦片写入地形。
      */
-    class StructurePlacer {
-        WorldContext *worldContext_;
+    class StructurePlacer
+    {
+        WorldContext* worldContext_;
 
         // /**
         //  * PlaceStructureTiles
@@ -66,9 +68,9 @@ namespace glimmer {
          * @param structureResource structureResource 结构资源
          * @return A bitset of candidate points, or nullopt if no condition matched 候选点集合，未匹配到条件时返回nullopt
          */
-        static std::optional<std::bitset<TERRAIN_AREA> > MatchStructureConditions(
-            const WorldContext *worldContext, const TerrainResult *terrainResult,
-            const IStructureResource *structureResource);
+        static std::optional<std::bitset<TERRAIN_AREA>> MatchStructureConditions(
+            const WorldContext* worldContext, const TerrainResult* terrainResult,
+            const IStructureResource* structureResource);
 
         /**
          * PlaceStructureAtCandidatePoints
@@ -80,19 +82,19 @@ namespace glimmer {
          * @param structureResource structureResource 结构资源
          * @return The number of marked points 已标记的点数
          */
-        int PlaceStructureAtCandidatePoints(const AppContext *appContext, TerrainManager *terrainManager,
-                                            const TileVector2D &position,
-                                            const std::bitset<CHUNK_AREA> &candidatePoints,
-                                            IStructureResource *structureResource) const;
+        int PlaceStructureAtCandidatePoints(const AppContext* appContext, TerrainManager* terrainManager,
+                                            const TileVector2D& position,
+                                            const std::bitset<CHUNK_AREA>& candidatePoints,
+                                            IStructureResource* structureResource) const;
 
     public:
-        explicit StructurePlacer(WorldContext *worldContext);
+        explicit StructurePlacer(WorldContext* worldContext);
 
         /**
          * GenerateStructure
          * 生成结构
          * @param position position 区块位置
          */
-        void GenerateStructure(const TileVector2D &position) const;
+        void GenerateStructure(const TileVector2D& position) const;
     };
 }

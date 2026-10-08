@@ -28,13 +28,15 @@
 #include <cstdint>
 #include <string>
 
-namespace glimmer {
-    struct ItemSlotDataModel {
-        bool selected = false;
+namespace glimmer
+{
+    struct ItemSlotDataModel
+    {
         std::string image;
         int amount = 0;
         int index = 0;
         int durability = -1;
+        bool selected = false;
 
         static int CalculateDurabilityPercentage(uint32_t maxDurability, uint32_t usedDurability, bool unbreakable);
     };

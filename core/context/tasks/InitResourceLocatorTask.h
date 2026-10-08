@@ -27,18 +27,20 @@
 #pragma once
 #include "IAppContextInitTask.h"
 
-namespace glimmer {
+namespace glimmer
+{
     class AppContext;
 
-    class InitResourceLocatorTask : public IAppContextInitTask {
-        AppContext *appContext_ = nullptr;
+    class InitResourceLocatorTask : public IAppContextInitTask
+    {
+        AppContext* appContext_ = nullptr;
 
     public:
-        explicit InitResourceLocatorTask(AppContext *appContext);
+        explicit InitResourceLocatorTask(AppContext* appContext);
 
-        bool Run(ISystemBucket *systemBucket) override;
+        bool Run(ISystemBucket* systemBucket) override;
 
-        void Rollback(ISystemBucket *systemBucket) override;
+        void Rollback(ISystemBucket* systemBucket) override;
 
         std::string GetTaskName() override;
     };

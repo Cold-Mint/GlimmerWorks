@@ -85,7 +85,8 @@
 #include "core/console/command/RmlDebugCommand.h"
 #include "core/console/suggestion/SceneDynamicSuggestions.h"
 
-void glimmer::ConsoleContext::RegisterCommands(AppContext *appContext) const {
+void glimmer::ConsoleContext::RegisterCommands(AppContext* appContext) const
+{
     commandManager_->RegisterCommand(std::make_unique<GiveCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<HelpCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<TpCommand>(appContext));
@@ -124,10 +125,12 @@ void glimmer::ConsoleContext::RegisterCommands(AppContext *appContext) const {
 }
 
 
-bool glimmer::ConsoleContext::Init(AppContext *appContext, VirtualFileSystem *vfs, const std::string &runtimePath,
-                                   int maxHistoryEntries) {
-    const ModContext *modContext = appContext->GetModContext();
-    if (modContext == nullptr) {
+bool glimmer::ConsoleContext::Init(AppContext* appContext, VirtualFileSystem* vfs, const std::string& runtimePath,
+                                   int maxHistoryEntries)
+{
+    const ModContext* modContext = appContext->GetModContext();
+    if (modContext == nullptr)
+    {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "mod_context_is_null", "modContext == nullptr");
         return false;
     }
@@ -175,30 +178,36 @@ bool glimmer::ConsoleContext::Init(AppContext *appContext, VirtualFileSystem *vf
         std::make_unique<StructureDynamicSuggestions>(modContext->GetStructureRegistry()));
 
     dynamicSuggestionsManager_->
-            RegisterDynamicSuggestions(std::make_unique<ConfigSuggestions>(appContext));
+        RegisterDynamicSuggestions(std::make_unique<ConfigSuggestions>(appContext));
 
     commandManager_ = std::make_unique<CommandManager>();
     RegisterCommands(appContext);
     consoleWorker_ = std::make_unique<ConsoleWorker>(commandManager_.get(), appContext);
     localConsoleInput_ = std::make_unique<LocalConsoleInput>(
-        [this](const std::string &command) {
-            if (consoleWorker_ != nullptr && commandManager_ != nullptr) {
-                consoleWorker_->PushOnMessage(std::make_unique<std::function<void(const std::string &text)> >(
-                    [](const std::string &text) {
+        [this](const std::string& command)
+        {
+            if (consoleWorker_ != nullptr && commandManager_ != nullptr)
+            {
+                consoleWorker_->PushOnMessage(std::make_unique<std::function<void(const std::string & text)>>(
+                    [](const std::string& text)
+                    {
                         std::cout << "[Console Output] " << text << std::endl;
                     }));
                 consoleWorker_->CreateRequest(command, commandManager_->GetDefaultCommandSender());
             }
         });
     commandHistoryManager_ = std::make_unique<CommandHistoryManager>(runtimePath, vfs);
-    if (maxHistoryEntries > 0) {
+    if (maxHistoryEntries > 0)
+    {
         commandHistoryManager_->Read();
     }
     return true;
 }
 
-void glimmer::ConsoleContext::SaveCommandHistory() const {
-    if (commandHistoryManager_ == nullptr) {
+void glimmer::ConsoleContext::SaveCommandHistory() const
+{
+    if (commandHistoryManager_ == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "command_history_manager_is_null",
                   "commandHistoryManager_ == nullptr");
         return;
@@ -206,16 +215,20 @@ void glimmer::ConsoleContext::SaveCommandHistory() const {
     commandHistoryManager_->Save();
 }
 
-CommandHistoryMessage *glimmer::ConsoleContext::GetCommandHistoryMessage() const {
-    if (commandHistoryManager_ == nullptr) {
+CommandHistoryMessage* glimmer::ConsoleContext::GetCommandHistoryMessage() const
+{
+    if (commandHistoryManager_ == nullptr)
+    {
         return nullptr;
     }
     return commandHistoryManager_->GetCommandHistoryMessage();
 }
 
 
-glimmer::CommandManager *glimmer::ConsoleContext::GetCommandManager() const {
-    if (commandManager_ == nullptr) {
+glimmer::CommandManager* glimmer::ConsoleContext::GetCommandManager() const
+{
+    if (commandManager_ == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "command_manager_is_null",
                   "commandManager_ == nullptr");
         return nullptr;
@@ -223,8 +236,10 @@ glimmer::CommandManager *glimmer::ConsoleContext::GetCommandManager() const {
     return commandManager_.get();
 }
 
-glimmer::ConsoleWorker *glimmer::ConsoleContext::GetConsoleWorker() const {
-    if (consoleWorker_ == nullptr) {
+glimmer::ConsoleWorker* glimmer::ConsoleContext::GetConsoleWorker() const
+{
+    if (consoleWorker_ == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "console_worker_is_null",
                   "consoleWorker_ == nullptr");
         return nullptr;
@@ -232,8 +247,10 @@ glimmer::ConsoleWorker *glimmer::ConsoleContext::GetConsoleWorker() const {
     return consoleWorker_.get();
 }
 
-glimmer::CommandHookManager *glimmer::ConsoleContext::GetCommandHookManager() const {
-    if (commandHookManager_ == nullptr) {
+glimmer::CommandHookManager* glimmer::ConsoleContext::GetCommandHookManager() const
+{
+    if (commandHookManager_ == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "command_hook_manager_is_null",
                   "commandHookManager_ == nullptr");
         return nullptr;
@@ -241,8 +258,10 @@ glimmer::CommandHookManager *glimmer::ConsoleContext::GetCommandHookManager() co
     return commandHookManager_.get();
 }
 
-glimmer::DynamicSuggestionsManager *glimmer::ConsoleContext::GetDynamicSuggestionsManager() const {
-    if (dynamicSuggestionsManager_ == nullptr) {
+glimmer::DynamicSuggestionsManager* glimmer::ConsoleContext::GetDynamicSuggestionsManager() const
+{
+    if (dynamicSuggestionsManager_ == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "dynamic_suggestions_manager_is_null",
                   "dynamicSuggestionsManager_ == nullptr");
         return nullptr;

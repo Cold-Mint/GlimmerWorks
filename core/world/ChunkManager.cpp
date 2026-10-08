@@ -49,57 +49,72 @@
 #include "src/saves/chunk.pb.h"
 
 
-void glimmer::ChunkManager::OnChunkTileChange(Chunk *chunk, [[maybe_unused]] const std::shared_ptr<Tile> &tile,
-                                              const TileLayerType layerType, const int index) const {
-    if (layerType == TileLayerType::Ground) {
+void glimmer::ChunkManager::OnChunkTileChange(Chunk* chunk, [[maybe_unused]] const std::shared_ptr<Tile>& tile,
+                                              const TileLayerType layerType, const int index) const
+{
+    if (layerType == TileLayerType::Ground)
+    {
         ChunkPhysicsHelper::UpdatePhysicsBodyToChunk(worldContext_, chunk);
     }
     UpdateTileLight(chunk, layerType, index);
 }
 
 
-void glimmer::ChunkManager::UpdateTileLight(const Chunk *chunk, const TileLayerType layerType, const int index) const {
-    const AppContext *appContext = worldContext_->GetAppContext();
-    if (appContext == nullptr) {
+void glimmer::ChunkManager::UpdateTileLight(const Chunk* chunk, const TileLayerType layerType, const int index) const
+{
+    const AppContext* appContext = worldContext_->GetAppContext();
+    if (appContext == nullptr)
+    {
         return;
     }
-    if (chunk == nullptr) {
+    if (chunk == nullptr)
+    {
         return;
     }
-    const Tile *tile = chunk->GetTile(layerType, index);
-    if (tile == nullptr) {
+    const Tile* tile = chunk->GetTile(layerType, index);
+    if (tile == nullptr)
+    {
         return;
     }
-    const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
-    if (resourceLocator == nullptr) {
+    const ResourceLocator* resourceLocator = appContext->GetResourceLocator();
+    if (resourceLocator == nullptr)
+    {
         return;
     }
-    const ChunkVertexVector2D &chunkPosition = chunk->GetPosition();
+    const ChunkVertexVector2D& chunkPosition = chunk->GetPosition();
     const int localX = index & CHUNK_MASK;
     const int localY = index >> CHUNK_SHIFT;
     auto lightSourcePosition = TileVector2D(chunkPosition.x + localX, chunkPosition.y + localY);
-    const TileLightResourceData *tileLightResourceData = tile->GetLightResourceData();
-    if (tileLightResourceData == nullptr) {
+    const TileLightResourceData* tileLightResourceData = tile->GetLightResourceData();
+    if (tileLightResourceData == nullptr)
+    {
         return;
     }
     //背光遮照（z 方向）：作用于所有瓦片图层。
-    const LightMaskResource *backLightMaskResource = resourceLocator->FindLightMask(
+    const LightMaskResource* backLightMaskResource = resourceLocator->FindLightMask(
         tileLightResourceData->GetBackLightMaskResource());
-    if (backLightMaskResource == nullptr) {
+    if (backLightMaskResource == nullptr)
+    {
         // Tile has no back light mask resource, clear any existing back light mask data
         // 方块没有背光掩码资源，清除已有的背光掩码数据
         lightBuffer_->ClearLightMask(lightSourcePosition, layerType, LightDirection::Backward);
-    } else {
+    }
+    else
+    {
         const std::unique_ptr<Color> backLightMaskColorPtr = resourceLocator->FindColor(
             &backLightMaskResource->lightMaskColor);
-        if (backLightMaskColorPtr == nullptr) {
+        if (backLightMaskColorPtr == nullptr)
+        {
             return;
         }
-        if (backLightMaskColorPtr->a == 0) {
+        if (backLightMaskColorPtr->a == 0)
+        {
             // Resource exists but has zero alpha - clear with re-propagation
             // 资源存在但alpha为0 - 清除并重新传播
             lightBuffer_->ClearLightMask(lightSourcePosition, layerType, LightDirection::Backward);
-        } else {
+        }
+        else
+        {
             lightBuffer_->SetLightMask(lightSourcePosition, layerType, LightDirection::Backward,
                                        std::make_unique<LightMask>(backLightMaskColorPtr.get(),
                                                                    backLightMaskResource->tintFactor));
@@ -107,48 +122,63 @@ void glimmer::ChunkManager::UpdateTileLight(const Chunk *chunk, const TileLayerT
     }
 
     //侧面遮照（天光遮照）与点光源仅存在于地面层。
-    if (layerType == TileLayerType::Ground) {
-        const LightMaskResource *sideLightMaskResource = resourceLocator->FindLightMask(
+    if (layerType == TileLayerType::Ground)
+    {
+        const LightMaskResource* sideLightMaskResource = resourceLocator->FindLightMask(
             tileLightResourceData->GetSideLightMaskResource());
-        if (sideLightMaskResource == nullptr) {
+        if (sideLightMaskResource == nullptr)
+        {
             // Tile has no side light mask resource, clear any existing side light mask data
             // 方块没有侧面光掩码资源，清除已有的侧面光掩码数据
             lightBuffer_->ClearLightMask(lightSourcePosition, layerType, LightDirection::Downward);
-        } else {
+        }
+        else
+        {
             const std::unique_ptr<Color> sideLightMaskColorPtr = resourceLocator->FindColor(
                 &sideLightMaskResource->lightMaskColor);
-            if (sideLightMaskColorPtr == nullptr) {
+            if (sideLightMaskColorPtr == nullptr)
+            {
                 return;
             }
-            if (sideLightMaskColorPtr->a == 0) {
+            if (sideLightMaskColorPtr->a == 0)
+            {
                 // Resource exists but has zero alpha - clear with re-propagation
                 // 资源存在但alpha为0 - 清除并重新传播
                 lightBuffer_->ClearLightMask(lightSourcePosition, layerType, LightDirection::Downward);
-            } else {
+            }
+            else
+            {
                 lightBuffer_->SetLightMask(lightSourcePosition, layerType, LightDirection::Downward,
                                            std::make_unique<LightMask>(sideLightMaskColorPtr.get(),
                                                                        sideLightMaskResource->tintFactor));
             }
         }
     }
-    const LightSourceResource *lightSourceResource = resourceLocator->FindLightSource(
+    const LightSourceResource* lightSourceResource = resourceLocator->FindLightSource(
         tileLightResourceData->GetLightSourceResource());
-    if (lightSourceResource == nullptr) {
+    if (lightSourceResource == nullptr)
+    {
         // Tile has no light source resource, clear existing light source if any
         // 方块没有光源资源，清除已有的光源
         lightBuffer_->ClearLightSource(lightSourcePosition, layerType);
-    } else {
+    }
+    else
+    {
         const std::unique_ptr<Color> lightColorPtr = resourceLocator->
-                FindColor(&lightSourceResource->lightColor);
-        if (lightColorPtr == nullptr) {
+            FindColor(&lightSourceResource->lightColor);
+        if (lightColorPtr == nullptr)
+        {
             return;
         }
-        if (lightColorPtr->a == 0) {
+        if (lightColorPtr->a == 0)
+        {
             LogCat::d(LogLabel::DEFAULT, "tile_light_source_zero_alpha",
                       "Tile light source has zero alpha, clearing: position=({}, {}), layer={}",
                       lightSourcePosition.x, lightSourcePosition.y, static_cast<int>(layerType));
             lightBuffer_->ClearLightSource(lightSourcePosition, layerType);
-        } else {
+        }
+        else
+        {
             LogCat::d(LogLabel::DEFAULT, "tile_light_source_found",
                       "Found tile light source: position=({}, {}), layer={}, radius={}, rgba=({},{},{},{})",
                       lightSourcePosition.x, lightSourcePosition.y, static_cast<int>(layerType),
@@ -164,19 +194,23 @@ void glimmer::ChunkManager::UpdateTileLight(const Chunk *chunk, const TileLayerT
 }
 
 
-void glimmer::ChunkManager::UpdateChunkLight(const Chunk *chunk) const {
+void glimmer::ChunkManager::UpdateChunkLight(const Chunk* chunk) const
+{
     LogCat::d(LogLabel::CHUNK, "chunk_update_light", "Updating chunk light: position=({}, {})",
               chunk->GetPosition().x,
               chunk->GetPosition().y);
-    for (int index = 0; index < CHUNK_AREA; ++index) {
-        for (int i = 0; i < TILE_LAYER_TYPE_COUNT; ++i) {
+    for (int index = 0; index < CHUNK_AREA; ++index)
+    {
+        for (int i = 0; i < TILE_LAYER_TYPE_COUNT; ++i)
+        {
             UpdateTileLight(chunk, static_cast<TileLayerType>(1 << i), index);
         }
     }
 }
 
 
-glimmer::ChunkManager::ChunkManager(WorldContext *worldContext) : worldContext_(worldContext) {
+glimmer::ChunkManager::ChunkManager(WorldContext* worldContext) : worldContext_(worldContext)
+{
     lightBuffer_ = std::make_unique<LightBuffer>();
     tileInstancePool_ = std::make_unique<TileInstancePool>();
     chunkLoader_ = worldContext_->GetChunkLoader();
@@ -184,57 +218,69 @@ glimmer::ChunkManager::ChunkManager(WorldContext *worldContext) : worldContext_(
     LogCat::i(LogLabel::CHUNK, "chunk_manager_created", "ChunkManager created for dimension folder.");
 }
 
-void glimmer::ChunkManager::LoadChunkAt(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position) {
-    if (HasChunk(dimensionRef, position)) {
+void glimmer::ChunkManager::LoadChunkAt(const ResourceRef& dimensionRef, const ChunkVertexVector2D& position)
+{
+    if (HasChunk(dimensionRef, position))
+    {
         return;
     }
-    const AppContext *appContext = worldContext_->GetAppContext();
-    if (appContext == nullptr) {
+    const AppContext* appContext = worldContext_->GetAppContext();
+    if (appContext == nullptr)
+    {
         return;
     }
-    const ModContext *modContext = appContext->GetModContext();
-    if (modContext == nullptr) {
+    const ModContext* modContext = appContext->GetModContext();
+    if (modContext == nullptr)
+    {
         return;
     }
-    const BiomeRegistry *biomeRegistry = modContext->GetBiomeRegistry();
-    if (biomeRegistry == nullptr) {
+    const BiomeRegistry* biomeRegistry = modContext->GetBiomeRegistry();
+    if (biomeRegistry == nullptr)
+    {
         return;
     }
-    Dimension *dimension = worldContext_->GetDimension();
-    if (dimension == nullptr) {
+    Dimension* dimension = worldContext_->GetDimension();
+    if (dimension == nullptr)
+    {
         return;
     }
-    const DimensionResource *dimensionResource = dimension->GetDimensionResource();
-    if (dimensionResource == nullptr) {
+    const DimensionResource* dimensionResource = dimension->GetDimensionResource();
+    if (dimensionResource == nullptr)
+    {
         return;
     }
     const int worldSeed = worldContext_->GetWorldSeed();
     std::shared_ptr<TerrainResult> terrainResult = nullptr;
-    if (TerrainGenerator *terrainGenerator = worldContext_->GetTerrainGenerator(); terrainGenerator != nullptr) {
+    if (TerrainGenerator* terrainGenerator = worldContext_->GetTerrainGenerator(); terrainGenerator != nullptr)
+    {
         terrainResult = terrainGenerator->GenerateOrGetTerrain(biomeRegistry, worldSeed,
                                                                dimensionResource, dimensionRef,
                                                                CoordinateTransformer::ChunkVertexToTerrainVertex(
                                                                    position));
     }
-    if (terrainResult == nullptr) {
+    if (terrainResult == nullptr)
+    {
         return;
     }
     LogCat::d(LogLabel::CHUNK, "chunk_loading", "Loading chunk at position: ({}, {})", position.x, position.y);
     std::unique_ptr<Chunk> newlyCreatedChunk = chunkLoader_->LoadChunkFromSaves(dimensionRef, position);
-    if (newlyCreatedChunk == nullptr) {
+    if (newlyCreatedChunk == nullptr)
+    {
         LogCat::d(LogLabel::CHUNK, "chunk_not_found_generating", "Chunk not found in saves, generating new chunk");
         newlyCreatedChunk = worldContext_->GetChunkGenerator()->GenerateChunkAt(position, terrainResult.get());
     }
-    if (newlyCreatedChunk == nullptr) {
+    if (newlyCreatedChunk == nullptr)
+    {
         LogCat::w(LogLabel::CHUNK, std::source_location::current(), "chunk_load_generate_failed",
                   "Failed to load or generate chunk at: ({}, {})", position.x,
                   position.y);
         return;
     }
-    Chunk *chunkPtr = newlyCreatedChunk.get();
-    newlyCreatedChunk->AddReplaceTileCallback([this](Chunk *chunk, const TileLayerType layerType,
+    Chunk* chunkPtr = newlyCreatedChunk.get();
+    newlyCreatedChunk->AddReplaceTileCallback([this](Chunk* chunk, const TileLayerType layerType,
                                                      const int index,
-                                                     std::shared_ptr<Tile>, const std::shared_ptr<Tile> &newTile) {
+                                                     std::shared_ptr<Tile>, const std::shared_ptr<Tile>& newTile)
+    {
         OnChunkTileChange(chunk, newTile, layerType, index);
     });
     newlyCreatedChunk->SetDependencyTerrain(terrainResult);
@@ -244,69 +290,84 @@ void glimmer::ChunkManager::LoadChunkAt(const ResourceRef &dimensionRef, const C
     ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldContext_->GetWorldId(), chunkPtr);
 }
 
-void glimmer::ChunkManager::UnloadChunkAt(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position) {
-    Chunk *chunk = GetChunk(dimensionRef, position);
-    if (chunk == nullptr) {
+void glimmer::ChunkManager::UnloadChunkAt(const ResourceRef& dimensionRef, const ChunkVertexVector2D& position)
+{
+    Chunk* chunk = GetChunk(dimensionRef, position);
+    if (chunk == nullptr)
+    {
         return;
     }
     LogCat::d(LogLabel::CHUNK, "chunk_unloading", "Unloading chunk at position: ({}, {})", position.x, position.y);
-    if (!SaveChunk(dimensionRef, position)) {
+    if (!SaveChunk(dimensionRef, position))
+    {
         LogCat::w(LogLabel::CHUNK, std::source_location::current(), "chunk_save_failed_during_unload",
                   "Failed to save chunk during unload at: ({}, {})", position.x,
                   position.y);
         return;
     }
-    for (int x = 0; x < CHUNK_SIZE; x++) {
-        for (int y = 0; y < CHUNK_SIZE; y++) {
+    for (int x = 0; x < CHUNK_SIZE; x++)
+    {
+        for (int y = 0; y < CHUNK_SIZE; y++)
+        {
             lightBuffer_->ClearTileLightData(TileVector2D(position.x + x, position.y + y));
         }
     }
     ChunkPhysicsHelper::DetachPhysicsBodyToChunk(chunk);
     const auto dimensionIterator = dimensionMap_.find(dimensionRef);
-    if (dimensionIterator == dimensionMap_.end()) {
+    if (dimensionIterator == dimensionMap_.end())
+    {
         return;
     }
-    auto &chunkMap = dimensionIterator->second;
+    auto& chunkMap = dimensionIterator->second;
     const auto chunkIterator = chunkMap.find(position);
-    if (chunkIterator == chunkMap.end()) {
+    if (chunkIterator == chunkMap.end())
+    {
         return;
     }
     chunkMap.erase(chunkIterator);
     LogCat::d(LogLabel::CHUNK, "chunk_unloaded", "Chunk unloaded successfully at: ({}, {})", position.x, position.y);
 }
 
-glimmer::Chunk *glimmer::ChunkManager::GetChunk(const ResourceRef &dimensionRef,
-                                                const ChunkVertexVector2D &position) const {
+glimmer::Chunk* glimmer::ChunkManager::GetChunk(const ResourceRef& dimensionRef,
+                                                const ChunkVertexVector2D& position) const
+{
     const auto dimensionIterator = dimensionMap_.find(dimensionRef);
-    if (dimensionIterator == dimensionMap_.end()) {
+    if (dimensionIterator == dimensionMap_.end())
+    {
         return nullptr;
     }
-    const auto &chunkMap = dimensionIterator->second;
+    const auto& chunkMap = dimensionIterator->second;
     const auto chunkIterator = chunkMap.find(position);
-    if (chunkIterator == chunkMap.end()) {
+    if (chunkIterator == chunkMap.end())
+    {
         return nullptr;
     }
     return chunkIterator->second.get();
 }
 
-bool glimmer::ChunkManager::HasChunk(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position) const {
+bool glimmer::ChunkManager::HasChunk(const ResourceRef& dimensionRef, const ChunkVertexVector2D& position) const
+{
     return GetChunk(dimensionRef, position) != nullptr;
 }
 
 
-bool glimmer::ChunkManager::SaveChunk(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position) const {
-    Chunk *chunk = GetChunk(dimensionRef, position);
-    if (chunk == nullptr) {
+bool glimmer::ChunkManager::SaveChunk(const ResourceRef& dimensionRef, const ChunkVertexVector2D& position) const
+{
+    Chunk* chunk = GetChunk(dimensionRef, position);
+    if (chunk == nullptr)
+    {
         return false;
     }
-    const Saves *saves = worldContext_->GetSaves();
-    if (saves == nullptr) {
+    const Saves* saves = worldContext_->GetSaves();
+    if (saves == nullptr)
+    {
         return false;
     }
     LogCat::d(LogLabel::CHUNK, "chunk_saving", "Saving chunk: position=({}, {})", position.x, position.y);
     ChunkMessage chunkMessage;
     chunk->WriteChunkMessage(chunkMessage);
-    if (!saves->WriteChunk(dimensionRef, position, chunkMessage)) {
+    if (!saves->WriteChunk(dimensionRef, position, chunkMessage))
+    {
         return false;
     }
     const WorldVector2D startWorldVector2d = chunk->GetStartWorldPosition();
@@ -315,47 +376,59 @@ bool glimmer::ChunkManager::SaveChunk(const ResourceRef &dimensionRef, const Chu
     const float maxX = std::max(startWorldVector2d.x, endWorldVector2d.x);
     const float minY = std::min(startWorldVector2d.y, endWorldVector2d.y);
     const float maxY = std::max(startWorldVector2d.y, endWorldVector2d.y);
-    EntityManager *entityManager = worldContext_->GetEntityManager();
+    EntityManager* entityManager = worldContext_->GetEntityManager();
     auto transform2DEntities = entityManager->GetEntityIDWithComponents({COMPONENT_TRANSFORM_2D});
     ChunkEntityMessage chunkEntityMessage;
     std::vector<uint32_t> entitiesToRemove;
-    const EntityShortCut *entityShortCut = worldContext_->GetEntityShortCut();
-    if (entityShortCut == nullptr) {
+    const EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
+    if (entityShortCut == nullptr)
+    {
         return false;
     }
     const GameEntityID player = entityShortCut->GetPlayer();
-    for (auto &transform2dEntity: transform2DEntities) {
-        if (transform2dEntity == player) {
+    for (auto& transform2dEntity : transform2DEntities)
+    {
+        if (transform2dEntity == player)
+        {
             continue;
         }
         auto transform2dComponent = entityManager->GetComponent<Transform2DComponent>(transform2dEntity);
-        if (transform2dComponent == nullptr) {
+        if (transform2dComponent == nullptr)
+        {
             continue;
         }
-        const WorldVector2D &pos = transform2dComponent->GetPosition();
+        const WorldVector2D& pos = transform2dComponent->GetPosition();
         if (pos.x < minX || pos.x >= maxX ||
-            pos.y < minY || pos.y >= maxY) {
+            pos.y < minY || pos.y >= maxY)
+        {
             continue;
         }
-        if (entityManager->IsPersistable(transform2dEntity)) {
+        if (entityManager->IsPersistable(transform2dEntity))
+        {
             worldContext_->SaveEntity(chunkEntityMessage.add_entities(), transform2dEntity);
         }
         //Whether this entity is successfully saved or not, it will disappear due to the block unloading.
         //无论这个实体是否成功保存，它都会因为区块卸载而消失。
         entitiesToRemove.emplace_back(transform2dEntity);
     }
-    if (chunkEntityMessage.entities_size() > 0) {
+    if (chunkEntityMessage.entities_size() > 0)
+    {
         //Create a file and save it
         //创建文件并保存
-        if (!saves->WriteChunkEntity(dimensionRef, position, chunkEntityMessage)) {
-            return false;
-        }
-    } else {
-        if (!saves->DeleteChunkEntity(dimensionRef, position)) {
+        if (!saves->WriteChunkEntity(dimensionRef, position, chunkEntityMessage))
+        {
             return false;
         }
     }
-    for (const auto id: entitiesToRemove) {
+    else
+    {
+        if (!saves->DeleteChunkEntity(dimensionRef, position))
+        {
+            return false;
+        }
+    }
+    for (const auto id : entitiesToRemove)
+    {
         entityManager->RemoveEntity(id);
     }
     LogCat::d(LogLabel::CHUNK, "chunk_saved", "Chunk saved: position=({}, {}), entities={}", position.x, position.y,
@@ -363,11 +436,15 @@ bool glimmer::ChunkManager::SaveChunk(const ResourceRef &dimensionRef, const Chu
     return true;
 }
 
-size_t glimmer::ChunkManager::SaveAllChunk() {
+size_t glimmer::ChunkManager::SaveAllChunk()
+{
     size_t chunkCount = 0;
-    for (const auto &[dimensionRef, chunkMap]: dimensionMap_) {
-        for (const auto &position: chunkMap | std::views::keys) {
-            if (SaveChunk(dimensionRef, position)) {
+    for (const auto& [dimensionRef, chunkMap] : dimensionMap_)
+    {
+        for (const auto& position : chunkMap | std::views::keys)
+        {
+            if (SaveChunk(dimensionRef, position))
+            {
                 chunkCount++;
             }
         }
@@ -376,35 +453,42 @@ size_t glimmer::ChunkManager::SaveAllChunk() {
 }
 
 
-size_t glimmer::ChunkManager::GetLoadedChunkCount(const ResourceRef &dimensionRef) const {
+size_t glimmer::ChunkManager::GetLoadedChunkCount(const ResourceRef& dimensionRef) const
+{
     const auto dimensionIterator = dimensionMap_.find(dimensionRef);
-    if (dimensionIterator == dimensionMap_.end()) {
+    if (dimensionIterator == dimensionMap_.end())
+    {
         return 0;
     }
     return dimensionIterator->second.size();
 }
 
-const std::unordered_map<glimmer::ChunkVertexVector2D, std::unique_ptr<glimmer::Chunk>, glimmer::Vector2DIHash> *
-glimmer::ChunkManager::GetLoadedChunks(const ResourceRef &dimensionRef) const {
+const std::unordered_map<glimmer::ChunkVertexVector2D, std::unique_ptr<glimmer::Chunk>, glimmer::Vector2DIHash>*
+glimmer::ChunkManager::GetLoadedChunks(const ResourceRef& dimensionRef) const
+{
     const auto dimensionIterator = dimensionMap_.find(dimensionRef);
-    if (dimensionIterator == dimensionMap_.end()) {
+    if (dimensionIterator == dimensionMap_.end())
+    {
         return nullptr;
     }
     return &dimensionIterator->second;
 }
 
 
-bool glimmer::ChunkManager::ChunkIsOutOfBounds(const DimensionResource *dimensionResource,
-                                               const ChunkVertexVector2D &position) {
+bool glimmer::ChunkManager::ChunkIsOutOfBounds(const DimensionResource* dimensionResource,
+                                               const ChunkVertexVector2D& position)
+{
     return position.y >= dimensionResource->maxY || position.y < dimensionResource->minY || position.x >=
-           dimensionResource->maxX || position.x <
-           dimensionResource->minX;
+        dimensionResource->maxX || position.x <
+        dimensionResource->minX;
 }
 
-glimmer::TileInstancePool *glimmer::ChunkManager::GetTileInstancePool() const {
+glimmer::TileInstancePool* glimmer::ChunkManager::GetTileInstancePool() const
+{
     return tileInstancePool_.get();
 }
 
-glimmer::LightBuffer *glimmer::ChunkManager::GetLightingBuffer() const {
+glimmer::LightBuffer* glimmer::ChunkManager::GetLightingBuffer() const
+{
     return lightBuffer_.get();
 }

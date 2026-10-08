@@ -30,15 +30,17 @@
 #include <utility>
 #include <vector>
 
-namespace glimmer {
-    class GpuShaderCompileResult {
+namespace glimmer
+{
+    class GpuShaderCompileResult
+    {
         std::vector<unsigned int> code_;
+        //每个 uniform 块的名字与 binding 号（first=块名, second=binding）
+        std::vector<std::pair<std::string, uint32_t>> uniformBlockBindings_;
         //采样器数量
         uint32_t numSamplers_ = 0;
         //UniformBuffers数量
         uint32_t numUniformBuffers_ = 0;
-        //每个 uniform 块的名字与 binding 号（first=块名, second=binding）
-        std::vector<std::pair<std::string, uint32_t> > uniformBlockBindings_;
 
     public:
         void SetNumSamplers(uint32_t numSamplers);
@@ -49,16 +51,16 @@ namespace glimmer {
 
         [[nodiscard]] uint32_t GetNumUniformBuffers() const;
 
-        void SetUniformBlockBindings(const std::vector<std::pair<std::string, uint32_t> > &bindings);
+        void SetUniformBlockBindings(const std::vector<std::pair<std::string, uint32_t>>& bindings);
 
-        [[nodiscard]] const std::vector<std::pair<std::string, uint32_t> > &GetUniformBlockBindings() const;
+        [[nodiscard]] const std::vector<std::pair<std::string, uint32_t>>& GetUniformBlockBindings() const;
 
         /**
          * Set the compiled Spirv binary.
          * 设置编译后的Spirv二进制。
          * @param code
          */
-        void SetCode(const std::vector<unsigned int> &code);
+        void SetCode(const std::vector<unsigned int>& code);
 
         /**
          * Get the size of the compiled SPIR-V binary in bytes.
@@ -71,8 +73,8 @@ namespace glimmer {
          * 获取源代码
          * @return
          */
-        [[nodiscard]] const std::vector<unsigned int> &GetCode() const;
+        [[nodiscard]] const std::vector<unsigned int>& GetCode() const;
 
-        [[nodiscard]] std::vector<unsigned int> &GetMutableCode();
+        [[nodiscard]] std::vector<unsigned int>& GetMutableCode();
     };
 }

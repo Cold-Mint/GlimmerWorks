@@ -27,12 +27,14 @@
 #pragma once
 #include <string>
 
-namespace glimmer {
-    struct RecipeItemChoiceDataModel {
-        int inventoryIndex = 0;
+namespace glimmer
+{
+    struct RecipeItemChoiceDataModel
+    {
         std::string image;
         std::string name;
         std::string tagInfo;
+        int inventoryIndex = 0;
         int investedAmount = 0;
         int backpackAmount = 0;
     };

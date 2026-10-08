@@ -30,6 +30,7 @@
 #include "core/gpu/RenderFrameContext.h"
 
 
-void glimmer::ClearPass::Record(RenderFrameContext &ctx) {
+void glimmer::ClearPass::Record(RenderFrameContext& ctx)
+{
     ClearRenderTarget(ctx.commandBuffer, ctx.swapChainTexture);
 }

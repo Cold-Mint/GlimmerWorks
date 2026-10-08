@@ -36,12 +36,14 @@
 #include "core/mod/resourcePack/GPUPipelineResourceResult.h"
 #include "core/mod/resourcePack/TextureResourceResult.h"
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * Flip flags for RenderQueue::DrawTextureRotated (replaces SDL_FlipMode).
      * RenderQueue::DrawTextureRotated 使用的翻转标志（替代 SDL_FlipMode）。
      */
-    enum FlipFlags : Uint8 {
+    enum FlipFlags : Uint8
+    {
         FLIP_NONE = 0,
         FLIP_HORIZONTAL = 1,
         FLIP_VERTICAL = 2
@@ -64,15 +66,16 @@ namespace glimmer {
      * texture 为 nullptr 的命令使用渲染器内置的白色纹理绘制纯色几何图形
      * （矩形/线/点）。
      */
-    struct RenderCommand {
-        const TextureResourceResult *texture = nullptr;
-        SDL_GPUSampler *sampler = nullptr;
+    struct RenderCommand
+    {
         SpriteVertex corners[4] = {};
-        RenderLayer layer = RenderLayer::Background;
-        float depth = 0.0F;
-        SDL_GPUGraphicsPipeline *pipeline = nullptr;
         //Optional uniform blocks to fill and push before drawing this command.
         //绘制此命令前要填充并推送的可选 uniform 块列表。
-        const std::vector<PipelineUniformBlock> *uniformBlocks = nullptr;
+        const std::vector<PipelineUniformBlock>* uniformBlocks = nullptr;
+        const TextureResourceResult* texture = nullptr;
+        SDL_GPUSampler* sampler = nullptr;
+        SDL_GPUGraphicsPipeline* pipeline = nullptr;
+        float depth = 0.0F;
+        RenderLayer layer = RenderLayer::Background;
     };
 }

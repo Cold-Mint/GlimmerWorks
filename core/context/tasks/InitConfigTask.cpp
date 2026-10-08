@@ -31,16 +31,19 @@
 #include "core/log/LogCat.h"
 #include "toml11/parser.hpp"
 
-bool glimmer::InitConfigTask::Run(ISystemBucket *systemBucket) {
-    const VirtualFileSystem *virtualFileSystem = systemBucket->GetVirtualFileSystem();
-    if (virtualFileSystem == nullptr) {
+bool glimmer::InitConfigTask::Run(ISystemBucket* systemBucket)
+{
+    const VirtualFileSystem* virtualFileSystem = systemBucket->GetVirtualFileSystem();
+    if (virtualFileSystem == nullptr)
+    {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "vfs_is_null", "virtualFileSystem is nullptr");
         return false;
     }
     const std::optional<std::string> configData = virtualFileSystem->ReadFileAsString(CONFIG_FILE_NAME);
-    if (!configData.has_value()) {
+    if (!configData.has_value())
+    {
         LogCat::publicError(LogLabel::DEFAULT, ErrorCode::CAN_NOT_READ_CONFIG_DATA, std::source_location::current(),
-                            "can_not_read_config_data", "Can not read {}.",CONFIG_FILE_NAME);
+                            "can_not_read_config_data", "Can not read {}.", CONFIG_FILE_NAME);
         return false;
     }
     auto config = std::make_unique<Config>();
@@ -51,10 +54,12 @@ bool glimmer::InitConfigTask::Run(ISystemBucket *systemBucket) {
     return true;
 }
 
-void glimmer::InitConfigTask::Rollback(ISystemBucket *systemBucket) {
+void glimmer::InitConfigTask::Rollback(ISystemBucket* systemBucket)
+{
     systemBucket->SetConfig(nullptr);
 }
 
-std::string glimmer::InitConfigTask::GetTaskName() {
+std::string glimmer::InitConfigTask::GetTaskName()
+{
     return "InitConfigTask";
 }

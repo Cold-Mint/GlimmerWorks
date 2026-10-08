@@ -32,35 +32,43 @@
 #include "core/mod/Resource.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/world/ChunkManager.h"
+#include "core/world/Dimension.h"
 #include "core/world/WorldContext.h"
 #include "core/world/generator/Chunk.h"
 
 glimmer::GrowthConditionProcessorType
-glimmer::AdjacentTileGrowthConditionProcessor::GetGrowthConditionProcessorType() {
+glimmer::AdjacentTileGrowthConditionProcessor::GetGrowthConditionProcessorType()
+{
     return GrowthConditionProcessorType::AdjacentTile;
 }
 
-bool glimmer::AdjacentTileGrowthConditionProcessor::Match(const WorldContext *worldContext,
-                                                          const TileVector2D &position,
-                                                          const IGrowthConditionResource *growthConditionResource) {
-    const auto adjacentTileCondition = dynamic_cast<const AdjacentTileGrowthConditionResource *>(
+bool glimmer::AdjacentTileGrowthConditionProcessor::Match(const WorldContext* worldContext,
+                                                          const TileVector2D& position,
+                                                          const IGrowthConditionResource* growthConditionResource)
+{
+    const auto adjacentTileCondition = dynamic_cast<const AdjacentTileGrowthConditionResource*>(
         growthConditionResource);
-    if (adjacentTileCondition == nullptr || worldContext == nullptr) {
+    if (adjacentTileCondition == nullptr || worldContext == nullptr)
+    {
         return false;
     }
-    if (!adjacentTileCondition->targetTile.IsValid()) {
+    if (!adjacentTileCondition->targetTile.IsValid())
+    {
         return false;
     }
-    const AppContext *appContext = worldContext->GetAppContext();
-    if (appContext == nullptr) {
+    const AppContext* appContext = worldContext->GetAppContext();
+    if (appContext == nullptr)
+    {
         return false;
     }
-    const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
-    if (resourceLocator == nullptr) {
+    const ResourceLocator* resourceLocator = appContext->GetResourceLocator();
+    if (resourceLocator == nullptr)
+    {
         return false;
     }
-    const TileResource *targetTileResource = resourceLocator->FindTileRaw(&adjacentTileCondition->targetTile);
-    if (targetTileResource == nullptr) {
+    const TileResource* targetTileResource = resourceLocator->FindTileRaw(&adjacentTileCondition->targetTile);
+    if (targetTileResource == nullptr)
+    {
         return false;
     }
     const auto targetLayerType = static_cast<TileLayerType>(targetTileResource->layerType);
@@ -69,27 +77,32 @@ bool glimmer::AdjacentTileGrowthConditionProcessor::Match(const WorldContext *wo
 
     const TileVector2D adjacentPosition(position.x + adjacentTileCondition->offset.x,
                                         position.y + adjacentTileCondition->offset.y);
-    const ChunkManager *chunkManager = worldContext->GetChunkManager();
-    if (chunkManager == nullptr) {
+    const ChunkManager* chunkManager = worldContext->GetChunkManager();
+    if (chunkManager == nullptr)
+    {
         return false;
     }
-    const Dimension *dimension = worldContext->GetDimension();
-    if (dimension == nullptr) {
+    const Dimension* dimension = worldContext->GetDimension();
+    if (dimension == nullptr)
+    {
         return false;
     }
-    const ResourceRef &dimensionResourceRef = dimension->GetDimensionResourceRef();
-    if (!dimensionResourceRef.IsValid()) {
+    const ResourceRef& dimensionResourceRef = dimension->GetDimensionResourceRef();
+    if (!dimensionResourceRef.IsValid())
+    {
         return false;
     }
-    const Chunk *chunk = chunkManager->GetChunk(dimensionResourceRef,
-                                          CoordinateTransformer::TileToChunkVertex(adjacentPosition));
-    if (chunk == nullptr) {
+    const Chunk* chunk = chunkManager->GetChunk(dimensionResourceRef,
+                                                CoordinateTransformer::TileToChunkVertex(adjacentPosition));
+    if (chunk == nullptr)
+    {
         return false;
     }
     const ChunkRelativeVector2D relative = CoordinateTransformer::TileToChunkRelative(adjacentPosition);
     const uint32_t index = relative.y << CHUNK_SHIFT | relative.x;
-    const Tile *tile = chunk->GetTile(targetLayerType, index);
-    if (tile == nullptr) {
+    const Tile* tile = chunk->GetTile(targetLayerType, index);
+    if (tile == nullptr)
+    {
         return false;
     }
     return tile->GetId() == targetTileId;

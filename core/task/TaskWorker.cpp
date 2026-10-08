@@ -28,40 +28,49 @@
 
 #include "core/log/LogCat.h"
 
-void glimmer::TaskWorker::WorkLoop(std::stop_token stopToken) {
+void glimmer::TaskWorker::WorkLoop(std::stop_token stopToken)
+{
     LogCat::SetThreadName("TaskWorker");
     LogCat::i(LogLabel::DEFAULT, "task_worker_thread_started", "TaskWorker thread started");
-    while (!stopToken.stop_requested()) {
+    while (!stopToken.stop_requested())
+    {
         std::function<void()> task;
         {
             std::unique_lock lock(mutex_);
-            conditionVariable_.wait(lock, [this, &stopToken] {
+            conditionVariable_.wait(lock, [this, &stopToken]
+            {
                 return !tasks_.empty() || stopToken.stop_requested();
             });
-            if (stopToken.stop_requested()) {
+            if (stopToken.stop_requested())
+            {
                 break;
             }
             task = std::move(tasks_.front());
             tasks_.pop();
         }
-        if (task) {
+        if (task)
+        {
             task();
         }
     }
     LogCat::i(LogLabel::DEFAULT, "task_worker_thread_stopped", "TaskWorker thread stopped");
 }
 
-glimmer::TaskWorker::~TaskWorker() {
+glimmer::TaskWorker::~TaskWorker()
+{
     thread_.request_stop();
     conditionVariable_.notify_all();
 }
 
-glimmer::TaskWorker::TaskWorker() {
-    thread_ = std::jthread([this](const std::stop_token &stopToken) { this->WorkLoop(stopToken); });
+glimmer::TaskWorker::TaskWorker()
+{
+    thread_ = std::jthread([this](const std::stop_token& stopToken) { this->WorkLoop(stopToken); });
 }
 
-void glimmer::TaskWorker::PostTask(std::function<void()> task) {
-    if (task == nullptr) {
+void glimmer::TaskWorker::PostTask(std::function<void()> task)
+{
+    if (task == nullptr)
+    {
         return;
     }
     {

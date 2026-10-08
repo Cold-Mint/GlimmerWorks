@@ -27,6 +27,8 @@
 #include "SpiritRendererSystem.h"
 
 #include "core/ecs/component/SpiritRendererComponent.h"
+#include "core/gpu/RenderLayer.h"
+#include "core/gpu/RenderQueue.h"
 #include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/world/WorldContext.h"
@@ -112,13 +114,13 @@ void glimmer::SpiritRendererSystem::Render(RenderQueue *queue) {
                 ScreenVector2D.x, ScreenVector2D.y, static_cast<float>(sdlTexture->GetWidth()) * zoom,
                 static_cast<float>(sdlTexture->GetHeight()) * zoom
             };
-            Uint8 flip = glimmer::FLIP_NONE;
+            Uint8 flip = FLIP_NONE;
 
             if (spiritRendererComponent->IsFlipH()) {
-                flip = flip | glimmer::FLIP_HORIZONTAL;
+                flip = flip | FLIP_HORIZONTAL;
             }
             if (spiritRendererComponent->IsFlipV()) {
-                flip = flip | glimmer::FLIP_VERTICAL;
+                flip = flip | FLIP_VERTICAL;
             }
             queue->DrawTextureRotated(
                 RenderLayer::Entity,

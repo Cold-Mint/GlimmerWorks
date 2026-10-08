@@ -36,14 +36,18 @@
 #include "core/utils/TransparentStringHash.h"
 #include "core/world/WorldContext.h"
 
-namespace {
-    void InjectResolution(const glimmer::UniformInjectContext &ctx, float *dst) {
+namespace
+{
+    void InjectResolution(const glimmer::UniformInjectContext& ctx, float* dst)
+    {
         dst[0] = ctx.width;
         dst[1] = ctx.height;
     }
 
-    void InjectCameraPosition(const glimmer::UniformInjectContext &ctx, float *dst) {
-        if (ctx.cameraTransform == nullptr) {
+    void InjectCameraPosition(const glimmer::UniformInjectContext& ctx, float* dst)
+    {
+        if (ctx.cameraTransform == nullptr)
+        {
             dst[0] = 0.0F;
             dst[1] = 0.0F;
             return;
@@ -53,34 +57,41 @@ namespace {
         dst[1] = position.y;
     }
 
-    void InjectCameraSize(const glimmer::UniformInjectContext &ctx, float *dst) {
+    void InjectCameraSize(const glimmer::UniformInjectContext& ctx, float* dst)
+    {
         dst[0] = ctx.width;
         dst[1] = ctx.height;
     }
 
-    void InjectZoom(const glimmer::UniformInjectContext &ctx, float *dst) {
+    void InjectZoom(const glimmer::UniformInjectContext& ctx, float* dst)
+    {
         dst[0] = ctx.camera != nullptr ? ctx.camera->GetZoom() : 1.0F;
     }
 
-    void InjectTileSize(const glimmer::UniformInjectContext &, float *dst) {
+    void InjectTileSize(const glimmer::UniformInjectContext&, float* dst)
+    {
         dst[0] = static_cast<float>(TILE_SIZE);
     }
 
-    void InjectLightmapOrigin(const glimmer::UniformInjectContext &ctx, float *dst) {
+    void InjectLightmapOrigin(const glimmer::UniformInjectContext& ctx, float* dst)
+    {
         dst[0] = static_cast<float>(ctx.lightMapOriginX);
         dst[1] = static_cast<float>(ctx.lightMapOriginY);
     }
 
-    void InjectLightmapSize(const glimmer::UniformInjectContext &ctx, float *dst) {
+    void InjectLightmapSize(const glimmer::UniformInjectContext& ctx, float* dst)
+    {
         dst[0] = static_cast<float>(ctx.lightMapSizeX);
         dst[1] = static_cast<float>(ctx.lightMapSizeY);
     }
 
     using InjectorMap = std::unordered_map<std::string, glimmer::UniformInjector,
-        glimmer::TransparentStringHash, std::equal_to<> >;
+                                           glimmer::TransparentStringHash, std::equal_to<>>;
 
-    InjectorMap &GetInjectorMap() {
-        static InjectorMap injectors = [] {
+    InjectorMap& GetInjectorMap()
+    {
+        static InjectorMap injectors = []
+        {
             InjectorMap map;
             map[std::string(glimmer::BUILTIN_RESOLUTION)] = &InjectResolution;
             map[std::string(glimmer::BUILTIN_CAMERA_POSITION)] = &InjectCameraPosition;
@@ -95,12 +106,14 @@ namespace {
     }
 }
 
-void glimmer::UniformInjectorRegistry::Register(const std::string_view builtin, const UniformInjector injector) {
+void glimmer::UniformInjectorRegistry::Register(const std::string_view builtin, const UniformInjector injector)
+{
     GetInjectorMap()[std::string(builtin)] = injector;
 }
 
-glimmer::UniformInjector glimmer::UniformInjectorRegistry::Find(const std::string_view builtin) {
-    const InjectorMap &map = GetInjectorMap();
+glimmer::UniformInjector glimmer::UniformInjectorRegistry::Find(const std::string_view builtin)
+{
+    const InjectorMap& map = GetInjectorMap();
     const auto it = map.find(builtin);
     return it != map.end() ? it->second : nullptr;
 }

@@ -32,8 +32,10 @@
 #include "core/mod/ResourceLocator.h"
 #include "core/mod/ResourceRef.h"
 
-namespace glimmer {
-    class SpiritRendererComponent : public GameComponent {
+namespace glimmer
+{
+    class SpiritRendererComponent : public GameComponent
+    {
         ResourceRef resourceRef_;
         WorldVector2D position_;
         std::shared_ptr<TextureResourceResult> textureResult_ = nullptr;
@@ -45,7 +47,7 @@ namespace glimmer {
     public:
         SpiritRendererComponent();
 
-        void SetTextureRef(const ResourceRef &resourceRef);
+        void SetTextureRef(const ResourceRef& resourceRef);
 
         [[nodiscard]] bool IsFlipH() const;
 
@@ -55,22 +57,22 @@ namespace glimmer {
 
         void SetFlipV(bool flipV);
 
-        [[nodiscard]] TextureResourceResult *GetTexture(const ResourceLocator *resourceLocator);
+        [[nodiscard]] TextureResourceResult* GetTexture(const ResourceLocator* resourceLocator);
 
         void SetPipeline(std::shared_ptr<GPUPipelineResourceResult> pipeline);
 
-        [[nodiscard]] SDL_GPUGraphicsPipeline *GetPipeline() const;
+        [[nodiscard]] SDL_GPUGraphicsPipeline* GetPipeline() const;
 
         void SetSampler(std::shared_ptr<GPUSamplerResourceResult> sampler);
 
-        [[nodiscard]] SDL_GPUSampler *GetSampler() const;
+        [[nodiscard]] SDL_GPUSampler* GetSampler() const;
 
-        void SetPosition(const WorldVector2D &position);
+        void SetPosition(const WorldVector2D& position);
 
         [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 
         [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
 
-        [[nodiscard]] const WorldVector2D &GetPosition() const;
+        [[nodiscard]] const WorldVector2D& GetPosition() const;
     };
 }

@@ -26,6 +26,7 @@
  */
 #pragma once
 
-namespace glimmer {
+namespace glimmer
+{
     using DayNormalizedTime = float;
 }

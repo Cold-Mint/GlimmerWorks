@@ -32,7 +32,8 @@
 #include "TerrainTileResult.h"
 #include "core/math/TileVector2D.h"
 
-namespace glimmer {
+namespace glimmer
+{
     struct DimensionResource;
     class BiomeRegistry;
 
@@ -42,7 +43,8 @@ namespace glimmer {
      * Turns noise into terrain types by composing a climate sampler and a biome matcher.
      * 通过组合气候采样器与生物群系匹配器，将噪声转化为地形类型。
      */
-    class TerrainGenerator {
+    class TerrainGenerator
+    {
         std::unordered_map<TerrainVertexVector2D, std::weak_ptr<TerrainResult>, Vector2DIHash> terrainResults_;
         std::unique_ptr<ClimateSampler> climateSampler_ = std::make_unique<ClimateSampler>();
 
@@ -57,8 +59,8 @@ namespace glimmer {
          * @return The generated terrain result 生成的地形结果
          */
         std::shared_ptr<TerrainResult>
-        GenerateTerrain(const BiomeRegistry *biomeRegistry, int worldSeed, const DimensionResource *dimensionResource,
-                        const ResourceRef &dimension, const TerrainVertexVector2D &position) const;
+        GenerateTerrain(const BiomeRegistry* biomeRegistry, int worldSeed, const DimensionResource* dimensionResource,
+                        const ResourceRef& dimension, const TerrainVertexVector2D& position) const;
 
     public:
         /**
@@ -71,10 +73,10 @@ namespace glimmer {
          * @param position
          * @return 可能返回null!
          */
-        std::shared_ptr<TerrainResult> GenerateOrGetTerrain(const BiomeRegistry *biomeRegistry, int worldSeed,
-                                                            const DimensionResource *dimensionResource,
-                                                            const ResourceRef &dimension,
-                                                            const TerrainVertexVector2D &position);
+        std::shared_ptr<TerrainResult> GenerateOrGetTerrain(const BiomeRegistry* biomeRegistry, int worldSeed,
+                                                            const DimensionResource* dimensionResource,
+                                                            const ResourceRef& dimension,
+                                                            const TerrainVertexVector2D& position);
 
 
         /**
@@ -88,11 +90,11 @@ namespace glimmer {
          * @param firstTileTerrainY firstTileTerrainY 地表第一格Y坐标
          * @param terrainTileResult terrainTileResult 地形瓦片结果
          */
-        void WriteTerrainTileResult(const BiomeRegistry *biomeRegistry, int worldSeed,
-                                    const DimensionResource *dimensionResource, const ResourceRef &dimension,
-                                    const TileVector2D &world, int firstTileTerrainY,
-                                    TerrainTileResult &terrainTileResult) const;
+        void WriteTerrainTileResult(const BiomeRegistry* biomeRegistry, int worldSeed,
+                                    const DimensionResource* dimensionResource, const ResourceRef& dimension,
+                                    const TileVector2D& world, int firstTileTerrainY,
+                                    TerrainTileResult& terrainTileResult) const;
 
-        ClimateSampler *GetMutableClimateSampler() const;
+        ClimateSampler* GetMutableClimateSampler() const;
     };
 }

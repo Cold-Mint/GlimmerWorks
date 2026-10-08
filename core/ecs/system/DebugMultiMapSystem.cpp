@@ -36,77 +36,92 @@
 #include "core/world/WorldContext.h"
 #include "core/world/generator/TerrainMath.h"
 
-glimmer::DebugMultiMapSystem::DebugMultiMapSystem(WorldContext *worldContext) : GameSystem(worldContext) {
+glimmer::DebugMultiMapSystem::DebugMultiMapSystem(WorldContext* worldContext) : GameSystem(worldContext)
+{
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_TRANSFORM_2D);
     Init();
 }
 
-glimmer::GameSystemType glimmer::DebugMultiMapSystem::GetGameSystemType() const {
+glimmer::GameSystemType glimmer::DebugMultiMapSystem::GetGameSystemType() const
+{
     return GameSystemType::DebugMultiMapSystem;
 }
 
-glimmer::Color glimmer::DebugMultiMapSystem::GetTileDebugColor(const TileVector2D &tile) const {
-    const WorldContext *worldContext = GetWorldContext();
+glimmer::Color glimmer::DebugMultiMapSystem::GetTileDebugColor(const TileVector2D& tile) const
+{
+    const WorldContext* worldContext = GetWorldContext();
     auto color = Color(0, 0, 0, 0);
-    if (worldContext == nullptr) {
+    if (worldContext == nullptr)
+    {
         return color;
     }
-    const AppContext *appContext = worldContext->GetAppContext();
-    if (appContext == nullptr) {
+    const AppContext* appContext = worldContext->GetAppContext();
+    if (appContext == nullptr)
+    {
         return color;
     }
-    const Config *config = appContext->GetConfig();
-    if (config == nullptr) {
+    const Config* config = appContext->GetConfig();
+    if (config == nullptr)
+    {
         return color;
     }
-    TerrainGenerator *terrainGenerator = worldContext->GetTerrainGenerator();
-    if (terrainGenerator == nullptr) {
+    TerrainGenerator* terrainGenerator = worldContext->GetTerrainGenerator();
+    if (terrainGenerator == nullptr)
+    {
         return color;
     }
-    ClimateSampler *climateSampler = terrainGenerator->GetMutableClimateSampler();
-    if (climateSampler == nullptr) {
+    ClimateSampler* climateSampler = terrainGenerator->GetMutableClimateSampler();
+    if (climateSampler == nullptr)
+    {
         return color;
     }
-    Dimension *dimension = worldContext->GetDimension();
-    if (dimension == nullptr) {
+    Dimension* dimension = worldContext->GetDimension();
+    if (dimension == nullptr)
+    {
         return color;
     }
-    const DimensionResource *dimensionResource = dimension->GetDimensionResource();
-    if (dimensionResource == nullptr) {
+    const DimensionResource* dimensionResource = dimension->GetDimensionResource();
+    if (dimensionResource == nullptr)
+    {
         return color;
     }
     const int worldSeed = worldContext->GetWorldSeed();
-    auto &debugColor = appContext->GetGraphicsContext()->GetPreloadColors()->debugColor;
+    auto& debugColor = appContext->GetGraphicsContext()->GetPreloadColors()->debugColor;
     float elevation = TerrainMath::GetElevation(dimensionResource, tile.x);
     std::vector<Color> activeColors;
 
-    if (config->debug.displayElevationMap) {
+    if (config->debug.displayElevationMap)
+    {
         activeColors.emplace_back(
             ColorUtils::LinearInterpolateColor(debugColor.elevationMapFrom, debugColor.elevationMapTo, elevation)
         );
     }
 
-    if (config->debug.displayTempMap) {
+    if (config->debug.displayTempMap)
+    {
         activeColors.emplace_back(
             ColorUtils::LinearInterpolateColor(debugColor.tempMapFrom, debugColor.tempMapTo,
                                                climateSampler->GetTemperature(worldSeed, dimensionResource, tile,
                                                                               elevation))
         );
     }
-    if (config->debug.displayHumidityMap) {
+    if (config->debug.displayHumidityMap)
+    {
         activeColors.emplace_back(
             ColorUtils::LinearInterpolateColor(debugColor.humidityMapFrom, debugColor.humidityMapTo,
                                                climateSampler->GetHumidity(worldSeed, dimensionResource, tile))
         );
     }
-    if (config->debug.displayErosionMap) {
+    if (config->debug.displayErosionMap)
+    {
         activeColors.emplace_back(
             ColorUtils::LinearInterpolateColor(debugColor.erosionMapFrom, debugColor.erosionMapTo,
                                                climateSampler->GetErosion(worldSeed, dimensionResource, tile))
         );
     }
-    if (config->debug.displayWeirdnessMap) {
+    if (config->debug.displayWeirdnessMap)
+    {
         activeColors.emplace_back(
             ColorUtils::LinearInterpolateColor(debugColor.weirdnessMapFrom, debugColor.weirdnessMapTo,
                                                climateSampler->GetWeirdness(worldSeed, dimensionResource, tile))
@@ -115,30 +130,37 @@ glimmer::Color glimmer::DebugMultiMapSystem::GetTileDebugColor(const TileVector2
     return ColorUtils::AverageColors(activeColors);
 }
 
-uint8_t glimmer::DebugMultiMapSystem::GetExecutionOrder() {
+uint8_t glimmer::DebugMultiMapSystem::GetExecutionOrder()
+{
     return EXECUTION_ORDER_DEBUG_MAP;
 }
 
 void glimmer::DebugMultiMapSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType,
-                                                             uint32_t count) {
-    const EntityShortCut *entityShortCut = GetEntityShortCut();
+                                                             uint32_t count)
+{
+    const EntityShortCut* entityShortCut = GetEntityShortCut();
 
-    if (gameComponentType == COMPONENT_TRANSFORM_2D && cameraTransform2DComponent_ == nullptr) {
+    if (gameComponentType == COMPONENT_TRANSFORM_2D && cameraTransform2DComponent_ == nullptr)
+    {
         cameraTransform2DComponent_ = entityShortCut->GetCameraTransform2DComponent();
     }
-    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr) {
+    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
+    {
         cameraComponent_ = entityShortCut->GetCameraComponent();
         LogCat::i(LogLabel::DEFAULT, "debug_multi_map_camera_bound", "DebugMultiMap camera component bound");
     }
 }
 
-void glimmer::DebugMultiMapSystem::Render(RenderQueue *queue) {
-    const WorldContext *worldContext = GetWorldContext();
-    if (worldContext == nullptr) {
+void glimmer::DebugMultiMapSystem::Render(RenderQueue* queue)
+{
+    const WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr)
+    {
         return;
     }
-    const AppContext *appContext = worldContext->GetAppContext();
-    if (appContext == nullptr) {
+    const AppContext* appContext = worldContext->GetAppContext();
+    if (appContext == nullptr)
+    {
         return;
     }
     auto viewportRect = CoordinateTransformer::GetViewportRect(cameraTransform2DComponent_->GetPosition(),
@@ -151,8 +173,10 @@ void glimmer::DebugMultiMapSystem::Render(RenderQueue *queue) {
         viewportRect.y + viewportRect.h + TILE_SIZE
     });
 
-    for (int x = topLeft.x; x < bottomRight.x; x++) {
-        for (int y = topLeft.y; y < bottomRight.y; y++) {
+    for (int x = topLeft.x; x < bottomRight.x; x++)
+    {
+        for (int y = topLeft.y; y < bottomRight.y; y++)
+        {
             const TileVector2D tileVector2D = {x, y};
             const WorldVector2D worldTilePos = CoordinateTransformer::TileToWorld(tileVector2D);
             const ScreenVector2D screenPos = CoordinateTransformer::WorldToScreen(

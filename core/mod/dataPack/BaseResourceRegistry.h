@@ -31,7 +31,8 @@
 #include "core/mod/Resource.h"
 #include "core/utils/TransparentStringHash.h"
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * BaseResourceRegistry
      * 基础资源注册表
@@ -40,11 +41,12 @@ namespace glimmer {
      * 用于管理从数据包内加载的数据。
      * @tparam ResourceType
      */
-    template<typename ResourceType>
-    class BaseResourceRegistry {
+    template <typename ResourceType>
+    class BaseResourceRegistry
+    {
         std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<ResourceType>,
-                TransparentStringHash, std::equal_to<> >,
-            TransparentStringHash, std::equal_to<> > resourceMap_{};
+                                                           TransparentStringHash, std::equal_to<>>,
+                           TransparentStringHash, std::equal_to<>> resourceMap_{};
 
         std::vector<std::string> list_;
 
@@ -52,14 +54,14 @@ namespace glimmer {
         virtual ~BaseResourceRegistry() = default;
 
 
-        ResourceType *Register(std::unique_ptr<ResourceType> resource);
+        ResourceType* Register(std::unique_ptr<ResourceType> resource);
 
         /**
          * When registering the resources
          * 当注册资源时
          * @param resource
          */
-        virtual void OnRegister(ResourceType *resource);
+        virtual void OnRegister(ResourceType* resource);
 
         /**
          * OnNotFound(This method can be used to achieve resource reservation.)
@@ -68,7 +70,7 @@ namespace glimmer {
          * @param key
          * @return
          */
-        virtual ResourceType *OnNotFound(std::string_view packId, std::string_view key);
+        virtual ResourceType* OnNotFound(std::string_view packId, std::string_view key);
 
         /**
          * Find
@@ -77,9 +79,9 @@ namespace glimmer {
          * @param key
          * @return
          */
-        [[nodiscard]] ResourceType *Find(std::string_view packId, std::string_view key);
+        [[nodiscard]] ResourceType* Find(std::string_view packId, std::string_view key);
 
-        [[nodiscard]] const std::vector<std::string> &List() const;
+        [[nodiscard]] const std::vector<std::string>& List() const;
 
 
 #if  !defined(NDEBUG)
@@ -92,47 +94,57 @@ namespace glimmer {
 #endif
     };
 
-    template<typename ResourceType>
-    ResourceType *BaseResourceRegistry<ResourceType>::Register(std::unique_ptr<ResourceType> resource) {
-        auto &slot =
-                resourceMap_[resource->packId][resource->resourceId];
+    template <typename ResourceType>
+    ResourceType* BaseResourceRegistry<ResourceType>::Register(std::unique_ptr<ResourceType> resource)
+    {
+        auto& slot =
+            resourceMap_[resource->packId][resource->resourceId];
         slot = std::move(resource);
-        ResourceType *ptr = slot.get();
+        ResourceType* ptr = slot.get();
         list_.emplace_back(Resource::GenerateId(ptr->packId, ptr->resourceId));
         OnRegister(ptr);
         return ptr;
     }
 
-    template<typename ResourceType>
-    void BaseResourceRegistry<ResourceType>::OnRegister(ResourceType *resource) {
+    template <typename ResourceType>
+    void BaseResourceRegistry<ResourceType>::OnRegister(ResourceType* resource)
+    {
     }
 
-    template<typename ResourceType>
-    ResourceType *BaseResourceRegistry<ResourceType>::OnNotFound(std::string_view packId, std::string_view key) {
+    template <typename ResourceType>
+    ResourceType* BaseResourceRegistry<ResourceType>::OnNotFound(std::string_view packId, std::string_view key)
+    {
         return nullptr;
     }
 
-    template<typename ResourceType>
-    ResourceType *BaseResourceRegistry<ResourceType>::Find(std::string_view packId, std::string_view key) {
-        if (const auto packIt = resourceMap_.find(packId); packIt != resourceMap_.end()) {
-            if (const auto keyIt = packIt->second.find(key); keyIt != packIt->second.end()) {
+    template <typename ResourceType>
+    ResourceType* BaseResourceRegistry<ResourceType>::Find(std::string_view packId, std::string_view key)
+    {
+        if (const auto packIt = resourceMap_.find(packId); packIt != resourceMap_.end())
+        {
+            if (const auto keyIt = packIt->second.find(key); keyIt != packIt->second.end())
+            {
                 return keyIt->second.get();
             }
         }
         return OnNotFound(packId, key);
     }
 
-    template<typename ResourceType>
-    const std::vector<std::string> &BaseResourceRegistry<ResourceType>::List() const {
+    template <typename ResourceType>
+    const std::vector<std::string>& BaseResourceRegistry<ResourceType>::List() const
+    {
         return list_;
     }
 
 #if  !defined(NDEBUG)
-    template<typename ResourceType>
-    std::string BaseResourceRegistry<ResourceType>::ListString() const {
+    template <typename ResourceType>
+    std::string BaseResourceRegistry<ResourceType>::ListString() const
+    {
         std::ostringstream oss;
-        for (const auto &[packId, keyMap]: resourceMap_) {
-            for (const auto &[key, resource]: keyMap) {
+        for (const auto& [packId, keyMap] : resourceMap_)
+        {
+            for (const auto& [key, resource] : keyMap)
+            {
                 oss << Resource::GenerateId(packId, key) << "\n";
             }
         }

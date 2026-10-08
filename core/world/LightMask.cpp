@@ -26,22 +26,27 @@
  */
 #include "LightMask.h"
 
-glimmer::LightMask::LightMask(const Color *lightMaskColor, float tintFactor) {
-    if (lightMaskColor == nullptr) {
+glimmer::LightMask::LightMask(const Color* lightMaskColor, float tintFactor)
+{
+    if (lightMaskColor == nullptr)
+    {
         return;
     }
     lightMaskColor_ = *lightMaskColor;
     tintFactor_ = tintFactor;
 }
 
-float glimmer::LightMask::GetTintFactor() const {
+float glimmer::LightMask::GetTintFactor() const
+{
     return tintFactor_;
 }
 
-const glimmer::Color *glimmer::LightMask::GetLightMaskColor() const {
+const glimmer::Color* glimmer::LightMask::GetLightMaskColor() const
+{
     return &lightMaskColor_;
 }
 
-float glimmer::LightMask::GetBlockingStrength() const {
+float glimmer::LightMask::GetBlockingStrength() const
+{
     return static_cast<float>(lightMaskColor_.a) / 255.0F;
 }

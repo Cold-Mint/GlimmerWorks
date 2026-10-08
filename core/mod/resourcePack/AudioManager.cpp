@@ -30,17 +30,22 @@
 #include "core/log/LogCat.h"
 
 
-void glimmer::AudioManager::CreateTracks(const AudioType type, const size_t count) {
-    if (track_.contains(type)) {
-        for (auto t: track_[type]) {
+void glimmer::AudioManager::CreateTracks(const AudioType type, const size_t count)
+{
+    if (track_.contains(type))
+    {
+        for (auto t : track_[type])
+        {
             MIX_DestroyTrack(t);
         }
         track_[type].clear();
     }
-    std::vector<MIX_Track *> newTracks;
-    for (size_t i = 0; i < count; ++i) {
-        MIX_Track *newTrack = MIX_CreateTrack(mixer_);
-        if (!newTrack) {
+    std::vector<MIX_Track*> newTracks;
+    for (size_t i = 0; i < count; ++i)
+    {
+        MIX_Track* newTrack = MIX_CreateTrack(mixer_);
+        if (!newTrack)
+        {
             LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "audio_track_create_failed",
                       "MIX_CreateTrack failed at index {}", i);
             continue;
@@ -54,43 +59,54 @@ void glimmer::AudioManager::CreateTracks(const AudioType type, const size_t coun
               track_[type].size());
 }
 
-MIX_Track *glimmer::AudioManager::GetFreeTrack(const AudioType type) {
-    if (!track_.contains(type)) {
+MIX_Track* glimmer::AudioManager::GetFreeTrack(const AudioType type)
+{
+    if (!track_.contains(type))
+    {
         return nullptr;
     }
-    for (auto track: track_[type]) {
-        if (!MIX_TrackPlaying(track)) {
+    for (auto track : track_[type])
+    {
+        if (!MIX_TrackPlaying(track))
+        {
             return track;
         }
     }
     return nullptr;
 }
 
-const char *glimmer::AudioManager::AudioTypeToTag(const AudioType type) {
-    switch (type) {
-        case AudioType::BGM: return "BGM";
-        case AudioType::AMBIENT: return "AMBIENT";
-        default: return "UNKNOWN";
+const char* glimmer::AudioManager::AudioTypeToTag(const AudioType type)
+{
+    switch (type)
+    {
+    case AudioType::BGM: return "BGM";
+    case AudioType::AMBIENT: return "AMBIENT";
+    default: return "UNKNOWN";
     }
 }
 
 glimmer::AudioManager::AudioManager() = default;
 
-void glimmer::AudioManager::SetMixer(MIX_Mixer *mixer) {
+void glimmer::AudioManager::SetMixer(MIX_Mixer* mixer)
+{
     mixer_ = mixer;
 }
 
-void glimmer::AudioManager::SetMasterVolume(const float volume) {
+void glimmer::AudioManager::SetMasterVolume(const float volume)
+{
     masterVolume_ = std::clamp(volume, 0.0F, 1.0F);
     //After setting the main volume, refresh the volume of all tracks.
     //设置主音量后，刷新所有音轨的音量。
-    for (const auto &[type, typeVolume]: typeVolume_) {
+    for (const auto& [type, typeVolume] : typeVolume_)
+    {
         SetTypeVolume(type, typeVolume);
     }
 }
 
-void glimmer::AudioManager::SetTypeVolume(const AudioType type, const float volume) {
-    if (mixer_ == nullptr) {
+void glimmer::AudioManager::SetTypeVolume(const AudioType type, const float volume)
+{
+    if (mixer_ == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "audio_mixer_is_null", "mixer_ == nullptr");
         return;
     }
@@ -99,14 +115,17 @@ void glimmer::AudioManager::SetTypeVolume(const AudioType type, const float volu
     MIX_SetTagGain(mixer_, AudioTypeToTag(type), masterVolume_ * clampVolume);
 }
 
-void glimmer::AudioManager::TryPlayFree(const AudioType audioType, MIX_Audio *audio, const int loopsNumber) {
-    if (audio == nullptr) {
+void glimmer::AudioManager::TryPlayFree(const AudioType audioType, MIX_Audio* audio, const int loopsNumber)
+{
+    if (audio == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "audio_resource_is_null", "audio == nullptr");
         return;
     }
 
-    MIX_Track *track = GetFreeTrack(audioType);
-    if (!track) {
+    MIX_Track* track = GetFreeTrack(audioType);
+    if (!track)
+    {
         LogCat::d(LogLabel::DEFAULT, "audio_no_free_track", "No free track available: tag={}",
                   AudioTypeToTag(audioType));
         return;
@@ -118,19 +137,24 @@ void glimmer::AudioManager::TryPlayFree(const AudioType audioType, MIX_Audio *au
     SDL_DestroyProperties(props);
 }
 
-void glimmer::AudioManager::ForcePlayReplace(const AudioType audioType, MIX_Audio *audio, const int loopsNumber) {
-    if (audio == nullptr) {
+void glimmer::AudioManager::ForcePlayReplace(const AudioType audioType, MIX_Audio* audio, const int loopsNumber)
+{
+    if (audio == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "audio_resource_is_null", "audio == nullptr");
         return;
     }
-    MIX_Track *track = GetFreeTrack(audioType);
-    if (track == nullptr) {
+    MIX_Track* track = GetFreeTrack(audioType);
+    if (track == nullptr)
+    {
         const auto tracks = &track_[audioType];
-        if (tracks == nullptr) {
+        if (tracks == nullptr)
+        {
             return;
         }
         const size_t size = tracks->size();
-        if (size == 0) {
+        if (size == 0)
+        {
             return;
         }
         track = (*tracks)[0];
@@ -143,11 +167,13 @@ void glimmer::AudioManager::ForcePlayReplace(const AudioType audioType, MIX_Audi
     SDL_DestroyProperties(props);
 }
 
-void glimmer::AudioManager::PlayOnTrack(MIX_Track *track, MIX_Audio *audio, const int loopsNumber, const int fadeInMs) {
+void glimmer::AudioManager::PlayOnTrack(MIX_Track* track, MIX_Audio* audio, const int loopsNumber, const int fadeInMs)
+{
     MIX_SetTrackAudio(track, audio);
     const SDL_PropertiesID props = SDL_CreateProperties();
     SDL_SetNumberProperty(props, MIX_PROP_PLAY_LOOPS_NUMBER, loopsNumber);
-    if (fadeInMs > 0) {
+    if (fadeInMs > 0)
+    {
         SDL_SetNumberProperty(props, MIX_PROP_PLAY_FADE_IN_MILLISECONDS_NUMBER, static_cast<Sint64>(fadeInMs));
         SDL_SetFloatProperty(props, MIX_PROP_PLAY_FADE_IN_START_GAIN_FLOAT, 0.0F);
     }
@@ -155,42 +181,53 @@ void glimmer::AudioManager::PlayOnTrack(MIX_Track *track, MIX_Audio *audio, cons
     SDL_DestroyProperties(props);
 }
 
-void glimmer::AudioManager::TryPlayFreeFade(const AudioType audioType, MIX_Audio *audio, const int loopsNumber,
-                                            const int fadeInMs) {
-    if (audio == nullptr) {
+void glimmer::AudioManager::TryPlayFreeFade(const AudioType audioType, MIX_Audio* audio, const int loopsNumber,
+                                            const int fadeInMs)
+{
+    if (audio == nullptr)
+    {
         return;
     }
-    MIX_Track *track = GetFreeTrack(audioType);
-    if (track == nullptr) {
+    MIX_Track* track = GetFreeTrack(audioType);
+    if (track == nullptr)
+    {
         return;
     }
     PlayOnTrack(track, audio, loopsNumber, fadeInMs);
 }
 
-void glimmer::AudioManager::FadeOut(const AudioType type, const int fadeOutMs) const {
-    if (mixer_ == nullptr) {
+void glimmer::AudioManager::FadeOut(const AudioType type, const int fadeOutMs) const
+{
+    if (mixer_ == nullptr)
+    {
         return;
     }
     const Sint64 ms = fadeOutMs > 0 ? static_cast<Sint64>(fadeOutMs) : 0;
     MIX_StopTag(mixer_, AudioTypeToTag(type), ms);
 }
 
-void glimmer::AudioManager::ForcePlayReplaceFade(const AudioType audioType, MIX_Audio *audio, const int loopsNumber,
-                                                 const int fadeInMs, const int fadeOutMs) {
-    if (audio == nullptr) {
+void glimmer::AudioManager::ForcePlayReplaceFade(const AudioType audioType, MIX_Audio* audio, const int loopsNumber,
+                                                 const int fadeInMs, const int fadeOutMs)
+{
+    if (audio == nullptr)
+    {
         return;
     }
-    MIX_Track *track = GetFreeTrack(audioType);
-    if (track == nullptr) {
+    MIX_Track* track = GetFreeTrack(audioType);
+    if (track == nullptr)
+    {
         // No free track: reuse the first track. Stop it immediately so it can be reused now;
         // a fade-out here would block reuse until the fade completes (which needs a stop callback).
-        auto &tracks = track_[audioType];
-        if (tracks.empty()) {
+        auto& tracks = track_[audioType];
+        if (tracks.empty())
+        {
             return;
         }
         track = tracks[0];
         MIX_StopTrack(track, 0);
-    } else if (mixer_ != nullptr && fadeOutMs > 0) {
+    }
+    else if (mixer_ != nullptr && fadeOutMs > 0)
+    {
         // Free track available: cross-fade by fading out the other playing tracks of this type.
         // The free track isn't playing, so the tag stop leaves it untouched and ready for the new audio.
         MIX_StopTag(mixer_, AudioTypeToTag(audioType), static_cast<Sint64>(fadeOutMs));

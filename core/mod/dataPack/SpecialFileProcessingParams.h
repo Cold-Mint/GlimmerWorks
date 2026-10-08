@@ -29,14 +29,16 @@
 
 #include "core/config/Config.h"
 
-namespace glimmer {
-    struct SpecialFileProcessingParams {
-        bool enableSignVerify;
+namespace glimmer
+{
+    struct SpecialFileProcessingParams
+    {
         std::filesystem::path publicPath;
         std::filesystem::path signPath;
-        bool findPublicKey;
-        bool findSignature;
         std::vector<uint8_t> publicKey;
         std::vector<uint8_t> signature;
+        bool findPublicKey;
+        bool findSignature;
+        bool enableSignVerify;
     };
 }

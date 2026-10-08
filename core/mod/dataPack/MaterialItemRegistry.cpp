@@ -26,8 +26,9 @@
  */
 #include "MaterialItemRegistry.h"
 
-glimmer::MaterialItemResource *glimmer::MaterialItemRegistry::OnNotFound(const std::string_view packId,
-                                                                         const std::string_view key) {
+glimmer::MaterialItemResource* glimmer::MaterialItemRegistry::OnNotFound(const std::string_view packId,
+                                                                         const std::string_view key)
+{
     auto materialItemResource = std::make_unique<MaterialItemResource>();
     materialItemResource->packId = packId;
     materialItemResource->resourceId = key;

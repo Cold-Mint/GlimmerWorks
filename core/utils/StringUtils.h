@@ -31,8 +31,10 @@
 
 #include "blake3.h"
 
-namespace glimmer {
-    class StringUtils {
+namespace glimmer
+{
+    class StringUtils
+    {
     public:
         /**
          * Convert any UTF-8 string to a cross-platform secure archive directory name (in English + numbers)
@@ -40,7 +42,7 @@ namespace glimmer {
          * @param utf8Str
          * @return
          */
-        static std::string ToSafeSaveName(const std::string &utf8Str);
+        static std::string ToSafeSaveName(const std::string& utf8Str);
 
         /**
          * Replace characters that are unsafe in file names with '_'.
@@ -48,7 +50,7 @@ namespace glimmer {
          * @param name name 原始文件名
          * @return Sanitized file name. 过滤后的文件名。
          */
-        static std::string SanitizeFileName(const std::string &name);
+        static std::string SanitizeFileName(const std::string& name);
 
 
         /**
@@ -57,7 +59,7 @@ namespace glimmer {
          * @param string string 字符串
          * @return Return the fixed hash value. 返回固定的哈希值。
          */
-        static uint64_t StringToUint64Blake3(const std::string &string);
+        static uint64_t StringToUint64Blake3(const std::string& string);
 
 
         /**
@@ -66,7 +68,7 @@ namespace glimmer {
          * @param string
          * @return
          */
-        static std::array<uint8_t,BLAKE3_OUT_LEN> StringToFullBlake3(const std::string &string);
+        static std::array<uint8_t, BLAKE3_OUT_LEN> StringToFullBlake3(const std::string& string);
 
         /**
          * Check if the input string is an integer
@@ -74,7 +76,7 @@ namespace glimmer {
          * @param str
          * @return
          */
-        static bool IsInteger(const std::string &str);
+        static bool IsInteger(const std::string& str);
 
         /**
          * String to hash value
@@ -85,7 +87,7 @@ namespace glimmer {
          * @param string
          * @return
          */
-        static uint64_t StringToUint64(const std::string &string);
+        static uint64_t StringToUint64(const std::string& string);
 
         /**
          * String to byte data
@@ -117,7 +119,7 @@ namespace glimmer {
          * @param stream
          * @return
          */
-        static std::optional<std::string> StreamToString(const std::istream *stream);
+        static std::optional<std::string> StreamToString(const std::istream* stream);
 
         /**
          * Get Screenshot File Name
@@ -142,6 +144,6 @@ namespace glimmer {
          * @param from from 要替换的字符串
          * @param to to 替换到的字符串
          */
-        static void ReplaceAll(std::string &str, std::string_view from, std::string_view to);
+        static void ReplaceAll(std::string& str, std::string_view from, std::string_view to);
     };
 }

@@ -28,17 +28,19 @@
 #include "DynamicSuggestions.h"
 #include "core/mod/dataPack/StructureRegistry.h"
 
-namespace glimmer {
-    class StructureDynamicSuggestions : public DynamicSuggestions {
-        StructureRegistry *structureRegistry_ = nullptr;
+namespace glimmer
+{
+    class StructureDynamicSuggestions : public DynamicSuggestions
+    {
+        StructureRegistry* structureRegistry_ = nullptr;
 
     public:
-        explicit StructureDynamicSuggestions(StructureRegistry *structureManager);
+        explicit StructureDynamicSuggestions(StructureRegistry* structureManager);
 
         [[nodiscard]] std::string GetId() const override;
 
-        const std::vector<std::string> &GetSuggestions(const std::optional<std::string> &param) override;
+        const std::vector<std::string>& GetSuggestions(const std::optional<std::string>& param) override;
 
-        bool Match(const std::string &keyword, const std::string &param) override;
+        bool Match(const std::string& keyword, const std::string& param) override;
     };
 }

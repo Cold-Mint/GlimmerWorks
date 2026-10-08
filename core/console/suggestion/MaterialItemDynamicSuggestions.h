@@ -28,17 +28,19 @@
 #include "DynamicSuggestions.h"
 #include "core/mod/dataPack/MaterialItemRegistry.h"
 
-namespace glimmer {
-    class MaterialItemDynamicSuggestions final : public DynamicSuggestions {
-        MaterialItemRegistry *materialItemRegistry_ = nullptr;
+namespace glimmer
+{
+    class MaterialItemDynamicSuggestions final : public DynamicSuggestions
+    {
+        MaterialItemRegistry* materialItemRegistry_ = nullptr;
 
     public:
-        explicit MaterialItemDynamicSuggestions(MaterialItemRegistry *materialItemRegistry);
+        explicit MaterialItemDynamicSuggestions(MaterialItemRegistry* materialItemRegistry);
 
         [[nodiscard]] std::string GetId() const override;
 
-        bool Match(const std::string &keyword, const std::string &param) override;
+        bool Match(const std::string& keyword, const std::string& param) override;
 
-        const std::vector<std::string> &GetSuggestions(const std::optional<std::string> &param) override;
+        const std::vector<std::string>& GetSuggestions(const std::optional<std::string>& param) override;
     };
 }

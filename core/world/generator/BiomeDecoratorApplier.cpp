@@ -34,44 +34,54 @@
 #include "core/mod/dataPack/BiomeDecoratorType.h"
 #include "core/world/WorldContext.h"
 
-void glimmer::BiomeDecoratorApplier::Apply(const ChunkVertexVector2D &chunkVertex,
-                                           const std::unordered_set<BiomeResource *> &biomeResourcesSet,
-                                           const ResourceLocator *resourceLocator,
-                                           WorldContext *worldContext, TerrainResult *terrainResult,
-                                           std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > &
-                                           tilesRefMap) {
+void glimmer::BiomeDecoratorApplier::Apply(const ChunkVertexVector2D& chunkVertex,
+                                           const std::unordered_set<BiomeResource*>& biomeResourcesSet,
+                                           const ResourceLocator* resourceLocator,
+                                           WorldContext* worldContext, TerrainResult* terrainResult,
+                                           std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>&
+                                           tilesRefMap)
+{
     LogCat::d(LogLabel::CHUNK, "biome_decorator_apply_start", "Applying biome decorators: biome count={}",
               biomeResourcesSet.size());
-    const AppContext *appContext = worldContext->GetAppContext();
-    if (appContext == nullptr) {
+    const AppContext* appContext = worldContext->GetAppContext();
+    if (appContext == nullptr)
+    {
         return;
     }
-    const ModContext *modContext = appContext->GetModContext();
-    if (modContext == nullptr) {
+    const ModContext* modContext = appContext->GetModContext();
+    if (modContext == nullptr)
+    {
         return;
     }
-    BiomeDecoratorManager *biomeDecoratorManager = modContext->GetBiomeDecoratorManager();
-    if (biomeDecoratorManager == nullptr) {
+    BiomeDecoratorManager* biomeDecoratorManager = modContext->GetBiomeDecoratorManager();
+    if (biomeDecoratorManager == nullptr)
+    {
         return;
     }
-    for (const auto biomeResources: biomeResourcesSet) {
-        if (biomeResources == nullptr) {
+    for (const auto biomeResources : biomeResourcesSet)
+    {
+        if (biomeResources == nullptr)
+        {
             continue;
         }
-        const std::vector<ResourceRef> &decors = biomeResources->decors;
-        if (decors.empty()) {
+        const std::vector<ResourceRef>& decors = biomeResources->decors;
+        if (decors.empty())
+        {
             continue;
         }
-        for (auto &decRef: decors) {
-            IBiomeDecoratorResource *decoratorResource = resourceLocator->FindBiomeDecorator(&decRef);
-            if (decoratorResource == nullptr) {
+        for (auto& decRef : decors)
+        {
+            IBiomeDecoratorResource* decoratorResource = resourceLocator->FindBiomeDecorator(&decRef);
+            if (decoratorResource == nullptr)
+            {
                 LogCat::d(LogLabel::CHUNK, "biome_decorator_resource_is_null",
                           "Biome decorator resource is null, skipping");
                 continue;
             }
-            IBiomeDecorator *biomeDecorator = biomeDecoratorManager->GetBiomeDecorator(
+            IBiomeDecorator* biomeDecorator = biomeDecoratorManager->GetBiomeDecorator(
                 static_cast<BiomeDecoratorType>(decoratorResource->biomeDecoratorType));
-            if (biomeDecorator == nullptr) {
+            if (biomeDecorator == nullptr)
+            {
                 LogCat::d(LogLabel::CHUNK, "biome_decorator_is_null", "Biome decorator is null for type {}, skipping",
                           decoratorResource->biomeDecoratorType);
                 continue;

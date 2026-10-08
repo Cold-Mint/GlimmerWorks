@@ -26,14 +26,17 @@
  */
 #include "ISwitchable.h"
 
-bool glimmer::ISwitchable::IsEnabled() const {
+bool glimmer::ISwitchable::IsEnabled() const
+{
     return enabled_;
 }
 
-void glimmer::ISwitchable::Disable() {
+void glimmer::ISwitchable::Disable()
+{
     enabled_ = false;
 }
 
-void glimmer::ISwitchable::Enable() {
+void glimmer::ISwitchable::Enable()
+{
     enabled_ = true;
 }

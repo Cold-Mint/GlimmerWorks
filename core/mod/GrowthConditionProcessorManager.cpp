@@ -27,14 +27,17 @@
 #include "GrowthConditionProcessorManager.h"
 
 void glimmer::GrowthConditionProcessorManager::AddConditionProcessor(
-    std::unique_ptr<IGrowthConditionProcessor> growthConditionProcessor) {
+    std::unique_ptr<IGrowthConditionProcessor> growthConditionProcessor)
+{
     GrowthConditionProcessorType processorType = growthConditionProcessor->GetGrowthConditionProcessorType();
     conditionProcessors_.emplace(processorType, std::move(growthConditionProcessor));
 }
 
-glimmer::IGrowthConditionProcessor *glimmer::GrowthConditionProcessorManager::FindConditionProcessors(
-    const GrowthConditionProcessorType processorType) {
-    if (const auto it = conditionProcessors_.find(processorType); it != conditionProcessors_.end()) {
+glimmer::IGrowthConditionProcessor* glimmer::GrowthConditionProcessorManager::FindConditionProcessors(
+    const GrowthConditionProcessorType processorType)
+{
+    if (const auto it = conditionProcessors_.find(processorType); it != conditionProcessors_.end())
+    {
         return it->second.get();
     }
     return nullptr;

@@ -28,7 +28,8 @@
 #include "GameSystem.h"
 #include "GuiGameSystem.h"
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * Gui system based on Stack (stack).
      * 基于Stack（栈）的Gui系统。
@@ -36,14 +37,15 @@ namespace glimmer {
      * The switch is automatically scheduled by SystemScheduler.
      * 由SystemScheduler自动调度开关。
      */
-    class GuiStackGameSystem : public GuiGameSystem {
+    class GuiStackGameSystem : public GuiGameSystem
+    {
         SDL_Scancode hotKey_ = SDL_SCANCODE_UNKNOWN;
 
     protected:
-        void SetAndHideElementDocument(Rml::ElementDocument *document);
+        void SetAndHideElementDocument(Rml::ElementDocument* document);
 
     public:
-        explicit GuiStackGameSystem(WorldContext *worldContext);
+        explicit GuiStackGameSystem(WorldContext* worldContext);
 
         void OnActivationChanged(bool activeStatus) override;
 

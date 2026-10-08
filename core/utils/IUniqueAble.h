@@ -27,12 +27,14 @@
 #pragma once
 #include <cstdint>
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * Indicating distinguishability, content variation, without altering the unique identifier
      * 表示可区分的，内容变化，不会改变UniqueId
      */
-    class IUniqueAble {
+    class IUniqueAble
+    {
     public:
         virtual ~IUniqueAble() = default;
 

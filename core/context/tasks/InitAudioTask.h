@@ -27,18 +27,20 @@
 #pragma once
 #include "IAppContextInitTask.h"
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * InitAudioTask
      * 音频初始化任务
      * Creates the mixer device, loads the main menu BGM and configures audio tracks.
      * 创建混音器设备，加载主菜单 BGM 并配置音轨。
      */
-    class InitAudioTask : public IAppContextInitTask {
+    class InitAudioTask : public IAppContextInitTask
+    {
     public:
-        bool Run(ISystemBucket *systemBucket) override;
+        bool Run(ISystemBucket* systemBucket) override;
 
-        void Rollback(ISystemBucket *systemBucket) override;
+        void Rollback(ISystemBucket* systemBucket) override;
 
         std::string GetTaskName() override;
     };

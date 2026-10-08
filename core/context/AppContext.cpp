@@ -58,11 +58,13 @@
 #endif
 
 
-void glimmer::AppContext::RegisterInitTask(std::unique_ptr<IAppContextInitTask> initTask) {
+void glimmer::AppContext::RegisterInitTask(std::unique_ptr<IAppContextInitTask> initTask)
+{
     initTasks_.emplace_back(std::move(initTask));
 }
 
-glimmer::AppContext::AppContext() {
+glimmer::AppContext::AppContext()
+{
     systemBucket_ = std::make_unique<SystemBucket>();
     RegisterInitTask(std::make_unique<InitVFSTask>());
     RegisterInitTask(std::make_unique<InitLangsTask>());
@@ -83,30 +85,39 @@ glimmer::AppContext::AppContext() {
 }
 
 
-bool glimmer::AppContext::InitSystem() const {
+bool glimmer::AppContext::InitSystem() const
+{
     bool success = true;
-    std::stack<IAppContextInitTask *> initTaskStack;
-    ISystemBucket *systemBucket = systemBucket_.get();
-    for (auto &initTask: initTasks_) {
-        IAppContextInitTask *initTaskPtr = initTask.get();
-        if (initTaskPtr == nullptr) {
+    std::stack<IAppContextInitTask*> initTaskStack;
+    ISystemBucket* systemBucket = systemBucket_.get();
+    for (auto& initTask : initTasks_)
+    {
+        IAppContextInitTask* initTaskPtr = initTask.get();
+        if (initTaskPtr == nullptr)
+        {
             continue;
         }
-        if (initTaskPtr->Run(systemBucket)) {
+        if (initTaskPtr->Run(systemBucket))
+        {
             initTaskStack.push(initTaskPtr);
-        } else {
+        }
+        else
+        {
             success = false;
             break;
         }
     }
-    if (success) {
+    if (success)
+    {
         LogCat::i(LogLabel::DEFAULT, "app_context_initialization_completed",
                   "AppContext initialization completed successfully");
         return true;
     }
-    while (!initTaskStack.empty()) {
-        IAppContextInitTask *topTask = initTaskStack.top();
-        if (topTask == nullptr) {
+    while (!initTaskStack.empty())
+    {
+        IAppContextInitTask* topTask = initTaskStack.top();
+        if (topTask == nullptr)
+        {
             continue;
         }
         LogCat::d(LogLabel::DEFAULT, "rollback_task", "Roll back the {} task", topTask->GetTaskName());
@@ -116,11 +127,14 @@ bool glimmer::AppContext::InitSystem() const {
     return false;
 }
 
-glimmer::WindowContext *glimmer::AppContext::GetWindowContext() const {
+glimmer::WindowContext* glimmer::AppContext::GetWindowContext() const
+{
     return systemBucket_->GetWindowContext();
 }
 
-void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::string &text)> *onMessage) const {
+void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::string & text)> * onMessage)
+const
+ {
     if (onMessage == nullptr) {
         return;
     }
@@ -155,115 +169,144 @@ void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::s
     pendingScreenshot_ = PendingScreenshot{actualPath.value(), onMessage};
 }
 
-std::optional<glimmer::PendingScreenshot> glimmer::AppContext::TakePendingScreenshot() {
-    if (!pendingScreenshot_.has_value()) {
+std::optional<glimmer::PendingScreenshot> glimmer::AppContext::TakePendingScreenshot()
+{
+    if (!pendingScreenshot_.has_value())
+    {
         return std::nullopt;
     }
     return std::exchange(pendingScreenshot_, std::nullopt);
 }
 
-glimmer::ModContext *glimmer::AppContext::GetModContext() const {
+glimmer::ModContext* glimmer::AppContext::GetModContext() const
+{
     return systemBucket_->GetModContext();
 }
 
-glimmer::ConsoleContext *glimmer::AppContext::GetConsoleContext() const {
+glimmer::ConsoleContext* glimmer::AppContext::GetConsoleContext() const
+{
     return systemBucket_->GetConsoleContext();
 }
 
-glimmer::TickWorker *glimmer::AppContext::GetTickWorker() const {
+glimmer::TickWorker* glimmer::AppContext::GetTickWorker() const
+{
     return systemBucket_->GetTickWorker();
 }
 
-glimmer::TaskWorker *glimmer::AppContext::GetTaskWorker() const {
+glimmer::TaskWorker* glimmer::AppContext::GetTaskWorker() const
+{
     return systemBucket_->GetTaskWorker();
 }
 
-glimmer::GraphicsContext *glimmer::AppContext::GetGraphicsContext() const {
+glimmer::GraphicsContext* glimmer::AppContext::GetGraphicsContext() const
+{
     return systemBucket_->GetGraphicsContext();
 }
 
-glimmer::AudioContext *glimmer::AppContext::GetAudioContext() const {
+glimmer::AudioContext* glimmer::AppContext::GetAudioContext() const
+{
     return systemBucket_->GetAudioContext();
 }
 
-glimmer::RmlContext *glimmer::AppContext::GetRmlContext() const {
+glimmer::RmlContext* glimmer::AppContext::GetRmlContext() const
+{
     return systemBucket_->GetRmlContext();
 }
 
-glimmer::MainThreadDispatcher *glimmer::AppContext::GetMainThreadDispatcher() const {
+glimmer::MainThreadDispatcher* glimmer::AppContext::GetMainThreadDispatcher() const
+{
     return systemBucket_->GetMainThreadDispatcher();
 }
 
-glimmer::Config *glimmer::AppContext::GetConfig() const {
+glimmer::Config* glimmer::AppContext::GetConfig() const
+{
     return systemBucket_->GetConfig();
 }
 
-toml::value *glimmer::AppContext::GetLangsValue() const {
+toml::value* glimmer::AppContext::GetLangsValue() const
+{
     return systemBucket_->GetLangsValue();
 }
 
-glimmer::LangsResources *glimmer::AppContext::GetLangsResources() const {
+glimmer::LangsResources* glimmer::AppContext::GetLangsResources() const
+{
     return systemBucket_->GetLangsResources();
 }
 
-glimmer::ResourcePackManager *glimmer::AppContext::GetResourcePackManager() const {
+glimmer::ResourcePackManager* glimmer::AppContext::GetResourcePackManager() const
+{
     return systemBucket_->GetResourcePackManager();
 }
 
-glimmer::ResourceLocator *glimmer::AppContext::GetResourceLocator() const {
+glimmer::ResourceLocator* glimmer::AppContext::GetResourceLocator() const
+{
     return systemBucket_->GetResourceLocator();
 }
 
-glimmer::VirtualFileSystem *glimmer::AppContext::GetVirtualFileSystem() const {
+glimmer::VirtualFileSystem* glimmer::AppContext::GetVirtualFileSystem() const
+{
     return systemBucket_->GetVirtualFileSystem();
 }
 
-glimmer::SceneManager *glimmer::AppContext::GetSceneManager() const {
+glimmer::SceneManager* glimmer::AppContext::GetSceneManager() const
+{
     return systemBucket_->GetSceneManager();
 }
 
-glimmer::SavesManager *glimmer::AppContext::GetSavesManager() const {
+glimmer::SavesManager* glimmer::AppContext::GetSavesManager() const
+{
     return systemBucket_->GetSavesManager();
 }
 
-glimmer::EventBus *glimmer::AppContext::GetEventBus() const {
+glimmer::EventBus* glimmer::AppContext::GetEventBus() const
+{
     return systemBucket_->GetEventBus();
 }
 
-void glimmer::AppContext::SetRandomSlogan() const {
-    const WindowContext *windowContext = systemBucket_->GetWindowContext();
-    if (windowContext == nullptr) {
+void glimmer::AppContext::SetRandomSlogan() const
+{
+    const WindowContext* windowContext = systemBucket_->GetWindowContext();
+    if (windowContext == nullptr)
+    {
         return;
     }
-    const LangsResources *langsResources = systemBucket_->GetLangsResources();
-    if (langsResources == nullptr) {
+    const LangsResources* langsResources = systemBucket_->GetLangsResources();
+    if (langsResources == nullptr)
+    {
         windowContext->SetWindowTitle(PROJECT_NAME.c_str());
         return;
     }
-    if (const std::vector<std::string> &slogans = langsResources->slogans; slogans.empty()) {
+    if (const std::vector<std::string>& slogans = langsResources->slogans; slogans.empty())
+    {
         windowContext->SetWindowTitle(PROJECT_NAME.c_str());
-    } else {
+    }
+    else
+    {
         const int idx = RandomUtils::Random(0, static_cast<int>(slogans.size()) - 1);
-        const std::string &random_str = slogans[idx];
+        const std::string& random_str = slogans[idx];
         windowContext->SetWindowTitle(random_str.c_str());
     }
 }
 
-glimmer::CacheContext *glimmer::AppContext::GetCacheContext() const {
+glimmer::CacheContext* glimmer::AppContext::GetCacheContext() const
+{
     return systemBucket_->GetCacheContext();
 }
 
-const std::string &glimmer::AppContext::GetLanguage() const {
+const std::string& glimmer::AppContext::GetLanguage() const
+{
     return systemBucket_->GetLanguage();
 }
 
-void glimmer::AppContext::AddUIMessage(const std::string &text) {
+void glimmer::AppContext::AddUIMessage(const std::string& text)
+{
     UIMessage message;
     message.message = text;
     message.expireTime = SDL_GetTicks() + UI_MESSAGE_DURATION_MS;
     uiMessages_.emplace_back(std::move(message));
 }
 
-std::vector<glimmer::UIMessage> &glimmer::AppContext::GetUIMessages() {
+std::vector<glimmer::UIMessage>& glimmer::AppContext::GetUIMessages()
+{
     return uiMessages_;
 }

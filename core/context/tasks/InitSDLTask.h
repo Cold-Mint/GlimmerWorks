@@ -27,14 +27,16 @@
 #pragma once
 #include "IAppContextInitTask.h"
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * InitSDLTask
      * SDL 初始化任务
      * Initializes the SDL / SDL_mixer / SDL_ttf subsystems and owns their shutdown.
      * 初始化 SDL / SDL_mixer / SDL_ttf 子系统，并负责其关闭。
      */
-    class InitSDLTask : public IAppContextInitTask {
+    class InitSDLTask : public IAppContextInitTask
+    {
         bool initSDLSuccess_ = false;
         bool initSDLMixSuccess_ = false;
         bool initSDLTtfSuccess_ = false;
@@ -46,9 +48,9 @@ namespace glimmer {
         void QuitSubsystems();
 
     public:
-        bool Run(ISystemBucket *systemBucket) override;
+        bool Run(ISystemBucket* systemBucket) override;
 
-        void Rollback(ISystemBucket *systemBucket) override;
+        void Rollback(ISystemBucket* systemBucket) override;
 
         std::string GetTaskName() override;
 

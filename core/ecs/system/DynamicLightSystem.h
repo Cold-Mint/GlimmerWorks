@@ -30,7 +30,8 @@
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/EcsTypes.h"
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * DynamicLightSystem
      * 动态光照系统
@@ -42,11 +43,12 @@ namespace glimmer {
      * 每帧驱动所有携带 LightComponent 的实体作为移动光源：解析其光源资源、
      * 读取其变换，并使其在 LightBuffer 中的贡献保持同步（实体消失时移除）。
      */
-    class DynamicLightSystem final : public GameSystem {
+    class DynamicLightSystem final : public GameSystem
+    {
         std::unordered_set<GameEntityID> lastLightEntities_;
 
     public:
-        explicit DynamicLightSystem(WorldContext *worldContext);
+        explicit DynamicLightSystem(WorldContext* worldContext);
 
         void Update(float delta) override;
 

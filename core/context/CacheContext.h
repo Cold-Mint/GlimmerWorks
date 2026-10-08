@@ -36,9 +36,11 @@
 #include "core/mod/resourcePack/cache/TextureCache.h"
 #include "core/mod/resourcePack/cache/UniformBlockCache.h"
 
-namespace glimmer {
-    class CacheContext {
-        AppContext *appContext_ = nullptr;
+namespace glimmer
+{
+    class CacheContext
+    {
+        AppContext* appContext_ = nullptr;
         std::unique_ptr<AudioCache> audioCache_ = nullptr;
         std::unique_ptr<GpuPipelineCache> gpuPipelineCache_ = nullptr;
         std::unique_ptr<ShaderCache> shaderCache_ = nullptr;
@@ -49,22 +51,22 @@ namespace glimmer {
         std::unique_ptr<UniformBlockCache> uniformBlockCache_ = nullptr;
 
     public:
-        explicit CacheContext(AppContext *appContext);
+        explicit CacheContext(AppContext* appContext);
 
-        [[nodiscard]] GpuSamplerCache *GetGpuSamplerCache() const;
+        [[nodiscard]] GpuSamplerCache* GetGpuSamplerCache() const;
 
-        [[nodiscard]] UniformBlockCache *GetUniformBlockCache() const;
+        [[nodiscard]] UniformBlockCache* GetUniformBlockCache() const;
 
-        [[nodiscard]] AudioCache *GetAudioCache() const;
+        [[nodiscard]] AudioCache* GetAudioCache() const;
 
-        [[nodiscard]] GpuPipelineCache *GetPipelineCache() const;
+        [[nodiscard]] GpuPipelineCache* GetPipelineCache() const;
 
-        [[nodiscard]] ShaderCache *GetShaderCache() const;
+        [[nodiscard]] ShaderCache* GetShaderCache() const;
 
-        [[nodiscard]] ColorCache *GetColorCache() const;
+        [[nodiscard]] ColorCache* GetColorCache() const;
 
-        [[nodiscard]] RmlCache *GetRmlCache() const;
+        [[nodiscard]] RmlCache* GetRmlCache() const;
 
-        [[nodiscard]] TextureCache *GetTextureCache() const;
+        [[nodiscard]] TextureCache* GetTextureCache() const;
     };
 }

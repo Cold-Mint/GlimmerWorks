@@ -26,43 +26,53 @@
  */
 #include "GpuShaderCompileResult.h"
 
-void glimmer::GpuShaderCompileResult::SetNumSamplers(const uint32_t numSamplers) {
+void glimmer::GpuShaderCompileResult::SetNumSamplers(const uint32_t numSamplers)
+{
     numSamplers_ = numSamplers;
 }
 
-void glimmer::GpuShaderCompileResult::SetNumUniformBuffers(const uint32_t numUniformBuffers) {
+void glimmer::GpuShaderCompileResult::SetNumUniformBuffers(const uint32_t numUniformBuffers)
+{
     numUniformBuffers_ = numUniformBuffers;
 }
 
-uint32_t glimmer::GpuShaderCompileResult::GetNumSamplers() const {
+uint32_t glimmer::GpuShaderCompileResult::GetNumSamplers() const
+{
     return numSamplers_;
 }
 
-uint32_t glimmer::GpuShaderCompileResult::GetNumUniformBuffers() const {
+uint32_t glimmer::GpuShaderCompileResult::GetNumUniformBuffers() const
+{
     return numUniformBuffers_;
 }
 
 void glimmer::GpuShaderCompileResult::SetUniformBlockBindings(
-    const std::vector<std::pair<std::string, uint32_t> > &bindings) {
+    const std::vector<std::pair<std::string, uint32_t>>& bindings)
+{
     uniformBlockBindings_ = bindings;
 }
 
-const std::vector<std::pair<std::string, uint32_t> > &glimmer::GpuShaderCompileResult::GetUniformBlockBindings() const {
+const std::vector<std::pair<std::string, uint32_t>>& glimmer::GpuShaderCompileResult::GetUniformBlockBindings() const
+{
     return uniformBlockBindings_;
 }
 
-void glimmer::GpuShaderCompileResult::SetCode(const std::vector<unsigned int> &code) {
+void glimmer::GpuShaderCompileResult::SetCode(const std::vector<unsigned int>& code)
+{
     code_ = code;
 }
 
-size_t glimmer::GpuShaderCompileResult::GetCodeSize() const {
+size_t glimmer::GpuShaderCompileResult::GetCodeSize() const
+{
     return code_.size() * sizeof(unsigned int);
 }
 
-const std::vector<unsigned int> &glimmer::GpuShaderCompileResult::GetCode() const {
+const std::vector<unsigned int>& glimmer::GpuShaderCompileResult::GetCode() const
+{
     return code_;
 }
 
-std::vector<unsigned int> &glimmer::GpuShaderCompileResult::GetMutableCode() {
+std::vector<unsigned int>& glimmer::GpuShaderCompileResult::GetMutableCode()
+{
     return code_;
 }

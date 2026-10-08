@@ -27,8 +27,10 @@
 #pragma once
 #include <cstdint>
 
-namespace glimmer {
-    enum class TileAnchorType: uint8_t {
+namespace glimmer
+{
+    enum class TileAnchorType: uint8_t
+    {
         TopLeft,
         TopCenter,
         TopRight,

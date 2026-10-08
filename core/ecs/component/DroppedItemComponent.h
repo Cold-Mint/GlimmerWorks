@@ -31,11 +31,10 @@
 #include "core/ecs/GameComponent.h"
 #include "core/inventory/Item.h"
 
-namespace glimmer {
-    class DroppedItemComponent : public GameComponent {
-        //Whether the despawn has been scheduled. Only accessed from the tick thread.
-        //是否已经安排消失。仅在tick线程访问。
-        bool despawnScheduled_ = false;
+namespace glimmer
+{
+    class DroppedItemComponent : public GameComponent
+    {
         std::unique_ptr<Item> item_ = nullptr;
         //How many ticks remain before it disappears
         //还剩多少个Tick会消失
@@ -43,6 +42,10 @@ namespace glimmer {
         //How many ticks remain before it can be picked up
         //还剩多少个Tick可被拾取
         std::atomic<uint64_t> pickupCooldownTicks_{0};
+        //Whether the despawn has been scheduled. Only accessed from the tick thread.
+        //是否已经安排消失。仅在tick线程访问。
+        bool despawnScheduled_ = false;
+
     public:
         explicit DroppedItemComponent();
 
@@ -90,7 +93,7 @@ namespace glimmer {
          */
         [[nodiscard]] std::unique_ptr<Item> ExtractItem();
 
-        [[nodiscard]] Item *GetItem() const;
+        [[nodiscard]] Item* GetItem() const;
 
         /**
          * Set Pickup Cooldown Ticks
@@ -119,6 +122,6 @@ namespace glimmer {
 
         [[nodiscard]] std::optional<std::string> Serialize() override;
 
-        void Deserialize(WorldContext *worldContext, const std::string &data) override;
+        void Deserialize(WorldContext* worldContext, const std::string& data) override;
     };
 }

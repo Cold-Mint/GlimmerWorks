@@ -43,29 +43,35 @@
 #include "core/world/structure/StructureGeneratorType.h"
 #include "core/world/structure/StructureInfo.h"
 
-namespace {
-    const char *StructureGeneratorTypeName(const uint8_t generatorId) {
-        switch (static_cast<glimmer::StructureGeneratorType>(generatorId)) {
-            case glimmer::StructureGeneratorType::Static:
-                return "Static";
-            case glimmer::StructureGeneratorType::Tree:
-                return "Tree";
-            case glimmer::StructureGeneratorType::None:
-            default:
-                return "None";
+namespace
+{
+    const char* StructureGeneratorTypeName(const uint8_t generatorId)
+    {
+        switch (static_cast<glimmer::StructureGeneratorType>(generatorId))
+        {
+        case glimmer::StructureGeneratorType::Static:
+            return "Static";
+        case glimmer::StructureGeneratorType::Tree:
+            return "Tree";
+        case glimmer::StructureGeneratorType::None:
+        default:
+            return "None";
         }
     }
 }
 
-glimmer::StructurePlacer::StructurePlacer(WorldContext *worldContext) : worldContext_(worldContext) {
+glimmer::StructurePlacer::StructurePlacer(WorldContext* worldContext) : worldContext_(worldContext)
+{
 }
 
-void glimmer::StructurePlacer::GenerateStructure(const TileVector2D &position) const {
+void glimmer::StructurePlacer::GenerateStructure(const TileVector2D& position) const
+{
     LogCat::i(LogLabel::TERRAIN, "structure_placing_start", "Placing structures: position=({}, {})", position.x,
               position.y);
-    const AppContext *appContext = worldContext_->GetAppContext();
-    const auto &all = appContext->GetModContext()->GetStructureRegistry()->GetAll();
-    if (all.empty()) {
+    const AppContext* appContext = worldContext_->GetAppContext();
+    const auto& all = appContext->GetModContext()->GetStructureRegistry()->GetAll();
+    if (all.empty())
+    {
         LogCat::d(LogLabel::TERRAIN, "structure_registry_empty", "Structure registry is empty, skipping");
         return;
     }
@@ -133,23 +139,28 @@ void glimmer::StructurePlacer::GenerateStructure(const TileVector2D &position) c
 // }
 
 
-std::optional<std::bitset<TERRAIN_AREA> > glimmer::StructurePlacer::MatchStructureConditions(
-    const WorldContext *worldContext, const TerrainResult *terrainResult, const IStructureResource *structureResource) {
-    AppContext *appContext = worldContext->GetAppContext();
-    if (appContext == nullptr) {
+std::optional<std::bitset<TERRAIN_AREA>> glimmer::StructurePlacer::MatchStructureConditions(
+    const WorldContext* worldContext, const TerrainResult* terrainResult, const IStructureResource* structureResource)
+{
+    AppContext* appContext = worldContext->GetAppContext();
+    if (appContext == nullptr)
+    {
         return std::nullopt;
     }
-    Dimension *dimension = worldContext->GetDimension();
-    if (dimension == nullptr) {
+    Dimension* dimension = worldContext->GetDimension();
+    if (dimension == nullptr)
+    {
         return std::nullopt;
     }
-    DimensionResource *dimensionResource = dimension->GetDimensionResource();
-    if (dimensionResource == nullptr) {
+    DimensionResource* dimensionResource = dimension->GetDimensionResource();
+    if (dimensionResource == nullptr)
+    {
         return std::nullopt;
     }
     const std::string resId = Resource::GenerateId(*structureResource);
     const size_t totalConditions = structureResource->condition.size();
-    if (totalConditions == 0) {
+    if (totalConditions == 0)
+    {
         LogCat::d(LogLabel::TERRAIN, "structure_condition_no_conditions",
                   "Structure has no placement conditions: resource={}", resId);
         return std::nullopt;
@@ -160,28 +171,33 @@ std::optional<std::bitset<TERRAIN_AREA> > glimmer::StructurePlacer::MatchStructu
     std::bitset<TERRAIN_AREA> totalBitset;
     bool hasAnyConditionMatched = false;
     const int endIndex = static_cast<int>(totalConditions) - 1;
-    ModContext *modContext = appContext->
-            GetModContext();
-    if (modContext == nullptr) {
+    ModContext* modContext = appContext->
+        GetModContext();
+    if (modContext == nullptr)
+    {
         return std::nullopt;
     }
-    StructurePlacementConditionsProcessorManager *structurePlacementConditionsProcessorManager = modContext->
-            GetStructurePlacementConditionsProcessorManager();
-    if (structurePlacementConditionsProcessorManager == nullptr) {
+    StructurePlacementConditionsProcessorManager* structurePlacementConditionsProcessorManager = modContext->
+        GetStructurePlacementConditionsProcessorManager();
+    if (structurePlacementConditionsProcessorManager == nullptr)
+    {
         return std::nullopt;
     }
-    StructurePlacementConditionsRegistry *structurePlacementConditionsRegistry = modContext->
-            GetStructurePlacementConditionsRegistry();
-    if (structurePlacementConditionsRegistry == nullptr) {
+    StructurePlacementConditionsRegistry* structurePlacementConditionsRegistry = modContext->
+        GetStructurePlacementConditionsRegistry();
+    if (structurePlacementConditionsRegistry == nullptr)
+    {
         return std::nullopt;
     }
 
-    for (int i = 0; i <= endIndex; ++i) {
-        auto &conditionRef = structureResource->condition[i];
-        IStructurePlacementConditionsResource *structurePlacementConditionsResource =
-                structurePlacementConditionsRegistry->Find(conditionRef.GetPackageId(),
-                                                           conditionRef.GetResourceKey());
-        if (structurePlacementConditionsResource == nullptr) {
+    for (int i = 0; i <= endIndex; ++i)
+    {
+        auto& conditionRef = structureResource->condition[i];
+        IStructurePlacementConditionsResource* structurePlacementConditionsResource =
+            structurePlacementConditionsRegistry->Find(conditionRef.GetPackageId(),
+                                                       conditionRef.GetResourceKey());
+        if (structurePlacementConditionsResource == nullptr)
+        {
             LogCat::d(LogLabel::TERRAIN, "structure_condition_resource_not_found",
                       "Structure placement condition resource not found: resource={}, condition index={}, condition={}:{}",
                       resId, i, conditionRef.GetPackageId(), conditionRef.GetResourceKey());
@@ -189,9 +205,10 @@ std::optional<std::bitset<TERRAIN_AREA> > glimmer::StructurePlacer::MatchStructu
         }
         const auto processorType = static_cast<StructureConditionProcessorType>(structurePlacementConditionsResource->
             processorId);
-        IStructureConditionProcessor *structureConditionProcessor = structurePlacementConditionsProcessorManager->
-                FindConditionProcessors(processorType);
-        if (structureConditionProcessor == nullptr) {
+        IStructureConditionProcessor* structureConditionProcessor = structurePlacementConditionsProcessorManager->
+            FindConditionProcessors(processorType);
+        if (structureConditionProcessor == nullptr)
+        {
             LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "structure_condition_processor_not_found",
                       "Structure condition processor not found: resource={}, type={}", resId,
                       std::to_underlying(processorType));
@@ -202,27 +219,33 @@ std::optional<std::bitset<TERRAIN_AREA> > glimmer::StructurePlacer::MatchStructu
                                                                               terrainResult,
                                                                               structurePlacementConditionsResource);
 
-        if (bitset.none()) {
+        if (bitset.none())
+        {
             LogCat::d(LogLabel::TERRAIN, "structure_condition_no_match",
                       "Structure condition matched no tiles: resource={}, condition index={}", resId, i);
             return std::nullopt;
         }
 
-        if (!hasAnyConditionMatched) {
+        if (!hasAnyConditionMatched)
+        {
             totalBitset = bitset;
             hasAnyConditionMatched = true;
-        } else {
+        }
+        else
+        {
             totalBitset &= bitset;
         }
 
-        if (totalBitset.none()) {
+        if (totalBitset.none())
+        {
             LogCat::d(LogLabel::TERRAIN, "structure_condition_intersection_empty",
                       "No candidate points left after intersecting conditions: resource={}", resId);
             return std::nullopt;
         }
     }
 
-    if (!hasAnyConditionMatched || totalBitset.none()) {
+    if (!hasAnyConditionMatched || totalBitset.none())
+    {
         return std::nullopt;
     }
 
@@ -231,16 +254,19 @@ std::optional<std::bitset<TERRAIN_AREA> > glimmer::StructurePlacer::MatchStructu
     return totalBitset;
 }
 
-int glimmer::StructurePlacer::PlaceStructureAtCandidatePoints(const AppContext *appContext,
-                                                              TerrainManager *terrainManager,
-                                                              const TileVector2D &position,
-                                                              const std::bitset<CHUNK_AREA> &candidatePoints,
-                                                              IStructureResource *structureResource) const {
+int glimmer::StructurePlacer::PlaceStructureAtCandidatePoints(const AppContext* appContext,
+                                                              TerrainManager* terrainManager,
+                                                              const TileVector2D& position,
+                                                              const std::bitset<CHUNK_AREA>& candidatePoints,
+                                                              IStructureResource* structureResource) const
+{
     int markedCount = 0;
-    StructureGeneratorManager *structureGeneratorManager = appContext->GetModContext()->GetStructureGeneratorManager();
+    StructureGeneratorManager* structureGeneratorManager = appContext->GetModContext()->GetStructureGeneratorManager();
 
-    for (int i = 0; i < CHUNK_AREA; ++i) {
-        if (!candidatePoints.test(i)) {
+    for (int i = 0; i < CHUNK_AREA; ++i)
+    {
+        if (!candidatePoints.test(i))
+        {
             continue;
         }
 
@@ -249,9 +275,10 @@ int glimmer::StructurePlacer::PlaceStructureAtCandidatePoints(const AppContext *
         TileVector2D structuralOrigin{localX, localY};
         TileVector2D globalOrigin = position + structuralOrigin;
         std::unique_ptr<StructureInfo> structureInfo = structureGeneratorManager->
-                Generate(worldContext_, globalOrigin, structureResource);
+            Generate(worldContext_, globalOrigin, structureResource);
 
-        if (structureInfo != nullptr) {
+        if (structureInfo != nullptr)
+        {
             // PlaceStructureTiles(terrainManager, structureInfo.get(), globalOrigin);
         }
 

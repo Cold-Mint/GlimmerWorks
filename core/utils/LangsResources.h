@@ -28,8 +28,10 @@
 #include <string>
 #include <vector>
 
-namespace glimmer {
-    struct LangsResources {
+namespace glimmer
+{
+    struct LangsResources
+    {
         std::string commandInfo;
         std::string awakeBodyCount;
         std::string getActualPathError;
@@ -69,9 +71,6 @@ namespace glimmer {
         std::string mousePosition;
         std::string noBiomeWasFound;
         std::string biomeHasFound;
-        std::vector<std::string> worldNamePrefix;
-        std::vector<std::string> worldNameSuffix;
-        std::vector<std::string> slogans;
         std::string scancodeUnknown;
         std::string hookCreateDuplicate;
         std::string hookAddDuplicate;
@@ -156,5 +155,8 @@ namespace glimmer {
         std::string timeM;
         std::string timeH;
         std::string savesDescription;
+        std::vector<std::string> worldNamePrefix;
+        std::vector<std::string> worldNameSuffix;
+        std::vector<std::string> slogans;
     };
 }

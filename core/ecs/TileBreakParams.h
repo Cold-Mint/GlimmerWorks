@@ -28,26 +28,28 @@
 #include "core/world/BreakSource.h"
 #include "core/world/WorldContext.h"
 
-namespace glimmer {
-    class TileBreakParams {
-        BreakSource breakSource_ = BreakSource::Unknown;
-        WorldContext *worldContext_ = nullptr;
-        const TileLayerComponent *tileLayerComponent_ = nullptr;
+namespace glimmer
+{
+    class TileBreakParams
+    {
+        ResourceRef newTileRef_;
         TileVector2D topLeftPosition_;
+        WorldContext* worldContext_ = nullptr;
+        const TileLayerComponent* tileLayerComponent_ = nullptr;
+        BreakSource breakSource_ = BreakSource::Unknown;
         bool precisionMining_ = false;
         bool isPlaceMode_ = false;
         uint8_t tileWidth_ = 1;
         uint8_t tileHeight_ = 1;
-        ResourceRef newTileRef_;
 
     public:
-        void SetBreakSource(const BreakSource &breakSource);
+        void SetBreakSource(const BreakSource& breakSource);
 
-        void SetWorldContext(WorldContext *worldContext);
+        void SetWorldContext(WorldContext* worldContext);
 
-        void SetTileLayerComponent(const TileLayerComponent *tileLayerComponent);
+        void SetTileLayerComponent(const TileLayerComponent* tileLayerComponent);
 
-        void SetTopLeftPosition(const TileVector2D &topLeftPosition);
+        void SetTopLeftPosition(const TileVector2D& topLeftPosition);
 
         void SetPrecisionMining(bool precisionMining);
 
@@ -57,15 +59,15 @@ namespace glimmer {
 
         void SetTileHeight(uint8_t tileHeight);
 
-        void SetNewTileRef(const ResourceRef &newTileRef);
+        void SetNewTileRef(const ResourceRef& newTileRef);
 
         [[nodiscard]] BreakSource GetBreakSource() const;
 
-        [[nodiscard]] WorldContext *GetWorldContext() const;
+        [[nodiscard]] WorldContext* GetWorldContext() const;
 
-        [[nodiscard]] const TileLayerComponent *GetTileLayerComponent() const;
+        [[nodiscard]] const TileLayerComponent* GetTileLayerComponent() const;
 
-        [[nodiscard]] const TileVector2D &GetTopLeftPosition() const;
+        [[nodiscard]] const TileVector2D& GetTopLeftPosition() const;
 
         [[nodiscard]] bool IsPrecisionMining() const;
 
@@ -75,8 +77,8 @@ namespace glimmer {
 
         [[nodiscard]] uint8_t GetTileHeight() const;
 
-        [[nodiscard]] ResourceRef &GetMutableNewTileRef();
+        [[nodiscard]] ResourceRef& GetMutableNewTileRef();
 
-        [[nodiscard]] const ResourceRef &GetNewTileRef() const;
+        [[nodiscard]] const ResourceRef& GetNewTileRef() const;
     };
 }

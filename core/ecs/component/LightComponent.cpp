@@ -26,18 +26,22 @@
  */
 #include "LightComponent.h"
 
-void glimmer::LightComponent::SetLightSourceRef(const ResourceRef &lightSourceRef) {
+void glimmer::LightComponent::SetLightSourceRef(const ResourceRef& lightSourceRef)
+{
     lightSourceRef_ = lightSourceRef;
 }
 
-const glimmer::ResourceRef &glimmer::LightComponent::GetLightSourceRef() const {
+const glimmer::ResourceRef& glimmer::LightComponent::GetLightSourceRef() const
+{
     return lightSourceRef_;
 }
 
-GameComponentTypeMessage glimmer::LightComponent::GetComponentTypeStatic() {
+GameComponentTypeMessage glimmer::LightComponent::GetComponentTypeStatic()
+{
     return COMPONENT_LIGHT;
 }
 
-GameComponentTypeMessage glimmer::LightComponent::GetComponentType() {
+GameComponentTypeMessage glimmer::LightComponent::GetComponentType()
+{
     return GetComponentTypeStatic();
 }

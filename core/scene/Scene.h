@@ -35,28 +35,31 @@
 #include "RmlUi/Core/DataModelHandle.h"
 
 
-namespace glimmer {
+namespace glimmer
+{
     class RenderQueue;
     class AppContext;
 
-    class Scene : public IDocumentRegistry, public ITickListener {
-        bool initSubclassFinish_ = false;
-        AppContext *appContext_ = nullptr;
-        RmlContext *rmlContext_ = nullptr;
-        std::unordered_set<Rml::ElementDocument *> elementDocumentSet_;
-        std::unordered_set<Rml::ElementDocument *> visibleElementDocumentsSnapshot_;
+    class Scene : public IDocumentRegistry, public ITickListener
+    {
         std::deque<Rml::DataModelConstructor> rmlConstructors_;
+        std::unordered_set<Rml::ElementDocument*> elementDocumentSet_;
+        std::unordered_set<Rml::ElementDocument*> visibleElementDocumentsSnapshot_;
         std::unordered_set<Rml::String> rmlConstructorNames_;
+        AppContext* appContext_ = nullptr;
+        RmlContext* rmlContext_ = nullptr;
 #if  !defined(NDEBUG)
         //After this tick, it indicates that the initialization has failed.
         //超过此tick后表示初始化失败。
         uint64_t initTick_ = 0;
 #endif
+        bool initSubclassFinish_ = false;
+
 
         void RemoveAllDataModel();
 
     protected:
-        [[nodiscard]] AppContext *GetAppContext() const;
+        [[nodiscard]] AppContext* GetAppContext() const;
 
         /**
        * It is called after the subclass is fully constructed.
@@ -75,7 +78,7 @@ namespace glimmer {
         void CloseAllElementDocuments();
 
     public:
-        [[nodiscard]] std::vector<Rml::ElementDocument *> GetAllDocuments() const;
+        [[nodiscard]] std::vector<Rml::ElementDocument*> GetAllDocuments() const;
 
 
         /**
@@ -83,17 +86,17 @@ namespace glimmer {
          * 用于向着色器注入参数的上下文。
          * @return
          */
-        [[nodiscard]] virtual UniformInjectContext *GetUniformInjectContext();
+        [[nodiscard]] virtual UniformInjectContext* GetUniformInjectContext();
 
-        Rml::ElementDocument *LoadSingleDocument(const ResourceRef *resourceRef) override;
+        Rml::ElementDocument* LoadSingleDocument(const ResourceRef* resourceRef) override;
 
-        Rml::DataModelConstructor *CreateDataModel(const Rml::String &name) override;
+        Rml::DataModelConstructor* CreateDataModel(const Rml::String& name) override;
 
-        Rml::Element *FindElementById(const Rml::String &elementId) const;
+        Rml::Element* FindElementById(const Rml::String& elementId) const;
 
-        Rml::Element *FindElementByAttribute(const Rml::String &attrName, const Rml::String &attrValue) const;
+        Rml::Element* FindElementByAttribute(const Rml::String& attrName, const Rml::String& attrValue) const;
 
-        Rml::Element *FindElementByText(const Rml::String &text) const;
+        Rml::Element* FindElementByText(const Rml::String& text) const;
 
         /**
          * Processing events (input, window messages, etc.) returns whether to intercept the event. If it is true, it will not be passed down.
@@ -101,7 +104,7 @@ namespace glimmer {
          * @param event
          * @return
          */
-        virtual bool HandleEvent(const SDL_Event &event);
+        virtual bool HandleEvent(const SDL_Event& event);
 
         /**
          * Call this before the Render function. It is recommended to calculate the view data within this function.
@@ -119,7 +122,7 @@ namespace glimmer {
          * 将场景的渲染命令提交到分层渲染队列。
          * @param queue
          */
-        virtual void Render(RenderQueue *queue);
+        virtual void Render(RenderQueue* queue);
 
         /**
          * Called when the frame begins
@@ -152,7 +155,7 @@ namespace glimmer {
          * 当配置发生改变时
          * @param config
          */
-        virtual void OnConfigChanged(const Config *config);
+        virtual void OnConfigChanged(const Config* config);
 
         /**
          * This method is called when the back key is pressed. On Android systems, navigate up; on desktop platforms, press ESC.
@@ -162,11 +165,11 @@ namespace glimmer {
          */
         virtual bool OnBackPressed();
 
-        virtual void OnWindowSizeChanged(const int &width, const int &height);
+        virtual void OnWindowSizeChanged(const int& width, const int& height);
 
 
         ~Scene() override;
 
-        explicit Scene(AppContext *context);
+        explicit Scene(AppContext* context);
     };
 }

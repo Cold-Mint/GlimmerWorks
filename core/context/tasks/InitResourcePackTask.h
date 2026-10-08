@@ -28,16 +28,18 @@
 #include "IAppContextInitTask.h"
 class AppContext;
 
-namespace glimmer {
-    class InitResourcePackTask : public IAppContextInitTask {
-        AppContext *appContext_ = nullptr;
+namespace glimmer
+{
+    class InitResourcePackTask : public IAppContextInitTask
+    {
+        AppContext* appContext_ = nullptr;
 
     public:
-        explicit InitResourcePackTask(AppContext *appContext);
+        explicit InitResourcePackTask(AppContext* appContext);
 
-        bool Run(ISystemBucket *systemBucket) override;
+        bool Run(ISystemBucket* systemBucket) override;
 
-        void Rollback(ISystemBucket *systemBucket) override;
+        void Rollback(ISystemBucket* systemBucket) override;
 
         std::string GetTaskName() override;
     };

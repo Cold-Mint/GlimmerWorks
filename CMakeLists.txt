@@ -410,7 +410,6 @@ target_sources(GlimmerWorks
         core/utils/VersionAble.cpp
         core/ecs/TileBreakParams.cpp
         core/context/tasks/InitValidateGameTask.cpp
-        core/mod/resourcePack/GPUSamplerResource.cpp
         core/mod/resourcePack/cache/GpuSamplerCache.cpp
         core/mod/resourcePack/GPUSamplerResourceResult.cpp
         core/gpu/RenderQueue.cpp
@@ -430,7 +429,6 @@ target_sources(GlimmerWorks
         core/gpu/UniformInjectorRegistry.cpp
         core/mod/resourcePack/UniformBlockResourceResult.cpp
         core/mod/resourcePack/cache/UniformBlockCache.cpp
-        core/mod/resourcePack/BaseManager.cpp
         core/app/AppEventLoop.cpp
         core/context/tasks/IAppContextInitTask.cpp
         core/context/SystemBucket.cpp
@@ -694,7 +692,6 @@ target_sources(GlimmerWorks
         core/mod/dataPack/TileResourceManager.cpp
         core/mod/resourcePack/AudioManager.cpp
         core/mod/resourcePack/AudioResourceResult.cpp
-        core/mod/resourcePack/AudioType.cpp
         core/mod/resourcePack/GPUPipelineResourceResult.cpp
         core/mod/resourcePack/ResourcePack.cpp
         core/mod/resourcePack/ResourcePackConfig.cpp
@@ -791,8 +788,6 @@ target_sources(GlimmerWorks
         core/world/generator/TerrainResult.cpp
         core/world/generator/TerrainResultType.cpp
         core/world/generator/TerrainTileResult.cpp
-        core/world/generator/TileLayerType.cpp
-        core/world/generator/TilePhysicsType.cpp
         core/world/generator/TileRefResolver.cpp
         core/world/generator/TileSnapshot.cpp
         core/world/structure/BiomeStructureConditionProcessor.cpp
@@ -844,7 +839,6 @@ target_sources(GlimmerWorks
         core/mod/resourcePack/GPUSamplerResourceResult.h
         core/mod/resourcePack/cache/ShaderCacheStoreRequest.h
         core/mod/resourcePack/cache/GpuSamplerCache.h
-        core/mod/resourcePack/GPUSamplerResource.h
         core/mod/resourcePack/cache/RmlCache.h
         core/context/ISystemBucket.h
         core/event/EventBus.h

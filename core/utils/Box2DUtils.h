@@ -28,8 +28,10 @@
 #include "box2d/math_functions.h"
 #include "core/math/WorldVector2D.h"
 
-namespace glimmer {
-    class Box2DUtils {
+namespace glimmer
+{
+    class Box2DUtils
+    {
     public:
         /**
          * Convert meters to pixels
@@ -62,6 +64,6 @@ namespace glimmer {
          * @param vector2D vector2D Vector2D
          * @return b2Vec2 b2Vec2
          */
-        static b2Vec2 ToMeters(const WorldVector2D &vector2D);
+        static b2Vec2 ToMeters(const WorldVector2D& vector2D);
     };
 }

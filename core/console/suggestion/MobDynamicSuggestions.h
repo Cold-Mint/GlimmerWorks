@@ -28,17 +28,19 @@
 #include "DynamicSuggestions.h"
 #include "core/mod/dataPack/MobRegistry.h"
 
-namespace glimmer {
-    class MobDynamicSuggestions final : public DynamicSuggestions {
-        MobRegistry *mobRegistry_ = nullptr;
+namespace glimmer
+{
+    class MobDynamicSuggestions final : public DynamicSuggestions
+    {
+        MobRegistry* mobRegistry_ = nullptr;
 
     public:
-        explicit MobDynamicSuggestions(MobRegistry *mobRegistry);
+        explicit MobDynamicSuggestions(MobRegistry* mobRegistry);
 
         [[nodiscard]] std::string GetId() const override;
 
-        const std::vector<std::string> &GetSuggestions(const std::optional<std::string> &param) override;
+        const std::vector<std::string>& GetSuggestions(const std::optional<std::string>& param) override;
 
-        bool Match(const std::string &keyword, const std::string &param) override;
+        bool Match(const std::string& keyword, const std::string& param) override;
     };
 }

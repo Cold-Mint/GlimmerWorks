@@ -40,13 +40,15 @@
 #include "core/saves/SavesManager.h"
 #include "RmlUi/Core/DataModelHandle.h"
 
-glimmer::MainScene::MainScene(AppContext *context)
-    : Scene(context) {
+glimmer::MainScene::MainScene(AppContext* context)
+    : Scene(context)
+{
     context->GetAudioContext()->PlayMainMenuBGM();
     context->SetRandomSlogan();
     virtualFileSystem_ = context->GetVirtualFileSystem();
-    const ResourceLocator *resourceLocator = context->GetResourceLocator();
-    if (resourceLocator == nullptr) {
+    const ResourceLocator* resourceLocator = context->GetResourceLocator();
+    if (resourceLocator == nullptr)
+    {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "resource_locator_is_null",
                   "resourceLocator == nullptr");
         return;
@@ -57,7 +59,8 @@ glimmer::MainScene::MainScene(AppContext *context)
                                                           std::to_string(backgroundIndex_)));
     const std::shared_ptr<TextureResourceResult> textureResourceResult = resourceLocator->FindTexture(
         &nextBackgroundResourceRef_, false);
-    if (textureResourceResult == nullptr) {
+    if (textureResourceResult == nullptr)
+    {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "texture_resource_result_is_null",
                   "textureResourceResult == nullptr");
         return;
@@ -67,7 +70,8 @@ glimmer::MainScene::MainScene(AppContext *context)
     Init();
 }
 
-void glimmer::MainScene::LoadDocuments() {
+void glimmer::MainScene::LoadDocuments()
+{
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
@@ -75,27 +79,33 @@ void glimmer::MainScene::LoadDocuments() {
     LoadSingleDocument(&resourceRef);
 }
 
-void glimmer::MainScene::Update(const float delta) {
-    if (backgroundTargetSecond_ == -1) {
+void glimmer::MainScene::Update(const float delta)
+{
+    if (backgroundTargetSecond_ == -1)
+    {
         NextBackgroundFrame();
         return;
     }
     backgroundAnimTimer_ += delta;
-    if (backgroundAnimTimer_ >= backgroundTargetSecond_) {
+    if (backgroundAnimTimer_ >= backgroundTargetSecond_)
+    {
         NextBackgroundFrame();
         backgroundAnimTimer_ -= backgroundTargetSecond_;
     }
 }
 
-void glimmer::MainScene::OnCreateDataModels() {
-    Rml::DataModelConstructor *constructor = CreateDataModel("main_scene");
-    if (constructor != nullptr) {
+void glimmer::MainScene::OnCreateDataModels()
+{
+    Rml::DataModelConstructor* constructor = CreateDataModel("main_scene");
+    if (constructor != nullptr)
+    {
         constructor->Bind("copyright", &mainSceneDataModel_.copyright);
         constructor->Bind("game_version", &mainSceneDataModel_.gameVersion);
-        if (auto linkStruct = constructor->RegisterStruct<Hyperlink>()) {
+        if (auto linkStruct = constructor->RegisterStruct<Hyperlink>())
+        {
             linkStruct.RegisterMember("text", &Hyperlink::text);
             linkStruct.RegisterMember("url", &Hyperlink::url);
-            constructor->RegisterArray<std::vector<Hyperlink> >();
+            constructor->RegisterArray<std::vector<Hyperlink>>();
         }
         constructor->Bind("footer_links", &mainSceneDataModel_.hyperlinks);
         constructor->Bind("main_menu_background", &mainSceneDataModel_.mainMenuBackground);
@@ -118,70 +128,90 @@ void glimmer::MainScene::OnCreateDataModels() {
     }
 }
 
-void glimmer::MainScene::OnStartGameClick(Rml::DataModelHandle handle, Rml::Event &event,
-                                          const Rml::VariantList &args) {
-    AppContext *context = GetAppContext();
-    if (context == nullptr) {
+void glimmer::MainScene::OnStartGameClick(Rml::DataModelHandle handle, Rml::Event& event,
+                                          const Rml::VariantList& args)
+{
+    AppContext* context = GetAppContext();
+    if (context == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "context_is_null", "context == nullptr");
         return;
     }
-    SavesManager *savesManager = context->GetSavesManager();
-    if (savesManager == nullptr) {
+    SavesManager* savesManager = context->GetSavesManager();
+    if (savesManager == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "saves_manager_is_null",
                   "savesManager == nullptr");
         return;
     }
-    if (savesManager->GetSavesListSize() > 0) {
-        context->GetMainThreadDispatcher()->PostToNextMainFrame([ context] {
+    if (savesManager->GetSavesListSize() > 0)
+    {
+        context->GetMainThreadDispatcher()->PostToNextMainFrame([ context]
+        {
             context->GetSceneManager()->PushScene(std::make_unique<SavedGamesScene>(context));
         });
-    } else {
-        context->GetMainThreadDispatcher()->PostToNextMainFrame([ context] {
+    }
+    else
+    {
+        context->GetMainThreadDispatcher()->PostToNextMainFrame([ context]
+        {
             context->GetSceneManager()->PushScene(std::make_unique<CreateWorldScene>(context));
         });
     }
 }
 
-void glimmer::MainScene::OnExitGameClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args) {
-    AppContext *context = GetAppContext();
-    if (context == nullptr) {
+void glimmer::MainScene::OnExitGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args)
+{
+    AppContext* context = GetAppContext();
+    if (context == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "context_is_null", "context == nullptr");
         return;
     }
-    SceneManager *sceneManager = context->GetSceneManager();
-    if (sceneManager == nullptr) {
+    SceneManager* sceneManager = context->GetSceneManager();
+    if (sceneManager == nullptr)
+    {
         return;
     }
-    MainThreadDispatcher *mainThreadDispatcher = context->GetMainThreadDispatcher();
-    if (mainThreadDispatcher == nullptr) {
+    MainThreadDispatcher* mainThreadDispatcher = context->GetMainThreadDispatcher();
+    if (mainThreadDispatcher == nullptr)
+    {
         return;
     }
-    mainThreadDispatcher->PostToNextMainFrame([sceneManager] {
+    mainThreadDispatcher->PostToNextMainFrame([sceneManager]
+    {
         sceneManager->RemoveAllScenes();
     });
 }
 
-void glimmer::MainScene::OnLinkClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args) {
-    if (args.empty()) {
+void glimmer::MainScene::OnLinkClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args)
+{
+    if (args.empty())
+    {
         return;
     }
-    const std::string &url = args[0].Get<Rml::String>();
+    const std::string& url = args[0].Get<Rml::String>();
     SDL_OpenURL(url.c_str());
 }
 
-void glimmer::MainScene::NextBackgroundFrame() {
+void glimmer::MainScene::NextBackgroundFrame()
+{
     int nextIndex = backgroundIndex_ + 1;
     std::filesystem::path path = textureFolder_ / fmt::format("{}{}", "bg_",
                                                               std::to_string(nextIndex));
     path.replace_extension(TEXTURE_FORMAT);
-    if (virtualFileSystem_->Exists(path)) {
+    if (virtualFileSystem_->Exists(path))
+    {
         SetBackgroundIndex(nextIndex);
-    } else {
+    }
+    else
+    {
         SetBackgroundIndex(0);
     }
 }
 
-void glimmer::MainScene::SetBackgroundIndex(const int index) {
+void glimmer::MainScene::SetBackgroundIndex(const int index)
+{
     backgroundIndex_ = index;
     mainSceneDataModel_.mainMenuBackground = StringUtils::MakeTextureUrl(fmt::format(
         "{}{}", "@core:main_menu_bg_frames/bg_",
@@ -189,18 +219,23 @@ void glimmer::MainScene::SetBackgroundIndex(const int index) {
     mainModelHandle_.DirtyVariable("main_menu_background");
 }
 
-void glimmer::MainScene::OnConfigChanged(const Config *config) {
+void glimmer::MainScene::OnConfigChanged(const Config* config)
+{
     uiScale_ = config->window.uiScale;
-    if (config->mainMenuBackground.targetFps <= 0.0F) {
+    if (config->mainMenuBackground.targetFps <= 0.0F)
+    {
         //Set to -1 for frame-by-frame refresh.
         //设置为-1每帧刷新。
         backgroundTargetSecond_ = -1;
-    } else {
+    }
+    else
+    {
         backgroundTargetSecond_ = 1.0F / config->mainMenuBackground.targetFps;
     }
 }
 
-void glimmer::MainScene::OnWindowSizeChanged(const int &width, const int &height) {
+void glimmer::MainScene::OnWindowSizeChanged(const int& width, const int& height)
+{
     windowWidth_ = width;
     windowHeight_ = height;
 }

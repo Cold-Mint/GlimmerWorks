@@ -175,8 +175,8 @@ bool glimmer::DataPack::LoadPack(const AppContext *appContext) {
     std::vector<std::filesystem::path> targetLanguageFiles;
     std::vector<uint8_t> allHashData;
     SpecialFileProcessingParams specialFileProcessingParams{
-        config->mods.enableSignVerify, rootPath_ / ".public", rootPath_ / ".sign", false, false,
-        std::vector<uint8_t>(32), std::vector<uint8_t>(64)
+        rootPath_ / ".public", rootPath_ / ".sign",
+        std::vector<uint8_t>(32), std::vector<uint8_t>(64), config->mods.enableSignVerify, false, false
     };
     PackSignatureVerifier signatureVerifier(virtualFileSystem_, specialFileProcessingParams);
     for (const auto &file: files) {

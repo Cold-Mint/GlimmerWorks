@@ -28,8 +28,10 @@
 
 #include "DynamicSuggestions.h"
 
-namespace glimmer {
-    class SceneDynamicSuggestions final : public DynamicSuggestions {
+namespace glimmer
+{
+    class SceneDynamicSuggestions final : public DynamicSuggestions
+    {
         std::vector<std::string> sceneName_;
 
     public:
@@ -37,8 +39,8 @@ namespace glimmer {
 
         [[nodiscard]] std::string GetId() const override;
 
-        const std::vector<std::string> &GetSuggestions(const std::optional<std::string> &param) override;
+        const std::vector<std::string>& GetSuggestions(const std::optional<std::string>& param) override;
 
-        bool Match(const std::string &keyword, const std::string &param) override;
+        bool Match(const std::string& keyword, const std::string& param) override;
     };
 }

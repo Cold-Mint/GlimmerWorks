@@ -27,8 +27,10 @@
 #pragma once
 #include <string>
 
-namespace glimmer {
-    class LanguageUtils {
+namespace glimmer
+{
+    class LanguageUtils
+    {
     public:
         static std::string getLanguage();
     };

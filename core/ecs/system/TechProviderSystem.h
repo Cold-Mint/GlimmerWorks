@@ -31,28 +31,30 @@
 #include "core/ecs/GameSystem.h"
 #include "core/math/WorldVector2D.h"
 
-namespace glimmer {
-    class TechProviderSystem final : public GameSystem {
+namespace glimmer
+{
+    class TechProviderSystem final : public GameSystem
+    {
+        /**
+        * Protects techProviderEntities_ against concurrent rebuild on the main
+        * thread (OnWatchedComponentChanged) and iteration on the tick thread
+        * (OnTick).
+        * 保护 techProviderEntities_ 免受主线程（OnWatchedComponentChanged）
+        * 重建与 tick 线程（OnTick）遍历的并发访问。
+        */
+        mutable std::mutex techProviderMutex_;
+        std::vector<GameEntityID> techProviderEntities_;
+        WorldVector2D lastPlayerPosition_;
         uint32_t transform2DCount_ = 0;
         uint32_t techProviderCount_ = 0;
-        std::vector<GameEntityID> techProviderEntities_;
-        /**
-         * Protects techProviderEntities_ against concurrent rebuild on the main
-         * thread (OnWatchedComponentChanged) and iteration on the tick thread
-         * (OnTick).
-         * 保护 techProviderEntities_ 免受主线程（OnWatchedComponentChanged）
-         * 重建与 tick 线程（OnTick）遍历的并发访问。
-         */
-        mutable std::mutex techProviderMutex_;
         GameEntityID player_ = 0;
         //Whether the technology map needs to be recomputed. Set on the main
         //thread (OnWatchedComponentChanged), consumed on the tick thread (OnTick).
         //是否需要重新计算科技表。在主线程（OnWatchedComponentChanged）设置，在 tick 线程（OnTick）消费。
         std::atomic<bool> changed = false;
-        WorldVector2D lastPlayerPosition_{};
 
     public:
-        explicit TechProviderSystem(WorldContext *worldContext);
+        explicit TechProviderSystem(WorldContext* worldContext);
 
         void OnActivationChanged(bool activeStatus) override;
 

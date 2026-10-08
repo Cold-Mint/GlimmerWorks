@@ -27,19 +27,21 @@
 #pragma once
 #include <cstdint>
 
-namespace glimmer {
-    class PlayerInputHandler {
+namespace glimmer
+{
+    class PlayerInputHandler
+    {
+        uint64_t dropTick_ = 0;
         float horizontalInput_ = 0.0F;
         float verticalInput_ = 0.0F;
+        float jumpBuffer_ = 0;
         bool pressedW_ = false;
         bool pressedA_ = false;
         bool pressedS_ = false;
         bool pressedD_ = false;
         bool jump_ = false;
-        float jumpBuffer_ = 0;
         bool mouseLeftDown_ = false;
         bool mouseRightDown_ = false;
-        uint64_t dropTick_ = 0;
         bool dropPressed_ = false;
 
     public:

@@ -29,22 +29,27 @@
 #include "core/log/LogCat.h"
 #include "core/context/AppContext.h"
 
-std::string_view glimmer::ComposableItemsAssetEnumerator::GetAssetType() const {
+std::string_view glimmer::ComposableItemsAssetEnumerator::GetAssetType() const
+{
     return assetName;
 }
 
-std::optional<std::string> glimmer::ComposableItemsAssetEnumerator::ListAsset(const AppContext *appContext) {
-    if (appContext == nullptr) {
+std::optional<std::string> glimmer::ComposableItemsAssetEnumerator::ListAsset(const AppContext* appContext)
+{
+    if (appContext == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "app_context_is_null", "appContext is nullptr");
         return std::nullopt;
     }
-    const ModContext *modContext = appContext->GetModContext();
-    if (modContext == nullptr) {
+    const ModContext* modContext = appContext->GetModContext();
+    if (modContext == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "mod_context_is_null", "modContext is nullptr");
         return std::nullopt;
     }
-    const ComposableItemRegistry *composableItemRegistry = modContext->GetComposableItemRegistry();
-    if (composableItemRegistry == nullptr) {
+    const ComposableItemRegistry* composableItemRegistry = modContext->GetComposableItemRegistry();
+    if (composableItemRegistry == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "composable_item_registry_is_null",
                   "composableItemRegistry is nullptr");
         return std::nullopt;

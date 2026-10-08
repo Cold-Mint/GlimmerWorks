@@ -26,73 +26,85 @@
  */
 #include "Std140LayoutBuilder.h"
 
-glimmer::UniformScalarType glimmer::Std140LayoutBuilder::ParseType(const std::string_view type) {
-    if (type == "float") {
+glimmer::UniformScalarType glimmer::Std140LayoutBuilder::ParseType(const std::string_view type)
+{
+    if (type == "float")
+    {
         return UniformScalarType::Float;
     }
-    if (type == "vec2") {
+    if (type == "vec2")
+    {
         return UniformScalarType::Vec2;
     }
-    if (type == "vec3") {
+    if (type == "vec3")
+    {
         return UniformScalarType::Vec3;
     }
-    if (type == "vec4") {
+    if (type == "vec4")
+    {
         return UniformScalarType::Vec4;
     }
-    if (type == "mat4") {
+    if (type == "mat4")
+    {
         return UniformScalarType::Mat4;
     }
     return UniformScalarType::Invalid;
 }
 
-uint32_t glimmer::Std140LayoutBuilder::GetComponentCount(const UniformScalarType type) {
-    switch (type) {
-        case UniformScalarType::Float:
-            return 1;
-        case UniformScalarType::Vec2:
-            return 2;
-        case UniformScalarType::Vec3:
-            return 3;
-        case UniformScalarType::Vec4:
-            return 4;
-        case UniformScalarType::Mat4:
-            return 16;
-        case UniformScalarType::Invalid:
-        default:
-            return 0;
+uint32_t glimmer::Std140LayoutBuilder::GetComponentCount(const UniformScalarType type)
+{
+    switch (type)
+    {
+    case UniformScalarType::Float:
+        return 1;
+    case UniformScalarType::Vec2:
+        return 2;
+    case UniformScalarType::Vec3:
+        return 3;
+    case UniformScalarType::Vec4:
+        return 4;
+    case UniformScalarType::Mat4:
+        return 16;
+    case UniformScalarType::Invalid:
+    default:
+        return 0;
     }
 }
 
-uint32_t glimmer::Std140LayoutBuilder::GetAlignment(const UniformScalarType type) {
-    switch (type) {
-        case UniformScalarType::Float:
-            return 4;
-        case UniformScalarType::Vec2:
-            return 8;
-        case UniformScalarType::Vec3:
-        case UniformScalarType::Vec4:
-        case UniformScalarType::Mat4:
-            return 16;
-        case UniformScalarType::Invalid:
-        default:
-            return 0;
+uint32_t glimmer::Std140LayoutBuilder::GetAlignment(const UniformScalarType type)
+{
+    switch (type)
+    {
+    case UniformScalarType::Float:
+        return 4;
+    case UniformScalarType::Vec2:
+        return 8;
+    case UniformScalarType::Vec3:
+    case UniformScalarType::Vec4:
+    case UniformScalarType::Mat4:
+        return 16;
+    case UniformScalarType::Invalid:
+    default:
+        return 0;
     }
 }
 
-uint32_t glimmer::Std140LayoutBuilder::GetSize(const UniformScalarType type) {
-    switch (type) {
-        case UniformScalarType::Float:
-            return 4;
-        case UniformScalarType::Vec2:
-            return 8;
-        case UniformScalarType::Vec3:
-            return 12;
-        case UniformScalarType::Vec4:
-            return 16;
-        case UniformScalarType::Mat4:
-            return 64;
-        case UniformScalarType::Invalid:
-        default:
-            return 0;
+uint32_t glimmer::Std140LayoutBuilder::GetSize(const UniformScalarType type)
+{
+    switch (type)
+    {
+    case UniformScalarType::Float:
+        return 4;
+    case UniformScalarType::Vec2:
+        return 8;
+    case UniformScalarType::Vec3:
+        return 12;
+    case UniformScalarType::Vec4:
+        return 16;
+    case UniformScalarType::Mat4:
+        return 64;
+    case UniformScalarType::Invalid:
+    default:
+        return 0;
     }
 }

@@ -28,11 +28,13 @@
 #include "ResourcePack.h"
 #include "core/log/LogCat.h"
 
-namespace glimmer {
-    template<typename T>
-    class ResourceResult {
-        const ResourcePack *resourcePack_ = nullptr;
-        T *resource_ = nullptr;
+namespace glimmer
+{
+    template <typename T>
+    class ResourceResult
+    {
+        const ResourcePack* resourcePack_ = nullptr;
+        T* resource_ = nullptr;
 #if  !defined(NDEBUG)
         //Indicates whether the resources have been securely destroyed.
         //表示是否被安全销毁资源。
@@ -44,7 +46,7 @@ namespace glimmer {
          * Perform resource destruction
          * 实现销毁资源。
          */
-        virtual void DestroyResourceImpl(T *resource);
+        virtual void DestroyResourceImpl(T* resource);
 
         /**
          * The subclass must call this method to release the resources!
@@ -55,24 +57,27 @@ namespace glimmer {
     public:
         virtual ~ResourceResult();
 
-        void SetResourcePack(const ResourcePack *resourcePack);
+        void SetResourcePack(const ResourcePack* resourcePack);
 
-        [[nodiscard]] const ResourcePack *GetResourcePack() const;
+        [[nodiscard]] const ResourcePack* GetResourcePack() const;
 
 
-        void SetResource(T *resource);
+        void SetResource(T* resource);
 
-        [[nodiscard]] T *GetResource() const;
+        [[nodiscard]] T* GetResource() const;
     };
 
-    template<typename T>
-    void ResourceResult<T>::SetResource(T *resource) {
+    template <typename T>
+    void ResourceResult<T>::SetResource(T* resource)
+    {
         resource_ = resource;
     }
 
-    template<typename T>
-    void ResourceResult<T>::SetResourcePack(const ResourcePack *resourcePack) {
-        if (resourcePack == nullptr) {
+    template <typename T>
+    void ResourceResult<T>::SetResourcePack(const ResourcePack* resourcePack)
+    {
+        if (resourcePack == nullptr)
+        {
             LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "resource_pack_is_null",
                       "resourcePack == nullptr");
             return;
@@ -80,31 +85,37 @@ namespace glimmer {
         resourcePack_ = resourcePack;
     }
 
-    template<typename T>
-    const ResourcePack *ResourceResult<T>::GetResourcePack() const {
+    template <typename T>
+    const ResourcePack* ResourceResult<T>::GetResourcePack() const
+    {
         return resourcePack_;
     }
 
-    template<typename T>
-    ResourceResult<T>::~ResourceResult() {
+    template <typename T>
+    ResourceResult<T>::~ResourceResult()
+    {
 #if  !defined(NDEBUG)
-        if (!safeDestroy_) {
+        if (!safeDestroy_)
+        {
             LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "resource_not_released",
                       "Some resources have not been released correctly. Please implement the \"DestroyResource\" method within the destructor of the subclass.");
         }
 #endif
     }
 
-    template<typename T>
-    void ResourceResult<T>::DestroyResourceImpl(T *resource) {
+    template <typename T>
+    void ResourceResult<T>::DestroyResourceImpl(T* resource)
+    {
         //This method covers the implementation of resource destruction.
         //覆盖这个方法实现资源销毁。
     }
 
-    template<typename T>
-    void ResourceResult<T>::DestroyResource() {
-        T *resource = resource_;
-        if (resource == nullptr) {
+    template <typename T>
+    void ResourceResult<T>::DestroyResource()
+    {
+        T* resource = resource_;
+        if (resource == nullptr)
+        {
             return;
         }
         DestroyResourceImpl(resource);
@@ -115,8 +126,9 @@ namespace glimmer {
     }
 
 
-    template<typename T>
-    T *ResourceResult<T>::GetResource() const {
+    template <typename T>
+    T* ResourceResult<T>::GetResource() const
+    {
         return resource_;
     }
 }

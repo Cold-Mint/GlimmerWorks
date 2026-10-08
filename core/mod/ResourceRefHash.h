@@ -28,9 +28,12 @@
 
 #include "ResourceRef.h"
 
-namespace glimmer {
-    struct ResourceRefHash {
-        size_t operator()(const ResourceRef &resourceRef) const noexcept {
+namespace glimmer
+{
+    struct ResourceRefHash
+    {
+        size_t operator()(const ResourceRef& resourceRef) const noexcept
+        {
             return static_cast<size_t>(resourceRef.GetFingerprint());
         }
     };

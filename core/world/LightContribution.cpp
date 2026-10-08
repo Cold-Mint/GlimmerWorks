@@ -27,22 +27,27 @@
 #include "LightContribution.h"
 
 
-void glimmer::LightContribution::SetLightSource(const LightSource *lightSource) {
+void glimmer::LightContribution::SetLightSource(const LightSource* lightSource)
+{
     lightSource_ = lightSource;
 }
 
-const glimmer::LightSource *glimmer::LightContribution::GetLightSource() const {
+const glimmer::LightSource* glimmer::LightContribution::GetLightSource() const
+{
     return lightSource_;
 }
 
-void glimmer::LightContribution::SetLightColor(std::unique_ptr<Color> lightColor) {
+void glimmer::LightContribution::SetLightColor(std::unique_ptr<Color> lightColor)
+{
     lightColor_ = std::move(lightColor);
 }
 
-std::unique_ptr<glimmer::Color> glimmer::LightContribution::TakeLightColor() {
+std::unique_ptr<glimmer::Color> glimmer::LightContribution::TakeLightColor()
+{
     return std::move(lightColor_);
 }
 
-const glimmer::Color *glimmer::LightContribution::GetLightColor() const {
+const glimmer::Color* glimmer::LightContribution::GetLightColor() const
+{
     return lightColor_.get();
 }

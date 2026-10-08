@@ -30,14 +30,16 @@
 
 #include "Scene.h"
 
-namespace glimmer {
+namespace glimmer
+{
     struct LangsResources;
 
     /**
      * A single screen coordinate label used by the debug overlay data model.
      * 调试叠加层数据模型使用的单个屏幕坐标标签。
      */
-    struct CoordinateLabel {
+    struct CoordinateLabel
+    {
         int coordinate = 0;
     };
 
@@ -47,21 +49,22 @@ namespace glimmer {
      * It can be displayed on any scene. Display frps, screen coordinates and other information.
      * 可以显示在任意场景上。显示frps、屏幕坐标等信息。
      */
-    class DebugOverlay : public Scene {
-        float fps_ = 0.0F;
-        float frameTimeMs_ = 0.0F;
-        float fpsAccumTime_ = 0.0F;
-        int fpsFrameCount_ = 0;
-        bool displayDebugPanel_ = false;
-        float uiScale_ = 1.0F;
-        int windowWidth_ = 0;
-        int windowHeight_ = 0;
-        LangsResources *langsResources_ = nullptr;
-        Rml::ElementDocument *debugDocument_ = nullptr;
-        Rml::DataModelHandle debugModelHandle_;
+    class DebugOverlay : public Scene
+    {
         std::string fpsText_;
         std::vector<CoordinateLabel> xCoordinateLabels_;
         std::vector<CoordinateLabel> yCoordinateLabels_;
+        Rml::DataModelHandle debugModelHandle_;
+        LangsResources* langsResources_ = nullptr;
+        Rml::ElementDocument* debugDocument_ = nullptr;
+        float fps_ = 0.0F;
+        float frameTimeMs_ = 0.0F;
+        float fpsAccumTime_ = 0.0F;
+        float uiScale_ = 1.0F;
+        int fpsFrameCount_ = 0;
+        int windowWidth_ = 0;
+        int windowHeight_ = 0;
+        bool displayDebugPanel_ = false;
 
         /**
          * Show or hide the debug document according to displayDebugPanel_.
@@ -77,7 +80,7 @@ namespace glimmer {
         void RebuildCoordinateLabels();
 
     public:
-        explicit DebugOverlay(AppContext *context);
+        explicit DebugOverlay(AppContext* context);
 
         void Update(float delta) override;
 
@@ -85,9 +88,9 @@ namespace glimmer {
 
         void OnCreateDataModels() override;
 
-        void OnConfigChanged(const Config *config) override;
+        void OnConfigChanged(const Config* config) override;
 
-        void OnWindowSizeChanged(const int &width, const int &height) override;
+        void OnWindowSizeChanged(const int& width, const int& height) override;
 
         ~DebugOverlay() override = default;
     };

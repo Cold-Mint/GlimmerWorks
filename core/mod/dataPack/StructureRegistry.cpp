@@ -26,10 +26,12 @@
  */
 #include "StructureRegistry.h"
 
-void glimmer::StructureRegistry::OnRegister(IStructureResource *resource) {
+void glimmer::StructureRegistry::OnRegister(IStructureResource* resource)
+{
     structureVector_.emplace_back(resource);
 }
 
-const std::vector<glimmer::IStructureResource *> &glimmer::StructureRegistry::GetAll() {
+const std::vector<glimmer::IStructureResource*>& glimmer::StructureRegistry::GetAll()
+{
     return structureVector_;
 }

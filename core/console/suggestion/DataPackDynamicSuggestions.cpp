@@ -29,19 +29,23 @@
 #include "core/config/Constants.h"
 #include "core/utils/StringUtils.h"
 
-glimmer::DataPackDynamicSuggestions::DataPackDynamicSuggestions(DataPackManager *dataPackManager) : dataPackManager_(
-    dataPackManager) {
+glimmer::DataPackDynamicSuggestions::DataPackDynamicSuggestions(DataPackManager* dataPackManager) : dataPackManager_(
+    dataPackManager)
+{
 }
 
-std::string glimmer::DataPackDynamicSuggestions::GetId() const {
+std::string glimmer::DataPackDynamicSuggestions::GetId() const
+{
     return DATA_PACK_SUGGESTIONS_NAME;
 }
 
-bool glimmer::DataPackDynamicSuggestions::Match(const std::string &keyword, const std::string &param) {
+bool glimmer::DataPackDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
+{
     return dataPackManager_->Contains(StringUtils::StringToUint64(keyword));
 }
 
-const std::vector<std::string> &glimmer::DataPackDynamicSuggestions::GetSuggestions(
-    const std::optional<std::string> &param) {
+const std::vector<std::string>& glimmer::DataPackDynamicSuggestions::GetSuggestions(
+    const std::optional<std::string>& param)
+{
     return dataPackManager_->GetPackIdVector();
 }

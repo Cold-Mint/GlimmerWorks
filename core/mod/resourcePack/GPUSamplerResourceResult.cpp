@@ -26,17 +26,21 @@
  */
 #include "GPUSamplerResourceResult.h"
 
-void glimmer::GPUSamplerResourceResult::DestroyResourceImpl(SDL_GPUSampler *resource) {
-    if (device_ == nullptr) {
+void glimmer::GPUSamplerResourceResult::DestroyResourceImpl(SDL_GPUSampler* resource)
+{
+    if (device_ == nullptr)
+    {
         return;
     }
     SDL_ReleaseGPUSampler(device_, resource);
 }
 
-void glimmer::GPUSamplerResourceResult::SetDevice(SDL_GPUDevice *device) {
+void glimmer::GPUSamplerResourceResult::SetDevice(SDL_GPUDevice* device)
+{
     device_ = device;
 }
 
-glimmer::GPUSamplerResourceResult::~GPUSamplerResourceResult() {
+glimmer::GPUSamplerResourceResult::~GPUSamplerResourceResult()
+{
     DestroyResource();
 }

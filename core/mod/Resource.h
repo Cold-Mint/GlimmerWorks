@@ -38,7 +38,8 @@
 #include "core/utils/TransparentStringHash.h"
 #include "src/saves/item.pb.h"
 
-namespace glimmer {
+namespace glimmer
+{
     struct TileRules;
 
     /**
@@ -49,7 +50,8 @@ namespace glimmer {
      */
     //@include(toml11/find.hpp)
     //@genNextLine(Resource|资源类)
-    struct Resource {
+    struct Resource
+    {
         std::string packId;
         //@genNextLine(resourceId|资源Id)
         std::string resourceId;
@@ -59,32 +61,35 @@ namespace glimmer {
          */
         bool missing = false;
 
-        [[nodiscard]] static std::string GenerateId(const std::string &packId, const std::string &key);
+        [[nodiscard]] static std::string GenerateId(const std::string& packId, const std::string& key);
 
-        [[nodiscard]] static std::string GenerateId(const Resource &resource);
+        [[nodiscard]] static std::string GenerateId(const Resource& resource);
     };
 
 
     //@genNextLine(LightSourceResource|光源资源)
-    struct LightSourceResource : Resource {
-        //@genNextLine(lightRadius The maximum value is 16, which is the length of the block.|光照半径 最大值为区块长度16)
-        uint8_t lightRadius = 0;
-        //@genNextLine(lightBrightestAtCenter If true, light is brightest at center; if false, light is brightest at edge.|亮度峰值在圆心 true=中心亮四周暗，false=中心暗四周亮)
-        bool lightBrightestAtCenter = true;
+    struct LightSourceResource : Resource
+    {
         //@genNextLine(lightColor A: Indicates the intensity of light emission.|发光颜色 A表示发光强度。)
         ResourceRef lightColor = {};
+        //@genNextLine(lightBrightestAtCenter If true, light is brightest at center; if false, light is brightest at edge.|亮度峰值在圆心 true=中心亮四周暗，false=中心暗四周亮)
+        bool lightBrightestAtCenter = true;
+        //@genNextLine(lightRadius The maximum value is 16, which is the length of the block.|光照半径 最大值为区块长度16)
+        uint8_t lightRadius = 0;
     };
 
     //@genNextLine(LightMaskResource|光源遮照资源)
-    struct LightMaskResource : Resource {
-        //@genNextLine(tintFactor|染色系数 0为光照颜色，1为光源遮照颜色，输入0不染色，输入0.5染色50%光照颜色)
-        float tintFactor = 0.0F;
+    struct LightMaskResource : Resource
+    {
         //@genNextLine(lightMaskColor The A channel is the light blocking strength (0 = no blocking, 255 = full blocking); RGB controls the light tint mixing.|光线遮照颜色：A通道为挡光强度（0=不挡光，255=完全挡光）；RGB控制光线混合染色)
         ResourceRef lightMaskColor;
+        //@genNextLine(tintFactor|染色系数 0为光照颜色，1为光源遮照颜色，输入0不染色，输入0.5染色50%光照颜色)
+        float tintFactor = 0.0F;
     };
 
     //@genNextLine(FixedColorResource|固定颜色资源)
-    struct FixedColorResource : Resource {
+    struct FixedColorResource : Resource
+    {
         //@genNextLine(a|透明度)
         uint8_t a = 255;
         //@genNextLine(r|红色通道值)
@@ -102,7 +107,8 @@ namespace glimmer {
      * 向量资源
      */
     //@genNextLine(Vector2DIResource|向量整数资源)
-    struct Vector2DIResource {
+    struct Vector2DIResource
+    {
         //@genNextLine(x|x)
         int x = 0;
         //@genNextLine(y|y)
@@ -110,7 +116,8 @@ namespace glimmer {
     };
 
     //@genNextLine(Vector2DResource|向量资源)
-    struct Vector2DResource {
+    struct Vector2DResource
+    {
         //@genNextLine(x|x)
         float x = 0.0F;
         //@genNextLine(y|y)
@@ -122,7 +129,8 @@ namespace glimmer {
      * 字符串资源
      */
     //@genNextLine(StringResource|字符串资源类)
-    struct StringResource : Resource {
+    struct StringResource : Resource
+    {
         //@genNextLine(value|字符串值)
         std::string value;
     };
@@ -132,7 +140,8 @@ namespace glimmer {
      * 形状资源
      */
     //@genNextLine(ShapeResource|形状资源)
-    struct IShapeResource : Resource {
+    struct IShapeResource : Resource
+    {
         //@genNextLine(shapeType|形状类型)
         uint8_t shapeType = 0;
 
@@ -144,7 +153,8 @@ namespace glimmer {
      * 矩形形状资源
      */
     //@genNextLine(RectangularShapeResource|矩形形状资源)
-    struct RectangleShapeResource : IShapeResource {
+    struct RectangleShapeResource : IShapeResource
+    {
         //@genNextLine(width|宽度)
         float width = 1.0F;
         //@genNextLine(height|高度)
@@ -157,7 +167,8 @@ namespace glimmer {
      * 圆形资源
      */
     //@genNextLine(CircularShapeResource|圆形资源)
-    struct CircularShapeResource : IShapeResource {
+    struct CircularShapeResource : IShapeResource
+    {
         //@genNextLine(center|中心)
         Vector2DResource center;
         //@genNextLine(radius|半径)
@@ -169,7 +180,8 @@ namespace glimmer {
  * 圆角矩形资源
  */
     //@genNextLine(RoundedRectangleShapeResource|圆角矩形资源)
-    struct RoundedRectangleShapeResource : IShapeResource {
+    struct RoundedRectangleShapeResource : IShapeResource
+    {
         //@genNextLine(width|宽度)
         float width = 1.0F;
         //@genNextLine(height|高度)
@@ -184,13 +196,14 @@ namespace glimmer {
      * 射线资源
      */
     //@genNextLine(RayCastResource|射线资源类)
-    struct RayCastResource {
+    struct RayCastResource
+    {
+        //@genNextLine(filter|物理过滤)
+        Box2dFilter filter;
         //@genNextLine(origin|原点)
         Vector2DResource origin;
         //@genNextLine(translation|位移)
         Vector2DResource translation;
-        //@genNextLine(filter|物理过滤)
-        Box2dFilter filter;
     };
 
 
@@ -199,7 +212,8 @@ namespace glimmer {
      * 瓦片放置禁止区域
      */
     //@genNextLine(TilePlacementForbiddenZone|瓦片放置禁止区域)
-    struct TilePlacementForbiddenZone {
+    struct TilePlacementForbiddenZone
+    {
         //@genNextLine(width|宽度)
         int width = 1;
         //@genNextLine(height|高度)
@@ -211,7 +225,8 @@ namespace glimmer {
     };
 
     //@genNextLine(StructurePlacementConditionsResource|结构放置条件资源)
-    struct IStructurePlacementConditionsResource : Resource {
+    struct IStructurePlacementConditionsResource : Resource
+    {
         virtual ~IStructurePlacementConditionsResource() = default;
 
         //@genNextLine(processorId|处理器ID)
@@ -219,15 +234,18 @@ namespace glimmer {
     };
 
     //@genNextLine(NonePlacementConditionsResource|空结构放置条件资源)
-    struct NoneStructurePlacementConditionsResource : IStructurePlacementConditionsResource {
+    struct NoneStructurePlacementConditionsResource : IStructurePlacementConditionsResource
+    {
     };
 
     //@genNextLine(SurfacePlacementConditionsResource|表面结构放置条件资源)
-    struct SurfaceStructurePlacementConditionsResource : IStructurePlacementConditionsResource {
+    struct SurfaceStructurePlacementConditionsResource : IStructurePlacementConditionsResource
+    {
     };
 
     //@genNextLine(StructurePlacementConditionsResource|生物群系结构放置条件资源)
-    struct BiomeStructurePlacementConditionsResource : IStructurePlacementConditionsResource {
+    struct BiomeStructurePlacementConditionsResource : IStructurePlacementConditionsResource
+    {
     private:
         std::unordered_set<std::string> cachedBiomeIds_;
 
@@ -235,13 +253,14 @@ namespace glimmer {
         //@genNextLine(targetBiomes List of target biomes for structure spawning.|目标生物群系列表)
         std::vector<ResourceRef> targetBiomes;
 
-        const std::unordered_set<std::string> &GetCachedBiomeIds() const;
+        const std::unordered_set<std::string>& GetCachedBiomeIds() const;
 
         void RefreshCache();
     };
 
     //@genNextLine(HeightStructureConditionsResource|高度结构放置条件资源)
-    struct HeightStructureConditionsResource : IStructurePlacementConditionsResource {
+    struct HeightStructureConditionsResource : IStructurePlacementConditionsResource
+    {
         //@genNextLine(minHeightPercent|最低高度百分比)
         float minHeightPercent = 0.0F;
 
@@ -251,7 +270,20 @@ namespace glimmer {
 
 
     //@genNextLine(GpuSamplerResource|GPU 采样器资源)
-    struct GpuSamplerResource {
+    struct GpuSamplerResource
+    {
+        //@genNextLine(The bias to be added to mipmap LOD calculation.|用于添加到 mipmap LOD 计算的偏移量。)
+        float mipLodBias = 0;
+        //@genNextLine(The anisotropy value clamp used by the sampler. If enable_anisotropy is false, this is ignored. |采样器使用的各向异性值夹具。如果 enable_anisotropy 为 false，则忽略此值。)
+        float maxAnisotropy = 0;
+        //@genNextLine(Clamps the minimum of the computed LOD value.|将计算出的LOD值最小值进行夹紧。)
+        float minLod = 0;
+        //@genNextLine(Clamps the maximum of the computed LOD value.|将计算出的LOD值的最大值进行夹紧。)
+        float maxLod = 0;
+        //@genNextLine(Enable anisotropic filtering.|启用各向异性过滤。)
+        bool enableAnisotropy = false;
+        //@genNextLine(true to enable comparison against a reference value during lookups.|用于在查找时与参考值进行比较。)
+        bool enableCompare = false;
         //@genNextLine(The minification filter to apply to lookups. 0 represents NEAREST hard edges, 1 represents LINEAR soft edges.|缩小过滤。 0为NEAREST硬边缘，1为LINEAR线性柔和)
         uint8_t minFilter = 0;
         //@genNextLine(The magnification filter to apply to lookups.|放大过滤。)
@@ -264,45 +296,35 @@ namespace glimmer {
         uint8_t addressModeV = 0;
         //@genNextLine(W-axis texture addressing mode is used for 3D.|W轴纹理寻址模式 用于3d。)
         uint8_t addressModeW = 2;
-        //@genNextLine(The bias to be added to mipmap LOD calculation.|用于添加到 mipmap LOD 计算的偏移量。)
-        float mipLodBias = 0;
-        //@genNextLine(The anisotropy value clamp used by the sampler. If enable_anisotropy is false, this is ignored. |采样器使用的各向异性值夹具。如果 enable_anisotropy 为 false，则忽略此值。)
-        float maxAnisotropy = 0;
         //@genNextLine(The comparison operator to apply to fetched data before filtering.|用于在过滤前对获取的数据应用的比较运算符。)
         uint8_t compareOp = 0;
-        //@genNextLine(Clamps the minimum of the computed LOD value.|将计算出的LOD值最小值进行夹紧。)
-        float minLod = 0;
-        //@genNextLine(Clamps the maximum of the computed LOD value.|将计算出的LOD值的最大值进行夹紧。)
-        float maxLod = 0;
-        //@genNextLine(Enable anisotropic filtering.|启用各向异性过滤。)
-        bool enableAnisotropy = false;
-        //@genNextLine(true to enable comparison against a reference value during lookups.|用于在查找时与参考值进行比较。)
-        bool enableCompare = false;
     };
 
     //@genNextLine(GPUPipelineResource|GPU 管线资源)
-    struct GPUPipelineResource {
+    struct GPUPipelineResource
+    {
         //@genNextLine(vertexShader|顶点着色器引用)
         ResourceRef vertexShader;
 
         //@genNextLine(vertexShader|片元着色器引用)
         ResourceRef fragmentShader;
 
-        //@genNextLine(primitiveType|Gpu图元拓扑模式)
-        uint8_t primitiveType = 0;
-
-        //@genNextLine(blendMode)
-        uint8_t blendMode = 0;
-
         //@genNextLine(vertexUniformBlock|vertexUniform 顶点块描述引用)
         std::vector<ResourceRef> vertexUniformBlock = {};
 
         //@genNextLine(fragmentUniformBlock|fragmentUniform 片元块描述引用)
         std::vector<ResourceRef> fragmentUniformBlock = {};
+
+        //@genNextLine(primitiveType|Gpu图元拓扑模式)
+        uint8_t primitiveType = 0;
+
+        //@genNextLine(blendMode)
+        uint8_t blendMode = 0;
     };
 
     //@genNextLine(UniformMemberResource|Uniform 成员资源)
-    struct UniformMemberResource {
+    struct UniformMemberResource
+    {
         //@genNextLine(name Member name, must match the uniform block member name in the shader.|成员名，需与着色器内 uniform block 成员名一致)
         std::string name;
 
@@ -317,7 +339,8 @@ namespace glimmer {
     };
 
     //@genNextLine(UniformBlockResource|Uniform 块资源)
-    struct UniformBlockResource {
+    struct UniformBlockResource
+    {
         //@genNextLine(name Uniform block name, must match the uniform block name in the shader.|Uniform 块名，需与着色器内 uniform block 名一致)
         std::string name;
 
@@ -326,7 +349,8 @@ namespace glimmer {
     };
 
     //@genNextLine(SpacingStructureConditionsResource|间隔结构放置条件资源)
-    struct SpacingStructureConditionsResource : IStructurePlacementConditionsResource {
+    struct SpacingStructureConditionsResource : IStructurePlacementConditionsResource
+    {
         //@genNextLine(minDistance|最小距离)
         int minDistance = 0;
 
@@ -335,7 +359,8 @@ namespace glimmer {
     };
 
     //@genNextLine(GrowthConditionResource|生长条件资源)
-    struct IGrowthConditionResource : Resource {
+    struct IGrowthConditionResource : Resource
+    {
         virtual ~IGrowthConditionResource() = default;
 
         //@genNextLine(processorId|处理器ID)
@@ -343,11 +368,13 @@ namespace glimmer {
     };
 
     //@genNextLine(NoneGrowthConditionResource|空生长条件资源)
-    struct NoneGrowthConditionResource : IGrowthConditionResource {
+    struct NoneGrowthConditionResource : IGrowthConditionResource
+    {
     };
 
     //@genNextLine(LightGrowthConditionResource|光照生长条件资源)
-    struct LightGrowthConditionResource : IGrowthConditionResource {
+    struct LightGrowthConditionResource : IGrowthConditionResource
+    {
         //@genNextLine(minLight|最低光照强度 0-255)
         uint8_t minLight = 0;
         //@genNextLine(maxLight|最高光照强度 0-255)
@@ -357,7 +384,8 @@ namespace glimmer {
     };
 
     //@genNextLine(BiomeGrowthConditionResource|生物群系生长条件资源)
-    struct BiomeGrowthConditionResource : IGrowthConditionResource {
+    struct BiomeGrowthConditionResource : IGrowthConditionResource
+    {
     private:
         std::unordered_set<std::string> cachedBiomeIds_;
 
@@ -365,13 +393,14 @@ namespace glimmer {
         //@genNextLine(targetBiomes|目标生物群系列表)
         std::vector<ResourceRef> targetBiomes;
 
-        const std::unordered_set<std::string> &GetCachedBiomeIds() const;
+        const std::unordered_set<std::string>& GetCachedBiomeIds() const;
 
         void RefreshCache();
     };
 
     //@genNextLine(AdjacentTileGrowthConditionResource|相邻瓦片生长条件资源)
-    struct AdjacentTileGrowthConditionResource : IGrowthConditionResource {
+    struct AdjacentTileGrowthConditionResource : IGrowthConditionResource
+    {
         //@genNextLine(targetTile|目标瓦片资源引用，相邻瓦片需为此瓦片)
         ResourceRef targetTile = {};
         //@genNextLine(offset|相对自身瓦片的偏移坐标，例如 [x=0, y=1] 表示正上方，[x=-1, y=0] 表示左侧)
@@ -379,7 +408,8 @@ namespace glimmer {
     };
 
     //@genNextLine(HeightGrowthConditionResource|高度生长条件资源)
-    struct HeightGrowthConditionResource : IGrowthConditionResource {
+    struct HeightGrowthConditionResource : IGrowthConditionResource
+    {
         //@genNextLine(minHeightPercent|最低高度百分比)
         float minHeightPercent = 0.0F;
 
@@ -388,7 +418,8 @@ namespace glimmer {
     };
 
     //@genNextLine(TimeGrowthConditionResource|时间生长条件资源)
-    struct TimeGrowthConditionResource : IGrowthConditionResource {
+    struct TimeGrowthConditionResource : IGrowthConditionResource
+    {
         //@genNextLine(minTime|一天中的最小时间 0-1（0=清晨，0.5=午夜，1=次日清晨）)
         float minTime = 0.0F;
 
@@ -397,37 +428,41 @@ namespace glimmer {
     };
 
     //@genNextLine(TileInfo|瓦片信息)
-    struct TileInfo {
-        //@genNextLine(position|位置)
-        Vector2DIResource position;
+    struct TileInfo
+    {
         //@genNextLine(tile|瓦片资源引用)
         ResourceRef tile;
+        //@genNextLine(position|位置)
+        Vector2DIResource position;
         //@genNextLine(layerType|图层类型)
         uint8_t layerType = 0;
     };
 
     //@genNextLine(StructureResource|结构资源)
-    struct IStructureResource : Resource {
+    struct IStructureResource : Resource
+    {
         virtual ~IStructureResource() = default;
 
-        //@genNextLine(generatorId|生成器ID)
-        uint8_t generatorId = 0;
-        //@genNextLine(priority|优先级 优先级越高，会先生成，某个位置属于抢占式)
-        uint8_t priority = 0;
         //@genNextLine(condition|结构放置条件列表)
         std::vector<ResourceRef> condition = {};
         //@genNextLine(data|数据资源引用列表)
         std::vector<ResourceRef> data = {};
+        //@genNextLine(generatorId|生成器ID)
+        uint8_t generatorId = 0;
+        //@genNextLine(priority|优先级 优先级越高，会先生成，某个位置属于抢占式)
+        uint8_t priority = 0;
     };
 
     //@genNextLine(StaticStructureResource|静态结构资源)
-    struct StaticStructureResource : IStructureResource {
+    struct StaticStructureResource : IStructureResource
+    {
         //@genNextLine(tileInfo|瓦片信息列表)
         std::vector<TileInfo> tileInfo = {};
     };
 
     //@genNextLine(TreeStructureResource|树结构资源)
-    struct TreeStructureResource : IStructureResource {
+    struct TreeStructureResource : IStructureResource
+    {
         //@genNextLine(hasLeaves|是否拥有树叶)
         bool hasLeaves = false;
         //@genNextLine(leafDataIndex|树叶数据索引)
@@ -453,19 +488,21 @@ namespace glimmer {
     };
 
     //@genNextLine(AbilityConfig|能力配置)
-    struct AbilityConfig {
+    struct AbilityConfig
+    {
         //@genNextLine(miningRange|挖掘范围)
         float miningRange = 5;
-        //@genNextLine(chainMiningRadius|连锁采集半径)
-        uint8_t chainMiningRadius = 0;
-        //@genNextLine(precisionMining|是否精准采集)
-        bool enablePrecisionMining = false;
         //@genNextLine(miningEfficiency|工具效率)
         float miningEfficiency = 0;
+        //@genNextLine(chainMiningRadius|连锁采集半径)
+        uint8_t chainMiningRadius = 0;
         //@genNextLine(mineAbleLayer|可挖掘的图层)
         uint8_t mineAbleLayer = 0;
+        //@genNextLine(precisionMining|是否精准采集)
+        bool enablePrecisionMining = false;
 
-        void Reset() {
+        void Reset()
+        {
             miningRange = 5;
             chainMiningRadius = 0;
             enablePrecisionMining = false;
@@ -473,7 +510,8 @@ namespace glimmer {
             mineAbleLayer = 0;
         }
 
-        AbilityConfig &operator+=(const AbilityConfig &other) {
+        AbilityConfig& operator+=(const AbilityConfig& other)
+        {
             this->enablePrecisionMining = this->enablePrecisionMining || other.enablePrecisionMining;
             this->miningRange += other.miningRange;
             this->chainMiningRadius += other.chainMiningRadius;
@@ -486,7 +524,8 @@ namespace glimmer {
     };
 
     //@genNextLine(ItemTagResource|物品标签)
-    struct ItemTagResource {
+    struct ItemTagResource
+    {
         uint64_t cachedTagId = 0;
         //@genNextLine(name|标签名)
         std::string name;
@@ -501,7 +540,8 @@ namespace glimmer {
      * 能力物品
      */
     //@genNextLine(AbilityItemResource|能力物品资源)
-    struct AbilityItemResource : Resource {
+    struct AbilityItemResource : Resource
+    {
         //@genNextLine(name|名称资源引用)
         ResourceRef name;
         //@genNextLine(description|描述资源引用)
@@ -514,22 +554,23 @@ namespace glimmer {
         ResourceRef sampler = {};
         //@genNextLine(lightSource|手持时发光的光源引用)
         ResourceRef lightSource = {};
-        //@genNextLine(ability|能力标识)
-        uint8_t ability;
-        //@genNextLine(abilityConfig|能力变量配置)
-        AbilityConfig abilityConfig = {};
-        //@genNextLine(canUseAlone|是否可单独使用)
-        bool canUseAlone = false;
-        //@genNextLine(maxDurability|最大耐久度)
-        uint32_t maxDurability = 16;
-        //@genNextLine(unbreakable|是否坚不可摧)
-        bool unbreakable = false;
         //@genNextLine(tags|标签)
         std::vector<ItemTagResource> tags = {};
+        //@genNextLine(abilityConfig|能力变量配置)
+        AbilityConfig abilityConfig = {};
+        //@genNextLine(maxDurability|最大耐久度)
+        uint32_t maxDurability = 16;
+        //@genNextLine(ability|能力标识)
+        uint8_t ability;
+        //@genNextLine(canUseAlone|是否可单独使用)
+        bool canUseAlone = false;
+        //@genNextLine(unbreakable|是否坚不可摧)
+        bool unbreakable = false;
     };
 
     //@genNextLine(MaterialItemResource|材料物品资源)
-    struct MaterialItemResource : Resource {
+    struct MaterialItemResource : Resource
+    {
         //@genNextLine(name|名称资源引用)
         ResourceRef name;
         //@genNextLine(description|描述资源引用)
@@ -551,7 +592,8 @@ namespace glimmer {
      * 颜色资源
      */
     //@genNextLine(ColorResource|颜色资源)
-    struct ColorResource {
+    struct ColorResource
+    {
         //@genNextLine(a|透明度)
         uint8_t a = 255;
         //@genNextLine(r|红色通道值)
@@ -570,21 +612,12 @@ namespace glimmer {
      * 瓦片资源
      */
     //@genNextLine(TileResource|瓦片资源)
-    struct TileResource : Resource {
+    struct TileResource : Resource
+    {
         //@genNextLine(name|名称资源引用)
         ResourceRef name;
         //@genNextLine(description|描述资源引用)
         ResourceRef description = {};
-        //@genNextLine(tileWidth|瓦片宽度)
-        uint8_t tileWidth = 1;
-        //@genNextLine(tileHeight|瓦片高度)
-        uint8_t tileHeight = 1;
-        //@genNextLine(The technological level provided by the tiles is 0, which indicates that no technological level is offered.|瓦片提供的科技等级，0表示不提供科技等级)
-        uint8_t technologyLevel = 0;
-        //@genNextLine(recipeGroup|配方组)
-        uint8_t recipeGroup = 0;
-        //@genNextLine(customLootTable|是否使用自定义战利品表)
-        bool customLootTable = false;
         //@genNextLine(lootTable|战利品表资源引用)
         ResourceRef lootTable = {};
         //@genNextLine(texture|纹理资源引用)
@@ -593,70 +626,81 @@ namespace glimmer {
         ResourceRef pipeline = {};
         //@genNextLine(sampler|采样器引用)
         ResourceRef sampler = {};
-        //@genNextLine(enableBlueprint|启用蓝图-手持瓦片时显示蓝图)
-        bool enableBlueprint = true;
-        //@genNextLine(enableBlueprintMask|启用蓝图遮照-用颜色标记禁止放置的区域)
-        bool enableBlueprintMask = true;
-        //@genNextLine(drawValidBlueprintColor|绘制合法放置的蓝图颜色)
-        bool drawValidBlueprintColor = true;
         //@genNextLine(blueprintTexture|蓝图纹理资源引用)
         ResourceRef blueprintTexture = {};
         //@genNextLine(breakSFX|瓦片被破坏时的音效)
         ResourceRef breakSfx;
         //@genNextLine(placeSFX|放置瓦片时的音效)
         ResourceRef placeSfx;
-        //@genNextLine(Single-cell hardness: Sets the hardness provided by a single cell. If the hardness is less than 0, it is non-destructible.|单格硬度 设置单个格子提供的硬度。 如果硬度小于0那么不可破坏。)
-        float unitHardness = 1.0F;
-        //@genNextLine(Is the total hardness calculated based on the area?|是否按面积计算总硬度)
-        bool autoHardnessScale = true;
-        //@genNextLine(Does the loot quantity scale with tile area? (Only for giant tiles)|战利品数量是否按面积缩放（仅巨型瓦片生效）)
-        bool lootScaleBySize = false;
-        //genNextLine(Unit durability consumption|单位耐久度消耗)
-        uint32_t unitDigCost = 1;
-        //@genNextLine(Is durability calculated based on area?|是否按面积扣除耐久度)
-        bool autoDigCostScale = true;
-        //@genNextLine(physicsType|物理类型)
-        uint8_t physicsType = 0;
-        //@genNextLine(layerType|层级类型)
-        uint8_t layerType = 0;
-        //@genNextLine(allowChainMining|是否允许连锁挖掘)
-        bool allowChainMining = false;
-        //@genNextLine(The minimum excavation efficiency required for dropping items.|掉落物品最低需要的挖掘效率。)
-        float minMiningEfficiency = 0;
         //@genNextLine(lightSource|光源)
         ResourceRef lightSource;
         //@genNextLine(sideLightMask|侧面光源遮罩)
         ResourceRef sideLightMask;
         //@genNextLine(backLightMask|背面光源遮罩)
         ResourceRef backLightMask;
-        //@genNextLine(Can a certain tile be directly placed on top|是否可以将某个瓦片直接覆盖上去)
-        bool isOverwritable = false;
-        //@genNextLine(When being destroyed/overwritten, will debris be generated|被销毁/覆盖时 是否生成掉落物)
-        bool canDropLoot = true;
-        //@genNextLine(The anchor point type of the tiles. When placing large tiles, the placement position is relative to the anchor point of the tile. The anchor point is based on the player's right side.|瓦片的锚点类型，当放置大型瓦片时放置位置相对于瓦片的锚点，锚点以玩家右侧为准)
-        uint8_t tileAnchorType = 6;
-        //@genNextLine(The anchor point coordinates of the tiles, when tileAnchorType is set to "Custom", can be defined; for other values, the engine will calculate them automatically.|瓦片的锚点坐标，tileAnchorType为Custom值时可定义，其他值为引擎自动计算。)
-        Vector2DIResource customTileAnchor = {1, 1};
-        //@genNextLine(Allow anchor adjustment by facing direction.|允许按朝向调整锚点，放置瓦片时，开启就会跟着左右朝向自动调换锚点，让瓦片顺着朝向方向延伸，关闭则固定原始锚点不动。)
-        bool allowDirAdjustAnchor = true;
-        //@genNextLine(growthMinTicks|生长所需的最小tick数)
-        uint64_t growthMinTicks = 0;
-        //@genNextLine(growthMaxTicks|生长所需的最大tick数)
-        uint64_t growthMaxTicks = 0;
         //@genNextLine(growthTarget|生长目标瓦片资源引用 引用可以是瓦片，物品，结构，战利品表)
         ResourceRef growthTarget = {};
-        //@genNextLine(destroySelfOnGrowth|长成后是否将自己销毁掉，把当前位置替换为空气)
-        bool destroySelfOnGrowth = false;
-        //@genNextLine(allowOfflineGrowth|是否允许离线生长，区块卸载后再次加载补时间插值)
-        bool allowOfflineGrowth = true;
         //@genNextLine(growthConditions|生长条件资源引用列表)
         std::vector<ResourceRef> growthConditions = {};
         //@genNextLine(tags|标签)
         std::vector<ItemTagResource> tags = {};
+        //@genNextLine(The anchor point coordinates of the tiles, when tileAnchorType is set to "Custom", can be defined; for other values, the engine will calculate them automatically.|瓦片的锚点坐标，tileAnchorType为Custom值时可定义，其他值为引擎自动计算。)
+        Vector2DIResource customTileAnchor = {1, 1};
+        //@genNextLine(growthMinTicks|生长所需的最小tick数)
+        uint64_t growthMinTicks = 0;
+        //@genNextLine(growthMaxTicks|生长所需的最大tick数)
+        uint64_t growthMaxTicks = 0;
+        //@genNextLine(Single-cell hardness: Sets the hardness provided by a single cell. If the hardness is less than 0, it is non-destructible.|单格硬度 设置单个格子提供的硬度。 如果硬度小于0那么不可破坏。)
+        float unitHardness = 1.0F;
+        //@genNextLine(The minimum excavation efficiency required for dropping items.|掉落物品最低需要的挖掘效率。)
+        float minMiningEfficiency = 0;
+        //genNextLine(Unit durability consumption|单位耐久度消耗)
+        uint32_t unitDigCost = 1;
+        //@genNextLine(tileWidth|瓦片宽度)
+        uint8_t tileWidth = 1;
+        //@genNextLine(tileHeight|瓦片高度)
+        uint8_t tileHeight = 1;
+        //@genNextLine(The technological level provided by the tiles is 0, which indicates that no technological level is offered.|瓦片提供的科技等级，0表示不提供科技等级)
+        uint8_t technologyLevel = 0;
+        //@genNextLine(recipeGroup|配方组)
+        uint8_t recipeGroup = 0;
+        //@genNextLine(physicsType|物理类型)
+        uint8_t physicsType = 0;
+        //@genNextLine(layerType|层级类型)
+        uint8_t layerType = 0;
+        //@genNextLine(The anchor point type of the tiles. When placing large tiles, the placement position is relative to the anchor point of the tile. The anchor point is based on the player's right side.|瓦片的锚点类型，当放置大型瓦片时放置位置相对于瓦片的锚点，锚点以玩家右侧为准)
+        uint8_t tileAnchorType = 6;
+        //@genNextLine(customLootTable|是否使用自定义战利品表)
+        bool customLootTable = false;
+        //@genNextLine(enableBlueprint|启用蓝图-手持瓦片时显示蓝图)
+        bool enableBlueprint = true;
+        //@genNextLine(enableBlueprintMask|启用蓝图遮照-用颜色标记禁止放置的区域)
+        bool enableBlueprintMask = true;
+        //@genNextLine(drawValidBlueprintColor|绘制合法放置的蓝图颜色)
+        bool drawValidBlueprintColor = true;
+        //@genNextLine(Is the total hardness calculated based on the area?|是否按面积计算总硬度)
+        bool autoHardnessScale = true;
+        //@genNextLine(Does the loot quantity scale with tile area? (Only for giant tiles)|战利品数量是否按面积缩放（仅巨型瓦片生效）)
+        bool lootScaleBySize = false;
+        //@genNextLine(Is durability calculated based on area?|是否按面积扣除耐久度)
+        bool autoDigCostScale = true;
+        //@genNextLine(allowChainMining|是否允许连锁挖掘)
+        bool allowChainMining = false;
+        //@genNextLine(Can a certain tile be directly placed on top|是否可以将某个瓦片直接覆盖上去)
+        bool isOverwritable = false;
+        //@genNextLine(When being destroyed/overwritten, will debris be generated|被销毁/覆盖时 是否生成掉落物)
+        bool canDropLoot = true;
+        //@genNextLine(Allow anchor adjustment by facing direction.|允许按朝向调整锚点，放置瓦片时，开启就会跟着左右朝向自动调换锚点，让瓦片顺着朝向方向延伸，关闭则固定原始锚点不动。)
+        bool allowDirAdjustAnchor = true;
+        //@genNextLine(destroySelfOnGrowth|长成后是否将自己销毁掉，把当前位置替换为空气)
+        bool destroySelfOnGrowth = false;
+        //@genNextLine(allowOfflineGrowth|是否允许离线生长，区块卸载后再次加载补时间插值)
+        bool allowOfflineGrowth = true;
     };
 
     //@genNextLine(IBiomeDecoratorResource|生物群系装饰器接口)
-    struct IBiomeDecoratorResource : Resource {
+    struct IBiomeDecoratorResource : Resource
+    {
         ~IBiomeDecoratorResource() = default;
 
         //@genNextLine(biomeDecoratorType|装饰器类型)
@@ -667,29 +711,21 @@ namespace glimmer {
 
 
     //@genNextLine(FillBiomeDecoratorResource|填充生物群系装饰器)
-    struct FillBiomeDecoratorResource : IBiomeDecoratorResource {
+    struct FillBiomeDecoratorResource : IBiomeDecoratorResource
+    {
         //@genNextLine(tile|瓦片)
         ResourceRef tile;
     };
 
     //@genNextLine(MineralBiomeDecoratorResource|矿脉生物群系装饰器)
-    struct MineralBiomeDecoratorResource : IBiomeDecoratorResource {
+    struct MineralBiomeDecoratorResource : IBiomeDecoratorResource
+    {
     private:
         std::unique_ptr<FastNoiseLite> fastNoiseLite_ = nullptr;
 
     public:
         //@genNextLine(ore|矿石)
         ResourceRef ore;
-        //@genNextLine(noiseType|噪声类型)
-        uint8_t noiseType;
-        //@genNextLine(frequency|频率)
-        float frequency = 0.01F;
-        //@genNextLine(oreSpawnMinNoiseThreshold|矿石生成最小噪声阈值)
-        float oreSpawnMinNoiseThreshold = 0.5F;
-        //@genNextLine(oreSpawnMaxNoiseThreshold|矿石生成最大噪声阈值)
-        float oreSpawnMaxNoiseThreshold = 0.8F;
-        //@genNextLine(invertOreSpawnByDepth|是否随深度增加矿石生成概率)
-        bool invertOreSpawnByDepth = true;
         //The formation of ores will be based on the world seed plus the offset.
         //矿石的生成会按照世界种子加上偏移
         //@genNextLine(seedOffset|种子偏移量)
@@ -698,12 +734,23 @@ namespace glimmer {
         float minSpawnElevation = 0.0F;
         //@genNextLine(maxSpawnElevation|矿石最大生成高度(地表浅层))
         float maxSpawnElevation = 0.5F;
+        //@genNextLine(frequency|频率)
+        float frequency = 0.01F;
+        //@genNextLine(oreSpawnMinNoiseThreshold|矿石生成最小噪声阈值)
+        float oreSpawnMinNoiseThreshold = 0.5F;
+        //@genNextLine(oreSpawnMaxNoiseThreshold|矿石生成最大噪声阈值)
+        float oreSpawnMaxNoiseThreshold = 0.8F;
+        //@genNextLine(noiseType|噪声类型)
+        uint8_t noiseType;
+        //@genNextLine(invertOreSpawnByDepth|是否随深度增加矿石生成概率)
+        bool invertOreSpawnByDepth = true;
 
-        FastNoiseLite *GetFastNoiseLite(int seed);
+        FastNoiseLite* GetFastNoiseLite(int seed);
     };
 
     //@genNextLine(SurfaceBiomeDecoratorResource|表面生物群系装饰器)
-    struct SurfaceBiomeDecoratorResource : IBiomeDecoratorResource {
+    struct SurfaceBiomeDecoratorResource : IBiomeDecoratorResource
+    {
         //@genNextLine(openAirTile|露天瓦片（上方为空气时使用）)
         ResourceRef openAirTile = {};
         //@genNextLine(underwaterTile|水下瓦片（上方为液体时使用）)
@@ -717,15 +764,14 @@ namespace glimmer {
      * 描述世界生成器中单个FastNoiseLite噪声生成器的参数。
      */
     //@genNextLine(NoiseConfig|噪声配置)
-    struct NoiseConfig {
-        //@genNextLine(noiseType|噪声类型 0=OpenSimplex2 1=OpenSimplex2S 2=Cellular 3=Perlin 4=ValueCubic 5=Value)
-        uint8_t noiseType = 3;
-        //@genNextLine(frequency|频率)
-        float frequency = 0.01F;
-        //@genNextLine(fractalType|分形类型 0=None 1=FBm 2=Ridged 3=PingPong 4=DomainWarpProgressive 5=DomainWarpIndependent)
-        uint8_t fractalType = 0;
+    struct NoiseConfig
+    {
+        //@genNextLine(seedOffset|种子偏移量)
+        int seedOffset = 0;
         //@genNextLine(octaves|分形八度数)
         int octaves = 3;
+        //@genNextLine(frequency|频率)
+        float frequency = 0.01F;
         //@genNextLine(lacunarity|分形lacunarity)
         float lacunarity = 2.0F;
         //@genNextLine(gain|分形增益)
@@ -734,14 +780,16 @@ namespace glimmer {
         float weightedStrength = 0.0F;
         //@genNextLine(pingPongStrength|分形乒乓强度)
         float pingPongStrength = 2.0F;
+        //@genNextLine(cellularJitter|细胞噪声抖动)
+        float cellularJitter = 1.0F;
+        //@genNextLine(noiseType|噪声类型 0=OpenSimplex2 1=OpenSimplex2S 2=Cellular 3=Perlin 4=ValueCubic 5=Value)
+        uint8_t noiseType = 3;
+        //@genNextLine(fractalType|分形类型 0=None 1=FBm 2=Ridged 3=PingPong 4=DomainWarpProgressive 5=DomainWarpIndependent)
+        uint8_t fractalType = 0;
         //@genNextLine(cellularDistanceFunction|细胞噪声距离函数 0=Euclidean 1=EuclideanSq 2=Manhattan 3=Hybrid)
         uint8_t cellularDistanceFunction = 1;
         //@genNextLine(cellularReturnType|细胞噪声返回类型 0=CellValue 1=Distance 2=Distance2 3=Distance2Add 4=Distance2Sub 5=Distance2Mul 6=Distance2Div)
         uint8_t cellularReturnType = 1;
-        //@genNextLine(cellularJitter|细胞噪声抖动)
-        float cellularJitter = 1.0F;
-        //@genNextLine(seedOffset|种子偏移量)
-        int seedOffset = 0;
     };
 
     /**
@@ -751,11 +799,12 @@ namespace glimmer {
      * 环境光昼夜曲线上的单个关键帧。
      */
     //@genNextLine(LightKeyframe|环境光关键帧)
-    struct LightKeyframe {
-        //@genNextLine(t|时间点(0-1))
-        float t = 0.0F;
+    struct LightKeyframe
+    {
         //@genNextLine(color|颜色)
         ResourceRef color;
+        //@genNextLine(t|时间点(0-1))
+        float t = 0.0F;
     };
 
     /**
@@ -765,13 +814,14 @@ namespace glimmer {
      * 天空颜色曲线上的单个关键帧（顶部与地平线颜色资源引用）。
      */
     //@genNextLine(SkyColorKeyframe|天空颜色关键帧)
-    struct SkyColorKeyframe {
-        //@genNextLine(t|时间点(0-1))
-        float t = 0.0F;
+    struct SkyColorKeyframe
+    {
         //@genNextLine(top|天空顶部颜色资源引用)
         ResourceRef top;
         //@genNextLine(horizon|地平线颜色资源引用)
         ResourceRef horizon;
+        //@genNextLine(t|时间点(0-1))
+        float t = 0.0F;
     };
 
 
@@ -782,27 +832,22 @@ namespace glimmer {
      * 维度是生物群系的集合，拥有独立的世界生成器噪声配置和时间流动。
      */
     //@genNextLine(DimensionResource|维度资源)
-    struct DimensionResource : Resource {
-        //@genNextLine(allowAsStarting|是否可作为开局维度)
-        bool allowAsStarting = false;
+    struct DimensionResource : Resource
+    {
         //@genNextLine(name|名称)
         ResourceRef name;
         // NoiseConfig member order: noiseType, frequency, fractalType, octaves, lacunarity, gain,
         // weightedStrength, pingPongStrength, cellularDistanceFunction, cellularReturnType, cellularJitter, seedOffset.
         //@genNextLine(continentNoise|大陆噪声配置)
-        NoiseConfig continentNoise{3, 0.001F, 0, 3, 2.0F, 0.5F, 0.0F, 2.0F, 1, 1, 1.0F, 0};
+        NoiseConfig continentNoise;
         //@genNextLine(humidityNoise|湿度噪声配置)
-        NoiseConfig humidityNoise{3, 0.005F, 0, 3, 2.0F, 0.5F, 0.0F, 2.0F, 1, 1, 1.0F, 100};
+        NoiseConfig humidityNoise;
         //@genNextLine(temperatureNoise|温度噪声配置)
-        NoiseConfig temperatureNoise{3, 0.01F, 0, 3, 2.0F, 0.5F, 0.0F, 2.0F, 1, 1, 1.0F, 200};
+        NoiseConfig temperatureNoise;
         //@genNextLine(weirdnessNoise|怪异度噪声配置)
-        NoiseConfig weirdnessNoise{0, 1.0F, 0, 3, 2.0F, 0.5F, 0.0F, 2.0F, 1, 1, 1.0F, 300};
+        NoiseConfig weirdnessNoise;
         //@genNextLine(erosionNoise|侵蚀度噪声配置)
-        NoiseConfig erosionNoise{3, 0.003F, 0, 3, 2.0F, 0.5F, 0.0F, 2.0F, 1, 1, 1.0F, 400};
-        //@genNextLine(timeFlowSpeed|时间流动速度 设置为0则禁用时间流动（无昼夜循环）)
-        float timeFlowSpeed = 1.0F;
-        //@genNextLine(initialTime|初始时间(0-1) 首次进入维度后时间从哪里开始流动)
-        float initialTime = 0.0F;
+        NoiseConfig erosionNoise;
         //@genNextLine(backLightKeyframes|背光关键帧列表（时间点+RGB+强度），决定昼夜光照曲线)
         std::vector<LightKeyframe> backLightKeyframes;
         //@genNextLine(skyLightKeyframes|天光关键帧列表（时间点+RGB+强度）。)
@@ -823,6 +868,12 @@ namespace glimmer {
         int continentMaxY = 176;
         //@genNextLine(continentMinY|山脉最小的Y)
         int continentMinY = 64;
+        //@genNextLine(timeFlowSpeed|时间流动速度 设置为0则禁用时间流动（无昼夜循环）)
+        float timeFlowSpeed = 1.0F;
+        //@genNextLine(initialTime|初始时间(0-1) 首次进入维度后时间从哪里开始流动)
+        float initialTime = 0.0F;
+        //@genNextLine(allowAsStarting|是否可作为开局维度)
+        bool allowAsStarting = false;
     };
 
     /**
@@ -830,9 +881,14 @@ namespace glimmer {
      * 生物群系
      */
     //@genNextLine(BiomeResource|生物群系)
-    struct BiomeResource : Resource {
+    struct BiomeResource : Resource
+    {
+        //@genNextLine(BGM|BGM)
+        ResourceRef bgm;
         //@genNextLine(decors|生物群系装饰器列表)
         std::vector<ResourceRef> decors;
+        //@genNextLine(dimensions|引用的维度列表（单个生物群系可引用多个维度）)
+        std::vector<ResourceRef> dimensions;
         //@genNextLine(humidity|湿度)
         float humidity = 0.5F;
         //@genNextLine(temperature|温度)
@@ -865,61 +921,41 @@ namespace glimmer {
         float strictnessElevation = 1.0F;
         //@genNextLine(surfaceProximity|地表贴近严格度)
         float strictnessSurfaceProximity = 1.0F;
-        //@genNextLine(BGM|BGM)
-        ResourceRef bgm;
-        //@genNextLine(dimensions|引用的维度列表（单个生物群系可引用多个维度）)
-        std::vector<ResourceRef> dimensions;
     };
 
     //@genNextLine(LootResource|战利品资源)
-    struct LootResource : Resource {
-        /**
-         * mandatory
-         * 必然掉落
-         */
+    struct LootResource : Resource
+    {
         //@genNextLine(mandatory|必然掉落列表)
         std::vector<LootEntry> mandatory = {};
-
-        /**
-         * empty weight
-         * 空白权重
-         */
-        //@genNextLine(empty_weight|空白权重)
-        uint32_t empty_weight = 0;
-        /**
-         * Take out the pool several times
-         * 抽取几次池子
-         */
-        //@genNextLine(rolls|抽取次数)
-        uint32_t rolls = 1;
-        /**
-         * pool
-         * 战利品池
-         */
         //@genNextLine(pool|战利品池列表)
         std::vector<LootEntry> pool = {};
+        //@genNextLine(empty_weight|空白权重)
+        uint32_t emptyWeight = 0;
+        //@genNextLine(rolls|抽取次数)
+        uint32_t rolls = 1;
 
+        static void TryRollSingleLoot(uint32_t totalWeight, const LootResource* lootResource,
+                                      std::vector<ItemMessage>& itemMessageList);
 
-        static void TryRollSingleLoot(uint32_t totalWeight, const LootResource *lootResource,
-                                      std::vector<ItemMessage> &itemMessageList);
-
-        static std::vector<ItemMessage> GetLootItems(const LootResource *lootResource);
+        static std::vector<ItemMessage> GetLootItems(const LootResource* lootResource);
     };
 
     //@genNextLine(ItemMessageResource|物品消息资源)
-    struct ItemMessageResource {
+    struct ItemMessageResource
+    {
         //@genNextLine(item|物品)
         ResourceRef item;
-        //@genNextLine(amount|数量)
-        uint64_t amount = 1;
-        //@genNextLine(locked If it is true, then the player cannot move the item within the inventory. Dropping is prohibited. For combined items, neither moving nor extracting is allowed, but when the combined items are used up, this module will disappear as well.Items that are locked are prohibited from being used in the synthesis process.|绑定 如果为true那么玩家不能在物品槽内移动他。禁止丢弃。在可组合物品内，同样不能移动和取出，但是当可组合物品被用完，此模块会随之消失。锁定的物品禁止参与合成。)
-        bool locked = false;
-        //@genNextLine(durabilityStrategyType|耐久度消耗策略类型 仅在可组合物品内有效，影响子模块的耐久消耗策略，设置为-1,那么随机抽取一个策略。默认值。其他可选值：0前向消耗，1后向消耗，2负载均横，3.随机)
-        int8_t durabilityStrategyType = -1;
         //If it is a combinable item, then a list of capabilities needs to be set up.
         //如果是可组合物品，那么需要设置能力列表。
         //@genNextLine(abilityItemRef|能力物品)
         std::vector<ItemMessageResource> abilityItemRef = {};
+        //@genNextLine(amount|数量)
+        uint64_t amount = 1;
+        //@genNextLine(durabilityStrategyType|耐久度消耗策略类型 仅在可组合物品内有效，影响子模块的耐久消耗策略，设置为-1,那么随机抽取一个策略。默认值。其他可选值：0前向消耗，1后向消耗，2负载均横，3.随机)
+        int8_t durabilityStrategyType = -1;
+        //@genNextLine(locked If it is true, then the player cannot move the item within the inventory. Dropping is prohibited. For combined items, neither moving nor extracting is allowed, but when the combined items are used up, this module will disappear as well.Items that are locked are prohibited from being used in the synthesis process.|绑定 如果为true那么玩家不能在物品槽内移动他。禁止丢弃。在可组合物品内，同样不能移动和取出，但是当可组合物品被用完，此模块会随之消失。锁定的物品禁止参与合成。)
+        bool locked = false;
     };
 
 
@@ -928,9 +964,26 @@ namespace glimmer {
      * 生物资源
      */
     //@genNextLine(MobResource|生物资源)
-    struct MobResource : Resource {
-        //@genNextLine(isPlayer|是否为玩家)
-        bool isPlayer = false;
+    struct MobResource : Resource
+    {
+        //@genNextLine(Set the item that will be automatically used when no items are held. This item cannot be discarded, does not participate in recipe synthesis, and cannot be edited using the itemEditor command.If this item has the ability to be excavated, then its durability will not be deducted.|设置不持有任何物品时自动使用的物品。此物品不能丢弃，不参与配方合成，不能通过itemEditor命令编辑。如果此物品有挖掘能力，那么也不会扣除耐久。)
+        ItemMessageResource emptyHandAutoUseItem;
+        //@genNextLine(shape|碰撞形状)
+        ResourceRef shape;
+        //@genNextLine(texture|纹理资源引用)
+        ResourceRef texture = {};
+        //@genNextLine(pipeline|渲染管线引用)
+        ResourceRef pipeline = {};
+        //@genNextLine(sampler|采样器引用)
+        ResourceRef sampler = {};
+        //@genNextLine(groundCheckRayCast|地面检测射线)
+        std::vector<RayCastResource> groundCheckRayCast = {};
+        //@genNextLine(TilePlacementForbiddenZone|瓦片放置禁止区域)
+        TilePlacementForbiddenZone tilePlacementForbiddenZone = {};
+        //@genNextLine(box2dFilter|物理层过滤)
+        Box2dFilter box2dFilter;
+        //@genNextLine(textureOffset|纹理偏移)
+        Vector2DResource textureOffset;
         //@genNextLine(movementAcceleration|移动加速度)
         float movementAcceleration = 6.0F;
         //@genNextLine(jumpForce|跳跃强度)
@@ -939,34 +992,18 @@ namespace glimmer {
         float maxSpeed = 18.0F;
         //@genNextLine(airControlFactor|空中移动衰减 如果设置为0,那么禁止空中左右移动，如果设置为1,那么不限制空中移动，如果设置为0.8那么会将加速度乘以0.8。)
         float airControlFactor = 1.0F;
-        //@genNextLine(shape|碰撞形状)
-        ResourceRef shape;
+        //@genNextLine(friction|摩擦力)
+        float friction = 0.0F;
+        //@genNextLine(density|密度)
+        float density = 0.001F;
         //@genNextLine(bodyType|物理体类型)
         uint8_t bodyType;
         //@genNextLine(allowBodySleep|是否允许物理体休眠)
         bool allowBodySleep;
-        //@genNextLine(box2dFilter|物理层过滤)
-        Box2dFilter box2dFilter;
         //@genNextLine(fixedRotation|是否固定旋转)
         bool fixedRotation;
-        //@genNextLine(friction|摩擦力)
-        float friction = 0.0F;
-        //@genNextLine(textureOffset|纹理偏移)
-        Vector2DResource textureOffset;
-        //@genNextLine(density|密度)
-        float density = 0.001F;
-        //@genNextLine(texture|纹理资源引用)
-        ResourceRef texture = {};
-        //@genNextLine(pipeline|渲染管线引用)
-        ResourceRef pipeline = {};
-        //@genNextLine(sampler|采样器引用)
-        ResourceRef sampler = {};
-        //@genNextLine(Set the item that will be automatically used when no items are held. This item cannot be discarded, does not participate in recipe synthesis, and cannot be edited using the itemEditor command.If this item has the ability to be excavated, then its durability will not be deducted.|设置不持有任何物品时自动使用的物品。此物品不能丢弃，不参与配方合成，不能通过itemEditor命令编辑。如果此物品有挖掘能力，那么也不会扣除耐久。)
-        ItemMessageResource emptyHandAutoUseItem;
-        //@genNextLine(TilePlacementForbiddenZone|瓦片放置禁止区域)
-        TilePlacementForbiddenZone tilePlacementForbiddenZone = {};
-        //@genNextLine(groundCheckRayCast|地面检测射线)
-        std::vector<RayCastResource> groundCheckRayCast = {};
+        //@genNextLine(isPlayer|是否为玩家)
+        bool isPlayer = false;
     };
 
     /**
@@ -974,7 +1011,8 @@ namespace glimmer {
  * 可组合的物品资源
  */
     //@genNextLine(ComposableItemResource|可组合的物品资源类)
-    struct ComposableItemResource : Resource {
+    struct ComposableItemResource : Resource
+    {
         //@genNextLine(name|名称资源引用)
         ResourceRef name;
         //@genNextLine(description|描述资源引用)
@@ -987,29 +1025,31 @@ namespace glimmer {
         ResourceRef sampler = {};
         //@genNextLine(lightSource|手持时发光的光源引用)
         ResourceRef lightSource = {};
+        //@genNextLine(defaultAbilityList|默认能力列表资源引用)
+        std::vector<ItemMessageResource> defaultAbilityList = {};
+        //@genNextLine(tags|标签)
+        std::vector<ItemTagResource> tags = {};
         //@genNextLine(slotSize|槽位大小)
         size_t slotSize;
         //@genNextLine(maxDurability|最大耐久度)
         uint32_t maxDurability = 16;
         //@genNextLine(unbreakable|是否坚不可摧)
         bool unbreakable = false;
-        //@genNextLine(defaultAbilityList|默认能力列表资源引用)
-        std::vector<ItemMessageResource> defaultAbilityList = {};
-        //@genNextLine(tags|标签)
-        std::vector<ItemTagResource> tags = {};
     };
 
     //@genNextLine(InitialInventoryResource|初始化库存资源)
-    struct InitialInventoryResource : Resource {
+    struct InitialInventoryResource : Resource
+    {
         //@genNextLine(addItems|初始添加物品列表)
         std::vector<ItemMessageResource> addItems;
     };
 
     //@genNextLine(RequiredTag|需要的标签)
-    struct RequiredTag {
-        uint64_t cachedTagId = 0;
+    struct RequiredTag
+    {
         //@genNextLine(requiredTag|需要的标签)
         std::string requiredTag;
+        uint64_t cachedTagId = 0;
         //@genNextLine(requiredWeight|需要的权重)
         uint16_t requiredWeight = 1;
         //@genNextLine(exactMatch The number of true labels must be equal to requiredWeight for the condition to be met; otherwise, it fails. False values are considered as passing if they are greater than or equal to the requiredWeight.|精准匹配 true标签数量必须等于requiredWeight才通过，false大于等于都通过。)
@@ -1020,11 +1060,12 @@ namespace glimmer {
 
 
     //@genNextLine(RecipeResource|配方资源)
-    struct RecipeResource : Resource {
-        //@genNextLine(input|输入)
-        std::vector<RequiredTag> input;
+    struct RecipeResource : Resource
+    {
         //@genNextLine(output|输出)
         ItemMessageResource output;
+        //@genNextLine(input|输入)
+        std::vector<RequiredTag> input;
         //@genNextLine(duration|执行时间)
         float duration = 0.0F;
         //@genNextLine(min Technology level: The recipe can only be unlocked when there are corresponding blocks of the same technology level nearby.|最低科技等级，当附近有对应科技等级的方块才解锁配方。)

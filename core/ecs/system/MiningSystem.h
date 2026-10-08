@@ -36,7 +36,8 @@
 #include "core/mod/ResourceRef.h"
 
 
-namespace glimmer {
+namespace glimmer
+{
     class TextureResourceResult;
     class MiningComponent;
     class CameraComponent;
@@ -45,69 +46,70 @@ namespace glimmer {
     class Item;
     struct TileResource;
 
-    class MiningSystem : public GameSystem {
+    class MiningSystem : public GameSystem
+    {
+        std::vector<const TileLayerComponent*> tileLayerComponents_;
+        std::vector<std::shared_ptr<TextureResourceResult>> textureResultList_;
+        MiningComponent* miningComponent_ = nullptr;
+        CameraComponent* cameraComponent_ = nullptr;
+        Transform2DComponent* cameraTransform2DComponent_ = nullptr;
         bool cacheTexture_ = false;
-        std::vector<std::shared_ptr<TextureResourceResult> > textureResultList_ = {};
-        MiningComponent *miningComponent_ = nullptr;
-        CameraComponent *cameraComponent_ = nullptr;
-        Transform2DComponent *cameraTransform2DComponent_ = nullptr;
-        std::vector<const TileLayerComponent *> tileLayerComponents_;
 
-        static bool CanProcessTile(const Tile *tile, bool isPlaceMode);
+        static bool CanProcessTile(const Tile* tile, bool isPlaceMode);
 
-        static void SaveTileState(const TileStateMessage *tileState, TileStateBackup &backup);
+        static void SaveTileState(const TileStateMessage* tileState, TileStateBackup& backup);
 
-        static void RestoreTileState(TileStateMessage *tileState, const TileStateBackup &backup);
+        static void RestoreTileState(TileStateMessage* tileState, const TileStateBackup& backup);
 
-        static bool TryPlaceTile(const ResourceRef &dimensionRef, const TileLayerComponent *tileLayerComponent,
-                                 TileStateMessage *tileState,
-                                 const TileVector2D &currentVector,
-                                 const TileVector2D &topLeftVector,
-                                 const TilePlacementConfig &config,
-                                 TileStateBackup &backup,
-                                 const TileResource *tileResource,
+        static bool TryPlaceTile(const ResourceRef& dimensionRef, const TileLayerComponent* tileLayerComponent,
+                                 TileStateMessage* tileState,
+                                 const TileVector2D& currentVector,
+                                 const TileVector2D& topLeftVector,
+                                 const TilePlacementConfig& config,
+                                 TileStateBackup& backup,
+                                 const TileResource* tileResource,
                                  uint64_t tick);
 
-        static void ApplyItemDurability(Item *item, const Tile *tile, bool isCenter);
+        static void ApplyItemDurability(Item* item, const Tile* tile, bool isCenter);
 
-        static void DropDefaultLoot(WorldContext *worldContext,
-                                    const std::shared_ptr<Tile> &tile,
-                                    const TileVector2D &position,
-                                    const ResourceRef &oldResourceRef);
+        static void DropDefaultLoot(WorldContext* worldContext,
+                                    const std::shared_ptr<Tile>& tile,
+                                    const TileVector2D& position,
+                                    const ResourceRef& oldResourceRef);
 
-        static void DropTileLoot(WorldContext *worldContext,
-                                 const std::shared_ptr<Tile> &tile,
-                                 const TileVector2D &position,
-                                 const ResourceRef &oldResourceRef,
+        static void DropTileLoot(WorldContext* worldContext,
+                                 const std::shared_ptr<Tile>& tile,
+                                 const TileVector2D& position,
+                                 const ResourceRef& oldResourceRef,
                                  bool precisionMining);
 
-        static void DropCustomLoot(WorldContext *worldContext,
-                                   const AppContext *appContext,
-                                   const LootResource *lootResource,
-                                   const TileVector2D &topLeftVector);
+        static void DropCustomLoot(WorldContext* worldContext,
+                                   const AppContext* appContext,
+                                   const LootResource* lootResource,
+                                   const TileVector2D& topLeftVector);
 
-        static void PlayBreakSFX(const AppContext *appContext, const Tile *tile);
+        static void PlayBreakSFX(const AppContext* appContext, const Tile* tile);
 
-        static void ProcessSingleTile(const TileBreakParams &params, const ResourceRef &dimensionRef,
-                                      const TileVector2D &currentVector,
-                                      Item *item, const Item *emptyHandAutoUseItem,
+        static void ProcessSingleTile(const TileBreakParams& params, const ResourceRef& dimensionRef,
+                                      const TileVector2D& currentVector,
+                                      Item* item, const Item* emptyHandAutoUseItem,
                                       bool isCenter,
-                                      uint8_t &sum);
+                                      uint8_t& sum);
 
-        void ProcessMiningComplete(const TileLayerComponent *tileLayer, TileLayerType tileLayerType) const;
+        void ProcessMiningComplete(const TileLayerComponent* tileLayer, TileLayerType tileLayerType) const;
 
-        void RenderDiggingPoint(RenderQueue *queue, const MiningRangeDataPoint *point, float zoom) const;
+        void RenderDiggingPoint(RenderQueue* queue, const MiningRangeDataPoint* point, float zoom) const;
 
     public:
-        static uint16_t BreakTile(const TileBreakParams &params);
+        static uint16_t BreakTile(const TileBreakParams& params);
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
-        explicit MiningSystem(WorldContext *worldContext);
+        explicit MiningSystem(WorldContext* worldContext);
 
         void OnTick(uint64_t tick) override;
 
-        void Render(RenderQueue *queue) override;
+        void Render(RenderQueue* queue) override;
 
         uint8_t GetExecutionOrder() override;
 

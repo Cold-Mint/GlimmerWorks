@@ -46,12 +46,15 @@
 #include "core/scene/SceneManager.h"
 
 
-glimmer::AppRenderer::AppRenderer(AppContext *appContext) : appContext_(appContext) {
-    if (appContext_ == nullptr) {
+glimmer::AppRenderer::AppRenderer(AppContext* appContext) : appContext_(appContext)
+{
+    if (appContext_ == nullptr)
+    {
         return;
     }
-    WindowContext *windowContext = appContext_->GetWindowContext();
-    if (windowContext != nullptr) {
+    WindowContext* windowContext = appContext_->GetWindowContext();
+    if (windowContext != nullptr)
+    {
         device_ = windowContext->GetDevice();
         window_ = windowContext->GetWindow();
     }
@@ -61,7 +64,8 @@ glimmer::AppRenderer::AppRenderer(AppContext *appContext) : appContext_(appConte
     defaultPipelineResourceRef.SetResourceType(RESOURCE_PIPELINE);
     defaultPipelineResourceRef.SetResourceKey("default");
     auto defaultPipeline = resourceLocator_->FindGPUGraphicsPipeline(&defaultPipelineResourceRef);
-    if (defaultPipeline == nullptr) {
+    if (defaultPipeline == nullptr)
+    {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "default_pipeline_failed",
                   "defaultPipeline failed: {}",
                   SDL_GetError());
@@ -71,7 +75,8 @@ glimmer::AppRenderer::AppRenderer(AppContext *appContext) : appContext_(appConte
     defaultSamplerResourceRef.SetResourceType(RESOURCE_SAMPLER);
     defaultSamplerResourceRef.SetResourceKey("default");
     auto defaultSampler = resourceLocator_->FindGPUGraphicsSampler(&defaultSamplerResourceRef);
-    if (defaultSampler == nullptr) {
+    if (defaultSampler == nullptr)
+    {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "default_sampler_failed",
                   "defaultSampler failed: {}",
                   SDL_GetError());
@@ -93,36 +98,43 @@ glimmer::AppRenderer::AppRenderer(AppContext *appContext) : appContext_(appConte
     passes_.emplace_back(std::make_unique<LightingPass>(resourceLocator_, device_, std::move(lightingPipeline),
                                                         std::move(lightingSampler)));
 #if  !defined(NDEBUG)
-    lightingPass_ = dynamic_cast<LightingPass *>(passes_.back().get());
+    lightingPass_ = dynamic_cast<LightingPass*>(passes_.back().get());
 #endif
     passes_.emplace_back(std::make_unique<UiPass>(appContext_->GetRmlContext()));
 }
 
-glimmer::AppRenderer::~AppRenderer() {
-    if (device_ != nullptr && screenshotTexture_ != nullptr) {
+glimmer::AppRenderer::~AppRenderer()
+{
+    if (device_ != nullptr && screenshotTexture_ != nullptr)
+    {
         SDL_ReleaseGPUTexture(device_, screenshotTexture_);
     }
 }
 
-void glimmer::AppRenderer::RenderFrame(const int windowWidth, const int windowHeight) {
-    if (windowWidth <= 0 || windowHeight <= 0 || device_ == nullptr || sceneManager_ == nullptr) {
+void glimmer::AppRenderer::RenderFrame(const int windowWidth, const int windowHeight)
+{
+    if (windowWidth <= 0 || windowHeight <= 0 || device_ == nullptr || sceneManager_ == nullptr)
+    {
         return;
     }
-    Scene *topScene = sceneManager_->GetTopScene();
-    if (topScene == nullptr) {
+    Scene* topScene = sceneManager_->GetTopScene();
+    if (topScene == nullptr)
+    {
         return;
     }
     renderQueue_.Clear();
     topScene->Render(&renderQueue_);
     RenderOverlays();
-    SDL_GPUCommandBuffer *commandBuffer = SDL_AcquireGPUCommandBuffer(device_);
-    if (commandBuffer == nullptr) {
+    SDL_GPUCommandBuffer* commandBuffer = SDL_AcquireGPUCommandBuffer(device_);
+    if (commandBuffer == nullptr)
+    {
         return;
     }
-    SDL_GPUTexture *swapChainTexture = nullptr;
+    SDL_GPUTexture* swapChainTexture = nullptr;
     uint32_t swapChainWidth = 0;
     uint32_t swapChainHeight = 0;
-    if (!SDL_AcquireGPUSwapchainTexture(commandBuffer, window_, &swapChainTexture, &swapChainWidth, &swapChainHeight)) {
+    if (!SDL_AcquireGPUSwapchainTexture(commandBuffer, window_, &swapChainTexture, &swapChainWidth, &swapChainHeight))
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "sdl_acquire_gpu_swapchain_texture_failed",
                   "SDL_AcquireGPUSwapChainTexture failed: {}", SDL_GetError());
         SDL_CancelGPUCommandBuffer(commandBuffer);
@@ -131,8 +143,9 @@ void glimmer::AppRenderer::RenderFrame(const int windowWidth, const int windowHe
 
     const auto logicalWidth = static_cast<uint32_t>(windowWidth);
     const auto logicalHeight = static_cast<uint32_t>(windowHeight);
-    UniformInjectContext *uniformInjectContext = topScene->GetUniformInjectContext();
-    if (uniformInjectContext != nullptr) {
+    UniformInjectContext* uniformInjectContext = topScene->GetUniformInjectContext();
+    if (uniformInjectContext != nullptr)
+    {
         uniformInjectContext->width = static_cast<float>(logicalWidth);
         uniformInjectContext->height = static_cast<float>(logicalHeight);
     }
@@ -148,10 +161,12 @@ void glimmer::AppRenderer::RenderFrame(const int windowWidth, const int windowHe
     ctx.renderQueue = &renderQueue_;
 
     const auto pendingScreenshot = appContext_->TakePendingScreenshot();
-    SDL_GPUTexture *realSwapChainTexture = swapChainTexture;
-    if (pendingScreenshot.has_value()) {
+    SDL_GPUTexture* realSwapChainTexture = swapChainTexture;
+    if (pendingScreenshot.has_value())
+    {
         EnsureScreenshotTexture(logicalWidth, logicalHeight);
-        if (screenshotTexture_ != nullptr) {
+        if (screenshotTexture_ != nullptr)
+        {
             ctx.swapChainTexture = screenshotTexture_;
             ctx.swapChainWidth = logicalWidth;
             ctx.swapChainHeight = logicalHeight;
@@ -159,55 +174,69 @@ void glimmer::AppRenderer::RenderFrame(const int windowWidth, const int windowHe
     }
 
 #if  !defined(NDEBUG)
-    if (lightingPass_ != nullptr) {
-        if (const Config *config = appContext_->GetConfig(); config != nullptr) {
+    if (lightingPass_ != nullptr)
+    {
+        if (const Config* config = appContext_->GetConfig(); config != nullptr)
+        {
             lightingPass_->SetDisplayLightMap(config->debug.displayLightMap);
             lightingPass_->SetEnableLighting(!config->debug.disableLighting);
         }
     }
 #endif
-    for (auto &pass: passes_) {
+    for (auto& pass : passes_)
+    {
         pass->Prepare(ctx);
     }
-    for (auto &pass: passes_) {
+    for (auto& pass : passes_)
+    {
         pass->Record(ctx);
     }
 
-    if (pendingScreenshot.has_value()) {
-        if (screenshotTexture_ != nullptr && realSwapChainTexture != nullptr) {
+    if (pendingScreenshot.has_value())
+    {
+        if (screenshotTexture_ != nullptr && realSwapChainTexture != nullptr)
+        {
             BlitScreenshotToSwapChain(commandBuffer, screenshotTexture_, realSwapChainTexture,
                                       logicalWidth, logicalHeight);
         }
-        if (SaveScreenshot(pendingScreenshot.value(), ctx)) {
+        if (SaveScreenshot(pendingScreenshot.value(), ctx))
+        {
             return;
         }
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "screenshot_save_failed",
                   "Failed to save screenshot, falling back to normal frame submission");
     }
 
-    if (!SDL_SubmitGPUCommandBuffer(commandBuffer)) {
+    if (!SDL_SubmitGPUCommandBuffer(commandBuffer))
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "sdl_submit_gpu_command_buffer_failed",
                   "SDL_SubmitGPUCommandBuffer failed: {}", SDL_GetError());
     }
 }
 
-void glimmer::AppRenderer::RenderOverlays() {
-    SceneManager *sceneManager = appContext_->GetSceneManager();
-    if (sceneManager == nullptr) {
+void glimmer::AppRenderer::RenderOverlays()
+{
+    SceneManager* sceneManager = appContext_->GetSceneManager();
+    if (sceneManager == nullptr)
+    {
         return;
     }
-    const auto &overlayScenes = sceneManager->GetOverlayScenes();
-    for (const auto overlay: overlayScenes) {
+    const auto& overlayScenes = sceneManager->GetOverlayScenes();
+    for (const auto overlay : overlayScenes)
+    {
         overlay->Render(&renderQueue_);
     }
 }
 
-void glimmer::AppRenderer::EnsureScreenshotTexture(const uint32_t width, const uint32_t height) {
+void glimmer::AppRenderer::EnsureScreenshotTexture(const uint32_t width, const uint32_t height)
+{
     if (device_ == nullptr || (screenshotTexture_ != nullptr && screenshotTextureWidth_ == width &&
-                               screenshotTextureHeight_ == height)) {
+        screenshotTextureHeight_ == height))
+    {
         return;
     }
-    if (screenshotTexture_ != nullptr) {
+    if (screenshotTexture_ != nullptr)
+    {
         SDL_ReleaseGPUTexture(device_, screenshotTexture_);
         screenshotTexture_ = nullptr;
     }
@@ -222,7 +251,8 @@ void glimmer::AppRenderer::EnsureScreenshotTexture(const uint32_t width, const u
     info.sample_count = SDL_GPU_SAMPLECOUNT_1;
     info.props = 0;
     screenshotTexture_ = SDL_CreateGPUTexture(device_, &info);
-    if (screenshotTexture_ == nullptr) {
+    if (screenshotTexture_ == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "sdl_create_screenshot_texture_failed",
                   "SDL_CreateGPUTexture failed: {}", SDL_GetError());
         return;
@@ -231,11 +261,13 @@ void glimmer::AppRenderer::EnsureScreenshotTexture(const uint32_t width, const u
     screenshotTextureHeight_ = height;
 }
 
-void glimmer::AppRenderer::BlitScreenshotToSwapChain(SDL_GPUCommandBuffer *commandBuffer,
-                                                     SDL_GPUTexture *source,
-                                                     SDL_GPUTexture *destination,
-                                                     const uint32_t width, const uint32_t height) {
-    if (commandBuffer == nullptr || source == nullptr || destination == nullptr) {
+void glimmer::AppRenderer::BlitScreenshotToSwapChain(SDL_GPUCommandBuffer* commandBuffer,
+                                                     SDL_GPUTexture* source,
+                                                     SDL_GPUTexture* destination,
+                                                     const uint32_t width, const uint32_t height)
+{
+    if (commandBuffer == nullptr || source == nullptr || destination == nullptr)
+    {
         return;
     }
     SDL_GPUBlitInfo blitInfo = {};
@@ -260,26 +292,31 @@ void glimmer::AppRenderer::BlitScreenshotToSwapChain(SDL_GPUCommandBuffer *comma
     SDL_BlitGPUTexture(commandBuffer, &blitInfo);
 }
 
-bool glimmer::AppRenderer::SaveScreenshot(const PendingScreenshot &pendingScreenshot,
-                                          const RenderFrameContext &ctx) {
-    if (pendingScreenshot.onMessage == nullptr || ctx.commandBuffer == nullptr || ctx.swapChainTexture == nullptr) {
+bool glimmer::AppRenderer::SaveScreenshot(const PendingScreenshot& pendingScreenshot,
+                                          const RenderFrameContext& ctx)
+{
+    if (pendingScreenshot.onMessage == nullptr || ctx.commandBuffer == nullptr || ctx.swapChainTexture == nullptr)
+    {
         return false;
     }
 
-    SDL_GPUTexture *sourceTexture = ctx.swapChainTexture;
+    SDL_GPUTexture* sourceTexture = ctx.swapChainTexture;
     const auto width = ctx.swapChainWidth;
     const auto height = ctx.swapChainHeight;
-    if (width == 0 || height == 0) {
+    if (width == 0 || height == 0)
+    {
         return false;
     }
 
-    const LangsResources *langsResources = appContext_->GetLangsResources();
-    if (langsResources == nullptr) {
+    const LangsResources* langsResources = appContext_->GetLangsResources();
+    if (langsResources == nullptr)
+    {
         return false;
     }
 
     const auto onMessage = pendingScreenshot.onMessage;
-    const auto reportFailure = [&](const std::string_view reason) {
+    const auto reportFailure = [&](const std::string_view reason)
+    {
         (*onMessage)(fmt::format(fmt::runtime(langsResources->screenshotSavedFailed), reason));
     };
 
@@ -288,14 +325,16 @@ bool glimmer::AppRenderer::SaveScreenshot(const PendingScreenshot &pendingScreen
     SDL_GPUTransferBufferCreateInfo transferInfo = {};
     transferInfo.usage = SDL_GPU_TRANSFERBUFFERUSAGE_DOWNLOAD;
     transferInfo.size = pixelDataSize;
-    SDL_GPUTransferBuffer *transferBuffer = SDL_CreateGPUTransferBuffer(device_, &transferInfo);
-    if (transferBuffer == nullptr) {
+    SDL_GPUTransferBuffer* transferBuffer = SDL_CreateGPUTransferBuffer(device_, &transferInfo);
+    if (transferBuffer == nullptr)
+    {
         reportFailure("CreateGPUTransferBuffer failed");
         return false;
     }
 
-    SDL_GPUCopyPass *copyPass = SDL_BeginGPUCopyPass(ctx.commandBuffer);
-    if (copyPass == nullptr) {
+    SDL_GPUCopyPass* copyPass = SDL_BeginGPUCopyPass(ctx.commandBuffer);
+    if (copyPass == nullptr)
+    {
         SDL_ReleaseGPUTransferBuffer(device_, transferBuffer);
         reportFailure("BeginGPUCopyPass failed");
         return false;
@@ -321,8 +360,9 @@ bool glimmer::AppRenderer::SaveScreenshot(const PendingScreenshot &pendingScreen
     SDL_DownloadFromGPUTexture(copyPass, &source, &destination);
     SDL_EndGPUCopyPass(copyPass);
 
-    SDL_GPUFence *fence = SDL_SubmitGPUCommandBufferAndAcquireFence(ctx.commandBuffer);
-    if (fence == nullptr) {
+    SDL_GPUFence* fence = SDL_SubmitGPUCommandBufferAndAcquireFence(ctx.commandBuffer);
+    if (fence == nullptr)
+    {
         SDL_ReleaseGPUTransferBuffer(device_, transferBuffer);
         reportFailure("SubmitGPUCommandBufferAndAcquireFence failed");
         return false;
@@ -331,8 +371,9 @@ bool glimmer::AppRenderer::SaveScreenshot(const PendingScreenshot &pendingScreen
     SDL_WaitForGPUFences(device_, true, &fence, 1);
     SDL_ReleaseGPUFence(device_, fence);
 
-    void *mapped = SDL_MapGPUTransferBuffer(device_, transferBuffer, false);
-    if (mapped == nullptr) {
+    void* mapped = SDL_MapGPUTransferBuffer(device_, transferBuffer, false);
+    if (mapped == nullptr)
+    {
         SDL_ReleaseGPUTransferBuffer(device_, transferBuffer);
         reportFailure("MapGPUTransferBuffer failed");
         return false;
@@ -340,18 +381,22 @@ bool glimmer::AppRenderer::SaveScreenshot(const PendingScreenshot &pendingScreen
 
     const SDL_PixelFormat pixelFormat = SDL_GetPixelFormatFromGPUTextureFormat(
         SDL_GetGPUSwapchainTextureFormat(device_, window_));
-    SDL_Surface *surface = SDL_CreateSurfaceFrom(static_cast<int>(width), static_cast<int>(height),
+    SDL_Surface* surface = SDL_CreateSurfaceFrom(static_cast<int>(width), static_cast<int>(height),
                                                  pixelFormat, mapped, static_cast<int>(width * 4));
-    if (surface == nullptr) {
+    if (surface == nullptr)
+    {
         SDL_UnmapGPUTransferBuffer(device_, transferBuffer);
         SDL_ReleaseGPUTransferBuffer(device_, transferBuffer);
         reportFailure("CreateSurfaceFrom failed");
         return false;
     }
 
-    if (!IMG_SavePNG(surface, pendingScreenshot.path.string().c_str())) {
+    if (!IMG_SavePNG(surface, pendingScreenshot.path.string().c_str()))
+    {
         reportFailure(SDL_GetError());
-    } else {
+    }
+    else
+    {
         (*onMessage)(fmt::format(fmt::runtime(langsResources->screenshotSavedSuccess),
                                  pendingScreenshot.path.string()));
     }

@@ -28,14 +28,16 @@
 
 #include "core/mod/ResourceRef.h"
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * DimensionChangedEvent
      * 维度切换事件
      * Published after the active dimension resource changes.
      * 在激活的维度资源发生变化后发布。
      */
-    struct DimensionChangedEvent {
+    struct DimensionChangedEvent
+    {
         /**
          * The dimension before the switch. Invalid on initial load.
          * 切换前的维度。初次加载时为无效值。

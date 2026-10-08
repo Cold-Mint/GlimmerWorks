@@ -27,12 +27,14 @@
 #pragma once
 #include <string>
 
-namespace glimmer {
-    struct CommandSuggestions {
-        bool selected = false;
+namespace glimmer
+{
+    struct CommandSuggestions
+    {
         std::string message;
         std::string prefix;
         std::string keyword;
         std::string suffix;
+        bool selected = false;
     };
 }

@@ -39,20 +39,25 @@
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
 
-namespace glimmer {
-    bool IsPointInRect(float x, float y, const SDL_FRect &r) {
+namespace glimmer
+{
+    bool IsPointInRect(float x, float y, const SDL_FRect& r)
+    {
         return x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h;
     }
 
-    glimmer::GameSystemType glimmer::AndroidControlSystem::GetGameSystemType() {
+    glimmer::GameSystemType glimmer::AndroidControlSystem::GetGameSystemType()
+    {
         return GameSystemType::AndroidControlSystem;
     }
 
-    uint8_t AndroidControlSystem::GetRenderOrder() {
+    uint8_t AndroidControlSystem::GetRenderOrder()
+    {
         return RENDER_ORDER_ANDROID_CTRL;
     }
 
-    void SendKeyEvent(SDL_Keycode key, bool down) {
+    void SendKeyEvent(SDL_Keycode key, bool down)
+    {
         SDL_Event event;
         event.type = down ? SDL_EVENT_KEY_DOWN : SDL_EVENT_KEY_UP;
         event.key.key = key;
@@ -61,21 +66,26 @@ namespace glimmer {
         SDL_PushEvent(&event);
     }
 
-    AndroidControlSystem::AndroidControlSystem(WorldContext *worldContext)
-        : GameSystem(worldContext) {
+    AndroidControlSystem::AndroidControlSystem(WorldContext* worldContext)
+        : GameSystem(worldContext)
+    {
         WatchComponent(COMPONENT_PLAYER);
         WatchComponent(COMPONENT_TRANSFORM_2D);
     }
 
-    bool AndroidControlSystem::HandleEvent(const SDL_Event &event) {
-        const WorldContext *worldContext = GetWorldContext();
-        const AppContext *appContext = worldContext->GetAppContext();
-        if (appContext == nullptr) {
+    bool AndroidControlSystem::HandleEvent(const SDL_Event& event)
+    {
+        const WorldContext* worldContext = GetWorldContext();
+        const AppContext* appContext = worldContext->GetAppContext();
+        if (appContext == nullptr)
+        {
             return false;
         }
-        switch (event.type) {
-            case SDL_EVENT_FINGER_DOWN:
-            case SDL_EVENT_FINGER_MOTION: {
+        switch (event.type)
+        {
+        case SDL_EVENT_FINGER_DOWN:
+        case SDL_EVENT_FINGER_MOTION:
+            {
                 int windowW = 0;
                 int windowH = 0;
                 SDL_GetWindowSize(appContext->GetWindow(), &windowW, &windowH);
@@ -84,50 +94,75 @@ namespace glimmer {
                 SDL_FingerID fingerId = event.tfinger.fingerID;
 
                 ButtonType newType = ButtonType::None;
-                if (IsPointInRect(x, y, leftRect)) { newType = ButtonType::Left; } else if (
-                    IsPointInRect(x, y, rightRect)) { newType = ButtonType::Right; } else if (
+                if (IsPointInRect(x, y, leftRect)) { newType = ButtonType::Left; }
+                else if (
+                    IsPointInRect(x, y, rightRect)) { newType = ButtonType::Right; }
+                else if (
                     IsPointInRect(x, y, jumpRect)) { newType = ButtonType::Jump; }
 
                 ButtonType currentType = ButtonType::None;
-                if (activeTouches.contains(fingerId)) {
+                if (activeTouches.contains(fingerId))
+                {
                     currentType = activeTouches[fingerId];
                 }
 
-                if (newType != currentType) {
-                    if (currentType != ButtonType::None) {
-                        if (currentType == ButtonType::Left) {
+                if (newType != currentType)
+                {
+                    if (currentType != ButtonType::None)
+                    {
+                        if (currentType == ButtonType::Left)
+                        {
                             SendKeyEvent(SDLK_A, false);
-                        } else if (currentType == ButtonType::Right) {
+                        }
+                        else if (currentType == ButtonType::Right)
+                        {
                             SendKeyEvent(SDLK_D, false);
-                        } else if (currentType == ButtonType::Jump) {
+                        }
+                        else if (currentType == ButtonType::Jump)
+                        {
                             SendKeyEvent(SDLK_SPACE, false);
                         }
                     }
 
-                    if (newType != ButtonType::None) {
+                    if (newType != ButtonType::None)
+                    {
                         activeTouches[fingerId] = newType;
-                        if (newType == ButtonType::Left) {
+                        if (newType == ButtonType::Left)
+                        {
                             SendKeyEvent(SDLK_A, true);
-                        } else if (newType == ButtonType::Right) {
+                        }
+                        else if (newType == ButtonType::Right)
+                        {
                             SendKeyEvent(SDLK_D, true);
-                        } else if (newType == ButtonType::Jump) {
+                        }
+                        else if (newType == ButtonType::Jump)
+                        {
                             SendKeyEvent(SDLK_SPACE, true);
                         }
-                    } else {
+                    }
+                    else
+                    {
                         activeTouches.erase(fingerId);
                     }
                 }
                 break;
             }
-            case SDL_EVENT_FINGER_UP: {
+        case SDL_EVENT_FINGER_UP:
+            {
                 SDL_FingerID fingerId = event.tfinger.fingerID;
-                if (activeTouches.contains(fingerId)) {
+                if (activeTouches.contains(fingerId))
+                {
                     ButtonType type = activeTouches[fingerId];
-                    if (type == ButtonType::Left) {
+                    if (type == ButtonType::Left)
+                    {
                         SendKeyEvent(SDLK_A, false);
-                    } else if (type == ButtonType::Right) {
+                    }
+                    else if (type == ButtonType::Right)
+                    {
                         SendKeyEvent(SDLK_D, false);
-                    } else if (type == ButtonType::Jump) {
+                    }
+                    else if (type == ButtonType::Jump)
+                    {
                         SendKeyEvent(SDLK_SPACE, false);
                     }
                     activeTouches.erase(fingerId);
@@ -138,19 +173,24 @@ namespace glimmer {
         return false;
     }
 
-    void AndroidControlSystem::Update(float delta) {
+    void AndroidControlSystem::Update(float delta)
+    {
     }
 
-    void AndroidControlSystem::Render(RenderQueue *queue) {
-        if (queue == nullptr) {
+    void AndroidControlSystem::Render(RenderQueue* queue)
+    {
+        if (queue == nullptr)
+        {
             return;
         }
-        const WorldContext *worldContext = GetWorldContext();
-        const AppContext *appContext = worldContext->GetAppContext();
-        if (appContext == nullptr) {
+        const WorldContext* worldContext = GetWorldContext();
+        const AppContext* appContext = worldContext->GetAppContext();
+        if (appContext == nullptr)
+        {
             return;
         }
-        if (leftTexture != nullptr) {
+        if (leftTexture != nullptr)
+        {
             /*auto load = [&](const char *path) {
                 return appContext->GetResourcePackManager()->LoadTextureFromFile(
                     appContext, path);
@@ -182,7 +222,8 @@ namespace glimmer {
         bool rightActive = false;
         bool jumpActive = false;
 
-        for (auto const &[fingerId, type]: activeTouches) {
+        for (auto const& [fingerId, type] : activeTouches)
+        {
             if (type == ButtonType::Left) leftActive = true;
             if (type == ButtonType::Right) rightActive = true;
             if (type == ButtonType::Jump) jumpActive = true;

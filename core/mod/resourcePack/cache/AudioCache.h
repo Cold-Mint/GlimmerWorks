@@ -27,17 +27,19 @@
 #pragma once
 #include "core/mod/resourcePack/BaseResourceCache.h"
 
-namespace glimmer {
-    class AudioCache : public BaseResourceCache<AudioResourceResult> {
-        MIX_Mixer *mixer_ = nullptr;
+namespace glimmer
+{
+    class AudioCache : public BaseResourceCache<AudioResourceResult>
+    {
+        MIX_Mixer* mixer_ = nullptr;
 
     protected:
-        std::shared_ptr<AudioResourceResult> LoadResourceFromPack(AppContext *appContext,
-                                                                  const ResourceRef *resourceRef,
-                                                                  const ResourcePack *resourcePack) override;
+        std::shared_ptr<AudioResourceResult> LoadResourceFromPack(AppContext* appContext,
+                                                                  const ResourceRef* resourceRef,
+                                                                  const ResourcePack* resourcePack) override;
 
     public:
-        void SetMixer(MIX_Mixer *mixer);
+        void SetMixer(MIX_Mixer* mixer);
 
         ~AudioCache() noexcept override;
     };

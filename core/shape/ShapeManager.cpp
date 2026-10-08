@@ -31,9 +31,10 @@
 #include "ShapeType.h"
 #include "core/log/LogCat.h"
 
-glimmer::ShapeManager::ShapeManager() {
+glimmer::ShapeManager::ShapeManager()
+{
     std::unique_ptr<IShapeResource> droppedItemShape = std::make_unique<RectangleShapeResource>();
-    auto *droppedItemShapePtr = dynamic_cast<RectangleShapeResource *>(droppedItemShape.get());
+    auto* droppedItemShapePtr = dynamic_cast<RectangleShapeResource*>(droppedItemShape.get());
     droppedItemShapePtr->shapeType = std::to_underlying(ShapeType::RECTANGLE);
     droppedItemShapePtr->width = 0.8F;
     droppedItemShapePtr->height = 0.8F;
@@ -42,22 +43,26 @@ glimmer::ShapeManager::ShapeManager() {
     Register(std::move(droppedItemShape));
 }
 
-glimmer::IShapeResource *glimmer::ShapeManager::Register(std::unique_ptr<IShapeResource> shapeResource) {
-    auto &slot =
-            shapeMap_[shapeResource->packId][shapeResource->resourceId];
+glimmer::IShapeResource* glimmer::ShapeManager::Register(std::unique_ptr<IShapeResource> shapeResource)
+{
+    auto& slot =
+        shapeMap_[shapeResource->packId][shapeResource->resourceId];
     slot = std::move(shapeResource);
     return slot.get();
 }
 
-glimmer::IShapeResource *glimmer::ShapeManager::FindShape(const std::string &packId, const std::string &resourceId) {
+glimmer::IShapeResource* glimmer::ShapeManager::FindShape(const std::string& packId, const std::string& resourceId)
+{
     const auto packIt = shapeMap_.find(packId);
-    if (packIt == shapeMap_.end()) {
+    if (packIt == shapeMap_.end())
+    {
         return nullptr;
     }
 
-    auto &keyMap = packIt->second;
+    auto& keyMap = packIt->second;
     const auto keyIt = keyMap.find(resourceId);
-    if (keyIt == keyMap.end()) {
+    if (keyIt == keyMap.end())
+    {
         return nullptr;
     }
 
@@ -65,13 +70,16 @@ glimmer::IShapeResource *glimmer::ShapeManager::FindShape(const std::string &pac
     return keyIt->second.get();
 }
 
-std::string glimmer::ShapeManager::ListShapes() const {
+std::string glimmer::ShapeManager::ListShapes() const
+{
     std::ostringstream oss;
-    for (const auto &packPair: shapeMap_) {
-        const auto &packId = packPair.first;
-        const auto &keyMap = packPair.second;
-        for (const auto &keyPair: keyMap) {
-            const auto &key = keyPair.first;
+    for (const auto& packPair : shapeMap_)
+    {
+        const auto& packId = packPair.first;
+        const auto& keyMap = packPair.second;
+        for (const auto& keyPair : keyMap)
+        {
+            const auto& key = keyPair.first;
             oss << Resource::GenerateId(packId, key) << "\n";
         }
     }

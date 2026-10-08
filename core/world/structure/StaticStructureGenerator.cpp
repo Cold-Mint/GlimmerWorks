@@ -29,22 +29,27 @@
 #include "core/log/LogCat.h"
 
 
-std::unique_ptr<glimmer::StructureInfo> glimmer::StaticStructureGenerator::Generate(WorldContext *worldContext,
-    const TileVector2D &startPosition, IStructureResource *structureResource) {
-    if (structureResource == nullptr || worldContext == nullptr) {
+std::unique_ptr<glimmer::StructureInfo> glimmer::StaticStructureGenerator::Generate(WorldContext* worldContext,
+    const TileVector2D& startPosition, IStructureResource* structureResource)
+{
+    if (structureResource == nullptr || worldContext == nullptr)
+    {
         LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "structure_generator_null_input",
                   "Static structure generator received null input");
         return nullptr;
     }
     auto structureInfo = std::make_unique<StructureInfo>();
-    for (const auto staticStructureResource = dynamic_cast<StaticStructureResource *>(structureResource); auto &tileInfo:
-         staticStructureResource->tileInfo) {
+    for (const auto staticStructureResource = dynamic_cast<StaticStructureResource*>(structureResource); auto& tileInfo
+         :
+         staticStructureResource->tileInfo)
+    {
         structureInfo->SetTile(static_cast<TileLayerType>(tileInfo.layerType),
                                {tileInfo.position.x, tileInfo.position.y}, tileInfo.tile);
     }
     return structureInfo;
 }
 
-glimmer::StructureGeneratorType glimmer::StaticStructureGenerator::GetStructureGeneratorType() const {
+glimmer::StructureGeneratorType glimmer::StaticStructureGenerator::GetStructureGeneratorType() const
+{
     return StructureGeneratorType::Static;
 }

@@ -36,7 +36,8 @@
 
 #include "Subscription.h"
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * EventBus
      * 事件总线
@@ -44,7 +45,34 @@ namespace glimmer {
      * synchronously on the thread that calls Publish.
      * 一个线程安全、以类型为键的发布/订阅总线。处理器在调用 Publish 的线程上同步执行。
      */
-    class EventBus {
+    class EventBus
+    {
+        /**
+         * HandlerBase
+         * 处理器基类
+         * Type-erased base so that all handler types can be stored in a single map.
+         * 类型擦除的基类，使所有处理器类型都能存储在同一个 map 中。
+         */
+        struct HandlerBase
+        {
+            virtual ~HandlerBase() = default;
+        };
+
+        template <typename E>
+        struct Handler : HandlerBase
+        {
+            std::function<void(const E&)> callback;
+
+            explicit Handler(std::function<void(const E&)> handler) : callback(std::move(handler))
+            {
+            }
+        };
+
+        std::unordered_map<uint64_t, std::shared_ptr<HandlerBase>> entries_;
+        std::unordered_map<std::type_index, std::vector<uint64_t>> byType_;
+        std::mutex mutex_;
+        uint64_t nextId_ = 1;
+
     public:
         /**
          * Default constructor
@@ -58,7 +86,7 @@ namespace glimmer {
          * The event bus is non-copyable because it owns a mutex and handler table.
          * 事件总线不可拷贝，因为它持有互斥锁与处理器表。
          */
-        EventBus(const EventBus &) = delete;
+        EventBus(const EventBus&) = delete;
 
         /**
          * Copy assignment (deleted)
@@ -66,7 +94,7 @@ namespace glimmer {
          * The event bus is non-copyable because it owns a mutex and handler table.
          * 事件总线不可拷贝，因为它持有互斥锁与处理器表。
          */
-        EventBus &operator=(const EventBus &) = delete;
+        EventBus& operator=(const EventBus&) = delete;
 
         /**
          * Subscribe
@@ -75,9 +103,10 @@ namespace glimmer {
          * @param handler handler 事件处理器
          * @return A RAII handle that auto-unsubscribes on destruction. 析构时自动退订的 RAII 句柄。
          */
-        template<typename E>
-        Subscription Subscribe(std::function<void(const E &)> handler) {
-            std::shared_ptr<HandlerBase> entry = std::make_shared<Handler<E> >(std::move(handler));
+        template <typename E>
+        Subscription Subscribe(std::function<void(const E&)> handler)
+        {
+            std::shared_ptr<HandlerBase> entry = std::make_shared<Handler<E>>(std::move(handler));
             std::lock_guard lock(mutex_);
             const uint64_t id = nextId_++;
             entries_.emplace(id, std::move(entry));
@@ -100,48 +129,29 @@ namespace glimmer {
          * @tparam E event type 事件类型
          * @param event event 事件
          */
-        template<typename E>
-        void Publish(const E &event) {
-            std::vector<std::shared_ptr<HandlerBase> > snapshot;
+        template <typename E>
+        void Publish(const E& event)
+        {
+            std::vector<std::shared_ptr<HandlerBase>> snapshot;
             {
                 std::lock_guard lock(mutex_);
                 const auto it = byType_.find(std::type_index(typeid(E)));
-                if (it == byType_.end()) {
+                if (it == byType_.end())
+                {
                     return;
                 }
-                for (const uint64_t id: it->second) {
-                    if (const auto entryIt = entries_.find(id); entryIt != entries_.end()) {
+                for (const uint64_t id : it->second)
+                {
+                    if (const auto entryIt = entries_.find(id); entryIt != entries_.end())
+                    {
                         snapshot.push_back(entryIt->second);
                     }
                 }
             }
-            for (const auto &entry: snapshot) {
-                static_cast<Handler<E> *>(entry.get())->callback(event);
+            for (const auto& entry : snapshot)
+            {
+                static_cast<Handler<E>*>(entry.get())->callback(event);
             }
         }
-
-    private:
-        /**
-         * HandlerBase
-         * 处理器基类
-         * Type-erased base so that all handler types can be stored in a single map.
-         * 类型擦除的基类，使所有处理器类型都能存储在同一个 map 中。
-         */
-        struct HandlerBase {
-            virtual ~HandlerBase() = default;
-        };
-
-        template<typename E>
-        struct Handler : HandlerBase {
-            std::function<void(const E &)> callback;
-
-            explicit Handler(std::function<void(const E &)> handler) : callback(std::move(handler)) {
-            }
-        };
-
-        std::mutex mutex_;
-        uint64_t nextId_ = 1;
-        std::unordered_map<uint64_t, std::shared_ptr<HandlerBase> > entries_;
-        std::unordered_map<std::type_index, std::vector<uint64_t> > byType_;
     };
 }

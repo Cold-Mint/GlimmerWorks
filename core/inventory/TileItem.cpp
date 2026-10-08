@@ -34,101 +34,127 @@
 #include "core/ecs/system/MiningSystem.h"
 
 
-glimmer::TileItem::TileItem(const std::shared_ptr<Tile> &tile, const ResourceRef &resourceRef) : tile_(tile) {
+glimmer::TileItem::TileItem(const std::shared_ptr<Tile>& tile, const ResourceRef& resourceRef) : tile_(tile)
+{
     SetResourceRef(resourceRef);
     tileResourceData_ = tile->GetResourceData();
     tileDimensions_ = tile->GetDimensions();
-    if (tileResourceData_ != nullptr) {
+    if (tileResourceData_ != nullptr)
+    {
         SetTags(tileResourceData_->GetTags());
     }
     SetMaxStack(ITEM_MAX_STACK);
     SetUnbreakable(true);
-    const TileLightResourceData *tileLightResourceData = tile->GetLightResourceData();
-    if (tileLightResourceData != nullptr) {
-        if (const ResourceRef *lightResourceRef = tileLightResourceData->GetLightSourceResource(); lightResourceRef->
-            IsValid()) {
+    const TileLightResourceData* tileLightResourceData = tile->GetLightResourceData();
+    if (tileLightResourceData != nullptr)
+    {
+        if (const ResourceRef* lightResourceRef = tileLightResourceData->GetLightSourceResource(); lightResourceRef->
+            IsValid())
+        {
             SetLightSourceRef(*lightResourceRef);
         }
     }
 }
 
-const std::string &glimmer::TileItem::GetId() const {
+const std::string& glimmer::TileItem::GetId() const
+{
     return tile_->GetId();
 }
 
-const std::string &glimmer::TileItem::GetName() const {
+const std::string& glimmer::TileItem::GetName() const
+{
     return tile_->GetName();
 }
 
-const std::optional<std::string> &glimmer::TileItem::GetDescription() const {
+const std::optional<std::string>& glimmer::TileItem::GetDescription() const
+{
     return tile_->GetDescription();
 }
 
-const glimmer::Tile *glimmer::TileItem::GetTile() const {
+const glimmer::Tile* glimmer::TileItem::GetTile() const
+{
     return tile_.get();
 }
 
-bool glimmer::TileItem::OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user,
-                              const AbilityConfig *abilityConfig, std::unordered_set<AbilityType> &popupAbility) {
-    if (mouseLeft) {
+bool glimmer::TileItem::OnUse(bool mouseLeft, WorldContext* worldContext, uint32_t user,
+                              const AbilityConfig* abilityConfig, std::unordered_set<AbilityType>& popupAbility)
+{
+    if (mouseLeft)
+    {
         return false;
     }
-    if (tile_ == nullptr) {
+    if (tile_ == nullptr)
+    {
         return false;
     }
-    if (worldContext == nullptr) {
+    if (worldContext == nullptr)
+    {
         return false;
     }
-    const AppContext *appContext = worldContext->GetAppContext();
-    if (appContext == nullptr) {
+    const AppContext* appContext = worldContext->GetAppContext();
+    if (appContext == nullptr)
+    {
         return false;
     }
-    EntityShortCut *entityShortCut = worldContext->GetEntityShortCut();
-    if (entityShortCut == nullptr) {
+    EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
+    if (entityShortCut == nullptr)
+    {
         return false;
     }
     auto playerEntity = entityShortCut->GetPlayer();
-    if (WorldContext::IsEmptyEntityId(playerEntity)) {
+    if (WorldContext::IsEmptyEntityId(playerEntity))
+    {
         return false;
     }
-    EntityManager *entityManager = worldContext->GetEntityManager();
+    EntityManager* entityManager = worldContext->GetEntityManager();
     auto playerTransform = entityManager->GetComponent<Transform2DComponent>(playerEntity);
-    if (playerTransform == nullptr) {
+    if (playerTransform == nullptr)
+    {
         return false;
     }
-    const BlueprintComponent *blueprintComponent = entityShortCut->GetBlueprintComponent();
-    if (blueprintComponent == nullptr) {
+    const BlueprintComponent* blueprintComponent = entityShortCut->GetBlueprintComponent();
+    if (blueprintComponent == nullptr)
+    {
         return false;
     }
-    ItemStackModule *itemStackModule = GetMutableStackModule();
-    if (itemStackModule == nullptr) {
+    ItemStackModule* itemStackModule = GetMutableStackModule();
+    if (itemStackModule == nullptr)
+    {
         return false;
     }
     const auto entities = entityManager->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
     const TileLayerType targetTileLayerType = tile_->GetLayerType();
-    for (auto &entity: entities) {
+    for (auto& entity : entities)
+    {
         auto tileLayer = entityManager->GetComponent<TileLayerComponent>(entity);
-        if (tileLayer == nullptr) {
+        if (tileLayer == nullptr)
+        {
             continue;
         }
-        if (tileLayer->GetTileLayerType() != targetTileLayerType) {
+        if (tileLayer->GetTileLayerType() != targetTileLayerType)
+        {
             //The tile layer is incorrect. Let's look for the next one.
             //瓦片图层不对，找下一个。
             continue;
         }
-        if (!blueprintComponent->CanPlace()) {
+        if (!blueprintComponent->CanPlace())
+        {
             continue;
         }
-        if (itemStackModule->GetAmount() > 0) {
-            if (AudioManager *audioManager = appContext->GetAudioContext()->GetAudioManager(); audioManager != nullptr
-                && tileResourceData_ != nullptr) {
-                if (AudioResourceResult *audioResourceResult = tileResourceData_->GetPlaceSFX(); audioResourceResult !=
-                    nullptr) {
+        if (itemStackModule->GetAmount() > 0)
+        {
+            if (AudioManager* audioManager = appContext->GetAudioContext()->GetAudioManager(); audioManager != nullptr
+                && tileResourceData_ != nullptr)
+            {
+                if (AudioResourceResult* audioResourceResult = tileResourceData_->GetPlaceSFX(); audioResourceResult !=
+                    nullptr)
+                {
                     audioManager->TryPlayFree(
                         AudioType::AMBIENT, audioResourceResult->GetResource(), 0);
                 }
             }
-            if (tileDimensions_ != nullptr) {
+            if (tileDimensions_ != nullptr)
+            {
                 TileBreakParams tileBreakParams;
                 tileBreakParams.SetBreakSource(BreakSource::PlayerOverride);
                 tileBreakParams.SetWorldContext(worldContext);
@@ -148,39 +174,49 @@ bool glimmer::TileItem::OnUse(bool mouseLeft, WorldContext *worldContext, uint32
     return true;
 }
 
-glimmer::TextureResourceResult *glimmer::TileItem::GetIcon() const {
-    if (tileResourceData_ == nullptr) {
+glimmer::TextureResourceResult* glimmer::TileItem::GetIcon() const
+{
+    if (tileResourceData_ == nullptr)
+    {
         return nullptr;
     }
     return tileResourceData_->GetTexture();
 }
 
-SDL_GPUGraphicsPipeline *glimmer::TileItem::GetPipeline() const {
-    if (tileResourceData_ == nullptr) {
+SDL_GPUGraphicsPipeline* glimmer::TileItem::GetPipeline() const
+{
+    if (tileResourceData_ == nullptr)
+    {
         return nullptr;
     }
     return tileResourceData_->GetPipeline();
 }
 
-SDL_GPUSampler *glimmer::TileItem::GetSampler() const {
-    if (tileResourceData_ == nullptr) {
+SDL_GPUSampler* glimmer::TileItem::GetSampler() const
+{
+    if (tileResourceData_ == nullptr)
+    {
         return nullptr;
     }
     return tileResourceData_->GetSampler();
 }
 
 
-const glimmer::ResourceRef *glimmer::TileItem::GetIconResourceRef() const {
-    if (tileResourceData_ == nullptr) {
+const glimmer::ResourceRef* glimmer::TileItem::GetIconResourceRef() const
+{
+    if (tileResourceData_ == nullptr)
+    {
         return nullptr;
     }
     return tileResourceData_->GetTextureRef();
 }
 
-const glimmer::AbilityConfig *glimmer::TileItem::GetAbilityConfig() const {
+const glimmer::AbilityConfig* glimmer::TileItem::GetAbilityConfig() const
+{
     return nullptr;
 }
 
-std::unique_ptr<glimmer::Item> glimmer::TileItem::Clone() const {
+std::unique_ptr<glimmer::Item> glimmer::TileItem::Clone() const
+{
     return std::make_unique<TileItem>(tile_, GetResourceRef());
 }

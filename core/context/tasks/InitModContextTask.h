@@ -27,12 +27,14 @@
 #pragma once
 #include "IAppContextInitTask.h"
 
-namespace glimmer {
-    class InitModContextTask : public IAppContextInitTask {
+namespace glimmer
+{
+    class InitModContextTask : public IAppContextInitTask
+    {
     public:
-        bool Run(ISystemBucket *systemBucket) override;
+        bool Run(ISystemBucket* systemBucket) override;
 
-        void Rollback(ISystemBucket *systemBucket) override;
+        void Rollback(ISystemBucket* systemBucket) override;
 
         std::string GetTaskName() override;
     };

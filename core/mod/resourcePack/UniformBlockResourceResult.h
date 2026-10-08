@@ -28,7 +28,8 @@
 #include "ResourceResult.h"
 #include "core/gpu/UniformBlock.h"
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * UniformBlockResourceResult
      * Uniform 块资源结果
@@ -37,9 +38,10 @@ namespace glimmer {
      * pure CPU data, so destruction is a plain delete.
      * 将 CompiledUniformBlock 封装为缓存资源。编译布局为纯 CPU 数据，销毁即 delete。
      */
-    class UniformBlockResourceResult : public ResourceResult<CompiledUniformBlock> {
+    class UniformBlockResourceResult : public ResourceResult<CompiledUniformBlock>
+    {
     protected:
-        void DestroyResourceImpl(CompiledUniformBlock *resource) override;
+        void DestroyResourceImpl(CompiledUniformBlock* resource) override;
 
     public:
         ~UniformBlockResourceResult() override;

@@ -35,36 +35,45 @@
 #include "core/world/WorldContext.h"
 
 
-void glimmer::ChunkLoader::LoadEntityFromSaves(const ResourceRef &dimensionRef,
-                                               const ChunkVertexVector2D &position) const {
-    if (saves_->EntityExists(dimensionRef, position)) {
+void glimmer::ChunkLoader::LoadEntityFromSaves(const ResourceRef& dimensionRef,
+                                               const ChunkVertexVector2D& position) const
+{
+    if (saves_->EntityExists(dimensionRef, position))
+    {
         if (auto chunkEntityMessageOptional = saves_->ReadChunkEntity(dimensionRef, position);
-            chunkEntityMessageOptional.has_value()) {
-            const ChunkEntityMessage &chunkEntityMessage = chunkEntityMessageOptional.value();
+            chunkEntityMessageOptional.has_value())
+        {
+            const ChunkEntityMessage& chunkEntityMessage = chunkEntityMessageOptional.value();
             int entitySize = chunkEntityMessage.entities_size();
             LogCat::i(LogLabel::CHUNK, "chunk_loader_load_entity",
                       "Loading chunk entities from saves: position=({}, {}), count={}",
                       position.x, position.y, entitySize);
-            for (int i = 0; i < entitySize; i++) {
-                (void) RecoveryEntity(chunkEntityMessage.entities(i));
+            for (int i = 0; i < entitySize; i++)
+            {
+                (void)RecoveryEntity(chunkEntityMessage.entities(i));
             }
         }
     }
 }
 
-glimmer::ChunkLoader::ChunkLoader(WorldContext *worldContext, Saves *saves) : saves_(saves),
+glimmer::ChunkLoader::ChunkLoader(WorldContext* worldContext, Saves* saves) : saves_(saves),
                                                                               worldContext_(worldContext),
                                                                               entityManager_(
-                                                                                  worldContext_->GetEntityManager()) {
+                                                                                  worldContext_->GetEntityManager())
+{
 }
 
-std::unique_ptr<glimmer::Chunk> glimmer::ChunkLoader::LoadChunkFromSaves(const ResourceRef &dimensionRef,
-                                                                         const ChunkVertexVector2D &position) const {
-    if (worldContext_ == nullptr) {
+std::unique_ptr<glimmer::Chunk> glimmer::ChunkLoader::LoadChunkFromSaves(const ResourceRef& dimensionRef,
+                                                                         const ChunkVertexVector2D& position) const
+{
+    if (worldContext_ == nullptr)
+    {
         return nullptr;
     }
-    if (saves_->ChunkExists(dimensionRef, position)) {
-        if (const auto chunkMessage = saves_->ReadChunk(dimensionRef, position); chunkMessage.has_value()) {
+    if (saves_->ChunkExists(dimensionRef, position))
+    {
+        if (const auto chunkMessage = saves_->ReadChunk(dimensionRef, position); chunkMessage.has_value())
+        {
             LogCat::i(LogLabel::CHUNK, "chunk_loading_from_saves", "Loading chunk from saves at: ({}, {})",
                       position.x, position.y);
             auto chunk = std::make_unique<Chunk>(worldContext_, position);
@@ -77,14 +86,17 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkLoader::LoadChunkFromSaves(const R
 }
 
 
-GameEntityID glimmer::ChunkLoader::RecoveryEntity(const EntityItemMessage &entityItemMessage) const {
+GameEntityID glimmer::ChunkLoader::RecoveryEntity(const EntityItemMessage& entityItemMessage) const
+{
     const auto id = entityItemMessage.gameentity().id();
     LogCat::d(LogLabel::CHUNK, "chunk_loader_entity_recovered", "Recovering entity from saves: id={}", id);
     entityManager_->AddEntity(id);
-    if (entityItemMessage.has_resourceref()) {
-        const ResourceRefMessage &resourceRefMessage = entityItemMessage.resourceref();
+    if (entityItemMessage.has_resourceref())
+    {
+        const ResourceRefMessage& resourceRefMessage = entityItemMessage.resourceref();
         const uint32_t resourceType = resourceRefMessage.resourcetype();
-        if (resourceType == RESOURCE_MOB) {
+        if (resourceType == RESOURCE_MOB)
+        {
             ResourceRef resourceRef{};
             resourceRef.ReadResourceRefMessage(resourceRefMessage);
             MobEntityCreator mobEntityCreator{worldContext_};
@@ -92,7 +104,8 @@ GameEntityID glimmer::ChunkLoader::RecoveryEntity(const EntityItemMessage &entit
             mobEntityCreator.MergeEntityItemMessage(id, entityItemMessage);
         }
 
-        if (resourceType == RESOURCE_DROPPED_ITEM) {
+        if (resourceType == RESOURCE_DROPPED_ITEM)
+        {
             ResourceRef resourceRef{};
             resourceRef.ReadResourceRefMessage(resourceRefMessage);
             DroppedItemCreator droppedItemCreator{worldContext_};

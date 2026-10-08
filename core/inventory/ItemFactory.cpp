@@ -38,13 +38,16 @@
 #include "core/world/WorldContext.h"
 #include "src/saves/item.pb.h"
 
-glimmer::ItemFactory::ItemFactory(AppContext *appContext, ResourceLocator *resourceLocator)
-    : appContext_(appContext), resourceLocator_(resourceLocator) {
+glimmer::ItemFactory::ItemFactory(AppContext* appContext, ResourceLocator* resourceLocator)
+    : appContext_(appContext), resourceLocator_(resourceLocator)
+{
 }
 
-std::unique_ptr<glimmer::Item> glimmer::ItemFactory::CreateItem(WorldContext *worldContext,
-                                                                const ItemMessage &itemMessage) const {
-    if (worldContext == nullptr) {
+std::unique_ptr<glimmer::Item> glimmer::ItemFactory::CreateItem(WorldContext* worldContext,
+                                                                const ItemMessage& itemMessage) const
+{
+    if (worldContext == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "world_context_is_null",
                   "worldContext == nullptr");
         return nullptr;
@@ -52,46 +55,57 @@ std::unique_ptr<glimmer::Item> glimmer::ItemFactory::CreateItem(WorldContext *wo
     ResourceRef resourceRef;
     resourceRef.ReadResourceRefMessage(itemMessage.itemresourceref());
     const ResourceTypeMessage resourceType = resourceRef.GetResourceType();
-    if (resourceType == RESOURCE_NONE || !resourceLocator_->ValidateAccessPermission(&resourceRef)) {
+    if (resourceType == RESOURCE_NONE || !resourceLocator_->ValidateAccessPermission(&resourceRef))
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "item_resource_invalid_type",
                   "Invalid resource type (RESOURCE_NONE) or access permission denied for item resource: type={}",
                   std::to_underlying(resourceType));
         return nullptr;
     }
     std::unique_ptr<Item> result = nullptr;
-    if (resourceType == RESOURCE_TILE) {
+    if (resourceType == RESOURCE_TILE)
+    {
         auto tileInstancePool = worldContext->GetTileInstancePool();
-        if (tileInstancePool == nullptr) {
+        if (tileInstancePool == nullptr)
+        {
             LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "tile_instance_pool_is_null",
                       "tileInstancePool == nullptr");
             return nullptr;
         }
         auto tileResource = resourceLocator_->FindTileRaw(&resourceRef);
-        if (tileResource != nullptr) {
+        if (tileResource != nullptr)
+        {
             result = std::make_unique<TileItem>(
                 tileInstancePool->CreateTile(appContext_, tileResource, resourceRef.GetFingerprint()), resourceRef);
         }
     }
-    if (resourceType == RESOURCE_COMPOSABLE_ITEM) {
+    if (resourceType == RESOURCE_COMPOSABLE_ITEM)
+    {
         auto composableItemResource = resourceLocator_->FindComposableItem(&resourceRef);
-        if (composableItemResource != nullptr) {
+        if (composableItemResource != nullptr)
+        {
             result = std::move(
                 ComposableItem::FromItemResource(worldContext, composableItemResource, resourceRef));
         }
     }
-    if (resourceType == RESOURCE_ABILITY_ITEM) {
+    if (resourceType == RESOURCE_ABILITY_ITEM)
+    {
         auto abilityItemResource = resourceLocator_->FindAbilityItem(&resourceRef);
-        if (abilityItemResource != nullptr) {
+        if (abilityItemResource != nullptr)
+        {
             result = std::move(AbilityItem::FromItemResource(appContext_, abilityItemResource, resourceRef));
         }
     }
-    if (resourceType == RESOURCE_MATERIAL_ITEM) {
+    if (resourceType == RESOURCE_MATERIAL_ITEM)
+    {
         auto materialItemResource = resourceLocator_->FindMaterialItem(&resourceRef);
-        if (materialItemResource != nullptr) {
+        if (materialItemResource != nullptr)
+        {
             result = std::move(MaterialItem::FromItemResource(appContext_, materialItemResource, resourceRef));
         }
     }
-    if (result == nullptr) {
+    if (result == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "item_creation_failed",
                   "Failed to create item from resource: packageId={}, resourceKey={}, type={}",
                   resourceRef.GetPackageId(), resourceRef.GetResourceKey(), std::to_underlying(resourceType));
@@ -104,9 +118,11 @@ std::unique_ptr<glimmer::Item> glimmer::ItemFactory::CreateItem(WorldContext *wo
     return result;
 }
 
-std::unique_ptr<glimmer::Item> glimmer::ItemFactory::CreateItem(WorldContext *worldContext,
-                                                                const ItemMessageResource &itemMessageResource) const {
-    if (worldContext == nullptr) {
+std::unique_ptr<glimmer::Item> glimmer::ItemFactory::CreateItem(WorldContext* worldContext,
+                                                                const ItemMessageResource& itemMessageResource) const
+{
+    if (worldContext == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "world_context_is_null",
                   "worldContext == nullptr");
         return nullptr;
@@ -118,19 +134,23 @@ std::unique_ptr<glimmer::Item> glimmer::ItemFactory::CreateItem(WorldContext *wo
     itemMessage.set_locked(itemMessageResource.locked);
     itemMessage.set_amount(itemMessageResource.amount);
     itemMessageResource.item.WriteResourceRefMessage(*itemMessage.mutable_itemresourceref());
-    for (auto &abilityItemResource: itemMessageResource.abilityItemRef) {
-        ItemMessage *abilityItem = itemMessage.add_abilityitemref();
+    for (auto& abilityItemResource : itemMessageResource.abilityItemRef)
+    {
+        ItemMessage* abilityItem = itemMessage.add_abilityitemref();
         abilityItemResource.item.WriteResourceRefMessage(*abilityItem->mutable_itemresourceref());
         abilityItem->set_locked(abilityItemResource.locked);
         abilityItem->set_amount(abilityItemResource.amount);
     }
-    if (itemMessageResource.durabilityStrategyType < 0) {
+    if (itemMessageResource.durabilityStrategyType < 0)
+    {
         const auto randomStrategy = static_cast<AllocStrategyTypeMessage>(RandomUtils::Random(0, 3));
         LogCat::d(LogLabel::DEFAULT, "item_factory_create_random_strategy",
                   "Durability strategy not specified, use random strategy: {}",
                   std::to_underlying(randomStrategy));
         itemMessage.set_durabilitystrategy(randomStrategy);
-    } else {
+    }
+    else
+    {
         itemMessage.set_durabilitystrategy(
             static_cast<AllocStrategyTypeMessage>(itemMessageResource.durabilityStrategyType)
         );

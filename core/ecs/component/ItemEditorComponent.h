@@ -31,8 +31,10 @@
 #include "core/ecs/GameComponent.h"
 #include "core/ecs/GameEntity.h"
 
-namespace glimmer {
-    class ItemEditorComponent : public GameComponent {
+namespace glimmer
+{
+    class ItemEditorComponent : public GameComponent
+    {
         std::vector<GameEntityID> slotEntities;
 
     public:
@@ -44,6 +46,6 @@ namespace glimmer {
 
         [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
 
-        std::vector<GameEntityID> &GetSlotEntities();
+        std::vector<GameEntityID>& GetSlotEntities();
     };
 }

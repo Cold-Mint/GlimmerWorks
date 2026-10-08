@@ -28,13 +28,16 @@
 
 #include <ranges>
 
-void glimmer::EventBus::Unsubscribe(const uint64_t id) {
+void glimmer::EventBus::Unsubscribe(const uint64_t id)
+{
     std::lock_guard lock(mutex_);
     const auto entryIt = entries_.find(id);
-    if (entryIt == entries_.end()) {
+    if (entryIt == entries_.end())
+    {
         return;
     }
-    for (auto &ids: byType_ | std::views::values) {
+    for (auto& ids : byType_ | std::views::values)
+    {
         std::erase(ids, id);
     }
     entries_.erase(entryIt);

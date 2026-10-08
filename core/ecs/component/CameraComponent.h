@@ -32,22 +32,24 @@
 #include "core/math/WorldVector2D.h"
 #include "core/utils/VersionAble.h"
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * Camera component, used to control the game view
      * 相机组件，用于控制游戏视图
      */
-    class CameraComponent : public GameComponent, public VersionAble {
-        /**
-        * zoom camera zoom ratio
-        * zoom 相机缩放比例
-        */
-        float zoom_ = 2.0F;
+    class CameraComponent : public GameComponent, public VersionAble
+    {
         /**
          * Size: Camera size (pixel coordinates)
          * Size 相机尺寸（像素坐标）
          */
         ScreenVector2D size_ = {800.0F, 600.0F};
+        /**
+        * zoom camera zoom ratio
+        * zoom 相机缩放比例
+        */
+        float zoom_ = 2.0F;
 
     public:
         /**
@@ -57,7 +59,7 @@ namespace glimmer {
          * @param worldPos worldPos 世界坐标
          * @return 是否在相机视口内
          */
-        [[nodiscard]] bool IsPointInViewport(const WorldVector2D &cameraPosition, const WorldVector2D &worldPos) const;
+        [[nodiscard]] bool IsPointInViewport(const WorldVector2D& cameraPosition, const WorldVector2D& worldPos) const;
 
         /**
          * Is rect in viewport
@@ -66,7 +68,7 @@ namespace glimmer {
          * @param rect
          * @return
          */
-        [[nodiscard]] bool IsRectInViewport(const WorldVector2D &cameraPosition, const SDL_FRect *rect) const;
+        [[nodiscard]] bool IsRectInViewport(const WorldVector2D& cameraPosition, const SDL_FRect* rect) const;
 
 
         /**
@@ -74,14 +76,14 @@ namespace glimmer {
          * 设置尺寸
          * @param size Size 尺寸
          */
-        void SetSize(const ScreenVector2D &size);
+        void SetSize(const ScreenVector2D& size);
 
         /**
          * Get Size
          * 获取相机尺寸
          * @return
          */
-        [[nodiscard]] const ScreenVector2D &GetSize() const;
+        [[nodiscard]] const ScreenVector2D& GetSize() const;
 
 
         /**

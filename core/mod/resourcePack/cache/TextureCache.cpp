@@ -30,29 +30,33 @@
 #include "SDL3/SDL_gpu.h"
 #include "SDL3_image/SDL_image.h"
 
-std::shared_ptr<glimmer::TextureResourceResult> glimmer::TextureCache::CreateTexture(SDL_GPUDevice *gpuDevice,
-    const Color &accent, const Color &base) {
-    SDL_Surface *surface =
-            SDL_CreateSurface(TILE_SIZE, TILE_SIZE, SDL_PIXELFORMAT_RGBA32);
-    if (surface == nullptr) {
+std::shared_ptr<glimmer::TextureResourceResult> glimmer::TextureCache::CreateTexture(SDL_GPUDevice* gpuDevice,
+    const Color& accent, const Color& base)
+{
+    SDL_Surface* surface =
+        SDL_CreateSurface(TILE_SIZE, TILE_SIZE, SDL_PIXELFORMAT_RGBA32);
+    if (surface == nullptr)
+    {
         return nullptr;
     }
     const uint32_t accentValue = SDL_MapSurfaceRGBA(surface, accent.r, accent.g, accent.b, accent.a);
     const uint32_t baseValue = SDL_MapSurfaceRGBA(surface, base.r, base.g, base.b, base.a);
-    for (int y = 0; y < TILE_SIZE; ++y) {
-        for (int x = 0; x < TILE_SIZE; ++x) {
+    for (int y = 0; y < TILE_SIZE; ++y)
+    {
+        for (int x = 0; x < TILE_SIZE; ++x)
+        {
             const bool isAccentColor =
-                    (x < TILE_SIZE / 2 && y < TILE_SIZE / 2) ||
-                    (x >= TILE_SIZE / 2 && y >= TILE_SIZE / 2);
+                (x < TILE_SIZE / 2 && y < TILE_SIZE / 2) ||
+                (x >= TILE_SIZE / 2 && y >= TILE_SIZE / 2);
             const uint32_t color = isAccentColor ? accentValue : baseValue;
-            Uint8 *pixel =
-                    static_cast<Uint8 *>(surface->pixels)
-                    + y * surface->pitch
-                    + x * 4;
-            *reinterpret_cast<uint32_t *>(pixel) = color;
+            Uint8* pixel =
+                static_cast<Uint8*>(surface->pixels)
+                + y * surface->pitch
+                + x * 4;
+            *reinterpret_cast<uint32_t*>(pixel) = color;
         }
     }
-    SDL_GPUTexture *texture = CreateTextureFromSurface(gpuDevice, surface);
+    SDL_GPUTexture* texture = CreateTextureFromSurface(gpuDevice, surface);
     SDL_DestroySurface(surface);
     auto textureResourceResult = std::make_shared<TextureResourceResult>();
     textureResourceResult->SetResource(texture);
@@ -60,9 +64,11 @@ std::shared_ptr<glimmer::TextureResourceResult> glimmer::TextureCache::CreateTex
     return textureResourceResult;
 }
 
-SDL_GPUTexture *glimmer::TextureCache::CreateTextureFromSurface(SDL_GPUDevice *gpuDevice, SDL_Surface *surface) {
-    SDL_Surface *rgbaSurface = SDL_ConvertSurface(surface, SDL_PIXELFORMAT_ABGR8888);
-    if (rgbaSurface == nullptr) {
+SDL_GPUTexture* glimmer::TextureCache::CreateTextureFromSurface(SDL_GPUDevice* gpuDevice, SDL_Surface* surface)
+{
+    SDL_Surface* rgbaSurface = SDL_ConvertSurface(surface, SDL_PIXELFORMAT_ABGR8888);
+    if (rgbaSurface == nullptr)
+    {
         return nullptr;
     }
     const int width = rgbaSurface->w;
@@ -77,8 +83,9 @@ SDL_GPUTexture *glimmer::TextureCache::CreateTextureFromSurface(SDL_GPUDevice *g
     textureCreateInfo.num_levels = 1;
     textureCreateInfo.sample_count = SDL_GPU_SAMPLECOUNT_1;
     textureCreateInfo.props = 0;
-    SDL_GPUTexture *texture = SDL_CreateGPUTexture(gpuDevice, &textureCreateInfo);
-    if (texture == nullptr) {
+    SDL_GPUTexture* texture = SDL_CreateGPUTexture(gpuDevice, &textureCreateInfo);
+    if (texture == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "texture_cache_gpu_texture_create_failed",
                   "SDL_CreateGPUTexture failed: {}", SDL_GetError());
         SDL_DestroySurface(rgbaSurface);
@@ -90,16 +97,18 @@ SDL_GPUTexture *glimmer::TextureCache::CreateTextureFromSurface(SDL_GPUDevice *g
     transferBufferCreateInfo.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD;
     transferBufferCreateInfo.size = dataSize;
     transferBufferCreateInfo.props = 0;
-    SDL_GPUTransferBuffer *transferBuffer = SDL_CreateGPUTransferBuffer(gpuDevice, &transferBufferCreateInfo);
-    if (transferBuffer == nullptr) {
+    SDL_GPUTransferBuffer* transferBuffer = SDL_CreateGPUTransferBuffer(gpuDevice, &transferBufferCreateInfo);
+    if (transferBuffer == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "texture_cache_transfer_buffer_create_failed",
                   "SDL_CreateGPUTransferBuffer failed: {}", SDL_GetError());
         SDL_ReleaseGPUTexture(gpuDevice, texture);
         SDL_DestroySurface(rgbaSurface);
         return nullptr;
     }
-    void *mappedPtr = SDL_MapGPUTransferBuffer(gpuDevice, transferBuffer, false);
-    if (mappedPtr == nullptr) {
+    void* mappedPtr = SDL_MapGPUTransferBuffer(gpuDevice, transferBuffer, false);
+    if (mappedPtr == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "texture_cache_transfer_buffer_map_failed",
                   "SDL_MapGPUTransferBuffer failed: {}", SDL_GetError());
         SDL_ReleaseGPUTransferBuffer(gpuDevice, transferBuffer);
@@ -108,27 +117,30 @@ SDL_GPUTexture *glimmer::TextureCache::CreateTextureFromSurface(SDL_GPUDevice *g
         return nullptr;
     }
     SDL_LockSurface(rgbaSurface);
-    auto *dst = static_cast<Uint8 *>(mappedPtr);
-    const auto *src = static_cast<Uint8 *>(rgbaSurface->pixels);
+    auto* dst = static_cast<Uint8*>(mappedPtr);
+    const auto* src = static_cast<Uint8*>(rgbaSurface->pixels);
     const int srcPitch = rgbaSurface->pitch;
     const int dstPitch = width * 4;
-    for (int y = 0; y < height; ++y) {
+    for (int y = 0; y < height; ++y)
+    {
         SDL_memcpy(dst + y * dstPitch, src + y * srcPitch, dstPitch);
     }
     SDL_UnlockSurface(rgbaSurface);
     SDL_DestroySurface(rgbaSurface);
     SDL_UnmapGPUTransferBuffer(gpuDevice, transferBuffer);
 
-    SDL_GPUCommandBuffer *uploadCommandBuffer = SDL_AcquireGPUCommandBuffer(gpuDevice);
-    if (uploadCommandBuffer == nullptr) {
+    SDL_GPUCommandBuffer* uploadCommandBuffer = SDL_AcquireGPUCommandBuffer(gpuDevice);
+    if (uploadCommandBuffer == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "texture_cache_command_buffer_acquire_failed",
                   "SDL_AcquireGPUCommandBuffer failed: {}", SDL_GetError());
         SDL_ReleaseGPUTransferBuffer(gpuDevice, transferBuffer);
         SDL_ReleaseGPUTexture(gpuDevice, texture);
         return nullptr;
     }
-    SDL_GPUCopyPass *copyPass = SDL_BeginGPUCopyPass(uploadCommandBuffer);
-    if (copyPass == nullptr) {
+    SDL_GPUCopyPass* copyPass = SDL_BeginGPUCopyPass(uploadCommandBuffer);
+    if (copyPass == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "texture_cache_copy_pass_begin_failed",
                   "SDL_BeginGPUCopyPass failed: {}", SDL_GetError());
         SDL_CancelGPUCommandBuffer(uploadCommandBuffer);
@@ -152,7 +164,8 @@ SDL_GPUTexture *glimmer::TextureCache::CreateTextureFromSurface(SDL_GPUDevice *g
     textureRegion.d = 1;
     SDL_UploadToGPUTexture(copyPass, &transferInfo, &textureRegion, false);
     SDL_EndGPUCopyPass(copyPass);
-    if (!SDL_SubmitGPUCommandBuffer(uploadCommandBuffer)) {
+    if (!SDL_SubmitGPUCommandBuffer(uploadCommandBuffer))
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "texture_cache_command_buffer_submit_failed",
                   "SDL_SubmitGPUCommandBuffer failed: {}", SDL_GetError());
         SDL_ReleaseGPUTransferBuffer(gpuDevice, transferBuffer);
@@ -169,20 +182,24 @@ SDL_GPUTexture *glimmer::TextureCache::CreateTextureFromSurface(SDL_GPUDevice *g
 
 glimmer::TextureCache::~TextureCache() noexcept = default;
 
-void glimmer::TextureCache::SetAppContext(const AppContext *appContext) {
-    const WindowContext *windowContext = appContext->GetWindowContext();
-    if (windowContext == nullptr) {
+void glimmer::TextureCache::SetAppContext(const AppContext* appContext)
+{
+    const WindowContext* windowContext = appContext->GetWindowContext();
+    if (windowContext == nullptr)
+    {
         return;
     }
-    const GraphicsContext *graphicContext = appContext->GetGraphicsContext();
-    const PreloadColors *preloadColors = graphicContext->GetPreloadColors();
-    if (preloadColors == nullptr) {
+    const GraphicsContext* graphicContext = appContext->GetGraphicsContext();
+    const PreloadColors* preloadColors = graphicContext->GetPreloadColors();
+    if (preloadColors == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "texture_cache_preload_colors_is_null",
                   "preloadColors is nullptr, fallback textures not created");
         return;
     }
-    SDL_GPUDevice *device = windowContext->GetDevice();
-    if (device == nullptr) {
+    SDL_GPUDevice* device = windowContext->GetDevice();
+    if (device == nullptr)
+    {
         return;
     }
     errorTexture_ = CreateTexture(device, preloadColors->error.accentColor, preloadColors->error.baseColor);
@@ -192,45 +209,56 @@ void glimmer::TextureCache::SetAppContext(const AppContext *appContext) {
 
 
 std::shared_ptr<glimmer::TextureResourceResult> glimmer::TextureCache::CreatePlaceholderResource(
-    const AppContext *appContext, const ResourceRef *resourceRef) {
-    if (resourceRef->GetPackageId() == RESOURCE_REF_CORE) {
+    const AppContext* appContext, const ResourceRef* resourceRef)
+{
+    if (resourceRef->GetPackageId() == RESOURCE_REF_CORE)
+    {
         const std::string resourceKey = resourceRef->GetResourceKey();
-        if (resourceKey == ERROR_TEXTURE_KEY) {
+        if (resourceKey == ERROR_TEXTURE_KEY)
+        {
             return errorTexture_;
         }
-        if (resourceKey == ACCESS_DENIED_TEXTURE_KEY) {
+        if (resourceKey == ACCESS_DENIED_TEXTURE_KEY)
+        {
             return accessDeniedTexture_;
         }
     }
     return errorTexture_;
 }
 
-std::shared_ptr<glimmer::TextureResourceResult> glimmer::TextureCache::LoadResourceFromPack(AppContext *appContext,
-    const ResourceRef *resourceRef, const ResourcePack *resourcePack) {
+std::shared_ptr<glimmer::TextureResourceResult> glimmer::TextureCache::LoadResourceFromPack(AppContext* appContext,
+    const ResourceRef* resourceRef, const ResourcePack* resourcePack)
+{
     std::filesystem::path texturePath = resourcePack->GetPath() / "textures" / resourceRef->GetPackageId() / resourceRef
-                                        ->GetResourceKey();
+        ->GetResourceKey();
     texturePath.replace_extension(TEXTURE_FORMAT);
-    const VirtualFileSystem *virtualFileSystem = appContext->GetVirtualFileSystem();
-    if (virtualFileSystem == nullptr) {
+    const VirtualFileSystem* virtualFileSystem = appContext->GetVirtualFileSystem();
+    if (virtualFileSystem == nullptr)
+    {
         return nullptr;
     }
-    const WindowContext *windowContext = appContext->GetWindowContext();
-    if (windowContext == nullptr) {
+    const WindowContext* windowContext = appContext->GetWindowContext();
+    if (windowContext == nullptr)
+    {
         return nullptr;
     }
-    if (!virtualFileSystem->Exists(texturePath)) {
+    if (!virtualFileSystem->Exists(texturePath))
+    {
         return nullptr;
     }
     const auto actualTexturePath = virtualFileSystem->GetActualPath(texturePath);
-    if (!actualTexturePath.has_value()) {
+    if (!actualTexturePath.has_value())
+    {
         return nullptr;
     }
-    SDL_Surface *surface = IMG_Load(actualTexturePath.value().string().c_str());
-    if (surface == nullptr) {
+    SDL_Surface* surface = IMG_Load(actualTexturePath.value().string().c_str());
+    if (surface == nullptr)
+    {
         return nullptr;
     }
-    SDL_GPUDevice *gpuDevice = windowContext->GetDevice();
-    if (gpuDevice == nullptr) {
+    SDL_GPUDevice* gpuDevice = windowContext->GetDevice();
+    if (gpuDevice == nullptr)
+    {
         return nullptr;
     }
     auto textureResourceResult = std::make_shared<TextureResourceResult>();

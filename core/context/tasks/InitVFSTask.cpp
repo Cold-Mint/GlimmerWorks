@@ -31,87 +31,101 @@
 #include "core/vfs/StdFileProvider.h"
 #include "core/vfs/VirtualFileSystem.h"
 
-bool glimmer::InitVFSTask::Run(ISystemBucket *systemBucket) {
+bool glimmer::InitVFSTask::Run(ISystemBucket* systemBucket)
+{
     auto virtualFileSystem = std::make_unique<VirtualFileSystem>();
 #ifdef __ANDROID__
-    auto env = static_cast<JNIEnv *>(SDL_GetAndroidJNIEnv());
-    if (env == nullptr) {
+    auto env = static_cast<JNIEnv*>(SDL_GetAndroidJNIEnv());
+    if (env == nullptr)
+    {
         initSuccess_ = false;
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "env_is_null", "env is nullptr");
         return;
     }
     auto activity = static_cast<jobject>(SDL_GetAndroidActivity());
-    if (activity == nullptr) {
+    if (activity == nullptr)
+    {
         initSuccess_ = false;
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "activity_is_null", "activity is nullptr");
         return;
     }
     jclass activityClass = env->GetObjectClass(activity);
-    if (activityClass == nullptr) {
+    if (activityClass == nullptr)
+    {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "activity_class_is_null",
                   "activityClass is nullptr");
         return;
     }
     jmethodID getAssetsMethod = env->
-            GetMethodID(activityClass, "getAssets", "()Landroid/content/res/AssetManager;");
-    if (getAssetsMethod == nullptr) {
+        GetMethodID(activityClass, "getAssets", "()Landroid/content/res/AssetManager;");
+    if (getAssetsMethod == nullptr)
+    {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "get_assets_method_is_null",
                   "getAssetsMethod is nullptr");
         return;
     }
     jobject assetManagerJava = env->CallObjectMethod(activity, getAssetsMethod);
-    if (assetManagerJava == nullptr) {
+    if (assetManagerJava == nullptr)
+    {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "asset_manager_java_is_null",
                   "assetManagerJava is nullptr");
         return;
     }
-    AAssetManager *assetManager = AAssetManager_fromJava(env, assetManagerJava);
-    if (assetManager == nullptr) {
+    AAssetManager* assetManager = AAssetManager_fromJava(env, assetManagerJava);
+    if (assetManager == nullptr)
+    {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "asset_manager_is_null",
                   "assetManager is nullptr");
         return;
     }
     auto assetsProvider = std::make_unique<AndroidAssetsFileProvider>(assetManager);
     std::optional<std::string> indexTomlOptional = assetsProvider->ReadFile("index.toml");
-    if (!indexTomlOptional.has_tomlValue()) {
+    if (!indexTomlOptional.has_tomlValue())
+    {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "asset_manager_is_null",
                   "assetManager is nullptr");
         return;
     }
     const toml::tomlValue tomlValue = toml::parse_str(indexTomlOptional.tomlValue(), tomlVersion_);
-    auto assetsEntry = toml::get<std::vector<AndroidAssetEntry> >(tomltomlValue);
+    auto assetsEntry = toml::get<std::vector<AndroidAssetEntry>>(tomltomlValue);
     assetsProvider->SetAssetEntryData(assetsEntry);
     jmethodID getDataDirMethod = env->GetMethodID(activityClass, "getFilesDir", "()Ljava/io/File;");
-    if (getDataDirMethod == nullptr) {
+    if (getDataDirMethod == nullptr)
+    {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "get_data_dir_method_is_null",
                   "getDataDirMethod is nullptr");
         return;
     }
     jobject dataDirFile = env->CallObjectMethod(activity, getDataDirMethod);
-    if (dataDirFile == nullptr) {
+    if (dataDirFile == nullptr)
+    {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "data_dir_file_is_null",
                   "dataDirFile is nullptr");
         return;
     }
     jclass fileClass = env->GetObjectClass(dataDirFile);
-    if (fileClass == nullptr) {
+    if (fileClass == nullptr)
+    {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "file_class_is_null", "fileClass is nullptr");
         return;
     }
     jmethodID getAbsolutePathMethod = env->GetMethodID(fileClass, "getAbsolutePath", "()Ljava/lang/String;");
-    if (getAbsolutePathMethod == nullptr) {
+    if (getAbsolutePathMethod == nullptr)
+    {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "get_absolute_path_method_is_null",
                   "getAbsolutePathMethod is nullptr");
         return;
     }
     auto absolutePathJStr = static_cast<jstring>(env->CallObjectMethod(dataDirFile, getAbsolutePathMethod));
-    if (!absolutePathJStr) {
+    if (!absolutePathJStr)
+    {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "absolute_path_jstr_is_null",
                   "absolutePathJStr is nullptr");
         return;
     }
-    const char *absolutePathCStr = env->GetStringUTFChars(absolutePathJStr, nullptr);
-    if (!absolutePathCStr) {
+    const char* absolutePathCStr = env->GetStringUTFChars(absolutePathJStr, nullptr);
+    if (!absolutePathCStr)
+    {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "absolute_path_cstr_is_null",
                   "absolutePathCStr is nullptr");
         return;
@@ -128,10 +142,12 @@ bool glimmer::InitVFSTask::Run(ISystemBucket *systemBucket) {
     return true;
 }
 
-void glimmer::InitVFSTask::Rollback(ISystemBucket *systemBucket) {
+void glimmer::InitVFSTask::Rollback(ISystemBucket* systemBucket)
+{
     systemBucket->SetVirtualFileSystem(nullptr);
 }
 
-std::string glimmer::InitVFSTask::GetTaskName() {
+std::string glimmer::InitVFSTask::GetTaskName()
+{
     return "InitVFSTask";
 }

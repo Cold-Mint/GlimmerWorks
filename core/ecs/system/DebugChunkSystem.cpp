@@ -35,33 +35,41 @@
 #include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/world/ChunkManager.h"
+#include "core/world/Dimension.h"
 #include "core/world/WorldContext.h"
 
-glimmer::DebugChunkSystem::DebugChunkSystem(WorldContext *worldContext) : GameSystem(worldContext) {
+glimmer::DebugChunkSystem::DebugChunkSystem(WorldContext* worldContext) : GameSystem(worldContext)
+{
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_TRANSFORM_2D);
     Init();
 }
 
-bool glimmer::DebugChunkSystem::CanActive() const {
+bool glimmer::DebugChunkSystem::CanActive() const
+{
     return displayChunkView_;
 }
 
-void glimmer::DebugChunkSystem::OnConfigChanged(const Config *config) {
+void glimmer::DebugChunkSystem::OnConfigChanged(const Config* config)
+{
     displayChunkView_ = config->debug.displayChunkView;
 }
 
-void glimmer::DebugChunkSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) {
-    const EntityShortCut *entityShortCut = GetEntityShortCut();
-    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr) {
+void glimmer::DebugChunkSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
+{
+    const EntityShortCut* entityShortCut = GetEntityShortCut();
+    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
+    {
         cameraComponent_ = entityShortCut->GetCameraComponent();
     }
-    if (gameComponentType == COMPONENT_TRANSFORM_2D && cameraTransform2DComponent_ == nullptr) {
+    if (gameComponentType == COMPONENT_TRANSFORM_2D && cameraTransform2DComponent_ == nullptr)
+    {
         cameraTransform2DComponent_ = entityShortCut->GetCameraTransform2DComponent();
     }
 }
 
-void glimmer::DebugChunkSystem::RenderChunkBounds(RenderQueue *queue) {
+void glimmer::DebugChunkSystem::RenderChunkBounds(RenderQueue* queue)
+{
     auto viewportRect = CoordinateTransformer::GetViewportRect(cameraTransform2DComponent_->GetPosition(),
                                                                cameraComponent_->GetSize(),
                                                                cameraComponent_->GetZoom());
@@ -71,8 +79,10 @@ void glimmer::DebugChunkSystem::RenderChunkBounds(RenderQueue *queue) {
     const int maxChunkX = static_cast<int>(std::floor((viewportRect.x + viewportRect.w) / chunkWorldSize));
     const int maxChunkY = static_cast<int>(std::floor((viewportRect.y + viewportRect.h) / chunkWorldSize));
     const SDL_Color chunkBorderColor = {0, 255, 255, 180};
-    for (int chunkX = minChunkX; chunkX <= maxChunkX; ++chunkX) {
-        for (int chunkY = minChunkY; chunkY <= maxChunkY; ++chunkY) {
+    for (int chunkX = minChunkX; chunkX <= maxChunkX; ++chunkX)
+    {
+        for (int chunkY = minChunkY; chunkY <= maxChunkY; ++chunkY)
+        {
             WorldVector2D chunkWorldPos{
                 static_cast<float>(chunkX) * chunkWorldSize - HALF_TILE_SIZE,
                 static_cast<float>(chunkY) * chunkWorldSize - HALF_TILE_SIZE
@@ -92,35 +102,43 @@ void glimmer::DebugChunkSystem::RenderChunkBounds(RenderQueue *queue) {
     }
 }
 
-void glimmer::DebugChunkSystem::RenderChunkView(RenderQueue *queue, AppContext *appContext) {
-    const WorldContext *worldContext = GetWorldContext();
-    if (worldContext == nullptr) {
+void glimmer::DebugChunkSystem::RenderChunkView(RenderQueue* queue, AppContext* appContext)
+{
+    const WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr)
+    {
         return;
     }
     const auto chunkManager = worldContext->GetChunkManager();
-    if (chunkManager == nullptr) {
+    if (chunkManager == nullptr)
+    {
         return;
     }
-    const WindowContext *windowContext = appContext->GetWindowContext();
-    if (windowContext == nullptr) {
+    const WindowContext* windowContext = appContext->GetWindowContext();
+    if (windowContext == nullptr)
+    {
         return;
     }
-    Dimension *dimension = worldContext->GetDimension();
-    if (dimension == nullptr) {
+    Dimension* dimension = worldContext->GetDimension();
+    if (dimension == nullptr)
+    {
         return;
     }
-    const ResourceRef &dimensionResourceRef = dimension->GetDimensionResourceRef();
-    if (!dimensionResourceRef.IsValid()) {
+    const ResourceRef& dimensionResourceRef = dimension->GetDimensionResourceRef();
+    if (!dimensionResourceRef.IsValid())
+    {
         return;
     }
-    const std::unordered_map<ChunkVertexVector2D, std::unique_ptr<Chunk>, Vector2DIHash> *loadedChunks = chunkManager->
-            GetLoadedChunks(dimensionResourceRef);
-    if (loadedChunks == nullptr) {
+    const std::unordered_map<ChunkVertexVector2D, std::unique_ptr<Chunk>, Vector2DIHash>* loadedChunks = chunkManager->
+        GetLoadedChunks(dimensionResourceRef);
+    if (loadedChunks == nullptr)
+    {
         return;
     }
 
     const int windowHeight = windowContext->GetWindowHeight();
-    const auto getChunkIndex = [](const int tileCoord) {
+    const auto getChunkIndex = [](const int tileCoord)
+    {
         return static_cast<int>(std::floor(static_cast<float>(tileCoord) / CHUNK_SIZE));
     };
 
@@ -135,7 +153,8 @@ void glimmer::DebugChunkSystem::RenderChunkView(RenderQueue *queue, AppContext *
 
     // Draw Loaded Chunks (Blue)
     // 绘制已加载的区块（蓝色）
-    for (const auto &pos: *loadedChunks | std::views::keys) {
+    for (const auto& pos : *loadedChunks | std::views::keys)
+    {
         constexpr SDL_Color loadedChunkColor = {100, 149, 237, 128};
         const int chunkIndexX = pos.x >> CHUNK_SHIFT;
         const int chunkIndexY = pos.y >> CHUNK_SHIFT;
@@ -161,8 +180,10 @@ void glimmer::DebugChunkSystem::RenderChunkView(RenderQueue *queue, AppContext *
     const int endChunkX = static_cast<int>(std::floor((viewport.x + viewport.w) / TILE_SIZE / CHUNK_SIZE));
     const int endChunkY = static_cast<int>(std::floor((viewport.y + viewport.h) / TILE_SIZE / CHUNK_SIZE));
     const SDL_Color visibleChunkColor = {255, 165, 0, 255};
-    for (int cy = startChunkY; cy <= endChunkY; ++cy) {
-        for (int cx = startChunkX; cx <= endChunkX; ++cx) {
+    for (int cy = startChunkY; cy <= endChunkY; ++cy)
+    {
+        for (int cx = startChunkX; cx <= endChunkX; ++cx)
+        {
             const float drawX = gridCenterX + static_cast<float>(cx - playerChunkX) * cellSize;
             const float drawY = gridCenterY + static_cast<float>(playerChunkY - cy) * cellSize;
             const SDL_FRect top = {drawX, drawY, cellSize, 1.0F};
@@ -177,27 +198,34 @@ void glimmer::DebugChunkSystem::RenderChunkView(RenderQueue *queue, AppContext *
     }
 }
 
-void glimmer::DebugChunkSystem::Render(RenderQueue *queue) {
-    if (cameraComponent_ == nullptr || cameraTransform2DComponent_ == nullptr) {
+void glimmer::DebugChunkSystem::Render(RenderQueue* queue)
+{
+    if (cameraComponent_ == nullptr || cameraTransform2DComponent_ == nullptr)
+    {
         return;
     }
-    const WorldContext *worldContext = GetWorldContext();
-    if (worldContext == nullptr) {
+    const WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr)
+    {
         return;
     }
-    AppContext *appContext = worldContext->GetAppContext();
-    if (appContext == nullptr) {
+    AppContext* appContext = worldContext->GetAppContext();
+    if (appContext == nullptr)
+    {
         return;
     }
     RenderChunkBounds(queue);
     RenderChunkView(queue, appContext);
 }
 
-bool glimmer::DebugChunkSystem::HandleEvent(const SDL_Event &event) {
-    if (cameraComponent_ == nullptr || cameraTransform2DComponent_ == nullptr) {
+bool glimmer::DebugChunkSystem::HandleEvent(const SDL_Event& event)
+{
+    if (cameraComponent_ == nullptr || cameraTransform2DComponent_ == nullptr)
+    {
         return false;
     }
-    if (event.type == SDL_EVENT_MOUSE_MOTION) {
+    if (event.type == SDL_EVENT_MOUSE_MOTION)
+    {
         mousePosition_ = CoordinateTransformer::ScreenToWorld(
             cameraTransform2DComponent_->GetPosition(),
             ScreenVector2D{
@@ -209,11 +237,13 @@ bool glimmer::DebugChunkSystem::HandleEvent(const SDL_Event &event) {
     return false;
 }
 
-uint8_t glimmer::DebugChunkSystem::GetExecutionOrder() {
+uint8_t glimmer::DebugChunkSystem::GetExecutionOrder()
+{
     return EXECUTION_ORDER_DEBUG_CHUNK;
 }
 
-glimmer::GameSystemType glimmer::DebugChunkSystem::GetGameSystemType() const {
+glimmer::GameSystemType glimmer::DebugChunkSystem::GetGameSystemType() const
+{
     return GameSystemType::DebugChunkSystem;
 }
 

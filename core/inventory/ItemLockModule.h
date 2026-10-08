@@ -27,17 +27,19 @@
 #pragma once
 #include <functional>
 
-namespace glimmer {
-    class ItemLockModule {
-        bool locked_ = false;
+namespace glimmer
+{
+    class ItemLockModule
+    {
         std::function<void(bool)> onLockStatusChanged_ = nullptr;
+        bool locked_ = false;
 
     public:
-        void SetOnLockStatusChanged(const std::function<void(bool)> &onLockStatusChanged);
+        void SetOnLockStatusChanged(const std::function<void(bool)>& onLockStatusChanged);
 
         void SetLockStatus(bool locked);
 
-        bool IsLocked() const;
+        [[nodiscard]] bool IsLocked() const;
 
         void Lock();
 

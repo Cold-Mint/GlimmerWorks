@@ -26,46 +26,57 @@
  */
 #include "core/inventory/TagRuntimeData.h"
 
-uint16_t glimmer::TagRuntimeData::GetRequiredWeight() const {
+uint16_t glimmer::TagRuntimeData::GetRequiredWeight() const
+{
     return requiredWeight_;
 }
 
 
-void glimmer::TagRuntimeData::SetActualValue(const uint16_t actualValue) {
+void glimmer::TagRuntimeData::SetActualValue(const uint16_t actualValue)
+{
     actualValue_ = actualValue;
 }
 
-void glimmer::TagRuntimeData::AddActualValue(const uint16_t actualValue) {
+void glimmer::TagRuntimeData::AddActualValue(const uint16_t actualValue)
+{
     actualValue_ += actualValue;
 }
 
-bool glimmer::TagRuntimeData::IsExactMatch() const {
+bool glimmer::TagRuntimeData::IsExactMatch() const
+{
     return exactMatch_;
 }
 
-void glimmer::TagRuntimeData::SetExactMatch(bool exactMatch) {
+void glimmer::TagRuntimeData::SetExactMatch(bool exactMatch)
+{
     exactMatch_ = exactMatch;
 }
 
-bool glimmer::TagRuntimeData::Matched() const {
-    if (exactMatch_) {
+bool glimmer::TagRuntimeData::Matched() const
+{
+    if (exactMatch_)
+    {
         return actualValue_ == requiredWeight_;
     }
     return actualValue_ >= requiredWeight_;
 }
 
-uint16_t glimmer::TagRuntimeData::GetActualValue() const {
+uint16_t glimmer::TagRuntimeData::GetActualValue() const
+{
     return actualValue_;
 }
 
-void glimmer::TagRuntimeData::SetRequiredWeight(const uint16_t requiredWeight) {
+void glimmer::TagRuntimeData::SetRequiredWeight(const uint16_t requiredWeight)
+{
     requiredWeight_ = requiredWeight;
 }
 
-void glimmer::TagRuntimeData::SetText(const std::string_view text) {
+void glimmer::TagRuntimeData::SetText(const std::string_view text)
+{
     text_ = text;
 }
 
-const std::string &glimmer::TagRuntimeData::GetText() const {
+const std::string& glimmer::TagRuntimeData::GetText() const
+{
     return text_;
 }

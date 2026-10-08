@@ -28,17 +28,19 @@
 #include "DynamicSuggestions.h"
 #include "core/mod/dataPack/DataPackManager.h"
 
-namespace glimmer {
-    class DataPackDynamicSuggestions final : public DynamicSuggestions {
-        DataPackManager *dataPackManager_ = nullptr;
+namespace glimmer
+{
+    class DataPackDynamicSuggestions final : public DynamicSuggestions
+    {
+        DataPackManager* dataPackManager_ = nullptr;
 
     public:
-        explicit DataPackDynamicSuggestions(DataPackManager *dataPackManager);
+        explicit DataPackDynamicSuggestions(DataPackManager* dataPackManager);
 
         [[nodiscard]] std::string GetId() const override;
 
-        bool Match(const std::string &keyword, const std::string &param) override;
+        bool Match(const std::string& keyword, const std::string& param) override;
 
-        const std::vector<std::string> &GetSuggestions(const std::optional<std::string> &param) override;
+        const std::vector<std::string>& GetSuggestions(const std::optional<std::string>& param) override;
     };
 }

@@ -27,11 +27,14 @@
 #include "ItemSlotDataModel.h"
 
 int glimmer::ItemSlotDataModel::CalculateDurabilityPercentage(uint32_t maxDurability, uint32_t usedDurability,
-                                                              bool unbreakable) {
-    if (maxDurability == 0) {
+                                                              bool unbreakable)
+{
+    if (maxDurability == 0)
+    {
         return -1;
     }
-    if (unbreakable) {
+    if (unbreakable)
+    {
         return 100;
     }
     const uint32_t remaining = maxDurability > usedDurability ? maxDurability - usedDurability : 0;

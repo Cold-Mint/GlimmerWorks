@@ -27,8 +27,10 @@
 #pragma once
 #include <cstdint>
 
-namespace glimmer {
-    enum class ChunkType : uint8_t {
+namespace glimmer
+{
+    enum class ChunkType : uint8_t
+    {
         None,
         LoadTerrain,
         LoadChunk,

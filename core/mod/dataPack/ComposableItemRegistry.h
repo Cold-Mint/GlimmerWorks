@@ -27,9 +27,11 @@
 #pragma once
 #include "BaseResourceRegistry.h"
 
-namespace glimmer {
-    class ComposableItemRegistry : public BaseResourceRegistry<ComposableItemResource> {
+namespace glimmer
+{
+    class ComposableItemRegistry : public BaseResourceRegistry<ComposableItemResource>
+    {
     public:
-        ComposableItemResource *OnNotFound(std::string_view packId, std::string_view key) override;
+        ComposableItemResource* OnNotFound(std::string_view packId, std::string_view key) override;
     };
 }

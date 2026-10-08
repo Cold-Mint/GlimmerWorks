@@ -39,30 +39,39 @@
 #include "core/utils/Box2DUtils.h"
 
 
-void glimmer::MagnetSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) {
-    EntityManager *entityManager = GetEntityManager();
-    if (gameComponentType == COMPONENT_TRANSFORM_2D) {
+void glimmer::MagnetSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
+{
+    EntityManager* entityManager = GetEntityManager();
+    if (gameComponentType == COMPONENT_TRANSFORM_2D)
+    {
         transform2DComponentCount_ = count;
     }
-    if (gameComponentType == COMPONENT_MAGNET) {
+    if (gameComponentType == COMPONENT_MAGNET)
+    {
         magnetComponentCount_ = count;
     }
-    if (gameComponentType == COMPONENT_MAGNETIC) {
+    if (gameComponentType == COMPONENT_MAGNETIC)
+    {
         magneticComponentCount_ = count;
     }
-    if (gameComponentType == COMPONENT_RIGID_BODY_2D) {
+    if (gameComponentType == COMPONENT_RIGID_BODY_2D)
+    {
         rigidComponentCount_ = count;
     }
-    if (gameComponentType == COMPONENT_RAY_CAST_2D) {
+    if (gameComponentType == COMPONENT_RAY_CAST_2D)
+    {
         rayCast2dComponentCount_ = count;
     }
-    if (gameComponentType == COMPONENT_DROPPED_ITEM) {
+    if (gameComponentType == COMPONENT_DROPPED_ITEM)
+    {
         droppedItemComponentCount_ = count;
     }
-    if (gameComponentType == COMPONENT_ITEM_CONTAINER) {
+    if (gameComponentType == COMPONENT_ITEM_CONTAINER)
+    {
         itemContainerCount_ = count;
     }
-    if (transform2DComponentCount_ > 0 && magnetComponentCount_ > 0) {
+    if (transform2DComponentCount_ > 0 && magnetComponentCount_ > 0)
+    {
         std::lock_guard lock(magnetMutex_);
         magnetEntities_ = entityManager->GetEntityIDWithComponents({
             COMPONENT_TRANSFORM_2D, COMPONENT_MAGNET, COMPONENT_ITEM_CONTAINER
@@ -71,7 +80,8 @@ void glimmer::MagnetSystem::OnWatchedComponentChanged(GameComponentTypeMessage g
                   magnetEntities_.size());
     }
     if (magneticComponentCount_ > 0 && transform2DComponentCount_ > 0 && rigidComponentCount_ > 0 &&
-        rayCast2dComponentCount_ > 0 && droppedItemComponentCount_ > 0) {
+        rayCast2dComponentCount_ > 0 && droppedItemComponentCount_ > 0)
+    {
         std::lock_guard lock(magnetMutex_);
         magneticEntities_ = entityManager->GetEntityIDWithComponents({
             COMPONENT_MAGNETIC, COMPONENT_TRANSFORM_2D, COMPONENT_RIGID_BODY_2D, COMPONENT_RAY_CAST_2D,
@@ -82,7 +92,8 @@ void glimmer::MagnetSystem::OnWatchedComponentChanged(GameComponentTypeMessage g
     }
 }
 
-glimmer::MagnetSystem::MagnetSystem(WorldContext *worldContext) : GameSystem(worldContext) {
+glimmer::MagnetSystem::MagnetSystem(WorldContext* worldContext) : GameSystem(worldContext)
+{
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_MAGNET);
     WatchComponent(COMPONENT_MAGNETIC);
@@ -94,48 +105,59 @@ glimmer::MagnetSystem::MagnetSystem(WorldContext *worldContext) : GameSystem(wor
 }
 
 bool glimmer::MagnetSystem::ProcessMagneticEntity(GameEntityID magneticEntity,
-                                                  MagnetComponent *magnet,
-                                                  const WorldVector2D &magnetPos,
-                                                  ItemContainer *itemContainer) {
-    EntityManager *entityManager = GetEntityManager();
+                                                  MagnetComponent* magnet,
+                                                  const WorldVector2D& magnetPos,
+                                                  ItemContainer* itemContainer)
+{
+    EntityManager* entityManager = GetEntityManager();
     auto magneticTransform =
-            entityManager->GetComponent<Transform2DComponent>(magneticEntity);
-    if (magneticTransform == nullptr) {
+        entityManager->GetComponent<Transform2DComponent>(magneticEntity);
+    if (magneticTransform == nullptr)
+    {
         return false;
     }
     auto magnetic =
-            entityManager->GetComponent<MagneticComponent>(magneticEntity);
-    if (magnetic == nullptr) {
+        entityManager->GetComponent<MagneticComponent>(magneticEntity);
+    if (magnetic == nullptr)
+    {
         return false;
     }
     auto rigidBody2DComponent = entityManager->GetComponent<RigidBody2DComponent>(magneticEntity);
-    if (rigidBody2DComponent == nullptr || !rigidBody2DComponent->IsReady() || !rigidBody2DComponent->IsEnabled()) {
+    if (rigidBody2DComponent == nullptr || !rigidBody2DComponent->IsReady() || !rigidBody2DComponent->IsEnabled())
+    {
         return false;
     }
     auto rayCast2DComponent = entityManager->GetComponent<RayCast2DComponent>(magneticEntity);
-    if (rayCast2DComponent == nullptr) {
+    if (rayCast2DComponent == nullptr)
+    {
         return false;
     }
-    if ((magnet->GetType() & magnetic->GetType()) == 0) {
+    if ((magnet->GetType() & magnetic->GetType()) == 0)
+    {
         return false;
     }
     const auto droppedItem = entityManager->GetComponent<DroppedItemComponent>(magneticEntity);
-    if (droppedItem == nullptr) {
+    if (droppedItem == nullptr)
+    {
         return false;
     }
-    if (!droppedItem->CanBePickedUp()) {
+    if (!droppedItem->CanBePickedUp())
+    {
         return false;
     }
     const auto item = droppedItem->GetItem();
-    if (item == nullptr) {
+    if (item == nullptr)
+    {
         return false;
     }
-    const ItemStackModule *itemStackModule = item->GetStackModule();
-    if (itemStackModule == nullptr) {
+    const ItemStackModule* itemStackModule = item->GetStackModule();
+    if (itemStackModule == nullptr)
+    {
         return false;
     }
     if (size_t remainingItemAmount = itemContainer->GetRemainingItemAmountAfterAdd(item);
-        remainingItemAmount == itemStackModule->GetAmount()) {
+        remainingItemAmount == itemStackModule->GetAmount())
+    {
         //There's no room for even one more.
         //一个都放不下。
         return false;
@@ -144,26 +166,30 @@ bool glimmer::MagnetSystem::ProcessMagneticEntity(GameEntityID magneticEntity,
     const WorldVector2D distanceVector = magnetPos - magneticPos;
     float distance = distanceVector.Length();
     const float detectionRadius = magnet->GetDetectionRadius();
-    if (distance > detectionRadius) {
+    if (distance > detectionRadius)
+    {
         magnet->RemoveEntity(magneticEntity);
         return false;
     }
     rayCast2DComponent->SetTransform(distanceVector);
-    if (rayCast2DComponent->IsHit()) {
+    if (rayCast2DComponent->IsHit())
+    {
         return false;
     }
-    if (distance < MIN_SAFE_DISTANCE) {
+    if (distance < MIN_SAFE_DISTANCE)
+    {
         distance = MIN_SAFE_DISTANCE;
     }
     float normalizedDistance = distance / detectionRadius;
     float forceStrength = 1 - normalizedDistance;
     b2MassData massData = b2Body_GetMassData(rigidBody2DComponent->GetBodyId());
     WorldVector2D force = distanceVector.Normalized()
-                          * massData.mass
-                          * MAX_MAGNET_FORCE
-                          * forceStrength;
+        * massData.mass
+        * MAX_MAGNET_FORCE
+        * forceStrength;
     b2Body_ApplyForceToCenter(rigidBody2DComponent->GetBodyId(), {force.x, force.y}, true);
-    if (distance <= magnet->GetAdsorptionRadius()) {
+    if (distance <= magnet->GetAdsorptionRadius())
+    {
         magnet->AddEntity(magneticEntity);
         LogCat::d(LogLabel::DEFAULT, "magnetic_entity_adsorbed", "Magnetic entity {} entered adsorption radius",
                   magneticEntity);
@@ -172,50 +198,61 @@ bool glimmer::MagnetSystem::ProcessMagneticEntity(GameEntityID magneticEntity,
 }
 
 void glimmer::MagnetSystem::ProcessMagnetEntity(GameEntityID magnetEntity,
-                                                const std::vector<GameEntityID> &magneticEntities) {
-    EntityManager *entityManager = GetEntityManager();
+                                                const std::vector<GameEntityID>& magneticEntities)
+{
+    EntityManager* entityManager = GetEntityManager();
     auto magnet = entityManager->GetComponent<MagnetComponent>(magnetEntity);
-    if (magnet == nullptr) {
+    if (magnet == nullptr)
+    {
         return;
     }
     auto magnetTransform = entityManager->GetComponent<Transform2DComponent>(magnetEntity);
-    if (magnetTransform == nullptr) {
+    if (magnetTransform == nullptr)
+    {
         return;
     }
     auto itemContainerComponent = entityManager->GetComponent<ItemContainerComponent>(magnetEntity);
-    if (itemContainerComponent == nullptr) {
+    if (itemContainerComponent == nullptr)
+    {
         return;
     }
     auto itemContainer = itemContainerComponent->GetItemContainer();
-    if (itemContainer == nullptr) {
+    if (itemContainer == nullptr)
+    {
         return;
     }
     const WorldVector2D magnetPos = magnetTransform->GetPosition();
-    for (auto magneticEntity: magneticEntities) {
+    for (auto magneticEntity : magneticEntities)
+    {
         ProcessMagneticEntity(magneticEntity, magnet, magnetPos, itemContainer);
     }
 }
 
-void glimmer::MagnetSystem::OnTick(const uint64_t tick) {
-    WorldContext *worldContext = GetWorldContext();
-    if (worldContext == nullptr || GetEntityManager() == nullptr) {
+void glimmer::MagnetSystem::OnTick(const uint64_t tick)
+{
+    WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr || GetEntityManager() == nullptr)
+    {
         return;
     }
     std::vector<GameEntityID> magnetEntities;
     std::vector<GameEntityID> magneticEntities;
     {
         std::lock_guard lock(magnetMutex_);
-        if (magnetEntities_.empty() || magneticEntities_.empty()) {
+        if (magnetEntities_.empty() || magneticEntities_.empty())
+        {
             return;
         }
         magnetEntities = magnetEntities_;
         magneticEntities = magneticEntities_;
     }
-    for (const GameEntityID magnetEntity: magnetEntities) {
+    for (const GameEntityID magnetEntity : magnetEntities)
+    {
         ProcessMagnetEntity(magnetEntity, magneticEntities);
     }
 }
 
-glimmer::GameSystemType glimmer::MagnetSystem::GetGameSystemType() const {
+glimmer::GameSystemType glimmer::MagnetSystem::GetGameSystemType() const
+{
     return GameSystemType::MagnetSystem;
 }

@@ -33,10 +33,12 @@
 #include "core/mod/ResourceRef.h"
 #include "core/mod/dataPack/BiomeDecoratorType.h"
 
-namespace glimmer {
+namespace glimmer
+{
     class WorldContext;
 
-    class IBiomeDecorator {
+    class IBiomeDecorator
+    {
         int worldSeed_ = 0;
 
     public:
@@ -46,31 +48,33 @@ namespace glimmer {
 
         [[nodiscard]] int GetWorldSeed() const;
 
-        virtual void Decoration(const ChunkVertexVector2D &chunkVertex, WorldContext *worldContext,
-                                TerrainResult *terrainResult,
-                                IBiomeDecoratorResource *decoratorResource,
-                                BiomeResource *biomeResource,
-                                std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > *tilesRefMap) =
+        virtual void Decoration(const ChunkVertexVector2D& chunkVertex, WorldContext* worldContext,
+                                TerrainResult* terrainResult,
+                                IBiomeDecoratorResource* decoratorResource,
+                                BiomeResource* biomeResource,
+                                std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>* tilesRefMap) =
         0;
 
         virtual BiomeDecoratorType GetBiomeDecoratorType() = 0;
     };
 
-    template<typename ResourceT>
-    class BiomeDecorator : public IBiomeDecorator {
-        virtual void DecorationImpl(const ChunkVertexVector2D &chunkVertex, WorldContext *worldContext,
-                                    TerrainResult *terrainResult,
-                                    ResourceT *decoratorResource, BiomeResource *biomeResource,
-                                    std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > *
+    template <typename ResourceT>
+    class BiomeDecorator : public IBiomeDecorator
+    {
+        virtual void DecorationImpl(const ChunkVertexVector2D& chunkVertex, WorldContext* worldContext,
+                                    TerrainResult* terrainResult,
+                                    ResourceT* decoratorResource, BiomeResource* biomeResource,
+                                    std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>*
                                     tilesRefMap)
         = 0;
 
     public:
-        void Decoration(const ChunkVertexVector2D &chunkVertex, WorldContext *worldContext,
-                        TerrainResult *terrainResult,
-                        IBiomeDecoratorResource *decoratorResource, BiomeResource *biomeResource,
-                        std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > *tilesRefMap) override {
-            auto *concreteResource = static_cast<ResourceT *>(decoratorResource);
+        void Decoration(const ChunkVertexVector2D& chunkVertex, WorldContext* worldContext,
+                        TerrainResult* terrainResult,
+                        IBiomeDecoratorResource* decoratorResource, BiomeResource* biomeResource,
+                        std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>* tilesRefMap) override
+        {
+            auto* concreteResource = static_cast<ResourceT*>(decoratorResource);
             DecorationImpl(chunkVertex, worldContext, terrainResult, concreteResource, biomeResource, tilesRefMap);
         }
     };

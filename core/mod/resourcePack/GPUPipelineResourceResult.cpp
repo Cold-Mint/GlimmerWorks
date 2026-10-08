@@ -29,25 +29,31 @@
 #include "UniformBlockResourceResult.h"
 
 
-void glimmer::GPUPipelineResourceResult::DestroyResourceImpl(SDL_GPUGraphicsPipeline *resource) {
-    if (device_ == nullptr) {
+void glimmer::GPUPipelineResourceResult::DestroyResourceImpl(SDL_GPUGraphicsPipeline* resource)
+{
+    if (device_ == nullptr)
+    {
         return;
     }
     SDL_ReleaseGPUGraphicsPipeline(device_, resource);
 }
 
-void glimmer::GPUPipelineResourceResult::SetDevice(SDL_GPUDevice *device) {
+void glimmer::GPUPipelineResourceResult::SetDevice(SDL_GPUDevice* device)
+{
     device_ = device;
 }
 
-void glimmer::GPUPipelineResourceResult::AddUniformBlock(PipelineUniformBlock uniformBlock) {
+void glimmer::GPUPipelineResourceResult::AddUniformBlock(PipelineUniformBlock uniformBlock)
+{
     uniformBlocks_.push_back(uniformBlock);
 }
 
-const std::vector<glimmer::PipelineUniformBlock> *glimmer::GPUPipelineResourceResult::GetUniformBlocks() const {
+const std::vector<glimmer::PipelineUniformBlock>* glimmer::GPUPipelineResourceResult::GetUniformBlocks() const
+{
     return &uniformBlocks_;
 }
 
-glimmer::GPUPipelineResourceResult::~GPUPipelineResourceResult() {
+glimmer::GPUPipelineResourceResult::~GPUPipelineResourceResult()
+{
     DestroyResource();
 }

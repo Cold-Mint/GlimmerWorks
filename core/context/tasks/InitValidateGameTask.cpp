@@ -28,18 +28,23 @@
 
 #include "core/context/ISystemBucket.h"
 #include "core/context/ModContext.h"
+#include "core/log/LogCat.h"
 
-bool glimmer::InitValidateGameTask::Run(ISystemBucket *systemBucket) {
-    ModContext *modContext = systemBucket->GetModContext();
-    if (modContext == nullptr) {
+bool glimmer::InitValidateGameTask::Run(ISystemBucket* systemBucket)
+{
+    ModContext* modContext = systemBucket->GetModContext();
+    if (modContext == nullptr)
+    {
         return false;
     }
-    DimensionRegistry *dimensionRegistry = modContext->GetDimensionRegistry();
-    if (dimensionRegistry == nullptr) {
+    DimensionRegistry* dimensionRegistry = modContext->GetDimensionRegistry();
+    if (dimensionRegistry == nullptr)
+    {
         return false;
     }
-    const std::vector<DimensionResource *> &dimensionResources = dimensionRegistry->GetStartingDimensions();
-    if (dimensionResources.empty()) {
+    const std::vector<DimensionResource*>& dimensionResources = dimensionRegistry->GetStartingDimensions();
+    if (dimensionResources.empty())
+    {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "initial_dimension_required",
                   "At least one usable initial dimension is required.");
         return false;
@@ -47,11 +52,13 @@ bool glimmer::InitValidateGameTask::Run(ISystemBucket *systemBucket) {
     return true;
 }
 
-void glimmer::InitValidateGameTask::Rollback(ISystemBucket *systemBucket) {
+void glimmer::InitValidateGameTask::Rollback(ISystemBucket* systemBucket)
+{
     //This method does not need to be implemented.
     //此方法不用实现。
 }
 
-std::string glimmer::InitValidateGameTask::GetTaskName() {
+std::string glimmer::InitValidateGameTask::GetTaskName()
+{
     return "InitValidateGameTask";
 }

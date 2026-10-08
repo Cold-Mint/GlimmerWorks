@@ -27,8 +27,10 @@
 #pragma once
 #include <cstdint>
 
-namespace glimmer {
-    enum class ItemSlotType:uint8_t {
+namespace glimmer
+{
+    enum class ItemSlotType:uint8_t
+    {
         Empty,
         HotBar, //快捷栏
         Inventory, //背包

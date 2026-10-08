@@ -38,7 +38,8 @@
 #include "core/vfs/VirtualFileSystem.h"
 #include "toml11/spec.hpp"
 
-namespace glimmer {
+namespace glimmer
+{
     class AppContext;
     class PackSignatureVerifier;
 
@@ -49,14 +50,15 @@ namespace glimmer {
      * resource loading to ResourceFileLoader.
      * 编排清单加载、文件遍历与签名校验，并将资源加载委托给 ResourceFileLoader。
      */
-    class DataPack : public IUniqueAble {
-        std::filesystem::path rootPath_;
+    class DataPack : public IUniqueAble
+    {
         DataPackManifest manifest_;
-        toml::spec tomlVersion_;
-        const VirtualFileSystem *virtualFileSystem_;
-        const TomlTemplateExpander *tomlTemplateExpander_;
-        PackVerifyState packVerifyState_ = PackVerifyState::Unsigned;
         ResourceFileLoader resourceFileLoader_;
+        std::filesystem::path rootPath_;
+        toml::spec tomlVersion_;
+        const VirtualFileSystem* virtualFileSystem_;
+        const TomlTemplateExpander* tomlTemplateExpander_;
+        PackVerifyState packVerifyState_ = PackVerifyState::Unsigned;
 
         /**
          * ReadFileContent
@@ -64,7 +66,7 @@ namespace glimmer {
          * @param stream stream 输入流
          * @return The file bytes, or nullopt on failure 文件字节内容，失败时返回nullopt
          */
-        static std::optional<std::vector<char> > ReadFileContent(std::istream *stream);
+        static std::optional<std::vector<char>> ReadFileContent(std::istream* stream);
 
         /**
          * ProcessFile
@@ -77,15 +79,15 @@ namespace glimmer {
          * @param allHashData allHashData 全部哈希数据
          * @return The number of loaded resources 加载的资源数量
          */
-        int ProcessFile(const std::filesystem::path &file, const AppContext *appContext,
-                        PackSignatureVerifier &signatureVerifier,
-                        std::vector<std::filesystem::path> &defaultLanguageFiles,
-                        std::vector<std::filesystem::path> &targetLanguageFiles,
-                        std::vector<uint8_t> &allHashData) const;
+        int ProcessFile(const std::filesystem::path& file, const AppContext* appContext,
+                        PackSignatureVerifier& signatureVerifier,
+                        std::vector<std::filesystem::path>& defaultLanguageFiles,
+                        std::vector<std::filesystem::path>& targetLanguageFiles,
+                        std::vector<uint8_t>& allHashData) const;
 
     public:
-        explicit DataPack(std::filesystem::path path, const VirtualFileSystem *virtualFileSystem,
-                          const TomlTemplateExpander *tomlTemplateExpander, const toml::spec &tomlVersion);
+        explicit DataPack(std::filesystem::path path, const VirtualFileSystem* virtualFileSystem,
+                          const TomlTemplateExpander* tomlTemplateExpander, const toml::spec& tomlVersion);
 
         [[nodiscard]] uint64_t GetUniqueId() const override;
 
@@ -93,8 +95,8 @@ namespace glimmer {
 
         [[nodiscard]] PackVerifyState GetPackVerifyState() const;
 
-        [[nodiscard]] bool LoadPack(const AppContext *appContext);
+        [[nodiscard]] bool LoadPack(const AppContext* appContext);
 
-        [[nodiscard]] const DataPackManifest *GetManifest() const;
+        [[nodiscard]] const DataPackManifest* GetManifest() const;
     };
 }

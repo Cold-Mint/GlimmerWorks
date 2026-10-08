@@ -35,21 +35,25 @@
 #include "core/world/LightBuffer.h"
 
 
-void glimmer::LightMapTexture::EnsureTexture(const uint32_t width, const uint32_t height) {
-    if (width == 0 || height == 0) {
+void glimmer::LightMapTexture::EnsureTexture(const uint32_t width, const uint32_t height)
+{
+    if (width == 0 || height == 0)
+    {
         LogCat::d(LogLabel::DEFAULT, "light_map_texture_ensure_invalid_size",
                   "LightMapTexture::EnsureTexture invalid size: {}x{}", width,
                   height);
         return;
     }
-    if (texture_ != nullptr && width_ == width && height_ == height) {
+    if (texture_ != nullptr && width_ == width && height_ == height)
+    {
         LogCat::d(LogLabel::DEFAULT, "light_map_texture_ensure_reuse",
                   "LightMapTexture::EnsureTexture reuse existing texture: {}x{}",
                   width,
                   height);
         return;
     }
-    if (texture_ != nullptr) {
+    if (texture_ != nullptr)
+    {
         LogCat::d(LogLabel::DEFAULT, "light_map_texture_ensure_resize",
                   "LightMapTexture::EnsureTexture resize texture: {}x{} -> {}x{}",
                   width_, height_, width, height);
@@ -67,7 +71,8 @@ void glimmer::LightMapTexture::EnsureTexture(const uint32_t width, const uint32_
     info.sample_count = SDL_GPU_SAMPLECOUNT_1;
     info.props = 0;
     texture_ = SDL_CreateGPUTexture(device_, &info);
-    if (texture_ == nullptr) {
+    if (texture_ == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "sdl_create_gpu_texture_failed",
                   "SDL_CreateGPUTexture failed: {}",
                   SDL_GetError());
@@ -82,27 +87,32 @@ void glimmer::LightMapTexture::EnsureTexture(const uint32_t width, const uint32_
               height);
 }
 
-void glimmer::LightMapTexture::Update(SDL_GPUDevice *device, const LightBuffer *lightBuffer,
-                                      int originTileX, int originTileY, uint32_t sizeX, uint32_t sizeY) {
+void glimmer::LightMapTexture::Update(SDL_GPUDevice* device, const LightBuffer* lightBuffer,
+                                      int originTileX, int originTileY, uint32_t sizeX, uint32_t sizeY)
+{
     device_ = device;
-    if (device_ == nullptr) {
+    if (device_ == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "light_map_texture_update_device_null",
                   "LightMapTexture::Update device is null");
         return;
     }
-    if (sizeX == 0 || sizeY == 0) {
+    if (sizeX == 0 || sizeY == 0)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "light_map_texture_update_invalid_size",
                   "LightMapTexture::Update invalid size: {}x{}", sizeX, sizeY);
         return;
     }
-    if (lightBuffer == nullptr) {
+    if (lightBuffer == nullptr)
+    {
         LogCat::d(LogLabel::DEFAULT, "light_map_texture_update_light_buffer_null",
                   "LightMapTexture::Update lightBuffer is null");
         return;
     }
     const uint64_t revision = lightBuffer->GetRevision();
     if (lastRevision_ == revision && lastOriginX_ == originTileX && lastOriginY_ == originTileY &&
-        lastSizeX_ == sizeX && lastSizeY_ == sizeY) {
+        lastSizeX_ == sizeX && lastSizeY_ == sizeY)
+    {
         LogCat::d(LogLabel::DEFAULT, "light_map_texture_update_skip_unchanged",
                   "LightMapTexture::Update skipped, light map unchanged: revision={}, origin=({},{}), size={}x{}",
                   revision, originTileX, originTileY, sizeX, sizeY);
@@ -113,7 +123,8 @@ void glimmer::LightMapTexture::Update(SDL_GPUDevice *device, const LightBuffer *
               "LightMapTexture::Update rebuild light map: revision={}, origin=({},{}), size={}x{}",
               revision, originTileX, originTileY, sizeX, sizeY);
     EnsureTexture(sizeX, sizeY);
-    if (texture_ == nullptr) {
+    if (texture_ == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "light_map_texture_update_texture_null",
                   "LightMapTexture::Update texture is null after EnsureTexture");
         return;
@@ -124,14 +135,16 @@ void glimmer::LightMapTexture::Update(SDL_GPUDevice *device, const LightBuffer *
     lastSizeX_ = sizeX;
     lastSizeY_ = sizeY;
     pixelBuffer_.resize(static_cast<size_t>(sizeX) * static_cast<size_t>(sizeY) * 4);
-    for (uint32_t row = 0; row < sizeY; ++row) {
+    for (uint32_t row = 0; row < sizeY; ++row)
+    {
         //Texture row 0 is the top of the screen; world +Y points up, so rows
         //walk downwards from the highest tile y.
         //纹理第 0 行是屏幕顶部；世界 Y 轴向上，因此行从最高的瓦片 y 向下遍历。
         const int tileY = originTileY + static_cast<int>(sizeY - 1 - row);
-        for (uint32_t col = 0; col < sizeX; ++col) {
+        for (uint32_t col = 0; col < sizeX; ++col)
+        {
             const int tileX = originTileX + static_cast<int>(col);
-            Uint8 *pixel = pixelBuffer_.data() + (static_cast<size_t>(row) * sizeX + col) * 4;
+            Uint8* pixel = pixelBuffer_.data() + (static_cast<size_t>(row) * sizeX + col) * 4;
             const TileVector2D tile(tileX, tileY);
             const Color light = lightBuffer->GetFinalLightColor(tile);
             pixel[0] = light.r;
@@ -143,21 +156,26 @@ void glimmer::LightMapTexture::Update(SDL_GPUDevice *device, const LightBuffer *
     dirty_ = true;
 }
 
-void glimmer::LightMapTexture::Upload(SDL_GPUCommandBuffer *commandBuffer) {
-    if (commandBuffer == nullptr) {
+void glimmer::LightMapTexture::Upload(SDL_GPUCommandBuffer* commandBuffer)
+{
+    if (commandBuffer == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "light_map_texture_upload_command_buffer_null",
                   "LightMapTexture::Upload commandBuffer is null");
         return;
     }
-    if (texture_ == nullptr || pixelBuffer_.empty() || !dirty_) {
+    if (texture_ == nullptr || pixelBuffer_.empty() || !dirty_)
+    {
         LogCat::d(LogLabel::DEFAULT, "light_map_texture_upload_skip",
                   "LightMapTexture::Upload skipped: texture={}, pixelBuffer={}, dirty={}",
                   texture_ != nullptr, pixelBuffer_.size(), dirty_);
         return;
     }
     const auto dataSize = static_cast<uint32_t>(pixelBuffer_.size());
-    if (transferBuffer_ == nullptr || transferBufferSize_ < dataSize) {
-        if (transferBuffer_ != nullptr) {
+    if (transferBuffer_ == nullptr || transferBufferSize_ < dataSize)
+    {
+        if (transferBuffer_ != nullptr)
+        {
             LogCat::d(LogLabel::DEFAULT, "light_map_texture_upload_transfer_buffer_resize",
                       "LightMapTexture::Upload resize transfer buffer: {} -> {} bytes", transferBufferSize_, dataSize);
             SDL_ReleaseGPUTransferBuffer(device_, transferBuffer_);
@@ -169,17 +187,20 @@ void glimmer::LightMapTexture::Upload(SDL_GPUCommandBuffer *commandBuffer) {
         info.props = 0;
         transferBuffer_ = SDL_CreateGPUTransferBuffer(device_, &info);
         transferBufferSize_ = transferBuffer_ != nullptr ? dataSize : 0;
-        if (transferBuffer_ == nullptr) {
+        if (transferBuffer_ == nullptr)
+        {
             LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "sdl_create_gpu_transfer_buffer_failed",
                       "SDL_CreateGPUTransferBuffer failed: {}", SDL_GetError());
             return;
         }
     }
-    if (transferBuffer_ == nullptr) {
+    if (transferBuffer_ == nullptr)
+    {
         return;
     }
-    void *mapped = SDL_MapGPUTransferBuffer(device_, transferBuffer_, true);
-    if (mapped == nullptr) {
+    void* mapped = SDL_MapGPUTransferBuffer(device_, transferBuffer_, true);
+    if (mapped == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "light_map_texture_upload_map_failed",
                   "SDL_MapGPUTransferBuffer failed: {}", SDL_GetError());
         return;
@@ -187,8 +208,9 @@ void glimmer::LightMapTexture::Upload(SDL_GPUCommandBuffer *commandBuffer) {
     std::memcpy(mapped, pixelBuffer_.data(), dataSize);
     SDL_UnmapGPUTransferBuffer(device_, transferBuffer_);
 
-    SDL_GPUCopyPass *copyPass = SDL_BeginGPUCopyPass(commandBuffer);
-    if (copyPass == nullptr) {
+    SDL_GPUCopyPass* copyPass = SDL_BeginGPUCopyPass(commandBuffer);
+    if (copyPass == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "light_map_texture_upload_begin_copy_pass_failed",
                   "SDL_BeginGPUCopyPass failed: {}", SDL_GetError());
         return;
@@ -215,25 +237,31 @@ void glimmer::LightMapTexture::Upload(SDL_GPUCommandBuffer *commandBuffer) {
               "LightMapTexture::Upload complete: {} bytes uploaded to {}x{} texture", dataSize, width_, height_);
 }
 
-glimmer::LightMapTexture::~LightMapTexture() {
-    if (transferBuffer_ != nullptr) {
+glimmer::LightMapTexture::~LightMapTexture()
+{
+    if (transferBuffer_ != nullptr)
+    {
         SDL_ReleaseGPUTransferBuffer(device_, transferBuffer_);
         transferBuffer_ = nullptr;
     }
-    if (texture_ != nullptr) {
+    if (texture_ != nullptr)
+    {
         SDL_ReleaseGPUTexture(device_, texture_);
         texture_ = nullptr;
     }
 }
 
-SDL_GPUTexture *glimmer::LightMapTexture::GetTexture() const {
+SDL_GPUTexture* glimmer::LightMapTexture::GetTexture() const
+{
     return texture_;
 }
 
-uint32_t glimmer::LightMapTexture::GetWidth() const {
+uint32_t glimmer::LightMapTexture::GetWidth() const
+{
     return width_;
 }
 
-uint32_t glimmer::LightMapTexture::GetHeight() const {
+uint32_t glimmer::LightMapTexture::GetHeight() const
+{
     return height_;
 }

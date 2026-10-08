@@ -29,22 +29,24 @@
 
 #include "LightSource.h"
 
-namespace glimmer {
+namespace glimmer
+{
     struct Color;
 
-    class LightContribution {
-        const LightSource *lightSource_ = nullptr;
+    class LightContribution
+    {
+        const LightSource* lightSource_ = nullptr;
         std::unique_ptr<Color> lightColor_;
 
     public:
-        void SetLightSource(const LightSource *lightSource);
+        void SetLightSource(const LightSource* lightSource);
 
-        [[nodiscard]] const LightSource *GetLightSource() const;
+        [[nodiscard]] const LightSource* GetLightSource() const;
 
         void SetLightColor(std::unique_ptr<Color> lightColor);
 
         [[nodiscard]] std::unique_ptr<Color> TakeLightColor();
 
-        [[nodiscard]] const Color *GetLightColor() const;
+        [[nodiscard]] const Color* GetLightColor() const;
     };
 }

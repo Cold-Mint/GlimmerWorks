@@ -25,10 +25,11 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <cstdint>
 
-namespace glimmer {
-    enum class GameSystemType : uint8_t {
+namespace glimmer
+{
+    enum class GameSystemType : uint8_t
+    {
         None,
         AndroidControlSystem,
         AutoPickSystem,

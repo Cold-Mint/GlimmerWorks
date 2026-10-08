@@ -27,7 +27,8 @@
 #pragma once
 #include <cstdint>
 
-namespace glimmer {
+namespace glimmer
+{
     class EventBus;
 
     /**
@@ -37,7 +38,11 @@ namespace glimmer {
    * subscription is automatically removed.
    * Subscribe 返回的 RAII 句柄。析构时自动退订。
    */
-    class Subscription {
+    class Subscription
+    {
+        EventBus* bus_ = nullptr;
+        uint64_t id_ = 0;
+
     public:
         /**
          * Default constructor
@@ -55,7 +60,8 @@ namespace glimmer {
          * @param bus bus The event bus this subscription belongs to. 此订阅所属的事件总线。
          * @param id id The subscription id. 订阅 id。
          */
-        Subscription(EventBus *bus, uint64_t id) : bus_(bus), id_(id) {
+        Subscription(EventBus* bus, uint64_t id) : bus_(bus), id_(id)
+        {
         }
 
         /**
@@ -65,7 +71,8 @@ namespace glimmer {
          * 从 other 转移所有权，并使 other 失效。
          * @param other other The subscription to move from. 要移动的订阅。
          */
-        Subscription(Subscription &&other) noexcept : bus_(other.bus_), id_(other.id_) {
+        Subscription(Subscription&& other) noexcept : bus_(other.bus_), id_(other.id_)
+        {
             other.bus_ = nullptr;
             other.id_ = 0;
         }
@@ -76,7 +83,7 @@ namespace glimmer {
          * Subscriptions are move-only and cannot be copied.
          * 订阅是仅移动的，不可拷贝。
          */
-        Subscription(const Subscription &) = delete;
+        Subscription(const Subscription&) = delete;
 
         /**
          * Copy assignment (deleted)
@@ -84,7 +91,7 @@ namespace glimmer {
          * Subscriptions are move-only and cannot be copied.
          * 订阅是仅移动的，不可拷贝。
          */
-        Subscription &operator=(const Subscription &) = delete;
+        Subscription& operator=(const Subscription&) = delete;
 
         /**
          * Move assignment
@@ -94,7 +101,7 @@ namespace glimmer {
          * @param other other The subscription to move from. 要移动的订阅。
          * @return A reference to this subscription. 指向本订阅的引用。
          */
-        Subscription &operator=(Subscription &&other) noexcept;
+        Subscription& operator=(Subscription&& other) noexcept;
 
         /**
          * Destructor
@@ -113,9 +120,5 @@ namespace glimmer {
         void Reset();
 
         [[nodiscard]] bool IsValid() const;
-
-    private:
-        EventBus *bus_ = nullptr;
-        uint64_t id_ = 0;
     };
 }

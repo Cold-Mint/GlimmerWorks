@@ -31,23 +31,28 @@
 #include "core/context/ISystemBucket.h"
 #include "core/log/LogCat.h"
 
-glimmer::InitConsoleContextTask::InitConsoleContextTask(AppContext *appContext) : appContext_(appContext) {
+glimmer::InitConsoleContextTask::InitConsoleContextTask(AppContext* appContext) : appContext_(appContext)
+{
 }
 
-bool glimmer::InitConsoleContextTask::Run(ISystemBucket *systemBucket) {
-    VirtualFileSystem *virtualFileSystem = systemBucket->GetVirtualFileSystem();
-    if (virtualFileSystem == nullptr) {
+bool glimmer::InitConsoleContextTask::Run(ISystemBucket* systemBucket)
+{
+    VirtualFileSystem* virtualFileSystem = systemBucket->GetVirtualFileSystem();
+    if (virtualFileSystem == nullptr)
+    {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "vfs_is_null", "virtualFileSystem is nullptr");
         return false;
     }
-    const Config *config = systemBucket->GetConfig();
-    if (config == nullptr) {
+    const Config* config = systemBucket->GetConfig();
+    if (config == nullptr)
+    {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "config_is_null", "config is nullptr");
         return false;
     }
     auto consoleContext = std::make_unique<ConsoleContext>();
     if (!consoleContext->Init(appContext_, virtualFileSystem, config->runtimePath,
-                              config->console.maxHistoryEntries)) {
+                              config->console.maxHistoryEntries))
+    {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "init_console_context_failed",
                   "init consoleContext fail.");
         return false;
@@ -56,10 +61,12 @@ bool glimmer::InitConsoleContextTask::Run(ISystemBucket *systemBucket) {
     return true;
 }
 
-void glimmer::InitConsoleContextTask::Rollback(ISystemBucket *systemBucket) {
+void glimmer::InitConsoleContextTask::Rollback(ISystemBucket* systemBucket)
+{
     systemBucket->SetConsoleContext(nullptr);
 }
 
-std::string glimmer::InitConsoleContextTask::GetTaskName() {
+std::string glimmer::InitConsoleContextTask::GetTaskName()
+{
     return "InitConsoleContextTask";
 }

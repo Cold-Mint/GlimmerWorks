@@ -40,6 +40,8 @@
 #include "core/math/CoordinateTransformer.h"
 #include "core/scene/MainThreadDispatcher.h"
 #include "core/config/Constants.h"
+#include "core/gpu/RenderLayer.h"
+#include "core/gpu/RenderQueue.h"
 #include "core/world/Dimension.h"
 
 

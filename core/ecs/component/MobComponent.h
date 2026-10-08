@@ -31,16 +31,18 @@
 #include "core/ecs/GameComponent.h"
 #include "core/inventory/Item.h"
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * MobComponent
      * 生物组件
      */
-    class MobComponent : public GameComponent {
+    class MobComponent : public GameComponent
+    {
         //A list of physical IDs with radiation components for ground detection
         //用于地面检测的带有射线组件的实体ID列表
         std::vector<GameEntityID> groundCheckRayEntityIds_;
-
+        std::unique_ptr<Item> emptyHandAutoUseItem_ = nullptr;
         //Linear acceleration
         //移动加速度
         float movementAcceleration_ = 6.0F;
@@ -50,7 +52,6 @@ namespace glimmer {
         // If it is set to 0, then the horizontal movement in the air will be prohibited. If it is set to 1, then there will be no restriction on the movement in the air. If it is set to 0.8, then the acceleration will be multiplied by 0.8.
         // 如果设置为0,那么禁止空中左右移动，如果设置为1,那么不限制空中移动，如果设置为0.8那么会将加速度乘以0.8。
         float airControlFactor_ = 1.0F;
-
         float jumpForce_ = 7.5F;
 
         /**
@@ -59,14 +60,12 @@ namespace glimmer {
          */
         bool facingLeft_ = false;
 
-        std::unique_ptr<Item> emptyHandAutoUseItem_ = nullptr;
-
     public:
-        [[nodiscard]] const std::vector<GameEntityID> &GetGroundCheckRayEntityIds() const;
+        [[nodiscard]] const std::vector<GameEntityID>& GetGroundCheckRayEntityIds() const;
 
         void SetEmptyHandAutoUseItem(std::unique_ptr<Item> emptyHandAutoUseItem);
 
-        [[nodiscard]] Item *GetEmptyHandAutoUseItem() const;
+        [[nodiscard]] Item* GetEmptyHandAutoUseItem() const;
 
         void AddGroundCheckRayEntity(GameEntityID id);
 

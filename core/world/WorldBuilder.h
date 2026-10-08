@@ -26,7 +26,8 @@
  */
 #pragma once
 
-namespace glimmer {
+namespace glimmer
+{
     class WorldContext;
 
     /**
@@ -36,11 +37,12 @@ namespace glimmer {
      * world subsystems, then spawns the initial entities and the player.
      * 装配 WorldContext：读取清单、创建物理世界与全部世界子系统，然后生成初始实体与玩家。
      */
-    class WorldBuilder {
-        WorldContext *worldContext_;
+    class WorldBuilder
+    {
+        WorldContext* worldContext_;
 
     public:
-        explicit WorldBuilder(WorldContext *worldContext);
+        explicit WorldBuilder(WorldContext* worldContext);
 
         /**
          * Build

@@ -33,7 +33,8 @@
 
 #include "core/math/Vector2DIHash.h"
 
-namespace {
+namespace
+{
     constexpr std::array<std::pair<int, int>, 8> NEIGHBORS = {
         {
             {-1, -1}, {0, -1}, {1, -1},
@@ -43,18 +44,21 @@ namespace {
     };
 }
 
-void glimmer::LightFloodFill::Propagate(const TileVector2D &center, const int maxRadius,
-                                        const BlockingFn &blocking,
-                                        const VisitCallback &visit,
-                                        const bool diagonalBlock) {
-    if (!visit) {
+void glimmer::LightFloodFill::Propagate(const TileVector2D& center, const int maxRadius,
+                                        const BlockingFn& blocking,
+                                        const VisitCallback& visit,
+                                        const bool diagonalBlock)
+{
+    if (!visit)
+    {
         return;
     }
     // The center tile always emits light, even if the source tile itself is
     // solid (e.g. a glowing block).
     // 中心瓦片始终发光，即使光源瓦片本身是实体（如发光方块）。
     visit(center, 1.0F);
-    if (maxRadius <= 0) {
+    if (maxRadius <= 0)
+    {
         return;
     }
 
@@ -66,35 +70,42 @@ void glimmer::LightFloodFill::Propagate(const TileVector2D &center, const int ma
     const int maxRadiusSq = maxRadius * maxRadius;
     std::unordered_set<TileVector2D, Vector2DIHash> visited;
     visited.insert(center);
-    std::queue<std::pair<TileVector2D, float> > queue;
+    std::queue<std::pair<TileVector2D, float>> queue;
     queue.emplace(center, 1.0F);
 
-    while (!queue.empty()) {
+    while (!queue.empty())
+    {
         const auto [current, currentAccumulated] = queue.front();
         queue.pop();
-        for (const auto &[dx, dy]: NEIGHBORS) {
+        for (const auto& [dx, dy] : NEIGHBORS)
+        {
             const TileVector2D next(current.x + dx, current.y + dy);
-            if (visited.contains(next)) {
+            if (visited.contains(next))
+            {
                 continue;
             }
             const int relX = next.x - center.x;
             const int relY = next.y - center.y;
-            if (relX * relX + relY * relY > maxRadiusSq) {
+            if (relX * relX + relY * relY > maxRadiusSq)
+            {
                 continue;
             }
             // Diagonal anti-leak rule: a diagonal step is only allowed when at
             // least one of the two orthogonal neighbors is transparent.
             // 对角防漏光规则：仅当两个正交邻居中至少一个不挡光时才允许对角移动。
-            if (diagonalBlock && dx != 0 && dy != 0) {
+            if (diagonalBlock && dx != 0 && dy != 0)
+            {
                 const TileVector2D orthA(current.x + dx, current.y);
                 const TileVector2D orthB(current.x, current.y + dy);
-                if (blocking && blocking(orthA) >= 1.0F && blocking(orthB) >= 1.0F) {
+                if (blocking && blocking(orthA) >= 1.0F && blocking(orthB) >= 1.0F)
+                {
                     continue;
                 }
             }
             const float b = blocking ? blocking(next) : 0.0F;
             const float accumulated = currentAccumulated * (1.0F - b);
-            if (accumulated <= MIN_ACCUMULATED) {
+            if (accumulated <= MIN_ACCUMULATED)
+            {
                 continue;
             }
             visited.insert(next);

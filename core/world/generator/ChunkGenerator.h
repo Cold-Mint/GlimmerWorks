@@ -32,7 +32,8 @@
 #include "StructurePlacer.h"
 #include "TerrainGenerator.h"
 
-namespace glimmer {
+namespace glimmer
+{
     class WorldContext;
     struct DimensionResource;
     class BiomeRegistry;
@@ -45,10 +46,11 @@ namespace glimmer {
      * structure placer, decorator applier and tile populators.
      * 通过组合地形生成器、结构放置器、装饰器应用器与瓦片填充器，编排区块生成流水线。
      */
-    class ChunkGenerator {
-        WorldContext *worldContext_;
+    class ChunkGenerator
+    {
         std::string dimensionId_;
         StructurePlacer structurePlacer_;
+        WorldContext* worldContext_;
 
         /**
          * ResolveDimensionId
@@ -56,7 +58,7 @@ namespace glimmer {
          * @param dimensionResource dimensionResource 维度资源
          * @return The dimension id (packId:resourceId) 维度Id（packId:resourceId）
          */
-        static std::string ResolveDimensionId(const DimensionResource *dimensionResource);
+        static std::string ResolveDimensionId(const DimensionResource* dimensionResource);
 
         /**
          * ResolveBiomeRegistry
@@ -64,7 +66,7 @@ namespace glimmer {
          * @param worldContext worldContext 世界上下文
          * @return The biome registry, or nullptr if unavailable 生物群系注册表，不可用时返回nullptr
          */
-        static BiomeRegistry *ResolveBiomeRegistry(WorldContext *worldContext);
+        static BiomeRegistry* ResolveBiomeRegistry(WorldContext* worldContext);
 
     public:
         /**
@@ -73,7 +75,7 @@ namespace glimmer {
          * @param worldContext worldContext 世界上下文
          * @param dimensionResource dimensionResource 维度资源
          */
-        ChunkGenerator(WorldContext *worldContext, const DimensionResource *dimensionResource);
+        ChunkGenerator(WorldContext* worldContext, const DimensionResource* dimensionResource);
 
 
         /**
@@ -81,7 +83,7 @@ namespace glimmer {
          * 生成结构
          * @param position position 区块位置
          */
-        void GenerateStructure(const TileVector2D &position) const;
+        void GenerateStructure(const TileVector2D& position) const;
 
         /**
          * GenerateChunkAt
@@ -89,14 +91,14 @@ namespace glimmer {
          * @param position position 区块位置
          * @return The generated chunk, or nullptr on failure 生成的区块，失败时返回nullptr
          */
-        [[nodiscard]] std::unique_ptr<Chunk> GenerateChunkAt(const ChunkVertexVector2D &position,
-                                                             TerrainResult *terrainResult) const;
+        [[nodiscard]] std::unique_ptr<Chunk> GenerateChunkAt(const ChunkVertexVector2D& position,
+                                                             TerrainResult* terrainResult) const;
 
         /**
          * GetDimensionId
          * 获取该生成器所属维度的Id
          * @return The dimension id 维度Id
          */
-        [[nodiscard]] const std::string &GetDimensionId() const;
+        [[nodiscard]] const std::string& GetDimensionId() const;
     };
 }

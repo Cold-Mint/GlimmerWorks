@@ -29,22 +29,27 @@
 #include "core/log/LogCat.h"
 #include "core/context/AppContext.h"
 
-std::string_view glimmer::BiomeDecorsAssetEnumerator::GetAssetType() const {
+std::string_view glimmer::BiomeDecorsAssetEnumerator::GetAssetType() const
+{
     return assetName;
 }
 
-std::optional<std::string> glimmer::BiomeDecorsAssetEnumerator::ListAsset(const AppContext *appContext) {
-    if (appContext == nullptr) {
+std::optional<std::string> glimmer::BiomeDecorsAssetEnumerator::ListAsset(const AppContext* appContext)
+{
+    if (appContext == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "app_context_is_null", "appContext is nullptr");
         return std::nullopt;
     }
-    const ModContext *modContext = appContext->GetModContext();
-    if (modContext == nullptr) {
+    const ModContext* modContext = appContext->GetModContext();
+    if (modContext == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "mod_context_is_null", "modContext is nullptr");
         return std::nullopt;
     }
-    const BiomeDecoratorRegistry *biomeDecoratorRegistry = modContext->GetBiomeDecoratorRegistry();
-    if (biomeDecoratorRegistry == nullptr) {
+    const BiomeDecoratorRegistry* biomeDecoratorRegistry = modContext->GetBiomeDecoratorRegistry();
+    if (biomeDecoratorRegistry == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "decorator_resources_manager_is_null",
                   "decoratorResourcesManager is nullptr");
         return std::nullopt;

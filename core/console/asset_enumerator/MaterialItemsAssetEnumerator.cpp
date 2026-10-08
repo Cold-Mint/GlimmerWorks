@@ -28,16 +28,20 @@
 #if  !defined(NDEBUG)
 #include "core/context/AppContext.h"
 
-std::string_view glimmer::MaterialItemsAssetEnumerator::GetAssetType() const {
+std::string_view glimmer::MaterialItemsAssetEnumerator::GetAssetType() const
+{
     return assetName;
 }
 
-std::optional<std::string> glimmer::MaterialItemsAssetEnumerator::ListAsset(const AppContext *appContext) {
-    if (appContext == nullptr) {
+std::optional<std::string> glimmer::MaterialItemsAssetEnumerator::ListAsset(const AppContext* appContext)
+{
+    if (appContext == nullptr)
+    {
         return std::nullopt;
     }
-    const MaterialItemRegistry *materialItemRegistry = appContext->GetModContext()->GetMaterialItemRegistry();
-    if (materialItemRegistry == nullptr) {
+    const MaterialItemRegistry* materialItemRegistry = appContext->GetModContext()->GetMaterialItemRegistry();
+    if (materialItemRegistry == nullptr)
+    {
         return std::nullopt;
     }
     return materialItemRegistry->ListString();

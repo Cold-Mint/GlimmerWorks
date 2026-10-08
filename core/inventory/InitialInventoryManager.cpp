@@ -30,8 +30,10 @@
 
 
 void glimmer::InitialInventoryManager::AddResource(
-    std::unique_ptr<InitialInventoryResource> resource) {
-    if (resource == nullptr) {
+    std::unique_ptr<InitialInventoryResource> resource)
+{
+    if (resource == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "initial_inventory_resource_null",
                   "InitialInventoryResource is null");
     }
@@ -41,16 +43,20 @@ void glimmer::InitialInventoryManager::AddResource(
               initialInventory_.size());
 }
 
-std::span<const glimmer::InitialInventoryResource * const> glimmer::InitialInventoryManager::
-GetAllInitialInventory() const {
+std::span<const glimmer::InitialInventoryResource* const> glimmer::InitialInventoryManager::
+GetAllInitialInventory() const
+{
     return initialInventoryPtr_;
 }
 
 
-std::string glimmer::InitialInventoryManager::ListInitialInventory() const {
+std::string glimmer::InitialInventoryManager::ListInitialInventory() const
+{
     std::ostringstream oss;
-    for (const auto &value: initialInventory_) {
-        if (!value) {
+    for (const auto& value : initialInventory_)
+    {
+        if (!value)
+        {
             continue;
         }
         oss << Resource::GenerateId(value->packId, value->resourceId) << "\n";

@@ -29,26 +29,14 @@
 
 #include "core/ecs/GameSystem.h"
 
-namespace glimmer {
+namespace glimmer
+{
     class MagnetComponent;
     class WorldVector2D;
     class ItemContainer;
 
-    class MagnetSystem : public GameSystem {
-        uint32_t transform2DComponentCount_ = 0;
-        uint32_t magnetComponentCount_ = 0;
-        uint32_t magneticComponentCount_ = 0;
-        uint32_t rigidComponentCount_ = 0;
-        uint32_t rayCast2dComponentCount_ = 0;
-        uint32_t droppedItemComponentCount_ = 0;
-        uint32_t itemContainerCount_ = 0;
-        //magnet
-        //吸铁石
-        std::vector<GameEntityID> magnetEntities_;
-        //magnetic
-        //磁吸物
-        std::vector<GameEntityID> magneticEntities_;
-
+    class MagnetSystem : public GameSystem
+    {
         /**
          * Protects magnetEntities_ and magneticEntities_ against concurrent rebuild
          * on the main thread (OnWatchedComponentChanged) and iteration on the tick
@@ -57,16 +45,29 @@ namespace glimmer {
          * （OnWatchedComponentChanged）重建与 tick 线程（OnTick）遍历的并发访问。
          */
         mutable std::mutex magnetMutex_;
+        //magnet
+        //吸铁石
+        std::vector<GameEntityID> magnetEntities_;
+        //magnetic
+        //磁吸物
+        std::vector<GameEntityID> magneticEntities_;
+        uint32_t transform2DComponentCount_ = 0;
+        uint32_t magnetComponentCount_ = 0;
+        uint32_t magneticComponentCount_ = 0;
+        uint32_t rigidComponentCount_ = 0;
+        uint32_t rayCast2dComponentCount_ = 0;
+        uint32_t droppedItemComponentCount_ = 0;
+        uint32_t itemContainerCount_ = 0;
 
         bool ProcessMagneticEntity(GameEntityID magneticEntity,
-                                   MagnetComponent *magnet,
-                                   const WorldVector2D &magnetPos,
-                                   ItemContainer *itemContainer);
+                                   MagnetComponent* magnet,
+                                   const WorldVector2D& magnetPos,
+                                   ItemContainer* itemContainer);
 
-        void ProcessMagnetEntity(GameEntityID magnetEntity, const std::vector<GameEntityID> &magneticEntities);
+        void ProcessMagnetEntity(GameEntityID magnetEntity, const std::vector<GameEntityID>& magneticEntities);
 
     public:
-        explicit MagnetSystem(WorldContext *worldContext);
+        explicit MagnetSystem(WorldContext* worldContext);
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 

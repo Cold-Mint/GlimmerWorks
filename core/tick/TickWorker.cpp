@@ -31,32 +31,38 @@
 #include "core/config/Constants.h"
 #include "core/log/LogCat.h"
 
-void glimmer::TickWorker::TickLoop(std::stop_token stopToken) {
+void glimmer::TickWorker::TickLoop(std::stop_token stopToken)
+{
     LogCat::SetThreadName("TickWorker");
     LogCat::i(LogLabel::DEFAULT, "tick_worker_thread_started", "TickWorker thread started");
     using Clock = std::chrono::steady_clock;
     const auto tickInterval = std::chrono::duration_cast<Clock::duration>(
         std::chrono::duration<double>(1.0 / TICK_RATE));
     auto nextTick = Clock::now();
-    while (!stopToken.stop_requested()) {
+    while (!stopToken.stop_requested())
+    {
         nextTick += tickInterval;
         std::unique_lock lock(mutex_);
-        const bool shouldStop = conditionVariable_.wait_until(lock, nextTick, [&stopToken] {
+        const bool shouldStop = conditionVariable_.wait_until(lock, nextTick, [&stopToken]
+        {
             return stopToken.stop_requested();
         });
         lock.unlock();
-        if (shouldStop) {
+        if (shouldStop)
+        {
             break;
         }
         ++tickCount_;
         LogCat::SetTickCount(tickCount_);
-        std::vector<ITickListener *> listeners;
+        std::vector<ITickListener*> listeners;
         {
             std::lock_guard snapshotLock(mutex_);
             listeners = listeners_;
         }
-        for (ITickListener *listener: listeners) {
-            if (listener != nullptr) {
+        for (ITickListener* listener : listeners)
+        {
+            if (listener != nullptr)
+            {
                 listener->OnTick(tickCount_);
             }
         }
@@ -64,25 +70,31 @@ void glimmer::TickWorker::TickLoop(std::stop_token stopToken) {
     LogCat::i(LogLabel::DEFAULT, "tick_worker_thread_stopped", "TickWorker thread stopped");
 }
 
-glimmer::TickWorker::~TickWorker() {
+glimmer::TickWorker::~TickWorker()
+{
     thread_.request_stop();
     conditionVariable_.notify_all();
 }
 
-glimmer::TickWorker::TickWorker() {
-    thread_ = std::jthread([this](const std::stop_token &stopToken) { this->TickLoop(stopToken); });
+glimmer::TickWorker::TickWorker()
+{
+    thread_ = std::jthread([this](const std::stop_token& stopToken) { this->TickLoop(stopToken); });
 }
 
-void glimmer::TickWorker::AddCallback(ITickListener *listener) {
-    if (listener == nullptr) {
+void glimmer::TickWorker::AddCallback(ITickListener* listener)
+{
+    if (listener == nullptr)
+    {
         return;
     }
     std::lock_guard lock(mutex_);
     listeners_.emplace_back(listener);
 }
 
-void glimmer::TickWorker::RemoveCallback(ITickListener *listener) {
-    if (listener == nullptr) {
+void glimmer::TickWorker::RemoveCallback(ITickListener* listener)
+{
+    if (listener == nullptr)
+    {
         return;
     }
     std::lock_guard lock(mutex_);

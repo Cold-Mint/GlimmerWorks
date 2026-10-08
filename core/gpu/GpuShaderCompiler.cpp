@@ -36,26 +36,31 @@
 #include "glslang/Public/ShaderLang.h"
 #include "SPIRV/GlslangToSpv.h"
 
-void glimmer::GpuShaderCompiler::Init() {
+void glimmer::GpuShaderCompiler::Init()
+{
     glslang::InitializeProcess();
 }
 
-void glimmer::GpuShaderCompiler::Shutdown() {
+void glimmer::GpuShaderCompiler::Shutdown()
+{
     glslang::FinalizeProcess();
 }
 
-std::unique_ptr<glimmer::GpuShaderCompileResult> glimmer::GpuShaderCompiler::CompileToSpirv(const std::string &source,
-    const bool vertex) {
-    if (source.empty()) {
+std::unique_ptr<glimmer::GpuShaderCompileResult> glimmer::GpuShaderCompiler::CompileToSpirv(const std::string& source,
+    const bool vertex)
+{
+    if (source.empty())
+    {
         return nullptr;
     }
     const EShLanguage shaderStage = vertex ? EShLangVertex : EShLangFragment;
     glslang::TShader glslShader(shaderStage);
-    const char *sources[] = {source.c_str()};
+    const char* sources[] = {source.c_str()};
     glslShader.setStrings(sources, 1);
-    const TBuiltInResource *resources = GetDefaultResources();
+    const TBuiltInResource* resources = GetDefaultResources();
     constexpr auto messages = static_cast<EShMessages>(EShMsgSpvRules | EShMsgVulkanRules);
-    if (!glslShader.parse(resources, 450, false, messages)) {
+    if (!glslShader.parse(resources, 450, false, messages))
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "glsl_compilation_failed",
                   "GLSL compilation failed : {}",
                   glslShader.getInfoLog());
@@ -66,28 +71,34 @@ std::unique_ptr<glimmer::GpuShaderCompileResult> glimmer::GpuShaderCompiler::Com
     //用TProgram做链接，反射，用于计算numSamplers和numUniformBuffers
     glslang::TProgram program;
     program.addShader(&glslShader);
-    if (!program.link(messages)) {
+    if (!program.link(messages))
+    {
         return nullptr;
     }
-    if (!program.buildReflection()) {
+    if (!program.buildReflection())
+    {
         return nullptr;
     }
     auto result = std::make_unique<GpuShaderCompileResult>();
     uint32_t numSamplers = 0;
-    for (int i = 0; i < program.getNumUniformVariables(); ++i) {
-        const glslang::TType *type = program.getUniformTType(i);
-        if (type == nullptr) {
+    for (int i = 0; i < program.getNumUniformVariables(); ++i)
+    {
+        const glslang::TType* type = program.getUniformTType(i);
+        if (type == nullptr)
+        {
             continue;
         }
-        if (type->getBasicType() == glslang::EbtSampler && type->isTexture()) {
+        if (type->getBasicType() == glslang::EbtSampler && type->isTexture())
+        {
             ++numSamplers;
         }
     }
     int numUniformBlocks = program.getNumUniformBlocks();
     result->SetNumUniformBuffers(static_cast<uint32_t>(numUniformBlocks));
-    std::vector<std::pair<std::string, uint32_t> > blockBindings;
+    std::vector<std::pair<std::string, uint32_t>> blockBindings;
     blockBindings.reserve(static_cast<size_t>(numUniformBlocks));
-    for (int i = 0; i < numUniformBlocks; ++i) {
+    for (int i = 0; i < numUniformBlocks; ++i)
+    {
         blockBindings.emplace_back(program.getUniformBlockName(i),
                                    static_cast<uint32_t>(program.getUniformBlockBinding(i)));
     }
@@ -97,29 +108,34 @@ std::unique_ptr<glimmer::GpuShaderCompileResult> glimmer::GpuShaderCompiler::Com
     return result;
 }
 
-std::vector<std::pair<std::string, uint32_t> > glimmer::GpuShaderCompiler::ReflectUniformBlocks(
-    const std::string &source, const bool vertex) {
-    std::vector<std::pair<std::string, uint32_t> > result;
-    if (source.empty()) {
+std::vector<std::pair<std::string, uint32_t>> glimmer::GpuShaderCompiler::ReflectUniformBlocks(
+    const std::string& source, const bool vertex)
+{
+    std::vector<std::pair<std::string, uint32_t>> result;
+    if (source.empty())
+    {
         return result;
     }
     const EShLanguage shaderStage = vertex ? EShLangVertex : EShLangFragment;
     glslang::TShader glslShader(shaderStage);
-    const char *sources[] = {source.c_str()};
+    const char* sources[] = {source.c_str()};
     glslShader.setStrings(sources, 1);
-    const TBuiltInResource *resources = GetDefaultResources();
+    const TBuiltInResource* resources = GetDefaultResources();
     constexpr auto messages = static_cast<EShMessages>(EShMsgSpvRules | EShMsgVulkanRules);
-    if (!glslShader.parse(resources, 450, false, messages)) {
+    if (!glslShader.parse(resources, 450, false, messages))
+    {
         return result;
     }
     glslang::TProgram program;
     program.addShader(&glslShader);
-    if (!program.link(messages) || !program.buildReflection()) {
+    if (!program.link(messages) || !program.buildReflection())
+    {
         return result;
     }
     const int numUniformBlocks = program.getNumUniformBlocks();
     result.reserve(static_cast<size_t>(numUniformBlocks));
-    for (int i = 0; i < numUniformBlocks; ++i) {
+    for (int i = 0; i < numUniformBlocks; ++i)
+    {
         result.emplace_back(program.getUniformBlockName(i),
                             static_cast<uint32_t>(program.getUniformBlockBinding(i)));
     }

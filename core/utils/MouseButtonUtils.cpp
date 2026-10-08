@@ -31,7 +31,7 @@
 #include "SDL3/SDL_mouse.h"
 
 
-std::unordered_map<std::string, uint8_t, glimmer::TransparentStringHash, std::equal_to<> >
+std::unordered_map<std::string, uint8_t, glimmer::TransparentStringHash, std::equal_to<>>
 glimmer::MouseButtonUtils::stringToMouseButtonMap_ = {
     {"left", SDL_BUTTON_LEFT},
     {"middle", SDL_BUTTON_MIDDLE},
@@ -40,24 +40,29 @@ glimmer::MouseButtonUtils::stringToMouseButtonMap_ = {
     {"x2", SDL_BUTTON_X2},
 };
 
-std::vector<std::string> glimmer::MouseButtonUtils::cachedKeys_ = [] {
+std::vector<std::string> glimmer::MouseButtonUtils::cachedKeys_ = []
+{
     std::vector<std::string> keys;
     keys.reserve(stringToMouseButtonMap_.size());
-    for (const auto &key: stringToMouseButtonMap_ | std::views::keys) {
+    for (const auto& key : stringToMouseButtonMap_ | std::views::keys)
+    {
         keys.emplace_back(key);
     }
     return keys;
 }();
 
-uint8_t glimmer::MouseButtonUtils::StringToMouseButton(const std::string &buttonStr) {
+uint8_t glimmer::MouseButtonUtils::StringToMouseButton(const std::string& buttonStr)
+{
     const auto iter = stringToMouseButtonMap_.find(buttonStr);
     return iter == stringToMouseButtonMap_.end() ? 0 : iter->second;
 }
 
-bool glimmer::MouseButtonUtils::ContainsKey(const std::string &buttonStr) {
+bool glimmer::MouseButtonUtils::ContainsKey(const std::string& buttonStr)
+{
     return stringToMouseButtonMap_.contains(buttonStr);
 }
 
-const std::vector<std::string> &glimmer::MouseButtonUtils::GetAllMouseButtonKeys() {
+const std::vector<std::string>& glimmer::MouseButtonUtils::GetAllMouseButtonKeys()
+{
     return cachedKeys_;
 }

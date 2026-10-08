@@ -30,7 +30,8 @@
 #include "core/math/Color.h"
 
 
-namespace glimmer {
+namespace glimmer
+{
     struct ColorResource;
     class ResourceLocator;
     /**
@@ -39,13 +40,16 @@ namespace glimmer {
      * The commonly used color values used within the game engine.
      * 用于游戏引擎内部常用的颜色值。
      */
-    struct PreloadColors {
-        struct TextureColors {
+    struct PreloadColors
+    {
+        struct TextureColors
+        {
             Color accentColor;
             Color baseColor;
         };
 
-        struct GameColors {
+        struct GameColors
+        {
             Color focusTileBorderColor;
 
             //Positive/gain attribute color
@@ -61,12 +65,14 @@ namespace glimmer {
             Color itemSlotTextColor;
         };
 
-        struct BlueprintColors {
+        struct BlueprintColors
+        {
             Color validColor;
             Color invalidColor;
         };
 
-        struct DurabilityColors {
+        struct DurabilityColors
+        {
             /**
             * 装备耐久度对应颜色
             * durabilityGood     : 耐久 ≥ 80%  (完好，绿色)
@@ -80,7 +86,8 @@ namespace glimmer {
             Color durabilityDanger;
         };
 
-        struct DebugColors {
+        struct DebugColors
+        {
             Color box2dBorderColor;
             Color box2dFullColor;
             Color draggableColor;
@@ -123,7 +130,7 @@ namespace glimmer {
         GameColors game;
         DurabilityColors durability;
 
-        void LoadAllColors(const ResourceLocator *resourceLocator);
+        void LoadAllColors(const ResourceLocator* resourceLocator);
 
     private:
         /**
@@ -136,7 +143,7 @@ namespace glimmer {
          * @param defaultColor 默认颜色
          * @return
          */
-        static Color LoadColor(const ResourceLocator *resourceLocator, const std::string &key,
-                               const Color &defaultColor);
+        static Color LoadColor(const ResourceLocator* resourceLocator, const std::string& key,
+                               const Color& defaultColor);
     };
 }

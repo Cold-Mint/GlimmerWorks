@@ -27,14 +27,16 @@
 #pragma once
 #include "IPersistenceEntityCreator.h"
 
-namespace glimmer {
+namespace glimmer
+{
     class WorldContext;
 
-    class DroppedItemCreator : public IPersistenceEntityCreator {
+    class DroppedItemCreator : public IPersistenceEntityCreator
+    {
     public:
-        explicit DroppedItemCreator(WorldContext *worldContext);
+        explicit DroppedItemCreator(WorldContext* worldContext);
 
-        static EntityItemMessage GetEntityItemMessage(const WorldVector2D &position, std::unique_ptr<Item> item,
+        static EntityItemMessage GetEntityItemMessage(const WorldVector2D& position, std::unique_ptr<Item> item,
                                                       uint64_t pickupCooldownTicks);
 
         static ResourceRef GetResourceRef();
@@ -52,11 +54,11 @@ namespace glimmer {
          * @param pickupCooldownTicks pickupCooldownTicks 拾取冷却Tick
          * @return Whether the dropped item was spawned 是否成功生成
          */
-        static bool SpawnDroppedItem(WorldContext *worldContext, const WorldVector2D &position,
+        static bool SpawnDroppedItem(WorldContext* worldContext, const WorldVector2D& position,
                                      std::unique_ptr<Item> item, uint64_t pickupCooldownTicks);
 
-        void LoadTemplateComponents(uint32_t id, const ResourceRef &resourceRef) override;
+        void LoadTemplateComponents(uint32_t id, const ResourceRef& resourceRef) override;
 
-        void MergeEntityItemMessage(uint32_t id, const EntityItemMessage &entityItemMessage) override;
+        void MergeEntityItemMessage(uint32_t id, const EntityItemMessage& entityItemMessage) override;
     };
 }

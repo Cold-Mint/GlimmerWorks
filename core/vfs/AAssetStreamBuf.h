@@ -31,21 +31,26 @@
 
 #include <android/asset_manager.h>
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * AAssetStreamBuf
      * Android 资源流缓冲区
      */
-    class AAssetStreamBuf : public std::streambuf {
-        AAsset *asset_;
+    class AAssetStreamBuf : public std::streambuf
+    {
         char buffer_[1024]{};
+        AAsset* asset_;
 
     public:
-        explicit AAssetStreamBuf(AAsset *asset) : asset_(asset) {
+        explicit AAssetStreamBuf(AAsset* asset) : asset_(asset)
+        {
         }
 
-        ~AAssetStreamBuf() override {
-            if (asset_) {
+        ~AAssetStreamBuf() override
+        {
+            if (asset_)
+            {
                 AAsset_close(asset_);
             }
         }
@@ -64,15 +69,18 @@ namespace glimmer {
         *
         * @return Return the int conversion value of the current character; If EOF has been reached, return traits_type::eof(). 返回当前字符的 int 转换值；如果已到达 EOF 则返回 traits_type::eof()。
         */
-        int_type underflow() override {
-            if (gptr() < egptr()) {
+        int_type underflow() override
+        {
+            if (gptr() < egptr())
+            {
                 return traits_type::to_int_type(*gptr());
             }
 
             // Read from AAsset
             // 从 AAsset 读取
             int bytesRead = AAsset_read(asset_, buffer_, sizeof(buffer_));
-            if (bytesRead <= 0) {
+            if (bytesRead <= 0)
+            {
                 return traits_type::eof();
             }
 
@@ -100,27 +108,29 @@ namespace glimmer {
         * - 仅在输入模式（which & std::ios_base::in）下支持 seek。
         */
         pos_type
-        seekoff(off_type off, std::ios_base::seekdir dir, std::ios_base::openmode which) override {
+        seekoff(off_type off, std::ios_base::seekdir dir, std::ios_base::openmode which) override
+        {
             if (!(which & std::ios_base::in))
                 return {off_type(-1)};
 
             off_type basePos = 0;
 
-            switch (dir) {
-                case std::ios_base::beg:
-                    basePos = 0;
-                    break;
+            switch (dir)
+            {
+            case std::ios_base::beg:
+                basePos = 0;
+                break;
 
-                case std::ios_base::cur:
-                    basePos = AAsset_getLength(asset_) - AAsset_getRemainingLength(asset_);
-                    break;
+            case std::ios_base::cur:
+                basePos = AAsset_getLength(asset_) - AAsset_getRemainingLength(asset_);
+                break;
 
-                case std::ios_base::end:
-                    basePos = AAsset_getLength(asset_);
-                    break;
+            case std::ios_base::end:
+                basePos = AAsset_getLength(asset_);
+                break;
 
-                default:
-                    return {off_type(-1)};
+            default:
+                return {off_type(-1)};
             }
 
             off_type newPos = basePos + off;
@@ -153,7 +163,8 @@ namespace glimmer {
         * - 成功 seek 后将清空缓冲区，使下一次读取触发 underflow() 来重新填充数据。
         * - 对压缩的 AAsset 文件可能无法支持任意位置 seek。
         */
-        pos_type seekpos(pos_type pos, std::ios_base::openmode which) override {
+        pos_type seekpos(pos_type pos, std::ios_base::openmode which) override
+        {
             if (!(which & std::ios_base::in))
                 return {off_type(-1)};
 

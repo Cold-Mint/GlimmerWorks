@@ -32,7 +32,8 @@
 #include <queue>
 #include <thread>
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * TaskWorker
      * 耗时任务 Worker
@@ -44,11 +45,12 @@ namespace glimmer {
      * on a dedicated worker thread in the order they were submitted.
      * 采用单线程任务队列模型：所有提交的任务按提交顺序在专用工作线程上依次执行。
      */
-    class TaskWorker {
-        std::jthread thread_;
-        std::mutex mutex_;
+    class TaskWorker
+    {
+        std::queue<std::function<void()>> tasks_;
         std::condition_variable conditionVariable_;
-        std::queue<std::function<void()> > tasks_;
+        std::mutex mutex_;
+        std::jthread thread_;
 
         void WorkLoop(std::stop_token stopToken);
 
@@ -65,23 +67,31 @@ namespace glimmer {
          * @return Call `.get()` on the returned future to wait for the execution to complete.
          * 在返回值处调用 `.get()` 等待执行完毕。
          */
-        template<typename Func>
-        std::future<std::invoke_result_t<Func> > AddTaskAwait(Func &&func) {
+        template <typename Func>
+        std::future<std::invoke_result_t<Func>> AddTaskAwait(Func&& func)
+        {
             using Result = std::invoke_result_t<Func>;
-            auto promise = std::make_shared<std::promise<Result> >();
+            auto promise = std::make_shared<std::promise<Result>>();
             auto future = promise->get_future();
             {
                 std::lock_guard lock(mutex_);
                 tasks_.push(
-                    [func = std::forward<Func>(func), promise]() mutable {
-                        try {
-                            if constexpr (std::is_void_v<Result>) {
+                    [func = std::forward<Func>(func), promise]() mutable
+                    {
+                        try
+                        {
+                            if constexpr (std::is_void_v<Result>)
+                            {
                                 func();
                                 promise->set_value();
-                            } else {
+                            }
+                            else
+                            {
                                 promise->set_value(func());
                             }
-                        } catch (...) {
+                        }
+                        catch (...)
+                        {
                             promise->set_exception(std::current_exception());
                         }
                     }

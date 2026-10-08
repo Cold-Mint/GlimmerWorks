@@ -35,46 +35,57 @@
 #include "fmt/xchar.h"
 
 
-glimmer::DebugOverlay::DebugOverlay(AppContext *context)
-    : Scene(context), langsResources_(context->GetLangsResources()) {
+glimmer::DebugOverlay::DebugOverlay(AppContext* context)
+    : Scene(context), langsResources_(context->GetLangsResources())
+{
     LogCat::i(LogLabel::DEFAULT, "creating_debug_overlay", "Creating DebugOverlay");
     Init();
 }
 
-void glimmer::DebugOverlay::Update(const float delta) {
-    if (!displayDebugPanel_) {
+void glimmer::DebugOverlay::Update(const float delta)
+{
+    if (!displayDebugPanel_)
+    {
         return;
     }
-    if (delta <= 0.0F) {
+    if (delta <= 0.0F)
+    {
         return;
     }
     fpsAccumTime_ += delta;
     fpsFrameCount_ += 1;
     constexpr float kFpsUpdateInterval = 1.0F;
-    if (fpsAccumTime_ >= kFpsUpdateInterval) {
+    if (fpsAccumTime_ >= kFpsUpdateInterval)
+    {
         fps_ = static_cast<float>(fpsFrameCount_) / fpsAccumTime_;
         frameTimeMs_ = fpsAccumTime_ / static_cast<float>(fpsFrameCount_) * 1000.0F;
         // Average time consumption per frame (ms) 平均每帧耗时(ms)
         fpsFrameCount_ = 0;
         fpsAccumTime_ = 0.0F;
-        if (langsResources_ == nullptr) {
+        if (langsResources_ == nullptr)
+        {
             fpsText_ = fmt::format("FPS:{:.2f} | Frame Time:{:.2f} ms", fps_, frameTimeMs_);
-        } else {
+        }
+        else
+        {
             fpsText_ = fmt::format(fmt::runtime(langsResources_->fpsInfo), fps_, frameTimeMs_);
         }
-        if (debugModelHandle_) {
+        if (debugModelHandle_)
+        {
             debugModelHandle_.DirtyVariable("fps_text");
         }
     }
 }
 
-void glimmer::DebugOverlay::LoadDocuments() {
+void glimmer::DebugOverlay::LoadDocuments()
+{
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
     resourceRef.SetResourceKey("debug_overlay/debug_overlay");
     debugDocument_ = LoadSingleDocument(&resourceRef);
-    if (debugDocument_ == nullptr) {
+    if (debugDocument_ == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "debug_document_is_null",
                   "debugDocument_ == nullptr");
         return;
@@ -82,59 +93,74 @@ void glimmer::DebugOverlay::LoadDocuments() {
     UpdateDocumentVisibility();
 }
 
-void glimmer::DebugOverlay::OnCreateDataModels() {
-    Rml::DataModelConstructor *constructor = CreateDataModel("debug_overlay_scene");
-    if (constructor == nullptr) {
+void glimmer::DebugOverlay::OnCreateDataModels()
+{
+    Rml::DataModelConstructor* constructor = CreateDataModel("debug_overlay_scene");
+    if (constructor == nullptr)
+    {
         return;
     }
     constructor->Bind("fps_text", &fpsText_);
-    if (auto labelStruct = constructor->RegisterStruct<CoordinateLabel>()) {
+    if (auto labelStruct = constructor->RegisterStruct<CoordinateLabel>())
+    {
         labelStruct.RegisterMember("coordinate", &CoordinateLabel::coordinate);
-        constructor->RegisterArray<std::vector<CoordinateLabel> >();
+        constructor->RegisterArray<std::vector<CoordinateLabel>>();
     }
     constructor->Bind("x_coordinates", &xCoordinateLabels_);
     constructor->Bind("y_coordinates", &yCoordinateLabels_);
     debugModelHandle_ = constructor->GetModelHandle();
 }
 
-void glimmer::DebugOverlay::UpdateDocumentVisibility() {
-    if (debugDocument_ == nullptr) {
+void glimmer::DebugOverlay::UpdateDocumentVisibility()
+{
+    if (debugDocument_ == nullptr)
+    {
         return;
     }
-    if (displayDebugPanel_) {
+    if (displayDebugPanel_)
+    {
         debugDocument_->Show();
-    } else {
+    }
+    else
+    {
         debugDocument_->Hide();
     }
 }
 
-void glimmer::DebugOverlay::RebuildCoordinateLabels() {
+void glimmer::DebugOverlay::RebuildCoordinateLabels()
+{
     const auto labelSpacing = static_cast<int>(50 * uiScale_);
-    if (labelSpacing <= 0) {
+    if (labelSpacing <= 0)
+    {
         return;
     }
     xCoordinateLabels_.clear();
-    for (int x = 0; x <= windowWidth_; x += labelSpacing) {
+    for (int x = 0; x <= windowWidth_; x += labelSpacing)
+    {
         xCoordinateLabels_.push_back(CoordinateLabel{x});
     }
     yCoordinateLabels_.clear();
-    for (int y = 0; y <= windowHeight_; y += labelSpacing) {
+    for (int y = 0; y <= windowHeight_; y += labelSpacing)
+    {
         yCoordinateLabels_.push_back(CoordinateLabel{y});
     }
-    if (debugModelHandle_) {
+    if (debugModelHandle_)
+    {
         debugModelHandle_.DirtyVariable("x_coordinates");
         debugModelHandle_.DirtyVariable("y_coordinates");
     }
 }
 
-void glimmer::DebugOverlay::OnConfigChanged(const Config *config) {
+void glimmer::DebugOverlay::OnConfigChanged(const Config* config)
+{
     displayDebugPanel_ = config->debug.displayDebugPanel;
     uiScale_ = config->window.uiScale;
     UpdateDocumentVisibility();
     RebuildCoordinateLabels();
 }
 
-void glimmer::DebugOverlay::OnWindowSizeChanged(const int &width, const int &height) {
+void glimmer::DebugOverlay::OnWindowSizeChanged(const int& width, const int& height)
+{
     windowWidth_ = width;
     windowHeight_ = height;
     RebuildCoordinateLabels();

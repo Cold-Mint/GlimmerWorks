@@ -28,29 +28,31 @@
 #include "core/math/Vector2DI.h"
 #include "core/mod/ResourceRef.h"
 
-namespace glimmer {
-    class TileStateBackup {
+namespace glimmer
+{
+    class TileStateBackup
+    {
+        ResourceRef resourceRef_;
+        Vector2DI offset_;
         uint8_t width_ = 1;
         uint8_t height_ = 1;
-        Vector2DI offset_;
-        ResourceRef resourceRef_;
 
     public:
-        void SetResourceRef(const ResourceRef &resourceRef);
+        void SetResourceRef(const ResourceRef& resourceRef);
 
         void SetWidth(uint8_t width);
 
         void SetHeight(uint8_t height);
 
-        void SetOffset(const Vector2DI &offset);
+        void SetOffset(const Vector2DI& offset);
 
-        [[nodiscard]] const ResourceRef &GetResourceRef() const;
+        [[nodiscard]] const ResourceRef& GetResourceRef() const;
 
-        void ReadOffsetMessage(const Vector2DIMessage &message);
+        void ReadOffsetMessage(const Vector2DIMessage& message);
 
-        void WriteOffsetMessage(Vector2DIMessage &message) const;
+        void WriteOffsetMessage(Vector2DIMessage& message) const;
 
-        void ReadResourceRefMessage(const ResourceRefMessage &message);
+        void ReadResourceRefMessage(const ResourceRefMessage& message);
 
         void WriteResourceRefMessage(ResourceRefMessage message) const;
 

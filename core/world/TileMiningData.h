@@ -27,16 +27,18 @@
 #pragma once
 #include <cstdint>
 
-namespace glimmer {
-    class TileMiningData {
-        bool allowChainMining_ = false;
-        bool autoDigCostScale_ = true;
+namespace glimmer
+{
+    class TileMiningData
+    {
+        uint32_t unitDigCost_ = 1;
         float hardness_ = 1.0F;
         float minMiningEfficiency_ = 0.0F;
-        uint32_t unitDigCost_ = 1;
+        bool allowChainMining_ = false;
+        bool autoDigCostScale_ = true;
 
     public:
-        [[nodiscard]] const float &GetHardness() const;
+        [[nodiscard]] const float& GetHardness() const;
 
         [[nodiscard]] bool IsBreakable() const;
 

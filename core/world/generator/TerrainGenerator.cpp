@@ -37,19 +37,23 @@
 #include "core/mod/dataPack/BiomeRegistry.h"
 
 
-std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerrain(const BiomeRegistry *biomeRegistry,
-    int worldSeed, const DimensionResource *dimensionResource, const ResourceRef &dimension,
-    const TerrainVertexVector2D &position) const {
-    if (climateSampler_ == nullptr) {
+std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerrain(const BiomeRegistry* biomeRegistry,
+    int worldSeed, const DimensionResource* dimensionResource, const ResourceRef& dimension,
+    const TerrainVertexVector2D& position) const
+{
+    if (climateSampler_ == nullptr)
+    {
         return nullptr;
     }
     LogCat::d(LogLabel::TERRAIN, "terrain_generating", "Generating terrain: position=({}, {})", position.x, position.y);
     auto terrainResult = std::make_shared<TerrainResult>();
     terrainResult->SetPosition(position);
-    for (int localX = 0; localX < TERRAIN_SIZE; ++localX) {
+    for (int localX = 0; localX < TERRAIN_SIZE; ++localX)
+    {
         const int firstTileTerrainY = climateSampler_->GetFirstTileTerrainY(worldSeed, dimensionResource,
                                                                             position.x + localX);
-        for (int localY = 0; localY < TERRAIN_SIZE; ++localY) {
+        for (int localY = 0; localY < TERRAIN_SIZE; ++localY)
+        {
             auto localPosition = TerrainRelativeVector2D(localX, localY);
             WriteTerrainTileResult(biomeRegistry, worldSeed, dimensionResource, dimension,
                                    CoordinateTransformer::TerrainRelativeToTile(position, localPosition),
@@ -63,28 +67,34 @@ std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerra
 }
 
 std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateOrGetTerrain(
-    const BiomeRegistry *biomeRegistry, const int worldSeed, const DimensionResource *dimensionResource,
-    const ResourceRef &dimension, const TerrainVertexVector2D &position) {
-    if (const auto iterator = terrainResults_.find(position); iterator != terrainResults_.end()) {
-        if (auto terrainResult = iterator->second.lock()) {
+    const BiomeRegistry* biomeRegistry, const int worldSeed, const DimensionResource* dimensionResource,
+    const ResourceRef& dimension, const TerrainVertexVector2D& position)
+{
+    if (const auto iterator = terrainResults_.find(position); iterator != terrainResults_.end())
+    {
+        if (auto terrainResult = iterator->second.lock())
+        {
             return terrainResult;
         }
         terrainResults_.erase(iterator);
     }
     auto terrainResult = GenerateTerrain(biomeRegistry, worldSeed, dimensionResource, dimension, position);
-    if (terrainResult == nullptr) {
+    if (terrainResult == nullptr)
+    {
         return nullptr;
     }
     terrainResults_[position] = terrainResult;
     return terrainResult;
 }
 
-void glimmer::TerrainGenerator::WriteTerrainTileResult(const BiomeRegistry *biomeRegistry, const int worldSeed,
-                                                       const DimensionResource *dimensionResource,
-                                                       const ResourceRef &dimension, const TileVector2D &world,
+void glimmer::TerrainGenerator::WriteTerrainTileResult(const BiomeRegistry* biomeRegistry, const int worldSeed,
+                                                       const DimensionResource* dimensionResource,
+                                                       const ResourceRef& dimension, const TileVector2D& world,
                                                        const int firstTileTerrainY,
-                                                       TerrainTileResult &terrainTileResult) const {
-    if (climateSampler_ == nullptr) {
+                                                       TerrainTileResult& terrainTileResult) const
+{
+    if (climateSampler_ == nullptr)
+    {
         return;
     }
     const float elevation = TerrainMath::GetElevation(dimensionResource, world.y);
@@ -99,15 +109,19 @@ void glimmer::TerrainGenerator::WriteTerrainTileResult(const BiomeRegistry *biom
                                                                     elevation,
                                                                     surfaceProximity));
     if (world.y > dimensionResource->maxY || world.y < dimensionResource->minY || world.x > dimensionResource->maxX ||
-        world.x < dimensionResource->minX) {
+        world.x < dimensionResource->minX)
+    {
         terrainTileResult.SetTerrainType(TerrainResultType::VOID);
         return;
     }
-    if (world.y == dimensionResource->minY) {
+    if (world.y == dimensionResource->minY)
+    {
         terrainTileResult.SetTerrainType(TerrainResultType::BEDROCK);
     }
-    if (world.y > firstTileTerrainY) {
-        if (world.y < dimensionResource->seaLevelY) {
+    if (world.y > firstTileTerrainY)
+    {
+        if (world.y < dimensionResource->seaLevelY)
+        {
             terrainTileResult.SetTerrainType(TerrainResultType::WATER);
             return;
         }
@@ -117,6 +131,7 @@ void glimmer::TerrainGenerator::WriteTerrainTileResult(const BiomeRegistry *biom
     terrainTileResult.SetTerrainType(TerrainResultType::SOLID);
 }
 
-glimmer::ClimateSampler *glimmer::TerrainGenerator::GetMutableClimateSampler() const {
+glimmer::ClimateSampler* glimmer::TerrainGenerator::GetMutableClimateSampler() const
+{
     return climateSampler_.get();
 }

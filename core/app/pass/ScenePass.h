@@ -34,7 +34,8 @@
 #include "core/gpu/IPass.h"
 #include "core/gpu/SpriteVertex.h"
 
-namespace glimmer {
+namespace glimmer
+{
     class GPUPipelineResourceResult;
     class GPUSamplerResourceResult;
 
@@ -48,28 +49,8 @@ namespace glimmer {
      * 把排好序的渲染队列上传到 GPU 缓冲，并绘制到离屏场景纹理（无光照）。
      * 产出的纹理会发布到 RenderFrameContext::sceneTexture 供光照 pass 消费。
      */
-    class ScenePass final : public IPass {
-        uint32_t sceneTextureWidth_ = 0;
-        uint32_t sceneTextureHeight_ = 0;
-        uint32_t vertexBufferSize_ = 0;
-        uint32_t indexBufferSize_ = 0;
-        uint32_t transferBufferSize_ = 0;
-        SDL_GPUDevice *device_ = nullptr;
-        SDL_Window *window_ = nullptr;
-        //Offscreen render target for the unlit scene pass.
-        //用于无光照场景通道的离屏渲染目标。
-        SDL_GPUTexture *sceneTexture_ = nullptr;
-        //1x1 white texture bound when a command has no texture, so the
-        //fragment shader's `texture * color` resolves to just the vertex color
-        //for solid-color geometry (rectangles/lines/points).
-        //当命令没有纹理时绑定的 1x1 白色纹理，使片元着色器的
-        //`texture * color` 退化为纯顶点颜色（矩形/线/点）。
-        SDL_GPUTexture *solidColorTexture_ = nullptr;
-        SDL_GPUBuffer *vertexBuffer_ = nullptr;
-        SDL_GPUBuffer *indexBuffer_ = nullptr;
-        SDL_GPUTransferBuffer *transferBuffer_ = nullptr;
-        std::shared_ptr<GPUPipelineResourceResult> defaultPipeline_ = nullptr;
-        std::shared_ptr<GPUSamplerResourceResult> defaultSampler_ = nullptr;
+    class ScenePass final : public IPass
+    {
         //Per-frame staging buffer for scene-pass command uniform blocks.
         //场景 pass 命令 uniform 块的逐帧 staging 缓冲区。
         std::vector<uint8_t> sceneStagingBuffer_;
@@ -79,8 +60,29 @@ namespace glimmer {
         //避免每帧堆分配。
         std::vector<SpriteVertex> vertexStaging_;
         std::vector<uint32_t> indexStaging_;
+        std::shared_ptr<GPUPipelineResourceResult> defaultPipeline_ = nullptr;
+        std::shared_ptr<GPUSamplerResourceResult> defaultSampler_ = nullptr;
+        SDL_GPUDevice* device_ = nullptr;
+        SDL_Window* window_ = nullptr;
+        //Offscreen render target for the unlit scene pass.
+        //用于无光照场景通道的离屏渲染目标。
+        SDL_GPUTexture* sceneTexture_ = nullptr;
+        //1x1 white texture bound when a command has no texture, so the
+        //fragment shader's `texture * color` resolves to just the vertex color
+        //for solid-color geometry (rectangles/lines/points).
+        //当命令没有纹理时绑定的 1x1 白色纹理，使片元着色器的
+        //`texture * color` 退化为纯顶点颜色（矩形/线/点）。
+        SDL_GPUTexture* solidColorTexture_ = nullptr;
+        SDL_GPUBuffer* vertexBuffer_ = nullptr;
+        SDL_GPUBuffer* indexBuffer_ = nullptr;
+        SDL_GPUTransferBuffer* transferBuffer_ = nullptr;
+        uint32_t sceneTextureWidth_ = 0;
+        uint32_t sceneTextureHeight_ = 0;
+        uint32_t vertexBufferSize_ = 0;
+        uint32_t indexBufferSize_ = 0;
+        uint32_t transferBufferSize_ = 0;
 
-        void EnsureSceneTexture(RenderFrameContext &ctx);
+        void EnsureSceneTexture(RenderFrameContext& ctx);
 
         void EnsureVertexBufferSize(uint32_t size);
 
@@ -90,17 +92,17 @@ namespace glimmer {
 
         void EnsureSolidColorTexture();
 
-        void FlushScenePass(const RenderFrameContext &ctx);
+        void FlushScenePass(const RenderFrameContext& ctx);
 
     public:
-        ScenePass(SDL_GPUDevice *device, SDL_Window *window,
+        ScenePass(SDL_GPUDevice* device, SDL_Window* window,
                   std::shared_ptr<GPUPipelineResourceResult> defaultPipeline,
                   std::shared_ptr<GPUSamplerResourceResult> defaultSampler);
 
         ~ScenePass() override;
 
-        void Prepare(RenderFrameContext &ctx) override;
+        void Prepare(RenderFrameContext& ctx) override;
 
-        void Record(RenderFrameContext &ctx) override;
+        void Record(RenderFrameContext& ctx) override;
     };
 }

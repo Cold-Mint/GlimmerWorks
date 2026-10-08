@@ -50,23 +50,27 @@
 #include "core/utils/StringUtils.h"
 #include "generator/TileLayerType.h"
 
-glimmer::WorldBuilder::WorldBuilder(WorldContext *worldContext) : worldContext_(worldContext) {
+glimmer::WorldBuilder::WorldBuilder(WorldContext* worldContext) : worldContext_(worldContext)
+{
 }
 
-void glimmer::WorldBuilder::Build() {
+void glimmer::WorldBuilder::Build()
+{
     std::optional<MapManifestMessage> mapManifestOptional = worldContext_->saves_->ReadMapManifest();
-    if (!mapManifestOptional.has_value()) {
+    if (!mapManifestOptional.has_value())
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "world_builder_map_manifest_missing",
                   "Map manifest is missing, cannot build world");
         return;
     }
     std::optional<PlayerMessage> playerOptional = worldContext_->saves_->ReadLocalPlayer();
-    if (!playerOptional.has_value()) {
+    if (!playerOptional.has_value())
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "world_builder_player_missing",
                   "Player data is missing, cannot build world");
         return;
     }
-    PlayerMessage &playerMessage = playerOptional.value();
+    PlayerMessage& playerMessage = playerOptional.value();
     worldContext_->playerManifest_ = std::make_unique<PlayerManifest>();
     worldContext_->playerManifest_->FromMessage(playerMessage);
     worldContext_->mapManifest_ = std::make_unique<MapManifest>();
@@ -75,36 +79,41 @@ void glimmer::WorldBuilder::Build() {
     b2WorldDef worldDef = b2DefaultWorldDef();
     worldDef.gravity = b2Vec2(0.0F, -10.0F);
     worldContext_->box2DWorldId_.SetWorldId(b2CreateWorld(&worldDef));
-    ModContext *modContext = worldContext_->appContext_->GetModContext();
-    if (modContext == nullptr) {
+    ModContext* modContext = worldContext_->appContext_->GetModContext();
+    if (modContext == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "world_builder_mod_context_null",
                   "Mod context is null, cannot build world");
         return;
     }
-    BiomeDecoratorManager *biomeDecoratorManager = modContext->GetBiomeDecoratorManager();
-    if (biomeDecoratorManager == nullptr) {
+    BiomeDecoratorManager* biomeDecoratorManager = modContext->GetBiomeDecoratorManager();
+    if (biomeDecoratorManager == nullptr)
+    {
         return;
     }
     biomeDecoratorManager->SetWorldSeed(worldContext_->worldSeed_);
     worldContext_->entityManager_ = std::make_unique<EntityManager>();
     worldContext_->entityShortCut_ = std::make_unique<EntityShortCut>();
     worldContext_->entityManager_->SetEntityIndex(worldContext_->mapManifest_->entityIDIndex);
-    const PlayerDimensionMessage *playerDimensionMessage = worldContext_->playerManifest_->GetCurrentDimension();
-    if (playerDimensionMessage == nullptr) {
+    const PlayerDimensionMessage* playerDimensionMessage = worldContext_->playerManifest_->GetCurrentDimension();
+    if (playerDimensionMessage == nullptr)
+    {
         return;
     }
     ResourceRef dimensionResourceRef;
     dimensionResourceRef.ReadResourceRefMessage(playerDimensionMessage->dimension());
     worldContext_->dimension_ = std::make_unique<Dimension>();
-    DimensionResource *dimensionResource = worldContext_->appContext_->GetResourceLocator()->FindDimension(
+    DimensionResource* dimensionResource = worldContext_->appContext_->GetResourceLocator()->FindDimension(
         &dimensionResourceRef);
-    if (dimensionResource == nullptr) {
+    if (dimensionResource == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "world_builder_dimension_resource_null",
                   "Dimension resource is not found, cannot build world");
         return;
     }
     worldContext_->dimension_->SetDimensionResource(dimensionResourceRef, dimensionResource);
-    if (EventBus *eventBus = worldContext_->appContext_->GetEventBus(); eventBus != nullptr) {
+    if (EventBus* eventBus = worldContext_->appContext_->GetEventBus(); eventBus != nullptr)
+    {
         DimensionChangedEvent dimensionChangedEvent;
         dimensionChangedEvent.newDimension = dimensionResourceRef;
         eventBus->Publish(dimensionChangedEvent);
@@ -116,7 +125,7 @@ void glimmer::WorldBuilder::Build() {
                                                                       dimensionResource);
     worldContext_->tileInstancePool_ = std::make_unique<TileInstancePool>();
     worldContext_->fixedGlobalTick_ = worldContext_->mapManifest_->globalTickCount;
-    auto *commandManager = worldContext_->appContext_->GetConsoleContext()->GetCommandManager();
+    auto* commandManager = worldContext_->appContext_->GetConsoleContext()->GetCommandManager();
     commandManager->BindWorldContext(worldContext_);
     commandManager->SetAllowCheats(true);
     auto pause = worldContext_->entityManager_->AddEntity();
@@ -147,7 +156,8 @@ void glimmer::WorldBuilder::Build() {
         RESOURCE_MOB);
     worldContext_->playerContext_->InitPlayer(playerResourceRef);
     auto itemContainerPtr = worldContext_->entityManager_->
-            GetComponent<ItemContainerComponent>(worldContext_->entityShortCut_->GetPlayer());
+                                           GetComponent<ItemContainerComponent>(
+                                               worldContext_->entityShortCut_->GetPlayer());
     worldContext_->entityShortCut_->SetItemContainerComponent(itemContainerPtr);
     worldContext_->entityShortCut_->SetItemToolTipComponent(
         worldContext_->entityManager_->AddComponent<ItemToolTipComponent>(

@@ -27,16 +27,18 @@
 #pragma once
 #include "core/ecs/GameSystem.h"
 
-namespace glimmer {
-    class PhysicsSystem : public GameSystem {
+namespace glimmer
+{
+    class PhysicsSystem : public GameSystem
+    {
         std::vector<GameEntityID> entities_;
-        b2WorldId worldId_ = {};
-        EntityManager *entityManager_ = nullptr;
+        EntityManager* entityManager_ = nullptr;
         uint32_t rigidBody2dCount_ = 0;
         uint32_t transform2dCount_ = 0;
+        b2WorldId worldId_{};
 
     public:
-        explicit PhysicsSystem(WorldContext *worldContext);
+        explicit PhysicsSystem(WorldContext* worldContext);
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 

@@ -31,8 +31,10 @@
 #include "SDL3/SDL_pixels.h"
 
 
-namespace glimmer {
-    struct Color : IFingerprintAble {
+namespace glimmer
+{
+    struct Color : IFingerprintAble
+    {
         uint8_t r = 0;
         uint8_t g = 0;
         uint8_t b = 0;

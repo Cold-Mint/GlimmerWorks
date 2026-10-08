@@ -32,15 +32,17 @@
 #include "ResourcePack.h"
 #include "core/mod/BasePackManager.h"
 
-namespace glimmer {
-    class ResourcePackManager : public BasePackManager<ResourcePack> {
+namespace glimmer
+{
+    class ResourcePackManager : public BasePackManager<ResourcePack>
+    {
     protected:
-        std::vector<uint64_t> *GetEnabledPack(Config *config) const override;
+        std::vector<uint64_t>* GetEnabledPack(Config* config) const override;
 
-        std::filesystem::path GetPackPath(Config *config) const override;
+        std::filesystem::path GetPackPath(Config* config) const override;
 
         std::unique_ptr<ResourcePack>
-        LoadPack(const PackScanRequest *packScanRequest, std::filesystem::path path) override;
+        LoadPack(const PackScanRequest* packScanRequest, std::filesystem::path path) override;
 
     public:
         /**
@@ -51,8 +53,8 @@ namespace glimmer {
          * @param virtualFileSystem 虚拟文件系统
          * @return 优先返回 fonts/<language>.ttf，其次返回 fonts/default.ttf，都没有则返回 nullopt
          */
-        std::optional<std::filesystem::path> GetFontPath(const std::vector<uint64_t> &enabledResourcePack,
-                                                         const std::string &language,
-                                                         const VirtualFileSystem *virtualFileSystem);
+        std::optional<std::filesystem::path> GetFontPath(const std::vector<uint64_t>& enabledResourcePack,
+                                                         const std::string& language,
+                                                         const VirtualFileSystem* virtualFileSystem);
     };
 }

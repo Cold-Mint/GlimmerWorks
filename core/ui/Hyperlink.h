@@ -27,8 +27,10 @@
 #pragma once
 #include <string>
 
-namespace glimmer {
-    struct Hyperlink {
+namespace glimmer
+{
+    struct Hyperlink
+    {
         std::string text;
         std::string url;
     };

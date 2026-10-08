@@ -28,17 +28,19 @@
 #include "DynamicSuggestions.h"
 #include "core/console/hook/CommandHookManager.h"
 
-namespace glimmer {
-    class CommandHookIdDynamicSuggestions final : public DynamicSuggestions {
-        CommandHookManager *commandHookManager_ = nullptr;
+namespace glimmer
+{
+    class CommandHookIdDynamicSuggestions final : public DynamicSuggestions
+    {
+        CommandHookManager* commandHookManager_ = nullptr;
 
     public:
-        explicit CommandHookIdDynamicSuggestions(CommandHookManager *commandHookManager);
+        explicit CommandHookIdDynamicSuggestions(CommandHookManager* commandHookManager);
 
         [[nodiscard]] std::string GetId() const override;
 
-        const std::vector<std::string> &GetSuggestions(const std::optional<std::string> &param) override;
+        const std::vector<std::string>& GetSuggestions(const std::optional<std::string>& param) override;
 
-        bool Match(const std::string &keyword, const std::string &param) override;
+        bool Match(const std::string& keyword, const std::string& param) override;
     };
 }

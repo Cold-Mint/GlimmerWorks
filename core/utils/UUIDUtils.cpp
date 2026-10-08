@@ -35,7 +35,8 @@
 
 #include "RandomUtils.h"
 
-std::string glimmer::UUIDUtils::Generate() {
+std::string glimmer::UUIDUtils::Generate()
+{
     std::array data{
         RandomUtils::Random<uint32_t>(0, 0xFFFFFFFF),
         RandomUtils::Random<uint32_t>(0, 0xFFFFFFFF),

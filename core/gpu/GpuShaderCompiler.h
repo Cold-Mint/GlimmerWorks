@@ -33,7 +33,8 @@
 
 #include "GpuShaderCompileResult.h"
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * GpuShaderCompiler
      * GPU 着色器编译器
@@ -46,7 +47,8 @@ namespace glimmer {
      * the last shader has been compiled (typically during GpuContext init/shutdown).
      * 用法：编译任何着色器之前调用一次 Init()，最后一次编译结束后调用 Shutdown()。
      */
-    struct GpuShaderCompiler {
+    struct GpuShaderCompiler
+    {
         /**
          * Initialize the glslang process state.
          * 初始化 glslang 进程状态。
@@ -68,7 +70,7 @@ namespace glimmer {
         * @param vertex Is it a vertex shader? 是否为顶点着色器
         * @return
         */
-        static std::unique_ptr<GpuShaderCompileResult> CompileToSpirv(const std::string &source,
+        static std::unique_ptr<GpuShaderCompileResult> CompileToSpirv(const std::string& source,
                                                                       bool vertex);
 
         /**
@@ -81,7 +83,7 @@ namespace glimmer {
          * @param vertex Is it a vertex shader? 是否为顶点着色器
          * @return vector of (block name, binding). Empty on failure.
          */
-        static std::vector<std::pair<std::string, uint32_t> > ReflectUniformBlocks(const std::string &source,
+        static std::vector<std::pair<std::string, uint32_t>> ReflectUniformBlocks(const std::string& source,
             bool vertex);
     };
 }

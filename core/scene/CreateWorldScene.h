@@ -32,25 +32,27 @@
 #include "SceneManager.h"
 #include "core/rmi/dataModel/CreateWorldDataModel.h"
 
-namespace glimmer {
+namespace glimmer
+{
     class DimensionRegistry;
 
-    class CreateWorldScene : public Scene {
+    class CreateWorldScene : public Scene
+    {
+        CreateWorldDataModel createWorldDataModel_;
         std::filesystem::path runtimePath_;
         Rml::DataModelHandle modelHandle_;
-        CreateWorldDataModel createWorldDataModel_;
-        SceneManager *sceneManager_ = nullptr;
-        DimensionRegistry *dimensionRegistry_ = nullptr;
-        ResourceLocator *resourceLocator_ = nullptr;
-        MainThreadDispatcher *mainThreadDispatcher_ = nullptr;
+        SceneManager* sceneManager_ = nullptr;
+        DimensionRegistry* dimensionRegistry_ = nullptr;
+        ResourceLocator* resourceLocator_ = nullptr;
+        MainThreadDispatcher* mainThreadDispatcher_ = nullptr;
 
-        void OnCreateWorldClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
+        void OnCreateWorldClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
-        void OnBackClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
+        void OnBackClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
-        void OnRandomSeedClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
+        void OnRandomSeedClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
-        void OnRandomNameClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
+        void OnRandomNameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
         void RandomizeWorld();
 
@@ -65,7 +67,7 @@ namespace glimmer {
     public:
         float uiScale_ = 1.0F;
 
-        explicit CreateWorldScene(AppContext *context);
+        explicit CreateWorldScene(AppContext* context);
 
         void OnCreateDataModels() override;
 
@@ -73,7 +75,7 @@ namespace glimmer {
 
         void LoadDocuments() override;
 
-        void OnConfigChanged(const Config *config) override;
+        void OnConfigChanged(const Config* config) override;
 
         [[nodiscard]] std::optional<std::string> RandomName() const;
 

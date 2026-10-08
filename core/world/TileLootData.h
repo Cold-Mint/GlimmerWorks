@@ -27,17 +27,19 @@
 #pragma once
 #include "core/mod/ResourceRef.h"
 
-namespace glimmer {
-    class TileLootData {
+namespace glimmer
+{
+    class TileLootData
+    {
+        ResourceRef lootTable_;
         bool customLootTable_ = false;
         bool lootScaleBySize_ = false;
         bool canDropLoot_ = true;
-        ResourceRef lootTable_;
 
     public:
         [[nodiscard]] bool IsCustomLootTable() const;
 
-        [[nodiscard]] const ResourceRef *GetLootTableRef() const;
+        [[nodiscard]] const ResourceRef* GetLootTableRef() const;
 
         [[nodiscard]] bool LootScaleBySize() const;
 
@@ -45,7 +47,7 @@ namespace glimmer {
 
         void SetCustomLootTable(bool customLootTable);
 
-        void SetLootTable(const ResourceRef &lootTable);
+        void SetLootTable(const ResourceRef& lootTable);
 
         void SetLootScaleBySize(bool lootScaleBySize);
 

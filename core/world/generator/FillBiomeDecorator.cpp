@@ -30,28 +30,33 @@
 #include "core/math/CoordinateTransformer.h"
 
 
-void glimmer::FillBiomeDecorator::DecorationImpl(const ChunkVertexVector2D &chunkVertex, WorldContext *worldContext,
-                                                 TerrainResult *terrainResult,
-                                                 FillBiomeDecoratorResource *decoratorResource,
-                                                 BiomeResource *biomeResource,
-                                                 std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> >
-                                                 *tilesRefMap) {
-    std::array<ResourceRef, CHUNK_AREA> &targetLayer = tilesRefMap->at(
+void glimmer::FillBiomeDecorator::DecorationImpl(const ChunkVertexVector2D& chunkVertex, WorldContext* worldContext,
+                                                 TerrainResult* terrainResult,
+                                                 FillBiomeDecoratorResource* decoratorResource,
+                                                 BiomeResource* biomeResource,
+                                                 std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>
+                                                 * tilesRefMap)
+{
+    std::array<ResourceRef, CHUNK_AREA>& targetLayer = tilesRefMap->at(
         static_cast<TileLayerType>(decoratorResource->layerType));
-    const ResourceRef &resourceRef = decoratorResource->tile;
-    for (int localX = 0; localX < CHUNK_SIZE; localX++) {
-        for (int localY = 0; localY < CHUNK_SIZE; localY++) {
+    const ResourceRef& resourceRef = decoratorResource->tile;
+    for (int localX = 0; localX < CHUNK_SIZE; localX++)
+    {
+        for (int localY = 0; localY < CHUNK_SIZE; localY++)
+        {
             const int idx = localY * CHUNK_SIZE + localX;
             ChunkRelativeVector2D chunkRelativeVector2D(localX, localY);
-            const auto &self = terrainResult->QueryTerrain(CoordinateTransformer::TileToTerrainRelative(
+            const auto& self = terrainResult->QueryTerrain(CoordinateTransformer::TileToTerrainRelative(
                 CoordinateTransformer::ChunkRelativeToTile(
                     chunkVertex, chunkRelativeVector2D)));
-            if (self.GetTerrainType() != TerrainResultType::SOLID) {
+            if (self.GetTerrainType() != TerrainResultType::SOLID)
+            {
                 //Not solid tiles.
                 //不是固体瓦片。
                 continue;
             }
-            if (self.GetBiomeResource() != biomeResource) {
+            if (self.GetBiomeResource() != biomeResource)
+            {
                 //Tiles do not belong to the current biome.
                 //瓦片不属于当前生物群系。
                 continue;
@@ -61,6 +66,7 @@ void glimmer::FillBiomeDecorator::DecorationImpl(const ChunkVertexVector2D &chun
     }
 }
 
-glimmer::BiomeDecoratorType glimmer::FillBiomeDecorator::GetBiomeDecoratorType() {
+glimmer::BiomeDecoratorType glimmer::FillBiomeDecorator::GetBiomeDecoratorType()
+{
     return BiomeDecoratorType::FILL;
 }

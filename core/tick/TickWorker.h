@@ -33,12 +33,14 @@
 
 #include "ITickListener.h"
 
-namespace glimmer {
-    class TickWorker {
-        std::jthread thread_;
-        std::mutex mutex_;
+namespace glimmer
+{
+    class TickWorker
+    {
         std::condition_variable conditionVariable_;
-        std::vector<ITickListener *> listeners_;
+        std::mutex mutex_;
+        std::vector<ITickListener*> listeners_;
+        std::jthread thread_;
         uint64_t tickCount_ = 0;
 
         void TickLoop(std::stop_token stopToken);
@@ -57,13 +59,13 @@ namespace glimmer {
          * 添加一个在每个 tick 都会被调用的监听器。
          * @param listener The listener receives the cumulative tick count. 监听器接收累计 tick 次数。
          */
-        void AddCallback(ITickListener *listener);
+        void AddCallback(ITickListener* listener);
 
         /**
          * Remove a previously added listener.
          * 移除一个之前添加的监听器。
          * @param listener The listener to remove. 要移除的监听器。
          */
-        void RemoveCallback(ITickListener *listener);
+        void RemoveCallback(ITickListener* listener);
     };
 }

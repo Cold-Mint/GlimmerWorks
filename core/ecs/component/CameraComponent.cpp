@@ -28,38 +28,46 @@
 
 #include "core/math/CoordinateTransformer.h"
 
-bool glimmer::CameraComponent::IsPointInViewport(const WorldVector2D &cameraPosition,
-                                                 const WorldVector2D &worldPos) const {
+bool glimmer::CameraComponent::IsPointInViewport(const WorldVector2D& cameraPosition,
+                                                 const WorldVector2D& worldPos) const
+{
     const auto viewportRect = CoordinateTransformer::GetViewportRect(cameraPosition, size_, zoom_);
     const auto point = SDL_FPoint(worldPos.x, worldPos.y);
     return SDL_PointInRectFloat(&point, &viewportRect);
 }
 
-bool glimmer::CameraComponent::IsRectInViewport(const WorldVector2D &cameraPosition, const SDL_FRect *rect) const {
+bool glimmer::CameraComponent::IsRectInViewport(const WorldVector2D& cameraPosition, const SDL_FRect* rect) const
+{
     const auto viewportRect = CoordinateTransformer::GetViewportRect(cameraPosition, size_, zoom_);
     return SDL_HasRectIntersectionFloat(&viewportRect, rect);
 }
 
-void glimmer::CameraComponent::SetSize(const ScreenVector2D &size) {
-    if (size_ == size) {
+void glimmer::CameraComponent::SetSize(const ScreenVector2D& size)
+{
+    if (size_ == size)
+    {
         return;
     }
     this->size_ = size;
     AddVersion();
 }
 
-const glimmer::ScreenVector2D &glimmer::CameraComponent::GetSize() const {
+const glimmer::ScreenVector2D& glimmer::CameraComponent::GetSize() const
+{
     return size_;
 }
 
 
-float glimmer::CameraComponent::GetZoom() const {
+float glimmer::CameraComponent::GetZoom() const
+{
     return zoom_;
 }
 
-void glimmer::CameraComponent::SetZoom(const float zoom) {
+void glimmer::CameraComponent::SetZoom(const float zoom)
+{
     const float newZoom = std::clamp(zoom, 0.2F, 4.0F);
-    if (newZoom == zoom_) {
+    if (newZoom == zoom_)
+    {
         return;
     }
     this->zoom_ = newZoom;
@@ -67,10 +75,12 @@ void glimmer::CameraComponent::SetZoom(const float zoom) {
 }
 
 
-GameComponentTypeMessage glimmer::CameraComponent::GetComponentTypeStatic() {
+GameComponentTypeMessage glimmer::CameraComponent::GetComponentTypeStatic()
+{
     return COMPONENT_CAMERA;
 }
 
-GameComponentTypeMessage glimmer::CameraComponent::GetComponentType() {
+GameComponentTypeMessage glimmer::CameraComponent::GetComponentType()
+{
     return GetComponentTypeStatic();
 }

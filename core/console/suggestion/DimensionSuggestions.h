@@ -29,17 +29,19 @@
 #include "core/mod/dataPack/DimensionRegistry.h"
 
 
-namespace glimmer {
-    class DimensionSuggestions final : public DynamicSuggestions {
-        DimensionRegistry *dimensionRegistry_ = nullptr;
+namespace glimmer
+{
+    class DimensionSuggestions final : public DynamicSuggestions
+    {
+        DimensionRegistry* dimensionRegistry_ = nullptr;
 
     public:
-        explicit DimensionSuggestions(DimensionRegistry *dimensionRegistry);
+        explicit DimensionSuggestions(DimensionRegistry* dimensionRegistry);
 
         [[nodiscard]] std::string GetId() const override;
 
-        const std::vector<std::string> &GetSuggestions(const std::optional<std::string> &param) override;
+        const std::vector<std::string>& GetSuggestions(const std::optional<std::string>& param) override;
 
-        bool Match(const std::string &keyword, const std::string &param) override;
+        bool Match(const std::string& keyword, const std::string& param) override;
     };
 }

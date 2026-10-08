@@ -26,26 +26,32 @@
  */
 #include "CropComponent.h"
 
-void glimmer::CropComponent::SetPosition(const TileVector2D &position) {
+void glimmer::CropComponent::SetPosition(const TileVector2D& position)
+{
     position_ = position;
 }
 
-const glimmer::TileVector2D &glimmer::CropComponent::GetPosition() const {
+const glimmer::TileVector2D& glimmer::CropComponent::GetPosition() const
+{
     return position_;
 }
 
-void glimmer::CropComponent::SetLayerType(const TileLayerType layerType) {
+void glimmer::CropComponent::SetLayerType(const TileLayerType layerType)
+{
     layerType_ = layerType;
 }
 
-glimmer::TileLayerType glimmer::CropComponent::GetLayerType() const {
+glimmer::TileLayerType glimmer::CropComponent::GetLayerType() const
+{
     return layerType_;
 }
 
-GameComponentTypeMessage glimmer::CropComponent::GetComponentTypeStatic() {
+GameComponentTypeMessage glimmer::CropComponent::GetComponentTypeStatic()
+{
     return COMPONENT_CROP;
 }
 
-GameComponentTypeMessage glimmer::CropComponent::GetComponentType() {
+GameComponentTypeMessage glimmer::CropComponent::GetComponentType()
+{
     return GetComponentTypeStatic();
 }

@@ -29,7 +29,9 @@
 #include "BaseResourceRegistry.h"
 #include "core/mod/Resource.h"
 
-namespace glimmer {
-    class GrowthConditionsRegistry : public BaseResourceRegistry<IGrowthConditionResource> {
+namespace glimmer
+{
+    class GrowthConditionsRegistry : public BaseResourceRegistry<IGrowthConditionResource>
+    {
     };
 }

@@ -26,19 +26,21 @@
  */
 #pragma once
 
-namespace glimmer {
+namespace glimmer
+{
     class WorldContext;
     class RenderQueue;
 
-    class Box2dSystemContext {
-        WorldContext *worldContext_ = nullptr;
-        RenderQueue *renderQueue_ = nullptr;
+    class Box2dSystemContext
+    {
+        WorldContext* worldContext_ = nullptr;
+        RenderQueue* renderQueue_ = nullptr;
 
     public:
-        Box2dSystemContext(WorldContext *worldContext, RenderQueue *renderQueue);
+        Box2dSystemContext(WorldContext* worldContext, RenderQueue* renderQueue);
 
-        [[nodiscard]] WorldContext *GetWorldContext() const;
+        [[nodiscard]] WorldContext* GetWorldContext() const;
 
-        [[nodiscard]] RenderQueue *GetRenderQueue() const;
+        [[nodiscard]] RenderQueue* GetRenderQueue() const;
     };
 }

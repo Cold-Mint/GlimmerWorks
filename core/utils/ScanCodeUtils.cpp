@@ -174,24 +174,29 @@ std::unordered_map<std::string, SDL_Scancode> glimmer::ScanCodeUtils::stringToSc
     {"reserved", SDL_SCANCODE_RESERVED}
 };
 
-std::vector<std::string> glimmer::ScanCodeUtils::cachedKeys_ = [] {
+std::vector<std::string> glimmer::ScanCodeUtils::cachedKeys_ = []
+{
     std::vector<std::string> keys;
     keys.reserve(stringToScanMap_.size());
-    for (const auto &pair: stringToScanMap_) {
+    for (const auto& pair : stringToScanMap_)
+    {
         keys.emplace_back(pair.first);
     }
     return keys;
 }();
 
-SDL_Scancode glimmer::ScanCodeUtils::StringToScanCode(const std::string &key) {
+SDL_Scancode glimmer::ScanCodeUtils::StringToScanCode(const std::string& key)
+{
     const auto iter = stringToScanMap_.find(key);
     return iter == stringToScanMap_.end() ? SDL_SCANCODE_UNKNOWN : iter->second;
 }
 
-bool glimmer::ScanCodeUtils::ContainsKey(const std::string &key) {
+bool glimmer::ScanCodeUtils::ContainsKey(const std::string& key)
+{
     return stringToScanMap_.contains(key);
 }
 
-const std::vector<std::string> &glimmer::ScanCodeUtils::GetAllScanCodeKeys() {
+const std::vector<std::string>& glimmer::ScanCodeUtils::GetAllScanCodeKeys()
+{
     return cachedKeys_;
 }

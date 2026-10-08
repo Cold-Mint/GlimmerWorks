@@ -26,15 +26,17 @@
  */
 #pragma once
 
-namespace glimmer {
+namespace glimmer
+{
     class AppContext;
 
-    class PackScanRequest {
-        AppContext *appContext_ = nullptr;
+    class PackScanRequest
+    {
+        AppContext* appContext_ = nullptr;
 
     public:
-        void SetAppContext(AppContext *appContext);
+        void SetAppContext(AppContext* appContext);
 
-        [[nodiscard]] AppContext *GetAppContext() const;
+        [[nodiscard]] AppContext* GetAppContext() const;
     };
 }

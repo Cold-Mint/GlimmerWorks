@@ -29,13 +29,15 @@
 #include "core/mod/ResourceRef.h"
 #include "core/world/BreakSource.h"
 
-namespace glimmer {
-    class TilePlacementConfig {
+namespace glimmer
+{
+    class TilePlacementConfig
+    {
+        ResourceRef resourceRef_;
+        BreakSource breakSource_ = BreakSource::Unknown;
         uint8_t tileWidth_ = 1;
         uint8_t tileHeight_ = 1;
         bool isPlaceMode_ = false;
-        BreakSource breakSource_ = BreakSource::Unknown;
-        ResourceRef resourceRef_;
 
     public:
         void SetTileWidth(uint8_t tileWidth);
@@ -44,15 +46,15 @@ namespace glimmer {
 
         void SetPlaceMode(bool placeMode);
 
-        void SetResourceRef(const ResourceRef &resourceRef);
+        void SetResourceRef(const ResourceRef& resourceRef);
 
-        void SetBreakSource(const BreakSource &breakSource);
+        void SetBreakSource(const BreakSource& breakSource);
 
-        void WriteResourceRefMessage(ResourceRefMessage &message) const;
+        void WriteResourceRefMessage(ResourceRefMessage& message) const;
 
         [[nodiscard]] BreakSource GetBreakSource() const;
 
-        [[nodiscard]] const ResourceRef &GetResourceRef() const;
+        [[nodiscard]] const ResourceRef& GetResourceRef() const;
 
         [[nodiscard]] bool IsPlaceMode() const;
 

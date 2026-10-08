@@ -30,16 +30,19 @@
 #include "AAssetStreamBuf.h"
 #include <istream>
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * AAssetStream
      * 安卓资源流
      */
-    class AAssetStream : public std::istream {
+    class AAssetStream : public std::istream
+    {
         AAssetStreamBuf buf_;
 
     public:
-        explicit AAssetStream(AAsset *asset) : std::istream(&buf_), buf_(asset) {
+        explicit AAssetStream(AAsset* asset) : std::istream(&buf_), buf_(asset)
+        {
         }
     };
 }

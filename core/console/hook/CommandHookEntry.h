@@ -30,18 +30,20 @@
 #include "core/console/hook/CommandHookScope.h"
 #include "SDL3/SDL_events.h"
 
-namespace glimmer {
-    struct CommandHookEntry {
+namespace glimmer
+{
+    struct CommandHookEntry
+    {
+        std::string hookId;
+        std::string command;
+        SDL_EventType eventType;
+        uint16_t code;
         //Whether to execute during repeated input.
         //是否在重复输入时执行。
         //For example, press A continuously.
         //例如连续按下A。
         bool keyRepeat = false;
         CommandHookScope scope;
-        uint16_t code;
-        SDL_EventType eventType;
-        std::string hookId;
-        std::string command;
 
 
         /**

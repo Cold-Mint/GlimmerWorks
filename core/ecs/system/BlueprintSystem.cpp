@@ -28,6 +28,7 @@
 
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/ecs/component/TilePlacementForbiddenZoneComponent.h"
+#include "core/gpu/RenderQueue.h"
 #include "core/inventory/TileItem.h"
 #include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"

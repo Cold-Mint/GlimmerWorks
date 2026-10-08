@@ -30,56 +30,65 @@
 #include "core/world/WorldContext.h"
 
 
-void glimmer::SurfaceBiomeDecorator::DecorationImpl(const ChunkVertexVector2D &chunkVertex, WorldContext *worldContext,
-                                                    TerrainResult *terrainResult,
-                                                    SurfaceBiomeDecoratorResource *decoratorResource,
-                                                    BiomeResource *biomeResource,
+void glimmer::SurfaceBiomeDecorator::DecorationImpl(const ChunkVertexVector2D& chunkVertex, WorldContext* worldContext,
+                                                    TerrainResult* terrainResult,
+                                                    SurfaceBiomeDecoratorResource* decoratorResource,
+                                                    BiomeResource* biomeResource,
                                                     std::unordered_map<TileLayerType, std::array<ResourceRef,
-                                                        CHUNK_AREA> > *tilesRefMap) {
-    std::array<ResourceRef, CHUNK_AREA> &targetLayer = tilesRefMap->at(
+                                                                           CHUNK_AREA>>* tilesRefMap)
+{
+    std::array<ResourceRef, CHUNK_AREA>& targetLayer = tilesRefMap->at(
         static_cast<TileLayerType>(decoratorResource->layerType));
     const bool airValid = decoratorResource->openAirTile.IsValid();
     const bool waterValid = decoratorResource->underwaterTile.IsValid();
-    for (int localX = 0; localX < CHUNK_SIZE; localX++) {
-        for (int localY = 0; localY < CHUNK_SIZE; localY++) {
+    for (int localX = 0; localX < CHUNK_SIZE; localX++)
+    {
+        for (int localY = 0; localY < CHUNK_SIZE; localY++)
+        {
             const int idx = localY * CHUNK_SIZE + localX;
             ChunkRelativeVector2D chunkRelativeVector2D(localX, localY);
             const TileVector2D absolutePosition = CoordinateTransformer::ChunkRelativeToTile(
                 chunkVertex, chunkRelativeVector2D);
             const TerrainRelativeVector2D terrainRelativeVector2D = CoordinateTransformer::TileToTerrainRelative(
                 absolutePosition);
-            const auto &self = terrainResult->QueryTerrain(terrainRelativeVector2D);
-            if (self.GetTerrainType() != TerrainResultType::SOLID) {
+            const auto& self = terrainResult->QueryTerrain(terrainRelativeVector2D);
+            if (self.GetTerrainType() != TerrainResultType::SOLID)
+            {
                 //Not solid tiles.
                 //不是固体瓦片。
                 continue;
             }
-            if (self.GetBiomeResource() != biomeResource) {
+            if (self.GetBiomeResource() != biomeResource)
+            {
                 //Tiles do not belong to the current biome.
                 //瓦片不属于当前生物群系。
                 continue;
             }
-            if (terrainRelativeVector2D.y == TERRAIN_MASK) {
+            if (terrainRelativeVector2D.y == TERRAIN_MASK)
+            {
                 //It is already at the topmost position. The next level is outside the local shape block and is skipped.
                 //已是最顶端，上一格在本地形块之外，跳过
                 continue;
             }
             const TileVector2D upAbsolutePosition = TileVector2D(absolutePosition.x, absolutePosition.y + 1);
-            const TerrainTileResult &up = terrainResult->QueryTerrain(CoordinateTransformer::TileToTerrainRelative(
+            const TerrainTileResult& up = terrainResult->QueryTerrain(CoordinateTransformer::TileToTerrainRelative(
                 upAbsolutePosition));
             const TerrainResultType upTerrainType = up.GetTerrainType();
-            if (airValid && upTerrainType == TerrainResultType::AIR) {
+            if (airValid && upTerrainType == TerrainResultType::AIR)
+            {
                 targetLayer[idx] = decoratorResource->openAirTile;
                 continue;
             }
 
-            if (waterValid && upTerrainType == TerrainResultType::WATER) {
+            if (waterValid && upTerrainType == TerrainResultType::WATER)
+            {
                 targetLayer[idx] = decoratorResource->underwaterTile;
             }
         }
     }
 }
 
-glimmer::BiomeDecoratorType glimmer::SurfaceBiomeDecorator::GetBiomeDecoratorType() {
+glimmer::BiomeDecoratorType glimmer::SurfaceBiomeDecorator::GetBiomeDecoratorType()
+{
     return BiomeDecoratorType::SURFACE;
 }

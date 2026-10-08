@@ -28,40 +28,52 @@
 
 #include "core/mod/BasePackManager.h"
 
-namespace glimmer {
-    template<typename ResourceType>
-    int BasePackManager<ResourceType>::Scan(const PackScanRequest *packScanRequest) {
-        AppContext *appContext = packScanRequest->GetAppContext();
-        if (appContext == nullptr) {
+namespace glimmer
+{
+    template <typename ResourceType>
+    int BasePackManager<ResourceType>::Scan(const PackScanRequest* packScanRequest)
+    {
+        AppContext* appContext = packScanRequest->GetAppContext();
+        if (appContext == nullptr)
+        {
             return 0;
         }
-        const VirtualFileSystem *virtualFileSystem = appContext->GetVirtualFileSystem();
-        if (virtualFileSystem == nullptr) {
+        const VirtualFileSystem* virtualFileSystem = appContext->GetVirtualFileSystem();
+        if (virtualFileSystem == nullptr)
+        {
             return 0;
         }
-        Config *config = appContext->GetConfig();
-        if (config == nullptr) {
+        Config* config = appContext->GetConfig();
+        if (config == nullptr)
+        {
             return 0;
         }
-        const std::filesystem::path &packPath = GetPackPath(config);
-        if (!virtualFileSystem->Exists(packPath)) {
+        const std::filesystem::path& packPath = GetPackPath(config);
+        if (!virtualFileSystem->Exists(packPath))
+        {
             return 0;
         }
         int success = 0;
         for (const std::vector<std::filesystem::path> files = virtualFileSystem->ListFile(packPath, false); const
-             auto &entry: files) {
-            if (!virtualFileSystem->IsFile(entry)) {
+             auto& entry : files)
+        {
+            if (!virtualFileSystem->IsFile(entry))
+            {
                 std::unique_ptr<ResourceType> pack = LoadPack(packScanRequest, entry);
-                if (pack == nullptr) {
+                if (pack == nullptr)
+                {
                     continue;
                 }
-                if (!IsPackAvailable(pack->GetManifest())) {
+                if (!IsPackAvailable(pack->GetManifest()))
+                {
                     continue;
                 }
-                if (!IsPackEnabled(pack->GetUniqueId(), GetEnabledPack(config))) {
+                if (!IsPackEnabled(pack->GetUniqueId(), GetEnabledPack(config)))
+                {
                     continue;
                 }
-                if (this->Register(std::move(pack)) == nullptr) {
+                if (this->Register(std::move(pack)) == nullptr)
+                {
                     continue;
                 }
                 success++;

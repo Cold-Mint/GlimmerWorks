@@ -32,23 +32,25 @@
 #include "toml11/spec.hpp"
 
 
-namespace glimmer {
-    class ResourcePack : public IUniqueAble {
-        std::filesystem::path path_;
+namespace glimmer
+{
+    class ResourcePack : public IUniqueAble
+    {
         ResourcePackManifest manifest_;
-        const VirtualFileSystem *virtualFileSystem_;
+        std::filesystem::path path_;
         toml::spec tomlVersion_;
+        const VirtualFileSystem* virtualFileSystem_;
 
     public:
-        explicit ResourcePack(std::filesystem::path path, const VirtualFileSystem *virtualFileSystem,
-                              const toml::spec &tomlVersion);
+        explicit ResourcePack(std::filesystem::path path, const VirtualFileSystem* virtualFileSystem,
+                              const toml::spec& tomlVersion);
 
         bool LoadManifest();
 
-        [[nodiscard]] const ResourcePackManifest *GetManifest() const;
+        [[nodiscard]] const ResourcePackManifest* GetManifest() const;
 
         [[nodiscard]] uint64_t GetUniqueId() const override;
 
-        [[nodiscard]] const std::filesystem::path &GetPath() const;
+        [[nodiscard]] const std::filesystem::path& GetPath() const;
     };
 }

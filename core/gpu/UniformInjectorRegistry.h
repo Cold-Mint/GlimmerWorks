@@ -29,7 +29,8 @@
 
 #include "UniformInjectContext.h"
 
-namespace glimmer {
+namespace glimmer
+{
     //Builtin semantic source names. 内置语义来源名。
     inline constexpr std::string_view BUILTIN_RESOLUTION = "@builtin.resolution";
     inline constexpr std::string_view BUILTIN_CAMERA_POSITION = "@builtin.camera_position";
@@ -49,7 +50,7 @@ namespace glimmer {
      * 无状态函数，将某个内置语义的当前值写入目标 float 缓冲区。
      * 每个内置语义写入的 float 数量固定，须与成员声明的分量数一致。
      */
-    using UniformInjector = void(*)(const UniformInjectContext &ctx, float *dst);
+    using UniformInjector = void(*)(const UniformInjectContext& ctx, float* dst);
 
     /**
      * UniformInjectorRegistry
@@ -59,7 +60,8 @@ namespace glimmer {
      * injectors are registered lazily on first access.
      * 将内置语义名（"@builtin.*"）映射到注入器函数。内置注入器首次访问时懒注册。
      */
-    class UniformInjectorRegistry {
+    class UniformInjectorRegistry
+    {
     public:
         /**
          * Register

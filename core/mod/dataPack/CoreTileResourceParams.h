@@ -31,21 +31,23 @@
 
 #include "core/world/generator/TileLayerType.h"
 
-namespace glimmer {
+namespace glimmer
+{
     enum class TilePhysicsType : uint8_t;
 
-    struct CoreTileResourceParams {
+    struct CoreTileResourceParams
+    {
+        std::optional<std::string> descriptionKey;
         std::string resourceId;
-        TilePhysicsType physicsType;
-        TileLayerType layerType;
-        float unitHardness;
         std::string nameKey;
         std::string textureKey;
         std::string lightSourceKey;
         std::string sideLightMaskKey;
         std::string backLightMaskKey;
+        float unitHardness;
         bool isOverwritable;
         bool canDropLoot;
-        std::optional<std::string> descriptionKey;
+        TilePhysicsType physicsType;
+        TileLayerType layerType;
     };
 }

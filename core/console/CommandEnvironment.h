@@ -26,7 +26,8 @@
  */
 #pragma once
 
-namespace glimmer {
+namespace glimmer
+{
     class WorldContext;
 
     /**
@@ -35,14 +36,16 @@ namespace glimmer {
      *  - worldContext: 当前世界上下文（未进入世界时为 nullptr）
      *  - allowCheats: 当前世界是否允许作弊
      */
-    class CommandEnvironment {
+    class CommandEnvironment
+    {
     public:
+        WorldContext* worldContext = nullptr;
         bool allowCheats = false;
-        WorldContext *worldContext = nullptr;
 
-        void Reset() {
-            allowCheats = false;
+        void Reset()
+        {
             worldContext = nullptr;
+            allowCheats = false;
         }
     };
 }

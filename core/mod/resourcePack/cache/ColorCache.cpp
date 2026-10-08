@@ -30,20 +30,23 @@
 #include "core/utils/TomlUtils.h"
 #include "toml11/parser.hpp"
 
-std::shared_ptr<glimmer::ColorResource> glimmer::ColorCache::LoadResourceFromPack(AppContext *appContext,
-    const ResourceRef *resourceRef, const ResourcePack *resourcePack) {
+std::shared_ptr<glimmer::ColorResource> glimmer::ColorCache::LoadResourceFromPack(AppContext* appContext,
+    const ResourceRef* resourceRef, const ResourcePack* resourcePack)
+{
     std::filesystem::path colorPath = resourcePack->GetPath() / "colors" / resourceRef->GetPackageId() / resourceRef->
-                                      GetResourceKey();
+        GetResourceKey();
     colorPath.replace_extension("color.toml");
-    const VirtualFileSystem *virtualFileSystem = appContext->GetVirtualFileSystem();
-    if (!virtualFileSystem->Exists(colorPath)) {
+    const VirtualFileSystem* virtualFileSystem = appContext->GetVirtualFileSystem();
+    if (!virtualFileSystem->Exists(colorPath))
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "color_file_not_found",
                   "Color resource file not found: {}",
                   colorPath.string());
         return nullptr;
     }
     auto dataOptional = virtualFileSystem->ReadFileAsString(colorPath);
-    if (!dataOptional.has_value()) {
+    if (!dataOptional.has_value())
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "color_file_read_failed",
                   "Failed to read color resource file: {}",
                   colorPath.string());

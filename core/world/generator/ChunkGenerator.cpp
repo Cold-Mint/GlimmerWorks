@@ -38,64 +38,77 @@
 #include "core/mod/dataPack/BiomeRegistry.h"
 #include "core/world/WorldContext.h"
 
-std::string glimmer::ChunkGenerator::ResolveDimensionId(const DimensionResource *dimensionResource) {
+std::string glimmer::ChunkGenerator::ResolveDimensionId(const DimensionResource* dimensionResource)
+{
     const DimensionResource defaultDimension;
-    if (dimensionResource == nullptr) {
+    if (dimensionResource == nullptr)
+    {
         dimensionResource = &defaultDimension;
     }
     return Resource::GenerateId(dimensionResource->packId, dimensionResource->resourceId);
 }
 
-glimmer::BiomeRegistry *glimmer::ChunkGenerator::ResolveBiomeRegistry(WorldContext *worldContext) {
-    if (worldContext == nullptr) {
+glimmer::BiomeRegistry* glimmer::ChunkGenerator::ResolveBiomeRegistry(WorldContext* worldContext)
+{
+    if (worldContext == nullptr)
+    {
         return nullptr;
     }
-    const AppContext *appContext = worldContext->GetAppContext();
-    if (appContext == nullptr) {
+    const AppContext* appContext = worldContext->GetAppContext();
+    if (appContext == nullptr)
+    {
         return nullptr;
     }
-    const ModContext *modContext = appContext->GetModContext();
-    if (modContext == nullptr) {
+    const ModContext* modContext = appContext->GetModContext();
+    if (modContext == nullptr)
+    {
         return nullptr;
     }
     return modContext->GetBiomeRegistry();
 }
 
-glimmer::ChunkGenerator::ChunkGenerator(WorldContext *worldContext,
-                                        const DimensionResource *dimensionResource) : worldContext_(worldContext),
+glimmer::ChunkGenerator::ChunkGenerator(WorldContext* worldContext,
+                                        const DimensionResource* dimensionResource) : worldContext_(worldContext),
     dimensionId_(ResolveDimensionId(dimensionResource)),
-    structurePlacer_(worldContext) {
+    structurePlacer_(worldContext)
+{
 }
 
-void glimmer::ChunkGenerator::GenerateStructure(const TileVector2D &position) const {
+void glimmer::ChunkGenerator::GenerateStructure(const TileVector2D& position) const
+{
     structurePlacer_.GenerateStructure(position);
 }
 
-std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const ChunkVertexVector2D &position,
-                                                                         TerrainResult *terrainResult) const {
-    if (worldContext_ == nullptr) {
+std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const ChunkVertexVector2D& position,
+                                                                         TerrainResult* terrainResult) const
+{
+    if (worldContext_ == nullptr)
+    {
         return nullptr;
     }
-    const AppContext *appContext = worldContext_->GetAppContext();
-    if (appContext == nullptr) {
+    const AppContext* appContext = worldContext_->GetAppContext();
+    if (appContext == nullptr)
+    {
         return nullptr;
     }
-    const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
-    if (resourceLocator == nullptr) {
+    const ResourceLocator* resourceLocator = appContext->GetResourceLocator();
+    if (resourceLocator == nullptr)
+    {
         return nullptr;
     }
-    if (const BiomeDecoratorManager *biomeDecoratorManager = appContext->GetModContext()->GetBiomeDecoratorManager();
-        biomeDecoratorManager == nullptr) {
+    if (const BiomeDecoratorManager* biomeDecoratorManager = appContext->GetModContext()->GetBiomeDecoratorManager();
+        biomeDecoratorManager == nullptr)
+    {
         return nullptr;
     }
     LogCat::i(LogLabel::CHUNK, "chunk_generating", "Generating new chunk at position: ({}, {})", position.x,
               position.y);
     auto chunk = std::make_unique<Chunk>(worldContext_, position);
-    std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > tilesRefMap = {
+    std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>> tilesRefMap = {
         {TileLayerType::Ground, {}},
         {TileLayerType::BackGround, {}}
     };
-    std::unordered_set<BiomeResource *> biomeResourcesSet;
+    std::unordered_set<BiomeResource*> biomeResourcesSet;
     TileRefResolver::Initialize(terrainResult, position, tilesRefMap, biomeResourcesSet);
     BiomeDecoratorApplier::Apply(position, biomeResourcesSet, resourceLocator, worldContext_,
                                  terrainResult, tilesRefMap);
@@ -110,6 +123,7 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const C
 }
 
 
-const std::string &glimmer::ChunkGenerator::GetDimensionId() const {
+const std::string& glimmer::ChunkGenerator::GetDimensionId() const
+{
     return dimensionId_;
 }

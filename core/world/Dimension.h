@@ -32,7 +32,8 @@
 #include "DayNormalizedTime.h"
 #include "core/mod/Resource.h"
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * Dimension
      * 维度
@@ -41,7 +42,13 @@ namespace glimmer {
      */
     using DimensionFingerprint = uint64_t;
 
-    class Dimension {
+    class Dimension
+    {
+        ResourceRef dimensionResourceRef_;
+        //Last tick seen by AdvanceTime; used to compute the tick delta.
+        //AdvanceTime 上次看到的 tick；用于计算 tick 差值。
+        uint64_t lastTick_ = 0;
+        DimensionResource* dimensionResource_ = nullptr;
         /**
          * The current time of day in this dimension, normalized to 0..1.
          * 此维度当前的一天中的时间，归一化到 0..1。
@@ -49,11 +56,6 @@ namespace glimmer {
          * stored atomically. 在 tick 线程写入、渲染线程读取，故以原子类型存储。
          */
         std::atomic<DayNormalizedTime> normalizedTime_{0.0F};
-        //Last tick seen by AdvanceTime; used to compute the tick delta.
-        //AdvanceTime 上次看到的 tick；用于计算 tick 差值。
-        uint64_t lastTick_ = 0;
-        DimensionResource *dimensionResource_ = nullptr;
-        ResourceRef dimensionResourceRef_;
 
         /**
          * Normalize
@@ -64,9 +66,9 @@ namespace glimmer {
         static DayNormalizedTime Normalize(DayNormalizedTime time);
 
     public:
-        void SetDimensionResource(const ResourceRef &dimensionResourceRef, DimensionResource *dimensionResource);
+        void SetDimensionResource(const ResourceRef& dimensionResourceRef, DimensionResource* dimensionResource);
 
-        [[nodiscard]] DimensionResource *GetDimensionResource() const;
+        [[nodiscard]] DimensionResource* GetDimensionResource() const;
 
         /**
          * AdvanceTime
@@ -91,7 +93,7 @@ namespace glimmer {
          * 获取维度资源引用
          * @return
          */
-        [[nodiscard]] const ResourceRef &GetDimensionResourceRef() const;
+        [[nodiscard]] const ResourceRef& GetDimensionResourceRef() const;
 
         /**
          * SetNormalizedTime

@@ -30,11 +30,14 @@
 #include "core/gpu/RenderFrameContext.h"
 
 
-glimmer::UiPass::UiPass(RmlContext *rmlContext) : rmlContext_(rmlContext) {
+glimmer::UiPass::UiPass(RmlContext* rmlContext) : rmlContext_(rmlContext)
+{
 }
 
-void glimmer::UiPass::Record(RenderFrameContext &ctx) {
-    if (rmlContext_ == nullptr || ctx.commandBuffer == nullptr || ctx.swapChainTexture == nullptr) {
+void glimmer::UiPass::Record(RenderFrameContext& ctx)
+{
+    if (rmlContext_ == nullptr || ctx.commandBuffer == nullptr || ctx.swapChainTexture == nullptr)
+    {
         return;
     }
     rmlContext_->RenderContext(ctx.commandBuffer, ctx.swapChainTexture, ctx.logicalWidth, ctx.logicalHeight);

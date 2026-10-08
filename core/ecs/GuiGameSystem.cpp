@@ -28,28 +28,34 @@
 
 #include "core/log/LogCat.h"
 
-void glimmer::GuiGameSystem::SetElementDocument(Rml::ElementDocument *document) {
+void glimmer::GuiGameSystem::SetElementDocument(Rml::ElementDocument* document)
+{
     LogCat::d(LogLabel::DEFAULT, "gui_system_set_element_document", "GuiGameSystem set element document: {}",
               document != nullptr);
     elementDocument_ = document;
 }
 
-Rml::ElementDocument *glimmer::GuiGameSystem::GetElementDocument() const {
+Rml::ElementDocument* glimmer::GuiGameSystem::GetElementDocument() const
+{
     return elementDocument_;
 }
 
-glimmer::GuiGameSystem::GuiGameSystem(WorldContext *worldContext)
-    : GameSystem(worldContext) {
+glimmer::GuiGameSystem::GuiGameSystem(WorldContext* worldContext)
+    : GameSystem(worldContext)
+{
 }
 
-uint8_t glimmer::GuiGameSystem::GetExecutionOrder() {
+uint8_t glimmer::GuiGameSystem::GetExecutionOrder()
+{
     return EXECUTION_ORDER_GUI_SYSTEM;
 }
 
-void glimmer::GuiGameSystem::Render(RenderQueue *queue) {
+void glimmer::GuiGameSystem::Render(RenderQueue* queue)
+{
     //The GUI system does not have rendering functions.
     //Gui系统不拥有渲染函数。
 }
 
-void glimmer::GuiGameSystem::OnCreateDataModels(IDocumentRegistry *documentRegistry) {
+void glimmer::GuiGameSystem::OnCreateDataModels(IDocumentRegistry* documentRegistry)
+{
 }

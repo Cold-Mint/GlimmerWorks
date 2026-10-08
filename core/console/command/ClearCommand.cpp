@@ -29,55 +29,66 @@
 #include "core/ecs/component/ItemContainerComponent.h"
 #include "core/ecs/component/PlayerComponent.h"
 
-glimmer::ClearCommand::ClearCommand(AppContext *appContext) : Command(appContext) {
+glimmer::ClearCommand::ClearCommand(AppContext* appContext) : Command(appContext)
+{
 }
 
-const std::string &glimmer::ClearCommand::GetName() const {
+const std::string& glimmer::ClearCommand::GetName() const
+{
     return CLEAR_COMMAND_NAME;
 }
 
 
-bool glimmer::ClearCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
-                                    const std::function<void(const std::string &text)> *onMessage) {
-    const AppContext *appContext = GetAppContext();
-    const WorldContext *worldContext = GetWorldContext();
-    if (appContext == nullptr || onMessage == nullptr) {
+bool glimmer::ClearCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
+                                    const std::function<void(const std::string & text)>* onMessage)
+{
+    const AppContext* appContext = GetAppContext();
+    const WorldContext* worldContext = GetWorldContext();
+    if (appContext == nullptr || onMessage == nullptr)
+    {
         return false;
     }
-    const LangsResources *langsResources = appContext->GetLangsResources();
-    if (langsResources == nullptr) {
+    const LangsResources* langsResources = appContext->GetLangsResources();
+    if (langsResources == nullptr)
+    {
         return false;
     }
 
-    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
-    if (worldContext == nullptr) {
+    const std::function<void(const std::string & text)>& onMessageRef = *onMessage;
+    if (worldContext == nullptr)
+    {
         onMessageRef(langsResources->worldContextIsNull);
         return false;
     }
     auto playerEntity = worldContext->GetEntityShortCut()->GetPlayer();
-    EntityManager *entityManager = worldContext->GetEntityManager();
-    if (entityManager == nullptr) {
+    EntityManager* entityManager = worldContext->GetEntityManager();
+    if (entityManager == nullptr)
+    {
         return false;
     }
     const auto itemContainerComponent = entityManager->GetComponent<
         ItemContainerComponent>(playerEntity);
-    if (itemContainerComponent == nullptr) {
+    if (itemContainerComponent == nullptr)
+    {
         onMessageRef(langsResources->itemContainerIsNull);
         return false;
     }
     auto playerComponent = entityManager->GetComponent<PlayerComponent>(playerEntity);
-    if (playerComponent == nullptr) {
+    if (playerComponent == nullptr)
+    {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "player_component_is_null",
                   "playerComponent is null");
         return false;
     }
     auto itemContainer = itemContainerComponent->GetItemContainer();
-    if (itemContainer == nullptr) {
+    if (itemContainer == nullptr)
+    {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "item_container_is_null",
                   "itemContainer is null");
         return false;
     }
-    appContext->GetMainThreadDispatcher()->PostToNextMainFrame([playerComponent, itemContainer] {
+    appContext->GetMainThreadDispatcher()->PostToNextMainFrame([playerComponent, itemContainer]
+        {
             itemContainer->ResetItems();
             playerComponent->SetItem(nullptr);
         }
@@ -85,10 +96,12 @@ bool glimmer::ClearCommand::Execute(const CommandSender *commandSender, const Co
     return true;
 }
 
-bool glimmer::ClearCommand::RequiresWorldContext() const {
+bool glimmer::ClearCommand::RequiresWorldContext() const
+{
     return true;
 }
 
-bool glimmer::ClearCommand::RequiresCheatEnabled() const {
+bool glimmer::ClearCommand::RequiresCheatEnabled() const
+{
     return true;
 }

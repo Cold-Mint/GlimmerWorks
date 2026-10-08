@@ -27,7 +27,8 @@
 #pragma once
 #include "Vector2D.h"
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * Two-dimensional vector of world coordinates
      * 世界坐标二维向量
@@ -36,7 +37,8 @@ namespace glimmer {
      * For example: X + 1, when scaled by a factor of 2, then it actually moves 2 screen pixels to the right.
      * 例如：X+1,缩放为2倍，那么实际向右偏移了2屏幕像素。
      */
-    class WorldVector2D final : public Vector2DBase<WorldVector2D> {
+    class WorldVector2D final : public Vector2DBase<WorldVector2D>
+    {
         using Vector2DBase::Vector2DBase;
     };
 }

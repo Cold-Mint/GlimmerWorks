@@ -26,5 +26,6 @@
  */
 #include "IAppContextInitTask.h"
 
-void glimmer::IAppContextInitTask::Rollback(ISystemBucket *systemBucket) {
+void glimmer::IAppContextInitTask::Rollback(ISystemBucket* systemBucket)
+{
 }

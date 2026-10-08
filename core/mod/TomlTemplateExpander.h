@@ -32,9 +32,11 @@
 #include "ITemplateCommand.h"
 
 
-namespace glimmer {
-    class TomlTemplateExpander {
-        std::unordered_map<std::string_view, std::unique_ptr<ITemplateCommand> > commandMap_ = {};
+namespace glimmer
+{
+    class TomlTemplateExpander
+    {
+        std::unordered_map<std::string_view, std::unique_ptr<ITemplateCommand>> commandMap_;
 
     public:
         void Register(std::unique_ptr<ITemplateCommand> command);
@@ -47,7 +49,7 @@ namespace glimmer {
          * @param virtualFileSystem
          * @return
          */
-        std::string Expand(const std::vector<std::filesystem::path> &templateSearchPath, const std::string &inputText,
-                           const VirtualFileSystem *virtualFileSystem) const;
+        std::string Expand(const std::vector<std::filesystem::path>& templateSearchPath, const std::string& inputText,
+                           const VirtualFileSystem* virtualFileSystem) const;
     };
 }

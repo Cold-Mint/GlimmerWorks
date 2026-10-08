@@ -27,8 +27,10 @@
 #pragma once
 #include <string>
 
-namespace glimmer {
-    class UUIDUtils {
+namespace glimmer
+{
+    class UUIDUtils
+    {
     public:
         /**
          * Generate

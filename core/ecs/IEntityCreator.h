@@ -31,14 +31,16 @@
  * IEntityCreator
  * 实体创建器
  */
-namespace glimmer {
-    class IEntityCreator {
-        WorldContext *worldContext_ = nullptr;
+namespace glimmer
+{
+    class IEntityCreator
+    {
+        WorldContext* worldContext_ = nullptr;
 
     public:
-        explicit IEntityCreator(WorldContext *worldContext);
+        explicit IEntityCreator(WorldContext* worldContext);
 
-        [[nodiscard]] WorldContext *GetWorldContext() const;
+        [[nodiscard]] WorldContext* GetWorldContext() const;
 
         virtual ~IEntityCreator() = default;
 

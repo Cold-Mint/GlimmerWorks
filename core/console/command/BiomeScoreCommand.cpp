@@ -34,18 +34,21 @@
 #include "core/world/generator/TerrainMath.h"
 #include "fmt/xchar.h"
 
-glimmer::BiomeScoreCommand::BiomeScoreCommand(AppContext *appContext) : Command(appContext) {
+glimmer::BiomeScoreCommand::BiomeScoreCommand(AppContext* appContext) : Command(appContext)
+{
 }
 
 
-std::string glimmer::BiomeScoreCommand::CalculateAndFormatBiomeScores(const TileVector2D &tileVector2D,
-                                                                      ClimateSampler *climateSampler,
-                                                                      BiomeRegistry *biomeRegistry,
-                                                                      const LangsResources *langsResources,
+std::string glimmer::BiomeScoreCommand::CalculateAndFormatBiomeScores(const TileVector2D& tileVector2D,
+                                                                      ClimateSampler* climateSampler,
+                                                                      BiomeRegistry* biomeRegistry,
+                                                                      const LangsResources* langsResources,
                                                                       const int worldSeed,
-                                                                      const DimensionResource *dimensionResource) {
+                                                                      const DimensionResource* dimensionResource)
+{
     std::stringstream biomeStream;
-    for (auto biomeResource: biomeRegistry->GetBiomeVector()) {
+    for (auto biomeResource : biomeRegistry->GetBiomeVector())
+    {
         float total = 0;
         std::string biomeId = Resource::GenerateId(*biomeResource);
         const float elevation = TerrainMath::GetElevation(dimensionResource, tileVector2D.y);
@@ -106,31 +109,39 @@ std::string glimmer::BiomeScoreCommand::CalculateAndFormatBiomeScores(const Tile
     return biomeStream.str();
 }
 
-void glimmer::BiomeScoreCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
-    if (suggestionsTree == nullptr) {
+void glimmer::BiomeScoreCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
+{
+    if (suggestionsTree == nullptr)
+    {
         return;
     }
     suggestionsTree->AddChild("inspector");
     suggestionsTree->AddChild("info")->AddChild(X_DYNAMIC_SUGGESTIONS_NAME)->AddChild(Y_DYNAMIC_SUGGESTIONS_NAME);
 }
 
-const std::string &glimmer::BiomeScoreCommand::GetName() const {
+const std::string& glimmer::BiomeScoreCommand::GetName() const
+{
     return BIOME_SCORE_COMMAND_NAME;
 }
 
-bool glimmer::BiomeScoreCommand::RequiresWorldContext() const {
+bool glimmer::BiomeScoreCommand::RequiresWorldContext() const
+{
     return true;
 }
 
 void glimmer::BiomeScoreCommand::
-PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
-    if (commandArgs == nullptr || strings == nullptr) {
+PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
+{
+    if (commandArgs == nullptr || strings == nullptr)
+    {
         return;
     }
     strings->emplace_back("[operation:string]");
-    if (commandArgs->GetSize() >= 2) {
+    if (commandArgs->GetSize() >= 2)
+    {
         std::string operation = commandArgs->AsString(1);
-        if (operation == "info") {
+        if (operation == "info")
+        {
             strings->emplace_back("[x:int]");
             strings->emplace_back("[y:int]");
         }
@@ -138,58 +149,72 @@ PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *st
 }
 
 
-bool glimmer::BiomeScoreCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
-                                         const std::function<void(const std::string &text)> *onMessage) {
-    const AppContext *appContext = GetAppContext();
-    const WorldContext *worldContext = GetWorldContext();
-    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr) {
+bool glimmer::BiomeScoreCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
+                                         const std::function<void(const std::string & text)>* onMessage)
+{
+    const AppContext* appContext = GetAppContext();
+    const WorldContext* worldContext = GetWorldContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
+    {
         return false;
     }
-    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
-    if (worldContext == nullptr) {
+    const std::function<void(const std::string & text)>& onMessageRef = *onMessage;
+    if (worldContext == nullptr)
+    {
         onMessageRef(appContext->GetLangsResources()->worldContextIsNull);
         return false;
     }
-    const LangsResources *langsResources = appContext->GetLangsResources();
-    if (langsResources == nullptr) {
+    const LangsResources* langsResources = appContext->GetLangsResources();
+    if (langsResources == nullptr)
+    {
         return false;
     }
     const int size = commandArgs->GetSize();
-    if (size < 2) {
+    if (size < 2)
+    {
         onMessageRef(fmt::format(
             fmt::runtime(langsResources->insufficientParameterLength),
             2, size));
         return false;
     }
     std::string operation = commandArgs->AsString(1);
-    if (operation == "inspector") {
-        CommandHookManager *commandHookManager = appContext->GetConsoleContext()->GetCommandHookManager();
-        if (commandHookManager == nullptr) {
+    if (operation == "inspector")
+    {
+        CommandHookManager* commandHookManager = appContext->GetConsoleContext()->GetCommandHookManager();
+        if (commandHookManager == nullptr)
+        {
             onMessageRef(langsResources->cmdHookManagerNotFound);
             return false;
         }
-        if (commandHookManager->Contains(BIOME_SCORE_INSPECTOR_ID)) {
-            if (commandHookManager->Unregister(BIOME_SCORE_INSPECTOR_ID)) {
+        if (commandHookManager->Contains(BIOME_SCORE_INSPECTOR_ID))
+        {
+            if (commandHookManager->Unregister(BIOME_SCORE_INSPECTOR_ID))
+            {
                 onMessageRef(langsResources->biomeScoreInspectorDisable);
                 return true;
             }
             onMessageRef(langsResources->biomeScoreInspectorDisableFail);
-        } else {
+        }
+        else
+        {
             auto commandHookEntry = std::make_unique<CommandHookEntry>();
             commandHookEntry->hookId = BIOME_SCORE_INSPECTOR_ID;
             commandHookEntry->scope = CommandHookScope::SESSION;
             commandHookEntry->code = SDL_BUTTON_LEFT;
             commandHookEntry->command = BIOME_SCORE_COMMAND_NAME + " info ~ ~";
             commandHookEntry->eventType = SDL_EVENT_MOUSE_BUTTON_DOWN;
-            if (commandHookManager->Register(std::move(commandHookEntry))) {
+            if (commandHookManager->Register(std::move(commandHookEntry)))
+            {
                 onMessageRef(langsResources->biomeScoreInspectorEnable);
                 return true;
             }
             onMessageRef(langsResources->biomeScoreInspectorEnableFail);
         }
     }
-    if (operation == "info") {
-        if (size < 4) {
+    if (operation == "info")
+    {
+        if (size < 4)
+        {
             onMessageRef(fmt::format(
                 fmt::runtime(langsResources->insufficientParameterLength),
                 4, size));
@@ -200,28 +225,34 @@ bool glimmer::BiomeScoreCommand::Execute(const CommandSender *commandSender, con
             commandArgs->AsCoordinate(2, commandSenderPosition.x),
             commandArgs->AsCoordinate(
                 3, commandSenderPosition.y)));
-        const TerrainGenerator *terrainGenerator = worldContext->GetTerrainGenerator();
-        if (terrainGenerator == nullptr) {
+        const TerrainGenerator* terrainGenerator = worldContext->GetTerrainGenerator();
+        if (terrainGenerator == nullptr)
+        {
             return false;
         }
-        ModContext *modContext = appContext->GetModContext();
-        if (modContext == nullptr) {
+        ModContext* modContext = appContext->GetModContext();
+        if (modContext == nullptr)
+        {
             return false;
         }
-        BiomeRegistry *biomeRegistry = modContext->GetBiomeRegistry();
-        if (biomeRegistry == nullptr) {
+        BiomeRegistry* biomeRegistry = modContext->GetBiomeRegistry();
+        if (biomeRegistry == nullptr)
+        {
             return false;
         }
-        ClimateSampler *climateSampler = terrainGenerator->GetMutableClimateSampler();
-        if (climateSampler == nullptr) {
+        ClimateSampler* climateSampler = terrainGenerator->GetMutableClimateSampler();
+        if (climateSampler == nullptr)
+        {
             return false;
         }
-        const Dimension *dimension = worldContext->GetDimension();
-        if (dimension == nullptr) {
+        const Dimension* dimension = worldContext->GetDimension();
+        if (dimension == nullptr)
+        {
             return false;
         }
-        const DimensionResource *dimensionResource = dimension->GetDimensionResource();
-        if (dimensionResource == nullptr) {
+        const DimensionResource* dimensionResource = dimension->GetDimensionResource();
+        if (dimensionResource == nullptr)
+        {
             return false;
         }
         const int worldSeed = worldContext->GetWorldSeed();

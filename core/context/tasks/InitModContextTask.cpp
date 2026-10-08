@@ -31,14 +31,17 @@
 #include "core/context/SystemBucket.h"
 #include "core/log/LogCat.h"
 
-bool glimmer::InitModContextTask::Run(ISystemBucket *systemBucket) {
-    VirtualFileSystem *virtualFileSystem = systemBucket->GetVirtualFileSystem();
-    if (virtualFileSystem == nullptr) {
+bool glimmer::InitModContextTask::Run(ISystemBucket* systemBucket)
+{
+    VirtualFileSystem* virtualFileSystem = systemBucket->GetVirtualFileSystem();
+    if (virtualFileSystem == nullptr)
+    {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "vfs_is_null", "virtualFileSystem is nullptr");
         return false;
     }
-    const LangsResources *langsResources = systemBucket->GetLangsResources();
-    if (langsResources == nullptr) {
+    const LangsResources* langsResources = systemBucket->GetLangsResources();
+    if (langsResources == nullptr)
+    {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "langs_resources_is_null",
                   "langsResources is nullptr");
         return false;
@@ -49,10 +52,12 @@ bool glimmer::InitModContextTask::Run(ISystemBucket *systemBucket) {
     return true;
 }
 
-void glimmer::InitModContextTask::Rollback(ISystemBucket *systemBucket) {
+void glimmer::InitModContextTask::Rollback(ISystemBucket* systemBucket)
+{
     systemBucket->SetModContext(nullptr);
 }
 
-std::string glimmer::InitModContextTask::GetTaskName() {
+std::string glimmer::InitModContextTask::GetTaskName()
+{
     return "InitModContextTask";
 }

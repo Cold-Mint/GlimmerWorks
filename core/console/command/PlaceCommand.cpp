@@ -33,31 +33,38 @@
 #include "fmt/format.h"
 
 
-void glimmer::PlaceCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
-    if (suggestionsTree == nullptr) {
+void glimmer::PlaceCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
+{
+    if (suggestionsTree == nullptr)
+    {
         return;
     }
     suggestionsTree->AddChild("structure")->AddChild(STRUCTURE_DYNAMIC_SUGGESTIONS_NAME)->AddChild(
-                DIMENSION_DYNAMIC_SUGGESTIONS_NAME)->
-            AddChild(X_DYNAMIC_SUGGESTIONS_NAME)->AddChild(Y_DYNAMIC_SUGGESTIONS_NAME);
+                         DIMENSION_DYNAMIC_SUGGESTIONS_NAME)->
+                     AddChild(X_DYNAMIC_SUGGESTIONS_NAME)->AddChild(Y_DYNAMIC_SUGGESTIONS_NAME);
 }
 
-void glimmer::PlaceCommand::PlaceTileAt(Chunk *chunk, TileLayerType tileLayerType,
-                                        int index, const ResourceRef &resourceRef, const TileResource *tileResource,
-                                        int x, int y) {
+void glimmer::PlaceCommand::PlaceTileAt(Chunk* chunk, TileLayerType tileLayerType,
+                                        int index, const ResourceRef& resourceRef, const TileResource* tileResource,
+                                        int x, int y)
+{
     chunk->PlaceTile(tileLayerType, index, resourceRef, tileResource, BreakSource::Console,
                      PLACE_SOURCE_CONSOLE, x, y, false);
 }
 
-glimmer::PlaceCommand::PlaceCommand(AppContext *appContext) : Command(appContext) {
+glimmer::PlaceCommand::PlaceCommand(AppContext* appContext) : Command(appContext)
+{
 }
 
-const std::string &glimmer::PlaceCommand::GetName() const {
+const std::string& glimmer::PlaceCommand::GetName() const
+{
     return PLACE_COMMAND_NAME;
 }
 
-void glimmer::PlaceCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
-    if (strings == nullptr) {
+void glimmer::PlaceCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
+{
+    if (strings == nullptr)
+    {
         return;
     }
     strings->emplace_back("[structure:string]");
@@ -67,49 +74,61 @@ void glimmer::PlaceCommand::PutCommandStructure(const CommandArgs *commandArgs, 
     strings->emplace_back("[y:int]");
 }
 
-bool glimmer::PlaceCommand::RequiresWorldContext() const {
+bool glimmer::PlaceCommand::RequiresWorldContext() const
+{
     return true;
 }
 
-bool glimmer::PlaceCommand::RequiresCheatEnabled() const {
+bool glimmer::PlaceCommand::RequiresCheatEnabled() const
+{
     return true;
 }
 
-void glimmer::PlaceCommand::PlaceTileAtWithSize(Chunk *chunk,
+void glimmer::PlaceCommand::PlaceTileAtWithSize(Chunk* chunk,
                                                 const TileLayerType tileLayerType,
-                                                const int index, const ResourceRef &resourceRef,
-                                                const TileResource *tileResource) {
-    for (int x = 0; x < tileResource->tileWidth; x++) {
-        for (int y = 0; y < tileResource->tileHeight; y++) {
+                                                const int index, const ResourceRef& resourceRef,
+                                                const TileResource* tileResource)
+{
+    for (int x = 0; x < tileResource->tileWidth; x++)
+    {
+        for (int y = 0; y < tileResource->tileHeight; y++)
+        {
             PlaceTileAt(chunk, tileLayerType, index, resourceRef, tileResource, x, y);
         }
     }
 }
 
-bool glimmer::PlaceCommand::ExecuteStructure(const CommandArgs *commandArgs, const CommandSender *commandSender,
-                                             WorldContext *worldContext) {
-    if (worldContext == nullptr) {
+bool glimmer::PlaceCommand::ExecuteStructure(const CommandArgs* commandArgs, const CommandSender* commandSender,
+                                             WorldContext* worldContext)
+{
+    if (worldContext == nullptr)
+    {
         return false;
     }
-    const AppContext *appContext = worldContext->GetAppContext();
-    if (appContext == nullptr) {
+    const AppContext* appContext = worldContext->GetAppContext();
+    if (appContext == nullptr)
+    {
         return false;
     }
     const auto structureId = commandArgs->AsResourceRef(2, RESOURCE_STRUCTURE);
-    if (!structureId.has_value()) {
+    if (!structureId.has_value())
+    {
         return false;
     }
-    const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
-    if (resourceLocator == nullptr) {
+    const ResourceLocator* resourceLocator = appContext->GetResourceLocator();
+    if (resourceLocator == nullptr)
+    {
         return false;
     }
-    IStructureResource *structureResource = resourceLocator->FindStructure(&structureId.value());
-    if (structureResource == nullptr) {
+    IStructureResource* structureResource = resourceLocator->FindStructure(&structureId.value());
+    if (structureResource == nullptr)
+    {
         return false;
     }
     const WorldVector2D commandSenderPosition = commandSender->GetPosition();
     const std::optional<ResourceRef> dimensionRef = commandArgs->AsResourceRef(3, RESOURCE_DIMENSION);
-    if (!dimensionRef.has_value()) {
+    if (!dimensionRef.has_value())
+    {
         return false;
     }
     auto tilePosition = CoordinateTransformer::WorldToTile(
@@ -117,53 +136,63 @@ bool glimmer::PlaceCommand::ExecuteStructure(const CommandArgs *commandArgs, con
             commandArgs->AsCoordinate(4, commandSenderPosition.x),
             commandArgs->AsCoordinate(5, commandSenderPosition.y)
         });
-    const ModContext *modContext = appContext->GetModContext();
-    if (modContext == nullptr) {
+    const ModContext* modContext = appContext->GetModContext();
+    if (modContext == nullptr)
+    {
         return false;
     }
-    StructureGeneratorManager *structureGeneratorManager = modContext->GetStructureGeneratorManager();
-    if (structureGeneratorManager == nullptr) {
+    StructureGeneratorManager* structureGeneratorManager = modContext->GetStructureGeneratorManager();
+    if (structureGeneratorManager == nullptr)
+    {
         return false;
     }
     const std::unique_ptr<StructureInfo> structureInfo = structureGeneratorManager->
-            Generate(
-                worldContext,
-                tilePosition, structureResource);
-    if (structureInfo == nullptr) {
+        Generate(
+            worldContext,
+            tilePosition, structureResource);
+    if (structureInfo == nullptr)
+    {
         return false;
     }
-    if (TileInstancePool *tileInstancePool = worldContext->GetTileInstancePool(); tileInstancePool == nullptr) {
+    if (TileInstancePool* tileInstancePool = worldContext->GetTileInstancePool(); tileInstancePool == nullptr)
+    {
         return false;
     }
-    StructureInfo *structureInfoPtr = structureInfo.get();
+    StructureInfo* structureInfoPtr = structureInfo.get();
     const int baseX = tilePosition.x;
     const int baseY = tilePosition.y;
 
-    Chunk *currentChunk = nullptr;
+    Chunk* currentChunk = nullptr;
     TileVector2D currentChunkCoord = {INT_MIN, INT_MIN};
-    ChunkManager *chunkManager = worldContext->GetChunkManager();
-    if (chunkManager == nullptr) {
+    ChunkManager* chunkManager = worldContext->GetChunkManager();
+    if (chunkManager == nullptr)
+    {
         return false;
     }
-    for (auto &[tileLayerType, tileMap]: structureInfoPtr->GetStructureMap()) {
-        for (auto &[coord, resourceRef]: tileMap) {
+    for (auto& [tileLayerType, tileMap] : structureInfoPtr->GetStructureMap())
+    {
+        for (auto& [coord, resourceRef] : tileMap)
+        {
             const int worldX = baseX + coord.x;
             const int worldY = baseY + coord.y;
             const int chunkX = worldX & ~CHUNK_MASK;
             const int chunkY = worldY & ~CHUNK_MASK;
             const int relativeX = worldX & CHUNK_MASK;
             const int relativeY = worldY & CHUNK_MASK;
-            if (TileVector2D chunkCoord{chunkX, chunkY}; chunkCoord != currentChunkCoord) {
+            if (TileVector2D chunkCoord{chunkX, chunkY}; chunkCoord != currentChunkCoord)
+            {
                 currentChunkCoord = chunkCoord;
                 currentChunk = chunkManager->GetChunk(dimensionRef.value(),
                                                       CoordinateTransformer::TileToChunkVertex(chunkCoord)
                 );
             }
-            if (currentChunk == nullptr) {
+            if (currentChunk == nullptr)
+            {
                 continue;
             }
             auto tileResource = appContext->GetResourceLocator()->FindTileRaw(&resourceRef);
-            if (tileResource == nullptr) {
+            if (tileResource == nullptr)
+            {
                 continue;
             }
             const int index = relativeY << CHUNK_SHIFT | relativeX;
@@ -174,25 +203,30 @@ bool glimmer::PlaceCommand::ExecuteStructure(const CommandArgs *commandArgs, con
     return true;
 }
 
-bool glimmer::PlaceCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
-                                    const std::function<void(const std::string &text)> *onMessage) {
-    WorldContext *worldContext = GetWorldContext();
-    const AppContext *appContext = GetAppContext();
-    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr) {
+bool glimmer::PlaceCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
+                                    const std::function<void(const std::string & text)>* onMessage)
+{
+    WorldContext* worldContext = GetWorldContext();
+    const AppContext* appContext = GetAppContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
+    {
         return false;
     }
-    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
-    if (worldContext == nullptr) {
+    const std::function<void(const std::string & text)>& onMessageRef = *onMessage;
+    if (worldContext == nullptr)
+    {
         onMessageRef(appContext->GetLangsResources()->worldContextIsNull);
         return false;
     }
-    if (const size_t size = commandArgs->GetSize(); size < 5) {
+    if (const size_t size = commandArgs->GetSize(); size < 5)
+    {
         onMessageRef(fmt::format(
             fmt::runtime(appContext->GetLangsResources()->insufficientParameterLength),
             5, size));
         return false;
     }
-    if (std::string type = commandArgs->AsString(1); type == "structure") {
+    if (std::string type = commandArgs->AsString(1); type == "structure")
+    {
         return ExecuteStructure(commandArgs, commandSender, worldContext);
     }
     return false;

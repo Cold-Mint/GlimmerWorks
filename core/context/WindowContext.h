@@ -29,12 +29,14 @@
 #include "SDL3/SDL_gpu.h"
 #include "SDL3/SDL_video.h"
 
-namespace glimmer {
-    class WindowContext {
+namespace glimmer
+{
+    class WindowContext
+    {
+        SDL_Window* window_ = nullptr;
+        SDL_GPUDevice* device_ = nullptr;
         int windowWidth_ = 0;
         int windowHeight_ = 0;
-        SDL_Window *window_ = nullptr;
-        SDL_GPUDevice *device_ = nullptr;
 
     public:
         ~WindowContext();
@@ -54,11 +56,11 @@ namespace glimmer {
 
         void SetWindowHeight(int height);
 
-        void SetWindowTitle(const char *title) const;
+        void SetWindowTitle(const char* title) const;
 
-        [[nodiscard]] SDL_GPUDevice *GetDevice() const;
+        [[nodiscard]] SDL_GPUDevice* GetDevice() const;
 
-        [[nodiscard]] SDL_Window *GetWindow() const;
+        [[nodiscard]] SDL_Window* GetWindow() const;
 
         [[nodiscard]] int GetWindowWidth() const;
 

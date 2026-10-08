@@ -32,18 +32,21 @@
 #include "core/log/LogCat.h"
 
 std::unique_ptr<glimmer::CompiledUniformBlock> glimmer::CompiledUniformBlock::Compile(
-    const UniformBlockResource &resource) {
+    const UniformBlockResource& resource)
+{
     auto block = std::make_unique<CompiledUniformBlock>();
     block->name_ = resource.name;
     uint32_t cursor = 0;
     block->members_.reserve(resource.members.size());
-    for (const UniformMemberResource &member: resource.members) {
+    for (const UniformMemberResource& member : resource.members)
+    {
         CompiledUniformMember compiled;
         compiled.name = member.name;
         compiled.source = member.source;
         compiled.staticValue = member.value;
         compiled.type = Std140LayoutBuilder::ParseType(member.type);
-        if (compiled.type == UniformScalarType::Invalid) {
+        if (compiled.type == UniformScalarType::Invalid)
+        {
             LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "invalid_uniform_member_type",
                       "Invalid uniform member type: {} for member {}", member.type, member.name);
             return nullptr;
@@ -64,45 +67,56 @@ std::unique_ptr<glimmer::CompiledUniformBlock> glimmer::CompiledUniformBlock::Co
 
     //Bake static members and collect dynamic member indices.
     //烘焙静态成员并收集动态成员索引。
-    for (size_t i = 0; i < block->members_.size(); ++i) {
-        CompiledUniformMember &member = block->members_[i];
-        if (member.source == "static") {
+    for (size_t i = 0; i < block->members_.size(); ++i)
+    {
+        CompiledUniformMember& member = block->members_[i];
+        if (member.source == "static")
+        {
             const uint32_t componentCount = Std140LayoutBuilder::GetComponentCount(member.type);
-            auto *dst = reinterpret_cast<float *>(block->staticBuffer_.data() + member.offset);
-            for (uint32_t c = 0; c < componentCount; ++c) {
+            auto* dst = reinterpret_cast<float*>(block->staticBuffer_.data() + member.offset);
+            for (uint32_t c = 0; c < componentCount; ++c)
+            {
                 dst[c] = c < member.staticValue.size() ? member.staticValue[c] : 0.0F;
             }
-        } else {
+        }
+        else
+        {
             block->dynamicMemberIndices_.push_back(static_cast<uint32_t>(i));
         }
     }
     return block;
 }
 
-const std::string &glimmer::CompiledUniformBlock::GetName() const {
+const std::string& glimmer::CompiledUniformBlock::GetName() const
+{
     return name_;
 }
 
-size_t glimmer::CompiledUniformBlock::GetSize() const {
+size_t glimmer::CompiledUniformBlock::GetSize() const
+{
     return staticBuffer_.size();
 }
 
-const std::vector<glimmer::CompiledUniformMember> &glimmer::CompiledUniformBlock::GetMembers() const {
+const std::vector<glimmer::CompiledUniformMember>& glimmer::CompiledUniformBlock::GetMembers() const
+{
     return members_;
 }
 
-void glimmer::CompiledUniformBlock::Fill(const UniformInjectContext &ctx, std::vector<uint8_t> &out) const {
+void glimmer::CompiledUniformBlock::Fill(const UniformInjectContext& ctx, std::vector<uint8_t>& out) const
+{
     out.assign(staticBuffer_.size(), 0);
     std::memcpy(out.data(), staticBuffer_.data(), staticBuffer_.size());
-    for (const uint32_t memberIndex: dynamicMemberIndices_) {
-        const CompiledUniformMember &member = members_[memberIndex];
+    for (const uint32_t memberIndex : dynamicMemberIndices_)
+    {
+        const CompiledUniformMember& member = members_[memberIndex];
         const UniformInjector injector = UniformInjectorRegistry::Find(member.source);
-        if (injector == nullptr) {
+        if (injector == nullptr)
+        {
             LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "uniform_injector_not_found",
                       "Uniform injector not found: {}",
                       member.source);
             continue;
         }
-        injector(ctx, reinterpret_cast<float *>(out.data() + member.offset));
+        injector(ctx, reinterpret_cast<float*>(out.data() + member.offset));
     }
 }

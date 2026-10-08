@@ -30,19 +30,23 @@
 
 #include "core/config/Constants.h"
 
-glimmer::MobDynamicSuggestions::MobDynamicSuggestions(MobRegistry *mobRegistry) : mobRegistry_(mobRegistry) {
+glimmer::MobDynamicSuggestions::MobDynamicSuggestions(MobRegistry* mobRegistry) : mobRegistry_(mobRegistry)
+{
 }
 
-std::string glimmer::MobDynamicSuggestions::GetId() const {
+std::string glimmer::MobDynamicSuggestions::GetId() const
+{
     return MOB_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-const std::vector<std::string> &
-glimmer::MobDynamicSuggestions::GetSuggestions(const std::optional<std::string> &param) {
+const std::vector<std::string>&
+glimmer::MobDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
+{
     return mobRegistry_->List();
 }
 
 
-bool glimmer::MobDynamicSuggestions::Match(const std::string &keyword, const std::string &param) {
+bool glimmer::MobDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
+{
     return std::ranges::contains(mobRegistry_->List(), keyword);
 }

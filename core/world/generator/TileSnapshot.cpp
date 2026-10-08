@@ -27,18 +27,22 @@
 #include "TileSnapshot.h"
 
 
-void glimmer::TileSnapshot::SetTile(const Tile *tile) {
+void glimmer::TileSnapshot::SetTile(const Tile* tile)
+{
     tile_ = tile;
 }
 
-const glimmer::Tile *glimmer::TileSnapshot::GetTile() const {
+const glimmer::Tile* glimmer::TileSnapshot::GetTile() const
+{
     return tile_;
 }
 
-void glimmer::TileSnapshot::SetTileState(const TileStateMessage *tileState) {
+void glimmer::TileSnapshot::SetTileState(const TileStateMessage* tileState)
+{
     tileState_ = tileState;
 }
 
-const TileStateMessage *glimmer::TileSnapshot::GetTileState() const {
+const TileStateMessage* glimmer::TileSnapshot::GetTileState() const
+{
     return tileState_;
 }

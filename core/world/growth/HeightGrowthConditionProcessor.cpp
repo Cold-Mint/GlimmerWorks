@@ -33,22 +33,27 @@
 #include "core/world/generator/TerrainMath.h"
 
 glimmer::GrowthConditionProcessorType
-glimmer::HeightGrowthConditionProcessor::GetGrowthConditionProcessorType() {
+glimmer::HeightGrowthConditionProcessor::GetGrowthConditionProcessorType()
+{
     return GrowthConditionProcessorType::Height;
 }
 
-bool glimmer::HeightGrowthConditionProcessor::Match(const WorldContext *worldContext, const TileVector2D &position,
-                                                    const IGrowthConditionResource *growthConditionResource) {
-    const Dimension *dimension = worldContext->GetDimension();
-    if (dimension == nullptr) {
+bool glimmer::HeightGrowthConditionProcessor::Match(const WorldContext* worldContext, const TileVector2D& position,
+                                                    const IGrowthConditionResource* growthConditionResource)
+{
+    const Dimension* dimension = worldContext->GetDimension();
+    if (dimension == nullptr)
+    {
         return false;
     }
-    const DimensionResource *dimensionResource = dimension->GetDimensionResource();
-    if (dimensionResource == nullptr) {
+    const DimensionResource* dimensionResource = dimension->GetDimensionResource();
+    if (dimensionResource == nullptr)
+    {
         return false;
     }
-    const auto heightCondition = dynamic_cast<const HeightGrowthConditionResource *>(growthConditionResource);
-    if (heightCondition == nullptr) {
+    const auto heightCondition = dynamic_cast<const HeightGrowthConditionResource*>(growthConditionResource);
+    if (heightCondition == nullptr)
+    {
         return false;
     }
     const float percent = TerrainMath::GetElevation(dimensionResource, position.y);

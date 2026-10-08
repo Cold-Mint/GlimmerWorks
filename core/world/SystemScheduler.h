@@ -40,7 +40,8 @@
 #include "core/scene/WorldScene.h"
 #include "src/core/game_component_type.pb.h"
 
-namespace glimmer {
+namespace glimmer
+{
     class WorldContext;
     class Config;
 
@@ -49,23 +50,9 @@ namespace glimmer {
      * 系统调度器，负责游戏系统的注册、激活/停用、事件分发、渲染调度和GUI栈管理。
      * 从 WorldContext 拆分而来。
      */
-    class SystemScheduler {
-        bool allowRegisterSystem_ = false;
-        uint32_t onComponentCountChangedId_ = 0;
-        uint64_t persistentGuiSystemCount_ = 0;
-        WorldContext *worldContext_ = nullptr;
-        std::vector<std::unique_ptr<GameSystem> > activeSystems_;
-        std::vector<std::unique_ptr<GameSystem> > inactiveSystems_;
-        std::vector<GuiGameSystem *> guiGameSystems_;
-        /**
-        * Protects activeSystems_, inactiveSystems_, onComponentCountChangeBuffer_
-        * and activeSystemStack_ against concurrent access from the tick thread
-        * (OnTick) and the main thread (OnFrameStart / HandleEvent).
-        * 保护 activeSystems_、inactiveSystems_、onComponentCountChangeBuffer_
-        * 和 activeSystemStack_ 免受 tick 线程（OnTick）与主线程（OnFrameStart / HandleEvent）
-        * 的并发访问。
-        */
-        mutable std::mutex systemMutex_;
+    class SystemScheduler
+    {
+        std::stack<GameSystemType> activeSystemStack_;
         std::unordered_map<GameComponentTypeMessage, uint32_t> onComponentCountChangeBuffer_;
         /**
          * Shortcut keys to the corresponding system types.
@@ -73,16 +60,31 @@ namespace glimmer {
          */
         std::unordered_map<SDL_Scancode, GameSystemType> scancodeToSystemType_;
         std::unordered_map<GameSystemType, SDL_Scancode> systemTypeToScancode_;
-        std::stack<GameSystemType> activeSystemStack_;
+        /**
+      * Protects activeSystems_, inactiveSystems_, onComponentCountChangeBuffer_
+      * and activeSystemStack_ against concurrent access from the tick thread
+      * (OnTick) and the main thread (OnFrameStart / HandleEvent).
+      * 保护 activeSystems_、inactiveSystems_、onComponentCountChangeBuffer_
+      * 和 activeSystemStack_ 免受 tick 线程（OnTick）与主线程（OnFrameStart / HandleEvent）
+      * 的并发访问。
+      */
+        mutable std::mutex systemMutex_;
+        std::vector<std::unique_ptr<GameSystem>> activeSystems_;
+        std::vector<std::unique_ptr<GameSystem>> inactiveSystems_;
+        std::vector<GuiGameSystem*> guiGameSystems_;
+        uint64_t persistentGuiSystemCount_ = 0;
+        WorldContext* worldContext_ = nullptr;
+        uint32_t onComponentCountChangedId_ = 0;
+        bool allowRegisterSystem_ = false;
 
 
         void RegisterSystem(std::unique_ptr<GameSystem> system);
 
         void RegisterGuiSystem(std::unique_ptr<GuiGameSystem> system);
 
-        void MoveSystemsToActive(std::queue<GameSystem *> &toActivate);
+        void MoveSystemsToActive(std::queue<GameSystem*>& toActivate);
 
-        void MoveSystemsToInactive(std::queue<GameSystem *> &toDeactivate);
+        void MoveSystemsToInactive(std::queue<GameSystem*>& toDeactivate);
 
         void OnWatchedComponentChanged(GameComponentTypeMessage type, uint32_t count);
 
@@ -93,7 +95,7 @@ namespace glimmer {
         void NotifyInactiveSystems(GameComponentTypeMessage gameComponentType, uint32_t count) const;
 
     public:
-        explicit SystemScheduler(WorldContext *worldContext);
+        explicit SystemScheduler(WorldContext* worldContext);
 
         ~SystemScheduler();
 
@@ -124,9 +126,9 @@ namespace glimmer {
          */
         [[nodiscard]] bool HasAnyModalGuiOpen() const;
 
-        [[nodiscard]] GameSystem *GetGameSystem(GameSystemType type) const;
+        [[nodiscard]] GameSystem* GetGameSystem(GameSystemType type) const;
 
-        bool HandleEvent(const SDL_Event &event);
+        bool HandleEvent(const SDL_Event& event);
 
         void OnTick(uint64_t tick);
 
@@ -134,18 +136,18 @@ namespace glimmer {
 
         bool OnBackPressed();
 
-        void Render(RenderQueue *queue) const;
+        void Render(RenderQueue* queue) const;
 
-        void LoadDocuments(IDocumentRegistry *documentRegistry) const;
+        void LoadDocuments(IDocumentRegistry* documentRegistry) const;
 
-        void OnCreateDataModels(IDocumentRegistry *documentRegistry) const;
+        void OnCreateDataModels(IDocumentRegistry* documentRegistry) const;
 
         void OnFrameStart();
 
         void InitSystem();
 
-        void OnConfigChanged(const Config *config) const;
+        void OnConfigChanged(const Config* config) const;
 
-        void OnWindowSizeChanged(const int &width, const int &height) const;
+        void OnWindowSizeChanged(const int& width, const int& height) const;
     };
 }

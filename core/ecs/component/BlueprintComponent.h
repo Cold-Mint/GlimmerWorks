@@ -29,19 +29,21 @@
 #include "core/math/TileVector2D.h"
 
 
-namespace glimmer {
-    class BlueprintComponent : public GameComponent {
-        bool canPlace_ = false;
+namespace glimmer
+{
+    class BlueprintComponent : public GameComponent
+    {
         TileVector2D topLeftVector_;
+        bool canPlace_ = false;
 
     public:
         void SetCanPlace(bool canPlace);
 
         [[nodiscard]] bool CanPlace() const;
 
-        void SetTopLeftVector(const TileVector2D &topLeftVector);
+        void SetTopLeftVector(const TileVector2D& topLeftVector);
 
-        [[nodiscard]] const TileVector2D &GetTopLeftVector() const;
+        [[nodiscard]] const TileVector2D& GetTopLeftVector() const;
 
         [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 

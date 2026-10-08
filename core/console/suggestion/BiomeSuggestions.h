@@ -29,17 +29,19 @@
 #include "core/mod/dataPack/BiomeRegistry.h"
 
 
-namespace glimmer {
-    class BiomeSuggestions final : public DynamicSuggestions {
-        BiomeRegistry *biomeRegistry_ = nullptr;
+namespace glimmer
+{
+    class BiomeSuggestions final : public DynamicSuggestions
+    {
+        BiomeRegistry* biomeRegistry_ = nullptr;
 
     public:
-        explicit BiomeSuggestions(BiomeRegistry *biomeRegistry);
+        explicit BiomeSuggestions(BiomeRegistry* biomeRegistry);
 
         [[nodiscard]] std::string GetId() const override;
 
-        const std::vector<std::string> &GetSuggestions(const std::optional<std::string> &param) override;
+        const std::vector<std::string>& GetSuggestions(const std::optional<std::string>& param) override;
 
-        bool Match(const std::string &keyword, const std::string &param) override;
+        bool Match(const std::string& keyword, const std::string& param) override;
     };
 }

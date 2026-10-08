@@ -28,13 +28,15 @@
 #include "BaseResourceRegistry.h"
 #include "core/mod/Resource.h"
 
-namespace glimmer {
-    class StructureRegistry : public BaseResourceRegistry<IStructureResource> {
-        std::vector<IStructureResource *> structureVector_ = {};
+namespace glimmer
+{
+    class StructureRegistry : public BaseResourceRegistry<IStructureResource>
+    {
+        std::vector<IStructureResource*> structureVector_ = {};
 
     public:
-        void OnRegister(IStructureResource *resource) override;
+        void OnRegister(IStructureResource* resource) override;
 
-        [[nodiscard]] const std::vector<IStructureResource *> &GetAll();
+        [[nodiscard]] const std::vector<IStructureResource*>& GetAll();
     };
 }

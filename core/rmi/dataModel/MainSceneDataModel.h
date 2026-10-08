@@ -30,20 +30,22 @@
 #include "core/ui/Hyperlink.h"
 #include "core/utils/StringUtils.h"
 
-namespace glimmer {
-    struct MainSceneDataModel {
+namespace glimmer
+{
+    struct MainSceneDataModel
+    {
     private:
         static std::string GetCopyrightString();
 
     public:
+        std::string copyright{StringUtils::MakeRawText(GetCopyrightString())};
+        std::string gameVersion{GAME_VERSION_STRING};
+        std::string mainMenuBackground{StringUtils::MakeTextureUrl("@core:main_menu_bg_frames/bg_1")};
         std::vector<Hyperlink> hyperlinks{
             {.text = StringUtils::MakeRawText("Github"), .url = "https://github.com/Cold-Mint/GlimmerWorks"},
             {.text = StringUtils::MakeRawText("Discord"), .url = "https://discord.com/invite/CfppC9WHw8"},
             {.text = StringUtils::MakeRawText("itch.io"), .url = "https://cold-mint.itch.io/glimmerworks"},
             {.text = StringUtils::MakeRawText("QQ Channel"), .url = "https://pd.qq.com/s/cntb09fr1?b=9"}
         };
-        std::string copyright{StringUtils::MakeRawText(GetCopyrightString())};
-        std::string gameVersion{GAME_VERSION_STRING};
-        std::string mainMenuBackground{StringUtils::MakeTextureUrl("@core:main_menu_bg_frames/bg_1")};
     };
 }

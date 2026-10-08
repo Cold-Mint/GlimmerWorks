@@ -77,65 +77,75 @@ glimmer::TileResourceManager::TileResourceManager() {
 }
 
 void glimmer::TileResourceManager::InitBuiltinTiles() {
-    air_ = AddCoreResource({
-        TILE_ID_AIR, TilePhysicsType::None, TileLayerType::Ground, -1.0F,
+    air_ = AddCoreResource(CoreTileResourceParams{
+        STRING_TILE_AIR_DESCRIPTION, TILE_ID_AIR,
         STRING_TILE_AIR_NAME, "tiles/air",
         LIGHT_NONE, LIGHT_MASK_NONE, LIGHT_MASK_NONE,
-        true, false, STRING_TILE_AIR_DESCRIPTION
+        -1.0F, true, false,
+        TilePhysicsType::None, TileLayerType::Ground
     });
-    airWall_ = AddCoreResource({
-        TILE_ID_AIR_WALL, TilePhysicsType::None, TileLayerType::BackGround, -1.0F,
+    airWall_ = AddCoreResource(CoreTileResourceParams{
+        STRING_TILE_AIR_WALL_DESCRIPTION, TILE_ID_AIR_WALL,
         STRING_TILE_AIR_WALL_NAME, "tiles/air_wall",
         LIGHT_NONE, LIGHT_MASK_NONE, LIGHT_MASK_NONE,
-        true, false, STRING_TILE_AIR_WALL_DESCRIPTION
+        -1.0F, true, false,
+        TilePhysicsType::None, TileLayerType::BackGround
     });
-    AddCoreResource({
-        TILE_ID_VOID, TilePhysicsType::None, TileLayerType::Ground, -1.0F,
+    AddCoreResource(CoreTileResourceParams{
+        STRING_TILE_VOID_DESCRIPTION, TILE_ID_VOID,
         STRING_TILE_VOID_NAME, "tiles/void",
         LIGHT_NONE, LIGHT_MASK_NONE, LIGHT_MASK_NONE,
-        false, false, STRING_TILE_VOID_DESCRIPTION
+        -1.0F, false, false,
+        TilePhysicsType::None, TileLayerType::Ground
     });
-    AddCoreResource({
-        TILE_ID_BEDROCK, TilePhysicsType::Static, TileLayerType::Ground, -1.0F,
+    AddCoreResource(CoreTileResourceParams{
+        STRING_TILE_BEDROCK_DESCRIPTION, TILE_ID_BEDROCK,
         STRING_TILE_BEDROCK_NAME, "tiles/bedrock",
         LIGHT_NONE, LIGHT_MASK_FULL, LIGHT_MASK_FULL,
-        false, false, STRING_TILE_BEDROCK_DESCRIPTION
+        -1.0F, false, false,
+        TilePhysicsType::Static, TileLayerType::Ground
     });
-    AddCoreResource({
-        TILE_ID_VOID_WALL, TilePhysicsType::None, TileLayerType::BackGround, -1.0F,
+    AddCoreResource(CoreTileResourceParams{
+        STRING_TILE_VOID_WALL_DESCRIPTION, TILE_ID_VOID_WALL,
         STRING_TILE_VOID_WALL_NAME, "tiles/void_wall",
         LIGHT_NONE, LIGHT_MASK_NONE, LIGHT_MASK_LOW,
-        false, false, STRING_TILE_VOID_WALL_DESCRIPTION
+        -1.0F, false, false,
+        TilePhysicsType::None, TileLayerType::BackGround
     });
-    AddCoreResource({
-        TILE_ID_WATER, TilePhysicsType::None, TileLayerType::Ground, -1.0F,
+    AddCoreResource(CoreTileResourceParams{
+        std::nullopt, TILE_ID_WATER,
         STRING_TILE_WATER_NAME, "tiles/water",
         LIGHT_NONE, LIGHT_MASK_NONE, LIGHT_MASK_LOW,
-        true, true, std::nullopt
+        -1.0F, true, true,
+        TilePhysicsType::None, TileLayerType::Ground
     });
-    AddCoreResource({
-        TILE_ID_ERROR, TilePhysicsType::Static, TileLayerType::Ground, 0.1F,
+    AddCoreResource(CoreTileResourceParams{
+        STRING_TILE_ERROR_DESCRIPTION, TILE_ID_ERROR,
         STRING_TILE_ERROR_NAME, ERROR_TEXTURE_KEY,
         LIGHT_NONE, LIGHT_MASK_MEDIUM, LIGHT_MASK_LOW,
-        false, true, STRING_TILE_ERROR_DESCRIPTION
+        0.1F, false, true,
+        TilePhysicsType::Static, TileLayerType::Ground
     });
-    AddCoreResource({
-        TILE_ID_ERROR_WALL, TilePhysicsType::Static, TileLayerType::BackGround, 0.1F,
+    AddCoreResource(CoreTileResourceParams{
+        STRING_TILE_ERROR_WALL_DESCRIPTION, TILE_ID_ERROR_WALL,
         STRING_TILE_ERROR_WALL_NAME, ERROR_TEXTURE_KEY,
         LIGHT_NONE, LIGHT_MASK_MEDIUM, LIGHT_MASK_LOW,
-        false, true, STRING_TILE_ERROR_WALL_DESCRIPTION
+        0.1F, false, true,
+        TilePhysicsType::Static, TileLayerType::BackGround
     });
-    AddCoreResource({
-        TILE_ID_ACCESS_DENIED, TilePhysicsType::Static, TileLayerType::Ground, 0.1F,
+    AddCoreResource(CoreTileResourceParams{
+        STRING_TILE_ACCESS_DENIED_DESCRIPTION, TILE_ID_ACCESS_DENIED,
         STRING_TILE_ACCESS_DENIED_NAME, ACCESS_DENIED_TEXTURE_KEY,
         LIGHT_NONE, LIGHT_MASK_MEDIUM, LIGHT_MASK_LOW,
-        false, true, STRING_TILE_ACCESS_DENIED_DESCRIPTION
+        0.1F, false, true,
+        TilePhysicsType::Static, TileLayerType::Ground
     });
-    AddCoreResource({
-        TILE_ID_ACCESS_DENIED_WALL, TilePhysicsType::Static, TileLayerType::BackGround, 0.1F,
+    AddCoreResource(CoreTileResourceParams{
+        STRING_TILE_ACCESS_DENIED_WALL_DESCRIPTION, TILE_ID_ACCESS_DENIED_WALL,
         STRING_TILE_ACCESS_DENIED_WALL_NAME, ACCESS_DENIED_TEXTURE_KEY,
         LIGHT_NONE, LIGHT_MASK_MEDIUM, LIGHT_MASK_LOW,
-        false, true, STRING_TILE_ACCESS_DENIED_WALL_DESCRIPTION
+        0.1F, false, true,
+        TilePhysicsType::Static, TileLayerType::BackGround
     });
 }
 

@@ -28,7 +28,8 @@
 
 #include <SDL3/SDL_gpu.h>
 
-namespace glimmer {
+namespace glimmer
+{
     class UniformInjectContext;
     class RenderQueue;
 
@@ -45,16 +46,17 @@ namespace glimmer {
      * 尺寸、注入上下文、队列），各 pass 按需读取。离屏场景纹理由场景 pass
      * 产出、光照 pass 消费，因此作为共享状态在此暴露。
      */
-    struct RenderFrameContext {
-        SDL_GPUCommandBuffer *commandBuffer = nullptr;
-        SDL_GPUTexture *swapChainTexture = nullptr;
+    struct RenderFrameContext
+    {
+        SDL_GPUCommandBuffer* commandBuffer = nullptr;
+        SDL_GPUTexture* swapChainTexture = nullptr;
+        UniformInjectContext* injectContext = nullptr;
+        RenderQueue* renderQueue = nullptr;
+        SDL_GPUTexture* sceneTexture = nullptr;
         uint32_t swapChainWidth = 0;
         uint32_t swapChainHeight = 0;
         uint32_t logicalWidth = 0;
         uint32_t logicalHeight = 0;
-        UniformInjectContext *injectContext = nullptr;
-        RenderQueue *renderQueue = nullptr;
-        SDL_GPUTexture *sceneTexture = nullptr;
         uint32_t sceneTextureWidth = 0;
         uint32_t sceneTextureHeight = 0;
     };

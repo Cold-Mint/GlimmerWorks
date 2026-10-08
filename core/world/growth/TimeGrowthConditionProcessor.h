@@ -27,12 +27,14 @@
 #pragma once
 #include "IGrowthConditionProcessor.h"
 
-namespace glimmer {
-    class TimeGrowthConditionProcessor : public IGrowthConditionProcessor {
+namespace glimmer
+{
+    class TimeGrowthConditionProcessor : public IGrowthConditionProcessor
+    {
     public:
         GrowthConditionProcessorType GetGrowthConditionProcessorType() override;
 
-        bool Match(const WorldContext *worldContext, const TileVector2D &position,
-                   const IGrowthConditionResource *growthConditionResource) override;
+        bool Match(const WorldContext* worldContext, const TileVector2D& position,
+                   const IGrowthConditionResource* growthConditionResource) override;
     };
 }

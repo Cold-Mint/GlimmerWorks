@@ -33,19 +33,24 @@
 #include "core/world/WorldContext.h"
 
 
-void glimmer::ChunkTilePopulator::PopulateSingleTilePosition(Chunk *chunk,
-                                                             const ResourceLocator *resourceLocator,
+void glimmer::ChunkTilePopulator::PopulateSingleTilePosition(Chunk* chunk,
+                                                             const ResourceLocator* resourceLocator,
                                                              const std::unordered_map<TileLayerType, std::array<
-                                                                 ResourceRef, CHUNK_AREA> > &tilesRefMap,
-                                                             int topLeftIndex) {
-    for (const auto &[tileLayerType, tileArray]: tilesRefMap) {
-        const ResourceRef &resourceRef = tileArray[topLeftIndex];
-        const TileResource *tileResource = resourceLocator->FindTileRaw(&resourceRef);
-        if (tileResource == nullptr) {
+                                                                 ResourceRef, CHUNK_AREA>>& tilesRefMap,
+                                                             int topLeftIndex)
+{
+    for (const auto& [tileLayerType, tileArray] : tilesRefMap)
+    {
+        const ResourceRef& resourceRef = tileArray[topLeftIndex];
+        const TileResource* tileResource = resourceLocator->FindTileRaw(&resourceRef);
+        if (tileResource == nullptr)
+        {
             continue;
         }
-        for (int x = 0; x < tileResource->tileWidth; x++) {
-            for (int y = 0; y < tileResource->tileHeight; y++) {
+        for (int x = 0; x < tileResource->tileWidth; x++)
+        {
+            for (int y = 0; y < tileResource->tileHeight; y++)
+            {
                 const int unitIndex = topLeftIndex + y * CHUNK_SIZE + x;
                 chunk->PlaceTile(tileLayerType, unitIndex, resourceRef, tileResource, BreakSource::ChunkGenerate,
                                  PLACE_SOURCE_WORLD_GEN, x, y, true);
@@ -54,14 +59,17 @@ void glimmer::ChunkTilePopulator::PopulateSingleTilePosition(Chunk *chunk,
     }
 }
 
-void glimmer::ChunkTilePopulator::Populate(Chunk *chunk,
-                                           const ResourceLocator *resourceLocator,
-                                           const std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> >
-                                           &tilesRefMap) {
+void glimmer::ChunkTilePopulator::Populate(Chunk* chunk,
+                                           const ResourceLocator* resourceLocator,
+                                           const std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>
+                                           & tilesRefMap)
+{
     LogCat::d(LogLabel::CHUNK, "chunk_tile_populate_start", "Populating chunk tiles: position=({}, {})",
               chunk->GetPosition().x, chunk->GetPosition().y);
-    for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
-        for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
+    for (int localX = 0; localX < CHUNK_SIZE; ++localX)
+    {
+        for (int localY = 0; localY < CHUNK_SIZE; ++localY)
+        {
             const int topLeftIndex = localY * CHUNK_SIZE + localX;
             PopulateSingleTilePosition(chunk, resourceLocator, tilesRefMap, topLeftIndex);
         }

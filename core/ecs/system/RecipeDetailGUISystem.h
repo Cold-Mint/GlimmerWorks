@@ -28,24 +28,25 @@
 #include "core/rmi/dataModel/TagProgressDataModel.h"
 #include "core/world/SystemScheduler.h"
 
-namespace glimmer {
-    class RecipeDetailGUISystem : public GuiStackGameSystem {
-        Rml::DataModelConstructor *constructor_ = nullptr;
-        ItemContainer *itemContainer_ = nullptr;
-        RecipeResource *currentRecipe_ = nullptr;
-        RecipeSelectionComponent *recipeSelectionComponent_ = nullptr;
-
+namespace glimmer
+{
+    class RecipeDetailGUISystem : public GuiStackGameSystem
+    {
+        std::string outputImage_;
+        std::string outputName_;
         std::vector<TagProgressDataModel> tagProgress_;
         std::vector<RecipeItemChoiceDataModel> itemChoices_;
         std::vector<int> originalRequiredWeights_;
-        std::string outputImage_;
-        std::string outputName_;
-        SystemScheduler *systemScheduler_ = nullptr;
+        Rml::DataModelConstructor* constructor_ = nullptr;
+        ItemContainer* itemContainer_ = nullptr;
+        RecipeResource* currentRecipe_ = nullptr;
+        RecipeSelectionComponent* recipeSelectionComponent_ = nullptr;
+        SystemScheduler* systemScheduler_ = nullptr;
         int outputAmount_ = 0;
-        bool canCraft_ = false;
         int craftCount_ = 1;
         int outputCount_ = 1;
         int maxCraftCount_ = 1;
+        bool canCraft_ = false;
 
         std::unordered_map<uint8_t, uint8_t> investedItems_;
 
@@ -66,11 +67,11 @@ namespace glimmer {
     public:
         ~RecipeDetailGUISystem() override;
 
-        explicit RecipeDetailGUISystem(WorldContext *worldContext);
+        explicit RecipeDetailGUISystem(WorldContext* worldContext);
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
-        void OnCreateDataModels(IDocumentRegistry *documentRegistry) override;
+        void OnCreateDataModels(IDocumentRegistry* documentRegistry) override;
 
         void OnActivationChanged(bool activeStatus) override;
 
@@ -78,22 +79,22 @@ namespace glimmer {
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
 
-        void LoadDocuments(IDocumentRegistry *documentRegistry) override;
+        void LoadDocuments(IDocumentRegistry* documentRegistry) override;
 
-        void OnBackClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
+        void OnBackClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
-        void OnCraftClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
+        void OnCraftClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
-        void OnResetClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
+        void OnResetClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
-        void OnAutoFillClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
+        void OnAutoFillClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
-        void OnCraftCountIncrease(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
+        void OnCraftCountIncrease(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
-        void OnCraftCountDecrease(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
+        void OnCraftCountDecrease(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
-        void OnItemIncrease(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
+        void OnItemIncrease(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
-        void OnItemDecrease(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
+        void OnItemDecrease(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
     };
 }

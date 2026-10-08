@@ -45,7 +45,8 @@
 #include "scheduler/ChunkTaskScheduler.h"
 #include "src/saves/entity_item.pb.h"
 
-namespace glimmer {
+namespace glimmer
+{
     class Scene;
     class ParallaxBackgroundComponent;
     class TileInstancePool;
@@ -62,24 +63,12 @@ namespace glimmer {
      * GameEntity has been restricted to be accessed directly only within the WorldContext. uint32_t is provided externally.
      * GameEntity 已被限制为仅在WorldContext内部直接访问。对外提供uint32_t。
      */
-    class WorldContext : public ITickListener {
+    class WorldContext : public ITickListener
+    {
         friend class WorldBuilder;
-        //Whether to enable the item dragging mode
-        //是否启用物品拖拽模式
-        bool dragMode_ = false;
-        int worldSeed_ = 0;
-        Saves *saves_;
-        //The fixed tick count is obtained from the saved list file.
-        //固定的tick数，来自清单文件保存的。
-        uint64_t fixedGlobalTick_ = 0;
-        //The total number of ticks played during this session; safe to read across threads.
-        //本次会话已游玩的 tick 数；可跨线程安全读取。
-        std::atomic<uint64_t> gameTick_{0};
-        Box2dWorldId box2DWorldId_;
-        //Whether it is running or not, if false, it indicates that the game has been paused.
-        //是否正在运行中，为false则表示游戏已被暂停。
-        std::atomic<bool> running{true};
-        AppContext *appContext_ = nullptr;
+        WorldSaver worldSaver_;
+        AppContext* appContext_ = nullptr;
+        Saves* saves_ = nullptr;
         std::unique_ptr<MapManifest> mapManifest_ = nullptr;
         std::unique_ptr<PlayerManifest> playerManifest_ = nullptr;
         std::unique_ptr<Dimension> dimension_;
@@ -91,9 +80,22 @@ namespace glimmer {
         std::unique_ptr<ChunkGenerator> chunkGenerator_;
         std::unique_ptr<ChunkTaskScheduler> chunkTaskScheduler_;
         std::unique_ptr<ChunkManager> chunkManager_;
-        WorldSaver worldSaver_;
         std::unique_ptr<SystemScheduler> systemScheduler_;
         std::unique_ptr<PlayerContext> playerContext_;
+        //The fixed tick count is obtained from the saved list file.
+        //固定的tick数，来自清单文件保存的。
+        uint64_t fixedGlobalTick_ = 0;
+        //The total number of ticks played during this session; safe to read across threads.
+        //本次会话已游玩的 tick 数；可跨线程安全读取。
+        std::atomic<uint64_t> gameTick_{0};
+        int worldSeed_ = 0;
+        Box2dWorldId box2DWorldId_;
+        //Whether it is running or not, if false, it indicates that the game has been paused.
+        //是否正在运行中，为false则表示游戏已被暂停。
+        std::atomic<bool> running{true};
+        //Whether to enable the item dragging mode
+        //是否启用物品拖拽模式
+        bool dragMode_ = false;
 
     public:
         ~WorldContext() override;
@@ -108,37 +110,37 @@ namespace glimmer {
         [[nodiscard]] uint64_t GetGlobalTick() const;
 
 
-        WorldContext(AppContext *appContext, Saves *saves);
+        WorldContext(AppContext* appContext, Saves* saves);
 
-        [[nodiscard]] ChunkTaskScheduler *GetChunkTaskScheduler() const;
+        [[nodiscard]] ChunkTaskScheduler* GetChunkTaskScheduler() const;
 
-        [[nodiscard]] EntityManager *GetEntityManager() const;
+        [[nodiscard]] EntityManager* GetEntityManager() const;
 
-        [[nodiscard]] EntityShortCut *GetEntityShortCut() const;
+        [[nodiscard]] EntityShortCut* GetEntityShortCut() const;
 
-        [[nodiscard]] Saves *GetSaves() const;
+        [[nodiscard]] Saves* GetSaves() const;
 
-        [[nodiscard]] MapManifest *GetMapManifest() const;
+        [[nodiscard]] MapManifest* GetMapManifest() const;
 
-        [[nodiscard]] PlayerManifest *GetPlayerManifest() const;
+        [[nodiscard]] PlayerManifest* GetPlayerManifest() const;
 
-        [[nodiscard]] AppContext *GetAppContext() const;
+        [[nodiscard]] AppContext* GetAppContext() const;
 
         [[nodiscard]] b2WorldId GetWorldId() const;
 
         [[nodiscard]] int GetWorldSeed() const;
 
-        [[nodiscard]] TerrainGenerator *GetTerrainGenerator() const;
+        [[nodiscard]] TerrainGenerator* GetTerrainGenerator() const;
 
-        [[nodiscard]] ChunkGenerator *GetChunkGenerator() const;
+        [[nodiscard]] ChunkGenerator* GetChunkGenerator() const;
 
-        [[nodiscard]] ChunkLoader *GetChunkLoader() const;
+        [[nodiscard]] ChunkLoader* GetChunkLoader() const;
 
-        [[nodiscard]] ChunkManager *GetChunkManager() const;
+        [[nodiscard]] ChunkManager* GetChunkManager() const;
 
-        [[nodiscard]] SystemScheduler *GetSystemScheduler() const;
+        [[nodiscard]] SystemScheduler* GetSystemScheduler() const;
 
-        [[nodiscard]] PlayerContext *GetPlayerContext() const;
+        [[nodiscard]] PlayerContext* GetPlayerContext() const;
 
         [[nodiscard]] bool IsRuning() const;
 
@@ -148,16 +150,16 @@ namespace glimmer {
 
         void SetDragMode(bool dragMode);
 
-        void SaveEntity(EntityItemMessage *entityItemMessage, GameEntityID entityId) const;
+        void SaveEntity(EntityItemMessage* entityItemMessage, GameEntityID entityId) const;
 
         void SaveGame();
 
         [[nodiscard]] static bool IsEmptyEntityId(uint32_t id);
 
-        [[nodiscard]] LightBuffer *GetLightingBuffer() const;
+        [[nodiscard]] LightBuffer* GetLightingBuffer() const;
 
-        [[nodiscard]] TileInstancePool *GetTileInstancePool() const;
+        [[nodiscard]] TileInstancePool* GetTileInstancePool() const;
 
-        [[nodiscard]] Dimension *GetDimension() const;
+        [[nodiscard]] Dimension* GetDimension() const;
     };
 }

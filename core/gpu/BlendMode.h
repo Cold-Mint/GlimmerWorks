@@ -28,7 +28,8 @@
 
 #include <SDL3/SDL_gpu.h>
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * BlendMode
      * 颜色混合模式
@@ -39,7 +40,8 @@ namespace glimmer {
      * GPUPipelineResource 的 `blendMode` uint8 字段的强类型封装。数值即
      * 资源包 `pipelines/*.toml` 中约定的数据格式。
      */
-    enum class BlendMode : uint8_t {
+    enum class BlendMode : uint8_t
+    {
         /** No blending, destination is overwritten. 不混合，直接覆盖。 */
         Opaque = 0,
         /** Standard alpha blending. 标准 alpha 混合。 */

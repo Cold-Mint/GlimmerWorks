@@ -38,20 +38,24 @@
 #include "core/world/WorldContext.h"
 #include "core/world/generator/TileLayerType.h"
 
-glimmer::DynamicLightSystem::DynamicLightSystem(WorldContext *worldContext) : GameSystem(worldContext) {
+glimmer::DynamicLightSystem::DynamicLightSystem(WorldContext* worldContext) : GameSystem(worldContext)
+{
     Init();
 }
 
-void glimmer::DynamicLightSystem::Update(const float delta) {
-    WorldContext *worldContext = GetWorldContext();
-    EntityManager *entityManager = GetEntityManager();
-    if (worldContext == nullptr || entityManager == nullptr) {
+void glimmer::DynamicLightSystem::Update(const float delta)
+{
+    WorldContext* worldContext = GetWorldContext();
+    EntityManager* entityManager = GetEntityManager();
+    if (worldContext == nullptr || entityManager == nullptr)
+    {
         return;
     }
-    const AppContext *appContext = worldContext->GetAppContext();
-    LightBuffer *lightBuffer = worldContext->GetLightingBuffer();
-    ResourceLocator *resourceLocator = appContext != nullptr ? appContext->GetResourceLocator() : nullptr;
-    if (lightBuffer == nullptr || resourceLocator == nullptr) {
+    const AppContext* appContext = worldContext->GetAppContext();
+    LightBuffer* lightBuffer = worldContext->GetLightingBuffer();
+    ResourceLocator* resourceLocator = appContext != nullptr ? appContext->GetResourceLocator() : nullptr;
+    if (lightBuffer == nullptr || resourceLocator == nullptr)
+    {
         return;
     }
 
@@ -61,22 +65,27 @@ void glimmer::DynamicLightSystem::Update(const float delta) {
               lightEntities.size());
 
     std::unordered_set<GameEntityID> currentEntities;
-    for (const GameEntityID entityId: lightEntities) {
-        auto *lightComponent = entityManager->GetComponent<LightComponent>(entityId);
-        auto *transform = entityManager->GetComponent<Transform2DComponent>(entityId);
-        if (lightComponent == nullptr || transform == nullptr) {
+    for (const GameEntityID entityId : lightEntities)
+    {
+        auto* lightComponent = entityManager->GetComponent<LightComponent>(entityId);
+        auto* transform = entityManager->GetComponent<Transform2DComponent>(entityId);
+        if (lightComponent == nullptr || transform == nullptr)
+        {
             continue;
         }
-        const ResourceRef &lightRef = lightComponent->GetLightSourceRef();
-        if (!lightRef.IsValid()) {
+        const ResourceRef& lightRef = lightComponent->GetLightSourceRef();
+        if (!lightRef.IsValid())
+        {
             continue;
         }
-        LightSourceResource *lightResource = resourceLocator->FindLightSource(&lightRef);
-        if (lightResource == nullptr) {
+        LightSourceResource* lightResource = resourceLocator->FindLightSource(&lightRef);
+        if (lightResource == nullptr)
+        {
             continue;
         }
         const std::unique_ptr<Color> lightColor = resourceLocator->FindColor(&lightResource->lightColor);
-        if (lightColor == nullptr || lightColor->a == 0) {
+        if (lightColor == nullptr || lightColor->a == 0)
+        {
             continue;
         }
         const TileVector2D tile = CoordinateTransformer::WorldToTile(transform->GetPosition());
@@ -85,8 +94,10 @@ void glimmer::DynamicLightSystem::Update(const float delta) {
         currentEntities.insert(entityId);
     }
 
-    for (const GameEntityID entityId: lastLightEntities_) {
-        if (!currentEntities.contains(entityId)) {
+    for (const GameEntityID entityId : lastLightEntities_)
+    {
+        if (!currentEntities.contains(entityId))
+        {
             LogCat::d(LogLabel::DEFAULT, "dynamic_light_removed", "DynamicLight removed for entity {}", entityId);
             lightBuffer->RemoveDynamicLight(entityId);
         }
@@ -94,10 +105,12 @@ void glimmer::DynamicLightSystem::Update(const float delta) {
     lastLightEntities_ = std::move(currentEntities);
 }
 
-uint8_t glimmer::DynamicLightSystem::GetExecutionOrder() {
+uint8_t glimmer::DynamicLightSystem::GetExecutionOrder()
+{
     return EXECUTION_ORDER_DYNAMIC_LIGHT;
 }
 
-glimmer::GameSystemType glimmer::DynamicLightSystem::GetGameSystemType() const {
+glimmer::GameSystemType glimmer::DynamicLightSystem::GetGameSystemType() const
+{
     return GameSystemType::DynamicLightSystem;
 }

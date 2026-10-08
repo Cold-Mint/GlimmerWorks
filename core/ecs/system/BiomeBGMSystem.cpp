@@ -33,43 +33,52 @@
 #include "core/world/WorldContext.h"
 #include "core/world/generator/Chunk.h"
 
-void glimmer::BiomeBGMSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) {
-    const EntityShortCut *entityShortCut = GetEntityShortCut();
-    EntityManager *entityManager = GetEntityManager();
-    if (gameComponentType == COMPONENT_TRANSFORM_2D && playerTransform2DComponent_ == nullptr) {
+void glimmer::BiomeBGMSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
+{
+    const EntityShortCut* entityShortCut = GetEntityShortCut();
+    EntityManager* entityManager = GetEntityManager();
+    if (gameComponentType == COMPONENT_TRANSFORM_2D && playerTransform2DComponent_ == nullptr)
+    {
         GameEntityID player = entityShortCut->GetPlayer();
-        if (!WorldContext::IsEmptyEntityId(player)) {
+        if (!WorldContext::IsEmptyEntityId(player))
+        {
             playerTransform2DComponent_ = entityManager->GetComponent<Transform2DComponent>(player);
         }
     }
 }
 
-void glimmer::BiomeBGMSystem::SwitchToBiome(BiomeResource *biomeResource) {
+void glimmer::BiomeBGMSystem::SwitchToBiome(BiomeResource* biomeResource)
+{
     std::shared_ptr<AudioResourceResult> audioResourceResult = resourceLocator_->FindAudio(&biomeResource->bgm);
-    if (audioResourceResult == nullptr) {
+    if (audioResourceResult == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "biome_bgm_audio_is_null",
                   "SwitchToBiome: bgm audio resource is nullptr for biome {}", biomeResource->resourceId);
         return;
     }
     audioResult_ = audioResourceResult;
-    if (MIX_Audio *audio = audioResult_->GetResource(); audio != nullptr) {
+    if (MIX_Audio* audio = audioResult_->GetResource(); audio != nullptr)
+    {
         audioManager_->ForcePlayReplace(AudioType::BGM, audio, -1);
     }
     biomeResource_ = biomeResource;
     LogCat::i(LogLabel::DEFAULT, "biome_bgm_switched", "Biome BGM switched to {}", biomeResource->resourceId);
 }
 
-glimmer::BiomeBGMSystem::BiomeBGMSystem(WorldContext *worldContext) : GameSystem(worldContext) {
+glimmer::BiomeBGMSystem::BiomeBGMSystem(WorldContext* worldContext) : GameSystem(worldContext)
+{
     WatchComponent(COMPONENT_TRANSFORM_2D);
-    AppContext *appContext = worldContext->GetAppContext();
-    if (appContext != nullptr) {
+    AppContext* appContext = worldContext->GetAppContext();
+    if (appContext != nullptr)
+    {
         audioManager_ = appContext->GetAudioContext()->GetAudioManager();
         resourceLocator_ = appContext->GetResourceLocator();
     }
     Init();
 }
 
-void glimmer::BiomeBGMSystem::Update(float delta) {
+void glimmer::BiomeBGMSystem::Update(float delta)
+{
     //TODO:恢复我
 
     // WorldContext *worldContext = GetWorldContext();
@@ -143,6 +152,7 @@ void glimmer::BiomeBGMSystem::Update(float delta) {
     // candidateTimeAccumulator_ = 0.0F;
 }
 
-glimmer::GameSystemType glimmer::BiomeBGMSystem::GetGameSystemType() const {
+glimmer::GameSystemType glimmer::BiomeBGMSystem::GetGameSystemType() const
+{
     return GameSystemType::BiomeBGMSystem;
 }

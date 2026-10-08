@@ -26,9 +26,11 @@
  */
 #pragma once
 //@genCode
-namespace glimmer {
+namespace glimmer
+{
     //@genNextLine(NineSliceConfig|九切片通用配置，存储九宫格四边裁切尺寸与平铺开关)
-    struct NineSliceConfig {
+    struct NineSliceConfig
+    {
         //@genNextLine(leftBorderPx|九切片左侧边框像素宽度)
         float leftBorderPx = 1.0F;
 
@@ -41,13 +43,12 @@ namespace glimmer {
         //@genNextLine(bottomBorderPx|九切片底部边框像素高度)
         float bottomBorderPx = 1.0F;
 
-        //@genNextLine(enableTiled|九切片中间区域是否启用瓦片平铺模式)
-        bool enableTiled = false;
-
         //@genNextLine(scale|缩放)
         float scale = 0.0F;
 
         //@genNextLine(tileScale|平铺纹理缩放倍率)
         float tileScale = 1.0F;
+        //@genNextLine(enableTiled|九切片中间区域是否启用瓦片平铺模式)
+        bool enableTiled = false;
     };
 }

@@ -26,7 +26,8 @@
  */
 #include "IPass.h"
 
-void glimmer::IPass::Prepare(RenderFrameContext &ctx) {
+void glimmer::IPass::Prepare(RenderFrameContext& ctx)
+{
     //Subclasses implement this method as needed.
     //子类按需实现此方法。
 }

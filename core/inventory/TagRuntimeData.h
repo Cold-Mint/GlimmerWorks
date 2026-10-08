@@ -28,8 +28,10 @@
 #include <memory>
 #include <string>
 
-namespace glimmer {
-    class TagRuntimeData {
+namespace glimmer
+{
+    class TagRuntimeData
+    {
         /**
          * text
          * 显示的文本
@@ -73,6 +75,6 @@ namespace glimmer {
 
         void SetText(std::string_view text);
 
-        [[nodiscard]] const std::string &GetText() const;
+        [[nodiscard]] const std::string& GetText() const;
     };
 }

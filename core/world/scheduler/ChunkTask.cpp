@@ -28,28 +28,34 @@
 
 #include <utility>
 
-void glimmer::ChunkTask::SetPosition(ChunkVertexVector2D position) {
+void glimmer::ChunkTask::SetPosition(ChunkVertexVector2D position)
+{
     position_ = std::move(position);
 }
 
-const glimmer::ChunkVertexVector2D &glimmer::ChunkTask::GetPosition() const {
+const glimmer::ChunkVertexVector2D& glimmer::ChunkTask::GetPosition() const
+{
     return position_;
 }
 
 
-const glimmer::ResourceRef &glimmer::ChunkTask::GetDimensionResourceRef() const {
+const glimmer::ResourceRef& glimmer::ChunkTask::GetDimensionResourceRef() const
+{
     return dimensionRef_;
 }
 
-void glimmer::ChunkTask::SetDimensionResourceRef(const ResourceRef &dimensionResourceRef) {
+void glimmer::ChunkTask::SetDimensionResourceRef(const ResourceRef& dimensionResourceRef)
+{
     dimensionRef_ = dimensionResourceRef;
 }
 
 
-void glimmer::ChunkTask::SetTaskType(const ChunkTaskType taskType) {
+void glimmer::ChunkTask::SetTaskType(const ChunkTaskType taskType)
+{
     taskType_ = taskType;
 }
 
-glimmer::ChunkTaskType glimmer::ChunkTask::GetTaskType() const {
+glimmer::ChunkTaskType glimmer::ChunkTask::GetTaskType() const
+{
     return taskType_;
 }

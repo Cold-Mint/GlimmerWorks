@@ -26,11 +26,13 @@
  */
 #include "RmlResourceResult.h"
 
-glimmer::RmlResourceResult::~RmlResourceResult() {
+glimmer::RmlResourceResult::~RmlResourceResult()
+{
     DestroyResource();
 }
 
-void glimmer::RmlResourceResult::SetPath(const std::filesystem::path &rmlPath) {
+void glimmer::RmlResourceResult::SetPath(const std::filesystem::path& rmlPath)
+{
     rmlPath_ = rmlPath;
     SetResource(&rmlPath_);
 }

@@ -28,16 +28,20 @@
 
 #include "core/log/LogCat.h"
 
-void glimmer::EntityShortCut::SetPlayer(const GameEntityID player) {
+void glimmer::EntityShortCut::SetPlayer(const GameEntityID player)
+{
     player_ = player;
 }
 
-GameEntityID glimmer::EntityShortCut::GetPlayer() const {
+GameEntityID glimmer::EntityShortCut::GetPlayer() const
+{
     return player_;
 }
 
-glimmer::ItemToolTipComponent *glimmer::EntityShortCut::GetItemToolTipComponent() const {
-    if (itemToolTipComponent_ == nullptr) {
+glimmer::ItemToolTipComponent* glimmer::EntityShortCut::GetItemToolTipComponent() const
+{
+    if (itemToolTipComponent_ == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "item_tooltip_component_null",
                   "EntityShortCut: ItemToolTipComponent pointer is null, tooltip ui not ready");
         return nullptr;
@@ -45,16 +49,20 @@ glimmer::ItemToolTipComponent *glimmer::EntityShortCut::GetItemToolTipComponent(
     return itemToolTipComponent_;
 }
 
-void glimmer::EntityShortCut::SetItemToolTipComponent(ItemToolTipComponent *itemToolTipComponent) {
+void glimmer::EntityShortCut::SetItemToolTipComponent(ItemToolTipComponent* itemToolTipComponent)
+{
     itemToolTipComponent_ = itemToolTipComponent;
 }
 
-void glimmer::EntityShortCut::SetMiningComponent(MiningComponent *miningComponent) {
+void glimmer::EntityShortCut::SetMiningComponent(MiningComponent* miningComponent)
+{
     this->miningComponent_ = miningComponent;
 }
 
-glimmer::MiningComponent *glimmer::EntityShortCut::GetMiningComponent() const {
-    if (miningComponent_ == nullptr) {
+glimmer::MiningComponent* glimmer::EntityShortCut::GetMiningComponent() const
+{
+    if (miningComponent_ == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "mining_component_null",
                   "EntityShortCut: miningComponent pointer is null, digging system uninitialized");
         return nullptr;
@@ -62,12 +70,15 @@ glimmer::MiningComponent *glimmer::EntityShortCut::GetMiningComponent() const {
     return miningComponent_;
 }
 
-void glimmer::EntityShortCut::SetBlueprintComponent(BlueprintComponent *blueprintComponent) {
+void glimmer::EntityShortCut::SetBlueprintComponent(BlueprintComponent* blueprintComponent)
+{
     blueprintComponent_ = blueprintComponent;
 }
 
-glimmer::BlueprintComponent *glimmer::EntityShortCut::GetBlueprintComponent() const {
-    if (blueprintComponent_ == nullptr) {
+glimmer::BlueprintComponent* glimmer::EntityShortCut::GetBlueprintComponent() const
+{
+    if (blueprintComponent_ == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "blueprint_component_null",
                   "EntityShortCut: BlueprintComponent pointer is null, build blueprint ui missing");
         return nullptr;
@@ -75,12 +86,15 @@ glimmer::BlueprintComponent *glimmer::EntityShortCut::GetBlueprintComponent() co
     return blueprintComponent_;
 }
 
-void glimmer::EntityShortCut::SetItemContainerComponent(ItemContainerComponent *itemContainerComponent) {
+void glimmer::EntityShortCut::SetItemContainerComponent(ItemContainerComponent* itemContainerComponent)
+{
     itemContainerComponent_ = itemContainerComponent;
 }
 
-glimmer::ItemContainerComponent *glimmer::EntityShortCut::GetItemContainerComponent() const {
-    if (itemContainerComponent_ == nullptr) {
+glimmer::ItemContainerComponent* glimmer::EntityShortCut::GetItemContainerComponent() const
+{
+    if (itemContainerComponent_ == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "item_container_component_null",
                   "EntityShortCut: ItemContainerComponent pointer is null, inventory container unavailable");
         return nullptr;
@@ -88,12 +102,15 @@ glimmer::ItemContainerComponent *glimmer::EntityShortCut::GetItemContainerCompon
     return itemContainerComponent_;
 }
 
-void glimmer::EntityShortCut::SetCameraComponent(CameraComponent *cameraComponent) {
+void glimmer::EntityShortCut::SetCameraComponent(CameraComponent* cameraComponent)
+{
     cameraComponent_ = cameraComponent;
 }
 
-glimmer::CameraComponent *glimmer::EntityShortCut::GetCameraComponent() const {
-    if (cameraComponent_ == nullptr) {
+glimmer::CameraComponent* glimmer::EntityShortCut::GetCameraComponent() const
+{
+    if (cameraComponent_ == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "camera_component_null",
                   "EntityShortCut: CameraComponent pointer is null, main camera not initialized");
         return nullptr;
@@ -101,12 +118,15 @@ glimmer::CameraComponent *glimmer::EntityShortCut::GetCameraComponent() const {
     return cameraComponent_;
 }
 
-void glimmer::EntityShortCut::SetAreaMarkerComponent(AreaMarkerComponent *areaMarkerComponent) {
+void glimmer::EntityShortCut::SetAreaMarkerComponent(AreaMarkerComponent* areaMarkerComponent)
+{
     areaMarkerComponent_ = areaMarkerComponent;
 }
 
-glimmer::AreaMarkerComponent *glimmer::EntityShortCut::GetAreaMarkerComponent() const {
-    if (areaMarkerComponent_ == nullptr) {
+glimmer::AreaMarkerComponent* glimmer::EntityShortCut::GetAreaMarkerComponent() const
+{
+    if (areaMarkerComponent_ == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "area_marker_component_null",
                   "EntityShortCut: AreaMarkerComponent pointer is null, region marker render missing");
         return nullptr;
@@ -114,12 +134,15 @@ glimmer::AreaMarkerComponent *glimmer::EntityShortCut::GetAreaMarkerComponent() 
     return areaMarkerComponent_;
 }
 
-void glimmer::EntityShortCut::SetCameraTransform2DComponent(Transform2DComponent *cameraTransform2DComponent) {
+void glimmer::EntityShortCut::SetCameraTransform2DComponent(Transform2DComponent* cameraTransform2DComponent)
+{
     cameraTransform2DComponent_ = cameraTransform2DComponent;
 }
 
-glimmer::Transform2DComponent *glimmer::EntityShortCut::GetCameraTransform2DComponent() const {
-    if (cameraTransform2DComponent_ == nullptr) {
+glimmer::Transform2DComponent* glimmer::EntityShortCut::GetCameraTransform2DComponent() const
+{
+    if (cameraTransform2DComponent_ == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "camera_transform2d_component_null",
                   "EntityShortCut: Camera Transform2DComponent pointer is null, camera transform unbound");
         return nullptr;
@@ -127,12 +150,15 @@ glimmer::Transform2DComponent *glimmer::EntityShortCut::GetCameraTransform2DComp
     return cameraTransform2DComponent_;
 }
 
-void glimmer::EntityShortCut::SetRecipeSelectionComponent(RecipeSelectionComponent *recipeSelectionComponent) {
+void glimmer::EntityShortCut::SetRecipeSelectionComponent(RecipeSelectionComponent* recipeSelectionComponent)
+{
     recipeSelectionComponent_ = recipeSelectionComponent;
 }
 
-glimmer::RecipeSelectionComponent *glimmer::EntityShortCut::GetRecipeSelectionComponent() const {
-    if (recipeSelectionComponent_ == nullptr) {
+glimmer::RecipeSelectionComponent* glimmer::EntityShortCut::GetRecipeSelectionComponent() const
+{
+    if (recipeSelectionComponent_ == nullptr)
+    {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "recipe_selection_component_null",
                   "EntityShortCut: RecipeSelectionComponent pointer is null, camera transform unbound");
         return nullptr;

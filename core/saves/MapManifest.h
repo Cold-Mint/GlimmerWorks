@@ -27,21 +27,22 @@
 #pragma once
 #include <string>
 
-#include "core/mod/ResourceRef.h"
 #include "src/saves/map_manifest.pb.h"
 
-namespace glimmer {
-    struct MapManifest {
+namespace glimmer
+{
+    struct MapManifest
+    {
         std::string name;
         std::string gameVersionName;
-        uint32_t gameVersionNumber;
-        int seed;
         long createTime;
-        uint32_t entityIDIndex;
         uint64_t globalTickCount = 0;
+        uint32_t gameVersionNumber;
+        uint32_t entityIDIndex;
+        int seed;
 
-        void FromMessage(const MapManifestMessage &manifestMessage);
+        void FromMessage(const MapManifestMessage& manifestMessage);
 
-        void ToMessage(MapManifestMessage &manifestMessage);
+        void ToMessage(MapManifestMessage& manifestMessage);
     };
 }

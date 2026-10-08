@@ -27,12 +27,15 @@
 #pragma once
 #include "BiomeDecorator.h"
 
-namespace glimmer {
-    class SurfaceBiomeDecorator : public BiomeDecorator<SurfaceBiomeDecoratorResource> {
-        void DecorationImpl(const ChunkVertexVector2D &chunkVertex, WorldContext *worldContext,
-            TerrainResult *terrainResult, SurfaceBiomeDecoratorResource *decoratorResource,
-            BiomeResource *biomeResource,
-            std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>> *tilesRefMap) override;
+namespace glimmer
+{
+    class SurfaceBiomeDecorator : public BiomeDecorator<SurfaceBiomeDecoratorResource>
+    {
+        void DecorationImpl(const ChunkVertexVector2D& chunkVertex, WorldContext* worldContext,
+                            TerrainResult* terrainResult, SurfaceBiomeDecoratorResource* decoratorResource,
+                            BiomeResource* biomeResource,
+                            std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>*
+                            tilesRefMap) override;
 
     public:
         BiomeDecoratorType GetBiomeDecoratorType() override;

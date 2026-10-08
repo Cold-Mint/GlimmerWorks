@@ -42,9 +42,8 @@ namespace glimmer {
      * 判断瓦片的生长条件，并在条件满足时累积生长 tick。
      */
     class CropComponent : public GameComponent {
-        TileVector2D position_;
         TileLayerType layerType_ = TileLayerType::Ground;
-
+        TileVector2D position_;
     public:
         void SetPosition(const TileVector2D &position);
 

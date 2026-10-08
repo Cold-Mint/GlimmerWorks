@@ -35,12 +35,12 @@
 
 namespace glimmer {
     class CommandHookManager {
+        std::vector<CommandHookEntry *> fullVector_;
+        std::vector<std::string> commandHookResult_;
         std::vector<std::unique_ptr<CommandHookEntry> > sessionCommandHookVector_;
         std::vector<std::unique_ptr<CommandHookEntry> > configCommandHookVector_;
         std::unordered_map<uint32_t, std::vector<CommandHookEntry *> > sessionCommandHookMap_;
         std::unordered_map<uint32_t, std::vector<CommandHookEntry *> > configCommandHookMap_;
-        std::vector<CommandHookEntry *> fullVector_;
-        std::vector<std::string> commandHookResult_;
 
 
         [[nodiscard]] bool Exist(CommandHookScope scope,

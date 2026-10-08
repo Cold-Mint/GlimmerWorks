@@ -48,19 +48,19 @@ namespace glimmer {
     class LightMapTexture {
         SDL_GPUDevice *device_ = nullptr;
         SDL_GPUTexture *texture_ = nullptr;
-        Uint32 width_ = 0;
-        Uint32 height_ = 0;
+        uint32_t width_ = 0;
+        uint32_t height_ = 0;
         SDL_GPUTransferBuffer *transferBuffer_ = nullptr;
-        Uint32 transferBufferSize_ = 0;
+        uint32_t transferBufferSize_ = 0;
         std::vector<Uint8> pixelBuffer_;
         uint64_t lastRevision_ = UINT64_MAX;
         int lastOriginX_ = 0;
         int lastOriginY_ = 0;
-        Uint32 lastSizeX_ = 0;
-        Uint32 lastSizeY_ = 0;
+        uint32_t lastSizeX_ = 0;
+        uint32_t lastSizeY_ = 0;
         bool dirty_ = false;
 
-        void EnsureTexture(Uint32 width, Uint32 height);
+        void EnsureTexture(uint32_t width, uint32_t height);
 
     public:
         ~LightMapTexture();
@@ -78,7 +78,7 @@ namespace glimmer {
          * @param sizeY sizeY 覆盖的瓦片行数
          */
         void Update(SDL_GPUDevice *device, const LightBuffer *lightBuffer,
-                    int originTileX, int originTileY, Uint32 sizeX, Uint32 sizeY);
+                    int originTileX, int originTileY, uint32_t sizeX, uint32_t sizeY);
 
         /**
          * Upload
@@ -89,8 +89,8 @@ namespace glimmer {
 
         [[nodiscard]] SDL_GPUTexture *GetTexture() const;
 
-        [[nodiscard]] Uint32 GetWidth() const;
+        [[nodiscard]] uint32_t GetWidth() const;
 
-        [[nodiscard]] Uint32 GetHeight() const;
+        [[nodiscard]] uint32_t GetHeight() const;
     };
 }

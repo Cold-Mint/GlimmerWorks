@@ -25,16 +25,16 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "TileLayerComponent.h"
 #include "core/ecs/GameComponent.h"
+#include "core/math/TileVector2D.h"
 
 namespace glimmer {
     class AreaMarkerComponent : public GameComponent {
         bool first_ = true;
-        TileVector2D startPoint_;
-        TileVector2D endPoint_;
         float remainingTime_ = 0;
         float MAX_REMAINING_TIME = 0.05F;
+        TileVector2D startPoint_;
+        TileVector2D endPoint_;
 
     public:
         [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();

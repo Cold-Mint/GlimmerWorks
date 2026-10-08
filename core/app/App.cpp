@@ -128,7 +128,7 @@ void glimmer::App::Run() const {
             LogCat::i(LogLabel::DEFAULT, "configuration_changed", "Configuration changed, reloading hooks and scenes");
         }
         const float targetFrameTime = CalculateTargetFrameTime(frameStart, lastInputTime);
-        const auto targetFrameTimeMs = static_cast<Uint32>(targetFrameTime * 1000.0F);
+        const auto targetFrameTimeMs = static_cast<uint32_t>(targetFrameTime * 1000.0F);
         NotifyFrameStart();
         mainThreadDispatcher->ProcessMainThreadTasks();
         eventLoop.ProcessEvents(frameStart);

@@ -39,16 +39,15 @@ namespace glimmer {
      */
     class CameraComponent : public GameComponent, public VersionAble {
         /**
+        * zoom camera zoom ratio
+        * zoom 相机缩放比例
+        */
+        float zoom_ = 2.0F;
+        /**
          * Size: Camera size (pixel coordinates)
          * Size 相机尺寸（像素坐标）
          */
         ScreenVector2D size_ = {800.0F, 600.0F};
-
-        /**
-         * zoom camera zoom ratio
-         * zoom 相机缩放比例
-         */
-        float zoom_ = 2.0F;
 
     public:
         /**

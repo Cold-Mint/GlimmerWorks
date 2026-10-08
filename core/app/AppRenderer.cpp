@@ -120,8 +120,8 @@ void glimmer::AppRenderer::RenderFrame(const int windowWidth, const int windowHe
         return;
     }
     SDL_GPUTexture *swapChainTexture = nullptr;
-    Uint32 swapChainWidth = 0;
-    Uint32 swapChainHeight = 0;
+    uint32_t swapChainWidth = 0;
+    uint32_t swapChainHeight = 0;
     if (!SDL_AcquireGPUSwapchainTexture(commandBuffer, window_, &swapChainTexture, &swapChainWidth, &swapChainHeight)) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "sdl_acquire_gpu_swapchain_texture_failed",
                   "SDL_AcquireGPUSwapChainTexture failed: {}", SDL_GetError());
@@ -129,8 +129,8 @@ void glimmer::AppRenderer::RenderFrame(const int windowWidth, const int windowHe
         return;
     }
 
-    const auto logicalWidth = static_cast<Uint32>(windowWidth);
-    const auto logicalHeight = static_cast<Uint32>(windowHeight);
+    const auto logicalWidth = static_cast<uint32_t>(windowWidth);
+    const auto logicalHeight = static_cast<uint32_t>(windowHeight);
     UniformInjectContext *uniformInjectContext = topScene->GetUniformInjectContext();
     if (uniformInjectContext != nullptr) {
         uniformInjectContext->width = static_cast<float>(logicalWidth);
@@ -202,7 +202,7 @@ void glimmer::AppRenderer::RenderOverlays() {
     }
 }
 
-void glimmer::AppRenderer::EnsureScreenshotTexture(const Uint32 width, const Uint32 height) {
+void glimmer::AppRenderer::EnsureScreenshotTexture(const uint32_t width, const uint32_t height) {
     if (device_ == nullptr || (screenshotTexture_ != nullptr && screenshotTextureWidth_ == width &&
                                screenshotTextureHeight_ == height)) {
         return;
@@ -234,7 +234,7 @@ void glimmer::AppRenderer::EnsureScreenshotTexture(const Uint32 width, const Uin
 void glimmer::AppRenderer::BlitScreenshotToSwapChain(SDL_GPUCommandBuffer *commandBuffer,
                                                      SDL_GPUTexture *source,
                                                      SDL_GPUTexture *destination,
-                                                     const Uint32 width, const Uint32 height) {
+                                                     const uint32_t width, const uint32_t height) {
     if (commandBuffer == nullptr || source == nullptr || destination == nullptr) {
         return;
     }
@@ -283,7 +283,7 @@ bool glimmer::AppRenderer::SaveScreenshot(const PendingScreenshot &pendingScreen
         (*onMessage)(fmt::format(fmt::runtime(langsResources->screenshotSavedFailed), reason));
     };
 
-    const auto pixelDataSize = static_cast<Uint32>(static_cast<size_t>(width) * height * 4);
+    const auto pixelDataSize = static_cast<uint32_t>(static_cast<size_t>(width) * height * 4);
 
     SDL_GPUTransferBufferCreateInfo transferInfo = {};
     transferInfo.usage = SDL_GPU_TRANSFERBUFFERUSAGE_DOWNLOAD;

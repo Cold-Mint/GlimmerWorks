@@ -31,7 +31,7 @@ namespace glimmer {
     class AppContext;
 
     class InitResourceLocatorTask : public IAppContextInitTask {
-        AppContext *appContext_;
+        AppContext *appContext_ = nullptr;
 
     public:
         explicit InitResourceLocatorTask(AppContext *appContext);

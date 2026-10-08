@@ -32,16 +32,17 @@
 
 namespace glimmer {
     struct CommandHookEntry {
-        std::string hookId;
-        CommandHookScope scope;
-        std::string command;
-        uint16_t code;
-        SDL_EventType eventType;
         //Whether to execute during repeated input.
         //是否在重复输入时执行。
         //For example, press A continuously.
         //例如连续按下A。
         bool keyRepeat = false;
+        CommandHookScope scope;
+        uint16_t code;
+        SDL_EventType eventType;
+        std::string hookId;
+        std::string command;
+
 
         /**
         * By using the bit concatenation algorithm to combine event types and scan codes, an absolutely unique 32-bit unsigned key value is generated, ensuring that different event + scan code combinations correspond to a unique key.

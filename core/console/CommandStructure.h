@@ -29,7 +29,7 @@
 
 namespace glimmer {
     struct CommandStructure {
-        std::string message;
         bool selected = false;
+        std::string message;
     };
 }

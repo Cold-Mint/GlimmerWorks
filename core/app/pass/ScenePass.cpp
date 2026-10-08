@@ -78,8 +78,8 @@ void glimmer::ScenePass::Record(RenderFrameContext &ctx) {
 }
 
 void glimmer::ScenePass::EnsureSceneTexture(RenderFrameContext &ctx) {
-    const Uint32 width = ctx.logicalWidth;
-    const Uint32 height = ctx.logicalHeight;
+    const uint32_t width = ctx.logicalWidth;
+    const uint32_t height = ctx.logicalHeight;
     if (width == 0 || height == 0) {
         return;
     }
@@ -124,11 +124,11 @@ void glimmer::ScenePass::EnsureSceneTexture(RenderFrameContext &ctx) {
     ctx.sceneTextureHeight = height;
 }
 
-void glimmer::ScenePass::EnsureVertexBufferSize(const Uint32 size) {
+void glimmer::ScenePass::EnsureVertexBufferSize(const uint32_t size) {
     if (size <= vertexBufferSize_) {
         return;
     }
-    Uint32 newSize = vertexBufferSize_ > 0 ? vertexBufferSize_ : 1;
+    uint32_t newSize = vertexBufferSize_ > 0 ? vertexBufferSize_ : 1;
     while (newSize < size) {
         newSize *= 2;
     }
@@ -142,11 +142,11 @@ void glimmer::ScenePass::EnsureVertexBufferSize(const Uint32 size) {
     vertexBufferSize_ = vertexBuffer_ != nullptr ? newSize : 0;
 }
 
-void glimmer::ScenePass::EnsureIndexBufferSize(const Uint32 size) {
+void glimmer::ScenePass::EnsureIndexBufferSize(const uint32_t size) {
     if (size <= indexBufferSize_) {
         return;
     }
-    Uint32 newSize = indexBufferSize_ > 0 ? indexBufferSize_ : 1;
+    uint32_t newSize = indexBufferSize_ > 0 ? indexBufferSize_ : 1;
     while (newSize < size) {
         newSize *= 2;
     }
@@ -160,11 +160,11 @@ void glimmer::ScenePass::EnsureIndexBufferSize(const Uint32 size) {
     indexBufferSize_ = indexBuffer_ != nullptr ? newSize : 0;
 }
 
-void glimmer::ScenePass::EnsureTransferBufferSize(const Uint32 size) {
+void glimmer::ScenePass::EnsureTransferBufferSize(const uint32_t size) {
     if (size <= transferBufferSize_) {
         return;
     }
-    Uint32 newSize = transferBufferSize_ > 0 ? transferBufferSize_ : 1;
+    uint32_t newSize = transferBufferSize_ > 0 ? transferBufferSize_ : 1;
     while (newSize < size) {
         newSize *= 2;
     }
@@ -264,16 +264,16 @@ void glimmer::ScenePass::FlushScenePass(const RenderFrameContext &ctx) {
         vertexStaging_.reserve(commands.size() * 4);
         indexStaging_.reserve(commands.size() * 6);
         for (const RenderCommand &command: commands) {
-            const auto baseIndex = static_cast<Uint32>(vertexStaging_.size());
+            const auto baseIndex = static_cast<uint32_t>(vertexStaging_.size());
             vertexStaging_.insert(vertexStaging_.end(), command.corners, command.corners + 4);
-            const Uint32 quadIndices[6] = {
+            const uint32_t quadIndices[6] = {
                 baseIndex + 0, baseIndex + 1, baseIndex + 2,
                 baseIndex + 1, baseIndex + 3, baseIndex + 2
             };
             indexStaging_.insert(indexStaging_.end(), quadIndices, quadIndices + 6);
         }
-        const auto vertexDataSize = static_cast<Uint32>(vertexStaging_.size() * sizeof(SpriteVertex));
-        const auto indexDataSize = static_cast<Uint32>(indexStaging_.size() * sizeof(Uint32));
+        const auto vertexDataSize = static_cast<uint32_t>(vertexStaging_.size() * sizeof(SpriteVertex));
+        const auto indexDataSize = static_cast<uint32_t>(indexStaging_.size() * sizeof(uint32_t));
         EnsureVertexBufferSize(vertexDataSize);
         EnsureIndexBufferSize(indexDataSize);
         EnsureTransferBufferSize(vertexDataSize + indexDataSize);
@@ -323,7 +323,7 @@ void glimmer::ScenePass::FlushScenePass(const RenderFrameContext &ctx) {
         SDL_BindGPUGraphicsPipeline(renderPass, currentPipeline);
         FillAndPushUniformBlock(commandBuffer, defaultPipeline_->GetUniformBlocks(), *injectContext,
                                 sceneStagingBuffer_);
-        Uint32 firstIndex = 0;
+        uint32_t firstIndex = 0;
         for (const RenderCommand &command: commands) {
             SDL_GPUGraphicsPipeline *commandPipeline = command.pipeline != nullptr ? command.pipeline : defaultPipeline;
             if (commandPipeline != currentPipeline) {

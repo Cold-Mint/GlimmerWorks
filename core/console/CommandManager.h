@@ -42,13 +42,13 @@ namespace glimmer {
     class EntityShortCut;
 
     class CommandManager {
-        std::unordered_map<std::string, std::unique_ptr<Command>, TransparentStringHash, std::equal_to<> > commandMap_
-                {};
+        EntityManager *entityManager_ = nullptr;
+        EntityShortCut *entityShortCut_ = nullptr;
         CommandSender defaultCommandSender_;
         CommandSender mouseCommandSender_;
         CommandEnvironment commandEnvironment_{};
-        EntityManager *entityManager_ = nullptr;
-        EntityShortCut *entityShortCut_ = nullptr;
+        std::unordered_map<std::string, std::unique_ptr<Command>, TransparentStringHash, std::equal_to<> > commandMap_
+                {};
 
         [[nodiscard]] std::vector<std::string> GetCommandNameSuggestions(const std::string &keyWord) const;
 

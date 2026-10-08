@@ -27,14 +27,12 @@
 #pragma once
 #include <string>
 
-#include "RmlUi/Core/DataModelHandle.h"
-
 namespace glimmer {
     struct CommandSuggestions {
+        bool selected = false;
         std::string message;
         std::string prefix;
         std::string keyword;
         std::string suffix;
-        bool selected = false;
     };
 }

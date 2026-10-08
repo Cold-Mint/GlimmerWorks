@@ -31,13 +31,13 @@
 
 namespace glimmer {
     class LocalConsoleInput {
-        std::jthread thread_;
-        std::function<void(const std::string &)> onCommandCallback_;
 #ifdef _WIN32
         void *wakeupEvent_ = nullptr;
 #else
         int wakeupPipe_[2]{};
 #endif
+        std::jthread thread_;
+        std::function<void(const std::string &)> onCommandCallback_;
 
         void InputLoop(const std::stop_token &stopToken) const;
 

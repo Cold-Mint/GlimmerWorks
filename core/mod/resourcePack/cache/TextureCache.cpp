@@ -37,19 +37,19 @@ std::shared_ptr<glimmer::TextureResourceResult> glimmer::TextureCache::CreateTex
     if (surface == nullptr) {
         return nullptr;
     }
-    const Uint32 accentValue = SDL_MapSurfaceRGBA(surface, accent.r, accent.g, accent.b, accent.a);
-    const Uint32 baseValue = SDL_MapSurfaceRGBA(surface, base.r, base.g, base.b, base.a);
+    const uint32_t accentValue = SDL_MapSurfaceRGBA(surface, accent.r, accent.g, accent.b, accent.a);
+    const uint32_t baseValue = SDL_MapSurfaceRGBA(surface, base.r, base.g, base.b, base.a);
     for (int y = 0; y < TILE_SIZE; ++y) {
         for (int x = 0; x < TILE_SIZE; ++x) {
             const bool isAccentColor =
                     (x < TILE_SIZE / 2 && y < TILE_SIZE / 2) ||
                     (x >= TILE_SIZE / 2 && y >= TILE_SIZE / 2);
-            const Uint32 color = isAccentColor ? accentValue : baseValue;
+            const uint32_t color = isAccentColor ? accentValue : baseValue;
             Uint8 *pixel =
                     static_cast<Uint8 *>(surface->pixels)
                     + y * surface->pitch
                     + x * 4;
-            *reinterpret_cast<Uint32 *>(pixel) = color;
+            *reinterpret_cast<uint32_t *>(pixel) = color;
         }
     }
     SDL_GPUTexture *texture = CreateTextureFromSurface(gpuDevice, surface);
@@ -71,8 +71,8 @@ SDL_GPUTexture *glimmer::TextureCache::CreateTextureFromSurface(SDL_GPUDevice *g
     textureCreateInfo.type = SDL_GPU_TEXTURETYPE_2D;
     textureCreateInfo.format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM;
     textureCreateInfo.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER;
-    textureCreateInfo.width = static_cast<Uint32>(width);
-    textureCreateInfo.height = static_cast<Uint32>(height);
+    textureCreateInfo.width = static_cast<uint32_t>(width);
+    textureCreateInfo.height = static_cast<uint32_t>(height);
     textureCreateInfo.layer_count_or_depth = 1;
     textureCreateInfo.num_levels = 1;
     textureCreateInfo.sample_count = SDL_GPU_SAMPLECOUNT_1;
@@ -147,8 +147,8 @@ SDL_GPUTexture *glimmer::TextureCache::CreateTextureFromSurface(SDL_GPUDevice *g
     textureRegion.layer = 0;
     textureRegion.x = 0;
     textureRegion.y = 0;
-    textureRegion.w = static_cast<Uint32>(width);
-    textureRegion.h = static_cast<Uint32>(height);
+    textureRegion.w = static_cast<uint32_t>(width);
+    textureRegion.h = static_cast<uint32_t>(height);
     textureRegion.d = 1;
     SDL_UploadToGPUTexture(copyPass, &transferInfo, &textureRegion, false);
     SDL_EndGPUCopyPass(copyPass);

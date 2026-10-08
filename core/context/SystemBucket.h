@@ -48,7 +48,6 @@
 
 namespace glimmer {
     class SystemBucket : public ISystemBucket {
-        std::string language_ = LanguageUtils::getLanguage();
         std::unique_ptr<WindowContext> windowContext_ = nullptr;
         std::unique_ptr<Config> config_ = nullptr;
         std::unique_ptr<RmlContext> rmlContext_ = nullptr;
@@ -68,6 +67,7 @@ namespace glimmer {
         std::unique_ptr<toml::value> langsValue_ = nullptr;
         std::unique_ptr<CacheContext> cacheContext_ = nullptr;
         std::unique_ptr<EventBus> eventBus_ = std::make_unique<EventBus>();
+        std::string language_ = LanguageUtils::getLanguage();
 
     public:
         ~SystemBucket() override;

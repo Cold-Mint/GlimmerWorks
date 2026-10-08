@@ -68,7 +68,6 @@ namespace glimmer {
         std::unique_ptr<AbilityItemRegistry> abilityItemRegistry_;
         std::unique_ptr<ComposableItemRegistry> composableItemRegistry_;
         std::unique_ptr<MaterialItemRegistry> materialItemRegistry_;
-
         std::unique_ptr<RecipeManager> recipeManager_;
         std::unique_ptr<MobRegistry> mobRegistry_;
         std::unique_ptr<StructureRegistry> structureRegistry_;

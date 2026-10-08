@@ -40,7 +40,6 @@ namespace glimmer {
          * 被吸物的类型
          */
         uint16_t type_ = 0;
-
         WorldVector2D startPos_;
 
     public:

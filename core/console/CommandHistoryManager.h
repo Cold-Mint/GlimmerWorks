@@ -31,10 +31,8 @@
 
 namespace glimmer {
     class CommandHistoryManager {
-        CommandHistoryMessage commandHistoryMessage_;
-
         VirtualFileSystem *virtualFileSystem_;
-
+        CommandHistoryMessage commandHistoryMessage_;
         std::filesystem::path commandHistoryPath_;
 
     public:

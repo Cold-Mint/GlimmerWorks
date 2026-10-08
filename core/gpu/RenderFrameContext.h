@@ -48,14 +48,14 @@ namespace glimmer {
     struct RenderFrameContext {
         SDL_GPUCommandBuffer *commandBuffer = nullptr;
         SDL_GPUTexture *swapChainTexture = nullptr;
-        Uint32 swapChainWidth = 0;
-        Uint32 swapChainHeight = 0;
-        Uint32 logicalWidth = 0;
-        Uint32 logicalHeight = 0;
+        uint32_t swapChainWidth = 0;
+        uint32_t swapChainHeight = 0;
+        uint32_t logicalWidth = 0;
+        uint32_t logicalHeight = 0;
         UniformInjectContext *injectContext = nullptr;
         RenderQueue *renderQueue = nullptr;
         SDL_GPUTexture *sceneTexture = nullptr;
-        Uint32 sceneTextureWidth = 0;
-        Uint32 sceneTextureHeight = 0;
+        uint32_t sceneTextureWidth = 0;
+        uint32_t sceneTextureHeight = 0;
     };
 }

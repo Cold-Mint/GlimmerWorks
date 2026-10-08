@@ -31,9 +31,9 @@
 
 namespace glimmer {
     class WindowContext {
-        SDL_Window *window_ = nullptr;
         int windowWidth_ = 0;
         int windowHeight_ = 0;
+        SDL_Window *window_ = nullptr;
         SDL_GPUDevice *device_ = nullptr;
 
     public:

@@ -185,8 +185,8 @@ void glimmer::LightingPass::UpdateLightMap(UniformInjectContext *injectContext) 
         WorldVector2D(viewportRect.x + viewportRect.w, viewportRect.y + viewportRect.h));
     const int originX = tileMin.x - 1;
     const int originY = tileMin.y - 1;
-    const auto sizeX = static_cast<Uint32>(tileMax.x - tileMin.x + 3);
-    const auto sizeY = static_cast<Uint32>(tileMax.y - tileMin.y + 3);
+    const auto sizeX = static_cast<uint32_t>(tileMax.x - tileMin.x + 3);
+    const auto sizeY = static_cast<uint32_t>(tileMax.y - tileMin.y + 3);
     WorldContext *worldContext = injectContext->worldContext;
     const DimensionResource *dimensionResource = nullptr;
     Dimension *dimension = nullptr;
@@ -274,7 +274,7 @@ void glimmer::LightingPass::BlitScene(RenderFrameContext &ctx) {
         {0.0F, logicalH, 0.0F, 1.0F, 255, 255, 255, 255},
         {logicalW, logicalH, 1.0F, 1.0F, 255, 255, 255, 255}
     };
-    const Uint32 indices[6] = {0, 1, 2, 1, 3, 2};
+    const uint32_t indices[6] = {0, 1, 2, 1, 3, 2};
 
     //Upload the quad vertices and indices into the shared debug transfer
     //buffer, then copy them into the vertex/index buffers in a copy pass.
@@ -351,10 +351,10 @@ void glimmer::LightingPass::EnsureDebugBuffers() {
     if (debugIndexBuffer_ == nullptr) {
         SDL_GPUBufferCreateInfo info = {};
         info.usage = SDL_GPU_BUFFERUSAGE_INDEX;
-        info.size = sizeof(Uint32) * 6;
+        info.size = sizeof(uint32_t) * 6;
         debugIndexBuffer_ = SDL_CreateGPUBuffer(device_, &info);
     }
-    const Uint32 totalSize = sizeof(SpriteVertex) * 4 + sizeof(Uint32) * 6;
+    const uint32_t totalSize = sizeof(SpriteVertex) * 4 + sizeof(uint32_t) * 6;
     //(Re)allocate the upload staging buffer only when it is missing or too
     //small; otherwise reuse it across frames to avoid per-frame allocation.
     //仅当上传暂存缓冲缺失或过小时才（重新）分配，否则跨帧复用，避免每帧分配。
@@ -408,7 +408,7 @@ void glimmer::LightingPass::DrawLightMapDebug(RenderFrameContext &ctx) {
         {x, y + h, 0.0F, 1.0F, 255, 255, 255, 255},
         {x + w, y + h, 1.0F, 1.0F, 255, 255, 255, 255}
     };
-    const Uint32 indices[6] = {0, 1, 2, 1, 3, 2};
+    const uint32_t indices[6] = {0, 1, 2, 1, 3, 2};
 
     void *mapped = SDL_MapGPUTransferBuffer(device_, debugTransferBuffer_, true);
     if (mapped != nullptr) {

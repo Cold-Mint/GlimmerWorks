@@ -33,8 +33,8 @@ namespace glimmer {
 
     class CommandRequest {
         uint32_t id_ = 0;
-        std::string command_;
         CommandSender *commandSender_ = nullptr;
+        std::string command_;
 
     public:
         CommandRequest(uint32_t id, std::string_view command, CommandSender *commandSender);

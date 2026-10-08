@@ -37,12 +37,12 @@ namespace glimmer {
      */
     class CommandEnvironment {
     public:
-        WorldContext *worldContext = nullptr;
         bool allowCheats = false;
+        WorldContext *worldContext = nullptr;
 
         void Reset() {
-            worldContext = nullptr;
             allowCheats = false;
+            worldContext = nullptr;
         }
     };
 }

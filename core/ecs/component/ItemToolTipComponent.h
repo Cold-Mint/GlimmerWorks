@@ -32,8 +32,8 @@
 
 namespace glimmer {
     class ItemToolTipComponent : public GameComponent {
-        ScreenVector2D position_;
         const Item *item_ = nullptr;
+        ScreenVector2D position_;
 
     public:
         void SetPosition(const ScreenVector2D &position);

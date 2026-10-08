@@ -33,7 +33,6 @@
 
 #include "core/gpu/IPass.h"
 #include "core/gpu/LightMapTexture.h"
-#include "core/math/Color.h"
 
 namespace glimmer {
     class ResourceLocator;
@@ -56,25 +55,26 @@ namespace glimmer {
         SDL_GPUDevice *device_ = nullptr;
         std::shared_ptr<GPUPipelineResourceResult> lightingPipeline_ = nullptr;
         std::shared_ptr<GPUSamplerResourceResult> lightingSampler_ = nullptr;
-        //Per-tile light map texture used by the lighting pass.
-        //光照 pass 使用的逐瓦片光照贴图纹理。
-        LightMapTexture lightMapTexture_;
         //Per-frame staging buffer for the lighting uniform block; static
         //members are restored from the compiled block and dynamic members are
         //injected each frame before being pushed to the GPU.
         //光照 uniform 块的逐帧 staging 缓冲区；静态成员从编译块恢复，
         //动态成员每帧注入后再推送至 GPU。
         std::vector<uint8_t> lightingStagingBuffer_;
+        //Per-tile light map texture used by the lighting pass.
+        //光照 pass 使用的逐瓦片光照贴图纹理。
+        LightMapTexture lightMapTexture_;
+
 
 #if  !defined(NDEBUG)
         bool displayLightMap_ = false;
         bool enableLighting_ = true;
-        std::shared_ptr<GPUPipelineResourceResult> debugPipeline_ = nullptr;
-        std::shared_ptr<GPUSamplerResourceResult> debugSampler_ = nullptr;
+        uint32_t debugTransferBufferSize_ = 0;
         SDL_GPUBuffer *debugVertexBuffer_ = nullptr;
         SDL_GPUBuffer *debugIndexBuffer_ = nullptr;
         SDL_GPUTransferBuffer *debugTransferBuffer_ = nullptr;
-        Uint32 debugTransferBufferSize_ = 0;
+        std::shared_ptr<GPUPipelineResourceResult> debugPipeline_ = nullptr;
+        std::shared_ptr<GPUSamplerResourceResult> debugSampler_ = nullptr;
 
         void EnsureDebugBuffers();
 

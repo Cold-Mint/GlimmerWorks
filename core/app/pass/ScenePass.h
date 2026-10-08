@@ -26,7 +26,6 @@
  */
 #pragma once
 
-#include <cstdint>
 #include <memory>
 #include <vector>
 
@@ -50,31 +49,27 @@ namespace glimmer {
      * 产出的纹理会发布到 RenderFrameContext::sceneTexture 供光照 pass 消费。
      */
     class ScenePass final : public IPass {
+        uint32_t sceneTextureWidth_ = 0;
+        uint32_t sceneTextureHeight_ = 0;
+        uint32_t vertexBufferSize_ = 0;
+        uint32_t indexBufferSize_ = 0;
+        uint32_t transferBufferSize_ = 0;
         SDL_GPUDevice *device_ = nullptr;
         SDL_Window *window_ = nullptr;
-        std::shared_ptr<GPUPipelineResourceResult> defaultPipeline_ = nullptr;
-        std::shared_ptr<GPUSamplerResourceResult> defaultSampler_ = nullptr;
-
         //Offscreen render target for the unlit scene pass.
         //用于无光照场景通道的离屏渲染目标。
         SDL_GPUTexture *sceneTexture_ = nullptr;
-        Uint32 sceneTextureWidth_ = 0;
-        Uint32 sceneTextureHeight_ = 0;
-
         //1x1 white texture bound when a command has no texture, so the
         //fragment shader's `texture * color` resolves to just the vertex color
         //for solid-color geometry (rectangles/lines/points).
         //当命令没有纹理时绑定的 1x1 白色纹理，使片元着色器的
         //`texture * color` 退化为纯顶点颜色（矩形/线/点）。
         SDL_GPUTexture *solidColorTexture_ = nullptr;
-
         SDL_GPUBuffer *vertexBuffer_ = nullptr;
         SDL_GPUBuffer *indexBuffer_ = nullptr;
-        Uint32 vertexBufferSize_ = 0;
-        Uint32 indexBufferSize_ = 0;
         SDL_GPUTransferBuffer *transferBuffer_ = nullptr;
-        Uint32 transferBufferSize_ = 0;
-
+        std::shared_ptr<GPUPipelineResourceResult> defaultPipeline_ = nullptr;
+        std::shared_ptr<GPUSamplerResourceResult> defaultSampler_ = nullptr;
         //Per-frame staging buffer for scene-pass command uniform blocks.
         //场景 pass 命令 uniform 块的逐帧 staging 缓冲区。
         std::vector<uint8_t> sceneStagingBuffer_;
@@ -83,15 +78,15 @@ namespace glimmer {
         //跨帧复用的 CPU 端暂存缓冲区，用于在上传前组装顶点/索引数据，
         //避免每帧堆分配。
         std::vector<SpriteVertex> vertexStaging_;
-        std::vector<Uint32> indexStaging_;
+        std::vector<uint32_t> indexStaging_;
 
         void EnsureSceneTexture(RenderFrameContext &ctx);
 
-        void EnsureVertexBufferSize(Uint32 size);
+        void EnsureVertexBufferSize(uint32_t size);
 
-        void EnsureIndexBufferSize(Uint32 size);
+        void EnsureIndexBufferSize(uint32_t size);
 
-        void EnsureTransferBufferSize(Uint32 size);
+        void EnsureTransferBufferSize(uint32_t size);
 
         void EnsureSolidColorTexture();
 

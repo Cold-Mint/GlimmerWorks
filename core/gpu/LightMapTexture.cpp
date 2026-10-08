@@ -35,7 +35,7 @@
 #include "core/world/LightBuffer.h"
 
 
-void glimmer::LightMapTexture::EnsureTexture(const Uint32 width, const Uint32 height) {
+void glimmer::LightMapTexture::EnsureTexture(const uint32_t width, const uint32_t height) {
     if (width == 0 || height == 0) {
         LogCat::d(LogLabel::DEFAULT, "light_map_texture_ensure_invalid_size",
                   "LightMapTexture::EnsureTexture invalid size: {}x{}", width,
@@ -83,7 +83,7 @@ void glimmer::LightMapTexture::EnsureTexture(const Uint32 width, const Uint32 he
 }
 
 void glimmer::LightMapTexture::Update(SDL_GPUDevice *device, const LightBuffer *lightBuffer,
-                                      int originTileX, int originTileY, Uint32 sizeX, Uint32 sizeY) {
+                                      int originTileX, int originTileY, uint32_t sizeX, uint32_t sizeY) {
     device_ = device;
     if (device_ == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "light_map_texture_update_device_null",
@@ -124,12 +124,12 @@ void glimmer::LightMapTexture::Update(SDL_GPUDevice *device, const LightBuffer *
     lastSizeX_ = sizeX;
     lastSizeY_ = sizeY;
     pixelBuffer_.resize(static_cast<size_t>(sizeX) * static_cast<size_t>(sizeY) * 4);
-    for (Uint32 row = 0; row < sizeY; ++row) {
+    for (uint32_t row = 0; row < sizeY; ++row) {
         //Texture row 0 is the top of the screen; world +Y points up, so rows
         //walk downwards from the highest tile y.
         //纹理第 0 行是屏幕顶部；世界 Y 轴向上，因此行从最高的瓦片 y 向下遍历。
         const int tileY = originTileY + static_cast<int>(sizeY - 1 - row);
-        for (Uint32 col = 0; col < sizeX; ++col) {
+        for (uint32_t col = 0; col < sizeX; ++col) {
             const int tileX = originTileX + static_cast<int>(col);
             Uint8 *pixel = pixelBuffer_.data() + (static_cast<size_t>(row) * sizeX + col) * 4;
             const TileVector2D tile(tileX, tileY);
@@ -155,7 +155,7 @@ void glimmer::LightMapTexture::Upload(SDL_GPUCommandBuffer *commandBuffer) {
                   texture_ != nullptr, pixelBuffer_.size(), dirty_);
         return;
     }
-    const auto dataSize = static_cast<Uint32>(pixelBuffer_.size());
+    const auto dataSize = static_cast<uint32_t>(pixelBuffer_.size());
     if (transferBuffer_ == nullptr || transferBufferSize_ < dataSize) {
         if (transferBuffer_ != nullptr) {
             LogCat::d(LogLabel::DEFAULT, "light_map_texture_upload_transfer_buffer_resize",
@@ -230,10 +230,10 @@ SDL_GPUTexture *glimmer::LightMapTexture::GetTexture() const {
     return texture_;
 }
 
-Uint32 glimmer::LightMapTexture::GetWidth() const {
+uint32_t glimmer::LightMapTexture::GetWidth() const {
     return width_;
 }
 
-Uint32 glimmer::LightMapTexture::GetHeight() const {
+uint32_t glimmer::LightMapTexture::GetHeight() const {
     return height_;
 }

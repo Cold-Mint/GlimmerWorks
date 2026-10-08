@@ -31,7 +31,7 @@ namespace glimmer {
     class AppContext;
 
     class InitConsoleContextTask : public IAppContextInitTask {
-        AppContext *appContext_;
+        AppContext *appContext_ = nullptr;
 
     public:
         explicit InitConsoleContextTask(AppContext *appContext);

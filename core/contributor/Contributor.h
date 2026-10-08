@@ -37,9 +37,9 @@ namespace glimmer {
         std::string uuid;
         //@genNextLine(name|名称)
         std::string name;
-        //@genNextLine(displayName|显示名称)
-        ResourceRef displayName;
         //@genNextLine(country|国家)
         std::string country;
+        //@genNextLine(displayName|显示名称)
+        ResourceRef displayName;
     };
 }

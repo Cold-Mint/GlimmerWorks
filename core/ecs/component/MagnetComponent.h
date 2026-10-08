@@ -28,7 +28,6 @@
 #include <vector>
 
 #include "core/ecs/GameComponent.h"
-#include "core/ecs/GameEntity.h"
 #include "core/config/Constants.h"
 #include "core/ecs/EcsTypes.h"
 
@@ -38,6 +37,13 @@ namespace glimmer {
      * 吸铁石（产生吸力的一方）
      */
     class MagnetComponent : public GameComponent {
+        /**
+   * Types of magnetic adsorbates that can be adsorbed(Multiple can be set.)
+   * magnetic_type_item | magnetic_type_money
+   * 可被吸附的磁吸物类型(可以设置多个。)
+   * 例如：MAGNETIC_TYPE_ITEM|MAGNETIC_TYPE_MONEY
+   */
+        uint16_t type_ = 0;
         /**
          * radius(Add it to entities when the radius is less than or equal to this)
          * 吸附半径(当小于等于此半径时将其加入到entities内)
@@ -49,15 +55,6 @@ namespace glimmer {
          * 检测半径（吸铁石的感知范围，可吸附物进入范围时会向吸铁石移动）
          */
         float detectionRadius_ = TILE_SIZE * 5;
-
-        /**
-         * Types of magnetic adsorbates that can be adsorbed(Multiple can be set.)
-         * magnetic_type_item | magnetic_type_money
-         * 可被吸附的磁吸物类型(可以设置多个。)
-         * 例如：MAGNETIC_TYPE_ITEM|MAGNETIC_TYPE_MONEY
-         */
-        uint16_t type_ = 0;
-
         /**
          *The id of the adsorbed entity
          * 被吸附的实体id

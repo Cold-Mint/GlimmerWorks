@@ -51,10 +51,10 @@ namespace glimmer {
     class EventBus;
 
     class AppContext {
-        mutable std::optional<PendingScreenshot> pendingScreenshot_;
-        std::vector<std::unique_ptr<IAppContextInitTask> > initTasks_;
         std::unique_ptr<ISystemBucket> systemBucket_;
+        std::vector<std::unique_ptr<IAppContextInitTask> > initTasks_;
         std::vector<UIMessage> uiMessages_;
+        mutable std::optional<PendingScreenshot> pendingScreenshot_;
 
         void RegisterInitTask(std::unique_ptr<IAppContextInitTask> initTask);
 

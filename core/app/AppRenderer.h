@@ -54,8 +54,8 @@ namespace glimmer {
      * 最后提交这一帧。
      */
     class AppRenderer {
-        Uint32 screenshotTextureWidth_ = 0;
-        Uint32 screenshotTextureHeight_ = 0;
+        uint32_t screenshotTextureWidth_ = 0;
+        uint32_t screenshotTextureHeight_ = 0;
         AppContext *appContext_ = nullptr;
         SDL_GPUDevice *device_ = nullptr;
         SDL_Window *window_ = nullptr;
@@ -65,11 +65,11 @@ namespace glimmer {
         //of the swapchain. It is then blitted to the swapchain and downloaded.
         //截图请求时，各 pass 先渲染到此纹理而非交换链，然后再 blit 到交换链并下载。
         SDL_GPUTexture *screenshotTexture_ = nullptr;
-        RenderQueue renderQueue_;
-        std::vector<std::unique_ptr<IPass> > passes_;
 #if  !defined(NDEBUG)
         LightingPass *lightingPass_ = nullptr;
 #endif
+        RenderQueue renderQueue_;
+        std::vector<std::unique_ptr<IPass> > passes_;
 
         void RenderOverlays();
 
@@ -78,7 +78,7 @@ namespace glimmer {
          * requested size and swapchain format.
          * 创建或重建截图目标纹理，使其与请求的尺寸和交换链格式匹配。
          */
-        void EnsureScreenshotTexture(Uint32 width, Uint32 height);
+        void EnsureScreenshotTexture(uint32_t width, uint32_t height);
 
         /**
          * Blit the screenshot target texture to the real swapchain texture.
@@ -87,7 +87,7 @@ namespace glimmer {
         static void BlitScreenshotToSwapChain(SDL_GPUCommandBuffer *commandBuffer,
                                               SDL_GPUTexture *source,
                                               SDL_GPUTexture *destination,
-                                              Uint32 width, Uint32 height);
+                                              uint32_t width, uint32_t height);
 
         /**
          * Download the current scene image and save it to the path stored in

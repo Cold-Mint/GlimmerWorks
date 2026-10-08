@@ -171,7 +171,7 @@ void glimmer::RmlContext::UpdateContext() const {
 }
 
 void glimmer::RmlContext::RenderContext(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUTexture *swapChainTexture,
-                                        const Uint32 width, const Uint32 height) const {
+                                        const uint32_t width, const uint32_t height) const {
     if (context_ == nullptr || commandBuffer == nullptr || swapChainTexture == nullptr) {
         return;
     }

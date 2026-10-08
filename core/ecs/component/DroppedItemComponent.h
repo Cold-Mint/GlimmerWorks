@@ -33,6 +33,9 @@
 
 namespace glimmer {
     class DroppedItemComponent : public GameComponent {
+        //Whether the despawn has been scheduled. Only accessed from the tick thread.
+        //是否已经安排消失。仅在tick线程访问。
+        bool despawnScheduled_ = false;
         std::unique_ptr<Item> item_ = nullptr;
         //How many ticks remain before it disappears
         //还剩多少个Tick会消失
@@ -40,10 +43,6 @@ namespace glimmer {
         //How many ticks remain before it can be picked up
         //还剩多少个Tick可被拾取
         std::atomic<uint64_t> pickupCooldownTicks_{0};
-        //Whether the despawn has been scheduled. Only accessed from the tick thread.
-        //是否已经安排消失。仅在tick线程访问。
-        bool despawnScheduled_ = false;
-
     public:
         explicit DroppedItemComponent();
 

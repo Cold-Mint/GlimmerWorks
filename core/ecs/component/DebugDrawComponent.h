@@ -31,10 +31,8 @@
 
 namespace glimmer {
     class DebugDrawComponent : public GameComponent {
-        WorldVector2D size_;
-
         SDL_Color color_ = {255, 255, 255, 255};
-
+        WorldVector2D size_;
     public:
         /**
          * GetColor

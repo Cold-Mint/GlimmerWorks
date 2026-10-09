@@ -69,6 +69,7 @@ namespace glimmer
         WorldSaver worldSaver_;
         AppContext* appContext_ = nullptr;
         Saves* saves_ = nullptr;
+        Box2dWorldId box2DWorldId_;
         std::unique_ptr<MapManifest> mapManifest_ = nullptr;
         std::unique_ptr<PlayerManifest> playerManifest_ = nullptr;
         std::unique_ptr<Dimension> dimension_;
@@ -89,7 +90,6 @@ namespace glimmer
         //本次会话已游玩的 tick 数；可跨线程安全读取。
         std::atomic<uint64_t> gameTick_{0};
         int worldSeed_ = 0;
-        Box2dWorldId box2DWorldId_;
         //Whether it is running or not, if false, it indicates that the game has been paused.
         //是否正在运行中，为false则表示游戏已被暂停。
         std::atomic<bool> running{true};

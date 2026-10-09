@@ -44,7 +44,8 @@ namespace glimmer {
          * @param structureResource
          * @return
          */
-        virtual std::unique_ptr<StructureInfo> Generate(WorldContext *worldContext, const TileVector2D &startPosition,
+        virtual std::unique_ptr<StructureInfo> Generate(const WorldContext *worldContext,
+                                                        const TileVector2D &startPosition,
                                                         IStructureResource *structureResource) = 0;
 
         /**

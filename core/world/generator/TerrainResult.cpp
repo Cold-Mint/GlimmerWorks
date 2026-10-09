@@ -45,8 +45,8 @@ const TerrainTileResult &glimmer::TerrainResult::QueryTerrain(const TerrainRelat
     return terrainTileResult_[localPosition.y * TERRAIN_SIZE + localPosition.x];
 }
 
-void glimmer::TerrainResult::SetTerrainTileStructure(const int tileIndex, const ResourceRef *structureResource,
-                                                     const TileLayerType layerType) {
+void glimmer::TerrainResult::PushStructureTile(int tileIndex, const ResourceRef *structureResource,
+    TileLayerType layerType) {
     if (tileIndex >= 0 && tileIndex < TERRAIN_AREA) {
         TerrainTileResult &terrainTileResult = terrainTileResult_[tileIndex];
         terrainTileResult.SetTerrainType(TerrainResultType::STRUCTURE);

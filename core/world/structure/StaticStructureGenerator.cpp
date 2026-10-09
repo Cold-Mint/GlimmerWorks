@@ -29,7 +29,7 @@
 #include "core/log/LogCat.h"
 
 
-std::unique_ptr<glimmer::StructureInfo> glimmer::StaticStructureGenerator::Generate(WorldContext *worldContext,
+std::unique_ptr<glimmer::StructureInfo> glimmer::StaticStructureGenerator::Generate(const WorldContext *worldContext,
     const TileVector2D &startPosition, IStructureResource *structureResource) {
     if (structureResource == nullptr || worldContext == nullptr) {
         LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "structure_generator_null_input",

@@ -227,7 +227,7 @@ static constexpr int CHUNK_SIZE = 16;
  * The size (side length) of the terrain block
  * 地形块的尺寸（边长）
  */
-static constexpr int TERRAIN_SIZE = CHUNK_SIZE * 32;
+static constexpr int TERRAIN_SIZE = CHUNK_SIZE * 16;
 
 
 static constexpr int TERRAIN_MASK = TERRAIN_SIZE - 1;

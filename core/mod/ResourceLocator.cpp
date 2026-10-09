@@ -137,6 +137,13 @@ glimmer::ResourceLocator::ResourceLocator(AppContext *appContext) : appContext_(
                   "dimensionRegistry_ == nullptr");
         return;
     }
+    structurePlacementConditionsRegistry_ = modContext->GetStructurePlacementConditionsRegistry();
+    if (structurePlacementConditionsRegistry_ == nullptr) {
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(),
+                  "structure_placement_conditions_registry_is_null",
+                  "structurePlacementConditionsRegistry_ == nullptr");
+        return;
+    }
     tileResourceManager_ = modContext->GetTileResourceManager();
     if (tileResourceManager_ == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "tile_resource_manager_is_null",
@@ -503,6 +510,25 @@ glimmer::DimensionResource *glimmer::ResourceLocator::FindDimension(const Resour
                                                  return dimensionRegistry_->Find(resourceRef->GetPackageId(),
                                                      resourceRef->GetResourceKey());
                                              });
+}
+
+glimmer::IStructurePlacementConditionsResource *glimmer::ResourceLocator::FindStructurePlacementConditions(
+    const ResourceRef *resourceRef) const {
+    return FindRegistered<IStructurePlacementConditionsResource>(resourceRef, RESOURCE_STRUCTURE_PLACEMENT_CONDITIONS,
+                                                                 [this, resourceRef
+                                                                 ]() -> IStructurePlacementConditionsResource * {
+                                                                     if (structurePlacementConditionsRegistry_ ==
+                                                                         nullptr) {
+                                                                         LogCat::w(LogLabel::DEFAULT,
+                                                                             std::source_location::current(),
+                                                                             "structure_placement_conditions_registry_is_null",
+                                                                             "structurePlacementConditionsRegistry_ == nullptr");
+                                                                         return nullptr;
+                                                                     }
+                                                                     return structurePlacementConditionsRegistry_->Find(
+                                                                         resourceRef->GetPackageId(),
+                                                                         resourceRef->GetResourceKey());
+                                                                 });
 }
 
 glimmer::ComposableItemResource *glimmer::ResourceLocator::FindComposableItem(

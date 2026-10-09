@@ -57,6 +57,14 @@ glimmer::StructureInfo::GetStructureMap() const {
     return structureMap_;
 }
 
+const glimmer::TileVector2D &glimmer::StructureInfo::GetMinPosition() const {
+    return minPosition_;
+}
+
+const glimmer::TileVector2D &glimmer::StructureInfo::GetMaxPosition() const {
+    return maxPosition_;
+}
+
 
 uint32_t glimmer::StructureInfo::GetWidth() const {
     return maxPosition_.x - minPosition_.x + 1;

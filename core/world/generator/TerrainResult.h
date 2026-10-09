@@ -25,6 +25,8 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <stack>
+
 #include "TerrainTileResult.h"
 #include "core/math/TerrainRelativeVector2D.h"
 #include "core/math/TerrainVertexVector2D.h"
@@ -54,7 +56,7 @@ namespace glimmer {
          * @param structureResource
          * @param layerType The tile layer the structure tile belongs to 结构瓦片所属的图层
          */
-        void SetTerrainTileStructure(
+        void PushStructureTile(
             int tileIndex,
             const ResourceRef *structureResource,
             TileLayerType layerType);

@@ -59,6 +59,7 @@ namespace glimmer {
     class LootTableRegistry;
     class StructureRegistry;
     class DimensionRegistry;
+    class StructurePlacementConditionsRegistry;
     class WorldContext;
     enum class TileLayerType : uint8_t;
     class AppContext;
@@ -82,6 +83,7 @@ namespace glimmer {
         MobRegistry *mobRegistry_ = nullptr;
         StructureRegistry *structureRegistry_ = nullptr;
         DimensionRegistry *dimensionRegistry_ = nullptr;
+        StructurePlacementConditionsRegistry *structurePlacementConditionsRegistry_ = nullptr;
         TileResourceManager *tileResourceManager_ = nullptr;
         LightMaskManager *lightMaskManager_ = nullptr;
         LightSourceManager *lightSourceManager_ = nullptr;
@@ -229,6 +231,14 @@ namespace glimmer {
          * @return
          */
         [[nodiscard]] DimensionResource *FindDimension(const ResourceRef *resourceRef) const;
+
+        /**
+         * FindStructurePlacementConditions
+         * 查找结构放置条件资源
+         * @param resourceRef resourceRef 结构放置条件引用
+         * @return
+         */
+        [[nodiscard]] IStructurePlacementConditionsResource* FindStructurePlacementConditions(const ResourceRef* resourceRef) const;
 
         /**
          * FindComposableItem

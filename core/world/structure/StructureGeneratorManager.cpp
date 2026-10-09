@@ -35,7 +35,7 @@ void glimmer::StructureGeneratorManager::RegisterStructureGenerator(
     structureGeneratorMap_.emplace(type, std::move(structureGenerator));
 }
 
-std::unique_ptr<glimmer::StructureInfo> glimmer::StructureGeneratorManager::Generate(WorldContext *worldContext,
+std::unique_ptr<glimmer::StructureInfo> glimmer::StructureGeneratorManager::Generate(const WorldContext *worldContext,
     const TileVector2D &structuralOrigin, IStructureResource *structureResource) {
     const auto type = static_cast<StructureGeneratorType>(structureResource->generatorId);
     const auto iterator = structureGeneratorMap_.find(type);

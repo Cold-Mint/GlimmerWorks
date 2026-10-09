@@ -50,7 +50,6 @@ namespace glimmer {
     class ParallaxBackgroundComponent;
     class TileInstancePool;
     class ChunkManager;
-    class TerrainManager;
     class SystemScheduler;
     class Dimension;
     struct DimensionResource;

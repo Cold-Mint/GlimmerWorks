@@ -49,7 +49,7 @@ std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerra
     if (dimension == nullptr) {
         return nullptr;
     }
-    DimensionResource *dimensionResource = dimension->GetDimensionResource();
+    const DimensionResource *dimensionResource = dimension->GetDimensionResource();
     if (dimensionResource == nullptr) {
         return nullptr;
     }
@@ -70,18 +70,124 @@ std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerra
         return nullptr;
     }
     LogCat::d(LogLabel::TERRAIN, "terrain_generating", "Generating terrain: position=({}, {})", position.x, position.y);
+
+
     auto terrainResult = std::make_shared<TerrainResult>();
     terrainResult->SetPosition(position);
+    //Compute base terrain data
+    //计算基础地形数据。
     for (int localX = 0; localX < TERRAIN_SIZE; ++localX) {
         const int firstTileTerrainY = climateSampler_->GetFirstTileTerrainY(worldSeed, dimensionResource,
                                                                             position.x + localX);
         for (int localY = 0; localY < TERRAIN_SIZE; ++localY) {
             auto localPosition = TerrainRelativeVector2D(localX, localY);
-            WriteTerrainTileResult(biomeRegistry, worldSeed, dimensionResource, dimensionRef,
+            ComputeBaseTerrainTile(biomeRegistry, worldSeed, dimensionResource, dimensionRef,
                                    CoordinateTransformer::TerrainRelativeToTile(position, localPosition),
                                    firstTileTerrainY, terrainResult->GetMutableTerrainTileResult(localPosition));
         }
     }
+    //Placement structure
+    //放置结构
+    StructurePlacementConditionsRegistry *structurePlacementConditionsRegistry = modContext->
+            GetStructurePlacementConditionsRegistry();
+    if (structurePlacementConditionsRegistry == nullptr) {
+        return nullptr;
+    }
+
+    ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+    if (resourceLocator == nullptr) {
+        return nullptr;
+    }
+
+    StructureRegistry *structureRegistry = modContext->GetStructureRegistry();
+    if (structureRegistry == nullptr) {
+        return nullptr;
+    }
+    StructureGeneratorManager *structureGeneratorManager = modContext->GetStructureGeneratorManager();
+    if (structureGeneratorManager == nullptr) {
+        return nullptr;
+    }
+    StructurePlacementConditionsProcessorManager *structurePlacementConditionsProcessorManager = modContext->
+            GetStructurePlacementConditionsProcessorManager();
+    if (structurePlacementConditionsProcessorManager == nullptr) {
+        return nullptr;
+    }
+    const std::vector<IStructureResource *> &structureList = structureRegistry->GetAll();
+    if (structureList.empty()) {
+        return nullptr;
+    }
+    //Save the placement range of all structures.
+    //保存所有结构的放置范围。
+    const auto totalBitset = std::make_unique<std::bitset<TERRAIN_AREA> >();
+    //全部设置为1（表示全部可放置）
+    totalBitset->set();
+    //Save a set of the overall placement points for a structure.
+    //保存一个结构的总放置点集合。
+    auto structureBitset = std::make_unique<std::bitset<TERRAIN_AREA> >();
+    auto conditionBitset = std::make_unique<std::bitset<TERRAIN_AREA> >();
+    for (const auto &structure: structureList) {
+        auto &conditionList = structure->condition;
+        if (conditionList.empty()) {
+            continue;
+        }
+        structureBitset->set();
+        for (const auto &condition: conditionList) {
+            const IStructurePlacementConditionsResource *structurePlacementConditionsResource = resourceLocator->
+                    FindStructurePlacementConditions(&condition);
+            if (structurePlacementConditionsResource == nullptr) {
+                continue;
+            }
+            IStructureConditionProcessor *structureConditionProcessor = structurePlacementConditionsProcessorManager->
+                    FindConditionProcessors(
+                        static_cast<StructureConditionProcessorType>(structurePlacementConditionsResource->
+                            processorId));
+            if (structureConditionProcessor == nullptr) {
+                continue;
+            }
+            //Get structure placement points for this condition.
+            //得到此条件的结构放置点。
+            conditionBitset->reset();
+            structureConditionProcessor->Match(
+                dimensionResource, terrainResult.get(), structurePlacementConditionsResource, conditionBitset.get());
+            *structureBitset &= *conditionBitset;
+        }
+        *structureBitset &= *totalBitset;
+        if (structureBitset->none()) {
+            continue;
+        }
+        //执行结构放置
+        for (int i = 0; i < TERRAIN_AREA; ++i) {
+            if (structureBitset->test(i)) {
+                const int localX = i % TERRAIN_SIZE;
+                const int localY = i / TERRAIN_SIZE;
+                const TerrainRelativeVector2D relative(localX, localY);
+                const TileVector2D structuralOrigin =
+                        CoordinateTransformer::TerrainRelativeToTile(position, relative);
+                std::unique_ptr<StructureInfo> structureInfo = structureGeneratorManager->Generate(
+                    worldContext, structuralOrigin, structure);
+                // 根据结构的最大和最小顶点，计算对应的地形顶点是否和现在生成的是同一个。(预先推算范围)
+                TerrainVertexVector2D maxTerrainVertex = CoordinateTransformer::TileToTerrainVertex(
+                    structureInfo->GetMaxPosition());
+                if (maxTerrainVertex != position) {
+                    //MaxPosition跨越了地形块
+                    continue;
+                }
+                TerrainVertexVector2D minTerrainVertex = CoordinateTransformer::TileToTerrainVertex(
+                    structureInfo->GetMinPosition());
+                if (minTerrainVertex != position) {
+                    //MinPosition跨越了地形块
+                    continue;
+                }
+                const std::unordered_map<TileLayerType, std::unordered_map<TileVector2D, ResourceRef, Vector2DIHash> > &
+                        structureMap = structureInfo->GetStructureMap();
+                for (auto &[tileLayerType,tileMap]: structureMap) {
+//TODO：在这里将结构放置到地形内Push进去，同时检查放置点，是否被占用（totalBitset->test(xxx xxx是当前瓦片的位置转地形相对位置) == 1）。
+                }
+            }
+        }
+    }
+
+
     LogCat::d(LogLabel::TERRAIN, "terrain_generation_completed", "Terrain generation completed: position=({}, {})",
               position.x,
               position.y);
@@ -105,7 +211,7 @@ std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateOrGet
     return terrainResult;
 }
 
-void glimmer::TerrainGenerator::WriteTerrainTileResult(const BiomeRegistry *biomeRegistry, const int worldSeed,
+void glimmer::TerrainGenerator::ComputeBaseTerrainTile(const BiomeRegistry *biomeRegistry, int worldSeed,
                                                        const DimensionResource *dimensionResource,
                                                        const ResourceRef &dimension, const TileVector2D &world,
                                                        const int firstTileTerrainY,

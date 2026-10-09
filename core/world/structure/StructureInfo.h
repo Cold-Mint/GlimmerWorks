@@ -44,6 +44,10 @@ namespace glimmer {
         const std::unordered_map<TileLayerType, std::unordered_map<TileVector2D, ResourceRef, Vector2DIHash> > &
         GetStructureMap() const;
 
+        [[nodiscard]] const TileVector2D &GetMinPosition() const;
+
+        [[nodiscard]] const TileVector2D &GetMaxPosition() const;
+
         [[nodiscard]] uint32_t GetWidth() const;
 
         [[nodiscard]] uint32_t GetHeight() const;

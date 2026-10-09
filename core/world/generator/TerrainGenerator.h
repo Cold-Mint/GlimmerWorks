@@ -70,8 +70,8 @@ namespace glimmer {
 
 
         /**
-         * WriteTerrainTileResult
-         * 写瓦片地形结果
+         * ComputeBaseTerrainTile
+         * 计算基础瓦片
          * @param biomeRegistry biomeRegistry 生物群系注册表
          * @param worldSeed worldSeed 世界种子
          * @param dimensionResource dimensionResource 维度资源
@@ -80,7 +80,7 @@ namespace glimmer {
          * @param firstTileTerrainY firstTileTerrainY 地表第一格Y坐标
          * @param terrainTileResult terrainTileResult 地形瓦片结果
          */
-        void WriteTerrainTileResult(const BiomeRegistry *biomeRegistry, int worldSeed,
+        void ComputeBaseTerrainTile(const BiomeRegistry *biomeRegistry, int worldSeed,
                                     const DimensionResource *dimensionResource, const ResourceRef &dimension,
                                     const TileVector2D &world, int firstTileTerrainY,
                                     TerrainTileResult &terrainTileResult) const;

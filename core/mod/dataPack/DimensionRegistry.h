@@ -26,7 +26,6 @@
  */
 #pragma once
 
-#include <span>
 #include <vector>
 
 #include "BaseResourceRegistry.h"

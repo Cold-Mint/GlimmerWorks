@@ -33,15 +33,15 @@ GetStructureConditionProcessorType() {
     return StructureConditionProcessorType::Height;
 }
 
-std::bitset<TERRAIN_AREA> glimmer::HeightStructureConditionProcessor::Match(const DimensionResource *dimensionResource,
-                                                                            const TerrainResult *terrainResult,
-                                                                            const IStructurePlacementConditionsResource
-                                                                            *placementConditionsResource) {
-    std::bitset<TERRAIN_AREA> result;
+void glimmer::HeightStructureConditionProcessor::Match(const DimensionResource *dimensionResource,
+                                                       const TerrainResult *terrainResult,
+                                                       const IStructurePlacementConditionsResource *
+                                                       placementConditionsResource,
+                                                       std::bitset<TERRAIN_AREA> *result) {
     const auto heightStructureConditions = dynamic_cast<const HeightStructureConditionsResource *>(
         placementConditionsResource);
     if (heightStructureConditions == nullptr) {
-        return result;
+        return;
     }
     const float maxHeightPercent = heightStructureConditions->maxHeightPercent;
     const float minHeightPercent = heightStructureConditions->minHeightPercent;
@@ -52,13 +52,11 @@ std::bitset<TERRAIN_AREA> glimmer::HeightStructureConditionProcessor::Match(cons
             int globalY = localY + position.y;
             float percent = static_cast<float>(globalY) / static_cast<float>(dimensionResource->maxY);
             if (percent >= minHeightPercent && percent <= maxHeightPercent) {
-                int tileIndex = localX + localY * TERRAIN_SIZE;
-                result[tileIndex] = true;
+                result->set(localX + localY * TERRAIN_SIZE);
                 matchedTileCount++;
             }
         }
     }
     LogCat::d(LogLabel::TERRAIN, "height_condition_matched_count", "Height condition matched tiles: {}",
               matchedTileCount);
-    return result;
 }

@@ -33,11 +33,11 @@ GetStructureConditionProcessorType() {
     return StructureConditionProcessorType::Surface;
 }
 
-std::bitset<TERRAIN_AREA> glimmer::SurfaceStructureConditionProcessor::Match(const DimensionResource *dimensionResource,
-                                                                             const TerrainResult *terrainResult,
-                                                                             const IStructurePlacementConditionsResource
-                                                                             *placementConditionsResource) {
-    std::bitset<TERRAIN_AREA> result;
+void glimmer::SurfaceStructureConditionProcessor::Match(const DimensionResource *dimensionResource,
+                                                        const TerrainResult *terrainResult,
+                                                        const IStructurePlacementConditionsResource *
+                                                        placementConditionsResource,
+                                                        std::bitset<TERRAIN_AREA> *result) {
     for (int localX = 0; localX < TERRAIN_SIZE; localX++) {
         for (int localY = 0; localY < TERRAIN_SIZE; localY++) {
             TerrainRelativeVector2D relativeVector2d(localX, localY);
@@ -59,10 +59,9 @@ std::bitset<TERRAIN_AREA> glimmer::SurfaceStructureConditionProcessor::Match(con
                 //上方的瓦片不是空气。
                 continue;
             }
-            result[localY * TERRAIN_SIZE + localX] = true;
+            result->set(localY * TERRAIN_SIZE + localX);
         }
     }
     LogCat::d(LogLabel::TERRAIN, "surface_condition_matched_count", "Surface condition matched tiles: {}",
-              result.count());
-    return result;
+              result->count());
 }

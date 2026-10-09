@@ -38,7 +38,7 @@ namespace glimmer {
     public:
         void RegisterStructureGenerator(std::unique_ptr<IStructureGenerator> structureGenerator);
 
-        std::unique_ptr<StructureInfo> Generate(WorldContext *worldContext, const TileVector2D &structuralOrigin,
+        std::unique_ptr<StructureInfo> Generate(const WorldContext *worldContext, const TileVector2D &structuralOrigin,
                                                 IStructureResource *structureResource);
     };
 }

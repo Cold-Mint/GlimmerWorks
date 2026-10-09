@@ -49,14 +49,14 @@ void glimmer::TreeStructureGenerator::AddLeafCluster(StructureInfo *structureInf
     }
 }
 
-std::unique_ptr<glimmer::StructureInfo> glimmer::TreeStructureGenerator::Generate(WorldContext *worldContext,
+std::unique_ptr<glimmer::StructureInfo> glimmer::TreeStructureGenerator::Generate(const WorldContext *worldContext,
     const TileVector2D &startPosition, IStructureResource *structureResource) {
     if (structureResource == nullptr || worldContext == nullptr) {
         LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "structure_generator_null_input",
                   "Tree structure generator received null input");
         return nullptr;
     }
-    TerrainGenerator *terrainGenerator = worldContext->GetTerrainGenerator();
+    const TerrainGenerator *terrainGenerator = worldContext->GetTerrainGenerator();
     if (terrainGenerator == nullptr) {
         LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "tree_structure_chunk_generator_null",
                   "Chunk generator is null, cannot generate tree");

@@ -55,28 +55,23 @@ std::optional<std::vector<char> > glimmer::DataPack::ReadFileContent(std::istrea
     return fileBuffer;
 }
 
-glimmer::DataPack::DataPack(std::filesystem::path path, const VirtualFileSystem *virtualFileSystem,
-                            const TomlTemplateExpander *tomlTemplateExpander, const toml::spec &tomlVersion)
-    : rootPath_(std::move(path)),
-      manifest_(),
-      tomlVersion_(tomlVersion),
-      virtualFileSystem_(virtualFileSystem),
-      tomlTemplateExpander_(tomlTemplateExpander),
-      resourceFileLoader_(rootPath_, &manifest_, virtualFileSystem_, tomlTemplateExpander_, tomlVersion_) {
-}
 
 uint64_t glimmer::DataPack::GetUniqueId() const {
     return StringUtils::StringToUint64(manifest_.id);
 }
 
 bool glimmer::DataPack::LoadManifest() {
-    const auto contentOptional = virtualFileSystem_->ReadFileAsString(rootPath_ / MANIFEST_FILE_NAME);
+    const VirtualFileSystem *virtualFileSystem = resourceFileLoader_->GetVirtualFileSystem();
+    if (virtualFileSystem == nullptr) {
+        return false;
+    }
+    const auto contentOptional = virtualFileSystem->ReadFileAsString(rootPath_ / MANIFEST_FILE_NAME);
     if (!contentOptional.has_value()) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "data_pack_manifest_read_failed",
                   "Failed to read data pack manifest file: {}", (rootPath_ / MANIFEST_FILE_NAME).string());
         return false;
     }
-    const toml::value value = toml::parse_str(contentOptional.value(), tomlVersion_);
+    const toml::value value = toml::parse_str(contentOptional.value(), TOML_VERSION);
     manifest_ = toml::get<DataPackManifest>(value);
     manifest_.name.SetSelfPackageId(manifest_.id);
     manifest_.description.SetSelfPackageId(manifest_.id);
@@ -94,14 +89,18 @@ glimmer::PackVerifyState glimmer::DataPack::GetPackVerifyState() const {
 }
 
 int glimmer::DataPack::ProcessFile(const std::filesystem::path &file, const AppContext *appContext,
-                                   PackSignatureVerifier &signatureVerifier,
+                                   const PackSignatureVerifier &signatureVerifier,
                                    std::vector<std::filesystem::path> &defaultLanguageFiles,
                                    std::vector<std::filesystem::path> &targetLanguageFiles,
                                    std::vector<uint8_t> &allHashData) const {
     if (signatureVerifier.ProcessSpecialFiles(file)) {
         return 0;
     }
-    auto fileNameOptional = virtualFileSystem_->GetFileOrFolderName(file);
+    const VirtualFileSystem *virtualFileSystem = resourceFileLoader_->GetVirtualFileSystem();
+    if (virtualFileSystem == nullptr) {
+        return false;
+    }
+    auto fileNameOptional = virtualFileSystem->GetFileOrFolderName(file);
     if (!fileNameOptional.has_value()) {
         return 0;
     }
@@ -110,7 +109,7 @@ int glimmer::DataPack::ProcessFile(const std::filesystem::path &file, const AppC
         return 0;
     }
 
-    auto istreamUniquePtr = virtualFileSystem_->ReadFileAsStream(file);
+    auto istreamUniquePtr = virtualFileSystem->ReadFileAsStream(file);
     if (istreamUniquePtr == nullptr) {
         return 0;
     }
@@ -135,8 +134,14 @@ int glimmer::DataPack::ProcessFile(const std::filesystem::path &file, const AppC
                                                    targetLanguageFiles, appContext)) {
         return 0;
     }
-    return resourceFileLoader_.LoadResourceByType(dataType, file.string(), content,
-                                                  appContext);
+    return resourceFileLoader_->LoadResourceByType(dataType, file.string(), content,
+                                                   appContext);
+}
+
+glimmer::DataPack::DataPack(std::filesystem::path path,
+                            ResourceFileLoader *resourceFileLoader) : manifest_(),
+                                                                      rootPath_(std::move(path)),
+                                                                      resourceFileLoader_(resourceFileLoader) {
 }
 
 bool glimmer::DataPack::LoadPack(const AppContext *appContext) {
@@ -146,24 +151,27 @@ bool glimmer::DataPack::LoadPack(const AppContext *appContext) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "app_context_is_null", "appContext == nullptr");
         return false;
     }
-    ModContext *modContext = appContext->GetModContext();
+    const ModContext *modContext = appContext->GetModContext();
     if (modContext == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "mod_context_is_null", "modContext == nullptr");
         return false;
     }
-    GraphicsContext *graphicsContext = appContext->GetGraphicsContext();
-    if (graphicsContext == nullptr) {
+    if (GraphicsContext *graphicsContext = appContext->GetGraphicsContext(); graphicsContext == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "graphics_context_is_null",
                   "graphicsContext == nullptr");
         return false;
     }
-    Config *config = appContext->GetConfig();
+    const Config *config = appContext->GetConfig();
     if (config == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "config_is_null", "config == nullptr");
         return false;
     }
     int total = 0;
-    std::vector<std::filesystem::path> files = virtualFileSystem_->ListFile(rootPath_, true);
+    const VirtualFileSystem *virtualFileSystem = resourceFileLoader_->GetVirtualFileSystem();
+    if (virtualFileSystem == nullptr) {
+        return false;
+    }
+    std::vector<std::filesystem::path> files = virtualFileSystem->ListFile(rootPath_, true);
     if (files.empty()) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "data_pack_no_files",
                   "Data pack contains no files: {}",
@@ -178,13 +186,13 @@ bool glimmer::DataPack::LoadPack(const AppContext *appContext) {
         rootPath_ / ".public", rootPath_ / ".sign",
         std::vector<uint8_t>(32), std::vector<uint8_t>(64), config->mods.enableSignVerify, false, false
     };
-    PackSignatureVerifier signatureVerifier(virtualFileSystem_, specialFileProcessingParams);
+    PackSignatureVerifier signatureVerifier(virtualFileSystem, specialFileProcessingParams);
     for (const auto &file: files) {
         total += ProcessFile(file, appContext, signatureVerifier, defaultLanguageFiles,
                              targetLanguageFiles, allHashData);
     }
 
-    total += resourceFileLoader_.LoadLanguageFiles(defaultLanguageFiles, targetLanguageFiles, modContext);
+    total += resourceFileLoader_->LoadLanguageFiles(defaultLanguageFiles, targetLanguageFiles, modContext);
 
     if (specialFileProcessingParams.enableSignVerify) {
         packVerifyState_ = signatureVerifier.Verify(allHashData);

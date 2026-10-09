@@ -31,37 +31,31 @@
 #include "core/context/ISystemBucket.h"
 #include "core/log/LogCat.h"
 
-glimmer::InitDataPackTask::InitDataPackTask(AppContext* appContext) : appContext_(appContext)
-{
+glimmer::InitDataPackTask::InitDataPackTask(AppContext *appContext) : appContext_(appContext) {
 }
 
-bool glimmer::InitDataPackTask::Run(ISystemBucket* systemBucket)
-{
-    const ModContext* modContext = systemBucket->GetModContext();
-    if (modContext == nullptr)
-    {
+bool glimmer::InitDataPackTask::Run(ISystemBucket *systemBucket) {
+    const ModContext *modContext = systemBucket->GetModContext();
+    if (modContext == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "mod_context_is_null", "modContext is nullptr");
         return false;
     }
-    DataPackManager* dataPackManager = modContext->GetDataPackManager();
-    if (dataPackManager == nullptr)
-    {
+    DataPackManager *dataPackManager = modContext->GetDataPackManager();
+    if (dataPackManager == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "data_pack_manager_is_null",
                   "dataPackManager is nullptr");
         return false;
     }
     PackScanRequest packScanRequest;
     packScanRequest.SetAppContext(appContext_);
-    if (dataPackManager->Scan(&packScanRequest) == 0)
-    {
+    if (dataPackManager->Scan(&packScanRequest) == 0) {
         LogCat::publicError(LogLabel::DEFAULT, ErrorCode::MISSING_RESPACK, std::source_location::current(),
                             "missing_required_data_pack",
                             "At least one available datapack must be installed.");
         return false;
     }
-    RecipeManager* recipeManager = modContext->GetRecipeManager();
-    if (recipeManager == nullptr)
-    {
+    RecipeManager *recipeManager = modContext->GetRecipeManager();
+    if (recipeManager == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "recipe_manager_is_null",
                   "recipeManager is nullptr");
         return false;
@@ -70,7 +64,6 @@ bool glimmer::InitDataPackTask::Run(ISystemBucket* systemBucket)
     return true;
 }
 
-std::string glimmer::InitDataPackTask::GetTaskName()
-{
+std::string glimmer::InitDataPackTask::GetTaskName() {
     return "InitDataPackTask";
 }

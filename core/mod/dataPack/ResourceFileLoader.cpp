@@ -61,168 +61,124 @@
 using enum glimmer::ShapeType;
 using enum glimmer::BiomeDecoratorType;
 
-glimmer::ResourceFileLoader::ResourceFileLoader(std::filesystem::path rootPath, const DataPackManifest* manifest,
-                                                const VirtualFileSystem* virtualFileSystem,
-                                                const TomlTemplateExpander* tomlTemplateExpander,
-                                                const toml::spec& tomlVersion)
-    : rootPath_(std::move(rootPath)),
-      manifest_(manifest),
-      virtualFileSystem_(virtualFileSystem),
-      tomlTemplateExpander_(tomlTemplateExpander),
-      tomlVersion_(tomlVersion)
-{
-    RegisterHandlers();
-}
-
-void glimmer::ResourceFileLoader::RegisterHandlers()
-{
-    handlerMap_[DATA_FILE_TYPE_TILE] = [this](const toml::value& v, const AppContext* appContext)
-    {
+void glimmer::ResourceFileLoader::RegisterHandlers() {
+    handlerMap_[DATA_FILE_TYPE_TILE] = [this](const toml::value &v, const AppContext *appContext) {
         LoadTileResourceFromFile(v, appContext);
     };
-    handlerMap_[DATA_FILE_TYPE_BIOME] = [this](const toml::value& v, const AppContext* appContext)
-    {
+    handlerMap_[DATA_FILE_TYPE_BIOME] = [this](const toml::value &v, const AppContext *appContext) {
         LoadBiomeResourceFromFile(v, appContext);
     };
-    handlerMap_[DATA_FILE_TYPE_DIMENSION] = [this](const toml::value& v, const AppContext* appContext)
-    {
+    handlerMap_[DATA_FILE_TYPE_DIMENSION] = [this](const toml::value &v, const AppContext *appContext) {
         LoadDimensionResourceFromFile(v, appContext);
     };
-    handlerMap_[DATA_FILE_TYPE_COMPOSABLE_ITEM] = [this](const toml::value& v, const AppContext* appContext)
-    {
+    handlerMap_[DATA_FILE_TYPE_COMPOSABLE_ITEM] = [this](const toml::value &v, const AppContext *appContext) {
         LoadComposableItemResourceFromFile(v, appContext);
     };
-    handlerMap_[DATA_FILE_TYPE_ABILITY_ITEM] = [this](const toml::value& v, const AppContext* appContext)
-    {
+    handlerMap_[DATA_FILE_TYPE_ABILITY_ITEM] = [this](const toml::value &v, const AppContext *appContext) {
         LoadAbilityItemResourceFromFile(v, appContext);
     };
-    handlerMap_[DATA_FILE_TYPE_MATERIAL_ITEM] = [this](const toml::value& v, const AppContext* appContext)
-    {
+    handlerMap_[DATA_FILE_TYPE_MATERIAL_ITEM] = [this](const toml::value &v, const AppContext *appContext) {
         LoadMaterialItemResourceResourceFromFile(v, appContext);
     };
-    handlerMap_[DATA_FILE_TYPE_LOOT_TABLE] = [this](const toml::value& v, const AppContext* appContext)
-    {
+    handlerMap_[DATA_FILE_TYPE_LOOT_TABLE] = [this](const toml::value &v, const AppContext *appContext) {
         LoadLootTableResourceFromFile(v, appContext);
     };
-    handlerMap_[DATA_FILE_TYPE_TREE_STRUCTURE] = [this](const toml::value& v, const AppContext* appContext)
-    {
+    handlerMap_[DATA_FILE_TYPE_TREE_STRUCTURE] = [this](const toml::value &v, const AppContext *appContext) {
         LoadStructureResourceFromFile(v, appContext, StructureGeneratorType::Tree);
     };
-    handlerMap_[DATA_FILE_TYPE_STATIC_STRUCTURE] = [this](const toml::value& v, const AppContext* appContext)
-    {
+    handlerMap_[DATA_FILE_TYPE_STATIC_STRUCTURE] = [this](const toml::value &v, const AppContext *appContext) {
         LoadStructureResourceFromFile(v, appContext, StructureGeneratorType::Static);
     };
-    handlerMap_[DATA_FILE_TYPE_INITIAL_INVENTORY] = [this](const toml::value& v, const AppContext* appContext)
-    {
+    handlerMap_[DATA_FILE_TYPE_INITIAL_INVENTORY] = [this](const toml::value &v, const AppContext *appContext) {
         LoadInitialInventoryResourceFromFile(v, appContext);
     };
-    handlerMap_[DATA_FILE_TYPE_CONTRIBUTOR] = [this](const toml::value& v, const AppContext* appContext)
-    {
+    handlerMap_[DATA_FILE_TYPE_CONTRIBUTOR] = [this](const toml::value &v, const AppContext *appContext) {
         LoadContributorResourceFromFile(v, appContext);
     };
-    handlerMap_[DATA_FILE_TYPE_MOB] = [this](const toml::value& v, const AppContext* appContext)
-    {
+    handlerMap_[DATA_FILE_TYPE_MOB] = [this](const toml::value &v, const AppContext *appContext) {
         LoadMobResourceFromFile(v, appContext);
     };
-    handlerMap_[DATA_FILE_TYPE_SHAPE_CIRCLE] = [this](const toml::value& v, const AppContext* appContext)
-    {
+    handlerMap_[DATA_FILE_TYPE_SHAPE_CIRCLE] = [this](const toml::value &v, const AppContext *appContext) {
         LoadShapeResourceFromFile(v, appContext, CIRCLE);
     };
-    handlerMap_[DATA_FILE_TYPE_SHAPE_RECTANGLE] = [this](const toml::value& v, const AppContext* appContext)
-    {
+    handlerMap_[DATA_FILE_TYPE_SHAPE_RECTANGLE] = [this](const toml::value &v, const AppContext *appContext) {
         LoadShapeResourceFromFile(v, appContext, RECTANGLE);
     };
-    handlerMap_[DATA_FILE_TYPE_SHAPE_ROUNDED_RECTANGLE] = [this](const toml::value& v, const AppContext* appContext)
-    {
+    handlerMap_[DATA_FILE_TYPE_SHAPE_ROUNDED_RECTANGLE] = [this](const toml::value &v, const AppContext *appContext) {
         LoadShapeResourceFromFile(v, appContext, ROUNDED_RECTANGLE);
     };
-    handlerMap_[DATA_FILE_TYPE_DECORATOR_FILL] = [this](const toml::value& v, const AppContext* appContext)
-    {
+    handlerMap_[DATA_FILE_TYPE_DECORATOR_FILL] = [this](const toml::value &v, const AppContext *appContext) {
         LoadBiomeDecoratorResourceFromFile(v, appContext, FILL);
     };
-    handlerMap_[DATA_FILE_TYPE_DECORATOR_MINERAL] = [this](const toml::value& v, const AppContext* appContext)
-    {
+    handlerMap_[DATA_FILE_TYPE_DECORATOR_MINERAL] = [this](const toml::value &v, const AppContext *appContext) {
         LoadBiomeDecoratorResourceFromFile(v, appContext, MINERAL);
     };
-    handlerMap_[DATA_FILE_TYPE_DECORATOR_SURFACE] = [this](const toml::value& v, const AppContext* appContext)
-    {
+    handlerMap_[DATA_FILE_TYPE_DECORATOR_SURFACE] = [this](const toml::value &v, const AppContext *appContext) {
         LoadBiomeDecoratorResourceFromFile(v, appContext, SURFACE);
     };
-    handlerMap_[DATA_FILE_TYPE_FIXED_COLOR] = [this](const toml::value& v, const AppContext* appContext)
-    {
+    handlerMap_[DATA_FILE_TYPE_FIXED_COLOR] = [this](const toml::value &v, const AppContext *appContext) {
         LoadFixedColorResourceFromFile(v, appContext);
     };
-    handlerMap_[DATA_FILE_TYPE_LIGHT_MASK] = [this](const toml::value& v, const AppContext* appContext)
-    {
+    handlerMap_[DATA_FILE_TYPE_LIGHT_MASK] = [this](const toml::value &v, const AppContext *appContext) {
         LoadLightMaskResourceFromFile(v, appContext);
     };
-    handlerMap_[DATA_FILE_TYPE_LIGHT_SOURCE] = [this](const toml::value& v, const AppContext* appContext)
-    {
+    handlerMap_[DATA_FILE_TYPE_LIGHT_SOURCE] = [this](const toml::value &v, const AppContext *appContext) {
         LoadLightSourceResourceFromFile(v, appContext);
     };
-    handlerMap_[DATA_FILE_TYPE_RECIPE] = [this](const toml::value& v, const AppContext* appContext)
-    {
+    handlerMap_[DATA_FILE_TYPE_RECIPE] = [this](const toml::value &v, const AppContext *appContext) {
         LoadRecipeResourceFromFile(v, appContext);
     };
-    handlerMap_[DATA_FILE_TYPE_BIOME_STRUCTURE_CONDITION] = [this](const toml::value& v,
-                                                                   const AppContext* appContext)
-    {
+    handlerMap_[DATA_FILE_TYPE_BIOME_STRUCTURE_CONDITION] = [this](const toml::value &v,
+                                                                   const AppContext *appContext) {
         LoadStructurePlacementConditionsResourceFromFile(v, appContext, StructureConditionProcessorType::Biome);
     };
-    handlerMap_[DATA_FILE_TYPE_HEIGHT_STRUCTURE_CONDITION] = [this](const toml::value& v,
-                                                                    const AppContext* appContext)
-    {
+    handlerMap_[DATA_FILE_TYPE_HEIGHT_STRUCTURE_CONDITION] = [this](const toml::value &v,
+                                                                    const AppContext *appContext) {
         LoadStructurePlacementConditionsResourceFromFile(v, appContext, StructureConditionProcessorType::Height);
     };
-    handlerMap_[DATA_FILE_TYPE_SPACING_STRUCTURE_CONDITION] = [this](const toml::value& v,
-                                                                     const AppContext* appContext)
-    {
+    handlerMap_[DATA_FILE_TYPE_SPACING_STRUCTURE_CONDITION] = [this](const toml::value &v,
+                                                                     const AppContext *appContext) {
         LoadStructurePlacementConditionsResourceFromFile(v, appContext, StructureConditionProcessorType::Spacing);
     };
-    handlerMap_[DATA_FILE_TYPE_SURFACE_STRUCTURE_CONDITION] = [this](const toml::value& v,
-                                                                     const AppContext* appContext)
-    {
+    handlerMap_[DATA_FILE_TYPE_SURFACE_STRUCTURE_CONDITION] = [this](const toml::value &v,
+                                                                     const AppContext *appContext) {
         LoadStructurePlacementConditionsResourceFromFile(v, appContext, StructureConditionProcessorType::Surface);
     };
-    handlerMap_[DATA_FILE_TYPE_LIGHT_GROWTH_CONDITION] = [this](const toml::value& v,
-                                                                const AppContext* appContext)
-    {
+    handlerMap_[DATA_FILE_TYPE_LIGHT_GROWTH_CONDITION] = [this](const toml::value &v,
+                                                                const AppContext *appContext) {
         LoadGrowthConditionsResourceFromFile(v, appContext, GrowthConditionProcessorType::Light);
     };
-    handlerMap_[DATA_FILE_TYPE_BIOME_GROWTH_CONDITION] = [this](const toml::value& v,
-                                                                const AppContext* appContext)
-    {
+    handlerMap_[DATA_FILE_TYPE_BIOME_GROWTH_CONDITION] = [this](const toml::value &v,
+                                                                const AppContext *appContext) {
         LoadGrowthConditionsResourceFromFile(v, appContext, GrowthConditionProcessorType::Biome);
     };
-    handlerMap_[DATA_FILE_TYPE_ADJACENT_TILE_GROWTH_CONDITION] = [this](const toml::value& v,
-                                                                        const AppContext* appContext)
-    {
+    handlerMap_[DATA_FILE_TYPE_ADJACENT_TILE_GROWTH_CONDITION] = [this](const toml::value &v,
+                                                                        const AppContext *appContext) {
         LoadGrowthConditionsResourceFromFile(v, appContext, GrowthConditionProcessorType::AdjacentTile);
     };
-    handlerMap_[DATA_FILE_TYPE_HEIGHT_GROWTH_CONDITION] = [this](const toml::value& v,
-                                                                 const AppContext* appContext)
-    {
+    handlerMap_[DATA_FILE_TYPE_HEIGHT_GROWTH_CONDITION] = [this](const toml::value &v,
+                                                                 const AppContext *appContext) {
         LoadGrowthConditionsResourceFromFile(v, appContext, GrowthConditionProcessorType::Height);
     };
-    handlerMap_[DATA_FILE_TYPE_TIME_GROWTH_CONDITION] = [this](const toml::value& v,
-                                                               const AppContext* appContext)
-    {
+    handlerMap_[DATA_FILE_TYPE_TIME_GROWTH_CONDITION] = [this](const toml::value &v,
+                                                               const AppContext *appContext) {
         LoadGrowthConditionsResourceFromFile(v, appContext, GrowthConditionProcessorType::Time);
     };
 }
 
+glimmer::ResourceFileLoader::ResourceFileLoader() {
+    RegisterHandlers();
+}
+
 std::vector<std::filesystem::path> glimmer::ResourceFileLoader::GetActuallyTemplateSearchPath(
-    const std::filesystem::path& path) const
-{
+    const std::filesystem::path &path) const {
     const std::optional<std::filesystem::path> currentOptional = virtualFileSystem_->GetParentPath(path);
-    if (!currentOptional.has_value())
-    {
+    if (!currentOptional.has_value()) {
         return {};
     }
     const std::string currentDir = currentOptional.value().string();
     std::vector<std::filesystem::path> result;
-    for (std::string searchPath : manifest_->templateSearchPath)
-    {
+    for (std::string searchPath: manifest_->templateSearchPath) {
         StringUtils::ReplaceAll(searchPath, TEMPLATE_CURRENT, currentDir);
         StringUtils::ReplaceAll(searchPath, TEMPLATE_ROOT, rootPath_.string());
         result.emplace_back(std::move(searchPath));
@@ -230,27 +186,23 @@ std::vector<std::filesystem::path> glimmer::ResourceFileLoader::GetActuallyTempl
     return result;
 }
 
-int glimmer::ResourceFileLoader::LoadStringResourceFromFile(const std::filesystem::path& path,
-                                                            StringManager* stringManager) const
-{
+int glimmer::ResourceFileLoader::LoadStringResourceFromFile(const std::filesystem::path &path,
+                                                            StringManager *stringManager) const {
     const auto contentOptional = virtualFileSystem_->ReadFileAsString(path);
-    if (!contentOptional.has_value())
-    {
+    if (!contentOptional.has_value()) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "resource_file_loader_string_read_failed",
                   "Failed to read string resource file: {}", path.string());
         return 0;
     }
     const std::vector<std::filesystem::path> searchPath = GetActuallyTemplateSearchPath(path);
-    if (searchPath.empty())
-    {
+    if (searchPath.empty()) {
         return 0;
     }
     const toml::value value = toml::parse_str(
-        tomlTemplateExpander_->Expand(searchPath, contentOptional.value(), virtualFileSystem_), tomlVersion_);
+        tomlTemplateExpander_->Expand(searchPath, contentOptional.value(), virtualFileSystem_), TOML_VERSION);
     int count = 0;
-    auto array = toml::find<std::vector<StringResource>>(value, "string");
-    for (auto& stringRes : array)
-    {
+    auto array = toml::find<std::vector<StringResource> >(value, "string");
+    for (auto &stringRes: array) {
         stringRes.packId = manifest_->id;
         stringManager->AddResource(
             std::make_unique<StringResource>(std::move(stringRes))
@@ -258,9 +210,8 @@ int glimmer::ResourceFileLoader::LoadStringResourceFromFile(const std::filesyste
         count++;
     }
 
-    auto tagArray = toml::find_or<std::vector<StringResource>>(value, "tag_string", {});
-    for (auto& stringRes : tagArray)
-    {
+    auto tagArray = toml::find_or<std::vector<StringResource> >(value, "tag_string", {});
+    for (auto &stringRes: tagArray) {
         stringRes.packId = manifest_->id;
         stringManager->SetTagTranslate(
             StringUtils::StringToUint64(stringRes.resourceId), stringRes.value
@@ -273,126 +224,104 @@ int glimmer::ResourceFileLoader::LoadStringResourceFromFile(const std::filesyste
     return count;
 }
 
-void glimmer::ResourceFileLoader::LoadLootTableResourceFromFile(const toml::value& value,
-                                                                const AppContext* appContext) const
-{
-    const ModContext* modContext = appContext->GetModContext();
-    if (modContext == nullptr)
-    {
+void glimmer::ResourceFileLoader::LoadLootTableResourceFromFile(const toml::value &value,
+                                                                const AppContext *appContext) const {
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
         return;
     }
-    LootTableRegistry* lootTableRegistry = modContext->GetLootTableRegistry();
-    if (lootTableRegistry == nullptr)
-    {
+    LootTableRegistry *lootTableRegistry = modContext->GetLootTableRegistry();
+    if (lootTableRegistry == nullptr) {
         return;
     }
     auto lootResource = std::make_unique<LootResource>(toml::get<LootResource>(value));
     lootResource->packId = manifest_->id;
-    for (auto& mandatory : lootResource->mandatory)
-    {
+    for (auto &mandatory: lootResource->mandatory) {
         mandatory.item.SetSelfPackageId(manifest_->id);
         mandatory.mandatory = true;
     }
-    for (auto& pool : lootResource->pool)
-    {
+    for (auto &pool: lootResource->pool) {
         pool.item.SetSelfPackageId(manifest_->id);
         pool.mandatory = false;
     }
     lootTableRegistry->Register(std::move(lootResource));
 }
 
-void glimmer::ResourceFileLoader::LoadInitialInventoryResourceFromFile(const toml::value& value,
-                                                                       const AppContext* appContext) const
-{
-    const ModContext* modContext = appContext->GetModContext();
-    if (modContext == nullptr)
-    {
+void glimmer::ResourceFileLoader::LoadInitialInventoryResourceFromFile(const toml::value &value,
+                                                                       const AppContext *appContext) const {
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
         return;
     }
-    InitialInventoryManager* initialInventoryManager = modContext->GetInitialInventoryManager();
-    if (initialInventoryManager == nullptr)
-    {
+    InitialInventoryManager *initialInventoryManager = modContext->GetInitialInventoryManager();
+    if (initialInventoryManager == nullptr) {
         return;
     }
     auto initialInventoryResource = std::make_unique<InitialInventoryResource>(
         toml::get<InitialInventoryResource>(value));
     initialInventoryResource->packId = manifest_->id;
-    for (auto& itemMessage : initialInventoryResource->addItems)
-    {
+    for (auto &itemMessage: initialInventoryResource->addItems) {
         itemMessage.item.SetSelfPackageId(manifest_->id);
-        for (auto& abilityItemRef : itemMessage.abilityItemRef)
-        {
+        for (auto &abilityItemRef: itemMessage.abilityItemRef) {
             abilityItemRef.item.SetSelfPackageId(manifest_->id);
         }
     }
     initialInventoryManager->AddResource(std::move(initialInventoryResource));
 }
 
-void glimmer::ResourceFileLoader::LoadStructureResourceFromFile(const toml::value& value,
-                                                                const AppContext* appContext,
-                                                                StructureGeneratorType structureGeneratorType) const
-{
-    const ModContext* modContext = appContext->GetModContext();
-    if (modContext == nullptr)
-    {
+void glimmer::ResourceFileLoader::LoadStructureResourceFromFile(const toml::value &value,
+                                                                const AppContext *appContext,
+                                                                StructureGeneratorType structureGeneratorType) const {
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
         return;
     }
-    StructureRegistry* structureRegistry = modContext->GetStructureRegistry();
-    if (structureRegistry == nullptr)
-    {
+    StructureRegistry *structureRegistry = modContext->GetStructureRegistry();
+    if (structureRegistry == nullptr) {
         return;
     }
-    StructureGeneratorManager* structureGeneratorManager = modContext->GetStructureGeneratorManager();
-    if (structureGeneratorManager == nullptr)
-    {
+    StructureGeneratorManager *structureGeneratorManager = modContext->GetStructureGeneratorManager();
+    if (structureGeneratorManager == nullptr) {
         return;
     }
     std::unique_ptr<IStructureResource> structureResource;
-    switch (structureGeneratorType)
-    {
-    case StructureGeneratorType::Tree:
-        structureResource = std::make_unique<TreeStructureResource>(
-            toml::get<TreeStructureResource>(value));
-        break;
-    case StructureGeneratorType::Static:
-        {
+    switch (structureGeneratorType) {
+        case StructureGeneratorType::Tree:
+            structureResource = std::make_unique<TreeStructureResource>(
+                toml::get<TreeStructureResource>(value));
+            break;
+        case StructureGeneratorType::Static: {
             std::unique_ptr<StaticStructureResource> staticStructureResource = std::make_unique<
                 StaticStructureResource>(
                 toml::get<StaticStructureResource>(value));
-            for (auto& tile_info : staticStructureResource->tileInfo)
-            {
+            for (auto &tile_info: staticStructureResource->tileInfo) {
                 tile_info.tile.SetSelfPackageId(manifest_->id);
             }
             structureResource = std::move(staticStructureResource);
         }
         break;
-    case StructureGeneratorType::None:
-        break;
+        case StructureGeneratorType::None:
+            break;
     }
     structureResource->packId = manifest_->id;
     structureResource->generatorId = std::to_underlying(structureGeneratorType);
-    for (auto& ref : structureResource->data)
-    {
+    for (auto &ref: structureResource->data) {
         ref.SetSelfPackageId(manifest_->id);
     }
-    for (auto& condition : structureResource->condition)
-    {
+    for (auto &condition: structureResource->condition) {
         condition.SetSelfPackageId(manifest_->id);
     }
     structureRegistry->Register(std::move(structureResource));
 }
 
-void glimmer::ResourceFileLoader::LoadTileResourceFromFile(const toml::value& value,
-                                                           const AppContext* appContext) const
-{
-    const ModContext* modContext = appContext->GetModContext();
-    if (modContext == nullptr)
-    {
+void glimmer::ResourceFileLoader::LoadTileResourceFromFile(const toml::value &value,
+                                                           const AppContext *appContext) const {
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
         return;
     }
-    TileResourceManager* tileResourceManager = modContext->GetTileResourceManager();
-    if (tileResourceManager == nullptr)
-    {
+    TileResourceManager *tileResourceManager = modContext->GetTileResourceManager();
+    if (tileResourceManager == nullptr) {
         return;
     }
     auto tileResource = std::make_unique<TileResource>(toml::get<TileResource>(value));
@@ -409,90 +338,73 @@ void glimmer::ResourceFileLoader::LoadTileResourceFromFile(const toml::value& va
     tileResource->sideLightMask.SetSelfPackageId(manifest_->id);
     tileResource->backLightMask.SetSelfPackageId(manifest_->id);
     tileResource->growthTarget.SetSelfPackageId(manifest_->id);
-    for (auto& growthCondition : tileResource->growthConditions)
-    {
+    for (auto &growthCondition: tileResource->growthConditions) {
         growthCondition.SetSelfPackageId(manifest_->id);
     }
-    if (tileResource->growthMaxTicks < tileResource->growthMinTicks)
-    {
+    if (tileResource->growthMaxTicks < tileResource->growthMinTicks) {
         tileResource->growthMaxTicks = tileResource->growthMinTicks;
     }
-    for (auto& tag : tileResource->tags)
-    {
+    for (auto &tag: tileResource->tags) {
         tag.MakeCachedTag();
     }
-    if (tileResource->customLootTable)
-    {
+    if (tileResource->customLootTable) {
         tileResource->lootTable.SetSelfPackageId(manifest_->id);
     }
     tileResourceManager->AddResource(std::move(tileResource));
 }
 
-void glimmer::ResourceFileLoader::LoadBiomeResourceFromFile(const toml::value& value,
-                                                            const AppContext* appContext) const
-{
-    const ModContext* modContext = appContext->GetModContext();
-    if (modContext == nullptr)
-    {
+void glimmer::ResourceFileLoader::LoadBiomeResourceFromFile(const toml::value &value,
+                                                            const AppContext *appContext) const {
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
         return;
     }
-    BiomeRegistry* biomeRegistry = modContext->GetBiomeRegistry();
-    if (biomeRegistry == nullptr)
-    {
+    BiomeRegistry *biomeRegistry = modContext->GetBiomeRegistry();
+    if (biomeRegistry == nullptr) {
         return;
     }
     auto biomeResource = std::make_unique<BiomeResource>(toml::get<BiomeResource>(value));
     biomeResource->packId = manifest_->id;
     biomeResource->bgm.SetSelfPackageId(manifest_->id);
-    for (auto& decorator : biomeResource->decors)
-    {
+    for (auto &decorator: biomeResource->decors) {
         decorator.SetSelfPackageId(manifest_->id);
     }
-    for (auto& dimension : biomeResource->dimensions)
-    {
+    for (auto &dimension: biomeResource->dimensions) {
         dimension.SetSelfPackageId(manifest_->id);
     }
     biomeRegistry->Register(std::move(biomeResource));
 }
 
-void glimmer::ResourceFileLoader::LoadDimensionResourceFromFile(const toml::value& value,
-                                                                const AppContext* appContext) const
-{
-    const ModContext* modContext = appContext->GetModContext();
-    if (modContext == nullptr)
-    {
+void glimmer::ResourceFileLoader::LoadDimensionResourceFromFile(const toml::value &value,
+                                                                const AppContext *appContext) const {
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
         return;
     }
-    DimensionRegistry* dimensionRegistry = modContext->GetDimensionRegistry();
-    if (dimensionRegistry == nullptr)
-    {
+    DimensionRegistry *dimensionRegistry = modContext->GetDimensionRegistry();
+    if (dimensionRegistry == nullptr) {
         return;
     }
     auto dimensionResource = std::make_unique<DimensionResource>(toml::get<DimensionResource>(value));
     dimensionResource->packId = manifest_->id;
     dimensionResource->name.SetSelfPackageId(manifest_->id);
-    for (auto& backLightKeyframe : dimensionResource->backLightKeyframes)
-    {
+    for (auto &backLightKeyframe: dimensionResource->backLightKeyframes) {
         backLightKeyframe.color.SetSelfPackageId(manifest_->id);
     }
-    for (auto& skyLightKeyframe : dimensionResource->skyLightKeyframes)
-    {
+    for (auto &skyLightKeyframe: dimensionResource->skyLightKeyframes) {
         skyLightKeyframe.color.SetSelfPackageId(manifest_->id);
     }
     dimensionRegistry->Register(std::move(dimensionResource));
 }
 
-void glimmer::ResourceFileLoader::LoadComposableItemResourceFromFile(const toml::value& value,
-                                                                     const AppContext* appContext) const
-{
-    const ModContext* modContext = appContext->GetModContext();
-    if (modContext == nullptr)
-    {
+void glimmer::ResourceFileLoader::LoadComposableItemResourceFromFile(const toml::value &value,
+                                                                     const AppContext *appContext) const {
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
         return;
     }
-    ComposableItemRegistry* composableItemRegistry = modContext->GetComposableItemRegistry();
-    if (composableItemRegistry == nullptr)
-    {
+    ComposableItemRegistry *composableItemRegistry = modContext->GetComposableItemRegistry();
+    if (composableItemRegistry == nullptr) {
         return;
     }
     auto itemResource = std::make_unique<ComposableItemResource>(toml::get<ComposableItemResource>(value));
@@ -503,32 +415,26 @@ void glimmer::ResourceFileLoader::LoadComposableItemResourceFromFile(const toml:
     itemResource->pipeline.SetSelfPackageId(manifest_->id);
     itemResource->sampler.SetSelfPackageId(manifest_->id);
     itemResource->lightSource.SetSelfPackageId(manifest_->id);
-    for (auto& tag : itemResource->tags)
-    {
+    for (auto &tag: itemResource->tags) {
         tag.MakeCachedTag();
     }
-    for (auto& defaultAbility : itemResource->defaultAbilityList)
-    {
+    for (auto &defaultAbility: itemResource->defaultAbilityList) {
         defaultAbility.item.SetSelfPackageId(manifest_->id);
-        for (auto& abilityItemRef : defaultAbility.abilityItemRef)
-        {
+        for (auto &abilityItemRef: defaultAbility.abilityItemRef) {
             abilityItemRef.item.SetSelfPackageId(manifest_->id);
         }
     }
     composableItemRegistry->Register(std::move(itemResource));
 }
 
-void glimmer::ResourceFileLoader::LoadAbilityItemResourceFromFile(const toml::value& value,
-                                                                  const AppContext* appContext) const
-{
-    const ModContext* modContext = appContext->GetModContext();
-    if (modContext == nullptr)
-    {
+void glimmer::ResourceFileLoader::LoadAbilityItemResourceFromFile(const toml::value &value,
+                                                                  const AppContext *appContext) const {
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
         return;
     }
-    AbilityItemRegistry* abilityItemRegistry = modContext->GetAbilityItemRegistry();
-    if (abilityItemRegistry == nullptr)
-    {
+    AbilityItemRegistry *abilityItemRegistry = modContext->GetAbilityItemRegistry();
+    if (abilityItemRegistry == nullptr) {
         return;
     }
     auto itemResource = std::make_unique<AbilityItemResource>(toml::get<AbilityItemResource>(value));
@@ -539,24 +445,20 @@ void glimmer::ResourceFileLoader::LoadAbilityItemResourceFromFile(const toml::va
     itemResource->pipeline.SetSelfPackageId(manifest_->id);
     itemResource->sampler.SetSelfPackageId(manifest_->id);
     itemResource->lightSource.SetSelfPackageId(manifest_->id);
-    for (auto& tag : itemResource->tags)
-    {
+    for (auto &tag: itemResource->tags) {
         tag.MakeCachedTag();
     }
     abilityItemRegistry->Register(std::move(itemResource));
 }
 
-void glimmer::ResourceFileLoader::LoadMaterialItemResourceResourceFromFile(const toml::value& value,
-                                                                           const AppContext* appContext) const
-{
-    const ModContext* modContext = appContext->GetModContext();
-    if (modContext == nullptr)
-    {
+void glimmer::ResourceFileLoader::LoadMaterialItemResourceResourceFromFile(const toml::value &value,
+                                                                           const AppContext *appContext) const {
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
         return;
     }
-    MaterialItemRegistry* materialItemRegistry = modContext->GetMaterialItemRegistry();
-    if (materialItemRegistry == nullptr)
-    {
+    MaterialItemRegistry *materialItemRegistry = modContext->GetMaterialItemRegistry();
+    if (materialItemRegistry == nullptr) {
         return;
     }
     auto itemResource = std::make_unique<MaterialItemResource>(toml::get<MaterialItemResource>(value));
@@ -567,24 +469,20 @@ void glimmer::ResourceFileLoader::LoadMaterialItemResourceResourceFromFile(const
     itemResource->pipeline.SetSelfPackageId(manifest_->id);
     itemResource->sampler.SetSelfPackageId(manifest_->id);
     itemResource->lightSource.SetSelfPackageId(manifest_->id);
-    for (auto& tag : itemResource->tags)
-    {
+    for (auto &tag: itemResource->tags) {
         tag.MakeCachedTag();
     }
     materialItemRegistry->Register(std::move(itemResource));
 }
 
-void glimmer::ResourceFileLoader::LoadContributorResourceFromFile(const toml::value& value,
-                                                                  const AppContext* appContext) const
-{
-    const ModContext* modContext = appContext->GetModContext();
-    if (modContext == nullptr)
-    {
+void glimmer::ResourceFileLoader::LoadContributorResourceFromFile(const toml::value &value,
+                                                                  const AppContext *appContext) const {
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
         return;
     }
-    ContributorManager* contributorManager = modContext->GetContributorManager();
-    if (contributorManager == nullptr)
-    {
+    ContributorManager *contributorManager = modContext->GetContributorManager();
+    if (contributorManager == nullptr) {
         return;
     }
     auto contributorResource = std::make_unique<Contributor>(toml::get<Contributor>(value));
@@ -592,17 +490,14 @@ void glimmer::ResourceFileLoader::LoadContributorResourceFromFile(const toml::va
     contributorManager->Register(std::move(contributorResource));
 }
 
-void glimmer::ResourceFileLoader::LoadMobResourceFromFile(const toml::value& value,
-                                                          const AppContext* appContext) const
-{
-    const ModContext* modContext = appContext->GetModContext();
-    if (modContext == nullptr)
-    {
+void glimmer::ResourceFileLoader::LoadMobResourceFromFile(const toml::value &value,
+                                                          const AppContext *appContext) const {
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
         return;
     }
-    MobRegistry* mobRegistry = modContext->GetMobRegistry();
-    if (mobRegistry == nullptr)
-    {
+    MobRegistry *mobRegistry = modContext->GetMobRegistry();
+    if (mobRegistry == nullptr) {
         return;
     }
     auto mobResource = std::make_unique<MobResource>(toml::get<MobResource>(value));
@@ -611,48 +506,40 @@ void glimmer::ResourceFileLoader::LoadMobResourceFromFile(const toml::value& val
     mobResource->texture.SetSelfPackageId(manifest_->id);
     mobResource->pipeline.SetSelfPackageId(manifest_->id);
     mobResource->sampler.SetSelfPackageId(manifest_->id);
-    ItemMessageResource& emptyHandAutoUseItem = mobResource->emptyHandAutoUseItem;
+    ItemMessageResource &emptyHandAutoUseItem = mobResource->emptyHandAutoUseItem;
     emptyHandAutoUseItem.item.SetSelfPackageId(manifest_->id);
-    for (auto& abilityItemRef : emptyHandAutoUseItem.abilityItemRef)
-    {
+    for (auto &abilityItemRef: emptyHandAutoUseItem.abilityItemRef) {
         abilityItemRef.item.SetSelfPackageId(manifest_->id);
     }
     mobRegistry->Register(std::move(mobResource));
 }
 
-void glimmer::ResourceFileLoader::LoadShapeResourceFromFile(const toml::value& value, const AppContext* appContext,
-                                                            ShapeType type) const
-{
-    const ModContext* modContext = appContext->GetModContext();
-    if (modContext == nullptr)
-    {
+void glimmer::ResourceFileLoader::LoadShapeResourceFromFile(const toml::value &value, const AppContext *appContext,
+                                                            ShapeType type) const {
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
         return;
     }
-    ShapeManager* shapeManager = modContext->GetShapeManager();
-    if (shapeManager == nullptr)
-    {
+    ShapeManager *shapeManager = modContext->GetShapeManager();
+    if (shapeManager == nullptr) {
         return;
     }
     std::unique_ptr<IShapeResource> shapeResource;
-    switch (type)
-    {
-    case CIRCLE:
-        {
+    switch (type) {
+        case CIRCLE: {
             shapeResource = std::make_unique<CircularShapeResource>(
                 toml::get<CircularShapeResource>(value));
             shapeResource->shapeType = std::to_underlying(CIRCLE);
             break;
         }
 
-    case RECTANGLE:
-        {
+        case RECTANGLE: {
             shapeResource = std::make_unique<RectangleShapeResource>(
                 toml::get<RectangleShapeResource>(value));
             shapeResource->shapeType = std::to_underlying(RECTANGLE);
             break;
         }
-    case ROUNDED_RECTANGLE:
-        {
+        case ROUNDED_RECTANGLE: {
             shapeResource = std::make_unique<RoundedRectangleShapeResource>(
                 toml::get<RoundedRectangleShapeResource>(value));
             shapeResource->shapeType = std::to_underlying(ROUNDED_RECTANGLE);
@@ -663,17 +550,14 @@ void glimmer::ResourceFileLoader::LoadShapeResourceFromFile(const toml::value& v
     shapeManager->Register(std::move(shapeResource));
 }
 
-void glimmer::ResourceFileLoader::LoadFixedColorResourceFromFile(const toml::value& value,
-                                                                 const AppContext* appContext) const
-{
-    const GraphicsContext* graphicsContext = appContext->GetGraphicsContext();
-    if (graphicsContext == nullptr)
-    {
+void glimmer::ResourceFileLoader::LoadFixedColorResourceFromFile(const toml::value &value,
+                                                                 const AppContext *appContext) const {
+    const GraphicsContext *graphicsContext = appContext->GetGraphicsContext();
+    if (graphicsContext == nullptr) {
         return;
     }
-    FixedColorManager* fixedColorManager = graphicsContext->GetFixedColorManager();
-    if (fixedColorManager == nullptr)
-    {
+    FixedColorManager *fixedColorManager = graphicsContext->GetFixedColorManager();
+    if (fixedColorManager == nullptr) {
         return;
     }
     auto fixedColorResource = std::make_unique<FixedColorResource>(toml::get<FixedColorResource>(value));
@@ -681,17 +565,14 @@ void glimmer::ResourceFileLoader::LoadFixedColorResourceFromFile(const toml::val
     fixedColorManager->Register(std::move(fixedColorResource));
 }
 
-void glimmer::ResourceFileLoader::LoadLightMaskResourceFromFile(const toml::value& value,
-                                                                const AppContext* appContext) const
-{
-    const GraphicsContext* graphicsContext = appContext->GetGraphicsContext();
-    if (graphicsContext == nullptr)
-    {
+void glimmer::ResourceFileLoader::LoadLightMaskResourceFromFile(const toml::value &value,
+                                                                const AppContext *appContext) const {
+    const GraphicsContext *graphicsContext = appContext->GetGraphicsContext();
+    if (graphicsContext == nullptr) {
         return;
     }
-    LightMaskManager* lightMaskManager = graphicsContext->GetLightMaskManager();
-    if (lightMaskManager == nullptr)
-    {
+    LightMaskManager *lightMaskManager = graphicsContext->GetLightMaskManager();
+    if (lightMaskManager == nullptr) {
         return;
     }
     auto lightMaskResource = std::make_unique<LightMaskResource>(toml::get<LightMaskResource>(value));
@@ -700,47 +581,38 @@ void glimmer::ResourceFileLoader::LoadLightMaskResourceFromFile(const toml::valu
     lightMaskManager->Register(std::move(lightMaskResource));
 }
 
-void glimmer::ResourceFileLoader::LoadLightSourceResourceFromFile(const toml::value& value,
-                                                                  const AppContext* appContext) const
-{
-    const GraphicsContext* graphicsContext = appContext->GetGraphicsContext();
-    if (graphicsContext == nullptr)
-    {
+void glimmer::ResourceFileLoader::LoadLightSourceResourceFromFile(const toml::value &value,
+                                                                  const AppContext *appContext) const {
+    const GraphicsContext *graphicsContext = appContext->GetGraphicsContext();
+    if (graphicsContext == nullptr) {
         return;
     }
-    LightSourceManager* lightSourceManager = graphicsContext->GetLightSourceManager();
-    if (lightSourceManager == nullptr)
-    {
+    LightSourceManager *lightSourceManager = graphicsContext->GetLightSourceManager();
+    if (lightSourceManager == nullptr) {
         return;
     }
     auto lightSourceResource = std::make_unique<LightSourceResource>(toml::get<LightSourceResource>(value));
     lightSourceResource->packId = manifest_->id;
     lightSourceResource->lightColor.SetSelfPackageId(manifest_->id);
-    if (lightSourceResource->lightRadius > CHUNK_SIZE)
-    {
+    if (lightSourceResource->lightRadius > CHUNK_SIZE) {
         lightSourceResource->lightRadius = CHUNK_SIZE;
     }
     lightSourceManager->Register(std::move(lightSourceResource));
 }
 
-void glimmer::ResourceFileLoader::LoadBiomeDecoratorResourceFromFile(const toml::value& value,
-                                                                     const AppContext* appContext,
-                                                                     const BiomeDecoratorType type) const
-{
-    const ModContext* modContext = appContext->GetModContext();
-    if (modContext == nullptr)
-    {
+void glimmer::ResourceFileLoader::LoadBiomeDecoratorResourceFromFile(const toml::value &value,
+                                                                     const AppContext *appContext,
+                                                                     const BiomeDecoratorType type) const {
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
         return;
     }
-    BiomeDecoratorRegistry* biomeDecoratorRegistry = modContext->GetBiomeDecoratorRegistry();
-    if (biomeDecoratorRegistry == nullptr)
-    {
+    BiomeDecoratorRegistry *biomeDecoratorRegistry = modContext->GetBiomeDecoratorRegistry();
+    if (biomeDecoratorRegistry == nullptr) {
         return;
     }
-    switch (type)
-    {
-    case FILL:
-        {
+    switch (type) {
+        case FILL: {
             auto fillResource = std::make_unique<FillBiomeDecoratorResource>(
                 toml::get<FillBiomeDecoratorResource>(value));
             fillResource->packId = manifest_->id;
@@ -749,8 +621,7 @@ void glimmer::ResourceFileLoader::LoadBiomeDecoratorResourceFromFile(const toml:
             biomeDecoratorRegistry->Register(std::move(fillResource));
             break;
         }
-    case MINERAL:
-        {
+        case MINERAL: {
             auto mineralBiomeDecoratorResource = std::make_unique<MineralBiomeDecoratorResource>(
                 toml::get<MineralBiomeDecoratorResource>(value));
             mineralBiomeDecoratorResource->packId = manifest_->id;
@@ -759,8 +630,7 @@ void glimmer::ResourceFileLoader::LoadBiomeDecoratorResourceFromFile(const toml:
             biomeDecoratorRegistry->Register(std::move(mineralBiomeDecoratorResource));
             break;
         }
-    case SURFACE:
-        {
+        case SURFACE: {
             auto surfaceBiomeDecoratorResource = std::make_unique<SurfaceBiomeDecoratorResource>(
                 toml::get<SurfaceBiomeDecoratorResource>(value));
             surfaceBiomeDecoratorResource->packId = manifest_->id;
@@ -774,39 +644,32 @@ void glimmer::ResourceFileLoader::LoadBiomeDecoratorResourceFromFile(const toml:
 }
 
 void glimmer::ResourceFileLoader::LoadStructurePlacementConditionsResourceFromFile(
-    const toml::value& value, const AppContext* appContext,
-    StructureConditionProcessorType processorType) const
-{
-    const ModContext* modContext = appContext->GetModContext();
-    if (modContext == nullptr)
-    {
+    const toml::value &value, const AppContext *appContext,
+    StructureConditionProcessorType processorType) const {
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
         return;
     }
-    StructurePlacementConditionsRegistry* structurePlacementConditionsRegistry =
-        modContext->GetStructurePlacementConditionsRegistry();
-    if (structurePlacementConditionsRegistry == nullptr)
-    {
+    StructurePlacementConditionsRegistry *structurePlacementConditionsRegistry =
+            modContext->GetStructurePlacementConditionsRegistry();
+    if (structurePlacementConditionsRegistry == nullptr) {
         return;
     }
-    switch (processorType)
-    {
-    case StructureConditionProcessorType::Biome:
-        {
+    switch (processorType) {
+        case StructureConditionProcessorType::Biome: {
             auto biomeStructurePlacementConditionsResource = std::make_unique<
                 BiomeStructurePlacementConditionsResource>(
                 toml::get<BiomeStructurePlacementConditionsResource>(value));
             biomeStructurePlacementConditionsResource->packId = manifest_->id;
             biomeStructurePlacementConditionsResource->processorId = std::to_underlying(processorType);
-            for (auto& targetBiome : biomeStructurePlacementConditionsResource->targetBiomes)
-            {
+            for (auto &targetBiome: biomeStructurePlacementConditionsResource->targetBiomes) {
                 targetBiome.SetSelfPackageId(manifest_->id);
             }
             biomeStructurePlacementConditionsResource->RefreshCache();
             structurePlacementConditionsRegistry->Register(std::move(biomeStructurePlacementConditionsResource));
             break;
         }
-    case StructureConditionProcessorType::None:
-        {
+        case StructureConditionProcessorType::None: {
             auto noneStructurePlacementConditionsResource = std::make_unique<
                 NoneStructurePlacementConditionsResource>(
                 toml::get<NoneStructurePlacementConditionsResource>(value));
@@ -815,8 +678,7 @@ void glimmer::ResourceFileLoader::LoadStructurePlacementConditionsResourceFromFi
             structurePlacementConditionsRegistry->Register(std::move(noneStructurePlacementConditionsResource));
             break;
         }
-    case StructureConditionProcessorType::Height:
-        {
+        case StructureConditionProcessorType::Height: {
             auto heightStructureConditionsResource = std::make_unique<HeightStructureConditionsResource>(
                 toml::get<HeightStructureConditionsResource>(value));
             heightStructureConditionsResource->packId = manifest_->id;
@@ -824,8 +686,7 @@ void glimmer::ResourceFileLoader::LoadStructurePlacementConditionsResourceFromFi
             structurePlacementConditionsRegistry->Register(std::move(heightStructureConditionsResource));
             break;
         }
-    case StructureConditionProcessorType::Spacing:
-        {
+        case StructureConditionProcessorType::Spacing: {
             auto spacingStructureConditionsResource = std::make_unique<
                 SpacingStructureConditionsResource>(
                 toml::get<SpacingStructureConditionsResource>(value));
@@ -835,8 +696,7 @@ void glimmer::ResourceFileLoader::LoadStructurePlacementConditionsResourceFromFi
                 std::move(spacingStructureConditionsResource));
             break;
         }
-    case StructureConditionProcessorType::Surface:
-        {
+        case StructureConditionProcessorType::Surface: {
             auto surfaceStructurePlacementConditionsResource = std::make_unique<
                 SurfaceStructurePlacementConditionsResource>(
                 toml::get<SurfaceStructurePlacementConditionsResource>(value));
@@ -850,23 +710,18 @@ void glimmer::ResourceFileLoader::LoadStructurePlacementConditionsResourceFromFi
 }
 
 void glimmer::ResourceFileLoader::LoadGrowthConditionsResourceFromFile(
-    const toml::value& value, const AppContext* appContext,
-    GrowthConditionProcessorType processorType) const
-{
-    const ModContext* modContext = appContext->GetModContext();
-    if (modContext == nullptr)
-    {
+    const toml::value &value, const AppContext *appContext,
+    GrowthConditionProcessorType processorType) const {
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
         return;
     }
-    GrowthConditionsRegistry* growthConditionsRegistry = modContext->GetGrowthConditionsRegistry();
-    if (growthConditionsRegistry == nullptr)
-    {
+    GrowthConditionsRegistry *growthConditionsRegistry = modContext->GetGrowthConditionsRegistry();
+    if (growthConditionsRegistry == nullptr) {
         return;
     }
-    switch (processorType)
-    {
-    case GrowthConditionProcessorType::None:
-        {
+    switch (processorType) {
+        case GrowthConditionProcessorType::None: {
             auto noneGrowthConditionResource = std::make_unique<NoneGrowthConditionResource>(
                 toml::get<NoneGrowthConditionResource>(value));
             noneGrowthConditionResource->packId = manifest_->id;
@@ -874,8 +729,7 @@ void glimmer::ResourceFileLoader::LoadGrowthConditionsResourceFromFile(
             growthConditionsRegistry->Register(std::move(noneGrowthConditionResource));
             break;
         }
-    case GrowthConditionProcessorType::Light:
-        {
+        case GrowthConditionProcessorType::Light: {
             auto lightGrowthConditionResource = std::make_unique<LightGrowthConditionResource>(
                 toml::get<LightGrowthConditionResource>(value));
             lightGrowthConditionResource->packId = manifest_->id;
@@ -883,22 +737,19 @@ void glimmer::ResourceFileLoader::LoadGrowthConditionsResourceFromFile(
             growthConditionsRegistry->Register(std::move(lightGrowthConditionResource));
             break;
         }
-    case GrowthConditionProcessorType::Biome:
-        {
+        case GrowthConditionProcessorType::Biome: {
             auto biomeGrowthConditionResource = std::make_unique<BiomeGrowthConditionResource>(
                 toml::get<BiomeGrowthConditionResource>(value));
             biomeGrowthConditionResource->packId = manifest_->id;
             biomeGrowthConditionResource->processorId = std::to_underlying(processorType);
-            for (auto& targetBiome : biomeGrowthConditionResource->targetBiomes)
-            {
+            for (auto &targetBiome: biomeGrowthConditionResource->targetBiomes) {
                 targetBiome.SetSelfPackageId(manifest_->id);
             }
             biomeGrowthConditionResource->RefreshCache();
             growthConditionsRegistry->Register(std::move(biomeGrowthConditionResource));
             break;
         }
-    case GrowthConditionProcessorType::AdjacentTile:
-        {
+        case GrowthConditionProcessorType::AdjacentTile: {
             auto adjacentTileGrowthConditionResource = std::make_unique<AdjacentTileGrowthConditionResource>(
                 toml::get<AdjacentTileGrowthConditionResource>(value));
             adjacentTileGrowthConditionResource->packId = manifest_->id;
@@ -907,8 +758,7 @@ void glimmer::ResourceFileLoader::LoadGrowthConditionsResourceFromFile(
             growthConditionsRegistry->Register(std::move(adjacentTileGrowthConditionResource));
             break;
         }
-    case GrowthConditionProcessorType::Height:
-        {
+        case GrowthConditionProcessorType::Height: {
             auto heightGrowthConditionResource = std::make_unique<HeightGrowthConditionResource>(
                 toml::get<HeightGrowthConditionResource>(value));
             heightGrowthConditionResource->packId = manifest_->id;
@@ -916,8 +766,7 @@ void glimmer::ResourceFileLoader::LoadGrowthConditionsResourceFromFile(
             growthConditionsRegistry->Register(std::move(heightGrowthConditionResource));
             break;
         }
-    case GrowthConditionProcessorType::Time:
-        {
+        case GrowthConditionProcessorType::Time: {
             auto timeGrowthConditionResource = std::make_unique<TimeGrowthConditionResource>(
                 toml::get<TimeGrowthConditionResource>(value));
             timeGrowthConditionResource->packId = manifest_->id;
@@ -928,42 +777,35 @@ void glimmer::ResourceFileLoader::LoadGrowthConditionsResourceFromFile(
     }
 }
 
-void glimmer::ResourceFileLoader::LoadRecipeResourceFromFile(const toml::value& value,
-                                                             const AppContext* appContext) const
-{
-    const ModContext* modContext = appContext->GetModContext();
-    if (modContext == nullptr)
-    {
+void glimmer::ResourceFileLoader::LoadRecipeResourceFromFile(const toml::value &value,
+                                                             const AppContext *appContext) const {
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
         return;
     }
-    RecipeManager* recipeManager = modContext->GetRecipeManager();
-    if (recipeManager == nullptr)
-    {
+    RecipeManager *recipeManager = modContext->GetRecipeManager();
+    if (recipeManager == nullptr) {
         return;
     }
     auto recipeResource = std::make_unique<RecipeResource>(toml::get<RecipeResource>(value));
     recipeResource->packId = manifest_->id;
-    ItemMessageResource& output = recipeResource->output;
+    ItemMessageResource &output = recipeResource->output;
     output.item.SetSelfPackageId(manifest_->id);
-    for (auto& abilityItemRef : output.abilityItemRef)
-    {
+    for (auto &abilityItemRef: output.abilityItemRef) {
         abilityItemRef.item.SetSelfPackageId(manifest_->id);
     }
-    for (auto& input : recipeResource->input)
-    {
+    for (auto &input: recipeResource->input) {
         input.MakeCachedTag();
     }
     recipeManager->RegisterRecipe(std::move(recipeResource));
 }
 
-int glimmer::ResourceFileLoader::LoadLanguageFiles(const std::vector<std::filesystem::path>& defaultLanguageFiles,
-                                                   const std::vector<std::filesystem::path>& targetLanguageFiles,
-                                                   const ModContext* modContext) const
-{
+int glimmer::ResourceFileLoader::LoadLanguageFiles(const std::vector<std::filesystem::path> &defaultLanguageFiles,
+                                                   const std::vector<std::filesystem::path> &targetLanguageFiles,
+                                                   const ModContext *modContext) const {
     int total = 0;
-    const auto& filesToLoad = targetLanguageFiles.empty() ? defaultLanguageFiles : targetLanguageFiles;
-    for (const auto& file : filesToLoad)
-    {
+    const auto &filesToLoad = targetLanguageFiles.empty() ? defaultLanguageFiles : targetLanguageFiles;
+    for (const auto &file: filesToLoad) {
         total += LoadStringResourceFromFile(file, modContext->GetStringManager());
     }
     LogCat::d(LogLabel::DEFAULT, "resource_file_loader_language_files_loaded",
@@ -972,38 +814,51 @@ int glimmer::ResourceFileLoader::LoadLanguageFiles(const std::vector<std::filesy
     return total;
 }
 
-int glimmer::ResourceFileLoader::LoadResourceByType(const std::string& dataType, const std::string& file,
-                                                    const std::string& content, const AppContext* appContext) const
-{
+void glimmer::ResourceFileLoader::SetDataPackManifest(const DataPackManifest *manifest) {
+    manifest_ = manifest;
+}
+
+void glimmer::ResourceFileLoader::SetRootPath(const std::filesystem::path &rootPath) {
+    rootPath_ = rootPath;
+}
+
+void glimmer::ResourceFileLoader::SetVirtualFileSystem(const VirtualFileSystem *virtualFileSystem) {
+    virtualFileSystem_ = virtualFileSystem;
+}
+
+void glimmer::ResourceFileLoader::SetTomlTemplateExpander(const TomlTemplateExpander *tomlTemplateExpander) {
+    tomlTemplateExpander_ = tomlTemplateExpander;
+}
+
+const glimmer::VirtualFileSystem *glimmer::ResourceFileLoader::GetVirtualFileSystem() const {
+    return virtualFileSystem_;
+}
+
+
+int glimmer::ResourceFileLoader::LoadResourceByType(const std::string &dataType, const std::string &file,
+                                                    const std::string &content, const AppContext *appContext) const {
     const std::vector<std::filesystem::path> searchPath = GetActuallyTemplateSearchPath(file);
-    if (dataType == DATA_FILE_TYPE_TEMPLATE)
-    {
+    if (dataType == DATA_FILE_TYPE_TEMPLATE) {
         return 1;
     }
     std::string data = tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_);
-    try
-    {
+    try {
         std::istringstream dataStream(data);
-        const toml::value value = toml::parse(dataStream, file, tomlVersion_);
+        const toml::value value = toml::parse(dataStream, file, TOML_VERSION);
 
         const auto it = handlerMap_.find(dataType);
-        if (it == handlerMap_.end())
-        {
+        if (it == handlerMap_.end()) {
             LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "resource_file_loader_unknown_type",
                       "Unknown resource file type: {}, file: {}", dataType, file);
             return 0;
         }
         it->second(value, appContext);
-    }
-    catch (const toml::type_error& e)
-    {
-        const toml::source_location& location = e.location();
+    } catch (const toml::type_error &e) {
+        const toml::source_location &location = e.location();
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "resource_file_load_failure_at_line",
                   "Failed to load resource file: {}, at line {}: {}", file,
                   location.first_line_number(), e.what());
-    }
-    catch (const std::exception& e)
-    {
+    } catch (const std::exception &e) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "resource_file_load_failure",
                   "Failed to load resource file: {}, error: {}", file, e.what());
     }

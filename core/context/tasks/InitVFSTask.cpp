@@ -26,6 +26,7 @@
  */
 #include "InitVFSTask.h"
 
+#include "core/config/Constants.h"
 #include "core/context/ISystemBucket.h"
 #include "core/log/LogCat.h"
 #include "core/vfs/StdFileProvider.h"
@@ -86,8 +87,8 @@ bool glimmer::InitVFSTask::Run(ISystemBucket* systemBucket)
                   "assetManager is nullptr");
         return;
     }
-    const toml::tomlValue tomlValue = toml::parse_str(indexTomlOptional.tomlValue(), tomlVersion_);
-    auto assetsEntry = toml::get<std::vector<AndroidAssetEntry>>(tomltomlValue);
+    const toml::tomlValue tomlValue = toml::parse_str(indexTomlOptional.tomlValue(), TOML_VERSION);
+    auto assetsEntry = toml::get<std::vector<AndroidAssetEntry>>(tomlValue);
     assetsProvider->SetAssetEntryData(assetsEntry);
     jmethodID getDataDirMethod = env->GetMethodID(activityClass, "getFilesDir", "()Ljava/io/File;");
     if (getDataDirMethod == nullptr)

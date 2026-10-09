@@ -33,24 +33,21 @@
 #include "toml11/parser.hpp"
 
 
-glimmer::ResourcePack::ResourcePack(std::filesystem::path path, const VirtualFileSystem* virtualFileSystem,
-                                    const toml::spec& tomlVersion) : path_(std::move(path)),
-                                                                     virtualFileSystem_(virtualFileSystem), manifest_(),
-                                                                     tomlVersion_(tomlVersion)
-{
+glimmer::ResourcePack::ResourcePack(std::filesystem::path path,
+                                    const VirtualFileSystem *virtualFileSystem) : path_(std::move(path)),
+    virtualFileSystem_(virtualFileSystem),
+    manifest_() {
 }
 
-bool glimmer::ResourcePack::LoadManifest()
-{
+bool glimmer::ResourcePack::LoadManifest() {
     const auto contentOptional = virtualFileSystem_->ReadFileAsString(path_ / MANIFEST_FILE_NAME);
-    if (!contentOptional.has_value())
-    {
+    if (!contentOptional.has_value()) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "resource_pack_manifest_read_failed",
                   "Failed to read resource pack manifest file: {}", (path_ / MANIFEST_FILE_NAME).string());
         return false;
     }
     const toml::value value = toml::parse_str(contentOptional.value(),
-                                              tomlVersion_);
+                                              TOML_VERSION);
     manifest_ = toml::get<ResourcePackManifest>(value);
     manifest_.name.SetSelfPackageId(manifest_.id);
     manifest_.description.SetSelfPackageId(manifest_.id);
@@ -60,18 +57,15 @@ bool glimmer::ResourcePack::LoadManifest()
     return true;
 }
 
-const glimmer::ResourcePackManifest* glimmer::ResourcePack::GetManifest() const
-{
+const glimmer::ResourcePackManifest *glimmer::ResourcePack::GetManifest() const {
     return &manifest_;
 }
 
 
-uint64_t glimmer::ResourcePack::GetUniqueId() const
-{
+uint64_t glimmer::ResourcePack::GetUniqueId() const {
     return StringUtils::StringToUint64(manifest_.id);
 }
 
-const std::filesystem::path& glimmer::ResourcePack::GetPath() const
-{
+const std::filesystem::path &glimmer::ResourcePack::GetPath() const {
     return path_;
 }

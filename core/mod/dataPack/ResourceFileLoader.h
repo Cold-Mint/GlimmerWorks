@@ -36,11 +36,9 @@
 #include "core/world/growth/GrowthConditionProcessorType.h"
 #include "core/world/structure/StructureConditionProcessorType.h"
 #include "core/world/structure/StructureGeneratorType.h"
-#include "toml11/spec.hpp"
 #include "toml11/types.hpp"
 
-namespace glimmer
-{
+namespace glimmer {
     class AppContext;
     class StructureGeneratorManager;
     class VirtualFileSystem;
@@ -74,21 +72,19 @@ namespace glimmer
      * through a handler registry (Factory Method + Strategy).
      * 从解析后的 TOML 值加载各类数据包资源，通过处理器注册表（工厂方法 + 策略）按数据类型分发。
      */
-    class ResourceFileLoader
-    {
+    class ResourceFileLoader {
         /**
-   * LoadHandler
-   * 资源加载处理器
-   * A handler receives the parsed TOML value and the contexts used to locate target managers.
-   * 处理器接收解析后的 TOML 值以及用于定位目标管理器的上下文。
-   */
-        using LoadHandler = std::function<void(const toml::value &, const AppContext * appContext)>;
+        * LoadHandler
+        * 资源加载处理器
+        * A handler receives the parsed TOML value and the contexts used to locate target managers.
+        * 处理器接收解析后的 TOML 值以及用于定位目标管理器的上下文。
+        */
+        using LoadHandler = std::function<void(const toml::value &, const AppContext *appContext)>;
         std::unordered_map<std::string, LoadHandler> handlerMap_;
         std::filesystem::path rootPath_;
-        toml::spec tomlVersion_;
-        const DataPackManifest* manifest_;
-        const VirtualFileSystem* virtualFileSystem_;
-        const TomlTemplateExpander* tomlTemplateExpander_;
+        const DataPackManifest *manifest_ = nullptr;
+        const VirtualFileSystem *virtualFileSystem_ = nullptr;
+        const TomlTemplateExpander *tomlTemplateExpander_ = nullptr;
 
 
         /**
@@ -98,52 +94,52 @@ namespace glimmer
          * @return The expanded search paths 展开后的搜索路径
          */
         [[nodiscard]] std::vector<std::filesystem::path> GetActuallyTemplateSearchPath(
-            const std::filesystem::path& path) const;
+            const std::filesystem::path &path) const;
 
-        int LoadStringResourceFromFile(const std::filesystem::path& path, StringManager* stringManager) const;
+        int LoadStringResourceFromFile(const std::filesystem::path &path, StringManager *stringManager) const;
 
-        void LoadLootTableResourceFromFile(const toml::value& value, const AppContext* appContext) const;
+        void LoadLootTableResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 
-        void LoadInitialInventoryResourceFromFile(const toml::value& value, const AppContext* appContext) const;
+        void LoadInitialInventoryResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 
-        void LoadStructureResourceFromFile(const toml::value& value, const AppContext* appContext,
+        void LoadStructureResourceFromFile(const toml::value &value, const AppContext *appContext,
                                            StructureGeneratorType structureGeneratorType) const;
 
-        void LoadTileResourceFromFile(const toml::value& value, const AppContext* appContext) const;
+        void LoadTileResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 
-        void LoadBiomeResourceFromFile(const toml::value& value, const AppContext* appContext) const;
+        void LoadBiomeResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 
-        void LoadDimensionResourceFromFile(const toml::value& value, const AppContext* appContext) const;
+        void LoadDimensionResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 
-        void LoadComposableItemResourceFromFile(const toml::value& value, const AppContext* appContext) const;
+        void LoadComposableItemResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 
-        void LoadAbilityItemResourceFromFile(const toml::value& value, const AppContext* appContext) const;
+        void LoadAbilityItemResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 
-        void LoadMaterialItemResourceResourceFromFile(const toml::value& value, const AppContext* appContext) const;
+        void LoadMaterialItemResourceResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 
-        void LoadContributorResourceFromFile(const toml::value& value, const AppContext* appContext) const;
+        void LoadContributorResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 
-        void LoadMobResourceFromFile(const toml::value& value, const AppContext* appContext) const;
+        void LoadMobResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 
-        void LoadShapeResourceFromFile(const toml::value& value, const AppContext* appContext, ShapeType type) const;
+        void LoadShapeResourceFromFile(const toml::value &value, const AppContext *appContext, ShapeType type) const;
 
-        void LoadFixedColorResourceFromFile(const toml::value& value, const AppContext* appContext) const;
+        void LoadFixedColorResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 
-        void LoadLightMaskResourceFromFile(const toml::value& value, const AppContext* appContext) const;
+        void LoadLightMaskResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 
-        void LoadLightSourceResourceFromFile(const toml::value& value, const AppContext* appContext) const;
+        void LoadLightSourceResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 
-        void LoadBiomeDecoratorResourceFromFile(const toml::value& value, const AppContext* appContext,
+        void LoadBiomeDecoratorResourceFromFile(const toml::value &value, const AppContext *appContext,
                                                 BiomeDecoratorType type) const;
 
-        void LoadStructurePlacementConditionsResourceFromFile(const toml::value& value,
-                                                              const AppContext* appContext,
+        void LoadStructurePlacementConditionsResourceFromFile(const toml::value &value,
+                                                              const AppContext *appContext,
                                                               StructureConditionProcessorType processorType) const;
 
-        void LoadGrowthConditionsResourceFromFile(const toml::value& value, const AppContext* appContext,
+        void LoadGrowthConditionsResourceFromFile(const toml::value &value, const AppContext *appContext,
                                                   GrowthConditionProcessorType processorType) const;
 
-        void LoadRecipeResourceFromFile(const toml::value& value, const AppContext* appContext) const;
+        void LoadRecipeResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 
         /**
          * RegisterHandlers
@@ -152,18 +148,7 @@ namespace glimmer
         void RegisterHandlers();
 
     public:
-        /**
-         * ResourceFileLoader
-         * 资源文件加载器构造
-         * @param rootPath rootPath 数据包根路径
-         * @param manifest manifest 数据包清单
-         * @param virtualFileSystem virtualFileSystem 虚拟文件系统
-         * @param tomlTemplateExpander tomlTemplateExpander TOML 模板展开器
-         * @param tomlVersion tomlVersion TOML 版本
-         */
-        ResourceFileLoader(std::filesystem::path rootPath, const DataPackManifest* manifest,
-                           const VirtualFileSystem* virtualFileSystem,
-                           const TomlTemplateExpander* tomlTemplateExpander, const toml::spec& tomlVersion);
+        ResourceFileLoader();
 
         /**
          * LoadLanguageFiles
@@ -173,9 +158,44 @@ namespace glimmer
          * @param modContext modContext 模组上下文
          * @return The number of loaded strings 加载的字符串数量
          */
-        int LoadLanguageFiles(const std::vector<std::filesystem::path>& defaultLanguageFiles,
-                              const std::vector<std::filesystem::path>& targetLanguageFiles,
-                              const ModContext* modContext) const;
+        int LoadLanguageFiles(const std::vector<std::filesystem::path> &defaultLanguageFiles,
+                              const std::vector<std::filesystem::path> &targetLanguageFiles,
+                              const ModContext *modContext) const;
+
+        /**
+         * SetDataPackManifest
+         * 设置数据包清单
+         * @param manifest
+         */
+        void SetDataPackManifest(const DataPackManifest *manifest);
+
+        /**
+         * SetRootPath
+         * 设置Root路径
+         * @param rootPath
+         */
+        void SetRootPath(const std::filesystem::path &rootPath);
+
+        /**
+         * SetVirtualFileSystem
+         * 设置虚拟文件系统
+         * @param virtualFileSystem
+         */
+        void SetVirtualFileSystem(const VirtualFileSystem *virtualFileSystem);
+
+        /**
+         * SetTomlTemplateExpander
+         * 设置Toml模板解释器
+         * @param tomlTemplateExpander
+         */
+        void SetTomlTemplateExpander(const TomlTemplateExpander *tomlTemplateExpander);
+
+        /**
+         * GetVirtualFileSystem
+         * 获取虚拟文件系统
+         * @return
+         */
+        [[nodiscard]] const VirtualFileSystem *GetVirtualFileSystem() const;
 
         /**
          * LoadResourceByType
@@ -186,7 +206,7 @@ namespace glimmer
          * @param appContext appContext 应用上下文
          * @return 1 if loaded, 0 otherwise 加载成功返回1，否则返回0
          */
-        int LoadResourceByType(const std::string& dataType, const std::string& file,
-                               const std::string& content, const AppContext* appContext) const;
+        int LoadResourceByType(const std::string &dataType, const std::string &file,
+                               const std::string &content, const AppContext *appContext) const;
     };
 }

@@ -56,7 +56,7 @@ std::unique_ptr<glimmer::ResourcePack> glimmer::ResourcePackManager::LoadPack(co
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "vfs_is_null", "virtualFileSystem == nullptr");
         return nullptr;
     }
-    auto resourcePack = std::make_unique<ResourcePack>(path, virtualFileSystem, TOML_VERSION);
+    auto resourcePack = std::make_unique<ResourcePack>(path, virtualFileSystem);
     if (!resourcePack->LoadManifest())
     {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "resource_pack_manifest_load_failed",

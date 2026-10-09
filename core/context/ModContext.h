@@ -60,6 +60,7 @@ namespace glimmer
 
     class ModContext
     {
+        std::unique_ptr<ResourceFileLoader> resourceFileLoader_;
         std::unique_ptr<DataPackManager> dataPackManager_;
         std::unique_ptr<StringManager> stringManager_;
         std::unique_ptr<TileResourceManager> tileResourceManager_;
@@ -90,6 +91,8 @@ namespace glimmer
         ~ModContext();
 
         void Init(VirtualFileSystem* vfs, const LangsResources* langsResources);
+
+        [[nodiscard]] ResourceFileLoader* GetResourceFileLoader() const;
 
         [[nodiscard]] DataPackManager* GetDataPackManager() const;
 

@@ -33,35 +33,29 @@
 #include "core/utils/TomlUtils.h"
 #include "toml11/parser.hpp"
 
-bool glimmer::ResourceRef::operator==(const ResourceRef& other) const
-{
+bool glimmer::ResourceRef::operator==(const ResourceRef &other) const {
     return packId_ == other.packId_
-        && resourceKey_ == other.resourceKey_
-        && resourceType_ == other.resourceType_;
+           && resourceKey_ == other.resourceKey_
+           && resourceType_ == other.resourceType_;
 }
 
-void glimmer::ResourceRef::SetSelfPackageId(std::string_view selfPackageId)
-{
-    if (packId_ == RESOURCE_REF_SELF)
-    {
+void glimmer::ResourceRef::SetSelfPackageId(std::string_view selfPackageId) {
+    if (packId_ == RESOURCE_REF_SELF) {
         packId_ = selfPackageId;
     }
     selfPackageId_ = selfPackageId;
     bindPackage_ = true;
 }
 
-const std::string& glimmer::ResourceRef::GetSelfPackageId() const
-{
+const std::string &glimmer::ResourceRef::GetSelfPackageId() const {
     return selfPackageId_;
 }
 
-void glimmer::ResourceRef::SetPackageId(std::string_view packId)
-{
+void glimmer::ResourceRef::SetPackageId(std::string_view packId) {
     packId_ = packId;
 }
 
-void glimmer::ResourceRef::ReadResourceRefMessage(const ResourceRefMessage& resourceRefMessage)
-{
+void glimmer::ResourceRef::ReadResourceRefMessage(const ResourceRefMessage &resourceRefMessage) {
     packId_ = resourceRefMessage.packid();
     resourceType_ = resourceRefMessage.resourcetype();
     resourceKey_ = resourceRefMessage.resourcekey();
@@ -69,8 +63,7 @@ void glimmer::ResourceRef::ReadResourceRefMessage(const ResourceRefMessage& reso
     bindPackage_ = true;
 }
 
-void glimmer::ResourceRef::WriteResourceRefMessage(ResourceRefMessage& resourceRefMessage) const
-{
+void glimmer::ResourceRef::WriteResourceRefMessage(ResourceRefMessage &resourceRefMessage) const {
     resourceRefMessage.set_packid(packId_);
     resourceRefMessage.set_resourcetype(resourceType_);
     resourceRefMessage.set_resourcekey(resourceKey_);
@@ -78,26 +71,22 @@ void glimmer::ResourceRef::WriteResourceRefMessage(ResourceRefMessage& resourceR
 }
 
 std::optional<glimmer::ResourceRef> glimmer::ResourceRef::ParseFromId(std::string_view id,
-                                                                      const ResourceTypeMessage resourceType)
-{
+                                                                      const ResourceTypeMessage resourceType) {
     auto pos = id.find(':');
-    if (pos == std::string::npos)
-    {
+    if (pos == std::string::npos) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "resource_ref_parse_failed",
                   "Failed to parse resource ref '{}': missing ':' separator", id);
         return std::nullopt;
     }
     ResourceRef ref;
     ref.SetSelfPackageId(id.substr(0, pos));
-    if (ref.GetPackageId().empty())
-    {
+    if (ref.GetPackageId().empty()) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "resource_ref_parse_failed",
                   "Failed to parse resource ref '{}': empty package id", id);
         return std::nullopt;
     }
     ref.SetResourceKey(id.substr(pos + 1));
-    if (ref.GetResourceKey().empty())
-    {
+    if (ref.GetResourceKey().empty()) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "resource_ref_parse_failed",
                   "Failed to parse resource ref '{}': empty resource key", id);
         return std::nullopt;
@@ -106,8 +95,7 @@ std::optional<glimmer::ResourceRef> glimmer::ResourceRef::ParseFromId(std::strin
     return ref;
 }
 
-void glimmer::ResourceRef::ReadResource(const Resource& resource, const ResourceTypeMessage resourceType)
-{
+void glimmer::ResourceRef::ReadResource(const Resource &resource, const ResourceTypeMessage resourceType) {
     packId_ = resource.packId;
     resourceKey_ = resource.resourceId;
     selfPackageId_ = resource.packId;
@@ -115,10 +103,8 @@ void glimmer::ResourceRef::ReadResource(const Resource& resource, const Resource
     bindPackage_ = true;
 }
 
-std::string glimmer::ResourceRef::GetPackageId() const
-{
-    if (!bindPackage_)
-    {
+std::string glimmer::ResourceRef::GetPackageId() const {
+    if (!bindPackage_) {
 #if  !defined(NDEBUG)
         assert(false);
 #endif
@@ -126,35 +112,29 @@ std::string glimmer::ResourceRef::GetPackageId() const
     return packId_;
 }
 
-void glimmer::ResourceRef::SetResourceType(const ResourceTypeMessage resourceType)
-{
+void glimmer::ResourceRef::SetResourceType(const ResourceTypeMessage resourceType) {
     resourceType_ = resourceType;
 }
 
-ResourceTypeMessage glimmer::ResourceRef::GetResourceType() const
-{
+ResourceTypeMessage glimmer::ResourceRef::GetResourceType() const {
     return resourceType_;
 }
 
 
-void glimmer::ResourceRef::SetResourceKey(const std::string_view resourceKey)
-{
+void glimmer::ResourceRef::SetResourceKey(const std::string_view resourceKey) {
     resourceKey_ = resourceKey;
 }
 
-bool glimmer::ResourceRef::IsValid() const
-{
+bool glimmer::ResourceRef::IsValid() const {
     return resourceType_ != RESOURCE_NONE;
 }
 
-uint64_t glimmer::ResourceRef::GetFingerprint() const
-{
+uint64_t glimmer::ResourceRef::GetFingerprint() const {
     return (static_cast<uint64_t>(resourceType_) & 0x1FULL) << 59
-        | (std::hash<std::string>{}(packId_) & 0x1FFFFFFFULL) << 30
-        | std::hash<std::string>{}(resourceKey_) & 0x3FFFFFFFULL;
+           | (std::hash<std::string>{}(packId_) & 0x1FFFFFFFULL) << 30
+           | std::hash<std::string>{}(resourceKey_) & 0x3FFFFFFFULL;
 }
 
-std::string glimmer::ResourceRef::GetResourceKey() const
-{
+std::string glimmer::ResourceRef::GetResourceKey() const {
     return resourceKey_;
 }

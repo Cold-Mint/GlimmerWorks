@@ -36,59 +36,45 @@
 #include "core/world/WorldContext.h"
 
 glimmer::GrowthConditionProcessorType
-glimmer::LightGrowthConditionProcessor::GetGrowthConditionProcessorType()
-{
+glimmer::LightGrowthConditionProcessor::GetGrowthConditionProcessorType() {
     return GrowthConditionProcessorType::Light;
 }
 
-bool glimmer::LightGrowthConditionProcessor::Match(const WorldContext* worldContext, const TileVector2D& position,
-                                                   const IGrowthConditionResource* growthConditionResource)
-{
-    const auto lightCondition = dynamic_cast<const LightGrowthConditionResource*>(growthConditionResource);
-    if (lightCondition == nullptr || worldContext == nullptr)
-    {
+bool glimmer::LightGrowthConditionProcessor::Match(const WorldContext *worldContext, const TileVector2D &position,
+                                                   const IGrowthConditionResource *growthConditionResource) {
+    const auto lightCondition = dynamic_cast<const LightGrowthConditionResource *>(growthConditionResource);
+    if (lightCondition == nullptr || worldContext == nullptr) {
         return false;
     }
-    const ChunkManager* chunkManager = worldContext->GetChunkManager();
-    if (chunkManager == nullptr)
-    {
+    const ChunkManager *chunkManager = worldContext->GetChunkManager();
+    if (chunkManager == nullptr) {
         return false;
     }
-    const LightBuffer* lightBuffer = chunkManager->GetLightingBuffer();
-    if (lightBuffer == nullptr)
-    {
+    const LightBuffer *lightBuffer = chunkManager->GetLightingBuffer();
+    if (lightBuffer == nullptr) {
         return false;
     }
     uint32_t intensity = 0;
-    if (const TileLightData* tileLightData = lightBuffer->GetTileLightData(position); tileLightData != nullptr)
-    {
-        const auto* contributions = tileLightData->GetLightContributions();
-        if (contributions != nullptr)
-        {
-            std::unordered_set<const LightSource*> seenSources;
-            for (const auto& entry : *contributions)
-            {
-                for (const auto& contribution : entry.second)
-                {
-                    if (contribution == nullptr)
-                    {
+    if (const TileLightData *tileLightData = lightBuffer->GetTileLightData(position); tileLightData != nullptr) {
+        const auto *contributions = tileLightData->GetLightContributions();
+        if (contributions != nullptr) {
+            std::unordered_set<const LightSource *> seenSources;
+            for (const auto &entry: *contributions) {
+                for (const auto &contribution: entry.second) {
+                    if (contribution == nullptr) {
                         continue;
                     }
-                    const LightSource* source = contribution->GetLightSource();
-                    if (source == nullptr)
-                    {
+                    const LightSource *source = contribution->GetLightSource();
+                    if (source == nullptr) {
                         continue;
                     }
-                    if ((lightCondition->lightSourceMask & std::to_underlying(source->GetDirection())) == 0)
-                    {
+                    if ((lightCondition->lightSourceMask & std::to_underlying(source->GetDirection())) == 0) {
                         continue;
                     }
-                    if (!seenSources.insert(source).second)
-                    {
+                    if (!seenSources.insert(source).second) {
                         continue;
                     }
-                    if (const Color* color = contribution->GetLightColor(); color != nullptr)
-                    {
+                    if (const Color *color = contribution->GetLightColor(); color != nullptr) {
                         intensity += color->a;
                     }
                 }

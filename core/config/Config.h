@@ -32,12 +32,10 @@
 #include "toml11/types.hpp"
 
 
-namespace glimmer
-{
+namespace glimmer {
     class CommandHookManager;
 
-    struct Window
-    {
+    struct Window {
         int width = 1920;
         int height = 1080;
         //How long (in seconds) should the frame rate be reduced after being idle and without any operation? -1 indicates that the function is turned off.
@@ -60,25 +58,21 @@ namespace glimmer
         bool fullscreen = false;
     };
 
-    struct MainMenuBackground
-    {
+    struct MainMenuBackground {
         float targetFps;
     };
 
-    struct BiomeBGMConfig
-    {
+    struct BiomeBGMConfig {
         // Player must stay in a different biome this long before the BGM switches.
         // 玩家须在新生物群系连续停留该时长后才会切换 BGM。
         float debounceSeconds = 3.0F;
     };
 
-    struct CommandConfig
-    {
+    struct CommandConfig {
         uint16_t locateMaxRadiusSearchChunks = 2048;
     };
 
-    struct Mods
-    {
+    struct Mods {
         std::string dataPackPath;
         std::string resourcePackPath;
         std::vector<uint64_t> enabledDataPack;
@@ -87,8 +81,7 @@ namespace glimmer
         bool loadOnlyVerified;
     };
 
-    struct Debug
-    {
+    struct Debug {
         bool displayDebugPanel;
         bool displayBox2dShape;
         bool displayDraggableTarget;
@@ -104,13 +97,11 @@ namespace glimmer
         bool disableLighting;
     };
 
-    struct Console
-    {
+    struct Console {
         uint16_t maxHistoryEntries = 100;
     };
 
-    struct World
-    {
+    struct World {
         //Every few ticks, tasks are initiated to remove remote blocks and load nearby blocks.
         //每多少tick创建卸载远程区块，加载近距离区块的任务。
         uint8_t chunkScanTaskTickInterval = 1;
@@ -119,15 +110,13 @@ namespace glimmer
         uint8_t preloadChunkRadius = 1;
     };
 
-    struct AudioTrack
-    {
+    struct AudioTrack {
         int trackCount;
         float volume;
         AudioType type;
     };
 
-    struct Audio
-    {
+    struct Audio {
         std::string format = "F32";
         std::vector<AudioTrack> track;
         float masterVolume;
@@ -135,8 +124,7 @@ namespace glimmer
         int freq;
     };
 
-    struct CommandHookResource
-    {
+    struct CommandHookResource {
         std::string hookId;
         std::string command;
         std::string code;
@@ -145,8 +133,7 @@ namespace glimmer
     };
 
 
-    class Config
-    {
+    class Config {
         uint64_t fingerprint_ = 0;
         std::unique_ptr<toml::value> configValue_ = nullptr;
 
@@ -176,7 +163,7 @@ namespace glimmer
 
         void SetConfigValue(std::unique_ptr<toml::value> configValue);
 
-        [[nodiscard]] toml::value* GetConfigValue() const;
+        [[nodiscard]] toml::value *GetConfigValue() const;
 
         bool ReloadConfig();
     };

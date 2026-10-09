@@ -27,10 +27,8 @@
 #pragma once
 #include <cstdint>
 
-namespace glimmer
-{
-    class PlayerInputHandler
-    {
+namespace glimmer {
+    class PlayerInputHandler {
         uint64_t dropTick_ = 0;
         float horizontalInput_ = 0.0F;
         float verticalInput_ = 0.0F;

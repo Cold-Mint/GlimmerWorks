@@ -33,40 +33,33 @@
 #include "core/gpu/GpuShaderCompiler.h"
 #include "core/log/LogCat.h"
 
-void glimmer::InitWindowAndRendererTask::ShutdownGpuShaderCompiler()
-{
-    if (initShaderCompiler_)
-    {
+void glimmer::InitWindowAndRendererTask::ShutdownGpuShaderCompiler() {
+    if (initShaderCompiler_) {
         GpuShaderCompiler::Shutdown();
         initShaderCompiler_ = false;
     }
 }
 
-bool glimmer::InitWindowAndRendererTask::Run(ISystemBucket* systemBucket)
-{
-    Config* config = systemBucket->GetConfig();
-    if (config == nullptr)
-    {
+bool glimmer::InitWindowAndRendererTask::Run(ISystemBucket *systemBucket) {
+    Config *config = systemBucket->GetConfig();
+    if (config == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "config_is_null", "config is nullptr");
         return false;
     }
     LogCat::i(LogLabel::DEFAULT, "creating_window", "Creating window: width={}, height={}, fullscreen={}",
               config->window.width,
               config->window.height, config->window.fullscreen);
-    WindowContext* windowContext = systemBucket->GetWindowContext();
-    if (windowContext == nullptr)
-    {
+    WindowContext *windowContext = systemBucket->GetWindowContext();
+    if (windowContext == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "window_context_is_null",
                   "windowContext is nullptr");
         return false;
     }
-    if (!windowContext->CreateWindowAndDevice(config->window.width, config->window.height, config->window.fullscreen))
-    {
+    if (!windowContext->CreateWindowAndDevice(config->window.width, config->window.height, config->window.fullscreen)) {
         return false;
     }
-    ResourcePackManager* resourcePackManager = systemBucket->GetResourcePackManager();
-    if (resourcePackManager == nullptr)
-    {
+    ResourcePackManager *resourcePackManager = systemBucket->GetResourcePackManager();
+    if (resourcePackManager == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "resource_pack_manager_is_null",
                   "ResourcePackManager is nullptr");
         return false;
@@ -74,9 +67,8 @@ bool glimmer::InitWindowAndRendererTask::Run(ISystemBucket* systemBucket)
     GpuShaderCompiler::Init();
     initShaderCompiler_ = true;
     LogCat::i(LogLabel::DEFAULT, "gpu_renderer_created", "GpuRenderer created successfully");
-    RmlContext* rmlContext = systemBucket->GetRmlContext();
-    if (rmlContext == nullptr)
-    {
+    RmlContext *rmlContext = systemBucket->GetRmlContext();
+    if (rmlContext == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "rml_context_is_null", "RmlContext is nullptr");
         return false;
     }
@@ -88,17 +80,14 @@ bool glimmer::InitWindowAndRendererTask::Run(ISystemBucket* systemBucket)
     return true;
 }
 
-void glimmer::InitWindowAndRendererTask::Rollback(ISystemBucket* systemBucket)
-{
+void glimmer::InitWindowAndRendererTask::Rollback(ISystemBucket *systemBucket) {
     ShutdownGpuShaderCompiler();
 }
 
-std::string glimmer::InitWindowAndRendererTask::GetTaskName()
-{
+std::string glimmer::InitWindowAndRendererTask::GetTaskName() {
     return "InitWindowAndRendererTask";
 }
 
-glimmer::InitWindowAndRendererTask::~InitWindowAndRendererTask()
-{
+glimmer::InitWindowAndRendererTask::~InitWindowAndRendererTask() {
     ShutdownGpuShaderCompiler();
 }

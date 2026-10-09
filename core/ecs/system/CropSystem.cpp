@@ -48,33 +48,27 @@
 #include "core/world/structure/StructureGeneratorManager.h"
 #include "src/saves/tile_state.pb.h"
 
-glimmer::CropSystem::CropSystem(WorldContext* worldContext) : GameSystem(worldContext)
-{
+glimmer::CropSystem::CropSystem(WorldContext *worldContext) : GameSystem(worldContext) {
     WatchComponent(COMPONENT_CROP);
     Init();
 }
 
 void glimmer::CropSystem::OnWatchedComponentChanged(const GameComponentTypeMessage gameComponentType,
-                                                    const uint32_t count)
-{
-    if (gameComponentType != COMPONENT_CROP)
-    {
+                                                    const uint32_t count) {
+    if (gameComponentType != COMPONENT_CROP) {
         return;
     }
     std::lock_guard lock(cropMutex_);
     cropCount_ = count;
     cropComponents_.clear();
-    EntityManager* entityManager = GetEntityManager();
-    if (entityManager == nullptr || cropCount_ == 0)
-    {
+    EntityManager *entityManager = GetEntityManager();
+    if (entityManager == nullptr || cropCount_ == 0) {
         return;
     }
     const std::vector<GameEntityID> cropEntities = entityManager->GetEntityIDWithComponents({COMPONENT_CROP});
-    for (const GameEntityID entity : cropEntities)
-    {
-        auto* cropComponent = entityManager->GetComponent<CropComponent>(entity);
-        if (cropComponent != nullptr)
-        {
+    for (const GameEntityID entity: cropEntities) {
+        auto *cropComponent = entityManager->GetComponent<CropComponent>(entity);
+        if (cropComponent != nullptr) {
             cropComponents_.emplace_back(cropComponent);
         }
     }
@@ -82,31 +76,25 @@ void glimmer::CropSystem::OnWatchedComponentChanged(const GameComponentTypeMessa
               cropComponents_.size());
 }
 
-bool glimmer::CropSystem::OnGrowMature(WorldContext* worldContext, Chunk* chunk, const ChunkRelativeVector2D& position,
-                                       TileLayerType layerType, const ResourceRef* growthTargetRef)
-{
-    if (worldContext == nullptr || chunk == nullptr || growthTargetRef == nullptr)
-    {
+bool glimmer::CropSystem::OnGrowMature(WorldContext *worldContext, Chunk *chunk, const ChunkRelativeVector2D &position,
+                                       TileLayerType layerType, const ResourceRef *growthTargetRef) {
+    if (worldContext == nullptr || chunk == nullptr || growthTargetRef == nullptr) {
         return false;
     }
-    const AppContext* appContext = worldContext->GetAppContext();
-    if (appContext == nullptr)
-    {
+    const AppContext *appContext = worldContext->GetAppContext();
+    if (appContext == nullptr) {
         return false;
     }
-    ResourceLocator* resourceLocator = appContext->GetResourceLocator();
-    if (resourceLocator == nullptr)
-    {
+    ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+    if (resourceLocator == nullptr) {
         return false;
     }
-    Dimension* dimension = worldContext->GetDimension();
-    if (dimension == nullptr)
-    {
+    Dimension *dimension = worldContext->GetDimension();
+    if (dimension == nullptr) {
         return false;
     }
-    const ResourceRef& dimensionResourceRef = dimension->GetDimensionResourceRef();
-    if (!dimensionResourceRef.IsValid())
-    {
+    const ResourceRef &dimensionResourceRef = dimension->GetDimensionResourceRef();
+    if (!dimensionResourceRef.IsValid()) {
         return false;
     }
     const ResourceTypeMessage resourceType = growthTargetRef->GetResourceType();
@@ -115,17 +103,13 @@ bool glimmer::CropSystem::OnGrowMature(WorldContext* worldContext, Chunk* chunk,
         static_cast<int>(chunk->GetPosition().x + position.x), static_cast<int>(chunk->GetPosition().y + position.y)
     };
     const WorldVector2D worldPosition = CoordinateTransformer::TileToWorld(absolutePosition);
-    if (resourceType == RESOURCE_TILE)
-    {
-        const TileResource* tileResource = resourceLocator->FindTileRaw(growthTargetRef);
-        if (tileResource == nullptr)
-        {
+    if (resourceType == RESOURCE_TILE) {
+        const TileResource *tileResource = resourceLocator->FindTileRaw(growthTargetRef);
+        if (tileResource == nullptr) {
             return false;
         }
-        for (int x = 0; x < tileResource->tileWidth; x++)
-        {
-            for (int y = 0; y < tileResource->tileHeight; y++)
-            {
+        for (int x = 0; x < tileResource->tileWidth; x++) {
+            for (int y = 0; y < tileResource->tileHeight; y++) {
                 const int unitIndex = index + y * CHUNK_SIZE + x;
                 chunk->PlaceTile(layerType, unitIndex, *growthTargetRef, tileResource, BreakSource::Unknown,
                                  PLACE_SOURCE_WORLD_GEN, x, y, false);
@@ -133,32 +117,26 @@ bool glimmer::CropSystem::OnGrowMature(WorldContext* worldContext, Chunk* chunk,
         }
         return true;
     }
-    if (resourceType == RESOURCE_ABILITY_ITEM || resourceType == RESOURCE_MATERIAL_ITEM)
-    {
+    if (resourceType == RESOURCE_ABILITY_ITEM || resourceType == RESOURCE_MATERIAL_ITEM) {
         ItemMessageResource itemMessageResource;
         itemMessageResource.item = *growthTargetRef;
         itemMessageResource.amount = 1;
         std::unique_ptr<Item> item = resourceLocator->FindItem(worldContext, itemMessageResource);
-        if (item == nullptr)
-        {
+        if (item == nullptr) {
             return false;
         }
         DroppedItemCreator::SpawnDroppedItem(worldContext, worldPosition, std::move(item), 0);
         return true;
     }
-    if (resourceType == RESOURCE_LOOT_TABLE)
-    {
-        LootResource* lootResource = resourceLocator->FindLoot(growthTargetRef);
-        if (lootResource == nullptr)
-        {
+    if (resourceType == RESOURCE_LOOT_TABLE) {
+        LootResource *lootResource = resourceLocator->FindLoot(growthTargetRef);
+        if (lootResource == nullptr) {
             return false;
         }
         const std::vector<ItemMessage> itemMessageList = LootResource::GetLootItems(lootResource);
-        for (const auto& itemMessage : itemMessageList)
-        {
+        for (const auto &itemMessage: itemMessageList) {
             std::unique_ptr<Item> item = resourceLocator->FindItem(worldContext, itemMessage);
-            if (item == nullptr)
-            {
+            if (item == nullptr) {
                 continue;
             }
             item->ReadItemMessage(worldContext, itemMessage);
@@ -166,56 +144,44 @@ bool glimmer::CropSystem::OnGrowMature(WorldContext* worldContext, Chunk* chunk,
         }
         return true;
     }
-    if (resourceType == RESOURCE_STRUCTURE)
-    {
-        IStructureResource* structureResource = resourceLocator->FindStructure(growthTargetRef);
-        if (structureResource == nullptr)
-        {
+    if (resourceType == RESOURCE_STRUCTURE) {
+        IStructureResource *structureResource = resourceLocator->FindStructure(growthTargetRef);
+        if (structureResource == nullptr) {
             return false;
         }
-        ModContext* modContext = appContext->GetModContext();
-        if (modContext == nullptr)
-        {
+        ModContext *modContext = appContext->GetModContext();
+        if (modContext == nullptr) {
             return false;
         }
-        StructureGeneratorManager* structureGeneratorManager = modContext->GetStructureGeneratorManager();
-        if (structureGeneratorManager == nullptr)
-        {
+        StructureGeneratorManager *structureGeneratorManager = modContext->GetStructureGeneratorManager();
+        if (structureGeneratorManager == nullptr) {
             return false;
         }
-        ChunkManager* chunkManager = worldContext->GetChunkManager();
-        if (chunkManager == nullptr)
-        {
+        ChunkManager *chunkManager = worldContext->GetChunkManager();
+        if (chunkManager == nullptr) {
             return false;
         }
         const std::unique_ptr<StructureInfo> structureInfo = structureGeneratorManager->Generate(
             worldContext, absolutePosition, structureResource);
-        if (structureInfo == nullptr)
-        {
+        if (structureInfo == nullptr) {
             return false;
         }
-        for (const StructureInfo* structureInfoPtr = structureInfo.get(); const auto& [structureLayerType, tileMap] :
-             structureInfoPtr->GetStructureMap())
-        {
-            for (const auto& [coord, resourceRef] : tileMap)
-            {
-                const TileResource* tileResource = resourceLocator->FindTileRaw(&resourceRef);
-                if (tileResource == nullptr)
-                {
+        for (const StructureInfo *structureInfoPtr = structureInfo.get(); const auto &[structureLayerType, tileMap]:
+             structureInfoPtr->GetStructureMap()) {
+            for (const auto &[coord, resourceRef]: tileMap) {
+                const TileResource *tileResource = resourceLocator->FindTileRaw(&resourceRef);
+                if (tileResource == nullptr) {
                     continue;
                 }
-                for (int x = 0; x < tileResource->tileWidth; x++)
-                {
-                    for (int y = 0; y < tileResource->tileHeight; y++)
-                    {
+                for (int x = 0; x < tileResource->tileWidth; x++) {
+                    for (int y = 0; y < tileResource->tileHeight; y++) {
                         TileVector2D worldVector2D = {
                             absolutePosition.x + coord.x + x, absolutePosition.y + coord.y + y
                         };
-                        Chunk* targetChunk = chunkManager->GetChunk(dimensionResourceRef,
+                        Chunk *targetChunk = chunkManager->GetChunk(dimensionResourceRef,
                                                                     CoordinateTransformer::TileToChunkVertex(
                                                                         worldVector2D));
-                        if (targetChunk == nullptr)
-                        {
+                        if (targetChunk == nullptr) {
                             continue;
                         }
                         const int relativeX = worldVector2D.x & CHUNK_MASK;
@@ -233,68 +199,56 @@ bool glimmer::CropSystem::OnGrowMature(WorldContext* worldContext, Chunk* chunk,
 }
 
 
-void glimmer::CropSystem::OnTick(const uint64_t tick)
-{
-    WorldContext* worldContext = GetWorldContext();
-    if (worldContext == nullptr)
-    {
+void glimmer::CropSystem::OnTick(const uint64_t tick) {
+    WorldContext *worldContext = GetWorldContext();
+    if (worldContext == nullptr) {
         return;
     }
-    std::vector<CropComponent*> cropComponents;
+    std::vector<CropComponent *> cropComponents;
     {
         std::lock_guard lock(cropMutex_);
-        if (cropComponents_.empty())
-        {
+        if (cropComponents_.empty()) {
             return;
         }
         cropComponents = cropComponents_;
     }
-    ChunkManager* chunkManager = worldContext->GetChunkManager();
-    const AppContext* appContext = worldContext->GetAppContext();
-    if (chunkManager == nullptr || appContext == nullptr)
-    {
+    ChunkManager *chunkManager = worldContext->GetChunkManager();
+    const AppContext *appContext = worldContext->GetAppContext();
+    if (chunkManager == nullptr || appContext == nullptr) {
         return;
     }
-    const WindowContext* windowContext = appContext->GetWindowContext();
-    if (windowContext == nullptr)
-    {
+    const WindowContext *windowContext = appContext->GetWindowContext();
+    if (windowContext == nullptr) {
         return;
     }
-    Dimension* dimension = worldContext->GetDimension();
-    if (dimension == nullptr)
-    {
+    Dimension *dimension = worldContext->GetDimension();
+    if (dimension == nullptr) {
         return;
     }
-    const ResourceRef& dimensionResourceRef = dimension->GetDimensionResourceRef();
-    if (!dimensionResourceRef.IsValid())
-    {
+    const ResourceRef &dimensionResourceRef = dimension->GetDimensionResourceRef();
+    if (!dimensionResourceRef.IsValid()) {
         return;
     }
-    ModContext* modContext = appContext->GetModContext();
-    if (modContext == nullptr)
-    {
+    ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
         return;
     }
-    GrowthConditionProcessorManager* growthConditionProcessorManager = modContext->
-        GetGrowthConditionProcessorManager();
-    GrowthConditionsRegistry* growthConditionsRegistry = modContext->GetGrowthConditionsRegistry();
-    if (growthConditionProcessorManager == nullptr || growthConditionsRegistry == nullptr)
-    {
+    GrowthConditionProcessorManager *growthConditionProcessorManager = modContext->
+            GetGrowthConditionProcessorManager();
+    GrowthConditionsRegistry *growthConditionsRegistry = modContext->GetGrowthConditionsRegistry();
+    if (growthConditionProcessorManager == nullptr || growthConditionsRegistry == nullptr) {
         return;
     }
-    for (CropComponent* cropComponent : cropComponents)
-    {
-        if (cropComponent == nullptr)
-        {
+    for (CropComponent *cropComponent: cropComponents) {
+        if (cropComponent == nullptr) {
             LogCat::d(LogLabel::DEFAULT, "crop_system_component_null", "[CropSystem] cropComponent is null, skip");
             continue;
         }
-        const TileVector2D& position = cropComponent->GetPosition();
+        const TileVector2D &position = cropComponent->GetPosition();
         const TileLayerType layerType = cropComponent->GetLayerType();
-        Chunk* chunk = chunkManager->GetChunk(dimensionResourceRef,
+        Chunk *chunk = chunkManager->GetChunk(dimensionResourceRef,
                                               CoordinateTransformer::TileToChunkVertex(position));
-        if (chunk == nullptr)
-        {
+        if (chunk == nullptr) {
             LogCat::d(LogLabel::DEFAULT, "crop_system_chunk_not_found",
                       "[CropSystem] chunk not found: position=({}, {}), layerType={}, skip", position.x, position.y,
                       static_cast<int>(layerType));
@@ -302,9 +256,8 @@ void glimmer::CropSystem::OnTick(const uint64_t tick)
         }
         const ChunkRelativeVector2D relative = CoordinateTransformer::TileToChunkRelative(position);
         const int index = relative.y << CHUNK_SHIFT | relative.x;
-        const Tile* tile = chunk->GetTile(layerType, index);
-        if (tile == nullptr || !tile->IsCropsBlock())
-        {
+        const Tile *tile = chunk->GetTile(layerType, index);
+        if (tile == nullptr || !tile->IsCropsBlock()) {
             LogCat::d(LogLabel::DEFAULT, "crop_system_tile_not_crop",
                       "[CropSystem] tile is null or not a crops block: position=({}, {}), layerType={}, index={}, skip",
                       position.x, position.y, static_cast<int>(layerType), index);
@@ -312,12 +265,10 @@ void glimmer::CropSystem::OnTick(const uint64_t tick)
         }
 
         bool conditionsMet = true;
-        for (const ResourceRef& conditionRef : tile->GetGrowthConditions())
-        {
-            IGrowthConditionResource* conditionResource = growthConditionsRegistry->Find(
+        for (const ResourceRef &conditionRef: tile->GetGrowthConditions()) {
+            IGrowthConditionResource *conditionResource = growthConditionsRegistry->Find(
                 conditionRef.GetPackageId(), conditionRef.GetResourceKey());
-            if (conditionResource == nullptr)
-            {
+            if (conditionResource == nullptr) {
                 LogCat::w(LogLabel::DEFAULT, std::source_location::current(),
                           "crop_system_condition_resource_not_found",
                           "[CropSystem] growth condition resource not found: packageId={}, resourceKey={}",
@@ -326,10 +277,9 @@ void glimmer::CropSystem::OnTick(const uint64_t tick)
                 break;
             }
             const auto processorType = static_cast<GrowthConditionProcessorType>(conditionResource->processorId);
-            IGrowthConditionProcessor* processor = growthConditionProcessorManager->FindConditionProcessors(
+            IGrowthConditionProcessor *processor = growthConditionProcessorManager->FindConditionProcessors(
                 processorType);
-            if (processor == nullptr)
-            {
+            if (processor == nullptr) {
                 LogCat::w(LogLabel::DEFAULT, std::source_location::current(),
                           "crop_system_condition_processor_not_found",
                           "[CropSystem] growth condition processor not found: processorType={}",
@@ -337,8 +287,7 @@ void glimmer::CropSystem::OnTick(const uint64_t tick)
                 conditionsMet = false;
                 break;
             }
-            if (!processor->Match(worldContext, position, conditionResource))
-            {
+            if (!processor->Match(worldContext, position, conditionResource)) {
                 LogCat::d(LogLabel::DEFAULT, "crop_system_condition_not_met",
                           "[CropSystem] growth condition not met: processorType={}, packageId={}, resourceKey={}, position=({}, {})",
                           static_cast<int>(processorType), conditionRef.GetPackageId(),
@@ -347,17 +296,15 @@ void glimmer::CropSystem::OnTick(const uint64_t tick)
                 break;
             }
         }
-        if (!conditionsMet)
-        {
+        if (!conditionsMet) {
             LogCat::d(LogLabel::DEFAULT, "crop_system_conditions_not_met",
                       "[CropSystem] growth conditions not fully met, skip growth: position=({}, {}), layerType={}",
                       position.x, position.y, static_cast<int>(layerType));
             continue;
         }
 
-        TileStateMessage* tileState = chunk->GetOrCreateTileState(layerType, index);
-        if (tileState == nullptr)
-        {
+        TileStateMessage *tileState = chunk->GetOrCreateTileState(layerType, index);
+        if (tileState == nullptr) {
             LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "crop_system_tile_state_null",
                       "[CropSystem] tile state is null: position=({}, {}), layerType={}, index={}",
                       position.x, position.y, static_cast<int>(layerType), index);
@@ -368,17 +315,15 @@ void glimmer::CropSystem::OnTick(const uint64_t tick)
                   "[CropSystem] growth ticks: required={}, accumulated={}, position=({}, {})",
                   tileState->tilegrowthrequiredtick(), tileState->tilegrowthaccumulatedtick(), position.x,
                   position.y);
-        if (tileState->tilegrowthrequiredtick() > tileState->tilegrowthaccumulatedtick())
-        {
+        if (tileState->tilegrowthrequiredtick() > tileState->tilegrowthaccumulatedtick()) {
             LogCat::d(LogLabel::DEFAULT, "crop_system_growth_not_ready",
                       "[CropSystem] growth tick not ready: accumulated={}, required={}, position=({}, {})",
                       tileState->tilegrowthaccumulatedtick(), tileState->tilegrowthrequiredtick(), position.x,
                       position.y);
             continue;
         }
-        const ResourceRef* growthTargetRef = tile->GetGrowthTarget();
-        if (growthTargetRef == nullptr)
-        {
+        const ResourceRef *growthTargetRef = tile->GetGrowthTarget();
+        if (growthTargetRef == nullptr) {
             LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "crop_system_growth_target_null",
                       "[CropSystem] growth target is null: position=({}, {}), layerType={}, index={}",
                       position.x, position.y, static_cast<int>(layerType), index);
@@ -388,9 +333,8 @@ void glimmer::CropSystem::OnTick(const uint64_t tick)
         const bool destroySelfOnGrowth = tile->DestroySelfOnGrowth();
 
         //需要推送到下一刷新帧。
-        MainThreadDispatcher* mainThreadDispatcher = appContext->GetMainThreadDispatcher();
-        if (mainThreadDispatcher == nullptr)
-        {
+        MainThreadDispatcher *mainThreadDispatcher = appContext->GetMainThreadDispatcher();
+        if (mainThreadDispatcher == nullptr) {
             LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "crop_system_main_thread_dispatcher_null",
                       "[CropSystem] main thread dispatcher is null, skip growth: position=({}, {}), layerType={}",
                       position.x, position.y, static_cast<int>(layerType));
@@ -400,46 +344,38 @@ void glimmer::CropSystem::OnTick(const uint64_t tick)
         //在 tick 线程立即消费本次生长累积，防止下一 tick 重复调度成熟逻辑。
         tileState->set_tilegrowthaccumulatedtick(0);
 
-        const ResourceRef& growthTarget = *growthTargetRef;
+        const ResourceRef &growthTarget = *growthTargetRef;
         const ChunkVertexVector2D chunkPosition = chunk->GetPosition();
 
         mainThreadDispatcher->PostToNextMainFrame(
             [worldContext, chunkPosition, relative, layerType, index, growthTarget, isTileTarget,
-                destroySelfOnGrowth, tick, position, dimensionResourceRef]
-            {
-                const ChunkManager* chunkManager = worldContext->GetChunkManager();
-                if (chunkManager == nullptr)
-                {
+                destroySelfOnGrowth, tick, position, dimensionResourceRef] {
+                const ChunkManager *chunkManager = worldContext->GetChunkManager();
+                if (chunkManager == nullptr) {
                     return;
                 }
-                Chunk* chunk = chunkManager->GetChunk(dimensionResourceRef,
+                Chunk *chunk = chunkManager->GetChunk(dimensionResourceRef,
                                                       chunkPosition);
-                if (chunk == nullptr)
-                {
+                if (chunk == nullptr) {
                     return;
                 }
-                if (OnGrowMature(worldContext, chunk, relative, layerType, &growthTarget))
-                {
+                if (OnGrowMature(worldContext, chunk, relative, layerType, &growthTarget)) {
                     LogCat::d(LogLabel::DEFAULT, "crop_system_grow_mature_success",
                               "[CropSystem] crop matured: position=({}, {}), layerType={}, targetPackageId={}, targetResourceKey={}, isTileTarget={}, destroySelfOnGrowth={}",
                               position.x, position.y, static_cast<int>(layerType), growthTarget.GetPackageId(),
                               growthTarget.GetResourceKey(), isTileTarget, destroySelfOnGrowth);
-                    if (!isTileTarget && destroySelfOnGrowth)
-                    {
-                        const AppContext* appContext = worldContext->GetAppContext();
-                        if (appContext == nullptr)
-                        {
+                    if (!isTileTarget && destroySelfOnGrowth) {
+                        const AppContext *appContext = worldContext->GetAppContext();
+                        if (appContext == nullptr) {
                             return;
                         }
 
                         ResourceRef airRef;
                         TileResourceManager::WriteAirResourceRef(layerType, airRef);
-                        if (ResourceLocator* resourceLocator = appContext->GetResourceLocator();
-                            resourceLocator != nullptr)
-                        {
-                            if (const TileResource* airTileResource = resourceLocator->FindTileRaw(&airRef);
-                                airTileResource != nullptr)
-                            {
+                        if (ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+                            resourceLocator != nullptr) {
+                            if (const TileResource *airTileResource = resourceLocator->FindTileRaw(&airRef);
+                                airTileResource != nullptr) {
                                 chunk->PlaceTile(layerType, index, airRef, airTileResource, BreakSource::Unknown,
                                                  PLACE_SOURCE_WORLD_GEN, 0, 0, false);
                                 LogCat::d(LogLabel::DEFAULT, "crop_system_replace_with_air",
@@ -447,12 +383,9 @@ void glimmer::CropSystem::OnTick(const uint64_t tick)
                                           position.x, position.y, static_cast<int>(layerType), index);
                             }
                         }
-                    }
-                    else
-                    {
-                        TileStateMessage* tileState = chunk->GetOrCreateTileState(layerType, index);
-                        if (tileState == nullptr)
-                        {
+                    } else {
+                        TileStateMessage *tileState = chunk->GetOrCreateTileState(layerType, index);
+                        if (tileState == nullptr) {
                             return;
                         }
                         tileState->set_maturecount(tileState->maturecount() + 1);
@@ -463,9 +396,7 @@ void glimmer::CropSystem::OnTick(const uint64_t tick)
                                   "[CropSystem] crop growth reset after mature: matureCount={}, position=({}, {})",
                                   tileState->maturecount(), position.x, position.y);
                     }
-                }
-                else
-                {
+                } else {
                     LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "crop_system_grow_mature_failed",
                               "[CropSystem] OnGrowMature failed: position=({}, {}), layerType={}, targetPackageId={}, targetResourceKey={}",
                               position.x, position.y, static_cast<int>(layerType), growthTarget.GetPackageId(),
@@ -475,7 +406,6 @@ void glimmer::CropSystem::OnTick(const uint64_t tick)
     }
 }
 
-glimmer::GameSystemType glimmer::CropSystem::GetGameSystemType() const
-{
+glimmer::GameSystemType glimmer::CropSystem::GetGameSystemType() const {
     return GameSystemType::CropSystem;
 }

@@ -31,19 +31,17 @@
 #include "core/mod/ResourceRef.h"
 #include "core/world/generator/TileLayerType.h"
 
-namespace glimmer
-{
-    class StructureInfo
-    {
-        std::unordered_map<TileLayerType, std::unordered_map<TileVector2D, ResourceRef, Vector2DIHash>> structureMap_;
+namespace glimmer {
+    class StructureInfo {
+        std::unordered_map<TileLayerType, std::unordered_map<TileVector2D, ResourceRef, Vector2DIHash> > structureMap_;
         TileVector2D minPosition_;
         TileVector2D maxPosition_;
         bool first_ = true;
 
     public:
-        void SetTile(TileLayerType tileLayer, const TileVector2D& position, const ResourceRef& resourceRef);
+        void SetTile(TileLayerType tileLayer, const TileVector2D &position, const ResourceRef &resourceRef);
 
-        const std::unordered_map<TileLayerType, std::unordered_map<TileVector2D, ResourceRef, Vector2DIHash>>&
+        const std::unordered_map<TileLayerType, std::unordered_map<TileVector2D, ResourceRef, Vector2DIHash> > &
         GetStructureMap() const;
 
         [[nodiscard]] uint32_t GetWidth() const;

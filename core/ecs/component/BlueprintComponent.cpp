@@ -26,32 +26,26 @@
  */
 #include "BlueprintComponent.h"
 
-void glimmer::BlueprintComponent::SetCanPlace(bool canPlace)
-{
+void glimmer::BlueprintComponent::SetCanPlace(bool canPlace) {
     canPlace_ = canPlace;
 }
 
-bool glimmer::BlueprintComponent::CanPlace() const
-{
+bool glimmer::BlueprintComponent::CanPlace() const {
     return canPlace_;
 }
 
-void glimmer::BlueprintComponent::SetTopLeftVector(const TileVector2D& topLeftVector)
-{
+void glimmer::BlueprintComponent::SetTopLeftVector(const TileVector2D &topLeftVector) {
     topLeftVector_ = topLeftVector;
 }
 
-const glimmer::TileVector2D& glimmer::BlueprintComponent::GetTopLeftVector() const
-{
+const glimmer::TileVector2D &glimmer::BlueprintComponent::GetTopLeftVector() const {
     return topLeftVector_;
 }
 
-GameComponentTypeMessage glimmer::BlueprintComponent::GetComponentTypeStatic()
-{
+GameComponentTypeMessage glimmer::BlueprintComponent::GetComponentTypeStatic() {
     return COMPONENT_BLUEPRINT;
 }
 
-GameComponentTypeMessage glimmer::BlueprintComponent::GetComponentType()
-{
+GameComponentTypeMessage glimmer::BlueprintComponent::GetComponentType() {
     return GetComponentTypeStatic();
 }

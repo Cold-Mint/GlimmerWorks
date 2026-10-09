@@ -29,17 +29,15 @@
 #include "core/mod/resourcePack/BaseResourceCache.h"
 #include "src/cache/shader_cache.pb.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class ShaderResourceResult;
     class GpuShaderCompileResult;
 
-    class ShaderCache : public BaseResourceCache<ShaderResourceResult>
-    {
+    class ShaderCache : public BaseResourceCache<ShaderResourceResult> {
     protected:
-        std::shared_ptr<ShaderResourceResult> LoadResourceFromPack(AppContext* appContext,
-                                                                   const ResourceRef* resourceRef,
-                                                                   const ResourcePack* resourcePack) override;
+        std::shared_ptr<ShaderResourceResult> LoadResourceFromPack(AppContext *appContext,
+                                                                   const ResourceRef *resourceRef,
+                                                                   const ResourcePack *resourcePack) override;
 
         /**
          * Try to load a valid cached SPIR-V binary for the given shader.
@@ -53,15 +51,15 @@ namespace glimmer
          * (missing/corrupted/stale cache).
          * 命中时返回 SPIR-V 二进制；未命中（缓存缺失/损坏/过期）返回 std::nullopt。
          */
-        static std::unique_ptr<ShaderCacheMessage> TryLoad(const std::filesystem::path& cacheFilePath,
-                                                           const VirtualFileSystem* virtualFileSystem,
+        static std::unique_ptr<ShaderCacheMessage> TryLoad(const std::filesystem::path &cacheFilePath,
+                                                           const VirtualFileSystem *virtualFileSystem,
                                                            int64_t mtime,
-                                                           const ResourceRef* resourceRef,
-                                                           const std::string& code);
+                                                           const ResourceRef *resourceRef,
+                                                           const std::string &code);
 
 
-        static void WriteShaderCacheStoreToMessage(const ShaderCacheStoreData* shaderCacheStoreData,
-                                                   ShaderCacheMessage* cacheMessage);
+        static void WriteShaderCacheStoreToMessage(const ShaderCacheStoreData *shaderCacheStoreData,
+                                                   ShaderCacheMessage *cacheMessage);
 
     public:
         ~ShaderCache() noexcept override;

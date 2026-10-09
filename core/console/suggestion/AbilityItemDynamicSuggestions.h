@@ -28,19 +28,17 @@
 #include "DynamicSuggestions.h"
 #include "core/mod/dataPack/AbilityItemRegistry.h"
 
-namespace glimmer
-{
-    class AbilityItemDynamicSuggestions final : public DynamicSuggestions
-    {
-        AbilityItemRegistry* abilityItemRegistry_ = nullptr;
+namespace glimmer {
+    class AbilityItemDynamicSuggestions final : public DynamicSuggestions {
+        AbilityItemRegistry *abilityItemRegistry_ = nullptr;
 
     public:
-        explicit AbilityItemDynamicSuggestions(AbilityItemRegistry* abilityItemRegistry);
+        explicit AbilityItemDynamicSuggestions(AbilityItemRegistry *abilityItemRegistry);
 
         [[nodiscard]] std::string GetId() const override;
 
-        const std::vector<std::string>& GetSuggestions(const std::optional<std::string>& param) override;
+        const std::vector<std::string> &GetSuggestions(const std::optional<std::string> &param) override;
 
-        bool Match(const std::string& keyword, const std::string& param) override;
+        bool Match(const std::string &keyword, const std::string &param) override;
     };
 }

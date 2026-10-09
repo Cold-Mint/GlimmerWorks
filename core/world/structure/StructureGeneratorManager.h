@@ -29,18 +29,16 @@
 #include "StructureInfo.h"
 #include "core/mod/Resource.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class ChunkVertexVector2D;
 
-    class StructureGeneratorManager
-    {
-        std::unordered_map<StructureGeneratorType, std::unique_ptr<IStructureGenerator>> structureGeneratorMap_{};
+    class StructureGeneratorManager {
+        std::unordered_map<StructureGeneratorType, std::unique_ptr<IStructureGenerator> > structureGeneratorMap_{};
 
     public:
         void RegisterStructureGenerator(std::unique_ptr<IStructureGenerator> structureGenerator);
 
-        std::unique_ptr<StructureInfo> Generate(WorldContext* worldContext, const TileVector2D& structuralOrigin,
-                                                IStructureResource* structureResource);
+        std::unique_ptr<StructureInfo> Generate(WorldContext *worldContext, const TileVector2D &structuralOrigin,
+                                                IStructureResource *structureResource);
     };
 }

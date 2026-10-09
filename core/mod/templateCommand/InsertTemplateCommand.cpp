@@ -31,14 +31,11 @@
 #include "core/utils/StringUtils.h"
 
 std::optional<std::string> glimmer::InsertTemplateCommand::Execute(
-    const std::vector<std::filesystem::path>& templateSearchPath,
-    std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<>>& variable,
-    std::vector<std::string>& args, const VirtualFileSystem* virtualFileSystem)
-{
-    if (args.size() == 1)
-    {
-        if (templateSearchPath.empty())
-        {
+    const std::vector<std::filesystem::path> &templateSearchPath,
+    std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<> > &variable,
+    std::vector<std::string> &args, const VirtualFileSystem *virtualFileSystem) {
+    if (args.size() == 1) {
+        if (templateSearchPath.empty()) {
             return std::nullopt;
         }
         std::stringstream fileNameStream;
@@ -48,20 +45,16 @@ std::optional<std::string> glimmer::InsertTemplateCommand::Execute(
         fileNameStream << ".";
         fileNameStream << "toml";
         const std::string fileName = fileNameStream.str();
-        for (auto& searchPath : templateSearchPath)
-        {
+        for (auto &searchPath: templateSearchPath) {
             std::filesystem::path path = searchPath / fileName;
-            if (!virtualFileSystem->Exists(path))
-            {
+            if (!virtualFileSystem->Exists(path)) {
                 continue;
             }
             auto processedContentOptional = virtualFileSystem->ReadFileAsString(path);
-            if (!processedContentOptional.has_value())
-            {
+            if (!processedContentOptional.has_value()) {
                 continue;
             }
-            for (const auto& [key, value] : variable)
-            {
+            for (const auto &[key, value]: variable) {
                 StringUtils::ReplaceAll(processedContentOptional.value(), "{" + key + "}", value);
             }
             return processedContentOptional.value();
@@ -71,7 +64,6 @@ std::optional<std::string> glimmer::InsertTemplateCommand::Execute(
     return std::nullopt;
 }
 
-const std::string_view& glimmer::InsertTemplateCommand::GetCommandName() const
-{
+const std::string_view &glimmer::InsertTemplateCommand::GetCommandName() const {
     return insert;
 }

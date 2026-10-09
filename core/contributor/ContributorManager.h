@@ -32,17 +32,15 @@
 #include "Contributor.h"
 #include "core/utils/TransparentStringHash.h"
 
-namespace glimmer
-{
-    class ContributorManager
-    {
+namespace glimmer {
+    class ContributorManager {
         std::unordered_map<std::string, std::unique_ptr<Contributor>,
-                           TransparentStringHash, std::equal_to<>> contributors;
+            TransparentStringHash, std::equal_to<> > contributors;
 
     public:
         ContributorManager();
 
-        Contributor* Register(std::unique_ptr<Contributor> contributor);
+        Contributor *Register(std::unique_ptr<Contributor> contributor);
 
         /**
          * Find
@@ -50,6 +48,6 @@ namespace glimmer
          * @param uuid
          * @return
          */
-        Contributor* Find(const std::string& uuid) const;
+        Contributor *Find(const std::string &uuid) const;
     };
 }

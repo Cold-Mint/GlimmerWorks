@@ -29,42 +29,34 @@
 #include "core/log/LogCat.h"
 
 glimmer::StructureConditionProcessorType
-glimmer::BiomeStructureConditionProcessor::GetStructureConditionProcessorType()
-{
+glimmer::BiomeStructureConditionProcessor::GetStructureConditionProcessorType() {
     return StructureConditionProcessorType::Biome;
 }
 
-std::bitset<TERRAIN_AREA> glimmer::BiomeStructureConditionProcessor::Match(const DimensionResource* dimensionResource,
-                                                                           const TerrainResult* terrainResult,
-                                                                           const IStructurePlacementConditionsResource*
-                                                                           placementConditionsResource)
-{
+std::bitset<TERRAIN_AREA> glimmer::BiomeStructureConditionProcessor::Match(const DimensionResource *dimensionResource,
+                                                                           const TerrainResult *terrainResult,
+                                                                           const IStructurePlacementConditionsResource *
+                                                                           placementConditionsResource) {
     std::bitset<TERRAIN_AREA> result;
-    const auto biomeStructurePlacementConditions = dynamic_cast<const BiomeStructurePlacementConditionsResource*>(
+    const auto biomeStructurePlacementConditions = dynamic_cast<const BiomeStructurePlacementConditionsResource *>(
         placementConditionsResource);
-    if (biomeStructurePlacementConditions == nullptr)
-    {
+    if (biomeStructurePlacementConditions == nullptr) {
         return result;
     }
-    const std::unordered_set<std::string>& biomeSet = biomeStructurePlacementConditions->GetCachedBiomeIds();
-    if (biomeSet.empty())
-    {
+    const std::unordered_set<std::string> &biomeSet = biomeStructurePlacementConditions->GetCachedBiomeIds();
+    if (biomeSet.empty()) {
         return result;
     }
     int matchedTileCount = 0;
-    for (int localX = 0; localX < TERRAIN_SIZE; localX++)
-    {
-        for (int localY = 0; localY < TERRAIN_SIZE; localY++)
-        {
+    for (int localX = 0; localX < TERRAIN_SIZE; localX++) {
+        for (int localY = 0; localY < TERRAIN_SIZE; localY++) {
             TerrainRelativeVector2D relativeVector2d(localX, localY);
-            const TerrainTileResult& self = terrainResult->QueryTerrain(relativeVector2d);
-            const BiomeResource* biomeResource = self.GetBiomeResource();
-            if (self.GetTerrainType() != TerrainResultType::SOLID || biomeResource == nullptr)
-            {
+            const TerrainTileResult &self = terrainResult->QueryTerrain(relativeVector2d);
+            const BiomeResource *biomeResource = self.GetBiomeResource();
+            if (self.GetTerrainType() != TerrainResultType::SOLID || biomeResource == nullptr) {
                 continue;
             }
-            if (biomeSet.contains(Resource::GenerateId(*biomeResource)))
-            {
+            if (biomeSet.contains(Resource::GenerateId(*biomeResource))) {
                 const int tileIndex = localY * TERRAIN_SIZE + localX;
                 result[tileIndex] = true;
                 matchedTileCount++;

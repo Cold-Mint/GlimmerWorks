@@ -26,8 +26,7 @@
  */
 #pragma once
 
-namespace glimmer
-{
+namespace glimmer {
     struct RenderFrameContext;
 
     /**
@@ -42,8 +41,7 @@ namespace glimmer
      * 基于共享的 RenderFrameContext 记录其 GPU 命令。pass 也可以在记录前
      * 执行 CPU 端准备（Prepare）。
      */
-    class IPass
-    {
+    class IPass {
     public:
         virtual ~IPass() = default;
 
@@ -54,12 +52,12 @@ namespace glimmer
          * Record 之前执行的 CPU 端准备。默认为空；需要每帧 CPU 工作
          * （如重建光照贴图）的 pass 重写它。
          */
-        virtual void Prepare(RenderFrameContext& ctx);
+        virtual void Prepare(RenderFrameContext &ctx);
 
         /**
          * Record GPU commands for this pass into the frame command buffer.
          * 将本 pass 的 GPU 命令记录到帧命令缓冲。
          */
-        virtual void Record(RenderFrameContext& ctx) = 0;
+        virtual void Record(RenderFrameContext &ctx) = 0;
     };
 }

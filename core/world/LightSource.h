@@ -30,14 +30,12 @@
 #include "core/math/TileVector2D.h"
 
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * LightAttenuation
      * 光照衰减模型
      */
-    enum class LightAttenuation : uint8_t
-    {
+    enum class LightAttenuation : uint8_t {
         /**
          * Linear falloff proportional to euclidean distance.
          * 与欧氏距离成正比的线性衰减。
@@ -59,15 +57,13 @@ namespace glimmer
      * 天光，其遮挡同样复用侧面遮罩；Backward 表示来自背景层（-Z）的背光，
      * 其遮挡来自瓦片的背面遮罩。环境光（Downward/Backward）没有中心与半径。
      */
-    enum class LightDirection : uint8_t
-    {
+    enum class LightDirection : uint8_t {
         Radial = 1,
         Downward = 2,
         Backward = 4,
     };
 
-    class LightSource
-    {
+    class LightSource {
         TileVector2D center_ = {};
         Color emissionColor_ = {};
         int maxRadius_ = 0;
@@ -75,19 +71,19 @@ namespace glimmer
         LightDirection direction_ = LightDirection::Radial;
 
     public:
-        explicit LightSource(const TileVector2D& center, int maxRadius, const Color& emissionColor);
+        explicit LightSource(const TileVector2D &center, int maxRadius, const Color &emissionColor);
 
-        explicit LightSource(LightDirection direction, const Color& emissionColor);
+        explicit LightSource(LightDirection direction, const Color &emissionColor);
 
         [[nodiscard]] LightDirection GetDirection() const;
 
         [[nodiscard]] int GetMaxRadius() const;
 
-        [[nodiscard]] const TileVector2D& GetCenter() const;
+        [[nodiscard]] const TileVector2D &GetCenter() const;
 
-        [[nodiscard]] const Color* GetEmissionColor() const;
+        [[nodiscard]] const Color *GetEmissionColor() const;
 
-        void SetEmissionColor(const Color& emissionColor);
+        void SetEmissionColor(const Color &emissionColor);
 
         [[nodiscard]] LightAttenuation GetAttenuation() const;
 

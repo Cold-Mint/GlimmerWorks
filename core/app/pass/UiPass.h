@@ -28,8 +28,7 @@
 #include "core/gpu/IPass.h"
 
 
-namespace glimmer
-{
+namespace glimmer {
     class RmlContext;
 
     /**
@@ -41,13 +40,12 @@ namespace glimmer
      * 包装 RmlUi 上下文渲染：将 RmlUi 绘制命令排入帧命令缓冲，
      * 在世界结果之上合成 UI。
      */
-    class UiPass final : public IPass
-    {
-        RmlContext* rmlContext_ = nullptr;
+    class UiPass final : public IPass {
+        RmlContext *rmlContext_ = nullptr;
 
     public:
-        explicit UiPass(RmlContext* rmlContext);
+        explicit UiPass(RmlContext *rmlContext);
 
-        void Record(RenderFrameContext& ctx) override;
+        void Record(RenderFrameContext &ctx) override;
     };
 }

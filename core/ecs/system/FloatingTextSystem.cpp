@@ -33,41 +33,34 @@
 #include "core/world/WorldContext.h"
 
 void glimmer::FloatingTextSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType,
-                                                            uint32_t count)
-{
-    const EntityShortCut* entityShortCut = GetEntityShortCut();
-    EntityManager* entityManager = GetEntityManager();
-    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
-    {
+                                                            uint32_t count) {
+    const EntityShortCut *entityShortCut = GetEntityShortCut();
+    EntityManager *entityManager = GetEntityManager();
+    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr) {
         cameraComponent_ = entityShortCut->GetCameraComponent();
     }
-    if (gameComponentType == COMPONENT_TRANSFORM_2D)
-    {
+    if (gameComponentType == COMPONENT_TRANSFORM_2D) {
         cameraTransform2DComponent_ = entityShortCut->GetCameraTransform2DComponent();
         transform2DCount_ = count;
     }
-    if (gameComponentType == COMPONENT_FLOATING_TEXT)
-    {
+    if (gameComponentType == COMPONENT_FLOATING_TEXT) {
         floatingTextCount_ = count;
     }
-    if (transform2DCount_ > 0 && floatingTextCount_ > 0)
-    {
+    if (transform2DCount_ > 0 && floatingTextCount_ > 0) {
         entities_ = entityManager->GetEntityIDWithComponents({COMPONENT_TRANSFORM_2D, COMPONENT_FLOATING_TEXT});
         LogCat::d(LogLabel::DEFAULT, "floating_text_entities_rebuilt", "FloatingText entities rebuilt: {} entities",
                   entities_.size());
     }
 }
 
-glimmer::FloatingTextSystem::FloatingTextSystem(WorldContext* worldContext) : GameSystem(worldContext)
-{
+glimmer::FloatingTextSystem::FloatingTextSystem(WorldContext *worldContext) : GameSystem(worldContext) {
     WatchComponent(COMPONENT_FLOATING_TEXT);
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_TRANSFORM_2D);
     Init();
 }
 
-void glimmer::FloatingTextSystem::Update(float delta)
-{
+void glimmer::FloatingTextSystem::Update(float delta) {
     // const WorldContext *worldContext = GetWorldContext();
     // EntityManager *entityManager = GetEntityManager();
     // if (worldContext == nullptr) {
@@ -104,8 +97,7 @@ void glimmer::FloatingTextSystem::Update(float delta)
     // }
 }
 
-void glimmer::FloatingTextSystem::Render(RenderQueue* queue)
-{
+void glimmer::FloatingTextSystem::Render(RenderQueue *queue) {
     // const WorldContext *worldContext = GetWorldContext();
     // EntityManager *entityManager = GetEntityManager();
     // if (worldContext == nullptr) {
@@ -162,18 +154,15 @@ void glimmer::FloatingTextSystem::Render(RenderQueue* queue)
     // }
 }
 
-void glimmer::FloatingTextSystem::OnConfigChanged(const Config* config)
-{
+void glimmer::FloatingTextSystem::OnConfigChanged(const Config *config) {
     normalTargetFps_ = config->window.normalTargetFps;
     LogCat::i(LogLabel::DEFAULT, "floating_text_fps_config", "FloatingText normal target fps: {}", normalTargetFps_);
 }
 
-uint8_t glimmer::FloatingTextSystem::GetExecutionOrder()
-{
+uint8_t glimmer::FloatingTextSystem::GetExecutionOrder() {
     return EXECUTION_ORDER_FLOATING_TEXT;
 }
 
-glimmer::GameSystemType glimmer::FloatingTextSystem::GetGameSystemType() const
-{
+glimmer::GameSystemType glimmer::FloatingTextSystem::GetGameSystemType() const {
     return GameSystemType::FloatingTextSystem;
 }

@@ -30,47 +30,40 @@
 #include "toml11/parser.hpp"
 
 std::shared_ptr<glimmer::GPUSamplerResourceResult> glimmer::GpuSamplerCache::LoadResourceFromPack(
-    AppContext* appContext, const ResourceRef* resourceRef, const ResourcePack* resourcePack)
-{
+    AppContext *appContext, const ResourceRef *resourceRef, const ResourcePack *resourcePack) {
     std::filesystem::path samplerPath = resourcePack->GetPath() / "samplers" / resourceRef->GetPackageId() /
-        resourceRef->GetResourceKey();
+                                        resourceRef->GetResourceKey();
     samplerPath.replace_extension("sampler.toml");
-    const VirtualFileSystem* virtualFileSystem = appContext->GetVirtualFileSystem();
-    if (virtualFileSystem == nullptr)
-    {
+    const VirtualFileSystem *virtualFileSystem = appContext->GetVirtualFileSystem();
+    if (virtualFileSystem == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "vfs_is_null", "virtualFileSystem == nullptr");
         return nullptr;
     }
-    if (!virtualFileSystem->Exists(samplerPath))
-    {
+    if (!virtualFileSystem->Exists(samplerPath)) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "gpu_sampler_file_not_found",
                   "GPU sampler configuration file not found: {}", samplerPath.string());
         return nullptr;
     }
     auto data = virtualFileSystem->ReadFileAsString(samplerPath);
-    if (!data.has_value())
-    {
+    if (!data.has_value()) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "gpu_sampler_read_failed",
                   "Failed to read GPU sampler configuration file: {}", samplerPath.string());
         return nullptr;
     }
-    const WindowContext* windowContext = appContext->GetWindowContext();
-    if (windowContext == nullptr)
-    {
+    const WindowContext *windowContext = appContext->GetWindowContext();
+    if (windowContext == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "window_context_is_null",
                   "windowContext == nullptr");
         return nullptr;
     }
-    SDL_GPUDevice* device = windowContext->GetDevice();
-    if (device == nullptr)
-    {
+    SDL_GPUDevice *device = windowContext->GetDevice();
+    if (device == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "gpu_device_is_null", "device == nullptr");
         return nullptr;
     }
     const auto gpuSamplerResource = std::make_unique<GpuSamplerResource>(
         toml::get<GpuSamplerResource>(toml::parse_str(data.value(), TOML_VERSION)));
-    if (gpuSamplerResource == nullptr)
-    {
+    if (gpuSamplerResource == nullptr) {
         return nullptr;
     }
     SDL_GPUSamplerCreateInfo createInfo = {};
@@ -87,9 +80,8 @@ std::shared_ptr<glimmer::GPUSamplerResourceResult> glimmer::GpuSamplerCache::Loa
     createInfo.max_lod = gpuSamplerResource->maxLod;
     createInfo.enable_anisotropy = gpuSamplerResource->enableAnisotropy;
     createInfo.enable_compare = gpuSamplerResource->enableCompare;
-    SDL_GPUSampler* sampler = SDL_CreateGPUSampler(device, &createInfo);
-    if (sampler == nullptr)
-    {
+    SDL_GPUSampler *sampler = SDL_CreateGPUSampler(device, &createInfo);
+    if (sampler == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "sdl_create_gpu_sampler_is_null",
                   "SDL_CreateGPUSampler == nullptr");
         return nullptr;

@@ -27,16 +27,14 @@
 #pragma once
 #include "core/ecs/component/TileLayerComponent.h"
 
-namespace glimmer
-{
-    class MiningRangeDataPoint
-    {
+namespace glimmer {
+    class MiningRangeDataPoint {
         TileVector2D tileTopLeftPosition_;
         uint8_t width_ = 1;
         uint8_t height_ = 1;
 
     public:
-        [[nodiscard]] const TileVector2D& GetTileTopLeftPosition() const;
+        [[nodiscard]] const TileVector2D &GetTileTopLeftPosition() const;
 
         [[nodiscard]] uint8_t GetWidth() const;
 
@@ -46,6 +44,6 @@ namespace glimmer
 
         void SetHeight(uint8_t height);
 
-        void SetTileTopLeftPosition(const TileVector2D& tileTopLeftPosition);
+        void SetTileTopLeftPosition(const TileVector2D &tileTopLeftPosition);
     };
 }

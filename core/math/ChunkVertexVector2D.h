@@ -27,8 +27,7 @@
 #pragma once
 #include "Vector2DIBase.h"
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * ChunkVertexVector2D
      * 区块顶点坐标
@@ -36,8 +35,7 @@ namespace glimmer
      * Unit: Tile
      * 单位：瓦片
      */
-    class ChunkVertexVector2D final : public Vector2DIBase<ChunkVertexVector2D>
-    {
+    class ChunkVertexVector2D final : public Vector2DIBase<ChunkVertexVector2D> {
         //Inherit all the constructors of the parent class.
         //继承父类的所有构造函数。
         using Vector2DIBase::Vector2DIBase;

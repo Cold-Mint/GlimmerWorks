@@ -28,19 +28,17 @@
 #include "DynamicSuggestions.h"
 #include "core/lootTable/LootTableRegistry.h"
 
-namespace glimmer
-{
-    class LootSuggestions final : public DynamicSuggestions
-    {
-        LootTableRegistry* lootTableRegistry_ = nullptr;
+namespace glimmer {
+    class LootSuggestions final : public DynamicSuggestions {
+        LootTableRegistry *lootTableRegistry_ = nullptr;
 
     public:
-        explicit LootSuggestions(LootTableRegistry* lootTableRegistry);
+        explicit LootSuggestions(LootTableRegistry *lootTableRegistry);
 
         [[nodiscard]] std::string GetId() const override;
 
-        const std::vector<std::string>& GetSuggestions(const std::optional<std::string>& param) override;
+        const std::vector<std::string> &GetSuggestions(const std::optional<std::string> &param) override;
 
-        bool Match(const std::string& keyword, const std::string& param) override;
+        bool Match(const std::string &keyword, const std::string &param) override;
     };
 }

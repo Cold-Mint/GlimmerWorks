@@ -28,20 +28,16 @@
 #if  !defined(NDEBUG)
 #include "core/context/AppContext.h"
 
-std::string_view glimmer::TileAssetEnumerator::GetAssetType() const
-{
+std::string_view glimmer::TileAssetEnumerator::GetAssetType() const {
     return assetName;
 }
 
-std::optional<std::string> glimmer::TileAssetEnumerator::ListAsset(const AppContext* appContext)
-{
-    if (appContext == nullptr)
-    {
+std::optional<std::string> glimmer::TileAssetEnumerator::ListAsset(const AppContext *appContext) {
+    if (appContext == nullptr) {
         return std::nullopt;
     }
-    const TileResourceManager* tileResourceManager = appContext->GetModContext()->GetTileResourceManager();
-    if (tileResourceManager == nullptr)
-    {
+    const TileResourceManager *tileResourceManager = appContext->GetModContext()->GetTileResourceManager();
+    if (tileResourceManager == nullptr) {
         return std::nullopt;
     }
     return tileResourceManager->ListTiles();

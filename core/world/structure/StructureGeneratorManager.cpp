@@ -30,26 +30,22 @@
 
 
 void glimmer::StructureGeneratorManager::RegisterStructureGenerator(
-    std::unique_ptr<IStructureGenerator> structureGenerator)
-{
+    std::unique_ptr<IStructureGenerator> structureGenerator) {
     const StructureGeneratorType type = structureGenerator->GetStructureGeneratorType();
     structureGeneratorMap_.emplace(type, std::move(structureGenerator));
 }
 
-std::unique_ptr<glimmer::StructureInfo> glimmer::StructureGeneratorManager::Generate(WorldContext* worldContext,
-    const TileVector2D& structuralOrigin, IStructureResource* structureResource)
-{
+std::unique_ptr<glimmer::StructureInfo> glimmer::StructureGeneratorManager::Generate(WorldContext *worldContext,
+    const TileVector2D &structuralOrigin, IStructureResource *structureResource) {
     const auto type = static_cast<StructureGeneratorType>(structureResource->generatorId);
     const auto iterator = structureGeneratorMap_.find(type);
-    if (iterator == structureGeneratorMap_.end())
-    {
+    if (iterator == structureGeneratorMap_.end()) {
         LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "structure_generator_not_registered",
                   "Structure generator is not registered: type={}", std::to_underlying(type));
         return nullptr;
     }
-    const std::unique_ptr<IStructureGenerator>& structureGenerator = iterator->second;
-    if (structureGenerator == nullptr)
-    {
+    const std::unique_ptr<IStructureGenerator> &structureGenerator = iterator->second;
+    if (structureGenerator == nullptr) {
         return nullptr;
     }
     return structureGenerator->Generate(worldContext, structuralOrigin, structureResource);

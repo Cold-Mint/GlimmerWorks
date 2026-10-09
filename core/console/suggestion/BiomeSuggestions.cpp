@@ -30,22 +30,18 @@
 
 #include "core/config/Constants.h"
 
-glimmer::BiomeSuggestions::BiomeSuggestions(BiomeRegistry* biomeRegistry) : biomeRegistry_(biomeRegistry)
-{
+glimmer::BiomeSuggestions::BiomeSuggestions(BiomeRegistry *biomeRegistry) : biomeRegistry_(biomeRegistry) {
 }
 
-std::string glimmer::BiomeSuggestions::GetId() const
-{
+std::string glimmer::BiomeSuggestions::GetId() const {
     return BIOME_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-const std::vector<std::string>& glimmer::BiomeSuggestions::GetSuggestions(const std::optional<std::string>& param)
-{
+const std::vector<std::string> &glimmer::BiomeSuggestions::GetSuggestions(const std::optional<std::string> &param) {
     return biomeRegistry_->List();
 }
 
 
-bool glimmer::BiomeSuggestions::Match(const std::string& keyword, const std::string& param)
-{
+bool glimmer::BiomeSuggestions::Match(const std::string &keyword, const std::string &param) {
     return std::ranges::contains(biomeRegistry_->List(), keyword);
 }

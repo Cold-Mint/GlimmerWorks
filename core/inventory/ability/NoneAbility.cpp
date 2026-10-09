@@ -29,26 +29,22 @@
 #include "core/config/Constants.h"
 #include "core/log/LogCat.h"
 
-glimmer::NoneAbility::NoneAbility(const AbilityConfig& abilityConfigMessage)
-    : ItemAbility(abilityConfigMessage)
-{
+glimmer::NoneAbility::NoneAbility(const AbilityConfig &abilityConfigMessage)
+    : ItemAbility(abilityConfigMessage) {
 }
 
-glimmer::AbilityType glimmer::NoneAbility::GetAbilityType() const
-{
+glimmer::AbilityType glimmer::NoneAbility::GetAbilityType() const {
     return AbilityType::None;
 }
 
 
-bool glimmer::NoneAbility::OnUse(bool mouseLeft, WorldContext* worldContext, uint32_t user,
-                                 const AbilityConfig* abilityConfig, std::unordered_set<AbilityType>& popupAbility)
-{
+bool glimmer::NoneAbility::OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user,
+                                 const AbilityConfig *abilityConfig, std::unordered_set<AbilityType> &popupAbility) {
     // NoneAbility is a placeholder, has no effect when used
     LogCat::d(LogLabel::DEFAULT, "none_ability_use", "NoneAbility used, placeholder has no effect");
     return false;
 }
 
-std::unique_ptr<glimmer::ItemAbility> glimmer::NoneAbility::Clone() const
-{
+std::unique_ptr<glimmer::ItemAbility> glimmer::NoneAbility::Clone() const {
     return std::make_unique<NoneAbility>(*this);
 }

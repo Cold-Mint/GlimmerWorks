@@ -30,22 +30,20 @@
 #include "core/tick/ITickListener.h"
 
 
-namespace glimmer
-{
-    class App : public ITickListener
-    {
-        AppContext* appContext_ = nullptr;
-        TickWorker* tickWorker_ = nullptr;
-        SceneManager* sceneManager_ = nullptr;
+namespace glimmer {
+    class App : public ITickListener {
+        AppContext *appContext_ = nullptr;
+        TickWorker *tickWorker_ = nullptr;
+        SceneManager *sceneManager_ = nullptr;
 
-        static bool CheckWindowSizeChange(WindowContext* windowContext, const int& windowWidth,
-                                          const int& windowHeight);
+        static bool CheckWindowSizeChange(WindowContext *windowContext, const int &windowWidth,
+                                          const int &windowHeight);
 
-        void HandleWindowSizeChange(const int& windowWidth, const int& windowHeight) const;
+        void HandleWindowSizeChange(const int &windowWidth, const int &windowHeight) const;
 
         [[nodiscard]] float CalculateTargetFrameTime(uint64_t frameStart, uint64_t lastInputTime) const;
 
-        bool CheckConfigChange(uint64_t& configFingerprint) const;
+        bool CheckConfigChange(uint64_t &configFingerprint) const;
 
         void NotifyFrameStart() const;
 
@@ -58,7 +56,7 @@ namespace glimmer
 
         ~App() override;
 
-        explicit App(AppContext* appContext);
+        explicit App(AppContext *appContext);
 
         void Run() const;
     };

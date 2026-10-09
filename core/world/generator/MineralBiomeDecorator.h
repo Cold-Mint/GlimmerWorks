@@ -28,18 +28,16 @@
 #include "BiomeDecorator.h"
 
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * MineralBiomeDecorator
      * 矿脉生物群系装饰器
      */
-    class MineralBiomeDecorator : public BiomeDecorator<MineralBiomeDecoratorResource>
-    {
-        void DecorationImpl(const ChunkVertexVector2D& chunkVertex, WorldContext* worldContext,
-                            TerrainResult* terrainResult, MineralBiomeDecoratorResource* decoratorResource,
-                            BiomeResource* biomeResource,
-                            std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>*
+    class MineralBiomeDecorator : public BiomeDecorator<MineralBiomeDecoratorResource> {
+        void DecorationImpl(const ChunkVertexVector2D &chunkVertex, WorldContext *worldContext,
+                            TerrainResult *terrainResult, MineralBiomeDecoratorResource *decoratorResource,
+                            BiomeResource *biomeResource,
+                            std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > *
                             tilesRefMap) override;
 
     public:

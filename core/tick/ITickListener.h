@@ -27,10 +27,8 @@
 #pragma once
 #include <cstdint>
 
-namespace glimmer
-{
-    class ITickListener
-    {
+namespace glimmer {
+    class ITickListener {
     public:
         virtual ~ITickListener() = default;
 

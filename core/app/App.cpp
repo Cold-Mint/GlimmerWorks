@@ -45,40 +45,33 @@
 #include "core/tick/TickWorker.h"
 
 
-bool glimmer::App::CheckWindowSizeChange(WindowContext* windowContext, const int& windowWidth,
-                                         const int& windowHeight)
-{
+bool glimmer::App::CheckWindowSizeChange(WindowContext *windowContext, const int &windowWidth,
+                                         const int &windowHeight) {
     bool changed = false;
-    if (windowHeight != windowContext->GetWindowHeight())
-    {
+    if (windowHeight != windowContext->GetWindowHeight()) {
         changed = true;
         windowContext->SetWindowHeight(windowHeight);
     }
-    if (windowWidth != windowContext->GetWindowWidth())
-    {
+    if (windowWidth != windowContext->GetWindowWidth()) {
         changed = true;
         windowContext->SetWindowWidth(windowWidth);
     }
     return changed;
 }
 
-glimmer::App::~App()
-{
-    if (tickWorker_ != nullptr)
-    {
+glimmer::App::~App() {
+    if (tickWorker_ != nullptr) {
         tickWorker_->RemoveCallback(this);
     }
 }
 
-glimmer::App::App(AppContext* appContext) : appContext_(appContext)
-{
+glimmer::App::App(AppContext *appContext) : appContext_(appContext) {
     tickWorker_ = appContext_->GetTickWorker();
     tickWorker_->AddCallback(this);
     sceneManager_ = appContext_->GetSceneManager();
 }
 
-void glimmer::App::Run() const
-{
+void glimmer::App::Run() const {
     LogCat::i(LogLabel::DEFAULT, "starting_app_main_loop", "Starting application main loop");
     const auto config = appContext_->GetConfig();
 
@@ -94,52 +87,44 @@ void glimmer::App::Run() const
     AppEventLoop eventLoop(appContext_, lastInputTime);
     AppRenderer renderer(appContext_);
 
-    WindowContext* windowContext = appContext_->GetWindowContext();
-    if (windowContext == nullptr)
-    {
+    WindowContext *windowContext = appContext_->GetWindowContext();
+    if (windowContext == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "window_context_is_null",
                   "windowContext is nullptr");
         return;
     }
-    MainThreadDispatcher* mainThreadDispatcher = appContext_->GetMainThreadDispatcher();
-    if (mainThreadDispatcher == nullptr)
-    {
+    MainThreadDispatcher *mainThreadDispatcher = appContext_->GetMainThreadDispatcher();
+    if (mainThreadDispatcher == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "main_thread_dispatcher_is_null",
                   "mainThreadDispatcher is nullptr");
         return;
     }
-    RmlContext* rmlContext = appContext_->GetRmlContext();
-    if (rmlContext == nullptr)
-    {
+    RmlContext *rmlContext = appContext_->GetRmlContext();
+    if (rmlContext == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "rml_context_is_null", "rmlContext is nullptr");
         return;
     }
-    Rml::Context* rmlContextCore = rmlContext->GetRmlContext();
+    Rml::Context *rmlContextCore = rmlContext->GetRmlContext();
     LogCat::i(LogLabel::DEFAULT, "entering_main_game_loop", "Entering main game loop");
     int windowWidth = 0;
     int windowHeight = 0;
-    SDL_Window* window = windowContext->GetWindow();
-    if (window == nullptr)
-    {
+    SDL_Window *window = windowContext->GetWindow();
+    if (window == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "window_is_null", "window is nullptr");
         return;
     }
-    while (sceneManager_->GetSceneCount() > 0)
-    {
+    while (sceneManager_->GetSceneCount() > 0) {
         LogCat::IncrementFrameCount();
         SDL_GetWindowSize(window, &windowWidth, &windowHeight);
-        if (CheckWindowSizeChange(windowContext, windowWidth, windowHeight))
-        {
+        if (CheckWindowSizeChange(windowContext, windowWidth, windowHeight)) {
             LogCat::i(LogLabel::DEFAULT, "window_size_changed", "Window size changed: {}x{}", windowWidth,
                       windowHeight);
-            if (rmlContextCore != nullptr)
-            {
+            if (rmlContextCore != nullptr) {
                 rmlContextCore->SetDimensions({windowWidth, windowHeight});
             }
             HandleWindowSizeChange(windowWidth, windowHeight);
         }
-        if (CheckConfigChange(configFingerprint))
-        {
+        if (CheckConfigChange(configFingerprint)) {
             LogCat::i(LogLabel::DEFAULT, "configuration_changed", "Configuration changed, reloading hooks and scenes");
         }
         const float targetFrameTime = CalculateTargetFrameTime(frameStart, lastInputTime);
@@ -151,8 +136,7 @@ void glimmer::App::Run() const
         UpdateScenes(deltaTime);
         renderer.RenderFrame(windowWidth, windowHeight);
         const Uint64 frameTimeMs = SDL_GetTicks() - frameStart;
-        if (frameTimeMs < targetFrameTimeMs)
-        {
+        if (frameTimeMs < targetFrameTimeMs) {
             SDL_Delay(targetFrameTimeMs - frameTimeMs);
         }
         const Uint64 actualFrameEnd = SDL_GetTicks();
@@ -162,58 +146,47 @@ void glimmer::App::Run() const
     LogCat::i(LogLabel::DEFAULT, "main_game_loop_exited", "Main game loop exited");
 }
 
-void glimmer::App::HandleWindowSizeChange(const int& windowWidth, const int& windowHeight) const
-{
-    const auto& overlayScenes = sceneManager_->GetOverlayScenes();
-    for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
-    {
+void glimmer::App::HandleWindowSizeChange(const int &windowWidth, const int &windowHeight) const {
+    const auto &overlayScenes = sceneManager_->GetOverlayScenes();
+    for (const auto overlayScene: std::ranges::reverse_view(overlayScenes)) {
         overlayScene->OnWindowSizeChanged(windowWidth, windowHeight);
     }
-    if (Scene* topScene = sceneManager_->GetTopScene(); topScene != nullptr)
-    {
+    if (Scene *topScene = sceneManager_->GetTopScene(); topScene != nullptr) {
         topScene->OnWindowSizeChanged(windowWidth, windowHeight);
     }
 }
 
-float glimmer::App::CalculateTargetFrameTime(const uint64_t frameStart, const uint64_t lastInputTime) const
-{
+float glimmer::App::CalculateTargetFrameTime(const uint64_t frameStart, const uint64_t lastInputTime) const {
     const auto config = appContext_->GetConfig();
     const float idleDelay = config->window.idleDelay;
 
-    if (idleDelay == -1)
-    {
+    if (idleDelay == -1) {
         return 1.0F / config->window.normalTargetFps;
     }
 
-    if (static_cast<float>(frameStart - lastInputTime) * 0.001F < idleDelay)
-    {
+    if (static_cast<float>(frameStart - lastInputTime) * 0.001F < idleDelay) {
         return 1.0F / config->window.normalTargetFps;
     }
     return 1.0F / config->window.idleTargetFps;
 }
 
-bool glimmer::App::CheckConfigChange(uint64_t& configFingerprint) const
-{
+bool glimmer::App::CheckConfigChange(uint64_t &configFingerprint) const {
     const auto config = appContext_->GetConfig();
     const uint64_t nowConfigFingerprint = config->GetFingerprint();
-    if (configFingerprint == nowConfigFingerprint)
-    {
+    if (configFingerprint == nowConfigFingerprint) {
         return false;
     }
 
-    if (CommandHookManager* commandHookManager = appContext_->GetConsoleContext()->GetCommandHookManager();
-        commandHookManager != nullptr)
-    {
+    if (CommandHookManager *commandHookManager = appContext_->GetConsoleContext()->GetCommandHookManager();
+        commandHookManager != nullptr) {
         commandHookManager->LoadHookFromConfig(config->commandHooks);
     }
 
-    const auto& overlayScenes = sceneManager_->GetOverlayScenes();
-    for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
-    {
+    const auto &overlayScenes = sceneManager_->GetOverlayScenes();
+    for (const auto overlayScene: std::ranges::reverse_view(overlayScenes)) {
         overlayScene->OnConfigChanged(config);
     }
-    if (Scene* topScene = sceneManager_->GetTopScene(); topScene != nullptr)
-    {
+    if (Scene *topScene = sceneManager_->GetTopScene(); topScene != nullptr) {
         topScene->OnConfigChanged(config);
     }
 
@@ -221,34 +194,27 @@ bool glimmer::App::CheckConfigChange(uint64_t& configFingerprint) const
     return true;
 }
 
-void glimmer::App::NotifyFrameStart() const
-{
-    const auto& overlayScenes = sceneManager_->GetOverlayScenes();
-    for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
-    {
+void glimmer::App::NotifyFrameStart() const {
+    const auto &overlayScenes = sceneManager_->GetOverlayScenes();
+    for (const auto overlayScene: std::ranges::reverse_view(overlayScenes)) {
         overlayScene->OnFrameStart();
     }
-    if (Scene* topScene = sceneManager_->GetTopScene(); topScene != nullptr)
-    {
+    if (Scene *topScene = sceneManager_->GetTopScene(); topScene != nullptr) {
         topScene->OnFrameStart();
     }
 }
 
-void glimmer::App::UpdateScenes(const float deltaTime) const
-{
-    const auto& overlayScenes = sceneManager_->GetOverlayScenes();
-    for (const auto overlay : overlayScenes)
-    {
+void glimmer::App::UpdateScenes(const float deltaTime) const {
+    const auto &overlayScenes = sceneManager_->GetOverlayScenes();
+    for (const auto overlay: overlayScenes) {
         overlay->Update(deltaTime);
     }
-    if (Scene* topScene = sceneManager_->GetTopScene(); topScene != nullptr)
-    {
+    if (Scene *topScene = sceneManager_->GetTopScene(); topScene != nullptr) {
         topScene->Update(deltaTime);
     }
 }
 
-void glimmer::App::InitScenesAndConsole() const
-{
+void glimmer::App::InitScenesAndConsole() const {
     auto sceneManager = appContext_->GetSceneManager();
     sceneManager->PushScene(std::make_unique<SplashScene>(appContext_));
 #if  !defined(NDEBUG)
@@ -256,16 +222,13 @@ void glimmer::App::InitScenesAndConsole() const
 #endif
     sceneManager->AddOverlayScene(std::make_unique<ConsoleOverlay>(appContext_));
     sceneManager->AddOverlayScene(std::make_unique<UIMessageOverlay>(appContext_));
-    ConsoleWorker* consoleWorker = appContext_->GetConsoleContext()->GetConsoleWorker();
-    if (consoleWorker == nullptr)
-    {
+    ConsoleWorker *consoleWorker = appContext_->GetConsoleContext()->GetConsoleWorker();
+    if (consoleWorker == nullptr) {
         return;
     }
     consoleWorker->PushOnMessage(
-        std::make_unique<std::function<void(const std::string &)>>([this](const std::string& text)
-        {
-            if (appContext_ == nullptr)
-            {
+        std::make_unique<std::function<void(const std::string &)> >([this](const std::string &text) {
+            if (appContext_ == nullptr) {
                 return;
             }
             appContext_->AddUIMessage(text);
@@ -273,15 +236,12 @@ void glimmer::App::InitScenesAndConsole() const
     );
 }
 
-void glimmer::App::OnTick(const uint64_t tick)
-{
-    const auto& overlayScenes = sceneManager_->GetOverlayScenes();
-    for (const auto overlay : overlayScenes)
-    {
+void glimmer::App::OnTick(const uint64_t tick) {
+    const auto &overlayScenes = sceneManager_->GetOverlayScenes();
+    for (const auto overlay: overlayScenes) {
         overlay->OnTick(tick);
     }
-    if (Scene* topScene = sceneManager_->GetTopScene(); topScene != nullptr)
-    {
+    if (Scene *topScene = sceneManager_->GetTopScene(); topScene != nullptr) {
         topScene->OnTick(tick);
     }
 }

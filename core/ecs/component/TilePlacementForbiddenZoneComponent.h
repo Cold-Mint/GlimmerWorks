@@ -27,14 +27,12 @@
 #pragma once
 #include "core/ecs/GameComponent.h"
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * Area where tiles are prohibited from being placed.
      * 禁止放置瓦片的区域。
      */
-    class TilePlacementForbiddenZoneComponent : public GameComponent
-    {
+    class TilePlacementForbiddenZoneComponent : public GameComponent {
         int width_ = 0;
         int height_ = 0;
         int offsetX_ = 0;

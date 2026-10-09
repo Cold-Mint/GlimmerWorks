@@ -38,8 +38,7 @@
 #include "generator/ChunkLoader.h"
 #include "generator/TerrainGenerator.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class WorldContext;
     class Tile;
 
@@ -48,8 +47,7 @@ namespace glimmer
      * 区块管理器，负责区块的加载、卸载、保存、光照和tile实例池。
      * 从 WorldContext 拆分而来。
      */
-    class ChunkManager
-    {
+    class ChunkManager {
         /**
         * Save the map of the block.
         * 保存区块的Map。
@@ -58,11 +56,11 @@ namespace glimmer
         * Key为维度资源引用的指针。
         */
         std::unordered_map<ResourceRef, std::unordered_map<ChunkVertexVector2D, std::unique_ptr<Chunk>,
-                                                           Vector2DIHash>, ResourceRefHash>
+            Vector2DIHash>, ResourceRefHash>
         dimensionMap_;
-        TerrainGenerator* terrainGenerator_ = nullptr;
-        ChunkLoader* chunkLoader_ = nullptr;
-        WorldContext* worldContext_ = nullptr;
+        TerrainGenerator *terrainGenerator_ = nullptr;
+        ChunkLoader *chunkLoader_ = nullptr;
+        WorldContext *worldContext_ = nullptr;
         std::unique_ptr<LightBuffer> lightBuffer_ = nullptr;
         std::unique_ptr<TileInstancePool> tileInstancePool_ = nullptr;
         /**
@@ -73,20 +71,20 @@ namespace glimmer
          * @param layerType layerType 图层类型
          * @param index index 索引
          */
-        void OnChunkTileChange(Chunk* chunk, const std::shared_ptr<Tile>& tile, TileLayerType layerType,
+        void OnChunkTileChange(Chunk *chunk, const std::shared_ptr<Tile> &tile, TileLayerType layerType,
                                int index) const;
 
-        void UpdateTileLight(const Chunk* chunk, TileLayerType layerType, int index) const;
+        void UpdateTileLight(const Chunk *chunk, TileLayerType layerType, int index) const;
 
         /**
          * Update the lighting for the entire chunk.
          * 更新整个区块的光照。
          * @param chunk
          */
-        void UpdateChunkLight(const Chunk* chunk) const;
+        void UpdateChunkLight(const Chunk *chunk) const;
 
     public:
-        explicit ChunkManager(WorldContext* worldContext);
+        explicit ChunkManager(WorldContext *worldContext);
 
         /**
         * Load Chunk
@@ -94,8 +92,8 @@ namespace glimmer
         * @param dimensionRef dimensionRef 维度资源引用
         * @param position position 位置
         */
-        void LoadChunkAt(const ResourceRef& dimensionRef,
-                         const ChunkVertexVector2D& position);
+        void LoadChunkAt(const ResourceRef &dimensionRef,
+                         const ChunkVertexVector2D &position);
 
         /**
          * Unload Chunk
@@ -103,7 +101,7 @@ namespace glimmer
          * @param dimensionRef dimensionRef
          * @param position position 位置
          */
-        void UnloadChunkAt(const ResourceRef& dimensionRef, const ChunkVertexVector2D& position);
+        void UnloadChunkAt(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position);
 
         /**
          * GetChunk
@@ -112,7 +110,7 @@ namespace glimmer
          * @param position position 区块顶点位置
          * @return
          */
-        [[nodiscard]] Chunk* GetChunk(const ResourceRef& dimensionRef, const ChunkVertexVector2D& position) const;
+        [[nodiscard]] Chunk *GetChunk(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position) const;
 
         /**
          * Determine whether a block at a certain position has been loaded
@@ -121,7 +119,7 @@ namespace glimmer
          * @param position position 位置
          * @return
          */
-        [[nodiscard]] bool HasChunk(const ResourceRef& dimensionRef, const ChunkVertexVector2D& position) const;
+        [[nodiscard]] bool HasChunk(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position) const;
 
         /**
          * SaveChunk
@@ -129,7 +127,7 @@ namespace glimmer
          * @param dimensionRef
          * @param position
          */
-        [[nodiscard]] bool SaveChunk(const ResourceRef& dimensionRef, const ChunkVertexVector2D& position) const;
+        [[nodiscard]] bool SaveChunk(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position) const;
 
         /**
          * SaveAllChunk
@@ -144,10 +142,10 @@ namespace glimmer
          * @param dimensionRef
          * @return
          */
-        size_t GetLoadedChunkCount(const ResourceRef& dimensionRef) const;
+        size_t GetLoadedChunkCount(const ResourceRef &dimensionRef) const;
 
         const std::unordered_map<ChunkVertexVector2D, std::unique_ptr<Chunk>,
-                                 Vector2DIHash>* GetLoadedChunks(const ResourceRef& dimensionRef) const;
+            Vector2DIHash> *GetLoadedChunks(const ResourceRef &dimensionRef) const;
 
 
         /**
@@ -158,10 +156,10 @@ namespace glimmer
          * @return Whether it exceeds the boundary 是否超出边界
          */
         [[nodiscard]] static bool
-        ChunkIsOutOfBounds(const DimensionResource* dimensionResource, const ChunkVertexVector2D& position);
+        ChunkIsOutOfBounds(const DimensionResource *dimensionResource, const ChunkVertexVector2D &position);
 
-        [[nodiscard]] LightBuffer* GetLightingBuffer() const;
+        [[nodiscard]] LightBuffer *GetLightingBuffer() const;
 
-        [[nodiscard]] TileInstancePool* GetTileInstancePool() const;
+        [[nodiscard]] TileInstancePool *GetTileInstancePool() const;
     };
 }

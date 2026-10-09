@@ -34,8 +34,7 @@
 #include "core/gpu/IPass.h"
 #include "core/gpu/LightMapTexture.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class ResourceLocator;
     class UniformInjectContext;
     class GPUPipelineResourceResult;
@@ -51,8 +50,7 @@ namespace glimmer
      * 重建逐瓦片光照贴图（CPU 端，位于 Prepare），上传它并合成受光照结果：
      * 全屏三角形采样无光照场景纹理与光照贴图，应用光照后写入交换链。
      */
-    class LightingPass final : public IPass
-    {
+    class LightingPass final : public IPass {
         //Per-tile light map texture used by the lighting pass.
         //光照 pass 使用的逐瓦片光照贴图纹理。
         LightMapTexture lightMapTexture_;
@@ -64,41 +62,41 @@ namespace glimmer
         std::vector<uint8_t> lightingStagingBuffer_;
         std::shared_ptr<GPUPipelineResourceResult> lightingPipeline_ = nullptr;
         std::shared_ptr<GPUSamplerResourceResult> lightingSampler_ = nullptr;
-        ResourceLocator* resourceLocator_ = nullptr;
-        SDL_GPUDevice* device_ = nullptr;
+        ResourceLocator *resourceLocator_ = nullptr;
+        SDL_GPUDevice *device_ = nullptr;
 
 
 #if  !defined(NDEBUG)
         std::shared_ptr<GPUPipelineResourceResult> debugPipeline_ = nullptr;
         std::shared_ptr<GPUSamplerResourceResult> debugSampler_ = nullptr;
-        SDL_GPUBuffer* debugVertexBuffer_ = nullptr;
-        SDL_GPUBuffer* debugIndexBuffer_ = nullptr;
-        SDL_GPUTransferBuffer* debugTransferBuffer_ = nullptr;
+        SDL_GPUBuffer *debugVertexBuffer_ = nullptr;
+        SDL_GPUBuffer *debugIndexBuffer_ = nullptr;
+        SDL_GPUTransferBuffer *debugTransferBuffer_ = nullptr;
         uint32_t debugTransferBufferSize_ = 0;
         bool displayLightMap_ = false;
         bool enableLighting_ = true;
 
         void EnsureDebugBuffers();
 
-        void DrawLightMapDebug(RenderFrameContext& ctx);
+        void DrawLightMapDebug(RenderFrameContext &ctx);
 
-        void BlitScene(RenderFrameContext& ctx);
+        void BlitScene(RenderFrameContext &ctx);
 #endif
 
-        void UpdateLightMap(UniformInjectContext* injectContext);
+        void UpdateLightMap(UniformInjectContext *injectContext);
 
-        void FlushLightingPass(RenderFrameContext& ctx);
+        void FlushLightingPass(RenderFrameContext &ctx);
 
     public:
-        LightingPass(ResourceLocator* resourceLocator, SDL_GPUDevice* device,
+        LightingPass(ResourceLocator *resourceLocator, SDL_GPUDevice *device,
                      std::shared_ptr<GPUPipelineResourceResult> lightingPipeline,
                      std::shared_ptr<GPUSamplerResourceResult> lightingSampler);
 
         ~LightingPass() override;
 
-        void Prepare(RenderFrameContext& ctx) override;
+        void Prepare(RenderFrameContext &ctx) override;
 
-        void Record(RenderFrameContext& ctx) override;
+        void Record(RenderFrameContext &ctx) override;
 
 #if  !defined(NDEBUG)
         void SetDisplayLightMap(bool display);

@@ -27,16 +27,14 @@
 #pragma once
 #include "Vector2D.h"
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * Two-dimensional vector of camera coordinates
      * 相机坐标二维向量
      * Unit: Screen pixels
      * 单位：屏幕像素
      */
-    class ScreenVector2D final : public Vector2DBase<ScreenVector2D>
-    {
+    class ScreenVector2D final : public Vector2DBase<ScreenVector2D> {
         //Inherit all the constructors of the parent class.
         //继承父类的所有构造函数。
         using Vector2DBase::Vector2DBase;

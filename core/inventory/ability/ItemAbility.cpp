@@ -29,13 +29,11 @@
 #include "core/log/LogCat.h"
 
 
-glimmer::ItemAbility::ItemAbility(const AbilityConfig& abilityConfig)
-    : abilityConfig_(abilityConfig)
-{
+glimmer::ItemAbility::ItemAbility(const AbilityConfig &abilityConfig)
+    : abilityConfig_(abilityConfig) {
     LogCat::d(LogLabel::DEFAULT, "item_ability_created", "ItemAbility created");
 }
 
-const glimmer::AbilityConfig* glimmer::ItemAbility::GetAbilityConfig() const
-{
+const glimmer::AbilityConfig *glimmer::ItemAbility::GetAbilityConfig() const {
     return &abilityConfig_;
 }

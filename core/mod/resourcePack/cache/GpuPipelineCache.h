@@ -28,10 +28,8 @@
 #include "core/gpu/BlendMode.h"
 #include "core/mod/resourcePack/BaseResourceCache.h"
 
-namespace glimmer
-{
-    class GpuPipelineCache : public BaseResourceCache<GPUPipelineResourceResult>
-    {
+namespace glimmer {
+    class GpuPipelineCache : public BaseResourceCache<GPUPipelineResourceResult> {
         std::shared_ptr<ShaderResourceResult> vertexShaderResult_ = nullptr;
         std::shared_ptr<ShaderResourceResult> fragmentShaderResult_ = nullptr;
 
@@ -44,9 +42,9 @@ namespace glimmer
         static SDL_GPUColorTargetBlendState ToColorTargetBlendState(BlendMode mode);
 
     protected:
-        std::shared_ptr<GPUPipelineResourceResult> LoadResourceFromPack(AppContext* appContext,
-                                                                        const ResourceRef* resourceRef,
-                                                                        const ResourcePack* resourcePack) override;
+        std::shared_ptr<GPUPipelineResourceResult> LoadResourceFromPack(AppContext *appContext,
+                                                                        const ResourceRef *resourceRef,
+                                                                        const ResourcePack *resourcePack) override;
 
     public:
         ~GpuPipelineCache() noexcept override;

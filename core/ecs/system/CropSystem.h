@@ -31,8 +31,7 @@
 #include "core/ecs/GameSystem.h"
 #include "core/math/ChunkRelativeVector2D.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class CropComponent;
 
     /**
@@ -45,8 +44,7 @@ namespace glimmer
      * 每个 tick 遍历所有作物组件，并使用生长条件处理器判断作物是否应该生长；
      * 满足条件的作物在其 TileStateMessage 中累积生长 tick。
      */
-    class CropSystem final : public GameSystem
-    {
+    class CropSystem final : public GameSystem {
         /**
         * Protects cropComponents_ (and cropCount_) against concurrent rebuild on
         * the main thread (OnWatchedComponentChanged, called from OnFrameStart)
@@ -56,11 +54,11 @@ namespace glimmer
         * 与 tick 线程（OnTick）遍历的并发访问。
         */
         mutable std::mutex cropMutex_;
-        std::vector<CropComponent*> cropComponents_;
+        std::vector<CropComponent *> cropComponents_;
         uint32_t cropCount_ = 0;
 
     public:
-        explicit CropSystem(WorldContext* worldContext);
+        explicit CropSystem(WorldContext *worldContext);
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
@@ -74,8 +72,8 @@ namespace glimmer
          * @param layerType layerType  图层类型
          * @param growthTargetRef growthTargetRef 目标资源引用
          */
-        static bool OnGrowMature(WorldContext* worldContext, Chunk* chunk, const ChunkRelativeVector2D& position,
-                                 TileLayerType layerType, const ResourceRef* growthTargetRef);
+        static bool OnGrowMature(WorldContext *worldContext, Chunk *chunk, const ChunkRelativeVector2D &position,
+                                 TileLayerType layerType, const ResourceRef *growthTargetRef);
 
         void OnTick(uint64_t tick) override;
 

@@ -32,17 +32,15 @@
 #include "AudioType.h"
 #include "SDL3_mixer/SDL_mixer.h"
 
-namespace glimmer
-{
-    class AudioManager
-    {
+namespace glimmer {
+    class AudioManager {
         using ID = uint32_t;
-        std::unordered_map<AudioType, std::vector<MIX_Track*>> track_;
+        std::unordered_map<AudioType, std::vector<MIX_Track *> > track_;
         std::unordered_map<AudioType, float> typeVolume_ = {
             {AudioType::BGM, 1.0F},
             {AudioType::AMBIENT, 1.0F},
         };
-        MIX_Mixer* mixer_ = nullptr;
+        MIX_Mixer *mixer_ = nullptr;
         float masterVolume_ = 1.0F;
 
         /**
@@ -51,7 +49,7 @@ namespace glimmer
          * @param type
          * @return
          */
-        static const char* AudioTypeToTag(AudioType type);
+        static const char *AudioTypeToTag(AudioType type);
 
         /**
          * GetFreeTrack
@@ -59,7 +57,7 @@ namespace glimmer
          * @param type
          * @return
          */
-        MIX_Track* GetFreeTrack(AudioType type);
+        MIX_Track *GetFreeTrack(AudioType type);
 
         /**
          * Assign audio to a track and start playback, optionally fading in.
@@ -69,12 +67,12 @@ namespace glimmer
          * @param loopsNumber loop count / 循环次数
          * @param fadeInMs fade-in duration in ms (<= 0 = no fade) / 淡入时长（毫秒，<=0 为不淡入）
          */
-        static void PlayOnTrack(MIX_Track* track, MIX_Audio* audio, int loopsNumber, int fadeInMs);
+        static void PlayOnTrack(MIX_Track *track, MIX_Audio *audio, int loopsNumber, int fadeInMs);
 
     public:
         explicit AudioManager();
 
-        void SetMixer(MIX_Mixer* mixer);
+        void SetMixer(MIX_Mixer *mixer);
 
 
         /**
@@ -101,7 +99,7 @@ namespace glimmer
          * @param audio 音频文件
          * @param loopsNumber 循环次数
          */
-        void TryPlayFree(AudioType audioType, MIX_Audio* audio, int loopsNumber);
+        void TryPlayFree(AudioType audioType, MIX_Audio *audio, int loopsNumber);
 
         /**
          * 强制播放并替换音频
@@ -110,7 +108,7 @@ namespace glimmer
          * @param audio
          * @param loopsNumber
          */
-        void ForcePlayReplace(AudioType audioType, MIX_Audio* audio, int loopsNumber);
+        void ForcePlayReplace(AudioType audioType, MIX_Audio *audio, int loopsNumber);
 
         /**
          * TryPlayFreeFade
@@ -121,7 +119,7 @@ namespace glimmer
          * @param loopsNumber loop count / 循环次数
          * @param fadeInMs fade-in duration in ms (<= 0 = no fade, behaves like TryPlayFree) / 淡入时长（毫秒，<=0 退化为 TryPlayFree）
          */
-        void TryPlayFreeFade(AudioType audioType, MIX_Audio* audio, int loopsNumber, int fadeInMs);
+        void TryPlayFreeFade(AudioType audioType, MIX_Audio *audio, int loopsNumber, int fadeInMs);
 
         /**
          * ForcePlayReplaceFade
@@ -136,7 +134,7 @@ namespace glimmer
          * @param fadeInMs fade-in duration in ms (<= 0 = no fade) / 淡入时长（毫秒，<=0 为不淡入）
          * @param fadeOutMs fade-out duration in ms (<= 0 = immediate stop; only used when a free track exists) / 淡出时长（毫秒，<=0 为立即停止；仅在有空闲音轨可交叉淡变时生效）
          */
-        void ForcePlayReplaceFade(AudioType audioType, MIX_Audio* audio, int loopsNumber, int fadeInMs, int fadeOutMs);
+        void ForcePlayReplaceFade(AudioType audioType, MIX_Audio *audio, int loopsNumber, int fadeInMs, int fadeOutMs);
 
         /**
          * FadeOut

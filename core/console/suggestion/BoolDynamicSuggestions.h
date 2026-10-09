@@ -27,10 +27,8 @@
 #pragma once
 #include "DynamicSuggestions.h"
 
-namespace glimmer
-{
-    class BoolDynamicSuggestions final : public DynamicSuggestions
-    {
+namespace glimmer {
+    class BoolDynamicSuggestions final : public DynamicSuggestions {
         std::vector<std::string> suggestions_;
 
     public:
@@ -38,7 +36,7 @@ namespace glimmer
 
         [[nodiscard]] std::string GetId() const override;
 
-        const std::vector<std::string>& GetSuggestions(const std::optional<std::string>& param) override;
+        const std::vector<std::string> &GetSuggestions(const std::optional<std::string> &param) override;
 
         /**
          * Determine whether the input content matches this suggestion, and when obtaining the suggestion list, get the subtree
@@ -47,6 +45,6 @@ namespace glimmer
          * @param param
          * @return
          */
-        bool Match(const std::string& keyword, const std::string& param) override;
+        bool Match(const std::string &keyword, const std::string &param) override;
     };
 }

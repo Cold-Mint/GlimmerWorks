@@ -33,16 +33,14 @@
 #include "core/mod/ResourceRef.h"
 #include "core/vfs/VirtualFileSystem.h"
 
-namespace glimmer
-{
-    struct ShaderCacheStoreData
-    {
+namespace glimmer {
+    struct ShaderCacheStoreData {
         int64_t mtime = 0;
-        VirtualFileSystem* virtualFileSystem = nullptr;
-        const ResourceRef* resourceRef = nullptr;
-        std::array<uint8_t, 32>* hash = nullptr;
-        const unsigned* spirV = nullptr;
-        const std::vector<std::pair<std::string, uint32_t>>* uniformBlockBindings = nullptr;
+        VirtualFileSystem *virtualFileSystem = nullptr;
+        const ResourceRef *resourceRef = nullptr;
+        std::array<uint8_t, 32> *hash = nullptr;
+        const unsigned *spirV = nullptr;
+        const std::vector<std::pair<std::string, uint32_t> > *uniformBlockBindings = nullptr;
         size_t spirVSize = 0;
         uint32_t numSamplers = 0;
         uint32_t numUniformBuffers = 0;

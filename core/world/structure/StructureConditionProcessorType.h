@@ -27,10 +27,8 @@
 #pragma once
 #include <cstdint>
 
-namespace glimmer
-{
-    enum class StructureConditionProcessorType:uint8_t
-    {
+namespace glimmer {
+    enum class StructureConditionProcessorType:uint8_t {
         None,
         Biome,
         Height,

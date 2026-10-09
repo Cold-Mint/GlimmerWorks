@@ -29,13 +29,11 @@
 #include "core/ecs/EntityManager.h"
 #include "core/saves/Saves.h"
 
-namespace glimmer
-{
-    class ChunkLoader
-    {
-        Saves* saves_ = nullptr;
-        WorldContext* worldContext_ = nullptr;
-        EntityManager* entityManager_ = nullptr;
+namespace glimmer {
+    class ChunkLoader {
+        Saves *saves_ = nullptr;
+        WorldContext *worldContext_ = nullptr;
+        EntityManager *entityManager_ = nullptr;
 
         /**
          * Load entity from saves
@@ -43,10 +41,10 @@ namespace glimmer
          * @param dimensionRef
          * @param position
          */
-        void LoadEntityFromSaves(const ResourceRef& dimensionRef, const ChunkVertexVector2D& position) const;
+        void LoadEntityFromSaves(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position) const;
 
     public:
-        ChunkLoader(WorldContext* worldContext, Saves* saves);
+        ChunkLoader(WorldContext *worldContext, Saves *saves);
 
         /**
          * Load block from saves
@@ -54,8 +52,8 @@ namespace glimmer
          * @param dimensionRef dimensionRef
          * @param position position 位置
          */
-        [[nodiscard]] std::unique_ptr<Chunk> LoadChunkFromSaves(const ResourceRef& dimensionRef,
-                                                                const ChunkVertexVector2D& position) const;
+        [[nodiscard]] std::unique_ptr<Chunk> LoadChunkFromSaves(const ResourceRef &dimensionRef,
+                                                                const ChunkVertexVector2D &position) const;
 
         /**
         * Recovery Entity
@@ -63,6 +61,6 @@ namespace glimmer
         * @param entityItemMessage
         * @return
         */
-        [[nodiscard]] GameEntityID RecoveryEntity(const EntityItemMessage& entityItemMessage) const;
+        [[nodiscard]] GameEntityID RecoveryEntity(const EntityItemMessage &entityItemMessage) const;
     };
 }

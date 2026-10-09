@@ -30,68 +30,54 @@
 #include <cmath>
 
 
-glimmer::LightSource::LightSource(const TileVector2D& center, int maxRadius, const Color& emissionColor)
-    : center_(center), maxRadius_(maxRadius), emissionColor_(emissionColor), direction_(LightDirection::Radial)
-{
+glimmer::LightSource::LightSource(const TileVector2D &center, int maxRadius, const Color &emissionColor)
+    : center_(center), maxRadius_(maxRadius), emissionColor_(emissionColor), direction_(LightDirection::Radial) {
 }
 
-glimmer::LightSource::LightSource(const LightDirection direction, const Color& emissionColor)
-    : emissionColor_(emissionColor), direction_(direction)
-{
+glimmer::LightSource::LightSource(const LightDirection direction, const Color &emissionColor)
+    : emissionColor_(emissionColor), direction_(direction) {
 }
 
-glimmer::LightDirection glimmer::LightSource::GetDirection() const
-{
+glimmer::LightDirection glimmer::LightSource::GetDirection() const {
     return direction_;
 }
 
-int glimmer::LightSource::GetMaxRadius() const
-{
+int glimmer::LightSource::GetMaxRadius() const {
     return maxRadius_;
 }
 
-const glimmer::TileVector2D& glimmer::LightSource::GetCenter() const
-{
+const glimmer::TileVector2D &glimmer::LightSource::GetCenter() const {
     return center_;
 }
 
-const glimmer::Color* glimmer::LightSource::GetEmissionColor() const
-{
+const glimmer::Color *glimmer::LightSource::GetEmissionColor() const {
     return &emissionColor_;
 }
 
-void glimmer::LightSource::SetEmissionColor(const Color& emissionColor)
-{
+void glimmer::LightSource::SetEmissionColor(const Color &emissionColor) {
     emissionColor_ = emissionColor;
 }
 
-glimmer::LightAttenuation glimmer::LightSource::GetAttenuation() const
-{
+glimmer::LightAttenuation glimmer::LightSource::GetAttenuation() const {
     return attenuation_;
 }
 
-void glimmer::LightSource::SetAttenuation(const LightAttenuation attenuation)
-{
+void glimmer::LightSource::SetAttenuation(const LightAttenuation attenuation) {
     attenuation_ = attenuation;
 }
 
-float glimmer::LightSource::GetAttenuationFactor(const int dx, const int dy) const
-{
-    if (maxRadius_ <= 0)
-    {
+float glimmer::LightSource::GetAttenuationFactor(const int dx, const int dy) const {
+    if (maxRadius_ <= 0) {
         return 0.0F;
     }
     const float distance = std::sqrt(static_cast<float>(dx * dx + dy * dy));
-    switch (attenuation_)
-    {
-    case LightAttenuation::InverseSquare:
-        {
+    switch (attenuation_) {
+        case LightAttenuation::InverseSquare: {
             const float normalized = distance / static_cast<float>(maxRadius_);
             return std::clamp(1.0F / (1.0F + normalized * normalized * 4.0F), 0.0F, 1.0F);
         }
-    case LightAttenuation::Linear:
-    default:
-        {
+        case LightAttenuation::Linear:
+        default: {
             return std::clamp(1.0F - distance / static_cast<float>(maxRadius_), 0.0F, 1.0F);
         }
     }

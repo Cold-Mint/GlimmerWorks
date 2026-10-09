@@ -30,103 +30,84 @@
 #include <cmath>
 #include <functional>
 
-void glimmer::RenderQueue::AppendQuad(const RenderLayer layer, const float depth, const TextureResourceResult* texture,
-                                      const SDL_FPoint positions[4], const SDL_FPoint uvs[4], const SDL_Color& color,
-                                      SDL_GPUGraphicsPipeline* pipeline,
-                                      SDL_GPUSampler* sampler, const std::vector<PipelineUniformBlock>* uniformBlocks)
-{
-    RenderCommand& command = commands_.emplace_back();
+void glimmer::RenderQueue::AppendQuad(const RenderLayer layer, const float depth, const TextureResourceResult *texture,
+                                      const SDL_FPoint positions[4], const SDL_FPoint uvs[4], const SDL_Color &color,
+                                      SDL_GPUGraphicsPipeline *pipeline,
+                                      SDL_GPUSampler *sampler, const std::vector<PipelineUniformBlock> *uniformBlocks) {
+    RenderCommand &command = commands_.emplace_back();
     command.texture = texture;
     command.layer = layer;
     command.depth = depth;
     command.pipeline = pipeline;
     command.sampler = sampler;
     command.uniformBlocks = uniformBlocks;
-    for (int i = 0; i < 4; ++i)
-    {
+    for (int i = 0; i < 4; ++i) {
         command.corners[i] = {
             positions[i].x, positions[i].y, uvs[i].x, uvs[i].y, color.r, color.g, color.b, color.a
         };
     }
 }
 
-void glimmer::RenderQueue::AddCommand(RenderCommand command)
-{
+void glimmer::RenderQueue::AddCommand(RenderCommand command) {
     commands_.emplace_back(command);
 }
 
-void glimmer::RenderQueue::Clear()
-{
+void glimmer::RenderQueue::Clear() {
     commands_.clear();
 }
 
-void glimmer::RenderQueue::Reserve(const size_t commandCount)
-{
+void glimmer::RenderQueue::Reserve(const size_t commandCount) {
     commands_.reserve(commandCount);
 }
 
-size_t glimmer::RenderQueue::GetCommandCount() const
-{
+size_t glimmer::RenderQueue::GetCommandCount() const {
     return commands_.size();
 }
 
-bool glimmer::RenderQueue::IsEmpty() const
-{
+bool glimmer::RenderQueue::IsEmpty() const {
     return commands_.empty();
 }
 
-void glimmer::RenderQueue::Sort()
-{
-    std::ranges::stable_sort(commands_, [](const RenderCommand& commandA, const RenderCommand& commandB)
-    {
-        if (commandA.layer != commandB.layer)
-        {
+void glimmer::RenderQueue::Sort() {
+    std::ranges::stable_sort(commands_, [](const RenderCommand &commandA, const RenderCommand &commandB) {
+        if (commandA.layer != commandB.layer) {
             return commandA.layer < commandB.layer;
         }
-        if (commandA.pipeline != commandB.pipeline)
-        {
-            return std::less<SDL_GPUGraphicsPipeline*>{}(commandA.pipeline, commandB.pipeline);
+        if (commandA.pipeline != commandB.pipeline) {
+            return std::less<SDL_GPUGraphicsPipeline *>{}(commandA.pipeline, commandB.pipeline);
         }
         return commandA.depth < commandB.depth;
     });
 }
 
-const std::vector<glimmer::RenderCommand>& glimmer::RenderQueue::GetCommands() const
-{
+const std::vector<glimmer::RenderCommand> &glimmer::RenderQueue::GetCommands() const {
     return commands_;
 }
 
-void glimmer::RenderQueue::DrawTexture(RenderLayer layer, float depth, TextureResourceResult* texture,
-                                       const SDL_FRect* src, const SDL_FRect* dst, const SDL_Color& mod,
-                                       SDL_GPUGraphicsPipeline* pipeline,
-                                       SDL_GPUSampler* sampler,
-                                       const std::vector<PipelineUniformBlock>* uniformBlocks)
-{
-    if (texture == nullptr)
-    {
+void glimmer::RenderQueue::DrawTexture(RenderLayer layer, float depth, TextureResourceResult *texture,
+                                       const SDL_FRect *src, const SDL_FRect *dst, const SDL_Color &mod,
+                                       SDL_GPUGraphicsPipeline *pipeline,
+                                       SDL_GPUSampler *sampler,
+                                       const std::vector<PipelineUniformBlock> *uniformBlocks) {
+    if (texture == nullptr) {
         return;
     }
     const auto textureWidth = static_cast<float>(texture->GetWidth());
     const auto textureHeight = static_cast<float>(texture->GetHeight());
     SDL_FRect dstRect;
-    if (dst == nullptr)
-    {
+    if (dst == nullptr) {
         dstRect = {0.0F, 0.0F, textureWidth, textureHeight};
-    }
-    else
-    {
+    } else {
         dstRect = *dst;
     }
-    if (dstRect.w <= 0.0F || dstRect.h <= 0.0F)
-    {
+    if (dstRect.w <= 0.0F || dstRect.h <= 0.0F) {
         return;
     }
     float u0 = 0.0F;
     float v0 = 0.0F;
     float u1 = 1.0F;
     float v1 = 1.0F;
-    if (src != nullptr)
-    {
+    if (src != nullptr) {
         u0 = src->x / textureWidth;
         v0 = src->y / textureHeight;
         u1 = (src->x + src->w) / textureWidth;
@@ -147,19 +128,16 @@ void glimmer::RenderQueue::DrawTexture(RenderLayer layer, float depth, TextureRe
     AppendQuad(layer, depth, texture, positions, uvs, mod, pipeline, sampler, uniformBlocks);
 }
 
-void glimmer::RenderQueue::DrawTextureRotated(RenderLayer layer, float depth, const TextureResourceResult* texture,
-                                              const SDL_FRect* src, const SDL_FRect* dst, double angleDegrees,
-                                              const SDL_FPoint* center, Uint8 flip,
-                                              const SDL_Color& mod, SDL_GPUGraphicsPipeline* pipeline,
-                                              SDL_GPUSampler* sampler,
-                                              const std::vector<PipelineUniformBlock>* uniformBlocks)
-{
-    if (texture == nullptr || dst == nullptr)
-    {
+void glimmer::RenderQueue::DrawTextureRotated(RenderLayer layer, float depth, const TextureResourceResult *texture,
+                                              const SDL_FRect *src, const SDL_FRect *dst, double angleDegrees,
+                                              const SDL_FPoint *center, Uint8 flip,
+                                              const SDL_Color &mod, SDL_GPUGraphicsPipeline *pipeline,
+                                              SDL_GPUSampler *sampler,
+                                              const std::vector<PipelineUniformBlock> *uniformBlocks) {
+    if (texture == nullptr || dst == nullptr) {
         return;
     }
-    if (dst->w <= 0.0F || dst->h <= 0.0F)
-    {
+    if (dst->w <= 0.0F || dst->h <= 0.0F) {
         return;
     }
     const float textureWidth = static_cast<float>(texture->GetWidth());
@@ -168,8 +146,7 @@ void glimmer::RenderQueue::DrawTextureRotated(RenderLayer layer, float depth, co
     float v0 = 0.0F;
     float u1 = 1.0F;
     float v1 = 1.0F;
-    if (src != nullptr)
-    {
+    if (src != nullptr) {
         u0 = src->x / textureWidth;
         v0 = src->y / textureHeight;
         u1 = (src->x + src->w) / textureWidth;
@@ -181,15 +158,11 @@ void glimmer::RenderQueue::DrawTextureRotated(RenderLayer layer, float depth, co
         {dst->x, dst->y + dst->h},
         {dst->x + dst->w, dst->y + dst->h}
     };
-    if (angleDegrees != 0.0)
-    {
+    if (angleDegrees != 0.0) {
         SDL_FPoint rotationCenter;
-        if (center == nullptr)
-        {
+        if (center == nullptr) {
             rotationCenter = {dst->x + dst->w * 0.5F, dst->y + dst->h * 0.5F};
-        }
-        else
-        {
+        } else {
             rotationCenter = {dst->x + center->x, dst->y + center->y};
         }
         //Positive angles rotate clockwise (SDL_RenderTextureRotated semantics,
@@ -198,8 +171,7 @@ void glimmer::RenderQueue::DrawTextureRotated(RenderLayer layer, float depth, co
         const double radians = angleDegrees * (3.14159265358979323846 / 180.0);
         const auto cosValue = static_cast<float>(std::cos(radians));
         const auto sinValue = static_cast<float>(std::sin(radians));
-        for (auto& position : positions)
-        {
+        for (auto &position: positions) {
             const float dx = position.x - rotationCenter.x;
             const float dy = position.y - rotationCenter.y;
             position.x = rotationCenter.x + dx * cosValue - dy * sinValue;
@@ -212,29 +184,24 @@ void glimmer::RenderQueue::DrawTextureRotated(RenderLayer layer, float depth, co
         {u0, v1},
         {u1, v1}
     };
-    if ((flip & FLIP_HORIZONTAL) != 0)
-    {
+    if ((flip & FLIP_HORIZONTAL) != 0) {
         std::swap(uvs[0].x, uvs[1].x);
         std::swap(uvs[2].x, uvs[3].x);
     }
-    if ((flip & FLIP_VERTICAL) != 0)
-    {
+    if ((flip & FLIP_VERTICAL) != 0) {
         std::swap(uvs[0].y, uvs[2].y);
         std::swap(uvs[1].y, uvs[3].y);
     }
     AppendQuad(layer, depth, texture, positions, uvs, mod, pipeline, sampler, uniformBlocks);
 }
 
-void glimmer::RenderQueue::DrawFullScreenQuad(RenderLayer layer, float depth, const SDL_FRect* dst,
-                                              SDL_GPUGraphicsPipeline* pipeline, SDL_GPUSampler* sampler,
-                                              const std::vector<PipelineUniformBlock>* uniformBlocks)
-{
-    if (dst == nullptr)
-    {
+void glimmer::RenderQueue::DrawFullScreenQuad(RenderLayer layer, float depth, const SDL_FRect *dst,
+                                              SDL_GPUGraphicsPipeline *pipeline, SDL_GPUSampler *sampler,
+                                              const std::vector<PipelineUniformBlock> *uniformBlocks) {
+    if (dst == nullptr) {
         return;
     }
-    if (dst->w <= 0.0F || dst->h <= 0.0F)
-    {
+    if (dst->w <= 0.0F || dst->h <= 0.0F) {
         return;
     }
     const SDL_FPoint positions[4] = {
@@ -253,15 +220,12 @@ void glimmer::RenderQueue::DrawFullScreenQuad(RenderLayer layer, float depth, co
 }
 
 
-void glimmer::RenderQueue::FillRect(const RenderLayer layer, const float depth, const SDL_FRect* rect,
-                                    const SDL_Color& color)
-{
-    if (rect == nullptr)
-    {
+void glimmer::RenderQueue::FillRect(const RenderLayer layer, const float depth, const SDL_FRect *rect,
+                                    const SDL_Color &color) {
+    if (rect == nullptr) {
         return;
     }
-    if (rect->w <= 0.0F || rect->h <= 0.0F)
-    {
+    if (rect->w <= 0.0F || rect->h <= 0.0F) {
         return;
     }
     const SDL_FPoint positions[4] = {
@@ -279,11 +243,9 @@ void glimmer::RenderQueue::FillRect(const RenderLayer layer, const float depth, 
     AppendQuad(layer, depth, nullptr, positions, uvs, color);
 }
 
-void glimmer::RenderQueue::DrawRect(const RenderLayer layer, const float depth, const SDL_FRect* rect,
-                                    const SDL_Color& color)
-{
-    if (rect == nullptr)
-    {
+void glimmer::RenderQueue::DrawRect(const RenderLayer layer, const float depth, const SDL_FRect *rect,
+                                    const SDL_Color &color) {
+    if (rect == nullptr) {
         return;
     }
     const SDL_FRect top = {rect->x, rect->y, rect->w, 1.0F};
@@ -297,13 +259,11 @@ void glimmer::RenderQueue::DrawRect(const RenderLayer layer, const float depth, 
 }
 
 void glimmer::RenderQueue::DrawLine(const RenderLayer layer, const float depth, const float x1, const float y1,
-                                    const float x2, const float y2, const SDL_Color& color)
-{
+                                    const float x2, const float y2, const SDL_Color &color) {
     const float dx = x2 - x1;
     const float dy = y2 - y1;
     const float length = std::sqrt(dx * dx + dy * dy);
-    if (length <= 0.0F)
-    {
+    if (length <= 0.0F) {
         DrawPoint(layer, depth, x1, y1, color);
         return;
     }
@@ -327,8 +287,7 @@ void glimmer::RenderQueue::DrawLine(const RenderLayer layer, const float depth, 
 }
 
 void glimmer::RenderQueue::DrawPoint(const RenderLayer layer, const float depth, const float x, const float y,
-                                     const SDL_Color& color)
-{
+                                     const SDL_Color &color) {
     const SDL_FRect rect = {x, y, 1.0F, 1.0F};
     FillRect(layer, depth, &rect, color);
 }

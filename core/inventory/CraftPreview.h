@@ -31,10 +31,8 @@
 
 #include "core/mod/resourcePack/TextureResourceResult.h"
 
-namespace glimmer
-{
-    class CraftPreview
-    {
+namespace glimmer {
+    class CraftPreview {
         std::string name_;
         std::shared_ptr<TextureResourceResult> texture_ = nullptr;
         uint8_t count_ = 1;
@@ -42,7 +40,7 @@ namespace glimmer
     public:
         void SetCount(uint8_t count);
 
-        [[nodiscard]] const std::string& GetName();
+        [[nodiscard]] const std::string &GetName();
 
         void SetName(std::string_view name);
 

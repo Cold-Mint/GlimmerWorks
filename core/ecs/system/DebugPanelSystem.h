@@ -30,8 +30,7 @@
 #include "core/ecs/component/CameraComponent.h"
 #include "core/ecs/component/TileLayerComponent.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class Transform2DComponent;
     class AppContext;
 
@@ -39,20 +38,18 @@ namespace glimmer
      * A single line of debug text used by the debug panel data model.
      * 调试面板数据模型使用的一行调试文本。
      */
-    struct DebugLine
-    {
+    struct DebugLine {
         std::string text;
     };
 
-    class DebugPanelSystem : public GuiGameSystem
-    {
+    class DebugPanelSystem : public GuiGameSystem {
         std::string chunkText_;
-        std::vector<TileLayerComponent*> tileLayerComponents_;
+        std::vector<TileLayerComponent *> tileLayerComponents_;
         std::vector<DebugLine> debugLines_;
         WorldVector2D mousePosition_;
-        CameraComponent* cameraComponent_ = nullptr;
-        Transform2DComponent* cameraTransform2DComponent_ = nullptr;
-        AppContext* appContext_ = nullptr;
+        CameraComponent *cameraComponent_ = nullptr;
+        Transform2DComponent *cameraTransform2DComponent_ = nullptr;
+        AppContext *appContext_ = nullptr;
         Rml::DataModelHandle debugModelHandle_;
         int crosshairX_ = 0;
         int crosshairY_ = 0;
@@ -61,21 +58,21 @@ namespace glimmer
     public:
         bool CanActive() const override;
 
-        explicit DebugPanelSystem(WorldContext* worldContext);
+        explicit DebugPanelSystem(WorldContext *worldContext);
 
-        void OnConfigChanged(const Config* config) override;
+        void OnConfigChanged(const Config *config) override;
 
         void OnActivationChanged(bool activeStatus) override;
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
-        void LoadDocuments(IDocumentRegistry* documentRegistry) override;
+        void LoadDocuments(IDocumentRegistry *documentRegistry) override;
 
-        void OnCreateDataModels(IDocumentRegistry* documentRegistry) override;
+        void OnCreateDataModels(IDocumentRegistry *documentRegistry) override;
 
         void Update(float delta) override;
 
-        bool HandleEvent(const SDL_Event& event) override;
+        bool HandleEvent(const SDL_Event &event) override;
 
         uint8_t GetExecutionOrder() override;
 

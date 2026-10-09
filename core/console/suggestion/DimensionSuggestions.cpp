@@ -30,23 +30,19 @@
 
 #include "core/config/Constants.h"
 
-glimmer::DimensionSuggestions::DimensionSuggestions(DimensionRegistry* dimensionRegistry)
-    : dimensionRegistry_(dimensionRegistry)
-{
+glimmer::DimensionSuggestions::DimensionSuggestions(DimensionRegistry *dimensionRegistry)
+    : dimensionRegistry_(dimensionRegistry) {
 }
 
-std::string glimmer::DimensionSuggestions::GetId() const
-{
+std::string glimmer::DimensionSuggestions::GetId() const {
     return DIMENSION_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-const std::vector<std::string>& glimmer::DimensionSuggestions::GetSuggestions(
-    const std::optional<std::string>& param)
-{
+const std::vector<std::string> &glimmer::DimensionSuggestions::GetSuggestions(
+    const std::optional<std::string> &param) {
     return dimensionRegistry_->List();
 }
 
-bool glimmer::DimensionSuggestions::Match(const std::string& keyword, const std::string& param)
-{
+bool glimmer::DimensionSuggestions::Match(const std::string &keyword, const std::string &param) {
     return std::ranges::contains(dimensionRegistry_->List(), keyword);
 }

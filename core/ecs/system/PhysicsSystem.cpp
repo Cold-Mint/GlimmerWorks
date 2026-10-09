@@ -35,18 +35,14 @@
 
 
 void glimmer::PhysicsSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType,
-                                                       const uint32_t count)
-{
-    if (gameComponentType == COMPONENT_RIGID_BODY_2D)
-    {
+                                                       const uint32_t count) {
+    if (gameComponentType == COMPONENT_RIGID_BODY_2D) {
         rigidBody2dCount_ = count;
     }
-    if (gameComponentType == COMPONENT_TRANSFORM_2D)
-    {
+    if (gameComponentType == COMPONENT_TRANSFORM_2D) {
         transform2dCount_ = count;
     }
-    if (rigidBody2dCount_ > 0 && transform2dCount_ > 0)
-    {
+    if (rigidBody2dCount_ > 0 && transform2dCount_ > 0) {
         entities_.clear();
         entities_ = entityManager_->GetEntityIDWithComponents({COMPONENT_RIGID_BODY_2D, COMPONENT_TRANSFORM_2D});
         LogCat::d(LogLabel::DEFAULT, "physics_entities_rebuilt", "Physics entities rebuilt: {} entities",
@@ -54,18 +50,14 @@ void glimmer::PhysicsSystem::OnWatchedComponentChanged(GameComponentTypeMessage 
     }
 }
 
-void glimmer::PhysicsSystem::OnTick(uint64_t tick)
-{
+void glimmer::PhysicsSystem::OnTick(uint64_t tick) {
     b2World_Step(worldId_, FIXED_TIME_STEP, 4);
-    for (const GameEntityID entityId : entities_)
-    {
-        const RigidBody2DComponent* rigidBody2dComponent = entityManager_->GetComponent<RigidBody2DComponent>(entityId);
-        if (rigidBody2dComponent == nullptr)
-        {
+    for (const GameEntityID entityId: entities_) {
+        const RigidBody2DComponent *rigidBody2dComponent = entityManager_->GetComponent<RigidBody2DComponent>(entityId);
+        if (rigidBody2dComponent == nullptr) {
             continue;
         }
-        if (!rigidBody2dComponent->IsReady() || !rigidBody2dComponent->IsEnabled())
-        {
+        if (!rigidBody2dComponent->IsReady() || !rigidBody2dComponent->IsEnabled()) {
             continue;
         }
         const auto transform = entityManager_->GetComponent<Transform2DComponent>(entityId);
@@ -75,8 +67,7 @@ void glimmer::PhysicsSystem::OnTick(uint64_t tick)
     }
 }
 
-glimmer::PhysicsSystem::PhysicsSystem(WorldContext* worldContext) : GameSystem(worldContext)
-{
+glimmer::PhysicsSystem::PhysicsSystem(WorldContext *worldContext) : GameSystem(worldContext) {
     entityManager_ = worldContext->GetEntityManager();
     worldId_ = worldContext->GetWorldId();
     WatchComponent(COMPONENT_RIGID_BODY_2D);
@@ -84,7 +75,6 @@ glimmer::PhysicsSystem::PhysicsSystem(WorldContext* worldContext) : GameSystem(w
     Init();
 }
 
-glimmer::GameSystemType glimmer::PhysicsSystem::GetGameSystemType() const
-{
+glimmer::GameSystemType glimmer::PhysicsSystem::GetGameSystemType() const {
     return GameSystemType::PhysicsSystem;
 }

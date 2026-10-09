@@ -27,10 +27,8 @@
 #pragma once
 #include <string>
 
-namespace glimmer
-{
-    struct DimensionItem
-    {
+namespace glimmer {
+    struct DimensionItem {
         std::string dimensionId;
         std::string name;
     };

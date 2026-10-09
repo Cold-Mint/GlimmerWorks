@@ -29,40 +29,31 @@
 #include <algorithm>
 #include "core/log/LogCat.h"
 
-void glimmer::SceneManager::AddOverlayScene(std::unique_ptr<Scene> overlay)
-{
-    if (overlay == nullptr)
-    {
+void glimmer::SceneManager::AddOverlayScene(std::unique_ptr<Scene> overlay) {
+    if (overlay == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "add_overlay_scene_called_with_null",
                   "AddOverlayScene called with nullptr");
         return;
     }
-    if (std::ranges::find(overlayScenes_, overlay) == overlayScenes_.end())
-    {
+    if (std::ranges::find(overlayScenes_, overlay) == overlayScenes_.end()) {
         overlayScenes_.push_back(std::move(overlay));
         overlayScenesPtr_.push_back(overlayScenes_.back().get());
         LogCat::i(LogLabel::DEFAULT, "overlay_scene_added", "Overlay scene added, total overlay scenes: {}",
                   overlayScenes_.size());
-    }
-    else
-    {
+    } else {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "overlay_scene_already_exists",
                   "Overlay scene already exists, skipping");
     }
 }
 
-void glimmer::SceneManager::RemoveOverlayScene(const Scene* overlay)
-{
-    if (overlay == nullptr)
-    {
+void glimmer::SceneManager::RemoveOverlayScene(const Scene *overlay) {
+    if (overlay == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "remove_overlay_scene_called_with_null",
                   "RemoveOverlayScene called with nullptr");
         return;
     }
-    for (int i = 0; i < overlayScenes_.size(); i++)
-    {
-        if (overlayScenes_[i].get() == overlay)
-        {
+    for (int i = 0; i < overlayScenes_.size(); i++) {
+        if (overlayScenes_[i].get() == overlay) {
             overlayScenes_.erase(overlayScenes_.begin() + i);
             overlayScenesPtr_.erase(overlayScenesPtr_.begin() + i);
             LogCat::i(LogLabel::DEFAULT, "overlay_scene_removed", "Overlay scene removed, remaining overlay scenes: {}",
@@ -74,16 +65,13 @@ void glimmer::SceneManager::RemoveOverlayScene(const Scene* overlay)
               "RemoveOverlayScene: overlay scene not found");
 }
 
-std::vector<glimmer::Scene*> glimmer::SceneManager::GetOverlayScenes() const
-{
+std::vector<glimmer::Scene *> glimmer::SceneManager::GetOverlayScenes() const {
     return overlayScenesPtr_;
 }
 
 
-void glimmer::SceneManager::PushScene(std::unique_ptr<Scene> scene)
-{
-    if (!sceneStack_.empty())
-    {
+void glimmer::SceneManager::PushScene(std::unique_ptr<Scene> scene) {
+    if (!sceneStack_.empty()) {
         LogCat::i(LogLabel::DEFAULT, "pausing_current_scene", "Pausing current scene, scene count: {}",
                   sceneStack_.size());
         sceneStack_.top()->OnPauseScene();
@@ -93,10 +81,8 @@ void glimmer::SceneManager::PushScene(std::unique_ptr<Scene> scene)
     sceneStack_.push(std::move(scene));
 }
 
-void glimmer::SceneManager::ReplaceScene(std::unique_ptr<Scene> scene)
-{
-    if (sceneStack_.empty())
-    {
+void glimmer::SceneManager::ReplaceScene(std::unique_ptr<Scene> scene) {
+    if (sceneStack_.empty()) {
         LogCat::i(LogLabel::DEFAULT, "replacing_scene_stack_empty",
                   "Replacing scene: stack is empty, pushing new scene");
         scene->OnResumeScene();
@@ -112,10 +98,8 @@ void glimmer::SceneManager::ReplaceScene(std::unique_ptr<Scene> scene)
     sceneStack_.push(std::move(scene));
 }
 
-void glimmer::SceneManager::PopScene()
-{
-    if (sceneStack_.empty())
-    {
+void glimmer::SceneManager::PopScene() {
+    if (sceneStack_.empty()) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "pop_scene_stack_empty",
                   "PopScene called but scene stack is empty");
         return;
@@ -123,37 +107,29 @@ void glimmer::SceneManager::PopScene()
     LogCat::i(LogLabel::DEFAULT, "popping_scene", "Popping scene, scene count: {}", sceneStack_.size());
     sceneStack_.top()->OnPauseScene();
     sceneStack_.pop();
-    if (sceneStack_.empty())
-    {
+    if (sceneStack_.empty()) {
         LogCat::i(LogLabel::DEFAULT, "scene_stack_empty_after_pop", "Scene stack is now empty after pop");
-    }
-    else
-    {
+    } else {
         LogCat::i(LogLabel::DEFAULT, "resuming_previous_scene", "Resuming previous scene, scene count: {}",
                   sceneStack_.size());
         sceneStack_.top()->OnResumeScene();
     }
 }
 
-void glimmer::SceneManager::RemoveAllScenes()
-{
-    while (!sceneStack_.empty())
-    {
+void glimmer::SceneManager::RemoveAllScenes() {
+    while (!sceneStack_.empty()) {
         sceneStack_.top()->OnPauseScene();
         sceneStack_.pop();
     }
 }
 
-glimmer::Scene* glimmer::SceneManager::GetTopScene() const
-{
-    if (sceneStack_.empty())
-    {
+glimmer::Scene *glimmer::SceneManager::GetTopScene() const {
+    if (sceneStack_.empty()) {
         return nullptr;
     }
     return sceneStack_.top().get();
 }
 
-size_t glimmer::SceneManager::GetSceneCount() const
-{
+size_t glimmer::SceneManager::GetSceneCount() const {
     return sceneStack_.size();
 }

@@ -29,8 +29,7 @@
 
 class ItemMessage;
 
-namespace glimmer
-{
+namespace glimmer {
     class AppContext;
     class ResourceLocator;
     class WorldContext;
@@ -44,10 +43,9 @@ namespace glimmer
      * by resolving resources through the resource locator.
      * 通过资源定位器解析资源，从物品消息创建具体 Item 实例（瓦片/可组合/能力/材料）。
      */
-    class ItemFactory
-    {
-        AppContext* appContext_ = nullptr;
-        ResourceLocator* resourceLocator_ = nullptr;
+    class ItemFactory {
+        AppContext *appContext_ = nullptr;
+        ResourceLocator *resourceLocator_ = nullptr;
 
     public:
         /**
@@ -56,7 +54,7 @@ namespace glimmer
          * @param appContext appContext 应用上下文
          * @param resourceLocator resourceLocator 资源定位器
          */
-        ItemFactory(AppContext* appContext, ResourceLocator* resourceLocator);
+        ItemFactory(AppContext *appContext, ResourceLocator *resourceLocator);
 
         /**
          * CreateItem
@@ -66,7 +64,7 @@ namespace glimmer
          * @return The created item, or nullptr on failure 创建的物品，失败时返回nullptr
          */
         [[nodiscard]] std::unique_ptr<Item>
-        CreateItem(WorldContext* worldContext, const ItemMessage& itemMessage) const;
+        CreateItem(WorldContext *worldContext, const ItemMessage &itemMessage) const;
 
         /**
          * CreateItem
@@ -75,7 +73,7 @@ namespace glimmer
          * @param itemMessageResource itemMessageResource 物品消息资源
          * @return The created item, or nullptr on failure 创建的物品，失败时返回nullptr
          */
-        [[nodiscard]] std::unique_ptr<Item> CreateItem(WorldContext* worldContext,
-                                                       const ItemMessageResource& itemMessageResource) const;
+        [[nodiscard]] std::unique_ptr<Item> CreateItem(WorldContext *worldContext,
+                                                       const ItemMessageResource &itemMessageResource) const;
     };
 }

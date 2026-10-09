@@ -51,8 +51,7 @@
 #include "resourcePack/UniformBlockResourceResult.h"
 
 
-namespace glimmer
-{
+namespace glimmer {
     class CacheContext;
     class TileResourceManager;
     class MobRegistry;
@@ -70,27 +69,26 @@ namespace glimmer
      * ResourceLocator，Used to interpret references and return the corresponding resources.
      * 资源定位器，用于解释引用并返回对应的资源。
      */
-    class ResourceLocator
-    {
+    class ResourceLocator {
         ItemFactory itemFactory_;
-        AppContext* appContext_ = nullptr;
-        CacheContext* cacheContext_ = nullptr;
-        ResourcePackManager* resourcePackManager_ = nullptr;
-        FixedColorManager* fixedColorManager_ = nullptr;
-        LootTableRegistry* lootTableRegistry_ = nullptr;
-        AbilityItemRegistry* abilityItemRegistry_ = nullptr;
-        ComposableItemRegistry* composableItemRegistry_ = nullptr;
-        MaterialItemRegistry* materialItemRegistry_ = nullptr;
-        MobRegistry* mobRegistry_ = nullptr;
-        StructureRegistry* structureRegistry_ = nullptr;
-        DimensionRegistry* dimensionRegistry_ = nullptr;
-        TileResourceManager* tileResourceManager_ = nullptr;
-        LightMaskManager* lightMaskManager_ = nullptr;
-        LightSourceManager* lightSourceManager_ = nullptr;
-        ShapeManager* shapeManager_ = nullptr;
-        StringManager* stringManager_ = nullptr;
-        BiomeDecoratorRegistry* biomeDecoratorRegistry_ = nullptr;
-        DataPackManager* dataPackManager_ = nullptr;
+        AppContext *appContext_ = nullptr;
+        CacheContext *cacheContext_ = nullptr;
+        ResourcePackManager *resourcePackManager_ = nullptr;
+        FixedColorManager *fixedColorManager_ = nullptr;
+        LootTableRegistry *lootTableRegistry_ = nullptr;
+        AbilityItemRegistry *abilityItemRegistry_ = nullptr;
+        ComposableItemRegistry *composableItemRegistry_ = nullptr;
+        MaterialItemRegistry *materialItemRegistry_ = nullptr;
+        MobRegistry *mobRegistry_ = nullptr;
+        StructureRegistry *structureRegistry_ = nullptr;
+        DimensionRegistry *dimensionRegistry_ = nullptr;
+        TileResourceManager *tileResourceManager_ = nullptr;
+        LightMaskManager *lightMaskManager_ = nullptr;
+        LightSourceManager *lightSourceManager_ = nullptr;
+        ShapeManager *shapeManager_ = nullptr;
+        StringManager *stringManager_ = nullptr;
+        BiomeDecoratorRegistry *biomeDecoratorRegistry_ = nullptr;
+        DataPackManager *dataPackManager_ = nullptr;
 
         /**
          * FindRegistered
@@ -103,18 +101,15 @@ namespace glimmer
          * @param lookup lookup 具体的查找逻辑
          * @return The located resource, or nullptr on failure 定位到的资源，失败时返回nullptr
          */
-        template <typename ResultT, typename Lookup>
-        [[nodiscard]] ResultT* FindRegistered(const ResourceRef* resourceRef, const ResourceTypeMessage expectedType,
-                                              Lookup&& lookup) const
-        {
-            if (resourceRef == nullptr)
-            {
+        template<typename ResultT, typename Lookup>
+        [[nodiscard]] ResultT *FindRegistered(const ResourceRef *resourceRef, const ResourceTypeMessage expectedType,
+                                              Lookup &&lookup) const {
+            if (resourceRef == nullptr) {
                 LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "resource_ref_is_null",
                           "resourceRef == nullptr");
                 return nullptr;
             }
-            if (resourceRef->GetResourceType() != expectedType || !ValidateAccessPermission(resourceRef))
-            {
+            if (resourceRef->GetResourceType() != expectedType || !ValidateAccessPermission(resourceRef)) {
                 LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "type_mismatch_or_access_denied",
                           "Type mismatch or access permission denied: expected type = {}, actual type = {}",
                           std::to_underlying(expectedType), std::to_underlying(resourceRef->GetResourceType()));
@@ -124,7 +119,7 @@ namespace glimmer
         }
 
     public:
-        explicit ResourceLocator(AppContext* appContext);
+        explicit ResourceLocator(AppContext *appContext);
 
         /**
         * ValidateAccessPermission
@@ -139,7 +134,7 @@ namespace glimmer
         * @param resourceRef resourceRef 资源引用
         * @return If access is permitted, return true; otherwise, return false. 若允许访问则返回 true，否则返回 false
         */
-        [[nodiscard]] bool ValidateAccessPermission(const ResourceRef* resourceRef) const;
+        [[nodiscard]] bool ValidateAccessPermission(const ResourceRef *resourceRef) const;
 
         /**
          * Load the texture and return an error placeholder if the loading fails.
@@ -149,9 +144,9 @@ namespace glimmer
          * @return
          */
         [[nodiscard]] std::shared_ptr<TextureResourceResult> FindTexture(
-            const ResourceRef* resourceRef, bool enablePlaceHolder = true) const;
+            const ResourceRef *resourceRef, bool enablePlaceHolder = true) const;
 
-        [[nodiscard]] std::shared_ptr<AudioResourceResult> FindAudio(const ResourceRef* resourceRef,
+        [[nodiscard]] std::shared_ptr<AudioResourceResult> FindAudio(const ResourceRef *resourceRef,
                                                                      bool enablePlaceholder = true) const;
 
         /**
@@ -160,7 +155,7 @@ namespace glimmer
          * @param resourceRef resourceRef 着色器引用
          * @param enablePlaceHolder enablePlaceholder 启用占位符
          */
-        [[nodiscard]] std::shared_ptr<ShaderResourceResult> FindShader(const ResourceRef* resourceRef,
+        [[nodiscard]] std::shared_ptr<ShaderResourceResult> FindShader(const ResourceRef *resourceRef,
                                                                        bool enablePlaceHolder = true) const;
 
         /**
@@ -172,11 +167,11 @@ namespace glimmer
          * 查找结果（配置）；找不到或权限受限时返回 nullptr。
          */
         [[nodiscard]] std::shared_ptr<GPUPipelineResourceResult> FindGPUGraphicsPipeline(
-            const ResourceRef* resourceRef, bool enablePlaceHolder = true) const;
+            const ResourceRef *resourceRef, bool enablePlaceHolder = true) const;
 
 
         [[nodiscard]] std::shared_ptr<GPUSamplerResourceResult> FindGPUGraphicsSampler(
-            const ResourceRef* resourceRef, bool enablePlaceHolder = true) const;
+            const ResourceRef *resourceRef, bool enablePlaceHolder = true) const;
 
         /**
          * FindUniformBlock
@@ -186,13 +181,13 @@ namespace glimmer
          * @return 编译后的 Uniform 块；找不到或权限受限时返回 nullptr。
          */
         [[nodiscard]] std::shared_ptr<UniformBlockResourceResult> FindUniformBlock(
-            const ResourceRef* resourceRef, bool enablePlaceHolder = true) const;
+            const ResourceRef *resourceRef, bool enablePlaceHolder = true) const;
 
-        [[nodiscard]] std::unique_ptr<Color> FindColor(const ResourceRef* resourceRef) const;
+        [[nodiscard]] std::unique_ptr<Color> FindColor(const ResourceRef *resourceRef) const;
 
-        [[nodiscard]] IShapeResource* FindShape(const ResourceRef* resourceRef) const;
+        [[nodiscard]] IShapeResource *FindShape(const ResourceRef *resourceRef) const;
 
-        [[nodiscard]] IBiomeDecoratorResource* FindBiomeDecorator(const ResourceRef* resourceRef) const;
+        [[nodiscard]] IBiomeDecoratorResource *FindBiomeDecorator(const ResourceRef *resourceRef) const;
 
         /**
          * FindString
@@ -200,11 +195,11 @@ namespace glimmer
          * @param resourceRef resourceRef 字符串引用
          * @return
          */
-        [[nodiscard]] StringResource* FindString(const ResourceRef* resourceRef) const;
+        [[nodiscard]] StringResource *FindString(const ResourceRef *resourceRef) const;
 
-        [[nodiscard]] LightSourceResource* FindLightSource(const ResourceRef* resourceRef) const;
+        [[nodiscard]] LightSourceResource *FindLightSource(const ResourceRef *resourceRef) const;
 
-        [[nodiscard]] LightMaskResource* FindLightMask(const ResourceRef* resourceRef) const;
+        [[nodiscard]] LightMaskResource *FindLightMask(const ResourceRef *resourceRef) const;
 
         /**
          * FindTile
@@ -213,11 +208,11 @@ namespace glimmer
          * @param tileLayer tileLayer
          * @return
          */
-        [[nodiscard]] TileResource* FindTileFallback(const ResourceRef* resourceRef, TileLayerType tileLayer) const;
+        [[nodiscard]] TileResource *FindTileFallback(const ResourceRef *resourceRef, TileLayerType tileLayer) const;
 
-        [[nodiscard]] TileResource* FindTileRaw(const ResourceRef* resourceRef) const;
+        [[nodiscard]] TileResource *FindTileRaw(const ResourceRef *resourceRef) const;
 
-        [[nodiscard]] MobResource* FindMob(const ResourceRef* resourceRef) const;
+        [[nodiscard]] MobResource *FindMob(const ResourceRef *resourceRef) const;
 
         /**
          * FindStructure
@@ -225,7 +220,7 @@ namespace glimmer
          * @param resourceRef resourceRef 结构引用
          * @return
          */
-        [[nodiscard]] IStructureResource* FindStructure(const ResourceRef* resourceRef) const;
+        [[nodiscard]] IStructureResource *FindStructure(const ResourceRef *resourceRef) const;
 
         /**
          * FindDimension
@@ -233,7 +228,7 @@ namespace glimmer
          * @param resourceRef resourceRef 维度引用
          * @return
          */
-        [[nodiscard]] DimensionResource* FindDimension(const ResourceRef* resourceRef) const;
+        [[nodiscard]] DimensionResource *FindDimension(const ResourceRef *resourceRef) const;
 
         /**
          * FindComposableItem
@@ -241,7 +236,7 @@ namespace glimmer
          * @param resourceRef resourceRef 物品引用
          * @return
          */
-        [[nodiscard]] ComposableItemResource* FindComposableItem(const ResourceRef* resourceRef) const;
+        [[nodiscard]] ComposableItemResource *FindComposableItem(const ResourceRef *resourceRef) const;
 
         /**
          * FindAbilityItem
@@ -249,9 +244,9 @@ namespace glimmer
          * @param resourceRef resourceRef 物品引用
          * @return
          */
-        [[nodiscard]] AbilityItemResource* FindAbilityItem(const ResourceRef* resourceRef) const;
+        [[nodiscard]] AbilityItemResource *FindAbilityItem(const ResourceRef *resourceRef) const;
 
-        [[nodiscard]] MaterialItemResource* FindMaterialItem(const ResourceRef* resourceRef) const;
+        [[nodiscard]] MaterialItemResource *FindMaterialItem(const ResourceRef *resourceRef) const;
 
         /**
          * FindLoot
@@ -259,7 +254,7 @@ namespace glimmer
          * @param resourceRef resourceRef 物品引用
          * @return
          */
-        [[nodiscard]] LootResource* FindLoot(const ResourceRef* resourceRef) const;
+        [[nodiscard]] LootResource *FindLoot(const ResourceRef *resourceRef) const;
 
         /**
          * FindItem
@@ -268,10 +263,10 @@ namespace glimmer
          * @param itemMessage itemMessage 物品数据
          * @return  Item pointer 物品指针
          */
-        [[nodiscard]] std::unique_ptr<Item> FindItem(WorldContext* worldContext,
-                                                     const ItemMessage& itemMessage) const;
+        [[nodiscard]] std::unique_ptr<Item> FindItem(WorldContext *worldContext,
+                                                     const ItemMessage &itemMessage) const;
 
-        [[nodiscard]] std::unique_ptr<Item> FindItem(WorldContext* worldContext,
-                                                     const ItemMessageResource& itemMessageResource) const;
+        [[nodiscard]] std::unique_ptr<Item> FindItem(WorldContext *worldContext,
+                                                     const ItemMessageResource &itemMessageResource) const;
     };
 }

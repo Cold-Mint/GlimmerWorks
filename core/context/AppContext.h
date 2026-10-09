@@ -47,15 +47,13 @@
 #include "core/context/ISystemBucket.h"
 #include "core/gpu/PendingScreenshot.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class EventBus;
 
-    class AppContext
-    {
+    class AppContext {
         mutable std::optional<PendingScreenshot> pendingScreenshot_;
         std::vector<UIMessage> uiMessages_;
-        std::vector<std::unique_ptr<IAppContextInitTask>> initTasks_;
+        std::vector<std::unique_ptr<IAppContextInitTask> > initTasks_;
         std::unique_ptr<ISystemBucket> systemBucket_;
 
         void RegisterInitTask(std::unique_ptr<IAppContextInitTask> initTask);
@@ -65,48 +63,48 @@ namespace glimmer
 
         bool InitSystem() const;
 
-        [[nodiscard]] WindowContext* GetWindowContext() const;
+        [[nodiscard]] WindowContext *GetWindowContext() const;
 
         void SetRandomSlogan() const;
 
 
-        [[nodiscard]] CacheContext* GetCacheContext() const;
+        [[nodiscard]] CacheContext *GetCacheContext() const;
 
-        [[nodiscard]] ModContext* GetModContext() const;
+        [[nodiscard]] ModContext *GetModContext() const;
 
-        [[nodiscard]] ConsoleContext* GetConsoleContext() const;
+        [[nodiscard]] ConsoleContext *GetConsoleContext() const;
 
-        [[nodiscard]] TickWorker* GetTickWorker() const;
+        [[nodiscard]] TickWorker *GetTickWorker() const;
 
-        [[nodiscard]] TaskWorker* GetTaskWorker() const;
+        [[nodiscard]] TaskWorker *GetTaskWorker() const;
 
-        [[nodiscard]] GraphicsContext* GetGraphicsContext() const;
+        [[nodiscard]] GraphicsContext *GetGraphicsContext() const;
 
-        [[nodiscard]] AudioContext* GetAudioContext() const;
+        [[nodiscard]] AudioContext *GetAudioContext() const;
 
-        [[nodiscard]] RmlContext* GetRmlContext() const;
+        [[nodiscard]] RmlContext *GetRmlContext() const;
 
-        [[nodiscard]] MainThreadDispatcher* GetMainThreadDispatcher() const;
+        [[nodiscard]] MainThreadDispatcher *GetMainThreadDispatcher() const;
 
-        [[nodiscard]] Config* GetConfig() const;
+        [[nodiscard]] Config *GetConfig() const;
 
-        [[nodiscard]] toml::value* GetLangsValue() const;
+        [[nodiscard]] toml::value *GetLangsValue() const;
 
-        [[nodiscard]] LangsResources* GetLangsResources() const;
+        [[nodiscard]] LangsResources *GetLangsResources() const;
 
-        [[nodiscard]] ResourcePackManager* GetResourcePackManager() const;
+        [[nodiscard]] ResourcePackManager *GetResourcePackManager() const;
 
-        [[nodiscard]] ResourceLocator* GetResourceLocator() const;
+        [[nodiscard]] ResourceLocator *GetResourceLocator() const;
 
-        [[nodiscard]] VirtualFileSystem* GetVirtualFileSystem() const;
+        [[nodiscard]] VirtualFileSystem *GetVirtualFileSystem() const;
 
-        [[nodiscard]] SceneManager* GetSceneManager() const;
+        [[nodiscard]] SceneManager *GetSceneManager() const;
 
-        [[nodiscard]] SavesManager* GetSavesManager() const;
+        [[nodiscard]] SavesManager *GetSavesManager() const;
 
-        [[nodiscard]] EventBus* GetEventBus() const;
+        [[nodiscard]] EventBus *GetEventBus() const;
 
-        [[nodiscard]] const std::string& GetLanguage() const;
+        [[nodiscard]] const std::string &GetLanguage() const;
 
         /**
          * Add a transient UI message that is displayed via the RmlUi data
@@ -114,15 +112,15 @@ namespace glimmer
          * 添加一条通过 RmlUi 数据绑定显示的短暂 UI 消息（见 UIMessageOverlay）。
          * @param text text 消息文本
          */
-        void AddUIMessage(const std::string& text);
+        void AddUIMessage(const std::string &text);
 
         /**
          * @return The pending UI messages. 待显示的 UI 消息列表。
          */
-        [[nodiscard]] std::vector<UIMessage>& GetUIMessages();
+        [[nodiscard]] std::vector<UIMessage> &GetUIMessages();
 
 
-        void CreateScreenshot(const std::function<void(const std::string & text)>* onMessage) const;
+        void CreateScreenshot(const std::function<void(const std::string &text)> *onMessage) const;
 
         /**
          * Take out the pending screenshot request, if any.

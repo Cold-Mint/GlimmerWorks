@@ -29,123 +29,99 @@
 #include "core/mod/Resource.h"
 #include "core/mod/resourcePack/TextureResourceResult.h"
 
-void glimmer::AbilityItemCreateParams::SetIconResult(const ResourceRef& iconResult)
-{
+void glimmer::AbilityItemCreateParams::SetIconResult(const ResourceRef &iconResult) {
     iconResourceRef_ = iconResult;
 }
 
-const glimmer::ResourceRef& glimmer::AbilityItemCreateParams::GetIconResourceRef() const
-{
+const glimmer::ResourceRef &glimmer::AbilityItemCreateParams::GetIconResourceRef() const {
     return iconResourceRef_;
 }
 
-void glimmer::AbilityItemCreateParams::SetCanUseAlone(const bool canUseAlone)
-{
+void glimmer::AbilityItemCreateParams::SetCanUseAlone(const bool canUseAlone) {
     canUseAlone_ = canUseAlone;
 }
 
-bool glimmer::AbilityItemCreateParams::IsCanUseAlone() const
-{
+bool glimmer::AbilityItemCreateParams::IsCanUseAlone() const {
     return canUseAlone_;
 }
 
-void glimmer::AbilityItemCreateParams::SetItemAbility(const std::shared_ptr<ItemAbility>& itemAbility)
-{
+void glimmer::AbilityItemCreateParams::SetItemAbility(const std::shared_ptr<ItemAbility> &itemAbility) {
     itemAbility_ = itemAbility;
 }
 
-const std::shared_ptr<glimmer::ItemAbility>& glimmer::AbilityItemCreateParams::GetItemAbility() const
-{
+const std::shared_ptr<glimmer::ItemAbility> &glimmer::AbilityItemCreateParams::GetItemAbility() const {
     return itemAbility_;
 }
 
-void glimmer::AbilityItemCreateParams::SetUnbreakable(const bool unbreakable)
-{
+void glimmer::AbilityItemCreateParams::SetUnbreakable(const bool unbreakable) {
     unbreakable_ = unbreakable;
 }
 
-void glimmer::AbilityItemCreateParams::SetTags(const std::vector<ItemTagResource>& tags)
-{
+void glimmer::AbilityItemCreateParams::SetTags(const std::vector<ItemTagResource> &tags) {
     tags_ = tags;
 }
 
-void glimmer::AbilityItemCreateParams::SetResourceRef(const ResourceRef& resourceRef)
-{
+void glimmer::AbilityItemCreateParams::SetResourceRef(const ResourceRef &resourceRef) {
     resourceRef_ = resourceRef;
 }
 
-void glimmer::AbilityItemCreateParams::SetMaxDurability(const uint32_t maxDurability)
-{
+void glimmer::AbilityItemCreateParams::SetMaxDurability(const uint32_t maxDurability) {
     maxDurability_ = maxDurability;
 }
 
-void glimmer::AbilityItemCreateParams::SetMaxSize(const uint8_t maxSize)
-{
+void glimmer::AbilityItemCreateParams::SetMaxSize(const uint8_t maxSize) {
     maxSize_ = maxSize;
 }
 
-uint8_t glimmer::AbilityItemCreateParams::GetMaxSize() const
-{
+uint8_t glimmer::AbilityItemCreateParams::GetMaxSize() const {
     return maxSize_;
 }
 
-void glimmer::AbilityItemCreateParams::SetIconResult(const std::shared_ptr<TextureResourceResult>& iconResult)
-{
+void glimmer::AbilityItemCreateParams::SetIconResult(const std::shared_ptr<TextureResourceResult> &iconResult) {
     iconResult_ = iconResult;
 }
 
-const std::shared_ptr<glimmer::TextureResourceResult>& glimmer::AbilityItemCreateParams::GetIconResult() const
-{
+const std::shared_ptr<glimmer::TextureResourceResult> &glimmer::AbilityItemCreateParams::GetIconResult() const {
     return iconResult_;
 }
 
-uint32_t glimmer::AbilityItemCreateParams::GetMaxDurability() const
-{
+uint32_t glimmer::AbilityItemCreateParams::GetMaxDurability() const {
     return maxDurability_;
 }
 
-void glimmer::AbilityItemCreateParams::SetDescription(const std::optional<std::string>& description)
-{
+void glimmer::AbilityItemCreateParams::SetDescription(const std::optional<std::string> &description) {
     description_ = description;
 }
 
-void glimmer::AbilityItemCreateParams::SetName(std::string_view name)
-{
+void glimmer::AbilityItemCreateParams::SetName(std::string_view name) {
     name_ = name;
 }
 
-void glimmer::AbilityItemCreateParams::SetId(std::string_view id)
-{
+void glimmer::AbilityItemCreateParams::SetId(std::string_view id) {
     id_ = id;
 }
 
-const std::optional<std::string>& glimmer::AbilityItemCreateParams::GetDescription() const
-{
+const std::optional<std::string> &glimmer::AbilityItemCreateParams::GetDescription() const {
     return description_;
 }
 
 
-bool glimmer::AbilityItemCreateParams::IsUnbreakable() const
-{
+bool glimmer::AbilityItemCreateParams::IsUnbreakable() const {
     return unbreakable_;
 }
 
-const std::vector<glimmer::ItemTagResource>& glimmer::AbilityItemCreateParams::GetTags() const
-{
+const std::vector<glimmer::ItemTagResource> &glimmer::AbilityItemCreateParams::GetTags() const {
     return tags_;
 }
 
-const glimmer::ResourceRef& glimmer::AbilityItemCreateParams::GetResourceRef() const
-{
+const glimmer::ResourceRef &glimmer::AbilityItemCreateParams::GetResourceRef() const {
     return resourceRef_;
 }
 
-const std::string& glimmer::AbilityItemCreateParams::GetName() const
-{
+const std::string &glimmer::AbilityItemCreateParams::GetName() const {
     return name_;
 }
 
-const std::string& glimmer::AbilityItemCreateParams::GetId() const
-{
+const std::string &glimmer::AbilityItemCreateParams::GetId() const {
     return id_;
 }

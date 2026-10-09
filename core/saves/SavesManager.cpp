@@ -38,20 +38,17 @@
 #include "src/saves/map_manifest.pb.h"
 
 
-void glimmer::SavesManager::AfterRegister(Saves* resource)
-{
+void glimmer::SavesManager::AfterRegister(Saves *resource) {
     LogCat::i(LogLabel::DEFAULT, "saves_manager_registering", "Registering save: path={}",
               resource->GetPath().string());
     auto mapManifestMessage = resource->ReadMapManifest();
-    if (!mapManifestMessage.has_value())
-    {
+    if (!mapManifestMessage.has_value()) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "saves_manager_register_map_manifest_failed",
                   "Failed to read map manifest during registration: path={}", resource->GetPath().string());
         return;
     }
     auto playerMessage = resource->ReadLocalPlayer();
-    if (!playerMessage.has_value())
-    {
+    if (!playerMessage.has_value()) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "saves_manager_register_local_player_failed",
                   "Failed to read local player during registration: path={}", resource->GetPath().string());
         return;
@@ -71,53 +68,43 @@ void glimmer::SavesManager::AfterRegister(Saves* resource)
     LogCat::d(LogLabel::DEFAULT, "saves_manager_save_registered", "Save registered: name={}, index={}",
               manifestList_.back()->name, index);
 
-    saveList_.back()->SetOnMapManifestChanged([this, resource](const MapManifestMessage& msg)
-    {
+    saveList_.back()->SetOnMapManifestChanged([this, resource](const MapManifestMessage &msg) {
         auto findIt = saveToIndex_.find(resource);
         if (findIt == saveToIndex_.end())
             return;
         size_t realIndex = findIt->second;
-        if (realIndex < manifestList_.size())
-        {
+        if (realIndex < manifestList_.size()) {
             manifestList_[realIndex]->FromMessage(msg);
         }
     });
 }
 
-void glimmer::SavesManager::BeforeUnRegister(Saves* resource)
-{
+void glimmer::SavesManager::BeforeUnRegister(Saves *resource) {
     LogCat::i(LogLabel::DEFAULT, "saves_manager_unregistering", "Unregistering save: path={}",
               resource->GetPath().string());
     resource->SetOnMapManifestChanged(nullptr);
     auto mapIt = saveToIndex_.find(resource);
-    if (mapIt == saveToIndex_.end())
-    {
+    if (mapIt == saveToIndex_.end()) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "saves_manager_unregister_not_found",
                   "Save not found in index during unregister: path={}", resource->GetPath().string());
         return;
     }
     long index = static_cast<long>(mapIt->second);
-    if (index < manifestList_.size())
-    {
+    if (index < manifestList_.size()) {
         manifestList_.erase(manifestList_.begin() + index);
     }
-    if (index < localPlayers_.size())
-    {
+    if (index < localPlayers_.size()) {
         localPlayers_.erase(localPlayers_.begin() + index);
     }
-    for (auto it = saveList_.begin(); it != saveList_.end(); ++it)
-    {
-        if (*it == resource)
-        {
+    for (auto it = saveList_.begin(); it != saveList_.end(); ++it) {
+        if (*it == resource) {
             saveList_.erase(it);
             break;
         }
     }
     saveToIndex_.erase(mapIt);
-    for (auto& pair : saveToIndex_)
-    {
-        if (pair.second > index)
-        {
+    for (auto &pair: saveToIndex_) {
+        if (pair.second > index) {
             pair.second -= 1;
         }
     }
@@ -126,44 +113,36 @@ void glimmer::SavesManager::BeforeUnRegister(Saves* resource)
 }
 
 
-glimmer::SavesManager::SavesManager(VirtualFileSystem* virtualFileSystem)
-    : virtualFileSystem_(virtualFileSystem)
-{
+glimmer::SavesManager::SavesManager(VirtualFileSystem *virtualFileSystem)
+    : virtualFileSystem_(virtualFileSystem) {
 }
 
-glimmer::Saves* glimmer::SavesManager::GetSave(const size_t index) const
-{
+glimmer::Saves *glimmer::SavesManager::GetSave(const size_t index) const {
     return saveList_[index];
 }
 
-glimmer::MapManifest* glimmer::SavesManager::GetMapManifest(const size_t index) const
-{
+glimmer::MapManifest *glimmer::SavesManager::GetMapManifest(const size_t index) const {
     return manifestList_[index].get();
 }
 
-glimmer::PlayerManifest* glimmer::SavesManager::GetPlayerManifest(const size_t index) const
-{
+glimmer::PlayerManifest *glimmer::SavesManager::GetPlayerManifest(const size_t index) const {
     return localPlayers_[index].get();
 }
 
-bool glimmer::SavesManager::DeleteSave(const size_t index)
-{
+bool glimmer::SavesManager::DeleteSave(const size_t index) {
     LogCat::i(LogLabel::DEFAULT, "saves_manager_deleting", "Deleting save: index={}", index);
-    if (index >= saveList_.size())
-    {
+    if (index >= saveList_.size()) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "saves_manager_delete_invalid_index",
                   "Failed to delete save: index {} out of range (size={})", index, saveList_.size());
         return false;
     }
     auto save = saveList_[index];
-    if (save == nullptr)
-    {
+    if (save == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "saves_manager_delete_save_is_null",
                   "Failed to delete save: element at index {} is null", index);
         return false;
     }
-    if (virtualFileSystem_->DeleteFileOrFolder(save->GetPath()))
-    {
+    if (virtualFileSystem_->DeleteFileOrFolder(save->GetPath())) {
         saveList_.erase(saveList_.begin() + static_cast<long>(index));
         manifestList_.erase(manifestList_.begin() + static_cast<long>(index));
         LogCat::i(LogLabel::DEFAULT, "saves_manager_delete_success", "Save deleted successfully: index={}, path={}",
@@ -177,9 +156,8 @@ bool glimmer::SavesManager::DeleteSave(const size_t index)
     return false;
 }
 
-glimmer::Saves* glimmer::SavesManager::Create(const std::filesystem::path& runtimePath,
-                                              const SavesCreateRequest& request)
-{
+glimmer::Saves *glimmer::SavesManager::Create(const std::filesystem::path &runtimePath,
+                                              const SavesCreateRequest &request) {
     MapManifest mapManifest;
     mapManifest.seed = request.GetSeed();
     mapManifest.name = request.GetWorldName();
@@ -189,22 +167,17 @@ glimmer::Saves* glimmer::SavesManager::Create(const std::filesystem::path& runti
     mapManifest.globalTickCount = 0;
     PlayerManifest playerManifest;
     playerManifest.lastPlayedTime = TimeUtils::GetCurrentTimeMs();
-    if (request.GetAllowCheats())
-    {
+    if (request.GetAllowCheats()) {
         playerManifest.permissionLevel = PLAYER_PERMISSION_LEVEL_ADMIN;
-    }
-    else
-    {
+    } else {
         playerManifest.permissionLevel = PLAYER_PERMISSION_LEVEL_NORMAL;
     }
     playerManifest.SwitchDimension(request.GetDimensionsResourceRef());
     LogCat::i(LogLabel::DEFAULT, "saves_manager_creating", "Creating save: name={}", mapManifest.name);
     std::filesystem::path path = runtimePath / "saves" / StringUtils::ToSafeSaveName(mapManifest.name);
-    if (!virtualFileSystem_->Exists(path))
-    {
+    if (!virtualFileSystem_->Exists(path)) {
         bool createFolder = virtualFileSystem_->CreateFolder(path);
-        if (!createFolder)
-        {
+        if (!createFolder) {
             LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "saves_manager_create_folder_failed",
                       "Failed to create save folder: {}", path.string());
             return nullptr;
@@ -213,16 +186,14 @@ glimmer::Saves* glimmer::SavesManager::Create(const std::filesystem::path& runti
     auto save = std::make_unique<Saves>(path, virtualFileSystem_);
     MapManifestMessage manifestMessage;
     mapManifest.ToMessage(manifestMessage);
-    if (!save->WriteMapManifest(manifestMessage))
-    {
+    if (!save->WriteMapManifest(manifestMessage)) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "saves_manager_create_write_manifest_failed",
                   "Failed to write map manifest while creating save: {}", path.string());
         return nullptr;
     }
     PlayerMessage playerMessage;
     playerManifest.ToMessage(playerMessage);
-    if (!save->WriteLocalPlayer(playerMessage))
-    {
+    if (!save->WriteLocalPlayer(playerMessage)) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "saves_manager_create_write_player_failed",
                   "Failed to write local player while creating save: {}", path.string());
         return nullptr;
@@ -235,63 +206,50 @@ glimmer::Saves* glimmer::SavesManager::Create(const std::filesystem::path& runti
 }
 
 
-void glimmer::SavesManager::LoadAllSaves(const std::filesystem::path& runtimePath)
-{
+void glimmer::SavesManager::LoadAllSaves(const std::filesystem::path &runtimePath) {
     LogCat::i(LogLabel::DEFAULT, "saves_manager_loading_all", "Loading all saves: path={}",
               (runtimePath / "saves").string());
     Clear();
     for (const std::vector<std::filesystem::path> array = virtualFileSystem_->ListFile(runtimePath / "saves", false);
-         const auto& item : array)
-    {
+         const auto &item: array) {
         Register(std::make_unique<Saves>(item, virtualFileSystem_));
     }
     LogCat::i(LogLabel::DEFAULT, "saves_manager_load_all_completed", "Finished loading all saves: count={}",
               saveList_.size());
 }
 
-size_t glimmer::SavesManager::GetSavesListSize() const
-{
+size_t glimmer::SavesManager::GetSavesListSize() const {
     return saveList_.size();
 }
 
-std::vector<size_t> glimmer::SavesManager::FilterByKeyword(const std::string& keyword) const
-{
+std::vector<size_t> glimmer::SavesManager::FilterByKeyword(const std::string &keyword) const {
     std::vector<size_t> result;
-    if (keyword.empty())
-    {
-        for (size_t i = 0; i < saveList_.size(); ++i)
-        {
+    if (keyword.empty()) {
+        for (size_t i = 0; i < saveList_.size(); ++i) {
             result.push_back(i);
         }
-    }
-    else
-    {
+    } else {
         std::string lowerKeyword = keyword;
         std::ranges::transform(lowerKeyword, lowerKeyword.begin(),
                                [](unsigned char c) { return std::tolower(c); });
 
-        for (size_t i = 0; i < saveList_.size(); ++i)
-        {
-            const auto* manifest = manifestList_[i].get();
-            if (manifest == nullptr)
-            {
+        for (size_t i = 0; i < saveList_.size(); ++i) {
+            const auto *manifest = manifestList_[i].get();
+            if (manifest == nullptr) {
                 continue;
             }
             std::string lowerName = manifest->name;
             std::ranges::transform(lowerName, lowerName.begin(),
                                    [](unsigned char c) { return std::tolower(c); });
-            if (lowerName.find(lowerKeyword) != std::string::npos)
-            {
+            if (lowerName.find(lowerKeyword) != std::string::npos) {
                 result.push_back(i);
             }
         }
     }
-    std::ranges::sort(result, [this](size_t a, size_t b)
-    {
-        const auto* localPlayerA = localPlayers_[a].get();
-        const auto* localPlayerB = localPlayers_[b].get();
-        if (localPlayerA == nullptr || localPlayerB == nullptr)
-        {
+    std::ranges::sort(result, [this](size_t a, size_t b) {
+        const auto *localPlayerA = localPlayers_[a].get();
+        const auto *localPlayerB = localPlayers_[b].get();
+        if (localPlayerA == nullptr || localPlayerB == nullptr) {
             return false;
         }
         return localPlayerA->lastPlayedTime > localPlayerB->lastPlayedTime;

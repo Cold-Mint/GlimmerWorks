@@ -26,12 +26,10 @@
  */
 #include "VersionAble.h"
 
-void glimmer::VersionAble::AddVersion()
-{
+void glimmer::VersionAble::AddVersion() {
     version_++;
 }
 
-uint32_t glimmer::VersionAble::GetVersion() const
-{
+uint32_t glimmer::VersionAble::GetVersion() const {
     return version_;
 }

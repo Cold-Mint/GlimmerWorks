@@ -27,10 +27,8 @@
 #pragma once
 #include <cstdint>
 
-namespace glimmer
-{
-    enum class CommandHookScope : uint8_t
-    {
+namespace glimmer {
+    enum class CommandHookScope : uint8_t {
         CONFIG,
         /**
          * The scope of effect that is only saved in memory

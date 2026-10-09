@@ -27,12 +27,10 @@
 #pragma once
 #include <string>
 
-namespace glimmer
-{
+namespace glimmer {
     class ISystemBucket;
 
-    class IAppContextInitTask
-    {
+    class IAppContextInitTask {
     public:
         virtual ~IAppContextInitTask() = default;
 
@@ -42,14 +40,14 @@ namespace glimmer
          * @param systemBucket
          * @return
          */
-        virtual bool Run(ISystemBucket* systemBucket) = 0;
+        virtual bool Run(ISystemBucket *systemBucket) = 0;
 
         /**
          * Rollback
          * 回滚任务
         * @param systemBucket
          */
-        virtual void Rollback(ISystemBucket* systemBucket);
+        virtual void Rollback(ISystemBucket *systemBucket);
 
 
         virtual std::string GetTaskName() = 0;

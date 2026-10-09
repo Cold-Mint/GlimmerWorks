@@ -27,10 +27,8 @@
 #pragma once
 #include "DynamicSuggestions.h"
 
-namespace glimmer
-{
-    class CoordinateDynamicSuggestions final : public DynamicSuggestions
-    {
+namespace glimmer {
+    class CoordinateDynamicSuggestions final : public DynamicSuggestions {
         std::string id_;
         std::vector<std::string> suggestions_;
 
@@ -39,8 +37,8 @@ namespace glimmer
 
         [[nodiscard]] std::string GetId() const override;
 
-        const std::vector<std::string>& GetSuggestions(const std::optional<std::string>& param) override;
+        const std::vector<std::string> &GetSuggestions(const std::optional<std::string> &param) override;
 
-        bool Match(const std::string& keyword, const std::string& param) override;
+        bool Match(const std::string &keyword, const std::string &param) override;
     };
 }

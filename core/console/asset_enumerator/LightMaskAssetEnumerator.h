@@ -28,16 +28,14 @@
 #if  !defined(NDEBUG)
 #include "IAssetEnumerator.h"
 
-namespace glimmer
-{
-    class LightMaskAssetEnumerator : public IAssetEnumerator
-    {
+namespace glimmer {
+    class LightMaskAssetEnumerator : public IAssetEnumerator {
         std::string assetName = "lightMask";
 
     public:
         [[nodiscard]] std::string_view GetAssetType() const override;
 
-        [[nodiscard]] std::optional<std::string> ListAsset(const AppContext* appContext) override;
+        [[nodiscard]] std::optional<std::string> ListAsset(const AppContext *appContext) override;
     };
 }
 #endif

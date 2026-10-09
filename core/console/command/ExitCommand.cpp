@@ -28,35 +28,28 @@
 
 #include "core/context/AppContext.h"
 
-glimmer::ExitCommand::ExitCommand(AppContext* appContext) : Command(appContext)
-{
+glimmer::ExitCommand::ExitCommand(AppContext *appContext) : Command(appContext) {
 }
 
-const std::string& glimmer::ExitCommand::GetName() const
-{
+const std::string &glimmer::ExitCommand::GetName() const {
     return EXIT_COMMAND_NAME;
 }
 
-bool glimmer::ExitCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                                   const std::function<void(const std::string & text)>* onMessage)
-{
-    AppContext* appContext = GetAppContext();
-    if (appContext == nullptr)
-    {
+bool glimmer::ExitCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                                   const std::function<void(const std::string &text)> *onMessage) {
+    AppContext *appContext = GetAppContext();
+    if (appContext == nullptr) {
         return false;
     }
-    SceneManager* sceneManager = appContext->GetSceneManager();
-    if (sceneManager == nullptr)
-    {
+    SceneManager *sceneManager = appContext->GetSceneManager();
+    if (sceneManager == nullptr) {
         return false;
     }
-    MainThreadDispatcher* mainThreadDispatcher = appContext->GetMainThreadDispatcher();
-    if (mainThreadDispatcher == nullptr)
-    {
+    MainThreadDispatcher *mainThreadDispatcher = appContext->GetMainThreadDispatcher();
+    if (mainThreadDispatcher == nullptr) {
         return false;
     }
-    mainThreadDispatcher->PostToNextMainFrame([sceneManager]
-    {
+    mainThreadDispatcher->PostToNextMainFrame([sceneManager] {
         sceneManager->RemoveAllScenes();
     });
     return true;

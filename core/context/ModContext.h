@@ -52,14 +52,12 @@
 #include "core/world/structure/StructureGeneratorManager.h"
 #include "core/shape/ShapeManager.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class VirtualFileSystem;
     class ResourceLocator;
     struct LangsResources;
 
-    class ModContext
-    {
+    class ModContext {
         std::unique_ptr<ResourceFileLoader> resourceFileLoader_;
         std::unique_ptr<DataPackManager> dataPackManager_;
         std::unique_ptr<StringManager> stringManager_;
@@ -90,58 +88,58 @@ namespace glimmer
 
         ~ModContext();
 
-        void Init(VirtualFileSystem* vfs, const LangsResources* langsResources);
+        void Init(VirtualFileSystem *vfs, const LangsResources *langsResources);
 
-        [[nodiscard]] ResourceFileLoader* GetResourceFileLoader() const;
+        [[nodiscard]] ResourceFileLoader *GetResourceFileLoader() const;
 
-        [[nodiscard]] DataPackManager* GetDataPackManager() const;
+        [[nodiscard]] DataPackManager *GetDataPackManager() const;
 
-        [[nodiscard]] StringManager* GetStringManager() const;
+        [[nodiscard]] StringManager *GetStringManager() const;
 
-        [[nodiscard]] TileResourceManager* GetTileResourceManager() const;
+        [[nodiscard]] TileResourceManager *GetTileResourceManager() const;
 
-        [[nodiscard]] BiomeRegistry* GetBiomeRegistry() const;
+        [[nodiscard]] BiomeRegistry *GetBiomeRegistry() const;
 
-        [[nodiscard]] DimensionRegistry* GetDimensionRegistry() const;
+        [[nodiscard]] DimensionRegistry *GetDimensionRegistry() const;
 
-        [[nodiscard]] BiomeDecoratorManager* GetBiomeDecoratorManager() const;
+        [[nodiscard]] BiomeDecoratorManager *GetBiomeDecoratorManager() const;
 
-        [[nodiscard]] BiomeDecoratorRegistry* GetBiomeDecoratorRegistry() const;
+        [[nodiscard]] BiomeDecoratorRegistry *GetBiomeDecoratorRegistry() const;
 
-        [[nodiscard]] AbilityItemRegistry* GetAbilityItemRegistry() const;
+        [[nodiscard]] AbilityItemRegistry *GetAbilityItemRegistry() const;
 
-        [[nodiscard]] ComposableItemRegistry* GetComposableItemRegistry() const;
+        [[nodiscard]] ComposableItemRegistry *GetComposableItemRegistry() const;
 
-        [[nodiscard]] MaterialItemRegistry* GetMaterialItemRegistry() const;
+        [[nodiscard]] MaterialItemRegistry *GetMaterialItemRegistry() const;
 
-        [[nodiscard]] RecipeManager* GetRecipeManager() const;
+        [[nodiscard]] RecipeManager *GetRecipeManager() const;
 
-        [[nodiscard]] MobRegistry* GetMobRegistry() const;
+        [[nodiscard]] MobRegistry *GetMobRegistry() const;
 
-        [[nodiscard]] StructureRegistry* GetStructureRegistry() const;
+        [[nodiscard]] StructureRegistry *GetStructureRegistry() const;
 
-        [[nodiscard]] StructureGeneratorManager* GetStructureGeneratorManager() const;
+        [[nodiscard]] StructureGeneratorManager *GetStructureGeneratorManager() const;
 
-        [[nodiscard]] StructurePlacementConditionsProcessorManager*
+        [[nodiscard]] StructurePlacementConditionsProcessorManager *
         GetStructurePlacementConditionsProcessorManager() const;
 
-        [[nodiscard]] StructurePlacementConditionsRegistry*
+        [[nodiscard]] StructurePlacementConditionsRegistry *
         GetStructurePlacementConditionsRegistry() const;
 
-        [[nodiscard]] GrowthConditionProcessorManager*
+        [[nodiscard]] GrowthConditionProcessorManager *
         GetGrowthConditionProcessorManager() const;
 
-        [[nodiscard]] GrowthConditionsRegistry*
+        [[nodiscard]] GrowthConditionsRegistry *
         GetGrowthConditionsRegistry() const;
 
-        [[nodiscard]] LootTableRegistry* GetLootTableRegistry() const;
+        [[nodiscard]] LootTableRegistry *GetLootTableRegistry() const;
 
-        [[nodiscard]] InitialInventoryManager* GetInitialInventoryManager() const;
+        [[nodiscard]] InitialInventoryManager *GetInitialInventoryManager() const;
 
-        [[nodiscard]] ContributorManager* GetContributorManager() const;
+        [[nodiscard]] ContributorManager *GetContributorManager() const;
 
-        [[nodiscard]] TomlTemplateExpander* GetTomlTemplateExpander() const;
+        [[nodiscard]] TomlTemplateExpander *GetTomlTemplateExpander() const;
 
-        [[nodiscard]] ShapeManager* GetShapeManager() const;
+        [[nodiscard]] ShapeManager *GetShapeManager() const;
     };
 }

@@ -32,8 +32,7 @@
 
 #include "core/mod/resourcePack/GPUPipelineResourceResult.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class UniformInjectContext;
 
     /**
@@ -43,7 +42,7 @@ namespace glimmer
      * 在单次 clear/store 渲染通道内把渲染目标清为纯黑。每帧在世界/UI 通道
      * 之前调用一次，避免上一帧内容残留在 RmlUi UI 之后。
      */
-    void ClearRenderTarget(SDL_GPUCommandBuffer * commandBuffer, SDL_GPUTexture * targetTexture);
+    void ClearRenderTarget(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUTexture *targetTexture);
 
     /**
      * Fill and push a list of uniform blocks directly. Used when only the
@@ -53,8 +52,8 @@ namespace glimmer
      * 直接填充并推送一个 uniform 块列表。用于仅有块列表而拿不到资源结果时
      * （例如命令携带的管线）。列表为空或为 null 时仅清空暂存缓冲。
      */
-    void FillAndPushUniformBlock(SDL_GPUCommandBuffer* commandBuffer,
-                                 const std::vector<PipelineUniformBlock>* uniformBlocks,
-                                 const UniformInjectContext& ctx,
-                                 std::vector<uint8_t>& stagingBuffer);
+    void FillAndPushUniformBlock(SDL_GPUCommandBuffer *commandBuffer,
+                                 const std::vector<PipelineUniformBlock> *uniformBlocks,
+                                 const UniformInjectContext &ctx,
+                                 std::vector<uint8_t> &stagingBuffer);
 }

@@ -31,35 +31,29 @@
 #include "core/context/SystemBucket.h"
 #include "core/log/LogCat.h"
 
-glimmer::InitResourceLocatorTask::InitResourceLocatorTask(AppContext* appContext) : appContext_(appContext)
-{
+glimmer::InitResourceLocatorTask::InitResourceLocatorTask(AppContext *appContext) : appContext_(appContext) {
 }
 
-bool glimmer::InitResourceLocatorTask::Run(ISystemBucket* systemBucket)
-{
-    const ModContext* modContext = systemBucket->GetModContext();
-    if (modContext == nullptr)
-    {
+bool glimmer::InitResourceLocatorTask::Run(ISystemBucket *systemBucket) {
+    const ModContext *modContext = systemBucket->GetModContext();
+    if (modContext == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "mod_context_is_null", "modContext is nullptr");
         return false;
     }
-    const MobRegistry* mobRegistry = modContext->GetMobRegistry();
-    if (mobRegistry == nullptr)
-    {
+    const MobRegistry *mobRegistry = modContext->GetMobRegistry();
+    if (mobRegistry == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "mob_manager_is_null", "mobManager is nullptr");
         return false;
     }
-    if (const size_t number = mobRegistry->GetPlayerResourceList().size(); number == 0)
-    {
+    if (const size_t number = mobRegistry->GetPlayerResourceList().size(); number == 0) {
         LogCat::publicError(LogLabel::DEFAULT, ErrorCode::MISSING_PLAYER, std::source_location::current(),
                             "player_resource_required",
                             "At least one player resource is required.");
         return false;
     }
     systemBucket->SetResourceLocator(std::make_unique<ResourceLocator>(appContext_));
-    GraphicsContext* graphicsContext = systemBucket->GetGraphicsContext();
-    if (graphicsContext == nullptr)
-    {
+    GraphicsContext *graphicsContext = systemBucket->GetGraphicsContext();
+    if (graphicsContext == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "graphics_context_is_null",
                   "graphicsContext is nullptr");
         return false;
@@ -68,12 +62,10 @@ bool glimmer::InitResourceLocatorTask::Run(ISystemBucket* systemBucket)
     return true;
 }
 
-void glimmer::InitResourceLocatorTask::Rollback(ISystemBucket* systemBucket)
-{
+void glimmer::InitResourceLocatorTask::Rollback(ISystemBucket *systemBucket) {
     systemBucket->SetResourceLocator(nullptr);
 }
 
-std::string glimmer::InitResourceLocatorTask::GetTaskName()
-{
+std::string glimmer::InitResourceLocatorTask::GetTaskName() {
     return "InitResourceLocatorTask";
 }

@@ -26,97 +26,78 @@
  */
 #include "TileBreakParams.h"
 
-void glimmer::TileBreakParams::SetBreakSource(const BreakSource& breakSource)
-{
+void glimmer::TileBreakParams::SetBreakSource(const BreakSource &breakSource) {
     breakSource_ = breakSource;
 }
 
-void glimmer::TileBreakParams::SetWorldContext(WorldContext* worldContext)
-{
+void glimmer::TileBreakParams::SetWorldContext(WorldContext *worldContext) {
     worldContext_ = worldContext;
 }
 
-void glimmer::TileBreakParams::SetTileLayerComponent(const TileLayerComponent* tileLayerComponent)
-{
+void glimmer::TileBreakParams::SetTileLayerComponent(const TileLayerComponent *tileLayerComponent) {
     tileLayerComponent_ = tileLayerComponent;
 }
 
-void glimmer::TileBreakParams::SetTopLeftPosition(const TileVector2D& topLeftPosition)
-{
+void glimmer::TileBreakParams::SetTopLeftPosition(const TileVector2D &topLeftPosition) {
     topLeftPosition_ = topLeftPosition;
 }
 
-void glimmer::TileBreakParams::SetPrecisionMining(bool precisionMining)
-{
+void glimmer::TileBreakParams::SetPrecisionMining(bool precisionMining) {
     precisionMining_ = precisionMining;
 }
 
-void glimmer::TileBreakParams::SetPlaceMode(bool placeMode)
-{
+void glimmer::TileBreakParams::SetPlaceMode(bool placeMode) {
     isPlaceMode_ = placeMode;
 }
 
-void glimmer::TileBreakParams::SetTileWidth(uint8_t tileWidth)
-{
+void glimmer::TileBreakParams::SetTileWidth(uint8_t tileWidth) {
     tileWidth_ = tileWidth;
 }
 
-void glimmer::TileBreakParams::SetTileHeight(uint8_t tileHeight)
-{
+void glimmer::TileBreakParams::SetTileHeight(uint8_t tileHeight) {
     tileHeight_ = tileHeight;
 }
 
-void glimmer::TileBreakParams::SetNewTileRef(const ResourceRef& newTileRef)
-{
+void glimmer::TileBreakParams::SetNewTileRef(const ResourceRef &newTileRef) {
     newTileRef_ = newTileRef;
 }
 
-glimmer::BreakSource glimmer::TileBreakParams::GetBreakSource() const
-{
+glimmer::BreakSource glimmer::TileBreakParams::GetBreakSource() const {
     return breakSource_;
 }
 
-glimmer::WorldContext* glimmer::TileBreakParams::GetWorldContext() const
-{
+glimmer::WorldContext *glimmer::TileBreakParams::GetWorldContext() const {
     return worldContext_;
 }
 
-const glimmer::TileLayerComponent* glimmer::TileBreakParams::GetTileLayerComponent() const
-{
+const glimmer::TileLayerComponent *glimmer::TileBreakParams::GetTileLayerComponent() const {
     return tileLayerComponent_;
 }
 
-const glimmer::TileVector2D& glimmer::TileBreakParams::GetTopLeftPosition() const
-{
+const glimmer::TileVector2D &glimmer::TileBreakParams::GetTopLeftPosition() const {
     return topLeftPosition_;
 }
 
-bool glimmer::TileBreakParams::IsPrecisionMining() const
-{
+bool glimmer::TileBreakParams::IsPrecisionMining() const {
     return precisionMining_;
 }
 
-bool glimmer::TileBreakParams::IsPlaceMode() const
-{
+bool glimmer::TileBreakParams::IsPlaceMode() const {
     return isPlaceMode_;
 }
 
-uint8_t glimmer::TileBreakParams::GetTileWidth() const
-{
+uint8_t glimmer::TileBreakParams::GetTileWidth() const {
     return tileWidth_;
 }
 
-uint8_t glimmer::TileBreakParams::GetTileHeight() const
-{
+uint8_t glimmer::TileBreakParams::GetTileHeight() const {
     return tileHeight_;
 }
 
-glimmer::ResourceRef& glimmer::TileBreakParams::GetMutableNewTileRef()
-{
+glimmer::ResourceRef &glimmer::TileBreakParams::GetMutableNewTileRef() {
     return newTileRef_;
 }
 
-const glimmer::ResourceRef& glimmer::TileBreakParams::GetNewTileRef() const
-{
+const glimmer::ResourceRef &glimmer::TileBreakParams::GetNewTileRef() const {
     return newTileRef_;
 }

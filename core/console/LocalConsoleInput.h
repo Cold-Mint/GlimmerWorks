@@ -29,22 +29,20 @@
 #include <string>
 #include <thread>
 
-namespace glimmer
-{
-    class LocalConsoleInput
-    {
+namespace glimmer {
+    class LocalConsoleInput {
         std::function<void(const std::string &)> onCommandCallback_;
         std::jthread thread_;
 #ifdef _WIN32
-        void* wakeupEvent_ = nullptr;
+        void *wakeupEvent_ = nullptr;
 #else
         int wakeupPipe_[2]{};
 #endif
 
-        void InputLoop(const std::stop_token& stopToken) const;
+        void InputLoop(const std::stop_token &stopToken) const;
 
     public:
-        explicit LocalConsoleInput (std::function<void(const std::string &)> onCommandCallback);
+        explicit LocalConsoleInput(std::function<void(const std::string &)> onCommandCallback);
 
         ~LocalConsoleInput();
     };

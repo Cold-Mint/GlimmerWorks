@@ -34,8 +34,7 @@
 #include "core/mod/ResourceRef.h"
 #include "core/world/generator/TileLayerType.h"
 
-namespace glimmer
-{
+namespace glimmer {
     struct BiomeResource;
     class TerrainResult;
     class ResourceLocator;
@@ -48,8 +47,7 @@ namespace glimmer
      * Applies biome decorators over the resolved biome set for a chunk.
      * 针对区块内解析出的生物群系集合应用生物群系装饰器。
      */
-    class BiomeDecoratorApplier
-    {
+    class BiomeDecoratorApplier {
     public:
         /**
          * Apply
@@ -61,11 +59,11 @@ namespace glimmer
          * @param terrainResult terrainResult 地形结果
          * @param tilesRefMap tilesRefMap 瓦片引用映射（会被修改）
          */
-        static void Apply(const ChunkVertexVector2D& chunkVertex,
-                          const std::unordered_set<BiomeResource*>& biomeResourcesSet,
-                          const ResourceLocator* resourceLocator,
-                          WorldContext* worldContext,
-                          TerrainResult* terrainResult,
-                          std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>& tilesRefMap);
+        static void Apply(const ChunkVertexVector2D &chunkVertex,
+                          const std::unordered_set<BiomeResource *> &biomeResourcesSet,
+                          const ResourceLocator *resourceLocator,
+                          WorldContext *worldContext,
+                          TerrainResult *terrainResult,
+                          std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > &tilesRefMap);
     };
 }

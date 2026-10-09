@@ -28,8 +28,7 @@
 
 #include "RmlUi/Core/Decorator.h"
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * Create a custom ninepatch decorator that directly accepts the texture URL and edge size (in pixels).
      * 自定义 ninepatch decorator，直接接受纹理 URL 和边缘尺寸（px）。
@@ -39,8 +38,7 @@ namespace glimmer
      *   参数: src, edge-top, edge-right, edge-bottom, edge-left
      *   简写: decorator: ninepatch-texture(src, edge-top, edge-right, edge-bottom, edge-left);
      */
-    class DecoratorNinePatchTexture : public Rml::Decorator
-    {
+    class DecoratorNinePatchTexture : public Rml::Decorator {
         float edgeTop_ = 0;
         float edgeRight_ = 0;
         float edgeBottom_ = 0;
@@ -49,10 +47,10 @@ namespace glimmer
     public:
         bool Initialise(Rml::Texture texture, float edgeTop, float edgeRight, float edgeBottom, float edgeLeft);
 
-        Rml::DecoratorDataHandle GenerateElementData(Rml::Element* element, Rml::BoxArea paint_area) const override;
+        Rml::DecoratorDataHandle GenerateElementData(Rml::Element *element, Rml::BoxArea paint_area) const override;
 
         void ReleaseElementData(Rml::DecoratorDataHandle element_data) const override;
 
-        void RenderElement(Rml::Element* element, Rml::DecoratorDataHandle element_data) const override;
+        void RenderElement(Rml::Element *element, Rml::DecoratorDataHandle element_data) const override;
     };
 }

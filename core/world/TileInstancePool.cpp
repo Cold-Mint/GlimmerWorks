@@ -30,12 +30,9 @@
 #include "core/log/LogCat.h"
 
 
-glimmer::TileInstancePool::~TileInstancePool()
-{
-    for (auto& [fingerprint, weakTile] : tileInstanceMap_)
-    {
-        if (!weakTile.expired())
-        {
+glimmer::TileInstancePool::~TileInstancePool() {
+    for (auto &[fingerprint, weakTile]: tileInstanceMap_) {
+        if (!weakTile.expired()) {
             LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "tile_memory_leak",
                       "A memory leak of the tile fingerprint ({}) has been detected.", fingerprint);
             break;
@@ -43,14 +40,11 @@ glimmer::TileInstancePool::~TileInstancePool()
     }
 }
 
-std::shared_ptr<glimmer::Tile> glimmer::TileInstancePool::CreateTile(const AppContext* appContext,
-                                                                     const TileResource* tileResource,
-                                                                     uint64_t fingerprint)
-{
-    if (const auto cache = tileInstanceMap_.find(fingerprint); cache != tileInstanceMap_.end())
-    {
-        if (auto cachePtr = cache->second.lock())
-        {
+std::shared_ptr<glimmer::Tile> glimmer::TileInstancePool::CreateTile(const AppContext *appContext,
+                                                                     const TileResource *tileResource,
+                                                                     uint64_t fingerprint) {
+    if (const auto cache = tileInstanceMap_.find(fingerprint); cache != tileInstanceMap_.end()) {
+        if (auto cachePtr = cache->second.lock()) {
             LogCat::d(LogLabel::DEFAULT, "tile_instance_cache_hit", "Tile instance cache hit: fingerprint={}",
                       fingerprint);
             return cachePtr;
@@ -58,8 +52,7 @@ std::shared_ptr<glimmer::Tile> glimmer::TileInstancePool::CreateTile(const AppCo
         tileInstanceMap_.erase(cache);
     }
     auto unique_tile = Tile::FromTileResource(appContext, tileResource);
-    auto deleter = [this, fingerprint](Tile*)
-    {
+    auto deleter = [this, fingerprint](Tile *) {
         tileInstanceMap_.erase(fingerprint);
     };
     std::shared_ptr<Tile> tile(unique_tile.release(), std::move(deleter));

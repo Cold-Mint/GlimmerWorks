@@ -26,11 +26,9 @@
  */
 #pragma once
 //@genCode
-namespace glimmer
-{
+namespace glimmer {
     //@genNextLine(NineSliceConfig|九切片通用配置，存储九宫格四边裁切尺寸与平铺开关)
-    struct NineSliceConfig
-    {
+    struct NineSliceConfig {
         //@genNextLine(leftBorderPx|九切片左侧边框像素宽度)
         float leftBorderPx = 1.0F;
 

@@ -30,10 +30,8 @@
 #include "core/ui/Hyperlink.h"
 #include "core/utils/StringUtils.h"
 
-namespace glimmer
-{
-    struct MainSceneDataModel
-    {
+namespace glimmer {
+    struct MainSceneDataModel {
     private:
         static std::string GetCopyrightString();
 

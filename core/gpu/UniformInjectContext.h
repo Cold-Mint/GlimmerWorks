@@ -29,8 +29,7 @@
 
 #include "core/world/LightBuffer.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class CameraComponent;
     class Transform2DComponent;
     class WorldContext;
@@ -45,13 +44,12 @@ namespace glimmer
      * 内置 uniform 注入器所需的每帧只读数据快照。渲染器每帧填充一次，
      * 注入器按需读取字段。
      */
-    class UniformInjectContext
-    {
+    class UniformInjectContext {
     public:
-        const CameraComponent* camera = nullptr;
-        const Transform2DComponent* cameraTransform = nullptr;
-        WorldContext* worldContext = nullptr;
-        LightBuffer* lightBuffer = nullptr;
+        const CameraComponent *camera = nullptr;
+        const Transform2DComponent *cameraTransform = nullptr;
+        WorldContext *worldContext = nullptr;
+        LightBuffer *lightBuffer = nullptr;
         float width = 0.0F;
         float height = 0.0F;
         int lightMapOriginX = 0;

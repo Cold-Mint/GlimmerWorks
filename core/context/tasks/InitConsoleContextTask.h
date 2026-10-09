@@ -27,20 +27,18 @@
 #pragma once
 #include "IAppContextInitTask.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class AppContext;
 
-    class InitConsoleContextTask : public IAppContextInitTask
-    {
-        AppContext* appContext_ = nullptr;
+    class InitConsoleContextTask : public IAppContextInitTask {
+        AppContext *appContext_ = nullptr;
 
     public:
-        explicit InitConsoleContextTask(AppContext* appContext);
+        explicit InitConsoleContextTask(AppContext *appContext);
 
-        bool Run(ISystemBucket* systemBucket) override;
+        bool Run(ISystemBucket *systemBucket) override;
 
-        void Rollback(ISystemBucket* systemBucket) override;
+        void Rollback(ISystemBucket *systemBucket) override;
 
         std::string GetTaskName() override;
     };

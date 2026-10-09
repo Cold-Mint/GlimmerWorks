@@ -29,8 +29,7 @@
 #include "core/math/TileVector2D.h"
 #include "generator/TileLayerType.h"
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * Dynamic lighting entities.
      * 动态光照实体。
@@ -38,8 +37,7 @@ namespace glimmer
      * Suitable for mobile light sources.
      * 适用于移动光源。
      */
-    struct DynamicLightEntry
-    {
+    struct DynamicLightEntry {
         TileVector2D position;
         std::unique_ptr<LightSource> lightSource;
         TileLayerType layer;

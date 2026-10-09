@@ -27,8 +27,7 @@
 #pragma once
 #include "Vector2DIBase.h"
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * TileVector2D
      * 瓦片2d向量
@@ -36,8 +35,7 @@ namespace glimmer
      * Unit: Tile
      * 单位：瓦片
      */
-    class TileVector2D final : public Vector2DIBase<TileVector2D>
-    {
+    class TileVector2D final : public Vector2DIBase<TileVector2D> {
         //Inherit all the constructors of the parent class.
         //继承父类的所有构造函数。
         using Vector2DIBase::Vector2DIBase;

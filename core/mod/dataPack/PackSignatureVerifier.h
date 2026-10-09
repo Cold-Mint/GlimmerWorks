@@ -33,8 +33,7 @@
 #include "core/mod/PackVerifyState.h"
 #include "SpecialFileProcessingParams.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class VirtualFileSystem;
 
     /**
@@ -43,10 +42,9 @@ namespace glimmer
      * Handles public key / signature file loading, file hashing (Blake3) and Ed25519 verification.
      * 负责公钥/签名文件加载、文件哈希（Blake3）与 Ed25519 验签。
      */
-    class PackSignatureVerifier
-    {
-        const VirtualFileSystem* virtualFileSystem_;
-        SpecialFileProcessingParams& params_;
+    class PackSignatureVerifier {
+        const VirtualFileSystem *virtualFileSystem_;
+        SpecialFileProcessingParams &params_;
 
         /**
          * ProcessPublicKeyFile
@@ -54,7 +52,7 @@ namespace glimmer
          * @param path path 公钥文件路径
          * @return Whether the file was consumed 是否处理了该文件
          */
-        [[nodiscard]] bool ProcessPublicKeyFile(const std::filesystem::path& path) const;
+        [[nodiscard]] bool ProcessPublicKeyFile(const std::filesystem::path &path) const;
 
         /**
          * ProcessSignatureFile
@@ -62,7 +60,7 @@ namespace glimmer
          * @param path path 签名文件路径
          * @return Whether the file was consumed 是否处理了该文件
          */
-        [[nodiscard]] bool ProcessSignatureFile(const std::filesystem::path& path) const;
+        [[nodiscard]] bool ProcessSignatureFile(const std::filesystem::path &path) const;
 
         /**
          * ComputeFileHash
@@ -70,7 +68,7 @@ namespace glimmer
          * @param fileBuffer fileBuffer 文件内容
          * @param allHashData allHashData 追加哈希数据的目标缓冲区
          */
-        static void ComputeFileHash(const std::vector<char>& fileBuffer, std::vector<uint8_t>& allHashData);
+        static void ComputeFileHash(const std::vector<char> &fileBuffer, std::vector<uint8_t> &allHashData);
 
         /**
          * VerifySignature
@@ -83,9 +81,9 @@ namespace glimmer
          * @return The verification result 校验结果
          */
         static PackVerifyState VerifySignature(bool findPublicKey, bool findSignature,
-                                               const std::vector<uint8_t>& publicKey,
-                                               const std::vector<uint8_t>& signature,
-                                               const std::vector<uint8_t>& allHashData);
+                                               const std::vector<uint8_t> &publicKey,
+                                               const std::vector<uint8_t> &signature,
+                                               const std::vector<uint8_t> &allHashData);
 
     public:
         /**
@@ -94,7 +92,7 @@ namespace glimmer
          * @param virtualFileSystem virtualFileSystem 虚拟文件系统
          * @param params params 特殊文件处理参数（公钥/签名等）
          */
-        PackSignatureVerifier(const VirtualFileSystem* virtualFileSystem, SpecialFileProcessingParams& params);
+        PackSignatureVerifier(const VirtualFileSystem *virtualFileSystem, SpecialFileProcessingParams &params);
 
         /**
          * IsEnabled
@@ -109,7 +107,7 @@ namespace glimmer
          * @param path path 当前文件路径
          * @return True if the file was a special file 该文件是否为特殊文件
          */
-        [[nodiscard]] bool ProcessSpecialFiles(const std::filesystem::path& path) const;
+        [[nodiscard]] bool ProcessSpecialFiles(const std::filesystem::path &path) const;
 
         /**
          * ComputeAndAppendFileHash
@@ -117,7 +115,7 @@ namespace glimmer
          * @param fileBuffer fileBuffer 文件内容
          * @param allHashData allHashData 追加哈希数据的目标缓冲区
          */
-        void ComputeAndAppendFileHash(const std::vector<char>& fileBuffer, std::vector<uint8_t>& allHashData) const;
+        void ComputeAndAppendFileHash(const std::vector<char> &fileBuffer, std::vector<uint8_t> &allHashData) const;
 
         /**
          * Verify
@@ -125,6 +123,6 @@ namespace glimmer
          * @param allHashData allHashData 全部哈希数据
          * @return The verification result 校验结果
          */
-        [[nodiscard]] PackVerifyState Verify(const std::vector<uint8_t>& allHashData) const;
+        [[nodiscard]] PackVerifyState Verify(const std::vector<uint8_t> &allHashData) const;
     };
 }

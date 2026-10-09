@@ -26,12 +26,10 @@
  */
 #include "AudioResourceResult.h"
 
-glimmer::AudioResourceResult::~AudioResourceResult()
-{
+glimmer::AudioResourceResult::~AudioResourceResult() {
     DestroyResource();
 }
 
-void glimmer::AudioResourceResult::DestroyResourceImpl(MIX_Audio* resource)
-{
+void glimmer::AudioResourceResult::DestroyResourceImpl(MIX_Audio *resource) {
     MIX_DestroyAudio(resource);
 }

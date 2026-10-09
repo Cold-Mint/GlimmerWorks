@@ -28,8 +28,7 @@
 #include "core/ecs/GameComponent.h"
 #include "core/mod/ResourceRef.h"
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * LightComponent
      * 光照组件
@@ -40,14 +39,13 @@ namespace glimmer
      * 挂载到实体上，使其作为动态（移动）光源发光。DynamicLightSystem 每帧读取
      * 该组件，并使实体的光照贡献与其 Transform2DComponent 保持同步。
      */
-    class LightComponent : public GameComponent
-    {
+    class LightComponent : public GameComponent {
         ResourceRef lightSourceRef_;
 
     public:
-        void SetLightSourceRef(const ResourceRef& lightSourceRef);
+        void SetLightSourceRef(const ResourceRef &lightSourceRef);
 
-        [[nodiscard]] const ResourceRef& GetLightSourceRef() const;
+        [[nodiscard]] const ResourceRef &GetLightSourceRef() const;
 
         [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 

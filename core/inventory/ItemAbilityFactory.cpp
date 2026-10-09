@@ -34,20 +34,16 @@
 #include "core/log/LogCat.h"
 
 std::shared_ptr<glimmer::ItemAbility> glimmer::ItemAbilityFactory::CreateItemAbility(const AbilityType abilityType,
-    const AbilityConfig& abilityConfig)
-{
+    const AbilityConfig &abilityConfig) {
     LogCat::d(LogLabel::DEFAULT, "ability_factory_create", "CreateItemAbility, abilityType={}",
               std::to_underlying(abilityType));
-    if (abilityType == AbilityType::None)
-    {
+    if (abilityType == AbilityType::None) {
         return std::make_shared<NoneAbility>(abilityConfig);
     }
-    if (abilityType == AbilityType::Mining)
-    {
+    if (abilityType == AbilityType::Mining) {
         return std::make_shared<MiningAbility>(abilityConfig);
     }
-    if (abilityType == AbilityType::AreaMarker)
-    {
+    if (abilityType == AbilityType::AreaMarker) {
         return std::make_shared<AreaMarkerAbility>(abilityConfig);
     }
     LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "ability_factory_unknown_type",

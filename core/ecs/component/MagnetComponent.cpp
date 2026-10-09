@@ -30,69 +30,56 @@
 
 #include "core/ecs/EcsTypes.h"
 
-void glimmer::MagnetComponent::SetType(const uint16_t type)
-{
+void glimmer::MagnetComponent::SetType(const uint16_t type) {
     type_ = type;
 }
 
-uint16_t glimmer::MagnetComponent::GetType() const
-{
+uint16_t glimmer::MagnetComponent::GetType() const {
     return type_;
 }
 
-void glimmer::MagnetComponent::SetDetectionRadius(const float detectionRadius)
-{
+void glimmer::MagnetComponent::SetDetectionRadius(const float detectionRadius) {
     detectionRadius_ = detectionRadius;
 }
 
-float glimmer::MagnetComponent::GetDetectionRadius() const
-{
+float glimmer::MagnetComponent::GetDetectionRadius() const {
     return detectionRadius_;
 }
 
-void glimmer::MagnetComponent::SetAdsorptionRadius(const float adsorptionRadius)
-{
+void glimmer::MagnetComponent::SetAdsorptionRadius(const float adsorptionRadius) {
     adsorptionRadius_ = adsorptionRadius;
 }
 
-float glimmer::MagnetComponent::GetAdsorptionRadius() const
-{
+float glimmer::MagnetComponent::GetAdsorptionRadius() const {
     return adsorptionRadius_;
 }
 
-void glimmer::MagnetComponent::RemoveEntity(const GameEntityID entityId)
-{
+void glimmer::MagnetComponent::RemoveEntity(const GameEntityID entityId) {
     entities_.erase(
         std::ranges::remove(entities_, entityId).begin(),
         entities_.end()
     );
 }
 
-bool glimmer::MagnetComponent::ContainEntity(const GameEntityID entityId) const
-{
+bool glimmer::MagnetComponent::ContainEntity(const GameEntityID entityId) const {
     auto iter = std::ranges::find(entities_, entityId);
     return iter != entities_.end();
 }
 
-void glimmer::MagnetComponent::AddEntity(const GameEntityID entityId)
-{
-    if (std::ranges::find(entities_, entityId) == entities_.end())
-    {
+void glimmer::MagnetComponent::AddEntity(const GameEntityID entityId) {
+    if (std::ranges::find(entities_, entityId) == entities_.end()) {
         entities_.push_back(entityId);
     }
 }
 
-const std::vector<GameEntityID>& glimmer::MagnetComponent::GetEntities() const
-{
+const std::vector<GameEntityID> &glimmer::MagnetComponent::GetEntities() const {
     return entities_;
 }
 
-GameComponentTypeMessage glimmer::MagnetComponent::GetComponentTypeStatic()
-{
+GameComponentTypeMessage glimmer::MagnetComponent::GetComponentTypeStatic() {
     return COMPONENT_MAGNET;
 }
 
-GameComponentTypeMessage glimmer::MagnetComponent::GetComponentType()
-{
+GameComponentTypeMessage glimmer::MagnetComponent::GetComponentType() {
     return GetComponentTypeStatic();
 }

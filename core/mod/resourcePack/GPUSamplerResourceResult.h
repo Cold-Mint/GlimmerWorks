@@ -28,17 +28,15 @@
 #include "ResourceResult.h"
 #include "SDL3/SDL_gpu.h"
 
-namespace glimmer
-{
-    class GPUSamplerResourceResult : public ResourceResult<SDL_GPUSampler>
-    {
-        SDL_GPUDevice* device_ = nullptr;
+namespace glimmer {
+    class GPUSamplerResourceResult : public ResourceResult<SDL_GPUSampler> {
+        SDL_GPUDevice *device_ = nullptr;
 
     protected:
-        void DestroyResourceImpl(SDL_GPUSampler* resource) override;
+        void DestroyResourceImpl(SDL_GPUSampler *resource) override;
 
     public:
-        void SetDevice(SDL_GPUDevice* device);
+        void SetDevice(SDL_GPUDevice *device);
 
         ~GPUSamplerResourceResult() override;
     };

@@ -36,29 +36,27 @@
 #include "src/saves/chunk_entity.pb.h"
 #include "src/saves/dimension_manifest.pb.h"
 
-namespace glimmer
-{
-    class Saves : public IUniqueAble
-    {
+namespace glimmer {
+    class Saves : public IUniqueAble {
         std::filesystem::path path_;
         std::function<void(const MapManifestMessage &)> onMapManifestChanged_;
-        VirtualFileSystem* virtualFileSystem_ = nullptr;
+        VirtualFileSystem *virtualFileSystem_ = nullptr;
         uint64_t uniqueId_ = 0;
 
-        [[nodiscard]] std::filesystem::path ToDimensionPath(const ResourceRef& dimensionRef) const;
+        [[nodiscard]] std::filesystem::path ToDimensionPath(const ResourceRef &dimensionRef) const;
 
-        [[nodiscard]] std::filesystem::path ToChunkPath(const ResourceRef& dimensionRef,
-                                                        const ChunkVertexVector2D& position) const;
+        [[nodiscard]] std::filesystem::path ToChunkPath(const ResourceRef &dimensionRef,
+                                                        const ChunkVertexVector2D &position) const;
 
-        [[nodiscard]] std::filesystem::path ToChunkEntityPath(const ResourceRef& dimensionRef,
-                                                              const ChunkVertexVector2D& position) const;
+        [[nodiscard]] std::filesystem::path ToChunkEntityPath(const ResourceRef &dimensionRef,
+                                                              const ChunkVertexVector2D &position) const;
 
         [[nodiscard]] std::filesystem::path ToLocalPlayerPath() const;
 
     public:
-        explicit Saves(std::filesystem::path path, VirtualFileSystem* virtualFileSystem);
+        explicit Saves(std::filesystem::path path, VirtualFileSystem *virtualFileSystem);
 
-        void SetOnMapManifestChanged(const std::function<void(const MapManifestMessage &)>& onMapManifestChanged);
+        void SetOnMapManifestChanged(const std::function<void(const MapManifestMessage &)> &onMapManifestChanged);
 
         /**
          * Does the archive exist?
@@ -72,7 +70,7 @@ namespace glimmer
          * 获取存档路径
          * @return path 存档路径
          */
-        [[nodiscard]] const std::filesystem::path& GetPath() const;
+        [[nodiscard]] const std::filesystem::path &GetPath() const;
 
         /**
          * Check whether the block file at the specified location exists.
@@ -81,7 +79,7 @@ namespace glimmer
          * @param position position 区块位置
          * @return
          */
-        [[nodiscard]] bool ChunkExists(const ResourceRef& dimensionRef, const ChunkVertexVector2D& position) const;
+        [[nodiscard]] bool ChunkExists(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position) const;
 
         /**
          * Check whether the specified entity file exists.
@@ -90,30 +88,30 @@ namespace glimmer
          * @param position position 区块位置
          * @return
          */
-        [[nodiscard]] bool EntityExists(const ResourceRef& dimensionRef, const ChunkVertexVector2D& position) const;
+        [[nodiscard]] bool EntityExists(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position) const;
 
-        [[nodiscard]] std::optional<ChunkMessage> ReadChunk(const ResourceRef& dimensionRef,
-                                                            const ChunkVertexVector2D& position) const;
+        [[nodiscard]] std::optional<ChunkMessage> ReadChunk(const ResourceRef &dimensionRef,
+                                                            const ChunkVertexVector2D &position) const;
 
-        [[nodiscard]] bool WriteChunk(const ResourceRef& dimensionRef, const ChunkVertexVector2D& position,
-                                      const ChunkMessage& chunkMessage) const;
+        [[nodiscard]] bool WriteChunk(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position,
+                                      const ChunkMessage &chunkMessage) const;
 
-        [[nodiscard]] std::optional<ChunkEntityMessage> ReadChunkEntity(const ResourceRef& dimensionRef,
-                                                                        const ChunkVertexVector2D& position) const;
+        [[nodiscard]] std::optional<ChunkEntityMessage> ReadChunkEntity(const ResourceRef &dimensionRef,
+                                                                        const ChunkVertexVector2D &position) const;
 
-        [[nodiscard]] bool WriteChunkEntity(const ResourceRef& dimensionRef, const ChunkVertexVector2D& position,
-                                            const ChunkEntityMessage& chunkEntityMessage) const;
+        [[nodiscard]] bool WriteChunkEntity(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position,
+                                            const ChunkEntityMessage &chunkEntityMessage) const;
 
-        [[nodiscard]] bool DeleteChunkEntity(const ResourceRef& dimensionRef,
-                                             const ChunkVertexVector2D& position) const;
+        [[nodiscard]] bool DeleteChunkEntity(const ResourceRef &dimensionRef,
+                                             const ChunkVertexVector2D &position) const;
 
         [[nodiscard]] std::optional<DimensionManifestMessage> ReadDimensionManifest(
-            const ResourceRef& dimensionRef) const;
+            const ResourceRef &dimensionRef) const;
 
-        [[nodiscard]] bool WriteDimensionManifest(const ResourceRef& dimensionRef,
-                                                  const DimensionManifestMessage& dimensionManifestMessage) const;
+        [[nodiscard]] bool WriteDimensionManifest(const ResourceRef &dimensionRef,
+                                                  const DimensionManifestMessage &dimensionManifestMessage) const;
 
-        [[nodiscard]] bool WriteLocalPlayer(const PlayerMessage& playerMessage) const;
+        [[nodiscard]] bool WriteLocalPlayer(const PlayerMessage &playerMessage) const;
 
         [[nodiscard]] std::optional<PlayerMessage> ReadLocalPlayer() const;
 
@@ -128,6 +126,6 @@ namespace glimmer
          */
         [[nodiscard]] std::optional<MapManifestMessage> ReadMapManifest() const;
 
-        [[nodiscard]] bool WriteMapManifest(const MapManifestMessage& mapManifestMessage) const;
+        [[nodiscard]] bool WriteMapManifest(const MapManifestMessage &mapManifestMessage) const;
     };
 }

@@ -27,45 +27,35 @@
 #include "AreaMarkerComponent.h"
 
 
-GameComponentTypeMessage glimmer::AreaMarkerComponent::GetComponentTypeStatic()
-{
+GameComponentTypeMessage glimmer::AreaMarkerComponent::GetComponentTypeStatic() {
     return COMPONENT_AREA_MARKER;
 }
 
-GameComponentTypeMessage glimmer::AreaMarkerComponent::GetComponentType()
-{
+GameComponentTypeMessage glimmer::AreaMarkerComponent::GetComponentType() {
     return GetComponentTypeStatic();
 }
 
-float glimmer::AreaMarkerComponent::GetRemainingTime() const
-{
+float glimmer::AreaMarkerComponent::GetRemainingTime() const {
     return remainingTime_;
 }
 
-void glimmer::AreaMarkerComponent::SetRemainingTime(float remainingTime)
-{
-    if (remainingTime < MAX_REMAINING_TIME)
-    {
+void glimmer::AreaMarkerComponent::SetRemainingTime(float remainingTime) {
+    if (remainingTime < MAX_REMAINING_TIME) {
         remainingTime_ = remainingTime;
-    }
-    else
-    {
+    } else {
         remainingTime_ = MAX_REMAINING_TIME;
     }
 }
 
-bool glimmer::AreaMarkerComponent::IsExpired() const
-{
+bool glimmer::AreaMarkerComponent::IsExpired() const {
     return remainingTime_ <= 0.0F;
 }
 
-bool glimmer::AreaMarkerComponent::CanDraw() const
-{
+bool glimmer::AreaMarkerComponent::CanDraw() const {
     return !first_;
 }
 
-void glimmer::AreaMarkerComponent::Reset()
-{
+void glimmer::AreaMarkerComponent::Reset() {
     first_ = true;
     remainingTime_ = 0.0F;
     startPoint_.x = 0.0F;
@@ -74,10 +64,8 @@ void glimmer::AreaMarkerComponent::Reset()
     endPoint_.y = 0.0F;
 }
 
-void glimmer::AreaMarkerComponent::SetPoint(TileVector2D point)
-{
-    if (first_)
-    {
+void glimmer::AreaMarkerComponent::SetPoint(TileVector2D point) {
+    if (first_) {
         startPoint_ = point;
         first_ = false;
     }
@@ -85,12 +73,10 @@ void glimmer::AreaMarkerComponent::SetPoint(TileVector2D point)
     endPoint_ = point;
 }
 
-const glimmer::TileVector2D& glimmer::AreaMarkerComponent::GetStartPoint() const
-{
+const glimmer::TileVector2D &glimmer::AreaMarkerComponent::GetStartPoint() const {
     return startPoint_;
 }
 
-const glimmer::TileVector2D& glimmer::AreaMarkerComponent::GetEndPoint() const
-{
+const glimmer::TileVector2D &glimmer::AreaMarkerComponent::GetEndPoint() const {
     return endPoint_;
 }

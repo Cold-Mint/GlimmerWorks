@@ -30,10 +30,8 @@
 
 #include "ContainerChangeType.h"
 
-namespace glimmer
-{
-    class ItemStackModule
-    {
+namespace glimmer {
+    class ItemStackModule {
         std::function<void(ContainerChangeType, uint8_t)> onAmountChanged_ = nullptr;
         uint8_t amount_ = 1;
         uint8_t maxStack_ = 1;
@@ -73,6 +71,6 @@ namespace glimmer
 
         void SetMaxStack(uint8_t maxStack);
 
-        void SetOnAmountChanged(const std::function<void(ContainerChangeType, uint8_t)>& onAmountChanged);
+        void SetOnAmountChanged(const std::function<void(ContainerChangeType, uint8_t)> &onAmountChanged);
     };
 }

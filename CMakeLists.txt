@@ -781,7 +781,6 @@ target_sources(GlimmerWorks
         core/world/generator/ClimateSampler.cpp
         core/world/generator/FillBiomeDecorator.cpp
         core/world/generator/MineralBiomeDecorator.cpp
-        core/world/generator/StructurePlacer.cpp
         core/world/generator/SurfaceBiomeDecorator.cpp
         core/world/generator/TerrainGenerator.cpp
         core/world/generator/TerrainMath.cpp
@@ -1256,7 +1255,6 @@ target_sources(GlimmerWorks
         core/world/generator/ClimateSampler.h
         core/world/generator/FillBiomeDecorator.h
         core/world/generator/MineralBiomeDecorator.h
-        core/world/generator/StructurePlacer.h
         core/world/generator/SurfaceBiomeDecorator.h
         core/world/generator/TerrainGenerator.h
         core/world/generator/TerrainMath.h

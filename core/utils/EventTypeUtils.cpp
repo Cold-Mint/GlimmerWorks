@@ -153,29 +153,24 @@ std::unordered_map<std::string, SDL_EventType> glimmer::EventTypeUtils::stringTo
     {"enum_padding", SDL_EVENT_ENUM_PADDING}
 };
 
-std::vector<std::string> glimmer::EventTypeUtils::cachedKeys_ = []
-{
+std::vector<std::string> glimmer::EventTypeUtils::cachedKeys_ = [] {
     std::vector<std::string> keys;
     keys.reserve(stringToEventMap_.size());
-    for (const auto& pair : stringToEventMap_)
-    {
+    for (const auto &pair: stringToEventMap_) {
         keys.emplace_back(pair.first);
     }
     return keys;
 }();
 
-SDL_EventType glimmer::EventTypeUtils::StringToEventType(const std::string& eventStr)
-{
+SDL_EventType glimmer::EventTypeUtils::StringToEventType(const std::string &eventStr) {
     const auto iter = stringToEventMap_.find(eventStr);
     return iter != stringToEventMap_.end() ? iter->second : SDL_EVENT_FIRST;
 }
 
-bool glimmer::EventTypeUtils::ContainsKey(const std::string& eventStr)
-{
+bool glimmer::EventTypeUtils::ContainsKey(const std::string &eventStr) {
     return stringToEventMap_.contains(eventStr);
 }
 
-const std::vector<std::string>& glimmer::EventTypeUtils::GetAllEventTypeKeys()
-{
+const std::vector<std::string> &glimmer::EventTypeUtils::GetAllEventTypeKeys() {
     return cachedKeys_;
 }

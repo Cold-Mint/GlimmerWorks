@@ -27,52 +27,42 @@
 #include "TextureResourceResult.h"
 
 
-void glimmer::TextureResourceResult::DestroyResourceImpl(SDL_GPUTexture* resource)
-{
-    if (gpuDevice_ == nullptr)
-    {
+void glimmer::TextureResourceResult::DestroyResourceImpl(SDL_GPUTexture *resource) {
+    if (gpuDevice_ == nullptr) {
         return;
     }
     SDL_ReleaseGPUTexture(gpuDevice_, resource);
     gpuDevice_ = nullptr;
 }
 
-glimmer::TextureResourceResult::~TextureResourceResult()
-{
+glimmer::TextureResourceResult::~TextureResourceResult() {
     DestroyResource();
 }
 
-void glimmer::TextureResourceResult::SetWidth(const uint32_t width)
-{
+void glimmer::TextureResourceResult::SetWidth(const uint32_t width) {
     width_ = width;
 }
 
-void glimmer::TextureResourceResult::SetHeight(const uint32_t height)
-{
+void glimmer::TextureResourceResult::SetHeight(const uint32_t height) {
     height_ = height;
 }
 
-void glimmer::TextureResourceResult::SetGpuDevice(SDL_GPUDevice* gpuDevice)
-{
+void glimmer::TextureResourceResult::SetGpuDevice(SDL_GPUDevice *gpuDevice) {
     gpuDevice_ = gpuDevice;
 }
 
-void glimmer::TextureResourceResult::SetTexturePath(const std::filesystem::path& texturePath)
-{
+void glimmer::TextureResourceResult::SetTexturePath(const std::filesystem::path &texturePath) {
     texturePath_ = texturePath;
 }
 
-uint32_t glimmer::TextureResourceResult::GetWidth() const
-{
+uint32_t glimmer::TextureResourceResult::GetWidth() const {
     return width_;
 }
 
-uint32_t glimmer::TextureResourceResult::GetHeight() const
-{
+uint32_t glimmer::TextureResourceResult::GetHeight() const {
     return height_;
 }
 
-const std::filesystem::path& glimmer::TextureResourceResult::GetTexturePath()
-{
+const std::filesystem::path &glimmer::TextureResourceResult::GetTexturePath() {
     return texturePath_;
 }

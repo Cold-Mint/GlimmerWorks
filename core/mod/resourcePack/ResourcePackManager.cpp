@@ -30,35 +30,29 @@
 #include "core/context/AppContext.h"
 #include "core/log/LogCat.h"
 
-std::vector<uint64_t>* glimmer::ResourcePackManager::GetEnabledPack(Config* config) const
-{
+std::vector<uint64_t> *glimmer::ResourcePackManager::GetEnabledPack(Config *config) const {
     return &config->mods.enabledResourcePack;
 }
 
-std::filesystem::path glimmer::ResourcePackManager::GetPackPath(Config* config) const
-{
+std::filesystem::path glimmer::ResourcePackManager::GetPackPath(Config *config) const {
     return config->mods.resourcePackPath;
 }
 
-std::unique_ptr<glimmer::ResourcePack> glimmer::ResourcePackManager::LoadPack(const PackScanRequest* packScanRequest,
-                                                                              std::filesystem::path path)
-{
+std::unique_ptr<glimmer::ResourcePack> glimmer::ResourcePackManager::LoadPack(const PackScanRequest *packScanRequest,
+                                                                              std::filesystem::path path) {
     LogCat::i(LogLabel::DEFAULT, "resource_pack_load_start", "Loading resource pack from path: {}", path.string());
-    AppContext* appContext = packScanRequest->GetAppContext();
-    if (appContext == nullptr)
-    {
+    AppContext *appContext = packScanRequest->GetAppContext();
+    if (appContext == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "app_context_is_null", "appContext == nullptr");
         return nullptr;
     }
-    VirtualFileSystem* virtualFileSystem = appContext->GetVirtualFileSystem();
-    if (virtualFileSystem == nullptr)
-    {
+    VirtualFileSystem *virtualFileSystem = appContext->GetVirtualFileSystem();
+    if (virtualFileSystem == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "vfs_is_null", "virtualFileSystem == nullptr");
         return nullptr;
     }
     auto resourcePack = std::make_unique<ResourcePack>(path, virtualFileSystem);
-    if (!resourcePack->LoadManifest())
-    {
+    if (!resourcePack->LoadManifest()) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "resource_pack_manifest_load_failed",
                   "Failed to load resource pack manifest");
         return nullptr;
@@ -69,21 +63,17 @@ std::unique_ptr<glimmer::ResourcePack> glimmer::ResourcePackManager::LoadPack(co
 }
 
 std::optional<std::filesystem::path> glimmer::ResourcePackManager::GetFontPath(
-    const std::vector<uint64_t>& enabledResourcePack,
-    const std::string& language,
-    const VirtualFileSystem* virtualFileSystem)
-{
-    if (virtualFileSystem == nullptr)
-    {
+    const std::vector<uint64_t> &enabledResourcePack,
+    const std::string &language,
+    const VirtualFileSystem *virtualFileSystem) {
+    if (virtualFileSystem == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "vfs_is_null", "virtualFileSystem == nullptr");
         return std::nullopt;
     }
     std::optional<std::filesystem::path> defaultFontPath;
-    for (const uint64_t packId : enabledResourcePack)
-    {
-        const ResourcePack* pack = Find(packId);
-        if (pack == nullptr)
-        {
+    for (const uint64_t packId: enabledResourcePack) {
+        const ResourcePack *pack = Find(packId);
+        if (pack == nullptr) {
             continue;
         }
         const std::filesystem::path fontsDir = pack->GetPath() / "fonts";
@@ -92,8 +82,7 @@ std::optional<std::filesystem::path> glimmer::ResourcePackManager::GetFontPath(
         // 优先使用 fonts/<language>.ttf
         std::filesystem::path languageFont = fontsDir / language;
         languageFont.replace_extension("ttf");
-        if (virtualFileSystem->Exists(languageFont))
-        {
+        if (virtualFileSystem->Exists(languageFont)) {
             LogCat::d(LogLabel::DEFAULT, "resource_pack_font_found", "Found language font for {}: {}", language,
                       languageFont.string());
             return languageFont;
@@ -101,18 +90,15 @@ std::optional<std::filesystem::path> glimmer::ResourcePackManager::GetFontPath(
 
         // Record the first fonts/default.ttf as fallback
         // 记录第一个 fonts/default.ttf 作为回退
-        if (!defaultFontPath.has_value())
-        {
+        if (!defaultFontPath.has_value()) {
             std::filesystem::path defaultFont = fontsDir / "default";
             defaultFont.replace_extension("ttf");
-            if (virtualFileSystem->Exists(defaultFont))
-            {
+            if (virtualFileSystem->Exists(defaultFont)) {
                 defaultFontPath = defaultFont;
             }
         }
     }
-    if (defaultFontPath.has_value())
-    {
+    if (defaultFontPath.has_value()) {
         LogCat::d(LogLabel::DEFAULT, "resource_pack_default_font_found", "Using default font: {}",
                   defaultFontPath->string());
     }

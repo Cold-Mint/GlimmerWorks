@@ -26,12 +26,10 @@
  */
 #include "PlayerCapabilityHandler.h"
 
-void glimmer::PlayerCapabilityHandler::SetFlying(const bool flying)
-{
+void glimmer::PlayerCapabilityHandler::SetFlying(const bool flying) {
     isFlying_ = flying;
 }
 
-bool glimmer::PlayerCapabilityHandler::IsFlying() const
-{
+bool glimmer::PlayerCapabilityHandler::IsFlying() const {
     return isFlying_;
 }

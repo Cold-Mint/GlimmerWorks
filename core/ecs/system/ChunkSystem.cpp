@@ -42,27 +42,21 @@
 #include "core/world/scheduler/ChunkTaskScheduler.h"
 #include "core/world/scheduler/ChunkTaskType.h"
 
-void glimmer::ChunkSystem::GenerateLoadTasks(const DimensionResource* dimensionResource,
-                                             const ResourceRef& dimensionRef, const ChunkManager* chunkManager,
-                                             ChunkTaskScheduler* scheduler,
-                                             const ChunkVertexVector2D& startChunk,
-                                             const ChunkVertexVector2D& endChunk)
-{
-    if (chunkManager == nullptr || scheduler == nullptr)
-    {
+void glimmer::ChunkSystem::GenerateLoadTasks(const DimensionResource *dimensionResource,
+                                             const ResourceRef &dimensionRef, const ChunkManager *chunkManager,
+                                             ChunkTaskScheduler *scheduler,
+                                             const ChunkVertexVector2D &startChunk,
+                                             const ChunkVertexVector2D &endChunk) {
+    if (chunkManager == nullptr || scheduler == nullptr) {
         return;
     }
-    for (int cy = startChunk.y; cy <= endChunk.y; cy += CHUNK_SIZE)
-    {
-        for (int cx = startChunk.x; cx <= endChunk.x; cx += CHUNK_SIZE)
-        {
+    for (int cy = startChunk.y; cy <= endChunk.y; cy += CHUNK_SIZE) {
+        for (int cx = startChunk.x; cx <= endChunk.x; cx += CHUNK_SIZE) {
             const ChunkVertexVector2D chunkVertexCoordinates(cx, cy);
-            if (ChunkManager::ChunkIsOutOfBounds(dimensionResource, chunkVertexCoordinates))
-            {
+            if (ChunkManager::ChunkIsOutOfBounds(dimensionResource, chunkVertexCoordinates)) {
                 continue;
             }
-            if (chunkManager->HasChunk(dimensionRef, chunkVertexCoordinates))
-            {
+            if (chunkManager->HasChunk(dimensionRef, chunkVertexCoordinates)) {
                 continue;
             }
             auto chunkTask = std::make_unique<ChunkTask>();
@@ -74,26 +68,21 @@ void glimmer::ChunkSystem::GenerateLoadTasks(const DimensionResource* dimensionR
     }
 }
 
-void glimmer::ChunkSystem::GenerateUnloadTasks(const ResourceRef& dimensionRef, const ChunkManager* chunkManager,
-                                               ChunkTaskScheduler* scheduler, const ChunkVertexVector2D& startChunk,
-                                               const ChunkVertexVector2D& endChunk)
-{
-    if (chunkManager == nullptr || scheduler == nullptr)
-    {
+void glimmer::ChunkSystem::GenerateUnloadTasks(const ResourceRef &dimensionRef, const ChunkManager *chunkManager,
+                                               ChunkTaskScheduler *scheduler, const ChunkVertexVector2D &startChunk,
+                                               const ChunkVertexVector2D &endChunk) {
+    if (chunkManager == nullptr || scheduler == nullptr) {
         return;
     }
-    const std::unordered_map<ChunkVertexVector2D, std::unique_ptr<Chunk>, Vector2DIHash>* loadedChunks = chunkManager->
-        GetLoadedChunks(dimensionRef);
-    if (loadedChunks == nullptr)
-    {
+    const std::unordered_map<ChunkVertexVector2D, std::unique_ptr<Chunk>, Vector2DIHash> *loadedChunks = chunkManager->
+            GetLoadedChunks(dimensionRef);
+    if (loadedChunks == nullptr) {
         return;
     }
-    for (const auto&
-         chunkVertexCoordinates : *loadedChunks | std::views::keys)
-    {
+    for (const auto &
+         chunkVertexCoordinates: *loadedChunks | std::views::keys) {
         if (chunkVertexCoordinates.x >= startChunk.x && chunkVertexCoordinates.x <= endChunk.x &&
-            chunkVertexCoordinates.y >= startChunk.y && chunkVertexCoordinates.y <= endChunk.y)
-        {
+            chunkVertexCoordinates.y >= startChunk.y && chunkVertexCoordinates.y <= endChunk.y) {
             continue;
         }
         auto chunkTask = std::make_unique<ChunkTask>();
@@ -104,97 +93,79 @@ void glimmer::ChunkSystem::GenerateUnloadTasks(const ResourceRef& dimensionRef, 
     }
 }
 
-void glimmer::ChunkSystem::PostTask()
-{
-    const WorldContext* worldContext = GetWorldContext();
-    if (worldContext == nullptr)
-    {
+void glimmer::ChunkSystem::PostTask() {
+    const WorldContext *worldContext = GetWorldContext();
+    if (worldContext == nullptr) {
         return;
     }
-    const AppContext* appContext = worldContext->GetAppContext();
-    if (appContext == nullptr)
-    {
+    const AppContext *appContext = worldContext->GetAppContext();
+    if (appContext == nullptr) {
         return;
     }
-    const ModContext* modContext = appContext->GetModContext();
-    if (modContext == nullptr)
-    {
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
         return;
     }
-    TaskWorker* taskWorker = appContext->GetTaskWorker();
-    ChunkManager* chunkManager = worldContext->GetChunkManager();
-    ChunkTaskScheduler* chunkTaskScheduler = worldContext->GetChunkTaskScheduler();
-    if (taskWorker == nullptr || chunkManager == nullptr || chunkTaskScheduler == nullptr)
-    {
+    TaskWorker *taskWorker = appContext->GetTaskWorker();
+    ChunkManager *chunkManager = worldContext->GetChunkManager();
+    ChunkTaskScheduler *chunkTaskScheduler = worldContext->GetChunkTaskScheduler();
+    if (taskWorker == nullptr || chunkManager == nullptr || chunkTaskScheduler == nullptr) {
         return;
     }
     chunkTaskInProgress_.store(true);
-    taskWorker->PostTask([chunkManager, chunkTaskScheduler, this]
-    {
-        while (const std::unique_ptr<ChunkTask> chunkTask = chunkTaskScheduler->PopFrontTask())
-        {
-            switch (chunkTask->GetTaskType())
-            {
-            case ChunkTaskType::LOAD:
-                chunkManager->LoadChunkAt(chunkTask->GetDimensionResourceRef(),
-                                          chunkTask->GetPosition());
-                break;
-            case ChunkTaskType::UNLOAD:
-                chunkManager->UnloadChunkAt(chunkTask->GetDimensionResourceRef(), chunkTask->GetPosition());
-                break;
-            case ChunkTaskType::CANCELLED:
-            default:
-                break;
+    taskWorker->PostTask([chunkManager, chunkTaskScheduler, this] {
+        while (const std::unique_ptr<ChunkTask> chunkTask = chunkTaskScheduler->PopFrontTask()) {
+            switch (chunkTask->GetTaskType()) {
+                case ChunkTaskType::LOAD:
+                    chunkManager->LoadChunkAt(chunkTask->GetDimensionResourceRef(),
+                                              chunkTask->GetPosition());
+                    break;
+                case ChunkTaskType::UNLOAD:
+                    chunkManager->UnloadChunkAt(chunkTask->GetDimensionResourceRef(), chunkTask->GetPosition());
+                    break;
+                case ChunkTaskType::CANCELLED:
+                default:
+                    break;
             }
         }
         chunkTaskInProgress_.store(false);
     });
 }
 
-glimmer::ChunkSystem::ChunkSystem(WorldContext* worldContext) : GameSystem(worldContext)
-{
+glimmer::ChunkSystem::ChunkSystem(WorldContext *worldContext) : GameSystem(worldContext) {
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_TRANSFORM_2D);
     Init();
 }
 
-void glimmer::ChunkSystem::OnWatchedComponentChanged(const GameComponentTypeMessage gameComponentType, uint32_t count)
-{
-    const EntityShortCut* entityShortCut = GetEntityShortCut();
-    if (entityShortCut == nullptr)
-    {
+void glimmer::ChunkSystem::OnWatchedComponentChanged(const GameComponentTypeMessage gameComponentType, uint32_t count) {
+    const EntityShortCut *entityShortCut = GetEntityShortCut();
+    if (entityShortCut == nullptr) {
         return;
     }
-    if (gameComponentType == COMPONENT_CAMERA)
-    {
+    if (gameComponentType == COMPONENT_CAMERA) {
         cameraComponent_ = entityShortCut->GetCameraComponent();
     }
-    if (gameComponentType == COMPONENT_TRANSFORM_2D)
-    {
+    if (gameComponentType == COMPONENT_TRANSFORM_2D) {
         cameraTransform2DComponent_ = entityShortCut->GetCameraTransform2DComponent();
     }
 }
 
-void glimmer::ChunkSystem::OnTick(const uint64_t tick)
-{
-    const WorldContext* worldContext = GetWorldContext();
-    if (worldContext == nullptr || cameraComponent_ == nullptr || cameraTransform2DComponent_ == nullptr)
-    {
+void glimmer::ChunkSystem::OnTick(const uint64_t tick) {
+    const WorldContext *worldContext = GetWorldContext();
+    if (worldContext == nullptr || cameraComponent_ == nullptr || cameraTransform2DComponent_ == nullptr) {
         return;
     }
-    const Dimension* dimension = worldContext->GetDimension();
-    if (dimension == nullptr)
-    {
+    const Dimension *dimension = worldContext->GetDimension();
+    if (dimension == nullptr) {
         return;
     }
-    const DimensionResource* dimensionResource = dimension->GetDimensionResource();
-    if (dimensionResource == nullptr)
-    {
+    const DimensionResource *dimensionResource = dimension->GetDimensionResource();
+    if (dimensionResource == nullptr) {
         return;
     }
-    const ResourceRef& dimensionResourceRef = dimension->GetDimensionResourceRef();
-    if (!dimensionResourceRef.IsValid())
-    {
+    const ResourceRef &dimensionResourceRef = dimension->GetDimensionResourceRef();
+    if (!dimensionResourceRef.IsValid()) {
         return;
     }
     float preloadChunkRadius;
@@ -207,27 +178,23 @@ void glimmer::ChunkSystem::OnTick(const uint64_t tick)
 
     //Has it reached the interval for configuration?
     //是否到了配置的间隔。
-    if (tick % chunkScanTaskTickInterval != 0)
-    {
+    if (tick % chunkScanTaskTickInterval != 0) {
         return;
     }
 
     //Check if the camera and its position have changed.
     //检测相机，位置是否改变。
     bool cameraChanged = false;
-    if (const uint32_t cameraVersion = cameraComponent_->GetVersion(); cameraLastVersion_ != cameraVersion)
-    {
+    if (const uint32_t cameraVersion = cameraComponent_->GetVersion(); cameraLastVersion_ != cameraVersion) {
         cameraLastVersion_ = cameraVersion;
         cameraChanged = true;
     }
     if (const uint32_t cameraTransformLastVersion = cameraTransform2DComponent_->GetVersion();
-        cameraTransformLastVersion_ == cameraTransformLastVersion)
-    {
+        cameraTransformLastVersion_ == cameraTransformLastVersion) {
         cameraTransformLastVersion_ = cameraTransformLastVersion;
         cameraChanged = true;
     }
-    if (!cameraChanged)
-    {
+    if (!cameraChanged) {
         return;
     }
 
@@ -248,14 +215,12 @@ void glimmer::ChunkSystem::OnTick(const uint64_t tick)
     const ChunkVertexVector2D startChunk = CoordinateTransformer::TileToChunkVertex(topLeftChunkCorner);
     const ChunkVertexVector2D endChunk = CoordinateTransformer::TileToChunkVertex(lowerRightChunkCorner);
 
-    ChunkTaskScheduler* chunkTaskScheduler = worldContext->GetChunkTaskScheduler();
-    if (chunkTaskScheduler == nullptr)
-    {
+    ChunkTaskScheduler *chunkTaskScheduler = worldContext->GetChunkTaskScheduler();
+    if (chunkTaskScheduler == nullptr) {
         return;
     }
-    ChunkManager* chunkManager = worldContext->GetChunkManager();
-    if (chunkManager == nullptr)
-    {
+    ChunkManager *chunkManager = worldContext->GetChunkManager();
+    if (chunkManager == nullptr) {
         return;
     }
 
@@ -267,18 +232,15 @@ void glimmer::ChunkSystem::OnTick(const uint64_t tick)
         CoordinateTransformer::TileToChunkVertex(
             CoordinateTransformer::WorldToTile(cameraTransform2DComponent_->GetPosition())));
 
-    if (chunkTaskScheduler->GetMainTaskCount() > 0 && !chunkTaskInProgress_.load())
-    {
+    if (chunkTaskScheduler->GetMainTaskCount() > 0 && !chunkTaskInProgress_.load()) {
         //If it is discovered that there are tasks that have not been delivered to the worker thread and have not been delivered before, then the delivery will be executed.
         //发现有尚未投递到工作线程的任务，且没有投递过。那么执行投递。
         PostTask();
     }
 }
 
-void glimmer::ChunkSystem::OnConfigChanged(const Config* config)
-{
-    if (config == nullptr)
-    {
+void glimmer::ChunkSystem::OnConfigChanged(const Config *config) {
+    if (config == nullptr) {
         return;
     }
     std::lock_guard lock(worldConfigMutex_);
@@ -286,7 +248,6 @@ void glimmer::ChunkSystem::OnConfigChanged(const Config* config)
     preloadChunkRadius_ = config->world.preloadChunkRadius;
 }
 
-glimmer::GameSystemType glimmer::ChunkSystem::GetGameSystemType() const
-{
+glimmer::GameSystemType glimmer::ChunkSystem::GetGameSystemType() const {
     return GameSystemType::ChunkSystem;
 }

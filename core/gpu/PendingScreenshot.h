@@ -28,15 +28,13 @@
 #include <filesystem>
 #include <functional>
 
-namespace glimmer
-{
+namespace glimmer {
     /**
     * Pending screenshot request, captured at the end of the next rendered frame.
     * 待处理的截图请求，在下一帧渲染结束时捕获。
     */
-    struct PendingScreenshot
-    {
+    struct PendingScreenshot {
         std::filesystem::path path;
-        const std::function<void(const std::string & text)>* onMessage = nullptr;
+        const std::function<void(const std::string &text)> *onMessage = nullptr;
     };
 }

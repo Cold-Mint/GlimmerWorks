@@ -31,30 +31,24 @@
 #include "toml11/find.hpp"
 
 
-glimmer::SystemInterfaceSDL3::SystemInterfaceSDL3(toml::value* langsValuePtr,
-                                                  SDL_Window* window) : SystemInterface_SDL(window),
-                                                                        langsValuePtr_(langsValuePtr)
-{
+glimmer::SystemInterfaceSDL3::SystemInterfaceSDL3(toml::value *langsValuePtr,
+                                                  SDL_Window *window) : SystemInterface_SDL(window),
+                                                                        langsValuePtr_(langsValuePtr) {
 }
 
-int glimmer::SystemInterfaceSDL3::TranslateString(Rml::String& translated, const Rml::String& input)
-{
-    if (input.empty() || input == "\n")
-    {
+int glimmer::SystemInterfaceSDL3::TranslateString(Rml::String &translated, const Rml::String &input) {
+    if (input.empty() || input == "\n") {
         return 0;
     }
-    if (input.starts_with(RAW_TEXT_PREFIX))
-    {
+    if (input.starts_with(RAW_TEXT_PREFIX)) {
         translated = input.substr(RAW_TEXT_PREFIX.length());
         return 1;
     }
-    if (langsValuePtr_ == nullptr)
-    {
+    if (langsValuePtr_ == nullptr) {
         return 0;
     }
     auto translatedResult = toml::find_or_default<std::string>(*langsValuePtr_, input);
-    if (translatedResult.empty())
-    {
+    if (translatedResult.empty()) {
         translated = input;
         return 0;
     }
@@ -62,24 +56,19 @@ int glimmer::SystemInterfaceSDL3::TranslateString(Rml::String& translated, const
     return 1;
 }
 
-bool glimmer::SystemInterfaceSDL3::LogMessage(const Rml::Log::Type type, const Rml::String& message)
-{
-    if (type == Rml::Log::LT_ERROR)
-    {
+bool glimmer::SystemInterfaceSDL3::LogMessage(const Rml::Log::Type type, const Rml::String &message) {
+    if (type == Rml::Log::LT_ERROR) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "rml_log_message", "From rml :{}",
                   message.c_str());
     }
-    if (type == Rml::Log::LT_WARNING)
-    {
+    if (type == Rml::Log::LT_WARNING) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "rml_log_message", "From rml :{}",
                   message.c_str());
     }
-    if (type == Rml::Log::LT_INFO)
-    {
+    if (type == Rml::Log::LT_INFO) {
         LogCat::i(LogLabel::DEFAULT, "rml_log_message", "From rml :{}", message.c_str());
     }
-    if (type == Rml::Log::LT_DEBUG)
-    {
+    if (type == Rml::Log::LT_DEBUG) {
         LogCat::d(LogLabel::DEFAULT, "rml_log_message", "From rml :{}", message.c_str());
     }
     return true;

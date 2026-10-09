@@ -27,16 +27,14 @@
 #pragma once
 
 
-namespace glimmer
-{
+namespace glimmer {
     /**
       * NoiseField
       * 噪声字段
       * Identifiers for every noise generator owned by the climate sampler.
       * 气候采样器所拥有的每一个噪声生成器的标识。
       */
-    enum class NoiseField : uint8_t
-    {
+    enum class NoiseField : uint8_t {
         /**
          * ContinentHeight
          * 大陆高度噪声

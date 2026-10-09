@@ -32,8 +32,7 @@
 #include "core/inventory/ability/MiningRangeData.h"
 #include "core/world/generator/TileLayerType.h"
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * MiningComponent
      * 正在挖掘组件
@@ -41,12 +40,11 @@ namespace glimmer
      * This component saves the state of the player digging blocks.
      * 此组件保存玩家挖掘方块的状态。
      */
-    class MiningComponent : public GameComponent
-    {
+    class MiningComponent : public GameComponent {
         // miningRangeData_ is written on the tick thread and read on the render/main thread,
         // so it is published as an atomic shared_ptr snapshot.
         // miningRangeData_ 在 tick 线程写入，在渲染/主线程读取，因此以原子 shared_ptr 快照发布。
-        std::atomic<std::shared_ptr<const MiningRangeData>> miningRangeData_ = nullptr;
+        std::atomic<std::shared_ptr<const MiningRangeData> > miningRangeData_ = nullptr;
         //Explore the origin.
         //挖掘原点。
         TileVector2D startPosition_;
@@ -81,7 +79,7 @@ namespace glimmer
 
         void SetEnable(bool enable);
 
-        void SetMiningRangeData(const MiningRangeData& miningRangeData);
+        void SetMiningRangeData(const MiningRangeData &miningRangeData);
 
         void ClearMiningRangeData();
 
@@ -89,7 +87,7 @@ namespace glimmer
 
         void SetStartPosition(TileVector2D startPosition);
 
-        [[nodiscard]] const TileVector2D& GetStartPosition() const;
+        [[nodiscard]] const TileVector2D &GetStartPosition() const;
 
         [[nodiscard]] bool HasStartPosition() const;
 

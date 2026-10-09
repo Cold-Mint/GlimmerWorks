@@ -28,14 +28,12 @@
 #include <cstdint>
 #include <string_view>
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * UniformScalarType
      * Uniform 成员标量类型
      */
-    enum class UniformScalarType : uint8_t
-    {
+    enum class UniformScalarType : uint8_t {
         Float = 0,
         Vec2 = 1,
         Vec3 = 2,
@@ -54,8 +52,7 @@ namespace glimmer
      * 基于声明的成员顺序计算 uniform 块的确定性 std140 偏移/大小。
      * TOML 声明是权威的；glslang 反射仅作可选的调试校验。
      */
-    class Std140LayoutBuilder
-    {
+    class Std140LayoutBuilder {
     public:
         /**
          * ParseType

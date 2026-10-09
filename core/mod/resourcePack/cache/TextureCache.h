@@ -27,33 +27,31 @@
 #pragma once
 #include "core/mod/resourcePack/BaseResourceCache.h"
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * TextureCache
      * 纹理缓存
      */
-    class TextureCache : public BaseResourceCache<TextureResourceResult>
-    {
+    class TextureCache : public BaseResourceCache<TextureResourceResult> {
         std::shared_ptr<TextureResourceResult> errorTexture_ = nullptr;
         std::shared_ptr<TextureResourceResult> accessDeniedTexture_ = nullptr;
 
-        static std::shared_ptr<TextureResourceResult> CreateTexture(SDL_GPUDevice* gpuDevice, const Color& accent,
-                                                                    const Color& base);
+        static std::shared_ptr<TextureResourceResult> CreateTexture(SDL_GPUDevice *gpuDevice, const Color &accent,
+                                                                    const Color &base);
 
-        static SDL_GPUTexture* CreateTextureFromSurface(SDL_GPUDevice* gpuDevice, SDL_Surface* surface);
+        static SDL_GPUTexture *CreateTextureFromSurface(SDL_GPUDevice *gpuDevice, SDL_Surface *surface);
 
     protected:
-        std::shared_ptr<TextureResourceResult> CreatePlaceholderResource(const AppContext* appContext,
-                                                                         const ResourceRef* resourceRef) override;
+        std::shared_ptr<TextureResourceResult> CreatePlaceholderResource(const AppContext *appContext,
+                                                                         const ResourceRef *resourceRef) override;
 
-        std::shared_ptr<TextureResourceResult> LoadResourceFromPack(AppContext* appContext,
-                                                                    const ResourceRef* resourceRef,
-                                                                    const ResourcePack* resourcePack) override;
+        std::shared_ptr<TextureResourceResult> LoadResourceFromPack(AppContext *appContext,
+                                                                    const ResourceRef *resourceRef,
+                                                                    const ResourcePack *resourcePack) override;
 
     public:
         ~TextureCache() noexcept override;
 
-        void SetAppContext(const AppContext* appContext);
+        void SetAppContext(const AppContext *appContext);
     };
 }

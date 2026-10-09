@@ -27,10 +27,8 @@
 #pragma once
 #include <cstdint>
 
-namespace glimmer
-{
-    enum class PackVerifyState : uint8_t
-    {
+namespace glimmer {
+    enum class PackVerifyState : uint8_t {
         Unsigned,
         VerifiedSuccess,
         VerifiedFailed

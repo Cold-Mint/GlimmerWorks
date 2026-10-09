@@ -27,8 +27,7 @@
 #include "FixedColorManager.h"
 
 void glimmer::FixedColorManager::RegisterCoreRef(std::string_view resourceId, uint8_t r, uint8_t b,
-                                                 uint8_t g, uint8_t a)
-{
+                                                 uint8_t g, uint8_t a) {
     auto fixedColorResource = std::make_unique<FixedColorResource>();
     fixedColorResource->resourceId = resourceId;
     fixedColorResource->packId = RESOURCE_REF_CORE;
@@ -40,8 +39,7 @@ void glimmer::FixedColorManager::RegisterCoreRef(std::string_view resourceId, ui
     Register(std::move(fixedColorResource));
 }
 
-glimmer::FixedColorManager::FixedColorManager()
-{
+glimmer::FixedColorManager::FixedColorManager() {
     RegisterCoreRef(LIGHT_MASK_FULL_COLOR, 0, 0, 0, 255);
     RegisterCoreRef(LIGHT_MASK_NONE_COLOR, 0, 0, 0, 0);
     RegisterCoreRef(LIGHT_MASK_LOW_COLOR, 0, 0, 0, 64);
@@ -51,48 +49,38 @@ glimmer::FixedColorManager::FixedColorManager()
     RegisterCoreRef(LIGHT_SKY_COLOR, 255, 255, 255, 24);
 }
 
-glimmer::FixedColorResource* glimmer::FixedColorManager::Register(
-    std::unique_ptr<FixedColorResource> fixedColorResource)
-{
-    auto& slot =
-        fixedColorMap_[fixedColorResource->packId][fixedColorResource->resourceId];
+glimmer::FixedColorResource *glimmer::FixedColorManager::Register(
+    std::unique_ptr<FixedColorResource> fixedColorResource) {
+    auto &slot =
+            fixedColorMap_[fixedColorResource->packId][fixedColorResource->resourceId];
     slot = std::move(fixedColorResource);
     return slot.get();
 }
 
-glimmer::FixedColorResource* glimmer::FixedColorManager::FindFixedColorResource(std::string_view packId,
-    std::string_view key)
-{
-    if (const auto packIt = fixedColorMap_.find(packId); packIt != fixedColorMap_.end())
-    {
-        if (const auto keyIt = packIt->second.find(key); keyIt != packIt->second.end())
-        {
+glimmer::FixedColorResource *glimmer::FixedColorManager::FindFixedColorResource(std::string_view packId,
+    std::string_view key) {
+    if (const auto packIt = fixedColorMap_.find(packId); packIt != fixedColorMap_.end()) {
+        if (const auto keyIt = packIt->second.find(key); keyIt != packIt->second.end()) {
             return keyIt->second.get();
         }
     }
     return nullptr;
 }
 
-std::vector<std::string> glimmer::FixedColorManager::GetFixedColorResourceList() const
-{
+std::vector<std::string> glimmer::FixedColorManager::GetFixedColorResourceList() const {
     std::vector<std::string> result;
-    for (const auto& [packId, keyMap] : fixedColorMap_)
-    {
-        for (const auto& [key, resource] : keyMap)
-        {
+    for (const auto &[packId, keyMap]: fixedColorMap_) {
+        for (const auto &[key, resource]: keyMap) {
             result.emplace_back(Resource::GenerateId(packId, key));
         }
     }
     return result;
 }
 
-std::string glimmer::FixedColorManager::ListFixedColorResources() const
-{
+std::string glimmer::FixedColorManager::ListFixedColorResources() const {
     std::ostringstream oss;
-    for (const auto& [packId, keyMap] : fixedColorMap_)
-    {
-        for (const auto& [key, resource] : keyMap)
-        {
+    for (const auto &[packId, keyMap]: fixedColorMap_) {
+        for (const auto &[key, resource]: keyMap) {
             oss << Resource::GenerateId(packId, key) << "\n";
         }
     }

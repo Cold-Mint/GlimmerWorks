@@ -27,50 +27,41 @@
 #include "StructureInfo.h"
 
 
-void glimmer::StructureInfo::SetTile(const TileLayerType tileLayer, const TileVector2D& position,
-                                     const ResourceRef& resourceRef)
-{
+void glimmer::StructureInfo::SetTile(const TileLayerType tileLayer, const TileVector2D &position,
+                                     const ResourceRef &resourceRef) {
     structureMap_[tileLayer][position] = resourceRef;
-    if (first_)
-    {
+    if (first_) {
         minPosition_ = position;
         maxPosition_ = position;
         first_ = false;
         return;
     }
-    if (position.x < minPosition_.x)
-    {
+    if (position.x < minPosition_.x) {
         minPosition_.x = position.x;
     }
-    if (position.y < minPosition_.y)
-    {
+    if (position.y < minPosition_.y) {
         minPosition_.y = position.y;
     }
-    if (position.x > maxPosition_.x)
-    {
+    if (position.x > maxPosition_.x) {
         maxPosition_.x = position.x;
     }
-    if (position.y > maxPosition_.y)
-    {
+    if (position.y > maxPosition_.y) {
         maxPosition_.y = position.y;
     }
 }
 
 const std::unordered_map<glimmer::TileLayerType, std::unordered_map<glimmer::TileVector2D, glimmer::ResourceRef,
-                                                                    glimmer::
-                                                                    Vector2DIHash>>&
-glimmer::StructureInfo::GetStructureMap() const
-{
+    glimmer::
+    Vector2DIHash> > &
+glimmer::StructureInfo::GetStructureMap() const {
     return structureMap_;
 }
 
 
-uint32_t glimmer::StructureInfo::GetWidth() const
-{
+uint32_t glimmer::StructureInfo::GetWidth() const {
     return maxPosition_.x - minPosition_.x + 1;
 }
 
-uint32_t glimmer::StructureInfo::GetHeight() const
-{
+uint32_t glimmer::StructureInfo::GetHeight() const {
     return maxPosition_.y - minPosition_.y + 1;
 }

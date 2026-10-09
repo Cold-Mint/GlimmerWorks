@@ -31,18 +31,16 @@
 
 #include "SDL3/SDL_scancode.h"
 
-namespace glimmer
-{
-    class ScanCodeUtils
-    {
+namespace glimmer {
+    class ScanCodeUtils {
         static std::unordered_map<std::string, SDL_Scancode> stringToScanMap_;
         static std::vector<std::string> cachedKeys_;
 
     public:
-        [[nodiscard]] static SDL_Scancode StringToScanCode(const std::string& key);
+        [[nodiscard]] static SDL_Scancode StringToScanCode(const std::string &key);
 
-        [[nodiscard]] static bool ContainsKey(const std::string& key);
+        [[nodiscard]] static bool ContainsKey(const std::string &key);
 
-        [[nodiscard]] static const std::vector<std::string>& GetAllScanCodeKeys();
+        [[nodiscard]] static const std::vector<std::string> &GetAllScanCodeKeys();
     };
 }

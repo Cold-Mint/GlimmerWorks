@@ -38,16 +38,13 @@
 #include "resourcePack/cache/ShaderCache.h"
 #include "resourcePack/cache/TextureCache.h"
 
-bool glimmer::ResourceLocator::ValidateAccessPermission(const ResourceRef* resourceRef) const
-{
-    if (resourceRef->GetSelfPackageId() == resourceRef->GetPackageId())
-    {
+bool glimmer::ResourceLocator::ValidateAccessPermission(const ResourceRef *resourceRef) const {
+    if (resourceRef->GetSelfPackageId() == resourceRef->GetPackageId()) {
         //Allow access to one's own package.
         //允许访问自身包。
         return true;
     }
-    if (dataPackManager_ == nullptr)
-    {
+    if (dataPackManager_ == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "data_pack_manager_is_null",
                   "dataPackManager_ == nullptr");
         return false;
@@ -57,135 +54,115 @@ bool glimmer::ResourceLocator::ValidateAccessPermission(const ResourceRef* resou
         StringUtils::StringToUint64(resourceRef->GetPackageId()));
 }
 
-glimmer::ResourceLocator::ResourceLocator(AppContext* appContext) : appContext_(appContext), itemFactory_(appContext,
-                                                                        this)
-{
-    if (appContext_ == nullptr)
-    {
+glimmer::ResourceLocator::ResourceLocator(AppContext *appContext) : appContext_(appContext), itemFactory_(appContext,
+                                                                        this) {
+    if (appContext_ == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "app_context_is_null", "appContext_ == nullptr");
         return;
     }
     cacheContext_ = appContext_->GetCacheContext();
-    if (cacheContext_ == nullptr)
-    {
+    if (cacheContext_ == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "cache_context_is_null",
                   "cacheContext_ == nullptr");
         return;
     }
-    const GraphicsContext* graphicsContext = appContext_->GetGraphicsContext();
-    if (graphicsContext == nullptr)
-    {
+    const GraphicsContext *graphicsContext = appContext_->GetGraphicsContext();
+    if (graphicsContext == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "graphics_context_is_null",
                   "graphicsContext == nullptr");
         return;
     }
     fixedColorManager_ =
-        graphicsContext->GetFixedColorManager();
-    if (fixedColorManager_ == nullptr)
-    {
+            graphicsContext->GetFixedColorManager();
+    if (fixedColorManager_ == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "fixed_color_manager_is_null",
                   "fixedColorManager_ == nullptr");
         return;
     }
     lightMaskManager_ = graphicsContext->GetLightMaskManager();
-    if (lightMaskManager_ == nullptr)
-    {
+    if (lightMaskManager_ == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "light_mask_manager_is_null",
                   "lightMaskManager_ == nullptr");
         return;
     }
     lightSourceManager_ = graphicsContext->GetLightSourceManager();
-    if (lightSourceManager_ == nullptr)
-    {
+    if (lightSourceManager_ == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "light_source_manager_is_null",
                   "lightSourceManager_ == nullptr");
         return;
     }
-    const ModContext* modContext = appContext_->GetModContext();
-    if (modContext == nullptr)
-    {
+    const ModContext *modContext = appContext_->GetModContext();
+    if (modContext == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "mod_context_is_null", "modContext == nullptr");
         return;
     }
     lootTableRegistry_ = modContext->GetLootTableRegistry();
-    if (lootTableRegistry_ == nullptr)
-    {
+    if (lootTableRegistry_ == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "loot_table_registry_is_null",
                   "lootTableRegistry_ == nullptr");
         return;
     }
     abilityItemRegistry_ = modContext->GetAbilityItemRegistry();
-    if (abilityItemRegistry_ == nullptr)
-    {
+    if (abilityItemRegistry_ == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "ability_item_manager_is_null",
                   "abilityItemManager_ == nullptr");
         return;
     }
     composableItemRegistry_ = modContext->GetComposableItemRegistry();
-    if (composableItemRegistry_ == nullptr)
-    {
+    if (composableItemRegistry_ == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "composable_item_manager_is_null",
                   "composableItemManager_ == nullptr");
         return;
     }
     materialItemRegistry_ = modContext->GetMaterialItemRegistry();
-    if (materialItemRegistry_ == nullptr)
-    {
+    if (materialItemRegistry_ == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "material_item_manager_is_null",
                   "materialItemManager_ == nullptr");
         return;
     }
     mobRegistry_ = modContext->GetMobRegistry();
-    if (mobRegistry_ == nullptr)
-    {
+    if (mobRegistry_ == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "mob_manager_is_null", "mobManager_ == nullptr");
         return;
     }
     structureRegistry_ = modContext->GetStructureRegistry();
-    if (structureRegistry_ == nullptr)
-    {
+    if (structureRegistry_ == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "structure_registry_is_null",
                   "structureRegistry_ == nullptr");
         return;
     }
     dimensionRegistry_ = modContext->GetDimensionRegistry();
-    if (dimensionRegistry_ == nullptr)
-    {
+    if (dimensionRegistry_ == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "dimension_registry_is_null",
                   "dimensionRegistry_ == nullptr");
         return;
     }
     tileResourceManager_ = modContext->GetTileResourceManager();
-    if (tileResourceManager_ == nullptr)
-    {
+    if (tileResourceManager_ == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "tile_resource_manager_is_null",
                   "tileResourceManager_ == nullptr");
         return;
     }
     shapeManager_ = modContext->GetShapeManager();
-    if (shapeManager_ == nullptr)
-    {
+    if (shapeManager_ == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "shape_manager_is_null",
                   "shapeManager_ == nullptr");
         return;
     }
     stringManager_ = modContext->GetStringManager();
-    if (stringManager_ == nullptr)
-    {
+    if (stringManager_ == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "string_manager_is_null",
                   "stringManager_ == nullptr");
         return;
     }
     biomeDecoratorRegistry_ = modContext->GetBiomeDecoratorRegistry();
-    if (biomeDecoratorRegistry_ == nullptr)
-    {
+    if (biomeDecoratorRegistry_ == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "biome_decorator_resources_manager_is_null",
                   "biomeDecoratorResourcesManager_ == nullptr");
         return;
     }
     dataPackManager_ = modContext->GetDataPackManager();
-    if (dataPackManager_ == nullptr)
-    {
+    if (dataPackManager_ == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "data_pack_manager_is_null",
                   "dataPackManager_ == nullptr");
         return;
@@ -193,26 +170,21 @@ glimmer::ResourceLocator::ResourceLocator(AppContext* appContext) : appContext_(
     resourcePackManager_ = appContext_->GetResourcePackManager();
 }
 
-std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourceLocator::FindTexture(const ResourceRef* resourceRef,
-    bool enablePlaceHolder) const
-{
-    if (cacheContext_ == nullptr)
-    {
+std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourceLocator::FindTexture(const ResourceRef *resourceRef,
+    bool enablePlaceHolder) const {
+    if (cacheContext_ == nullptr) {
         return nullptr;
     }
-    TextureCache* textureCache = cacheContext_->GetTextureCache();
-    if (textureCache == nullptr)
-    {
+    TextureCache *textureCache = cacheContext_->GetTextureCache();
+    if (textureCache == nullptr) {
         return nullptr;
     }
-    if (resourceRef == nullptr)
-    {
+    if (resourceRef == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "resource_ref_null_find_texture_raw",
                   "resourceRef == nullptr in FindTextureRaw");
         return textureCache->TryGetPlaceholder(appContext_, resourceRef, enablePlaceHolder);
     }
-    if (resourceRef->GetResourceType() != RESOURCE_TEXTURE)
-    {
+    if (resourceRef->GetResourceType() != RESOURCE_TEXTURE) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "type_mismatch_texture",
                   "Type mismatch: expected RESOURCE_TEXTURE ({}), got {}).", std::to_underlying(RESOURCE_TEXTURE),
                   std::to_underlying(resourceRef->GetResourceType()));
@@ -221,25 +193,20 @@ std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourceLocator::FindTe
     return textureCache->LoadResource(appContext_, resourceRef, enablePlaceHolder);
 }
 
-std::shared_ptr<glimmer::AudioResourceResult> glimmer::ResourceLocator::FindAudio(const ResourceRef* resourceRef,
-    bool enablePlaceholder) const
-{
-    if (cacheContext_ == nullptr)
-    {
+std::shared_ptr<glimmer::AudioResourceResult> glimmer::ResourceLocator::FindAudio(const ResourceRef *resourceRef,
+    bool enablePlaceholder) const {
+    if (cacheContext_ == nullptr) {
         return nullptr;
     }
-    AudioCache* audioCache = cacheContext_->GetAudioCache();
-    if (audioCache == nullptr)
-    {
+    AudioCache *audioCache = cacheContext_->GetAudioCache();
+    if (audioCache == nullptr) {
         return nullptr;
     }
-    if (resourceRef == nullptr)
-    {
+    if (resourceRef == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "resource_ref_is_null", "resourceRef == nullptr");
         return audioCache->TryGetPlaceholder(appContext_, resourceRef, enablePlaceholder);
     }
-    if (resourceRef->GetResourceType() != RESOURCE_AUDIO)
-    {
+    if (resourceRef->GetResourceType() != RESOURCE_AUDIO) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "type_mismatch_audio",
                   "Type mismatch: expected RESOURCE_AUDIO ({}), got {}).", std::to_underlying(RESOURCE_AUDIO),
                   std::to_underlying(resourceRef->GetResourceType()));
@@ -248,28 +215,23 @@ std::shared_ptr<glimmer::AudioResourceResult> glimmer::ResourceLocator::FindAudi
     return audioCache->LoadResource(appContext_, resourceRef, enablePlaceholder);
 }
 
-std::shared_ptr<glimmer::ShaderResourceResult> glimmer::ResourceLocator::FindShader(const ResourceRef* resourceRef,
-    bool enablePlaceholder) const
-{
-    if (cacheContext_ == nullptr)
-    {
+std::shared_ptr<glimmer::ShaderResourceResult> glimmer::ResourceLocator::FindShader(const ResourceRef *resourceRef,
+    bool enablePlaceholder) const {
+    if (cacheContext_ == nullptr) {
         return nullptr;
     }
-    ShaderCache* shaderCache = cacheContext_->GetShaderCache();
-    if (shaderCache == nullptr)
-    {
+    ShaderCache *shaderCache = cacheContext_->GetShaderCache();
+    if (shaderCache == nullptr) {
         return nullptr;
     }
-    if (resourceRef == nullptr)
-    {
+    if (resourceRef == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "resource_ref_is_null", "resourceRef == nullptr");
         return nullptr;
     }
     const bool supportType = resourceRef->GetResourceType() == RESOURCE_SHADER_VERTEX || resourceRef->GetResourceType()
-        ==
-        RESOURCE_SHADER_FRAGMENT;
-    if (!supportType)
-    {
+                             ==
+                             RESOURCE_SHADER_FRAGMENT;
+    if (!supportType) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "type_mismatch_shader",
                   "Type mismatch: expected RESOURCE_SHADER ({}or{}).", std::to_underlying(RESOURCE_SHADER_VERTEX),
                   std::to_underlying(RESOURCE_SHADER_FRAGMENT));
@@ -279,24 +241,19 @@ std::shared_ptr<glimmer::ShaderResourceResult> glimmer::ResourceLocator::FindSha
 }
 
 std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::ResourceLocator::FindGPUGraphicsPipeline(
-    const ResourceRef* resourceRef, const bool enablePlaceHolder) const
-{
-    if (cacheContext_ == nullptr)
-    {
+    const ResourceRef *resourceRef, const bool enablePlaceHolder) const {
+    if (cacheContext_ == nullptr) {
         return nullptr;
     }
-    GpuPipelineCache* gpuPipelineCache = cacheContext_->GetPipelineCache();
-    if (gpuPipelineCache == nullptr)
-    {
+    GpuPipelineCache *gpuPipelineCache = cacheContext_->GetPipelineCache();
+    if (gpuPipelineCache == nullptr) {
         return nullptr;
     }
-    if (resourceRef == nullptr)
-    {
+    if (resourceRef == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "resource_ref_is_null", "resourceRef == nullptr");
         return nullptr;
     }
-    if (resourceRef->GetResourceType() != RESOURCE_PIPELINE)
-    {
+    if (resourceRef->GetResourceType() != RESOURCE_PIPELINE) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "type_mismatch_pipeline",
                   "Type mismatch: expected RESOURCE_PIPELINE ({}), got {}).", std::to_underlying(RESOURCE_PIPELINE),
                   std::to_underlying(resourceRef->GetResourceType()));
@@ -306,24 +263,19 @@ std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::ResourceLocator::Fi
 }
 
 std::shared_ptr<glimmer::GPUSamplerResourceResult> glimmer::ResourceLocator::FindGPUGraphicsSampler(
-    const ResourceRef* resourceRef, bool enablePlaceHolder) const
-{
-    if (cacheContext_ == nullptr)
-    {
+    const ResourceRef *resourceRef, bool enablePlaceHolder) const {
+    if (cacheContext_ == nullptr) {
         return nullptr;
     }
-    GpuSamplerCache* gpuSamplerCache = cacheContext_->GetGpuSamplerCache();
-    if (gpuSamplerCache == nullptr)
-    {
+    GpuSamplerCache *gpuSamplerCache = cacheContext_->GetGpuSamplerCache();
+    if (gpuSamplerCache == nullptr) {
         return nullptr;
     }
-    if (resourceRef == nullptr)
-    {
+    if (resourceRef == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "resource_ref_is_null", "resourceRef == nullptr");
         return nullptr;
     }
-    if (resourceRef->GetResourceType() != RESOURCE_SAMPLER)
-    {
+    if (resourceRef->GetResourceType() != RESOURCE_SAMPLER) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "type_mismatch_sampler",
                   "Type mismatch: expected RESOURCE_SAMPLER ({}), got {}).", std::to_underlying(RESOURCE_SAMPLER),
                   std::to_underlying(resourceRef->GetResourceType()));
@@ -333,24 +285,19 @@ std::shared_ptr<glimmer::GPUSamplerResourceResult> glimmer::ResourceLocator::Fin
 }
 
 std::shared_ptr<glimmer::UniformBlockResourceResult> glimmer::ResourceLocator::FindUniformBlock(
-    const ResourceRef* resourceRef, bool enablePlaceHolder) const
-{
-    if (cacheContext_ == nullptr)
-    {
+    const ResourceRef *resourceRef, bool enablePlaceHolder) const {
+    if (cacheContext_ == nullptr) {
         return nullptr;
     }
-    UniformBlockCache* uniformBlockCache = cacheContext_->GetUniformBlockCache();
-    if (uniformBlockCache == nullptr)
-    {
+    UniformBlockCache *uniformBlockCache = cacheContext_->GetUniformBlockCache();
+    if (uniformBlockCache == nullptr) {
         return nullptr;
     }
-    if (resourceRef == nullptr)
-    {
+    if (resourceRef == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "resource_ref_is_null", "resourceRef == nullptr");
         return nullptr;
     }
-    if (resourceRef->GetResourceType() != RESOURCE_UNIFORM_BLOCK)
-    {
+    if (resourceRef->GetResourceType() != RESOURCE_UNIFORM_BLOCK) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "type_mismatch_uniform_block",
                   "Type mismatch: expected RESOURCE_UNIFORM_BLOCK ({}), got {}).",
                   std::to_underlying(RESOURCE_UNIFORM_BLOCK), std::to_underlying(resourceRef->GetResourceType()));
@@ -359,29 +306,23 @@ std::shared_ptr<glimmer::UniformBlockResourceResult> glimmer::ResourceLocator::F
     return uniformBlockCache->LoadResource(appContext_, resourceRef, enablePlaceHolder);
 }
 
-std::unique_ptr<glimmer::Color> glimmer::ResourceLocator::FindColor(const ResourceRef* resourceRef) const
-{
-    if (resourceRef == nullptr)
-    {
+std::unique_ptr<glimmer::Color> glimmer::ResourceLocator::FindColor(const ResourceRef *resourceRef) const {
+    if (resourceRef == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "resource_ref_is_null", "resourceRef == nullptr");
         return nullptr;
     }
     const ResourceTypeMessage resourceType = resourceRef->GetResourceType();
-    if (resourceType == RESOURCE_COLOR)
-    {
-        if (cacheContext_ == nullptr)
-        {
+    if (resourceType == RESOURCE_COLOR) {
+        if (cacheContext_ == nullptr) {
             return nullptr;
         }
-        ColorCache* colorCache = cacheContext_->GetColorCache();
-        if (colorCache == nullptr)
-        {
+        ColorCache *colorCache = cacheContext_->GetColorCache();
+        if (colorCache == nullptr) {
             return nullptr;
         }
         const std::shared_ptr<ColorResource> colorResource = colorCache->LoadResource(
             appContext_, resourceRef);
-        if (colorResource == nullptr)
-        {
+        if (colorResource == nullptr) {
             LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "color_resource_load_failed",
                       "Failed to load color resource: packageId={}, resourceKey={}", resourceRef->GetPackageId(),
                       resourceRef->GetResourceKey());
@@ -389,20 +330,17 @@ std::unique_ptr<glimmer::Color> glimmer::ResourceLocator::FindColor(const Resour
         }
         return std::make_unique<Color>(colorResource->ToColor());
     }
-    if (resourceType == RESOURCE_FIXED_COLOR)
-    {
-        if (!ValidateAccessPermission(resourceRef))
-        {
+    if (resourceType == RESOURCE_FIXED_COLOR) {
+        if (!ValidateAccessPermission(resourceRef)) {
             LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "color_resource_access_denied",
                       "Access permission denied for color resource: packageId={}, resourceKey={}",
                       resourceRef->GetPackageId(), resourceRef->GetResourceKey());
             return nullptr;
         }
-        const FixedColorResource* fixedColorResource = fixedColorManager_->FindFixedColorResource(
+        const FixedColorResource *fixedColorResource = fixedColorManager_->FindFixedColorResource(
             resourceRef->GetPackageId(),
             resourceRef->GetResourceKey());
-        if (fixedColorResource == nullptr)
-        {
+        if (fixedColorResource == nullptr) {
             LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "fixed_color_resource_not_found",
                       "Failed to find fixed color resource: packageId={}, resourceKey={}", resourceRef->GetPackageId(),
                       resourceRef->GetResourceKey());
@@ -416,22 +354,18 @@ std::unique_ptr<glimmer::Color> glimmer::ResourceLocator::FindColor(const Resour
     return nullptr;
 }
 
-glimmer::IShapeResource* glimmer::ResourceLocator::FindShape(const ResourceRef* resourceRef) const
-{
-    if (resourceRef == nullptr)
-    {
+glimmer::IShapeResource *glimmer::ResourceLocator::FindShape(const ResourceRef *resourceRef) const {
+    if (resourceRef == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "resource_ref_is_null", "resourceRef == nullptr");
         return nullptr;
     }
-    if (resourceRef->GetResourceType() != RESOURCE_SHAPE)
-    {
+    if (resourceRef->GetResourceType() != RESOURCE_SHAPE) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "type_mismatch_shape",
                   "Type mismatch: expected RESOURCE_SHAPE ({}), got {} or access permission denied",
                   std::to_underlying(RESOURCE_SHAPE), std::to_underlying(resourceRef->GetResourceType()));
         return nullptr;
     }
-    if (shapeManager_ == nullptr)
-    {
+    if (shapeManager_ == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "shape_manager_is_null",
                   "shapeManager_ == nullptr");
         return nullptr;
@@ -440,13 +374,10 @@ glimmer::IShapeResource* glimmer::ResourceLocator::FindShape(const ResourceRef* 
                                     resourceRef->GetResourceKey());
 }
 
-glimmer::IBiomeDecoratorResource* glimmer::ResourceLocator::FindBiomeDecorator(const ResourceRef* resourceRef) const
-{
+glimmer::IBiomeDecoratorResource *glimmer::ResourceLocator::FindBiomeDecorator(const ResourceRef *resourceRef) const {
     return FindRegistered<IBiomeDecoratorResource>(resourceRef, RESOURCE_BIOME_DECORATOR,
-                                                   [this, resourceRef]() -> IBiomeDecoratorResource*
-                                                   {
-                                                       if (biomeDecoratorRegistry_ == nullptr)
-                                                       {
+                                                   [this, resourceRef]() -> IBiomeDecoratorResource * {
+                                                       if (biomeDecoratorRegistry_ == nullptr) {
                                                            LogCat::w(LogLabel::DEFAULT, std::source_location::current(),
                                                                      "biome_decorator_resources_manager_is_null",
                                                                      "biomeDecoratorResourcesManager_ == nullptr");
@@ -457,12 +388,9 @@ glimmer::IBiomeDecoratorResource* glimmer::ResourceLocator::FindBiomeDecorator(c
                                                    });
 }
 
-glimmer::StringResource* glimmer::ResourceLocator::FindString(const ResourceRef* resourceRef) const
-{
-    return FindRegistered<StringResource>(resourceRef, RESOURCE_STRING, [this, resourceRef]() -> StringResource*
-    {
-        if (stringManager_ == nullptr)
-        {
+glimmer::StringResource *glimmer::ResourceLocator::FindString(const ResourceRef *resourceRef) const {
+    return FindRegistered<StringResource>(resourceRef, RESOURCE_STRING, [this, resourceRef]() -> StringResource * {
+        if (stringManager_ == nullptr) {
             LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "string_manager_is_null",
                       "stringManager_ == nullptr");
             return nullptr;
@@ -472,13 +400,10 @@ glimmer::StringResource* glimmer::ResourceLocator::FindString(const ResourceRef*
     });
 }
 
-glimmer::LightSourceResource* glimmer::ResourceLocator::FindLightSource(const ResourceRef* resourceRef) const
-{
+glimmer::LightSourceResource *glimmer::ResourceLocator::FindLightSource(const ResourceRef *resourceRef) const {
     return FindRegistered<LightSourceResource>(resourceRef, RESOURCE_LIGHT_SOURCE,
-                                               [this, resourceRef]() -> LightSourceResource*
-                                               {
-                                                   if (lightSourceManager_ == nullptr)
-                                                   {
+                                               [this, resourceRef]() -> LightSourceResource * {
+                                                   if (lightSourceManager_ == nullptr) {
                                                        LogCat::w(LogLabel::DEFAULT, std::source_location::current(),
                                                                  "light_source_manager_is_null",
                                                                  "lightSourceManager_ == nullptr");
@@ -490,13 +415,10 @@ glimmer::LightSourceResource* glimmer::ResourceLocator::FindLightSource(const Re
                                                });
 }
 
-glimmer::LightMaskResource* glimmer::ResourceLocator::FindLightMask(const ResourceRef* resourceRef) const
-{
+glimmer::LightMaskResource *glimmer::ResourceLocator::FindLightMask(const ResourceRef *resourceRef) const {
     return FindRegistered<LightMaskResource>(resourceRef, RESOURCE_LIGHT_MASK,
-                                             [this, resourceRef]() -> LightMaskResource*
-                                             {
-                                                 if (lightMaskManager_ == nullptr)
-                                                 {
+                                             [this, resourceRef]() -> LightMaskResource * {
+                                                 if (lightMaskManager_ == nullptr) {
                                                      LogCat::w(LogLabel::DEFAULT, std::source_location::current(),
                                                                "light_mask_manager_is_null",
                                                                "lightMaskManager_ == nullptr");
@@ -508,22 +430,18 @@ glimmer::LightMaskResource* glimmer::ResourceLocator::FindLightMask(const Resour
                                              });
 }
 
-glimmer::TileResource* glimmer::ResourceLocator::FindTileFallback(const ResourceRef* resourceRef,
-                                                                  TileLayerType tileLayer) const
-{
-    if (resourceRef == nullptr)
-    {
+glimmer::TileResource *glimmer::ResourceLocator::FindTileFallback(const ResourceRef *resourceRef,
+                                                                  TileLayerType tileLayer) const {
+    if (resourceRef == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "resource_ref_is_null", "resourceRef == nullptr");
         return nullptr;
     }
-    if (tileResourceManager_ == nullptr)
-    {
+    if (tileResourceManager_ == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "tile_resource_is_null",
                   "tileResource == nullptr");
         return nullptr;
     }
-    if (resourceRef->GetResourceType() != RESOURCE_TILE || !ValidateAccessPermission(resourceRef))
-    {
+    if (resourceRef->GetResourceType() != RESOURCE_TILE || !ValidateAccessPermission(resourceRef)) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "type_mismatch_tile",
                   "Type mismatch: expected RESOURCE_TILE ({}), got {} or access permission denied",
                   std::to_underlying(RESOURCE_TILE), std::to_underlying(resourceRef->GetResourceType()));
@@ -535,12 +453,9 @@ glimmer::TileResource* glimmer::ResourceLocator::FindTileFallback(const Resource
                                                   tileLayer);
 }
 
-glimmer::TileResource* glimmer::ResourceLocator::FindTileRaw(const ResourceRef* resourceRef) const
-{
-    return FindRegistered<TileResource>(resourceRef, RESOURCE_TILE, [this, resourceRef]() -> TileResource*
-    {
-        if (tileResourceManager_ == nullptr)
-        {
+glimmer::TileResource *glimmer::ResourceLocator::FindTileRaw(const ResourceRef *resourceRef) const {
+    return FindRegistered<TileResource>(resourceRef, RESOURCE_TILE, [this, resourceRef]() -> TileResource * {
+        if (tileResourceManager_ == nullptr) {
             LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "tile_resource_is_null",
                       "tileResource == nullptr");
             return nullptr;
@@ -550,12 +465,9 @@ glimmer::TileResource* glimmer::ResourceLocator::FindTileRaw(const ResourceRef* 
     });
 }
 
-glimmer::MobResource* glimmer::ResourceLocator::FindMob(const ResourceRef* resourceRef) const
-{
-    return FindRegistered<MobResource>(resourceRef, RESOURCE_MOB, [this, resourceRef]() -> MobResource*
-    {
-        if (mobRegistry_ == nullptr)
-        {
+glimmer::MobResource *glimmer::ResourceLocator::FindMob(const ResourceRef *resourceRef) const {
+    return FindRegistered<MobResource>(resourceRef, RESOURCE_MOB, [this, resourceRef]() -> MobResource * {
+        if (mobRegistry_ == nullptr) {
             LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "mob_manager_is_null",
                       "mobManager == nullptr");
             return nullptr;
@@ -565,13 +477,10 @@ glimmer::MobResource* glimmer::ResourceLocator::FindMob(const ResourceRef* resou
     });
 }
 
-glimmer::IStructureResource* glimmer::ResourceLocator::FindStructure(const ResourceRef* resourceRef) const
-{
+glimmer::IStructureResource *glimmer::ResourceLocator::FindStructure(const ResourceRef *resourceRef) const {
     return FindRegistered<IStructureResource>(resourceRef, RESOURCE_STRUCTURE,
-                                              [this, resourceRef]() -> IStructureResource*
-                                              {
-                                                  if (structureRegistry_ == nullptr)
-                                                  {
+                                              [this, resourceRef]() -> IStructureResource * {
+                                                  if (structureRegistry_ == nullptr) {
                                                       LogCat::w(LogLabel::DEFAULT, std::source_location::current(),
                                                                 "structure_registry_is_null",
                                                                 "structureRegistry_ == nullptr");
@@ -582,13 +491,10 @@ glimmer::IStructureResource* glimmer::ResourceLocator::FindStructure(const Resou
                                               });
 }
 
-glimmer::DimensionResource* glimmer::ResourceLocator::FindDimension(const ResourceRef* resourceRef) const
-{
+glimmer::DimensionResource *glimmer::ResourceLocator::FindDimension(const ResourceRef *resourceRef) const {
     return FindRegistered<DimensionResource>(resourceRef, RESOURCE_DIMENSION,
-                                             [this, resourceRef]() -> DimensionResource*
-                                             {
-                                                 if (dimensionRegistry_ == nullptr)
-                                                 {
+                                             [this, resourceRef]() -> DimensionResource * {
+                                                 if (dimensionRegistry_ == nullptr) {
                                                      LogCat::w(LogLabel::DEFAULT, std::source_location::current(),
                                                                "dimension_registry_is_null",
                                                                "dimensionRegistry_ == nullptr");
@@ -599,14 +505,11 @@ glimmer::DimensionResource* glimmer::ResourceLocator::FindDimension(const Resour
                                              });
 }
 
-glimmer::ComposableItemResource* glimmer::ResourceLocator::FindComposableItem(
-    const ResourceRef* resourceRef) const
-{
+glimmer::ComposableItemResource *glimmer::ResourceLocator::FindComposableItem(
+    const ResourceRef *resourceRef) const {
     return FindRegistered<ComposableItemResource>(resourceRef, RESOURCE_COMPOSABLE_ITEM,
-                                                  [this, resourceRef]() -> ComposableItemResource*
-                                                  {
-                                                      if (composableItemRegistry_ == nullptr)
-                                                      {
+                                                  [this, resourceRef]() -> ComposableItemResource * {
+                                                      if (composableItemRegistry_ == nullptr) {
                                                           LogCat::w(LogLabel::DEFAULT, std::source_location::current(),
                                                                     "item_manager_is_null", "itemManager == nullptr");
                                                           return nullptr;
@@ -616,14 +519,11 @@ glimmer::ComposableItemResource* glimmer::ResourceLocator::FindComposableItem(
                                                   });
 }
 
-glimmer::AbilityItemResource* glimmer::ResourceLocator::FindAbilityItem(
-    const ResourceRef* resourceRef) const
-{
+glimmer::AbilityItemResource *glimmer::ResourceLocator::FindAbilityItem(
+    const ResourceRef *resourceRef) const {
     return FindRegistered<AbilityItemResource>(resourceRef, RESOURCE_ABILITY_ITEM,
-                                               [this, resourceRef]() -> AbilityItemResource*
-                                               {
-                                                   if (abilityItemRegistry_ == nullptr)
-                                                   {
+                                               [this, resourceRef]() -> AbilityItemResource * {
+                                                   if (abilityItemRegistry_ == nullptr) {
                                                        LogCat::w(LogLabel::DEFAULT, std::source_location::current(),
                                                                  "item_manager_is_null", "itemManager == nullptr");
                                                        return nullptr;
@@ -633,13 +533,10 @@ glimmer::AbilityItemResource* glimmer::ResourceLocator::FindAbilityItem(
                                                });
 }
 
-glimmer::MaterialItemResource* glimmer::ResourceLocator::FindMaterialItem(const ResourceRef* resourceRef) const
-{
+glimmer::MaterialItemResource *glimmer::ResourceLocator::FindMaterialItem(const ResourceRef *resourceRef) const {
     return FindRegistered<MaterialItemResource>(resourceRef, RESOURCE_MATERIAL_ITEM,
-                                                [this, resourceRef]() -> MaterialItemResource*
-                                                {
-                                                    if (materialItemRegistry_ == nullptr)
-                                                    {
+                                                [this, resourceRef]() -> MaterialItemResource * {
+                                                    if (materialItemRegistry_ == nullptr) {
                                                         LogCat::w(LogLabel::DEFAULT, std::source_location::current(),
                                                                   "item_manager_is_null", "itemManager == nullptr");
                                                         return nullptr;
@@ -649,12 +546,9 @@ glimmer::MaterialItemResource* glimmer::ResourceLocator::FindMaterialItem(const 
                                                 });
 }
 
-glimmer::LootResource* glimmer::ResourceLocator::FindLoot(const ResourceRef* resourceRef) const
-{
-    return FindRegistered<LootResource>(resourceRef, RESOURCE_LOOT_TABLE, [this, resourceRef]() -> LootResource*
-    {
-        if (lootTableRegistry_ == nullptr)
-        {
+glimmer::LootResource *glimmer::ResourceLocator::FindLoot(const ResourceRef *resourceRef) const {
+    return FindRegistered<LootResource>(resourceRef, RESOURCE_LOOT_TABLE, [this, resourceRef]() -> LootResource * {
+        if (lootTableRegistry_ == nullptr) {
             LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "loot_table_manager_is_null",
                       "lootTableManager_ == nullptr");
             return nullptr;
@@ -664,15 +558,13 @@ glimmer::LootResource* glimmer::ResourceLocator::FindLoot(const ResourceRef* res
     });
 }
 
-std::unique_ptr<glimmer::Item> glimmer::ResourceLocator::FindItem(WorldContext* worldContext,
-                                                                  const ItemMessage& itemMessage) const
-{
+std::unique_ptr<glimmer::Item> glimmer::ResourceLocator::FindItem(WorldContext *worldContext,
+                                                                  const ItemMessage &itemMessage) const {
     return itemFactory_.CreateItem(worldContext, itemMessage);
 }
 
-std::unique_ptr<glimmer::Item> glimmer::ResourceLocator::FindItem(WorldContext* worldContext,
-                                                                  const ItemMessageResource& itemMessageResource)
-const
-{
+std::unique_ptr<glimmer::Item> glimmer::ResourceLocator::FindItem(WorldContext *worldContext,
+                                                                  const ItemMessageResource &itemMessageResource)
+const {
     return itemFactory_.CreateItem(worldContext, itemMessageResource);
 }

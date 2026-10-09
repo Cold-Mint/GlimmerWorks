@@ -31,10 +31,8 @@
 #include "core/ecs/GameComponent.h"
 #include "core/inventory/Item.h"
 
-namespace glimmer
-{
-    class DroppedItemComponent : public GameComponent
-    {
+namespace glimmer {
+    class DroppedItemComponent : public GameComponent {
         std::unique_ptr<Item> item_ = nullptr;
         //How many ticks remain before it disappears
         //还剩多少个Tick会消失
@@ -93,7 +91,7 @@ namespace glimmer
          */
         [[nodiscard]] std::unique_ptr<Item> ExtractItem();
 
-        [[nodiscard]] Item* GetItem() const;
+        [[nodiscard]] Item *GetItem() const;
 
         /**
          * Set Pickup Cooldown Ticks
@@ -122,6 +120,6 @@ namespace glimmer
 
         [[nodiscard]] std::optional<std::string> Serialize() override;
 
-        void Deserialize(WorldContext* worldContext, const std::string& data) override;
+        void Deserialize(WorldContext *worldContext, const std::string &data) override;
     };
 }

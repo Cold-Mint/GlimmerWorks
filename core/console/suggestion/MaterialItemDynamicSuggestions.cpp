@@ -28,22 +28,18 @@
 
 
 glimmer::MaterialItemDynamicSuggestions::MaterialItemDynamicSuggestions(
-    MaterialItemRegistry* materialItemRegistry) : materialItemRegistry_(materialItemRegistry)
-{
+    MaterialItemRegistry *materialItemRegistry) : materialItemRegistry_(materialItemRegistry) {
 }
 
-std::string glimmer::MaterialItemDynamicSuggestions::GetId() const
-{
+std::string glimmer::MaterialItemDynamicSuggestions::GetId() const {
     return MATERIAL_ITEM_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-bool glimmer::MaterialItemDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
-{
+bool glimmer::MaterialItemDynamicSuggestions::Match(const std::string &keyword, const std::string &param) {
     return std::ranges::contains(materialItemRegistry_->List(), keyword);
 }
 
-const std::vector<std::string>& glimmer::MaterialItemDynamicSuggestions::GetSuggestions(
-    const std::optional<std::string>& param)
-{
+const std::vector<std::string> &glimmer::MaterialItemDynamicSuggestions::GetSuggestions(
+    const std::optional<std::string> &param) {
     return materialItemRegistry_->List();
 }

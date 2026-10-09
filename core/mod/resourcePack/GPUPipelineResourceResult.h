@@ -33,8 +33,7 @@
 #include "ResourceResult.h"
 #include "SDL3/SDL_gpu.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class UniformBlockResourceResult;
 
     /**
@@ -44,8 +43,7 @@ namespace glimmer
     * block 指向共享的编译块；stage 与 binding 是每管线属性，因此多管线
     * 共享同一个块时不会互相覆盖。
     */
-    struct PipelineUniformBlock
-    {
+    struct PipelineUniformBlock {
         std::shared_ptr<UniformBlockResourceResult> block;
         uint32_t binding = 0;
         UniformBlockStage stage = UniformBlockStage::Fragment;
@@ -55,16 +53,15 @@ namespace glimmer
      * GPUPipelineResourceResult
      * GPU 管线资源结果
      */
-    class GPUPipelineResourceResult : public ResourceResult<SDL_GPUGraphicsPipeline>
-    {
+    class GPUPipelineResourceResult : public ResourceResult<SDL_GPUGraphicsPipeline> {
         std::vector<PipelineUniformBlock> uniformBlocks_;
-        SDL_GPUDevice* device_ = nullptr;
+        SDL_GPUDevice *device_ = nullptr;
 
     protected:
-        void DestroyResourceImpl(SDL_GPUGraphicsPipeline* resource) override;
+        void DestroyResourceImpl(SDL_GPUGraphicsPipeline *resource) override;
 
     public:
-        void SetDevice(SDL_GPUDevice* device);
+        void SetDevice(SDL_GPUDevice *device);
 
         /**
          * AddUniformBlock
@@ -77,7 +74,7 @@ namespace glimmer
          * GetUniformBlocks
          * 获取管线关联的全部 Uniform 块
          */
-        [[nodiscard]] const std::vector<PipelineUniformBlock>* GetUniformBlocks() const;
+        [[nodiscard]] const std::vector<PipelineUniformBlock> *GetUniformBlocks() const;
 
         ~GPUPipelineResourceResult() override;
     };

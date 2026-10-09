@@ -35,23 +35,18 @@
 #include "toml11/find.hpp"
 #include "toml11/types.hpp"
 
-namespace glimmer
-{
-    struct AndroidAssetEntry
-    {
+namespace glimmer {
+    struct AndroidAssetEntry {
         std::string path;
         std::string sha256;
         bool isFile = false;
     };
 }
 
-namespace toml
-{
-    template <>
-    struct from<glimmer::AndroidAssetEntry>
-    {
-        static glimmer::AndroidAssetEntry from_toml(const value& v)
-        {
+namespace toml {
+    template<>
+    struct from<glimmer::AndroidAssetEntry> {
+        static glimmer::AndroidAssetEntry from_toml(const value &v) {
             glimmer::AndroidAssetEntry r;
             r.path = toml::find<std::string>(v, "path");
             r.isFile = toml::find<bool>(v, "is_file");
@@ -61,42 +56,40 @@ namespace toml
     };
 }
 
-namespace glimmer
-{
-    class AndroidAssetsFileProvider : public IFileProvider
-    {
+namespace glimmer {
+    class AndroidAssetsFileProvider : public IFileProvider {
         std::vector<AndroidAssetEntry> assetEntryData_ = {};
-        AAssetManager* assetManager_{};
+        AAssetManager *assetManager_{};
 
     public:
-        explicit AndroidAssetsFileProvider(AAssetManager* assetManager);
+        explicit AndroidAssetsFileProvider(AAssetManager *assetManager);
 
 
-        void SetAssetEntryData(const std::vector<AndroidAssetEntry>& assetEntryData);
+        void SetAssetEntryData(const std::vector<AndroidAssetEntry> &assetEntryData);
 
         [[nodiscard]] std::string GetFileProviderName() const override;
 
-        [[nodiscard]] std::optional<std::string> ReadFile(const std::string& path) override;
+        [[nodiscard]] std::optional<std::string> ReadFile(const std::string &path) override;
 
-        [[nodiscard]] std::optional<std::unique_ptr<std::istream>>
-        ReadStream(const std::string& path) override;
+        [[nodiscard]] std::optional<std::unique_ptr<std::istream> >
+        ReadStream(const std::string &path) override;
 
-        [[nodiscard]] bool Exists(const std::string& path) override;
+        [[nodiscard]] bool Exists(const std::string &path) override;
 
-        [[nodiscard]] bool IsFile(const std::string& path) override;
+        [[nodiscard]] bool IsFile(const std::string &path) override;
 
-        [[nodiscard]] bool WriteFile(const std::string& path, const std::string& content) override;
+        [[nodiscard]] bool WriteFile(const std::string &path, const std::string &content) override;
 
-        [[nodiscard]] std::optional<std::string> GetFileOrFolderName(const std::string& path) const override;
+        [[nodiscard]] std::optional<std::string> GetFileOrFolderName(const std::string &path) const override;
 
-        [[nodiscard]] bool DeleteFileOrFolder(const std::string& path) override;
+        [[nodiscard]] bool DeleteFileOrFolder(const std::string &path) override;
 
-        [[nodiscard]] std::vector<std::string> ListFile(const std::string& path, bool recursive) override;
+        [[nodiscard]] std::vector<std::string> ListFile(const std::string &path, bool recursive) override;
 
         [[nodiscard]] std::optional<std::string>
-        GetActualPath(const std::string& path) const override;
+        GetActualPath(const std::string &path) const override;
 
-        bool CreateFolder(const std::string& path) override;
+        bool CreateFolder(const std::string &path) override;
     };
 }
 

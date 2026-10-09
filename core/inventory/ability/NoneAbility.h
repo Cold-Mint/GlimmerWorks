@@ -27,17 +27,15 @@
 #pragma once
 #include "ItemAbility.h"
 
-namespace glimmer
-{
-    class NoneAbility : public ItemAbility
-    {
+namespace glimmer {
+    class NoneAbility : public ItemAbility {
     public:
-        explicit NoneAbility(const AbilityConfig& abilityConfigMessage);
+        explicit NoneAbility(const AbilityConfig &abilityConfigMessage);
 
         [[nodiscard]] AbilityType GetAbilityType() const override;
 
-        bool OnUse(bool mouseLeft, WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
-                   std::unordered_set<AbilityType>& popupAbility) override;
+        bool OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user, const AbilityConfig *abilityConfig,
+                   std::unordered_set<AbilityType> &popupAbility) override;
 
         [[nodiscard]] std::unique_ptr<ItemAbility> Clone() const override;
     };

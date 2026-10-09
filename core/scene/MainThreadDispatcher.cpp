@@ -26,39 +26,33 @@
  */
 #include "MainThreadDispatcher.h"
 
-glimmer::MainThreadDispatcher::MainThreadDispatcher()
-{
+glimmer::MainThreadDispatcher::MainThreadDispatcher() {
     mainThreadId_ = std::this_thread::get_id();
 }
 
 glimmer::MainThreadDispatcher::~MainThreadDispatcher() = default;
 
-bool glimmer::MainThreadDispatcher::IsMainThread() const
-{
+bool glimmer::MainThreadDispatcher::IsMainThread() const {
     //std::this_thread::get_id() always returns the ID of the current thread where the code is executed.
     //std::this_thread::get_id()永远获取当前代码所处线程。
     return mainThreadId_ == std::this_thread::get_id();
 }
 
-void glimmer::MainThreadDispatcher::ProcessMainThreadTasks()
-{
-    std::queue<std::function<void()>> tasks;
+void glimmer::MainThreadDispatcher::ProcessMainThreadTasks() {
+    std::queue<std::function<void()> > tasks;
     {
         std::lock_guard lock(mainThreadMutex_);
         std::swap(tasks, mainThreadTasks_);
     }
 
-    while (!tasks.empty())
-    {
+    while (!tasks.empty()) {
         tasks.front()();
         tasks.pop();
     }
 }
 
-void glimmer::MainThreadDispatcher::RunOnMainThread(std::function<void()> task)
-{
-    if (IsMainThread())
-    {
+void glimmer::MainThreadDispatcher::RunOnMainThread(std::function<void()> task) {
+    if (IsMainThread()) {
         task();
         return;
     }
@@ -66,8 +60,7 @@ void glimmer::MainThreadDispatcher::RunOnMainThread(std::function<void()> task)
     mainThreadTasks_.push(std::move(task));
 }
 
-void glimmer::MainThreadDispatcher::PostToNextMainFrame(std::function<void()> task)
-{
+void glimmer::MainThreadDispatcher::PostToNextMainFrame(std::function<void()> task) {
     std::lock_guard lock(mainThreadMutex_);
     mainThreadTasks_.push(std::move(task));
 }

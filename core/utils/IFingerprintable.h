@@ -27,8 +27,7 @@
 #pragma once
 #include <cstdint>
 
-namespace glimmer
-{
+namespace glimmer {
     /**
       * Objects that can generate unique fingerprints
       * 可生成唯一指纹的对象
@@ -36,8 +35,7 @@ namespace glimmer
       * When the member variable changes, the fingerprint will also change.
       * 当成员变量改变指纹也会变。
       */
-    class IFingerprintAble
-    {
+    class IFingerprintAble {
     public:
         virtual ~IFingerprintAble() = default;
 

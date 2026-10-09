@@ -32,28 +32,24 @@
 #include "SDL3_mixer/SDL_mixer.h"
 #include "SDL3_ttf/SDL_ttf.h"
 
-bool glimmer::InitSDLTask::Run(ISystemBucket*)
-{
+bool glimmer::InitSDLTask::Run(ISystemBucket *) {
 #ifdef __ANDROID__
     SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
     SDL_SetHint("SDL_ANDROID_TRAP_BACK_BUTTON", "1");
 #endif
-    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO))
-    {
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "sdl_init_failed", "SDL_Init failed");
         return false;
     }
     initSDLSuccess_ = true;
     LogCat::i(LogLabel::DEFAULT, "sdl_init_succeeded", "SDL_Init succeeded");
-    if (!MIX_Init())
-    {
+    if (!MIX_Init()) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "mix_init_failed", "MIX_Init failed");
         return false;
     }
     initSDLMixSuccess_ = true;
     LogCat::i(LogLabel::DEFAULT, "mix_init_succeeded", "MIX_Init succeeded");
-    if (!TTF_Init())
-    {
+    if (!TTF_Init()) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "ttf_init_failed", "TTF_Init failed");
         return false;
     }
@@ -62,39 +58,32 @@ bool glimmer::InitSDLTask::Run(ISystemBucket*)
     return true;
 }
 
-void glimmer::InitSDLTask::QuitSubsystems()
-{
-    if (initSDLMixSuccess_)
-    {
+void glimmer::InitSDLTask::QuitSubsystems() {
+    if (initSDLMixSuccess_) {
         LogCat::d(LogLabel::DEFAULT, "quit_subsystem", "Quitting subsystem: {}", "MIX");
         MIX_Quit();
         initSDLMixSuccess_ = false;
     }
-    if (initSDLTtfSuccess_)
-    {
+    if (initSDLTtfSuccess_) {
         LogCat::d(LogLabel::DEFAULT, "quit_subsystem", "Quitting subsystem: {}", "TTF");
         TTF_Quit();
         initSDLTtfSuccess_ = false;
     }
-    if (initSDLSuccess_)
-    {
+    if (initSDLSuccess_) {
         LogCat::d(LogLabel::DEFAULT, "quit_subsystem", "Quitting subsystem: {}", "SDL");
         SDL_Quit();
         initSDLSuccess_ = false;
     }
 }
 
-void glimmer::InitSDLTask::Rollback(ISystemBucket*)
-{
+void glimmer::InitSDLTask::Rollback(ISystemBucket *) {
     QuitSubsystems();
 }
 
-std::string glimmer::InitSDLTask::GetTaskName()
-{
+std::string glimmer::InitSDLTask::GetTaskName() {
     return "InitSDLTask";
 }
 
-glimmer::InitSDLTask::~InitSDLTask()
-{
+glimmer::InitSDLTask::~InitSDLTask() {
     QuitSubsystems();
 }

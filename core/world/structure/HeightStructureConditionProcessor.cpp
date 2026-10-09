@@ -29,35 +29,29 @@
 #include "core/log/LogCat.h"
 
 glimmer::StructureConditionProcessorType glimmer::HeightStructureConditionProcessor::
-GetStructureConditionProcessorType()
-{
+GetStructureConditionProcessorType() {
     return StructureConditionProcessorType::Height;
 }
 
-std::bitset<TERRAIN_AREA> glimmer::HeightStructureConditionProcessor::Match(const DimensionResource* dimensionResource,
-                                                                            const TerrainResult* terrainResult,
+std::bitset<TERRAIN_AREA> glimmer::HeightStructureConditionProcessor::Match(const DimensionResource *dimensionResource,
+                                                                            const TerrainResult *terrainResult,
                                                                             const IStructurePlacementConditionsResource
-                                                                            * placementConditionsResource)
-{
+                                                                            *placementConditionsResource) {
     std::bitset<TERRAIN_AREA> result;
-    const auto heightStructureConditions = dynamic_cast<const HeightStructureConditionsResource*>(
+    const auto heightStructureConditions = dynamic_cast<const HeightStructureConditionsResource *>(
         placementConditionsResource);
-    if (heightStructureConditions == nullptr)
-    {
+    if (heightStructureConditions == nullptr) {
         return result;
     }
     const float maxHeightPercent = heightStructureConditions->maxHeightPercent;
     const float minHeightPercent = heightStructureConditions->minHeightPercent;
-    const TerrainVertexVector2D& position = terrainResult->GetPosition();
+    const TerrainVertexVector2D &position = terrainResult->GetPosition();
     int matchedTileCount = 0;
-    for (int localX = 0; localX < TERRAIN_SIZE; localX++)
-    {
-        for (int localY = 0; localY < TERRAIN_SIZE; localY++)
-        {
+    for (int localX = 0; localX < TERRAIN_SIZE; localX++) {
+        for (int localY = 0; localY < TERRAIN_SIZE; localY++) {
             int globalY = localY + position.y;
             float percent = static_cast<float>(globalY) / static_cast<float>(dimensionResource->maxY);
-            if (percent >= minHeightPercent && percent <= maxHeightPercent)
-            {
+            if (percent >= minHeightPercent && percent <= maxHeightPercent) {
                 int tileIndex = localX + localY * TERRAIN_SIZE;
                 result[tileIndex] = true;
                 matchedTileCount++;

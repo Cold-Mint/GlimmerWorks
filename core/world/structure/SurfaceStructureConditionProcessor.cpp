@@ -29,39 +29,32 @@
 #include "core/log/LogCat.h"
 
 glimmer::StructureConditionProcessorType glimmer::SurfaceStructureConditionProcessor::
-GetStructureConditionProcessorType()
-{
+GetStructureConditionProcessorType() {
     return StructureConditionProcessorType::Surface;
 }
 
-std::bitset<TERRAIN_AREA> glimmer::SurfaceStructureConditionProcessor::Match(const DimensionResource* dimensionResource,
-                                                                             const TerrainResult* terrainResult,
+std::bitset<TERRAIN_AREA> glimmer::SurfaceStructureConditionProcessor::Match(const DimensionResource *dimensionResource,
+                                                                             const TerrainResult *terrainResult,
                                                                              const IStructurePlacementConditionsResource
-                                                                             * placementConditionsResource)
-{
+                                                                             *placementConditionsResource) {
     std::bitset<TERRAIN_AREA> result;
-    for (int localX = 0; localX < TERRAIN_SIZE; localX++)
-    {
-        for (int localY = 0; localY < TERRAIN_SIZE; localY++)
-        {
+    for (int localX = 0; localX < TERRAIN_SIZE; localX++) {
+        for (int localY = 0; localY < TERRAIN_SIZE; localY++) {
             TerrainRelativeVector2D relativeVector2d(localX, localY);
-            if (const TerrainTileResult& self = terrainResult->QueryTerrain(relativeVector2d);
-                self.GetTerrainType() != TerrainResultType::SOLID)
-            {
+            if (const TerrainTileResult &self = terrainResult->QueryTerrain(relativeVector2d);
+                self.GetTerrainType() != TerrainResultType::SOLID) {
                 //Not solid tiles.
                 //不是固体瓦片。
                 continue;
             }
-            if (localY == TERRAIN_MASK)
-            {
+            if (localY == TERRAIN_MASK) {
                 //It is already at the topmost position. The next level is outside the local shape block and is skipped.
                 //已是最顶端，上一格在本地形块之外，跳过
                 continue;
             }
             TerrainRelativeVector2D relativeVector2dUp(localX, localY + 1);
-            if (const TerrainTileResult& up = terrainResult->QueryTerrain(relativeVector2dUp);
-                up.GetTerrainType() != TerrainResultType::AIR)
-            {
+            if (const TerrainTileResult &up = terrainResult->QueryTerrain(relativeVector2dUp);
+                up.GetTerrainType() != TerrainResultType::AIR) {
                 // The tiles above are not air.
                 //上方的瓦片不是空气。
                 continue;

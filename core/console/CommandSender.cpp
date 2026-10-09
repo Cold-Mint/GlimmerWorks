@@ -26,12 +26,10 @@
  */
 #include "CommandSender.h"
 
-void glimmer::CommandSender::SetPosition(const WorldVector2D& position)
-{
+void glimmer::CommandSender::SetPosition(const WorldVector2D &position) {
     this->position_ = position;
 }
 
-glimmer::WorldVector2D glimmer::CommandSender::GetPosition() const
-{
+glimmer::WorldVector2D glimmer::CommandSender::GetPosition() const {
     return this->position_;
 }

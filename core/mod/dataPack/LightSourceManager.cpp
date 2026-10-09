@@ -27,8 +27,7 @@
 #include "LightSourceManager.h"
 
 void glimmer::LightSourceManager::RegisterCoreLightSourceResource(std::string_view resourceId,
-                                                                  std::string_view colorResKey, uint8_t lightRadius)
-{
+                                                                  std::string_view colorResKey, uint8_t lightRadius) {
     auto lightSourceResource = std::make_unique<LightSourceResource>();
     lightSourceResource->resourceId = resourceId;
     lightSourceResource->packId = RESOURCE_REF_CORE;
@@ -39,57 +38,46 @@ void glimmer::LightSourceManager::RegisterCoreLightSourceResource(std::string_vi
     resourceRef.SetResourceKey(colorResKey);
     lightSourceResource->lightColor = resourceRef;
     lightSourceResource->lightBrightestAtCenter = true;
-    (void)Register(std::move(lightSourceResource));
+    (void) Register(std::move(lightSourceResource));
 }
 
-glimmer::LightSourceManager::LightSourceManager()
-{
+glimmer::LightSourceManager::LightSourceManager() {
     RegisterCoreLightSourceResource(LIGHT_NONE, LIGHT_NONE_COLOR, 0);
     RegisterCoreLightSourceResource(LIGHT_SKY, LIGHT_SKY_COLOR, 1);
 }
 
-glimmer::LightSourceResource* glimmer::LightSourceManager::Register(
-    std::unique_ptr<LightSourceResource> lightSourceResource)
-{
-    auto& slot =
-        lightSourceMap_[lightSourceResource->packId][lightSourceResource->resourceId];
+glimmer::LightSourceResource *glimmer::LightSourceManager::Register(
+    std::unique_ptr<LightSourceResource> lightSourceResource) {
+    auto &slot =
+            lightSourceMap_[lightSourceResource->packId][lightSourceResource->resourceId];
     slot = std::move(lightSourceResource);
     return slot.get();
 }
 
-glimmer::LightSourceResource* glimmer::LightSourceManager::FindLightSourceResource(std::string_view packId,
-    std::string_view key)
-{
-    if (const auto packIt = lightSourceMap_.find(packId); packIt != lightSourceMap_.end())
-    {
-        if (const auto keyIt = packIt->second.find(key); keyIt != packIt->second.end())
-        {
+glimmer::LightSourceResource *glimmer::LightSourceManager::FindLightSourceResource(std::string_view packId,
+    std::string_view key) {
+    if (const auto packIt = lightSourceMap_.find(packId); packIt != lightSourceMap_.end()) {
+        if (const auto keyIt = packIt->second.find(key); keyIt != packIt->second.end()) {
             return keyIt->second.get();
         }
     }
     return nullptr;
 }
 
-std::vector<std::string> glimmer::LightSourceManager::GetLightSourceResourceList() const
-{
+std::vector<std::string> glimmer::LightSourceManager::GetLightSourceResourceList() const {
     std::vector<std::string> result;
-    for (const auto& [packId, keyMap] : lightSourceMap_)
-    {
-        for (const auto& [key, resource] : keyMap)
-        {
+    for (const auto &[packId, keyMap]: lightSourceMap_) {
+        for (const auto &[key, resource]: keyMap) {
             result.emplace_back(Resource::GenerateId(packId, key));
         }
     }
     return result;
 }
 
-std::string glimmer::LightSourceManager::ListLightSourceResource() const
-{
+std::string glimmer::LightSourceManager::ListLightSourceResource() const {
     std::ostringstream oss;
-    for (const auto& [packId, keyMap] : lightSourceMap_)
-    {
-        for (const auto& [key, resource] : keyMap)
-        {
+    for (const auto &[packId, keyMap]: lightSourceMap_) {
+        for (const auto &[key, resource]: keyMap) {
             oss << Resource::GenerateId(packId, key) << "\n";
         }
     }

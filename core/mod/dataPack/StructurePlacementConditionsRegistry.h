@@ -29,9 +29,7 @@
 #include "BaseResourceRegistry.h"
 #include "core/mod/Resource.h"
 
-namespace glimmer
-{
-    class StructurePlacementConditionsRegistry : public BaseResourceRegistry<IStructurePlacementConditionsResource>
-    {
+namespace glimmer {
+    class StructurePlacementConditionsRegistry : public BaseResourceRegistry<IStructurePlacementConditionsResource> {
     };
 }

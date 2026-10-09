@@ -33,9 +33,8 @@
 #include "core/math/Color.h"
 
 
-std::unique_ptr<glimmer::Color> glimmer::LightUtils::ApplyLightingMask(const Color* light, const Color* mask,
-                                                                       const float tintFactor)
-{
+std::unique_ptr<glimmer::Color> glimmer::LightUtils::ApplyLightingMask(const Color *light, const Color *mask,
+                                                                       const float tintFactor) {
     auto result = std::make_unique<Color>();
     const float intensity = static_cast<float>(light->a) / 255.0F;
     const float maskStrength = static_cast<float>(mask->a) / 255.0F;
@@ -48,8 +47,7 @@ std::unique_ptr<glimmer::Color> glimmer::LightUtils::ApplyLightingMask(const Col
     return result;
 }
 
-std::unique_ptr<glimmer::Color> glimmer::LightUtils::MixLights(const Color* colorA, const Color* colorB)
-{
+std::unique_ptr<glimmer::Color> glimmer::LightUtils::MixLights(const Color *colorA, const Color *colorB) {
     auto result = std::make_unique<Color>();
     result->r = static_cast<uint8_t>(std::min(255, static_cast<int>(colorA->r) + colorB->r));
     result->g = static_cast<uint8_t>(std::min(255, static_cast<int>(colorA->g) + colorB->g));

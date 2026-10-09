@@ -30,10 +30,8 @@
 
 #include "AbilityTipDataModel.h"
 
-namespace glimmer
-{
-    struct ItemTooltipDataModel
-    {
+namespace glimmer {
+    struct ItemTooltipDataModel {
         std::string tooltipName;
         std::string tooltipDesc;
         std::string tooltipLeft = "0px";

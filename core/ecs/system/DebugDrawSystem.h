@@ -27,22 +27,20 @@
 #pragma once
 #include "core/ecs/GameSystem.h"
 
-namespace glimmer
-{
-    class DebugDrawSystem : public GameSystem
-    {
+namespace glimmer {
+    class DebugDrawSystem : public GameSystem {
         std::vector<GameEntityID> entities_;
-        CameraComponent* cameraComponent_ = nullptr;
-        Transform2DComponent* cameraTransform2DComponent_ = nullptr;
+        CameraComponent *cameraComponent_ = nullptr;
+        Transform2DComponent *cameraTransform2DComponent_ = nullptr;
         uint32_t debugDrawCount = 0;
         uint32_t transform2DCount = 0;
 
     public:
-        explicit DebugDrawSystem(WorldContext* worldContext);
+        explicit DebugDrawSystem(WorldContext *worldContext);
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
-        void Render(RenderQueue* queue) override;
+        void Render(RenderQueue *queue) override;
 
         uint8_t GetExecutionOrder() override;
 

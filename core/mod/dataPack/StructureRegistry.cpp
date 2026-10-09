@@ -26,12 +26,23 @@
  */
 #include "StructureRegistry.h"
 
-void glimmer::StructureRegistry::OnRegister(IStructureResource* resource)
-{
+#include <algorithm>
+
+void glimmer::StructureRegistry::OnRegister(IStructureResource *resource) {
     structureVector_.emplace_back(resource);
+    AddVersion();
 }
 
-const std::vector<glimmer::IStructureResource*>& glimmer::StructureRegistry::GetAll()
-{
+const std::vector<glimmer::IStructureResource *> &glimmer::StructureRegistry::GetAll() {
+    const uint32_t nowVersion = GetVersion();
+    if (nowVersion != lastVersion_) {
+        //Sort by priority from high to low.
+        //按照priority从高到低排序。
+        std::stable_sort(structureVector_.begin(), structureVector_.end(),
+                         [](const IStructureResource *a, const IStructureResource *b) {
+                             return a->priority > b->priority;
+                         });
+        lastVersion_ = nowVersion;
+    }
     return structureVector_;
 }

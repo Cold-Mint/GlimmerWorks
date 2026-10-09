@@ -27,10 +27,8 @@
 #pragma once
 #include <cstdint>
 
-namespace glimmer
-{
-    class VersionAble
-    {
+namespace glimmer {
+    class VersionAble {
         uint32_t version_ = 0;
 
     protected:

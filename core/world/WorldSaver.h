@@ -28,8 +28,7 @@
 #include "core/ecs/EcsTypes.h"
 #include "src/saves/entity_item.pb.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class WorldContext;
 
     /**
@@ -38,13 +37,12 @@ namespace glimmer
      * Serializes a game entity or the whole world (player + map manifest) into save data.
      * 将游戏实体或整个世界（玩家 + 地图清单）序列化到存档数据。
      */
-    class WorldSaver
-    {
-        WorldContext* worldContext_;
+    class WorldSaver {
+        WorldContext *worldContext_;
         bool saving_ = false;
 
     public:
-        explicit WorldSaver(WorldContext* worldContext);
+        explicit WorldSaver(WorldContext *worldContext);
 
         /**
          * SaveEntity
@@ -52,7 +50,7 @@ namespace glimmer
          * @param entityItemMessage entityItemMessage 目标实体消息
          * @param entityId entityId 实体Id
          */
-        void SaveEntity(EntityItemMessage* entityItemMessage, GameEntityID entityId) const;
+        void SaveEntity(EntityItemMessage *entityItemMessage, GameEntityID entityId) const;
 
         /**
          * SaveGame

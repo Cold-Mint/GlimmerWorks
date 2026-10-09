@@ -32,11 +32,9 @@
 #include "dataPack/PackDependence.h"
 
 
-namespace glimmer
-{
+namespace glimmer {
     //@genNextLine(PackManifest|包清单)
-    struct PackManifest
-    {
+    struct PackManifest {
         //@genNextLine(name|包名称资源引用)
         ResourceRef name;
         //@genNextLine(description|包描述资源引用)
@@ -58,14 +56,12 @@ namespace glimmer
     };
 
     //@genNextLine(DataPackManifest|数据包包清单)
-    struct DataPackManifest : PackManifest
-    {
+    struct DataPackManifest : PackManifest {
         //@genNextLine(DatapackDependencies|包依赖列表)
         std::vector<PackDependence> packDependencies;
     };
 
     //@genNextLine(ResourcePackManifest|资源包包清单)
-    struct ResourcePackManifest : PackManifest
-    {
+    struct ResourcePackManifest : PackManifest {
     };
 }

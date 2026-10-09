@@ -26,18 +26,15 @@
  */
 #include "CommandResponse.h"
 
-void glimmer::CommandResponse::SetCommandResult(const CommandResult commandResult, const std::string_view command)
-{
+void glimmer::CommandResponse::SetCommandResult(const CommandResult commandResult, const std::string_view command) {
     commandResult_ = commandResult;
     command_ = command;
 }
 
-const std::string& glimmer::CommandResponse::GetCommand() const
-{
+const std::string &glimmer::CommandResponse::GetCommand() const {
     return command_;
 }
 
-glimmer::CommandResult glimmer::CommandResponse::GetCommandResult() const
-{
+glimmer::CommandResult glimmer::CommandResponse::GetCommandResult() const {
     return commandResult_;
 }

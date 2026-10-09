@@ -27,24 +27,22 @@
 #pragma once
 #include "IAppContextInitTask.h"
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * InitWindowAndRendererTask
      * 窗口与渲染器初始化任务
      * Creates the window / GPU device, initializes the shader compiler and RmlUi context.
      * 创建窗口/GPU设备，初始化着色器编译器与 RmlUi 上下文。
      */
-    class InitWindowAndRendererTask : public IAppContextInitTask
-    {
+    class InitWindowAndRendererTask : public IAppContextInitTask {
         bool initShaderCompiler_ = false;
 
         void ShutdownGpuShaderCompiler();
 
     public:
-        bool Run(ISystemBucket* systemBucket) override;
+        bool Run(ISystemBucket *systemBucket) override;
 
-        void Rollback(ISystemBucket* systemBucket) override;
+        void Rollback(ISystemBucket *systemBucket) override;
 
         std::string GetTaskName() override;
 

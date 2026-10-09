@@ -33,76 +33,61 @@
 
 glimmer::DroppedItemComponent::DroppedItemComponent() = default;
 
-uint64_t glimmer::DroppedItemComponent::GetRemainingTicks() const
-{
+uint64_t glimmer::DroppedItemComponent::GetRemainingTicks() const {
     return remainingTicks_.load(std::memory_order_relaxed);
 }
 
-void glimmer::DroppedItemComponent::SetRemainingTicks(const uint64_t remainingTicks)
-{
+void glimmer::DroppedItemComponent::SetRemainingTicks(const uint64_t remainingTicks) {
     remainingTicks_.store(remainingTicks, std::memory_order_relaxed);
 }
 
-bool glimmer::DroppedItemComponent::IsExpired() const
-{
+bool glimmer::DroppedItemComponent::IsExpired() const {
     return GetRemainingTicks() == 0;
 }
 
-bool glimmer::DroppedItemComponent::IsDespawnScheduled() const
-{
+bool glimmer::DroppedItemComponent::IsDespawnScheduled() const {
     return despawnScheduled_;
 }
 
-void glimmer::DroppedItemComponent::SetDespawnScheduled(const bool scheduled)
-{
+void glimmer::DroppedItemComponent::SetDespawnScheduled(const bool scheduled) {
     despawnScheduled_ = scheduled;
 }
 
-void glimmer::DroppedItemComponent::SetItem(std::unique_ptr<Item> item)
-{
+void glimmer::DroppedItemComponent::SetItem(std::unique_ptr<Item> item) {
     item_ = std::move(item);
 }
 
-std::unique_ptr<glimmer::Item> glimmer::DroppedItemComponent::ExtractItem()
-{
+std::unique_ptr<glimmer::Item> glimmer::DroppedItemComponent::ExtractItem() {
     return std::move(item_);
 }
 
-glimmer::Item* glimmer::DroppedItemComponent::GetItem() const
-{
+glimmer::Item *glimmer::DroppedItemComponent::GetItem() const {
     return item_.get();
 }
 
-void glimmer::DroppedItemComponent::SetPickupCooldownTicks(const uint64_t cooldownTicks)
-{
+void glimmer::DroppedItemComponent::SetPickupCooldownTicks(const uint64_t cooldownTicks) {
     pickupCooldownTicks_.store(cooldownTicks, std::memory_order_relaxed);
 }
 
-uint64_t glimmer::DroppedItemComponent::GetPickupCooldownTicks() const
-{
+uint64_t glimmer::DroppedItemComponent::GetPickupCooldownTicks() const {
     return pickupCooldownTicks_.load(std::memory_order_relaxed);
 }
 
-bool glimmer::DroppedItemComponent::CanBePickedUp() const
-{
+bool glimmer::DroppedItemComponent::CanBePickedUp() const {
     return GetPickupCooldownTicks() == 0;
 }
 
-GameComponentTypeMessage glimmer::DroppedItemComponent::GetComponentTypeStatic()
-{
+GameComponentTypeMessage glimmer::DroppedItemComponent::GetComponentTypeStatic() {
     return COMPONENT_DROPPED_ITEM;
 }
 
-GameComponentTypeMessage glimmer::DroppedItemComponent::GetComponentType()
-{
+GameComponentTypeMessage glimmer::DroppedItemComponent::GetComponentType() {
     return GetComponentTypeStatic();
 }
 
-std::optional<std::string> glimmer::DroppedItemComponent::Serialize()
-{
+std::optional<std::string> glimmer::DroppedItemComponent::Serialize() {
     DroppedItemMessage droppedItemMessage;
-    if (item_ != nullptr)
-    {
+    if (item_ != nullptr) {
         item_->WriteItemMessage(*droppedItemMessage.mutable_item());
     }
     droppedItemMessage.set_pickupcooldown(static_cast<float>(GetPickupCooldownTicks()));
@@ -111,20 +96,16 @@ std::optional<std::string> glimmer::DroppedItemComponent::Serialize()
 }
 
 
-void glimmer::DroppedItemComponent::Deserialize(WorldContext* worldContext, const std::string& data)
-{
-    const AppContext* appContext = worldContext->GetAppContext();
-    if (appContext == nullptr)
-    {
+void glimmer::DroppedItemComponent::Deserialize(WorldContext *worldContext, const std::string &data) {
+    const AppContext *appContext = worldContext->GetAppContext();
+    if (appContext == nullptr) {
         return;
     }
     GameComponent::Deserialize(worldContext, data);
     DroppedItemMessage droppedItemMessage;
-    if (droppedItemMessage.ParseFromString(data))
-    {
+    if (droppedItemMessage.ParseFromString(data)) {
         auto item = appContext->GetResourceLocator()->FindItem(worldContext, droppedItemMessage.item());
-        if (item != nullptr)
-        {
+        if (item != nullptr) {
             item_ = std::move(item);
             item_->ReadItemMessage(worldContext, droppedItemMessage.item());
         }

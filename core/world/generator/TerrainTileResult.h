@@ -37,27 +37,26 @@
  * TerrainTileResult
  * 瓦片地形结果
  */
-class TerrainTileResult
-{
+class TerrainTileResult {
     std::unordered_map<glimmer::TileLayerType, glimmer::ResourceRef> structureResRefs_;
     glimmer::TileVector2D worldPosition_;
-    glimmer::BiomeResource* biomeResource_ = nullptr;
+    glimmer::BiomeResource *biomeResource_ = nullptr;
     glimmer::TerrainResultType terrainType_ = glimmer::TerrainResultType::AIR;
 
 public:
-    void SetBiomeResource(glimmer::BiomeResource* biomeResource);
+    void SetBiomeResource(glimmer::BiomeResource *biomeResource);
 
-    [[nodiscard]] glimmer::BiomeResource* GetBiomeResource() const;
+    [[nodiscard]] glimmer::BiomeResource *GetBiomeResource() const;
 
     void SetTerrainType(glimmer::TerrainResultType terrainType);
 
     glimmer::TerrainResultType GetTerrainType() const;
 
-    void SetWorldPosition(const glimmer::TileVector2D& worldPosition);
+    void SetWorldPosition(const glimmer::TileVector2D &worldPosition);
 
-    const glimmer::TileVector2D& worldPosition() const;
+    const glimmer::TileVector2D &worldPosition() const;
 
-    void SetStructure(glimmer::TileLayerType layerType, const glimmer::ResourceRef* structureResourceRef);
+    void SetStructure(glimmer::TileLayerType layerType, const glimmer::ResourceRef *structureResourceRef);
 
-    [[nodiscard]] const std::unordered_map<glimmer::TileLayerType, glimmer::ResourceRef>& GetStructureResRefs() const;
+    [[nodiscard]] const std::unordered_map<glimmer::TileLayerType, glimmer::ResourceRef> &GetStructureResRefs() const;
 };

@@ -33,14 +33,12 @@
 #include "UniformInjectContext.h"
 #include "core/mod/Resource.h"
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * CompiledUniformMember
      * 编译后的 Uniform 成员
      */
-    struct CompiledUniformMember
-    {
+    struct CompiledUniformMember {
         std::string name;
         //Value source: "static" for a fixed value, otherwise an "@builtin.xxx" name.
         //值来源："static" 为固定值，否则为 "@builtin.xxx" 语义名。
@@ -57,8 +55,7 @@ namespace glimmer
      * UniformBlockStage
      * Uniform 块所属的着色器阶段。推送数据时据此选择顶点/片元 API。
      */
-    enum class UniformBlockStage : uint8_t
-    {
+    enum class UniformBlockStage : uint8_t {
         Vertex = 0,
         Fragment = 1,
     };
@@ -73,8 +70,7 @@ namespace glimmer
      * 保存解析后的 std140 布局，以及一个已写入静态成员的预烘焙缓冲区。
      * 运行时渲染器将缓冲区拷入 staging buffer，仅注入动态成员。
      */
-    class CompiledUniformBlock
-    {
+    class CompiledUniformBlock {
     public:
         /**
          * Compile
@@ -82,17 +78,17 @@ namespace glimmer
          * @param resource resource 描述资源
          * @return 编译产物；类型非法时返回 nullptr。
          */
-        static std::unique_ptr<CompiledUniformBlock> Compile(const UniformBlockResource& resource);
+        static std::unique_ptr<CompiledUniformBlock> Compile(const UniformBlockResource &resource);
 
         [[nodiscard]] size_t GetSize() const;
 
-        [[nodiscard]] const std::vector<CompiledUniformMember>& GetMembers() const;
+        [[nodiscard]] const std::vector<CompiledUniformMember> &GetMembers() const;
 
         /**
          * GetName
          * 获取 uniform 块名（与着色器内 block 名一致）。
          */
-        [[nodiscard]] const std::string& GetName() const;
+        [[nodiscard]] const std::string &GetName() const;
 
         /**
          * Fill
@@ -100,7 +96,7 @@ namespace glimmer
          * @param ctx ctx 注入上下文
          * @param out out 输出缓冲区（大小会被重置为本块大小）
          */
-        void Fill(const UniformInjectContext& ctx, std::vector<uint8_t>& out) const;
+        void Fill(const UniformInjectContext &ctx, std::vector<uint8_t> &out) const;
 
     private:
         std::string name_;

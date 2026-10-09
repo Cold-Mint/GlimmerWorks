@@ -27,103 +27,83 @@
 #include "ComposableItemCreateParams.h"
 #include "core/mod/Resource.h"
 
-void glimmer::ComposableItemCreateParams::SetUnbreakable(const bool unbreakable)
-{
+void glimmer::ComposableItemCreateParams::SetUnbreakable(const bool unbreakable) {
     unbreakable_ = unbreakable;
 }
 
-void glimmer::ComposableItemCreateParams::SetTags(const std::vector<ItemTagResource>& tags)
-{
+void glimmer::ComposableItemCreateParams::SetTags(const std::vector<ItemTagResource> &tags) {
     tags_ = tags;
 }
 
-void glimmer::ComposableItemCreateParams::SetResourceRef(const ResourceRef& resourceRef)
-{
+void glimmer::ComposableItemCreateParams::SetResourceRef(const ResourceRef &resourceRef) {
     resourceRef_ = resourceRef;
 }
 
-void glimmer::ComposableItemCreateParams::SetIconResourceRef(const ResourceRef& iconResourceRef)
-{
+void glimmer::ComposableItemCreateParams::SetIconResourceRef(const ResourceRef &iconResourceRef) {
     iconResultRef_ = iconResourceRef;
 }
 
-void glimmer::ComposableItemCreateParams::SetMaxDurability(const uint32_t maxDurability)
-{
+void glimmer::ComposableItemCreateParams::SetMaxDurability(const uint32_t maxDurability) {
     maxDurability_ = maxDurability;
 }
 
-void glimmer::ComposableItemCreateParams::SetMaxSize(const uint8_t maxSize)
-{
+void glimmer::ComposableItemCreateParams::SetMaxSize(const uint8_t maxSize) {
     maxSize_ = maxSize;
 }
 
-uint8_t glimmer::ComposableItemCreateParams::GetMaxSize() const
-{
+uint8_t glimmer::ComposableItemCreateParams::GetMaxSize() const {
     return maxSize_;
 }
 
-void glimmer::ComposableItemCreateParams::SetIconResult(const std::shared_ptr<TextureResourceResult>& iconResult)
-{
+void glimmer::ComposableItemCreateParams::SetIconResult(const std::shared_ptr<TextureResourceResult> &iconResult) {
     iconResult_ = iconResult;
 }
 
-const std::shared_ptr<glimmer::TextureResourceResult>& glimmer::ComposableItemCreateParams::GetIconResult() const
-{
+const std::shared_ptr<glimmer::TextureResourceResult> &glimmer::ComposableItemCreateParams::GetIconResult() const {
     return iconResult_;
 }
 
-uint32_t glimmer::ComposableItemCreateParams::GetMaxDurability() const
-{
+uint32_t glimmer::ComposableItemCreateParams::GetMaxDurability() const {
     return maxDurability_;
 }
 
-void glimmer::ComposableItemCreateParams::SetDescription(const std::optional<std::string>& description)
-{
+void glimmer::ComposableItemCreateParams::SetDescription(const std::optional<std::string> &description) {
     description_ = description;
 }
 
-void glimmer::ComposableItemCreateParams::SetName(std::string_view name)
-{
+void glimmer::ComposableItemCreateParams::SetName(std::string_view name) {
     name_ = name;
 }
 
-void glimmer::ComposableItemCreateParams::SetId(std::string_view id)
-{
+void glimmer::ComposableItemCreateParams::SetId(std::string_view id) {
     id_ = id;
 }
 
-const std::optional<std::string>& glimmer::ComposableItemCreateParams::GetDescription() const
-{
+const std::optional<std::string> &glimmer::ComposableItemCreateParams::GetDescription() const {
     return description_;
 }
 
 
-bool glimmer::ComposableItemCreateParams::IsUnbreakable() const
-{
+bool glimmer::ComposableItemCreateParams::IsUnbreakable() const {
     return unbreakable_;
 }
 
-const std::vector<glimmer::ItemTagResource>& glimmer::ComposableItemCreateParams::GetTags() const
-{
+const std::vector<glimmer::ItemTagResource> &glimmer::ComposableItemCreateParams::GetTags() const {
     return tags_;
 }
 
-const glimmer::ResourceRef& glimmer::ComposableItemCreateParams::GetResourceRef() const
-{
+const glimmer::ResourceRef &glimmer::ComposableItemCreateParams::GetResourceRef() const {
     return resourceRef_;
 }
 
-const glimmer::ResourceRef& glimmer::ComposableItemCreateParams::GetIconResourceRef() const
-{
+const glimmer::ResourceRef &glimmer::ComposableItemCreateParams::GetIconResourceRef() const {
     return iconResultRef_;
 }
 
-const std::string& glimmer::ComposableItemCreateParams::GetName() const
-{
+const std::string &glimmer::ComposableItemCreateParams::GetName() const {
     return name_;
 }
 
-const std::string& glimmer::ComposableItemCreateParams::GetId() const
-{
+const std::string &glimmer::ComposableItemCreateParams::GetId() const {
     return id_;
 }

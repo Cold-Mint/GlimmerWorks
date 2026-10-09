@@ -29,8 +29,7 @@
 
 #include "core/math/TileVector2D.h"
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * LightFloodFill
      * 光照泛洪遍历器
@@ -42,8 +41,7 @@ namespace glimmer
      * 从光源中心开始的广度优先泛洪，以 8 方向连通向外扩散。它取代了此前的
      * 射线遍历，天然产生圆形、无伪影的光晕，并支持实体瓦片遮挡。
      */
-    class LightFloodFill
-    {
+    class LightFloodFill {
     public:
         /**
          * BlockingFn
@@ -67,9 +65,9 @@ namespace glimmer
          * @param visit visit 访问回调（每个可达瓦片恰好回调一次，含中心）
          * @param diagonalBlock diagonalBlock 是否启用对角防漏光规则
          */
-        static void Propagate(const TileVector2D& center, int maxRadius,
-                              const BlockingFn& blocking,
-                              const VisitCallback& visit,
+        static void Propagate(const TileVector2D &center, int maxRadius,
+                              const BlockingFn &blocking,
+                              const VisitCallback &visit,
                               bool diagonalBlock = true);
     };
 }

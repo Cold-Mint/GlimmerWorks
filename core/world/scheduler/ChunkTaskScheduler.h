@@ -30,10 +30,8 @@
 
 #include "ChunkTask.h"
 
-namespace glimmer
-{
-    class ChunkTaskScheduler
-    {
+namespace glimmer {
+    class ChunkTaskScheduler {
         /**
         * The coordinate key for the block task.
         * 区块任务的坐标Key。
@@ -48,13 +46,13 @@ namespace glimmer
      * The status of the chunk task
      * 区块任务的Map
      */
-        std::unordered_map<uint64_t, std::unique_ptr<ChunkTask>> chunkTaskMap_;
+        std::unordered_map<uint64_t, std::unique_ptr<ChunkTask> > chunkTaskMap_;
         std::mutex chunkTaskMutex_;
         /**
          * pendingTasks
          * 等待队列
          */
-        std::vector<std::unique_ptr<ChunkTask>> pendingTasks_;
+        std::vector<std::unique_ptr<ChunkTask> > pendingTasks_;
 
     public:
         /**
@@ -72,7 +70,7 @@ namespace glimmer
          * 距离中心近的排在前面。
          * @param center 中心
          */
-        void SortTask(const ChunkVertexVector2D& center);
+        void SortTask(const ChunkVertexVector2D &center);
 
         /**
          * Submit the tasks in the waiting queue to the main queue

@@ -33,17 +33,14 @@
 #include "core/mod/resourcePack/ResourcePackManager.h"
 #include "core/vfs/VirtualFileSystem.h"
 
-bool glimmer::InitFontTask::Run(ISystemBucket* systemBucket)
-{
-    const Config* config = systemBucket->GetConfig();
-    if (config == nullptr)
-    {
+bool glimmer::InitFontTask::Run(ISystemBucket *systemBucket) {
+    const Config *config = systemBucket->GetConfig();
+    if (config == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "config_is_null", "config is nullptr");
         return false;
     }
-    ResourcePackManager* resourcePackManager = systemBucket->GetResourcePackManager();
-    if (resourcePackManager == nullptr)
-    {
+    ResourcePackManager *resourcePackManager = systemBucket->GetResourcePackManager();
+    if (resourcePackManager == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "resource_pack_manager_is_null",
                   "ResourcePackManager is nullptr");
         return false;
@@ -55,35 +52,30 @@ bool glimmer::InitFontTask::Run(ISystemBucket* systemBucket)
         systemBucket->GetLanguage(),
         systemBucket->GetVirtualFileSystem());
 
-    if (!fontPathOpt.has_value())
-    {
+    if (!fontPathOpt.has_value()) {
         LogCat::i(LogLabel::DEFAULT, "no_font_configured", "No font configured, skipping font initialization");
         return true;
     }
 
-    const std::filesystem::path& fontPath = fontPathOpt.value();
+    const std::filesystem::path &fontPath = fontPathOpt.value();
     LogCat::i(LogLabel::DEFAULT, "font_path", "Font path: {}", fontPath.string());
-    const VirtualFileSystem* virtualFileSystem = systemBucket->GetVirtualFileSystem();
-    if (virtualFileSystem == nullptr)
-    {
+    const VirtualFileSystem *virtualFileSystem = systemBucket->GetVirtualFileSystem();
+    if (virtualFileSystem == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "vfs_is_null", "virtualFileSystem is nullptr");
         return false;
     }
-    if (!virtualFileSystem->Exists(fontPath))
-    {
+    if (!virtualFileSystem->Exists(fontPath)) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "font_file_not_found", "Font file not found: {}",
                   fontPath.string());
         return false;
     }
 
-    RmlContext* rmlContext = systemBucket->GetRmlContext();
-    if (rmlContext == nullptr)
-    {
+    RmlContext *rmlContext = systemBucket->GetRmlContext();
+    if (rmlContext == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "rml_context_is_null", "rmlContext is nullptr");
         return false;
     }
-    if (!rmlContext->LoadFont(virtualFileSystem, fontPath))
-    {
+    if (!rmlContext->LoadFont(virtualFileSystem, fontPath)) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "rml_context_load_font_failed",
                   "RmlContext Failed to load font: {}",
                   fontPath.string());
@@ -93,12 +85,10 @@ bool glimmer::InitFontTask::Run(ISystemBucket* systemBucket)
     return true;
 }
 
-void glimmer::InitFontTask::Rollback(ISystemBucket*)
-{
+void glimmer::InitFontTask::Rollback(ISystemBucket *) {
     // 字体无需显式卸载。
 }
 
-std::string glimmer::InitFontTask::GetTaskName()
-{
+std::string glimmer::InitFontTask::GetTaskName() {
     return "InitFontTask";
 }

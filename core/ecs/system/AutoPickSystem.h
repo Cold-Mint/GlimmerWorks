@@ -34,11 +34,9 @@
 #include "core/mod/resourcePack/AudioResourceResult.h"
 #include "core/utils/TransparentStringHash.h"
 
-namespace glimmer
-{
-    class AutoPickSystem : public GameSystem
-    {
-        std::unordered_map<std::string, size_t, TransparentStringHash, std::equal_to<>> frameItemCounts_ = {};
+namespace glimmer {
+    class AutoPickSystem : public GameSystem {
+        std::unordered_map<std::string, size_t, TransparentStringHash, std::equal_to<> > frameItemCounts_ = {};
         /**
         * Protects entities_ against concurrent rebuild on the main thread
         * (OnWatchedComponentChanged) and iteration on the tick thread (OnTick).
@@ -49,7 +47,7 @@ namespace glimmer
         std::vector<GameEntityID> entities_;
         std::shared_ptr<AudioResourceResult> pickItemSFXResult_ = nullptr;
         WorldVector2D lastPosition;
-        AudioManager* audioManager_ = nullptr;
+        AudioManager *audioManager_ = nullptr;
         float remainingTime_ = MERGE_DURATION;
         uint32_t autoPickCount_ = 0;
         uint32_t magnetCount_ = 0;
@@ -60,7 +58,7 @@ namespace glimmer
         void ProcessMagnetEntity(GameEntityID entity);
 
     public:
-        explicit AutoPickSystem(WorldContext* worldContext);
+        explicit AutoPickSystem(WorldContext *worldContext);
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 

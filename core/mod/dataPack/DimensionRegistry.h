@@ -31,17 +31,15 @@
 
 #include "BaseResourceRegistry.h"
 
-namespace glimmer
-{
+namespace glimmer {
     struct DimensionResource;
 
-    class DimensionRegistry : public BaseResourceRegistry<DimensionResource>
-    {
-        std::vector<DimensionResource*> startingDimensions_;
+    class DimensionRegistry : public BaseResourceRegistry<DimensionResource> {
+        std::vector<DimensionResource *> startingDimensions_;
 
     public:
-        const std::vector<DimensionResource*>& GetStartingDimensions() const;
+        const std::vector<DimensionResource *> &GetStartingDimensions() const;
 
-        void OnRegister(DimensionResource* resource) override;
+        void OnRegister(DimensionResource *resource) override;
     };
 }

@@ -32,8 +32,7 @@
 
 #include "core/math/Color.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class LightBuffer;
 
     /**
@@ -46,12 +45,11 @@ namespace glimmer
      * 持有存储逐瓦片光照（1 texel = 1 瓦片，RGBA = 光色 + 强度）的 GPU 纹理。
      * 光照片元着色器以双线性过滤采样它，得到平滑的逐像素光照。
      */
-    class LightMapTexture
-    {
+    class LightMapTexture {
         std::vector<Uint8> pixelBuffer_;
-        SDL_GPUDevice* device_ = nullptr;
-        SDL_GPUTexture* texture_ = nullptr;
-        SDL_GPUTransferBuffer* transferBuffer_ = nullptr;
+        SDL_GPUDevice *device_ = nullptr;
+        SDL_GPUTexture *texture_ = nullptr;
+        SDL_GPUTransferBuffer *transferBuffer_ = nullptr;
         uint64_t lastRevision_ = UINT64_MAX;
         int lastOriginX_ = 0;
         int lastOriginY_ = 0;
@@ -79,7 +77,7 @@ namespace glimmer
          * @param sizeX sizeX 覆盖的瓦片列数
          * @param sizeY sizeY 覆盖的瓦片行数
          */
-        void Update(SDL_GPUDevice* device, const LightBuffer* lightBuffer,
+        void Update(SDL_GPUDevice *device, const LightBuffer *lightBuffer,
                     int originTileX, int originTileY, uint32_t sizeX, uint32_t sizeY);
 
         /**
@@ -87,9 +85,9 @@ namespace glimmer
          * 将暂存像素上传到纹理，必须在 command buffer 的 copy pass 内调用。
          * @param commandBuffer commandBuffer 当前帧命令缓冲
          */
-        void Upload(SDL_GPUCommandBuffer* commandBuffer);
+        void Upload(SDL_GPUCommandBuffer *commandBuffer);
 
-        [[nodiscard]] SDL_GPUTexture* GetTexture() const;
+        [[nodiscard]] SDL_GPUTexture *GetTexture() const;
 
         [[nodiscard]] uint32_t GetWidth() const;
 

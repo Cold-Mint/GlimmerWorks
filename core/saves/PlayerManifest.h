@@ -28,14 +28,12 @@
 #include "core/mod/ResourceRef.h"
 #include "src/core/player.pb.h"
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * PlayerManifest
      * 玩家的清单文件
      */
-    struct PlayerManifest
-    {
+    struct PlayerManifest {
     private:
         std::vector<PlayerDimensionMessage> visitedDimensions_;
         uint32_t currentDimensionIndex_ = 0;
@@ -51,7 +49,7 @@ namespace glimmer
          * @param dimensionsResourceRef
          * @return 如果为-1表示未访问过。
          */
-        uint32_t Visited(const ResourceRef& dimensionsResourceRef) const;
+        uint32_t Visited(const ResourceRef &dimensionsResourceRef) const;
 
 
         /**
@@ -59,18 +57,18 @@ namespace glimmer
          * 切换到某个维度
          * @param dimensionsResourceRef
          */
-        void SwitchDimension(const ResourceRef& dimensionsResourceRef);
+        void SwitchDimension(const ResourceRef &dimensionsResourceRef);
 
         /**
          * CurrentDimension
          * 获取当前的维度信息
          * @return If the retrieval fails, return nullptr. 如果获取不到返回nullptr
          */
-        const PlayerDimensionMessage* GetCurrentDimension() const;
+        const PlayerDimensionMessage *GetCurrentDimension() const;
 
 
-        void FromMessage(const PlayerMessage& playerMessage);
+        void FromMessage(const PlayerMessage &playerMessage);
 
-        void ToMessage(PlayerMessage& playerMessage) const;
+        void ToMessage(PlayerMessage &playerMessage) const;
     };
 }

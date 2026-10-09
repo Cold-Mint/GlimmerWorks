@@ -28,26 +28,22 @@
 
 #include "core/mod/Resource.h"
 
-float glimmer::TerrainMath::GetElevation(const DimensionResource* dimensionResource, int y)
-{
+float glimmer::TerrainMath::GetElevation(const DimensionResource *dimensionResource, int y) {
     return static_cast<float>(y - dimensionResource->minY) / static_cast<float>(
-        dimensionResource->maxY - dimensionResource->minY);
+               dimensionResource->maxY - dimensionResource->minY);
 }
 
-float glimmer::TerrainMath::GetSurfaceProximity(const DimensionResource* dimensionResource, int firstTileTerrainY,
-                                                int worldY)
-{
+float glimmer::TerrainMath::GetSurfaceProximity(const DimensionResource *dimensionResource, int firstTileTerrainY,
+                                                int worldY) {
     float totalHeight = static_cast<float>(dimensionResource->maxY) - static_cast<float>(dimensionResource->minY);
     const float surfaceNormalized = static_cast<float>(firstTileTerrainY - dimensionResource->minY) / totalHeight;
     const float currentNormalized = static_cast<float>(worldY - dimensionResource->minY) / totalHeight;
     const float offset = currentNormalized - surfaceNormalized;
     float proximity = 0.5F + offset * 0.5F;
-    if (proximity < 0.0F)
-    {
+    if (proximity < 0.0F) {
         proximity = 0.0F;
     }
-    if (proximity > 1.0F)
-    {
+    if (proximity > 1.0F) {
         proximity = 1.0F;
     }
     return proximity;

@@ -28,11 +28,9 @@
 //@genCode
 #include "core/mod/ResourceRef.h"
 
-namespace glimmer
-{
+namespace glimmer {
     //@genNextLine(LootEntry|战利品实体)
-    struct LootEntry
-    {
+    struct LootEntry {
         //@genNextLine(LootEntry.item|战利品物品)
         ResourceRef item;
 

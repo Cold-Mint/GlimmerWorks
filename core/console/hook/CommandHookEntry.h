@@ -30,10 +30,8 @@
 #include "core/console/hook/CommandHookScope.h"
 #include "SDL3/SDL_events.h"
 
-namespace glimmer
-{
-    struct CommandHookEntry
-    {
+namespace glimmer {
+    struct CommandHookEntry {
         std::string hookId;
         std::string command;
         SDL_EventType eventType;

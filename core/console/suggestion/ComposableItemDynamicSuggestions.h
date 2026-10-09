@@ -28,19 +28,17 @@
 #include "DynamicSuggestions.h"
 #include "core/mod/dataPack/ComposableItemRegistry.h"
 
-namespace glimmer
-{
-    class ComposableItemDynamicSuggestions final : public DynamicSuggestions
-    {
-        ComposableItemRegistry* composableItemRegistry_ = nullptr;
+namespace glimmer {
+    class ComposableItemDynamicSuggestions final : public DynamicSuggestions {
+        ComposableItemRegistry *composableItemRegistry_ = nullptr;
 
     public:
-        explicit ComposableItemDynamicSuggestions(ComposableItemRegistry* composableItemRegistry);
+        explicit ComposableItemDynamicSuggestions(ComposableItemRegistry *composableItemRegistry);
 
         [[nodiscard]] std::string GetId() const override;
 
-        bool Match(const std::string& keyword, const std::string& param) override;
+        bool Match(const std::string &keyword, const std::string &param) override;
 
-        const std::vector<std::string>& GetSuggestions(const std::optional<std::string>& param) override;
+        const std::vector<std::string> &GetSuggestions(const std::optional<std::string> &param) override;
     };
 }

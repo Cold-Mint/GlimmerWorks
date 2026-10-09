@@ -28,8 +28,7 @@
 
 #include <cstdint>
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * RenderLayer
      * 渲染层
@@ -47,8 +46,7 @@ namespace glimmer
      * composites above them (see GpuRenderer).
      * 所有层都渲染进离屏 game 层；RmlUi 始终合成在它们之上（见 GpuRenderer）。
      */
-    enum class RenderLayer : std::uint8_t
-    {
+    enum class RenderLayer : std::uint8_t {
         /**
          * Parallax backgrounds behind everything else.
          * 位于一切之后的视差背景。

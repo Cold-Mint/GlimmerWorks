@@ -27,10 +27,8 @@
 #pragma once
 #include <cstdint>
 
-namespace glimmer
-{
-    enum class GrowthConditionProcessorType : uint8_t
-    {
+namespace glimmer {
+    enum class GrowthConditionProcessorType : uint8_t {
         None,
         Light,
         Biome,

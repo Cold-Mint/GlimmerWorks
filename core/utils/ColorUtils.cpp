@@ -34,8 +34,7 @@
 #include "core/mod/ResourceRef.h"
 
 
-glimmer::Color glimmer::ColorUtils::LinearInterpolateColor(const Color& from, const Color& to, const float percent)
-{
+glimmer::Color glimmer::ColorUtils::LinearInterpolateColor(const Color &from, const Color &to, const float percent) {
     const float blend_ratio = std::clamp(percent, 0.0F, 1.0F);
     const auto r = static_cast<uint8_t>(static_cast<float>(from.r) + static_cast<float>(to.r - from.r) * blend_ratio);
     const auto g = static_cast<uint8_t>(static_cast<float>(from.g) + static_cast<float>(to.g - from.g) * blend_ratio);
@@ -44,18 +43,15 @@ glimmer::Color glimmer::ColorUtils::LinearInterpolateColor(const Color& from, co
     return {r, g, b, a};
 }
 
-glimmer::Color glimmer::ColorUtils::AverageColors(const std::vector<Color>& colors)
-{
-    if (colors.empty())
-    {
+glimmer::Color glimmer::ColorUtils::AverageColors(const std::vector<Color> &colors) {
+    if (colors.empty()) {
         return {0, 0, 0, 0};
     }
     int totalR = 0;
     int totalG = 0;
     int totalB = 0;
     int totalA = 0;
-    for (const auto& color : colors)
-    {
+    for (const auto &color: colors) {
         totalR += color.r;
         totalG += color.g;
         totalB += color.b;
@@ -70,8 +66,7 @@ glimmer::Color glimmer::ColorUtils::AverageColors(const std::vector<Color>& colo
     return {r, g, b, a};
 }
 
-glimmer::Color glimmer::ColorUtils::AdditiveBlend(const Color& firstColor, const Color& secondColor)
-{
+glimmer::Color glimmer::ColorUtils::AdditiveBlend(const Color &firstColor, const Color &secondColor) {
     Color result{};
     result.r = static_cast<uint8_t>(std::min(255, static_cast<int>(firstColor.r) + secondColor.r));
     result.g = static_cast<uint8_t>(std::min(255, static_cast<int>(firstColor.g) + secondColor.g));
@@ -80,19 +75,15 @@ glimmer::Color glimmer::ColorUtils::AdditiveBlend(const Color& firstColor, const
     return result;
 }
 
-glimmer::Color glimmer::ColorUtils::ComputeAmbientLight(ResourceLocator* resourceLocator, const float timeOfDay,
-                                                        const std::vector<LightKeyframe>& keyframes)
-{
-    if (keyframes.empty())
-    {
+glimmer::Color glimmer::ColorUtils::ComputeAmbientLight(ResourceLocator *resourceLocator, const float timeOfDay,
+                                                        const std::vector<LightKeyframe> &keyframes) {
+    if (keyframes.empty()) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "compute_back_light_keyframes_empty",
                   "compute ambient light keyframes empty");
         return {};
     }
-    const auto resolveColor = [resourceLocator](const ResourceRef& ref) -> Color
-    {
-        if (resourceLocator == nullptr)
-        {
+    const auto resolveColor = [resourceLocator](const ResourceRef &ref) -> Color {
+        if (resourceLocator == nullptr) {
             LogCat::w(LogLabel::DEFAULT, std::source_location::current(),
                       "compute_ambient_light_resource_locator_is_null",
                       "compute ambient light resource locator is null");
@@ -101,8 +92,7 @@ glimmer::Color glimmer::ColorUtils::ComputeAmbientLight(ResourceLocator* resourc
         const std::unique_ptr<Color> color = resourceLocator->FindColor(&ref);
         return color != nullptr ? *color : Color{};
     };
-    if (keyframes.size() == 1)
-    {
+    if (keyframes.size() == 1) {
         const Color color = resolveColor(keyframes.front().color);
         LogCat::i(LogLabel::DEFAULT, "compute_ambient_light_single_keyframe",
                   "Compute ambient light single keyframe: rgba=({},{},{},{}), timeOfDay={}, keyframeT={}",
@@ -110,17 +100,14 @@ glimmer::Color glimmer::ColorUtils::ComputeAmbientLight(ResourceLocator* resourc
                   static_cast<int>(color.a), timeOfDay, keyframes.front().t);
         return color;
     }
-    for (size_t i = 0; i + 1 < keyframes.size(); ++i)
-    {
-        const LightKeyframe& start = keyframes[i];
-        const LightKeyframe& end = keyframes[i + 1];
-        if (timeOfDay >= start.t && timeOfDay <= end.t)
-        {
+    for (size_t i = 0; i + 1 < keyframes.size(); ++i) {
+        const LightKeyframe &start = keyframes[i];
+        const LightKeyframe &end = keyframes[i + 1];
+        if (timeOfDay >= start.t && timeOfDay <= end.t) {
             const Color startColor = resolveColor(start.color);
             const Color endColor = resolveColor(end.color);
             const float span = end.t - start.t;
-            if (span <= 0.0F)
-            {
+            if (span <= 0.0F) {
                 LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "compute_ambient_light_zero_span",
                           "Compute ambient light zero span: startT={}, endT={}", start.t, end.t);
             }
@@ -134,13 +121,11 @@ glimmer::Color glimmer::ColorUtils::ComputeAmbientLight(ResourceLocator* resourc
         }
     }
     float t = timeOfDay;
-    if (t < keyframes.back().t)
-    {
+    if (t < keyframes.back().t) {
         t += 1.0F;
     }
     const float span = keyframes.front().t + 1.0F - keyframes.back().t;
-    if (span <= 0.0F)
-    {
+    if (span <= 0.0F) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "compute_ambient_light_zero_span",
                   "Compute ambient light zero span: startT={}, endT={}", keyframes.back().t, keyframes.front().t);
     }

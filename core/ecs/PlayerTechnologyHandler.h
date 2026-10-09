@@ -30,10 +30,8 @@
 
 #include "core/mod/dataPack/RecipeGroup.h"
 
-namespace glimmer
-{
-    class PlayerTechnologyHandler
-    {
+namespace glimmer {
+    class PlayerTechnologyHandler {
         std::unordered_map<RecipeGroup, uint8_t> technologyMap_ = {
             {RecipeGroup::None, 1}
         };
@@ -43,8 +41,8 @@ namespace glimmer
 
         void SetTechnology(RecipeGroup recipeGroup, uint8_t technologyLevel);
 
-        [[nodiscard]] const std::unordered_map<RecipeGroup, uint8_t>& GetTechnologyMap() const;
+        [[nodiscard]] const std::unordered_map<RecipeGroup, uint8_t> &GetTechnologyMap() const;
 
-        std::string ListTechnology(const std::string& technologyItem) const;
+        std::string ListTechnology(const std::string &technologyItem) const;
     };
 }

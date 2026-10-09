@@ -26,8 +26,7 @@
  */
 #pragma once
 
-namespace glimmer
-{
+namespace glimmer {
     struct DimensionResource;
     /**
      * TerrainMath
@@ -35,8 +34,7 @@ namespace glimmer
      * Stateless pure functions shared by the world generator and various debug / command tools.
      * 无状态纯函数，供世界生成器与各类调试、命令工具共用。
      */
-    struct TerrainMath
-    {
+    struct TerrainMath {
         /**
          * GetElevation
          * 获取海拔
@@ -46,7 +44,7 @@ namespace glimmer
          * @param y y 世界Y坐标
          * @return Elevation in [0,1] 海拔值，范围0-1
          */
-        static float GetElevation(const DimensionResource* dimensionResource, int y);
+        static float GetElevation(const DimensionResource *dimensionResource, int y);
 
         /**
          * GetSurfaceProximity
@@ -58,6 +56,6 @@ namespace glimmer
          * @param worldY worldY 世界Y坐标
          * @return Proximity in [0,1] 贴近度，范围0-1
          */
-        static float GetSurfaceProximity(const DimensionResource* dimensionResource, int firstTileTerrainY, int worldY);
+        static float GetSurfaceProximity(const DimensionResource *dimensionResource, int firstTileTerrainY, int worldY);
     };
 }

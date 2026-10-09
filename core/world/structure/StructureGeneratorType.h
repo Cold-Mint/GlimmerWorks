@@ -27,10 +27,8 @@
 #pragma once
 #include <cstdint>
 
-namespace glimmer
-{
-    enum class StructureGeneratorType : uint8_t
-    {
+namespace glimmer {
+    enum class StructureGeneratorType : uint8_t {
         None,
         Static,
         Tree

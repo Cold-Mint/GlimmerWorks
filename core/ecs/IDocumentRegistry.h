@@ -27,13 +27,11 @@
 #pragma once
 #include "RmlUi/Core/DataModelHandle.h"
 
-namespace Rml
-{
+namespace Rml {
     class ElementDocument;
 }
 
-namespace glimmer
-{
+namespace glimmer {
     class ResourceRef;
     /**
      * Rml document registry
@@ -45,8 +43,7 @@ namespace glimmer
      * Used to implement restricted method access within the global environment.
      * 用于在世界场景内实现受限的方法访问。
      */
-    class IDocumentRegistry
-    {
+    class IDocumentRegistry {
     public:
         virtual ~IDocumentRegistry() = default;
 
@@ -56,7 +53,7 @@ namespace glimmer
          * @param resourceRef resourceRef
          * @return
          */
-        virtual Rml::ElementDocument* LoadSingleDocument(const ResourceRef* resourceRef) = 0;
+        virtual Rml::ElementDocument *LoadSingleDocument(const ResourceRef *resourceRef) = 0;
 
         /**
          * CreateDataModel
@@ -64,6 +61,6 @@ namespace glimmer
          * @param name
          * @return
          */
-        virtual Rml::DataModelConstructor* CreateDataModel(const Rml::String& name) = 0;
+        virtual Rml::DataModelConstructor *CreateDataModel(const Rml::String &name) = 0;
     };
 }

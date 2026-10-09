@@ -28,21 +28,19 @@
 #include "Chunk.h"
 #include "core/math/ChunkRelativeVector2D.h"
 
-namespace glimmer
-{
-    class ChunkPhysicsHelper
-    {
-        static std::vector<bool> CollectStaticTiles(const Chunk* chunk);
+namespace glimmer {
+    class ChunkPhysicsHelper {
+        static std::vector<bool> CollectStaticTiles(const Chunk *chunk);
 
         static Vector2DI FindRectSize(int startX, int startY,
-                                      const std::vector<bool>& isStaticTile,
-                                      std::vector<bool>& visited);
+                                      const std::vector<bool> &isStaticTile,
+                                      std::vector<bool> &visited);
 
         static void MarkVisited(int startX, int startY, int width, int height,
-                                std::vector<bool>& visited);
+                                std::vector<bool> &visited);
 
-        static void CreateBodyForRect(b2WorldId worldId, Chunk* chunk,
-                                      const ChunkRelativeVector2D& chunkRelativeVector2d, int width, int height);
+        static void CreateBodyForRect(b2WorldId worldId, Chunk *chunk,
+                                      const ChunkRelativeVector2D &chunkRelativeVector2d, int width, int height);
 
     public:
         /**
@@ -51,16 +49,16 @@ namespace glimmer
          * @param worldId Box2dWorldid Box2d世界id
          * @param chunk  The chunk to add physical bodies to 要添加物理的区块
          */
-        static void AttachPhysicsBodyToChunk(b2WorldId worldId, Chunk* chunk);
+        static void AttachPhysicsBodyToChunk(b2WorldId worldId, Chunk *chunk);
 
-        static b2BodyId CreateStaticBody(b2WorldId worldId, const WorldVector2D& pos, const Vector2DI& size);
+        static b2BodyId CreateStaticBody(b2WorldId worldId, const WorldVector2D &pos, const Vector2DI &size);
 
         /**
          * Remove physical bodies from the tiles within the block
          * 从区块内的瓦片移除物理体
          * @param chunk The chunk to remove physical bodies from
          */
-        static void DetachPhysicsBodyToChunk(Chunk* chunk);
+        static void DetachPhysicsBodyToChunk(Chunk *chunk);
 
         /**
          * Update the physical collision of the block.
@@ -68,6 +66,6 @@ namespace glimmer
          * @param worldContext
          * @param chunk
          */
-        static void UpdatePhysicsBodyToChunk(const WorldContext* worldContext, Chunk* chunk);
+        static void UpdatePhysicsBodyToChunk(const WorldContext *worldContext, Chunk *chunk);
     };
 }

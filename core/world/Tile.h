@@ -42,12 +42,10 @@
 
 class TileStateMessage;
 
-namespace glimmer
-{
+namespace glimmer {
     enum class TileAnchorType : uint8_t;
 
-    class Tile
-    {
+    class Tile {
         friend class TileInstancePool;
         TileLightResourceData lightData_;
         TileResourceData resourceData_;
@@ -71,21 +69,21 @@ namespace glimmer
         bool isOverwritable_ = false;
 
         static TileVector2D CalculateTileAnchor(TileAnchorType tileAnchorType, uint8_t tileWidth, uint8_t tileHeight,
-                                                const Vector2DIResource& customTileAnchor);
+                                                const Vector2DIResource &customTileAnchor);
 
-        static std::unique_ptr<Tile> FromTileResource(const AppContext* appContext,
-                                                      const TileResource* tileResource);
+        static std::unique_ptr<Tile> FromTileResource(const AppContext *appContext,
+                                                      const TileResource *tileResource);
 
     public:
         [[nodiscard]] TilePhysicsType GetTilePhysicsType() const;
 
-        [[nodiscard]] const std::string& GetId() const;
+        [[nodiscard]] const std::string &GetId() const;
 
         [[nodiscard]] bool IsOverwritable() const;
 
         [[nodiscard]] bool DestroySelfOnGrowth() const;
 
-        const ResourceRef* GetGrowthTarget() const;
+        const ResourceRef *GetGrowthTarget() const;
 
         /**
          * IsWorkBlock
@@ -108,43 +106,43 @@ namespace glimmer
          * @param growthTarget
          * @return
          */
-        static bool IsCropsBlock(uint64_t growthMinTicks, const ResourceRef& growthTarget);
+        static bool IsCropsBlock(uint64_t growthMinTicks, const ResourceRef &growthTarget);
 
-        [[nodiscard]] const std::string& GetName() const;
+        [[nodiscard]] const std::string &GetName() const;
 
         [[nodiscard]] TileLayerType GetLayerType() const;
 
-        [[nodiscard]] const std::vector<ResourceRef>& GetGrowthConditions() const;
+        [[nodiscard]] const std::vector<ResourceRef> &GetGrowthConditions() const;
 
-        [[nodiscard]] const std::optional<std::string>& GetDescription() const;
+        [[nodiscard]] const std::optional<std::string> &GetDescription() const;
 
-        void OnPlace(const WorldContext* worldContext, PlaceSourceMessage placeSource, const TileVector2D& position,
-                     const TileStateMessage* tileState);
+        void OnPlace(const WorldContext *worldContext, PlaceSourceMessage placeSource, const TileVector2D &position,
+                     const TileStateMessage *tileState);
 
-        void OnBreak(const WorldContext* worldContext, BreakSource breakSource, const TileVector2D& position);
+        void OnBreak(const WorldContext *worldContext, BreakSource breakSource, const TileVector2D &position);
 
-        [[nodiscard]] TileResourceData* GetMutableResourceData();
+        [[nodiscard]] TileResourceData *GetMutableResourceData();
 
-        [[nodiscard]] const TileResourceData* GetResourceData() const;
+        [[nodiscard]] const TileResourceData *GetResourceData() const;
 
-        [[nodiscard]] TileBlueprintData* GetMutableBlueprintData();
+        [[nodiscard]] TileBlueprintData *GetMutableBlueprintData();
 
-        [[nodiscard]] const TileBlueprintData* GetBlueprintData() const;
+        [[nodiscard]] const TileBlueprintData *GetBlueprintData() const;
 
-        [[nodiscard]] TileDimensions* GetMutableDimensions();
+        [[nodiscard]] TileDimensions *GetMutableDimensions();
 
-        [[nodiscard]] const TileDimensions* GetDimensions() const;
+        [[nodiscard]] const TileDimensions *GetDimensions() const;
 
-        [[nodiscard]] TileMiningData* GetMutableMiningData();
+        [[nodiscard]] TileMiningData *GetMutableMiningData();
 
-        [[nodiscard]] const TileMiningData* GetMiningData() const;
+        [[nodiscard]] const TileMiningData *GetMiningData() const;
 
-        [[nodiscard]] TileLootData* GetMutableLootData();
+        [[nodiscard]] TileLootData *GetMutableLootData();
 
-        [[nodiscard]] const TileLootData* GetLootData() const;
+        [[nodiscard]] const TileLootData *GetLootData() const;
 
-        [[nodiscard]] TileLightResourceData* GetMutableLightResourceData();
+        [[nodiscard]] TileLightResourceData *GetMutableLightResourceData();
 
-        [[nodiscard]] const TileLightResourceData* GetLightResourceData() const;
+        [[nodiscard]] const TileLightResourceData *GetLightResourceData() const;
     };
 }

@@ -38,44 +38,42 @@
 #include "core/world/Tile.h"
 
 
-namespace glimmer
-{
-    class Chunk
-    {
-        std::unordered_map<TileLayerType, std::array<std::shared_ptr<Tile>, CHUNK_AREA>>
+namespace glimmer {
+    class Chunk {
+        std::unordered_map<TileLayerType, std::array<std::shared_ptr<Tile>, CHUNK_AREA> >
         tiles_;
         //Save the tile resource signature for each grid, and rebuild the tile when the signature changes.
         //保存每个格子的瓦片资源签名，并在签名改变时重建瓦片。
-        std::unordered_map<TileLayerType, std::array<uint64_t, CHUNK_AREA>>
+        std::unordered_map<TileLayerType, std::array<uint64_t, CHUNK_AREA> >
         tileFingerprint_;
-        std::unordered_map<TileLayerType, std::array<std::unique_ptr<TileStateMessage>, CHUNK_AREA>>
+        std::unordered_map<TileLayerType, std::array<std::unique_ptr<TileStateMessage>, CHUNK_AREA> >
         tileState_;
-        std::unordered_map<TileLayerType, std::array<std::unique_ptr<TileSnapshot>, CHUNK_AREA>> tileSnapshots_;
-        std::vector<std::function<void(Chunk * chunk, int index, std::shared_ptr<Tile> tile, TileLayerType layerType)>>
+        std::unordered_map<TileLayerType, std::array<std::unique_ptr<TileSnapshot>, CHUNK_AREA> > tileSnapshots_;
+        std::vector<std::function<void(Chunk *chunk, int index, std::shared_ptr<Tile> tile, TileLayerType layerType)> >
         onTileRebuilt_;
 
-        std::vector<std::function<void(Chunk * chunk, TileLayerType layerType, int index,
+        std::vector<std::function<void(Chunk *chunk, TileLayerType layerType, int index,
                                        std::shared_ptr<Tile> oldTile,
-                                       std::shared_ptr<Tile> newTile)>> replaceTileCallback_;
+                                       std::shared_ptr<Tile> newTile)> > replaceTileCallback_;
         std::vector<b2BodyId> attachedBodies_;
         ChunkVertexVector2D position_;
         //The terrain data that this chunk depends on. Holding the shared_ptr keeps the terrain alive and allows
         //neighboring chunks to reuse it until this chunk is unloaded.
         //此区块依赖的地形数据。持有 shared_ptr 使地形保持存活，直到此区块卸载前可被邻近区块复用。
         std::shared_ptr<TerrainResult> dependencyTerrain_;
-        WorldContext* worldContext_;
+        WorldContext *worldContext_;
 
 
-        void InvokeReplaceTileCallback(Chunk* chunk, TileLayerType layerType, int index,
-                                       const std::shared_ptr<Tile>& oldTile,
-                                       const std::shared_ptr<Tile>& newTile) const;
+        void InvokeReplaceTileCallback(Chunk *chunk, TileLayerType layerType, int index,
+                                       const std::shared_ptr<Tile> &oldTile,
+                                       const std::shared_ptr<Tile> &newTile) const;
 
         static void WriteTileStatesToMessage(
-            const std::array<std::unique_ptr<TileStateMessage>, CHUNK_AREA>& tileStates,
-            TileStateArrayMessage& layerMessage);
+            const std::array<std::unique_ptr<TileStateMessage>, CHUNK_AREA> &tileStates,
+            TileStateArrayMessage &layerMessage);
 
     public:
-        explicit Chunk(WorldContext* worldContext, ChunkVertexVector2D pos);
+        explicit Chunk(WorldContext *worldContext, ChunkVertexVector2D pos);
 
         /**
          * SetDependencyTerrain
@@ -85,17 +83,17 @@ namespace glimmer
 
         void AddBodyId(b2BodyId bodyId);
 
-        [[nodiscard]] const std::vector<b2BodyId>& GetAttachedBodies();
+        [[nodiscard]] const std::vector<b2BodyId> &GetAttachedBodies();
 
         void ClearAttachedBodies();
 
-        size_t AddReplaceTileCallback(const std::function<void(Chunk * chunk, TileLayerType layerType,
+        size_t AddReplaceTileCallback(const std::function<void(Chunk *chunk, TileLayerType layerType,
                                                                int index,
-                                                          std::shared_ptr<Tile> oldTile,
-                                                          std::shared_ptr<Tile> newTile)
-        >
-        &
-        callBack
+                                                               std::shared_ptr<Tile> oldTile,
+                                                               std::shared_ptr<Tile> newTile)
+            >
+            &
+            callBack
         );
 
         bool RemoveReplaceTileCallback(long index);
@@ -122,13 +120,13 @@ namespace glimmer
          * @param fallback fallback 提交时是否允许 fallback 瓦片
          * @return Whether the tile was placed successfully 是否成功放置
          */
-        bool PlaceTile(TileLayerType layerType, int index, const ResourceRef& resourceRef,
-                       const TileResource* tileResource, BreakSource breakSource, PlaceSourceMessage placeSource,
+        bool PlaceTile(TileLayerType layerType, int index, const ResourceRef &resourceRef,
+                       const TileResource *tileResource, BreakSource breakSource, PlaceSourceMessage placeSource,
                        int offsetX, int offsetY, bool fallback);
 
-        [[nodiscard]] TileStateMessage* GetTileState(TileLayerType layerType, uint8_t index) const;
+        [[nodiscard]] TileStateMessage *GetTileState(TileLayerType layerType, uint8_t index) const;
 
-        [[nodiscard]] TileStateMessage* GetOrCreateTileState(TileLayerType layerType, int index);
+        [[nodiscard]] TileStateMessage *GetOrCreateTileState(TileLayerType layerType, int index);
 
         /**
          * Initialize the growth state of a tile state to its default values for a freshly placed tile.
@@ -137,21 +135,21 @@ namespace glimmer
          * @param tileResource tileResource 瓦片资源
          * @param tick 当前全局 tick
          */
-        static void InitGrowthState(TileStateMessage* msg, const TileResource* tileResource, uint64_t tick);
+        static void InitGrowthState(TileStateMessage *msg, const TileResource *tileResource, uint64_t tick);
 
-        [[nodiscard]] const ChunkVertexVector2D& GetPosition() const;
+        [[nodiscard]] const ChunkVertexVector2D &GetPosition() const;
 
-        [[nodiscard]] const Tile* GetTile(TileLayerType layerType, uint8_t index) const;
+        [[nodiscard]] const Tile *GetTile(TileLayerType layerType, uint8_t index) const;
 
         [[nodiscard]] std::shared_ptr<Tile> GetTileShared(TileLayerType layerType, uint8_t index) const;
 
 
-        [[nodiscard]] std::vector<TileSnapshot*> GetTopVisibleTileSnapshots(
+        [[nodiscard]] std::vector<TileSnapshot *> GetTopVisibleTileSnapshots(
             std::byte layerFilter, uint8_t index) const;
 
-        void ReadChunkMessage(const ChunkMessage& chunkMessage);
+        void ReadChunkMessage(const ChunkMessage &chunkMessage);
 
-        void WriteChunkMessage(ChunkMessage& chunkMessage);
+        void WriteChunkMessage(ChunkMessage &chunkMessage);
 
         WorldVector2D GetStartWorldPosition() const;
 

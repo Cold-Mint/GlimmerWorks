@@ -29,22 +29,18 @@
 #include "core/config/Constants.h"
 #include "core/context/AppContext.h"
 
-std::optional<std::string> glimmer::LanguageFileProcessor::GetDataType(const std::string& fileName)
-{
+std::optional<std::string> glimmer::LanguageFileProcessor::GetDataType(const std::string &fileName) {
     const size_t lastDot = fileName.rfind('.');
-    if (lastDot == std::string::npos)
-    {
+    if (lastDot == std::string::npos) {
         return std::nullopt;
     }
 
     const size_t secondLastDot = fileName.rfind('.', lastDot - 1);
-    if (secondLastDot == std::string::npos)
-    {
+    if (secondLastDot == std::string::npos) {
         return std::nullopt;
     }
 
-    if (const std::string format = fileName.substr(lastDot + 1); format != "toml")
-    {
+    if (const std::string format = fileName.substr(lastDot + 1); format != "toml") {
         return std::nullopt;
     }
     return fileName.substr(secondLastDot + 1,
@@ -52,44 +48,35 @@ std::optional<std::string> glimmer::LanguageFileProcessor::GetDataType(const std
 }
 
 std::optional<std::string>
-glimmer::LanguageFileProcessor::ExtractLanguageFromFileName(const std::string_view fileName)
-{
+glimmer::LanguageFileProcessor::ExtractLanguageFromFileName(const std::string_view fileName) {
     constexpr std::string_view suffix = ".strings.toml";
-    if (!fileName.ends_with(suffix))
-    {
+    if (!fileName.ends_with(suffix)) {
         return std::nullopt;
     }
     std::string base(fileName.substr(0, fileName.size() - suffix.size()));
     auto pos = base.rfind('.');
-    if (pos == std::string::npos)
-    {
+    if (pos == std::string::npos) {
         return base;
     }
     return base.substr(pos + 1);
 }
 
-bool glimmer::LanguageFileProcessor::ProcessLanguageFile(const std::filesystem::path& file,
+bool glimmer::LanguageFileProcessor::ProcessLanguageFile(const std::filesystem::path &file,
                                                          const std::string_view dataType,
                                                          const std::string_view fileName,
-                                                         std::vector<std::filesystem::path>& defaultLanguageFiles,
-                                                         std::vector<std::filesystem::path>& targetLanguageFiles,
-                                                         const AppContext* appContext)
-{
-    if (dataType != DATA_FILE_TYPE_STRINGS)
-    {
+                                                         std::vector<std::filesystem::path> &defaultLanguageFiles,
+                                                         std::vector<std::filesystem::path> &targetLanguageFiles,
+                                                         const AppContext *appContext) {
+    if (dataType != DATA_FILE_TYPE_STRINGS) {
         return false;
     }
     const auto langOptional = ExtractLanguageFromFileName(fileName);
-    if (!langOptional.has_value())
-    {
+    if (!langOptional.has_value()) {
         return true;
     }
-    if (const auto& fileLang = langOptional.value(); fileLang == appContext->GetLanguage())
-    {
+    if (const auto &fileLang = langOptional.value(); fileLang == appContext->GetLanguage()) {
         targetLanguageFiles.push_back(file);
-    }
-    else if (fileLang == "default")
-    {
+    } else if (fileLang == "default") {
         defaultLanguageFiles.push_back(file);
     }
     return true;

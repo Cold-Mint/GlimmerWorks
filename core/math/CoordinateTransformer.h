@@ -35,10 +35,8 @@
 #include "TileVector2D.h"
 #include "WorldVector2D.h"
 
-namespace glimmer
-{
-    struct CoordinateTransformer final
-    {
+namespace glimmer {
+    struct CoordinateTransformer final {
         /**
          * Get the camera viewport rectangle (in world coordinates)
          * 获取相机的视口矩形（世界坐标）
@@ -47,8 +45,8 @@ namespace glimmer
          * @param zoom The camera zoom factor 相机缩放比例
          * @return SDL_FRect Viewport rectangle in world coordinates 视口矩形（世界坐标）
          */
-        [[nodiscard]] static SDL_FRect GetViewportRect(const WorldVector2D& cameraPosition,
-                                                       const ScreenVector2D& cameraSize,
+        [[nodiscard]] static SDL_FRect GetViewportRect(const WorldVector2D &cameraPosition,
+                                                       const ScreenVector2D &cameraSize,
                                                        float zoom);
 
         /**
@@ -60,9 +58,9 @@ namespace glimmer
          * @param zoom The camera zoom factor 相机缩放比例
          * @return ScreenVector2D Screen position in pixels 屏幕坐标（像素）
          */
-        [[nodiscard]] static ScreenVector2D WorldToScreen(const WorldVector2D& cameraPosition,
-                                                          const WorldVector2D& worldPosition,
-                                                          const ScreenVector2D& cameraSize,
+        [[nodiscard]] static ScreenVector2D WorldToScreen(const WorldVector2D &cameraPosition,
+                                                          const WorldVector2D &worldPosition,
+                                                          const ScreenVector2D &cameraSize,
                                                           float zoom);
 
         /**
@@ -74,9 +72,9 @@ namespace glimmer
          * @param zoom The camera zoom factor 相机缩放比例
          * @return WorldVector2D World position 世界坐标
          */
-        [[nodiscard]] static WorldVector2D ScreenToWorld(const WorldVector2D& cameraPosition,
-                                                         const ScreenVector2D& screenPosition,
-                                                         const ScreenVector2D& cameraSize,
+        [[nodiscard]] static WorldVector2D ScreenToWorld(const WorldVector2D &cameraPosition,
+                                                         const ScreenVector2D &screenPosition,
+                                                         const ScreenVector2D &cameraSize,
                                                          float zoom);
 
         /**
@@ -85,7 +83,7 @@ namespace glimmer
          * @param tilePos TileVector2D Tile coordinates 瓦片坐标
          * @return WorldVector2D World coordinates (top-left corner of the tile) 世界坐标（瓦片左上角）
          */
-        [[nodiscard]] static WorldVector2D TileToWorld(const TileVector2D& tilePos);
+        [[nodiscard]] static WorldVector2D TileToWorld(const TileVector2D &tilePos);
 
         /**
          * World coordinates to tile coordinates
@@ -93,7 +91,7 @@ namespace glimmer
          * @param worldPos WorldVector2D World coordinates 世界坐标
          * @return TileVector2D Tile coordinates 瓦片坐标
          */
-        [[nodiscard]] static TileVector2D WorldToTile(const WorldVector2D& worldPos);
+        [[nodiscard]] static TileVector2D WorldToTile(const WorldVector2D &worldPos);
 
         /**
          * TileCoordinatesToChunkCoordinates
@@ -102,7 +100,7 @@ namespace glimmer
          * @return
          */
         [[nodiscard]] static ChunkVertexVector2D TileToChunkVertex(
-            const TileVector2D& tileVector2d);
+            const TileVector2D &tileVector2d);
 
         /**
          * Convert block vertex to tile coordinate
@@ -110,7 +108,7 @@ namespace glimmer
          * @param chunkVertexVector2d
          * @return
          */
-        [[nodiscard]] static TileVector2D ChunkVertexToTile(const ChunkVertexVector2D& chunkVertexVector2d);
+        [[nodiscard]] static TileVector2D ChunkVertexToTile(const ChunkVertexVector2D &chunkVertexVector2d);
 
         /**
          * TileCoordinatesToChunkRelativeCoordinates
@@ -118,7 +116,7 @@ namespace glimmer
          * @param tileVector2d
          * @return
          */
-        [[nodiscard]] static ChunkRelativeVector2D TileToChunkRelative(const TileVector2D& tileVector2d);
+        [[nodiscard]] static ChunkRelativeVector2D TileToChunkRelative(const TileVector2D &tileVector2d);
 
 
         /**
@@ -128,8 +126,8 @@ namespace glimmer
          * @param relative
          * @return
          */
-        [[nodiscard]] static TileVector2D ChunkRelativeToTile(const ChunkVertexVector2D& chunkVertex,
-                                                              const ChunkRelativeVector2D& relative);
+        [[nodiscard]] static TileVector2D ChunkRelativeToTile(const ChunkVertexVector2D &chunkVertex,
+                                                              const ChunkRelativeVector2D &relative);
 
 
         /**
@@ -139,7 +137,7 @@ namespace glimmer
          * @return
          */
         [[nodiscard]] static TerrainVertexVector2D ChunkVertexToTerrainVertex(
-            const ChunkVertexVector2D& chunkVertexVector2D);
+            const ChunkVertexVector2D &chunkVertexVector2D);
 
         /**
          * TileToTerrainVertex
@@ -147,7 +145,7 @@ namespace glimmer
          * @param tileVector2D
          * @return
          */
-        [[nodiscard]] static TerrainVertexVector2D TileToTerrainVertex(const TileVector2D& tileVector2D);
+        [[nodiscard]] static TerrainVertexVector2D TileToTerrainVertex(const TileVector2D &tileVector2D);
 
         /**
          * TileToTerrainRelative
@@ -155,7 +153,7 @@ namespace glimmer
          * @param tileVector2D
          * @return
          */
-        [[nodiscard]] static TerrainRelativeVector2D TileToTerrainRelative(const TileVector2D& tileVector2D);
+        [[nodiscard]] static TerrainRelativeVector2D TileToTerrainRelative(const TileVector2D &tileVector2D);
 
 
         static size_t GetArrayIndex(int x, int y, int width);
@@ -167,7 +165,7 @@ namespace glimmer
          * @param relative
          * @return
          */
-        [[nodiscard]] static TileVector2D TerrainRelativeToTile(const TerrainVertexVector2D& terrainVertex,
-                                                                const TerrainRelativeVector2D& relative);
+        [[nodiscard]] static TileVector2D TerrainRelativeToTile(const TerrainVertexVector2D &terrainVertex,
+                                                                const TerrainRelativeVector2D &relative);
     };
 }

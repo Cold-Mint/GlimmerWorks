@@ -28,10 +28,8 @@
 #include <string>
 #include <vector>
 
-namespace glimmer
-{
-    struct LangsResources
-    {
+namespace glimmer {
+    struct LangsResources {
         std::string commandInfo;
         std::string awakeBodyCount;
         std::string getActualPathError;

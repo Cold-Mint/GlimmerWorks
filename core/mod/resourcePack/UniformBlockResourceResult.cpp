@@ -26,12 +26,10 @@
  */
 #include "UniformBlockResourceResult.h"
 
-void glimmer::UniformBlockResourceResult::DestroyResourceImpl(CompiledUniformBlock* resource)
-{
+void glimmer::UniformBlockResourceResult::DestroyResourceImpl(CompiledUniformBlock *resource) {
     delete resource;
 }
 
-glimmer::UniformBlockResourceResult::~UniformBlockResourceResult()
-{
+glimmer::UniformBlockResourceResult::~UniformBlockResourceResult() {
     DestroyResource();
 }

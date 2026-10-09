@@ -33,10 +33,8 @@
 #include "core/mod/resourcePack/GPUSamplerResourceResult.h"
 #include "core/mod/resourcePack/TextureResourceResult.h"
 
-namespace glimmer
-{
-    class TileResourceData
-    {
+namespace glimmer {
+    class TileResourceData {
         ResourceRef textureRef_;
         std::vector<ItemTagResource> tags_;
         std::shared_ptr<GPUPipelineResourceResult> pipeline_ = nullptr;
@@ -46,31 +44,31 @@ namespace glimmer
         std::shared_ptr<AudioResourceResult> placeSFXResult_ = nullptr;
 
     public:
-        [[nodiscard]] TextureResourceResult* GetTexture() const;
+        [[nodiscard]] TextureResourceResult *GetTexture() const;
 
-        [[nodiscard]] AudioResourceResult* GetBreakSFX() const;
+        [[nodiscard]] AudioResourceResult *GetBreakSFX() const;
 
-        [[nodiscard]] AudioResourceResult* GetPlaceSFX() const;
+        [[nodiscard]] AudioResourceResult *GetPlaceSFX() const;
 
-        [[nodiscard]] const ResourceRef* GetTextureRef() const;
+        [[nodiscard]] const ResourceRef *GetTextureRef() const;
 
-        [[nodiscard]] const std::vector<ItemTagResource>& GetTags() const;
+        [[nodiscard]] const std::vector<ItemTagResource> &GetTags() const;
 
-        [[nodiscard]] SDL_GPUGraphicsPipeline* GetPipeline() const;
+        [[nodiscard]] SDL_GPUGraphicsPipeline *GetPipeline() const;
 
-        [[nodiscard]] SDL_GPUSampler* GetSampler() const;
+        [[nodiscard]] SDL_GPUSampler *GetSampler() const;
 
-        [[nodiscard]] const std::vector<PipelineUniformBlock>* GetUniformBlocks() const;
+        [[nodiscard]] const std::vector<PipelineUniformBlock> *GetUniformBlocks() const;
 
-        void SetTexture(const std::shared_ptr<TextureResourceResult>& textureResult);
+        void SetTexture(const std::shared_ptr<TextureResourceResult> &textureResult);
 
-        void SetTextureRef(const ResourceRef& textureRef);
+        void SetTextureRef(const ResourceRef &textureRef);
 
-        void SetBreakSFX(const std::shared_ptr<AudioResourceResult>& breakSFXResult);
+        void SetBreakSFX(const std::shared_ptr<AudioResourceResult> &breakSFXResult);
 
-        void SetPlaceSFX(const std::shared_ptr<AudioResourceResult>& placeSFXResult);
+        void SetPlaceSFX(const std::shared_ptr<AudioResourceResult> &placeSFXResult);
 
-        void SetTags(const std::vector<ItemTagResource>& tags);
+        void SetTags(const std::vector<ItemTagResource> &tags);
 
         void SetPipeline(std::shared_ptr<GPUPipelineResourceResult> pipeline);
 

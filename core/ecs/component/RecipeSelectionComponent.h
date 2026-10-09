@@ -28,11 +28,9 @@
 #include "core/ecs/GameComponent.h"
 #include "core/mod/Resource.h"
 
-namespace glimmer
-{
-    class RecipeSelectionComponent : public GameComponent
-    {
-        RecipeResource* recipeResource_ = nullptr;
+namespace glimmer {
+    class RecipeSelectionComponent : public GameComponent {
+        RecipeResource *recipeResource_ = nullptr;
 
     public:
         /**
@@ -40,7 +38,7 @@ namespace glimmer
          * 设置选中的配方资源
          * @param resource
          */
-        void SetRecipeResource(RecipeResource* resource);
+        void SetRecipeResource(RecipeResource *resource);
 
         [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 
@@ -51,6 +49,6 @@ namespace glimmer
          * 获取选中的配方资源
          * @return
          */
-        [[nodiscard]] RecipeResource* GetRecipeResource() const;
+        [[nodiscard]] RecipeResource *GetRecipeResource() const;
     };
 }

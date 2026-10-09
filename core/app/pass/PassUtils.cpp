@@ -34,10 +34,8 @@
 #include "core/mod/resourcePack/UniformBlockResourceResult.h"
 
 
-void glimmer::ClearRenderTarget(SDL_GPUCommandBuffer* commandBuffer, SDL_GPUTexture* targetTexture)
-{
-    if (commandBuffer == nullptr || targetTexture == nullptr)
-    {
+void glimmer::ClearRenderTarget(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUTexture *targetTexture) {
+    if (commandBuffer == nullptr || targetTexture == nullptr) {
         return;
     }
     SDL_GPUColorTargetInfo colorTarget = {};
@@ -46,49 +44,39 @@ void glimmer::ClearRenderTarget(SDL_GPUCommandBuffer* commandBuffer, SDL_GPUText
     colorTarget.store_op = SDL_GPU_STOREOP_STORE;
     colorTarget.clear_color = {0.0F, 0.0F, 0.0F, 1.0F};
 
-    SDL_GPURenderPass* renderPass = SDL_BeginGPURenderPass(commandBuffer, &colorTarget, 1, nullptr);
-    if (renderPass == nullptr)
-    {
+    SDL_GPURenderPass *renderPass = SDL_BeginGPURenderPass(commandBuffer, &colorTarget, 1, nullptr);
+    if (renderPass == nullptr) {
         return;
     }
     SDL_EndGPURenderPass(renderPass);
 }
 
 void glimmer::FillAndPushUniformBlock(
-    SDL_GPUCommandBuffer* commandBuffer,
-    const std::vector<PipelineUniformBlock>* uniformBlocks,
-    const UniformInjectContext& ctx,
-    std::vector<uint8_t>& stagingBuffer)
-{
-    if (uniformBlocks == nullptr || uniformBlocks->empty())
-    {
+    SDL_GPUCommandBuffer *commandBuffer,
+    const std::vector<PipelineUniformBlock> *uniformBlocks,
+    const UniformInjectContext &ctx,
+    std::vector<uint8_t> &stagingBuffer) {
+    if (uniformBlocks == nullptr || uniformBlocks->empty()) {
         stagingBuffer.clear();
         return;
     }
-    for (const PipelineUniformBlock& uniformBlock : *uniformBlocks)
-    {
-        if (uniformBlock.block == nullptr)
-        {
+    for (const PipelineUniformBlock &uniformBlock: *uniformBlocks) {
+        if (uniformBlock.block == nullptr) {
             continue;
         }
-        const UniformBlockResourceResult* uniformBlockResourceResultPtr = uniformBlock.block.get();
-        if (uniformBlockResourceResultPtr == nullptr)
-        {
+        const UniformBlockResourceResult *uniformBlockResourceResultPtr = uniformBlock.block.get();
+        if (uniformBlockResourceResultPtr == nullptr) {
             continue;
         }
-        const CompiledUniformBlock* compiledUniformBlock = uniformBlockResourceResultPtr->GetResource();
-        if (compiledUniformBlock == nullptr)
-        {
+        const CompiledUniformBlock *compiledUniformBlock = uniformBlockResourceResultPtr->GetResource();
+        if (compiledUniformBlock == nullptr) {
             continue;
         }
         compiledUniformBlock->Fill(ctx, stagingBuffer);
-        if (uniformBlock.stage == UniformBlockStage::Vertex)
-        {
+        if (uniformBlock.stage == UniformBlockStage::Vertex) {
             SDL_PushGPUVertexUniformData(commandBuffer, uniformBlock.binding,
                                          stagingBuffer.data(), stagingBuffer.size());
-        }
-        else
-        {
+        } else {
             SDL_PushGPUFragmentUniformData(commandBuffer, uniformBlock.binding,
                                            stagingBuffer.data(), stagingBuffer.size());
         }

@@ -26,38 +26,31 @@
  */
 #include "ItemToolTipComponent.h"
 
-void glimmer::ItemToolTipComponent::SetPosition(const ScreenVector2D& position)
-{
+void glimmer::ItemToolTipComponent::SetPosition(const ScreenVector2D &position) {
     position_ = position;
 }
 
-void glimmer::ItemToolTipComponent::SetItem(const Item* item)
-{
+void glimmer::ItemToolTipComponent::SetItem(const Item *item) {
     item_ = item;
 }
 
-void glimmer::ItemToolTipComponent::ResetItem()
-{
+void glimmer::ItemToolTipComponent::ResetItem() {
     item_ = nullptr;
 }
 
-const glimmer::Item* glimmer::ItemToolTipComponent::GetItem() const
-{
+const glimmer::Item *glimmer::ItemToolTipComponent::GetItem() const {
     return item_;
 }
 
-const glimmer::ScreenVector2D& glimmer::ItemToolTipComponent::GetPosition() const
-{
+const glimmer::ScreenVector2D &glimmer::ItemToolTipComponent::GetPosition() const {
     return position_;
 }
 
 
-GameComponentTypeMessage glimmer::ItemToolTipComponent::GetComponentTypeStatic()
-{
+GameComponentTypeMessage glimmer::ItemToolTipComponent::GetComponentTypeStatic() {
     return COMPONENT_ITEM_TOOL_TIP;
 }
 
-GameComponentTypeMessage glimmer::ItemToolTipComponent::GetComponentType()
-{
+GameComponentTypeMessage glimmer::ItemToolTipComponent::GetComponentType() {
     return GetComponentTypeStatic();
 }

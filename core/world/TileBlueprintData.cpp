@@ -26,44 +26,36 @@
  */
 #include "TileBlueprintData.h"
 
-bool glimmer::TileBlueprintData::EnableBlueprint() const
-{
+bool glimmer::TileBlueprintData::EnableBlueprint() const {
     return enableBlueprint_;
 }
 
-bool glimmer::TileBlueprintData::EnableBlueprintMask() const
-{
+bool glimmer::TileBlueprintData::EnableBlueprintMask() const {
     return enableBlueprintMask_;
 }
 
 
-bool glimmer::TileBlueprintData::DrawValidBlueprintColor() const
-{
+bool glimmer::TileBlueprintData::DrawValidBlueprintColor() const {
     return drawValidBlueprintColor_;
 }
 
-std::shared_ptr<glimmer::TextureResourceResult> glimmer::TileBlueprintData::GetBlueprintTexture() const
-{
+std::shared_ptr<glimmer::TextureResourceResult> glimmer::TileBlueprintData::GetBlueprintTexture() const {
     return blueprintTextureResult_;
 }
 
 void glimmer::TileBlueprintData::SetBlueprintTexture(
-    const std::shared_ptr<TextureResourceResult>& blueprintTextureResult)
-{
+    const std::shared_ptr<TextureResourceResult> &blueprintTextureResult) {
     blueprintTextureResult_ = blueprintTextureResult;
 }
 
-void glimmer::TileBlueprintData::SetEnableBlueprint(bool enableBlueprint)
-{
+void glimmer::TileBlueprintData::SetEnableBlueprint(bool enableBlueprint) {
     this->enableBlueprint_ = enableBlueprint;
 }
 
-void glimmer::TileBlueprintData::SetEnableBlueprintMask(bool enableBlueprintMask)
-{
+void glimmer::TileBlueprintData::SetEnableBlueprintMask(bool enableBlueprintMask) {
     this->enableBlueprintMask_ = enableBlueprintMask;
 }
 
-void glimmer::TileBlueprintData::SetDrawValidBlueprintColor(bool drawValidBlueprintColor)
-{
+void glimmer::TileBlueprintData::SetDrawValidBlueprintColor(bool drawValidBlueprintColor) {
     this->drawValidBlueprintColor_ = drawValidBlueprintColor;
 }

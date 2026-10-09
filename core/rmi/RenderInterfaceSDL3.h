@@ -28,21 +28,19 @@
 #include "RmlUi_Renderer_SDL_GPU.h"
 
 
-namespace glimmer
-{
+namespace glimmer {
     class TextureResourceResult;
     class ResourceLocator;
     class ResourcePackManager;
 
-    class RenderInterfaceSDL3 : public RenderInterface_SDL_GPU
-    {
-        std::unordered_map<uint64_t, std::shared_ptr<TextureResourceResult>> textureMap_;
-        ResourceLocator* resourceLocator_ = nullptr;
+    class RenderInterfaceSDL3 : public RenderInterface_SDL_GPU {
+        std::unordered_map<uint64_t, std::shared_ptr<TextureResourceResult> > textureMap_;
+        ResourceLocator *resourceLocator_ = nullptr;
 
     public:
-        explicit RenderInterfaceSDL3(SDL_GPUDevice* device, SDL_Window* window, ResourceLocator* resourceLocator);
+        explicit RenderInterfaceSDL3(SDL_GPUDevice *device, SDL_Window *window, ResourceLocator *resourceLocator);
 
-        Rml::TextureHandle LoadTexture(Rml::Vector2i& texture_dimensions, const Rml::String& source) override;
+        Rml::TextureHandle LoadTexture(Rml::Vector2i &texture_dimensions, const Rml::String &source) override;
 
         void ReleaseTexture(Rml::TextureHandle texture_handle) override;
 

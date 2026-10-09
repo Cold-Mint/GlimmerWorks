@@ -32,8 +32,7 @@
 #include "core/mod/ResourceRef.h"
 #include "core/world/generator/TileLayerType.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class WorldContext;
     class Chunk;
     class ResourceLocator;
@@ -44,8 +43,7 @@ namespace glimmer
      * Writes the resolved tile references into a chunk as concrete tile states.
      * 将解析出的瓦片引用写入区块，形成具体的瓦片状态。
      */
-    class ChunkTilePopulator
-    {
+    class ChunkTilePopulator {
         /**
          * PopulateSingleTilePosition
          * 填充单个瓦片位置
@@ -55,8 +53,8 @@ namespace glimmer
          * @param topLeftIndex topLeftIndex 左上角索引
          */
         static void PopulateSingleTilePosition(
-            Chunk* chunk, const ResourceLocator* resourceLocator,
-            const std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>& tilesRefMap,
+            Chunk *chunk, const ResourceLocator *resourceLocator,
+            const std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > &tilesRefMap,
             int topLeftIndex);
 
     public:
@@ -67,8 +65,8 @@ namespace glimmer
          * @param resourceLocator resourceLocator 资源定位器
          * @param tilesRefMap tilesRefMap 瓦片引用映射
          */
-        static void Populate(Chunk* chunk, const ResourceLocator* resourceLocator,
-                             const std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>&
+        static void Populate(Chunk *chunk, const ResourceLocator *resourceLocator,
+                             const std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > &
                              tilesRefMap);
     };
 }

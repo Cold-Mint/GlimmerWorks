@@ -30,8 +30,7 @@
 
 #include "core/mod/ResourceRef.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class AppContext;
 }
 
@@ -42,37 +41,35 @@ namespace glimmer
 #include "core/rmi/DecoratorNinePatchTextureInstancer.h"
 #include "RmlUi/Core/ElementDocument.h"
 
-namespace glimmer
-{
-    class RmlContext
-    {
+namespace glimmer {
+    class RmlContext {
         friend class Scene;
         friend class App;
         friend class AppEventLoop;
         DecoratorNinePatchTextureInstancer decoratorNinePatchTextureInstancer_;
-        std::unordered_map<uint64_t, Rml::ElementDocument*> elementDocumentCache_;
-        std::vector<std::vector<Rml::byte>> fontDataBuffers_;
+        std::unordered_map<uint64_t, Rml::ElementDocument *> elementDocumentCache_;
+        std::vector<std::vector<Rml::byte> > fontDataBuffers_;
         std::unique_ptr<SystemInterfaceSDL3> systemInterfaceSDL3_ = nullptr;
         std::unique_ptr<RenderInterfaceSDL3> renderInterfaceSDL3_ = nullptr;
         std::unique_ptr<GameFileInterface> gameFileInterface_ = nullptr;
         std::unique_ptr<GameFontEngineInterface> gameFontEngineInterface_ = nullptr;
-        Rml::Context* context_ = nullptr;
+        Rml::Context *context_ = nullptr;
         bool initialized_ = false;
 
 
-        [[nodiscard]] Rml::ElementDocument* LoadDocument(AppContext* appContext,
-                                                         const ResourceRef* resourceRef, bool enablePlaceHolder = true);
+        [[nodiscard]] Rml::ElementDocument *LoadDocument(AppContext *appContext,
+                                                         const ResourceRef *resourceRef, bool enablePlaceHolder = true);
 
-        void CloseDocument(Rml::ElementDocument* document);
+        void CloseDocument(Rml::ElementDocument *document);
 
-        [[nodiscard]] Rml::Context* GetRmlContext() const;
+        [[nodiscard]] Rml::Context *GetRmlContext() const;
 
     public:
-        bool Init(VirtualFileSystem* virtualFileSystem, SDL_GPUDevice* device,
-                  ResourceLocator* resourceLocator,
-                  toml::value* langsValuePtr, SDL_Window* window, int width, int height);
+        bool Init(VirtualFileSystem *virtualFileSystem, SDL_GPUDevice *device,
+                  ResourceLocator *resourceLocator,
+                  toml::value *langsValuePtr, SDL_Window *window, int width, int height);
 
-        bool LoadFont(const VirtualFileSystem* virtualFileSystem, const std::filesystem::path& path);
+        bool LoadFont(const VirtualFileSystem *virtualFileSystem, const std::filesystem::path &path);
 
         void UpdateContext() const;
 
@@ -84,7 +81,7 @@ namespace glimmer
          * @param width width 交换链宽度
          * @param height height 交换链高度
          */
-        void RenderContext(SDL_GPUCommandBuffer* commandBuffer, SDL_GPUTexture* swapChainTexture, uint32_t width,
+        void RenderContext(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUTexture *swapChainTexture, uint32_t width,
                            uint32_t height) const;
 
         RmlContext();

@@ -27,18 +27,16 @@
 #pragma once
 #include "IGrowthConditionProcessor.h"
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * AdjacentTileGrowthConditionProcessor
      * 相邻瓷砖生长条件处理器
      */
-    class AdjacentTileGrowthConditionProcessor : public IGrowthConditionProcessor
-    {
+    class AdjacentTileGrowthConditionProcessor : public IGrowthConditionProcessor {
     public:
         GrowthConditionProcessorType GetGrowthConditionProcessorType() override;
 
-        bool Match(const WorldContext* worldContext, const TileVector2D& position,
-                   const IGrowthConditionResource* growthConditionResource) override;
+        bool Match(const WorldContext *worldContext, const TileVector2D &position,
+                   const IGrowthConditionResource *growthConditionResource) override;
     };
 }

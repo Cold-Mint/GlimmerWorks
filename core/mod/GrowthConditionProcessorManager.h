@@ -30,16 +30,14 @@
 
 #include "core/world/growth/IGrowthConditionProcessor.h"
 
-namespace glimmer
-{
-    class GrowthConditionProcessorManager
-    {
-        std::unordered_map<GrowthConditionProcessorType, std::unique_ptr<IGrowthConditionProcessor>>
+namespace glimmer {
+    class GrowthConditionProcessorManager {
+        std::unordered_map<GrowthConditionProcessorType, std::unique_ptr<IGrowthConditionProcessor> >
         conditionProcessors_;
 
     public:
         void AddConditionProcessor(std::unique_ptr<IGrowthConditionProcessor> growthConditionProcessor);
 
-        IGrowthConditionProcessor* FindConditionProcessors(GrowthConditionProcessorType processorType);
+        IGrowthConditionProcessor *FindConditionProcessors(GrowthConditionProcessorType processorType);
     };
 }

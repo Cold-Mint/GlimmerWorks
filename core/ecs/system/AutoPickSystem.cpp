@@ -37,23 +37,18 @@
 #include "core/mod/resourcePack/AudioResourceResult.h"
 
 
-void glimmer::AutoPickSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
-{
-    const EntityManager* entityManager = GetEntityManager();
-    if (gameComponentType == COMPONENT_AUTO_PICK)
-    {
+void glimmer::AutoPickSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) {
+    const EntityManager *entityManager = GetEntityManager();
+    if (gameComponentType == COMPONENT_AUTO_PICK) {
         autoPickCount_ = count;
     }
-    if (gameComponentType == COMPONENT_MAGNET)
-    {
+    if (gameComponentType == COMPONENT_MAGNET) {
         magnetCount_ = count;
     }
-    if (gameComponentType == COMPONENT_ITEM_CONTAINER)
-    {
+    if (gameComponentType == COMPONENT_ITEM_CONTAINER) {
         itemContainerCount_ = count;
     }
-    if (autoPickCount_ > 0 && magnetCount_ > 0 && itemContainerCount_ > 0)
-    {
+    if (autoPickCount_ > 0 && magnetCount_ > 0 && itemContainerCount_ > 0) {
         std::lock_guard lock(entitiesMutex_);
         entities_ = entityManager->GetEntityIDWithComponents({
             COMPONENT_MAGNET, COMPONENT_ITEM_CONTAINER
@@ -63,14 +58,12 @@ void glimmer::AutoPickSystem::OnWatchedComponentChanged(GameComponentTypeMessage
     }
 }
 
-glimmer::AutoPickSystem::AutoPickSystem(WorldContext* worldContext) : GameSystem(worldContext)
-{
+glimmer::AutoPickSystem::AutoPickSystem(WorldContext *worldContext) : GameSystem(worldContext) {
     WatchComponent(COMPONENT_AUTO_PICK);
     WatchComponent(COMPONENT_MAGNET);
     WatchComponent(COMPONENT_ITEM_CONTAINER);
-    const AppContext* appContext = worldContext->GetAppContext();
-    if (appContext == nullptr)
-    {
+    const AppContext *appContext = worldContext->GetAppContext();
+    if (appContext == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "app_context_is_null", "appContext is nullptr");
         return;
     }
@@ -83,18 +76,14 @@ glimmer::AutoPickSystem::AutoPickSystem(WorldContext* worldContext) : GameSystem
     Init();
 }
 
-void glimmer::AutoPickSystem::TryMergeFlowingText()
-{
-    if (frameItemCounts_.empty())
-    {
+void glimmer::AutoPickSystem::TryMergeFlowingText() {
+    if (frameItemCounts_.empty()) {
         return;
     }
     std::stringstream stringStream{};
-    for (auto& [itemName, count] : frameItemCounts_)
-    {
+    for (auto &[itemName, count]: frameItemCounts_) {
         stringStream << itemName;
-        if (count <= 1)
-        {
+        if (count <= 1) {
             continue;
         }
         stringStream << " * " << count << "\n";
@@ -102,51 +91,42 @@ void glimmer::AutoPickSystem::TryMergeFlowingText()
     frameItemCounts_.clear();
 }
 
-void glimmer::AutoPickSystem::ProcessMagnetEntity(GameEntityID entity)
-{
-    EntityManager* entityManager = GetEntityManager();
+void glimmer::AutoPickSystem::ProcessMagnetEntity(GameEntityID entity) {
+    EntityManager *entityManager = GetEntityManager();
     const auto magnetComponent = entityManager->GetComponent<MagnetComponent>(entity);
     const auto containerComponent = entityManager->GetComponent<ItemContainerComponent>(entity);
-    if (magnetComponent == nullptr || containerComponent == nullptr)
-    {
+    if (magnetComponent == nullptr || containerComponent == nullptr) {
         return;
     }
     const auto itemContainer = containerComponent->GetItemContainer();
-    if (itemContainer == nullptr)
-    {
+    if (itemContainer == nullptr) {
         return;
     }
-    for (auto& entities = magnetComponent->GetEntities(); uint32_t entityId : entities)
-    {
+    for (auto &entities = magnetComponent->GetEntities(); uint32_t entityId: entities) {
         auto transform2DComponent = entityManager->GetComponent<Transform2DComponent>(entityId);
-        if (transform2DComponent != nullptr)
-        {
+        if (transform2DComponent != nullptr) {
             lastPosition = transform2DComponent->GetPosition();
         }
 
         auto droppedItemComponent = entityManager->GetComponent<DroppedItemComponent>(entityId);
-        if (droppedItemComponent == nullptr)
-        {
+        if (droppedItemComponent == nullptr) {
             continue;
         }
 
         auto extractItem = droppedItemComponent->ExtractItem();
-        if (extractItem == nullptr)
-        {
+        if (extractItem == nullptr) {
             continue;
         }
 
-        const std::string& itemName = extractItem->GetName();
-        const ItemStackModule* itemStackModule = extractItem->GetStackModule();
-        if (itemStackModule == nullptr)
-        {
+        const std::string &itemName = extractItem->GetName();
+        const ItemStackModule *itemStackModule = extractItem->GetStackModule();
+        if (itemStackModule == nullptr) {
             continue;
         }
         frameItemCounts_[itemName] += itemStackModule->GetAmount();
 
         auto item = itemContainer->AddItem(std::move(extractItem));
-        if (item != nullptr)
-        {
+        if (item != nullptr) {
             //Failed to add the item.
             //添加物品失败。
             LogCat::d(LogLabel::DEFAULT, "auto_pick_add_failed", "AutoPick failed to add item: entity={}", entityId);
@@ -154,42 +134,33 @@ void glimmer::AutoPickSystem::ProcessMagnetEntity(GameEntityID entity)
         }
         LogCat::d(LogLabel::DEFAULT, "auto_pick_picked_item", "AutoPick picked item: entity={}, item={}", entityId,
                   itemName);
-        if (pickItemSFXResult_ != nullptr)
-        {
-            MIX_Audio* audio = pickItemSFXResult_->GetResource();
-            if (audio != nullptr)
-            {
+        if (pickItemSFXResult_ != nullptr) {
+            MIX_Audio *audio = pickItemSFXResult_->GetResource();
+            if (audio != nullptr) {
                 audioManager_->TryPlayFree(AudioType::AMBIENT, audio, 0);
             }
         }
         // Removing an entity mutates the entity manager, which is owned by the
         // main thread. Defer the removal so it runs on the main thread.
         // 移除实体会修改实体管理器，而它归主线程所有。将移除推迟到主线程执行。
-        const WorldContext* worldContext = GetWorldContext();
-        const AppContext* appContext = worldContext != nullptr ? worldContext->GetAppContext() : nullptr;
-        MainThreadDispatcher* dispatcher = appContext != nullptr ? appContext->GetMainThreadDispatcher() : nullptr;
-        if (dispatcher != nullptr)
-        {
-            dispatcher->PostToNextMainFrame([entityManager, entityId]
-            {
+        const WorldContext *worldContext = GetWorldContext();
+        const AppContext *appContext = worldContext != nullptr ? worldContext->GetAppContext() : nullptr;
+        MainThreadDispatcher *dispatcher = appContext != nullptr ? appContext->GetMainThreadDispatcher() : nullptr;
+        if (dispatcher != nullptr) {
+            dispatcher->PostToNextMainFrame([entityManager, entityId] {
                 entityManager->RemoveEntity(entityId);
             });
-        }
-        else
-        {
+        } else {
             entityManager->RemoveEntity(entityId);
         }
     }
 }
 
-void glimmer::AutoPickSystem::OnTick(const uint64_t tick)
-{
-    if (audioManager_ == nullptr)
-    {
+void glimmer::AutoPickSystem::OnTick(const uint64_t tick) {
+    if (audioManager_ == nullptr) {
         return;
     }
-    if (remainingTime_ <= 0)
-    {
+    if (remainingTime_ <= 0) {
         TryMergeFlowingText();
         remainingTime_ = MERGE_DURATION;
     }
@@ -197,19 +168,16 @@ void glimmer::AutoPickSystem::OnTick(const uint64_t tick)
     std::vector<GameEntityID> entities;
     {
         std::lock_guard lock(entitiesMutex_);
-        if (entities_.empty())
-        {
+        if (entities_.empty()) {
             return;
         }
         entities = entities_;
     }
-    for (const GameEntityID entity : entities)
-    {
+    for (const GameEntityID entity: entities) {
         ProcessMagnetEntity(entity);
     }
 }
 
-glimmer::GameSystemType glimmer::AutoPickSystem::GetGameSystemType() const
-{
+glimmer::GameSystemType glimmer::AutoPickSystem::GetGameSystemType() const {
     return GameSystemType::AutoPickSystem;
 }

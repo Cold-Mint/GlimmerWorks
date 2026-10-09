@@ -30,11 +30,9 @@
 
 #include "core/mod/ResourceRef.h"
 
-namespace glimmer
-{
+namespace glimmer {
     //@genNextLine(Contributor|贡献者)
-    struct Contributor
-    {
+    struct Contributor {
         //@genNextLine(displayName|显示名称)
         ResourceRef displayName;
         //@genNextLine(uuid|uuid)

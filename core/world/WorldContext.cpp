@@ -35,20 +35,16 @@
 #include "core/context/AppContext.h"
 
 
-bool glimmer::WorldContext::IsDragMode() const
-{
+bool glimmer::WorldContext::IsDragMode() const {
     return dragMode_;
 }
 
-void glimmer::WorldContext::SetDragMode(const bool dragMode)
-{
+void glimmer::WorldContext::SetDragMode(const bool dragMode) {
     dragMode_ = dragMode;
 }
 
-glimmer::EntityManager* glimmer::WorldContext::GetEntityManager() const
-{
-    if (entityManager_ == nullptr)
-    {
+glimmer::EntityManager *glimmer::WorldContext::GetEntityManager() const {
+    if (entityManager_ == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "entity_manager_is_null",
                   "entityManager is nullptr");
         return nullptr;
@@ -56,129 +52,102 @@ glimmer::EntityManager* glimmer::WorldContext::GetEntityManager() const
     return entityManager_.get();
 }
 
-glimmer::EntityShortCut* glimmer::WorldContext::GetEntityShortCut() const
-{
+glimmer::EntityShortCut *glimmer::WorldContext::GetEntityShortCut() const {
     return entityShortCut_.get();
 }
 
-bool glimmer::WorldContext::IsRuning() const
-{
+bool glimmer::WorldContext::IsRuning() const {
     return running.load(std::memory_order_acquire);
 }
 
-void glimmer::WorldContext::SetRuning(const bool run)
-{
+void glimmer::WorldContext::SetRuning(const bool run) {
     running.store(run, std::memory_order_release);
 }
 
-glimmer::Saves* glimmer::WorldContext::GetSaves() const
-{
-    if (saves_ == nullptr)
-    {
+glimmer::Saves *glimmer::WorldContext::GetSaves() const {
+    if (saves_ == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "saves_is_null", "saves is nullptr");
         return nullptr;
     }
     return saves_;
 }
 
-glimmer::MapManifest* glimmer::WorldContext::GetMapManifest() const
-{
+glimmer::MapManifest *glimmer::WorldContext::GetMapManifest() const {
     return mapManifest_.get();
 }
 
-glimmer::PlayerManifest* glimmer::WorldContext::GetPlayerManifest() const
-{
+glimmer::PlayerManifest *glimmer::WorldContext::GetPlayerManifest() const {
     return playerManifest_.get();
 }
 
-glimmer::ChunkGenerator* glimmer::WorldContext::GetChunkGenerator() const
-{
+glimmer::ChunkGenerator *glimmer::WorldContext::GetChunkGenerator() const {
     return chunkGenerator_.get();
 }
 
-glimmer::ChunkLoader* glimmer::WorldContext::GetChunkLoader() const
-{
+glimmer::ChunkLoader *glimmer::WorldContext::GetChunkLoader() const {
     return chunkLoader_.get();
 }
 
-glimmer::AppContext* glimmer::WorldContext::GetAppContext() const
-{
+glimmer::AppContext *glimmer::WorldContext::GetAppContext() const {
     return appContext_;
 }
 
-b2WorldId glimmer::WorldContext::GetWorldId() const
-{
+b2WorldId glimmer::WorldContext::GetWorldId() const {
     return box2DWorldId_.GetWorldId();
 }
 
-int glimmer::WorldContext::GetWorldSeed() const
-{
+int glimmer::WorldContext::GetWorldSeed() const {
     return worldSeed_;
 }
 
-glimmer::TerrainGenerator* glimmer::WorldContext::GetTerrainGenerator() const
-{
+glimmer::TerrainGenerator *glimmer::WorldContext::GetTerrainGenerator() const {
     return terrainGenerator_.get();
 }
 
-bool glimmer::WorldContext::IsEmptyEntityId(const uint32_t id)
-{
+bool glimmer::WorldContext::IsEmptyEntityId(const uint32_t id) {
     return id == GAME_ENTITY_ID_INVALID;
 }
 
-glimmer::ChunkManager* glimmer::WorldContext::GetChunkManager() const
-{
+glimmer::ChunkManager *glimmer::WorldContext::GetChunkManager() const {
     return chunkManager_.get();
 }
 
-glimmer::SystemScheduler* glimmer::WorldContext::GetSystemScheduler() const
-{
+glimmer::SystemScheduler *glimmer::WorldContext::GetSystemScheduler() const {
     return systemScheduler_.get();
 }
 
-glimmer::PlayerContext* glimmer::WorldContext::GetPlayerContext() const
-{
+glimmer::PlayerContext *glimmer::WorldContext::GetPlayerContext() const {
     return playerContext_.get();
 }
 
-void glimmer::WorldContext::SaveEntity(EntityItemMessage* entityItemMessage, const GameEntityID entityId) const
-{
+void glimmer::WorldContext::SaveEntity(EntityItemMessage *entityItemMessage, const GameEntityID entityId) const {
     worldSaver_.SaveEntity(entityItemMessage, entityId);
 }
 
-void glimmer::WorldContext::SaveGame()
-{
+void glimmer::WorldContext::SaveGame() {
     worldSaver_.SaveGame();
 }
 
-glimmer::LightBuffer* glimmer::WorldContext::GetLightingBuffer() const
-{
-    LightBuffer* result = chunkManager_->GetLightingBuffer();
-    if (result == nullptr)
-    {
+glimmer::LightBuffer *glimmer::WorldContext::GetLightingBuffer() const {
+    LightBuffer *result = chunkManager_->GetLightingBuffer();
+    if (result == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "light_buffer_is_null", "light buffer is null");
     }
     return result;
 }
 
-glimmer::TileInstancePool* glimmer::WorldContext::GetTileInstancePool() const
-{
+glimmer::TileInstancePool *glimmer::WorldContext::GetTileInstancePool() const {
     return tileInstancePool_.get();
 }
 
-glimmer::Dimension* glimmer::WorldContext::GetDimension() const
-{
+glimmer::Dimension *glimmer::WorldContext::GetDimension() const {
     return dimension_.get();
 }
 
-glimmer::WorldContext::~WorldContext()
-{
-    if (appContext_ != nullptr)
-    {
-        if (const ConsoleContext* consoleContext = appContext_->GetConsoleContext(); consoleContext != nullptr)
-        {
-            if (CommandManager* commandManager = consoleContext->GetCommandManager(); commandManager != nullptr)
-            {
+glimmer::WorldContext::~WorldContext() {
+    if (appContext_ != nullptr) {
+        if (const ConsoleContext *consoleContext = appContext_->GetConsoleContext(); consoleContext != nullptr) {
+            if (CommandManager *commandManager = consoleContext->GetCommandManager(); commandManager != nullptr) {
                 commandManager->UnbindWorldContext();
             }
         }
@@ -186,29 +155,24 @@ glimmer::WorldContext::~WorldContext()
     LogCat::i(LogLabel::DEFAULT, "world_context_destroyed", "WorldContext destroyed");
 }
 
-void glimmer::WorldContext::OnTick(const uint64_t tick)
-{
+void glimmer::WorldContext::OnTick(const uint64_t tick) {
     ++gameTick_;
-    if (dimension_ != nullptr)
-    {
+    if (dimension_ != nullptr) {
         dimension_->AdvanceTime(tick);
     }
 }
 
-uint64_t glimmer::WorldContext::GetGlobalTick() const
-{
+uint64_t glimmer::WorldContext::GetGlobalTick() const {
     return fixedGlobalTick_ + gameTick_.load(std::memory_order_acquire);
 }
 
-glimmer::WorldContext::WorldContext(AppContext* appContext, Saves* saves) : saves_(saves),
+glimmer::WorldContext::WorldContext(AppContext *appContext, Saves *saves) : saves_(saves),
                                                                             appContext_(appContext),
-                                                                            worldSaver_(this)
-{
+                                                                            worldSaver_(this) {
     WorldBuilder builder(this);
     builder.Build();
 }
 
-glimmer::ChunkTaskScheduler* glimmer::WorldContext::GetChunkTaskScheduler() const
-{
+glimmer::ChunkTaskScheduler *glimmer::WorldContext::GetChunkTaskScheduler() const {
     return chunkTaskScheduler_.get();
 }

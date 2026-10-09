@@ -25,14 +25,12 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-namespace glimmer
-{
+namespace glimmer {
     /*
      * BreakSource
      * 破坏源
      */
-    enum class BreakSource
-    {
+    enum class BreakSource {
         Unknown,
         ChunkLoad,
         PlayerMining,

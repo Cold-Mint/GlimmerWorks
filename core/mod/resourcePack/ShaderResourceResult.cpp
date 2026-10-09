@@ -28,41 +28,33 @@
 
 #include "core/log/LogCat.h"
 
-void glimmer::ShaderResourceResult::DestroyResourceImpl(SDL_GPUShader* resource)
-{
-    if (device_ == nullptr)
-    {
+void glimmer::ShaderResourceResult::DestroyResourceImpl(SDL_GPUShader *resource) {
+    if (device_ == nullptr) {
         return;
     }
     LogCat::d(LogLabel::DEFAULT, "destroy_shader", "Destroying shader resource: {}",
-              static_cast<const void*>(resource));
+              static_cast<const void *>(resource));
     SDL_ReleaseGPUShader(device_, resource);
 }
 
-void glimmer::ShaderResourceResult::SetDevice(SDL_GPUDevice* device)
-{
+void glimmer::ShaderResourceResult::SetDevice(SDL_GPUDevice *device) {
     device_ = device;
 }
 
 void glimmer::ShaderResourceResult::SetUniformBlockBindings(
-    const std::vector<std::pair<std::string, uint32_t>>& bindings)
-{
+    const std::vector<std::pair<std::string, uint32_t> > &bindings) {
     uniformBlockBindings_ = bindings;
 }
 
-std::optional<uint32_t> glimmer::ShaderResourceResult::GetUniformBlockBinding(const std::string& name) const
-{
-    for (const auto& entry : uniformBlockBindings_)
-    {
-        if (entry.first == name)
-        {
+std::optional<uint32_t> glimmer::ShaderResourceResult::GetUniformBlockBinding(const std::string &name) const {
+    for (const auto &entry: uniformBlockBindings_) {
+        if (entry.first == name) {
             return entry.second;
         }
     }
     return std::nullopt;
 }
 
-glimmer::ShaderResourceResult::~ShaderResourceResult()
-{
+glimmer::ShaderResourceResult::~ShaderResourceResult() {
     DestroyResource();
 }

@@ -29,8 +29,7 @@
 #include "core/math/TileVector2D.h"
 #include "core/world/generator/TileLayerType.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class Tile;
     /**
      * CropComponent
@@ -42,15 +41,14 @@ namespace glimmer
      * 挂载到已放置的作物瓦片实体上。CropSystem 每 tick 读取该组件，
      * 判断瓦片的生长条件，并在条件满足时累积生长 tick。
      */
-    class CropComponent : public GameComponent
-    {
+    class CropComponent : public GameComponent {
         TileVector2D position_;
         TileLayerType layerType_ = TileLayerType::Ground;
 
     public:
-        void SetPosition(const TileVector2D& position);
+        void SetPosition(const TileVector2D &position);
 
-        [[nodiscard]] const TileVector2D& GetPosition() const;
+        [[nodiscard]] const TileVector2D &GetPosition() const;
 
         void SetLayerType(TileLayerType layerType);
 

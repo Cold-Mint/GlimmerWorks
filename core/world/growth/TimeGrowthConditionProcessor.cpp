@@ -31,29 +31,24 @@
 #include "core/world/WorldContext.h"
 
 glimmer::GrowthConditionProcessorType
-glimmer::TimeGrowthConditionProcessor::GetGrowthConditionProcessorType()
-{
+glimmer::TimeGrowthConditionProcessor::GetGrowthConditionProcessorType() {
     return GrowthConditionProcessorType::Time;
 }
 
-bool glimmer::TimeGrowthConditionProcessor::Match(const WorldContext* worldContext, const TileVector2D& position,
-                                                  const IGrowthConditionResource* growthConditionResource)
-{
-    const auto timeCondition = dynamic_cast<const TimeGrowthConditionResource*>(growthConditionResource);
-    if (timeCondition == nullptr || worldContext == nullptr)
-    {
+bool glimmer::TimeGrowthConditionProcessor::Match(const WorldContext *worldContext, const TileVector2D &position,
+                                                  const IGrowthConditionResource *growthConditionResource) {
+    const auto timeCondition = dynamic_cast<const TimeGrowthConditionResource *>(growthConditionResource);
+    if (timeCondition == nullptr || worldContext == nullptr) {
         return false;
     }
-    const Dimension* dimension = worldContext->GetDimension();
-    if (dimension == nullptr)
-    {
+    const Dimension *dimension = worldContext->GetDimension();
+    if (dimension == nullptr) {
         return false;
     }
     const float time = dimension->GetNormalizedTime();
     const float minTime = timeCondition->minTime;
     const float maxTime = timeCondition->maxTime;
-    if (minTime <= maxTime)
-    {
+    if (minTime <= maxTime) {
         return time >= minTime && time <= maxTime;
     }
     return time >= minTime || time <= maxTime;

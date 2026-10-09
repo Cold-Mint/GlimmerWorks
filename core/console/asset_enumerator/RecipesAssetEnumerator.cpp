@@ -28,20 +28,16 @@
 #if  !defined(NDEBUG)
 #include "core/context/AppContext.h"
 
-std::string_view glimmer::RecipesAssetEnumerator::GetAssetType() const
-{
+std::string_view glimmer::RecipesAssetEnumerator::GetAssetType() const {
     return assetName;
 }
 
-std::optional<std::string> glimmer::RecipesAssetEnumerator::ListAsset(const AppContext* appContext)
-{
-    if (appContext == nullptr)
-    {
+std::optional<std::string> glimmer::RecipesAssetEnumerator::ListAsset(const AppContext *appContext) {
+    if (appContext == nullptr) {
         return std::nullopt;
     }
-    const RecipeManager* recipeManager = appContext->GetModContext()->GetRecipeManager();
-    if (recipeManager == nullptr)
-    {
+    const RecipeManager *recipeManager = appContext->GetModContext()->GetRecipeManager();
+    if (recipeManager == nullptr) {
         return std::nullopt;
     }
     return recipeManager->ListRecipeResources();

@@ -26,12 +26,10 @@
  */
 #include "PackScanRequest.h"
 
-void glimmer::PackScanRequest::SetAppContext(AppContext* appContext)
-{
+void glimmer::PackScanRequest::SetAppContext(AppContext *appContext) {
     appContext_ = appContext;
 }
 
-glimmer::AppContext* glimmer::PackScanRequest::GetAppContext() const
-{
+glimmer::AppContext *glimmer::PackScanRequest::GetAppContext() const {
     return appContext_;
 }

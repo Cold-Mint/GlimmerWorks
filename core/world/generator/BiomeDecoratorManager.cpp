@@ -28,25 +28,20 @@
 #include "BiomeDecorator.h"
 
 
-void glimmer::BiomeDecoratorManager::RegisterBiomeDecorator(std::unique_ptr<IBiomeDecorator> biomeDecorator)
-{
+void glimmer::BiomeDecoratorManager::RegisterBiomeDecorator(std::unique_ptr<IBiomeDecorator> biomeDecorator) {
     biomeDecoratorMap_[biomeDecorator->GetBiomeDecoratorType()] = std::move(biomeDecorator);
 }
 
-glimmer::IBiomeDecorator* glimmer::BiomeDecoratorManager::GetBiomeDecorator(BiomeDecoratorType biomeDecoratorType)
-{
+glimmer::IBiomeDecorator *glimmer::BiomeDecoratorManager::GetBiomeDecorator(BiomeDecoratorType biomeDecoratorType) {
     const auto it = biomeDecoratorMap_.find(biomeDecoratorType);
-    if (it == biomeDecoratorMap_.end())
-    {
+    if (it == biomeDecoratorMap_.end()) {
         return nullptr;
     }
     return it->second.get();
 }
 
-void glimmer::BiomeDecoratorManager::SetWorldSeed(const int worldSeed) const
-{
-    for (const auto& [key, decorator] : biomeDecoratorMap_)
-    {
+void glimmer::BiomeDecoratorManager::SetWorldSeed(const int worldSeed) const {
+    for (const auto &[key, decorator]: biomeDecoratorMap_) {
         decorator->SetWorldSeed(worldSeed);
     }
 }

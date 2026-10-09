@@ -29,10 +29,8 @@
 
 #include "core/mod/ResourceRef.h"
 
-namespace glimmer
-{
-    class SavesCreateRequest
-    {
+namespace glimmer {
+    class SavesCreateRequest {
         ResourceRef dimensionsResourceRef_;
         std::string worldName_;
         int seed_ = 0;
@@ -43,13 +41,13 @@ namespace glimmer
 
         [[nodiscard]] int GetSeed() const;
 
-        void SetDimensionsResourceRef(const ResourceRef& dimensionsResourceRef);
+        void SetDimensionsResourceRef(const ResourceRef &dimensionsResourceRef);
 
-        [[nodiscard]] const ResourceRef& GetDimensionsResourceRef() const;
+        [[nodiscard]] const ResourceRef &GetDimensionsResourceRef() const;
 
-        void SetWorldName(const std::string& worldName);
+        void SetWorldName(const std::string &worldName);
 
-        [[nodiscard]] const std::string& GetWorldName() const;
+        [[nodiscard]] const std::string &GetWorldName() const;
 
         void SetAllowCheats(bool allowCheats);
 

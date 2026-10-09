@@ -31,27 +31,25 @@
 #include "Saves.h"
 #include "core/mod/resourcePack/BaseManager.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class SavesCreateRequest;
 
-    class SavesManager : public BaseManager<Saves>
-    {
-        std::unordered_map<Saves*, size_t> saveToIndex_;
-        std::vector<std::unique_ptr<MapManifest>> manifestList_;
+    class SavesManager : public BaseManager<Saves> {
+        std::unordered_map<Saves *, size_t> saveToIndex_;
+        std::vector<std::unique_ptr<MapManifest> > manifestList_;
         //Local user
         //本地用户
-        std::vector<std::unique_ptr<PlayerManifest>> localPlayers_;
-        std::vector<Saves*> saveList_;
-        VirtualFileSystem* virtualFileSystem_;
+        std::vector<std::unique_ptr<PlayerManifest> > localPlayers_;
+        std::vector<Saves *> saveList_;
+        VirtualFileSystem *virtualFileSystem_;
 
     protected:
-        void AfterRegister(Saves* resource) override;
+        void AfterRegister(Saves *resource) override;
 
-        void BeforeUnRegister(Saves* resource) override;
+        void BeforeUnRegister(Saves *resource) override;
 
     public:
-        explicit SavesManager(VirtualFileSystem* virtualFileSystem);
+        explicit SavesManager(VirtualFileSystem *virtualFileSystem);
 
         /**
          * Retrieve the archive at the specified location.
@@ -59,11 +57,11 @@ namespace glimmer
          * @param index
          * @return
          */
-        [[nodiscard]] Saves* GetSave(size_t index) const;
+        [[nodiscard]] Saves *GetSave(size_t index) const;
 
-        [[nodiscard]] MapManifest* GetMapManifest(size_t index) const;
+        [[nodiscard]] MapManifest *GetMapManifest(size_t index) const;
 
-        [[nodiscard]] PlayerManifest* GetPlayerManifest(size_t index) const;
+        [[nodiscard]] PlayerManifest *GetPlayerManifest(size_t index) const;
 
         /**
          * Delete the specified archive
@@ -80,14 +78,14 @@ namespace glimmer
         * @param runtimePath runtimePath 运行目录
         * @param request request 创建存档请求
         */
-        Saves* Create(const std::filesystem::path& runtimePath, const SavesCreateRequest& request);
+        Saves *Create(const std::filesystem::path &runtimePath, const SavesCreateRequest &request);
 
 
         /**
          * Load all the saved files.
          * 加载所有的存档。
          */
-        void LoadAllSaves(const std::filesystem::path& runtimePath);
+        void LoadAllSaves(const std::filesystem::path &runtimePath);
 
         /**
          * Find out how many archives there are.
@@ -102,6 +100,6 @@ namespace glimmer
          * @param keyword Search keyword (empty string returns all indices)
          * @return Vector of matching save indices
          */
-        [[nodiscard]] std::vector<size_t> FilterByKeyword(const std::string& keyword) const;
+        [[nodiscard]] std::vector<size_t> FilterByKeyword(const std::string &keyword) const;
     };
 }

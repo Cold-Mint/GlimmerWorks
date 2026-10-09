@@ -26,22 +26,18 @@
  */
 #include "RecipeSelectionComponent.h"
 
-void glimmer::RecipeSelectionComponent::SetRecipeResource(RecipeResource* resource)
-{
+void glimmer::RecipeSelectionComponent::SetRecipeResource(RecipeResource *resource) {
     recipeResource_ = resource;
 }
 
-GameComponentTypeMessage glimmer::RecipeSelectionComponent::GetComponentTypeStatic()
-{
+GameComponentTypeMessage glimmer::RecipeSelectionComponent::GetComponentTypeStatic() {
     return COMPONENT_RECIPE_SELECTION;
 }
 
-GameComponentTypeMessage glimmer::RecipeSelectionComponent::GetComponentType()
-{
+GameComponentTypeMessage glimmer::RecipeSelectionComponent::GetComponentType() {
     return GetComponentTypeStatic();
 }
 
-glimmer::RecipeResource* glimmer::RecipeSelectionComponent::GetRecipeResource() const
-{
+glimmer::RecipeResource *glimmer::RecipeSelectionComponent::GetRecipeResource() const {
     return recipeResource_;
 }

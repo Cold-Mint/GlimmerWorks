@@ -27,8 +27,7 @@
 #pragma once
 #include "Vector2DUIBase.h"
 
-namespace glimmer
-{
+namespace glimmer {
     /**
     * TerrainRelativeVector2D
     * 地形相对坐标
@@ -36,8 +35,7 @@ namespace glimmer
     * Unit: Tile
     * 单位：瓦片
     */
-    class TerrainRelativeVector2D final : public Vector2DUIBase<TerrainRelativeVector2D>
-    {
+    class TerrainRelativeVector2D final : public Vector2DUIBase<TerrainRelativeVector2D> {
         //Inherit all the constructors of the parent class.
         //继承父类的所有构造函数。
         using Vector2DUIBase::Vector2DUIBase;

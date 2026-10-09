@@ -28,20 +28,16 @@
 #if  !defined(NDEBUG)
 #include "core/context/AppContext.h"
 
-std::string_view glimmer::LootTablesAssetEnumerator::GetAssetType() const
-{
+std::string_view glimmer::LootTablesAssetEnumerator::GetAssetType() const {
     return assetName;
 }
 
-std::optional<std::string> glimmer::LootTablesAssetEnumerator::ListAsset(const AppContext* appContext)
-{
-    if (appContext == nullptr)
-    {
+std::optional<std::string> glimmer::LootTablesAssetEnumerator::ListAsset(const AppContext *appContext) {
+    if (appContext == nullptr) {
         return std::nullopt;
     }
-    const LootTableRegistry* lootTableRegistry = appContext->GetModContext()->GetLootTableRegistry();
-    if (lootTableRegistry == nullptr)
-    {
+    const LootTableRegistry *lootTableRegistry = appContext->GetModContext()->GetLootTableRegistry();
+    if (lootTableRegistry == nullptr) {
         return std::nullopt;
     }
     return lootTableRegistry->ListString();

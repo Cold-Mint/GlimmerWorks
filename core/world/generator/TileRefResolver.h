@@ -35,8 +35,7 @@
 #include "core/world/generator/TerrainResult.h"
 #include "core/world/generator/TileLayerType.h"
 
-namespace glimmer
-{
+namespace glimmer {
     struct BiomeResource;
 
     /**
@@ -45,16 +44,15 @@ namespace glimmer
      * Maps each terrain tile result into concrete tile resource references.
      * 将每个瓦片地形结果映射为具体的瓦片资源引用。
      */
-    class TileRefResolver
-    {
-        static void WriteWaterResourceRef(TileLayerType layerType, ResourceRef& resourceRef);
+    class TileRefResolver {
+        static void WriteWaterResourceRef(TileLayerType layerType, ResourceRef &resourceRef);
 
-        static void WriteAirResourceRef(TileLayerType layerType, ResourceRef& resourceRef);
+        static void WriteAirResourceRef(TileLayerType layerType, ResourceRef &resourceRef);
 
-        static void WriteBedRockResourceRef(TileLayerType layerType, ResourceRef& resourceRef);
+        static void WriteBedRockResourceRef(TileLayerType layerType, ResourceRef &resourceRef);
 
 
-        static void WriteVoidResourceRef(TileLayerType layerType, ResourceRef& resourceRef);
+        static void WriteVoidResourceRef(TileLayerType layerType, ResourceRef &resourceRef);
 
     public:
         /**
@@ -65,8 +63,8 @@ namespace glimmer
          * @param tilesRefMap tilesRefMap 瓦片引用映射（会被修改）
          * @param biomeResourcesSet biomeResourcesSet 生物群系集合（会被修改）
          */
-        static void Initialize(const TerrainResult* terrainResult, const ChunkVertexVector2D& chunkVertexVector2D,
-                               std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>& tilesRefMap,
-                               std::unordered_set<BiomeResource*>& biomeResourcesSet);
+        static void Initialize(const TerrainResult *terrainResult, const ChunkVertexVector2D &chunkVertexVector2D,
+                               std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > &tilesRefMap,
+                               std::unordered_set<BiomeResource *> &biomeResourcesSet);
     };
 }

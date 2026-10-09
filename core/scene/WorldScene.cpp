@@ -30,36 +30,31 @@
 #include "core/world/SystemScheduler.h"
 #include "core/ecs/system/PauseSystem.h"
 
-glimmer::WorldScene::WorldScene(AppContext* context, std::unique_ptr<WorldContext> worldContext)
-    : Scene(context)
-{
+glimmer::WorldScene::WorldScene(AppContext *context, std::unique_ptr<WorldContext> worldContext)
+    : Scene(context) {
     worldContext_ = std::move(worldContext);
-    if (worldContext_ == nullptr)
-    {
+    if (worldContext_ == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "world_context_is_null",
                   "worldContext is nullptr");
         return;
     }
     systemScheduler_ = worldContext_->GetSystemScheduler();
-    if (systemScheduler_ == nullptr)
-    {
+    if (systemScheduler_ == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "system_scheduler_is_null",
                   "systemScheduler is nullptr");
         return;
     }
     LogCat::i(LogLabel::DEFAULT, "creating_world_scene", "Creating WorldScene: worldName={}",
               worldContext_->GetMapManifest()->name);
-    if (context != nullptr)
-    {
+    if (context != nullptr) {
         context->GetWindowContext()->SetWindowTitle(
             (PROJECT_NAME + " - " + worldContext_->GetMapManifest()->name).c_str());
     }
     Init();
     uniformInjectContext_ = std::make_unique<UniformInjectContext>();
     uniformInjectContext_->worldContext = worldContext_.get();
-    const EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
-    if (entityShortCut == nullptr)
-    {
+    const EntityShortCut *entityShortCut = worldContext_->GetEntityShortCut();
+    if (entityShortCut == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "entity_short_cut_is_null",
                   "EntityShortCut is nullptr");
         return;
@@ -70,108 +65,83 @@ glimmer::WorldScene::WorldScene(AppContext* context, std::unique_ptr<WorldContex
 }
 
 
-void glimmer::WorldScene::OnFrameStart()
-{
-    if (systemScheduler_ == nullptr)
-    {
+void glimmer::WorldScene::OnFrameStart() {
+    if (systemScheduler_ == nullptr) {
         return;
     }
     systemScheduler_->OnFrameStart();
 }
 
-bool glimmer::WorldScene::HandleEvent(const SDL_Event& event)
-{
-    if (!worldContext_->IsRuning())
-    {
+bool glimmer::WorldScene::HandleEvent(const SDL_Event &event) {
+    if (!worldContext_->IsRuning()) {
         return false;
     }
-    if (systemScheduler_ == nullptr)
-    {
+    if (systemScheduler_ == nullptr) {
         return false;
     }
     return systemScheduler_->HandleEvent(event);
 }
 
-bool glimmer::WorldScene::OnBackPressed()
-{
-    if (systemScheduler_ == nullptr)
-    {
+bool glimmer::WorldScene::OnBackPressed() {
+    if (systemScheduler_ == nullptr) {
         return false;
     }
     return systemScheduler_->OnBackPressed();
 }
 
-void glimmer::WorldScene::OnTick(uint64_t tick)
-{
+void glimmer::WorldScene::OnTick(uint64_t tick) {
     LogCat::d(LogLabel::DEFAULT, "world_scene_tick_info", "tick: {} globalTick: {}",
               tick, worldContext_->GetGlobalTick());
-    if (!worldContext_->IsRuning())
-    {
+    if (!worldContext_->IsRuning()) {
         return;
     }
-    if (systemScheduler_ != nullptr)
-    {
+    if (systemScheduler_ != nullptr) {
         systemScheduler_->OnTick(tick);
     }
-    if (worldContext_ != nullptr)
-    {
+    if (worldContext_ != nullptr) {
         worldContext_->OnTick(tick);
     }
 }
 
-void glimmer::WorldScene::Update(const float delta)
-{
-    if (!worldContext_->IsRuning())
-    {
+void glimmer::WorldScene::Update(const float delta) {
+    if (!worldContext_->IsRuning()) {
         return;
     }
-    if (systemScheduler_ != nullptr)
-    {
+    if (systemScheduler_ != nullptr) {
         systemScheduler_->Update(delta);
     }
 }
 
-void glimmer::WorldScene::OnWindowSizeChanged(const int& width, const int& height)
-{
-    if (systemScheduler_ != nullptr)
-    {
+void glimmer::WorldScene::OnWindowSizeChanged(const int &width, const int &height) {
+    if (systemScheduler_ != nullptr) {
         systemScheduler_->OnWindowSizeChanged(width, height);
     }
 }
 
-void glimmer::WorldScene::OnConfigChanged(const Config* config)
-{
-    if (systemScheduler_ != nullptr)
-    {
+void glimmer::WorldScene::OnConfigChanged(const Config *config) {
+    if (systemScheduler_ != nullptr) {
         systemScheduler_->OnConfigChanged(config);
     }
 }
 
-void glimmer::WorldScene::Render(RenderQueue* queue)
-{
-    if (systemScheduler_ != nullptr)
-    {
+void glimmer::WorldScene::Render(RenderQueue *queue) {
+    if (systemScheduler_ != nullptr) {
         systemScheduler_->Render(queue);
     }
 }
 
-void glimmer::WorldScene::LoadDocuments()
-{
-    if (systemScheduler_ != nullptr)
-    {
+void glimmer::WorldScene::LoadDocuments() {
+    if (systemScheduler_ != nullptr) {
         systemScheduler_->LoadDocuments(this);
     }
 }
 
-glimmer::UniformInjectContext* glimmer::WorldScene::GetUniformInjectContext()
-{
+glimmer::UniformInjectContext *glimmer::WorldScene::GetUniformInjectContext() {
     return uniformInjectContext_.get();
 }
 
-void glimmer::WorldScene::OnCreateDataModels()
-{
-    if (systemScheduler_ != nullptr)
-    {
+void glimmer::WorldScene::OnCreateDataModels() {
+    if (systemScheduler_ != nullptr) {
         systemScheduler_->OnCreateDataModels(this);
     }
 }

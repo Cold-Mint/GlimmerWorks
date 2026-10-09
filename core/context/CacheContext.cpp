@@ -29,8 +29,7 @@
 #include "core/context/AppContext.h"
 
 
-glimmer::CacheContext::CacheContext(AppContext* appContext) : appContext_(appContext)
-{
+glimmer::CacheContext::CacheContext(AppContext *appContext) : appContext_(appContext) {
     audioCache_ = std::make_unique<AudioCache>();
     gpuPipelineCache_ = std::make_unique<GpuPipelineCache>();
     shaderCache_ = std::make_unique<ShaderCache>();
@@ -41,43 +40,35 @@ glimmer::CacheContext::CacheContext(AppContext* appContext) : appContext_(appCon
     uniformBlockCache_ = std::make_unique<UniformBlockCache>();
 }
 
-glimmer::GpuSamplerCache* glimmer::CacheContext::GetGpuSamplerCache() const
-{
+glimmer::GpuSamplerCache *glimmer::CacheContext::GetGpuSamplerCache() const {
     return gpuSamplerCache_.get();
 }
 
-glimmer::UniformBlockCache* glimmer::CacheContext::GetUniformBlockCache() const
-{
+glimmer::UniformBlockCache *glimmer::CacheContext::GetUniformBlockCache() const {
     return uniformBlockCache_.get();
 }
 
-glimmer::AudioCache* glimmer::CacheContext::GetAudioCache() const
-{
+glimmer::AudioCache *glimmer::CacheContext::GetAudioCache() const {
     return audioCache_.get();
 }
 
-glimmer::GpuPipelineCache* glimmer::CacheContext::GetPipelineCache() const
-{
+glimmer::GpuPipelineCache *glimmer::CacheContext::GetPipelineCache() const {
     return gpuPipelineCache_.get();
 }
 
 
-glimmer::ShaderCache* glimmer::CacheContext::GetShaderCache() const
-{
+glimmer::ShaderCache *glimmer::CacheContext::GetShaderCache() const {
     return shaderCache_.get();
 }
 
-glimmer::ColorCache* glimmer::CacheContext::GetColorCache() const
-{
+glimmer::ColorCache *glimmer::CacheContext::GetColorCache() const {
     return colorCache_.get();
 }
 
-glimmer::RmlCache* glimmer::CacheContext::GetRmlCache() const
-{
+glimmer::RmlCache *glimmer::CacheContext::GetRmlCache() const {
     return rmlCache_.get();
 }
 
-glimmer::TextureCache* glimmer::CacheContext::GetTextureCache() const
-{
+glimmer::TextureCache *glimmer::CacheContext::GetTextureCache() const {
     return textureCache_.get();
 }

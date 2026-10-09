@@ -27,17 +27,14 @@
 #include "StructurePlacementConditionsProcessorManager.h"
 
 void glimmer::StructurePlacementConditionsProcessorManager::AddConditionProcessor(
-    std::unique_ptr<IStructureConditionProcessor> structureConditionProcessor)
-{
+    std::unique_ptr<IStructureConditionProcessor> structureConditionProcessor) {
     StructureConditionProcessorType processorType = structureConditionProcessor->GetStructureConditionProcessorType();
     conditionProcessors_.emplace(processorType, std::move(structureConditionProcessor));
 }
 
-glimmer::IStructureConditionProcessor* glimmer::StructurePlacementConditionsProcessorManager::FindConditionProcessors(
-    const StructureConditionProcessorType processorType)
-{
-    if (const auto it = conditionProcessors_.find(processorType); it != conditionProcessors_.end())
-    {
+glimmer::IStructureConditionProcessor *glimmer::StructurePlacementConditionsProcessorManager::FindConditionProcessors(
+    const StructureConditionProcessorType processorType) {
+    if (const auto it = conditionProcessors_.find(processorType); it != conditionProcessors_.end()) {
         return it->second.get();
     }
     return nullptr;

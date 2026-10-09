@@ -27,10 +27,8 @@
 #pragma once
 #include "Vector2DBase.h"
 
-namespace glimmer
-{
-    class Vector2D : public Vector2DBase<Vector2D>
-    {
+namespace glimmer {
+    class Vector2D : public Vector2DBase<Vector2D> {
         using Vector2DBase::Vector2DBase;
     };
 }

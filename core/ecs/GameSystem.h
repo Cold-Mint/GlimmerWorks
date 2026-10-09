@@ -34,20 +34,18 @@
 #include "core/tick/ITickListener.h"
 #include "src/core/game_component_type.pb.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class RenderQueue;
     class Scene;
     class WorldContext;
     class Config;
 
-    class GameSystem : public ITickListener
-    {
+    class GameSystem : public ITickListener {
         std::unordered_set<GameComponentTypeMessage> watchComponents_;
         std::unordered_set<GameComponentTypeMessage> activeWatchComponents_;
-        WorldContext* worldContext_ = nullptr;
-        EntityManager* entityManager_ = nullptr;
-        EntityShortCut* entityShortCut_ = nullptr;
+        WorldContext *worldContext_ = nullptr;
+        EntityManager *entityManager_ = nullptr;
+        EntityShortCut *entityShortCut_ = nullptr;
 #if  !defined(NDEBUG)
         float initTimeOut_ = 0.0F;
 #endif
@@ -57,11 +55,11 @@ namespace glimmer
     protected:
         void WatchComponent(GameComponentTypeMessage gameComponentType);
 
-        [[nodiscard]] WorldContext* GetWorldContext() const;
+        [[nodiscard]] WorldContext *GetWorldContext() const;
 
-        [[nodiscard]] EntityManager* GetEntityManager() const;
+        [[nodiscard]] EntityManager *GetEntityManager() const;
 
-        [[nodiscard]] EntityShortCut* GetEntityShortCut() const;
+        [[nodiscard]] EntityShortCut *GetEntityShortCut() const;
 
         /**
         * Initialize the system after construction.
@@ -72,7 +70,7 @@ namespace glimmer
     public:
         ~GameSystem() override = default;
 
-        explicit GameSystem(WorldContext* worldContext);
+        explicit GameSystem(WorldContext *worldContext);
 
 
         void OnTick(uint64_t tick) override;
@@ -115,11 +113,11 @@ namespace glimmer
 
         [[nodiscard]] bool IsWatchingComponent(GameComponentTypeMessage gameComponentType) const;
 
-        virtual bool HandleEvent(const SDL_Event& event);
+        virtual bool HandleEvent(const SDL_Event &event);
 
-        virtual void OnConfigChanged(const Config* config);
+        virtual void OnConfigChanged(const Config *config);
 
-        virtual void OnWindowSizeChanged(const int& width, const int& height);
+        virtual void OnWindowSizeChanged(const int &width, const int &height);
 
         virtual bool OnBackPressed();
 
@@ -144,6 +142,6 @@ namespace glimmer
          * GpuRenderer 每帧冲刷一次排好序的队列。
          * @param queue
          */
-        virtual void Render(RenderQueue* queue);
+        virtual void Render(RenderQueue *queue);
     };
 }

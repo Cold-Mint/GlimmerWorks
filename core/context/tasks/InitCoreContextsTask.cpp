@@ -33,12 +33,10 @@
 #include "core/task/TaskWorker.h"
 #include "core/tick/TickWorker.h"
 
-glimmer::InitCoreContextsTask::InitCoreContextsTask(AppContext* appContext) : appContext_(appContext)
-{
+glimmer::InitCoreContextsTask::InitCoreContextsTask(AppContext *appContext) : appContext_(appContext) {
 }
 
-bool glimmer::InitCoreContextsTask::Run(ISystemBucket* systemBucket)
-{
+bool glimmer::InitCoreContextsTask::Run(ISystemBucket *systemBucket) {
     systemBucket->SetWindowContext(std::make_unique<WindowContext>());
     systemBucket->SetMainThreadDispatcher(std::make_unique<MainThreadDispatcher>());
     systemBucket->SetAudioContext(std::make_unique<AudioContext>());
@@ -50,8 +48,7 @@ bool glimmer::InitCoreContextsTask::Run(ISystemBucket* systemBucket)
     return true;
 }
 
-void glimmer::InitCoreContextsTask::Rollback(ISystemBucket* systemBucket)
-{
+void glimmer::InitCoreContextsTask::Rollback(ISystemBucket *systemBucket) {
     systemBucket->SetTaskWorker(nullptr);
     systemBucket->SetTickWorker(nullptr);
     systemBucket->SetSceneManager(nullptr);
@@ -62,7 +59,6 @@ void glimmer::InitCoreContextsTask::Rollback(ISystemBucket* systemBucket)
     systemBucket->SetCacheContext(nullptr);
 }
 
-std::string glimmer::InitCoreContextsTask::GetTaskName()
-{
+std::string glimmer::InitCoreContextsTask::GetTaskName() {
     return "InitCoreContextsTask";
 }

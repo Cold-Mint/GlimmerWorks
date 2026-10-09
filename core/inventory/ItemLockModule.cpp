@@ -26,36 +26,29 @@
  */
 #include "ItemLockModule.h"
 
-void glimmer::ItemLockModule::SetOnLockStatusChanged(const std::function<void(bool)>& onLockStatusChanged)
-{
+void glimmer::ItemLockModule::SetOnLockStatusChanged(const std::function<void(bool)> &onLockStatusChanged) {
     onLockStatusChanged_ = onLockStatusChanged;
 }
 
-void glimmer::ItemLockModule::SetLockStatus(const bool locked)
-{
-    if (locked_ == locked)
-    {
+void glimmer::ItemLockModule::SetLockStatus(const bool locked) {
+    if (locked_ == locked) {
         return;
     }
     locked_ = locked;
     const std::function<void(bool)> onLockStatusChangedCopy = onLockStatusChanged_;
-    if (onLockStatusChangedCopy != nullptr)
-    {
+    if (onLockStatusChangedCopy != nullptr) {
         onLockStatusChangedCopy(locked);
     }
 }
 
-bool glimmer::ItemLockModule::IsLocked() const
-{
+bool glimmer::ItemLockModule::IsLocked() const {
     return locked_;
 }
 
-void glimmer::ItemLockModule::Lock()
-{
+void glimmer::ItemLockModule::Lock() {
     SetLockStatus(true);
 }
 
-void glimmer::ItemLockModule::Unlock()
-{
+void glimmer::ItemLockModule::Unlock() {
     SetLockStatus(false);
 }

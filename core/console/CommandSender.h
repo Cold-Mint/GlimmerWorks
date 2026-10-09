@@ -27,14 +27,12 @@
 #pragma once
 #include "core/math/WorldVector2D.h"
 
-namespace glimmer
-{
-    class CommandSender
-    {
+namespace glimmer {
+    class CommandSender {
         WorldVector2D position_;
 
     public:
-        void SetPosition(const WorldVector2D& position);
+        void SetPosition(const WorldVector2D &position);
 
         [[nodiscard]] WorldVector2D GetPosition() const;
     };

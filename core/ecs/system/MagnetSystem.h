@@ -29,14 +29,12 @@
 
 #include "core/ecs/GameSystem.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class MagnetComponent;
     class WorldVector2D;
     class ItemContainer;
 
-    class MagnetSystem : public GameSystem
-    {
+    class MagnetSystem : public GameSystem {
         /**
          * Protects magnetEntities_ and magneticEntities_ against concurrent rebuild
          * on the main thread (OnWatchedComponentChanged) and iteration on the tick
@@ -60,14 +58,14 @@ namespace glimmer
         uint32_t itemContainerCount_ = 0;
 
         bool ProcessMagneticEntity(GameEntityID magneticEntity,
-                                   MagnetComponent* magnet,
-                                   const WorldVector2D& magnetPos,
-                                   ItemContainer* itemContainer);
+                                   MagnetComponent *magnet,
+                                   const WorldVector2D &magnetPos,
+                                   ItemContainer *itemContainer);
 
-        void ProcessMagnetEntity(GameEntityID magnetEntity, const std::vector<GameEntityID>& magneticEntities);
+        void ProcessMagnetEntity(GameEntityID magnetEntity, const std::vector<GameEntityID> &magneticEntities);
 
     public:
-        explicit MagnetSystem(WorldContext* worldContext);
+        explicit MagnetSystem(WorldContext *worldContext);
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 

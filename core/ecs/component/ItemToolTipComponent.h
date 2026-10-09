@@ -30,23 +30,21 @@
 #include "core/math/ScreenVector2D.h"
 #include "src/core/game_component_type.pb.h"
 
-namespace glimmer
-{
-    class ItemToolTipComponent : public GameComponent
-    {
+namespace glimmer {
+    class ItemToolTipComponent : public GameComponent {
         ScreenVector2D position_;
-        const Item* item_ = nullptr;
+        const Item *item_ = nullptr;
 
     public:
-        void SetPosition(const ScreenVector2D& position);
+        void SetPosition(const ScreenVector2D &position);
 
-        void SetItem(const Item* item);
+        void SetItem(const Item *item);
 
         void ResetItem();
 
-        [[nodiscard]] const Item* GetItem() const;
+        [[nodiscard]] const Item *GetItem() const;
 
-        [[nodiscard]] const ScreenVector2D& GetPosition() const;
+        [[nodiscard]] const ScreenVector2D &GetPosition() const;
 
         [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 

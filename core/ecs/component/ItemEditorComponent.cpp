@@ -28,28 +28,23 @@
 
 #include "core/config/Constants.h"
 
-void glimmer::ItemEditorComponent::Reserve(const size_t size)
-{
+void glimmer::ItemEditorComponent::Reserve(const size_t size) {
     slotEntities.reserve(size);
 }
 
-void glimmer::ItemEditorComponent::AddSlotEntity(const GameEntityID id)
-{
+void glimmer::ItemEditorComponent::AddSlotEntity(const GameEntityID id) {
     slotEntities.push_back(id);
 }
 
-GameComponentTypeMessage glimmer::ItemEditorComponent::GetComponentTypeStatic()
-{
+GameComponentTypeMessage glimmer::ItemEditorComponent::GetComponentTypeStatic() {
     return COMPONENT_ITEM_EDITOR;
 }
 
-GameComponentTypeMessage glimmer::ItemEditorComponent::GetComponentType()
-{
+GameComponentTypeMessage glimmer::ItemEditorComponent::GetComponentType() {
     return GetComponentTypeStatic();
 }
 
 
-std::vector<GameEntityID>& glimmer::ItemEditorComponent::GetSlotEntities()
-{
+std::vector<GameEntityID> &glimmer::ItemEditorComponent::GetSlotEntities() {
     return slotEntities;
 }

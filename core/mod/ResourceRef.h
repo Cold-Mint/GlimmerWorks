@@ -32,8 +32,7 @@
 #include "core/utils/IFingerprintable.h"
 #include "src/core/resource_ref.pb.h"
 
-namespace glimmer
-{
+namespace glimmer {
     struct Resource;
     class ResourceRef;
 
@@ -52,8 +51,7 @@ namespace glimmer
     //
     //@endContent
 
-    class ResourceRef : public IFingerprintAble
-    {
+    class ResourceRef : public IFingerprintAble {
         std::string packId_ = RESOURCE_REF_SELF;
         std::string resourceKey_;
         std::string selfPackageId_;
@@ -61,7 +59,7 @@ namespace glimmer
         bool bindPackage_ = false;
 
     public:
-        bool operator==(const ResourceRef& other) const;
+        bool operator==(const ResourceRef &other) const;
 
         /**
          * SetSelfPackageId
@@ -70,19 +68,19 @@ namespace glimmer
          */
         void SetSelfPackageId(std::string_view selfPackageId);
 
-        [[nodiscard]] const std::string& GetSelfPackageId() const;
+        [[nodiscard]] const std::string &GetSelfPackageId() const;
 
         void SetPackageId(std::string_view packId);
 
-        void ReadResourceRefMessage(const ResourceRefMessage& resourceRefMessage);
+        void ReadResourceRefMessage(const ResourceRefMessage &resourceRefMessage);
 
-        void WriteResourceRefMessage(ResourceRefMessage& resourceRefMessage) const;
+        void WriteResourceRefMessage(ResourceRefMessage &resourceRefMessage) const;
 
 
         [[nodiscard]] static std::optional<ResourceRef> ParseFromId(std::string_view id,
                                                                     ResourceTypeMessage resourceType);
 
-        void ReadResource(const Resource& resource, ResourceTypeMessage resourceType);
+        void ReadResource(const Resource &resource, ResourceTypeMessage resourceType);
 
         [[nodiscard]] std::string GetPackageId() const;
 

@@ -27,14 +27,12 @@
 #pragma once
 #include <cstdint>
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * WarningCode
      * 警告代码
      */
-    enum class WarningCode : uint32_t
-    {
+    enum class WarningCode : uint32_t {
         SUCCESS = 0,
         //在生物群系文件中重复定义了关键帧
         REPEAT_KEY_FRAMES = 1,

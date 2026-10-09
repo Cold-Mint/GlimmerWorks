@@ -29,18 +29,15 @@
 
 #include "core/context/SystemBucket.h"
 
-bool glimmer::InitRmlContextTask::Run(ISystemBucket* systemBucket)
-{
+bool glimmer::InitRmlContextTask::Run(ISystemBucket *systemBucket) {
     systemBucket->SetRmlContext(std::make_unique<RmlContext>());
     return true;
 }
 
-void glimmer::InitRmlContextTask::Rollback(ISystemBucket* systemBucket)
-{
+void glimmer::InitRmlContextTask::Rollback(ISystemBucket *systemBucket) {
     systemBucket->SetRmlContext(nullptr);
 }
 
-std::string glimmer::InitRmlContextTask::GetTaskName()
-{
+std::string glimmer::InitRmlContextTask::GetTaskName() {
     return "InitRmlContextTask";
 }

@@ -28,8 +28,7 @@
 
 #include "core/log/LogCat.h"
 
-void glimmer::MapManifest::FromMessage(const MapManifestMessage& manifestMessage)
-{
+void glimmer::MapManifest::FromMessage(const MapManifestMessage &manifestMessage) {
     name = manifestMessage.name();
     gameVersionName = manifestMessage.gameversionname();
     gameVersionNumber = manifestMessage.gameversionnumber();
@@ -40,8 +39,7 @@ void glimmer::MapManifest::FromMessage(const MapManifestMessage& manifestMessage
     LogCat::d(LogLabel::DEFAULT, "map_manifest_from_message", "Map manifest parsed: name={}, seed={}", name, seed);
 }
 
-void glimmer::MapManifest::ToMessage(MapManifestMessage& manifestMessage)
-{
+void glimmer::MapManifest::ToMessage(MapManifestMessage &manifestMessage) {
     manifestMessage.set_name(name);
     manifestMessage.set_gameversionname(gameVersionName);
     manifestMessage.set_gameversionnumber(gameVersionNumber);

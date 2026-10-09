@@ -29,27 +29,25 @@
 #include "core/math/WorldVector2D.h"
 #include "core/utils/VersionAble.h"
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * The world coordinate component is used to record the absolute position of objects in the 2D game world
      * 世界坐标组件，用于记录物体在2D游戏世界中的绝对位置
      */
-    class Transform2DComponent : public GameComponent, public VersionAble
-    {
+    class Transform2DComponent : public GameComponent, public VersionAble {
         WorldVector2D position_;
         float rotation_ = 0.0F;
 
     public:
         Transform2DComponent() = default;
 
-        explicit Transform2DComponent(const WorldVector2D& position);
+        explicit Transform2DComponent(const WorldVector2D &position);
 
         /**
          * SetPosition 设置世界坐标
          * @param newPosition newPosition 新的坐标
          */
-        void SetPosition(const WorldVector2D& newPosition);
+        void SetPosition(const WorldVector2D &newPosition);
 
         /**
          * SetRotation 设置旋转角度
@@ -68,11 +66,11 @@ namespace glimmer
          * GetPosition 获取世界坐标
          * @return 世界坐标
          */
-        [[nodiscard]] const WorldVector2D& GetPosition() const;
+        [[nodiscard]] const WorldVector2D &GetPosition() const;
 
         [[nodiscard]] std::optional<std::string> Serialize() override;
 
-        void Deserialize(WorldContext* worldContext, const std::string& data) override;
+        void Deserialize(WorldContext *worldContext, const std::string &data) override;
 
         [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 

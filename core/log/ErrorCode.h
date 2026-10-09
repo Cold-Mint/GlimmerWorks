@@ -27,8 +27,7 @@
 #pragma once
 #include <cstdint>
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * ErrorCode
      * 错误代码
@@ -36,8 +35,7 @@ namespace glimmer
      * Do not reuse incorrect codes. For newly added errors, a new error code should be added.
      * 不要复用错误代码，新增的错误要增加错误代码。
      */
-    enum class ErrorCode : uint32_t
-    {
+    enum class ErrorCode : uint32_t {
         SUCCESS = 0,
         //缺少必要的资源包
         MISSING_RESPACK = 1,

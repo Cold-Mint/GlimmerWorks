@@ -27,47 +27,35 @@
 #include "SpacingStructureConditionProcessor.h"
 
 glimmer::StructureConditionProcessorType glimmer::SpacingStructureConditionProcessor::
-GetStructureConditionProcessorType()
-{
+GetStructureConditionProcessorType() {
     return StructureConditionProcessorType::Spacing;
 }
 
-std::bitset<TERRAIN_AREA> glimmer::SpacingStructureConditionProcessor::Match(const DimensionResource* dimensionResource,
-                                                                             const TerrainResult* terrainResult,
+std::bitset<TERRAIN_AREA> glimmer::SpacingStructureConditionProcessor::Match(const DimensionResource *dimensionResource,
+                                                                             const TerrainResult *terrainResult,
                                                                              const IStructurePlacementConditionsResource
-                                                                             * placementConditionsResource)
-{
+                                                                             *placementConditionsResource) {
     std::bitset<TERRAIN_AREA> result;
-    const auto spacingStructureConditions = dynamic_cast<const SpacingStructureConditionsResource*>(
+    const auto spacingStructureConditions = dynamic_cast<const SpacingStructureConditionsResource *>(
         placementConditionsResource);
     int minDistance = spacingStructureConditions->minDistance;
-    if (minDistance <= 0)
-    {
+    if (minDistance <= 0) {
         minDistance = 4;
     }
-    if (spacingStructureConditions->isVertical)
-    {
-        for (int y = 0; y < TERRAIN_SIZE; ++y)
-        {
+    if (spacingStructureConditions->isVertical) {
+        for (int y = 0; y < TERRAIN_SIZE; ++y) {
             int globalY = y + terrainResult->GetPosition().y;
-            if (globalY % minDistance == 0)
-            {
-                for (int x = 0; x < TERRAIN_SIZE; ++x)
-                {
+            if (globalY % minDistance == 0) {
+                for (int x = 0; x < TERRAIN_SIZE; ++x) {
                     result.set(y * TERRAIN_SIZE + x);
                 }
             }
         }
-    }
-    else
-    {
-        for (int x = 0; x < TERRAIN_SIZE; ++x)
-        {
+    } else {
+        for (int x = 0; x < TERRAIN_SIZE; ++x) {
             int globalX = x + terrainResult->GetPosition().x;
-            if (globalX % minDistance == 0)
-            {
-                for (int y = 0; y < TERRAIN_SIZE; ++y)
-                {
+            if (globalX % minDistance == 0) {
+                for (int y = 0; y < TERRAIN_SIZE; ++y) {
                     result.set(y * TERRAIN_SIZE + x);
                 }
             }

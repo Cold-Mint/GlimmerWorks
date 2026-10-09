@@ -31,11 +31,9 @@
 
 #include "FileProvider.h"
 
-namespace glimmer
-{
-    class VirtualFileSystem
-    {
-        std::vector<std::unique_ptr<IFileProvider>> fileProviders_;
+namespace glimmer {
+    class VirtualFileSystem {
+        std::vector<std::unique_ptr<IFileProvider> > fileProviders_;
 
     public:
         virtual ~VirtualFileSystem() = default;
@@ -49,23 +47,23 @@ namespace glimmer
 
         [[nodiscard]] std::string ListMounts() const;
 
-        [[nodiscard]] bool Exists(const std::filesystem::path& path) const;
+        [[nodiscard]] bool Exists(const std::filesystem::path &path) const;
 
-        [[nodiscard]] bool CreateFolder(const std::filesystem::path& path) const;
+        [[nodiscard]] bool CreateFolder(const std::filesystem::path &path) const;
 
-        [[nodiscard]] bool IsFile(const std::filesystem::path& path) const;
+        [[nodiscard]] bool IsFile(const std::filesystem::path &path) const;
 
-        [[nodiscard]] std::optional<std::string> GetFileOrFolderName(const std::filesystem::path& path) const;
+        [[nodiscard]] std::optional<std::string> GetFileOrFolderName(const std::filesystem::path &path) const;
 
-        [[nodiscard]] std::optional<std::filesystem::path> GetParentPath(const std::filesystem::path& path) const;
+        [[nodiscard]] std::optional<std::filesystem::path> GetParentPath(const std::filesystem::path &path) const;
 
-        [[nodiscard]] bool WriteFile(const std::filesystem::path& path, const std::string& content) const;
+        [[nodiscard]] bool WriteFile(const std::filesystem::path &path, const std::string &content) const;
 
-        [[nodiscard]] std::unique_ptr<std::istream> ReadFileAsStream(const std::filesystem::path& path) const;
+        [[nodiscard]] std::unique_ptr<std::istream> ReadFileAsStream(const std::filesystem::path &path) const;
 
-        [[nodiscard]] std::optional<std::string> ReadFileAsString(const std::filesystem::path& path) const;
+        [[nodiscard]] std::optional<std::string> ReadFileAsString(const std::filesystem::path &path) const;
 
-        static int64_t FileTimeTypeToInt64(const std::filesystem::file_time_type& fileTime);
+        static int64_t FileTimeTypeToInt64(const std::filesystem::file_time_type &fileTime);
 
         /**
          * GetMtime
@@ -73,13 +71,13 @@ namespace glimmer
          * @param path
          * @return
          */
-        [[nodiscard]] std::optional<std::filesystem::file_time_type> GetMtime(const std::filesystem::path& path) const;
+        [[nodiscard]] std::optional<std::filesystem::file_time_type> GetMtime(const std::filesystem::path &path) const;
 
         [[nodiscard]] virtual std::vector<std::filesystem::path>
-        ListFile(const std::filesystem::path& path, bool recursive) const;
+        ListFile(const std::filesystem::path &path, bool recursive) const;
 
-        [[nodiscard]] bool DeleteFileOrFolder(const std::filesystem::path& path) const;
+        [[nodiscard]] bool DeleteFileOrFolder(const std::filesystem::path &path) const;
 
-        [[nodiscard]] std::optional<std::filesystem::path> GetActualPath(const std::filesystem::path& path) const;
+        [[nodiscard]] std::optional<std::filesystem::path> GetActualPath(const std::filesystem::path &path) const;
     };
 }

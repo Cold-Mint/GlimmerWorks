@@ -33,24 +33,22 @@
 #include "core/mod/Resource.h"
 
 
-namespace glimmer
-{
-    class FixedColorManager
-    {
+namespace glimmer {
+    class FixedColorManager {
         std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<FixedColorResource>,
-                                                           TransparentStringHash, std::equal_to<>>,
-                           TransparentStringHash, std::equal_to<>>
+                TransparentStringHash, std::equal_to<> >,
+            TransparentStringHash, std::equal_to<> >
         fixedColorMap_
-            {};
+                {};
 
         void RegisterCoreRef(std::string_view resourceId, uint8_t r, uint8_t b, uint8_t g, uint8_t a);
 
     public:
         FixedColorManager();
 
-        FixedColorResource* Register(std::unique_ptr<FixedColorResource> fixedColorResource);
+        FixedColorResource *Register(std::unique_ptr<FixedColorResource> fixedColorResource);
 
-        [[nodiscard]] FixedColorResource* FindFixedColorResource(std::string_view packId, std::string_view key);
+        [[nodiscard]] FixedColorResource *FindFixedColorResource(std::string_view packId, std::string_view key);
 
         [[nodiscard]] std::vector<std::string> GetFixedColorResourceList() const;
 

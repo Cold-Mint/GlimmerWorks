@@ -27,10 +27,8 @@
 #pragma once
 #include "box2d/id.h"
 
-namespace glimmer
-{
-    class Box2dWorldId
-    {
+namespace glimmer {
+    class Box2dWorldId {
         b2WorldId worldId_ = b2_nullWorldId;
 
     public:

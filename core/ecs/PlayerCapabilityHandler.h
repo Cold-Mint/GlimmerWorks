@@ -26,14 +26,12 @@
  */
 #pragma once
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * PlayerCapabilityHandler
      * 玩家能力处理程序
      */
-    class PlayerCapabilityHandler
-    {
+    class PlayerCapabilityHandler {
         bool isFlying_ = false;
 
     public:

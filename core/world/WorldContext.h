@@ -45,8 +45,7 @@
 #include "scheduler/ChunkTaskScheduler.h"
 #include "src/saves/entity_item.pb.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class Scene;
     class ParallaxBackgroundComponent;
     class TileInstancePool;
@@ -63,12 +62,11 @@ namespace glimmer
      * GameEntity has been restricted to be accessed directly only within the WorldContext. uint32_t is provided externally.
      * GameEntity 已被限制为仅在WorldContext内部直接访问。对外提供uint32_t。
      */
-    class WorldContext : public ITickListener
-    {
+    class WorldContext : public ITickListener {
         friend class WorldBuilder;
         WorldSaver worldSaver_;
-        AppContext* appContext_ = nullptr;
-        Saves* saves_ = nullptr;
+        AppContext *appContext_ = nullptr;
+        Saves *saves_ = nullptr;
         Box2dWorldId box2DWorldId_;
         std::unique_ptr<MapManifest> mapManifest_ = nullptr;
         std::unique_ptr<PlayerManifest> playerManifest_ = nullptr;
@@ -110,37 +108,37 @@ namespace glimmer
         [[nodiscard]] uint64_t GetGlobalTick() const;
 
 
-        WorldContext(AppContext* appContext, Saves* saves);
+        WorldContext(AppContext *appContext, Saves *saves);
 
-        [[nodiscard]] ChunkTaskScheduler* GetChunkTaskScheduler() const;
+        [[nodiscard]] ChunkTaskScheduler *GetChunkTaskScheduler() const;
 
-        [[nodiscard]] EntityManager* GetEntityManager() const;
+        [[nodiscard]] EntityManager *GetEntityManager() const;
 
-        [[nodiscard]] EntityShortCut* GetEntityShortCut() const;
+        [[nodiscard]] EntityShortCut *GetEntityShortCut() const;
 
-        [[nodiscard]] Saves* GetSaves() const;
+        [[nodiscard]] Saves *GetSaves() const;
 
-        [[nodiscard]] MapManifest* GetMapManifest() const;
+        [[nodiscard]] MapManifest *GetMapManifest() const;
 
-        [[nodiscard]] PlayerManifest* GetPlayerManifest() const;
+        [[nodiscard]] PlayerManifest *GetPlayerManifest() const;
 
-        [[nodiscard]] AppContext* GetAppContext() const;
+        [[nodiscard]] AppContext *GetAppContext() const;
 
         [[nodiscard]] b2WorldId GetWorldId() const;
 
         [[nodiscard]] int GetWorldSeed() const;
 
-        [[nodiscard]] TerrainGenerator* GetTerrainGenerator() const;
+        [[nodiscard]] TerrainGenerator *GetTerrainGenerator() const;
 
-        [[nodiscard]] ChunkGenerator* GetChunkGenerator() const;
+        [[nodiscard]] ChunkGenerator *GetChunkGenerator() const;
 
-        [[nodiscard]] ChunkLoader* GetChunkLoader() const;
+        [[nodiscard]] ChunkLoader *GetChunkLoader() const;
 
-        [[nodiscard]] ChunkManager* GetChunkManager() const;
+        [[nodiscard]] ChunkManager *GetChunkManager() const;
 
-        [[nodiscard]] SystemScheduler* GetSystemScheduler() const;
+        [[nodiscard]] SystemScheduler *GetSystemScheduler() const;
 
-        [[nodiscard]] PlayerContext* GetPlayerContext() const;
+        [[nodiscard]] PlayerContext *GetPlayerContext() const;
 
         [[nodiscard]] bool IsRuning() const;
 
@@ -150,16 +148,16 @@ namespace glimmer
 
         void SetDragMode(bool dragMode);
 
-        void SaveEntity(EntityItemMessage* entityItemMessage, GameEntityID entityId) const;
+        void SaveEntity(EntityItemMessage *entityItemMessage, GameEntityID entityId) const;
 
         void SaveGame();
 
         [[nodiscard]] static bool IsEmptyEntityId(uint32_t id);
 
-        [[nodiscard]] LightBuffer* GetLightingBuffer() const;
+        [[nodiscard]] LightBuffer *GetLightingBuffer() const;
 
-        [[nodiscard]] TileInstancePool* GetTileInstancePool() const;
+        [[nodiscard]] TileInstancePool *GetTileInstancePool() const;
 
-        [[nodiscard]] Dimension* GetDimension() const;
+        [[nodiscard]] Dimension *GetDimension() const;
     };
 }

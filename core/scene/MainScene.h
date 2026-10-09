@@ -28,15 +28,13 @@
 #include "Scene.h"
 #include "core/rmi/dataModel/MainSceneDataModel.h"
 
-namespace glimmer
-{
-    class MainScene : public Scene
-    {
+namespace glimmer {
+    class MainScene : public Scene {
         MainSceneDataModel mainSceneDataModel_;
         ResourceRef nextBackgroundResourceRef_;
         std::filesystem::path textureFolder_;
         Rml::DataModelHandle mainModelHandle_;
-        VirtualFileSystem* virtualFileSystem_ = nullptr;
+        VirtualFileSystem *virtualFileSystem_ = nullptr;
         uint64_t resourcePackId_ = 0;
         float backgroundTargetSecond_ = 0;
         float backgroundAnimTimer_ = 0;
@@ -45,11 +43,11 @@ namespace glimmer
         int windowHeight_ = 0;
         int backgroundIndex_ = 0;
 
-        void OnStartGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+        void OnStartGameClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
-        void OnExitGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+        void OnExitGameClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
-        void OnLinkClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+        void OnLinkClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
         /**
          * Switch to the next background frame
@@ -60,7 +58,7 @@ namespace glimmer
         void SetBackgroundIndex(int index);
 
     public:
-        explicit MainScene(AppContext* context);
+        explicit MainScene(AppContext *context);
 
         void LoadDocuments() override;
 
@@ -68,9 +66,9 @@ namespace glimmer
 
         void OnCreateDataModels() override;
 
-        void OnConfigChanged(const Config* config) override;
+        void OnConfigChanged(const Config *config) override;
 
-        void OnWindowSizeChanged(const int& width, const int& height) override;
+        void OnWindowSizeChanged(const int &width, const int &height) override;
 
         ~MainScene() override;
     };

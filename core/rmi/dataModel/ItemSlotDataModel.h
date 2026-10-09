@@ -28,10 +28,8 @@
 #include <cstdint>
 #include <string>
 
-namespace glimmer
-{
-    struct ItemSlotDataModel
-    {
+namespace glimmer {
+    struct ItemSlotDataModel {
         std::string image;
         int amount = 0;
         int index = 0;

@@ -37,30 +37,21 @@
 #include "core/mod/resourcePack/ResourcePackManager.h"
 #include "SDL3_mixer/SDL_mixer.h"
 
-bool glimmer::InitAudioTask::Run(ISystemBucket* systemBucket)
-{
-    Config* config = systemBucket->GetConfig();
-    if (config == nullptr)
-    {
+bool glimmer::InitAudioTask::Run(ISystemBucket *systemBucket) {
+    Config *config = systemBucket->GetConfig();
+    if (config == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "config_is_null", "config is nullptr");
         return false;
     }
     SDL_AudioSpec audioSpec;
-    const std::string& audioFormat = config->audio.format;
-    if (audioFormat == "U8")
-    {
+    const std::string &audioFormat = config->audio.format;
+    if (audioFormat == "U8") {
         audioSpec.format = SDL_AUDIO_U8;
-    }
-    else if (audioFormat == "S16")
-    {
+    } else if (audioFormat == "S16") {
         audioSpec.format = SDL_AUDIO_S16;
-    }
-    else if (audioFormat == "S32")
-    {
+    } else if (audioFormat == "S32") {
         audioSpec.format = SDL_AUDIO_S32;
-    }
-    else
-    {
+    } else {
         audioSpec.format = SDL_AUDIO_F32;
     }
 
@@ -70,41 +61,36 @@ bool glimmer::InitAudioTask::Run(ISystemBucket* systemBucket)
               audioFormat,
               config->audio.channels, config->audio.freq);
 
-    MIX_Mixer* mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audioSpec);
-    if (mixer == nullptr)
-    {
+    MIX_Mixer *mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audioSpec);
+    if (mixer == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "mix_create_mixer_device_failed",
                   "MIX_CreateMixerDevice failed");
         return false;
     }
     LogCat::i(LogLabel::DEFAULT, "audio_mixer_created", "Audio mixer created successfully");
 
-    ResourcePackManager* resourcePackManager = systemBucket->GetResourcePackManager();
-    if (resourcePackManager == nullptr)
-    {
+    ResourcePackManager *resourcePackManager = systemBucket->GetResourcePackManager();
+    if (resourcePackManager == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "resource_pack_manager_is_null",
                   "ResourcePackManager is nullptr");
         return false;
     }
     LogCat::i(LogLabel::DEFAULT, "loading_main_menu_bgm", "Loading main menu BGM");
-    AudioContext* audioContext = systemBucket->GetAudioContext();
-    if (audioContext == nullptr)
-    {
+    AudioContext *audioContext = systemBucket->GetAudioContext();
+    if (audioContext == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "audio_context_is_null",
                   "audioContext is nullptr");
         return false;
     }
-    ResourceLocator* resourceLocator = systemBucket->GetResourceLocator();
-    if (resourceLocator == nullptr)
-    {
+    ResourceLocator *resourceLocator = systemBucket->GetResourceLocator();
+    if (resourceLocator == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "resource_locator_is_null",
                   "resourceLocator is nullptr");
         return false;
     }
     audioContext->LoadMainMenuBGM(resourceLocator);
-    AudioManager* audioManager = audioContext->GetAudioManager();
-    if (audioManager == nullptr)
-    {
+    AudioManager *audioManager = audioContext->GetAudioManager();
+    if (audioManager == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "audio_manager_is_null",
                   "audioManager is nullptr");
         return false;
@@ -113,8 +99,7 @@ bool glimmer::InitAudioTask::Run(ISystemBucket* systemBucket)
 
     LogCat::i(LogLabel::DEFAULT, "configuring_audio_tracks", "Configuring audio tracks: count={}",
               config->audio.track.size());
-    for (const AudioTrack& trackConfig : config->audio.track)
-    {
+    for (const AudioTrack &trackConfig: config->audio.track) {
         audioManager->CreateTracks(trackConfig.type, trackConfig.trackCount);
         audioManager->SetTypeVolume(trackConfig.type, trackConfig.volume);
         LogCat::i(LogLabel::DEFAULT, "audio_track", "  Track: type={}, count={}, volume={}",
@@ -129,12 +114,10 @@ bool glimmer::InitAudioTask::Run(ISystemBucket* systemBucket)
     return true;
 }
 
-void glimmer::InitAudioTask::Rollback(ISystemBucket*)
-{
+void glimmer::InitAudioTask::Rollback(ISystemBucket *) {
     // 混音器设备由 InitSDLTask 的 MIX_Quit 统一释放。
 }
 
-std::string glimmer::InitAudioTask::GetTaskName()
-{
+std::string glimmer::InitAudioTask::GetTaskName() {
     return "InitAudioTask";
 }

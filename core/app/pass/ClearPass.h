@@ -28,8 +28,7 @@
 
 #include "core/gpu/IPass.h"
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * ClearPass
      * 清屏 pass
@@ -38,9 +37,8 @@ namespace glimmer
      * and UI passes, so stale content from the previous frame never persists.
      * 每帧在光照与 UI pass 之前把交换链清为纯黑，避免上一帧内容残留。
      */
-    class ClearPass final : public IPass
-    {
+    class ClearPass final : public IPass {
     public:
-        void Record(RenderFrameContext& ctx) override;
+        void Record(RenderFrameContext &ctx) override;
     };
 }

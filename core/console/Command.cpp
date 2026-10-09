@@ -26,58 +26,47 @@
  */
 #include "Command.h"
 
-glimmer::NodeTree<std::string>& glimmer::Command::GetPrivateSuggestionsTree()
-{
+glimmer::NodeTree<std::string> &glimmer::Command::GetPrivateSuggestionsTree() {
     return suggestionsTree_;
 }
 
-void glimmer::Command::InitSuggestions(NodeTree<std::string>* suggestionsTree)
-{
+void glimmer::Command::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
     //Command suggestions are implemented by subclasses.
     //由子类实现命令建议。
 }
 
-glimmer::WorldContext* glimmer::Command::GetWorldContext() const
-{
+glimmer::WorldContext *glimmer::Command::GetWorldContext() const {
     return worldContext_;
 }
 
-glimmer::AppContext* glimmer::Command::GetAppContext() const
-{
+glimmer::AppContext *glimmer::Command::GetAppContext() const {
     return appContext_;
 }
 
-glimmer::Command::Command(AppContext* appContext) : appContext_(appContext)
-{
+glimmer::Command::Command(AppContext *appContext) : appContext_(appContext) {
 }
 
-bool glimmer::Command::RequiresWorldContext() const
-{
+bool glimmer::Command::RequiresWorldContext() const {
     return false;
 }
 
-bool glimmer::Command::RequiresCheatEnabled() const
-{
+bool glimmer::Command::RequiresCheatEnabled() const {
     return false;
 }
 
-void glimmer::Command::BindWorldContext(WorldContext* worldContext)
-{
+void glimmer::Command::BindWorldContext(WorldContext *worldContext) {
     worldContext_ = worldContext;
 }
 
-void glimmer::Command::UnBindWorldContext()
-{
+void glimmer::Command::UnBindWorldContext() {
     worldContext_ = nullptr;
 }
 
-void glimmer::Command::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
-{
+void glimmer::Command::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
     //The command structure information for its display needs to be set here.
     //需要在这里为其设置显示的命令结构信息。
 }
 
-glimmer::NodeTree<std::string>* glimmer::Command::GetSuggestionsTree(const CommandArgs* commandArgs)
-{
+glimmer::NodeTree<std::string> *glimmer::Command::GetSuggestionsTree(const CommandArgs *commandArgs) {
     return &suggestionsTree_;
 }

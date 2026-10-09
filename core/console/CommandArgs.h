@@ -33,17 +33,15 @@
 #include "core/mod/ResourceRef.h"
 #include "core/utils/BoolOrToggle.h"
 
-namespace glimmer
-{
-    class CommandArgs
-    {
+namespace glimmer {
+    class CommandArgs {
         std::string command_;
         std::vector<std::string> tokens_;
 
     public:
-        explicit CommandArgs(const std::string& command);
+        explicit CommandArgs(const std::string &command);
 
-        void SetCommand(const std::string& command);
+        void SetCommand(const std::string &command);
 
         /**
          * Obtain the Token position corresponding to the cursor position

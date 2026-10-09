@@ -35,13 +35,11 @@
 #include "core/console/hook/CommandHookManager.h"
 #include "core/console/suggestion/DynamicSuggestionsManager.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class VirtualFileSystem;
     class AppContext;
 
-    class ConsoleContext
-    {
+    class ConsoleContext {
         std::unique_ptr<CommandManager> commandManager_ = nullptr;
         std::unique_ptr<ConsoleWorker> consoleWorker_ = nullptr;
         std::unique_ptr<LocalConsoleInput> localConsoleInput_ = nullptr;
@@ -49,22 +47,22 @@ namespace glimmer
         std::unique_ptr<CommandHookManager> commandHookManager_ = nullptr;
         std::unique_ptr<DynamicSuggestionsManager> dynamicSuggestionsManager_ = nullptr;
 
-        void RegisterCommands(AppContext* appContext) const;
+        void RegisterCommands(AppContext *appContext) const;
 
     public:
-        bool Init(AppContext* appContext, VirtualFileSystem* vfs, const std::string& runtimePath,
+        bool Init(AppContext *appContext, VirtualFileSystem *vfs, const std::string &runtimePath,
                   int maxHistoryEntries);
 
         void SaveCommandHistory() const;
 
-        [[nodiscard]] CommandHistoryMessage* GetCommandHistoryMessage() const;
+        [[nodiscard]] CommandHistoryMessage *GetCommandHistoryMessage() const;
 
-        [[nodiscard]] CommandManager* GetCommandManager() const;
+        [[nodiscard]] CommandManager *GetCommandManager() const;
 
-        [[nodiscard]] ConsoleWorker* GetConsoleWorker() const;
+        [[nodiscard]] ConsoleWorker *GetConsoleWorker() const;
 
-        [[nodiscard]] CommandHookManager* GetCommandHookManager() const;
+        [[nodiscard]] CommandHookManager *GetCommandHookManager() const;
 
-        [[nodiscard]] DynamicSuggestionsManager* GetDynamicSuggestionsManager() const;
+        [[nodiscard]] DynamicSuggestionsManager *GetDynamicSuggestionsManager() const;
     };
 }

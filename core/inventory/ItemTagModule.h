@@ -29,10 +29,8 @@
 
 #include "core/mod/Resource.h"
 
-namespace glimmer
-{
-    class ItemTagModule
-    {
+namespace glimmer {
+    class ItemTagModule {
         std::unordered_map<uint64_t, ItemTagResource> tagMap_;
         std::vector<uint64_t> tags_;
 
@@ -50,7 +48,7 @@ namespace glimmer
          * 设置标签
          * @param tags
          */
-        void SetTags(const std::vector<ItemTagResource>& tags);
+        void SetTags(const std::vector<ItemTagResource> &tags);
 
         /**
         * GetTag
@@ -58,13 +56,13 @@ namespace glimmer
         * @param tag tag 标签
         * @return Return the label value. If not found, return nullptr. 返回标签值，若找不到则返回nullptr
         */
-        [[nodiscard]] const ItemTagResource* GetItemTagResource(uint64_t tag) const;
+        [[nodiscard]] const ItemTagResource *GetItemTagResource(uint64_t tag) const;
 
         /**
         * GetTags
         * 获取全部标签
         * @return
         */
-        [[nodiscard]] const std::vector<uint64_t>& GetTags() const;
+        [[nodiscard]] const std::vector<uint64_t> &GetTags() const;
     };
 }

@@ -28,22 +28,20 @@
 
 #include "core/ecs/GameSystem.h"
 
-namespace glimmer
-{
-    class SpiritRendererSystem final : public GameSystem
-    {
+namespace glimmer {
+    class SpiritRendererSystem final : public GameSystem {
         std::vector<GameEntityID> spiritRendererEntities_;
-        CameraComponent* cameraComponent_ = nullptr;
-        Transform2DComponent* cameraTransform2DComponent_ = nullptr;
+        CameraComponent *cameraComponent_ = nullptr;
+        Transform2DComponent *cameraTransform2DComponent_ = nullptr;
         uint32_t spiritRendererComponentCount_ = 0;
         uint32_t transformCount_ = 0;
 
     public:
-        explicit SpiritRendererSystem(WorldContext* worldContext);
+        explicit SpiritRendererSystem(WorldContext *worldContext);
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
-        void Render(RenderQueue* queue) override;
+        void Render(RenderQueue *queue) override;
 
         uint8_t GetExecutionOrder() override;
 

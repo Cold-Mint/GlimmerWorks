@@ -30,19 +30,16 @@
 
 #include "fmt/xchar.h"
 
-std::string glimmer::MainSceneDataModel::GetCopyrightString()
-{
+std::string glimmer::MainSceneDataModel::GetCopyrightString() {
     constexpr int startYear = 2025;
     const auto now = std::chrono::system_clock::now();
     const auto days = std::chrono::floor<std::chrono::days>(now);
     std::chrono::year_month_day ymd{days};
     auto currentYear = static_cast<int>(ymd.year());
-    if (!ymd.year().ok() || currentYear < 1970)
-    {
+    if (!ymd.year().ok() || currentYear < 1970) {
         return fmt::format("Copyright (C) {} Cold-Mint", startYear);
     }
-    if (currentYear <= startYear)
-    {
+    if (currentYear <= startYear) {
         return fmt::format("Copyright (C) {} Cold-Mint", startYear);
     }
     return fmt::format("Copyright (C) {}–{} Cold-Mint", startYear, currentYear);

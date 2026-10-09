@@ -28,14 +28,12 @@
 #include "core/mod/resourcePack/BaseResourceCache.h"
 #include "core/mod/resourcePack/GPUSamplerResourceResult.h"
 
-namespace glimmer
-{
-    class GpuSamplerCache : public BaseResourceCache<GPUSamplerResourceResult>
-    {
+namespace glimmer {
+    class GpuSamplerCache : public BaseResourceCache<GPUSamplerResourceResult> {
     protected:
-        std::shared_ptr<GPUSamplerResourceResult> LoadResourceFromPack(AppContext* appContext,
-                                                                       const ResourceRef* resourceRef,
-                                                                       const ResourcePack* resourcePack) override;
+        std::shared_ptr<GPUSamplerResourceResult> LoadResourceFromPack(AppContext *appContext,
+                                                                       const ResourceRef *resourceRef,
+                                                                       const ResourcePack *resourcePack) override;
 
     public:
         ~GpuSamplerCache() noexcept override;

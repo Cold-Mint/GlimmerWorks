@@ -26,42 +26,34 @@
  */
 #include "SavesCreateRequest.h"
 
-void glimmer::SavesCreateRequest::SetSeed(const int seed)
-{
+void glimmer::SavesCreateRequest::SetSeed(const int seed) {
     seed_ = seed;
 }
 
-int glimmer::SavesCreateRequest::GetSeed() const
-{
+int glimmer::SavesCreateRequest::GetSeed() const {
     return seed_;
 }
 
-void glimmer::SavesCreateRequest::SetDimensionsResourceRef(const ResourceRef& dimensionsResourceRef)
-{
+void glimmer::SavesCreateRequest::SetDimensionsResourceRef(const ResourceRef &dimensionsResourceRef) {
     dimensionsResourceRef_ = dimensionsResourceRef;
 }
 
-const glimmer::ResourceRef& glimmer::SavesCreateRequest::GetDimensionsResourceRef() const
-{
+const glimmer::ResourceRef &glimmer::SavesCreateRequest::GetDimensionsResourceRef() const {
     return dimensionsResourceRef_;
 }
 
-void glimmer::SavesCreateRequest::SetWorldName(const std::string& worldName)
-{
+void glimmer::SavesCreateRequest::SetWorldName(const std::string &worldName) {
     worldName_ = worldName;
 }
 
-const std::string& glimmer::SavesCreateRequest::GetWorldName() const
-{
+const std::string &glimmer::SavesCreateRequest::GetWorldName() const {
     return worldName_;
 }
 
-void glimmer::SavesCreateRequest::SetAllowCheats(const bool allowCheats)
-{
+void glimmer::SavesCreateRequest::SetAllowCheats(const bool allowCheats) {
     allowCheats_ = allowCheats;
 }
 
-bool glimmer::SavesCreateRequest::GetAllowCheats() const
-{
+bool glimmer::SavesCreateRequest::GetAllowCheats() const {
     return allowCheats_;
 }

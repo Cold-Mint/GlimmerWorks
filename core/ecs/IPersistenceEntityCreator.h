@@ -29,18 +29,16 @@
 #include "core/world/WorldContext.h"
 #include "src/saves/entity_item.pb.h"
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * IPersistenceEntityCreator
      * 持久化实体创建器
      */
-    class IPersistenceEntityCreator
-    {
-        WorldContext* worldContext_ = nullptr;
+    class IPersistenceEntityCreator {
+        WorldContext *worldContext_ = nullptr;
 
     protected:
-        [[nodiscard]] WorldContext* GetWorldContext() const;
+        [[nodiscard]] WorldContext *GetWorldContext() const;
 
         /**
          * RecoveryAllComponent
@@ -49,11 +47,11 @@ namespace glimmer
          * @param gameEntityId id 实体id
          * @param entityItemMessage entityItemMessage 实体项目信息
          */
-        static void RecoveryAllComponent(WorldContext* worldContext, GameEntityID gameEntityId,
-                                         const EntityItemMessage& entityItemMessage);
+        static void RecoveryAllComponent(WorldContext *worldContext, GameEntityID gameEntityId,
+                                         const EntityItemMessage &entityItemMessage);
 
     public:
-        explicit IPersistenceEntityCreator(WorldContext* worldContext);
+        explicit IPersistenceEntityCreator(WorldContext *worldContext);
 
         virtual ~IPersistenceEntityCreator() = default;
 
@@ -64,7 +62,7 @@ namespace glimmer
          * This method typically adds the corresponding component information based on the resources defined in the data package.
          * 这个方法通常从数据包定义的资源来添加对应的组件信息。
          */
-        virtual void LoadTemplateComponents(GameEntityID gameEntityId, const ResourceRef& resourceRef) = 0;
+        virtual void LoadTemplateComponents(GameEntityID gameEntityId, const ResourceRef &resourceRef) = 0;
 
         /**
          * Merge the data of the entity projects
@@ -79,6 +77,6 @@ namespace glimmer
          * @param gameEntityId
          * @param entityItemMessage
          */
-        virtual void MergeEntityItemMessage(GameEntityID gameEntityId, const EntityItemMessage& entityItemMessage) = 0;
+        virtual void MergeEntityItemMessage(GameEntityID gameEntityId, const EntityItemMessage &entityItemMessage) = 0;
     };
 }

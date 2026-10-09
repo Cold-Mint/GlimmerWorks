@@ -31,30 +31,25 @@
 #include "core/context/SystemBucket.h"
 #include "core/log/LogCat.h"
 
-glimmer::InitResourcePackTask::InitResourcePackTask(AppContext* appContext)
-{
+glimmer::InitResourcePackTask::InitResourcePackTask(AppContext *appContext) {
     appContext_ = appContext;
 }
 
-bool glimmer::InitResourcePackTask::Run(ISystemBucket* systemBucket)
-{
-    VirtualFileSystem* virtualFileSystem = systemBucket->GetVirtualFileSystem();
-    if (virtualFileSystem == nullptr)
-    {
+bool glimmer::InitResourcePackTask::Run(ISystemBucket *systemBucket) {
+    VirtualFileSystem *virtualFileSystem = systemBucket->GetVirtualFileSystem();
+    if (virtualFileSystem == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "vfs_is_null", "virtualFileSystem is nullptr");
         return false;
     }
-    const Config* config = systemBucket->GetConfig();
-    if (config == nullptr)
-    {
+    const Config *config = systemBucket->GetConfig();
+    if (config == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "config_is_null", "config is nullptr");
         return false;
     }
     auto resourcePackManager = std::make_unique<ResourcePackManager>();
     PackScanRequest packScanRequest;
     packScanRequest.SetAppContext(appContext_);
-    if (resourcePackManager->Scan(&packScanRequest) == 0)
-    {
+    if (resourcePackManager->Scan(&packScanRequest) == 0) {
         LogCat::publicError(LogLabel::DEFAULT, ErrorCode::MISSING_RESPACK, std::source_location::current(),
                             "missing_required_resource_pack",
                             "At least one available resource pack must be installed.");
@@ -64,12 +59,10 @@ bool glimmer::InitResourcePackTask::Run(ISystemBucket* systemBucket)
     return true;
 }
 
-void glimmer::InitResourcePackTask::Rollback(ISystemBucket* systemBucket)
-{
+void glimmer::InitResourcePackTask::Rollback(ISystemBucket *systemBucket) {
     systemBucket->SetResourcePackManager(nullptr);
 }
 
-std::string glimmer::InitResourcePackTask::GetTaskName()
-{
+std::string glimmer::InitResourcePackTask::GetTaskName() {
     return "InitResourcePackTask";
 }

@@ -31,10 +31,8 @@
 #include "core/ecs/GameSystem.h"
 #include "core/math/WorldVector2D.h"
 
-namespace glimmer
-{
-    class TechProviderSystem final : public GameSystem
-    {
+namespace glimmer {
+    class TechProviderSystem final : public GameSystem {
         /**
         * Protects techProviderEntities_ against concurrent rebuild on the main
         * thread (OnWatchedComponentChanged) and iteration on the tick thread
@@ -54,7 +52,7 @@ namespace glimmer
         std::atomic<bool> changed = false;
 
     public:
-        explicit TechProviderSystem(WorldContext* worldContext);
+        explicit TechProviderSystem(WorldContext *worldContext);
 
         void OnActivationChanged(bool activeStatus) override;
 

@@ -27,68 +27,51 @@
 #pragma once
 #include <random>
 
-namespace glimmer
-{
-    class RandomUtils
-    {
+namespace glimmer {
+    class RandomUtils {
     public:
-        template <typename T>
+        template<typename T>
         static T Random();
 
-        template <typename T>
+        template<typename T>
         static T Random(T A, T B);
     };
 
 
-    template <typename T>
-    T RandomUtils::Random()
-    {
-        if constexpr (std::is_integral_v<T>)
-        {
+    template<typename T>
+    T RandomUtils::Random() {
+        if constexpr (std::is_integral_v<T>) {
             thread_local std::random_device rd;
             return static_cast<T>(rd());
-        }
-        else if constexpr (std::is_floating_point_v<T>)
-        {
+        } else if constexpr (std::is_floating_point_v<T>) {
             thread_local std::random_device rd;
             std::uniform_real_distribution<T> dist(0.0F, 1.0F);
             return dist(rd);
-        }
-        else
-        {
+        } else {
             static_assert(std::is_arithmetic_v<T>, "Only number types are supported");
         }
         return T{};
     }
 
-    template <typename T>
-    T RandomUtils::Random(T A, T B)
-    {
+    template<typename T>
+    T RandomUtils::Random(T A, T B) {
         const T realMin = std::min(A, B);
         const T realMax = std::max(A, B);
 
-        if constexpr (std::is_integral_v<T>)
-        {
+        if constexpr (std::is_integral_v<T>) {
             thread_local std::random_device rd;
-            if constexpr (std::is_same_v<T, uint8_t> || std::is_same_v<T, int8_t> || std::is_same_v<T, char>)
-            {
+            if constexpr (std::is_same_v<T, uint8_t> || std::is_same_v<T, int8_t> || std::is_same_v<T, char>) {
                 std::uniform_int_distribution dist(static_cast<int>(realMin), static_cast<int>(realMax));
                 return static_cast<T>(dist(rd));
-            }
-            else
-            {
+            } else {
                 std::uniform_int_distribution<T> dist(realMin, realMax);
                 return dist(rd);
             }
-        }
-        else if constexpr (std::is_floating_point_v<T>)
-        {
+        } else if constexpr (std::is_floating_point_v<T>) {
             thread_local std::random_device rd;
             std::uniform_real_distribution<T> dist(realMin, realMax);
             return dist(rd);
-        }
-        else
-        {
+        } else {
             static_assert(std::is_arithmetic_v<T>, "Only number types are supported");
         }
         return T{};

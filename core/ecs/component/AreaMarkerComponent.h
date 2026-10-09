@@ -28,10 +28,8 @@
 #include "core/ecs/GameComponent.h"
 #include "core/math/TileVector2D.h"
 
-namespace glimmer
-{
-    class AreaMarkerComponent : public GameComponent
-    {
+namespace glimmer {
+    class AreaMarkerComponent : public GameComponent {
         TileVector2D startPoint_;
         TileVector2D endPoint_;
         float remainingTime_ = 0;
@@ -60,8 +58,8 @@ namespace glimmer
 
         void SetPoint(TileVector2D point);
 
-        [[nodiscard]] const TileVector2D& GetStartPoint() const;
+        [[nodiscard]] const TileVector2D &GetStartPoint() const;
 
-        [[nodiscard]] const TileVector2D& GetEndPoint() const;
+        [[nodiscard]] const TileVector2D &GetEndPoint() const;
     };
 }

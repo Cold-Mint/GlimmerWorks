@@ -27,14 +27,12 @@
 #pragma once
 #include "core/ecs/GameSystem.h"
 
-namespace glimmer
-{
-    class RayCast2DSystem final : public GameSystem
-    {
+namespace glimmer {
+    class RayCast2DSystem final : public GameSystem {
         std::vector<GameEntityID> entities_;
 
     public:
-        explicit RayCast2DSystem(WorldContext* worldContext);
+        explicit RayCast2DSystem(WorldContext *worldContext);
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 

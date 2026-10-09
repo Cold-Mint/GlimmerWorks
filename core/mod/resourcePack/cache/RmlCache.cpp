@@ -29,23 +29,20 @@
 #include "core/log/LogCat.h"
 #include "core/mod/resourcePack/RmlResourceResult.h"
 
-std::shared_ptr<glimmer::RmlResourceResult> glimmer::RmlCache::LoadResourceFromPack(AppContext* appContext,
-    const ResourceRef* resourceRef, const ResourcePack* resourcePack)
-{
+std::shared_ptr<glimmer::RmlResourceResult> glimmer::RmlCache::LoadResourceFromPack(AppContext *appContext,
+    const ResourceRef *resourceRef, const ResourcePack *resourcePack) {
     std::filesystem::path rmlPath = resourcePack->GetPath() / "layouts" / resourceRef->GetPackageId() / resourceRef->
-        GetResourceKey();
+                                    GetResourceKey();
     rmlPath.replace_extension("rml");
-    const VirtualFileSystem* virtualFileSystem = appContext->GetVirtualFileSystem();
-    if (!virtualFileSystem->Exists(rmlPath))
-    {
+    const VirtualFileSystem *virtualFileSystem = appContext->GetVirtualFileSystem();
+    if (!virtualFileSystem->Exists(rmlPath)) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "rml_file_not_found",
                   "Rml layout file not found: {}",
                   rmlPath.string());
         return nullptr;
     }
     auto actualRmlPath = virtualFileSystem->GetActualPath(rmlPath);
-    if (!actualRmlPath.has_value())
-    {
+    if (!actualRmlPath.has_value()) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "rml_file_not_found",
                   "Rml layout file not found: {}",
                   rmlPath.string());

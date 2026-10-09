@@ -28,8 +28,7 @@
 
 #include "GrowthConditionProcessorType.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class WorldContext;
     class TileVector2D;
     struct IGrowthConditionResource;
@@ -41,14 +40,13 @@ namespace glimmer
      * at runtime (per-tile, unlike the chunk-wide structure placement conditions).
      * 在运行时判断某个位置的瓦片是否满足生长条件（逐瓦片判断，区别于区块级结构放置条件）。
      */
-    class IGrowthConditionProcessor
-    {
+    class IGrowthConditionProcessor {
     public:
         virtual ~IGrowthConditionProcessor() = default;
 
         virtual GrowthConditionProcessorType GetGrowthConditionProcessorType() = 0;
 
-        virtual bool Match(const WorldContext* worldContext, const TileVector2D& position,
-                           const IGrowthConditionResource* growthConditionResource) = 0;
+        virtual bool Match(const WorldContext *worldContext, const TileVector2D &position,
+                           const IGrowthConditionResource *growthConditionResource) = 0;
     };
 }

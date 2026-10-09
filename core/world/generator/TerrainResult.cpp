@@ -29,32 +29,26 @@
 #include "core/math/ChunkRelativeVector2D.h"
 
 
-TerrainTileResult& glimmer::TerrainResult::GetMutableTerrainTileResult(const TerrainRelativeVector2D& localPosition)
-{
+TerrainTileResult &glimmer::TerrainResult::GetMutableTerrainTileResult(const TerrainRelativeVector2D &localPosition) {
     return terrainTileResult_[localPosition.y * TERRAIN_SIZE + localPosition.x];
 }
 
-void glimmer::TerrainResult::SetPosition(const TerrainVertexVector2D& position)
-{
+void glimmer::TerrainResult::SetPosition(const TerrainVertexVector2D &position) {
     position_ = position;
 }
 
-const glimmer::TerrainVertexVector2D& glimmer::TerrainResult::GetPosition() const
-{
+const glimmer::TerrainVertexVector2D &glimmer::TerrainResult::GetPosition() const {
     return position_;
 }
 
-const TerrainTileResult& glimmer::TerrainResult::QueryTerrain(const TerrainRelativeVector2D& localPosition) const
-{
+const TerrainTileResult &glimmer::TerrainResult::QueryTerrain(const TerrainRelativeVector2D &localPosition) const {
     return terrainTileResult_[localPosition.y * TERRAIN_SIZE + localPosition.x];
 }
 
-void glimmer::TerrainResult::SetTerrainTileStructure(const int tileIndex, const ResourceRef* structureResource,
-                                                     const TileLayerType layerType)
-{
-    if (tileIndex >= 0 && tileIndex < TERRAIN_AREA)
-    {
-        TerrainTileResult& terrainTileResult = terrainTileResult_[tileIndex];
+void glimmer::TerrainResult::SetTerrainTileStructure(const int tileIndex, const ResourceRef *structureResource,
+                                                     const TileLayerType layerType) {
+    if (tileIndex >= 0 && tileIndex < TERRAIN_AREA) {
+        TerrainTileResult &terrainTileResult = terrainTileResult_[tileIndex];
         terrainTileResult.SetTerrainType(TerrainResultType::STRUCTURE);
         terrainTileResult.SetStructure(layerType, structureResource);
     }

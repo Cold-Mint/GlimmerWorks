@@ -29,13 +29,11 @@
 
 #include "toml11/types.hpp"
 
-namespace toml
-{
+namespace toml {
     struct spec;
 }
 
-namespace glimmer
-{
+namespace glimmer {
     class AudioContext;
     class MainThreadDispatcher;
     class GraphicsContext;
@@ -57,8 +55,7 @@ namespace glimmer
 
     //This class is used to address circular dependencies.
     //这个类用于解决循环依赖。
-    class ISystemBucket
-    {
+    class ISystemBucket {
     public:
         virtual ~ISystemBucket() = default;
 
@@ -66,78 +63,78 @@ namespace glimmer
 
         virtual void SetCacheContext(std::unique_ptr<CacheContext> cacheContext) = 0;
 
-        [[nodiscard]] virtual CacheContext* GetCacheContext() const = 0;
+        [[nodiscard]] virtual CacheContext *GetCacheContext() const = 0;
 
-        [[nodiscard]] virtual WindowContext* GetWindowContext() const = 0;
+        [[nodiscard]] virtual WindowContext *GetWindowContext() const = 0;
 
         virtual void SetConfig(std::unique_ptr<Config> config) = 0;
 
-        [[nodiscard]] virtual Config* GetConfig() const = 0;
+        [[nodiscard]] virtual Config *GetConfig() const = 0;
 
         virtual void SetSceneManager(std::unique_ptr<SceneManager> sceneManager) = 0;
 
-        [[nodiscard]] virtual SceneManager* GetSceneManager() const = 0;
+        [[nodiscard]] virtual SceneManager *GetSceneManager() const = 0;
 
         virtual void SetVirtualFileSystem(std::unique_ptr<VirtualFileSystem> virtualFileSystem) = 0;
 
-        [[nodiscard]] virtual VirtualFileSystem* GetVirtualFileSystem() const = 0;
+        [[nodiscard]] virtual VirtualFileSystem *GetVirtualFileSystem() const = 0;
 
         virtual void SetResourcePackManager(std::unique_ptr<ResourcePackManager> resourcePackManager) = 0;
 
-        [[nodiscard]] virtual ResourcePackManager* GetResourcePackManager() const = 0;
+        [[nodiscard]] virtual ResourcePackManager *GetResourcePackManager() const = 0;
 
         virtual void SetResourceLocator(std::unique_ptr<ResourceLocator> resourceLocator) = 0;
 
-        [[nodiscard]] virtual ResourceLocator* GetResourceLocator() const = 0;
+        [[nodiscard]] virtual ResourceLocator *GetResourceLocator() const = 0;
 
         virtual void SetLangsResources(std::unique_ptr<LangsResources> langsResources) = 0;
 
-        [[nodiscard]] virtual LangsResources* GetLangsResources() const = 0;
+        [[nodiscard]] virtual LangsResources *GetLangsResources() const = 0;
 
         virtual void SetSavesManager(std::unique_ptr<SavesManager> savesManager) = 0;
 
-        [[nodiscard]] virtual SavesManager* GetSavesManager() const = 0;
+        [[nodiscard]] virtual SavesManager *GetSavesManager() const = 0;
 
         virtual void SetModContext(std::unique_ptr<ModContext> modContext) = 0;
 
-        [[nodiscard]] virtual ModContext* GetModContext() const = 0;
+        [[nodiscard]] virtual ModContext *GetModContext() const = 0;
 
         void virtual SetRmlContext(std::unique_ptr<RmlContext> rmlContext) = 0;
 
-        [[nodiscard]] virtual RmlContext* GetRmlContext() const = 0;
+        [[nodiscard]] virtual RmlContext *GetRmlContext() const = 0;
 
         virtual void SetConsoleContext(std::unique_ptr<ConsoleContext> consoleContext) = 0;
 
-        [[nodiscard]] virtual ConsoleContext* GetConsoleContext() const = 0;
+        [[nodiscard]] virtual ConsoleContext *GetConsoleContext() const = 0;
 
         virtual void SetTickWorker(std::unique_ptr<TickWorker> tickWorker) = 0;
 
-        [[nodiscard]] virtual TickWorker* GetTickWorker() const = 0;
+        [[nodiscard]] virtual TickWorker *GetTickWorker() const = 0;
 
         virtual void SetTaskWorker(std::unique_ptr<TaskWorker> taskWorker) = 0;
 
-        [[nodiscard]] virtual TaskWorker* GetTaskWorker() const = 0;
+        [[nodiscard]] virtual TaskWorker *GetTaskWorker() const = 0;
 
         virtual void SetGraphicsContext(std::unique_ptr<GraphicsContext> graphicsContext) = 0;
 
-        [[nodiscard]] virtual GraphicsContext* GetGraphicsContext() const = 0;
+        [[nodiscard]] virtual GraphicsContext *GetGraphicsContext() const = 0;
 
         virtual void SetMainThreadDispatcher(std::unique_ptr<MainThreadDispatcher> mainThreadDispatcher) = 0;
 
-        [[nodiscard]] virtual MainThreadDispatcher* GetMainThreadDispatcher() const = 0;
+        [[nodiscard]] virtual MainThreadDispatcher *GetMainThreadDispatcher() const = 0;
 
         virtual void SetLangsValue(std::unique_ptr<toml::value> langsValue) = 0;
 
         virtual void SetAudioContext(std::unique_ptr<AudioContext> audioContext) = 0;
 
-        [[nodiscard]] virtual AudioContext* GetAudioContext() const = 0;
+        [[nodiscard]] virtual AudioContext *GetAudioContext() const = 0;
 
-        [[nodiscard]] virtual toml::value* GetLangsValue() const = 0;
+        [[nodiscard]] virtual toml::value *GetLangsValue() const = 0;
 
-        virtual void SetLanguage(const std::string& language) = 0;
+        virtual void SetLanguage(const std::string &language) = 0;
 
-        [[nodiscard]] virtual const std::string& GetLanguage() const = 0;
+        [[nodiscard]] virtual const std::string &GetLanguage() const = 0;
 
-        [[nodiscard]] virtual EventBus* GetEventBus() const = 0;
+        [[nodiscard]] virtual EventBus *GetEventBus() const = 0;
     };
 }

@@ -29,25 +29,23 @@
 #include "core/math/TerrainRelativeVector2D.h"
 #include "core/math/TerrainVertexVector2D.h"
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * TerrainResult
      * 地形生成结果
      */
-    class TerrainResult
-    {
+    class TerrainResult {
         std::array<TerrainTileResult, TERRAIN_AREA> terrainTileResult_;
         TerrainVertexVector2D position_;
 
     public:
-        TerrainTileResult& GetMutableTerrainTileResult(const TerrainRelativeVector2D& localPosition);
+        TerrainTileResult &GetMutableTerrainTileResult(const TerrainRelativeVector2D &localPosition);
 
-        void SetPosition(const TerrainVertexVector2D& position);
+        void SetPosition(const TerrainVertexVector2D &position);
 
-        [[nodiscard]] const TerrainVertexVector2D& GetPosition() const;
+        [[nodiscard]] const TerrainVertexVector2D &GetPosition() const;
 
-        [[nodiscard]] const TerrainTileResult& QueryTerrain(const TerrainRelativeVector2D& localPosition) const;
+        [[nodiscard]] const TerrainTileResult &QueryTerrain(const TerrainRelativeVector2D &localPosition) const;
 
         /**
          * Mark a certain coordinate as a structure.
@@ -58,7 +56,7 @@ namespace glimmer
          */
         void SetTerrainTileStructure(
             int tileIndex,
-            const ResourceRef* structureResource,
+            const ResourceRef *structureResource,
             TileLayerType layerType);
     };
 }

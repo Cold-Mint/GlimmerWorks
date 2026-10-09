@@ -30,13 +30,11 @@
 #include <span>
 #include <vector>
 
-namespace glimmer
-{
+namespace glimmer {
     struct BiomeResource;
 
-    class BiomeRegistry : public BaseResourceRegistry<BiomeResource>
-    {
-        std::vector<BiomeResource*> biomeVector_{};
+    class BiomeRegistry : public BaseResourceRegistry<BiomeResource> {
+        std::vector<BiomeResource *> biomeVector_{};
 
     public:
         /**
@@ -49,9 +47,9 @@ namespace glimmer
          */
         static float CalculateBiomeScoreDelta(float targetValue, float actualValue, float strictness);
 
-        [[nodiscard]] std::span<BiomeResource*> GetBiomeVector();
+        [[nodiscard]] std::span<BiomeResource *> GetBiomeVector();
 
-        void OnRegister(BiomeResource* resource) override;
+        void OnRegister(BiomeResource *resource) override;
 
         /**
          * Find Best Biome
@@ -65,7 +63,7 @@ namespace glimmer
          * @param surfaceProximity SurfaceProximity 地表贴近度
          * @return
          */
-        [[nodiscard]] BiomeResource* FindBestBiome(const ResourceRef& dimension, float humidity, float temperature,
+        [[nodiscard]] BiomeResource *FindBestBiome(const ResourceRef &dimension, float humidity, float temperature,
                                                    float weirdness, float erosion,
                                                    float elevation, float surfaceProximity) const;
 
@@ -76,6 +74,6 @@ namespace glimmer
          * @param dimension dimension 维度
          * @return
          */
-        [[nodiscard]] static bool BelongsToDimension(const BiomeResource* biome, const ResourceRef& dimension);
+        [[nodiscard]] static bool BelongsToDimension(const BiomeResource *biome, const ResourceRef &dimension);
     };
 }

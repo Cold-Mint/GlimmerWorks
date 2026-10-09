@@ -31,22 +31,20 @@
 
 #include "BaseResourceRegistry.h"
 
-namespace glimmer
-{
+namespace glimmer {
     struct MobResource;
 
-    class MobRegistry : public BaseResourceRegistry<MobResource>
-    {
-        std::vector<MobResource*> playerMobsResource_;
+    class MobRegistry : public BaseResourceRegistry<MobResource> {
+        std::vector<MobResource *> playerMobsResource_;
 
     public:
-        void OnRegister(MobResource* resource) override;
+        void OnRegister(MobResource *resource) override;
 
         /**
          * FindPlayerResource
          * 获取玩家资源列表
          * @return
          */
-        [[nodiscard]] std::span<const MobResource* const> GetPlayerResourceList() const;
+        [[nodiscard]] std::span<const MobResource * const> GetPlayerResourceList() const;
     };
 }

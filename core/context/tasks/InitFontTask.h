@@ -27,20 +27,18 @@
 #pragma once
 #include "IAppContextInitTask.h"
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * InitFontTask
      * 字体初始化任务
      * Loads the UI font for the current language into the RmlUi context.
      * 将当前语言的 UI 字体加载到 RmlUi 上下文。
      */
-    class InitFontTask : public IAppContextInitTask
-    {
+    class InitFontTask : public IAppContextInitTask {
     public:
-        bool Run(ISystemBucket* systemBucket) override;
+        bool Run(ISystemBucket *systemBucket) override;
 
-        void Rollback(ISystemBucket* systemBucket) override;
+        void Rollback(ISystemBucket *systemBucket) override;
 
         std::string GetTaskName() override;
     };

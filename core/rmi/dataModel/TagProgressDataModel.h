@@ -27,10 +27,8 @@
 #pragma once
 #include <string>
 
-namespace glimmer
-{
-    struct TagProgressDataModel
-    {
+namespace glimmer {
+    struct TagProgressDataModel {
         std::string tagName;
         std::string progressWidth;
         int requiredWeight = 0;

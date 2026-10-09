@@ -26,42 +26,34 @@
  */
 #include "TileDimensions.h"
 
-uint8_t glimmer::TileDimensions::GetTileWidth() const
-{
+uint8_t glimmer::TileDimensions::GetTileWidth() const {
     return tileWidth_;
 }
 
-uint8_t glimmer::TileDimensions::GetTileHeight() const
-{
+uint8_t glimmer::TileDimensions::GetTileHeight() const {
     return tileHeight_;
 }
 
-bool glimmer::TileDimensions::IsAllowDirAdjustAnchor() const
-{
+bool glimmer::TileDimensions::IsAllowDirAdjustAnchor() const {
     return allowDirAdjustAnchor_;
 }
 
-const glimmer::TileVector2D* glimmer::TileDimensions::GetTileAnchor() const
-{
+const glimmer::TileVector2D *glimmer::TileDimensions::GetTileAnchor() const {
     return &tileAnchor_;
 }
 
-void glimmer::TileDimensions::SetTileWidth(uint8_t tileWidth)
-{
+void glimmer::TileDimensions::SetTileWidth(uint8_t tileWidth) {
     this->tileWidth_ = tileWidth;
 }
 
-void glimmer::TileDimensions::SetTileHeight(uint8_t tileHeight)
-{
+void glimmer::TileDimensions::SetTileHeight(uint8_t tileHeight) {
     this->tileHeight_ = tileHeight;
 }
 
-void glimmer::TileDimensions::SetAllowDirAdjustAnchor(bool allowDirAdjustAnchor)
-{
+void glimmer::TileDimensions::SetAllowDirAdjustAnchor(bool allowDirAdjustAnchor) {
     this->allowDirAdjustAnchor_ = allowDirAdjustAnchor;
 }
 
-void glimmer::TileDimensions::SetTileAnchor(const TileVector2D& tileAnchor)
-{
+void glimmer::TileDimensions::SetTileAnchor(const TileVector2D &tileAnchor) {
     this->tileAnchor_ = tileAnchor;
 }

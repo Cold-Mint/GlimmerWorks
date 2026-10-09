@@ -28,21 +28,19 @@
 #include "core/mod/Resource.h"
 #include "core/utils/TransparentStringHash.h"
 
-namespace glimmer
-{
-    class ShapeManager
-    {
+namespace glimmer {
+    class ShapeManager {
         std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<IShapeResource>,
-                                                           TransparentStringHash, std::equal_to<>>,
-                           TransparentStringHash, std::equal_to<>> shapeMap_
-            {};
+                TransparentStringHash, std::equal_to<> >,
+            TransparentStringHash, std::equal_to<> > shapeMap_
+                {};
 
     public:
         ShapeManager();
 
-        IShapeResource* Register(std::unique_ptr<IShapeResource> shapeResource);
+        IShapeResource *Register(std::unique_ptr<IShapeResource> shapeResource);
 
-        IShapeResource* FindShape(const std::string& packId, const std::string& resourceId);
+        IShapeResource *FindShape(const std::string &packId, const std::string &resourceId);
 
         std::string ListShapes() const;
     };

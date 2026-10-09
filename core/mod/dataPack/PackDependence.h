@@ -29,15 +29,13 @@
 #include <string>
 #include <cstdint>
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * Package dependency information
      * 包依赖信息
      */
     //@genNextLine(PackDependence|包依赖信息)
-    struct PackDependence
-    {
+    struct PackDependence {
         //@genNextLine(PackDependence.packId|依赖包的唯一标识)
         std::string packId;
         uint64_t packIdUint = 0;

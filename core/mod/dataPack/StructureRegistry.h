@@ -27,16 +27,16 @@
 #pragma once
 #include "BaseResourceRegistry.h"
 #include "core/mod/Resource.h"
+#include "core/utils/VersionAble.h"
 
-namespace glimmer
-{
-    class StructureRegistry : public BaseResourceRegistry<IStructureResource>
-    {
-        std::vector<IStructureResource*> structureVector_ = {};
+namespace glimmer {
+    class StructureRegistry : public BaseResourceRegistry<IStructureResource>, public VersionAble {
+        std::vector<IStructureResource *> structureVector_;
+        uint32_t lastVersion_ = 0;
 
     public:
-        void OnRegister(IStructureResource* resource) override;
+        void OnRegister(IStructureResource *resource) override;
 
-        [[nodiscard]] const std::vector<IStructureResource*>& GetAll();
+        [[nodiscard]] const std::vector<IStructureResource *> &GetAll();
     };
 }

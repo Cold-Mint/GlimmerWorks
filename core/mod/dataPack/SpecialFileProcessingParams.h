@@ -29,10 +29,8 @@
 
 #include "core/config/Config.h"
 
-namespace glimmer
-{
-    struct SpecialFileProcessingParams
-    {
+namespace glimmer {
+    struct SpecialFileProcessingParams {
         std::filesystem::path publicPath;
         std::filesystem::path signPath;
         std::vector<uint8_t> publicKey;

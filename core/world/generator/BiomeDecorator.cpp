@@ -27,12 +27,10 @@
 #include "BiomeDecorator.h"
 
 
-void glimmer::IBiomeDecorator::SetWorldSeed(const int seed)
-{
+void glimmer::IBiomeDecorator::SetWorldSeed(const int seed) {
     worldSeed_ = seed;
 }
 
-int glimmer::IBiomeDecorator::GetWorldSeed() const
-{
+int glimmer::IBiomeDecorator::GetWorldSeed() const {
     return worldSeed_;
 }

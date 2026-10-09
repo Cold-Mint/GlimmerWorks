@@ -32,35 +32,29 @@
 glimmer::GraphicsContext::GraphicsContext()
     : lightMaskManager_(std::make_unique<LightMaskManager>())
       , lightSourceManager_(std::make_unique<LightSourceManager>())
-      , fixedColorManager_(std::make_unique<FixedColorManager>())
-{
+      , fixedColorManager_(std::make_unique<FixedColorManager>()) {
 }
 
 glimmer::GraphicsContext::~GraphicsContext() = default;
 
-void glimmer::GraphicsContext::Init(const ResourceLocator* resourceLocator)
-{
+void glimmer::GraphicsContext::Init(const ResourceLocator *resourceLocator) {
     preloadColors_ = std::make_unique<PreloadColors>();
     preloadColors_->LoadAllColors(resourceLocator);
     LogCat::i(LogLabel::DEFAULT, "graphics_context_initialized", "GraphicsContext initialized");
 }
 
-glimmer::LightMaskManager* glimmer::GraphicsContext::GetLightMaskManager() const
-{
+glimmer::LightMaskManager *glimmer::GraphicsContext::GetLightMaskManager() const {
     return lightMaskManager_.get();
 }
 
-glimmer::LightSourceManager* glimmer::GraphicsContext::GetLightSourceManager() const
-{
+glimmer::LightSourceManager *glimmer::GraphicsContext::GetLightSourceManager() const {
     return lightSourceManager_.get();
 }
 
-glimmer::FixedColorManager* glimmer::GraphicsContext::GetFixedColorManager() const
-{
+glimmer::FixedColorManager *glimmer::GraphicsContext::GetFixedColorManager() const {
     return fixedColorManager_.get();
 }
 
-glimmer::PreloadColors* glimmer::GraphicsContext::GetPreloadColors() const
-{
+glimmer::PreloadColors *glimmer::GraphicsContext::GetPreloadColors() const {
     return preloadColors_.get();
 }

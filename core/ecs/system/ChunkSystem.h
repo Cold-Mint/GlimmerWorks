@@ -31,8 +31,7 @@
 #include "core/ecs/GameSystem.h"
 #include "core/math/TileVector2D.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class ChunkVertexVector2D;
     class ChunkManager;
     class CameraComponent;
@@ -40,11 +39,10 @@ namespace glimmer
     class ChunkTaskScheduler;
     class Config;
 
-    class ChunkSystem final : public GameSystem
-    {
+    class ChunkSystem final : public GameSystem {
         std::mutex worldConfigMutex_;
-        CameraComponent* cameraComponent_ = nullptr;
-        Transform2DComponent* cameraTransform2DComponent_ = nullptr;
+        CameraComponent *cameraComponent_ = nullptr;
+        Transform2DComponent *cameraTransform2DComponent_ = nullptr;
         uint32_t cameraLastVersion_ = 0;
         uint32_t cameraTransformLastVersion_ = 0;
         uint8_t preloadChunkRadius_ = 1;
@@ -57,20 +55,20 @@ namespace glimmer
          * Generate load tasks for chunks within [startChunk, endChunk].
          * 为 [startChunk, endChunk] 范围内的区块生成加载任务。
          */
-        static void GenerateLoadTasks(const DimensionResource* dimensionResource, const ResourceRef& dimensionRef,
-                                      const ChunkManager* chunkManager,
-                                      ChunkTaskScheduler* scheduler,
-                                      const ChunkVertexVector2D& startChunk,
-                                      const ChunkVertexVector2D& endChunk);
+        static void GenerateLoadTasks(const DimensionResource *dimensionResource, const ResourceRef &dimensionRef,
+                                      const ChunkManager *chunkManager,
+                                      ChunkTaskScheduler *scheduler,
+                                      const ChunkVertexVector2D &startChunk,
+                                      const ChunkVertexVector2D &endChunk);
 
         /**
          * Generate unload tasks for loaded chunks outside [startChunk, endChunk].
          * 为 [startChunk, endChunk] 范围之外的已加载区块生成卸载任务。
          */
-        static void GenerateUnloadTasks(const ResourceRef& dimensionRef, const ChunkManager* chunkManager,
-                                        ChunkTaskScheduler* scheduler,
-                                        const ChunkVertexVector2D& startChunk,
-                                        const ChunkVertexVector2D& endChunk);
+        static void GenerateUnloadTasks(const ResourceRef &dimensionRef, const ChunkManager *chunkManager,
+                                        ChunkTaskScheduler *scheduler,
+                                        const ChunkVertexVector2D &startChunk,
+                                        const ChunkVertexVector2D &endChunk);
 
         /**
          * Submit the task to the worker thread
@@ -79,13 +77,13 @@ namespace glimmer
         void PostTask();
 
     public:
-        explicit ChunkSystem(WorldContext* worldContext);
+        explicit ChunkSystem(WorldContext *worldContext);
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
         void OnTick(uint64_t tick) override;
 
-        void OnConfigChanged(const Config* config) override;
+        void OnConfigChanged(const Config *config) override;
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };

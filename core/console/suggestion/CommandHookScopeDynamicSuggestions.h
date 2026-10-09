@@ -27,10 +27,8 @@
 #pragma once
 #include "DynamicSuggestions.h"
 
-namespace glimmer
-{
-    class CommandHookScopeDynamicSuggestions final : public DynamicSuggestions
-    {
+namespace glimmer {
+    class CommandHookScopeDynamicSuggestions final : public DynamicSuggestions {
         std::vector<std::string> suggestions_;
 
     public:
@@ -38,8 +36,8 @@ namespace glimmer
 
         [[nodiscard]] std::string GetId() const override;
 
-        bool Match(const std::string& keyword, const std::string& param) override;
+        bool Match(const std::string &keyword, const std::string &param) override;
 
-        const std::vector<std::string>& GetSuggestions(const std::optional<std::string>& param) override;
+        const std::vector<std::string> &GetSuggestions(const std::optional<std::string> &param) override;
     };
 }

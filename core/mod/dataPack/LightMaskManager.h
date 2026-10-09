@@ -32,25 +32,23 @@
 
 #include "core/mod/Resource.h"
 
-namespace glimmer
-{
-    class LightMaskManager
-    {
+namespace glimmer {
+    class LightMaskManager {
         std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<LightMaskResource>,
-                                                           TransparentStringHash, std::equal_to<>>,
-                           TransparentStringHash, std::equal_to<>>
+                TransparentStringHash, std::equal_to<> >,
+            TransparentStringHash, std::equal_to<> >
         lightMaskMap_
-            {};
+                {};
 
-        LightMaskResource* RegisterCoreLightMaskResource(const std::string& resourceId,
-                                                         const std::string& colorKey);
+        LightMaskResource *RegisterCoreLightMaskResource(const std::string &resourceId,
+                                                         const std::string &colorKey);
 
     public:
         LightMaskManager();
 
-        LightMaskResource* Register(std::unique_ptr<LightMaskResource> lightMaskResource);
+        LightMaskResource *Register(std::unique_ptr<LightMaskResource> lightMaskResource);
 
-        [[nodiscard]] LightMaskResource* FindLightMaskResource(std::string_view packId, std::string_view key);
+        [[nodiscard]] LightMaskResource *FindLightMaskResource(std::string_view packId, std::string_view key);
 
         [[nodiscard]] std::vector<std::string> GetLightMaskResourceList() const;
 

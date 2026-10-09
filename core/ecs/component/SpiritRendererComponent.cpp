@@ -30,95 +30,76 @@
 
 glimmer::SpiritRendererComponent::SpiritRendererComponent() = default;
 
-void glimmer::SpiritRendererComponent::SetTextureRef(const ResourceRef& resourceRef)
-{
+void glimmer::SpiritRendererComponent::SetTextureRef(const ResourceRef &resourceRef) {
     resourceRef_ = resourceRef;
 }
 
-bool glimmer::SpiritRendererComponent::IsFlipH() const
-{
+bool glimmer::SpiritRendererComponent::IsFlipH() const {
     return flipH_;
 }
 
-bool glimmer::SpiritRendererComponent::IsFlipV() const
-{
+bool glimmer::SpiritRendererComponent::IsFlipV() const {
     return flipV_;
 }
 
-void glimmer::SpiritRendererComponent::SetFlipH(const bool flipH)
-{
+void glimmer::SpiritRendererComponent::SetFlipH(const bool flipH) {
     flipH_ = flipH;
 }
 
-void glimmer::SpiritRendererComponent::SetFlipV(const bool flipV)
-{
+void glimmer::SpiritRendererComponent::SetFlipV(const bool flipV) {
     flipV_ = flipV;
 }
 
-glimmer::TextureResourceResult* glimmer::SpiritRendererComponent::GetTexture(const ResourceLocator* resourceLocator)
-{
-    if (textureResult_ == nullptr)
-    {
-        if (!resourceRef_.IsValid())
-        {
+glimmer::TextureResourceResult *glimmer::SpiritRendererComponent::GetTexture(const ResourceLocator *resourceLocator) {
+    if (textureResult_ == nullptr) {
+        if (!resourceRef_.IsValid()) {
             return nullptr;
         }
         textureResult_ = resourceLocator->FindTexture(&resourceRef_);
-        if (textureResult_ == nullptr)
-        {
+        if (textureResult_ == nullptr) {
             return nullptr;
         }
     }
     return textureResult_.get();
 }
 
-void glimmer::SpiritRendererComponent::SetPipeline(std::shared_ptr<GPUPipelineResourceResult> pipeline)
-{
+void glimmer::SpiritRendererComponent::SetPipeline(std::shared_ptr<GPUPipelineResourceResult> pipeline) {
     pipeline_ = std::move(pipeline);
 }
 
 
-SDL_GPUGraphicsPipeline* glimmer::SpiritRendererComponent::GetPipeline() const
-{
-    if (pipeline_ == nullptr)
-    {
+SDL_GPUGraphicsPipeline *glimmer::SpiritRendererComponent::GetPipeline() const {
+    if (pipeline_ == nullptr) {
         return nullptr;
     }
     return pipeline_->GetResource();
 }
 
-void glimmer::SpiritRendererComponent::SetSampler(std::shared_ptr<GPUSamplerResourceResult> sampler)
-{
+void glimmer::SpiritRendererComponent::SetSampler(std::shared_ptr<GPUSamplerResourceResult> sampler) {
     sampler_ = std::move(sampler);
 }
 
-SDL_GPUSampler* glimmer::SpiritRendererComponent::GetSampler() const
-{
-    if (sampler_ == nullptr)
-    {
+SDL_GPUSampler *glimmer::SpiritRendererComponent::GetSampler() const {
+    if (sampler_ == nullptr) {
         return nullptr;
     }
     return sampler_->GetResource();
 }
 
 
-void glimmer::SpiritRendererComponent::SetPosition(const WorldVector2D& position)
-{
+void glimmer::SpiritRendererComponent::SetPosition(const WorldVector2D &position) {
     position_ = position;
 }
 
-GameComponentTypeMessage glimmer::SpiritRendererComponent::GetComponentTypeStatic()
-{
+GameComponentTypeMessage glimmer::SpiritRendererComponent::GetComponentTypeStatic() {
     return COMPONENT_SPIRIT_RENDERER;
 }
 
 
-GameComponentTypeMessage glimmer::SpiritRendererComponent::GetComponentType()
-{
+GameComponentTypeMessage glimmer::SpiritRendererComponent::GetComponentType() {
     return GetComponentTypeStatic();
 }
 
-const glimmer::WorldVector2D& glimmer::SpiritRendererComponent::GetPosition() const
-{
+const glimmer::WorldVector2D &glimmer::SpiritRendererComponent::GetPosition() const {
     return position_;
 }

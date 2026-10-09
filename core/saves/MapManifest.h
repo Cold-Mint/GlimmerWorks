@@ -29,10 +29,8 @@
 
 #include "src/saves/map_manifest.pb.h"
 
-namespace glimmer
-{
-    struct MapManifest
-    {
+namespace glimmer {
+    struct MapManifest {
         std::string name;
         std::string gameVersionName;
         long createTime;
@@ -41,8 +39,8 @@ namespace glimmer
         uint32_t entityIDIndex;
         int seed;
 
-        void FromMessage(const MapManifestMessage& manifestMessage);
+        void FromMessage(const MapManifestMessage &manifestMessage);
 
-        void ToMessage(MapManifestMessage& manifestMessage);
+        void ToMessage(MapManifestMessage &manifestMessage);
     };
 }

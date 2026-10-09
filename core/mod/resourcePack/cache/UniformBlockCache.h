@@ -28,8 +28,7 @@
 #include "core/mod/resourcePack/BaseResourceCache.h"
 #include "core/mod/resourcePack/UniformBlockResourceResult.h"
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * UniformBlockCache
      * Uniform 块缓存
@@ -38,12 +37,11 @@ namespace glimmer
      * live alongside shaders in the resource pack.
      * 延迟加载并编译资源包内与着色器同目录的 "*.uniforms.toml" 描述文件。
      */
-    class UniformBlockCache : public BaseResourceCache<UniformBlockResourceResult>
-    {
+    class UniformBlockCache : public BaseResourceCache<UniformBlockResourceResult> {
     protected:
-        std::shared_ptr<UniformBlockResourceResult> LoadResourceFromPack(AppContext* appContext,
-                                                                         const ResourceRef* resourceRef,
-                                                                         const ResourcePack* resourcePack) override;
+        std::shared_ptr<UniformBlockResourceResult> LoadResourceFromPack(AppContext *appContext,
+                                                                         const ResourceRef *resourceRef,
+                                                                         const ResourcePack *resourcePack) override;
 
     public:
         ~UniformBlockCache() noexcept override;

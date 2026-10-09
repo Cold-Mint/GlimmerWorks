@@ -36,63 +36,54 @@
 #include "core/world/WorldContext.h"
 
 
-void glimmer::MineralBiomeDecorator::DecorationImpl(const ChunkVertexVector2D& chunkVertex, WorldContext* worldContext,
-                                                    TerrainResult* terrainResult,
-                                                    MineralBiomeDecoratorResource* decoratorResource,
-                                                    BiomeResource* biomeResource,
+void glimmer::MineralBiomeDecorator::DecorationImpl(const ChunkVertexVector2D &chunkVertex, WorldContext *worldContext,
+                                                    TerrainResult *terrainResult,
+                                                    MineralBiomeDecoratorResource *decoratorResource,
+                                                    BiomeResource *biomeResource,
                                                     std::unordered_map<TileLayerType, std::array<ResourceRef,
-                                                                           CHUNK_AREA>>* tilesRefMap)
-{
-    Dimension* dimension = worldContext->GetDimension();
-    if (dimension == nullptr)
-    {
+                                                        CHUNK_AREA> > *tilesRefMap) {
+    Dimension *dimension = worldContext->GetDimension();
+    if (dimension == nullptr) {
         return;
     }
-    DimensionResource* dimensionResource = dimension->GetDimensionResource();
-    if (dimensionResource == nullptr)
-    {
+    DimensionResource *dimensionResource = dimension->GetDimensionResource();
+    if (dimensionResource == nullptr) {
         return;
     }
-    const FastNoiseLite* noiseLite = decoratorResource->GetFastNoiseLite(GetWorldSeed());
-    if (noiseLite == nullptr)
-    {
+    const FastNoiseLite *noiseLite = decoratorResource->GetFastNoiseLite(GetWorldSeed());
+    if (noiseLite == nullptr) {
         LogCat::w(LogLabel::CHUNK, std::source_location::current(), "mineral_decorator_noise_is_null",
                   "Mineral decorator noise is null, skipping");
         return;
     }
     const float heightRange = decoratorResource->maxSpawnElevation - decoratorResource->minSpawnElevation;
-    if (heightRange <= 0.0001F)
-    {
+    if (heightRange <= 0.0001F) {
         LogCat::w(LogLabel::CHUNK, std::source_location::current(), "mineral_decorator_invalid_height_range",
                   "Mineral decorator has invalid height range: min={}, max={}",
                   decoratorResource->minSpawnElevation, decoratorResource->maxSpawnElevation);
         return;
     }
-    std::array<ResourceRef, CHUNK_AREA>& targetLayer = tilesRefMap->at(
+    std::array<ResourceRef, CHUNK_AREA> &targetLayer = tilesRefMap->at(
         static_cast<TileLayerType>(decoratorResource->layerType));
-    for (int localX = 0; localX < CHUNK_SIZE; localX++)
-    {
-        for (int localY = 0; localY < CHUNK_SIZE; localY++)
-        {
+    for (int localX = 0; localX < CHUNK_SIZE; localX++) {
+        for (int localY = 0; localY < CHUNK_SIZE; localY++) {
             const int idx = localY * CHUNK_SIZE + localX;
             ChunkRelativeVector2D chunkRelativeVector2D(localX, localY);
             const TileVector2D absolutePosition = CoordinateTransformer::ChunkRelativeToTile(
                 chunkVertex, chunkRelativeVector2D);
             float elevation = TerrainMath::GetElevation(dimensionResource, absolutePosition.y);
-            if (elevation > decoratorResource->maxSpawnElevation || elevation < decoratorResource->minSpawnElevation)
-            {
+            if (elevation > decoratorResource->maxSpawnElevation || elevation < decoratorResource->minSpawnElevation) {
                 continue;
             }
-            const auto& self = terrainResult->QueryTerrain(CoordinateTransformer::TileToTerrainRelative(
+            const auto &self = terrainResult->QueryTerrain(CoordinateTransformer::TileToTerrainRelative(
                 absolutePosition));
-            if (self.GetTerrainType() != TerrainResultType::SOLID || self.GetBiomeResource() != biomeResource)
-            {
+            if (self.GetTerrainType() != TerrainResultType::SOLID || self.GetBiomeResource() != biomeResource) {
                 continue;
             }
             const float normalizedOreNoise = (noiseLite->GetNoise(
-                static_cast<float>(absolutePosition.x),
-                static_cast<float>(absolutePosition.y)
-            ) + 1.0F) * 0.5F;
+                                                  static_cast<float>(absolutePosition.x),
+                                                  static_cast<float>(absolutePosition.y)
+                                              ) + 1.0F) * 0.5F;
             const float elevationRatio = (elevation - decoratorResource->minSpawnElevation) / heightRange;
             float currentSpawnThreshold = decoratorResource->invertOreSpawnByDepth
                                               ? std::lerp(
@@ -106,15 +97,13 @@ void glimmer::MineralBiomeDecorator::DecorationImpl(const ChunkVertexVector2D& c
                                                   elevationRatio
                                               );
 
-            if (normalizedOreNoise > currentSpawnThreshold)
-            {
+            if (normalizedOreNoise > currentSpawnThreshold) {
                 targetLayer[idx] = decoratorResource->ore;
             }
         }
     }
 }
 
-glimmer::BiomeDecoratorType glimmer::MineralBiomeDecorator::GetBiomeDecoratorType()
-{
+glimmer::BiomeDecoratorType glimmer::MineralBiomeDecorator::GetBiomeDecoratorType() {
     return BiomeDecoratorType::MINERAL;
 }

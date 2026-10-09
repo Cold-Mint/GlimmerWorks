@@ -26,34 +26,28 @@
  */
 #include "ItemTagModule.h"
 
-bool glimmer::ItemTagModule::HasTag(const uint64_t tag) const
-{
+bool glimmer::ItemTagModule::HasTag(const uint64_t tag) const {
     return tagMap_.contains(tag);
 }
 
-void glimmer::ItemTagModule::SetTags(const std::vector<ItemTagResource>& tags)
-{
+void glimmer::ItemTagModule::SetTags(const std::vector<ItemTagResource> &tags) {
     tags_.clear();
     tagMap_.clear();
-    for (auto& tag : tags)
-    {
+    for (auto &tag: tags) {
         uint64_t cachedTag = tag.cachedTagId;
         tags_.emplace_back(cachedTag);
         tagMap_.try_emplace(cachedTag, tag);
     }
 }
 
-const glimmer::ItemTagResource* glimmer::ItemTagModule::GetItemTagResource(const uint64_t tag) const
-{
+const glimmer::ItemTagResource *glimmer::ItemTagModule::GetItemTagResource(const uint64_t tag) const {
     const auto tagIterator = tagMap_.find(tag);
-    if (tagIterator == tagMap_.end())
-    {
+    if (tagIterator == tagMap_.end()) {
         return nullptr;
     }
     return &tagIterator->second;
 }
 
-const std::vector<uint64_t>& glimmer::ItemTagModule::GetTags() const
-{
+const std::vector<uint64_t> &glimmer::ItemTagModule::GetTags() const {
     return tags_;
 }

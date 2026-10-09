@@ -30,21 +30,16 @@
 #include "core/world/Dimension.h"
 #include "core/world/WorldContext.h"
 
-glimmer::StructureGeneratorType glimmer::TreeStructureGenerator::GetStructureGeneratorType() const
-{
+glimmer::StructureGeneratorType glimmer::TreeStructureGenerator::GetStructureGeneratorType() const {
     return StructureGeneratorType::Tree;
 }
 
-void glimmer::TreeStructureGenerator::AddLeafCluster(StructureInfo* structureInfo, const TileLayerType leafTileLayer,
+void glimmer::TreeStructureGenerator::AddLeafCluster(StructureInfo *structureInfo, const TileLayerType leafTileLayer,
                                                      const uint8_t leafRadius, const int clusterY, const int trunkWidth,
-                                                     const ResourceRef& leafRef)
-{
-    for (int x = -leafRadius; x <= leafRadius; ++x)
-    {
-        for (int y = -leafRadius; y <= leafRadius; ++y)
-        {
-            if (x * x + y * y > leafRadius * leafRadius || y < 0)
-            {
+                                                     const ResourceRef &leafRef) {
+    for (int x = -leafRadius; x <= leafRadius; ++x) {
+        for (int y = -leafRadius; y <= leafRadius; ++y) {
+            if (x * x + y * y > leafRadius * leafRadius || y < 0) {
                 continue;
             }
             structureInfo->SetTile(leafTileLayer,
@@ -54,61 +49,51 @@ void glimmer::TreeStructureGenerator::AddLeafCluster(StructureInfo* structureInf
     }
 }
 
-std::unique_ptr<glimmer::StructureInfo> glimmer::TreeStructureGenerator::Generate(WorldContext* worldContext,
-    const TileVector2D& startPosition, IStructureResource* structureResource)
-{
-    if (structureResource == nullptr || worldContext == nullptr)
-    {
+std::unique_ptr<glimmer::StructureInfo> glimmer::TreeStructureGenerator::Generate(WorldContext *worldContext,
+    const TileVector2D &startPosition, IStructureResource *structureResource) {
+    if (structureResource == nullptr || worldContext == nullptr) {
         LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "structure_generator_null_input",
                   "Tree structure generator received null input");
         return nullptr;
     }
-    TerrainGenerator* terrainGenerator = worldContext->GetTerrainGenerator();
-    if (terrainGenerator == nullptr)
-    {
+    TerrainGenerator *terrainGenerator = worldContext->GetTerrainGenerator();
+    if (terrainGenerator == nullptr) {
         LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "tree_structure_chunk_generator_null",
                   "Chunk generator is null, cannot generate tree");
         return nullptr;
     }
-    ClimateSampler* climateSampler = terrainGenerator->GetMutableClimateSampler();
-    if (climateSampler == nullptr)
-    {
+    ClimateSampler *climateSampler = terrainGenerator->GetMutableClimateSampler();
+    if (climateSampler == nullptr) {
         return nullptr;
     }
-    const Dimension* dimension = worldContext->GetDimension();
-    if (dimension == nullptr)
-    {
+    const Dimension *dimension = worldContext->GetDimension();
+    if (dimension == nullptr) {
         return nullptr;
     }
-    const DimensionResource* dimensionResource = dimension->GetDimensionResource();
-    if (dimensionResource == nullptr)
-    {
+    const DimensionResource *dimensionResource = dimension->GetDimensionResource();
+    if (dimensionResource == nullptr) {
         return nullptr;
     }
     const int worldSeed = worldContext->GetWorldSeed();
-    const auto treeStructureResource = dynamic_cast<TreeStructureResource*>(structureResource);
-    const ResourceRef& trunkRef = treeStructureResource->data.at(treeStructureResource->trunkDataIndex);
-    const ResourceRef& leafRef = treeStructureResource->data.at(treeStructureResource->leafDataIndex);
+    const auto treeStructureResource = dynamic_cast<TreeStructureResource *>(structureResource);
+    const ResourceRef &trunkRef = treeStructureResource->data.at(treeStructureResource->trunkDataIndex);
+    const ResourceRef &leafRef = treeStructureResource->data.at(treeStructureResource->leafDataIndex);
     auto structureInfo = std::make_unique<StructureInfo>();
     int trunkHeight = treeStructureResource->trunkHeightMin + static_cast<uint8_t>(climateSampler->
-        GetHumidity(worldSeed, dimensionResource, startPosition) *
-        static_cast<float>(treeStructureResource->trunkHeightMax - treeStructureResource->
-            trunkHeightMin));
+                          GetHumidity(worldSeed, dimensionResource, startPosition) *
+                          static_cast<float>(treeStructureResource->trunkHeightMax - treeStructureResource->
+                                             trunkHeightMin));
     const auto trunkTileLayer = static_cast<TileLayerType>(treeStructureResource->trunkTileLayer);
-    for (int y = 0; y < trunkHeight; ++y)
-    {
-        for (int x = 0; x < treeStructureResource->trunkWidth; ++x)
-        {
+    for (int y = 0; y < trunkHeight; ++y) {
+        for (int x = 0; x < treeStructureResource->trunkWidth; ++x) {
             structureInfo->SetTile(trunkTileLayer, TileVector2D(x, y), trunkRef);
         }
     }
-    if (treeStructureResource->hasLeaves)
-    {
+    if (treeStructureResource->hasLeaves) {
         const auto structureInfoPtr = structureInfo.get();
         const auto leafTileLayer = static_cast<TileLayerType>(treeStructureResource->leafTileLayer);
         const uint8_t leafRadius = treeStructureResource->leafRadius;
-        for (int i = 0; i < treeStructureResource->leafClusterCount; ++i)
-        {
+        for (int i = 0; i < treeStructureResource->leafClusterCount; ++i) {
             const int clusterY = trunkHeight - i * treeStructureResource->leafVerticalSpacing;
             AddLeafCluster(structureInfoPtr, leafTileLayer, leafRadius, clusterY,
                            treeStructureResource->trunkWidth, leafRef);

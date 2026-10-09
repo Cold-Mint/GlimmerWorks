@@ -30,10 +30,8 @@
 #include "StructureConditionProcessorType.h"
 #include "core/world/generator/TerrainResult.h"
 
-namespace glimmer
-{
-    class IStructureConditionProcessor
-    {
+namespace glimmer {
+    class IStructureConditionProcessor {
     public:
         virtual ~IStructureConditionProcessor() = default;
 
@@ -52,9 +50,9 @@ namespace glimmer
          * @param placementConditionsResource placementConditionsResource 放置条件资源
          * @return The bitset for the structure placement points. If a certain point is 1, it indicates that a structure can be placed at that point. 结构放置点的bitset，若某个点为1,那么表示可以在该点放置。
          */
-        virtual std::bitset<TERRAIN_AREA> Match(const DimensionResource* dimensionResource,
-                                                const TerrainResult* terrainResult,
-                                                const IStructurePlacementConditionsResource*
+        virtual std::bitset<TERRAIN_AREA> Match(const DimensionResource *dimensionResource,
+                                                const TerrainResult *terrainResult,
+                                                const IStructurePlacementConditionsResource *
                                                 placementConditionsResource)
         = 0;
     };

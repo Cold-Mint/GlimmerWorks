@@ -174,6 +174,9 @@ bool glimmer::Saves::WriteChunkEntity(const ResourceRef &dimensionRef, const Chu
 }
 
 bool glimmer::Saves::DeleteChunkEntity(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position) const {
+    if (!EntityExists(dimensionRef, position)) {
+        return true;
+    }
     bool result = virtualFileSystem_->DeleteFileOrFolder(ToChunkEntityPath(dimensionRef, position));
     if (!result) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "saves_chunk_entity_delete_failed",

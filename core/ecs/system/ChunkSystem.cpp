@@ -202,7 +202,7 @@ void glimmer::ChunkSystem::OnTick(const uint64_t tick) {
         cameraChanged = true;
     }
     if (const uint32_t cameraTransformLastVersion = cameraTransform2DComponent_->GetVersion();
-        cameraTransformLastVersion_ == cameraTransformLastVersion) {
+        cameraTransformLastVersion_ != cameraTransformLastVersion) {
         cameraTransformLastVersion_ = cameraTransformLastVersion;
         cameraChanged = true;
     }

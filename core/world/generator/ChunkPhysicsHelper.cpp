@@ -52,7 +52,7 @@ glimmer::Vector2DI glimmer::ChunkPhysicsHelper::FindRectSize(const int startX, c
                                                              std::vector<bool> &visited) {
     int width = 1;
     while (startX + width < CHUNK_SIZE) {
-        const int checkIdx = startY << CHUNK_SHIFT | (startX + width);
+        const size_t checkIdx = CoordinateTransformer::GetArrayIndex(startX + width, startY, CHUNK_SHIFT);
         if (visited[checkIdx] || !isStaticTile[checkIdx]) {
             break;
         }
@@ -68,7 +68,7 @@ glimmer::Vector2DI glimmer::ChunkPhysicsHelper::FindRectSize(const int startX, c
             break;
         }
         for (int k = 0; k < width; ++k) {
-            const int checkIdx = nextY << CHUNK_SHIFT | (startX + k);
+            const size_t checkIdx = CoordinateTransformer::GetArrayIndex(startX + k, nextY, CHUNK_SHIFT);
             if (visited[checkIdx] || !isStaticTile[checkIdx]) {
                 canExpand = false;
                 break;
@@ -85,9 +85,8 @@ glimmer::Vector2DI glimmer::ChunkPhysicsHelper::FindRectSize(const int startX, c
 void glimmer::ChunkPhysicsHelper::MarkVisited(const int startX, const int startY, const int width, const int height,
                                               std::vector<bool> &visited) {
     for (int j = 0; j < height; ++j) {
-        const int rowOffset = (startY + j) << CHUNK_SHIFT;
         for (int i = 0; i < width; ++i) {
-            visited[rowOffset + startX + i] = true;
+            visited[CoordinateTransformer::GetArrayIndex(startX + i, startY + j, CHUNK_SHIFT)] = true;
         }
     }
 }
@@ -111,8 +110,7 @@ void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const b2WorldId world
     std::vector visited(CHUNK_AREA, false);
     for (int y = 0; y < CHUNK_SIZE; ++y) {
         for (int x = 0; x < CHUNK_SIZE; ++x) {
-            const int baseIdx = y << CHUNK_SHIFT | x;
-            if (visited[baseIdx] || !isStaticTile[baseIdx]) {
+            if (const size_t baseIdx = CoordinateTransformer::GetArrayIndex(x, y, CHUNK_SHIFT); visited[baseIdx] || !isStaticTile[baseIdx]) {
                 continue;
             }
             const Vector2DI rectSize = FindRectSize(x, y, isStaticTile, visited);

@@ -55,7 +55,7 @@ namespace glimmer {
         static void PopulateSingleTilePosition(
             Chunk *chunk, const ResourceLocator *resourceLocator,
             const std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > &tilesRefMap,
-            int topLeftIndex);
+            size_t topLeftIndex);
 
     public:
         /**

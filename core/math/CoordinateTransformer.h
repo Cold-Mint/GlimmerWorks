@@ -156,7 +156,27 @@ namespace glimmer {
         [[nodiscard]] static TerrainRelativeVector2D TileToTerrainRelative(const TileVector2D &tileVector2D);
 
 
-        static size_t GetArrayIndex(int x, int y, int width);
+        /**
+         * GetArrayIndex
+         * 输入x，y和数组宽度，返回对应的数组索引。
+         * @param x
+         * @param y
+         * @param shift 位移量（即宽度的以2为底的对数）
+         * @return
+         */
+        static size_t GetArrayIndex(uint32_t x, uint32_t y, uint32_t shift);
+
+        /**
+         * IndexToVector2D
+         * 将一维数组索引转换为二维向量坐标。
+         * @tparam TVector2D 二维向量类型
+         * @param index 数组索引
+         * @param mask 掩码（即宽度减一）
+         * @param shift 位移量（即宽度的以2为底的对数）
+         * @return 二维向量坐标
+         */
+        template<typename TVector2D>
+        [[nodiscard]] static TVector2D IndexToVector2D(size_t index, uint32_t mask, uint32_t shift);
 
         /**
          * TerrainRelativeToTile
@@ -168,4 +188,9 @@ namespace glimmer {
         [[nodiscard]] static TileVector2D TerrainRelativeToTile(const TerrainVertexVector2D &terrainVertex,
                                                                 const TerrainRelativeVector2D &relative);
     };
+
+    template<typename TVector2D>
+    TVector2D CoordinateTransformer::IndexToVector2D(const size_t index, const uint32_t mask, const uint32_t shift) {
+        return TVector2D(static_cast<uint32_t>(index & mask), static_cast<uint32_t>(index >> shift));
+    }
 }

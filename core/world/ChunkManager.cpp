@@ -42,7 +42,6 @@
 #include "core/world/Dimension.h"
 #include "core/world/Tile.h"
 #include "core/world/WorldContext.h"
-#include "core/world/structure/StructureGeneratorManager.h"
 #include "generator/ChunkGenerator.h"
 #include "generator/ChunkLoader.h"
 #include "generator/ChunkPhysicsHelper.h"
@@ -50,7 +49,7 @@
 
 
 void glimmer::ChunkManager::OnChunkTileChange(Chunk *chunk, [[maybe_unused]] const std::shared_ptr<Tile> &tile,
-                                              const TileLayerType layerType, const int index) const {
+                                              const TileLayerType layerType, const size_t index) const {
     if (layerType == TileLayerType::Ground) {
         ChunkPhysicsHelper::UpdatePhysicsBodyToChunk(worldContext_, chunk);
     }
@@ -58,7 +57,7 @@ void glimmer::ChunkManager::OnChunkTileChange(Chunk *chunk, [[maybe_unused]] con
 }
 
 
-void glimmer::ChunkManager::UpdateTileLight(const Chunk *chunk, const TileLayerType layerType, const int index) const {
+void glimmer::ChunkManager::UpdateTileLight(const Chunk *chunk, const TileLayerType layerType, const size_t index) const {
     const AppContext *appContext = worldContext_->GetAppContext();
     if (appContext == nullptr) {
         return;
@@ -75,9 +74,11 @@ void glimmer::ChunkManager::UpdateTileLight(const Chunk *chunk, const TileLayerT
         return;
     }
     const ChunkVertexVector2D &chunkPosition = chunk->GetPosition();
-    const int localX = index & CHUNK_MASK;
-    const int localY = index >> CHUNK_SHIFT;
-    auto lightSourcePosition = TileVector2D(chunkPosition.x + localX, chunkPosition.y + localY);
+    const auto local = CoordinateTransformer::IndexToVector2D<ChunkRelativeVector2D>(index,
+        CHUNK_MASK,
+        CHUNK_SHIFT);
+    auto lightSourcePosition = TileVector2D(chunkPosition.x + static_cast<int>(local.x),
+                                            chunkPosition.y + static_cast<int>(local.y));
     const TileLightResourceData *tileLightResourceData = tile->GetLightResourceData();
     if (tileLightResourceData == nullptr) {
         return;
@@ -168,7 +169,7 @@ void glimmer::ChunkManager::UpdateChunkLight(const Chunk *chunk) const {
     LogCat::d(LogLabel::CHUNK, "chunk_update_light", "Updating chunk light: position=({}, {})",
               chunk->GetPosition().x,
               chunk->GetPosition().y);
-    for (int index = 0; index < CHUNK_AREA; ++index) {
+    for (size_t index = 0; index < CHUNK_AREA; ++index) {
         for (int i = 0; i < TILE_LAYER_TYPE_COUNT; ++i) {
             UpdateTileLight(chunk, static_cast<TileLayerType>(1 << i), index);
         }
@@ -212,7 +213,7 @@ void glimmer::ChunkManager::LoadChunkAt(const ResourceRef &dimensionRef, const C
     }
     Chunk *chunkPtr = newlyCreatedChunk.get();
     newlyCreatedChunk->AddReplaceTileCallback([this](Chunk *chunk, const TileLayerType layerType,
-                                                     const int index,
+                                                     const size_t index,
                                                      std::shared_ptr<Tile>, const std::shared_ptr<Tile> &newTile) {
         OnChunkTileChange(chunk, newTile, layerType, index);
     });

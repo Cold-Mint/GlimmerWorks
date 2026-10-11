@@ -42,9 +42,10 @@ void glimmer::PlaceCommand::InitSuggestions(NodeTree<std::string> *suggestionsTr
             AddChild(X_DYNAMIC_SUGGESTIONS_NAME)->AddChild(Y_DYNAMIC_SUGGESTIONS_NAME);
 }
 
-void glimmer::PlaceCommand::PlaceTileAt(Chunk *chunk, TileLayerType tileLayerType,
-                                        int index, const ResourceRef &resourceRef, const TileResource *tileResource,
-                                        int x, int y) {
+void glimmer::PlaceCommand::PlaceTileAt(Chunk *chunk, const TileLayerType tileLayerType,
+                                        const size_t index, const ResourceRef &resourceRef,
+                                        const TileResource *tileResource,
+                                        const int x, const int y) {
     chunk->PlaceTile(tileLayerType, index, resourceRef, tileResource, BreakSource::Console,
                      PLACE_SOURCE_CONSOLE, x, y, false);
 }
@@ -77,7 +78,7 @@ bool glimmer::PlaceCommand::RequiresCheatEnabled() const {
 
 void glimmer::PlaceCommand::PlaceTileAtWithSize(Chunk *chunk,
                                                 const TileLayerType tileLayerType,
-                                                const int index, const ResourceRef &resourceRef,
+                                                const size_t index, const ResourceRef &resourceRef,
                                                 const TileResource *tileResource) {
     for (int x = 0; x < tileResource->tileWidth; x++) {
         for (int y = 0; y < tileResource->tileHeight; y++) {
@@ -166,8 +167,9 @@ bool glimmer::PlaceCommand::ExecuteStructure(const CommandArgs *commandArgs, con
             if (tileResource == nullptr) {
                 continue;
             }
-            const int index = relativeY << CHUNK_SHIFT | relativeX;
-            PlaceTileAtWithSize(currentChunk, tileLayerType, index, resourceRef, tileResource);
+            PlaceTileAtWithSize(currentChunk, tileLayerType,
+                                CoordinateTransformer::GetArrayIndex(relativeX, relativeY, CHUNK_SHIFT), resourceRef,
+                                tileResource);
         }
     }
 

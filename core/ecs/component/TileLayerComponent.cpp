@@ -61,7 +61,7 @@ std::shared_ptr<glimmer::Tile> glimmer::TileLayerComponent::GetTileShared(const 
         return nullptr;
     }
     const ChunkRelativeVector2D pos = CoordinateTransformer::TileToChunkRelative(tilePos);
-    return chunk->GetTileShared(layerType, pos.y << CHUNK_SHIFT | pos.x);
+    return chunk->GetTileShared(layerType, CoordinateTransformer::GetArrayIndex(pos.x, pos.y, CHUNK_SHIFT));
 }
 
 std::vector<glimmer::TileSnapshot *> glimmer::TileLayerComponent::GetTopVisibleTileSnapshots(const Chunk *chunk,
@@ -70,7 +70,7 @@ std::vector<glimmer::TileSnapshot *> glimmer::TileLayerComponent::GetTopVisibleT
         return {};
     }
     const ChunkRelativeVector2D pos = CoordinateTransformer::TileToChunkRelative(tilePos);
-    return chunk->GetTopVisibleTileSnapshots(layerFilter, pos.y << CHUNK_SHIFT | pos.x);
+    return chunk->GetTopVisibleTileSnapshots(layerFilter, CoordinateTransformer::GetArrayIndex(pos.x, pos.y, CHUNK_SHIFT));
 }
 
 TileStateMessage *glimmer::TileLayerComponent::GetTileStatePtr(const ResourceRef &dimensionRef,
@@ -89,7 +89,7 @@ TileStateMessage *glimmer::TileLayerComponent::GetTileStatePtr(const ResourceRef
         return nullptr;
     }
     const ChunkRelativeVector2D pos = CoordinateTransformer::TileToChunkRelative(tilePos);
-    return chunk->GetTileState(layerType, pos.y << CHUNK_SHIFT | pos.x);
+    return chunk->GetTileState(layerType, CoordinateTransformer::GetArrayIndex(pos.x, pos.y, CHUNK_SHIFT));
 }
 
 bool glimmer::TileLayerComponent::CommitTileState(const ResourceRef &dimensionRef, BreakSource breakSource,
@@ -107,7 +107,7 @@ bool glimmer::TileLayerComponent::CommitTileState(const ResourceRef &dimensionRe
         return false;
     }
     const ChunkRelativeVector2D pos = CoordinateTransformer::TileToChunkRelative(tilePos);
-    return chunk->CommitTileState(breakSource, layerType, pos.y << CHUNK_SHIFT | pos.x, fallback);
+    return chunk->CommitTileState(breakSource, layerType, CoordinateTransformer::GetArrayIndex(pos.x, pos.y, CHUNK_SHIFT), fallback);
 }
 
 const TileStateMessage *glimmer::TileLayerComponent::GetSelfLayerTileState(const ResourceRef &dimensionRef,
@@ -144,7 +144,7 @@ const glimmer::Tile *glimmer::TileLayerComponent::GetTile(const ResourceRef &dim
         return nullptr;
     }
     const ChunkRelativeVector2D pos = CoordinateTransformer::TileToChunkRelative(tilePos);
-    return chunk->GetTile(layerType, pos.y << CHUNK_SHIFT | pos.x);
+    return chunk->GetTile(layerType, CoordinateTransformer::GetArrayIndex(pos.x, pos.y, CHUNK_SHIFT));
 }
 
 std::vector<std::pair<glimmer::TileVector2D, std::vector<glimmer::TileSnapshot *> > > *glimmer::TileLayerComponent::
@@ -155,7 +155,7 @@ GetTopVisibleTileSnapshotsInViewport(const ResourceRef &dimensionRef, const std:
     }
     const TileVector2D topLeft = CoordinateTransformer::WorldToTile({worldViewport.x, worldViewport.y});
     bool visibleTileRectChanged = false;
-    Vector2DIFingerprint visibleTileTopLeftFingerprint = topLeft.GetFingerprint();
+    const Vector2DIFingerprint visibleTileTopLeftFingerprint = topLeft.GetFingerprint();
     if (visibleTileTopLeftFingerprint != visibleTileTopLeftFingerprint_) {
         visibleTileRectChanged = true;
     }

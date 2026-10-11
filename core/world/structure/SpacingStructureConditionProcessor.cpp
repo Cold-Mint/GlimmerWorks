@@ -26,6 +26,8 @@
  */
 #include "SpacingStructureConditionProcessor.h"
 
+#include "core/math/CoordinateTransformer.h"
+
 glimmer::StructureConditionProcessorType glimmer::SpacingStructureConditionProcessor::
 GetStructureConditionProcessorType() {
     return StructureConditionProcessorType::Spacing;
@@ -47,7 +49,7 @@ void glimmer::SpacingStructureConditionProcessor::Match(const DimensionResource 
             int globalY = y + terrainResult->GetPosition().y;
             if (globalY % minDistance == 0) {
                 for (int x = 0; x < TERRAIN_SIZE; ++x) {
-                    result->set(y * TERRAIN_SIZE + x);
+                    result->set(CoordinateTransformer::GetArrayIndex(x, y, TERRAIN_SHIFT));
                 }
             }
         }
@@ -56,7 +58,7 @@ void glimmer::SpacingStructureConditionProcessor::Match(const DimensionResource 
             int globalX = x + terrainResult->GetPosition().x;
             if (globalX % minDistance == 0) {
                 for (int y = 0; y < TERRAIN_SIZE; ++y) {
-                    result->set(y * TERRAIN_SIZE + x);
+                    result->set(CoordinateTransformer::GetArrayIndex(x, y, TERRAIN_SHIFT));
                 }
             }
         }

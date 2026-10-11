@@ -29,7 +29,6 @@
 #include <numbers>
 
 #include "core/utils/IFingerprintable.h"
-#include "src/core/vector2di.pb.h"
 
 namespace glimmer {
     using Vector2DIFingerprint = uint64_t;

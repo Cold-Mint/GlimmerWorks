@@ -471,6 +471,7 @@ target_sources(GlimmerWorks
         core/console/Command.cpp
         core/console/CommandArgs.cpp
         core/console/CommandHistoryManager.cpp
+        core/world/generator/StructureTile.cpp
         core/console/CommandManager.cpp
         core/console/CommandRequest.cpp
         core/console/CommandResponse.cpp
@@ -834,6 +835,7 @@ target_sources(GlimmerWorks
         core/saves/PlayerManifest.h
         core/world/DynamicLightEntry.h
         core/mod/PackScanRequest.h
+        core/world/generator/StructureTile.h
         core/gpu/PendingScreenshot.h
         core/mod/resourcePack/GPUSamplerResourceResult.h
         core/mod/resourcePack/cache/ShaderCacheStoreRequest.h

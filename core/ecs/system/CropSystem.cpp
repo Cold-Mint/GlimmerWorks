@@ -98,7 +98,7 @@ bool glimmer::CropSystem::OnGrowMature(WorldContext *worldContext, Chunk *chunk,
         return false;
     }
     const ResourceTypeMessage resourceType = growthTargetRef->GetResourceType();
-    const int index = position.y << CHUNK_SHIFT | position.x;
+    const size_t index = CoordinateTransformer::GetArrayIndex(position.x, position.y, CHUNK_SHIFT);
     const TileVector2D absolutePosition = {
         static_cast<int>(chunk->GetPosition().x + position.x), static_cast<int>(chunk->GetPosition().y + position.y)
     };
@@ -110,7 +110,7 @@ bool glimmer::CropSystem::OnGrowMature(WorldContext *worldContext, Chunk *chunk,
         }
         for (int x = 0; x < tileResource->tileWidth; x++) {
             for (int y = 0; y < tileResource->tileHeight; y++) {
-                const int unitIndex = index + y * CHUNK_SIZE + x;
+                const size_t unitIndex = index + CoordinateTransformer::GetArrayIndex(x, y, CHUNK_SHIFT);
                 chunk->PlaceTile(layerType, unitIndex, *growthTargetRef, tileResource, BreakSource::Unknown,
                                  PLACE_SOURCE_WORLD_GEN, x, y, false);
             }
@@ -186,7 +186,7 @@ bool glimmer::CropSystem::OnGrowMature(WorldContext *worldContext, Chunk *chunk,
                         }
                         const int relativeX = worldVector2D.x & CHUNK_MASK;
                         const int relativeY = worldVector2D.y & CHUNK_MASK;
-                        const int unitIndex = relativeY << CHUNK_SHIFT | relativeX;
+                        const size_t unitIndex = CoordinateTransformer::GetArrayIndex(relativeX, relativeY, CHUNK_SHIFT);
                         targetChunk->PlaceTile(structureLayerType, unitIndex, resourceRef, tileResource,
                                                BreakSource::Unknown, PLACE_SOURCE_WORLD_GEN, x, y, false);
                     }
@@ -255,7 +255,7 @@ void glimmer::CropSystem::OnTick(const uint64_t tick) {
             continue;
         }
         const ChunkRelativeVector2D relative = CoordinateTransformer::TileToChunkRelative(position);
-        const int index = relative.y << CHUNK_SHIFT | relative.x;
+        const size_t index = CoordinateTransformer::GetArrayIndex(relative.x, relative.y, CHUNK_SHIFT);
         const Tile *tile = chunk->GetTile(layerType, index);
         if (tile == nullptr || !tile->IsCropsBlock()) {
             LogCat::d(LogLabel::DEFAULT, "crop_system_tile_not_crop",

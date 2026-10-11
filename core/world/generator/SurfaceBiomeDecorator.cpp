@@ -42,7 +42,7 @@ void glimmer::SurfaceBiomeDecorator::DecorationImpl(const ChunkVertexVector2D &c
     const bool waterValid = decoratorResource->underwaterTile.IsValid();
     for (int localX = 0; localX < CHUNK_SIZE; localX++) {
         for (int localY = 0; localY < CHUNK_SIZE; localY++) {
-            const int idx = localY * CHUNK_SIZE + localX;
+            const size_t idx = CoordinateTransformer::GetArrayIndex(localX, localY, CHUNK_SHIFT);
             ChunkRelativeVector2D chunkRelativeVector2D(localX, localY);
             const TileVector2D absolutePosition = CoordinateTransformer::ChunkRelativeToTile(
                 chunkVertex, chunkRelativeVector2D);

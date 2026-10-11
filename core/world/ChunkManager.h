@@ -72,9 +72,9 @@ namespace glimmer {
          * @param index index 索引
          */
         void OnChunkTileChange(Chunk *chunk, const std::shared_ptr<Tile> &tile, TileLayerType layerType,
-                               int index) const;
+                               size_t index) const;
 
-        void UpdateTileLight(const Chunk *chunk, TileLayerType layerType, int index) const;
+        void UpdateTileLight(const Chunk *chunk, TileLayerType layerType, size_t index) const;
 
         /**
          * Update the lighting for the entire chunk.

@@ -27,6 +27,7 @@
 #include "BiomeStructureConditionProcessor.h"
 
 #include "core/log/LogCat.h"
+#include "core/math/CoordinateTransformer.h"
 
 glimmer::StructureConditionProcessorType
 glimmer::BiomeStructureConditionProcessor::GetStructureConditionProcessorType() {
@@ -57,7 +58,7 @@ void glimmer::BiomeStructureConditionProcessor::Match(const DimensionResource *d
                 continue;
             }
             if (biomeSet.contains(Resource::GenerateId(*biomeResource))) {
-                result->set(localY * TERRAIN_SIZE + localX);
+                result->set(CoordinateTransformer::GetArrayIndex(localX, localY, TERRAIN_SHIFT));
                 matchedTileCount++;
             }
         }

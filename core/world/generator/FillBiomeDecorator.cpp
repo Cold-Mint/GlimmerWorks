@@ -41,7 +41,7 @@ void glimmer::FillBiomeDecorator::DecorationImpl(const ChunkVertexVector2D &chun
     const ResourceRef &resourceRef = decoratorResource->tile;
     for (int localX = 0; localX < CHUNK_SIZE; localX++) {
         for (int localY = 0; localY < CHUNK_SIZE; localY++) {
-            const int idx = localY * CHUNK_SIZE + localX;
+            const size_t idx = CoordinateTransformer::GetArrayIndex(localX, localY, CHUNK_SHIFT);
             ChunkRelativeVector2D chunkRelativeVector2D(localX, localY);
             const auto &self = terrainResult->QueryTerrain(CoordinateTransformer::TileToTerrainRelative(
                 CoordinateTransformer::ChunkRelativeToTile(

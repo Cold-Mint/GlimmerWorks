@@ -285,7 +285,7 @@ static constexpr int CHUNK_ALIGN = ~CHUNK_MASK;
  * 作用：x >> CHUNK_SHIFT 等价于 x / CHUNK_SIZE（仅当CHUNK_SIZE为2的幂时成立）
  */
 static constexpr int CHUNK_SHIFT = 4; // Since CHUNK_SIZE = 16 = 2^4
-static constexpr int TERRAIN_SHIFT = 9; //TERRAIN_SIZE = 512 = 2^9
+static constexpr int TERRAIN_SHIFT = 8; //TERRAIN_SIZE = 256 = 2^8
 
 static constexpr int TILE_SIZE = 16;
 static constexpr int HALF_TILE_SIZE = TILE_SIZE >> 1;

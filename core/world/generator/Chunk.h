@@ -49,10 +49,10 @@ namespace glimmer {
         std::unordered_map<TileLayerType, std::array<std::unique_ptr<TileStateMessage>, CHUNK_AREA> >
         tileState_;
         std::unordered_map<TileLayerType, std::array<std::unique_ptr<TileSnapshot>, CHUNK_AREA> > tileSnapshots_;
-        std::vector<std::function<void(Chunk *chunk, int index, std::shared_ptr<Tile> tile, TileLayerType layerType)> >
+        std::vector<std::function<void(Chunk *chunk, size_t index, std::shared_ptr<Tile> tile, TileLayerType layerType)> >
         onTileRebuilt_;
 
-        std::vector<std::function<void(Chunk *chunk, TileLayerType layerType, int index,
+        std::vector<std::function<void(Chunk *chunk, TileLayerType layerType, size_t index,
                                        std::shared_ptr<Tile> oldTile,
                                        std::shared_ptr<Tile> newTile)> > replaceTileCallback_;
         std::vector<b2BodyId> attachedBodies_;
@@ -64,7 +64,7 @@ namespace glimmer {
         WorldContext *worldContext_;
 
 
-        void InvokeReplaceTileCallback(Chunk *chunk, TileLayerType layerType, int index,
+        void InvokeReplaceTileCallback(Chunk *chunk, TileLayerType layerType, size_t index,
                                        const std::shared_ptr<Tile> &oldTile,
                                        const std::shared_ptr<Tile> &newTile) const;
 
@@ -88,7 +88,7 @@ namespace glimmer {
         void ClearAttachedBodies();
 
         size_t AddReplaceTileCallback(const std::function<void(Chunk *chunk, TileLayerType layerType,
-                                                               int index,
+                                                               size_t index,
                                                                std::shared_ptr<Tile> oldTile,
                                                                std::shared_ptr<Tile> newTile)
             >
@@ -99,7 +99,7 @@ namespace glimmer {
         bool RemoveReplaceTileCallback(long index);
 
 
-        bool CommitTileState(BreakSource breakSource, TileLayerType layerType, int index, bool fallback);
+        bool CommitTileState(BreakSource breakSource, TileLayerType layerType, size_t index, bool fallback);
 
         /**
          * PlaceTile
@@ -120,13 +120,13 @@ namespace glimmer {
          * @param fallback fallback 提交时是否允许 fallback 瓦片
          * @return Whether the tile was placed successfully 是否成功放置
          */
-        bool PlaceTile(TileLayerType layerType, int index, const ResourceRef &resourceRef,
+        bool PlaceTile(TileLayerType layerType, size_t index, const ResourceRef &resourceRef,
                        const TileResource *tileResource, BreakSource breakSource, PlaceSourceMessage placeSource,
                        int offsetX, int offsetY, bool fallback);
 
-        [[nodiscard]] TileStateMessage *GetTileState(TileLayerType layerType, uint8_t index) const;
+        [[nodiscard]] TileStateMessage *GetTileState(TileLayerType layerType, size_t index) const;
 
-        [[nodiscard]] TileStateMessage *GetOrCreateTileState(TileLayerType layerType, int index);
+        [[nodiscard]] TileStateMessage *GetOrCreateTileState(TileLayerType layerType, size_t index);
 
         /**
          * Initialize the growth state of a tile state to its default values for a freshly placed tile.
@@ -139,13 +139,13 @@ namespace glimmer {
 
         [[nodiscard]] const ChunkVertexVector2D &GetPosition() const;
 
-        [[nodiscard]] const Tile *GetTile(TileLayerType layerType, uint8_t index) const;
+        [[nodiscard]] const Tile *GetTile(TileLayerType layerType, size_t index) const;
 
-        [[nodiscard]] std::shared_ptr<Tile> GetTileShared(TileLayerType layerType, uint8_t index) const;
+        [[nodiscard]] std::shared_ptr<Tile> GetTileShared(TileLayerType layerType, size_t index) const;
 
 
         [[nodiscard]] std::vector<TileSnapshot *> GetTopVisibleTileSnapshots(
-            std::byte layerFilter, uint8_t index) const;
+            std::byte layerFilter, size_t index) const;
 
         void ReadChunkMessage(const ChunkMessage &chunkMessage);
 

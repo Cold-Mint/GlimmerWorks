@@ -27,6 +27,7 @@
 #include "SurfaceStructureConditionProcessor.h"
 
 #include "core/log/LogCat.h"
+#include "core/math/CoordinateTransformer.h"
 
 glimmer::StructureConditionProcessorType glimmer::SurfaceStructureConditionProcessor::
 GetStructureConditionProcessorType() {
@@ -59,7 +60,7 @@ void glimmer::SurfaceStructureConditionProcessor::Match(const DimensionResource 
                 //上方的瓦片不是空气。
                 continue;
             }
-            result->set(localY * TERRAIN_SIZE + localX);
+            result->set(CoordinateTransformer::GetArrayIndex(localX, localY, TERRAIN_SHIFT));
         }
     }
     LogCat::d(LogLabel::TERRAIN, "surface_condition_matched_count", "Surface condition matched tiles: {}",

@@ -28,16 +28,16 @@
 
 #include "Chunk.h"
 #include "core/log/LogCat.h"
+#include "core/math/CoordinateTransformer.h"
 #include "core/mod/Resource.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/world/WorldContext.h"
 
 
-void glimmer::ChunkTilePopulator::PopulateSingleTilePosition(Chunk *chunk,
-                                                             const ResourceLocator *resourceLocator,
+void glimmer::ChunkTilePopulator::PopulateSingleTilePosition(Chunk *chunk, const ResourceLocator *resourceLocator,
                                                              const std::unordered_map<TileLayerType, std::array<
                                                                  ResourceRef, CHUNK_AREA> > &tilesRefMap,
-                                                             int topLeftIndex) {
+                                                             const size_t topLeftIndex) {
     for (const auto &[tileLayerType, tileArray]: tilesRefMap) {
         const ResourceRef &resourceRef = tileArray[topLeftIndex];
         const TileResource *tileResource = resourceLocator->FindTileRaw(&resourceRef);
@@ -46,7 +46,7 @@ void glimmer::ChunkTilePopulator::PopulateSingleTilePosition(Chunk *chunk,
         }
         for (int x = 0; x < tileResource->tileWidth; x++) {
             for (int y = 0; y < tileResource->tileHeight; y++) {
-                const int unitIndex = topLeftIndex + y * CHUNK_SIZE + x;
+                const size_t unitIndex = topLeftIndex + CoordinateTransformer::GetArrayIndex(x, y, CHUNK_SHIFT);
                 chunk->PlaceTile(tileLayerType, unitIndex, resourceRef, tileResource, BreakSource::ChunkGenerate,
                                  PLACE_SOURCE_WORLD_GEN, x, y, true);
             }
@@ -62,7 +62,7 @@ void glimmer::ChunkTilePopulator::Populate(Chunk *chunk,
               chunk->GetPosition().x, chunk->GetPosition().y);
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
         for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
-            const int topLeftIndex = localY * CHUNK_SIZE + localX;
+            const size_t topLeftIndex = CoordinateTransformer::GetArrayIndex(localX, localY, CHUNK_SHIFT);
             PopulateSingleTilePosition(chunk, resourceLocator, tilesRefMap, topLeftIndex);
         }
     }

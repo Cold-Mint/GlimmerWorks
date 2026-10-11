@@ -89,7 +89,7 @@ void glimmer::TileRefResolver::Initialize(const TerrainResult *terrainResult,
             const auto &terrainTileResult = terrainResult->QueryTerrain(CoordinateTransformer::TileToTerrainRelative(
                 CoordinateTransformer::ChunkRelativeToTile(
                     chunkVertexVector2D, chunkRelativeVector2D)));
-            const int idx = localY * CHUNK_SIZE + localX;
+            const size_t idx = CoordinateTransformer::GetArrayIndex(localX, localY, CHUNK_SHIFT);
             const TerrainResultType terrainType = terrainTileResult.GetTerrainType();
             if (terrainType == TerrainResultType::VOID) {
                 for (auto &[layerType, refsArray]: tilesRefMap) {

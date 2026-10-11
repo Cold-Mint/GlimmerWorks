@@ -88,7 +88,7 @@ bool glimmer::AdjacentTileGrowthConditionProcessor::Match(const WorldContext *wo
         return false;
     }
     const ChunkRelativeVector2D relative = CoordinateTransformer::TileToChunkRelative(adjacentPosition);
-    const uint32_t index = relative.y << CHUNK_SHIFT | relative.x;
+    const size_t index = CoordinateTransformer::GetArrayIndex(relative.x, relative.y, CHUNK_SHIFT);
     const Tile *tile = chunk->GetTile(targetLayerType, index);
     if (tile == nullptr) {
         return false;

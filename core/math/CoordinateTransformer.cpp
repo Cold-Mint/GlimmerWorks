@@ -121,8 +121,8 @@ TileToTerrainRelative(const TileVector2D &tileVector2D) {
     };
 }
 
-size_t glimmer::CoordinateTransformer::GetArrayIndex(int x, int y, int width) {
-    return y * width + x;
+size_t glimmer::CoordinateTransformer::GetArrayIndex(const uint32_t x, const uint32_t y, const uint32_t shift) {
+    return y << shift | x;
 }
 
 glimmer::TileVector2D glimmer::CoordinateTransformer::TerrainRelativeToTile(const TerrainVertexVector2D &terrainVertex,

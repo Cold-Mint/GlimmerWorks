@@ -27,10 +27,11 @@
 #include "TerrainResult.h"
 
 #include "core/math/ChunkRelativeVector2D.h"
+#include "core/math/CoordinateTransformer.h"
 
 
 TerrainTileResult &glimmer::TerrainResult::GetMutableTerrainTileResult(const TerrainRelativeVector2D &localPosition) {
-    return terrainTileResult_[localPosition.y * TERRAIN_SIZE + localPosition.x];
+    return terrainTileResult_[CoordinateTransformer::GetArrayIndex(localPosition.x, localPosition.y, TERRAIN_SHIFT)];
 }
 
 void glimmer::TerrainResult::SetPosition(const TerrainVertexVector2D &position) {
@@ -42,14 +43,30 @@ const glimmer::TerrainVertexVector2D &glimmer::TerrainResult::GetPosition() cons
 }
 
 const TerrainTileResult &glimmer::TerrainResult::QueryTerrain(const TerrainRelativeVector2D &localPosition) const {
-    return terrainTileResult_[localPosition.y * TERRAIN_SIZE + localPosition.x];
+    return terrainTileResult_[CoordinateTransformer::GetArrayIndex(localPosition.x, localPosition.y, TERRAIN_SHIFT)];
 }
 
-void glimmer::TerrainResult::PushStructureTile(int tileIndex, const ResourceRef *structureResource,
-    TileLayerType layerType) {
-    if (tileIndex >= 0 && tileIndex < TERRAIN_AREA) {
+void glimmer::TerrainResult::PushStructureTile(const StructureTile &structureTile) {
+    terrainTileResultStack_.push(structureTile);
+}
+
+void glimmer::TerrainResult::PopStructureTile() {
+    if (!terrainTileResultStack_.empty()) {
+        terrainTileResultStack_.pop();
+    }
+}
+
+void glimmer::TerrainResult::CommitStructure() {
+    while (!terrainTileResultStack_.empty()) {
+        const StructureTile &structureTile = terrainTileResultStack_.top();
+        const uint32_t tileIndex = structureTile.GetTileIndex();
+        if (tileIndex >= TERRAIN_SIZE) {
+            terrainTileResultStack_.pop();
+            continue;
+        }
         TerrainTileResult &terrainTileResult = terrainTileResult_[tileIndex];
         terrainTileResult.SetTerrainType(TerrainResultType::STRUCTURE);
-        terrainTileResult.SetStructure(layerType, structureResource);
+        terrainTileResult.SetStructure(structureTile.GetLayerType(), structureTile.GetStructureResource());
+        terrainTileResultStack_.pop();
     }
 }

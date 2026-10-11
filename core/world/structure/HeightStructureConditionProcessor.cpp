@@ -27,6 +27,7 @@
 #include "HeightStructureConditionProcessor.h"
 
 #include "core/log/LogCat.h"
+#include "core/math/CoordinateTransformer.h"
 
 glimmer::StructureConditionProcessorType glimmer::HeightStructureConditionProcessor::
 GetStructureConditionProcessorType() {
@@ -52,7 +53,7 @@ void glimmer::HeightStructureConditionProcessor::Match(const DimensionResource *
             int globalY = localY + position.y;
             float percent = static_cast<float>(globalY) / static_cast<float>(dimensionResource->maxY);
             if (percent >= minHeightPercent && percent <= maxHeightPercent) {
-                result->set(localX + localY * TERRAIN_SIZE);
+                result->set(CoordinateTransformer::GetArrayIndex(localX, localY, TERRAIN_SHIFT));
                 matchedTileCount++;
             }
         }

@@ -158,9 +158,8 @@ std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerra
         //执行结构放置
         for (int i = 0; i < TERRAIN_AREA; ++i) {
             if (structureBitset->test(i)) {
-                const int localX = i % TERRAIN_SIZE;
-                const int localY = i / TERRAIN_SIZE;
-                const TerrainRelativeVector2D relative(localX, localY);
+                const auto relative = CoordinateTransformer::IndexToVector2D<TerrainRelativeVector2D>(
+                    i, TERRAIN_MASK, TERRAIN_SHIFT);
                 const TileVector2D structuralOrigin =
                         CoordinateTransformer::TerrainRelativeToTile(position, relative);
                 std::unique_ptr<StructureInfo> structureInfo = structureGeneratorManager->Generate(
@@ -181,7 +180,12 @@ std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerra
                 const std::unordered_map<TileLayerType, std::unordered_map<TileVector2D, ResourceRef, Vector2DIHash> > &
                         structureMap = structureInfo->GetStructureMap();
                 for (auto &[tileLayerType,tileMap]: structureMap) {
-//TODO：在这里将结构放置到地形内Push进去，同时检查放置点，是否被占用（totalBitset->test(xxx xxx是当前瓦片的位置转地形相对位置) == 1）。
+                    //TODO：在这里将结构放置到地形内Push进去，同时检查放置点，是否被占用（totalBitset->test(xxx xxx是当前瓦片的位置转地形相对位置) == 1）。
+                    for (auto &[tilePosition,tileRef]: tileMap) {
+                        TerrainRelativeVector2D terrainRelative = CoordinateTransformer::TileToTerrainRelative(
+                            tilePosition);
+
+                    }
                 }
             }
         }

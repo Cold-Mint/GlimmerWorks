@@ -27,6 +27,7 @@
 #pragma once
 #include <stack>
 
+#include "StructureTile.h"
 #include "TerrainTileResult.h"
 #include "core/math/TerrainRelativeVector2D.h"
 #include "core/math/TerrainVertexVector2D.h"
@@ -39,6 +40,7 @@ namespace glimmer {
     class TerrainResult {
         std::array<TerrainTileResult, TERRAIN_AREA> terrainTileResult_;
         TerrainVertexVector2D position_;
+        std::stack<StructureTile> terrainTileResultStack_;
 
     public:
         TerrainTileResult &GetMutableTerrainTileResult(const TerrainRelativeVector2D &localPosition);
@@ -50,15 +52,22 @@ namespace glimmer {
         [[nodiscard]] const TerrainTileResult &QueryTerrain(const TerrainRelativeVector2D &localPosition) const;
 
         /**
-         * Mark a certain coordinate as a structure.
-         * 将某个坐标标记为结构。
-         * @param tileIndex
-         * @param structureResource
-         * @param layerType The tile layer the structure tile belongs to 结构瓦片所属的图层
+         * Push Structure Tile
+         * 推送结构瓦片
+         * @param structureTile
          */
-        void PushStructureTile(
-            int tileIndex,
-            const ResourceRef *structureResource,
-            TileLayerType layerType);
+        void PushStructureTile(const StructureTile &structureTile);
+
+        /**
+         * Pop Structure Tile
+         * 弹出结构瓦片
+         */
+        void PopStructureTile();
+
+        /**
+         * CommitStructure
+         * 将结构提交到地形结果内
+         */
+        void CommitStructure();
     };
 }

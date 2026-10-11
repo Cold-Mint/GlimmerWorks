@@ -110,8 +110,7 @@ void glimmer::GameSystem::Init() {
     }
     OnWindowSizeChanged(appContext->GetWindowContext()->GetWindowWidth(),
                         appContext->GetWindowContext()->GetWindowHeight());
-    const Config *config = appContext->GetConfig();
-    if (config != nullptr) {
+    if (const Config *config = appContext->GetConfig(); config != nullptr) {
         OnConfigChanged(config);
     }
     LogCat::i(LogLabel::DEFAULT, "game_system_initialized", "GameSystem initialized");

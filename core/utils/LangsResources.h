@@ -153,6 +153,8 @@ namespace glimmer {
         std::string timeM;
         std::string timeH;
         std::string savesDescription;
+        std::string loadChunk;
+        std::string unloadChunk;
         std::vector<std::string> worldNamePrefix;
         std::vector<std::string> worldNameSuffix;
         std::vector<std::string> slogans;

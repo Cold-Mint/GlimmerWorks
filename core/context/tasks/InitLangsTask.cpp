@@ -189,6 +189,8 @@ bool glimmer::InitLangsTask::Run(ISystemBucket *systemBucket) {
     langsResources->timeM = toml::find<std::string>(tomlValue, "time_m");
     langsResources->timeS = toml::find<std::string>(tomlValue, "time_s");
     langsResources->savesDescription = toml::find<std::string>(tomlValue, "saves_description");
+    langsResources->loadChunk = toml::find<std::string>(tomlValue, "load_chunk");
+    langsResources->unloadChunk = toml::find<std::string>(tomlValue, "unload_chunk");
 
     if (tomlValue.is_table()) {
         const auto &rootTable = tomlValue.as_table();

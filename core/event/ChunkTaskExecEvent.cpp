@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -24,28 +24,12 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
+#include "ChunkTaskExecEvent.h"
 
-#include "core/mod/ResourceRef.h"
+void glimmer::ChunkTaskExecEvent::SetChunkTask(ChunkTask *chunkTask) {
+    chunkTask_ = chunkTask;
+}
 
-namespace glimmer {
-    /**
-     * DimensionChangedEvent
-     * 维度切换事件
-     * Published after the active dimension resource changes.
-     * 在激活的维度资源发生变化后发布。
-     */
-    struct DimensionChangedEvent {
-        /**
-         * The dimension before the switch. Invalid on initial load.
-         * 切换前的维度。初次加载时为无效值。
-         */
-        ResourceRef oldDimension;
-
-        /**
-         * The dimension after the switch.
-         * 切换后的维度。
-         */
-        ResourceRef newDimension;
-    };
+const glimmer::ChunkTask *glimmer::ChunkTaskExecEvent::GetChunkTask() const {
+    return chunkTask_;
 }

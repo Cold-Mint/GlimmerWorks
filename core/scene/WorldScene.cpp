@@ -76,6 +76,9 @@ bool glimmer::WorldScene::HandleEvent(const SDL_Event &event) {
     if (!worldContext_->IsRuning()) {
         return false;
     }
+    if (!worldContext_->IsLoadFinish()) {
+        return false;
+    }
     if (systemScheduler_ == nullptr) {
         return false;
     }
@@ -83,6 +86,16 @@ bool glimmer::WorldScene::HandleEvent(const SDL_Event &event) {
 }
 
 bool glimmer::WorldScene::OnBackPressed() {
+    if (!worldContext_->IsLoadFinish()) {
+#if  !defined(NDEBUG)
+        AppContext *appContext = worldContext_->GetAppContext();
+        if (appContext == nullptr) {
+            return false;
+        }
+        appContext->AddUIMessage("load_world_exit_tip");
+#endif
+        return true;
+    }
     if (systemScheduler_ == nullptr) {
         return false;
     }

@@ -29,7 +29,6 @@
 #include <mutex>
 
 #include "core/ecs/GameSystem.h"
-#include "core/math/TileVector2D.h"
 
 namespace glimmer {
     class ChunkVertexVector2D;
@@ -50,7 +49,6 @@ namespace glimmer {
         //Has the block generation task been dispatched to the worker thread?
         //区块生成任务是否投递到了工作线程。
         std::atomic_bool chunkTaskInProgress_ = false;
-
         /**
          * Generate load tasks for chunks within [startChunk, endChunk].
          * 为 [startChunk, endChunk] 范围内的区块生成加载任务。

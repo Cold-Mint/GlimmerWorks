@@ -1,4 +1,4 @@
-
+load_world_exit_tip = "世界尚未加载完成，终止加载会造成存档损坏。如需强行终止请按下Shift+Esc。"
 [log]
 creating_growth_conditions_manager = "创建生长条件管理器"
 ability_config_is_null = "能力配置为空"

@@ -89,7 +89,10 @@ namespace glimmer {
         int worldSeed_ = 0;
         //Whether it is running or not, if false, it indicates that the game has been paused.
         //是否正在运行中，为false则表示游戏已被暂停。
-        std::atomic<bool> running{true};
+        std::atomic_bool running_{true};
+        //Has the loading been completed? Some functions can only be used after the loading is finished.
+        //是否加载完成了，某些事件需要加载完成后才能使用
+        std::atomic_bool loadFinish_{false};
         //Whether to enable the item dragging mode
         //是否启用物品拖拽模式
         bool dragMode_ = false;
@@ -142,6 +145,11 @@ namespace glimmer {
         [[nodiscard]] bool IsRuning() const;
 
         void SetRuning(bool run);
+
+
+        [[nodiscard]] bool IsLoadFinish() const;
+
+        void SetLoadFinish(bool loadFinish);
 
         [[nodiscard]] bool IsDragMode() const;
 

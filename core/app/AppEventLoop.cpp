@@ -156,15 +156,24 @@ bool glimmer::AppEventLoop::HandleSystemEvent(const SDL_Event &event) const {
     if (event.type == SDL_EVENT_KEY_DOWN && event.key.scancode == SDL_SCANCODE_ESCAPE && !event.key.repeat) {
         LogCat::i(LogLabel::DEFAULT, "escape_key_pressed", "Escape key pressed");
         bool handled = false;
-        const auto &overlayScenes = sceneManager->GetOverlayScenes();
-        for (const auto overlayScene: std::ranges::reverse_view(overlayScenes)) {
+        for (const auto &overlayScenes = sceneManager->GetOverlayScenes(); const auto overlayScene:
+             std::ranges::reverse_view(overlayScenes)) {
             if (overlayScene->OnBackPressed()) {
                 handled = true;
                 break;
             }
         }
+#if  defined(NDEBUG)
+        //Official version: Does not support forced exit.
+        //正式版本，不支持强制退出。
+        const bool force = false;
+#else
+        //Pressing the Shift key indicates a forced pop-up of the scene.
+        //按下Shift表示强制弹出场景。
+        const bool force = event.key.mod & SDL_KMOD_SHIFT;
+#endif
         if (Scene *topScene = sceneManager->GetTopScene();
-            !handled && topScene != nullptr && !topScene->OnBackPressed()) {
+            !handled && topScene != nullptr && (force || !topScene->OnBackPressed())) {
             LogCat::i(LogLabel::DEFAULT, "escape_key_popping_scene", "Escape key: popping scene");
             sceneManager->PopScene();
         }

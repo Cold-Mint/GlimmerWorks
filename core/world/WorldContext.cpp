@@ -57,11 +57,19 @@ glimmer::EntityShortCut *glimmer::WorldContext::GetEntityShortCut() const {
 }
 
 bool glimmer::WorldContext::IsRuning() const {
-    return running.load(std::memory_order_acquire);
+    return running_.load(std::memory_order_acquire);
 }
 
 void glimmer::WorldContext::SetRuning(const bool run) {
-    running.store(run, std::memory_order_release);
+    running_.store(run, std::memory_order_release);
+}
+
+bool glimmer::WorldContext::IsLoadFinish() const {
+    return loadFinish_.load(std::memory_order_acquire);
+}
+
+void glimmer::WorldContext::SetLoadFinish(const bool loadFinish) {
+    loadFinish_.store(loadFinish, std::memory_order_release);
 }
 
 glimmer::Saves *glimmer::WorldContext::GetSaves() const {

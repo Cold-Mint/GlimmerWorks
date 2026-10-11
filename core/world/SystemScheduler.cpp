@@ -47,6 +47,7 @@
 #include "core/ecs/system/HotBarGUISystem.h"
 #include "core/ecs/system/InventoryGUISystem.h"
 #include "core/ecs/system/ItemTooltipSystem.h"
+#include "core/ecs/system/LoadWorldGuiSystem.h"
 #include "core/ecs/system/MagnetSystem.h"
 #include "core/ecs/system/PauseSystem.h"
 #include "core/ecs/system/PhysicsSystem.h"
@@ -388,6 +389,7 @@ void glimmer::SystemScheduler::InitSystem() {
     RegisterSystem(std::make_unique<CropSystem>(worldContext_));
     RegisterGuiSystem(std::make_unique<PauseSystem>(worldContext_));
     RegisterGuiSystem(std::make_unique<HotBarGUISystem>(worldContext_));
+    RegisterGuiSystem(std::make_unique<LoadWorldGuiSystem>(worldContext_));
     RegisterGuiSystem(std::make_unique<InventoryGUISystem>(worldContext_));
     RegisterGuiSystem(std::make_unique<RecipeDetailGUISystem>(worldContext_));
     RegisterGuiSystem(std::make_unique<ItemTooltipSystem>(worldContext_));
@@ -442,9 +444,8 @@ void glimmer::SystemScheduler::RegisterGuiSystem(std::unique_ptr<GuiGameSystem> 
         guiGameSystems_.emplace_back(dynamic_cast<GuiGameSystem *>(guiGameSystemUniquePtr.get()));
         if (auto *guiStackGameSystem = dynamic_cast<GuiStackGameSystem *>(guiGameSystemUniquePtr.get());
             guiStackGameSystem != nullptr) {
-            const SDL_Scancode hotKey = guiStackGameSystem->GetHotKey();
-            if (hotKey != SDL_SCANCODE_UNKNOWN) {
-                GameSystemType gameSystemType = guiStackGameSystem->GetGameSystemType();
+            if (const SDL_Scancode hotKey = guiStackGameSystem->GetHotKey(); hotKey != SDL_SCANCODE_UNKNOWN) {
+                const GameSystemType gameSystemType = guiStackGameSystem->GetGameSystemType();
                 scancodeToSystemType_[hotKey] = gameSystemType;
                 systemTypeToScancode_[gameSystemType] = hotKey;
             }

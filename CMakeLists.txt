@@ -452,6 +452,8 @@ target_sources(GlimmerWorks
         core/mod/dataPack/MaterialItemRegistry.cpp
         core/mod/dataPack/ComposableItemRegistry.cpp
         core/app/AppRenderer.cpp
+        core/ecs/system/LoadWorldGuiSystem.cpp
+        core/event/ChunkTaskExecEvent.cpp
         core/gpu/IPass.cpp
         core/app/pass/ClearPass.cpp
         core/app/pass/PassUtils.cpp
@@ -843,7 +845,10 @@ target_sources(GlimmerWorks
         core/mod/resourcePack/cache/RmlCache.h
         core/context/ISystemBucket.h
         core/event/EventBus.h
-        core/event/DimensionChangedEvent.h
+        core/event/ChunkTaskStartEvent.h
+        core/event/ChunkTaskFinshEvent.h
+        core/ecs/system/LoadWorldGuiSystem.h
+        core/event/ChunkTaskExecEvent.h
         core/mod/BasePackManager.h
         core/context/CacheContext.h
         core/mod/resourcePack/cache/ColorCache.h

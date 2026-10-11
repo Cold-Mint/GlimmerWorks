@@ -31,6 +31,10 @@
 
 #include "core/config/Config.h"
 #include "core/config/Constants.h"
+#include "core/event/ChunkTaskExecEvent.h"
+#include "core/event/ChunkTaskFinshEvent.h"
+#include "core/event/ChunkTaskStartEvent.h"
+#include "core/event/EventBus.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/math/Vector2DIHash.h"
 #include "core/task/TaskWorker.h"
@@ -109,12 +113,18 @@ void glimmer::ChunkSystem::PostTask() {
     TaskWorker *taskWorker = appContext->GetTaskWorker();
     ChunkManager *chunkManager = worldContext->GetChunkManager();
     ChunkTaskScheduler *chunkTaskScheduler = worldContext->GetChunkTaskScheduler();
-    if (taskWorker == nullptr || chunkManager == nullptr || chunkTaskScheduler == nullptr) {
+    EventBus *eventBus = appContext->GetEventBus();
+    if (taskWorker == nullptr || chunkManager == nullptr || chunkTaskScheduler == nullptr || eventBus == nullptr) {
         return;
     }
     chunkTaskInProgress_.store(true);
-    taskWorker->PostTask([chunkManager, chunkTaskScheduler, this] {
+    constexpr ChunkTaskStartEvent chunkTaskStartEvent;
+    eventBus->Publish(chunkTaskStartEvent);
+    taskWorker->PostTask([chunkManager, chunkTaskScheduler, this, eventBus] {
         while (const std::unique_ptr<ChunkTask> chunkTask = chunkTaskScheduler->PopFrontTask()) {
+            ChunkTaskExecEvent chunkTaskExecEvent;
+            chunkTaskExecEvent.SetChunkTask(chunkTask.get());
+            eventBus->Publish(chunkTaskExecEvent);
             switch (chunkTask->GetTaskType()) {
                 case ChunkTaskType::LOAD:
                     chunkManager->LoadChunkAt(chunkTask->GetDimensionResourceRef(),
@@ -129,6 +139,8 @@ void glimmer::ChunkSystem::PostTask() {
             }
         }
         chunkTaskInProgress_.store(false);
+        constexpr ChunkTaskFinshEvent chunkTaskFinshEvent;
+        eventBus->Publish(chunkTaskFinshEvent);
     });
 }
 

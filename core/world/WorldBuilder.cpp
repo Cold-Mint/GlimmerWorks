@@ -34,8 +34,6 @@
 #include "box2d/box2d.h"
 #include "core/context/AppContext.h"
 #include "core/context/ModContext.h"
-#include "core/event/DimensionChangedEvent.h"
-#include "core/event/EventBus.h"
 #include "core/ecs/component/AreaMarkerComponent.h"
 #include "core/ecs/component/BlueprintComponent.h"
 #include "core/ecs/component/ItemContainerComponent.h"
@@ -47,7 +45,6 @@
 #include "core/mod/Resource.h"
 #include "core/mod/ResourceRef.h"
 #include "core/saves/Saves.h"
-#include "core/utils/StringUtils.h"
 #include "generator/TileLayerType.h"
 
 glimmer::WorldBuilder::WorldBuilder(WorldContext *worldContext) : worldContext_(worldContext) {
@@ -104,11 +101,6 @@ void glimmer::WorldBuilder::Build() {
         return;
     }
     worldContext_->dimension_->SetDimensionResource(dimensionResourceRef, dimensionResource);
-    if (EventBus *eventBus = worldContext_->appContext_->GetEventBus(); eventBus != nullptr) {
-        DimensionChangedEvent dimensionChangedEvent;
-        dimensionChangedEvent.newDimension = dimensionResourceRef;
-        eventBus->Publish(dimensionChangedEvent);
-    }
     worldContext_->chunkLoader_ = std::make_unique<ChunkLoader>(worldContext_, worldContext_->saves_);
     worldContext_->chunkManager_ = std::make_unique<ChunkManager>(worldContext_);
     worldContext_->terrainGenerator_ = std::make_unique<TerrainGenerator>();

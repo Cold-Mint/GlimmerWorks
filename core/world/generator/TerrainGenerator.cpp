@@ -218,13 +218,13 @@ std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerra
             }
             // 根据结构的最大和最小顶点，计算对应的地形顶点是否和现在生成的是同一个。(预先推算范围)
             TerrainVertexVector2D maxTerrainVertex = CoordinateTransformer::TileToTerrainVertex(
-                structureInfo->GetMaxPosition());
+                structuralOrigin + structureInfo->GetMaxPosition());
             if (maxTerrainVertex != position) {
                 //MaxPosition跨越了地形块
                 continue;
             }
             TerrainVertexVector2D minTerrainVertex = CoordinateTransformer::TileToTerrainVertex(
-                structureInfo->GetMinPosition());
+                structuralOrigin + structureInfo->GetMinPosition());
             if (minTerrainVertex != position) {
                 //MinPosition跨越了地形块
                 continue;
@@ -234,7 +234,7 @@ std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerra
             for (auto &[tileLayerType,tileMap]: structureMap) {
                 for (auto &[tilePosition,tileRef]: tileMap) {
                     const TerrainRelativeVector2D terrainRelative = CoordinateTransformer::TileToTerrainRelative(
-                        tilePosition);
+                        structuralOrigin + tilePosition);
                     const auto index = CoordinateTransformer::GetArrayIndex(
                         terrainRelative.x, terrainRelative.y, TERRAIN_SHIFT);
                     if (!totalBitset->test(index)) {

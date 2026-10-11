@@ -125,6 +125,7 @@ void glimmer::DroppedItemCreator::LoadTemplateComponents(const uint32_t id, cons
         shapeResourceRef.SetResourceKey(SHAPE_ID_DROPPED_ITEM);
         shapeResourceRef.SetResourceType(RESOURCE_SHAPE);
         rigidBody2DComponent->SetShapeRef(shapeResourceRef);
+        rigidBody2DComponent->Enable();
     }
     const auto rayCast2DComponent = entityManager->AddComponent<RayCast2DComponent>(id);
     if (rayCast2DComponent != nullptr) {

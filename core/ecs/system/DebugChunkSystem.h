@@ -45,12 +45,19 @@ namespace glimmer {
         CameraComponent *cameraComponent_ = nullptr;
         Transform2DComponent *cameraTransform2DComponent_ = nullptr;
         bool displayChunkView_ = false;
+        bool displayTerrainView_ = false;
 
         /**
          * Draw the boundaries of the chunks visible on screen.
          * 绘制屏幕上可见区块的边界。
          */
         void RenderChunkBounds(RenderQueue *queue);
+
+        /**
+         * Draw the boundaries of the terrain blocks visible on screen.
+         * 绘制屏幕上可见地形块的边界。
+         */
+        void RenderTerrainBounds(RenderQueue *queue);
 
         /**
          * Draw the chunk overview in the bottom-left corner.

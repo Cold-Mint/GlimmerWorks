@@ -45,11 +45,12 @@ glimmer::DebugChunkSystem::DebugChunkSystem(WorldContext *worldContext) : GameSy
 }
 
 bool glimmer::DebugChunkSystem::CanActive() const {
-    return displayChunkView_;
+    return displayChunkView_ || displayTerrainView_;
 }
 
 void glimmer::DebugChunkSystem::OnConfigChanged(const Config *config) {
     displayChunkView_ = config->debug.displayChunkView;
+    displayTerrainView_ = config->debug.displayTerrainView;
 }
 
 void glimmer::DebugChunkSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) {
@@ -89,6 +90,37 @@ void glimmer::DebugChunkSystem::RenderChunkBounds(RenderQueue *queue) {
                 pixelSize
             };
             queue->DrawRect(RenderLayer::Debug, 0.0F, &rect, chunkBorderColor);
+        }
+    }
+}
+
+void glimmer::DebugChunkSystem::RenderTerrainBounds(RenderQueue *queue) {
+    auto viewportRect = CoordinateTransformer::GetViewportRect(cameraTransform2DComponent_->GetPosition(),
+                                                               cameraComponent_->GetSize(),
+                                                               cameraComponent_->GetZoom());
+    constexpr float terrainWorldSize = static_cast<float>(TERRAIN_SIZE) * TILE_SIZE;
+    const int minTerrainX = static_cast<int>(std::floor(viewportRect.x / terrainWorldSize));
+    const int minTerrainY = static_cast<int>(std::floor(viewportRect.y / terrainWorldSize));
+    const int maxTerrainX = static_cast<int>(std::floor((viewportRect.x + viewportRect.w) / terrainWorldSize));
+    const int maxTerrainY = static_cast<int>(std::floor((viewportRect.y + viewportRect.h) / terrainWorldSize));
+    for (int terrainX = minTerrainX; terrainX <= maxTerrainX; ++terrainX) {
+        for (int terrainY = minTerrainY; terrainY <= maxTerrainY; ++terrainY) {
+            constexpr SDL_Color terrainBorderColor = {255, 255, 0, 180};
+            WorldVector2D terrainWorldPos{
+                static_cast<float>(terrainX) * terrainWorldSize - HALF_TILE_SIZE,
+                static_cast<float>(terrainY) * terrainWorldSize - HALF_TILE_SIZE
+            };
+            const ScreenVector2D screenPos = CoordinateTransformer::WorldToScreen(
+                cameraTransform2DComponent_->GetPosition(), terrainWorldPos,
+                cameraComponent_->GetSize(), cameraComponent_->GetZoom());
+            const float pixelSize = terrainWorldSize * cameraComponent_->GetZoom();
+            const SDL_FRect rect{
+                screenPos.x,
+                screenPos.y - pixelSize,
+                pixelSize,
+                pixelSize
+            };
+            queue->DrawRect(RenderLayer::Debug, 0.0F, &rect, terrainBorderColor);
         }
     }
 }
@@ -190,8 +222,13 @@ void glimmer::DebugChunkSystem::Render(RenderQueue *queue) {
     if (appContext == nullptr) {
         return;
     }
-    RenderChunkBounds(queue);
-    RenderChunkView(queue, appContext);
+    if (displayChunkView_) {
+        RenderChunkBounds(queue);
+        RenderChunkView(queue, appContext);
+    }
+    if (displayTerrainView_) {
+        RenderTerrainBounds(queue);
+    }
 }
 
 bool glimmer::DebugChunkSystem::HandleEvent(const SDL_Event &event) {

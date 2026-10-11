@@ -91,6 +91,7 @@ namespace glimmer {
         bool displayErosionMap;
         bool displayWeirdnessMap;
         bool displayChunkView;
+        bool displayTerrainView;
         bool displayLightMap;
         //Disable the lighting composite and blit the unlit scene directly.
         //禁用光照合成，直接把无光照场景绘制到屏幕。

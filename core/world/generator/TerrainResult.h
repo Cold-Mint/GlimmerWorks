@@ -62,12 +62,12 @@ namespace glimmer {
          * Pop Structure Tile
          * 弹出结构瓦片
          */
-        void PopStructureTile();
+        void PopAllStructureTile();
 
         /**
          * CommitStructure
          * 将结构提交到地形结果内
          */
-        void CommitStructure();
+        void CommitStructure(const std::unique_ptr<std::bitset<TERRAIN_AREA>> &totalTerrain);
     };
 }

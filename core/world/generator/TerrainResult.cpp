@@ -50,23 +50,26 @@ void glimmer::TerrainResult::PushStructureTile(const StructureTile &structureTil
     terrainTileResultStack_.push(structureTile);
 }
 
-void glimmer::TerrainResult::PopStructureTile() {
-    if (!terrainTileResultStack_.empty()) {
+void glimmer::TerrainResult::PopAllStructureTile() {
+    while (!terrainTileResultStack_.empty()) {
         terrainTileResultStack_.pop();
     }
 }
 
-void glimmer::TerrainResult::CommitStructure() {
+void glimmer::TerrainResult::CommitStructure(const std::unique_ptr<std::bitset<TERRAIN_AREA> > &totalTerrain) {
     while (!terrainTileResultStack_.empty()) {
         const StructureTile &structureTile = terrainTileResultStack_.top();
         const uint32_t tileIndex = structureTile.GetTileIndex();
-        if (tileIndex >= TERRAIN_SIZE) {
+        if (tileIndex >= TERRAIN_AREA) {
             terrainTileResultStack_.pop();
             continue;
         }
         TerrainTileResult &terrainTileResult = terrainTileResult_[tileIndex];
         terrainTileResult.SetTerrainType(TerrainResultType::STRUCTURE);
         terrainTileResult.SetStructure(structureTile.GetLayerType(), structureTile.GetStructureResource());
+        //Set the target point to 0 (mark it as an unplaceable structure to prevent subsequent structures from placing again at this point)
+        //将目标点设置为0（标记为不可放置结构，防止后续结构再次向此点放置）
+        totalTerrain->reset(tileIndex);
         terrainTileResultStack_.pop();
     }
 }

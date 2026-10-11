@@ -42,31 +42,45 @@
 std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerrain(const WorldContext *worldContext,
     const TerrainVertexVector2D &position) const {
     if (climateSampler_ == nullptr) {
+        LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "climate_sampler_is_null",
+                  "climateSampler_ == nullptr");
         return nullptr;
     }
     const int worldSeed = worldContext->GetWorldSeed();
     const Dimension *dimension = worldContext->GetDimension();
     if (dimension == nullptr) {
+        LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "dimension_is_null",
+                  "dimension == nullptr");
         return nullptr;
     }
     const DimensionResource *dimensionResource = dimension->GetDimensionResource();
     if (dimensionResource == nullptr) {
+        LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "dimension_resource_is_null",
+                  "dimensionResource == nullptr");
         return nullptr;
     }
     const ResourceRef &dimensionRef = dimension->GetDimensionResourceRef();
     if (!dimensionRef.IsValid()) {
+        LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "dimension_ref_invalid",
+                  "dimensionRef is invalid");
         return nullptr;
     }
     const AppContext *appContext = worldContext->GetAppContext();
     if (appContext == nullptr) {
+        LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "app_context_is_null",
+                  "appContext == nullptr");
         return nullptr;
     }
     const ModContext *modContext = appContext->GetModContext();
     if (modContext == nullptr) {
+        LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "mod_context_is_null",
+                  "modContext == nullptr");
         return nullptr;
     }
     const BiomeRegistry *biomeRegistry = modContext->GetBiomeRegistry();
     if (biomeRegistry == nullptr) {
+        LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "biome_registry_is_null",
+                  "biomeRegistry == nullptr");
         return nullptr;
     }
     LogCat::d(LogLabel::TERRAIN, "terrain_generating", "Generating terrain: position=({}, {})", position.x, position.y);
@@ -91,29 +105,42 @@ std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerra
     StructurePlacementConditionsRegistry *structurePlacementConditionsRegistry = modContext->
             GetStructurePlacementConditionsRegistry();
     if (structurePlacementConditionsRegistry == nullptr) {
+        LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "structure_placement_conditions_registry_is_null",
+                  "structurePlacementConditionsRegistry == nullptr");
         return nullptr;
     }
 
     ResourceLocator *resourceLocator = appContext->GetResourceLocator();
     if (resourceLocator == nullptr) {
+        LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "resource_locator_is_null",
+                  "resourceLocator == nullptr");
         return nullptr;
     }
 
     StructureRegistry *structureRegistry = modContext->GetStructureRegistry();
     if (structureRegistry == nullptr) {
+        LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "structure_registry_is_null",
+                  "structureRegistry == nullptr");
         return nullptr;
     }
     StructureGeneratorManager *structureGeneratorManager = modContext->GetStructureGeneratorManager();
     if (structureGeneratorManager == nullptr) {
+        LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "structure_generator_manager_is_null",
+                  "structureGeneratorManager == nullptr");
         return nullptr;
     }
     StructurePlacementConditionsProcessorManager *structurePlacementConditionsProcessorManager = modContext->
             GetStructurePlacementConditionsProcessorManager();
     if (structurePlacementConditionsProcessorManager == nullptr) {
+        LogCat::w(LogLabel::TERRAIN, std::source_location::current(),
+                  "structure_placement_conditions_processor_manager_is_null",
+                  "structurePlacementConditionsProcessorManager == nullptr");
         return nullptr;
     }
     const std::vector<IStructureResource *> &structureList = structureRegistry->GetAll();
     if (structureList.empty()) {
+        LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "structure_registry_empty",
+                  "Structure registry is empty");
         return nullptr;
     }
     //Save the placement range of all structures.
@@ -125,24 +152,40 @@ std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerra
     //保存一个结构的总放置点集合。
     auto structureBitset = std::make_unique<std::bitset<TERRAIN_AREA> >();
     auto conditionBitset = std::make_unique<std::bitset<TERRAIN_AREA> >();
+    bool skipStructure = false;
+    bool skipCondition = false;
     for (const auto &structure: structureList) {
         auto &conditionList = structure->condition;
         if (conditionList.empty()) {
             continue;
         }
         structureBitset->set();
-        for (const auto &condition: conditionList) {
+        for (int conditionIndex = 0; conditionIndex < static_cast<int>(conditionList.size()); ++conditionIndex) {
+            const ResourceRef &condition = conditionList[conditionIndex];
             const IStructurePlacementConditionsResource *structurePlacementConditionsResource = resourceLocator->
                     FindStructurePlacementConditions(&condition);
             if (structurePlacementConditionsResource == nullptr) {
-                continue;
+                LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "structure_condition_resource_not_found",
+                          "Structure placement condition resource not found: structure={}, conditionIndex={}, "
+                          "condition={}:{}",
+                          Resource::GenerateId(*structure), conditionIndex, condition.GetPackageId(),
+                          condition.GetResourceKey());
+                structureBitset->reset();
+                skipCondition = true;
+                break;
             }
             IStructureConditionProcessor *structureConditionProcessor = structurePlacementConditionsProcessorManager->
                     FindConditionProcessors(
                         static_cast<StructureConditionProcessorType>(structurePlacementConditionsResource->
                             processorId));
             if (structureConditionProcessor == nullptr) {
-                continue;
+                LogCat::w(LogLabel::TERRAIN, std::source_location::current(), "structure_condition_processor_not_found",
+                          "Structure condition processor not found: structure={}, type={}",
+                          Resource::GenerateId(*structure),
+                          static_cast<int>(structurePlacementConditionsResource->processorId));
+                structureBitset->reset();
+                skipCondition = true;
+                break;
             }
             //Get structure placement points for this condition.
             //得到此条件的结构放置点。
@@ -151,47 +194,72 @@ std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerra
                 dimensionResource, terrainResult.get(), structurePlacementConditionsResource, conditionBitset.get());
             *structureBitset &= *conditionBitset;
         }
+        if (skipCondition) {
+            continue;
+        }
         *structureBitset &= *totalBitset;
         if (structureBitset->none()) {
             continue;
         }
         //执行结构放置
         for (int i = 0; i < TERRAIN_AREA; ++i) {
-            if (structureBitset->test(i)) {
-                const auto relative = CoordinateTransformer::IndexToVector2D<TerrainRelativeVector2D>(
-                    i, TERRAIN_MASK, TERRAIN_SHIFT);
-                const TileVector2D structuralOrigin =
-                        CoordinateTransformer::TerrainRelativeToTile(position, relative);
-                std::unique_ptr<StructureInfo> structureInfo = structureGeneratorManager->Generate(
-                    worldContext, structuralOrigin, structure);
-                // 根据结构的最大和最小顶点，计算对应的地形顶点是否和现在生成的是同一个。(预先推算范围)
-                TerrainVertexVector2D maxTerrainVertex = CoordinateTransformer::TileToTerrainVertex(
-                    structureInfo->GetMaxPosition());
-                if (maxTerrainVertex != position) {
-                    //MaxPosition跨越了地形块
-                    continue;
-                }
-                TerrainVertexVector2D minTerrainVertex = CoordinateTransformer::TileToTerrainVertex(
-                    structureInfo->GetMinPosition());
-                if (minTerrainVertex != position) {
-                    //MinPosition跨越了地形块
-                    continue;
-                }
-                const std::unordered_map<TileLayerType, std::unordered_map<TileVector2D, ResourceRef, Vector2DIHash> > &
-                        structureMap = structureInfo->GetStructureMap();
-                for (auto &[tileLayerType,tileMap]: structureMap) {
-                    //TODO：在这里将结构放置到地形内Push进去，同时检查放置点，是否被占用（totalBitset->test(xxx xxx是当前瓦片的位置转地形相对位置) == 1）。
-                    for (auto &[tilePosition,tileRef]: tileMap) {
-                        TerrainRelativeVector2D terrainRelative = CoordinateTransformer::TileToTerrainRelative(
-                            tilePosition);
-
+            if (!structureBitset->test(i)) {
+                continue;
+            }
+            skipStructure = false;
+            const auto relative = CoordinateTransformer::IndexToVector2D<TerrainRelativeVector2D>(
+                i, TERRAIN_MASK, TERRAIN_SHIFT);
+            const TileVector2D structuralOrigin =
+                    CoordinateTransformer::TerrainRelativeToTile(position, relative);
+            std::unique_ptr<StructureInfo> structureInfo = structureGeneratorManager->Generate(
+                worldContext, structuralOrigin, structure);
+            if (structureInfo == nullptr) {
+                continue;
+            }
+            // 根据结构的最大和最小顶点，计算对应的地形顶点是否和现在生成的是同一个。(预先推算范围)
+            TerrainVertexVector2D maxTerrainVertex = CoordinateTransformer::TileToTerrainVertex(
+                structureInfo->GetMaxPosition());
+            if (maxTerrainVertex != position) {
+                //MaxPosition跨越了地形块
+                continue;
+            }
+            TerrainVertexVector2D minTerrainVertex = CoordinateTransformer::TileToTerrainVertex(
+                structureInfo->GetMinPosition());
+            if (minTerrainVertex != position) {
+                //MinPosition跨越了地形块
+                continue;
+            }
+            const std::unordered_map<TileLayerType, std::unordered_map<TileVector2D, ResourceRef, Vector2DIHash> > &
+                    structureMap = structureInfo->GetStructureMap();
+            for (auto &[tileLayerType,tileMap]: structureMap) {
+                for (auto &[tilePosition,tileRef]: tileMap) {
+                    const TerrainRelativeVector2D terrainRelative = CoordinateTransformer::TileToTerrainRelative(
+                        tilePosition);
+                    const auto index = CoordinateTransformer::GetArrayIndex(
+                        terrainRelative.x, terrainRelative.y, TERRAIN_SHIFT);
+                    if (!totalBitset->test(index)) {
+                        //Duplicate coordinate points have been detected!
+                        //发现重复坐标点！
+                        skipStructure = true;
+                        break;
                     }
+                    StructureTile structureTile;
+                    structureTile.SetStructureTile(&tileRef);
+                    structureTile.SetTileLayerType(tileLayerType);
+                    structureTile.SetTileIndex(index);
+                    terrainResult->PushStructureTile(structureTile);
                 }
+                if (skipStructure) {
+                    break;
+                }
+            }
+            if (skipStructure) {
+                terrainResult->PopAllStructureTile();
+            } else {
+                terrainResult->CommitStructure(totalBitset);
             }
         }
     }
-
-
     LogCat::d(LogLabel::TERRAIN, "terrain_generation_completed", "Terrain generation completed: position=({}, {})",
               position.x,
               position.y);

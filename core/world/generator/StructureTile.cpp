@@ -30,7 +30,7 @@ void glimmer::StructureTile::SetTileIndex(const uint32_t tileIndex) {
     tileIndex_ = tileIndex;
 }
 
-void glimmer::StructureTile::SetStructureTile(ResourceRef *structureResource) {
+void glimmer::StructureTile::SetStructureTile(const ResourceRef *structureResource) {
     structureResource_ = structureResource;
 }
 
@@ -42,7 +42,7 @@ uint32_t glimmer::StructureTile::GetTileIndex() const {
     return tileIndex_;
 }
 
-glimmer::ResourceRef *glimmer::StructureTile::GetStructureResource() const {
+glimmer::ResourceRef const *glimmer::StructureTile::GetStructureResource() const {
     return structureResource_;
 }
 

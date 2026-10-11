@@ -39,15 +39,27 @@ glimmer::LoadWorldGuiSystem::LoadWorldGuiSystem(WorldContext *worldContext) : Gu
     worldContext) {
     Init();
     AppContext *appContext = worldContext->GetAppContext();
-    if (appContext == nullptr) return;
+    if (appContext == nullptr) {
+        return;
+    }
     EventBus *eventBus = appContext->GetEventBus();
-    if (eventBus == nullptr) return;
+    if (eventBus == nullptr) {
+        return;
+    }
     MainThreadDispatcher *dispatcher = appContext->GetMainThreadDispatcher();
     chunkTaskFinishSubscription_ = eventBus->Subscribe<ChunkTaskFinshEvent>(
         [this, dispatcher, worldContext](const ChunkTaskFinshEvent &) {
-            worldContext->SetLoadFinish(true);
-            if (dispatcher == nullptr) return;
-            dispatcher->PostToNextMainFrame([this] {
+            if (!worldContext->IsLoadFinish()) {
+                worldContext->SetLoadFinish(true);
+            }
+
+            if (dispatcher == nullptr) {
+                return;
+            }
+            dispatcher->PostToNextMainFrame([this, worldContext] {
+                if (PlayerContext *playerContext = worldContext->GetPlayerContext(); playerContext != nullptr) {
+                    playerContext->EnablePlayerRigidBody();
+                }
                 if (Rml::ElementDocument *document = GetElementDocument(); document != nullptr) {
                     document->Hide();
                 }
@@ -64,7 +76,7 @@ glimmer::LoadWorldGuiSystem::LoadWorldGuiSystem(WorldContext *worldContext) : Gu
             if (task == nullptr || langsResources == nullptr) {
                 return;
             }
-            const ChunkVertexVector2D pos = task->GetPosition();
+            const ChunkVertexVector2D &pos = task->GetPosition();
             std::string text;
             switch (task->GetTaskType()) {
                 case ChunkTaskType::LOAD:

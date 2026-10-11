@@ -227,6 +227,26 @@ void glimmer::PlayerContext::DisablePlayerRigidBody(const uint32_t playerEntity)
     rigidBody->Disable();
 }
 
+void glimmer::PlayerContext::EnablePlayerRigidBody() const {
+    const EntityShortCut *entityShortCut = worldContext_->GetEntityShortCut();
+    if (entityShortCut == nullptr) {
+        return;
+    }
+    const GameEntityID playerEntity = entityShortCut->GetPlayer();
+    if (WorldContext::IsEmptyEntityId(playerEntity)) {
+        return;
+    }
+    EntityManager *entityManager = worldContext_->GetEntityManager();
+    if (entityManager == nullptr) {
+        return;
+    }
+    auto *rigidBody = entityManager->GetComponent<RigidBody2DComponent>(playerEntity);
+    if (rigidBody == nullptr) {
+        return;
+    }
+    rigidBody->Enable();
+}
+
 void glimmer::PlayerContext::OnPlayerItemChanged(const ItemContainer *itemContainer, uint8_t index, Item *item,
                                                  ContainerChangeType changeType,
                                                  PlayerComponent *playerComponent) const {

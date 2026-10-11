@@ -94,8 +94,12 @@ void glimmer::ChunkPhysicsHelper::MarkVisited(const int startX, const int startY
 void glimmer::ChunkPhysicsHelper::CreateBodyForRect(b2WorldId worldId, Chunk *chunk,
                                                     const ChunkRelativeVector2D &chunkRelativeVector2d, int width,
                                                     int height) {
-    const WorldVector2D worldPos = CoordinateTransformer::TileToWorld(
+    const WorldVector2D topLeftWorld = CoordinateTransformer::TileToWorld(
         CoordinateTransformer::ChunkRelativeToTile(chunk->GetPosition(), chunkRelativeVector2d));
+    const WorldVector2D worldPos = topLeftWorld + WorldVector2D{
+                                       static_cast<float>(width - 1) * HALF_TILE_SIZE,
+                                       static_cast<float>(height - 1) * HALF_TILE_SIZE
+                                   };
     const auto b2BodyId = CreateStaticBody(worldId, worldPos, {width, height});
     chunk->AddBodyId(b2BodyId);
 }

@@ -56,6 +56,7 @@ namespace glimmer {
 
         void DisablePlayerRigidBody(uint32_t playerEntity) const;
 
+
         void OnPlayerItemChanged(const ItemContainer *itemContainer, uint8_t index, Item *item,
                                  ContainerChangeType changeType, PlayerComponent *playerComponent) const;
 
@@ -69,6 +70,8 @@ namespace glimmer {
         explicit PlayerContext(WorldContext *worldContext);
 
         ~PlayerContext();
+
+        void EnablePlayerRigidBody() const;
 
         /**
         * Initialize the player

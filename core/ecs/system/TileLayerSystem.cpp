@@ -36,7 +36,6 @@
 #include "core/world/TileInstancePool.h"
 #include "core/world/WorldContext.h"
 #include "core/world/ChunkManager.h"
-#include "core/utils/ColorUtils.h"
 #include "core/world/Dimension.h"
 #include "core/world/Tile.h"
 #include "core/world/generator/Chunk.h"
@@ -92,7 +91,7 @@ void glimmer::TileLayerSystem::RenderTileSnapshot(RenderQueue *queue, const Tile
     drawnTiles.emplace(tileTopLeftFingerprint);
     const float zoom = cameraComponent_->GetZoom();
     const ScreenVector2D tileTopLeftCamera = CoordinateTransformer::WorldToScreen(
-        cameraTransform2DComponent_->GetPosition(), CoordinateTransformer::TileToWorld(TileVector2D{
+        cameraTransform2DComponent_->GetRenderPosition(), CoordinateTransformer::TileToWorld(TileVector2D{
             tileTopLeftPosition.x, tileTopLeftPosition.y
         }), cameraComponent_->GetSize(), cameraComponent_->GetZoom());
     float width = static_cast<float>(tileState->width()) * TILE_SIZE * zoom;
@@ -150,7 +149,7 @@ void glimmer::TileLayerSystem::Render(RenderQueue *queue) {
     SDL_GetMouseState(&mouseX, &mouseY);
     for (auto tileLayerComponent: tileLayerComponents_) {
         tileLayerComponent->SetFocusPosition(CoordinateTransformer::WorldToTile(CoordinateTransformer::ScreenToWorld(
-            cameraTransform2DComponent_->GetPosition(),
+            cameraTransform2DComponent_->GetRenderPosition(),
             ScreenVector2D(mouseX, mouseY), cameraComponent_->GetSize(), cameraComponent_->GetZoom()
         )));
     }
@@ -168,7 +167,8 @@ void glimmer::TileLayerSystem::Render(RenderQueue *queue) {
                                                                              TileLayerType::BackGround)
                                                                      },
                                                                      CoordinateTransformer::GetViewportRect(
-                                                                         cameraTransform2DComponent_->GetPosition(),
+                                                                         cameraTransform2DComponent_->
+                                                                         GetRenderPosition(),
                                                                          cameraComponent_->GetSize(),
                                                                          cameraComponent_->GetZoom()));
     if (visibleTiles == nullptr) {

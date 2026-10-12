@@ -167,9 +167,9 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
         fmt::format(fmt::runtime(langsResources->debugTimeInfo), dimension->GetNormalizedTime(), timeFlowSpeed)
     });
 
-    if (cameraComponent_->IsPointInViewport(cameraTransform2DComponent_->GetPosition(), mousePosition_)) {
+    if (cameraComponent_->IsPointInViewport(cameraTransform2DComponent_->GetRenderPosition(), mousePosition_)) {
         ScreenVector2D screenPos = CoordinateTransformer::WorldToScreen(
-            cameraTransform2DComponent_->GetPosition(), mousePosition_,
+            cameraTransform2DComponent_->GetRenderPosition(), mousePosition_,
             cameraComponent_->GetSize(), cameraComponent_->GetZoom());
 
         debugLines_.push_back(DebugLine{
@@ -421,7 +421,7 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
         int playerChunkX = getChunkIndex(playerTileX);
         int playerChunkY = getChunkIndex(playerTileY);
 
-        SDL_FRect viewport = CoordinateTransformer::GetViewportRect(cameraTransform2DComponent_->GetPosition(),
+        SDL_FRect viewport = CoordinateTransformer::GetViewportRect(cameraTransform2DComponent_->GetRenderPosition(),
                                                                     cameraComponent_->GetSize(),
                                                                     cameraComponent_->GetZoom());
         int startChunkX = static_cast<int>(std::floor(viewport.x / TILE_SIZE / CHUNK_SIZE));
@@ -455,7 +455,7 @@ bool glimmer::DebugPanelSystem::HandleEvent(const SDL_Event &event) {
     }
     if (event.type == SDL_EVENT_MOUSE_MOTION) {
         mousePosition_ = CoordinateTransformer::ScreenToWorld(
-            cameraTransform2DComponent_->GetPosition(),
+            cameraTransform2DComponent_->GetRenderPosition(),
             ScreenVector2D{
                 event.motion.x, event.motion.y
             },

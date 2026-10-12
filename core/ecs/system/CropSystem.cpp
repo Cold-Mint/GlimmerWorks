@@ -186,7 +186,8 @@ bool glimmer::CropSystem::OnGrowMature(WorldContext *worldContext, Chunk *chunk,
                         }
                         const int relativeX = worldVector2D.x & CHUNK_MASK;
                         const int relativeY = worldVector2D.y & CHUNK_MASK;
-                        const size_t unitIndex = CoordinateTransformer::GetArrayIndex(relativeX, relativeY, CHUNK_SHIFT);
+                        const size_t unitIndex =
+                                CoordinateTransformer::GetArrayIndex(relativeX, relativeY, CHUNK_SHIFT);
                         targetChunk->PlaceTile(structureLayerType, unitIndex, resourceRef, tileResource,
                                                BreakSource::Unknown, PLACE_SOURCE_WORLD_GEN, x, y, false);
                     }

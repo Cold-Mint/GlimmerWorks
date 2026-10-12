@@ -25,6 +25,7 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+
 #include "core/ecs/GameComponent.h"
 #include "core/math/WorldVector2D.h"
 #include "core/utils/VersionAble.h"
@@ -35,7 +36,23 @@ namespace glimmer {
      * 世界坐标组件，用于记录物体在2D游戏世界中的绝对位置
      */
     class Transform2DComponent : public GameComponent, public VersionAble {
-        WorldVector2D position_;
+        //Latest position written by the tick thread.
+        //tick 线程写入的最新位置。
+        WorldVector2D pendingPosition_;
+        //Atomic snapshot of pendingPosition_, so other threads can read the
+        //latest position without racing the tick thread's writes.
+        //pendingPosition_ 的原子快照，供其它线程无竞争地读取最新位置。
+        std::atomic<uint64_t> pendingSnapshot_{0};
+        //Interpolation endpoints and the resolved render position, all owned
+        //by the render thread and updated once per frame in Commit.
+        //插值端点与解析出的渲染位置，均由渲染线程所有，每帧 Commit 更新一次。
+        WorldVector2D previousPosition_;
+        WorldVector2D currentPosition_;
+        WorldVector2D renderPosition_;
+        //Whether the position has been committed at least once; the first
+        //commit aligns instead of interpolating to avoid a teleport from (0,0).
+        //位置是否已提交过至少一次；首次提交直接对齐而非插值，避免从 (0,0) 瞬移。
+        bool firstCommit_ = true;
         float rotation_ = 0.0F;
 
     public:
@@ -48,6 +65,14 @@ namespace glimmer {
          * @param newPosition newPosition 新的坐标
          */
         void SetPosition(const WorldVector2D &newPosition);
+
+        /**
+         * Submit the pending position for this frame and resolve the render
+         * position by interpolating between the two latest positions.
+         * 提交本帧的待定位置，并在最近两个位置之间插值得到渲染位置。
+         * @param alpha interpolation factor in [0, 1] 插值因子，取值 [0, 1]
+         */
+        void Commit(float alpha);
 
         /**
          * SetRotation 设置旋转角度
@@ -63,10 +88,16 @@ namespace glimmer {
 
 
         /**
-         * GetPosition 获取世界坐标
+         * GetPosition 获取最新世界坐标
          * @return 世界坐标
          */
         [[nodiscard]] const WorldVector2D &GetPosition() const;
+
+        /**
+         * GetRenderPosition 获取本帧插值后的渲染位置
+         * @return 渲染位置
+         */
+        [[nodiscard]] const WorldVector2D &GetRenderPosition() const;
 
         [[nodiscard]] std::optional<std::string> Serialize() override;
 

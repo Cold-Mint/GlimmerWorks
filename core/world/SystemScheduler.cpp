@@ -57,6 +57,7 @@
 #include "core/ecs/system/SpiritRendererSystem.h"
 #include "core/ecs/system/TechProviderSystem.h"
 #include "core/ecs/system/TileLayerSystem.h"
+#include "core/ecs/system/Transform2DSystem.h"
 #include "core/log/LogCat.h"
 #include "core/world/WorldContext.h"
 #ifdef __ANDROID__
@@ -387,6 +388,7 @@ void glimmer::SystemScheduler::InitSystem() {
     RegisterSystem(std::make_unique<BlueprintSystem>(worldContext_));
     RegisterSystem(std::make_unique<TechProviderSystem>(worldContext_));
     RegisterSystem(std::make_unique<CropSystem>(worldContext_));
+    RegisterSystem(std::make_unique<Transform2DSystem>(worldContext_));
     RegisterGuiSystem(std::make_unique<PauseSystem>(worldContext_));
     RegisterGuiSystem(std::make_unique<HotBarGUISystem>(worldContext_));
     RegisterGuiSystem(std::make_unique<LoadWorldGuiSystem>(worldContext_));

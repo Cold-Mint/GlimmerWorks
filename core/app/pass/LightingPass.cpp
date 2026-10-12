@@ -177,7 +177,7 @@ void glimmer::LightingPass::FlushLightingPass(RenderFrameContext &ctx) {
 void glimmer::LightingPass::UpdateLightMap(UniformInjectContext *injectContext) {
     const float zoom = injectContext->camera->GetZoom();
     const ScreenVector2D cameraSize(injectContext->width, injectContext->height);
-    const WorldVector2D cameraPosition = injectContext->cameraTransform->GetPosition();
+    const WorldVector2D &cameraPosition = injectContext->cameraTransform->GetRenderPosition();
     const SDL_FRect viewportRect = CoordinateTransformer::GetViewportRect(cameraPosition, cameraSize, zoom);
     const TileVector2D tileMin = CoordinateTransformer::WorldToTile(
         WorldVector2D(viewportRect.x, viewportRect.y));

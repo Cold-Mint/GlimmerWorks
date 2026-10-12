@@ -29,13 +29,14 @@
 #include <cmath>
 #include <numbers>
 
+#include "core/utils/IFingerAssignable.h"
 #include "core/utils/IFingerprintable.h"
 
 namespace glimmer {
     using Vector2DFingerprint = uint64_t;
 
     template<typename Derived>
-    class Vector2DBase : public IFingerprintAble {
+    class Vector2DBase : public IFingerprintAble, public IFingerAssignable {
     public:
         float x = 0.0F;
         float y = 0.0F;
@@ -43,6 +44,8 @@ namespace glimmer {
         Vector2DBase() = default;
 
         Vector2DBase(float tempX, float tempY);
+
+        void FromFingerprint(uint64_t fingerprint) override;
 
         /**
          * Vector addition
@@ -174,9 +177,17 @@ namespace glimmer {
         [[nodiscard]] Vector2DFingerprint GetFingerprint() const override;
     };
 
+
     template<typename Derived>
-    Vector2DBase<Derived>::Vector2DBase(const float tempX, const float tempY)
-        : x(tempX), y(tempY) {
+    Vector2DBase<Derived>::Vector2DBase(float tempX, float tempY) : x(tempX), y(tempY) {
+    }
+
+    template<typename Derived>
+    void Vector2DBase<Derived>::FromFingerprint(const uint64_t fingerprint) {
+        const auto bitsX = static_cast<uint32_t>(fingerprint >> 32);
+        const auto bitsY = static_cast<uint32_t>(fingerprint);
+        x = std::bit_cast<float>(bitsX);
+        y = std::bit_cast<float>(bitsY);
     }
 
     template<typename Derived>

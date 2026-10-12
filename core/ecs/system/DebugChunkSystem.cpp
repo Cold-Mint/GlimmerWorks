@@ -64,23 +64,23 @@ void glimmer::DebugChunkSystem::OnWatchedComponentChanged(GameComponentTypeMessa
 }
 
 void glimmer::DebugChunkSystem::RenderChunkBounds(RenderQueue *queue) {
-    auto viewportRect = CoordinateTransformer::GetViewportRect(cameraTransform2DComponent_->GetPosition(),
+    auto viewportRect = CoordinateTransformer::GetViewportRect(cameraTransform2DComponent_->GetRenderPosition(),
                                                                cameraComponent_->GetSize(),
                                                                cameraComponent_->GetZoom());
-    const float chunkWorldSize = CHUNK_SIZE * TILE_SIZE;
+    constexpr float chunkWorldSize = CHUNK_SIZE * TILE_SIZE;
     const int minChunkX = static_cast<int>(std::floor(viewportRect.x / chunkWorldSize));
     const int minChunkY = static_cast<int>(std::floor(viewportRect.y / chunkWorldSize));
     const int maxChunkX = static_cast<int>(std::floor((viewportRect.x + viewportRect.w) / chunkWorldSize));
     const int maxChunkY = static_cast<int>(std::floor((viewportRect.y + viewportRect.h) / chunkWorldSize));
-    const SDL_Color chunkBorderColor = {0, 255, 255, 180};
     for (int chunkX = minChunkX; chunkX <= maxChunkX; ++chunkX) {
         for (int chunkY = minChunkY; chunkY <= maxChunkY; ++chunkY) {
+            constexpr SDL_Color chunkBorderColor = {0, 255, 255, 180};
             WorldVector2D chunkWorldPos{
                 static_cast<float>(chunkX) * chunkWorldSize - HALF_TILE_SIZE,
                 static_cast<float>(chunkY) * chunkWorldSize - HALF_TILE_SIZE
             };
             const ScreenVector2D screenPos = CoordinateTransformer::WorldToScreen(
-                cameraTransform2DComponent_->GetPosition(), chunkWorldPos,
+                cameraTransform2DComponent_->GetRenderPosition(), chunkWorldPos,
                 cameraComponent_->GetSize(), cameraComponent_->GetZoom());
             const float pixelSize = chunkWorldSize * cameraComponent_->GetZoom();
             const SDL_FRect rect{
@@ -95,7 +95,7 @@ void glimmer::DebugChunkSystem::RenderChunkBounds(RenderQueue *queue) {
 }
 
 void glimmer::DebugChunkSystem::RenderTerrainBounds(RenderQueue *queue) {
-    auto viewportRect = CoordinateTransformer::GetViewportRect(cameraTransform2DComponent_->GetPosition(),
+    auto viewportRect = CoordinateTransformer::GetViewportRect(cameraTransform2DComponent_->GetRenderPosition(),
                                                                cameraComponent_->GetSize(),
                                                                cameraComponent_->GetZoom());
     constexpr float terrainWorldSize = static_cast<float>(TERRAIN_SIZE) * TILE_SIZE;
@@ -111,7 +111,7 @@ void glimmer::DebugChunkSystem::RenderTerrainBounds(RenderQueue *queue) {
                 static_cast<float>(terrainY) * terrainWorldSize - HALF_TILE_SIZE
             };
             const ScreenVector2D screenPos = CoordinateTransformer::WorldToScreen(
-                cameraTransform2DComponent_->GetPosition(), terrainWorldPos,
+                cameraTransform2DComponent_->GetRenderPosition(), terrainWorldPos,
                 cameraComponent_->GetSize(), cameraComponent_->GetZoom());
             const float pixelSize = terrainWorldSize * cameraComponent_->GetZoom();
             const SDL_FRect rect{
@@ -186,7 +186,7 @@ void glimmer::DebugChunkSystem::RenderChunkView(RenderQueue *queue, AppContext *
 
     // Draw Visible Chunks (Orange)
     // 绘制可见区块（橙色）
-    const SDL_FRect viewport = CoordinateTransformer::GetViewportRect(cameraTransform2DComponent_->GetPosition(),
+    const SDL_FRect viewport = CoordinateTransformer::GetViewportRect(cameraTransform2DComponent_->GetRenderPosition(),
                                                                       cameraComponent_->GetSize(),
                                                                       cameraComponent_->GetZoom());
     const int startChunkX = static_cast<int>(std::floor(viewport.x / TILE_SIZE / CHUNK_SIZE));
@@ -237,7 +237,7 @@ bool glimmer::DebugChunkSystem::HandleEvent(const SDL_Event &event) {
     }
     if (event.type == SDL_EVENT_MOUSE_MOTION) {
         mousePosition_ = CoordinateTransformer::ScreenToWorld(
-            cameraTransform2DComponent_->GetPosition(),
+            cameraTransform2DComponent_->GetRenderPosition(),
             ScreenVector2D{
                 event.motion.x, event.motion.y
             },

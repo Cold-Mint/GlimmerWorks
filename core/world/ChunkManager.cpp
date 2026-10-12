@@ -57,7 +57,8 @@ void glimmer::ChunkManager::OnChunkTileChange(Chunk *chunk, [[maybe_unused]] con
 }
 
 
-void glimmer::ChunkManager::UpdateTileLight(const Chunk *chunk, const TileLayerType layerType, const size_t index) const {
+void glimmer::ChunkManager::UpdateTileLight(const Chunk *chunk, const TileLayerType layerType,
+                                            const size_t index) const {
     const AppContext *appContext = worldContext_->GetAppContext();
     if (appContext == nullptr) {
         return;

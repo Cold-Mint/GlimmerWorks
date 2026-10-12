@@ -122,7 +122,7 @@ static constexpr toml::spec TOML_VERSION = toml::spec::v(1, 1, 0);
 
 //The number of ticks per second.
 //每秒的tick数。
-static constexpr double TICK_RATE = 20.0;
+static constexpr double TICK_RATE = 40.0;
 static constexpr float FIXED_TIME_STEP = 1 / TICK_RATE;
 //How many ticks after the player drops an item can it be picked up?
 //玩家丢出物品后多少Tick后可被捡起。

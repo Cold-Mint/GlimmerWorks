@@ -25,9 +25,11 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <bit>
 #include <cmath>
 #include <numbers>
 
+#include "core/utils/IFingerAssignable.h"
 #include "core/utils/IFingerprintable.h"
 #include "src/core/vector2di.pb.h"
 
@@ -35,7 +37,7 @@ namespace glimmer {
     using Vector2DIFingerprint = uint64_t;
 
     template<typename Derived>
-    class Vector2DIBase : public IFingerprintAble {
+    class Vector2DIBase : public IFingerprintAble, public IFingerAssignable {
     public:
         int x = 0;
         int y = 0;
@@ -43,6 +45,8 @@ namespace glimmer {
         Vector2DIBase() = default;
 
         Vector2DIBase(int tempX, int tempY);
+
+        void FromFingerprint(uint64_t fingerprint) override;
 
         void ReadVector2DIMessage(const Vector2DIMessage &vector2di);
 
@@ -186,6 +190,12 @@ namespace glimmer {
     template<typename Derived>
     Vector2DIBase<Derived>::Vector2DIBase(int tempX, int tempY)
         : x(tempX), y(tempY) {
+    }
+
+    template<typename Derived>
+    void Vector2DIBase<Derived>::FromFingerprint(const uint64_t fingerprint) {
+        x = std::bit_cast<int>(static_cast<uint32_t>(fingerprint >> 32));
+        y = std::bit_cast<int>(static_cast<uint32_t>(fingerprint));
     }
 
     template<typename Derived>

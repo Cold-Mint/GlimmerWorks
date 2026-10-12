@@ -114,7 +114,8 @@ void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const b2WorldId world
     std::vector visited(CHUNK_AREA, false);
     for (int y = 0; y < CHUNK_SIZE; ++y) {
         for (int x = 0; x < CHUNK_SIZE; ++x) {
-            if (const size_t baseIdx = CoordinateTransformer::GetArrayIndex(x, y, CHUNK_SHIFT); visited[baseIdx] || !isStaticTile[baseIdx]) {
+            if (const size_t baseIdx = CoordinateTransformer::GetArrayIndex(x, y, CHUNK_SHIFT);
+                visited[baseIdx] || !isStaticTile[baseIdx]) {
                 continue;
             }
             const Vector2DI rectSize = FindRectSize(x, y, isStaticTile, visited);

@@ -80,12 +80,12 @@ void glimmer::DebugDrawSystem::Render(RenderQueue *queue) {
         if (worldPositionComponent == nullptr) {
             continue;
         }
-        if (!cameraComponent_->IsPointInViewport(cameraTransform2DComponent_->GetPosition(),
-                                                 worldPositionComponent->GetPosition())) {
+        if (!cameraComponent_->IsPointInViewport(cameraTransform2DComponent_->GetRenderPosition(),
+                                                 worldPositionComponent->GetRenderPosition())) {
             continue;
         }
         const auto ScreenVector2D = CoordinateTransformer::WorldToScreen(
-            cameraTransform2DComponent_->GetPosition(), worldPositionComponent->GetPosition(),
+            cameraTransform2DComponent_->GetRenderPosition(), worldPositionComponent->GetRenderPosition(),
             cameraComponent_->GetSize(), cameraComponent_->GetZoom());
 
         const auto color = debugDrawComponent->GetColor();

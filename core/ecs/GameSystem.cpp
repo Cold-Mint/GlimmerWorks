@@ -157,7 +157,7 @@ void glimmer::GameSystem::Update(const float delta) {
 }
 
 uint8_t glimmer::GameSystem::GetExecutionOrder() {
-    return 0;
+    return 255;
 }
 
 void glimmer::GameSystem::Render(RenderQueue *queue) {

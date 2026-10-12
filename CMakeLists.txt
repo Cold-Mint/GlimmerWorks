@@ -486,6 +486,7 @@ target_sources(GlimmerWorks
         core/console/LocalConsoleInput.cpp
         core/tick/TickWorker.cpp
         core/task/TaskWorker.cpp
+        core/ecs/system/Transform2DSystem.cpp
         core/console/asset_enumerator/AbilityItemsAssetEnumerator.cpp
         core/console/asset_enumerator/BiomeDecorsAssetEnumerator.cpp
         core/console/asset_enumerator/BiomesAssetEnumerator.cpp
@@ -834,6 +835,8 @@ target_sources(GlimmerWorks
         core/world/scheduler/ChunkTask.h
         core/world/scheduler/ChunkTaskType.h
         core/log/LogLabel.h
+        core/ecs/system/Transform2DSystem.h
+        core/utils/IFingerAssignable.h
         core/saves/PlayerManifest.h
         core/world/DynamicLightEntry.h
         core/mod/PackScanRequest.h

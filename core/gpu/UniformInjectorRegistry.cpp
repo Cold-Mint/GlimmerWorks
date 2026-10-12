@@ -48,7 +48,7 @@ namespace {
             dst[1] = 0.0F;
             return;
         }
-        const glimmer::WorldVector2D position = ctx.cameraTransform->GetPosition();
+        const glimmer::WorldVector2D position = ctx.cameraTransform->GetRenderPosition();
         dst[0] = position.x;
         dst[1] = position.y;
     }

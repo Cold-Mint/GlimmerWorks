@@ -26,19 +26,44 @@
  */
 #include "Transform2DComponent.h"
 
+#include <bit>
+
 #include "core/config/Constants.h"
 #include "src/saves/transform2d.pb.h"
 #include "core/math/WorldVector2D.h"
 
-glimmer::Transform2DComponent::Transform2DComponent(const WorldVector2D &position) : position_(position) {
+
+glimmer::Transform2DComponent::Transform2DComponent(const WorldVector2D &position)
+    : pendingPosition_(position),
+      previousPosition_(position),
+      currentPosition_(position),
+      renderPosition_(position) {
+    pendingSnapshot_.store(position.GetFingerprint(), std::memory_order_release);
 }
 
 void glimmer::Transform2DComponent::SetPosition(const WorldVector2D &newPosition) {
-    if (newPosition == position_) {
+    if (newPosition == pendingPosition_) {
         return;
     }
-    position_ = newPosition;
+    pendingPosition_ = newPosition;
+    pendingSnapshot_.store(newPosition.GetFingerprint(), std::memory_order_release);
     AddVersion();
+}
+
+void glimmer::Transform2DComponent::Commit(const float alpha) {
+    previousPosition_ = currentPosition_;
+    currentPosition_.FromFingerprint(pendingSnapshot_.load(std::memory_order_acquire));
+    if (firstCommit_) {
+        //First commit: align instead of interpolating to avoid a teleport
+        //from the default (0,0) position.
+        //首次提交：直接对齐而非插值，避免从默认 (0,0) 位置瞬移。
+        previousPosition_ = currentPosition_;
+        renderPosition_ = currentPosition_;
+        firstCommit_ = false;
+    } else {
+        renderPosition_.x = previousPosition_.x + (currentPosition_.x - previousPosition_.x) * alpha;
+        renderPosition_.y = previousPosition_.y + (currentPosition_.y - previousPosition_.y) * alpha;
+    }
 }
 
 void glimmer::Transform2DComponent::SetRotation(const float newRotation) {
@@ -54,14 +79,20 @@ float glimmer::Transform2DComponent::GetRotation() const {
 }
 
 const glimmer::WorldVector2D &glimmer::Transform2DComponent::GetPosition() const {
-    return position_;
+    return pendingPosition_;
+}
+
+
+const glimmer::WorldVector2D &glimmer::Transform2DComponent::GetRenderPosition() const {
+    return renderPosition_;
 }
 
 std::optional<std::string> glimmer::Transform2DComponent::Serialize() {
     Transform2dMessage transform2DMessage;
+    const WorldVector2D &position = GetPosition();
     const auto pos = transform2DMessage.mutable_position();
-    pos->set_x(position_.x);
-    pos->set_y(position_.y);
+    pos->set_x(position.x);
+    pos->set_y(position.y);
     transform2DMessage.set_rotation(rotation_);
     return transform2DMessage.SerializeAsString();
 }

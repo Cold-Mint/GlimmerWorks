@@ -637,15 +637,17 @@ void glimmer::DebugDrawBox2dSystem::Render(RenderQueue *queue) {
             continue;
         }
         const SDL_Color rayColor = rayComp->IsHit() ? SDL_Color{255, 0, 0, 255} : SDL_Color{0, 0, 255, 255};
-        WorldVector2D startPosition = transform2dComponent->GetPosition() + rayComp->
+        WorldVector2D startPosition = transform2dComponent->GetRenderPosition() + rayComp->
                                       GetOrigin();
-        const ScreenVector2D origin = CoordinateTransformer::WorldToScreen(cameraTransform2DComponent_->GetPosition(),
-                                                                           startPosition, cameraComponent_->GetSize(),
-                                                                           cameraComponent_->GetZoom());
-        const ScreenVector2D end = CoordinateTransformer::WorldToScreen(cameraTransform2DComponent_->GetPosition(),
-                                                                        startPosition + rayComp->GetTranslation(),
-                                                                        cameraComponent_->GetSize(),
-                                                                        cameraComponent_->GetZoom());
+        const ScreenVector2D origin = CoordinateTransformer::WorldToScreen(
+            cameraTransform2DComponent_->GetRenderPosition(),
+            startPosition, cameraComponent_->GetSize(),
+            cameraComponent_->GetZoom());
+        const ScreenVector2D end = CoordinateTransformer::WorldToScreen(
+            cameraTransform2DComponent_->GetRenderPosition(),
+            startPosition + rayComp->GetTranslation(),
+            cameraComponent_->GetSize(),
+            cameraComponent_->GetZoom());
         queue->DrawLine(RenderLayer::Debug, 0.0F, origin.x, origin.y, end.x, end.y, rayColor);
     }
 }

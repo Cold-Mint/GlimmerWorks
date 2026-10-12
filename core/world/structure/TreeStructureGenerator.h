@@ -38,7 +38,7 @@ namespace glimmer {
 
     public:
         std::unique_ptr<StructureInfo> Generate(const WorldContext *worldContext, const TileVector2D &startPosition,
-            IStructureResource *structureResource) override;
+                                                IStructureResource *structureResource) override;
 
         [[nodiscard]] StructureGeneratorType GetStructureGeneratorType() const override;
     };

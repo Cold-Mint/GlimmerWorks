@@ -68,6 +68,6 @@ namespace glimmer {
          * CommitStructure
          * 将结构提交到地形结果内
          */
-        void CommitStructure(const std::unique_ptr<std::bitset<TERRAIN_AREA>> &totalTerrain);
+        void CommitStructure(const std::unique_ptr<std::bitset<TERRAIN_AREA> > &totalTerrain);
     };
 }

@@ -146,11 +146,11 @@ void glimmer::DroppedItemSystem::Render(RenderQueue *queue) {
         if (icon == nullptr) {
             continue;
         }
-        if (cameraComponent_->IsPointInViewport(cameraTransform2DComponent_->GetPosition(),
-                                                transform2DComponent->GetPosition())) {
-            const auto worldPos = transform2DComponent->GetPosition();
+        if (cameraComponent_->IsPointInViewport(cameraTransform2DComponent_->GetRenderPosition(),
+                                                transform2DComponent->GetRenderPosition())) {
+            const auto &worldPos = transform2DComponent->GetRenderPosition();
             const ScreenVector2D viewport = CoordinateTransformer::WorldToScreen(
-                cameraTransform2DComponent_->GetPosition(), worldPos, cameraComponent_->GetSize(),
+                cameraTransform2DComponent_->GetRenderPosition(), worldPos, cameraComponent_->GetSize(),
                 cameraComponent_->GetZoom());
             SDL_FRect dstRect{
                 viewport.x - size * 0.5F,

@@ -515,7 +515,7 @@ void glimmer::MiningSystem::RenderDiggingPoint(RenderQueue *queue, const MiningR
         tileTopLeftPosition.x, tileTopLeftPosition.y
     });
     const ScreenVector2D ScreenVector2D = CoordinateTransformer::WorldToScreen(
-        cameraTransform2DComponent_->GetPosition(), tileTopLeftPositionWorld, cameraComponent_->GetSize(),
+        cameraTransform2DComponent_->GetRenderPosition(), tileTopLeftPositionWorld, cameraComponent_->GetSize(),
         cameraComponent_->GetZoom());
     const auto maxIndex = static_cast<float>(textureResultList_.size() - 1);
     const auto crackIndex = static_cast<uint8_t>(std::min(miningComponent_->GetProgress() * maxIndex,

@@ -49,7 +49,8 @@ namespace glimmer {
         std::unordered_map<TileLayerType, std::array<std::unique_ptr<TileStateMessage>, CHUNK_AREA> >
         tileState_;
         std::unordered_map<TileLayerType, std::array<std::unique_ptr<TileSnapshot>, CHUNK_AREA> > tileSnapshots_;
-        std::vector<std::function<void(Chunk *chunk, size_t index, std::shared_ptr<Tile> tile, TileLayerType layerType)> >
+        std::vector<std::function<void(Chunk *chunk, size_t index, std::shared_ptr<Tile> tile,
+                                       TileLayerType layerType)> >
         onTileRebuilt_;
 
         std::vector<std::function<void(Chunk *chunk, TileLayerType layerType, size_t index,

@@ -238,7 +238,8 @@ namespace glimmer {
          * @param resourceRef resourceRef 结构放置条件引用
          * @return
          */
-        [[nodiscard]] IStructurePlacementConditionsResource* FindStructurePlacementConditions(const ResourceRef* resourceRef) const;
+        [[nodiscard]] IStructurePlacementConditionsResource *FindStructurePlacementConditions(
+            const ResourceRef *resourceRef) const;
 
         /**
          * FindComposableItem

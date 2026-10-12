@@ -141,7 +141,7 @@ void glimmer::DebugMultiMapSystem::Render(RenderQueue *queue) {
     if (appContext == nullptr) {
         return;
     }
-    auto viewportRect = CoordinateTransformer::GetViewportRect(cameraTransform2DComponent_->GetPosition(),
+    auto viewportRect = CoordinateTransformer::GetViewportRect(cameraTransform2DComponent_->GetRenderPosition(),
                                                                cameraComponent_->GetSize(),
                                                                cameraComponent_->GetZoom());
     const float zoom = cameraComponent_->GetZoom();
@@ -156,7 +156,7 @@ void glimmer::DebugMultiMapSystem::Render(RenderQueue *queue) {
             const TileVector2D tileVector2D = {x, y};
             const WorldVector2D worldTilePos = CoordinateTransformer::TileToWorld(tileVector2D);
             const ScreenVector2D screenPos = CoordinateTransformer::WorldToScreen(
-                cameraTransform2DComponent_->GetPosition(), worldTilePos, cameraComponent_->GetSize(),
+                cameraTransform2DComponent_->GetRenderPosition(), worldTilePos, cameraComponent_->GetSize(),
                 cameraComponent_->GetZoom());
             SDL_FRect renderQuad;
             renderQuad.w = TILE_SIZE * zoom;

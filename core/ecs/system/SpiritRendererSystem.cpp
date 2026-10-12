@@ -99,16 +99,17 @@ void glimmer::SpiritRendererSystem::Render(RenderQueue *queue) {
             continue;
         }
         TextureResourceResult *sdlTexture = spiritRendererComponent->GetTexture(resourceLocator);
-        WorldVector2D worldVector2d = transform2DComponent->GetPosition() + spiritRendererComponent->GetPosition();
+        WorldVector2D worldVector2d = transform2DComponent->GetRenderPosition() + spiritRendererComponent->
+                                      GetPosition();
         SDL_FRect worldVectorRect = {
             worldVector2d.x,
             worldVector2d.y,
             static_cast<float>(sdlTexture->GetWidth()),
             static_cast<float>(sdlTexture->GetHeight())
         };
-        if (cameraComponent_->IsRectInViewport(cameraTransform2DComponent_->GetPosition(), &worldVectorRect)) {
+        if (cameraComponent_->IsRectInViewport(cameraTransform2DComponent_->GetRenderPosition(), &worldVectorRect)) {
             ScreenVector2D ScreenVector2D = CoordinateTransformer::WorldToScreen(
-                cameraTransform2DComponent_->GetPosition(), worldVector2d, cameraComponent_->GetSize(),
+                cameraTransform2DComponent_->GetRenderPosition(), worldVector2d, cameraComponent_->GetSize(),
                 cameraComponent_->GetZoom());
             SDL_FRect dstrect = {
                 ScreenVector2D.x, ScreenVector2D.y, static_cast<float>(sdlTexture->GetWidth()) * zoom,

@@ -30,6 +30,7 @@
 #include "Dimension.h"
 #include "ChunkManager.h"
 #include "SystemScheduler.h"
+#include "PhysicsTaskQueue.h"
 #include "core/config/Constants.h"
 #include "core/log/LogCat.h"
 #include "core/context/AppContext.h"
@@ -128,6 +129,10 @@ glimmer::PlayerContext *glimmer::WorldContext::GetPlayerContext() const {
     return playerContext_.get();
 }
 
+glimmer::PhysicsTaskQueue *glimmer::WorldContext::GetPhysicsTaskQueue() const {
+    return physicsTaskQueue_.get();
+}
+
 void glimmer::WorldContext::SaveEntity(EntityItemMessage *entityItemMessage, const GameEntityID entityId) const {
     worldSaver_.SaveEntity(entityItemMessage, entityId);
 }
@@ -176,7 +181,9 @@ uint64_t glimmer::WorldContext::GetGlobalTick() const {
 
 glimmer::WorldContext::WorldContext(AppContext *appContext, Saves *saves) : saves_(saves),
                                                                             appContext_(appContext),
-                                                                            worldSaver_(this) {
+                                                                            worldSaver_(this),
+                                                                            physicsTaskQueue_(
+                                                                                std::make_unique<PhysicsTaskQueue>()) {
     WorldBuilder builder(this);
     builder.Build();
 }

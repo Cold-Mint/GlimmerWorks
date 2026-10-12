@@ -32,6 +32,7 @@
 #include "box2d/box2d.h"
 #include "core/ecs/component/RigidBody2DComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
+#include "core/world/PhysicsTaskQueue.h"
 
 
 void glimmer::PhysicsSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType,
@@ -51,6 +52,13 @@ void glimmer::PhysicsSystem::OnWatchedComponentChanged(GameComponentTypeMessage 
 }
 
 void glimmer::PhysicsSystem::OnTick(uint64_t tick) {
+    //Apply all physics mutations enqueued by other threads before stepping the world.
+    //在步进世界前，应用其他线程投递的所有物理修改。
+    if (const WorldContext *worldContext = GetWorldContext(); worldContext != nullptr) {
+        if (PhysicsTaskQueue *taskQueue = worldContext->GetPhysicsTaskQueue(); taskQueue != nullptr) {
+            taskQueue->Drain();
+        }
+    }
     b2World_Step(worldId_, FIXED_TIME_STEP, 4);
     for (const GameEntityID entityId: entities_) {
         const RigidBody2DComponent *rigidBody2dComponent = entityManager_->GetComponent<RigidBody2DComponent>(entityId);

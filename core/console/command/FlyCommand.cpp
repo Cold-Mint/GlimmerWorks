@@ -29,7 +29,9 @@
 #include "box2d/box2d.h"
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/ecs/component/RigidBody2DComponent.h"
+#include "core/ecs/component/Transform2DComponent.h"
 #include "core/utils/Box2DUtils.h"
+#include "core/world/PhysicsTaskQueue.h"
 #include "core/world/WorldContext.h"
 #include "fmt/xchar.h"
 
@@ -123,12 +125,25 @@ bool glimmer::FlyCommand::Execute(const CommandSender *commandSender, const Comm
         auto transform2DComponent = entityManager->GetComponent<Transform2DComponent>(playerId);
         if (transform2DComponent != nullptr) {
             auto rigidBody2DComponent = entityManager->GetComponent<RigidBody2DComponent>(playerId);
-            if (rigidBody2DComponent && rigidBody2DComponent->IsReady()) {
+            if (rigidBody2DComponent != nullptr) {
                 rigidBody2DComponent->Enable();
-                b2Vec2 newPos = Box2DUtils::ToMeters(transform2DComponent->GetPosition());
-                b2BodyId bodyId = rigidBody2DComponent->GetBodyId();
-                b2Rot currentRot = b2Body_GetRotation(bodyId);
-                b2Body_SetTransform(bodyId, newPos, currentRot);
+                const WorldVector2D position = transform2DComponent->GetPosition();
+                if (PhysicsTaskQueue *taskQueue = worldContext->GetPhysicsTaskQueue(); taskQueue != nullptr) {
+                    taskQueue->Enqueue([worldContext, playerId, position] {
+                        EntityManager *entityManager = worldContext->GetEntityManager();
+                        if (entityManager == nullptr) {
+                            return;
+                        }
+                        const auto body = entityManager->GetComponent<RigidBody2DComponent>(playerId);
+                        if (body == nullptr || !body->IsReady()) {
+                            return;
+                        }
+                        const b2Vec2 newPos = Box2DUtils::ToMeters(position);
+                        const b2BodyId bodyId = body->GetBodyId();
+                        const b2Rot currentRot = b2Body_GetRotation(bodyId);
+                        b2Body_SetTransform(bodyId, newPos, currentRot);
+                    });
+                }
             }
         }
         onMessageRef(langsResources->flyDisable);

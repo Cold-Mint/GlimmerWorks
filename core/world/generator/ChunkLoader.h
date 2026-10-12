@@ -52,7 +52,7 @@ namespace glimmer {
          * @param dimensionRef dimensionRef
          * @param position position 位置
          */
-        [[nodiscard]] std::unique_ptr<Chunk> LoadChunkFromSaves(const ResourceRef &dimensionRef,
+        [[nodiscard]] std::shared_ptr<Chunk> LoadChunkFromSaves(const ResourceRef &dimensionRef,
                                                                 const ChunkVertexVector2D &position) const;
 
         /**

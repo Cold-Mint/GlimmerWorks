@@ -29,6 +29,7 @@
 #include "core/config/Constants.h"
 #include "core/ecs/component/RigidBody2DComponent.h"
 #include "core/utils/Box2DUtils.h"
+#include "core/world/PhysicsTaskQueue.h"
 #include "core/world/WorldContext.h"
 #include "box2d/box2d.h"
 #include "fmt/color.h"
@@ -85,14 +86,24 @@ bool glimmer::TpCommand::Execute(const CommandSender *commandSender, const Comma
         return false;
     }
     const WorldVector2D commandSenderPosition = commandSender->GetPosition();
-    auto rigidBody2DComponent = worldContext->GetEntityManager()->GetComponent<RigidBody2DComponent>(playerEntity);
-    if (rigidBody2DComponent && rigidBody2DComponent->IsReady()) {
-        b2Vec2 newPos = Box2DUtils::ToMeters({
-            commandArgs->AsCoordinate(1, commandSenderPosition.x),
-            commandArgs->AsCoordinate(2, commandSenderPosition.y)
+    const WorldVector2D newPosition{
+        commandArgs->AsCoordinate(1, commandSenderPosition.x),
+        commandArgs->AsCoordinate(2, commandSenderPosition.y)
+    };
+    if (PhysicsTaskQueue *taskQueue = worldContext->GetPhysicsTaskQueue(); taskQueue != nullptr) {
+        taskQueue->Enqueue([worldContext, playerEntity, newPosition] {
+            EntityManager *entityManager = worldContext->GetEntityManager();
+            if (entityManager == nullptr) {
+                return;
+            }
+            const auto rigidBody2DComponent = entityManager->GetComponent<RigidBody2DComponent>(playerEntity);
+            if (rigidBody2DComponent == nullptr || !rigidBody2DComponent->IsReady()) {
+                return;
+            }
+            const b2Vec2 newPos = Box2DUtils::ToMeters(newPosition);
+            const b2Rot currentRot = b2Body_GetRotation(rigidBody2DComponent->GetBodyId());
+            b2Body_SetTransform(rigidBody2DComponent->GetBodyId(), newPos, currentRot);
         });
-        b2Rot currentRot = b2Body_GetRotation(rigidBody2DComponent->GetBodyId());
-        b2Body_SetTransform(rigidBody2DComponent->GetBodyId(), newPos, currentRot);
     }
     onMessageRef(fmt::format(
         fmt::runtime(langsResources->teleportEntity),

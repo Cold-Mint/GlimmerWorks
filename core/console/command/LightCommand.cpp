@@ -103,23 +103,19 @@ bool glimmer::LightCommand::ExecuteInspector(AppContext *appContext,
 std::string glimmer::LightCommand::BuildLightContributionString(const TileLightData *lightData,
                                                                 const LangsResources *langsResources) {
     std::stringstream lightContributionStream;
-    const std::unordered_map<TileLayerType, std::vector<std::unique_ptr<LightContribution> > > *lightContributions =
+    const std::unordered_map<TileLayerType, std::vector<LightContribution> > *lightContributions =
             lightData->GetLightContributions();
     if (lightContributions == nullptr) {
         return lightContributionStream.str();
     }
     for (const auto &[layerType,contributionList]: *lightContributions) {
-        for (const auto &lightPtr: contributionList) {
-            if (lightPtr == nullptr) {
-                continue;
-            }
-            LightContribution *contribution = lightPtr.get();
-            const Color *lightColor = contribution->GetLightColor();
-            const TileVector2D lightPosition = lightPtr->GetLightSource()->GetCenter();
+        for (const auto &contribution: contributionList) {
+            const Color &lightColor = contribution.GetLightColor();
+            const TileVector2D &lightPosition = contribution.GetLightSource()->GetCenter();
             lightContributionStream << '\n';
             lightContributionStream << fmt::format(fmt::runtime(langsResources->lightContributionInfo),
-                                                   std::to_underlying(layerType), lightColor->r,
-                                                   lightColor->g, lightColor->b, lightColor->a,
+                                                   std::to_underlying(layerType), lightColor.r,
+                                                   lightColor.g, lightColor.b, lightColor.a,
                                                    0, lightPosition.x,
                                                    lightPosition.y);
         }
@@ -201,17 +197,17 @@ bool glimmer::LightCommand::ExecuteInfo(const CommandSender *commandSender, cons
     const std::string lightContributionStr = BuildLightContributionString(lightData, langsResources);
     const std::string lightSourceStr = BuildLightSourceString(lightData, langsResources, tileVector2D);
     const std::string lightMaskStr = BuildLightMaskString(lightData, langsResources);
-    const Color *finalColor = lightData->GetFinalLightColor();
+    const std::optional<Color> &finalColor = lightData->GetFinalLightColor();
     std::stringstream stringStream;
-    if (finalColor == nullptr) {
-        stringStream << fmt::format(fmt::runtime(langsResources->lightInfo), tileVector2D.x, tileVector2D.y,
-                                    -1, -1,
-                                    -1, -1, lightContributionStr,
-                                    lightSourceStr, lightMaskStr);
-    } else {
+    if (finalColor.has_value()) {
         stringStream << fmt::format(fmt::runtime(langsResources->lightInfo), tileVector2D.x, tileVector2D.y,
                                     finalColor->r, finalColor->g,
                                     finalColor->b, finalColor->a, lightContributionStr,
+                                    lightSourceStr, lightMaskStr);
+    } else {
+        stringStream << fmt::format(fmt::runtime(langsResources->lightInfo), tileVector2D.x, tileVector2D.y,
+                                    -1, -1,
+                                    -1, -1, lightContributionStr,
                                     lightSourceStr, lightMaskStr);
     }
     onMessageRef(stringStream.str());

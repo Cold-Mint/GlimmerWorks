@@ -26,8 +26,6 @@
  */
 #pragma once
 
-#include "Vector2DI.h"
-
 namespace glimmer {
     struct Vector2DIHash {
         template<typename TVec>

@@ -37,6 +37,8 @@ namespace glimmer {
         std::string unknownCommandParameters;
         std::string worldContextIsNull;
         std::string cheatsNotAllowed;
+        std::string worldNotLoaded;
+        std::string gameNotRunning;
         std::string insufficientParameterLength;
         std::string configurationUpdate;
         std::string itemIdNotFound;

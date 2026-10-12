@@ -27,7 +27,10 @@
 #if  !defined(NDEBUG)
 #include "Box2DCommand.h"
 
+#include <future>
+
 #include "core/config/Constants.h"
+#include "core/world/PhysicsTaskQueue.h"
 #include "core/world/WorldContext.h"
 #include "box2d/box2d.h"
 #include "fmt/color.h"
@@ -78,7 +81,16 @@ bool glimmer::Box2DCommand::Execute(const CommandSender *commandSender, const Co
     if (commandArgs->AsString(1) == "count") {
         //Obtain the number of active rigid bodies
         //获取活跃的刚体数量
-        const auto bodyCount = b2World_GetAwakeBodyCount(worldContext->GetWorldId());
+        PhysicsTaskQueue *taskQueue = worldContext->GetPhysicsTaskQueue();
+        if (taskQueue == nullptr) {
+            return false;
+        }
+        auto promise = std::make_shared<std::promise<int> >();
+        std::future<int> future = promise->get_future();
+        taskQueue->Enqueue([worldContext, promise]() {
+            promise->set_value(b2World_GetAwakeBodyCount(worldContext->GetWorldId()));
+        });
+        const int bodyCount = future.get();
         onMessageRef(fmt::format(
             fmt::runtime(langsResources->awakeBodyCount),
             bodyCount));

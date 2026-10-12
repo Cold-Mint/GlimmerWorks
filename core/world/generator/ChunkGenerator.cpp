@@ -66,7 +66,7 @@ glimmer::ChunkGenerator::ChunkGenerator(WorldContext *worldContext,
     dimensionId_(ResolveDimensionId(dimensionResource)) {
 }
 
-std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const ChunkVertexVector2D &position,
+std::shared_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const ChunkVertexVector2D &position,
                                                                          TerrainResult *terrainResult) const {
     if (worldContext_ == nullptr) {
         return nullptr;
@@ -89,7 +89,7 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const C
     }
     LogCat::i(LogLabel::CHUNK, "chunk_generating", "Generating new chunk at position: ({}, {})", position.x,
               position.y);
-    auto chunk = std::make_unique<Chunk>(worldContext_, position);
+    auto chunk = std::make_shared<Chunk>(worldContext_, position);
     std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > tilesRefMap = {
         {TileLayerType::Ground, {}},
         {TileLayerType::BackGround, {}}

@@ -41,17 +41,17 @@ namespace glimmer {
      * 瓦片光照数据
      */
     class TileLightData {
-        std::unordered_map<TileLayerType, std::vector<std::unique_ptr<LightContribution> > > lightContributions_;
+        std::unordered_map<TileLayerType, std::vector<LightContribution> > lightContributions_;
         std::unordered_map<TileLayerType, std::unique_ptr<LightSource> > lightSourceData_;
         std::unordered_map<TileLayerType, std::unordered_map<LightDirection, std::unique_ptr<LightMask> > >
         lightMaskData_;
-        std::unique_ptr<Color> finalLightColor_;
+        std::optional<Color> finalLightColor_;
 
         /**
          * ComputeFinalLightColor
          * 计算总颜色。
          */
-        [[nodiscard]] std::unique_ptr<Color> ComputeFinalLightColor();
+        [[nodiscard]] std::optional<Color> ComputeFinalLightColor();
 
     public:
         /**
@@ -60,7 +60,7 @@ namespace glimmer {
          * @param layerType layerType 图层类型
          * @param contribution contribution 贡献
          */
-        void SetLightContribution(TileLayerType layerType, std::unique_ptr<LightContribution> contribution);
+        void SetLightContribution(TileLayerType layerType, const LightContribution &contribution);
 
         /**
          * ClearAllLightContributions
@@ -68,7 +68,7 @@ namespace glimmer {
          */
         void ClearAllLightContributions();
 
-        [[nodiscard]] const std::unordered_map<TileLayerType, std::vector<std::unique_ptr<LightContribution> > > *
+        [[nodiscard]] const std::unordered_map<TileLayerType, std::vector<LightContribution> > *
         GetLightContributions() const;
 
 
@@ -90,8 +90,8 @@ namespace glimmer {
          * @param targetLightSource 目标光源。
          * @return
          */
-        [[nodiscard]] const LightContribution *GetLightContribution(TileLayerType layerType,
-                                                                    const LightSource *targetLightSource);
+        [[nodiscard]] std::optional<LightContribution> GetLightContribution(TileLayerType layerType,
+                                                                            const LightSource *targetLightSource);
 
         /**
          * GetLightContributionVector
@@ -146,7 +146,7 @@ namespace glimmer {
          * 获取最终的光照。
          * @return
          */
-        [[nodiscard]] const Color *GetFinalLightColor() const;
+        [[nodiscard]] const std::optional<Color> &GetFinalLightColor() const;
 
 
         /**

@@ -78,9 +78,10 @@ namespace glimmer {
          * GenerateChunkAt
          * 在指定位置生成区块
          * @param position position 区块位置
+         * @param terrainResult
          * @return The generated chunk, or nullptr on failure 生成的区块，失败时返回nullptr
          */
-        [[nodiscard]] std::unique_ptr<Chunk> GenerateChunkAt(const ChunkVertexVector2D &position,
+        [[nodiscard]] std::shared_ptr<Chunk> GenerateChunkAt(const ChunkVertexVector2D &position,
                                                              TerrainResult *terrainResult) const;
 
         /**

@@ -75,6 +75,21 @@ namespace glimmer {
          */
         [[nodiscard]] virtual bool RequiresWorldContext() const;
 
+
+        /**
+         * The game needs to remain running in order to execute the command.
+         * 需要游戏保持运行，才能执行命令
+         * @return
+         */
+        [[nodiscard]] virtual bool RequiresGameRunning() const;
+
+        /**
+         * It can only be executed after the world has been fully loaded.
+         * 需要世界加载完成后才能执行
+         * @return
+         */
+        [[nodiscard]] virtual bool RequiresWorldLoadFinsh() const;
+
         /**
         * RequiresCheatEnabled
         * 是否需要开启作弊才能使用此命令

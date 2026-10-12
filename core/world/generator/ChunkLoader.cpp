@@ -58,7 +58,7 @@ glimmer::ChunkLoader::ChunkLoader(WorldContext *worldContext, Saves *saves) : sa
                                                                                   worldContext_->GetEntityManager()) {
 }
 
-std::unique_ptr<glimmer::Chunk> glimmer::ChunkLoader::LoadChunkFromSaves(const ResourceRef &dimensionRef,
+std::shared_ptr<glimmer::Chunk> glimmer::ChunkLoader::LoadChunkFromSaves(const ResourceRef &dimensionRef,
                                                                          const ChunkVertexVector2D &position) const {
     if (worldContext_ == nullptr) {
         return nullptr;
@@ -67,7 +67,7 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkLoader::LoadChunkFromSaves(const R
         if (const auto chunkMessage = saves_->ReadChunk(dimensionRef, position); chunkMessage.has_value()) {
             LogCat::i(LogLabel::CHUNK, "chunk_loading_from_saves", "Loading chunk from saves at: ({}, {})",
                       position.x, position.y);
-            auto chunk = std::make_unique<Chunk>(worldContext_, position);
+            auto chunk = std::make_shared<Chunk>(worldContext_, position);
             chunk->ReadChunkMessage(chunkMessage.value());
             LoadEntityFromSaves(dimensionRef, position);
             return chunk;

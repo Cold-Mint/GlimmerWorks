@@ -48,17 +48,15 @@
 #include "src/saves/chunk.pb.h"
 
 
-void glimmer::ChunkManager::OnChunkTileChange(Chunk *chunk, [[maybe_unused]] const std::shared_ptr<Tile> &tile,
-                                              const TileLayerType layerType, const size_t index) const {
+void glimmer::ChunkManager::OnChunkTileChange(const std::shared_ptr<Chunk> &chunk, const std::shared_ptr<Tile> &tile,
+                                              TileLayerType layerType, size_t index) const {
     if (layerType == TileLayerType::Ground) {
         ChunkPhysicsHelper::UpdatePhysicsBodyToChunk(worldContext_, chunk);
     }
-    UpdateTileLight(chunk, layerType, index);
+    UpdateTileLight(chunk.get(), layerType, index);
 }
 
-
-void glimmer::ChunkManager::UpdateTileLight(const Chunk *chunk, const TileLayerType layerType,
-                                            const size_t index) const {
+void glimmer::ChunkManager::UpdateTileLight(const Chunk *chunk, TileLayerType layerType, size_t index) const {
     const AppContext *appContext = worldContext_->GetAppContext();
     if (appContext == nullptr) {
         return;
@@ -165,7 +163,6 @@ void glimmer::ChunkManager::UpdateTileLight(const Chunk *chunk, const TileLayerT
     }
 }
 
-
 void glimmer::ChunkManager::UpdateChunkLight(const Chunk *chunk) const {
     LogCat::d(LogLabel::CHUNK, "chunk_update_light", "Updating chunk light: position=({}, {})",
               chunk->GetPosition().x,
@@ -201,7 +198,7 @@ void glimmer::ChunkManager::LoadChunkAt(const ResourceRef &dimensionRef, const C
     }
 
     LogCat::d(LogLabel::CHUNK, "chunk_loading", "Loading chunk at position: ({}, {})", position.x, position.y);
-    std::unique_ptr<Chunk> newlyCreatedChunk = chunkLoader_->LoadChunkFromSaves(dimensionRef, position);
+    std::shared_ptr<Chunk> newlyCreatedChunk = chunkLoader_->LoadChunkFromSaves(dimensionRef, position);
     if (newlyCreatedChunk == nullptr) {
         LogCat::d(LogLabel::CHUNK, "chunk_not_found_generating", "Chunk not found in saves, generating new chunk");
         newlyCreatedChunk = worldContext_->GetChunkGenerator()->GenerateChunkAt(position, terrainResult.get());
@@ -212,21 +209,20 @@ void glimmer::ChunkManager::LoadChunkAt(const ResourceRef &dimensionRef, const C
                   position.y);
         return;
     }
-    Chunk *chunkPtr = newlyCreatedChunk.get();
-    newlyCreatedChunk->AddReplaceTileCallback([this](Chunk *chunk, const TileLayerType layerType,
+    newlyCreatedChunk->AddReplaceTileCallback([this](const std::shared_ptr<Chunk> &chunk, const TileLayerType layerType,
                                                      const size_t index,
                                                      std::shared_ptr<Tile>, const std::shared_ptr<Tile> &newTile) {
         OnChunkTileChange(chunk, newTile, layerType, index);
     });
     newlyCreatedChunk->SetDependencyTerrain(terrainResult);
-    dimensionMap_[dimensionRef].insert({position, std::move(newlyCreatedChunk)});
+    dimensionMap_[dimensionRef].insert({position, newlyCreatedChunk});
     LogCat::d(LogLabel::CHUNK, "chunk_loaded", "Chunk loaded successfully at: ({}, {})", position.x, position.y);
-    UpdateChunkLight(chunkPtr);
-    ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldContext_->GetWorldId(), chunkPtr);
+    UpdateChunkLight(newlyCreatedChunk.get());
+    ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldContext_, newlyCreatedChunk);
 }
 
 void glimmer::ChunkManager::UnloadChunkAt(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position) {
-    Chunk *chunk = GetChunk(dimensionRef, position);
+    std::shared_ptr<Chunk> chunk = GetSharedChunk(dimensionRef, position);
     if (chunk == nullptr) {
         return;
     }
@@ -242,7 +238,7 @@ void glimmer::ChunkManager::UnloadChunkAt(const ResourceRef &dimensionRef, const
             lightBuffer_->ClearTileLightData(TileVector2D(position.x + x, position.y + y));
         }
     }
-    ChunkPhysicsHelper::DetachPhysicsBodyToChunk(chunk);
+    ChunkPhysicsHelper::DetachPhysicsBodyToChunk(worldContext_, chunk);
     const auto dimensionIterator = dimensionMap_.find(dimensionRef);
     if (dimensionIterator == dimensionMap_.end()) {
         return;
@@ -268,6 +264,20 @@ glimmer::Chunk *glimmer::ChunkManager::GetChunk(const ResourceRef &dimensionRef,
         return nullptr;
     }
     return chunkIterator->second.get();
+}
+
+std::shared_ptr<glimmer::Chunk> glimmer::ChunkManager::GetSharedChunk(const ResourceRef &dimensionRef,
+                                                                      const ChunkVertexVector2D &position) const {
+    const auto dimensionIterator = dimensionMap_.find(dimensionRef);
+    if (dimensionIterator == dimensionMap_.end()) {
+        return nullptr;
+    }
+    const auto &chunkMap = dimensionIterator->second;
+    const auto chunkIterator = chunkMap.find(position);
+    if (chunkIterator == chunkMap.end()) {
+        return nullptr;
+    }
+    return chunkIterator->second;
 }
 
 bool glimmer::ChunkManager::HasChunk(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position) const {
@@ -365,7 +375,7 @@ size_t glimmer::ChunkManager::GetLoadedChunkCount(const ResourceRef &dimensionRe
     return dimensionIterator->second.size();
 }
 
-const std::unordered_map<glimmer::ChunkVertexVector2D, std::unique_ptr<glimmer::Chunk>, glimmer::Vector2DIHash> *
+const std::unordered_map<glimmer::ChunkVertexVector2D, std::shared_ptr<glimmer::Chunk>, glimmer::Vector2DIHash> *
 glimmer::ChunkManager::GetLoadedChunks(const ResourceRef &dimensionRef) const {
     const auto dimensionIterator = dimensionMap_.find(dimensionRef);
     if (dimensionIterator == dimensionMap_.end()) {

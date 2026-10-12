@@ -31,11 +31,11 @@
 #include "src/core/vector2d.pb.h"
 
 
-std::unique_ptr<glimmer::Color> glimmer::TileLightData::ComputeFinalLightColor() {
+std::optional<glimmer::Color> glimmer::TileLightData::ComputeFinalLightColor() {
     if (lightContributions_.empty()) {
-        return nullptr;
+        return std::nullopt;
     }
-    auto finalLightColor = std::make_unique<Color>();
+    Color finalLightColor;
     bool hasFoundLightSource = false;
     for (int i = 0; i < TILE_LAYER_TYPE_COUNT; ++i) {
         auto tileLayer = static_cast<TileLayerType>(1 << i);
@@ -48,78 +48,57 @@ std::unique_ptr<glimmer::Color> glimmer::TileLightData::ComputeFinalLightColor()
             continue;
         }
         for (const auto &lightContribution: lightContributionVector) {
-            const auto lightContributionUnique = lightContribution.get();
-            if (lightContributionUnique == nullptr) {
-                continue;
-            }
-            const Color *lightColor = lightContributionUnique->GetLightColor();
-            if (lightColor == nullptr) {
-                continue;
-            }
+            const Color &lightColor = lightContribution.GetLightColor();
             if (!hasFoundLightSource) {
-                finalLightColor->a = lightColor->a;
-                finalLightColor->r = lightColor->r;
-                finalLightColor->g = lightColor->g;
-                finalLightColor->b = lightColor->b;
+                finalLightColor.a = lightColor.a;
+                finalLightColor.r = lightColor.r;
+                finalLightColor.g = lightColor.g;
+                finalLightColor.b = lightColor.b;
                 hasFoundLightSource = true;
                 continue;
             }
-            finalLightColor = LightUtils::MixLights(finalLightColor.get(), lightColor);
+            finalLightColor = LightUtils::MixLights(&finalLightColor, &lightColor);
         }
     }
     if (hasFoundLightSource) {
-        if (finalLightColor->a == 0) {
-            return nullptr;
+        if (finalLightColor.a == 0) {
+            return std::nullopt;
         }
         return finalLightColor;
     }
-    return nullptr;
+    return std::nullopt;
 }
 
-void glimmer::TileLightData::SetLightContribution(const TileLayerType layerType,
-                                                  std::unique_ptr<LightContribution> contribution) {
-    if (contribution == nullptr) {
-        return;
-    }
-    const LightSource *targetLightSource = contribution->GetLightSource();
+void glimmer::TileLightData::SetLightContribution(TileLayerType layerType, const LightContribution &contribution) {
+    const LightSource *targetLightSource = contribution.GetLightSource();
     if (targetLightSource == nullptr) {
         return;
     }
-    const Color *newLightColor = contribution->GetLightColor();
-    if (newLightColor == nullptr) {
-        return;
-    }
-
+    const Color &newLightColor = contribution.GetLightColor();
     const auto lightContributionIterator = lightContributions_.find(layerType);
     if (lightContributionIterator == lightContributions_.end()) {
-        lightContributions_[layerType].emplace_back(std::move(contribution));
+        lightContributions_[layerType].emplace_back(contribution);
         finalLightColor_ = ComputeFinalLightColor();
         return;
     }
 
     auto &lightContributionVector = lightContributionIterator->second;
     if (lightContributionVector.empty()) {
-        lightContributionVector.emplace_back(std::move(contribution));
+        lightContributionVector.emplace_back(contribution);
         finalLightColor_ = ComputeFinalLightColor();
         return;
     }
     bool foundDuplicate = false;
     bool colorChanged = false;
-    for (const auto &lightContribution: lightContributionVector) {
-        const auto lightContributionUnique = lightContribution.get();
-        if (lightContributionUnique == nullptr) {
-            continue;
-        }
-
-        if (targetLightSource == lightContribution->GetLightSource()) {
+    for (auto &lightContribution: lightContributionVector) {
+        if (targetLightSource == lightContribution.GetLightSource()) {
             foundDuplicate = true;
-
-            if (const Color *oldLightColor = lightContributionUnique->GetLightColor(); oldLightColor == nullptr ||
-                newLightColor->a != oldLightColor->a ||
-                newLightColor->r != oldLightColor->r ||
-                newLightColor->g != oldLightColor->g ||
-                newLightColor->b != oldLightColor->b) {
-                lightContribution->SetLightColor(contribution->TakeLightColor());
+            if (const Color &oldLightColor = lightContribution.GetLightColor();
+                newLightColor.a != oldLightColor.a ||
+                newLightColor.r != oldLightColor.r ||
+                newLightColor.g != oldLightColor.g ||
+                newLightColor.b != oldLightColor.b) {
+                lightContribution.SetLightColor(contribution.GetLightColor());
                 colorChanged = true;
             }
             break;
@@ -134,18 +113,18 @@ void glimmer::TileLightData::SetLightContribution(const TileLayerType layerType,
     } else {
         //No duplicates were found. New lights were added, so a recalculation is necessary.
         //没找到重复，新增灯光，必须重算
-        lightContributionVector.emplace_back(std::move(contribution));
+        lightContributionVector.emplace_back(contribution);
         finalLightColor_ = ComputeFinalLightColor();
     }
 }
 
 void glimmer::TileLightData::ClearAllLightContributions() {
     lightContributions_.clear();
-    finalLightColor_ = nullptr;
+    finalLightColor_ = std::nullopt;
 }
 
-const std::unordered_map<glimmer::TileLayerType, std::vector<std::unique_ptr<glimmer::LightContribution> > > *glimmer::
-TileLightData::GetLightContributions() const {
+const std::unordered_map<glimmer::TileLayerType, std::vector<glimmer::LightContribution> > *glimmer::TileLightData::
+GetLightContributions() const {
     return &lightContributions_;
 }
 
@@ -160,30 +139,28 @@ GetLightMasks() const {
     return &lightMaskData_;
 }
 
-const glimmer::LightContribution *glimmer::TileLightData::GetLightContribution(const TileLayerType layerType,
-                                                                               const LightSource *targetLightSource) {
+std::optional<glimmer::LightContribution> glimmer::TileLightData::GetLightContribution(TileLayerType layerType,
+    const LightSource *targetLightSource) {
     if (targetLightSource == nullptr) {
-        return nullptr;
+        return std::nullopt;
     }
     const auto lightContributionIterator = lightContributions_.find(layerType);
     if (lightContributionIterator == lightContributions_.end()) {
-        return nullptr;
+        return std::nullopt;
     }
 
     const auto &lightContributionVector = lightContributionIterator->second;
     if (lightContributionVector.empty()) {
-        return nullptr;
+        return std::nullopt;
     }
     for (const auto &lightContribution: lightContributionVector) {
-        if (lightContribution == nullptr) {
-            continue;
-        }
-        if (targetLightSource == lightContribution->GetLightSource()) {
-            return lightContribution.get();
+        if (targetLightSource == lightContribution.GetLightSource()) {
+            return lightContribution;
         }
     }
-    return nullptr;
+    return std::nullopt;
 }
+
 
 std::vector<const glimmer::LightContribution *> glimmer::TileLightData::GetLightContributionVector(
     const TileLayerType layerType) {
@@ -199,10 +176,7 @@ std::vector<const glimmer::LightContribution *> glimmer::TileLightData::GetLight
     }
 
     for (const auto &lightContribution: lightContributionVector) {
-        if (lightContribution == nullptr) {
-            continue;
-        }
-        result.emplace_back(lightContribution.get());
+        result.emplace_back(&lightContribution);
     }
     return result;
 }
@@ -282,9 +256,10 @@ float glimmer::TileLightData::GetLightBlockingStrength(const TileLayerType layer
     return directionIterator->second->GetBlockingStrength();
 }
 
-const glimmer::Color *glimmer::TileLightData::GetFinalLightColor() const {
-    return finalLightColor_.get();
+const std::optional<glimmer::Color>& glimmer::TileLightData::GetFinalLightColor() const {
+    return finalLightColor_;
 }
+
 
 void glimmer::TileLightData::ClearLightContribution(const TileLayerType layerType, const LightSource *lightSource) {
     if (lightSource == nullptr) {
@@ -301,11 +276,7 @@ void glimmer::TileLightData::ClearLightContribution(const TileLayerType layerTyp
     bool hasRemoved = false;
     for (auto iter = lightContributionVector.begin(); iter != lightContributionVector.end();) {
         const auto &lightContribution = *iter;
-        if (lightContribution == nullptr) {
-            ++iter;
-            continue;
-        }
-        if (lightSource == lightContribution->GetLightSource()) {
+        if (lightSource == lightContribution.GetLightSource()) {
             iter = lightContributionVector.erase(iter);
             hasRemoved = true;
         } else {

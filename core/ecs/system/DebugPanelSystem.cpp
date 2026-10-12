@@ -243,13 +243,16 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
 
         // Total light
         // 总光照
-        const Color finalLightColor = lightBuffer->GetFinalLightColor(tileCoord);
-        debugLines_.push_back(DebugLine{
-            fmt::format(
-                fmt::runtime(langsResources->totalLight),
-                finalLightColor.a, finalLightColor.r, finalLightColor.g, finalLightColor.b
-            )
-        });
+        const std::optional<Color> finalLightColor = lightBuffer->GetFinalLightColor(tileCoord);
+        if (finalLightColor.has_value()) {
+            const Color &lightColor = finalLightColor.value();
+            debugLines_.push_back(DebugLine{
+                fmt::format(
+                    fmt::runtime(langsResources->totalLight),
+                    lightColor.a, lightColor.r, lightColor.g, lightColor.b
+                )
+            });
+        }
 
         // Revision
         // 光照修订版本
@@ -359,20 +362,14 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
                     const auto contributionIt = lightContributions->find(layerType);
                     if (contributionIt != lightContributions->end()) {
                         for (const auto &contribution: contributionIt->second) {
-                            if (contribution == nullptr) {
-                                continue;
-                            }
-                            const Color *lightColor = contribution->GetLightColor();
-                            if (lightColor == nullptr) {
-                                continue;
-                            }
-                            const LightSource *source = contribution->GetLightSource();
+                            const Color &lightColor = contribution.GetLightColor();
+                            const LightSource *source = contribution.GetLightSource();
                             const TileVector2D center = source != nullptr ? source->GetCenter() : TileVector2D{};
                             debugLines_.push_back(DebugLine{
                                 fmt::format(
                                     fmt::runtime(langsResources->lightContributionInfo),
                                     std::to_underlying(layerType),
-                                    lightColor->r, lightColor->g, lightColor->b, lightColor->a,
+                                    lightColor.r, lightColor.g, lightColor.b, lightColor.a,
                                     0, center.x, center.y
                                 )
                             });

@@ -153,6 +153,12 @@ bool glimmer::CommandManager::CanExecuteCommand(const Command *command) const {
     if (command->RequiresCheatEnabled() && !commandEnvironment_.allowCheats) {
         return false;
     }
+    if (command->RequiresWorldLoadFinsh() && !commandEnvironment_.worldContext->IsLoadFinish()) {
+        return false;
+    }
+    if (command->RequiresGameRunning() && !commandEnvironment_.worldContext->IsRuning()) {
+        return false;
+    }
     return true;
 }
 

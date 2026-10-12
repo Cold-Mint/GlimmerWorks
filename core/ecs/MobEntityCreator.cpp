@@ -197,7 +197,6 @@ void glimmer::MobEntityCreator::MergeEntityItemMessage(uint32_t id, const Entity
     auto transform2dComponent = entityManager->GetComponent<Transform2DComponent>(id);
     auto rigidBody2dComponent = entityManager->GetComponent<RigidBody2DComponent>(id);
     if (transform2dComponent != nullptr && rigidBody2dComponent != nullptr) {
-        rigidBody2dComponent->CreateBody(worldContext->GetAppContext()->GetResourceLocator(),
-                                         worldContext->GetWorldId(), transform2dComponent->GetPosition());
+        rigidBody2dComponent->CreateBody(worldContext, id, transform2dComponent->GetPosition());
     }
 }

@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -25,10 +25,26 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <vector>
+
 #include "Chunk.h"
 #include "core/math/ChunkRelativeVector2D.h"
+#include "core/math/Vector2DI.h"
 
 namespace glimmer {
+    class WorldContext;
+
+    /**
+     * A rectangular region of static tiles within a chunk that should be merged into a single physics body.
+     * 区块内需要合并为单个物理体的一段静态瓦片矩形区域。
+     */
+    struct ChunkPhysicsRect {
+        int x;
+        int y;
+        int width;
+        int height;
+    };
+
     class ChunkPhysicsHelper {
         static std::vector<bool> CollectStaticTiles(const Chunk *chunk);
 
@@ -39,33 +55,55 @@ namespace glimmer {
         static void MarkVisited(int startX, int startY, int width, int height,
                                 std::vector<bool> &visited);
 
-        static void CreateBodyForRect(b2WorldId worldId, Chunk *chunk,
-                                      const ChunkRelativeVector2D &chunkRelativeVector2d, int width, int height);
-
-    public:
         /**
-         * Add physical bodies to the tiles within the block
-         * 为区块内的瓦片添加物理体
-         * @param worldId Box2dWorldid Box2d世界id
-         * @param chunk  The chunk to add physical bodies to 要添加物理的区块
+         * Compute the list of static tile rectangles for a chunk.
+         * Runs on the caller thread and only reads chunk tile data.
+         * 计算区块的静态瓦片矩形列表。在调用线程执行，只读取区块瓦片数据。
          */
-        static void AttachPhysicsBodyToChunk(b2WorldId worldId, Chunk *chunk);
+        static std::vector<ChunkPhysicsRect> CollectRects(const std::shared_ptr<Chunk> &chunk);
 
         static b2BodyId CreateStaticBody(b2WorldId worldId, const WorldVector2D &pos, const Vector2DI &size);
 
-        /**
-         * Remove physical bodies from the tiles within the block
-         * 从区块内的瓦片移除物理体
-         * @param chunk The chunk to remove physical bodies from
-         */
-        static void DetachPhysicsBodyToChunk(Chunk *chunk);
+        static void CreateBodyForRect(b2WorldId worldId, Chunk *chunk, const ChunkPhysicsRect &rect);
 
         /**
-         * Update the physical collision of the block.
-         * 更新区块的物理碰撞。
-         * @param worldContext
-         * @param chunk
+         * Destroy all physics bodies currently attached to a chunk.
+         * Runs on the physics thread.
+         * 销毁当前附加到区块的所有物理体。在物理线程执行。
          */
-        static void UpdatePhysicsBodyToChunk(const WorldContext *worldContext, Chunk *chunk);
+        static void DetachPhysicsBodyToChunkNow(const std::shared_ptr<Chunk> &chunk);
+
+        /**
+         * Create physics bodies for a chunk from precomputed rectangles.
+         * Runs on the physics thread.
+         * 根据预计算的矩形为区块创建物理体。在物理线程执行。
+         */
+        static void AttachPhysicsBodyToChunkNow(b2WorldId worldId, const std::shared_ptr<Chunk>& chunk,
+                                                const std::vector<ChunkPhysicsRect> &rects);
+
+    public:
+        /**
+         * Schedule attaching physics bodies to the tiles within the chunk.
+         * 调度为区块内的瓦片添加物理体。
+         * @param worldContext worldContext 世界上下文
+         * @param chunk chunk 要添加物理的区块
+         */
+        static void AttachPhysicsBodyToChunk(const WorldContext *worldContext, const std::shared_ptr<Chunk> &chunk);
+
+        /**
+         * Schedule removing physics bodies from the tiles within the chunk.
+         * 调度从区块内的瓦片移除物理体。
+         * @param worldContext worldContext 世界上下文
+         * @param chunk chunk 要移除物理体的区块
+         */
+        static void DetachPhysicsBodyToChunk(const WorldContext *worldContext, const std::shared_ptr<Chunk> &chunk);
+
+        /**
+         * Schedule updating the physics collision of the chunk.
+         * 调度更新区块的物理碰撞。
+         * @param worldContext worldContext 世界上下文
+         * @param chunk chunk 要更新的区块
+         */
+        static void UpdatePhysicsBodyToChunk(const WorldContext *worldContext, const std::shared_ptr<Chunk> &chunk);
     };
 }

@@ -35,14 +35,10 @@ const glimmer::LightSource *glimmer::LightContribution::GetLightSource() const {
     return lightSource_;
 }
 
-void glimmer::LightContribution::SetLightColor(std::unique_ptr<Color> lightColor) {
-    lightColor_ = std::move(lightColor);
+void glimmer::LightContribution::SetLightColor(const Color &lightColor) {
+    lightColor_ = lightColor;
 }
 
-std::unique_ptr<glimmer::Color> glimmer::LightContribution::TakeLightColor() {
-    return std::move(lightColor_);
-}
-
-const glimmer::Color *glimmer::LightContribution::GetLightColor() const {
-    return lightColor_.get();
+const glimmer::Color &glimmer::LightContribution::GetLightColor() const {
+    return lightColor_;
 }

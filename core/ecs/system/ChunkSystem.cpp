@@ -78,7 +78,7 @@ void glimmer::ChunkSystem::GenerateUnloadTasks(const ResourceRef &dimensionRef, 
     if (chunkManager == nullptr || scheduler == nullptr) {
         return;
     }
-    const std::unordered_map<ChunkVertexVector2D, std::unique_ptr<Chunk>, Vector2DIHash> *loadedChunks = chunkManager->
+    const std::unordered_map<ChunkVertexVector2D, std::shared_ptr<Chunk>, Vector2DIHash> *loadedChunks = chunkManager->
             GetLoadedChunks(dimensionRef);
     if (loadedChunks == nullptr) {
         return;

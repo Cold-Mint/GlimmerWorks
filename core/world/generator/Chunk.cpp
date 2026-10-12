@@ -48,10 +48,8 @@ void glimmer::Chunk::ClearAttachedBodies() {
 }
 
 size_t glimmer::Chunk::AddReplaceTileCallback(
-
-    const std::function<void(Chunk *chunk, TileLayerType layerType, size_t index, std::shared_ptr<Tile> oldTile, std::
-                             shared_ptr<Tile> newTile)> &callBack
-) {
+    const std::function<void(std::shared_ptr<Chunk> chunk, TileLayerType layerType, size_t index, std::shared_ptr<Tile>
+                             oldTile, std::shared_ptr<Tile> newTile)> &callBack) {
     replaceTileCallback_.emplace_back(callBack);
     return replaceTileCallback_.size() - 1;
 }
@@ -144,7 +142,7 @@ bool glimmer::Chunk::CommitTileState(const BreakSource breakSource, const TileLa
         }
         tileSnapshotPtr->SetTile(newTile.get());
         tileSnapshotPtr->SetTileState(tileStateMessage);
-        InvokeReplaceTileCallback(this, layerType, index, oldTile, newTile);
+        InvokeReplaceTileCallback(shared_from_this(), layerType, index, oldTile, newTile);
     }
     return true;
 }
@@ -155,15 +153,6 @@ TileStateMessage *glimmer::Chunk::GetTileState(const TileLayerType layerType, co
         return nullptr;
     }
     return it->second[index].get();
-}
-
-
-void glimmer::Chunk::InvokeReplaceTileCallback(Chunk *chunk, const TileLayerType layerType, const size_t index,
-                                               const std::shared_ptr<Tile> &oldTile,
-                                               const std::shared_ptr<Tile> &newTile) const {
-    for (auto &replaceTileCallback: replaceTileCallback_) {
-        replaceTileCallback(chunk, layerType, index, oldTile, newTile);
-    }
 }
 
 
@@ -293,6 +282,15 @@ void glimmer::Chunk::ReadChunkMessage(const ChunkMessage &chunkMessage) {
     }
 }
 
+
+void glimmer::Chunk::InvokeReplaceTileCallback(const std::shared_ptr<Chunk> &chunk, TileLayerType layerType,
+                                               size_t index,
+                                               const std::shared_ptr<Tile> &oldTile,
+                                               const std::shared_ptr<Tile> &newTile) const {
+    for (auto &replaceTileCallback: replaceTileCallback_) {
+        replaceTileCallback(chunk, layerType, index, oldTile, newTile);
+    }
+}
 
 void glimmer::Chunk::WriteTileStatesToMessage(
     const std::array<std::unique_ptr<TileStateMessage>, CHUNK_AREA> &tileStates,

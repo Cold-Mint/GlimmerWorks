@@ -25,28 +25,35 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <atomic>
+
+#include "RigidBodyConfig.h"
 #include "core/ecs/GameComponent.h"
 #include "box2d/types.h"
 #include "core/ecs/Box2dFilter.h"
+#include "core/ecs/EcsTypes.h"
 #include "core/math/WorldVector2D.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/mod/ResourceRef.h"
 
 namespace glimmer {
+    class WorldContext;
+
     class RigidBody2DComponent : public GameComponent {
-        ResourceRef shapeRef_;
-        Box2dFilter filter_;
+        RigidBodyConfig rigidBodyConfig_;
         b2BodyId bodyId_ = b2_nullBodyId;
-        b2BodyType bodyType_ = b2_staticBody;
-        float friction_ = 0.0F;
-        float restitution_ = 0.0F;
-        //Density
-        //密度
-        float density_ = 0.01F;
-        bool ready_ = false;
-        bool allowBodySleep_ = true;
-        bool fixedRotation_ = false;
-        bool enabled_ = false;
+        //Whether the body has been created on the physics thread. Written on the physics thread, read across threads.
+        //刚体是否已在物理线程上创建。在物理线程写入，跨线程读取。
+        std::atomic_bool ready_{false};
+        //Whether the body is enabled. Written by Enable/Disable, read by systems.
+        //刚体是否启用。由Enable/Disable写入，由系统读取。
+        std::atomic_bool enabled_{false};
+        //The world context is used to access the physics task queue when the body is destroyed.
+        //世界上下文，用于在销毁刚体时访问物理任务队列。
+        WorldContext *worldContext_ = nullptr;
+
+        void CreateBodyNow(const ResourceLocator *resourceLocator, b2WorldId worldId,
+                           const WorldVector2D &vector2d, const RigidBodyConfig &config);
 
     public:
         ~RigidBody2DComponent() override;
@@ -91,11 +98,16 @@ namespace glimmer {
         /**
          * Create Body
          * 创建刚体
-         * @param resourceLocator
-         * @param worldId worldId 世界ID
+         *
+         * The body is created asynchronously on the physics thread via the physics task
+         * queue, so it is not immediately available after this call returns.
+         * 刚体通过物理任务队列在物理线程上异步创建，因此此调用返回后刚体并不会立即可用。
+         *
+         * @param worldContext worldContext 世界上下文
+         * @param entityId entityId 拥有该刚体的实体ID
          * @param vector2d vector2d 位置
          */
-        void CreateBody(const ResourceLocator *resourceLocator, b2WorldId worldId, const WorldVector2D &vector2d);
+        void CreateBody(WorldContext *worldContext, GameEntityID entityId, const WorldVector2D &vector2d);
 
         /**
          * GetBodyId

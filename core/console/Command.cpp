@@ -50,6 +50,14 @@ bool glimmer::Command::RequiresWorldContext() const {
     return false;
 }
 
+bool glimmer::Command::RequiresGameRunning() const {
+    return true;
+}
+
+bool glimmer::Command::RequiresWorldLoadFinsh() const {
+    return true;
+}
+
 bool glimmer::Command::RequiresCheatEnabled() const {
     return false;
 }

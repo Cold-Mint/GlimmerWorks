@@ -61,10 +61,7 @@ bool glimmer::LightGrowthConditionProcessor::Match(const WorldContext *worldCont
             std::unordered_set<const LightSource *> seenSources;
             for (const auto &entry: *contributions) {
                 for (const auto &contribution: entry.second) {
-                    if (contribution == nullptr) {
-                        continue;
-                    }
-                    const LightSource *source = contribution->GetLightSource();
+                    const LightSource *source = contribution.GetLightSource();
                     if (source == nullptr) {
                         continue;
                     }
@@ -74,9 +71,8 @@ bool glimmer::LightGrowthConditionProcessor::Match(const WorldContext *worldCont
                     if (!seenSources.insert(source).second) {
                         continue;
                     }
-                    if (const Color *color = contribution->GetLightColor(); color != nullptr) {
-                        intensity += color->a;
-                    }
+                    const Color &color = contribution.GetLightColor();
+                    intensity += color.a;
                 }
             }
         }

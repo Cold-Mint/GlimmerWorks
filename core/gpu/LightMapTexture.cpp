@@ -133,11 +133,18 @@ void glimmer::LightMapTexture::Update(SDL_GPUDevice *device, const LightBuffer *
             const int tileX = originTileX + static_cast<int>(col);
             Uint8 *pixel = pixelBuffer_.data() + (static_cast<size_t>(row) * sizeX + col) * 4;
             const TileVector2D tile(tileX, tileY);
-            const Color light = lightBuffer->GetFinalLightColor(tile);
-            pixel[0] = light.r;
-            pixel[1] = light.g;
-            pixel[2] = light.b;
-            pixel[3] = light.a;
+            if (const std::optional<Color> lightOptional = lightBuffer->GetFinalLightColor(tile); lightOptional.has_value()) {
+                const Color &color = lightOptional.value();
+                pixel[0] = color.r;
+                pixel[1] = color.g;
+                pixel[2] = color.b;
+                pixel[3] = color.a;
+            }else {
+                pixel[0] = 0;
+                pixel[1] = 0;
+                pixel[2] = 0;
+                pixel[3] = 255;
+            }
         }
     }
     dirty_ = true;

@@ -39,7 +39,7 @@
 
 
 namespace glimmer {
-    class Chunk {
+    class Chunk : public std::enable_shared_from_this<Chunk> {
         std::unordered_map<TileLayerType, std::array<std::shared_ptr<Tile>, CHUNK_AREA> >
         tiles_;
         //Save the tile resource signature for each grid, and rebuild the tile when the signature changes.
@@ -53,7 +53,7 @@ namespace glimmer {
                                        TileLayerType layerType)> >
         onTileRebuilt_;
 
-        std::vector<std::function<void(Chunk *chunk, TileLayerType layerType, size_t index,
+        std::vector<std::function<void(std::shared_ptr<Chunk> chunk, TileLayerType layerType, size_t index,
                                        std::shared_ptr<Tile> oldTile,
                                        std::shared_ptr<Tile> newTile)> > replaceTileCallback_;
         std::vector<b2BodyId> attachedBodies_;
@@ -65,7 +65,7 @@ namespace glimmer {
         WorldContext *worldContext_;
 
 
-        void InvokeReplaceTileCallback(Chunk *chunk, TileLayerType layerType, size_t index,
+        void InvokeReplaceTileCallback(const std::shared_ptr<Chunk> &chunk, TileLayerType layerType, size_t index,
                                        const std::shared_ptr<Tile> &oldTile,
                                        const std::shared_ptr<Tile> &newTile) const;
 
@@ -88,7 +88,7 @@ namespace glimmer {
 
         void ClearAttachedBodies();
 
-        size_t AddReplaceTileCallback(const std::function<void(Chunk *chunk, TileLayerType layerType,
+        size_t AddReplaceTileCallback(const std::function<void(std::shared_ptr<Chunk> chunk, TileLayerType layerType,
                                                                size_t index,
                                                                std::shared_ptr<Tile> oldTile,
                                                                std::shared_ptr<Tile> newTile)

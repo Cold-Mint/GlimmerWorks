@@ -34,17 +34,15 @@ namespace glimmer {
 
     class LightContribution {
         const LightSource *lightSource_ = nullptr;
-        std::unique_ptr<Color> lightColor_;
+        Color lightColor_;
 
     public:
         void SetLightSource(const LightSource *lightSource);
 
         [[nodiscard]] const LightSource *GetLightSource() const;
 
-        void SetLightColor(std::unique_ptr<Color> lightColor);
+        void SetLightColor(const Color &lightColor);
 
-        [[nodiscard]] std::unique_ptr<Color> TakeLightColor();
-
-        [[nodiscard]] const Color *GetLightColor() const;
+        [[nodiscard]] const Color& GetLightColor() const;
     };
 }

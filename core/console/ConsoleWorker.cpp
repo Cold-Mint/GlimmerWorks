@@ -78,6 +78,10 @@ void glimmer::ConsoleWorker::WorkLoop(std::stop_token stopToken) {
                     (*currentCallback)(langsResources->worldContextIsNull);
                 } else if (cmd->RequiresCheatEnabled()) {
                     (*currentCallback)(langsResources->cheatsNotAllowed);
+                } else if (cmd->RequiresWorldLoadFinsh()) {
+                    (*currentCallback)(langsResources->worldNotLoaded);
+                } else if (cmd->RequiresGameRunning()) {
+                    (*currentCallback)(langsResources->gameNotRunning);
                 }
             }
             commandResponse->SetCommandResult(CommandResult::Failure, command);

@@ -116,7 +116,7 @@ namespace glimmer {
 
         void SetAmbientLightContributionAt(const TileVector2D &position, TileLayerType layerType,
                                            const LightSource &source,
-                                           std::unique_ptr<Color> lightColor);
+                                           const Color &lightColor);
 
         void RebuildAllLight();
 
@@ -160,7 +160,7 @@ namespace glimmer {
          * @param position position 瓦片世界坐标
          * @return 该空瓦片应得到的最终环境光颜色；无任何环境光时返回黑色。
          */
-        [[nodiscard]] Color ComputeAmbientLightColor(const TileVector2D &position) const;
+        [[nodiscard]] std::optional<Color> ComputeAmbientLightColor(const TileVector2D &position) const;
 
         /**
          * UpdateColumnSkyOccluder
@@ -198,7 +198,7 @@ namespace glimmer {
 
         void ClearLightSource(const TileVector2D &position, TileLayerType layerType);
 
-        [[nodiscard]] Color GetFinalLightColor(const TileVector2D &position) const;
+        [[nodiscard]] std::optional<Color> GetFinalLightColor(const TileVector2D &position) const;
 
         /**
          * SetDynamicLight

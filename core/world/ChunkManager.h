@@ -55,7 +55,7 @@ namespace glimmer {
         * Key is a pointer for referencing dimension resources.
         * Key为维度资源引用的指针。
         */
-        std::unordered_map<ResourceRef, std::unordered_map<ChunkVertexVector2D, std::unique_ptr<Chunk>,
+        std::unordered_map<ResourceRef, std::unordered_map<ChunkVertexVector2D, std::shared_ptr<Chunk>,
             Vector2DIHash>, ResourceRefHash>
         dimensionMap_;
         TerrainGenerator *terrainGenerator_ = nullptr;
@@ -71,7 +71,7 @@ namespace glimmer {
          * @param layerType layerType 图层类型
          * @param index index 索引
          */
-        void OnChunkTileChange(Chunk *chunk, const std::shared_ptr<Tile> &tile, TileLayerType layerType,
+        void OnChunkTileChange(const std::shared_ptr<Chunk>& chunk, const std::shared_ptr<Tile> &tile, TileLayerType layerType,
                                size_t index) const;
 
         void UpdateTileLight(const Chunk *chunk, TileLayerType layerType, size_t index) const;
@@ -112,6 +112,9 @@ namespace glimmer {
          */
         [[nodiscard]] Chunk *GetChunk(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position) const;
 
+        [[nodiscard]] std::shared_ptr<Chunk> GetSharedChunk(const ResourceRef &dimensionRef,
+                                                            const ChunkVertexVector2D &position) const;
+
         /**
          * Determine whether a block at a certain position has been loaded
          * 判断某个位置的区块是否被加载
@@ -144,7 +147,7 @@ namespace glimmer {
          */
         size_t GetLoadedChunkCount(const ResourceRef &dimensionRef) const;
 
-        const std::unordered_map<ChunkVertexVector2D, std::unique_ptr<Chunk>,
+        const std::unordered_map<ChunkVertexVector2D, std::shared_ptr<Chunk>,
             Vector2DIHash> *GetLoadedChunks(const ResourceRef &dimensionRef) const;
 
 

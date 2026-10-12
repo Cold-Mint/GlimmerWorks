@@ -62,6 +62,8 @@ bool glimmer::InitLangsTask::Run(ISystemBucket *systemBucket) {
     langsResources->unknownCommandParameters = toml::find<std::string>(tomlValue, "unknown_command_parameters");
     langsResources->worldContextIsNull = toml::find<std::string>(tomlValue, "world_context_is_null");
     langsResources->cheatsNotAllowed = toml::find<std::string>(tomlValue, "cheats_not_allowed");
+    langsResources->worldNotLoaded = toml::find<std::string>(tomlValue, "world_not_loaded");
+    langsResources->gameNotRunning = toml::find<std::string>(tomlValue, "game_not_running");
     langsResources->insufficientParameterLength = toml::find<std::string>(tomlValue, "insufficient_parameter_length");
     langsResources->configurationUpdate = toml::find<std::string>(tomlValue, "configuration_update");
     langsResources->itemIdNotFound = toml::find<std::string>(tomlValue, "item_id_not_found");

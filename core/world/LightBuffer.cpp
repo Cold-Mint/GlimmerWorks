@@ -97,14 +97,14 @@ bool glimmer::LightBuffer::SetLightContributionAt(const TileVector2D &position, 
         return false;
     }
     const Color *emission = source.GetEmissionColor();
-    auto contribution = std::make_unique<LightContribution>();
-    auto lightColor = std::make_unique<Color>(
+    LightContribution contribution;
+    contribution.SetLightColor({
         emission->r,
         emission->g,
         emission->b,
-        static_cast<uint8_t>(255.0F * factor));
-    contribution->SetLightColor(std::move(lightColor));
-    contribution->SetLightSource(&source);
+        static_cast<uint8_t>(255.0F * factor)
+    });
+    contribution.SetLightSource(&source);
     GetOrCreate(position).SetLightContribution(layerType, std::move(contribution));
     return true;
 }
@@ -119,15 +119,14 @@ void glimmer::LightBuffer::ClearLightContributionAt(const TileVector2D &position
 }
 
 void glimmer::LightBuffer::SetAmbientLightContributionAt(const TileVector2D &position, const TileLayerType layerType,
-                                                         const LightSource &source,
-                                                         std::unique_ptr<Color> lightColor) {
-    if (lightColor == nullptr || lightColor->a == 0) {
+                                                         const LightSource &source, const Color &lightColor) {
+    if (lightColor.a == 0) {
         return;
     }
-    auto contribution = std::make_unique<LightContribution>();
-    contribution->SetLightColor(std::move(lightColor));
-    contribution->SetLightSource(&source);
-    GetOrCreate(position).SetLightContribution(layerType, std::move(contribution));
+    LightContribution contribution;
+    contribution.SetLightColor(lightColor);
+    contribution.SetLightSource(&source);
+    GetOrCreate(position).SetLightContribution(layerType, contribution);
 }
 
 void glimmer::LightBuffer::InjectAmbientLightAt(const TileVector2D &position, TileLightData &tileData) {
@@ -138,23 +137,23 @@ void glimmer::LightBuffer::InjectAmbientLightAt(const TileVector2D &position, Ti
         //背光（z 方向）照所有图层，各层用各自的背光遮照遮挡。
         if (backColor != nullptr && backColor->a > 0) {
             const LightMask *backMask = tileData.GetLightMask(layerType, LightDirection::Backward);
-            std::unique_ptr<Color> color;
+            Color color;
             if (backMask != nullptr) {
                 color = LightUtils::ApplyLightingMask(backColor, backMask->GetLightMaskColor(),
                                                       backMask->GetTintFactor());
             } else {
-                color = std::make_unique<Color>(backColor->r, backColor->g, backColor->b, backColor->a);
+                color = Color{backColor->r, backColor->g, backColor->b, backColor->a};
             }
-            SetAmbientLightContributionAt(position, layerType, backLightSource_, std::move(color));
+            SetAmbientLightContributionAt(position, layerType, backLightSource_, color);
         }
         //天光（y 负方向）仅地面层，被侧面遮照遮挡。
         if (layerType == TileLayerType::Ground && skyColor != nullptr && skyColor->a > 0) {
             const float transmittance = GetSkyTransmittance(position);
             if (transmittance > 0.0F) {
-                auto color = std::make_unique<Color>(
-                    skyColor->r, skyColor->g, skyColor->b,
-                    static_cast<uint8_t>(std::clamp(static_cast<float>(skyColor->a) * transmittance, 0.0F, 255.0F)));
-                SetAmbientLightContributionAt(position, layerType, skyLightSource_, std::move(color));
+                SetAmbientLightContributionAt(position, layerType, skyLightSource_, Color(
+                                                  skyColor->r, skyColor->g, skyColor->b,
+                                                  static_cast<uint8_t>(std::clamp(
+                                                      static_cast<float>(skyColor->a) * transmittance, 0.0F, 255.0F))));
             }
         }
     }
@@ -347,59 +346,14 @@ void glimmer::LightBuffer::ClearLightSource(const TileVector2D &position, const 
               static_cast<int>(layerType));
 }
 
-glimmer::Color glimmer::LightBuffer::GetFinalLightColor(const TileVector2D &position) const {
+std::optional<glimmer::Color> glimmer::LightBuffer::GetFinalLightColor(const TileVector2D &position) const {
     const auto it = tileLightData_.find(position);
     if (it == tileLightData_.end() || it->second == nullptr) {
         return ComputeAmbientLightColor(position);
     }
-    const TileLightData *tileData = it->second.get();
-    const Color *point = tileData->GetFinalLightColor();
-    if (point == nullptr) {
-        //The tile exists but has no surviving light contribution (its light is
-        //fully occluded or the ambient color is zero); fall back to black rather
-        //than the unmasked ambient used for empty tiles.
-        //该瓦片存在但没有存活的光照贡献（被完全遮挡或环境光颜色为零）；
-        //回退为黑色，而非空瓦片使用的未遮挡环境光。
-        return Color{};
-    }
-    Color result{};
-    result.r = point->r;
-    result.g = point->g;
-    result.b = point->b;
-    result.a = point->a;
-    return result;
+    return it->second->GetFinalLightColor();
 }
 
-glimmer::Color glimmer::LightBuffer::ComputeAmbientLightColor(const TileVector2D &position) const {
-    const Color *backColor = backLightSource_.GetEmissionColor();
-    const Color *skyColor = skyLightSource_.GetEmissionColor();
-    Color result{};
-    bool hasLight = false;
-    if (backColor != nullptr && backColor->a > 0) {
-        result = *backColor;
-        hasLight = true;
-    }
-    if (skyColor != nullptr && skyColor->a > 0) {
-        const float transmittance = GetSkyTransmittance(position);
-        if (transmittance > 0.0F) {
-            const Color sky(
-                skyColor->r,
-                skyColor->g,
-                skyColor->b,
-                static_cast<uint8_t>(std::clamp(static_cast<float>(skyColor->a) * transmittance, 0.0F, 255.0F)));
-            if (hasLight) {
-                result = *LightUtils::MixLights(&result, &sky);
-            } else {
-                result = sky;
-                hasLight = true;
-            }
-        }
-    }
-    if (!hasLight) {
-        return Color{};
-    }
-    return result;
-}
 
 void glimmer::LightBuffer::SetDynamicLight(const uint64_t id, const TileVector2D &position,
                                            const TileLayerType layerType,
@@ -458,6 +412,37 @@ float glimmer::LightBuffer::GetLightBlockingStrength(const TileVector2D &positio
                                              ? LightDirection::Backward
                                              : LightDirection::Downward;
     return it->second->GetLightBlockingStrength(layerType, maskDirection);
+}
+
+std::optional<glimmer::Color> glimmer::LightBuffer::ComputeAmbientLightColor(const TileVector2D &position) const {
+    const Color *backColor = backLightSource_.GetEmissionColor();
+    const Color *skyColor = skyLightSource_.GetEmissionColor();
+    Color result;
+    bool hasLight = false;
+    if (backColor != nullptr && backColor->a > 0) {
+        result = *backColor;
+        hasLight = true;
+    }
+    if (skyColor != nullptr && skyColor->a > 0) {
+        const float transmittance = GetSkyTransmittance(position);
+        if (transmittance > 0.0F) {
+            const Color sky(
+                skyColor->r,
+                skyColor->g,
+                skyColor->b,
+                static_cast<uint8_t>(std::clamp(static_cast<float>(skyColor->a) * transmittance, 0.0F, 255.0F)));
+            if (hasLight) {
+                result = LightUtils::MixLights(&result, &sky);
+            } else {
+                result = sky;
+                hasLight = true;
+            }
+        }
+    }
+    if (!hasLight) {
+        return std::nullopt;
+    }
+    return result;
 }
 
 float glimmer::LightBuffer::GetSkyTransmittance(const TileVector2D &position) const {

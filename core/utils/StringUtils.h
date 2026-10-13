@@ -28,12 +28,21 @@
 #include <string>
 #include <optional>
 #include <span>
+#include <unordered_map>
 
 #include "blake3.h"
+#include "src/core/resource_type.pb.h"
 
 namespace glimmer {
     class StringUtils {
+        static std::unordered_map<std::string, ResourceTypeMessage> stringToResourceTypeMessage_;
+
+
+        static void AddResourceTypeMap(const std::string &name, ResourceTypeMessage message);
+
     public:
+        static void InitStringToResourceTypeMap();
+
         /**
          * Convert any UTF-8 string to a cross-platform secure archive directory name (in English + numbers)
          * 将任意 UTF-8 字符串 转换为 跨平台安全的存档目录名（英文+数字）
@@ -134,6 +143,8 @@ namespace glimmer {
          * @return
          */
         static std::string GetDimensionFolderName(std::string packId, std::string key);
+
+        static ResourceTypeMessage StringToResourceTypeMessage(const std::string &string);
 
         /**
          * Replace all

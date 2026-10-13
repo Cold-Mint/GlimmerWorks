@@ -43,7 +43,7 @@ namespace glimmer {
     //     static glimmer::ResourceRef from_toml(const value &v) {
     //         glimmer::ResourceRef r;
     //         r.SetPackageId(toml::find<std::string>(v, "pack_id"));
-    //         r.SetResourceType(static_cast<ResourceTypeMessage>(toml::find<int>(v, "resource_type")));
+    //         r.SetResourceTypeString(toml::find<std::string>(v, "resource_type"));
     //         r.SetResourceKey(toml::find<std::string>(v, "resource_key"));
     //         return r;
     //     }
@@ -85,6 +85,8 @@ namespace glimmer {
         [[nodiscard]] std::string GetPackageId() const;
 
         void SetResourceType(ResourceTypeMessage resourceType);
+
+        void SetResourceTypeString(const std::string &resourceTypeString);
 
         [[nodiscard]] ResourceTypeMessage GetResourceType() const;
 

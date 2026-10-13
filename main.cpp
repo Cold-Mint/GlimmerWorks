@@ -30,7 +30,6 @@
 #include "core/log/LogCat.h"
 #include "core/context/AppContext.h"
 #include "core/tick/TickWorker.h"
-#include "fmt/args.h"
 
 #ifdef __ANDROID__
 #include <jni.h>
@@ -44,9 +43,11 @@ int main() {
     SDL_SetAppMetadata(
         PROJECT_NAME.c_str(), GAME_VERSION_STRING,
         APP_PACKNAME);
+    StringUtils::InitStringToResourceTypeMap();
     AppContext appContext;
     if (!appContext.InitSystem()) {
-        LogCat::e(LogLabel::DEFAULT,std::source_location::current(), "app_context_init_failed", "appContext Init failed");
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "app_context_init_failed",
+                  "appContext Init failed");
         return EXIT_FAILURE;
     }
     App app(&appContext);

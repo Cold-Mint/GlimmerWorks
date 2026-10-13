@@ -37,6 +37,44 @@
 #include "core/config/Constants.h"
 #include "fmt/color.h"
 
+std::unordered_map<std::string, ResourceTypeMessage> glimmer::StringUtils::stringToResourceTypeMessage_;
+
+void glimmer::StringUtils::AddResourceTypeMap(const std::string &name, const ResourceTypeMessage message) {
+    stringToResourceTypeMessage_[name] = message;
+}
+
+void glimmer::StringUtils::InitStringToResourceTypeMap() {
+    AddResourceTypeMap(DATA_FILE_TYPE_STRINGS, RESOURCE_STRING);
+    AddResourceTypeMap(DATA_FILE_TYPE_TILE, RESOURCE_TILE);
+    AddResourceTypeMap(DATA_FILE_TYPE_COMPOSABLE_ITEM, RESOURCE_COMPOSABLE_ITEM);
+    AddResourceTypeMap(DATA_FILE_TYPE_ABILITY_ITEM, RESOURCE_ABILITY_ITEM);
+    AddResourceTypeMap(DATA_FILE_TYPE_LOOT_TABLE, RESOURCE_LOOT_TABLE);
+    AddResourceTypeMap(DATA_FILE_TYPE_STRUCTURE, RESOURCE_STRUCTURE);
+    AddResourceTypeMap("texture", RESOURCE_TEXTURE);
+    AddResourceTypeMap(DATA_FILE_TYPE_BIOME, RESOURCE_BIOME);
+    AddResourceTypeMap(DATA_FILE_TYPE_COLOR, RESOURCE_COLOR);
+    AddResourceTypeMap(DATA_FILE_TYPE_MOB, RESOURCE_MOB);
+    AddResourceTypeMap("shape", RESOURCE_SHAPE);
+    AddResourceTypeMap("audio", RESOURCE_AUDIO);
+    AddResourceTypeMap("dropped_item", RESOURCE_DROPPED_ITEM);
+    AddResourceTypeMap("biome_decorator", RESOURCE_BIOME_DECORATOR);
+    AddResourceTypeMap(DATA_FILE_TYPE_FIXED_COLOR, RESOURCE_FIXED_COLOR);
+    AddResourceTypeMap(DATA_FILE_TYPE_LIGHT_SOURCE, RESOURCE_LIGHT_SOURCE);
+    AddResourceTypeMap(DATA_FILE_TYPE_LIGHT_MASK, RESOURCE_LIGHT_MASK);
+    AddResourceTypeMap(DATA_FILE_TYPE_TREE_STRUCTURE, RESOURCE_TREE_STRUCTURE);
+    AddResourceTypeMap(DATA_FILE_TYPE_STATIC_STRUCTURE, RESOURCE_STATIC_STRUCTURE);
+    AddResourceTypeMap(DATA_FILE_TYPE_MATERIAL_ITEM, RESOURCE_MATERIAL_ITEM);
+    AddResourceTypeMap("rml_path", RESOURCE_RML_PATH);
+    AddResourceTypeMap("structure_placement_conditions", RESOURCE_STRUCTURE_PLACEMENT_CONDITIONS);
+    AddResourceTypeMap("shader_vertex", RESOURCE_SHADER_VERTEX);
+    AddResourceTypeMap("shader_fragment", RESOURCE_SHADER_FRAGMENT);
+    AddResourceTypeMap("pipeline", RESOURCE_PIPELINE);
+    AddResourceTypeMap("sampler", RESOURCE_SAMPLER);
+    AddResourceTypeMap("uniform_block", RESOURCE_UNIFORM_BLOCK);
+    AddResourceTypeMap(DATA_FILE_TYPE_DIMENSION, RESOURCE_DIMENSION);
+    AddResourceTypeMap("growth_condition", RESOURCE_GROWTH_CONDITION);
+}
+
 std::string glimmer::StringUtils::ToSafeSaveName(const std::string &utf8Str) {
     std::ostringstream oss;
     oss << "save_";
@@ -158,6 +196,14 @@ std::string glimmer::StringUtils::GetScreenshotFileName() {
 
 std::string glimmer::StringUtils::GetDimensionFolderName(std::string packId, std::string key) {
     return fmt::format("{}_{}", packId, key);
+}
+
+ResourceTypeMessage glimmer::StringUtils::StringToResourceTypeMessage(const std::string &string) {
+    const auto iter = stringToResourceTypeMessage_.find(string);
+    if (iter == stringToResourceTypeMessage_.end()) {
+        return RESOURCE_NONE;
+    }
+    return iter->second;
 }
 
 void glimmer::StringUtils::ReplaceAll(std::string &str, const std::string_view from, const std::string_view to) {

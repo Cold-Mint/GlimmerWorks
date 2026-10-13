@@ -39,7 +39,7 @@ bool glimmer::ResourceRef::operator==(const ResourceRef &other) const {
            && resourceType_ == other.resourceType_;
 }
 
-void glimmer::ResourceRef::SetSelfPackageId(std::string_view selfPackageId) {
+void glimmer::ResourceRef::SetSelfPackageId(const std::string_view selfPackageId) {
     if (packId_ == RESOURCE_REF_SELF) {
         packId_ = selfPackageId;
     }
@@ -51,14 +51,14 @@ const std::string &glimmer::ResourceRef::GetSelfPackageId() const {
     return selfPackageId_;
 }
 
-void glimmer::ResourceRef::SetPackageId(std::string_view packId) {
+void glimmer::ResourceRef::SetPackageId(const std::string_view packId) {
     packId_ = packId;
 }
 
 void glimmer::ResourceRef::ReadResourceRefMessage(const ResourceRefMessage &resourceRefMessage) {
     packId_ = resourceRefMessage.packid();
-    resourceType_ = resourceRefMessage.resourcetype();
-    resourceKey_ = resourceRefMessage.resourcekey();
+    SetResourceType(resourceRefMessage.resourcetype());
+    SetResourceKey(resourceRefMessage.resourcekey());
     selfPackageId_ = resourceRefMessage.selfpackageid();
     bindPackage_ = true;
 }
@@ -97,9 +97,9 @@ std::optional<glimmer::ResourceRef> glimmer::ResourceRef::ParseFromId(std::strin
 
 void glimmer::ResourceRef::ReadResource(const Resource &resource, const ResourceTypeMessage resourceType) {
     packId_ = resource.packId;
-    resourceKey_ = resource.resourceId;
+    SetResourceKey(resource.resourceId);
     selfPackageId_ = resource.packId;
-    resourceType_ = resourceType;
+    SetResourceType(resourceType);
     bindPackage_ = true;
 }
 
@@ -114,6 +114,10 @@ std::string glimmer::ResourceRef::GetPackageId() const {
 
 void glimmer::ResourceRef::SetResourceType(const ResourceTypeMessage resourceType) {
     resourceType_ = resourceType;
+}
+
+void glimmer::ResourceRef::SetResourceTypeString(const std::string &resourceTypeString) {
+    SetResourceType(StringUtils::StringToResourceTypeMessage(resourceTypeString));
 }
 
 ResourceTypeMessage glimmer::ResourceRef::GetResourceType() const {

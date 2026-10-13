@@ -42,7 +42,7 @@ namespace toml {
         static glimmer::ResourceRef from_toml(const value &v) {
             glimmer::ResourceRef r;
             r.SetPackageId(toml::find<std::string>(v, "pack_id"));
-            r.SetResourceType(static_cast<ResourceTypeMessage>(toml::find<int>(v, "resource_type")));
+            r.SetResourceTypeString(toml::find<std::string>(v, "resource_type"));
             r.SetResourceKey(toml::find<std::string>(v, "resource_key"));
             return r;
         }
@@ -90,6 +90,18 @@ namespace toml {
             glimmer::Box2dFilter resource;
             resource.categoryBits = toml::find_or<uint64_t>(v, "category_bits", 0);
             resource.maskBits = toml::find_or<uint64_t>(v, "mask_bits", 0);
+            return resource;
+        }
+    };
+
+    template<>
+    struct from<glimmer::CapsuleShapeResource> {
+        static glimmer::CapsuleShapeResource from_toml(const value &v) {
+            glimmer::CapsuleShapeResource resource;
+            resource.height = toml::find_or<float>(v, "height", 1.0F);
+            resource.resourceId = toml::find<std::string>(v, "resource_id");
+            resource.shapeType = toml::find_or<uint8_t>(v, "shape_type", 0);
+            resource.width = toml::find_or<float>(v, "width", 1.0F);
             return resource;
         }
     };
@@ -404,18 +416,6 @@ namespace toml {
             glimmer::RoundedRectangleShapeResource resource;
             resource.height = toml::find_or<float>(v, "height", 1.0F);
             resource.radius = toml::find_or<float>(v, "radius", 0.0F);
-            resource.resourceId = toml::find<std::string>(v, "resource_id");
-            resource.shapeType = toml::find_or<uint8_t>(v, "shape_type", 0);
-            resource.width = toml::find_or<float>(v, "width", 1.0F);
-            return resource;
-        }
-    };
-
-    template<>
-    struct from<glimmer::CapsuleShapeResource> {
-        static glimmer::CapsuleShapeResource from_toml(const value &v) {
-            glimmer::CapsuleShapeResource resource;
-            resource.height = toml::find_or<float>(v, "height", 1.0F);
             resource.resourceId = toml::find<std::string>(v, "resource_id");
             resource.shapeType = toml::find_or<uint8_t>(v, "shape_type", 0);
             resource.width = toml::find_or<float>(v, "width", 1.0F);

@@ -89,18 +89,6 @@ void glimmer::PreloadColors::LoadAllColors(const ResourceLocator *resourceLocato
     itemSlotTextColor.b = 255;
     itemSlotTextColor.a = 255;
     game.itemSlotTextColor = LoadColor(resourceLocator, "game/item_slot_text_color", itemSlotTextColor);
-    Color box2dBorderColor;
-    box2dBorderColor.r = 0;
-    box2dBorderColor.g = 0;
-    box2dBorderColor.b = 255;
-    box2dBorderColor.a = 255;
-    debugColor.box2dBorderColor = LoadColor(resourceLocator, "debug/box2d_border_color", box2dBorderColor);
-    Color box2dFullColor;
-    box2dFullColor.r = 100;
-    box2dFullColor.g = 149;
-    box2dFullColor.b = 237;
-    box2dFullColor.a = 128;
-    debugColor.box2dFullColor = LoadColor(resourceLocator, "debug/box2d_full_color", box2dFullColor);
     Color draggableColor;
     draggableColor.r = 0;
     draggableColor.g = 0;

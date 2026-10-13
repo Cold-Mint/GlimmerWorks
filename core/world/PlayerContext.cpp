@@ -33,10 +33,10 @@
 #include "core/ecs/EntityManager.h"
 #include "core/ecs/EntityShortCut.h"
 #include "core/ecs/MobEntityCreator.h"
+#include "core/ecs/component/ColliderComponent.h"
 #include "core/ecs/component/ItemContainerComponent.h"
 #include "core/ecs/component/LightComponent.h"
 #include "core/ecs/component/PlayerComponent.h"
-#include "core/ecs/component/RigidBody2DComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/log/LogCat.h"
@@ -220,11 +220,11 @@ void glimmer::PlayerContext::DisablePlayerRigidBody(const uint32_t playerEntity)
     if (entityManager == nullptr) {
         return;
     }
-    auto *rigidBody = entityManager->GetComponent<RigidBody2DComponent>(playerEntity);
-    if (rigidBody == nullptr) {
+    auto *collider = entityManager->GetComponent<ColliderComponent>(playerEntity);
+    if (collider == nullptr) {
         return;
     }
-    rigidBody->Disable();
+    collider->Disable();
 }
 
 void glimmer::PlayerContext::EnablePlayerRigidBody() const {
@@ -240,11 +240,11 @@ void glimmer::PlayerContext::EnablePlayerRigidBody() const {
     if (entityManager == nullptr) {
         return;
     }
-    auto *rigidBody = entityManager->GetComponent<RigidBody2DComponent>(playerEntity);
-    if (rigidBody == nullptr) {
+    auto *collider = entityManager->GetComponent<ColliderComponent>(playerEntity);
+    if (collider == nullptr) {
         return;
     }
-    rigidBody->Enable();
+    collider->Enable();
 }
 
 void glimmer::PlayerContext::OnPlayerItemChanged(const ItemContainer *itemContainer, uint8_t index, Item *item,

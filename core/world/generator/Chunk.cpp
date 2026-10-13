@@ -35,18 +35,6 @@
 #include "core/world/WorldContext.h"
 #include "src/saves/tile_state.pb.h"
 
-void glimmer::Chunk::AddBodyId(b2BodyId bodyId) {
-    attachedBodies_.emplace_back(bodyId);
-}
-
-const std::vector<b2BodyId> &glimmer::Chunk::GetAttachedBodies() {
-    return attachedBodies_;
-}
-
-void glimmer::Chunk::ClearAttachedBodies() {
-    attachedBodies_.clear();
-}
-
 size_t glimmer::Chunk::AddReplaceTileCallback(
     const std::function<void(std::shared_ptr<Chunk> chunk, TileLayerType layerType, size_t index, std::shared_ptr<Tile>
                              oldTile, std::shared_ptr<Tile> newTile)> &callBack) {

@@ -37,9 +37,6 @@ namespace glimmer {
      * 生物组件
      */
     class MobComponent : public GameComponent {
-        //A list of physical IDs with radiation components for ground detection
-        //用于地面检测的带有射线组件的实体ID列表
-        std::vector<GameEntityID> groundCheckRayEntityIds_;
         std::unique_ptr<Item> emptyHandAutoUseItem_ = nullptr;
         //Linear acceleration
         //移动加速度
@@ -59,13 +56,9 @@ namespace glimmer {
         bool facingLeft_ = false;
 
     public:
-        [[nodiscard]] const std::vector<GameEntityID> &GetGroundCheckRayEntityIds() const;
-
         void SetEmptyHandAutoUseItem(std::unique_ptr<Item> emptyHandAutoUseItem);
 
         [[nodiscard]] Item *GetEmptyHandAutoUseItem() const;
-
-        void AddGroundCheckRayEntity(GameEntityID id);
 
         void SetMovementAcceleration(float acceleration);
 

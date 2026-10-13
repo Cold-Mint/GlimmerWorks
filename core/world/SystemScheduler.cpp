@@ -36,7 +36,6 @@
 #include "core/ecs/system/ChunkSystem.h"
 #include "core/ecs/system/CropSystem.h"
 #include "core/ecs/system/DebugChunkSystem.h"
-#include "core/ecs/system/DebugDrawBox2dSystem.h"
 #include "core/ecs/system/DebugDrawSystem.h"
 #include "core/ecs/system/DebugMultiMapSystem.h"
 #include "core/ecs/system/DebugPanelSystem.h"
@@ -52,7 +51,6 @@
 #include "core/ecs/system/PauseSystem.h"
 #include "core/ecs/system/PhysicsSystem.h"
 #include "core/ecs/system/PlayerControlSystem.h"
-#include "core/ecs/system/RayCast2DSystem.h"
 #include "core/ecs/system/RecipeDetailGUISystem.h"
 #include "core/ecs/system/SpiritRendererSystem.h"
 #include "core/ecs/system/TechProviderSystem.h"
@@ -382,7 +380,6 @@ void glimmer::SystemScheduler::InitSystem() {
     RegisterSystem(std::make_unique<AutoPickSystem>(worldContext_));
     RegisterSystem(std::make_unique<MiningSystem>(worldContext_));
     RegisterSystem(std::make_unique<SpiritRendererSystem>(worldContext_));
-    RegisterSystem(std::make_unique<RayCast2DSystem>(worldContext_));
     RegisterSystem(std::make_unique<BiomeBGMSystem>(worldContext_));
     RegisterSystem(std::make_unique<DynamicLightSystem>(worldContext_));
     RegisterSystem(std::make_unique<BlueprintSystem>(worldContext_));
@@ -397,7 +394,6 @@ void glimmer::SystemScheduler::InitSystem() {
     RegisterGuiSystem(std::make_unique<ItemTooltipSystem>(worldContext_));
 #if  !defined(NDEBUG)
     RegisterSystem(std::make_unique<DebugDrawSystem>(worldContext_));
-    RegisterSystem(std::make_unique<DebugDrawBox2dSystem>(worldContext_));
     RegisterSystem(std::make_unique<DebugChunkSystem>(worldContext_));
     RegisterGuiSystem(std::make_unique<DebugPanelSystem>(worldContext_));
     RegisterSystem(std::make_unique<DebugMultiMapSystem>(worldContext_));

@@ -30,14 +30,11 @@
 
 #include "core/log/LogCat.h"
 #include "core/world/WorldContext.h"
-#include "core/utils/Box2DUtils.h"
-#include "core/ecs/component/RigidBody2DComponent.h"
-#include "box2d/box2d.h"
+#include "core/ecs/component/ColliderComponent.h"
 #include "core/config/Constants.h"
 #include "core/ecs/DroppedItemCreator.h"
 #include "core/ecs/component/ItemContainerComponent.h"
 #include "core/ecs/component/PlayerComponent.h"
-#include "core/ecs/component/RayCast2DComponent.h"
 #include "core/ecs/component/SpiritRendererComponent.h"
 #include "core/mod/resourcePack/AudioResourceResult.h"
 
@@ -81,20 +78,6 @@ glimmer::PlayerControlSystem::PlayerControlSystem(WorldContext *worldContext) : 
     Init();
 }
 
-void glimmer::PlayerControlSystem::ClampHorizontalSpeed(const RigidBody2DComponent *rigidBody2DComponent,
-                                                        const PlayerComponent *playerComponent,
-                                                        const b2Vec2 &currentVel) {
-    const b2BodyId bodyId = rigidBody2DComponent->GetBodyId();
-    if (std::abs(currentVel.x) <= playerComponent->GetMaxSpeed()) {
-        return;
-    }
-    if (currentVel.x > 0) {
-        b2Body_SetLinearVelocity(bodyId, {playerComponent->GetMaxSpeed(), currentVel.y});
-        return;
-    }
-    b2Body_SetLinearVelocity(bodyId, {-playerComponent->GetMaxSpeed(), currentVel.y});
-}
-
 void glimmer::PlayerControlSystem::CheckDropItem(PlayerInputHandler *playerInputHandler,
                                                  const ItemContainer *itemContainer) const {
     if (!playerInputHandler->IsDropPressed()) {
@@ -106,25 +89,6 @@ void glimmer::PlayerControlSystem::CheckDropItem(PlayerInputHandler *playerInput
     playerInputHandler->RemoveDropTick();
     DropItem(itemContainer, itemContainer->GetSelectIndex());
     playerInputHandler->SetDropPressed(false);
-}
-
-void glimmer::PlayerControlSystem::UpdateJump(const PlayerComponent *playerComponent,
-                                              PlayerInputHandler *playerInputHandler,
-                                              const RigidBody2DComponent *rigidBody2DComponent, bool isGrounded,
-                                              const b2MassData &massData) {
-    const b2BodyId bodyId = rigidBody2DComponent->GetBodyId();
-    if (playerInputHandler->IsJump()) {
-        playerInputHandler->SetJumpBuffer(JUMP_BUFFER_FRAMES);
-        playerInputHandler->SetJump(false);
-    }
-    if (playerInputHandler->GetJumpBuffer() > 0 && isGrounded) {
-        b2Vec2 jumpImpulse = {0, massData.mass * playerComponent->GetJumpForce()};
-        b2Body_ApplyLinearImpulseToCenter(bodyId, jumpImpulse, true);
-        playerInputHandler->SetJumpBuffer(0);
-    }
-    if (playerInputHandler->GetJumpBuffer() > 0) {
-        playerInputHandler->SetJumpBuffer(playerInputHandler->GetJumpBuffer() - 1);
-    }
 }
 
 void glimmer::PlayerControlSystem::HandleMouseButton(const SDL_Event &event, PlayerInputHandler *playerInputHandler) {
@@ -194,24 +158,6 @@ glimmer::GameSystemType glimmer::PlayerControlSystem::GetGameSystemType() const 
     return GameSystemType::PlayerControlSystem;
 }
 
-bool glimmer::PlayerControlSystem::OnGround(const PlayerComponent *playerControlComponent) const {
-    EntityManager *entityManager = GetEntityManager();
-    const std::vector<GameEntityID> &groundCheckRayEntityIds = playerControlComponent->GetGroundCheckRayEntityIds();
-    if (groundCheckRayEntityIds.empty()) {
-        return false;
-    }
-    for (const uint32_t rayCast2dItem: groundCheckRayEntityIds) {
-        auto rayCast2DComponent = entityManager->GetComponent<RayCast2DComponent>(rayCast2dItem);
-        if (rayCast2DComponent == nullptr) {
-            continue;
-        }
-        if (rayCast2DComponent->IsHit()) {
-            return true;
-        }
-    }
-    return false;
-}
-
 void glimmer::PlayerControlSystem::DropItem(const ItemContainer *itemContainer, const uint8_t index) const {
     WorldContext *worldContext = GetWorldContext();
 
@@ -265,29 +211,43 @@ void glimmer::PlayerControlSystem::UpdateFlying(const PlayerInputHandler *player
 
 void glimmer::PlayerControlSystem::UpdateGroundedMovement(PlayerInputHandler *playerInputHandler,
                                                           const PlayerComponent *playerComponent,
-                                                          const RigidBody2DComponent *rigidBody2DComponent) const {
-    const b2BodyId bodyId = rigidBody2DComponent->GetBodyId();
-    bool isGrounded = OnGround(playerComponent);
-    const b2Vec2 currentVel = b2Body_GetLinearVelocity(bodyId);
-    b2MassData massData = b2Body_GetMassData(bodyId);
-    float targetAccX = playerComponent->GetMovementAcceleration() * playerInputHandler->GetHorizontalInput();
-    if (!isGrounded) {
-        targetAccX *= playerComponent->GetAirControlFactor();
+                                                          ColliderComponent *collider) const {
+    WorldVector2D velocity = collider->GetVelocity();
+    const bool isGrounded = collider->IsGrounded();
+
+    // Horizontal: accelerate/decelerate the velocity toward the target speed. This is a simple "move-toward"
+    // controller so the movement feel is fully under our control (no contact solver involved).
+    // 水平：让速度向目标速度加速/减速。这是一个简单的“逼近”控制器，使手感完全由我们掌控（不依赖接触求解器）。
+    const float throttle = playerInputHandler->GetHorizontalInput();
+    const float targetSpeed = playerComponent->GetMaxSpeed() * throttle;
+    const float airSteer = isGrounded ? 1.0F : playerComponent->GetAirControlFactor();
+    const float acceleration = playerComponent->GetMovementAcceleration() * airSteer;
+    float maxDeltaSpeed = acceleration * FIXED_TIME_STEP;
+    if (targetSpeed == 0.0F) {
+        maxDeltaSpeed *= 3.0F; // snappier stop when releasing input 松开输入时更快停下
     }
-    float horizontalForce = massData.mass * targetAccX;
-    if (playerInputHandler->GetHorizontalInput() == 0) {
-        const float brakeFactor = isGrounded ? 8.0F : 2.0F;
-        horizontalForce = -currentVel.x * massData.mass * brakeFactor;
-        if (fabs(currentVel.x) < 0.1F) {
-            b2Body_SetLinearVelocity(bodyId, {0.0F, currentVel.y});
-            horizontalForce = 0.0F;
-        }
+    const float deltaSpeed = targetSpeed - velocity.x;
+    if (std::abs(deltaSpeed) <= maxDeltaSpeed) {
+        velocity.x = targetSpeed;
+    } else {
+        velocity.x += deltaSpeed > 0.0F ? maxDeltaSpeed : -maxDeltaSpeed;
     }
-    b2Body_ApplyForceToCenter(bodyId, {horizontalForce, 0.0F}, true);
-    UpdateJump(playerComponent, playerInputHandler, rigidBody2DComponent, isGrounded, massData);
-    ClampHorizontalSpeed(rigidBody2DComponent, playerComponent, currentVel);
-    float gravityForce = massData.mass * GRAVITY_SCALE;
-    b2Body_ApplyForceToCenter(bodyId, {0, -gravityForce}, true);
+
+    // Jump with buffering. Sets the vertical velocity directly; gravity + collision are handled by PhysicsSystem.
+    // 带缓冲的跳跃。直接设置竖直速度；重力与碰撞由 PhysicsSystem 处理。
+    if (playerInputHandler->IsJump()) {
+        playerInputHandler->SetJumpBuffer(JUMP_BUFFER_FRAMES);
+        playerInputHandler->SetJump(false);
+    }
+    if (playerInputHandler->GetJumpBuffer() > 0 && isGrounded) {
+        velocity.y = playerComponent->GetJumpForce();
+        playerInputHandler->SetJumpBuffer(0);
+    }
+    if (playerInputHandler->GetJumpBuffer() > 0) {
+        playerInputHandler->SetJumpBuffer(playerInputHandler->GetJumpBuffer() - 1);
+    }
+
+    collider->SetVelocity(velocity);
 }
 
 void glimmer::PlayerControlSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType,
@@ -332,14 +292,11 @@ void glimmer::PlayerControlSystem::OnTick(uint64_t tick) {
         }
         UpdateFlying(playerInputHandler, transform2DComponent);
     } else {
-        const auto rigidBody2DComponent = entityManager->GetComponent<RigidBody2DComponent>(playerEntityID_);
-        if (rigidBody2DComponent == nullptr) {
+        const auto collider = entityManager->GetComponent<ColliderComponent>(playerEntityID_);
+        if (collider == nullptr || !collider->IsEnabled()) {
             return;
         }
-        if (!rigidBody2DComponent->IsReady()) {
-            return;
-        }
-        UpdateGroundedMovement(playerInputHandler, playerComponent, rigidBody2DComponent);
+        UpdateGroundedMovement(playerInputHandler, playerComponent, collider);
     }
     const auto itemContainerComponent = entityShortCut->GetItemContainerComponent();
     const ItemContainer *itemContainer = itemContainerComponent->GetItemContainer();

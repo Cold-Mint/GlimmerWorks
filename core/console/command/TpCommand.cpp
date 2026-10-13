@@ -27,11 +27,9 @@
 #include "TpCommand.h"
 
 #include "core/config/Constants.h"
-#include "core/ecs/component/RigidBody2DComponent.h"
-#include "core/utils/Box2DUtils.h"
-#include "core/world/PhysicsTaskQueue.h"
+#include "core/ecs/component/ColliderComponent.h"
+#include "core/ecs/component/Transform2DComponent.h"
 #include "core/world/WorldContext.h"
-#include "box2d/box2d.h"
 #include "fmt/color.h"
 
 void glimmer::TpCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
@@ -90,20 +88,16 @@ bool glimmer::TpCommand::Execute(const CommandSender *commandSender, const Comma
         commandArgs->AsCoordinate(1, commandSenderPosition.x),
         commandArgs->AsCoordinate(2, commandSenderPosition.y)
     };
-    if (PhysicsTaskQueue *taskQueue = worldContext->GetPhysicsTaskQueue(); taskQueue != nullptr) {
-        taskQueue->Enqueue([worldContext, playerEntity, newPosition] {
-            EntityManager *entityManager = worldContext->GetEntityManager();
-            if (entityManager == nullptr) {
-                return;
-            }
-            const auto rigidBody2DComponent = entityManager->GetComponent<RigidBody2DComponent>(playerEntity);
-            if (rigidBody2DComponent == nullptr || !rigidBody2DComponent->IsReady()) {
-                return;
-            }
-            const b2Vec2 newPos = Box2DUtils::ToMeters(newPosition);
-            const b2Rot currentRot = b2Body_GetRotation(rigidBody2DComponent->GetBodyId());
-            b2Body_SetTransform(rigidBody2DComponent->GetBodyId(), newPos, currentRot);
-        });
+    EntityManager *entityManager = worldContext->GetEntityManager();
+    if (entityManager != nullptr) {
+        auto transform2DComponent = entityManager->GetComponent<Transform2DComponent>(playerEntity);
+        if (transform2DComponent != nullptr) {
+            transform2DComponent->SetPosition(newPosition);
+        }
+        auto collider = entityManager->GetComponent<ColliderComponent>(playerEntity);
+        if (collider != nullptr) {
+            collider->SetVelocity({});
+        }
     }
     onMessageRef(fmt::format(
         fmt::runtime(langsResources->teleportEntity),

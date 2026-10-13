@@ -71,7 +71,6 @@ static constexpr std::string GUI_COMMAND_NAME = "gui";
 static constexpr std::string ITEM_EDITOR_COMMAND_NAME = "itemEditor";
 static constexpr std::string PACK_VERIFY_COMMAND_NAME = "packVerify";
 #if  !defined(NDEBUG)
-static constexpr std::string BOX2D_COMMAND_NAME = "box2d";
 static constexpr std::string BIOME_SCORE_COMMAND_NAME = "biomeScore";
 static constexpr std::string TILE_SNAPSHOT_COMMAND_NAME = "tileSnapshot";
 static constexpr std::string ASSET_VIEWER_COMMAND_NAME = "assetViewer";
@@ -184,10 +183,6 @@ static constexpr std::string DATA_FILE_TYPE_CONTRIBUTOR = "contributor";
 static constexpr std::string DATA_FILE_TYPE_COLOR = "color";
 static constexpr std::string DATA_FILE_TYPE_MOB = "mob";
 static constexpr std::string DATA_FILE_TYPE_TEMPLATE = "template";
-static constexpr std::string DATA_FILE_TYPE_SHAPE_RECTANGLE = "rect";
-static constexpr std::string DATA_FILE_TYPE_SHAPE_ROUNDED_RECTANGLE = "round_rect";
-static constexpr std::string DATA_FILE_TYPE_SHAPE_CIRCLE = "circle";
-static constexpr std::string DATA_FILE_TYPE_SHAPE_CAPSULE = "capsule";
 static constexpr std::string DATA_FILE_TYPE_DECORATOR_FILL = "decor_fill";
 static constexpr std::string DATA_FILE_TYPE_DECORATOR_MINERAL = "decor_mineral";
 static constexpr std::string DATA_FILE_TYPE_DECORATOR_SURFACE = "decor_surface";
@@ -197,9 +192,6 @@ static constexpr std::string DATA_FILE_TYPE_LIGHT_SOURCE = "light_source";
 static constexpr std::string DATA_FILE_TYPE_RECIPE = "recipe";
 
 
-static constexpr uint16_t BOX2D_CATEGORY_PLAYER = 0x0001;
-static constexpr uint16_t BOX2D_CATEGORY_TILE = 0x0002;
-static constexpr uint16_t BOX2D_CATEGORY_ITEM = 0x0004;
 static constexpr uint8_t ITEM_MAX_STACK = 64;
 static constexpr uint8_t HOT_BAR_SIZE = 9;
 static constexpr uint8_t INVENTORY_ROW_COUNT = 4;
@@ -308,26 +300,6 @@ static constexpr float WORK_STATION_RANGE = 10;
 static constexpr float DROPPED_ITEM_SIZE = TILE_SIZE * 0.8F;
 
 /**
- * @brief Box2D 世界坐标到像素坐标的缩放因子
- *
- * Box2D 使用米作为单位，而屏幕渲染使用像素单位。
- * KSCALE 定义了 1 米对应多少像素，例如：
- *   - KSCALE = 16.0f 表示 1 米 = 16 像素
- *
- * 用法示例：
- *   float pixelX = meterX * KSCALE;
- */
-static constexpr float KSCALE = TILE_SIZE;
-
-/**
- * @brief 像素坐标到 Box2D 世界坐标（米）的缩放因子
- *
- * 等价于 1 / KSCALE，用于将像素坐标转换回米单位：
- *   meterX = pixelX * KINV_SCALE;
- */
-static constexpr float KINV_SCALE = 1.0F / KSCALE;
-
-/**
  * 玩家移动速度，单位：米/秒
  */
 static constexpr float PLAYER_MOVE_SPEED = 60.0F;
@@ -353,7 +325,6 @@ static constexpr uint8_t EXECUTION_ORDER_ITEM_TOOLTIP = 21;
 static constexpr uint8_t EXECUTION_ORDER_DYNAMIC_LIGHT = 92;
 static constexpr uint8_t EXECUTION_ORDER_DEBUG_DRAW = 94;
 static constexpr uint8_t EXECUTION_ORDER_DEBUG_CHUNK = 95;
-static constexpr uint8_t EXECUTION_ORDER_DEBUG_BOX2D = 96;
 static constexpr uint8_t EXECUTION_ORDER_DEBUG_MAP = 97;
 static constexpr uint8_t EXECUTION_ORDER_DEBUG_PANEL = 98;
 static constexpr uint8_t EXECUTION_ORDER_ANDROID_CTRL = 99;
@@ -370,7 +341,6 @@ static constexpr std::string TILE_ID_ERROR = "error";
 static constexpr std::string TILE_ID_ERROR_WALL = "error_wall";
 static constexpr std::string TILE_ID_ACCESS_DENIED = "access_denied";
 static const std::string TILE_ID_ACCESS_DENIED_WALL = "access_denied_wall";
-static constexpr std::string SHAPE_ID_DROPPED_ITEM = "droppedItem";
 static constexpr std::string DROPPED_ITEM_ID_DEFAULT = "default";
 
 static constexpr std::string STRING_TILE_AIR_NAME = "tile_name_air";
@@ -417,9 +387,15 @@ static constexpr std::string TEMPLATE_CURRENT = "@current";
 static constexpr std::string TEMPLATE_ROOT = "@root";
 static constexpr std::string PROJECT_NAME = "GlimmerWorks";
 
-static constexpr float GRAVITY_SCALE = 1.8F; // 重力缩放（优化下落手感）
 static constexpr int JUMP_BUFFER_FRAMES = 4;
 static constexpr int FLY_SPEED = TILE_SIZE * 25;
+
+// Gravity for the custom tile-grid physics (pixels / second^2). 20 tiles/s^2.
+// 自定义瓦片网格物理使用的重力（像素/秒²）。20 格/秒²。
+static constexpr float PHYSICS_GRAVITY = TILE_SIZE * 20.0F;
+// Terminal fall speed for the custom physics (pixels / second). 30 tiles/s.
+// 自定义物理的下落终端速度（像素/秒）。30 格/秒。
+static constexpr float PHYSICS_MAX_FALL_SPEED = TILE_SIZE * 30.0F;
 
 //How often should the information of picked-up items be accumulated and settled (unit: seconds)?
 //累积多长时间结算一次捡起的物品信息（单位：秒）

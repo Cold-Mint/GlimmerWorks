@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -28,12 +28,25 @@
 #include "core/ecs/GameSystem.h"
 
 namespace glimmer {
+    class ColliderComponent;
+    class Transform2DComponent;
+    class WorldContext;
+
+    /**
+     * Custom tile-grid physics system. It replaces the Box2D world stepping: for every entity that has
+     * a ColliderComponent and a Transform2DComponent, it integrates gravity and resolves collisions against
+     * the solid tile grid using axis-separated AABB movement.
+     * 自定义瓦片网格物理系统。它取代了 Box2D 世界步进：对每个拥有 ColliderComponent 与 Transform2DComponent
+     * 的实体，积分重力并使用分轴 AABB 移动来解算与实心瓦片网格的碰撞。
+     */
     class PhysicsSystem : public GameSystem {
         std::vector<GameEntityID> entities_;
         EntityManager *entityManager_ = nullptr;
-        uint32_t rigidBody2dCount_ = 0;
+        uint32_t colliderCount_ = 0;
         uint32_t transform2dCount_ = 0;
-        b2WorldId worldId_{};
+
+        void StepEntity(WorldContext *worldContext, ColliderComponent *collider,
+                        Transform2DComponent *transform) const;
 
     public:
         explicit PhysicsSystem(WorldContext *worldContext);

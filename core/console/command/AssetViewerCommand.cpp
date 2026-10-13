@@ -40,7 +40,6 @@
 #include "core/console/asset_enumerator/StartInvAssetEnumerator.h"
 #include "core/console/asset_enumerator/StructuresAssetEnumerator.h"
 #include "core/console/asset_enumerator/MobsAssetEnumerator.h"
-#include "core/console/asset_enumerator/ShapesAssetEnumerator.h"
 #include "core/console/asset_enumerator/BiomeDecorsAssetEnumerator.h"
 #include "core/console/asset_enumerator/FixedColorAssetEnumerator.h"
 #include "core/console/asset_enumerator/LightMaskAssetEnumerator.h"
@@ -76,7 +75,6 @@ glimmer::AssetViewerCommand::AssetViewerCommand(AppContext *appContext)
     AddAssetEnumerator(std::make_unique<StartInvAssetEnumerator>());
     AddAssetEnumerator(std::make_unique<StructuresAssetEnumerator>());
     AddAssetEnumerator(std::make_unique<MobsAssetEnumerator>());
-    AddAssetEnumerator(std::make_unique<ShapesAssetEnumerator>());
     AddAssetEnumerator(std::make_unique<BiomeDecorsAssetEnumerator>());
     AddAssetEnumerator(std::make_unique<FixedColorAssetEnumerator>());
     AddAssetEnumerator(std::make_unique<LightMaskAssetEnumerator>());

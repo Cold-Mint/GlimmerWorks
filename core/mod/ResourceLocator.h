@@ -32,7 +32,6 @@
 #include "core/inventory/ItemFactory.h"
 #include "core/log/LogCat.h"
 #include "core/math/Color.h"
-#include "core/shape/ShapeManager.h"
 #include "dataPack/AbilityItemRegistry.h"
 #include "dataPack/BiomeDecoratorRegistry.h"
 #include "dataPack/ComposableItemRegistry.h"
@@ -87,7 +86,6 @@ namespace glimmer {
         TileResourceManager *tileResourceManager_ = nullptr;
         LightMaskManager *lightMaskManager_ = nullptr;
         LightSourceManager *lightSourceManager_ = nullptr;
-        ShapeManager *shapeManager_ = nullptr;
         StringManager *stringManager_ = nullptr;
         BiomeDecoratorRegistry *biomeDecoratorRegistry_ = nullptr;
         DataPackManager *dataPackManager_ = nullptr;
@@ -186,8 +184,6 @@ namespace glimmer {
             const ResourceRef *resourceRef, bool enablePlaceHolder = true) const;
 
         [[nodiscard]] std::optional<Color> FindColor(const ResourceRef *resourceRef) const;
-
-        [[nodiscard]] IShapeResource *FindShape(const ResourceRef *resourceRef) const;
 
         [[nodiscard]] IBiomeDecoratorResource *FindBiomeDecorator(const ResourceRef *resourceRef) const;
 

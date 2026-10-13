@@ -32,7 +32,6 @@
 
 #include "BiomeDecoratorType.h"
 #include "core/mod/PackManifest.h"
-#include "core/shape/ShapeType.h"
 #include "core/world/growth/GrowthConditionProcessorType.h"
 #include "core/world/structure/StructureConditionProcessorType.h"
 #include "core/world/structure/StructureGeneratorType.h"
@@ -57,7 +56,6 @@ namespace glimmer {
     class MaterialItemRegistry;
     class ContributorManager;
     class MobRegistry;
-    class ShapeManager;
     class FixedColorManager;
     class LightMaskManager;
     class LightSourceManager;
@@ -120,8 +118,6 @@ namespace glimmer {
         void LoadContributorResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 
         void LoadMobResourceFromFile(const toml::value &value, const AppContext *appContext) const;
-
-        void LoadShapeResourceFromFile(const toml::value &value, const AppContext *appContext, ShapeType type) const;
 
         void LoadFixedColorResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 

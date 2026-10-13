@@ -32,7 +32,6 @@
 #include "TerrainResult.h"
 #include "TileSnapshot.h"
 #include "src/saves/chunk.pb.h"
-#include "box2d/id.h"
 #include "core/config/Constants.h"
 #include "core/math/WorldVector2D.h"
 #include "core/world/Tile.h"
@@ -56,7 +55,6 @@ namespace glimmer {
         std::vector<std::function<void(std::shared_ptr<Chunk> chunk, TileLayerType layerType, size_t index,
                                        std::shared_ptr<Tile> oldTile,
                                        std::shared_ptr<Tile> newTile)> > replaceTileCallback_;
-        std::vector<b2BodyId> attachedBodies_;
         ChunkVertexVector2D position_;
         //The terrain data that this chunk depends on. Holding the shared_ptr keeps the terrain alive and allows
         //neighboring chunks to reuse it until this chunk is unloaded.
@@ -81,12 +79,6 @@ namespace glimmer {
          * 设置此区块依赖的地形数据，持有引用以保持其存活直至区块卸载。
          */
         void SetDependencyTerrain(std::shared_ptr<TerrainResult> dependencyTerrain);
-
-        void AddBodyId(b2BodyId bodyId);
-
-        [[nodiscard]] const std::vector<b2BodyId> &GetAttachedBodies();
-
-        void ClearAttachedBodies();
 
         size_t AddReplaceTileCallback(const std::function<void(std::shared_ptr<Chunk> chunk, TileLayerType layerType,
                                                                size_t index,

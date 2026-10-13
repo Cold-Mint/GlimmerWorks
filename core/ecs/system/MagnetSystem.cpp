@@ -28,15 +28,13 @@
 
 #include "core/log/LogCat.h"
 #include "core/world/WorldContext.h"
-#include "core/ecs/component/RigidBody2DComponent.h"
+#include "core/ecs/component/ColliderComponent.h"
 #include "core/ecs/component/DroppedItemComponent.h"
 #include "core/ecs/component/MagnetComponent.h"
 #include "core/ecs/component/MagneticComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
-#include "box2d/box2d.h"
 #include "core/ecs/component/ItemContainerComponent.h"
-#include "core/ecs/component/RayCast2DComponent.h"
-#include "core/utils/Box2DUtils.h"
+#include "core/world/TileCollision.h"
 
 
 void glimmer::MagnetSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) {
@@ -53,9 +51,6 @@ void glimmer::MagnetSystem::OnWatchedComponentChanged(GameComponentTypeMessage g
     if (gameComponentType == COMPONENT_RIGID_BODY_2D) {
         rigidComponentCount_ = count;
     }
-    if (gameComponentType == COMPONENT_RAY_CAST_2D) {
-        rayCast2dComponentCount_ = count;
-    }
     if (gameComponentType == COMPONENT_DROPPED_ITEM) {
         droppedItemComponentCount_ = count;
     }
@@ -71,11 +66,10 @@ void glimmer::MagnetSystem::OnWatchedComponentChanged(GameComponentTypeMessage g
                   magnetEntities_.size());
     }
     if (magneticComponentCount_ > 0 && transform2DComponentCount_ > 0 && rigidComponentCount_ > 0 &&
-        rayCast2dComponentCount_ > 0 && droppedItemComponentCount_ > 0) {
+        droppedItemComponentCount_ > 0) {
         std::lock_guard lock(magnetMutex_);
         magneticEntities_ = entityManager->GetEntityIDWithComponents({
-            COMPONENT_MAGNETIC, COMPONENT_TRANSFORM_2D, COMPONENT_RIGID_BODY_2D, COMPONENT_RAY_CAST_2D,
-            COMPONENT_DROPPED_ITEM
+            COMPONENT_MAGNETIC, COMPONENT_TRANSFORM_2D, COMPONENT_RIGID_BODY_2D, COMPONENT_DROPPED_ITEM
         });
         LogCat::d(LogLabel::DEFAULT, "magnetic_entities_rebuilt", "Magnetic entities rebuilt: {} entities",
                   magneticEntities_.size());
@@ -87,7 +81,6 @@ glimmer::MagnetSystem::MagnetSystem(WorldContext *worldContext) : GameSystem(wor
     WatchComponent(COMPONENT_MAGNET);
     WatchComponent(COMPONENT_MAGNETIC);
     WatchComponent(COMPONENT_RIGID_BODY_2D);
-    WatchComponent(COMPONENT_RAY_CAST_2D);
     WatchComponent(COMPONENT_ITEM_CONTAINER);
     WatchComponent(COMPONENT_DROPPED_ITEM);
     Init();
@@ -108,12 +101,8 @@ bool glimmer::MagnetSystem::ProcessMagneticEntity(GameEntityID magneticEntity,
     if (magnetic == nullptr) {
         return false;
     }
-    auto rigidBody2DComponent = entityManager->GetComponent<RigidBody2DComponent>(magneticEntity);
-    if (rigidBody2DComponent == nullptr || !rigidBody2DComponent->IsReady() || !rigidBody2DComponent->IsEnabled()) {
-        return false;
-    }
-    auto rayCast2DComponent = entityManager->GetComponent<RayCast2DComponent>(magneticEntity);
-    if (rayCast2DComponent == nullptr) {
+    auto collider = entityManager->GetComponent<ColliderComponent>(magneticEntity);
+    if (collider == nullptr || !collider->IsEnabled()) {
         return false;
     }
     if ((magnet->GetType() & magnetic->GetType()) == 0) {
@@ -148,21 +137,19 @@ bool glimmer::MagnetSystem::ProcessMagneticEntity(GameEntityID magneticEntity,
         magnet->RemoveEntity(magneticEntity);
         return false;
     }
-    rayCast2DComponent->SetTransform(distanceVector);
-    if (rayCast2DComponent->IsHit()) {
+    //Block the pull when a solid tile lies between the item and the magnet.
+    //物品与磁铁之间存在实心瓦片时阻挡吸力。
+    if (TileCollision::LineHitsSolidTile(GetWorldContext(), magneticPos, magnetPos)) {
         return false;
     }
     if (distance < MIN_SAFE_DISTANCE) {
         distance = MIN_SAFE_DISTANCE;
     }
-    float normalizedDistance = distance / detectionRadius;
-    float forceStrength = 1 - normalizedDistance;
-    b2MassData massData = b2Body_GetMassData(rigidBody2DComponent->GetBodyId());
-    WorldVector2D force = distanceVector.Normalized()
-                          * massData.mass
-                          * MAX_MAGNET_FORCE
-                          * forceStrength;
-    b2Body_ApplyForceToCenter(rigidBody2DComponent->GetBodyId(), {force.x, force.y}, true);
+    const float normalizedDistance = distance / detectionRadius;
+    const float forceStrength = 1.0F - normalizedDistance;
+    //Drive the item velocity directly toward the magnet instead of applying a Box2D force.
+    //直接让物品速度朝向磁铁，而不是施加 Box2D 力。
+    collider->SetVelocity(distanceVector.Normalized() * MAX_MAGNET_FORCE * forceStrength);
     if (distance <= magnet->GetAdsorptionRadius()) {
         magnet->AddEntity(magneticEntity);
         LogCat::d(LogLabel::DEFAULT, "magnetic_entity_adsorbed", "Magnetic entity {} entered adsorption radius",

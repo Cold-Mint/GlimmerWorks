@@ -53,12 +53,10 @@
 #include "core/log/LogCat.h"
 #include "core/mod/dataPack/BiomeDecoratorRegistry.h"
 #include "core/mod/dataPack/StructurePlacementConditionsRegistry.h"
-#include "core/shape/ShapeManager.h"
 #include "core/utils/StringUtils.h"
 #include "core/utils/TomlUtils.h"
 #include "toml11/parser.hpp"
 
-using enum glimmer::ShapeType;
 using enum glimmer::BiomeDecoratorType;
 
 void glimmer::ResourceFileLoader::RegisterHandlers() {
@@ -97,18 +95,6 @@ void glimmer::ResourceFileLoader::RegisterHandlers() {
     };
     handlerMap_[DATA_FILE_TYPE_MOB] = [this](const toml::value &v, const AppContext *appContext) {
         LoadMobResourceFromFile(v, appContext);
-    };
-    handlerMap_[DATA_FILE_TYPE_SHAPE_CIRCLE] = [this](const toml::value &v, const AppContext *appContext) {
-        LoadShapeResourceFromFile(v, appContext, CIRCLE);
-    };
-    handlerMap_[DATA_FILE_TYPE_SHAPE_RECTANGLE] = [this](const toml::value &v, const AppContext *appContext) {
-        LoadShapeResourceFromFile(v, appContext, RECTANGLE);
-    };
-    handlerMap_[DATA_FILE_TYPE_SHAPE_ROUNDED_RECTANGLE] = [this](const toml::value &v, const AppContext *appContext) {
-        LoadShapeResourceFromFile(v, appContext, ROUNDED_RECTANGLE);
-    };
-    handlerMap_[DATA_FILE_TYPE_SHAPE_CAPSULE] = [this](const toml::value &v, const AppContext *appContext) {
-        LoadShapeResourceFromFile(v, appContext, CAPSULE);
     };
     handlerMap_[DATA_FILE_TYPE_DECORATOR_FILL] = [this](const toml::value &v, const AppContext *appContext) {
         LoadBiomeDecoratorResourceFromFile(v, appContext, FILL);
@@ -505,7 +491,6 @@ void glimmer::ResourceFileLoader::LoadMobResourceFromFile(const toml::value &val
     }
     auto mobResource = std::make_unique<MobResource>(toml::get<MobResource>(value));
     mobResource->packId = manifest_->id;
-    mobResource->shape.SetSelfPackageId(manifest_->id);
     mobResource->texture.SetSelfPackageId(manifest_->id);
     mobResource->pipeline.SetSelfPackageId(manifest_->id);
     mobResource->sampler.SetSelfPackageId(manifest_->id);
@@ -515,48 +500,6 @@ void glimmer::ResourceFileLoader::LoadMobResourceFromFile(const toml::value &val
         abilityItemRef.item.SetSelfPackageId(manifest_->id);
     }
     mobRegistry->Register(std::move(mobResource));
-}
-
-void glimmer::ResourceFileLoader::LoadShapeResourceFromFile(const toml::value &value, const AppContext *appContext,
-                                                            ShapeType type) const {
-    const ModContext *modContext = appContext->GetModContext();
-    if (modContext == nullptr) {
-        return;
-    }
-    ShapeManager *shapeManager = modContext->GetShapeManager();
-    if (shapeManager == nullptr) {
-        return;
-    }
-    std::unique_ptr<IShapeResource> shapeResource;
-    switch (type) {
-        case CIRCLE: {
-            shapeResource = std::make_unique<CircularShapeResource>(
-                toml::get<CircularShapeResource>(value));
-            shapeResource->shapeType = std::to_underlying(CIRCLE);
-            break;
-        }
-
-        case RECTANGLE: {
-            shapeResource = std::make_unique<RectangleShapeResource>(
-                toml::get<RectangleShapeResource>(value));
-            shapeResource->shapeType = std::to_underlying(RECTANGLE);
-            break;
-        }
-        case ROUNDED_RECTANGLE: {
-            shapeResource = std::make_unique<RoundedRectangleShapeResource>(
-                toml::get<RoundedRectangleShapeResource>(value));
-            shapeResource->shapeType = std::to_underlying(ROUNDED_RECTANGLE);
-            break;
-        }
-        case CAPSULE: {
-            shapeResource = std::make_unique<CapsuleShapeResource>(
-                toml::get<CapsuleShapeResource>(value));
-            shapeResource->shapeType = std::to_underlying(CAPSULE);
-            break;
-        }
-    }
-    shapeResource->packId = manifest_->id;
-    shapeManager->Register(std::move(shapeResource));
 }
 
 void glimmer::ResourceFileLoader::LoadFixedColorResourceFromFile(const toml::value &value,

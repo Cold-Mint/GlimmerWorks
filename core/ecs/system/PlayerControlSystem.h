@@ -32,7 +32,7 @@
 #include "core/inventory/ability/AbilityType.h"
 
 namespace glimmer {
-    class RigidBody2DComponent;
+    class ColliderComponent;
     class AudioManager;
     class CameraComponent;
     class Transform2DComponent;
@@ -51,12 +51,6 @@ namespace glimmer {
         CameraComponent *cameraComponent_ = nullptr;
         Transform2DComponent *cameraTransform2DComponent_ = nullptr;
         GameEntityID playerEntityID_ = GAME_ENTITY_ID_INVALID;
-        /**
-        * Check if the player is on the ground
-        * 检查玩家是否在地面上
-        * @return If the player is on the ground, return true; otherwise, return false 如果玩家在地面上则返回true，否则返回false
-        */
-        bool OnGround(const PlayerComponent *playerControlComponent) const;
 
         /**
          * DropItem
@@ -77,15 +71,13 @@ namespace glimmer {
         static void UpdateFlying(const PlayerInputHandler *playerInputHandler,
                                  Transform2DComponent *transform2DComponent);
 
+        /**
+         * Compute the player's velocity from input (horizontal acceleration/deceleration and jump) and write it
+         * into the collider. Gravity and tile collision are handled later by PhysicsSystem.
+         * 根据输入计算玩家速度（水平加速/减速与跳跃），写入碰撞体。重力与瓦片碰撞由 PhysicsSystem 稍后处理。
+         */
         void UpdateGroundedMovement(PlayerInputHandler *playerInputHandler, const PlayerComponent *playerComponent,
-                                    const RigidBody2DComponent *rigidBody2DComponent) const;
-
-        static void UpdateJump(const PlayerComponent *playerComponent, PlayerInputHandler *playerInputHandler,
-                               const RigidBody2DComponent *rigidBody2DComponent,
-                               bool isGrounded, const b2MassData &massData);
-
-        static void ClampHorizontalSpeed(const RigidBody2DComponent *rigidBody2DComponent,
-                                         const PlayerComponent *playerComponent, const b2Vec2 &currentVel);
+                                    ColliderComponent *collider) const;
 
         void CheckDropItem(PlayerInputHandler *playerInputHandler, const ItemContainer *itemContainer) const;
 

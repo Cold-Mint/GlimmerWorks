@@ -150,12 +150,6 @@ glimmer::ResourceLocator::ResourceLocator(AppContext *appContext) : appContext_(
                   "tileResourceManager_ == nullptr");
         return;
     }
-    shapeManager_ = modContext->GetShapeManager();
-    if (shapeManager_ == nullptr) {
-        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "shape_manager_is_null",
-                  "shapeManager_ == nullptr");
-        return;
-    }
     stringManager_ = modContext->GetStringManager();
     if (stringManager_ == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "string_manager_is_null",
@@ -361,26 +355,6 @@ std::optional<glimmer::Color> glimmer::ResourceLocator::FindColor(const Resource
     return std::nullopt;
 }
 
-
-glimmer::IShapeResource *glimmer::ResourceLocator::FindShape(const ResourceRef *resourceRef) const {
-    if (resourceRef == nullptr) {
-        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "resource_ref_is_null", "resourceRef == nullptr");
-        return nullptr;
-    }
-    if (resourceRef->GetResourceType() != RESOURCE_SHAPE) {
-        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "type_mismatch_shape",
-                  "Type mismatch: expected RESOURCE_SHAPE ({}), got {} or access permission denied",
-                  std::to_underlying(RESOURCE_SHAPE), std::to_underlying(resourceRef->GetResourceType()));
-        return nullptr;
-    }
-    if (shapeManager_ == nullptr) {
-        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "shape_manager_is_null",
-                  "shapeManager_ == nullptr");
-        return nullptr;
-    }
-    return shapeManager_->FindShape(resourceRef->GetPackageId(),
-                                    resourceRef->GetResourceKey());
-}
 
 glimmer::IBiomeDecoratorResource *glimmer::ResourceLocator::FindBiomeDecorator(const ResourceRef *resourceRef) const {
     return FindRegistered<IBiomeDecoratorResource>(resourceRef, RESOURCE_BIOME_DECORATOR,

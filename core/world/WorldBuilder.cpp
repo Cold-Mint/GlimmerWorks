@@ -31,7 +31,6 @@
 #include "ChunkManager.h"
 #include "SystemScheduler.h"
 #include "PlayerContext.h"
-#include "box2d/box2d.h"
 #include "core/context/AppContext.h"
 #include "core/context/ModContext.h"
 #include "core/ecs/component/AreaMarkerComponent.h"
@@ -69,9 +68,6 @@ void glimmer::WorldBuilder::Build() {
     worldContext_->mapManifest_ = std::make_unique<MapManifest>();
     worldContext_->mapManifest_->FromMessage(mapManifestOptional.value());
     worldContext_->worldSeed_ = worldContext_->mapManifest_->seed;
-    b2WorldDef worldDef = b2DefaultWorldDef();
-    worldDef.gravity = b2Vec2(0.0F, -10.0F);
-    worldContext_->box2DWorldId_.SetWorldId(b2CreateWorld(&worldDef));
     ModContext *modContext = worldContext_->appContext_->GetModContext();
     if (modContext == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "world_builder_mod_context_null",

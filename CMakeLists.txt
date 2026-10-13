@@ -265,15 +265,6 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(fastNoiseLite)
 
 FetchContent_Declare(
-        box2d
-        GIT_REPOSITORY "https://github.com/erincatto/box2d"
-        GIT_TAG ${ERINCATTO_BOX2D_VERSION}
-        GIT_SHALLOW TRUE
-        EXCLUDE_FROM_ALL
-)
-FetchContent_MakeAvailable(box2d)
-
-FetchContent_Declare(
         toml11
         GIT_REPOSITORY "https://github.com/ToruNiina/toml11"
         GIT_TAG ${TORUNIINA_TOML11_VERSION}
@@ -461,7 +452,6 @@ target_sources(GlimmerWorks
         core/app/pass/LightingPass.cpp
         core/app/pass/UiPass.cpp
         core/utils/BoolOrToggle.cpp
-        core/ecs/Box2dFilter.cpp
         core/console/hook/CommandHookEntry.cpp
         core/console/hook/CommandHookManager.cpp
         core/config/Config.cpp
@@ -498,14 +488,12 @@ target_sources(GlimmerWorks
         core/console/asset_enumerator/MaterialItemsAssetEnumerator.cpp
         core/console/asset_enumerator/MobsAssetEnumerator.cpp
         core/console/asset_enumerator/RecipesAssetEnumerator.cpp
-        core/console/asset_enumerator/ShapesAssetEnumerator.cpp
         core/console/asset_enumerator/StartInvAssetEnumerator.cpp
         core/console/asset_enumerator/StringAssetEnumerator.cpp
         core/console/asset_enumerator/StructuresAssetEnumerator.cpp
         core/console/asset_enumerator/TileAssetEnumerator.cpp
         core/console/command/AssetViewerCommand.cpp
         core/console/command/BiomeScoreCommand.cpp
-        core/console/command/Box2DCommand.cpp
         core/console/command/ClearCommand.cpp
         core/console/command/ConfigCommand.cpp
         core/console/command/EchoCommand.cpp
@@ -601,8 +589,7 @@ target_sources(GlimmerWorks
         core/ecs/component/MobComponent.cpp
         core/ecs/component/PauseComponent.cpp
         core/ecs/component/PlayerComponent.cpp
-        core/ecs/component/RayCast2DComponent.cpp
-        core/ecs/component/RigidBody2DComponent.cpp
+        core/ecs/component/ColliderComponent.cpp
         core/ecs/component/LightComponent.cpp
         core/ecs/component/CropComponent.cpp
         core/ecs/component/SpiritRendererComponent.cpp
@@ -614,11 +601,9 @@ target_sources(GlimmerWorks
         core/ecs/system/AutoPickSystem.cpp
         core/ecs/system/BiomeBGMSystem.cpp
         core/ecs/system/BlueprintSystem.cpp
-        core/ecs/system/Box2dSystemContext.cpp
         core/ecs/system/CameraSystem.cpp
         core/ecs/system/ChunkSystem.cpp
         core/ecs/system/DebugChunkSystem.cpp
-        core/ecs/system/DebugDrawBox2dSystem.cpp
         core/ecs/system/DebugDrawSystem.cpp
         core/ecs/system/DebugMultiMapSystem.cpp
         core/ecs/system/DebugPanelSystem.cpp
@@ -631,7 +616,6 @@ target_sources(GlimmerWorks
         core/ecs/system/PauseSystem.cpp
         core/ecs/system/PhysicsSystem.cpp
         core/ecs/system/PlayerControlSystem.cpp
-        core/ecs/system/RayCast2DSystem.cpp
         core/ecs/system/SpiritRendererSystem.cpp
         core/ecs/system/CropSystem.cpp
         core/ecs/system/TechProviderSystem.cpp
@@ -728,9 +712,6 @@ target_sources(GlimmerWorks
         core/scene/SceneManager.cpp
         core/scene/SplashScene.cpp
         core/scene/WorldScene.cpp
-        core/shape/ShapeManager.cpp
-        core/shape/ShapeType.cpp
-        core/utils/Box2DUtils.cpp
         core/utils/ColorUtils.cpp
         core/utils/EventTypeUtils.cpp
         core/utils/LanguageUtils.cpp
@@ -780,7 +761,6 @@ target_sources(GlimmerWorks
         core/world/generator/Chunk.cpp
         core/world/generator/ChunkGenerator.cpp
         core/world/generator/ChunkLoader.cpp
-        core/world/generator/ChunkPhysicsHelper.cpp
         core/world/generator/ChunkTilePopulator.cpp
         core/world/generator/ClimateSampler.cpp
         core/world/generator/FillBiomeDecorator.cpp
@@ -812,8 +792,7 @@ target_sources(GlimmerWorks
         core/rmi/DecoratorNinePatchTextureInstancer.cpp
         core/ecs/system/InventoryGUISystem.cpp
         core/ecs/component/RecipeSelectionComponent.cpp
-        core/world/Box2dWorldId.cpp
-        core/world/PhysicsTaskQueue.cpp
+        core/world/TileCollision.cpp
         main.cpp
         PUBLIC
         FILE_SET HEADERS
@@ -823,9 +802,7 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Platform_SDL.h"
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL_GPU.h"
         core/app/App.h
-        core/world/Box2dWorldId.h
-        core/world/PhysicsTaskQueue.h
-        core/ecs/component/RigidBodyConfig.h
+        core/world/TileCollision.h
         core/utils/VersionAble.h
         core/event/Subscription.h
         core/world/generator/NoiseField.h
@@ -912,7 +889,6 @@ target_sources(GlimmerWorks
         core/app/pass/LightingPass.h
         core/app/pass/UiPass.h
         core/utils/BoolOrToggle.h
-        core/ecs/Box2dFilter.h
         core/console/hook/CommandHookEntry.h
         core/console/hook/CommandHookManager.h
         core/console/hook/CommandHookScope.h
@@ -957,14 +933,12 @@ target_sources(GlimmerWorks
         core/console/asset_enumerator/MaterialItemsAssetEnumerator.h
         core/console/asset_enumerator/MobsAssetEnumerator.h
         core/console/asset_enumerator/RecipesAssetEnumerator.h
-        core/console/asset_enumerator/ShapesAssetEnumerator.h
         core/console/asset_enumerator/StartInvAssetEnumerator.h
         core/console/asset_enumerator/StringAssetEnumerator.h
         core/console/asset_enumerator/StructuresAssetEnumerator.h
         core/console/asset_enumerator/TileAssetEnumerator.h
         core/console/command/AssetViewerCommand.h
         core/console/command/BiomeScoreCommand.h
-        core/console/command/Box2DCommand.h
         core/console/command/ClearCommand.h
         core/console/command/ConfigCommand.h
         core/console/command/EchoCommand.h
@@ -1063,8 +1037,7 @@ target_sources(GlimmerWorks
         core/ecs/component/MagneticComponent.h
         core/ecs/component/MobComponent.h
         core/ecs/component/PauseComponent.h
-        core/ecs/component/RayCast2DComponent.h
-        core/ecs/component/RigidBody2DComponent.h
+        core/ecs/component/ColliderComponent.h
         core/ecs/component/LightComponent.h
         core/ecs/component/CropComponent.h
         core/ecs/component/SpiritRendererComponent.h
@@ -1076,10 +1049,8 @@ target_sources(GlimmerWorks
         core/ecs/system/AutoPickSystem.h
         core/ecs/system/BiomeBGMSystem.h
         core/ecs/system/BlueprintSystem.h
-        core/ecs/system/Box2dSystemContext.h
         core/ecs/system/ChunkSystem.h
         core/ecs/system/DebugChunkSystem.h
-        core/ecs/system/DebugDrawBox2dSystem.h
         core/ecs/system/DebugDrawSystem.h
         core/ecs/system/DebugMultiMapSystem.h
         core/ecs/system/DebugPanelSystem.h
@@ -1090,7 +1061,6 @@ target_sources(GlimmerWorks
         core/ecs/system/MagnetSystem.h
         core/ecs/system/PauseSystem.h
         core/ecs/system/PhysicsSystem.h
-        core/ecs/system/RayCast2DSystem.h
         core/ecs/system/SpiritRendererSystem.h
         core/ecs/system/TechProviderSystem.h
         core/ecs/system/CropSystem.h
@@ -1210,9 +1180,6 @@ target_sources(GlimmerWorks
         core/scene/SceneManager.h
         core/scene/SplashScene.h
         core/scene/WorldScene.h
-        core/shape/ShapeManager.h
-        core/shape/ShapeType.h
-        core/utils/Box2DUtils.h
         core/utils/ColorUtils.h
         core/utils/EventTypeUtils.h
         core/utils/LanguageUtils.h
@@ -1263,7 +1230,6 @@ target_sources(GlimmerWorks
         core/world/generator/Chunk.h
         core/world/generator/ChunkGenerator.h
         core/world/generator/ChunkLoader.h
-        core/world/generator/ChunkPhysicsHelper.h
         core/world/generator/ChunkTilePopulator.h
         core/world/generator/ClimateSampler.h
         core/world/generator/FillBiomeDecorator.h
@@ -1320,9 +1286,9 @@ target_compile_definitions(GlimmerWorks PRIVATE
 )
 
 if (ANDROID)
-    target_link_libraries(GlimmerWorks PRIVATE ${ANDROID_LOG_LIB} android SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks::proto toml11::toml11 BLAKE3::blake3 RmlUi::RmlUi RmlUi::Debugger glslang::glslang glslang::SPIRV glslang::glslang-default-resource-limits SPIRV-Tools-opt)
+    target_link_libraries(GlimmerWorks PRIVATE ${ANDROID_LOG_LIB} android SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer fmt::fmt SDL3_ttf::SDL3_ttf glimmerworks::proto toml11::toml11 BLAKE3::blake3 RmlUi::RmlUi RmlUi::Debugger glslang::glslang glslang::SPIRV glslang::glslang-default-resource-limits SPIRV-Tools-opt)
 else ()
-    target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks::proto toml11::toml11 BLAKE3::blake3 RmlUi::RmlUi RmlUi::Debugger glslang::glslang glslang::SPIRV glslang::glslang-default-resource-limits SPIRV-Tools-opt)
+    target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer fmt::fmt SDL3_ttf::SDL3_ttf glimmerworks::proto toml11::toml11 BLAKE3::blake3 RmlUi::RmlUi RmlUi::Debugger glslang::glslang glslang::SPIRV glslang::glslang-default-resource-limits SPIRV-Tools-opt)
 endif ()
 
 
@@ -1330,9 +1296,6 @@ target_include_directories(GlimmerWorks PRIVATE
         "${CMAKE_BINARY_DIR}/_deps/fmt-src/include"
 )
 
-target_include_directories(GlimmerWorks PRIVATE
-        "${CMAKE_BINARY_DIR}/_deps/box2d-src/include"
-)
 target_include_directories(GlimmerWorks PRIVATE
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends"
 )

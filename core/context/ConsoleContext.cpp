@@ -28,7 +28,6 @@
 
 #include "core/console/command/AssetViewerCommand.h"
 #include "core/console/command/BiomeScoreCommand.h"
-#include "core/console/command/Box2DCommand.h"
 #include "core/console/command/ClearCommand.h"
 #include "core/console/command/ConfigCommand.h"
 #include "core/console/command/EchoCommand.h"
@@ -111,7 +110,6 @@ void glimmer::ConsoleContext::RegisterCommands(AppContext *appContext) const {
     commandManager_->RegisterCommand(std::make_unique<EcsCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<VFSCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<LightCommand>(appContext));
-    commandManager_->RegisterCommand(std::make_unique<Box2DCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<BiomeScoreCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<AssetViewerCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<TechnologyCommand>(appContext));

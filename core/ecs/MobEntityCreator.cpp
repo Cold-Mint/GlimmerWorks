@@ -27,11 +27,10 @@
 #include "MobEntityCreator.h"
 
 #include "component/AutoPickComponent.h"
+#include "component/ColliderComponent.h"
 #include "component/MagnetComponent.h"
 #include "component/MobComponent.h"
 #include "component/PlayerComponent.h"
-#include "component/RayCast2DComponent.h"
-#include "component/RigidBody2DComponent.h"
 #include "component/SpiritRendererComponent.h"
 #include "component/TilePlacementForbiddenZoneComponent.h"
 #include "core/context/CacheContext.h"
@@ -122,25 +121,10 @@ void glimmer::MobEntityCreator::LoadTemplateComponents(const uint32_t id, const 
     }
     mobComponent->SetEmptyHandAutoUseItem(resourceLocator->FindItem(
         worldContext, mobResource->emptyHandAutoUseItem));
-    mobComponent->SetMovementAcceleration(mobResource->movementAcceleration);
-    mobComponent->SetMaxSpeed(mobResource->maxSpeed);
+    mobComponent->SetMovementAcceleration(mobResource->movementAcceleration * TILE_SIZE);
+    mobComponent->SetMaxSpeed(mobResource->maxSpeed * TILE_SIZE);
     mobComponent->SetAirControlFactor(mobResource->airControlFactor);
-    mobComponent->SetJumpForce(mobResource->jumpForce);
-    for (auto &groundCheckRayCast: mobResource->groundCheckRayCast) {
-        auto groundRayCast = entityManager->AddEntity();
-        auto rayCast2dComponent = entityManager->AddComponent<RayCast2DComponent>(groundRayCast);
-        if (rayCast2dComponent == nullptr) {
-            continue;
-        }
-        rayCast2dComponent->SetOrigin(
-            {groundCheckRayCast.origin.x * TILE_SIZE, groundCheckRayCast.origin.y * TILE_SIZE});
-        rayCast2dComponent->SetTransform({
-            groundCheckRayCast.translation.x * TILE_SIZE, groundCheckRayCast.translation.y * TILE_SIZE
-        });
-        rayCast2dComponent->SetFilter(groundCheckRayCast.filter.Tob2QueryFilter());
-        rayCast2dComponent->SetTransform2DEntity(id);
-        mobComponent->AddGroundCheckRayEntity(groundRayCast);
-    }
+    mobComponent->SetJumpForce(mobResource->jumpForce * TILE_SIZE);
     const auto tilePlacementForbiddenZoneComponent = entityManager->AddComponent<
         TilePlacementForbiddenZoneComponent>(id);
     if (tilePlacementForbiddenZoneComponent != nullptr) {
@@ -151,16 +135,11 @@ void glimmer::MobEntityCreator::LoadTemplateComponents(const uint32_t id, const 
         tilePlacementForbiddenZoneComponent->SetOffsetY(tilePlacementForbiddenZone.offsetY);
     }
 
-
-    const auto rigidBody2DComponent = entityManager->AddComponent<RigidBody2DComponent>(id);
-    if (rigidBody2DComponent != nullptr) {
-        rigidBody2DComponent->SetBodyType(static_cast<b2BodyType>(mobResource->bodyType));
-        rigidBody2DComponent->SetAllowBodySleep(mobResource->allowBodySleep);
-        rigidBody2DComponent->SetFilter(mobResource->box2dFilter);
-        rigidBody2DComponent->SetDensity(mobResource->density);
-        rigidBody2DComponent->SetFriction(mobResource->friction);
-        rigidBody2DComponent->SetFixedRotation(mobResource->fixedRotation);
-        rigidBody2DComponent->SetShapeRef(mobResource->shape);
+    const auto collider = entityManager->AddComponent<ColliderComponent>(id);
+    if (collider != nullptr) {
+        collider->SetHalfExtents(mobResource->hitboxWidth * TILE_SIZE * 0.5F,
+                                 mobResource->hitboxHeight * TILE_SIZE * 0.5F);
+        collider->Enable();
     }
     const auto spiritRendererComponent = entityManager->AddComponent<SpiritRendererComponent>(id);
     if (spiritRendererComponent != nullptr) {
@@ -193,10 +172,4 @@ void glimmer::MobEntityCreator::LoadTemplateComponents(const uint32_t id, const 
 void glimmer::MobEntityCreator::MergeEntityItemMessage(uint32_t id, const EntityItemMessage &entityItemMessage) {
     WorldContext *worldContext = GetWorldContext();
     RecoveryAllComponent(worldContext, id, entityItemMessage);
-    EntityManager *entityManager = worldContext->GetEntityManager();
-    auto transform2dComponent = entityManager->GetComponent<Transform2DComponent>(id);
-    auto rigidBody2dComponent = entityManager->GetComponent<RigidBody2DComponent>(id);
-    if (transform2dComponent != nullptr && rigidBody2dComponent != nullptr) {
-        rigidBody2dComponent->CreateBody(worldContext, id, transform2dComponent->GetPosition());
-    }
 }

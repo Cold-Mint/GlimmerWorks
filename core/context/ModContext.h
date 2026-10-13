@@ -50,7 +50,6 @@
 #include "core/mod/dataPack/GrowthConditionsRegistry.h"
 #include "core/world/generator/BiomeDecoratorManager.h"
 #include "core/world/structure/StructureGeneratorManager.h"
-#include "core/shape/ShapeManager.h"
 
 namespace glimmer {
     class VirtualFileSystem;
@@ -81,7 +80,6 @@ namespace glimmer {
         std::unique_ptr<InitialInventoryManager> initialInventoryManager_;
         std::unique_ptr<ContributorManager> contributorManager_;
         std::unique_ptr<TomlTemplateExpander> tomlTemplateExpander_;
-        std::unique_ptr<ShapeManager> shapeManager_;
 
     public:
         ModContext();
@@ -139,7 +137,5 @@ namespace glimmer {
         [[nodiscard]] ContributorManager *GetContributorManager() const;
 
         [[nodiscard]] TomlTemplateExpander *GetTomlTemplateExpander() const;
-
-        [[nodiscard]] ShapeManager *GetShapeManager() const;
     };
 }

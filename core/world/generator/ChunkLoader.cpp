@@ -30,7 +30,7 @@
 #include "core/ecs/DroppedItemCreator.h"
 #include "core/ecs/MobEntityCreator.h"
 #include "core/ecs/component/MagnetComponent.h"
-#include "core/ecs/component/RigidBody2DComponent.h"
+
 #include "core/log/LogCat.h"
 #include "core/world/WorldContext.h"
 

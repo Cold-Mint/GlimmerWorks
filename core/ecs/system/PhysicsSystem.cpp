@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -26,58 +26,122 @@
  */
 #include "PhysicsSystem.h"
 
-#include "core/log/LogCat.h"
-#include "core/utils/Box2DUtils.h"
-#include "core/world/WorldContext.h"
-#include "box2d/box2d.h"
-#include "core/ecs/component/RigidBody2DComponent.h"
+#include <cmath>
+
+#include "core/config/Constants.h"
+#include "core/ecs/component/ColliderComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
-#include "core/world/PhysicsTaskQueue.h"
+#include "core/world/TileCollision.h"
+#include "core/world/WorldContext.h"
 
-
-void glimmer::PhysicsSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType,
+void glimmer::PhysicsSystem::OnWatchedComponentChanged(const GameComponentTypeMessage gameComponentType,
                                                        const uint32_t count) {
     if (gameComponentType == COMPONENT_RIGID_BODY_2D) {
-        rigidBody2dCount_ = count;
+        colliderCount_ = count;
     }
     if (gameComponentType == COMPONENT_TRANSFORM_2D) {
         transform2dCount_ = count;
     }
-    if (rigidBody2dCount_ > 0 && transform2dCount_ > 0) {
+    if (colliderCount_ > 0 && transform2dCount_ > 0) {
         entities_.clear();
         entities_ = entityManager_->GetEntityIDWithComponents({COMPONENT_RIGID_BODY_2D, COMPONENT_TRANSFORM_2D});
-        LogCat::d(LogLabel::DEFAULT, "physics_entities_rebuilt", "Physics entities rebuilt: {} entities",
-                  entities_.size());
     }
 }
 
-void glimmer::PhysicsSystem::OnTick(uint64_t tick) {
-    //Apply all physics mutations enqueued by other threads before stepping the world.
-    //在步进世界前，应用其他线程投递的所有物理修改。
-    if (const WorldContext *worldContext = GetWorldContext(); worldContext != nullptr) {
-        if (PhysicsTaskQueue *taskQueue = worldContext->GetPhysicsTaskQueue(); taskQueue != nullptr) {
-            taskQueue->Drain();
+void glimmer::PhysicsSystem::StepEntity(WorldContext *worldContext, ColliderComponent *collider,
+                                        Transform2DComponent *transform) const {
+    WorldVector2D velocity = collider->GetVelocity();
+
+    // Integrate gravity and clamp the fall speed to avoid accumulating huge velocities.
+    // 积分重力并钳制下落速度，避免速度无限累积。
+    velocity.y -= PHYSICS_GRAVITY * FIXED_TIME_STEP;
+    if (velocity.y < -PHYSICS_MAX_FALL_SPEED) {
+        velocity.y = -PHYSICS_MAX_FALL_SPEED;
+    }
+
+    WorldVector2D position = transform->GetPosition();
+    const float halfWidth = collider->GetHalfWidth();
+    const float halfHeight = collider->GetHalfHeight();
+
+    // Move on the X axis and resolve horizontal collisions (walls).
+    // 在 X 轴上移动并解算水平碰撞（墙体）。
+    position.x += velocity.x * FIXED_TIME_STEP;
+    {
+        int minTx = static_cast<int>(std::floor((position.x - halfWidth) / TILE_SIZE + 0.5F));
+        int maxTx = static_cast<int>(std::floor((position.x + halfWidth) / TILE_SIZE + 0.5F));
+        int minTy = static_cast<int>(std::floor((position.y - halfHeight) / TILE_SIZE + 0.5F));
+        int maxTy = static_cast<int>(std::floor((position.y + halfHeight) / TILE_SIZE + 0.5F));
+        for (int ty = minTy; ty <= maxTy; ++ty) {
+            for (int tx = minTx; tx <= maxTx; ++tx) {
+                if (!TileCollision::IsSolidTile(worldContext, TileVector2D{tx, ty})) {
+                    continue;
+                }
+                // A tile is centered on (tx*TILE_SIZE, ty*TILE_SIZE) and spans
+                // [tx*TILE_SIZE - HALF_TILE_SIZE, tx*TILE_SIZE + HALF_TILE_SIZE). Push the AABB out of the
+                // tile's left/right faces accordingly.
+                // 瓦片以 (tx*TILE_SIZE, ty*TILE_SIZE) 为中心，覆盖 [tx*TILE_SIZE - HALF_TILE_SIZE,
+                // tx*TILE_SIZE + HALF_TILE_SIZE)。据此把 AABB 从瓦片左/右面推出。
+                if (velocity.x > 0.0F) {
+                    position.x = static_cast<float>(tx * TILE_SIZE - HALF_TILE_SIZE) - halfWidth;
+                } else if (velocity.x < 0.0F) {
+                    position.x = static_cast<float>(tx * TILE_SIZE + HALF_TILE_SIZE) + halfWidth;
+                }
+                velocity.x = 0.0F;
+            }
         }
     }
-    b2World_Step(worldId_, FIXED_TIME_STEP, 4);
+
+    // Move on the Y axis and resolve vertical collisions (landing / ceiling bump).
+    // 在 Y 轴上移动并解算竖直碰撞（落地 / 撞头）。
+    bool grounded = false;
+    position.y += velocity.y * FIXED_TIME_STEP;
+    {
+        int minTx = static_cast<int>(std::floor((position.x - halfWidth) / TILE_SIZE + 0.5F));
+        int maxTx = static_cast<int>(std::floor((position.x + halfWidth) / TILE_SIZE + 0.5F));
+        int minTy = static_cast<int>(std::floor((position.y - halfHeight) / TILE_SIZE + 0.5F));
+        int maxTy = static_cast<int>(std::floor((position.y + halfHeight) / TILE_SIZE + 0.5F));
+        for (int ty = minTy; ty <= maxTy; ++ty) {
+            for (int tx = minTx; tx <= maxTx; ++tx) {
+                if (!TileCollision::IsSolidTile(worldContext, TileVector2D{tx, ty})) {
+                    continue;
+                }
+                if (velocity.y < 0.0F) {
+                    position.y = static_cast<float>(ty * TILE_SIZE + HALF_TILE_SIZE) + halfHeight;
+                    grounded = true;
+                } else if (velocity.y > 0.0F) {
+                    position.y = static_cast<float>(ty * TILE_SIZE - HALF_TILE_SIZE) - halfHeight;
+                }
+                velocity.y = 0.0F;
+            }
+        }
+    }
+
+    collider->SetVelocity(velocity);
+    collider->SetGrounded(grounded);
+    transform->SetPosition(position);
+}
+
+void glimmer::PhysicsSystem::OnTick(const uint64_t tick) {
+    (void) tick;
+    WorldContext *worldContext = GetWorldContext();
+    if (worldContext == nullptr) {
+        return;
+    }
     for (const GameEntityID entityId: entities_) {
-        const RigidBody2DComponent *rigidBody2dComponent = entityManager_->GetComponent<RigidBody2DComponent>(entityId);
-        if (rigidBody2dComponent == nullptr) {
+        ColliderComponent *collider = entityManager_->GetComponent<ColliderComponent>(entityId);
+        if (collider == nullptr || !collider->IsEnabled()) {
             continue;
         }
-        if (!rigidBody2dComponent->IsReady() || !rigidBody2dComponent->IsEnabled()) {
+        Transform2DComponent *transform = entityManager_->GetComponent<Transform2DComponent>(entityId);
+        if (transform == nullptr) {
             continue;
         }
-        const auto transform = entityManager_->GetComponent<Transform2DComponent>(entityId);
-        const b2Vec2 position = b2Body_GetPosition(rigidBody2dComponent->GetBodyId());
-        transform->SetPosition(Box2DUtils::ToPixels(position));
-        transform->SetRotation(b2Rot_GetAngle(b2Body_GetRotation(rigidBody2dComponent->GetBodyId())));
+        StepEntity(worldContext, collider, transform);
     }
 }
 
 glimmer::PhysicsSystem::PhysicsSystem(WorldContext *worldContext) : GameSystem(worldContext) {
     entityManager_ = worldContext->GetEntityManager();
-    worldId_ = worldContext->GetWorldId();
     WatchComponent(COMPONENT_RIGID_BODY_2D);
     WatchComponent(COMPONENT_TRANSFORM_2D);
     Init();

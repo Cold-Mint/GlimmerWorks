@@ -22,9 +22,6 @@ set(FMTLIB_FMT_VERSION "1be298e1bd68957e4cd352e1f676f00e07dcfb57")
 #Auburn/FastNoiseLite@latest
 #Auburn/FastNoiseLite-v1.1.1
 set(AUBURN_FASTNOISELITE_VERSION "7ccfbc16eb1c932568f177d63a9ba51d89bbe516")
-#erincatto/box2d@latest
-#erincatto/box2d-v3.1.1
-set(ERINCATTO_BOX2D_VERSION "8c661469c9507d3ad6fbd2fea3f1aa71669c2fe3")
 #ToruNiina/toml11@latest
 #ToruNiina/toml11-v4.4.0
 set(TORUNIINA_TOML11_VERSION "be08ba2be2a964edcdb3d3e3ea8d100abc26f286")

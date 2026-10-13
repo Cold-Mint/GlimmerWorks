@@ -29,13 +29,11 @@
 #include <atomic>
 #include <memory>
 
-#include "Box2dWorldId.h"
 #include "PlayerContext.h"
 #include "core/saves/PlayerManifest.h"
 #include "core/saves/Saves.h"
 #include "core/tick/ITickListener.h"
 #include "WorldSaver.h"
-#include "box2d/id.h"
 #include "core/ecs/EcsTypes.h"
 #include "core/ecs/EntityManager.h"
 #include "core/ecs/EntityShortCut.h"
@@ -51,7 +49,6 @@ namespace glimmer {
     class TileInstancePool;
     class ChunkManager;
     class SystemScheduler;
-    class PhysicsTaskQueue;
     class Dimension;
     struct DimensionResource;
     class ResourceRef;
@@ -67,11 +64,6 @@ namespace glimmer {
         WorldSaver worldSaver_;
         AppContext *appContext_ = nullptr;
         Saves *saves_ = nullptr;
-        Box2dWorldId box2DWorldId_;
-        //Physics task queue must outlive the entity manager so that component destructors
-        //can safely enqueue body destruction during world teardown.
-        //物理任务队列必须先于实体管理器销毁，以便在世界拆除时组件析构函数能安全地投递刚体销毁任务。
-        std::unique_ptr<PhysicsTaskQueue> physicsTaskQueue_;
         std::unique_ptr<MapManifest> mapManifest_ = nullptr;
         std::unique_ptr<PlayerManifest> playerManifest_ = nullptr;
         std::unique_ptr<Dimension> dimension_;
@@ -131,8 +123,6 @@ namespace glimmer {
 
         [[nodiscard]] AppContext *GetAppContext() const;
 
-        [[nodiscard]] b2WorldId GetWorldId() const;
-
         [[nodiscard]] int GetWorldSeed() const;
 
         [[nodiscard]] TerrainGenerator *GetTerrainGenerator() const;
@@ -146,8 +136,6 @@ namespace glimmer {
         [[nodiscard]] SystemScheduler *GetSystemScheduler() const;
 
         [[nodiscard]] PlayerContext *GetPlayerContext() const;
-
-        [[nodiscard]] PhysicsTaskQueue *GetPhysicsTaskQueue() const;
 
         [[nodiscard]] bool IsRuning() const;
 

@@ -32,7 +32,6 @@
 #include <vector>
 
 #include "ResourceRef.h"
-#include "core/ecs/Box2dFilter.h"
 #include "core/lootTable/LootEntry.h"
 #include "core/math/Color.h"
 #include "core/utils/TransparentStringHash.h"
@@ -125,85 +124,6 @@ namespace glimmer {
     struct StringResource : Resource {
         //@genNextLine(value|字符串值)
         std::string value;
-    };
-
-    /**
-     *ShapeResource
-     * 形状资源
-     */
-    //@genNextLine(ShapeResource|形状资源)
-    struct IShapeResource : Resource {
-        //@genNextLine(shapeType|形状类型)
-        uint8_t shapeType = 0;
-
-        virtual ~IShapeResource() = default;
-    };
-
-    /**
-     * Rectangular shape resource
-     * 矩形形状资源
-     */
-    //@genNextLine(RectangularShapeResource|矩形形状资源)
-    struct RectangleShapeResource : IShapeResource {
-        //@genNextLine(width|宽度)
-        float width = 1.0F;
-        //@genNextLine(height|高度)
-        float height = 1.0F;
-    };
-
-
-    /**
-     * Circular resources
-     * 圆形资源
-     */
-    //@genNextLine(CircularShapeResource|圆形资源)
-    struct CircularShapeResource : IShapeResource {
-        //@genNextLine(center|中心)
-        Vector2DResource center;
-        //@genNextLine(radius|半径)
-        float radius = 1.0F;
-    };
-
-    /**
-  * Rounded Rectangle Shape resources
-  * 圆角矩形资源
-  */
-    //@genNextLine(RoundedRectangleShapeResource|圆角矩形资源)
-    struct RoundedRectangleShapeResource : IShapeResource {
-        //@genNextLine(width|宽度)
-        float width = 1.0F;
-        //@genNextLine(height|高度)
-        float height = 1.0F;
-        //@genNextLine(radius|半径)
-        float radius = 0.0F;
-    };
-
-    /**
-     * Capsule shape resources. A vertical capsule with semicircular top and bottom,
-     * which avoids catching on internal edges between merged tile colliders.
-     * 胶囊形状资源。竖直胶囊，上下为半圆，可避免在合并瓦片碰撞箱的内部边缘处被卡住或弹起。
-     */
-    //@genNextLine(CapsuleShapeResource|胶囊形状资源)
-    struct CapsuleShapeResource : IShapeResource {
-        //@genNextLine(width|宽度)
-        float width = 1.0F;
-        //@genNextLine(height|高度)
-        float height = 1.0F;
-    };
-
-
-    /**
-     * RayCastResource
-     * 射线资源
-     */
-    //@genNextLine(RayCastResource|射线资源类)
-    struct RayCastResource {
-        //@genNextLine(filter|物理过滤)
-        Box2dFilter filter;
-        //@genNextLine(origin|原点)
-        Vector2DResource origin;
-        //@genNextLine(translation|位移)
-        Vector2DResource translation;
     };
 
 
@@ -926,22 +846,20 @@ namespace glimmer {
     struct MobResource : Resource {
         //@genNextLine(Set the item that will be automatically used when no items are held. This item cannot be discarded, does not participate in recipe synthesis, and cannot be edited using the itemEditor command.If this item has the ability to be excavated, then its durability will not be deducted.|设置不持有任何物品时自动使用的物品。此物品不能丢弃，不参与配方合成，不能通过itemEditor命令编辑。如果此物品有挖掘能力，那么也不会扣除耐久。)
         ItemMessageResource emptyHandAutoUseItem;
-        //@genNextLine(shape|碰撞形状)
-        ResourceRef shape;
         //@genNextLine(texture|纹理资源引用)
         ResourceRef texture = {};
         //@genNextLine(pipeline|渲染管线引用)
         ResourceRef pipeline = {};
         //@genNextLine(sampler|采样器引用)
         ResourceRef sampler = {};
-        //@genNextLine(groundCheckRayCast|地面检测射线)
-        std::vector<RayCastResource> groundCheckRayCast = {};
         //@genNextLine(TilePlacementForbiddenZone|瓦片放置禁止区域)
         TilePlacementForbiddenZone tilePlacementForbiddenZone = {};
-        //@genNextLine(box2dFilter|物理层过滤)
-        Box2dFilter box2dFilter;
         //@genNextLine(textureOffset|纹理偏移)
         Vector2DResource textureOffset;
+        //@genNextLine(hitboxWidth|碰撞盒宽度（瓦片）)
+        float hitboxWidth = 1.0F;
+        //@genNextLine(hitboxHeight|碰撞盒高度（瓦片）)
+        float hitboxHeight = 1.0F;
         //@genNextLine(movementAcceleration|移动加速度)
         float movementAcceleration = 6.0F;
         //@genNextLine(jumpForce|跳跃强度)
@@ -950,16 +868,6 @@ namespace glimmer {
         float maxSpeed = 18.0F;
         //@genNextLine(airControlFactor|空中移动衰减 如果设置为0,那么禁止空中左右移动，如果设置为1,那么不限制空中移动，如果设置为0.8那么会将加速度乘以0.8。)
         float airControlFactor = 1.0F;
-        //@genNextLine(friction|摩擦力)
-        float friction = 0.0F;
-        //@genNextLine(density|密度)
-        float density = 0.001F;
-        //@genNextLine(bodyType|物理体类型)
-        uint8_t bodyType;
-        //@genNextLine(allowBodySleep|是否允许物理体休眠)
-        bool allowBodySleep;
-        //@genNextLine(fixedRotation|是否固定旋转)
-        bool fixedRotation;
         //@genNextLine(isPlayer|是否为玩家)
         bool isPlayer = false;
     };

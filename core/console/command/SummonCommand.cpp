@@ -29,7 +29,6 @@
 #include "core/context/AppContext.h"
 #include "core/world/WorldContext.h"
 #include "core/ecs/MobEntityCreator.h"
-#include "core/ecs/component/RigidBody2DComponent.h"
 
 void glimmer::SummonCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
     if (suggestionsTree == nullptr) {

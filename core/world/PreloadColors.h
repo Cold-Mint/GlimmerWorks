@@ -81,8 +81,6 @@ namespace glimmer {
         };
 
         struct DebugColors {
-            Color box2dBorderColor;
-            Color box2dFullColor;
             Color draggableColor;
             Color debugPanelTextColor;
             Color debugPanelTextBGColor;

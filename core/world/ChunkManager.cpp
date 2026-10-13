@@ -44,15 +44,11 @@
 #include "core/world/WorldContext.h"
 #include "generator/ChunkGenerator.h"
 #include "generator/ChunkLoader.h"
-#include "generator/ChunkPhysicsHelper.h"
 #include "src/saves/chunk.pb.h"
 
 
 void glimmer::ChunkManager::OnChunkTileChange(const std::shared_ptr<Chunk> &chunk, const std::shared_ptr<Tile> &tile,
                                               TileLayerType layerType, size_t index) const {
-    if (layerType == TileLayerType::Ground) {
-        ChunkPhysicsHelper::UpdatePhysicsBodyToChunk(worldContext_, chunk);
-    }
     UpdateTileLight(chunk.get(), layerType, index);
 }
 
@@ -226,7 +222,6 @@ void glimmer::ChunkManager::LoadChunkAt(const ResourceRef &dimensionRef, const C
     }
     LogCat::d(LogLabel::CHUNK, "chunk_loaded", "Chunk loaded successfully at: ({}, {})", position.x, position.y);
     UpdateChunkLight(newlyCreatedChunk.get());
-    ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldContext_, newlyCreatedChunk);
 }
 
 void glimmer::ChunkManager::UnloadChunkAt(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position) {
@@ -246,7 +241,6 @@ void glimmer::ChunkManager::UnloadChunkAt(const ResourceRef &dimensionRef, const
             lightBuffer_->ClearTileLightData(TileVector2D(position.x + x, position.y + y));
         }
     }
-    ChunkPhysicsHelper::DetachPhysicsBodyToChunk(worldContext_, chunk);
     {
         std::lock_guard lock(dimensionMapMutex_);
         const auto dimensionIterator = dimensionMap_.find(dimensionRef);

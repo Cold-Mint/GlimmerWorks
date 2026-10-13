@@ -145,9 +145,6 @@ void glimmer::ModContext::Init(VirtualFileSystem *vfs, const LangsResources *lan
     LogCat::d(LogLabel::DEFAULT, "creating_structure_manager", "Creating StructureManager");
     structureRegistry_ = std::make_unique<StructureRegistry>();
 
-    LogCat::d(LogLabel::DEFAULT, "creating_shape_manager", "Creating ShapeManager");
-    shapeManager_ = std::make_unique<ShapeManager>();
-
     resourceFileLoader_ = std::make_unique<ResourceFileLoader>();
     resourceFileLoader_->SetTomlTemplateExpander(tomlTemplateExpander_.get());
     resourceFileLoader_->SetVirtualFileSystem(vfs);
@@ -250,8 +247,4 @@ glimmer::ContributorManager *glimmer::ModContext::GetContributorManager() const 
 
 glimmer::TomlTemplateExpander *glimmer::ModContext::GetTomlTemplateExpander() const {
     return tomlTemplateExpander_.get();
-}
-
-glimmer::ShapeManager *glimmer::ModContext::GetShapeManager() const {
-    return shapeManager_.get();
 }

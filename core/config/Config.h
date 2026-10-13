@@ -83,7 +83,6 @@ namespace glimmer {
 
     struct Debug {
         bool displayDebugPanel;
-        bool displayBox2dShape;
         bool displayDraggableTarget;
         bool displayElevationMap;
         bool displayTempMap;

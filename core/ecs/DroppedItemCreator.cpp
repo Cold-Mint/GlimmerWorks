@@ -26,10 +26,9 @@
  */
 #include "DroppedItemCreator.h"
 
+#include "component/ColliderComponent.h"
 #include "component/DroppedItemComponent.h"
 #include "component/MagneticComponent.h"
-#include "component/RayCast2DComponent.h"
-#include "component/RigidBody2DComponent.h"
 #include "core/log/LogCat.h"
 #include "core/world/WorldContext.h"
 
@@ -114,24 +113,11 @@ void glimmer::DroppedItemCreator::LoadTemplateComponents(const uint32_t id, cons
     EntityManager *entityManager = worldContext->GetEntityManager();
     entityManager->SetResourceRef(id, resourceRef);
     entityManager->SetPersistable(id, true);
-    const auto rigidBody2DComponent = entityManager->AddComponent<RigidBody2DComponent>(
-        id);
-    if (rigidBody2DComponent != nullptr) {
-        rigidBody2DComponent->SetFilter({BOX2D_CATEGORY_ITEM, BOX2D_CATEGORY_TILE});
-        rigidBody2DComponent->SetBodyType(b2_dynamicBody);
-        rigidBody2DComponent->SetDensity(0.005F);
-        ResourceRef shapeResourceRef;
-        shapeResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-        shapeResourceRef.SetResourceKey(SHAPE_ID_DROPPED_ITEM);
-        shapeResourceRef.SetResourceType(RESOURCE_SHAPE);
-        rigidBody2DComponent->SetShapeRef(shapeResourceRef);
-        rigidBody2DComponent->Enable();
-    }
-    const auto rayCast2DComponent = entityManager->AddComponent<RayCast2DComponent>(id);
-    if (rayCast2DComponent != nullptr) {
-        rayCast2DComponent->SetOrigin({0, 0});
-        rayCast2DComponent->SetFilter({BOX2D_CATEGORY_ITEM, BOX2D_CATEGORY_TILE});
-        rayCast2DComponent->SetTransform2DEntity(id);
+    const auto collider = entityManager->AddComponent<ColliderComponent>(id);
+    if (collider != nullptr) {
+        const float halfExtent = DROPPED_ITEM_SIZE * 0.5F;
+        collider->SetHalfExtents(halfExtent, halfExtent);
+        collider->Enable();
     }
     auto magnetic = entityManager->AddComponent<MagneticComponent>(id);
     if (magnetic != nullptr) {
@@ -145,10 +131,4 @@ void glimmer::DroppedItemCreator::
 MergeEntityItemMessage(uint32_t id, const EntityItemMessage &entityItemMessage) {
     WorldContext *worldContext = GetWorldContext();
     RecoveryAllComponent(worldContext, id, entityItemMessage);
-    EntityManager *entityManager = worldContext->GetEntityManager();
-    auto transform2dComponent = entityManager->GetComponent<Transform2DComponent>(id);
-    auto rigidBody2dComponent = entityManager->GetComponent<RigidBody2DComponent>(id);
-    if (transform2dComponent != nullptr && rigidBody2dComponent != nullptr) {
-        rigidBody2dComponent->CreateBody(worldContext, id, transform2dComponent->GetPosition());
-    }
 }

@@ -26,10 +26,6 @@
  */
 #include "MobComponent.h"
 
-const std::vector<GameEntityID> &glimmer::MobComponent::GetGroundCheckRayEntityIds() const {
-    return groundCheckRayEntityIds_;
-}
-
 void glimmer::MobComponent::SetEmptyHandAutoUseItem(std::unique_ptr<Item> emptyHandAutoUseItem) {
     emptyHandAutoUseItem_ = std::move(emptyHandAutoUseItem);
 }
@@ -39,10 +35,6 @@ glimmer::Item *glimmer::MobComponent::GetEmptyHandAutoUseItem() const {
         return nullptr;
     }
     return emptyHandAutoUseItem_.get();
-}
-
-void glimmer::MobComponent::AddGroundCheckRayEntity(GameEntityID id) {
-    groundCheckRayEntityIds_.emplace_back(id);
 }
 
 void glimmer::MobComponent::SetMovementAcceleration(const float acceleration) {

@@ -54,7 +54,6 @@ void glimmer::StringUtils::InitStringToResourceTypeMap() {
     AddResourceTypeMap(DATA_FILE_TYPE_BIOME, RESOURCE_BIOME);
     AddResourceTypeMap(DATA_FILE_TYPE_COLOR, RESOURCE_COLOR);
     AddResourceTypeMap(DATA_FILE_TYPE_MOB, RESOURCE_MOB);
-    AddResourceTypeMap("shape", RESOURCE_SHAPE);
     AddResourceTypeMap("audio", RESOURCE_AUDIO);
     AddResourceTypeMap("dropped_item", RESOURCE_DROPPED_ITEM);
     AddResourceTypeMap("biome_decorator", RESOURCE_BIOME_DECORATOR);

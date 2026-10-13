@@ -130,7 +130,9 @@ bool glimmer::Chunk::CommitTileState(const BreakSource breakSource, const TileLa
         std::shared_ptr<Tile> oldTile = nullptr;
         auto [tileIterator, tileInserted] = tiles_.try_emplace(layerType);
         oldTile = tileIterator->second[index];
-        oldTile->OnBreak(worldContext_, breakSource, worldTileVector2D);
+        if (oldTile != nullptr) {
+            oldTile->OnBreak(worldContext_, breakSource, worldTileVector2D);
+        }
         tileIterator->second[index] = newTile;
         newTile->OnPlace(worldContext_, tileStateMessage->placesource(), worldTileVector2D, tileStateMessage);
         auto [tileFingerprintIterator, tileFingerprintInserted] = tileFingerprint_.try_emplace(layerType);

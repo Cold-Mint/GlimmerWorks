@@ -32,5 +32,6 @@ namespace glimmer {
         RECTANGLE = 0,
         CIRCLE = 1,
         ROUNDED_RECTANGLE = 2,
+        CAPSULE = 3,
     };
 }

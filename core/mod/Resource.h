@@ -165,9 +165,9 @@ namespace glimmer {
     };
 
     /**
- * Rounded Rectangle Shape resources
- * 圆角矩形资源
- */
+  * Rounded Rectangle Shape resources
+  * 圆角矩形资源
+  */
     //@genNextLine(RoundedRectangleShapeResource|圆角矩形资源)
     struct RoundedRectangleShapeResource : IShapeResource {
         //@genNextLine(width|宽度)
@@ -176,6 +176,19 @@ namespace glimmer {
         float height = 1.0F;
         //@genNextLine(radius|半径)
         float radius = 0.0F;
+    };
+
+    /**
+     * Capsule shape resources. A vertical capsule with semicircular top and bottom,
+     * which avoids catching on internal edges between merged tile colliders.
+     * 胶囊形状资源。竖直胶囊，上下为半圆，可避免在合并瓦片碰撞箱的内部边缘处被卡住或弹起。
+     */
+    //@genNextLine(CapsuleShapeResource|胶囊形状资源)
+    struct CapsuleShapeResource : IShapeResource {
+        //@genNextLine(width|宽度)
+        float width = 1.0F;
+        //@genNextLine(height|高度)
+        float height = 1.0F;
     };
 
 

@@ -412,6 +412,18 @@ namespace toml {
     };
 
     template<>
+    struct from<glimmer::CapsuleShapeResource> {
+        static glimmer::CapsuleShapeResource from_toml(const value &v) {
+            glimmer::CapsuleShapeResource resource;
+            resource.height = toml::find_or<float>(v, "height", 1.0F);
+            resource.resourceId = toml::find<std::string>(v, "resource_id");
+            resource.shapeType = toml::find_or<uint8_t>(v, "shape_type", 0);
+            resource.width = toml::find_or<float>(v, "width", 1.0F);
+            return resource;
+        }
+    };
+
+    template<>
     struct from<glimmer::SpacingStructureConditionsResource> {
         static glimmer::SpacingStructureConditionsResource from_toml(const value &v) {
             glimmer::SpacingStructureConditionsResource resource;

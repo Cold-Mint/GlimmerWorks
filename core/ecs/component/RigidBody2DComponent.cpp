@@ -90,6 +90,18 @@ void glimmer::RigidBody2DComponent::CreateBodyNow(const ResourceLocator *resourc
             );
             b2CreatePolygonShape(bodyId_, &shapeDef, &box2dShape);
         }
+
+        if (shape == ShapeType::CAPSULE) {
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
+            const auto *capsuleShapeResource = static_cast<CapsuleShapeResource *>(shapeResource);
+            const float halfWidth = capsuleShapeResource->width * TILE_SIZE * 0.5F;
+            const float halfHeight = capsuleShapeResource->height * TILE_SIZE * 0.5F;
+            b2Capsule capsule;
+            capsule.center1 = {0.0F, Box2DUtils::ToMeters(halfWidth - halfHeight)};
+            capsule.center2 = {0.0F, Box2DUtils::ToMeters(halfHeight - halfWidth)};
+            capsule.radius = Box2DUtils::ToMeters(halfWidth);
+            b2CreateCapsuleShape(bodyId_, &shapeDef, &capsule);
+        }
     }
     ready_.store(true, std::memory_order_release);
 }

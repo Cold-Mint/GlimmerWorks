@@ -187,6 +187,7 @@ static constexpr std::string DATA_FILE_TYPE_TEMPLATE = "template";
 static constexpr std::string DATA_FILE_TYPE_SHAPE_RECTANGLE = "rect";
 static constexpr std::string DATA_FILE_TYPE_SHAPE_ROUNDED_RECTANGLE = "round_rect";
 static constexpr std::string DATA_FILE_TYPE_SHAPE_CIRCLE = "circle";
+static constexpr std::string DATA_FILE_TYPE_SHAPE_CAPSULE = "capsule";
 static constexpr std::string DATA_FILE_TYPE_DECORATOR_FILL = "decor_fill";
 static constexpr std::string DATA_FILE_TYPE_DECORATOR_MINERAL = "decor_mineral";
 static constexpr std::string DATA_FILE_TYPE_DECORATOR_SURFACE = "decor_surface";

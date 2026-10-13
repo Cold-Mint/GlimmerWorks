@@ -107,6 +107,9 @@ void glimmer::ResourceFileLoader::RegisterHandlers() {
     handlerMap_[DATA_FILE_TYPE_SHAPE_ROUNDED_RECTANGLE] = [this](const toml::value &v, const AppContext *appContext) {
         LoadShapeResourceFromFile(v, appContext, ROUNDED_RECTANGLE);
     };
+    handlerMap_[DATA_FILE_TYPE_SHAPE_CAPSULE] = [this](const toml::value &v, const AppContext *appContext) {
+        LoadShapeResourceFromFile(v, appContext, CAPSULE);
+    };
     handlerMap_[DATA_FILE_TYPE_DECORATOR_FILL] = [this](const toml::value &v, const AppContext *appContext) {
         LoadBiomeDecoratorResourceFromFile(v, appContext, FILL);
     };
@@ -543,6 +546,12 @@ void glimmer::ResourceFileLoader::LoadShapeResourceFromFile(const toml::value &v
             shapeResource = std::make_unique<RoundedRectangleShapeResource>(
                 toml::get<RoundedRectangleShapeResource>(value));
             shapeResource->shapeType = std::to_underlying(ROUNDED_RECTANGLE);
+            break;
+        }
+        case CAPSULE: {
+            shapeResource = std::make_unique<CapsuleShapeResource>(
+                toml::get<CapsuleShapeResource>(value));
+            shapeResource->shapeType = std::to_underlying(CAPSULE);
             break;
         }
     }

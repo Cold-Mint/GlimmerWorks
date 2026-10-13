@@ -67,6 +67,7 @@ void glimmer::PhysicsSystem::StepEntity(WorldContext *worldContext, ColliderComp
     // 在 X 轴上移动并解算水平碰撞（墙体）。
     position.x += velocity.x * FIXED_TIME_STEP;
     {
+        const float centerX = position.x;
         int minTx = static_cast<int>(std::floor((position.x - halfWidth) / TILE_SIZE + 0.5F));
         int maxTx = static_cast<int>(std::floor((position.x + halfWidth) / TILE_SIZE + 0.5F));
         int minTy = static_cast<int>(std::floor((position.y - halfHeight) / TILE_SIZE + 0.5F));
@@ -81,12 +82,14 @@ void glimmer::PhysicsSystem::StepEntity(WorldContext *worldContext, ColliderComp
                 // tile's left/right faces accordingly.
                 // 瓦片以 (tx*TILE_SIZE, ty*TILE_SIZE) 为中心，覆盖 [tx*TILE_SIZE - HALF_TILE_SIZE,
                 // tx*TILE_SIZE + HALF_TILE_SIZE)。据此把 AABB 从瓦片左/右面推出。
-                if (velocity.x > 0.0F) {
-                    position.x = static_cast<float>(tx * TILE_SIZE - HALF_TILE_SIZE) - halfWidth;
-                } else if (velocity.x < 0.0F) {
-                    position.x = static_cast<float>(tx * TILE_SIZE + HALF_TILE_SIZE) + halfWidth;
+                const float tileCenterX = static_cast<float>(tx * TILE_SIZE);
+                if (velocity.x > 0.0F && tileCenterX > centerX) {
+                    position.x = tileCenterX - HALF_TILE_SIZE - halfWidth;
+                    velocity.x = 0.0F;
+                } else if (velocity.x < 0.0F && tileCenterX < centerX) {
+                    position.x = tileCenterX + HALF_TILE_SIZE + halfWidth;
+                    velocity.x = 0.0F;
                 }
-                velocity.x = 0.0F;
             }
         }
     }
@@ -96,6 +99,7 @@ void glimmer::PhysicsSystem::StepEntity(WorldContext *worldContext, ColliderComp
     bool grounded = false;
     position.y += velocity.y * FIXED_TIME_STEP;
     {
+        const float centerY = position.y;
         int minTx = static_cast<int>(std::floor((position.x - halfWidth) / TILE_SIZE + 0.5F));
         int maxTx = static_cast<int>(std::floor((position.x + halfWidth) / TILE_SIZE + 0.5F));
         int minTy = static_cast<int>(std::floor((position.y - halfHeight) / TILE_SIZE + 0.5F));
@@ -105,13 +109,20 @@ void glimmer::PhysicsSystem::StepEntity(WorldContext *worldContext, ColliderComp
                 if (!TileCollision::IsSolidTile(worldContext, TileVector2D{tx, ty})) {
                     continue;
                 }
-                if (velocity.y < 0.0F) {
-                    position.y = static_cast<float>(ty * TILE_SIZE + HALF_TILE_SIZE) + halfHeight;
+                // Only resolve a tile that actually lies in the direction of motion: a floor below the
+                // center when falling, a ceiling above the center when rising. This avoids pushing the
+                // entity through the opposite face when a tile is merely touched at its edge boundary.
+                // 只解算真正位于运动方向上的瓦片：下落时为中心下方的地板，上升时为中心上方的天花板。
+                // 这避免了当瓦片仅在边缘处被接触时，把实体朝反方向推出。
+                const float tileCenterY = static_cast<float>(ty * TILE_SIZE);
+                if (velocity.y < 0.0F && tileCenterY < centerY) {
+                    position.y = tileCenterY + HALF_TILE_SIZE + halfHeight;
                     grounded = true;
-                } else if (velocity.y > 0.0F) {
-                    position.y = static_cast<float>(ty * TILE_SIZE - HALF_TILE_SIZE) - halfHeight;
+                    velocity.y = 0.0F;
+                } else if (velocity.y > 0.0F && tileCenterY > centerY) {
+                    position.y = tileCenterY - HALF_TILE_SIZE - halfHeight;
+                    velocity.y = 0.0F;
                 }
-                velocity.y = 0.0F;
             }
         }
     }
@@ -128,11 +139,11 @@ void glimmer::PhysicsSystem::OnTick(const uint64_t tick) {
         return;
     }
     for (const GameEntityID entityId: entities_) {
-        ColliderComponent *collider = entityManager_->GetComponent<ColliderComponent>(entityId);
+        auto *collider = entityManager_->GetComponent<ColliderComponent>(entityId);
         if (collider == nullptr || !collider->IsEnabled()) {
             continue;
         }
-        Transform2DComponent *transform = entityManager_->GetComponent<Transform2DComponent>(entityId);
+        auto *transform = entityManager_->GetComponent<Transform2DComponent>(entityId);
         if (transform == nullptr) {
             continue;
         }

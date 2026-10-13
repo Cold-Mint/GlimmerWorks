@@ -146,11 +146,7 @@ void glimmer::DebugChunkSystem::RenderChunkView(RenderQueue *queue, AppContext *
     if (!dimensionResourceRef.IsValid()) {
         return;
     }
-    const std::unordered_map<ChunkVertexVector2D, std::shared_ptr<Chunk>, Vector2DIHash> *loadedChunks = chunkManager->
-            GetLoadedChunks(dimensionResourceRef);
-    if (loadedChunks == nullptr) {
-        return;
-    }
+    const std::vector<ChunkVertexVector2D> loadedChunks = chunkManager->GetLoadedChunks(dimensionResourceRef);
 
     const int windowHeight = windowContext->GetWindowHeight();
     const auto getChunkIndex = [](const int tileCoord) {
@@ -168,7 +164,7 @@ void glimmer::DebugChunkSystem::RenderChunkView(RenderQueue *queue, AppContext *
 
     // Draw Loaded Chunks (Blue)
     // 绘制已加载的区块（蓝色）
-    for (const auto &pos: *loadedChunks | std::views::keys) {
+    for (const auto &pos: loadedChunks) {
         constexpr SDL_Color loadedChunkColor = {100, 149, 237, 128};
         const int chunkIndexX = pos.x >> CHUNK_SHIFT;
         const int chunkIndexY = pos.y >> CHUNK_SHIFT;

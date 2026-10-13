@@ -80,14 +80,12 @@ void glimmer::ChunkTaskScheduler::Commit() {
             //重复请求任务，需要添加的任务已经存在。
             continue;
         }
-        if (oldTaskType == ChunkTaskType::LOAD && chunkTaskType == ChunkTaskType::UNLOAD) {
-            oldChunkTask->SetTaskType(ChunkTaskType::CANCELLED);
-            continue;
-        }
-        if (oldTaskType == ChunkTaskType::UNLOAD && chunkTaskType == ChunkTaskType::LOAD) {
-            oldChunkTask->SetTaskType(ChunkTaskType::CANCELLED);
-            continue;
-        }
+        //The latest request wins. The chunk state may have changed since the previous
+        //task was enqueued (e.g. the worker thread already loaded/unloaded the chunk),
+        //so the pending task must be updated instead of being cancelled and dropping
+        //the newest request.
+        //以最新请求为准。区块状态可能自上一次任务入队后已发生变化（例如工作线程已加载/卸载该区块），
+        //因此应更新待执行任务，而不是将其取消并丢弃最新请求。
         oldChunkTask->SetTaskType(pendingTask->GetTaskType());
     }
     pendingTasks_.clear();
@@ -103,9 +101,9 @@ std::unique_ptr<glimmer::ChunkTask> glimmer::ChunkTaskScheduler::PopFrontTask() 
     if (mainTask_.empty()) {
         return nullptr;
     }
-    const ChunkVertexVector2D &position = mainTask_.front();
-    mainTask_.pop_front();
+    const ChunkVertexVector2D& position = mainTask_.front();
     const uint64_t fingerprint = position.GetFingerprint();
+    mainTask_.pop_front();
     const auto iterator = chunkTaskMap_.find(fingerprint);
     if (iterator == chunkTaskMap_.end()) {
         return nullptr;

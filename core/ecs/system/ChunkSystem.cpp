@@ -78,13 +78,8 @@ void glimmer::ChunkSystem::GenerateUnloadTasks(const ResourceRef &dimensionRef, 
     if (chunkManager == nullptr || scheduler == nullptr) {
         return;
     }
-    const std::unordered_map<ChunkVertexVector2D, std::shared_ptr<Chunk>, Vector2DIHash> *loadedChunks = chunkManager->
-            GetLoadedChunks(dimensionRef);
-    if (loadedChunks == nullptr) {
-        return;
-    }
-    for (const auto &
-         chunkVertexCoordinates: *loadedChunks | std::views::keys) {
+    const std::vector<ChunkVertexVector2D> loadedChunks = chunkManager->GetLoadedChunks(dimensionRef);
+    for (const auto &chunkVertexCoordinates: loadedChunks) {
         if (chunkVertexCoordinates.x >= startChunk.x && chunkVertexCoordinates.x <= endChunk.x &&
             chunkVertexCoordinates.y >= startChunk.y && chunkVertexCoordinates.y <= endChunk.y) {
             continue;

@@ -27,7 +27,9 @@
 #pragma once
 
 #include <memory>
+#include <mutex>
 #include <unordered_map>
+#include <vector>
 
 #include "LightBuffer.h"
 #include "TileInstancePool.h"
@@ -58,6 +60,12 @@ namespace glimmer {
         std::unordered_map<ResourceRef, std::unordered_map<ChunkVertexVector2D, std::shared_ptr<Chunk>,
             Vector2DIHash>, ResourceRefHash>
         dimensionMap_;
+        /**
+        * Protects dimensionMap_ against concurrent access between the chunk scan
+        * (main thread) and chunk load/unload (worker thread).
+        * 保护 dimensionMap_，避免主线程扫描与工作线程加载/卸载的并发访问。
+        */
+        mutable std::mutex dimensionMapMutex_;
         TerrainGenerator *terrainGenerator_ = nullptr;
         ChunkLoader *chunkLoader_ = nullptr;
         WorldContext *worldContext_ = nullptr;
@@ -147,8 +155,7 @@ namespace glimmer {
          */
         size_t GetLoadedChunkCount(const ResourceRef &dimensionRef) const;
 
-        const std::unordered_map<ChunkVertexVector2D, std::shared_ptr<Chunk>,
-            Vector2DIHash> *GetLoadedChunks(const ResourceRef &dimensionRef) const;
+        [[nodiscard]] std::vector<ChunkVertexVector2D> GetLoadedChunks(const ResourceRef &dimensionRef) const;
 
 
         /**

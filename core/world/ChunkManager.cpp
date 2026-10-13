@@ -220,7 +220,10 @@ void glimmer::ChunkManager::LoadChunkAt(const ResourceRef &dimensionRef, const C
         OnChunkTileChange(chunk, newTile, layerType, index);
     });
     newlyCreatedChunk->SetDependencyTerrain(terrainResult);
-    dimensionMap_[dimensionRef].insert({position, newlyCreatedChunk});
+    {
+        std::lock_guard lock(dimensionMapMutex_);
+        dimensionMap_[dimensionRef].insert({position, newlyCreatedChunk});
+    }
     LogCat::d(LogLabel::CHUNK, "chunk_loaded", "Chunk loaded successfully at: ({}, {})", position.x, position.y);
     UpdateChunkLight(newlyCreatedChunk.get());
     ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldContext_, newlyCreatedChunk);
@@ -244,21 +247,25 @@ void glimmer::ChunkManager::UnloadChunkAt(const ResourceRef &dimensionRef, const
         }
     }
     ChunkPhysicsHelper::DetachPhysicsBodyToChunk(worldContext_, chunk);
-    const auto dimensionIterator = dimensionMap_.find(dimensionRef);
-    if (dimensionIterator == dimensionMap_.end()) {
-        return;
+    {
+        std::lock_guard lock(dimensionMapMutex_);
+        const auto dimensionIterator = dimensionMap_.find(dimensionRef);
+        if (dimensionIterator == dimensionMap_.end()) {
+            return;
+        }
+        auto &chunkMap = dimensionIterator->second;
+        const auto chunkIterator = chunkMap.find(position);
+        if (chunkIterator == chunkMap.end()) {
+            return;
+        }
+        chunkMap.erase(chunkIterator);
     }
-    auto &chunkMap = dimensionIterator->second;
-    const auto chunkIterator = chunkMap.find(position);
-    if (chunkIterator == chunkMap.end()) {
-        return;
-    }
-    chunkMap.erase(chunkIterator);
     LogCat::d(LogLabel::CHUNK, "chunk_unloaded", "Chunk unloaded successfully at: ({}, {})", position.x, position.y);
 }
 
 glimmer::Chunk *glimmer::ChunkManager::GetChunk(const ResourceRef &dimensionRef,
                                                 const ChunkVertexVector2D &position) const {
+    std::lock_guard lock(dimensionMapMutex_);
     const auto dimensionIterator = dimensionMap_.find(dimensionRef);
     if (dimensionIterator == dimensionMap_.end()) {
         return nullptr;
@@ -273,6 +280,7 @@ glimmer::Chunk *glimmer::ChunkManager::GetChunk(const ResourceRef &dimensionRef,
 
 std::shared_ptr<glimmer::Chunk> glimmer::ChunkManager::GetSharedChunk(const ResourceRef &dimensionRef,
                                                                       const ChunkVertexVector2D &position) const {
+    std::lock_guard lock(dimensionMapMutex_);
     const auto dimensionIterator = dimensionMap_.find(dimensionRef);
     if (dimensionIterator == dimensionMap_.end()) {
         return nullptr;
@@ -373,6 +381,7 @@ size_t glimmer::ChunkManager::SaveAllChunk() {
 
 
 size_t glimmer::ChunkManager::GetLoadedChunkCount(const ResourceRef &dimensionRef) const {
+    std::lock_guard lock(dimensionMapMutex_);
     const auto dimensionIterator = dimensionMap_.find(dimensionRef);
     if (dimensionIterator == dimensionMap_.end()) {
         return 0;
@@ -380,13 +389,19 @@ size_t glimmer::ChunkManager::GetLoadedChunkCount(const ResourceRef &dimensionRe
     return dimensionIterator->second.size();
 }
 
-const std::unordered_map<glimmer::ChunkVertexVector2D, std::shared_ptr<glimmer::Chunk>, glimmer::Vector2DIHash> *
-glimmer::ChunkManager::GetLoadedChunks(const ResourceRef &dimensionRef) const {
+std::vector<glimmer::ChunkVertexVector2D> glimmer::ChunkManager::GetLoadedChunks(
+    const ResourceRef &dimensionRef) const {
+    std::vector<ChunkVertexVector2D> result;
+    std::lock_guard lock(dimensionMapMutex_);
     const auto dimensionIterator = dimensionMap_.find(dimensionRef);
     if (dimensionIterator == dimensionMap_.end()) {
-        return nullptr;
+        return result;
     }
-    return &dimensionIterator->second;
+    result.reserve(dimensionIterator->second.size());
+    for (const auto &position: dimensionIterator->second | std::views::keys) {
+        result.emplace_back(position);
+    }
+    return result;
 }
 
 

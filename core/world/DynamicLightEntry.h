@@ -39,7 +39,7 @@ namespace glimmer {
      */
     struct DynamicLightEntry {
         TileVector2D position;
-        std::unique_ptr<LightSource> lightSource;
+        LightSource lightSource;
         TileLayerType layer;
     };
 }

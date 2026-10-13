@@ -26,11 +26,8 @@
  */
 #include "LightMask.h"
 
-glimmer::LightMask::LightMask(const Color *lightMaskColor, float tintFactor) {
-    if (lightMaskColor == nullptr) {
-        return;
-    }
-    lightMaskColor_ = *lightMaskColor;
+glimmer::LightMask::LightMask(const Color &lightMaskColor, float tintFactor) {
+    lightMaskColor_ = lightMaskColor;
     tintFactor_ = tintFactor;
 }
 

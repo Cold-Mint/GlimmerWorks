@@ -75,13 +75,18 @@ void glimmer::DynamicLightSystem::Update(const float delta) {
         if (lightResource == nullptr) {
             continue;
         }
-        const std::unique_ptr<Color> lightColor = resourceLocator->FindColor(&lightResource->lightColor);
-        if (lightColor == nullptr || lightColor->a == 0) {
+        const std::optional<Color> lightColorOptional = resourceLocator->FindColor(&lightResource->lightColor);
+        if (!lightColorOptional.has_value()) {
             continue;
         }
-        const TileVector2D tile = CoordinateTransformer::WorldToTile(transform->GetRenderPosition());
-        lightBuffer->SetDynamicLight(entityId, tile, TileLayerType::Ground,
-                                     std::make_unique<LightSource>(tile, lightResource->lightRadius, *lightColor));
+        const Color &lightColor = lightColorOptional.value();
+        const TileVector2D tileVector2D = CoordinateTransformer::WorldToTile(transform->GetRenderPosition());
+        LightSource lightSource;
+        lightSource.SetCenter(tileVector2D);
+        lightSource.SetMaxRadius(lightResource->lightRadius);
+        lightSource.SetEmissionColor(lightColor);
+        lightBuffer->SetDynamicLight(entityId, tileVector2D, TileLayerType::Ground,
+                                     lightSource);
         currentEntities.insert(entityId);
     }
 

@@ -42,7 +42,7 @@ namespace glimmer {
      */
     class TileLightData {
         std::unordered_map<TileLayerType, std::vector<LightContribution> > lightContributions_;
-        std::unordered_map<TileLayerType, std::unique_ptr<LightSource> > lightSourceData_;
+        std::unordered_map<TileLayerType, LightSource> lightSourceData_;
         std::unordered_map<TileLayerType, std::unordered_map<LightDirection, std::unique_ptr<LightMask> > >
         lightMaskData_;
         std::optional<Color> finalLightColor_;
@@ -72,7 +72,7 @@ namespace glimmer {
         GetLightContributions() const;
 
 
-        [[nodiscard]] const std::unordered_map<TileLayerType, std::unique_ptr<LightSource> > *GetLightSources() const;
+        [[nodiscard]] const std::unordered_map<TileLayerType, LightSource> *GetLightSources() const;
 
         /**
          * GetLightMasks
@@ -107,7 +107,7 @@ namespace glimmer {
          * @param layerType layerType 图层类型
          * @param lightSource lightSource 光源
          */
-        void SetLightSource(TileLayerType layerType, std::unique_ptr<LightSource> lightSource);
+        void SetLightSource(TileLayerType layerType, const LightSource &lightSource);
 
         /**
          * SetLightMask(Does not trigger the overall color calculation)
@@ -120,7 +120,7 @@ namespace glimmer {
 
         [[nodiscard]] const LightMask *GetLightMask(TileLayerType layerType, LightDirection direction);
 
-        [[nodiscard]] const LightSource *GetLightSource(TileLayerType layerType);
+        [[nodiscard]] std::optional<LightSource> GetLightSource(TileLayerType layerType) const;
 
         void ClearLightMask(TileLayerType layerType, LightDirection direction);
 

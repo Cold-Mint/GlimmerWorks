@@ -30,28 +30,32 @@
 #include <cmath>
 
 
-glimmer::LightSource::LightSource(const TileVector2D &center, int maxRadius, const Color &emissionColor)
-    : center_(center), maxRadius_(maxRadius), emissionColor_(emissionColor), direction_(LightDirection::Radial) {
-}
-
-glimmer::LightSource::LightSource(const LightDirection direction, const Color &emissionColor)
-    : emissionColor_(emissionColor), direction_(direction) {
-}
-
 glimmer::LightDirection glimmer::LightSource::GetDirection() const {
     return direction_;
 }
 
-int glimmer::LightSource::GetMaxRadius() const {
+uint8_t glimmer::LightSource::GetMaxRadius() const {
     return maxRadius_;
+}
+
+void glimmer::LightSource::SetLightDirection(const LightDirection direction) {
+    direction_ = direction;
+}
+
+void glimmer::LightSource::SetMaxRadius(const uint8_t maxRadius) {
+    maxRadius_ = maxRadius;
 }
 
 const glimmer::TileVector2D &glimmer::LightSource::GetCenter() const {
     return center_;
 }
 
-const glimmer::Color *glimmer::LightSource::GetEmissionColor() const {
-    return &emissionColor_;
+void glimmer::LightSource::SetCenter(const TileVector2D &center) {
+    center_ = center;
+}
+
+const glimmer::Color &glimmer::LightSource::GetEmissionColor() const {
+    return emissionColor_;
 }
 
 void glimmer::LightSource::SetEmissionColor(const Color &emissionColor) {
@@ -65,6 +69,15 @@ glimmer::LightAttenuation glimmer::LightSource::GetAttenuation() const {
 void glimmer::LightSource::SetAttenuation(const LightAttenuation attenuation) {
     attenuation_ = attenuation;
 }
+
+bool glimmer::LightSource::operator==(const LightSource &other) const {
+    return center_ == other.center_
+           && maxRadius_ == other.maxRadius_
+           && attenuation_ == other.attenuation_
+           && direction_ == other.direction_
+           && emissionColor_.GetFingerprint() == other.emissionColor_.GetFingerprint();
+}
+
 
 float glimmer::LightSource::GetAttenuationFactor(const int dx, const int dy) const {
     if (maxRadius_ <= 0) {

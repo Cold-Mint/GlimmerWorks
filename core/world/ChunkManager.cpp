@@ -90,18 +90,19 @@ void glimmer::ChunkManager::UpdateTileLight(const Chunk *chunk, TileLayerType la
         // 方块没有背光掩码资源，清除已有的背光掩码数据
         lightBuffer_->ClearLightMask(lightSourcePosition, layerType, LightDirection::Backward);
     } else {
-        const std::unique_ptr<Color> backLightMaskColorPtr = resourceLocator->FindColor(
+        const std::optional<Color> backLightMaskColorOptional = resourceLocator->FindColor(
             &backLightMaskResource->lightMaskColor);
-        if (backLightMaskColorPtr == nullptr) {
+        if (!backLightMaskColorOptional.has_value()) {
             return;
         }
-        if (backLightMaskColorPtr->a == 0) {
+        const Color &backLightMaskColor = backLightMaskColorOptional.value();
+        if (backLightMaskColor.a == 0) {
             // Resource exists but has zero alpha - clear with re-propagation
             // 资源存在但alpha为0 - 清除并重新传播
             lightBuffer_->ClearLightMask(lightSourcePosition, layerType, LightDirection::Backward);
         } else {
             lightBuffer_->SetLightMask(lightSourcePosition, layerType, LightDirection::Backward,
-                                       std::make_unique<LightMask>(backLightMaskColorPtr.get(),
+                                       std::make_unique<LightMask>(backLightMaskColor,
                                                                    backLightMaskResource->tintFactor));
         }
     }
@@ -115,18 +116,19 @@ void glimmer::ChunkManager::UpdateTileLight(const Chunk *chunk, TileLayerType la
             // 方块没有侧面光掩码资源，清除已有的侧面光掩码数据
             lightBuffer_->ClearLightMask(lightSourcePosition, layerType, LightDirection::Downward);
         } else {
-            const std::unique_ptr<Color> sideLightMaskColorPtr = resourceLocator->FindColor(
+            const std::optional<Color> sideLightMaskColorOptional = resourceLocator->FindColor(
                 &sideLightMaskResource->lightMaskColor);
-            if (sideLightMaskColorPtr == nullptr) {
+            if (!sideLightMaskColorOptional.has_value()) {
                 return;
             }
-            if (sideLightMaskColorPtr->a == 0) {
+            const Color &sideLightMaskColor = sideLightMaskColorOptional.value();
+            if (sideLightMaskColor.a == 0) {
                 // Resource exists but has zero alpha - clear with re-propagation
                 // 资源存在但alpha为0 - 清除并重新传播
                 lightBuffer_->ClearLightMask(lightSourcePosition, layerType, LightDirection::Downward);
             } else {
                 lightBuffer_->SetLightMask(lightSourcePosition, layerType, LightDirection::Downward,
-                                           std::make_unique<LightMask>(sideLightMaskColorPtr.get(),
+                                           std::make_unique<LightMask>(sideLightMaskColor,
                                                                        sideLightMaskResource->tintFactor));
             }
         }
@@ -138,12 +140,13 @@ void glimmer::ChunkManager::UpdateTileLight(const Chunk *chunk, TileLayerType la
         // 方块没有光源资源，清除已有的光源
         lightBuffer_->ClearLightSource(lightSourcePosition, layerType);
     } else {
-        const std::unique_ptr<Color> lightColorPtr = resourceLocator->
+        const std::optional<Color> lightColorOptional = resourceLocator->
                 FindColor(&lightSourceResource->lightColor);
-        if (lightColorPtr == nullptr) {
+        if (!lightColorOptional.has_value()) {
             return;
         }
-        if (lightColorPtr->a == 0) {
+        const Color &lightColor = lightColorOptional.value();
+        if (lightColor.a == 0) {
             LogCat::d(LogLabel::DEFAULT, "tile_light_source_zero_alpha",
                       "Tile light source has zero alpha, clearing: position=({}, {}), layer={}",
                       lightSourcePosition.x, lightSourcePosition.y, static_cast<int>(layerType));
@@ -153,12 +156,14 @@ void glimmer::ChunkManager::UpdateTileLight(const Chunk *chunk, TileLayerType la
                       "Found tile light source: position=({}, {}), layer={}, radius={}, rgba=({},{},{},{})",
                       lightSourcePosition.x, lightSourcePosition.y, static_cast<int>(layerType),
                       lightSourceResource->lightRadius,
-                      static_cast<int>(lightColorPtr->r), static_cast<int>(lightColorPtr->g),
-                      static_cast<int>(lightColorPtr->b), static_cast<int>(lightColorPtr->a));
+                      static_cast<int>(lightColor.r), static_cast<int>(lightColor.g),
+                      static_cast<int>(lightColor.b), static_cast<int>(lightColor.a));
+            LightSource lightSource;
+            lightSource.SetCenter(lightSourcePosition);
+            lightSource.SetMaxRadius(lightSourceResource->lightRadius);
+            lightSource.SetEmissionColor(lightColor);
             lightBuffer_->SetLightSource(lightSourcePosition, layerType,
-                                         std::make_unique<LightSource>(
-                                             lightSourcePosition, lightSourceResource->lightRadius,
-                                             *lightColorPtr));
+                                         lightSource);
         }
     }
 }

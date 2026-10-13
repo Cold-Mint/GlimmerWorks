@@ -38,7 +38,7 @@ namespace glimmer {
         float tintFactor_ = 0.0F;
 
     public:
-        explicit LightMask(const Color *lightMaskColor, float tintFactor);
+        explicit LightMask(const Color &lightMaskColor, float tintFactor);
 
         [[nodiscard]] float GetTintFactor() const;
 

@@ -185,7 +185,7 @@ namespace glimmer {
         [[nodiscard]] std::shared_ptr<UniformBlockResourceResult> FindUniformBlock(
             const ResourceRef *resourceRef, bool enablePlaceHolder = true) const;
 
-        [[nodiscard]] std::unique_ptr<Color> FindColor(const ResourceRef *resourceRef) const;
+        [[nodiscard]] std::optional<Color> FindColor(const ResourceRef *resourceRef) const;
 
         [[nodiscard]] IShapeResource *FindShape(const ResourceRef *resourceRef) const;
 

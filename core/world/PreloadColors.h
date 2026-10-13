@@ -137,6 +137,6 @@ namespace glimmer {
          * @return
          */
         static Color LoadColor(const ResourceLocator *resourceLocator, const std::string &key,
-                               const Color &defaultColor);
+                               Color &defaultColor);
     };
 }

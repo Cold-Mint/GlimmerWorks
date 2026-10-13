@@ -75,44 +75,60 @@ glimmer::Color glimmer::ColorUtils::AdditiveBlend(const Color &firstColor, const
     return result;
 }
 
-glimmer::Color glimmer::ColorUtils::ComputeAmbientLight(ResourceLocator *resourceLocator, const float timeOfDay,
-                                                        const std::vector<LightKeyframe> &keyframes) {
+std::optional<glimmer::Color> glimmer::ColorUtils::ComputeAmbientLight(ResourceLocator *resourceLocator,
+                                                                       float timeOfDay,
+                                                                       const std::vector<LightKeyframe> &keyframes) {
     if (keyframes.empty()) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "compute_back_light_keyframes_empty",
                   "compute ambient light keyframes empty");
-        return {};
+        return std::nullopt;
     }
-    const auto resolveColor = [resourceLocator](const ResourceRef &ref) -> Color {
+    const auto resolveColor = [resourceLocator](const ResourceRef &ref) -> std::optional<Color> {
         if (resourceLocator == nullptr) {
             LogCat::w(LogLabel::DEFAULT, std::source_location::current(),
                       "compute_ambient_light_resource_locator_is_null",
                       "compute ambient light resource locator is null");
-            return {};
+            return std::nullopt;
         }
-        const std::unique_ptr<Color> color = resourceLocator->FindColor(&ref);
-        return color != nullptr ? *color : Color{};
+        const std::optional<Color> colorOptional = resourceLocator->FindColor(&ref);
+        if (colorOptional.has_value()) {
+            return colorOptional.value();
+        }
+        return std::nullopt;
     };
     if (keyframes.size() == 1) {
-        const Color color = resolveColor(keyframes.front().color);
-        LogCat::i(LogLabel::DEFAULT, "compute_ambient_light_single_keyframe",
-                  "Compute ambient light single keyframe: rgba=({},{},{},{}), timeOfDay={}, keyframeT={}",
-                  static_cast<int>(color.r), static_cast<int>(color.g), static_cast<int>(color.b),
-                  static_cast<int>(color.a), timeOfDay, keyframes.front().t);
-        return color;
+        const std::optional<Color> colorOptional = resolveColor(keyframes.front().color);
+        if (colorOptional.has_value()) {
+            const Color &color = colorOptional.value();
+            LogCat::i(LogLabel::DEFAULT, "compute_ambient_light_single_keyframe",
+                      "Compute ambient light single keyframe: rgba=({},{},{},{}), timeOfDay={}, keyframeT={}",
+                      static_cast<int>(color.r), static_cast<int>(color.g), static_cast<int>(color.b),
+                      static_cast<int>(color.a), timeOfDay, keyframes.front().t);
+        }
+
+        return colorOptional;
     }
     for (size_t i = 0; i + 1 < keyframes.size(); ++i) {
         const LightKeyframe &start = keyframes[i];
         const LightKeyframe &end = keyframes[i + 1];
         if (timeOfDay >= start.t && timeOfDay <= end.t) {
-            const Color startColor = resolveColor(start.color);
-            const Color endColor = resolveColor(end.color);
+            const std::optional<Color> startColorOptional = resolveColor(start.color);
+            if (!startColorOptional.has_value()) {
+                return std::nullopt;
+            }
+            const Color &startColor = startColorOptional.value();
+            const std::optional<Color> endColorOptional = resolveColor(end.color);
+            if (!endColorOptional.has_value()) {
+                return std::nullopt;
+            }
+            const Color &endColor = endColorOptional.value();
             const float span = end.t - start.t;
             if (span <= 0.0F) {
                 LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "compute_ambient_light_zero_span",
                           "Compute ambient light zero span: startT={}, endT={}", start.t, end.t);
             }
             const float u = span > 0.0F ? (timeOfDay - start.t) / span : 0.0F;
-            const Color color = LinearInterpolateColor(startColor, endColor, u);
+            Color color = LinearInterpolateColor(startColor, endColor, u);
             LogCat::i(LogLabel::DEFAULT, "compute_ambient_light_interpolate",
                       "Compute ambient light interpolate: timeOfDay={}, startT={}, endT={}, u={}, rgba=({},{},{},{})",
                       timeOfDay, start.t, end.t, u, static_cast<int>(color.r), static_cast<int>(color.g),
@@ -130,9 +146,17 @@ glimmer::Color glimmer::ColorUtils::ComputeAmbientLight(ResourceLocator *resourc
                   "Compute ambient light zero span: startT={}, endT={}", keyframes.back().t, keyframes.front().t);
     }
     const float u = span > 0.0F ? (t - keyframes.back().t) / span : 0.0F;
-    const Color startColor = resolveColor(keyframes.back().color);
-    const Color endColor = resolveColor(keyframes.front().color);
-    const Color color = LinearInterpolateColor(startColor, endColor, u);
+    const std::optional<Color> startColorOptional = resolveColor(keyframes.back().color);
+    if (!startColorOptional.has_value()) {
+        return std::nullopt;
+    }
+    const Color &startColor = startColorOptional.value();
+    const std::optional<Color> endColorOptional = resolveColor(keyframes.front().color);
+    if (!endColorOptional.has_value()) {
+        return std::nullopt;
+    }
+    const Color &endColor = endColorOptional.value();
+    Color color = LinearInterpolateColor(startColor, endColor, u);
     LogCat::i(LogLabel::DEFAULT, "compute_ambient_light_wrap_interpolate",
               "Compute ambient light wrap interpolate: timeOfDay={}, backT={}, frontT={}, u={}, rgba=({},{},{},{})",
               timeOfDay, keyframes.back().t, keyframes.front().t, u, static_cast<int>(color.r),

@@ -66,28 +66,34 @@ namespace glimmer {
     class LightSource {
         TileVector2D center_ = {};
         Color emissionColor_ = {};
-        int maxRadius_ = 0;
+        uint8_t maxRadius_ = 0;
         LightAttenuation attenuation_ = LightAttenuation::Linear;
         LightDirection direction_ = LightDirection::Radial;
 
     public:
-        explicit LightSource(const TileVector2D &center, int maxRadius, const Color &emissionColor);
-
-        explicit LightSource(LightDirection direction, const Color &emissionColor);
 
         [[nodiscard]] LightDirection GetDirection() const;
 
-        [[nodiscard]] int GetMaxRadius() const;
+        [[nodiscard]] uint8_t GetMaxRadius() const;
+
+        void SetLightDirection(LightDirection direction);
+
+
+        void SetMaxRadius(uint8_t maxRadius);
 
         [[nodiscard]] const TileVector2D &GetCenter() const;
 
-        [[nodiscard]] const Color *GetEmissionColor() const;
+        void SetCenter(const TileVector2D &center);
+
+        [[nodiscard]] const Color &GetEmissionColor() const;
 
         void SetEmissionColor(const Color &emissionColor);
 
         [[nodiscard]] LightAttenuation GetAttenuation() const;
 
         void SetAttenuation(LightAttenuation attenuation);
+
+        bool operator==(const LightSource &other) const;
 
         /**
          * GetAttenuationFactor

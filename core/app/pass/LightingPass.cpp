@@ -209,8 +209,18 @@ void glimmer::LightingPass::UpdateLightMap(UniformInjectContext *injectContext) 
     const float timeOfDay = dimension->GetNormalizedTime();
     const std::vector<LightKeyframe> &backLightKeyFrames = dimensionResource->backLightKeyframes;
     const std::vector<LightKeyframe> &skyKeyframes = dimensionResource->skyLightKeyframes;
-    const Color screenLight = ColorUtils::ComputeAmbientLight(resourceLocator_, timeOfDay, backLightKeyFrames);
-    const Color skyLight = ColorUtils::ComputeAmbientLight(resourceLocator_, timeOfDay, skyKeyframes);
+    const std::optional<Color> screenLightOptional = ColorUtils::ComputeAmbientLight(
+        resourceLocator_, timeOfDay, backLightKeyFrames);
+    if (!screenLightOptional.has_value()) {
+        return;
+    }
+    const Color &screenLight = screenLightOptional.value();
+    const std::optional<Color> skyLightOptional = ColorUtils::ComputeAmbientLight(
+        resourceLocator_, timeOfDay, skyKeyframes);
+    if (!skyLightOptional.has_value()) {
+        return;
+    }
+    const Color &skyLight = skyLightOptional.value();
     LogCat::i(LogLabel::DEFAULT, "app_renderer_ambient_light",
               "Ambient light: screen rgba=({},{},{},{}), sky rgba=({},{},{},{}), timeOfDay={}, backLightKeyFrames={}, skyKeyframes={}",
               static_cast<int>(screenLight.r), static_cast<int>(screenLight.g),

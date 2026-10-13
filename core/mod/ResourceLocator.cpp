@@ -313,19 +313,19 @@ std::shared_ptr<glimmer::UniformBlockResourceResult> glimmer::ResourceLocator::F
     return uniformBlockCache->LoadResource(appContext_, resourceRef, enablePlaceHolder);
 }
 
-std::unique_ptr<glimmer::Color> glimmer::ResourceLocator::FindColor(const ResourceRef *resourceRef) const {
+std::optional<glimmer::Color> glimmer::ResourceLocator::FindColor(const ResourceRef *resourceRef) const {
     if (resourceRef == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "resource_ref_is_null", "resourceRef == nullptr");
-        return nullptr;
+        return std::nullopt;
     }
     const ResourceTypeMessage resourceType = resourceRef->GetResourceType();
     if (resourceType == RESOURCE_COLOR) {
         if (cacheContext_ == nullptr) {
-            return nullptr;
+            return std::nullopt;
         }
         ColorCache *colorCache = cacheContext_->GetColorCache();
         if (colorCache == nullptr) {
-            return nullptr;
+            return std::nullopt;
         }
         const std::shared_ptr<ColorResource> colorResource = colorCache->LoadResource(
             appContext_, resourceRef);
@@ -333,16 +333,16 @@ std::unique_ptr<glimmer::Color> glimmer::ResourceLocator::FindColor(const Resour
             LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "color_resource_load_failed",
                       "Failed to load color resource: packageId={}, resourceKey={}", resourceRef->GetPackageId(),
                       resourceRef->GetResourceKey());
-            return nullptr;
+            return std::nullopt;
         }
-        return std::make_unique<Color>(colorResource->ToColor());
+        return colorResource->ToColor();
     }
     if (resourceType == RESOURCE_FIXED_COLOR) {
         if (!ValidateAccessPermission(resourceRef)) {
             LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "color_resource_access_denied",
                       "Access permission denied for color resource: packageId={}, resourceKey={}",
                       resourceRef->GetPackageId(), resourceRef->GetResourceKey());
-            return nullptr;
+            return std::nullopt;
         }
         const FixedColorResource *fixedColorResource = fixedColorManager_->FindFixedColorResource(
             resourceRef->GetPackageId(),
@@ -351,15 +351,16 @@ std::unique_ptr<glimmer::Color> glimmer::ResourceLocator::FindColor(const Resour
             LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "fixed_color_resource_not_found",
                       "Failed to find fixed color resource: packageId={}, resourceKey={}", resourceRef->GetPackageId(),
                       resourceRef->GetResourceKey());
-            return nullptr;
+            return std::nullopt;
         }
-        return std::make_unique<Color>(fixedColorResource->ToColor());
+        return fixedColorResource->ToColor();
     }
     LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "unsupported_color_resource_type",
               "Unsupported color resource type: packageId={}, resourceKey={}, type={}", resourceRef->GetPackageId(),
               resourceRef->GetResourceKey(), std::to_underlying(resourceType));
-    return nullptr;
+    return std::nullopt;
 }
+
 
 glimmer::IShapeResource *glimmer::ResourceLocator::FindShape(const ResourceRef *resourceRef) const {
     if (resourceRef == nullptr) {

@@ -229,17 +229,15 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
 
         // Ambient light colors
         // 环境光颜色
-        const Color *backLightColor = lightBuffer->GetBackLightColor();
-        const Color *skyLightColor = lightBuffer->GetSkyLightColor();
-        if (backLightColor != nullptr && skyLightColor != nullptr) {
-            debugLines_.push_back(DebugLine{
-                fmt::format(
-                    fmt::runtime(langsResources->ambientLightInfo),
-                    backLightColor->a, backLightColor->r, backLightColor->g, backLightColor->b,
-                    skyLightColor->a, skyLightColor->r, skyLightColor->g, skyLightColor->b
-                )
-            });
-        }
+        const Color &backLightColor = lightBuffer->GetBackLightColor();
+        const Color &skyLightColor = lightBuffer->GetSkyLightColor();
+        debugLines_.push_back(DebugLine{
+            fmt::format(
+                fmt::runtime(langsResources->ambientLightInfo),
+                backLightColor.a, backLightColor.r, backLightColor.g, backLightColor.b,
+                skyLightColor.a, skyLightColor.r, skyLightColor.g, skyLightColor.b
+            )
+        });
 
         // Total light
         // 总光照
@@ -291,7 +289,7 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
                 bool hasSource = false;
                 if (lightSources != nullptr) {
                     const auto sourceIt = lightSources->find(layerType);
-                    hasSource = sourceIt != lightSources->end() && sourceIt->second != nullptr;
+                    hasSource = sourceIt != lightSources->end();
                 }
                 std::size_t contributionCount = 0;
                 if (lightContributions != nullptr) {
@@ -338,21 +336,19 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
                 // 光源详情
                 if (lightSources != nullptr) {
                     const auto sourceIt = lightSources->find(layerType);
-                    if (sourceIt != lightSources->end() && sourceIt->second != nullptr) {
-                        const LightSource *source = sourceIt->second.get();
-                        const Color *emission = source->GetEmissionColor();
-                        if (emission != nullptr) {
-                            const TileVector2D &center = source->GetCenter();
-                            debugLines_.push_back(DebugLine{
-                                fmt::format(
-                                    fmt::runtime(langsResources->lightSourceInfo),
-                                    std::to_underlying(layerType),
-                                    source->GetMaxRadius(),
-                                    emission->r, emission->g, emission->b, emission->a,
-                                    center.x, center.y
-                                )
-                            });
-                        }
+                    if (sourceIt != lightSources->end()) {
+                        const LightSource &source = sourceIt->second;
+                        const Color &emission = source.GetEmissionColor();
+                        const TileVector2D &center = source.GetCenter();
+                        debugLines_.push_back(DebugLine{
+                            fmt::format(
+                                fmt::runtime(langsResources->lightSourceInfo),
+                                std::to_underlying(layerType),
+                                source.GetMaxRadius(),
+                                emission.r, emission.g, emission.b, emission.a,
+                                center.x, center.y
+                            )
+                        });
                     }
                 }
 
@@ -383,20 +379,14 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
         // 动态光源
         if (const auto *dynamicLights = lightBuffer->GetDynamicLights(); dynamicLights != nullptr) {
             for (const auto &[id, entry]: *dynamicLights) {
-                if (entry.lightSource == nullptr) {
-                    continue;
-                }
-                const Color *emission = entry.lightSource->GetEmissionColor();
-                if (emission == nullptr) {
-                    continue;
-                }
+                const Color &emission = entry.lightSource.GetEmissionColor();
                 debugLines_.push_back(DebugLine{
                     fmt::format(
                         fmt::runtime(langsResources->dynamicLightInfo),
                         id, entry.position.x, entry.position.y,
                         std::to_underlying(entry.layer),
-                        entry.lightSource->GetMaxRadius(),
-                        emission->a, emission->r, emission->g, emission->b
+                        entry.lightSource.GetMaxRadius(),
+                        emission.a, emission.r, emission.g, emission.b
                     )
                 });
             }

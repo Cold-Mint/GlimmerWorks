@@ -128,7 +128,7 @@ GetLightContributions() const {
     return &lightContributions_;
 }
 
-const std::unordered_map<glimmer::TileLayerType, std::unique_ptr<glimmer::LightSource> > *glimmer::TileLightData::
+const std::unordered_map<glimmer::TileLayerType, glimmer::LightSource> *glimmer::TileLightData::
 GetLightSources() const {
     return &lightSourceData_;
 }
@@ -181,11 +181,8 @@ std::vector<const glimmer::LightContribution *> glimmer::TileLightData::GetLight
     return result;
 }
 
-void glimmer::TileLightData::SetLightSource(const TileLayerType layerType, std::unique_ptr<LightSource> lightSource) {
-    if (lightSource == nullptr) {
-        return;
-    }
-    lightSourceData_[layerType] = std::move(lightSource);
+void glimmer::TileLightData::SetLightSource(const TileLayerType layerType, const LightSource &lightSource) {
+    lightSourceData_[layerType] = lightSource;
 }
 
 void glimmer::TileLightData::SetLightMask(const TileLayerType layerType, const LightDirection direction,
@@ -214,17 +211,12 @@ const glimmer::LightMask *glimmer::TileLightData::GetLightMask(const TileLayerTy
     return lightMaskPtr.get();
 }
 
-
-const glimmer::LightSource *glimmer::TileLightData::GetLightSource(const TileLayerType layerType) {
+std::optional<glimmer::LightSource> glimmer::TileLightData::GetLightSource(const TileLayerType layerType) const {
     auto lightSourceIterator = lightSourceData_.find(layerType);
     if (lightSourceIterator == lightSourceData_.end()) {
-        return nullptr;
+        return std::nullopt;
     }
-    const auto &lightMaskPtr = lightSourceIterator->second;
-    if (lightMaskPtr == nullptr) {
-        return nullptr;
-    }
-    return lightMaskPtr.get();
+    return lightSourceIterator->second;
 }
 
 void glimmer::TileLightData::ClearLightMask(const TileLayerType layerType, const LightDirection direction) {
@@ -256,7 +248,7 @@ float glimmer::TileLightData::GetLightBlockingStrength(const TileLayerType layer
     return directionIterator->second->GetBlockingStrength();
 }
 
-const std::optional<glimmer::Color>& glimmer::TileLightData::GetFinalLightColor() const {
+const std::optional<glimmer::Color> &glimmer::TileLightData::GetFinalLightColor() const {
     return finalLightColor_;
 }
 

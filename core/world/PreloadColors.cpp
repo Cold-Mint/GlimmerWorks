@@ -236,16 +236,15 @@ void glimmer::PreloadColors::LoadAllColors(const ResourceLocator *resourceLocato
 }
 
 glimmer::Color glimmer::PreloadColors::LoadColor(const ResourceLocator *resourceLocator, const std::string &key,
-                                                 const Color &defaultColor) {
+                                                 Color &defaultColor) {
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_COLOR);
     resourceRef.SetResourceKey(key);
-    const std::unique_ptr<Color> targetColor = resourceLocator->FindColor(&resourceRef);
-    if (targetColor == nullptr) {
-        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "preload_color_not_found",
-                  "Color not found, using default: key={}", key);
-        return defaultColor;
+    if (std::optional<Color> targetColor = resourceLocator->FindColor(&resourceRef); targetColor.has_value()) {
+        return targetColor.value();
     }
-    return Color{targetColor->r, targetColor->g, targetColor->b, targetColor->a};
+    LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "preload_color_not_found",
+              "Color not found, using default: key={}", key);
+    return defaultColor;
 }

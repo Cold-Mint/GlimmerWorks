@@ -70,8 +70,8 @@ namespace glimmer {
         //环境光源，由 SetLightColor 更新。
         //backLightSource_：来自背景层（-Z）的屏幕光。
         //skyLightSource_：来自上方（+Y）的天光。
-        LightSource backLightSource_{LightDirection::Backward, Color{}};
-        LightSource skyLightSource_{LightDirection::Downward, Color{}};
+        LightSource backLightSource_;
+        LightSource skyLightSource_;
         /**
         * Monotonic counter bumped by every mutating operation. The renderer
         * compares it frame to frame to know when the cached light map
@@ -171,6 +171,8 @@ namespace glimmer {
         void UpdateColumnSkyOccluder(const TileVector2D &position, bool nowBlocks);
 
     public:
+        LightBuffer();
+
         /**
          * SetLightMask
          * 设置某瓦片在指定图层、指定光照方向上的光线遮罩。
@@ -194,7 +196,7 @@ namespace glimmer {
         [[nodiscard]] const TileLightData *GetTileLightData(const TileVector2D &position) const;
 
         void SetLightSource(const TileVector2D &position, TileLayerType layerType,
-                            std::unique_ptr<LightSource> lightSource);
+                            const LightSource &lightSource);
 
         void ClearLightSource(const TileVector2D &position, TileLayerType layerType);
 
@@ -211,7 +213,7 @@ namespace glimmer {
          * @param lightSource lightSource 光源数据
          */
         void SetDynamicLight(uint64_t id, const TileVector2D &position, TileLayerType layerType,
-                             std::unique_ptr<LightSource> lightSource);
+                             const LightSource &lightSource);
 
         /**
          * RemoveDynamicLight
@@ -266,13 +268,13 @@ namespace glimmer {
          * GetBackLightColor
          * 获取当前背光（背景层，-Z）环境色。
          */
-        [[nodiscard]] const Color *GetBackLightColor() const;
+        [[nodiscard]] const Color &GetBackLightColor() const;
 
         /**
          * GetSkyLightColor
          * 获取当前天光（上方，+Y）环境色。
          */
-        [[nodiscard]] const Color *GetSkyLightColor() const;
+        [[nodiscard]] const Color &GetSkyLightColor() const;
 
         /**
          * GetDynamicLights

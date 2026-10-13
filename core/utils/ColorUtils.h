@@ -25,6 +25,7 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <optional>
 #include <vector>
 
 #include "core/math/Color.h"
@@ -73,7 +74,7 @@ namespace glimmer {
         * @param keyframes keyframes 环境光关键帧（按时间点升序，首尾之间跨零点自动环绕插值）。
         * @return 环境光颜色，其中 a 通道为强度；无关键帧时返回黑色。
         */
-        static Color ComputeAmbientLight(ResourceLocator *resourceLocator, float timeOfDay,
-                                         const std::vector<LightKeyframe> &keyframes);
+        static std::optional<Color> ComputeAmbientLight(ResourceLocator *resourceLocator, float timeOfDay,
+                                                        const std::vector<LightKeyframe> &keyframes);
     };
 }

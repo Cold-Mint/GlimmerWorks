@@ -13,6 +13,18 @@ code = "f12"
 event_type = "key_down"
 
 [[command_hooks]]
+hook_id = "fee1f88b-4c3b-43e6-84ee-8e158a1a12ff"
+command = "config set debug.display_collision_box toggle"
+code = "f11"
+event_type = "key_down"
+
+[[command_hooks]]
+hook_id = "8d007cc9-702a-410a-8b33-93137ff537f5"
+command = "config commit"
+code = "f11"
+event_type = "key_down"
+
+[[command_hooks]]
 hook_id = "a21709c9-f296-4b00-a7da-cd6b86da4a37"
 command = "config set debug.display_elevation_map toggle"
 code = "f10"
@@ -124,6 +136,9 @@ event_type = "key_down"
 # Show debug panel in game
 # 游戏内显示调试面板
 display_debug_panel = false
+# Draw entity collision boxes (AABB) and the solid tile grid
+# 绘制实体碰撞盒（AABB）与实心瓦片网格
+display_collision_box = false
 # Draw the boundaries of the area for dragging and dropping
 # 绘制拖拽的区域边界
 display_draggable_target = false

@@ -36,6 +36,7 @@
 #include "core/ecs/system/ChunkSystem.h"
 #include "core/ecs/system/CropSystem.h"
 #include "core/ecs/system/DebugChunkSystem.h"
+#include "core/ecs/system/DebugDrawColliderSystem.h"
 #include "core/ecs/system/DebugDrawSystem.h"
 #include "core/ecs/system/DebugMultiMapSystem.h"
 #include "core/ecs/system/DebugPanelSystem.h"
@@ -394,6 +395,7 @@ void glimmer::SystemScheduler::InitSystem() {
     RegisterGuiSystem(std::make_unique<ItemTooltipSystem>(worldContext_));
 #if  !defined(NDEBUG)
     RegisterSystem(std::make_unique<DebugDrawSystem>(worldContext_));
+    RegisterSystem(std::make_unique<DebugDrawColliderSystem>(worldContext_));
     RegisterSystem(std::make_unique<DebugChunkSystem>(worldContext_));
     RegisterGuiSystem(std::make_unique<DebugPanelSystem>(worldContext_));
     RegisterSystem(std::make_unique<DebugMultiMapSystem>(worldContext_));

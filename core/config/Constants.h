@@ -325,6 +325,7 @@ static constexpr uint8_t EXECUTION_ORDER_ITEM_TOOLTIP = 21;
 static constexpr uint8_t EXECUTION_ORDER_DYNAMIC_LIGHT = 92;
 static constexpr uint8_t EXECUTION_ORDER_DEBUG_DRAW = 94;
 static constexpr uint8_t EXECUTION_ORDER_DEBUG_CHUNK = 95;
+static constexpr uint8_t EXECUTION_ORDER_DEBUG_COLLIDER = 96;
 static constexpr uint8_t EXECUTION_ORDER_DEBUG_MAP = 97;
 static constexpr uint8_t EXECUTION_ORDER_DEBUG_PANEL = 98;
 static constexpr uint8_t EXECUTION_ORDER_ANDROID_CTRL = 99;

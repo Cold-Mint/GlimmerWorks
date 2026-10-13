@@ -137,6 +137,7 @@ bool glimmer::Config::ReloadConfig() {
     biomeBgm.debounceSeconds = toml::find<float>(tomlRef, "biome_bgm", "debounce_seconds");
 #if  !defined(NDEBUG)
     debug.displayDebugPanel = toml::find<bool>(tomlRef, "debug", "display_debug_panel");
+    debug.displayCollisionBox = toml::find<bool>(tomlRef, "debug", "display_collision_box");
     debug.displayDraggableTarget = toml::find<bool>(tomlRef, "debug", "display_draggable_target");
     debug.displayElevationMap = toml::find<bool>(tomlRef, "debug", "display_elevation_map");
     debug.displayTempMap = toml::find<bool>(tomlRef, "debug", "display_temp_map");

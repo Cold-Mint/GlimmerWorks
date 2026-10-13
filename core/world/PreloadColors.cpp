@@ -109,6 +109,30 @@ void glimmer::PreloadColors::LoadAllColors(const ResourceLocator *resourceLocato
     debugColor.debugPanelTextBGColor = LoadColor(resourceLocator, "debug/debug_panel_text_bg_color",
                                                  debugPanelTextBGColor);
 
+    Color collisionBoxBorderColor;
+    collisionBoxBorderColor.r = 0;
+    collisionBoxBorderColor.g = 255;
+    collisionBoxBorderColor.b = 0;
+    collisionBoxBorderColor.a = 255;
+    debugColor.collisionBoxBorderColor = LoadColor(resourceLocator, "debug/collision_box_border_color",
+                                                   collisionBoxBorderColor);
+
+    Color collisionBoxFullColor;
+    collisionBoxFullColor.r = 0;
+    collisionBoxFullColor.g = 255;
+    collisionBoxFullColor.b = 0;
+    collisionBoxFullColor.a = 64;
+    debugColor.collisionBoxFullColor = LoadColor(resourceLocator, "debug/collision_box_full_color",
+                                                 collisionBoxFullColor);
+
+    Color collisionBoxTileColor;
+    collisionBoxTileColor.r = 255;
+    collisionBoxTileColor.g = 255;
+    collisionBoxTileColor.b = 255;
+    collisionBoxTileColor.a = 96;
+    debugColor.collisionBoxTileColor = LoadColor(resourceLocator, "debug/collision_box_tile_color",
+                                                 collisionBoxTileColor);
+
     uint8_t debugMapAlpha = 191;
     Color elevationMapFrom;
     elevationMapFrom.r = 0;

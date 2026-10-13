@@ -84,6 +84,13 @@ namespace glimmer {
             Color draggableColor;
             Color debugPanelTextColor;
             Color debugPanelTextBGColor;
+            // Border/fill colors of the entity collision boxes (AABB) shown by the debug draw.
+            // 调试绘制中实体碰撞盒（AABB）的边框/填充颜色。
+            Color collisionBoxBorderColor;
+            Color collisionBoxFullColor;
+            // Outline color of the solid tile grid shown by the debug draw.
+            // 调试绘制中实心瓦片网格的轮廓颜色。
+            Color collisionBoxTileColor;
 
 
             // Gradient color of the elevation map

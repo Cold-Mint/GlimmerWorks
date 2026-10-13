@@ -36,6 +36,7 @@ namespace glimmer {
         CameraSystem,
         ChunkSystem,
         DebugChunkSystem,
+        DebugDrawColliderSystem,
         DebugDrawSystem,
         DebugMultiMapSystem,
         DebugPanelSystem,

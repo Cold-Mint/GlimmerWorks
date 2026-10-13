@@ -24,6 +24,7 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
+#if  !defined(NDEBUG)
 #include "DebugDrawColliderSystem.h"
 
 #include "core/config/Config.h"
@@ -178,3 +179,5 @@ uint8_t glimmer::DebugDrawColliderSystem::GetExecutionOrder() {
 glimmer::GameSystemType glimmer::DebugDrawColliderSystem::GetGameSystemType() const {
     return GameSystemType::DebugDrawColliderSystem;
 }
+
+#endif

@@ -25,6 +25,7 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#if  !defined(NDEBUG)
 #include "core/ecs/GameSystem.h"
 
 namespace glimmer {
@@ -66,3 +67,5 @@ namespace glimmer {
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };
 }
+
+#endif

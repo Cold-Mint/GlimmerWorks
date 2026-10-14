@@ -229,6 +229,10 @@ void glimmer::ChunkManager::UnloadChunkAt(const ResourceRef &dimensionRef, const
         return;
     }
     LogCat::d(LogLabel::CHUNK, "chunk_unloading", "Unloading chunk at position: ({}, {})", position.x, position.y);
+    //Clean up the entities attached to tiles (crops/work blocks) so the shared tile
+    //instances do not keep stale entity ids that would break re-placement on reload.
+    //清理瓦片附加的实体（作物/工作方块），避免共享瓦片实例残留过期实体ID，导致重新加载时无法重建实体。
+    chunk->BreakTileEntities();
     if (!SaveChunk(dimensionRef, position)) {
         LogCat::w(LogLabel::CHUNK, std::source_location::current(), "chunk_save_failed_during_unload",
                   "Failed to save chunk during unload at: ({}, {})", position.x,

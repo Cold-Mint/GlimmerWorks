@@ -41,7 +41,6 @@
 #include "core/mod/dataPack/TileResourceManager.h"
 #include "core/scene/MainThreadDispatcher.h"
 #include "core/world/ChunkManager.h"
-#include "core/world/Dimension.h"
 #include "core/world/WorldContext.h"
 #include "core/world/generator/Chunk.h"
 #include "core/world/growth/IGrowthConditionProcessor.h"
@@ -108,8 +107,8 @@ bool glimmer::CropSystem::OnGrowMature(WorldContext *worldContext, Chunk *chunk,
         for (int x = 0; x < tileResource->tileWidth; x++) {
             for (int y = 0; y < tileResource->tileHeight; y++) {
                 const size_t unitIndex = index + CoordinateTransformer::GetArrayIndex(x, y, CHUNK_SHIFT);
-                chunk->PlaceTile(layerType, unitIndex, *growthTargetRef, tileResource, BreakSource::Unknown,
-                                 PLACE_SOURCE_WORLD_GEN, x, y, false);
+                chunk->PlaceTile(layerType, unitIndex, *growthTargetRef, tileResource, BreakSource::CropGrowthOverwrite,
+                                 PLACE_SOURCE_CROP_GROWTH, x, y, false);
             }
         }
         return true;
@@ -186,7 +185,7 @@ bool glimmer::CropSystem::OnGrowMature(WorldContext *worldContext, Chunk *chunk,
                         const size_t unitIndex =
                                 CoordinateTransformer::GetArrayIndex(relative.x, relative.y, CHUNK_SHIFT);
                         targetChunk->PlaceTile(structureLayerType, unitIndex, resourceRef, tileResource,
-                                               BreakSource::Unknown, PLACE_SOURCE_WORLD_GEN, x, y, false);
+                                               BreakSource::CropGrowthOverwrite, PLACE_SOURCE_CROP_GROWTH, x, y, false);
                     }
                 }
             }
@@ -285,13 +284,6 @@ void glimmer::CropSystem::OnTick(const uint64_t tick) {
                 break;
             }
         }
-        if (!conditionsMet) {
-            LogCat::d(LogLabel::DEFAULT, "crop_system_conditions_not_met",
-                      "[CropSystem] growth conditions not fully met, skip growth: position=({}, {}), layerType={}",
-                      position.x, position.y, static_cast<int>(layerType));
-            continue;
-        }
-
         TileStateMessage *tileState = chunk->GetOrCreateTileState(layerType, index);
         if (tileState == nullptr) {
             LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "crop_system_tile_state_null",
@@ -299,6 +291,20 @@ void glimmer::CropSystem::OnTick(const uint64_t tick) {
                       position.x, position.y, static_cast<int>(layerType), index);
             continue;
         }
+        if (!conditionsMet) {
+            //Record that conditions were not met this round, so offline growth knows not to advance this crop.
+            //记录本轮条件未满足，供离线生长判断不推进该作物。
+            tileState->set_tilegrowthconditionsmet(false);
+            LogCat::d(LogLabel::DEFAULT, "crop_system_conditions_not_met",
+                      "[CropSystem] growth conditions not fully met, skip growth: position=({}, {}), layerType={}",
+                      position.x, position.y, static_cast<int>(layerType));
+            continue;
+        }
+        //Conditions are met: mark them in the persisted state and record the current tick as the progress
+        //timestamp (used for offline catch-up when the chunk is reloaded).
+        //条件满足：写入持久化状态，并把当前 tick 记为进度时间戳（用于区块重新加载时补算离线时长）。
+        tileState->set_tilegrowthconditionsmet(true);
+        tileState->set_tilegrowthstarttick(tick);
         tileState->set_tilegrowthaccumulatedtick(tileState->tilegrowthaccumulatedtick() + 1);
         LogCat::d(LogLabel::DEFAULT, "crop_system_growth_ticks",
                   "[CropSystem] growth ticks: required={}, accumulated={}, position=({}, {})",
@@ -359,8 +365,8 @@ void glimmer::CropSystem::OnTick(const uint64_t tick) {
                             resourceLocator != nullptr) {
                             if (const TileResource *airTileResource = resourceLocator->FindTileRaw(&airRef);
                                 airTileResource != nullptr) {
-                                chunk->PlaceTile(layerType, index, airRef, airTileResource, BreakSource::Unknown,
-                                                 PLACE_SOURCE_WORLD_GEN, 0, 0, false);
+                                chunk->PlaceTile(layerType, index, airRef, airTileResource, BreakSource::CropSelfDestruct,
+                                                 PLACE_SOURCE_CROP_GROWTH, 0, 0, false);
                                 LogCat::d(LogLabel::DEFAULT, "crop_system_replace_with_air",
                                           "[CropSystem] crop replaced with air after growth: position=({}, {}), layerType={}, index={}",
                                           position.x, position.y, static_cast<int>(layerType), index);

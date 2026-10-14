@@ -26,16 +26,23 @@
  */
 #pragma once
 namespace glimmer {
-    /*
-     * BreakSource
-     * 破坏源
+    /**
+     * Reason for tile destruction.
+     * 瓦片被破坏的原因。
      */
     enum class BreakSource {
         Unknown,
         ChunkLoad,
+        ChunkUnload,
         PlayerMining,
         PlayerOverride,
         ChunkGenerate,
+        //The crops destroy themselves when they grow.
+        //作物长大后销毁自身。
+        CropSelfDestruct,
+        //Crop mature growth overwrites existing block on top.
+        //作物长成覆盖顶掉方块。
+        CropGrowthOverwrite,
         Console
     };
 }

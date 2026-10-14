@@ -142,6 +142,19 @@ namespace glimmer {
 
         void ReadChunkMessage(const ChunkMessage &chunkMessage);
 
+        /**
+         * ApplyOfflineGrowth
+         * 离线生长：为允许离线生长且上次条件满足的作物瓦片，按离线时长推进生长进度。
+         */
+        void ApplyOfflineGrowth();
+
+        /**
+         * BreakTileEntities
+         * 卸载时清理所有瓦片附加的实体（作物/工作方块等），并清理 Tile::gameEntities_ 记录，
+         * 避免瓦片实例被复用（同类型瓦片共享实例）时残留过期实体ID。
+         */
+        void BreakTileEntities();
+
         void WriteChunkMessage(ChunkMessage &chunkMessage);
 
         WorldVector2D GetStartWorldPosition() const;

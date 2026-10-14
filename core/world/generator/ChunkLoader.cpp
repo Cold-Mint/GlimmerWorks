@@ -69,6 +69,7 @@ std::shared_ptr<glimmer::Chunk> glimmer::ChunkLoader::LoadChunkFromSaves(const R
                       position.x, position.y);
             auto chunk = std::make_shared<Chunk>(worldContext_, position);
             chunk->ReadChunkMessage(chunkMessage.value());
+            chunk->ApplyOfflineGrowth();
             LoadEntityFromSaves(dimensionRef, position);
             return chunk;
         }

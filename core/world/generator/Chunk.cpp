@@ -275,6 +275,65 @@ void glimmer::Chunk::ReadChunkMessage(const ChunkMessage &chunkMessage) {
 }
 
 
+void glimmer::Chunk::ApplyOfflineGrowth() {
+    if (worldContext_ == nullptr) {
+        return;
+    }
+    const uint64_t globalTick = worldContext_->GetGlobalTick();
+    size_t advancedCount = 0;
+    for (auto &[layerType, tileArray]: tiles_) {
+        for (size_t index = 0; index < CHUNK_AREA; ++index) {
+            const std::shared_ptr<Tile> &tile = tileArray[index];
+            if (tile == nullptr || !tile->IsCropsBlock() || !tile->AllowOfflineGrowth()) {
+                continue;
+            }
+            TileStateMessage *state = GetTileState(layerType, index);
+            if (state == nullptr) {
+                continue;
+            }
+            //Only advance crops whose conditions were met when the chunk was last saved.
+            //只推进上次保存时条件已满足的作物。
+            if (!state->tilegrowthconditionsmet()) {
+                continue;
+            }
+            if (globalTick <= state->tilegrowthstarttick()) {
+                continue;
+            }
+            const uint64_t elapsed = globalTick - state->tilegrowthstarttick();
+            state->set_tilegrowthaccumulatedtick(state->tilegrowthaccumulatedtick() + elapsed);
+            state->set_tilegrowthstarttick(globalTick);
+            ++advancedCount;
+        }
+    }
+    if (advancedCount > 0) {
+        LogCat::i(LogLabel::CHUNK, "chunk_offline_growth_applied",
+                  "Applied offline growth to {} crop tiles at chunk ({}, {})",
+                  advancedCount, position_.x, position_.y);
+    }
+}
+
+void glimmer::Chunk::BreakTileEntities() {
+    if (worldContext_ == nullptr) {
+        return;
+    }
+    for (auto &tileArray: tiles_ | std::views::values) {
+        for (size_t index = 0; index < CHUNK_AREA; ++index) {
+            const std::shared_ptr<Tile> &tile = tileArray[index];
+            if (tile == nullptr) {
+                continue;
+            }
+            const auto relative = CoordinateTransformer::IndexToVector2D<ChunkRelativeVector2D>(index,
+                CHUNK_MASK,
+                CHUNK_SHIFT);
+            const TileVector2D worldTile{
+                static_cast<int>(relative.x) + position_.x,
+                static_cast<int>(relative.y) + position_.y
+            };
+            tile->OnBreak(worldContext_, BreakSource::ChunkUnload, worldTile);
+        }
+    }
+}
+
 void glimmer::Chunk::InvokeReplaceTileCallback(const std::shared_ptr<Chunk> &chunk, TileLayerType layerType,
                                                size_t index,
                                                const std::shared_ptr<Tile> &oldTile,

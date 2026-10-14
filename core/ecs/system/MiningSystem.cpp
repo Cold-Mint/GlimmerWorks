@@ -91,7 +91,7 @@ bool glimmer::MiningSystem::TryPlaceTile(const TileLayerComponent *tileLayerComp
     if (config.IsPlaceMode()) {
         tileState->set_placesource(PLACE_SOURCE_PLAYER);
     } else {
-        tileState->set_placesource(PLACE_SOURCE_WORLD_GEN);
+        tileState->set_placesource(PLACE_SOURCE_BREAK);
     }
     TileVector2D offset = topLeftVector - currentVector;
     offset.WriteVector2DIMessage(*tileState->mutable_offset());

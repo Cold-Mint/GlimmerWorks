@@ -64,6 +64,9 @@ namespace glimmer {
         //Offset from the crop origin to the spawn point used when it matures.
         //作物成熟时，生成点相对于原点的偏移。
         Vector2DIResource spawnOriginOffset_ = {0, 0};
+        //Whether offline growth is allowed: when the chunk is reloaded, interpolate the elapsed time.
+        //是否允许离线生长：区块重新加载时补算离线时长。
+        bool allowOfflineGrowth_ = true;
         uint8_t technologyLevel_ = 0;
         uint8_t recipeGroup_ = 0;
         TileLayerType layerType_ = TileLayerType::Ground;
@@ -94,6 +97,13 @@ namespace glimmer {
          * @return
          */
         [[nodiscard]] const Vector2DIResource &GetSpawnOriginOffset() const;
+
+        /**
+         * AllowOfflineGrowth
+         * 是否允许离线生长。
+         * @return
+         */
+        [[nodiscard]] bool AllowOfflineGrowth() const;
 
         /**
          * IsWorkBlock

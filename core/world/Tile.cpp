@@ -65,6 +65,10 @@ const glimmer::Vector2DIResource &glimmer::Tile::GetSpawnOriginOffset() const {
     return spawnOriginOffset_;
 }
 
+bool glimmer::Tile::AllowOfflineGrowth() const {
+    return allowOfflineGrowth_;
+}
+
 bool glimmer::Tile::IsWorkBlock() const {
     return technologyLevel_ > 0;
 }
@@ -203,6 +207,7 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     tile->destroySelfAfterGrowth_ = tileResource->destroySelfAfterGrowth;
     tile->growthConditions_ = tileResource->growthConditions;
     tile->spawnOriginOffset_ = tileResource->spawnOriginOffset;
+    tile->allowOfflineGrowth_ = tileResource->allowOfflineGrowth;
     uint8_t tileHeight = tileResource->tileHeight;
     if (tileHeight > CHUNK_SIZE) {
         tileHeight = CHUNK_SIZE;
@@ -321,7 +326,7 @@ void glimmer::Tile::OnPlace(const WorldContext *worldContext, PlaceSourceMessage
     gameEntities_[fingerprint] = entity;
 }
 
-void glimmer::Tile::OnBreak(const WorldContext *worldContext, BreakSource breakSource, const TileVector2D &position) {
+void glimmer::Tile::OnBreak(const WorldContext *worldContext, const BreakSource breakSource, const TileVector2D &position) {
     if (breakSource == BreakSource::ChunkLoad || breakSource == BreakSource::ChunkGenerate) {
         return;
     }

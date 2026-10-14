@@ -99,8 +99,10 @@ void glimmer::DebugDrawColliderSystem::RenderEntityColliders(RenderQueue *queue)
         const float zoom = cameraComponent_->GetZoom();
         const float pixelW = collider->GetHalfWidth() * 2.0F * zoom;
         const float pixelH = collider->GetHalfHeight() * 2.0F * zoom;
-        const WorldVector2D minCorner{position.x - collider->GetHalfWidth(),
-                                      position.y - collider->GetHalfHeight()};
+        const WorldVector2D minCorner{
+            position.x - collider->GetHalfWidth(),
+            position.y - collider->GetHalfHeight()
+        };
         const ScreenVector2D screenPos = CoordinateTransformer::WorldToScreen(
             cameraTransform2DComponent_->GetRenderPosition(), minCorner,
             cameraComponent_->GetSize(), zoom);

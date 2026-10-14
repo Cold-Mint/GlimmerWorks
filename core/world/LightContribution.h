@@ -43,6 +43,6 @@ namespace glimmer {
 
         void SetLightColor(const Color &lightColor);
 
-        [[nodiscard]] const Color& GetLightColor() const;
+        [[nodiscard]] const Color &GetLightColor() const;
     };
 }

@@ -133,7 +133,7 @@ std::string glimmer::LightCommand::BuildLightSourceString(const TileLightData *l
     }
     for (const auto &[layerType,lightSource]: *lightSources) {
         lightSourceStream << '\n';
-        const Color& emissionColor = lightSource.GetEmissionColor();
+        const Color &emissionColor = lightSource.GetEmissionColor();
         lightSourceStream << fmt::format(fmt::runtime(langsResources->lightSourceInfo),
                                          std::to_underlying(layerType), lightSource.GetMaxRadius(),
                                          emissionColor.r, emissionColor.g, emissionColor.b, emissionColor.a,

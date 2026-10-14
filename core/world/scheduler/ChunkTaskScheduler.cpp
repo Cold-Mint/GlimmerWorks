@@ -101,7 +101,7 @@ std::unique_ptr<glimmer::ChunkTask> glimmer::ChunkTaskScheduler::PopFrontTask() 
     if (mainTask_.empty()) {
         return nullptr;
     }
-    const ChunkVertexVector2D& position = mainTask_.front();
+    const ChunkVertexVector2D &position = mainTask_.front();
     const uint64_t fingerprint = position.GetFingerprint();
     mainTask_.pop_front();
     const auto iterator = chunkTaskMap_.find(fingerprint);

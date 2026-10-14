@@ -71,7 +71,6 @@ namespace glimmer {
         LightDirection direction_ = LightDirection::Radial;
 
     public:
-
         [[nodiscard]] LightDirection GetDirection() const;
 
         [[nodiscard]] uint8_t GetMaxRadius() const;

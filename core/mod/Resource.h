@@ -735,9 +735,9 @@ namespace glimmer {
         //@genNextLine(skyLightKeyframes|天光关键帧列表（时间点+RGB+强度）。)
         std::vector<LightKeyframe> skyLightKeyframes;
         //@genNextLine(minX|最小x坐标)
-        int minX = -30000;
+        int minX = -600000;
         //@genNextLine(maxX|最大x坐标)
-        int maxX = 30000;
+        int maxX = 600000;
         //@genNextLine(minY|最小y坐标)
         int minY = 0;
         //@genNextLine(maxY|最大y坐标)

@@ -83,7 +83,7 @@ namespace toml {
         }
     };
 
-            template<>
+    template<>
     struct from<glimmer::ColorResource> {
         static glimmer::ColorResource from_toml(const value &v) {
             glimmer::ColorResource resource;
@@ -193,7 +193,7 @@ namespace toml {
         }
     };
 
-        template<>
+    template<>
     struct from<glimmer::IStructurePlacementConditionsResource> {
         static glimmer::IStructurePlacementConditionsResource from_toml(const value &v) {
             glimmer::IStructurePlacementConditionsResource resource;
@@ -327,7 +327,7 @@ namespace toml {
         }
     };
 
-        template<>
+    template<>
     struct from<glimmer::RequiredTag> {
         static glimmer::RequiredTag from_toml(const value &v) {
             glimmer::RequiredTag resource;
@@ -365,7 +365,7 @@ namespace toml {
         }
     };
 
-        template<>
+    template<>
     struct from<glimmer::SpacingStructureConditionsResource> {
         static glimmer::SpacingStructureConditionsResource from_toml(const value &v) {
             glimmer::SpacingStructureConditionsResource resource;
@@ -591,9 +591,9 @@ namespace toml {
             resource.erosionNoise = toml::find<glimmer::NoiseConfig>(v, "erosion_noise");
             resource.humidityNoise = toml::find<glimmer::NoiseConfig>(v, "humidity_noise");
             resource.initialTime = toml::find_or<float>(v, "initial_time", 0.0F);
-            resource.maxX = toml::find_or<int>(v, "max_x", 30000);
+            resource.maxX = toml::find_or<int>(v, "max_x", 600000);
             resource.maxY = toml::find_or<int>(v, "max_y", 320);
-            resource.minX = toml::find_or<int>(v, "min_x", -30000);
+            resource.minX = toml::find_or<int>(v, "min_x", -600000);
             resource.minY = toml::find_or<int>(v, "min_y", 0);
             resource.name = toml::find<glimmer::ResourceRef>(v, "name");
             resource.resourceId = toml::find<std::string>(v, "resource_id");
@@ -845,7 +845,7 @@ namespace toml {
         }
     };
 
-            template<>
+    template<>
     struct from<glimmer::MobResource> {
         static glimmer::MobResource from_toml(const value &v) {
             glimmer::MobResource resource;

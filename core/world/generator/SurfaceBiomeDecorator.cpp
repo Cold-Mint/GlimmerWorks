@@ -37,7 +37,7 @@ void glimmer::SurfaceBiomeDecorator::DecorationImpl(const ChunkVertexVector2D &c
                                                     std::unordered_map<TileLayerType, std::array<ResourceRef,
                                                         CHUNK_AREA> > *tilesRefMap) {
     std::array<ResourceRef, CHUNK_AREA> &targetLayer = tilesRefMap->at(
-        static_cast<TileLayerType>(decoratorResource->layerType));
+        static_cast<TileLayerType>(decoratorResource->layer));
     const bool airValid = decoratorResource->openAirTile.IsValid();
     const bool waterValid = decoratorResource->underwaterTile.IsValid();
     for (int localX = 0; localX < CHUNK_SIZE; localX++) {

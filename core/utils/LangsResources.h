@@ -67,6 +67,7 @@ namespace glimmer {
         std::string flyDisable;
         std::string tileDebugInfo;
         std::string tileResDebugInfo;
+        std::string tileGrowthDebugInfo;
         std::string totalLight;
         std::string skyVisibilityInfo;
         std::string tileLightDataInfo;

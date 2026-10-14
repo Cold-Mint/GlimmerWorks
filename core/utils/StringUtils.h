@@ -34,6 +34,7 @@
 #include "src/core/resource_type.pb.h"
 
 namespace glimmer {
+    struct ItemTagResource;
     class StringUtils {
         static std::unordered_map<std::string, ResourceTypeMessage> stringToResourceTypeMessage_;
 
@@ -67,6 +68,14 @@ namespace glimmer {
          * @return Return the fixed hash value. 返回固定的哈希值。
          */
         static uint64_t StringToUint64Blake3(const std::string &string);
+
+        /**
+         * MakeTag
+         * 字符串转Tag资源
+         * @param name
+         * @return
+         */
+        static ItemTagResource MakeTag(const std::string &name);
 
 
         /**

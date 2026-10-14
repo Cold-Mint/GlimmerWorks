@@ -28,7 +28,9 @@
 
 #include <optional>
 #include <string>
+#include <vector>
 
+#include "core/mod/Resource.h"
 #include "core/world/generator/TileLayerType.h"
 
 namespace glimmer {
@@ -46,6 +48,7 @@ namespace glimmer {
         bool isOverwritable;
         bool canDropLoot;
         TilePhysicsType physicsType;
-        TileLayerType layerType;
+        TileLayerType layer;
+        std::vector<ItemTagResource> tags = {};
     };
 }

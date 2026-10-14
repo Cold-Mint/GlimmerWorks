@@ -345,6 +345,21 @@ static constexpr std::string TILE_ID_ACCESS_DENIED = "access_denied";
 static const std::string TILE_ID_ACCESS_DENIED_WALL = "access_denied_wall";
 static constexpr std::string DROPPED_ITEM_ID_DEFAULT = "default";
 
+// Built-in tile tags (identity tags)
+// 内置瓦片标签（身份标签）
+static constexpr std::string TAG_AIR = "air";
+static constexpr std::string TAG_VOID = "void";
+static constexpr std::string TAG_WATER = "water";
+static constexpr std::string TAG_BEDROCK = "bedrock";
+static constexpr std::string TAG_ERROR = "error";
+static constexpr std::string TAG_ACCESS_DENIED = "access_denied";
+// Built-in tile tags (category tags)
+// 内置瓦片标签（类别标签）
+static constexpr std::string TAG_REPLACEABLE = "replaceable";
+static constexpr std::string TAG_UNBREAKABLE = "unbreakable";
+static constexpr std::string TAG_FLUID = "fluid";
+static constexpr std::string TAG_PLACEHOLDER = "placeholder";
+
 static constexpr std::string STRING_TILE_AIR_NAME = "tile_name_air";
 static const std::string STRING_TILE_AIR_WALL_NAME = "tile_name_air_wall";
 static constexpr std::string STRING_TILE_VOID_NAME = "tile_name_void";

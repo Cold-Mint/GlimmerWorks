@@ -64,7 +64,7 @@ void glimmer::MineralBiomeDecorator::DecorationImpl(const ChunkVertexVector2D &c
         return;
     }
     std::array<ResourceRef, CHUNK_AREA> &targetLayer = tilesRefMap->at(
-        static_cast<TileLayerType>(decoratorResource->layerType));
+        static_cast<TileLayerType>(decoratorResource->layer));
     for (int localX = 0; localX < CHUNK_SIZE; localX++) {
         for (int localY = 0; localY < CHUNK_SIZE; localY++) {
             const size_t idx = CoordinateTransformer::GetArrayIndex(localX, localY, CHUNK_SHIFT);

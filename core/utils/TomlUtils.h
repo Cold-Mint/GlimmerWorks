@@ -54,7 +54,7 @@ namespace toml {
             glimmer::AbilityConfig resource;
             resource.chainMiningRadius = toml::find_or<uint8_t>(v, "chain_mining_radius", 0);
             resource.enablePrecisionMining = toml::find_or<bool>(v, "enable_precision_mining", false);
-            resource.mineAbleLayer = toml::find_or<uint8_t>(v, "mine_able_layer", 0);
+            resource.mineAbleLayerMask = toml::find_or<uint8_t>(v, "mine_able_layer_mask", 0);
             resource.miningEfficiency = toml::find_or<float>(v, "mining_efficiency", 0);
             resource.miningRange = toml::find_or<float>(v, "mining_range", 5);
             return resource;
@@ -177,7 +177,7 @@ namespace toml {
         static glimmer::IBiomeDecoratorResource from_toml(const value &v) {
             glimmer::IBiomeDecoratorResource resource;
             resource.biomeDecoratorType = toml::find_or<uint8_t>(v, "biome_decorator_type", 0);
-            resource.layerType = toml::find_or<uint8_t>(v, "layer_type", 0);
+            resource.layer = toml::find_or<uint8_t>(v, "layer", 0);
             resource.resourceId = toml::find<std::string>(v, "resource_id");
             return resource;
         }
@@ -612,7 +612,7 @@ namespace toml {
         static glimmer::FillBiomeDecoratorResource from_toml(const value &v) {
             glimmer::FillBiomeDecoratorResource resource;
             resource.biomeDecoratorType = toml::find_or<uint8_t>(v, "biome_decorator_type", 0);
-            resource.layerType = toml::find_or<uint8_t>(v, "layer_type", 0);
+            resource.layer = toml::find_or<uint8_t>(v, "layer", 0);
             resource.resourceId = toml::find<std::string>(v, "resource_id");
             resource.tile = toml::find<glimmer::ResourceRef>(v, "tile");
             return resource;
@@ -718,7 +718,7 @@ namespace toml {
             resource.biomeDecoratorType = toml::find_or<uint8_t>(v, "biome_decorator_type", 0);
             resource.frequency = toml::find_or<float>(v, "frequency", 0.01F);
             resource.invertOreSpawnByDepth = toml::find_or<bool>(v, "invert_ore_spawn_by_depth", true);
-            resource.layerType = toml::find_or<uint8_t>(v, "layer_type", 0);
+            resource.layer = toml::find_or<uint8_t>(v, "layer", 0);
             resource.maxSpawnElevation = toml::find_or<float>(v, "max_spawn_elevation", 0.5F);
             resource.minSpawnElevation = toml::find_or<float>(v, "min_spawn_elevation", 0.0F);
             resource.noiseType = toml::find<uint8_t>(v, "noise_type");
@@ -765,7 +765,7 @@ namespace toml {
         static glimmer::SurfaceBiomeDecoratorResource from_toml(const value &v) {
             glimmer::SurfaceBiomeDecoratorResource resource;
             resource.biomeDecoratorType = toml::find_or<uint8_t>(v, "biome_decorator_type", 0);
-            resource.layerType = toml::find_or<uint8_t>(v, "layer_type", 0);
+            resource.layer = toml::find_or<uint8_t>(v, "layer", 0);
             resource.openAirTile = toml::find_or<glimmer::ResourceRef>(v, "open_air_tile", {});
             resource.resourceId = toml::find<std::string>(v, "resource_id");
             resource.underwaterTile = toml::find_or<glimmer::ResourceRef>(v, "underwater_tile", {});
@@ -777,10 +777,11 @@ namespace toml {
     struct from<glimmer::AdjacentTileGrowthConditionResource> {
         static glimmer::AdjacentTileGrowthConditionResource from_toml(const value &v) {
             glimmer::AdjacentTileGrowthConditionResource resource;
-            resource.offset = toml::find_or<glimmer::Vector2DIResource>(v, "offset", {0, -1});
+            resource.layerMask = toml::find_or<uint8_t>(v, "layer_mask", 0);
+            resource.offset = toml::find_or<glimmer::Vector2DIResource>(v, "offset", {.x = 0, .y = -1});
             resource.processorId = toml::find_or<uint8_t>(v, "processor_id", 0);
+            resource.requiredTag = toml::find<std::string>(v, "required_tag");
             resource.resourceId = toml::find<std::string>(v, "resource_id");
-            resource.targetTile = toml::find_or<glimmer::ResourceRef>(v, "target_tile", {});
             return resource;
         }
     };
@@ -789,7 +790,7 @@ namespace toml {
     struct from<glimmer::TileInfo> {
         static glimmer::TileInfo from_toml(const value &v) {
             glimmer::TileInfo resource;
-            resource.layerType = toml::find_or<uint8_t>(v, "layer_type", 0);
+            resource.layer = toml::find_or<uint8_t>(v, "layer", 0);
             resource.position = toml::find<glimmer::Vector2DIResource>(v, "position");
             resource.tile = toml::find<glimmer::ResourceRef>(v, "tile");
             return resource;
@@ -821,7 +822,7 @@ namespace toml {
             resource.growthMinTicks = toml::find_or<uint64_t>(v, "growth_min_ticks", 0);
             resource.growthTarget = toml::find_or<glimmer::ResourceRef>(v, "growth_target", {});
             resource.isOverwritable = toml::find_or<bool>(v, "is_overwritable", false);
-            resource.layerType = toml::find_or<uint8_t>(v, "layer_type", 0);
+            resource.layer = toml::find_or<uint8_t>(v, "layer", 0);
             resource.lightSource = toml::find<glimmer::ResourceRef>(v, "light_source");
             resource.lootScaleBySize = toml::find_or<bool>(v, "loot_scale_by_size", false);
             resource.lootTable = toml::find_or<glimmer::ResourceRef>(v, "loot_table", {});

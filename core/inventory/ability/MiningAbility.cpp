@@ -58,7 +58,7 @@ bool glimmer::MiningAbility::OnUse(const bool mouseLeft, WorldContext *worldCont
                   "abilityConfig == nullptr");
         return false;
     }
-    if (abilityConfig->mineAbleLayer == 0) {
+    if (abilityConfig->mineAbleLayerMask == 0) {
         LogCat::d(LogLabel::DEFAULT, "mining_mineable_layer_zero", "MiningAbility: mineAbleLayer mask is 0, skip");
         return false;
     }
@@ -104,7 +104,7 @@ bool glimmer::MiningAbility::OnUse(const bool mouseLeft, WorldContext *worldCont
             continue;
         }
         const TileLayerType layerType = tileLayerComponent->GetTileLayerType();
-        if (abilityConfig->mineAbleLayer & std::to_underlying(layerType)) {
+        if (abilityConfig->mineAbleLayerMask & std::to_underlying(layerType)) {
             const TileVector2D &tileVector2D = tileLayerComponent->GetFocusPosition();
             if ((CoordinateTransformer::TileToWorld(tileVector2D) + WorldVector2D{HALF_TILE_SIZE, HALF_TILE_SIZE}).
                 Distance(playerWorldPos) / TILE_SIZE > abilityConfig

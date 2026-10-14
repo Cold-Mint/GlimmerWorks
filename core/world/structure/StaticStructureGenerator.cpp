@@ -40,7 +40,7 @@ std::unique_ptr<glimmer::StructureInfo> glimmer::StaticStructureGenerator::Gener
     for (const auto staticStructureResource = dynamic_cast<StaticStructureResource *>(structureResource); auto &tileInfo
          :
          staticStructureResource->tileInfo) {
-        structureInfo->SetTile(static_cast<TileLayerType>(tileInfo.layerType),
+        structureInfo->SetTile(static_cast<TileLayerType>(tileInfo.layer),
                                {tileInfo.position.x, tileInfo.position.y}, tileInfo.tile);
     }
     return structureInfo;

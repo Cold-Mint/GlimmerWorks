@@ -706,7 +706,7 @@ void glimmer::ResourceFileLoader::LoadGrowthConditionsResourceFromFile(
                 toml::get<AdjacentTileGrowthConditionResource>(value));
             adjacentTileGrowthConditionResource->packId = manifest_->id;
             adjacentTileGrowthConditionResource->processorId = std::to_underlying(processorType);
-            adjacentTileGrowthConditionResource->targetTile.SetSelfPackageId(manifest_->id);
+            adjacentTileGrowthConditionResource->MakeCachedTag();
             growthConditionsRegistry->Register(std::move(adjacentTileGrowthConditionResource));
             break;
         }

@@ -26,13 +26,12 @@
  */
 #include "AdjacentTileGrowthConditionProcessor.h"
 
-#include "core/context/AppContext.h"
+#include "core/config/Constants.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/math/TileVector2D.h"
 #include "core/mod/Resource.h"
-#include "core/mod/ResourceLocator.h"
 #include "core/world/ChunkManager.h"
-#include "core/world/Dimension.h"
+#include "core/world/TileResourceData.h"
 #include "core/world/WorldContext.h"
 #include "core/world/generator/Chunk.h"
 
@@ -49,25 +48,10 @@ bool glimmer::AdjacentTileGrowthConditionProcessor::Match(const WorldContext *wo
     if (adjacentTileCondition == nullptr || worldContext == nullptr) {
         return false;
     }
-    if (!adjacentTileCondition->targetTile.IsValid()) {
+    const uint64_t requiredTagId = adjacentTileCondition->cachedTagId;
+    if (requiredTagId == 0) {
         return false;
     }
-    const AppContext *appContext = worldContext->GetAppContext();
-    if (appContext == nullptr) {
-        return false;
-    }
-    const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
-    if (resourceLocator == nullptr) {
-        return false;
-    }
-    const TileResource *targetTileResource = resourceLocator->FindTileRaw(&adjacentTileCondition->targetTile);
-    if (targetTileResource == nullptr) {
-        return false;
-    }
-    const auto targetLayerType = static_cast<TileLayerType>(targetTileResource->layerType);
-    const std::string targetTileId = Resource::GenerateId(targetTileResource->packId,
-                                                          targetTileResource->resourceId);
-
     const TileVector2D adjacentPosition(position.x + adjacentTileCondition->offset.x,
                                         position.y + adjacentTileCondition->offset.y);
     const ChunkManager *chunkManager = worldContext->GetChunkManager();
@@ -81,9 +65,25 @@ bool glimmer::AdjacentTileGrowthConditionProcessor::Match(const WorldContext *wo
     }
     const ChunkRelativeVector2D relative = CoordinateTransformer::TileToChunkRelative(adjacentPosition);
     const size_t index = CoordinateTransformer::GetArrayIndex(relative.x, relative.y, CHUNK_SHIFT);
-    const Tile *tile = chunk->GetTile(targetLayerType, index);
-    if (tile == nullptr) {
-        return false;
+    for (int i = 0; i < TILE_LAYER_TYPE_COUNT; ++i) {
+        const auto layerType = static_cast<TileLayerType>(1 << i);
+        if ((std::byte{adjacentTileCondition->layerMask} & static_cast<std::byte>(std::to_underlying(layerType))) ==
+            std::byte{0}) {
+            continue;
+        }
+        const Tile *tile = chunk->GetTile(layerType, index);
+        if (tile == nullptr) {
+            continue;
+        }
+        const TileResourceData *tileData = tile->GetResourceData();
+        if (tileData == nullptr) {
+            continue;
+        }
+        for (const auto &tag: tileData->GetTags()) {
+            if (tag.cachedTagId == requiredTagId) {
+                return true;
+            }
+        }
     }
-    return tile->GetId() == targetTileId;
+    return false;
 }

@@ -138,3 +138,9 @@ void glimmer::RequiredTag::MakeCachedTag() {
         cachedTagId = StringUtils::StringToUint64(requiredTag);
     }
 }
+
+void glimmer::AdjacentTileGrowthConditionResource::MakeCachedTag() {
+    if (cachedTagId == 0) {
+        cachedTagId = StringUtils::StringToUint64(requiredTag);
+    }
+}

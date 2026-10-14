@@ -192,7 +192,7 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     }
     tile->lootData_.SetCustomLootTable(tileResource->customLootTable);
     tile->lootData_.SetLootTable(tileResource->lootTable);
-    tile->layerType_ = static_cast<TileLayerType>(tileResource->layerType);
+    tile->layerType_ = static_cast<TileLayerType>(tileResource->layer);
     tile->physicsType_ = static_cast<TilePhysicsType>(tileResource->physicsType);
     tile->miningData_.SetAllowChainMining(tileResource->allowChainMining);
     tile->miningData_.SetMinMiningEfficiency(tileResource->minMiningEfficiency);

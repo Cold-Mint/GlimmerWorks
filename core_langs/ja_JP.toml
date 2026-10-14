@@ -97,6 +97,7 @@ entry_cannot_found_in_configuration_file = "設定ファイルにエントリ「
 tile_debug_info = "ブロック座標 ({},{}) チャンク内座標 ({},{}) 湿度 {:.2f} 気温 {:.2f} 浸食 {:.2f} 標高 {:.2f} 異形度 {:.2f}"
 mouse_position = "マウス座標-ワールド座標({:.2f},{:.2f}) SDL3座標({:.2f},{:.2f})"
 tile_res_debug_info = "レイヤー： {} ID： {} 硬度： {} 名前： {}"
+tile_growth_debug_info = "成長：進捗 {}/{} 条件{} 開始{} オフライン{}"
 total_light = "合計光量：(A{},R{},G{},B{})"
 sky_visibility_info = "天空可視性：列X={} SkyTopY={} 可視性={:.2f}"
 tile_light_data_info = "レイヤー{} 側面オクルージョン{:.2f} 背面オクルージョン{:.2f} 光源{} 寄与数{}"

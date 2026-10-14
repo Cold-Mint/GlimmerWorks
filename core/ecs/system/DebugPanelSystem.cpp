@@ -44,6 +44,7 @@
 #include "core/world/generator/Chunk.h"
 #include "core/world/generator/TerrainMath.h"
 #include "core/world/generator/TileLayerType.h"
+#include "src/saves/tile_state.pb.h"
 #include "fmt/xchar.h"
 
 bool glimmer::DebugPanelSystem::CanActive() const {
@@ -204,6 +205,21 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
                     auto tile = tileLayerComponent->GetSelfLayerTile(tileCoord);
                     if (tile == nullptr) {
                         continue;
+                    }
+                    if (tile->IsCropsBlock()) {
+                        const TileStateMessage *tileState = tileLayerComponent->GetSelfLayerTileState(tileCoord);
+                        if (tileState != nullptr) {
+                            debugLines_.push_back(DebugLine{
+                                fmt::format(
+                                    fmt::runtime(langsResources->tileGrowthDebugInfo),
+                                    tileState->tilegrowthaccumulatedtick(),
+                                    tileState->tilegrowthrequiredtick(),
+                                    tileState->tilegrowthconditionsmet() ? 1 : 0,
+                                    tileState->tilegrowthstarttick(),
+                                    tile->AllowOfflineGrowth() ? 1 : 0
+                                )
+                            });
+                        }
                     }
                     const TileMiningData *miningData = tile->GetMiningData();
                     if (miningData == nullptr) {

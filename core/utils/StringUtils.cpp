@@ -35,6 +35,7 @@
 
 #include "blake3.h"
 #include "core/config/Constants.h"
+#include "core/mod/Resource.h"
 #include "fmt/color.h"
 
 std::unordered_map<std::string, ResourceTypeMessage> glimmer::StringUtils::stringToResourceTypeMessage_;
@@ -100,6 +101,12 @@ uint64_t glimmer::StringUtils::StringToUint64Blake3(const std::string &string) {
     uint64_t res = 0;
     std::memcpy(&res, singleHash, sizeof(uint64_t));
     return res;
+}
+
+glimmer::ItemTagResource glimmer::StringUtils::MakeTag(const std::string &name) {
+    ItemTagResource tag;
+    tag.name = name;
+    return tag;
 }
 
 std::array<uint8_t, BLAKE3_OUT_LEN> glimmer::StringUtils::StringToFullBlake3(const std::string &string) {

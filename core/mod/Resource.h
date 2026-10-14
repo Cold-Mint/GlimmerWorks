@@ -305,10 +305,15 @@ namespace glimmer {
 
     //@genNextLine(AdjacentTileGrowthConditionResource|相邻瓦片生长条件资源)
     struct AdjacentTileGrowthConditionResource : IGrowthConditionResource {
-        //@genNextLine(targetTile|目标瓦片资源引用，相邻瓦片需为此瓦片)
-        ResourceRef targetTile = {};
+        //@genNextLine(requiredTag|相邻瓦片需要具备的标签)
+        std::string requiredTag;
+        uint64_t cachedTagId = 0;
         //@genNextLine(offset|相对自身瓦片的偏移坐标，例如 [x=0, y=1] 表示正上方，[x=-1, y=0] 表示左侧)
-        Vector2DIResource offset = {0, -1};
+        Vector2DIResource offset = {.x = 0, .y = -1};
+        //@genNextLine(layerMask|图层位掩码)
+        uint8_t layerMask = 0;
+
+        void MakeCachedTag();
     };
 
     //@genNextLine(HeightGrowthConditionResource|高度生长条件资源)
@@ -335,8 +340,8 @@ namespace glimmer {
         ResourceRef tile;
         //@genNextLine(position|位置)
         Vector2DIResource position;
-        //@genNextLine(layerType|图层类型)
-        uint8_t layerType = 0;
+        //@genNextLine(layer|瓦片图层)
+        uint8_t layer = 0;
     };
 
     //@genNextLine(StructureResource|结构资源)
@@ -393,8 +398,8 @@ namespace glimmer {
         float miningEfficiency = 0;
         //@genNextLine(chainMiningRadius|连锁采集半径)
         uint8_t chainMiningRadius = 0;
-        //@genNextLine(mineAbleLayer|可挖掘的图层)
-        uint8_t mineAbleLayer = 0;
+        //@genNextLine(mineAbleLayerMask|可挖掘的图层)
+        uint8_t mineAbleLayerMask = 0;
         //@genNextLine(precisionMining|是否精准采集)
         bool enablePrecisionMining = false;
 
@@ -403,7 +408,7 @@ namespace glimmer {
             chainMiningRadius = 0;
             enablePrecisionMining = false;
             miningEfficiency = 0;
-            mineAbleLayer = 0;
+            mineAbleLayerMask = 0;
         }
 
         AbilityConfig &operator+=(const AbilityConfig &other) {
@@ -411,8 +416,8 @@ namespace glimmer {
             this->miningRange += other.miningRange;
             this->chainMiningRadius += other.chainMiningRadius;
             this->miningEfficiency += other.miningEfficiency;
-            this->mineAbleLayer = std::to_underlying(
-                std::byte{this->mineAbleLayer} | std::byte{other.mineAbleLayer}
+            this->mineAbleLayerMask = std::to_underlying(
+                std::byte{this->mineAbleLayerMask} | std::byte{other.mineAbleLayerMask}
             );
             return *this;
         }
@@ -558,8 +563,8 @@ namespace glimmer {
         uint8_t recipeGroup = 0;
         //@genNextLine(physicsType|物理类型)
         uint8_t physicsType = 0;
-        //@genNextLine(layerType|层级类型)
-        uint8_t layerType = 0;
+        //@genNextLine(layer|瓦片图层)
+        uint8_t layer = 0;
         //@genNextLine(The anchor point type of the tiles. When placing large tiles, the placement position is relative to the anchor point of the tile. The anchor point is based on the player's right side.|瓦片的锚点类型，当放置大型瓦片时放置位置相对于瓦片的锚点，锚点以玩家右侧为准)
         uint8_t tileAnchorType = 6;
         //@genNextLine(customLootTable|是否使用自定义战利品表)
@@ -596,8 +601,8 @@ namespace glimmer {
 
         //@genNextLine(biomeDecoratorType|装饰器类型)
         uint8_t biomeDecoratorType = 0;
-        //@genNextLine(layerType|层级类型)
-        uint8_t layerType = 0;
+        //@genNextLine(layer|瓦片图层)
+        uint8_t layer = 0;
     };
 
 

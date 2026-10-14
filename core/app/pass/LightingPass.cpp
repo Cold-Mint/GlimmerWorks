@@ -187,9 +187,9 @@ void glimmer::LightingPass::UpdateLightMap(UniformInjectContext *injectContext) 
     const int originY = tileMin.y - 1;
     const auto sizeX = static_cast<uint32_t>(tileMax.x - tileMin.x + 3);
     const auto sizeY = static_cast<uint32_t>(tileMax.y - tileMin.y + 3);
-    WorldContext *worldContext = injectContext->worldContext;
+    const WorldContext *worldContext = injectContext->worldContext;
     const DimensionResource *dimensionResource = nullptr;
-    Dimension *dimension = nullptr;
+    const Dimension *dimension = nullptr;
     if (worldContext == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "world_context_is_null",
                   "worldContext == nullptr");
@@ -258,7 +258,7 @@ void glimmer::LightingPass::SetEnableLighting(const bool enable) {
 
 void glimmer::LightingPass::BlitScene(RenderFrameContext &ctx) {
     //When lighting is disabled, draw the unlit scene texture to the
-    //swapchain using a fullscreen quad, bypassing the lighting composite.
+    //swapChain using a fullscreen quad, bypassing the lighting composite.
     //禁用光照时，用全屏四边形把无光照场景纹理绘制到交换链，绕过光照合成。
     SDL_GPUTexture *sceneTexture = ctx.sceneTexture;
     if (ctx.commandBuffer == nullptr || ctx.swapChainTexture == nullptr || sceneTexture == nullptr) {
@@ -309,7 +309,7 @@ void glimmer::LightingPass::BlitScene(RenderFrameContext &ctx) {
     SDL_EndGPUCopyPass(copyPass);
 
     //Use LOADOP_LOAD so the fullscreen quad is blended over the already
-    //cleared swapchain; transparent scene regions keep the black clear color.
+    //cleared swapChain; transparent scene regions keep the black clear color.
     //使用 LOADOP_LOAD 使全屏四边形叠加在已清屏的交换链上；场景透明区域保留黑色清屏色。
     SDL_GPUColorTargetInfo colorTarget = {};
     colorTarget.texture = ctx.swapChainTexture;

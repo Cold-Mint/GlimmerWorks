@@ -46,7 +46,7 @@ namespace glimmer {
      *
      * Rebuilds the per-tile light map (CPU-side, in Prepare), uploads it and
      * composites the lit result: a fullscreen triangle samples the unlit scene
-     * texture and the light map, applies lighting, and stores to the swapchain.
+     * texture and the light map, applies lighting, and stores to the swapChain.
      * 重建逐瓦片光照贴图（CPU 端，位于 Prepare），上传它并合成受光照结果：
      * 全屏三角形采样无光照场景纹理与光照贴图，应用光照后写入交换链。
      */

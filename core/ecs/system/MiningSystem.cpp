@@ -76,7 +76,7 @@ void glimmer::MiningSystem::RestoreTileState(TileStateMessage *tileState, const 
     backup.WriteOffsetMessage(*tileState->mutable_offset());
 }
 
-bool glimmer::MiningSystem::TryPlaceTile(const ResourceRef &dimensionRef, const TileLayerComponent *tileLayerComponent,
+bool glimmer::MiningSystem::TryPlaceTile(const TileLayerComponent *tileLayerComponent,
                                          TileStateMessage *tileState,
                                          const TileVector2D &currentVector,
                                          const TileVector2D &topLeftVector,
@@ -95,7 +95,7 @@ bool glimmer::MiningSystem::TryPlaceTile(const ResourceRef &dimensionRef, const 
     }
     TileVector2D offset = topLeftVector - currentVector;
     offset.WriteVector2DIMessage(*tileState->mutable_offset());
-    if (tileLayerComponent->CommitTileState(dimensionRef, config.GetBreakSource(),
+    if (tileLayerComponent->CommitTileState(config.GetBreakSource(),
                                             tileLayerComponent->GetTileLayerType(),
                                             currentVector,
                                             false)) {
@@ -215,7 +215,7 @@ static bool CheckMiningEfficiency(const glimmer::Tile *tile, const glimmer::Abil
     return true;
 }
 
-void glimmer::MiningSystem::ProcessSingleTile(const TileBreakParams &params, const ResourceRef &dimensionRef,
+void glimmer::MiningSystem::ProcessSingleTile(const TileBreakParams &params,
                                               const TileVector2D &currentVector,
                                               Item *item, const Item *emptyHandAutoUseItem, bool isCenter,
                                               uint8_t &sum) {
@@ -231,12 +231,12 @@ void glimmer::MiningSystem::ProcessSingleTile(const TileBreakParams &params, con
     if (tileLayerComponent == nullptr) {
         return;
     }
-    const auto currentTile = tileLayerComponent->GetSelfLayerTileShared(dimensionRef, currentVector);
+    const auto currentTile = tileLayerComponent->GetSelfLayerTileShared(currentVector);
     if (!CanProcessTile(currentTile.get(), params.IsPlaceMode())) {
         return;
     }
     const ResourceRef &newTileRef = params.GetNewTileRef();
-    TileStateMessage *tileStateMessage = tileLayerComponent->GetSelfLayerTileStateMutable(dimensionRef, currentVector);
+    TileStateMessage *tileStateMessage = tileLayerComponent->GetSelfLayerTileStateMutable(currentVector);
     TileStateBackup backup;
     TilePlacementConfig config;
     config.SetTileHeight(params.GetTileHeight());
@@ -245,7 +245,6 @@ void glimmer::MiningSystem::ProcessSingleTile(const TileBreakParams &params, con
     config.SetPlaceMode(params.IsPlaceMode());
     config.SetBreakSource(params.GetBreakSource());
     if (const TileResource *tileResource = appContext->GetResourceLocator()->FindTileRaw(&newTileRef); !TryPlaceTile(
-        dimensionRef,
         tileLayerComponent, tileStateMessage, currentVector, params.GetTopLeftPosition(),
         config, backup, tileResource, worldContext->GetGlobalTick())) {
         return;
@@ -290,18 +289,6 @@ uint16_t glimmer::MiningSystem::BreakTile(const TileBreakParams &params) {
                   "BreakTile: worldContext or tileLayerComponent is nullptr");
         return 0;
     }
-    Dimension *dimension = worldContext->GetDimension();
-    if (dimension == nullptr) {
-        return 0;
-    }
-    DimensionResource *dimensionResource = dimension->GetDimensionResource();
-    if (dimensionResource == nullptr) {
-        return 0;
-    }
-    auto dimensionRef = ResourceRef();
-    dimensionRef.SetSelfPackageId(dimensionResource->packId);
-    dimensionRef.SetResourceType(RESOURCE_DIMENSION);
-    dimensionRef.SetResourceKey(dimensionResource->resourceId);
     const AppContext *appContext = worldContext->GetAppContext();
     if (appContext == nullptr) {
         return 0;
@@ -334,7 +321,7 @@ uint16_t glimmer::MiningSystem::BreakTile(const TileBreakParams &params) {
     const auto centerY = tileHeight / 2;
     for (int x = 0; x < tileWidth; x++) {
         for (int y = 0; y < tileHeight; y++) {
-            ProcessSingleTile(params, dimensionRef, TileVector2D(topLeftPosition.x + x, topLeftPosition.y - y), item,
+            ProcessSingleTile(params, TileVector2D(topLeftPosition.x + x, topLeftPosition.y - y), item,
                               playerComponent->GetEmptyHandAutoUseItem(),
                               x == centerX && y == centerY, sum);
         }

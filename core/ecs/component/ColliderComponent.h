@@ -32,9 +32,9 @@
 namespace glimmer {
     /**
      * Axis-aligned bounding box collider used by the custom tile-grid physics.
-     * This replaces the Box2D rigid body. The collider stores a half-extent box (in pixels), a velocity
+     * The collider stores a half-extent box (in pixels), a velocity
      * (pixels/second) and a grounded flag that is refreshed by the physics system every tick.
-     * 自定义瓦片网格物理使用的轴对齐包围盒碰撞体。它取代了 Box2D 刚体。
+     * 自定义瓦片网格物理使用的轴对齐包围盒碰撞体。
      * 碰撞体保存一个半宽/半高包围盒（像素）、速度（像素/秒）以及由物理系统每 tick 刷新的落地标记。
      */
     class ColliderComponent : public GameComponent {

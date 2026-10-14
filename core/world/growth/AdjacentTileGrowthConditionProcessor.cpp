@@ -74,16 +74,8 @@ bool glimmer::AdjacentTileGrowthConditionProcessor::Match(const WorldContext *wo
     if (chunkManager == nullptr) {
         return false;
     }
-    const Dimension *dimension = worldContext->GetDimension();
-    if (dimension == nullptr) {
-        return false;
-    }
-    const ResourceRef &dimensionResourceRef = dimension->GetDimensionResourceRef();
-    if (!dimensionResourceRef.IsValid()) {
-        return false;
-    }
-    const Chunk *chunk = chunkManager->GetChunk(dimensionResourceRef,
-                                                CoordinateTransformer::TileToChunkVertex(adjacentPosition));
+    const Chunk *chunk = chunkManager->GetChunk(
+        CoordinateTransformer::TileToChunkVertex(adjacentPosition));
     if (chunk == nullptr) {
         return false;
     }

@@ -89,14 +89,6 @@ bool glimmer::CropSystem::OnGrowMature(WorldContext *worldContext, Chunk *chunk,
     if (resourceLocator == nullptr) {
         return false;
     }
-    Dimension *dimension = worldContext->GetDimension();
-    if (dimension == nullptr) {
-        return false;
-    }
-    const ResourceRef &dimensionResourceRef = dimension->GetDimensionResourceRef();
-    if (!dimensionResourceRef.IsValid()) {
-        return false;
-    }
     const ResourceTypeMessage resourceType = growthTargetRef->GetResourceType();
     const size_t index = CoordinateTransformer::GetArrayIndex(position.x, position.y, CHUNK_SHIFT);
     const TileVector2D absolutePosition = {
@@ -178,9 +170,8 @@ bool glimmer::CropSystem::OnGrowMature(WorldContext *worldContext, Chunk *chunk,
                         TileVector2D worldVector2D = {
                             absolutePosition.x + coord.x + x, absolutePosition.y + coord.y + y
                         };
-                        Chunk *targetChunk = chunkManager->GetChunk(dimensionResourceRef,
-                                                                    CoordinateTransformer::TileToChunkVertex(
-                                                                        worldVector2D));
+                        Chunk *targetChunk = chunkManager->GetChunk(
+                            CoordinateTransformer::TileToChunkVertex(worldVector2D));
                         if (targetChunk == nullptr) {
                             continue;
                         }
@@ -222,14 +213,6 @@ void glimmer::CropSystem::OnTick(const uint64_t tick) {
     if (windowContext == nullptr) {
         return;
     }
-    Dimension *dimension = worldContext->GetDimension();
-    if (dimension == nullptr) {
-        return;
-    }
-    const ResourceRef &dimensionResourceRef = dimension->GetDimensionResourceRef();
-    if (!dimensionResourceRef.IsValid()) {
-        return;
-    }
     ModContext *modContext = appContext->GetModContext();
     if (modContext == nullptr) {
         return;
@@ -247,8 +230,7 @@ void glimmer::CropSystem::OnTick(const uint64_t tick) {
         }
         const TileVector2D &position = cropComponent->GetPosition();
         const TileLayerType layerType = cropComponent->GetLayerType();
-        Chunk *chunk = chunkManager->GetChunk(dimensionResourceRef,
-                                              CoordinateTransformer::TileToChunkVertex(position));
+        Chunk *chunk = chunkManager->GetChunk(CoordinateTransformer::TileToChunkVertex(position));
         if (chunk == nullptr) {
             LogCat::d(LogLabel::DEFAULT, "crop_system_chunk_not_found",
                       "[CropSystem] chunk not found: position=({}, {}), layerType={}, skip", position.x, position.y,
@@ -350,13 +332,12 @@ void glimmer::CropSystem::OnTick(const uint64_t tick) {
 
         mainThreadDispatcher->PostToNextMainFrame(
             [worldContext, chunkPosition, relative, layerType, index, growthTarget, isTileTarget,
-                destroySelfOnGrowth, tick, position, dimensionResourceRef] {
+                destroySelfOnGrowth, tick, position] {
                 const ChunkManager *chunkManager = worldContext->GetChunkManager();
                 if (chunkManager == nullptr) {
                     return;
                 }
-                Chunk *chunk = chunkManager->GetChunk(dimensionResourceRef,
-                                                      chunkPosition);
+                Chunk *chunk = chunkManager->GetChunk(chunkPosition);
                 if (chunk == nullptr) {
                     return;
                 }

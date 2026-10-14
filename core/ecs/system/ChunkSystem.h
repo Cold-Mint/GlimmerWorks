@@ -29,6 +29,7 @@
 #include <mutex>
 
 #include "core/ecs/GameSystem.h"
+#include "core/event/Subscription.h"
 
 namespace glimmer {
     class ChunkVertexVector2D;
@@ -37,6 +38,7 @@ namespace glimmer {
     class Transform2DComponent;
     class ChunkTaskScheduler;
     class Config;
+    class DimensionSwitchEvent;
 
     class ChunkSystem final : public GameSystem {
         std::mutex worldConfigMutex_;
@@ -49,6 +51,7 @@ namespace glimmer {
         //Has the block generation task been dispatched to the worker thread?
         //区块生成任务是否投递到了工作线程。
         std::atomic_bool chunkTaskInProgress_ = false;
+        Subscription dimensionSwitchSubscription_;
         /**
          * Generate load tasks for chunks within [startChunk, endChunk].
          * 为 [startChunk, endChunk] 范围内的区块生成加载任务。
@@ -73,6 +76,13 @@ namespace glimmer {
          * 提交任务到工作线程
          */
         void PostTask();
+
+        /**
+         * OnDimensionSwitch
+         * 维度切换时：为当前已加载的全部区块生成卸载任务（保存到旧维度文件夹），
+         * 通过统一的调度管线投递到工作线程执行。
+         */
+        void OnDimensionSwitch(const DimensionSwitchEvent &event);
 
     public:
         explicit ChunkSystem(WorldContext *worldContext);

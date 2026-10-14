@@ -36,7 +36,6 @@
 #include "SDL3/SDL_rect.h"
 
 namespace glimmer {
-    class ResourceRef;
     class Chunk;
     class Tile;
     /**
@@ -54,21 +53,20 @@ namespace glimmer {
         TileLayerType tileLayerType_;
 
         [[nodiscard]] std::shared_ptr<Tile>
-        GetTileShared(const ResourceRef &dimensionRef, TileLayerType layerType, const TileVector2D &tilePos) const;
+        GetTileShared(TileLayerType layerType, const TileVector2D &tilePos) const;
 
         [[nodiscard]] static std::vector<TileSnapshot *> GetTopVisibleTileSnapshots(
             const Chunk *chunk, std::byte layerFilter,
             const TileVector2D &tilePos);
 
-        [[nodiscard]] TileStateMessage *GetTileStatePtr(const ResourceRef &dimensionRef,
-                                                        TileLayerType layerType,
+        [[nodiscard]] TileStateMessage *GetTileStatePtr(TileLayerType layerType,
                                                         const TileVector2D &tilePos) const;
 
     public:
         [[nodiscard]] static uint64_t GenerateTileFingerprint(const TileVector2D &tileTopLeftPosition,
                                                               TileLayerType tileLayerType);
 
-        [[nodiscard]] const Tile *GetTile(const ResourceRef &dimensionRef, TileLayerType layerType,
+        [[nodiscard]] const Tile *GetTile(TileLayerType layerType,
                                           const TileVector2D &tilePos) const;
 
         /**
@@ -79,26 +77,21 @@ namespace glimmer {
          * @return
          */
         [[nodiscard]] std::vector<std::pair<TileVector2D, std::vector<TileSnapshot *> > > *
-        GetTopVisibleTileSnapshotsInViewport(const ResourceRef &dimensionRef,
-                                             std::byte layerFilter,
+        GetTopVisibleTileSnapshotsInViewport(std::byte layerFilter,
                                              const SDL_FRect &worldViewport);
 
 
-        [[nodiscard]] const Tile *GetSelfLayerTile(const ResourceRef &dimensionRef, const TileVector2D &tilePos) const;
+        [[nodiscard]] const Tile *GetSelfLayerTile(const TileVector2D &tilePos) const;
 
-        [[nodiscard]] std::shared_ptr<Tile> GetSelfLayerTileShared(const ResourceRef &dimensionRef,
-                                                                   const TileVector2D &tilePos) const;
+        [[nodiscard]] std::shared_ptr<Tile> GetSelfLayerTileShared(const TileVector2D &tilePos) const;
 
-        [[nodiscard]] bool CommitTileState(const ResourceRef &dimensionRef,
-                                           BreakSource breakSource, TileLayerType layerType,
+        [[nodiscard]] bool CommitTileState(BreakSource breakSource, TileLayerType layerType,
                                            const TileVector2D &tilePos, bool fallback) const;
 
 
-        [[nodiscard]] const TileStateMessage *GetSelfLayerTileState(const ResourceRef &dimensionRef,
-                                                                    const TileVector2D &tilePos) const;
+        [[nodiscard]] const TileStateMessage *GetSelfLayerTileState(const TileVector2D &tilePos) const;
 
-        [[nodiscard]] TileStateMessage *GetSelfLayerTileStateMutable(const ResourceRef &dimensionRef,
-                                                                     const TileVector2D &tilePos) const;
+        [[nodiscard]] TileStateMessage *GetSelfLayerTileStateMutable(const TileVector2D &tilePos) const;
 
         [[nodiscard]] TileLayerType GetTileLayerType() const;
 

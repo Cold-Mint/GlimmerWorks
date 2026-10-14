@@ -37,6 +37,8 @@
 #include "src/saves/dimension_manifest.pb.h"
 
 namespace glimmer {
+    class ResourceRef;
+
     class Saves : public IUniqueAble {
         std::filesystem::path path_;
         std::function<void(const MapManifestMessage &)> onMapManifestChanged_;

@@ -33,7 +33,7 @@ namespace glimmer {
      * ClearPass
      * 清屏 pass
      *
-     * Clears the swapchain to solid black once per frame, before the lighting
+     * Clears the swapChain to solid black once per frame, before the lighting
      * and UI passes, so stale content from the previous frame never persists.
      * 每帧在光照与 UI pass 之前把交换链清为纯黑，避免上一帧内容残留。
      */

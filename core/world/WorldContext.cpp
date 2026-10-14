@@ -32,7 +32,10 @@
 #include "SystemScheduler.h"
 
 #include "core/config/Constants.h"
+#include "core/event/DimensionSwitchEvent.h"
+#include "core/event/EventBus.h"
 #include "core/log/LogCat.h"
+#include "core/mod/ResourceLocator.h"
 #include "core/context/AppContext.h"
 
 
@@ -147,6 +150,43 @@ glimmer::TileInstancePool *glimmer::WorldContext::GetTileInstancePool() const {
 
 glimmer::Dimension *glimmer::WorldContext::GetDimension() const {
     return dimension_.get();
+}
+
+bool glimmer::WorldContext::SwitchDimension(const ResourceRef &newDimensionRef) {
+    if (dimension_ == nullptr || playerManifest_ == nullptr || appContext_ == nullptr) {
+        return false;
+    }
+    if (newDimensionRef.GetResourceType() != RESOURCE_DIMENSION) {
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "invalid_dimension_resource_type",
+                  "Expected RESOURCE_DIMENSION, but got resource type = {}",
+                  std::to_underlying(newDimensionRef.GetResourceType()));
+        return false;
+    }
+    const ResourceRef &oldDimensionRef = dimension_->GetDimensionResourceRef();
+    if (oldDimensionRef == newDimensionRef) {
+        return true;
+    }
+    const ResourceLocator *resourceLocator = appContext_->GetResourceLocator();
+    if (resourceLocator == nullptr) {
+        return false;
+    }
+    DimensionResource *dimensionResource = resourceLocator->FindDimension(&newDimensionRef);
+    if (dimensionResource == nullptr) {
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "world_builder_dimension_resource_null",
+                  "Dimension resource is not found, cannot switch dimension");
+        return false;
+    }
+    EventBus *eventBus = appContext_->GetEventBus();
+    if (eventBus != nullptr) {
+        DimensionSwitchEvent event;
+        event.SetOldDimensionRef(oldDimensionRef);
+        event.SetNewDimensionRef(newDimensionRef);
+        eventBus->Publish(event);
+    }
+    playerManifest_->SwitchDimension(newDimensionRef);
+    dimension_->SetDimensionResource(newDimensionRef, dimensionResource);
+    LogCat::i(LogLabel::DEFAULT, "world_context_dimension_switched", "WorldContext switched dimension");
+    return true;
 }
 
 glimmer::WorldContext::~WorldContext() {

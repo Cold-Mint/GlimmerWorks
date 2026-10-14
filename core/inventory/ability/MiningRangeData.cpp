@@ -31,22 +31,19 @@
 #include "src/saves/tile_state.pb.h"
 
 
-void glimmer::MiningRangeData::TryPushPoint(const ResourceRef &dimensionResourceRef,
-                                            const TileLayerComponent *tileLayerComponent,
+void glimmer::MiningRangeData::TryPushPoint(const TileLayerComponent *tileLayerComponent,
                                             const TileVector2D &position) {
     if (tileLayerComponent == nullptr) {
         return;
     }
-    const TileStateMessage *currentTileStateMessage = tileLayerComponent->GetSelfLayerTileState(
-        dimensionResourceRef, position);
+    const TileStateMessage *currentTileStateMessage = tileLayerComponent->GetSelfLayerTileState(position);
     if (currentTileStateMessage == nullptr) {
         return;
     }
     auto offset = TileVector2D(0, 0);
     offset.ReadVector2DIMessage(currentTileStateMessage->offset());
     const TileVector2D tileTopLeftPosition = position + offset;
-    const TileStateMessage *topLeftTileStateMessage = tileLayerComponent->GetSelfLayerTileState(
-        dimensionResourceRef, tileTopLeftPosition);
+    const TileStateMessage *topLeftTileStateMessage = tileLayerComponent->GetSelfLayerTileState(tileTopLeftPosition);
     if (topLeftTileStateMessage == nullptr) {
         return;
     }
@@ -62,10 +59,9 @@ void glimmer::MiningRangeData::TryPushPoint(const ResourceRef &dimensionResource
     pointsFingerprint_.insert(fingerprint);
 }
 
-bool glimmer::MiningRangeData::IsValidForChainMining(const ResourceRef &dimensionResourceRef,
-                                                     const TileLayerComponent *tileLayerComponent,
+bool glimmer::MiningRangeData::IsValidForChainMining(const TileLayerComponent *tileLayerComponent,
                                                      const TileVector2D &position) {
-    const Tile *tile = tileLayerComponent->GetSelfLayerTile(dimensionResourceRef, position);
+    const Tile *tile = tileLayerComponent->GetSelfLayerTile(position);
     if (tile == nullptr) {
         return false;
     }
@@ -76,8 +72,7 @@ bool glimmer::MiningRangeData::IsValidForChainMining(const ResourceRef &dimensio
     if (!tileMiningData->IsBreakable() || !tileMiningData->IsAllowChainMining()) {
         return false;
     }
-    const TileStateMessage *tileStateMessage = tileLayerComponent->
-            GetSelfLayerTileState(dimensionResourceRef, position);
+    const TileStateMessage *tileStateMessage = tileLayerComponent->GetSelfLayerTileState(position);
     if (tileStateMessage != nullptr && tileStateMessage->placesource() == PLACE_SOURCE_PLAYER) {
         return false;
     }
@@ -85,9 +80,9 @@ bool glimmer::MiningRangeData::IsValidForChainMining(const ResourceRef &dimensio
 }
 
 const glimmer::TileMiningData *glimmer::MiningRangeData::GetValidStartMiningData(
-    const ResourceRef &dimensionResourceRef, const TileLayerComponent *tileLayerComponent,
+    const TileLayerComponent *tileLayerComponent,
     const TileVector2D &startVector) {
-    const Tile *startTile = tileLayerComponent->GetSelfLayerTile(dimensionResourceRef, startVector);
+    const Tile *startTile = tileLayerComponent->GetSelfLayerTile(startVector);
     if (startTile == nullptr) {
         return nullptr;
     }
@@ -98,8 +93,7 @@ const glimmer::TileMiningData *glimmer::MiningRangeData::GetValidStartMiningData
     if (!tileMiningData->IsBreakable()) {
         return nullptr;
     }
-    const TileStateMessage *tileStateMessage = tileLayerComponent->GetSelfLayerTileState(
-        dimensionResourceRef, startVector);
+    const TileStateMessage *tileStateMessage = tileLayerComponent->GetSelfLayerTileState(startVector);
     if (tileStateMessage != nullptr && tileStateMessage->placesource() == PLACE_SOURCE_PLAYER) {
         return nullptr;
     }
@@ -133,10 +127,9 @@ void glimmer::MiningRangeData::Reset() {
     maxHardness_ = 0.0F;
 }
 
-void glimmer::MiningRangeData::CalculateMining(const ResourceRef &dimensionResourceRef,
-                                               const TileLayerComponent *tileLayerComponent,
+void glimmer::MiningRangeData::CalculateMining(const TileLayerComponent *tileLayerComponent,
                                                const TileVector2D &startVector) {
-    const Tile *startTile = tileLayerComponent->GetSelfLayerTile(dimensionResourceRef, startVector);
+    const Tile *startTile = tileLayerComponent->GetSelfLayerTile(startVector);
     if (startTile == nullptr) {
         return;
     }
@@ -147,30 +140,28 @@ void glimmer::MiningRangeData::CalculateMining(const ResourceRef &dimensionResou
     if (!tileMiningData->IsBreakable()) {
         return;
     }
-    const TileStateMessage *tileStateMessage = tileLayerComponent->GetSelfLayerTileState(
-        dimensionResourceRef, startVector);
+    const TileStateMessage *tileStateMessage = tileLayerComponent->GetSelfLayerTileState(startVector);
     if (tileStateMessage == nullptr) {
         return;
     }
 
-    TryPushPoint(dimensionResourceRef, tileLayerComponent, startVector);
+    TryPushPoint(tileLayerComponent, startVector);
     maxHardness_ = tileMiningData->GetHardness();
 }
 
-void glimmer::MiningRangeData::CalculateChainMining(const ResourceRef &dimensionResourceRef,
-                                                    const TileLayerComponent *tileLayerComponent,
+void glimmer::MiningRangeData::CalculateChainMining(const TileLayerComponent *tileLayerComponent,
                                                     const TileVector2D &startVector, const uint8_t radius) {
     if (radius <= 0) {
         return;
     }
-    const TileMiningData *tileMiningData = GetValidStartMiningData(dimensionResourceRef, tileLayerComponent,
+    const TileMiningData *tileMiningData = GetValidStartMiningData(tileLayerComponent,
                                                                    startVector);
     if (tileMiningData == nullptr) {
         return;
     }
 
     maxHardness_ = tileMiningData->GetHardness();
-    TryPushPoint(dimensionResourceRef, tileLayerComponent, startVector);
+    TryPushPoint(tileLayerComponent, startVector);
 
     const std::vector<TileVector2D> directions = {
         {1, 0},
@@ -191,15 +182,14 @@ void glimmer::MiningRangeData::CalculateChainMining(const ResourceRef &dimension
 
         for (const auto &dir: directions) {
             TileVector2D nextPos = {currentPos.x + dir.x, currentPos.y + dir.y};
-            ProcessChainMiningNeighbor(dimensionResourceRef, tileLayerComponent, nextPos, startVector, radius, visited,
+            ProcessChainMiningNeighbor(tileLayerComponent, nextPos, startVector, radius, visited,
                                        bfsQueue);
         }
     }
 }
 
 
-void glimmer::MiningRangeData::ProcessChainMiningNeighbor(const ResourceRef &dimensionResourceRef,
-                                                          const TileLayerComponent *tileLayerComponent,
+void glimmer::MiningRangeData::ProcessChainMiningNeighbor(const TileLayerComponent *tileLayerComponent,
                                                           const TileVector2D &nextPos, const TileVector2D &startVector,
                                                           uint8_t radius,
                                                           std::unordered_set<Vector2DIFingerprint> &visited,
@@ -214,15 +204,15 @@ void glimmer::MiningRangeData::ProcessChainMiningNeighbor(const ResourceRef &dim
         return;
     }
 
-    if (!IsValidForChainMining(dimensionResourceRef, tileLayerComponent, nextPos)) {
+    if (!IsValidForChainMining(tileLayerComponent, nextPos)) {
         return;
     }
 
     visited.insert(fingerprint);
     bfsQueue.push(nextPos);
-    TryPushPoint(dimensionResourceRef, tileLayerComponent, nextPos);
+    TryPushPoint(tileLayerComponent, nextPos);
 
-    const Tile *nextTile = tileLayerComponent->GetSelfLayerTile(dimensionResourceRef, nextPos);
+    const Tile *nextTile = tileLayerComponent->GetSelfLayerTile(nextPos);
     if (nextTile == nullptr) {
         return;
     }

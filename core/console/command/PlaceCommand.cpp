@@ -156,8 +156,8 @@ bool glimmer::PlaceCommand::ExecuteStructure(const CommandArgs *commandArgs, con
             const int relativeY = worldY & CHUNK_MASK;
             if (TileVector2D chunkCoord{chunkX, chunkY}; chunkCoord != currentChunkCoord) {
                 currentChunkCoord = chunkCoord;
-                currentChunk = chunkManager->GetChunk(dimensionRef.value(),
-                                                      CoordinateTransformer::TileToChunkVertex(chunkCoord)
+                currentChunk = chunkManager->GetChunk(
+                    CoordinateTransformer::TileToChunkVertex(chunkCoord)
                 );
             }
             if (currentChunk == nullptr) {

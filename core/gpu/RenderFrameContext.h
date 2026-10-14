@@ -37,7 +37,7 @@ namespace glimmer {
      * 帧渲染上下文
      *
      * Per-frame shared state passed to every pass. The renderer fills it once
-     * per frame (command buffer, swapchain, sizes, inject context, queue),
+     * per frame (command buffer, swapChain, sizes, inject context, queue),
      * then each pass reads the fields it needs. The offscreen scene texture is
      * produced by the scene pass and consumed by the lighting pass, so it is
      * exposed here as shared state.

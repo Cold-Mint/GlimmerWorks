@@ -138,15 +138,7 @@ void glimmer::DebugChunkSystem::RenderChunkView(RenderQueue *queue, AppContext *
     if (windowContext == nullptr) {
         return;
     }
-    Dimension *dimension = worldContext->GetDimension();
-    if (dimension == nullptr) {
-        return;
-    }
-    const ResourceRef &dimensionResourceRef = dimension->GetDimensionResourceRef();
-    if (!dimensionResourceRef.IsValid()) {
-        return;
-    }
-    const std::vector<ChunkVertexVector2D> loadedChunks = chunkManager->GetLoadedChunks(dimensionResourceRef);
+    const std::vector<ChunkVertexVector2D> loadedChunks = chunkManager->GetLoadedChunks();
 
     const int windowHeight = windowContext->GetWindowHeight();
     const auto getChunkIndex = [](const int tileCoord) {

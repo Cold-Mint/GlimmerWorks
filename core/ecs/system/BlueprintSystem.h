@@ -54,7 +54,6 @@ namespace glimmer {
 
         /**
          * 检查矩形区域放置的可行性
-         * @param dimensionRef
          * @param tile
          * @param leftBottom
          * @param playerPosition
@@ -63,7 +62,7 @@ namespace glimmer {
          * @param dimensionResource
          * @return
          */
-        std::vector<bool> CheckRectPlacementValidity(const ResourceRef &dimensionRef, const Tile *tile,
+        std::vector<bool> CheckRectPlacementValidity(const Tile *tile,
                                                      const TileVector2D &leftBottom,
                                                      const WorldVector2D &playerPosition, uint8_t tileWidth,
                                                      uint8_t tileHeight,
@@ -77,7 +76,7 @@ namespace glimmer {
          */
         bool IsPointBlocked(const TileVector2D &point) const;
 
-        bool CheckSinglePointValidity(const ResourceRef &dimensionRef, const Tile *tile, const TileVector2D &point,
+        bool CheckSinglePointValidity(const Tile *tile, const TileVector2D &point,
                                       const WorldVector2D &playerPosition,
                                       const DimensionResource *dimensionResource) const;
 

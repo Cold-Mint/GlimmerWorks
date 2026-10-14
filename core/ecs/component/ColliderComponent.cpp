@@ -68,9 +68,7 @@ bool glimmer::ColliderComponent::IsEnabled() const {
 }
 
 GameComponentTypeMessage glimmer::ColliderComponent::GetComponentTypeStatic() {
-    //Reuses the former rigid-body component type so that no new protobuf enum value is required.
-    //复用原刚体组件类型，避免新增 protobuf 枚举值。
-    return COMPONENT_RIGID_BODY_2D;
+    return COMPONENT_COLLIDER_2D;
 }
 
 GameComponentTypeMessage glimmer::ColliderComponent::GetComponentType() {

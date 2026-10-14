@@ -123,7 +123,7 @@ bool glimmer::TileSnapshotCommand::ExecuteInfo(const CommandSender *commandSende
         commandArgs->AsCoordinate(
             4, commandSenderPosition.y)));
     const auto chunkVertex = CoordinateTransformer::TileToChunkVertex(tileVector2D);
-    Chunk *chunk = worldContext->GetChunkManager()->GetChunk(dimensionRefOptional.value(), chunkVertex);
+    Chunk *chunk = worldContext->GetChunkManager()->GetChunk(chunkVertex);
     if (chunk == nullptr) {
         onMessageRef(fmt::format(fmt::runtime(langsResources->chunkHasNotBeenLoadedYet), tileVector2D.x,
                                  tileVector2D.y));

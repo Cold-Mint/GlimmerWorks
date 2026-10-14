@@ -31,7 +31,6 @@
 
 #include "MiningRangeDataPoint.h"
 #include "core/ecs/component/TileLayerComponent.h"
-#include "core/mod/ResourceRef.h"
 #include "core/world/TileMiningData.h"
 
 
@@ -41,26 +40,23 @@
  */
 namespace glimmer {
     class MiningRangeData {
-        ResourceRef dimensionResourceRef_;
         std::unordered_set<Vector2DIFingerprint> pointsFingerprint_;
         //The array of coordinates being excavated.
         //正在被挖掘的坐标数组。
         std::vector<MiningRangeDataPoint> points_;
         float maxHardness_ = 0;
 
-        void TryPushPoint(const ResourceRef &dimensionResourceRef, const TileLayerComponent *tileLayerComponent,
+        void TryPushPoint(const TileLayerComponent *tileLayerComponent,
                           const TileVector2D &position);
 
-        [[nodiscard]] static bool IsValidForChainMining(const ResourceRef &dimensionResourceRef,
-                                                        const TileLayerComponent *tileLayerComponent,
+        [[nodiscard]] static bool IsValidForChainMining(const TileLayerComponent *tileLayerComponent,
                                                         const TileVector2D &position);
 
         [[nodiscard]] static const TileMiningData *GetValidStartMiningData(
-            const ResourceRef &dimensionResourceRef, const TileLayerComponent *tileLayerComponent,
+            const TileLayerComponent *tileLayerComponent,
             const TileVector2D &startVector);
 
-        void ProcessChainMiningNeighbor(const ResourceRef &dimensionResourceRef,
-                                        const TileLayerComponent *tileLayerComponent,
+        void ProcessChainMiningNeighbor(const TileLayerComponent *tileLayerComponent,
                                         const TileVector2D &nextPos,
                                         const TileVector2D &startVector,
                                         uint8_t radius,
@@ -84,10 +80,10 @@ namespace glimmer {
         void Reset();
 
 
-        void CalculateMining(const ResourceRef &dimensionResourceRef, const TileLayerComponent *tileLayerComponent,
+        void CalculateMining(const TileLayerComponent *tileLayerComponent,
                              const TileVector2D &startVector);
 
-        void CalculateChainMining(const ResourceRef &dimensionResourceRef, const TileLayerComponent *tileLayerComponent,
+        void CalculateChainMining(const TileLayerComponent *tileLayerComponent,
                                   const TileVector2D &startVector,
                                   uint8_t radius);
     };

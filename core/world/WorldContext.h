@@ -161,5 +161,16 @@ namespace glimmer {
         [[nodiscard]] TileInstancePool *GetTileInstancePool() const;
 
         [[nodiscard]] Dimension *GetDimension() const;
+
+        /**
+         * SwitchDimension
+         * 切换到指定维度。玩家在某一时刻只能处于单一维度，因此本方法会：
+         * 1. 通过 EventBus 发布 DimensionSwitchEvent（此时旧维度仍为当前维度）；
+         * 2. 更新玩家清单与当前维度资源。
+         * 订阅者（如 ChunkManager）会在事件中把当前区块保存到旧维度文件夹。
+         * @param newDimensionRef 目标维度资源引用
+         * @return 是否切换成功
+         */
+        [[nodiscard]] bool SwitchDimension(const ResourceRef &newDimensionRef);
     };
 }

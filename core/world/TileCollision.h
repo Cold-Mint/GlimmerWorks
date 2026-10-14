@@ -30,6 +30,7 @@
 #include "core/math/WorldVector2D.h"
 
 namespace glimmer {
+    class ChunkManager;
     class WorldContext;
 
     /**
@@ -44,7 +45,7 @@ namespace glimmer {
          * Whether the tile at the given tile coordinate is a solid (static) tile.
          * 给定瓦片坐标处的瓦片是否为实心（静态）瓦片。
          */
-        [[nodiscard]] static bool IsSolidTile(const WorldContext *worldContext, const TileVector2D &tile);
+        [[nodiscard]] static bool IsSolidTile(const ChunkManager *chunkManager, const TileVector2D &tile);
 
         /**
          * Whether the segment a->b passes through at least one solid tile (digital differential

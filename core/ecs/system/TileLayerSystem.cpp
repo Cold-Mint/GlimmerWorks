@@ -127,14 +127,6 @@ void glimmer::TileLayerSystem::Render(RenderQueue *queue) {
     if (worldContext == nullptr) {
         return;
     }
-    Dimension *dimension = worldContext->GetDimension();
-    if (dimension == nullptr) {
-        return;
-    }
-    const ResourceRef &dimensionResourceRef = dimension->GetDimensionResourceRef();
-    if (!dimensionResourceRef.IsValid()) {
-        return;
-    }
     if (cameraComponent_ == nullptr) {
         return;
     }
@@ -159,8 +151,7 @@ void glimmer::TileLayerSystem::Render(RenderQueue *queue) {
         return;
     }
     std::vector<std::pair<TileVector2D, std::vector<TileSnapshot *> > > *visibleTiles =
-            tileLayerComponent->GetTopVisibleTileSnapshotsInViewport(dimensionResourceRef,
-                                                                     std::byte{
+            tileLayerComponent->GetTopVisibleTileSnapshotsInViewport(std::byte{
                                                                          std::to_underlying(TileLayerType::Ground)
                                                                      } | std::byte{
                                                                          std::to_underlying(

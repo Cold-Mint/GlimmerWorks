@@ -158,10 +158,6 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
     if (dimensionResource == nullptr) {
         return;
     }
-    auto dimensionResourceRef = ResourceRef();
-    dimensionResourceRef.SetSelfPackageId(dimensionResource->packId);
-    dimensionResourceRef.SetResourceType(RESOURCE_DIMENSION);
-    dimensionResourceRef.SetResourceKey(dimensionResource->resourceId);
     const float timeFlowSpeed = dimensionResource->timeFlowSpeed;
     debugLines_.push_back(DebugLine{
         fmt::format(fmt::runtime(langsResources->debugTimeInfo), dimension->GetNormalizedTime(), timeFlowSpeed)
@@ -205,7 +201,7 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
                         firstLayer = false;
                     }
 
-                    auto tile = tileLayerComponent->GetSelfLayerTile(dimensionResourceRef, tileCoord);
+                    auto tile = tileLayerComponent->GetSelfLayerTile(tileCoord);
                     if (tile == nullptr) {
                         continue;
                     }
@@ -419,7 +415,7 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
 
         chunkText_ = fmt::format(fmt::runtime(langsResources->debugChunkInfo), playerChunkX,
                                  playerChunkY, visibleChunkCount,
-                                 chunkManager->GetLoadedChunkCount(dimensionResourceRef));
+                                 chunkManager->GetLoadedChunkCount());
 
         crosshairX_ = static_cast<int>(screenPos.x);
         crosshairY_ = static_cast<int>(screenPos.y);

@@ -26,17 +26,14 @@
  */
 #include "ChunkSystem.h"
 
-#include <ranges>
-#include <unordered_map>
-
 #include "core/config/Config.h"
 #include "core/config/Constants.h"
 #include "core/event/ChunkTaskExecEvent.h"
 #include "core/event/ChunkTaskFinshEvent.h"
 #include "core/event/ChunkTaskStartEvent.h"
+#include "core/event/DimensionSwitchEvent.h"
 #include "core/event/EventBus.h"
 #include "core/math/CoordinateTransformer.h"
-#include "core/math/Vector2DIHash.h"
 #include "core/task/TaskWorker.h"
 #include "core/world/ChunkManager.h"
 #include "core/world/Dimension.h"
@@ -60,7 +57,7 @@ void glimmer::ChunkSystem::GenerateLoadTasks(const DimensionResource *dimensionR
             if (ChunkManager::ChunkIsOutOfBounds(dimensionResource, chunkVertexCoordinates)) {
                 continue;
             }
-            if (chunkManager->HasChunk(dimensionRef, chunkVertexCoordinates)) {
+            if (chunkManager->HasChunk(chunkVertexCoordinates)) {
                 continue;
             }
             auto chunkTask = std::make_unique<ChunkTask>();
@@ -78,7 +75,7 @@ void glimmer::ChunkSystem::GenerateUnloadTasks(const ResourceRef &dimensionRef, 
     if (chunkManager == nullptr || scheduler == nullptr) {
         return;
     }
-    const std::vector<ChunkVertexVector2D> loadedChunks = chunkManager->GetLoadedChunks(dimensionRef);
+    const std::vector<ChunkVertexVector2D> loadedChunks = chunkManager->GetLoadedChunks();
     for (const auto &chunkVertexCoordinates: loadedChunks) {
         if (chunkVertexCoordinates.x >= startChunk.x && chunkVertexCoordinates.x <= endChunk.x &&
             chunkVertexCoordinates.y >= startChunk.y && chunkVertexCoordinates.y <= endChunk.y) {
@@ -143,6 +140,40 @@ glimmer::ChunkSystem::ChunkSystem(WorldContext *worldContext) : GameSystem(world
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_TRANSFORM_2D);
     Init();
+    if (const AppContext *appContext = worldContext->GetAppContext(); appContext != nullptr) {
+        if (EventBus *eventBus = appContext->GetEventBus(); eventBus != nullptr) {
+            dimensionSwitchSubscription_ = eventBus->Subscribe<DimensionSwitchEvent>(
+                [this](const DimensionSwitchEvent &event) {
+                    OnDimensionSwitch(event);
+                });
+        }
+    }
+}
+
+void glimmer::ChunkSystem::OnDimensionSwitch(const DimensionSwitchEvent &event) {
+    const WorldContext *worldContext = GetWorldContext();
+    if (worldContext == nullptr) {
+        return;
+    }
+    ChunkManager *chunkManager = worldContext->GetChunkManager();
+    ChunkTaskScheduler *chunkTaskScheduler = worldContext->GetChunkTaskScheduler();
+    if (chunkManager == nullptr || chunkTaskScheduler == nullptr) {
+        return;
+    }
+    const ResourceRef &oldDimensionRef = event.GetOldDimensionRef();
+    // 为当前已加载的全部区块生成卸载任务，保存到切换前的维度文件夹，
+    // 并复用与常规区块扫描一致的调度管线投递到工作线程。
+    for (const ChunkVertexVector2D &position: chunkManager->GetLoadedChunks()) {
+        auto chunkTask = std::make_unique<ChunkTask>();
+        chunkTask->SetDimensionResourceRef(oldDimensionRef);
+        chunkTask->SetPosition(position);
+        chunkTask->SetTaskType(ChunkTaskType::UNLOAD);
+        chunkTaskScheduler->PushPendingTask(std::move(chunkTask));
+    }
+    chunkTaskScheduler->Commit();
+    if (chunkTaskScheduler->GetMainTaskCount() > 0 && !chunkTaskInProgress_.load()) {
+        PostTask();
+    }
 }
 
 void glimmer::ChunkSystem::OnWatchedComponentChanged(const GameComponentTypeMessage gameComponentType, uint32_t count) {

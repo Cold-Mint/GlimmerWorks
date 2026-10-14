@@ -33,10 +33,10 @@ namespace glimmer {
     class WorldContext;
 
     /**
-     * Custom tile-grid physics system. It replaces the Box2D world stepping: for every entity that has
+     * Custom tile-grid physics system. For every entity that has
      * a ColliderComponent and a Transform2DComponent, it integrates gravity and resolves collisions against
      * the solid tile grid using axis-separated AABB movement.
-     * 自定义瓦片网格物理系统。它取代了 Box2D 世界步进：对每个拥有 ColliderComponent 与 Transform2DComponent
+     * 自定义瓦片网格物理系统。对每个拥有 ColliderComponent 与 Transform2DComponent
      * 的实体，积分重力并使用分轴 AABB 移动来解算与实心瓦片网格的碰撞。
      */
     class PhysicsSystem : public GameSystem {
@@ -45,7 +45,7 @@ namespace glimmer {
         uint32_t colliderCount_ = 0;
         uint32_t transform2dCount_ = 0;
 
-        void StepEntity(WorldContext *worldContext, ColliderComponent *collider,
+        void StepEntity(const WorldContext *worldContext, ColliderComponent *collider,
                         Transform2DComponent *transform) const;
 
     public:

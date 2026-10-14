@@ -53,19 +53,16 @@ namespace glimmer {
         /**
         * Save the map of the block.
         * 保存区块的Map。
-        *
-        * Key is a pointer for referencing dimension resources.
-        * Key为维度资源引用的指针。
         */
-        std::unordered_map<ResourceRef, std::unordered_map<ChunkVertexVector2D, std::shared_ptr<Chunk>,
-            Vector2DIHash>, ResourceRefHash>
-        dimensionMap_;
+        std::unordered_map<ChunkVertexVector2D, std::shared_ptr<Chunk>,
+            Vector2DIHash>
+        chunkMap_;
         /**
-        * Protects dimensionMap_ against concurrent access between the chunk scan
+        * Protects chunkMap_ against concurrent access between the chunk scan
         * (main thread) and chunk load/unload (worker thread).
-        * 保护 dimensionMap_，避免主线程扫描与工作线程加载/卸载的并发访问。
+        * 保护 chunkMap_，避免主线程扫描与工作线程加载/卸载的并发访问。
         */
-        mutable std::mutex dimensionMapMutex_;
+        mutable std::mutex chunkMapMutex_;
         TerrainGenerator *terrainGenerator_ = nullptr;
         ChunkLoader *chunkLoader_ = nullptr;
         WorldContext *worldContext_ = nullptr;
@@ -115,23 +112,20 @@ namespace glimmer {
         /**
          * GetChunk
          * 获取指定位置的区块。
-         * @param dimensionRef dimensionRef 维度资源引用
          * @param position position 区块顶点位置
          * @return
          */
-        [[nodiscard]] Chunk *GetChunk(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position) const;
+        [[nodiscard]] Chunk *GetChunk(const ChunkVertexVector2D &position) const;
 
-        [[nodiscard]] std::shared_ptr<Chunk> GetSharedChunk(const ResourceRef &dimensionRef,
-                                                            const ChunkVertexVector2D &position) const;
+        [[nodiscard]] std::shared_ptr<Chunk> GetSharedChunk(const ChunkVertexVector2D &position) const;
 
         /**
          * Determine whether a block at a certain position has been loaded
          * 判断某个位置的区块是否被加载
-         * @param dimensionRef dimensionRef 维度资源引用
          * @param position position 位置
          * @return
          */
-        [[nodiscard]] bool HasChunk(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position) const;
+        [[nodiscard]] bool HasChunk(const ChunkVertexVector2D &position) const;
 
         /**
          * SaveChunk
@@ -144,19 +138,20 @@ namespace glimmer {
         /**
          * SaveAllChunk
          * 保存所有的区块
+         * @param dimensionRef 保存到哪个维度的文件夹
          * @return 成功保存了多少个区块
          */
-        size_t SaveAllChunk();
+        size_t SaveAllChunk(const ResourceRef &dimensionRef);
+
 
         /**
-         * GetChunkCount
-         * 获取某个维度的区块数
-         * @param dimensionRef
+         * GetLoadedChunkCount
+         * 获取区块数量
          * @return
          */
-        size_t GetLoadedChunkCount(const ResourceRef &dimensionRef) const;
+        size_t GetLoadedChunkCount() const;
 
-        [[nodiscard]] std::vector<ChunkVertexVector2D> GetLoadedChunks(const ResourceRef &dimensionRef) const;
+        [[nodiscard]] std::vector<ChunkVertexVector2D> GetLoadedChunks() const;
 
 
         /**

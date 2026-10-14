@@ -48,8 +48,8 @@ void glimmer::MagnetSystem::OnWatchedComponentChanged(GameComponentTypeMessage g
     if (gameComponentType == COMPONENT_MAGNETIC) {
         magneticComponentCount_ = count;
     }
-    if (gameComponentType == COMPONENT_RIGID_BODY_2D) {
-        rigidComponentCount_ = count;
+    if (gameComponentType == COMPONENT_COLLIDER_2D) {
+        colliderComponentCount_ = count;
     }
     if (gameComponentType == COMPONENT_DROPPED_ITEM) {
         droppedItemComponentCount_ = count;
@@ -65,11 +65,11 @@ void glimmer::MagnetSystem::OnWatchedComponentChanged(GameComponentTypeMessage g
         LogCat::d(LogLabel::DEFAULT, "magnet_entities_rebuilt", "Magnet entities rebuilt: {} magnets",
                   magnetEntities_.size());
     }
-    if (magneticComponentCount_ > 0 && transform2DComponentCount_ > 0 && rigidComponentCount_ > 0 &&
+    if (magneticComponentCount_ > 0 && transform2DComponentCount_ > 0 && colliderComponentCount_ > 0 &&
         droppedItemComponentCount_ > 0) {
         std::lock_guard lock(magnetMutex_);
         magneticEntities_ = entityManager->GetEntityIDWithComponents({
-            COMPONENT_MAGNETIC, COMPONENT_TRANSFORM_2D, COMPONENT_RIGID_BODY_2D, COMPONENT_DROPPED_ITEM
+            COMPONENT_MAGNETIC, COMPONENT_TRANSFORM_2D, COMPONENT_COLLIDER_2D, COMPONENT_DROPPED_ITEM
         });
         LogCat::d(LogLabel::DEFAULT, "magnetic_entities_rebuilt", "Magnetic entities rebuilt: {} entities",
                   magneticEntities_.size());
@@ -80,7 +80,7 @@ glimmer::MagnetSystem::MagnetSystem(WorldContext *worldContext) : GameSystem(wor
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_MAGNET);
     WatchComponent(COMPONENT_MAGNETIC);
-    WatchComponent(COMPONENT_RIGID_BODY_2D);
+    WatchComponent(COMPONENT_COLLIDER_2D);
     WatchComponent(COMPONENT_ITEM_CONTAINER);
     WatchComponent(COMPONENT_DROPPED_ITEM);
     Init();

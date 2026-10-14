@@ -41,7 +41,7 @@
 #include "core/world/WorldContext.h"
 
 glimmer::DebugDrawColliderSystem::DebugDrawColliderSystem(WorldContext *worldContext) : GameSystem(worldContext) {
-    WatchComponent(COMPONENT_RIGID_BODY_2D);
+    WatchComponent(COMPONENT_COLLIDER_2D);
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_CAMERA);
     if (const AppContext *appContext = worldContext->GetAppContext(); appContext != nullptr) {
@@ -73,11 +73,11 @@ void glimmer::DebugDrawColliderSystem::OnWatchedComponentChanged(const GameCompo
         }
         transform2dCount_ = count;
     }
-    if (gameComponentType == COMPONENT_RIGID_BODY_2D) {
+    if (gameComponentType == COMPONENT_COLLIDER_2D) {
         colliderCount_ = count;
     }
     if (colliderCount_ > 0 && transform2dCount_ > 0) {
-        entities_ = entityManager->GetEntityIDWithComponents({COMPONENT_RIGID_BODY_2D, COMPONENT_TRANSFORM_2D});
+        entities_ = entityManager->GetEntityIDWithComponents({COMPONENT_COLLIDER_2D, COMPONENT_TRANSFORM_2D});
     }
 }
 
@@ -149,7 +149,7 @@ void glimmer::DebugDrawColliderSystem::RenderSolidTiles(RenderQueue *queue) cons
 
     for (int ty = minTile.y; ty <= maxTile.y; ++ty) {
         for (int tx = minTile.x; tx <= maxTile.x; ++tx) {
-            if (!TileCollision::IsSolidTile(worldContext, TileVector2D{tx, ty})) {
+            if (!TileCollision::IsSolidTile(worldContext->GetChunkManager(), TileVector2D{tx, ty})) {
                 continue;
             }
             const WorldVector2D minCorner{

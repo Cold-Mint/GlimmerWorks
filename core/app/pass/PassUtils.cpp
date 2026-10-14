@@ -43,7 +43,6 @@ void glimmer::ClearRenderTarget(SDL_GPUCommandBuffer *commandBuffer, SDL_GPUText
     colorTarget.load_op = SDL_GPU_LOADOP_CLEAR;
     colorTarget.store_op = SDL_GPU_STOREOP_STORE;
     colorTarget.clear_color = {0.0F, 0.0F, 0.0F, 1.0F};
-
     SDL_GPURenderPass *renderPass = SDL_BeginGPURenderPass(commandBuffer, &colorTarget, 1, nullptr);
     if (renderPass == nullptr) {
         return;

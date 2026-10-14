@@ -95,7 +95,7 @@ void glimmer::ScenePass::EnsureSceneTexture(RenderFrameContext &ctx) {
     }
     SDL_GPUTextureCreateInfo info = {};
     info.type = SDL_GPU_TEXTURETYPE_2D;
-    //The pipelines are created with the swapchain format as their color
+    //The pipelines are created with the swapChain format as their color
     //target, so the offscreen target must use the same format or the scene
     //pass produces a black/garbage result.
     //管线以交换链格式作为颜色目标创建，因此离屏目标必须使用相同格式，

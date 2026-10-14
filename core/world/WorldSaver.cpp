@@ -27,6 +27,7 @@
 #include "WorldSaver.h"
 
 #include "ChunkManager.h"
+#include "Dimension.h"
 #include "core/log/LogCat.h"
 #include "core/mod/ResourceRef.h"
 #include "core/utils/TimeUtils.h"
@@ -89,7 +90,9 @@ void glimmer::WorldSaver::SaveGame() {
         return;
     }
     if (ChunkManager *chunkManager = worldContext_->GetChunkManager(); chunkManager != nullptr) {
-        chunkManager->SaveAllChunk();
+        if (const Dimension *dimension = worldContext_->GetDimension(); dimension != nullptr) {
+            chunkManager->SaveAllChunk(dimension->GetDimensionResourceRef());
+        }
     }
     auto player = worldContext_->GetEntityShortCut()->GetPlayer();
     if (!WorldContext::IsEmptyEntityId(player) && worldContext_->GetEntityManager()->IsPersistable(player)) {

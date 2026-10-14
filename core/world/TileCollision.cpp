@@ -32,27 +32,17 @@
 #include "core/config/Constants.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/world/ChunkManager.h"
-#include "core/world/Dimension.h"
 #include "core/world/Tile.h"
 #include "core/world/WorldContext.h"
 #include "core/world/generator/Chunk.h"
 #include "core/world/generator/TileLayerType.h"
 #include "core/world/generator/TilePhysicsType.h"
 
-bool glimmer::TileCollision::IsSolidTile(const WorldContext *worldContext, const TileVector2D &tile) {
-    if (worldContext == nullptr) {
-        return false;
-    }
-    const Dimension *dimension = worldContext->GetDimension();
-    if (dimension == nullptr) {
-        return false;
-    }
-    ChunkManager *chunkManager = worldContext->GetChunkManager();
+bool glimmer::TileCollision::IsSolidTile(const ChunkManager *chunkManager, const TileVector2D &tile) {
     if (chunkManager == nullptr) {
         return false;
     }
-    const Chunk *chunk = chunkManager->GetChunk(dimension->GetDimensionResourceRef(),
-                                                CoordinateTransformer::TileToChunkVertex(tile));
+    const Chunk *chunk = chunkManager->GetChunk(CoordinateTransformer::TileToChunkVertex(tile));
     if (chunk == nullptr) {
         return false;
     }
@@ -64,6 +54,10 @@ bool glimmer::TileCollision::IsSolidTile(const WorldContext *worldContext, const
 
 bool glimmer::TileCollision::LineHitsSolidTile(const WorldContext *worldContext,
                                                const WorldVector2D &a, const WorldVector2D &b) {
+    if (worldContext == nullptr) {
+        return false;
+    }
+    const ChunkManager *chunkManager = worldContext->GetChunkManager();
     // Shift into "tile-centered" space so that tile boundaries lie on integer coordinates; this makes the
     // DDA grid-line crossing math correct for the tile-center convention.
     // 平移到“以瓦片为中心”的空间，使瓦片边界落在整数坐标上；这使 DDA 的网格线穿越计算符合瓦片中心约定。
@@ -77,7 +71,7 @@ bool glimmer::TileCollision::LineHitsSolidTile(const WorldContext *worldContext,
     const int endX = static_cast<int>(std::floor(x1));
     const int endY = static_cast<int>(std::floor(y1));
 
-    if (IsSolidTile(worldContext, TileVector2D{x, y})) {
+    if (IsSolidTile(chunkManager, TileVector2D{x, y})) {
         return true;
     }
 
@@ -102,7 +96,7 @@ bool glimmer::TileCollision::LineHitsSolidTile(const WorldContext *worldContext,
             y += stepY;
             tMaxY += tDeltaY;
         }
-        if (IsSolidTile(worldContext, TileVector2D{x, y})) {
+        if (IsSolidTile(chunkManager, TileVector2D{x, y})) {
             return true;
         }
     }

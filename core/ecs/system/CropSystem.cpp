@@ -91,10 +91,15 @@ bool glimmer::CropSystem::OnGrowMature(WorldContext *worldContext, Chunk *chunk,
     }
     const ResourceTypeMessage resourceType = growthTargetRef->GetResourceType();
     const size_t index = CoordinateTransformer::GetArrayIndex(position.x, position.y, CHUNK_SHIFT);
-    const TileVector2D absolutePosition = {
-        static_cast<int>(chunk->GetPosition().x + position.x), static_cast<int>(chunk->GetPosition().y + position.y)
+    const TileVector2D absolutePosition = CoordinateTransformer::ChunkRelativeToTile(chunk->GetPosition(), position);
+    Vector2DIResource spawnOriginOffset{0, 0};
+    if (const Tile *cropTile = chunk->GetTile(layerType, index); cropTile != nullptr) {
+        spawnOriginOffset = cropTile->GetSpawnOriginOffset();
+    }
+    const TileVector2D spawnOrigin = {
+        absolutePosition.x + spawnOriginOffset.x, absolutePosition.y + spawnOriginOffset.y
     };
-    const WorldVector2D worldPosition = CoordinateTransformer::TileToWorld(absolutePosition);
+    const WorldVector2D spawnWorldPosition = CoordinateTransformer::TileToWorld(spawnOrigin);
     if (resourceType == RESOURCE_TILE) {
         const TileResource *tileResource = resourceLocator->FindTileRaw(growthTargetRef);
         if (tileResource == nullptr) {
@@ -109,7 +114,8 @@ bool glimmer::CropSystem::OnGrowMature(WorldContext *worldContext, Chunk *chunk,
         }
         return true;
     }
-    if (resourceType == RESOURCE_ABILITY_ITEM || resourceType == RESOURCE_MATERIAL_ITEM) {
+    if (resourceType == RESOURCE_ABILITY_ITEM || resourceType == RESOURCE_MATERIAL_ITEM || resourceType ==
+        RESOURCE_COMPOSABLE_ITEM) {
         ItemMessageResource itemMessageResource;
         itemMessageResource.item = *growthTargetRef;
         itemMessageResource.amount = 1;
@@ -117,7 +123,7 @@ bool glimmer::CropSystem::OnGrowMature(WorldContext *worldContext, Chunk *chunk,
         if (item == nullptr) {
             return false;
         }
-        DroppedItemCreator::SpawnDroppedItem(worldContext, worldPosition, std::move(item), 0);
+        DroppedItemCreator::SpawnDroppedItem(worldContext, spawnWorldPosition, std::move(item), 0);
         return true;
     }
     if (resourceType == RESOURCE_LOOT_TABLE) {
@@ -132,7 +138,7 @@ bool glimmer::CropSystem::OnGrowMature(WorldContext *worldContext, Chunk *chunk,
                 continue;
             }
             item->ReadItemMessage(worldContext, itemMessage);
-            DroppedItemCreator::SpawnDroppedItem(worldContext, worldPosition, std::move(item), 0);
+            DroppedItemCreator::SpawnDroppedItem(worldContext, spawnWorldPosition, std::move(item), 0);
         }
         return true;
     }
@@ -154,7 +160,7 @@ bool glimmer::CropSystem::OnGrowMature(WorldContext *worldContext, Chunk *chunk,
             return false;
         }
         const std::unique_ptr<StructureInfo> structureInfo = structureGeneratorManager->Generate(
-            worldContext, absolutePosition, structureResource);
+            worldContext, spawnOrigin, structureResource);
         if (structureInfo == nullptr) {
             return false;
         }
@@ -168,17 +174,17 @@ bool glimmer::CropSystem::OnGrowMature(WorldContext *worldContext, Chunk *chunk,
                 for (int x = 0; x < tileResource->tileWidth; x++) {
                     for (int y = 0; y < tileResource->tileHeight; y++) {
                         TileVector2D worldVector2D = {
-                            absolutePosition.x + coord.x + x, absolutePosition.y + coord.y + y
+                            spawnOrigin.x + coord.x + x, spawnOrigin.y + coord.y + y
                         };
                         Chunk *targetChunk = chunkManager->GetChunk(
                             CoordinateTransformer::TileToChunkVertex(worldVector2D));
                         if (targetChunk == nullptr) {
                             continue;
                         }
-                        const int relativeX = worldVector2D.x & CHUNK_MASK;
-                        const int relativeY = worldVector2D.y & CHUNK_MASK;
+                        const ChunkRelativeVector2D relative =
+                                CoordinateTransformer::TileToChunkRelative(worldVector2D);
                         const size_t unitIndex =
-                                CoordinateTransformer::GetArrayIndex(relativeX, relativeY, CHUNK_SHIFT);
+                                CoordinateTransformer::GetArrayIndex(relative.x, relative.y, CHUNK_SHIFT);
                         targetChunk->PlaceTile(structureLayerType, unitIndex, resourceRef, tileResource,
                                                BreakSource::Unknown, PLACE_SOURCE_WORLD_GEN, x, y, false);
                     }
@@ -313,9 +319,7 @@ void glimmer::CropSystem::OnTick(const uint64_t tick) {
             continue;
         }
         const bool isTileTarget = growthTargetRef->GetResourceType() == RESOURCE_TILE;
-        const bool destroySelfOnGrowth = tile->DestroySelfOnGrowth();
-
-        //需要推送到下一刷新帧。
+        const bool destroySelfAfterGrowth = tile->DestroySelfAfterGrowth();
         MainThreadDispatcher *mainThreadDispatcher = appContext->GetMainThreadDispatcher();
         if (mainThreadDispatcher == nullptr) {
             LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "crop_system_main_thread_dispatcher_null",
@@ -323,21 +327,18 @@ void glimmer::CropSystem::OnTick(const uint64_t tick) {
                       position.x, position.y, static_cast<int>(layerType));
             continue;
         }
-
-        //在 tick 线程立即消费本次生长累积，防止下一 tick 重复调度成熟逻辑。
         tileState->set_tilegrowthaccumulatedtick(0);
-
         const ResourceRef &growthTarget = *growthTargetRef;
-        const ChunkVertexVector2D chunkPosition = chunk->GetPosition();
+        const ChunkVertexVector2D chunkPositionCopy = chunk->GetPosition();
 
         mainThreadDispatcher->PostToNextMainFrame(
-            [worldContext, chunkPosition, relative, layerType, index, growthTarget, isTileTarget,
-                destroySelfOnGrowth, tick, position] {
+            [worldContext, chunkPositionCopy, relative, layerType, index, growthTarget, isTileTarget,
+                destroySelfAfterGrowth, tick, position] {
                 const ChunkManager *chunkManager = worldContext->GetChunkManager();
                 if (chunkManager == nullptr) {
                     return;
                 }
-                Chunk *chunk = chunkManager->GetChunk(chunkPosition);
+                Chunk *chunk = chunkManager->GetChunk(chunkPositionCopy);
                 if (chunk == nullptr) {
                     return;
                 }
@@ -345,8 +346,8 @@ void glimmer::CropSystem::OnTick(const uint64_t tick) {
                     LogCat::d(LogLabel::DEFAULT, "crop_system_grow_mature_success",
                               "[CropSystem] crop matured: position=({}, {}), layerType={}, targetPackageId={}, targetResourceKey={}, isTileTarget={}, destroySelfOnGrowth={}",
                               position.x, position.y, static_cast<int>(layerType), growthTarget.GetPackageId(),
-                              growthTarget.GetResourceKey(), isTileTarget, destroySelfOnGrowth);
-                    if (!isTileTarget && destroySelfOnGrowth) {
+                              growthTarget.GetResourceKey(), isTileTarget, destroySelfAfterGrowth);
+                    if (!isTileTarget && destroySelfAfterGrowth) {
                         const AppContext *appContext = worldContext->GetAppContext();
                         if (appContext == nullptr) {
                             return;

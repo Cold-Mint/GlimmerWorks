@@ -536,6 +536,8 @@ namespace glimmer {
         std::vector<ItemTagResource> tags = {};
         //@genNextLine(The anchor point coordinates of the tiles, when tileAnchorType is set to "Custom", can be defined; for other values, the engine will calculate them automatically.|瓦片的锚点坐标，tileAnchorType为Custom值时可定义，其他值为引擎自动计算。)
         Vector2DIResource customTileAnchor = {1, 1};
+        //@genNextLine(spawnOriginOffset|生成原点偏移 当作物长大时，生成点和原点的偏移)
+        Vector2DIResource spawnOriginOffset = {0, 0};
         //@genNextLine(growthMinTicks|生长所需的最小tick数)
         uint64_t growthMinTicks = 0;
         //@genNextLine(growthMaxTicks|生长所需的最大tick数)
@@ -582,8 +584,8 @@ namespace glimmer {
         bool canDropLoot = true;
         //@genNextLine(Allow anchor adjustment by facing direction.|允许按朝向调整锚点，放置瓦片时，开启就会跟着左右朝向自动调换锚点，让瓦片顺着朝向方向延伸，关闭则固定原始锚点不动。)
         bool allowDirAdjustAnchor = true;
-        //@genNextLine(destroySelfOnGrowth|长成后是否将自己销毁掉，把当前位置替换为空气)
-        bool destroySelfOnGrowth = false;
+        //@genNextLine(destroySelfAfterGrowth|生长成功后自己销毁调，把当前位置替换为空气)
+        bool destroySelfAfterGrowth = false;
         //@genNextLine(allowOfflineGrowth|是否允许离线生长，区块卸载后再次加载补时间插值)
         bool allowOfflineGrowth = true;
     };

@@ -61,11 +61,14 @@ namespace glimmer {
         TileMiningData miningData_;
         uint64_t growthMinTicks_ = 0;
         uint64_t growthMaxTicks_ = 0;
+        //Offset from the crop origin to the spawn point used when it matures.
+        //作物成熟时，生成点相对于原点的偏移。
+        Vector2DIResource spawnOriginOffset_ = {0, 0};
         uint8_t technologyLevel_ = 0;
         uint8_t recipeGroup_ = 0;
         TileLayerType layerType_ = TileLayerType::Ground;
         TilePhysicsType physicsType_ = TilePhysicsType::None;
-        bool destroySelfOnGrowth_ = false;
+        bool destroySelfAfterGrowth_ = false;
         bool isOverwritable_ = false;
 
         static TileVector2D CalculateTileAnchor(TileAnchorType tileAnchorType, uint8_t tileWidth, uint8_t tileHeight,
@@ -81,9 +84,16 @@ namespace glimmer {
 
         [[nodiscard]] bool IsOverwritable() const;
 
-        [[nodiscard]] bool DestroySelfOnGrowth() const;
+        [[nodiscard]] bool DestroySelfAfterGrowth() const;
 
         const ResourceRef *GetGrowthTarget() const;
+
+        /**
+         * GetSpawnOriginOffset
+         * 获取作物成熟时生成点相对于原点的偏移。
+         * @return
+         */
+        [[nodiscard]] const Vector2DIResource &GetSpawnOriginOffset() const;
 
         /**
          * IsWorkBlock

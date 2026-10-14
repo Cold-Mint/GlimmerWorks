@@ -53,12 +53,16 @@ bool glimmer::Tile::IsOverwritable() const {
     return isOverwritable_;
 }
 
-bool glimmer::Tile::DestroySelfOnGrowth() const {
-    return destroySelfOnGrowth_;
+bool glimmer::Tile::DestroySelfAfterGrowth() const {
+    return destroySelfAfterGrowth_;
 }
 
 const glimmer::ResourceRef *glimmer::Tile::GetGrowthTarget() const {
     return &growthTarget_;
+}
+
+const glimmer::Vector2DIResource &glimmer::Tile::GetSpawnOriginOffset() const {
+    return spawnOriginOffset_;
 }
 
 bool glimmer::Tile::IsWorkBlock() const {
@@ -196,8 +200,9 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     tile->growthMinTicks_ = tileResource->growthMinTicks;
     tile->growthMaxTicks_ = tileResource->growthMaxTicks;
     tile->growthTarget_ = tileResource->growthTarget;
-    tile->destroySelfOnGrowth_ = tileResource->destroySelfOnGrowth;
+    tile->destroySelfAfterGrowth_ = tileResource->destroySelfAfterGrowth;
     tile->growthConditions_ = tileResource->growthConditions;
+    tile->spawnOriginOffset_ = tileResource->spawnOriginOffset;
     uint8_t tileHeight = tileResource->tileHeight;
     if (tileHeight > CHUNK_SIZE) {
         tileHeight = CHUNK_SIZE;

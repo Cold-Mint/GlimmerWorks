@@ -812,7 +812,7 @@ namespace toml {
             resource.customLootTable = toml::find_or<bool>(v, "custom_loot_table", false);
             resource.customTileAnchor = toml::find_or<glimmer::Vector2DIResource>(v, "custom_tile_anchor", {1, 1});
             resource.description = toml::find_or<glimmer::ResourceRef>(v, "description", {});
-            resource.destroySelfOnGrowth = toml::find_or<bool>(v, "destroy_self_on_growth", false);
+            resource.destroySelfAfterGrowth = toml::find_or<bool>(v, "destroy_self_after_growth", false);
             resource.drawValidBlueprintColor = toml::find_or<bool>(v, "draw_valid_blueprint_color", true);
             resource.enableBlueprint = toml::find_or<bool>(v, "enable_blueprint", true);
             resource.enableBlueprintMask = toml::find_or<bool>(v, "enable_blueprint_mask", true);
@@ -834,6 +834,7 @@ namespace toml {
             resource.resourceId = toml::find<std::string>(v, "resource_id");
             resource.sampler = toml::find_or<glimmer::ResourceRef>(v, "sampler", {});
             resource.sideLightMask = toml::find<glimmer::ResourceRef>(v, "side_light_mask");
+            resource.spawnOriginOffset = toml::find_or<glimmer::Vector2DIResource>(v, "spawn_origin_offset", {0, 0});
             resource.tags = toml::find_or<std::vector<glimmer::ItemTagResource> >(v, "tags", {});
             resource.technologyLevel = toml::find_or<uint8_t>(v, "technology_level", 0);
             resource.texture = toml::find<glimmer::ResourceRef>(v, "texture");

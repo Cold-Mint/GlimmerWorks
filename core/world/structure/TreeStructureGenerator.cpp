@@ -84,7 +84,9 @@ std::unique_ptr<glimmer::StructureInfo> glimmer::TreeStructureGenerator::Generat
                           static_cast<float>(treeStructureResource->trunkHeightMax - treeStructureResource->
                                              trunkHeightMin));
     const auto trunkTileLayer = static_cast<TileLayerType>(treeStructureResource->trunkTileLayer);
-    for (int y = 0; y < trunkHeight; ++y) {
+    //The trunk grows upward from the tile above the placement point, leaving the ground tile intact.
+    //树干从放置点上方一格开始向上生长，保留地面格不被覆盖。
+    for (int y = 1; y <= trunkHeight; ++y) {
         for (int x = 0; x < treeStructureResource->trunkWidth; ++x) {
             structureInfo->SetTile(trunkTileLayer, TileVector2D(x, y), trunkRef);
         }
@@ -94,7 +96,7 @@ std::unique_ptr<glimmer::StructureInfo> glimmer::TreeStructureGenerator::Generat
         const auto leafTileLayer = static_cast<TileLayerType>(treeStructureResource->leafTileLayer);
         const uint8_t leafRadius = treeStructureResource->leafRadius;
         for (int i = 0; i < treeStructureResource->leafClusterCount; ++i) {
-            const int clusterY = trunkHeight - i * treeStructureResource->leafVerticalSpacing;
+            const int clusterY = trunkHeight + 1 - i * treeStructureResource->leafVerticalSpacing;
             AddLeafCluster(structureInfoPtr, leafTileLayer, leafRadius, clusterY,
                            treeStructureResource->trunkWidth, leafRef);
         }

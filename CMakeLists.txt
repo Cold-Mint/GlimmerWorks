@@ -497,6 +497,7 @@ target_sources(GlimmerWorks
         core/console/command/BiomeScoreCommand.cpp
         core/console/command/ClearCommand.cpp
         core/console/command/ConfigCommand.cpp
+        core/console/command/DimensionCommand.cpp
         core/console/command/EchoCommand.cpp
         core/console/command/EcsCommand.cpp
         core/console/command/ExitCommand.cpp
@@ -944,6 +945,7 @@ target_sources(GlimmerWorks
         core/console/command/BiomeScoreCommand.h
         core/console/command/ClearCommand.h
         core/console/command/ConfigCommand.h
+        core/console/command/DimensionCommand.h
         core/console/command/EchoCommand.h
         core/console/command/EcsCommand.h
         core/console/command/ExitCommand.h

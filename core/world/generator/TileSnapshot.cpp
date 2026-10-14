@@ -26,19 +26,22 @@
  */
 #include "TileSnapshot.h"
 
+#include "core/world/Tile.h"
+#include "src/saves/tile_state.pb.h"
 
-void glimmer::TileSnapshot::SetTile(const Tile *tile) {
+
+void glimmer::TileSnapshot::SetTile(const std::shared_ptr<Tile> &tile) {
     tile_ = tile;
 }
 
 const glimmer::Tile *glimmer::TileSnapshot::GetTile() const {
-    return tile_;
+    return tile_.get();
 }
 
-void glimmer::TileSnapshot::SetTileState(const TileStateMessage *tileState) {
+void glimmer::TileSnapshot::SetTileState(const std::shared_ptr<TileStateMessage> &tileState) {
     tileState_ = tileState;
 }
 
 const TileStateMessage *glimmer::TileSnapshot::GetTileState() const {
-    return tileState_;
+    return tileState_.get();
 }

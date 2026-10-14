@@ -40,6 +40,8 @@ namespace glimmer {
         std::string worldNotLoaded;
         std::string gameNotRunning;
         std::string insufficientParameterLength;
+        std::string dimensionSwitchSuccess;
+        std::string dimensionNotFound;
         std::string configurationUpdate;
         std::string itemIdNotFound;
         std::string lootTableNotFound;

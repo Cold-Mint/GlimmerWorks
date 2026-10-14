@@ -45,7 +45,7 @@ namespace glimmer {
      * Transform2DComponent组件的位置不会影响坐标转换。
      */
     class TileLayerComponent final : public GameComponent {
-        std::vector<std::pair<TileVector2D, std::vector<TileSnapshot *> > > visibleTiles_;
+        std::vector<std::pair<TileVector2D, std::vector<std::shared_ptr<TileSnapshot> > > > visibleTiles_;
         TileVector2D focusPosition_;
         Vector2DIFingerprint visibleTileTopLeftFingerprint_ = 0;
         Vector2DIFingerprint visibleTileBottomRightFingerprint_ = 0;
@@ -55,7 +55,7 @@ namespace glimmer {
         [[nodiscard]] std::shared_ptr<Tile>
         GetTileShared(TileLayerType layerType, const TileVector2D &tilePos) const;
 
-        [[nodiscard]] static std::vector<TileSnapshot *> GetTopVisibleTileSnapshots(
+        [[nodiscard]] static std::vector<std::shared_ptr<TileSnapshot> > GetTopVisibleTileSnapshots(
             const Chunk *chunk, std::byte layerFilter,
             const TileVector2D &tilePos);
 
@@ -76,7 +76,7 @@ namespace glimmer {
          * @param worldViewport
          * @return
          */
-        [[nodiscard]] std::vector<std::pair<TileVector2D, std::vector<TileSnapshot *> > > *
+        [[nodiscard]] std::vector<std::pair<TileVector2D, std::vector<std::shared_ptr<TileSnapshot> > > > *
         GetTopVisibleTileSnapshotsInViewport(std::byte layerFilter,
                                              const SDL_FRect &worldViewport);
 

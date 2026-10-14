@@ -45,9 +45,9 @@ namespace glimmer {
         //保存每个格子的瓦片资源签名，并在签名改变时重建瓦片。
         std::unordered_map<TileLayerType, std::array<uint64_t, CHUNK_AREA> >
         tileFingerprint_;
-        std::unordered_map<TileLayerType, std::array<std::unique_ptr<TileStateMessage>, CHUNK_AREA> >
+        std::unordered_map<TileLayerType, std::array<std::shared_ptr<TileStateMessage>, CHUNK_AREA> >
         tileState_;
-        std::unordered_map<TileLayerType, std::array<std::unique_ptr<TileSnapshot>, CHUNK_AREA> > tileSnapshots_;
+        std::unordered_map<TileLayerType, std::array<std::shared_ptr<TileSnapshot>, CHUNK_AREA> > tileSnapshots_;
         std::vector<std::function<void(Chunk *chunk, size_t index, std::shared_ptr<Tile> tile,
                                        TileLayerType layerType)> >
         onTileRebuilt_;
@@ -68,7 +68,7 @@ namespace glimmer {
                                        const std::shared_ptr<Tile> &newTile) const;
 
         static void WriteTileStatesToMessage(
-            const std::array<std::unique_ptr<TileStateMessage>, CHUNK_AREA> &tileStates,
+            const std::array<std::shared_ptr<TileStateMessage>, CHUNK_AREA> &tileStates,
             TileStateArrayMessage &layerMessage);
 
     public:
@@ -137,7 +137,7 @@ namespace glimmer {
         [[nodiscard]] std::shared_ptr<Tile> GetTileShared(TileLayerType layerType, size_t index) const;
 
 
-        [[nodiscard]] std::vector<TileSnapshot *> GetTopVisibleTileSnapshots(
+        [[nodiscard]] std::vector<std::shared_ptr<TileSnapshot> > GetTopVisibleTileSnapshots(
             std::byte layerFilter, size_t index) const;
 
         void ReadChunkMessage(const ChunkMessage &chunkMessage);

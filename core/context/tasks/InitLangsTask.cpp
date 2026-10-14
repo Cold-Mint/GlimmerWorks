@@ -65,6 +65,8 @@ bool glimmer::InitLangsTask::Run(ISystemBucket *systemBucket) {
     langsResources->worldNotLoaded = toml::find<std::string>(tomlValue, "world_not_loaded");
     langsResources->gameNotRunning = toml::find<std::string>(tomlValue, "game_not_running");
     langsResources->insufficientParameterLength = toml::find<std::string>(tomlValue, "insufficient_parameter_length");
+    langsResources->dimensionSwitchSuccess = toml::find<std::string>(tomlValue, "dimension_switch_success");
+    langsResources->dimensionNotFound = toml::find<std::string>(tomlValue, "dimension_not_found");
     langsResources->configurationUpdate = toml::find<std::string>(tomlValue, "configuration_update");
     langsResources->itemIdNotFound = toml::find<std::string>(tomlValue, "item_id_not_found");
     langsResources->lootTableNotFound = toml::find<std::string>(tomlValue, "loot_table_not_found");

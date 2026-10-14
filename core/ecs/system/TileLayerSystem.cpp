@@ -150,7 +150,7 @@ void glimmer::TileLayerSystem::Render(RenderQueue *queue) {
     if (appContext == nullptr) {
         return;
     }
-    std::vector<std::pair<TileVector2D, std::vector<TileSnapshot *> > > *visibleTiles =
+    std::vector<std::pair<TileVector2D, std::vector<std::shared_ptr<TileSnapshot> > > > *visibleTiles =
             tileLayerComponent->GetTopVisibleTileSnapshotsInViewport(std::byte{
                                                                          std::to_underlying(TileLayerType::Ground)
                                                                      } | std::byte{
@@ -172,7 +172,7 @@ void glimmer::TileLayerSystem::Render(RenderQueue *queue) {
     }
     for (auto &[tileCoord, tileList]: *visibleTiles) {
         for (const auto &tileSnapshot: tileList) {
-            RenderTileSnapshot(queue, tileSnapshot, tileCoord, drawnTiles);
+            RenderTileSnapshot(queue, tileSnapshot.get(), tileCoord, drawnTiles);
         }
     }
 }

@@ -61,7 +61,8 @@ std::shared_ptr<glimmer::Tile> glimmer::TileLayerComponent::GetTileShared(const 
     return chunk->GetTileShared(layerType, CoordinateTransformer::GetArrayIndex(pos.x, pos.y, CHUNK_SHIFT));
 }
 
-std::vector<glimmer::TileSnapshot *> glimmer::TileLayerComponent::GetTopVisibleTileSnapshots(const Chunk *chunk,
+std::vector<std::shared_ptr<glimmer::TileSnapshot> > glimmer::TileLayerComponent::GetTopVisibleTileSnapshots(
+    const Chunk *chunk,
     const std::byte layerFilter, const TileVector2D &tilePos) {
     if (chunk == nullptr) {
         return {};
@@ -143,9 +144,9 @@ const glimmer::Tile *glimmer::TileLayerComponent::GetTile(const TileLayerType la
     return chunk->GetTile(layerType, CoordinateTransformer::GetArrayIndex(pos.x, pos.y, CHUNK_SHIFT));
 }
 
-std::vector<std::pair<glimmer::TileVector2D, std::vector<glimmer::TileSnapshot *> > > *glimmer::TileLayerComponent::
-GetTopVisibleTileSnapshotsInViewport(const std::byte layerFilter,
-                                     const SDL_FRect &worldViewport) {
+std::vector<std::pair<glimmer::TileVector2D, std::vector<std::shared_ptr<glimmer::TileSnapshot> > > > *
+glimmer::TileLayerComponent::GetTopVisibleTileSnapshotsInViewport(const std::byte layerFilter,
+                                                                  const SDL_FRect &worldViewport) {
     if (worldContext_ == nullptr) {
         return nullptr;
     }

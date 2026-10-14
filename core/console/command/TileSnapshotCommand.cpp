@@ -130,7 +130,7 @@ bool glimmer::TileSnapshotCommand::ExecuteInfo(const CommandSender *commandSende
         return false;
     }
     const auto chunkRelative = CoordinateTransformer::TileToChunkRelative(tileVector2D);
-    std::vector<TileSnapshot *> tileSnapshotVectorPtr = chunk->GetTopVisibleTileSnapshots(
+    std::vector<std::shared_ptr<TileSnapshot> > tileSnapshotVectorPtr = chunk->GetTopVisibleTileSnapshots(
         std::byte{std::to_underlying(TileLayerType::Ground)}
         | std::byte{std::to_underlying(TileLayerType::BackGround)},
         CoordinateTransformer::GetArrayIndex(chunkRelative.x, chunkRelative.y, CHUNK_SHIFT));
@@ -143,7 +143,7 @@ bool glimmer::TileSnapshotCommand::ExecuteInfo(const CommandSender *commandSende
 
     std::stringstream stringStream;
     for (int i = 0; i < tileSnapshotSize; i++) {
-        TileSnapshot *tileSnapshot = tileSnapshotVectorPtr.at(i);
+        const std::shared_ptr<TileSnapshot> &tileSnapshot = tileSnapshotVectorPtr.at(i);
         if (tileSnapshot == nullptr) {
             continue;
         }

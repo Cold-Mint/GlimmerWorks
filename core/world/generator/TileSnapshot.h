@@ -25,21 +25,23 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <memory>
+
 class TileStateMessage;
 
 namespace glimmer {
     class Tile;
 
     class TileSnapshot {
-        const Tile *tile_ = nullptr;
-        const TileStateMessage *tileState_ = nullptr;
+        std::shared_ptr<Tile> tile_;
+        std::shared_ptr<TileStateMessage> tileState_;
 
     public:
-        void SetTile(const Tile *tile);
+        void SetTile(const std::shared_ptr<Tile> &tile);
 
         [[nodiscard]] const Tile *GetTile() const;
 
-        void SetTileState(const TileStateMessage *tileState);
+        void SetTileState(const std::shared_ptr<TileStateMessage> &tileState);
 
         [[nodiscard]] const TileStateMessage *GetTileState() const;
     };

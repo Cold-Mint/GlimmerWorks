@@ -147,8 +147,6 @@ bool glimmer::MagnetSystem::ProcessMagneticEntity(GameEntityID magneticEntity,
     }
     const float normalizedDistance = distance / detectionRadius;
     const float forceStrength = 1.0F - normalizedDistance;
-    //Drive the item velocity directly toward the magnet instead of applying a Box2D force.
-    //直接让物品速度朝向磁铁，而不是施加 Box2D 力。
     collider->SetVelocity(distanceVector.Normalized() * MAX_MAGNET_FORCE * forceStrength);
     if (distance <= magnet->GetAdsorptionRadius()) {
         magnet->AddEntity(magneticEntity);

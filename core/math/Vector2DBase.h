@@ -233,7 +233,7 @@ namespace glimmer {
 
     template<typename Derived>
     Derived Vector2DBase<Derived>::Normalized() const {
-        const float len = LengthSquared();
+        const float len = Length();
         if (len < 0.0001F) {
             return Derived(0, 0);
         }

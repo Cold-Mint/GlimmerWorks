@@ -200,9 +200,10 @@ static constexpr DesignDimension MATERIAL_SELECT_CRAFT_PANEL_MIN_HEIGHT = 320.0F
 static constexpr DesignDimension MATERIAL_SELECT_CRAFT_BUTTON_HEIGHT = 32.0F;
 static constexpr int TOOLTIP_TEXT_WRAP_WIDTH = 180;
 
-//Maximum suction (slightly larger than the original 80, compensating for attenuation)
-//最大吸力（比原80稍大，补偿衰减）
-static constexpr float MAX_MAGNET_FORCE = 120.0F;
+//Maximum suction speed toward the magnet. Scaled by the distance attenuation below,
+//items accelerate to this speed as they approach the player.
+//朝磁铁飞行的最大吸力速度。配合下方的距离衰减，物品接近玩家时会加速到该速度。
+static constexpr float MAX_MAGNET_FORCE = 640.0F;
 static constexpr float MIN_SAFE_DISTANCE = 0.1F;
 /**
  *Type of adsorbate

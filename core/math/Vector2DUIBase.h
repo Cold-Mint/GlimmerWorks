@@ -246,11 +246,10 @@ namespace glimmer {
 
     template<typename Derived>
     Derived Vector2DUIBase<Derived>::Normalized() const {
-        const uint32_t lenSq = LengthSquared();
-        if (lenSq < 1U) {
+        const uint32_t len = Length();
+        if (len < 1) {
             return Derived(0, 0);
         }
-        const float len = std::sqrt(static_cast<float>(lenSq));
         return Derived(static_cast<int>(static_cast<float>(x) / len),
                        static_cast<int>(static_cast<float>(y) / len));
     }

@@ -318,6 +318,11 @@ void glimmer::ResourceFileLoader::LoadTileResourceFromFile(const toml::value &va
     tileResource->name.SetSelfPackageId(manifest_->id);
     tileResource->description.SetSelfPackageId(manifest_->id);
     tileResource->texture.SetSelfPackageId(manifest_->id);
+    tileResource->attachmentTextureUp.SetSelfPackageId(manifest_->id);
+    tileResource->attachmentTextureRight.SetSelfPackageId(manifest_->id);
+    tileResource->attachmentTextureDown.SetSelfPackageId(manifest_->id);
+    tileResource->attachmentTextureLeft.SetSelfPackageId(manifest_->id);
+    tileResource->attachmentTextureBack.SetSelfPackageId(manifest_->id);
     tileResource->pipeline.SetSelfPackageId(manifest_->id);
     tileResource->sampler.SetSelfPackageId(manifest_->id);
     tileResource->blueprintTexture.SetSelfPackageId(manifest_->id);
@@ -336,6 +341,7 @@ void glimmer::ResourceFileLoader::LoadTileResourceFromFile(const toml::value &va
     for (auto &tag: tileResource->tags) {
         tag.MakeCachedTag();
     }
+    tileResource->MakeCachedTag();
     if (tileResource->customLootTable) {
         tileResource->lootTable.SetSelfPackageId(manifest_->id);
     }

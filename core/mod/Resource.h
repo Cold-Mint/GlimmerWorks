@@ -305,9 +305,10 @@ namespace glimmer {
 
     //@genNextLine(AdjacentTileGrowthConditionResource|相邻瓦片生长条件资源)
     struct AdjacentTileGrowthConditionResource : IGrowthConditionResource {
-        //@genNextLine(requiredTag|相邻瓦片需要具备的标签)
-        std::string requiredTag;
-        uint64_t cachedTagId = 0;
+        //@genNextLine(requiredTags|相邻瓦片需要具备的标签列表，命中任一即可)
+        std::vector<std::string> requiredTags = {};
+        //@genNextLine(cachedTagIds|requiredTags 哈希后的缓存ID列表)
+        std::vector<uint64_t> cachedTagIds = {};
         //@genNextLine(offset|相对自身瓦片的偏移坐标，例如 [x=0, y=1] 表示正上方，[x=-1, y=0] 表示左侧)
         Vector2DIResource offset = {.x = 0, .y = -1};
         //@genNextLine(layerMask|图层位掩码)
@@ -515,8 +516,18 @@ namespace glimmer {
         ResourceRef description = {};
         //@genNextLine(lootTable|战利品表资源引用)
         ResourceRef lootTable = {};
-        //@genNextLine(texture|纹理资源引用)
+        //@genNextLine(texture|默认纹理资源引用，未指定方向纹理时使用)
         ResourceRef texture;
+        //@genNextLine(attachmentTextureUp|附着在上方时使用的纹理)
+        ResourceRef attachmentTextureUp = {};
+        //@genNextLine(attachmentTextureRight|附着在右侧时使用的纹理)
+        ResourceRef attachmentTextureRight = {};
+        //@genNextLine(attachmentTextureDown|附着在下方时使用的纹理)
+        ResourceRef attachmentTextureDown = {};
+        //@genNextLine(attachmentTextureLeft|附着在左侧时使用的纹理)
+        ResourceRef attachmentTextureLeft = {};
+        //@genNextLine(attachmentTextureBack|附着在背景(下层)时使用的纹理)
+        ResourceRef attachmentTextureBack = {};
         //@genNextLine(pipeline|渲染管线引用)
         ResourceRef pipeline = {};
         //@genNextLine(sampler|采样器引用)
@@ -593,6 +604,18 @@ namespace glimmer {
         bool destroySelfAfterGrowth = false;
         //@genNextLine(allowOfflineGrowth|是否允许离线生长，区块卸载后再次加载补时间插值)
         bool allowOfflineGrowth = true;
+        //@genNextLine(attachmentMask|附着点掩码 位1上 位2右 位3下 位4左 位5背景(下层)，0表示不启用附着)
+        uint8_t attachmentMask = 0;
+        //@genNextLine(attachmentTags|附着点标签，目标瓦片必须拥有此标签才被视为有效附着点)
+        std::vector<std::string> attachmentTags = {};
+        //@genNextLine(autoDerivedTags|是否自动生成派生标签)
+        bool autoDerivedTags = true;
+        //@genNextLine(partial|是否将其看作不会将其沾满整个格子。例如：火把，放置在泥土上，设置partial为true，那么引擎会认为泥土上面还有空气，其可以长出草。)
+        bool partial = false;
+        //附着点标签缓存ID列表（由 attachmentTags 哈希得到）
+        std::vector<uint64_t> cachedAttachmentTagIds = {};
+
+        void MakeCachedTag();
     };
 
     //@genNextLine(IBiomeDecoratorResource|生物群系装饰器接口)

@@ -107,3 +107,30 @@ void glimmer::TileResourceData::SetPipeline(std::shared_ptr<GPUPipelineResourceR
 void glimmer::TileResourceData::SetSampler(std::shared_ptr<GPUSamplerResourceResult> sampler) {
     sampler_ = std::move(sampler);
 }
+
+void glimmer::TileResourceData::SetAttachmentTexture(const TileAttachmentDirection direction,
+                                                     const std::shared_ptr<TextureResourceResult> &textureResult) {
+    const size_t index = static_cast<size_t>(direction);
+    if (index < attachmentTextureResults_.size()) {
+        attachmentTextureResults_[index] = textureResult;
+    }
+}
+
+glimmer::TextureResourceResult *glimmer::TileResourceData::GetAttachmentTexture(
+    const TileAttachmentDirection direction) const {
+    const size_t index = static_cast<size_t>(direction);
+    if (index >= attachmentTextureResults_.size()) {
+        return nullptr;
+    }
+    return attachmentTextureResults_[index].get();
+}
+
+glimmer::TextureResourceResult *glimmer::TileResourceData::GetResolvedTexture(
+    const TileAttachmentDirection direction) const {
+    if (direction != TileAttachmentDirection::None) {
+        if (TextureResourceResult *attachmentTexture = GetAttachmentTexture(direction); attachmentTexture != nullptr) {
+            return attachmentTexture;
+        }
+    }
+    return GetTexture();
+}

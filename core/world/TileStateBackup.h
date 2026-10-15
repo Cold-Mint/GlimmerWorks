@@ -32,8 +32,10 @@ namespace glimmer {
     class TileStateBackup {
         ResourceRef resourceRef_;
         Vector2DI offset_;
+        Vector2DI attachmentOffset_ = {0, 0};
         uint8_t width_ = 1;
         uint8_t height_ = 1;
+        uint8_t attachmentDirection_ = 0;
 
     public:
         void SetResourceRef(const ResourceRef &resourceRef);
@@ -43,6 +45,10 @@ namespace glimmer {
         void SetHeight(uint8_t height);
 
         void SetOffset(const Vector2DI &offset);
+
+        void SetAttachmentDirection(uint8_t attachmentDirection);
+
+        void SetAttachmentOffset(const Vector2DI &attachmentOffset);
 
         [[nodiscard]] const ResourceRef &GetResourceRef() const;
 
@@ -59,5 +65,9 @@ namespace glimmer {
         [[nodiscard]] uint8_t GetHeight() const;
 
         [[nodiscard]] uint8_t GetWidth() const;
+
+        [[nodiscard]] uint8_t GetAttachmentDirection() const;
+
+        [[nodiscard]] const Vector2DI &GetAttachmentOffset() const;
     };
 }

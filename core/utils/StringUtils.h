@@ -35,6 +35,7 @@
 
 namespace glimmer {
     struct ItemTagResource;
+
     class StringUtils {
         static std::unordered_map<std::string, ResourceTypeMessage> stringToResourceTypeMessage_;
 

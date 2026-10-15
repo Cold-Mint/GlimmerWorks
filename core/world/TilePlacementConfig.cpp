@@ -46,6 +46,14 @@ void glimmer::TilePlacementConfig::SetBreakSource(const BreakSource &breakSource
     breakSource_ = breakSource;
 }
 
+void glimmer::TilePlacementConfig::SetAttachmentDirection(const uint8_t attachmentDirection) {
+    attachmentDirection_ = attachmentDirection;
+}
+
+void glimmer::TilePlacementConfig::SetAttachmentOffset(const Vector2DI &attachmentOffset) {
+    attachmentOffset_ = attachmentOffset;
+}
+
 void glimmer::TilePlacementConfig::WriteResourceRefMessage(ResourceRefMessage &message) const {
     resourceRef_.WriteResourceRefMessage(message);
 }
@@ -69,4 +77,12 @@ uint8_t glimmer::TilePlacementConfig::GetTileWidth() const {
 
 uint8_t glimmer::TilePlacementConfig::GetTileHeight() const {
     return tileHeight_;
+}
+
+uint8_t glimmer::TilePlacementConfig::GetAttachmentDirection() const {
+    return attachmentDirection_;
+}
+
+const glimmer::Vector2DI &glimmer::TilePlacementConfig::GetAttachmentOffset() const {
+    return attachmentOffset_;
 }

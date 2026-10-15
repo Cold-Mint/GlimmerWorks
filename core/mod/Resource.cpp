@@ -140,7 +140,19 @@ void glimmer::RequiredTag::MakeCachedTag() {
 }
 
 void glimmer::AdjacentTileGrowthConditionResource::MakeCachedTag() {
-    if (cachedTagId == 0) {
-        cachedTagId = StringUtils::StringToUint64(requiredTag);
+    if (cachedTagIds.empty() && !requiredTags.empty()) {
+        cachedTagIds.reserve(requiredTags.size());
+        for (const auto &requiredTag: requiredTags) {
+            cachedTagIds.emplace_back(StringUtils::StringToUint64(requiredTag));
+        }
+    }
+}
+
+void glimmer::TileResource::MakeCachedTag() {
+    if (cachedAttachmentTagIds.empty() && !attachmentTags.empty()) {
+        cachedAttachmentTagIds.reserve(attachmentTags.size());
+        for (const auto &attachmentTag: attachmentTags) {
+            cachedAttachmentTagIds.emplace_back(StringUtils::StringToUint64(attachmentTag));
+        }
     }
 }

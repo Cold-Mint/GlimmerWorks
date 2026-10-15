@@ -27,11 +27,14 @@
 #pragma once
 #include <SDL3/SDL_gpu.h>
 
+#include <array>
+
 #include "core/mod/Resource.h"
 #include "core/mod/resourcePack/AudioResourceResult.h"
 #include "core/mod/resourcePack/GPUPipelineResourceResult.h"
 #include "core/mod/resourcePack/GPUSamplerResourceResult.h"
 #include "core/mod/resourcePack/TextureResourceResult.h"
+#include "core/world/TileAttachmentType.h"
 
 namespace glimmer {
     class TileResourceData {
@@ -42,6 +45,8 @@ namespace glimmer {
         std::shared_ptr<TextureResourceResult> textureResult_ = nullptr;
         std::shared_ptr<AudioResourceResult> breakSFXResult_ = nullptr;
         std::shared_ptr<AudioResourceResult> placeSFXResult_ = nullptr;
+        //附着各方向的纹理，索引为 TileAttachmentDirection 的底层值（1-5）。
+        std::array<std::shared_ptr<TextureResourceResult>, 6> attachmentTextureResults_ = {};
 
     public:
         [[nodiscard]] TextureResourceResult *GetTexture() const;
@@ -73,5 +78,16 @@ namespace glimmer {
         void SetPipeline(std::shared_ptr<GPUPipelineResourceResult> pipeline);
 
         void SetSampler(std::shared_ptr<GPUSamplerResourceResult> sampler);
+
+        void SetAttachmentTexture(TileAttachmentDirection direction,
+                                  const std::shared_ptr<TextureResourceResult> &textureResult);
+
+        [[nodiscard]] TextureResourceResult *GetAttachmentTexture(TileAttachmentDirection direction) const;
+
+        /**
+         * GetResolvedTexture
+         * 按附着方向解析最终使用的纹理：优先方向纹理，回退到默认纹理。
+         */
+        [[nodiscard]] TextureResourceResult *GetResolvedTexture(TileAttachmentDirection direction) const;
     };
 }

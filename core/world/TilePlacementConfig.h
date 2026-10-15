@@ -26,15 +26,18 @@
  */
 #pragma once
 
+#include "core/math/Vector2DI.h"
 #include "core/mod/ResourceRef.h"
 #include "core/world/BreakSource.h"
 
 namespace glimmer {
     class TilePlacementConfig {
         ResourceRef resourceRef_;
+        Vector2DI attachmentOffset_ = {0, 0};
         BreakSource breakSource_ = BreakSource::Unknown;
         uint8_t tileWidth_ = 1;
         uint8_t tileHeight_ = 1;
+        uint8_t attachmentDirection_ = 0;
         bool isPlaceMode_ = false;
 
     public:
@@ -48,6 +51,10 @@ namespace glimmer {
 
         void SetBreakSource(const BreakSource &breakSource);
 
+        void SetAttachmentDirection(uint8_t attachmentDirection);
+
+        void SetAttachmentOffset(const Vector2DI &attachmentOffset);
+
         void WriteResourceRefMessage(ResourceRefMessage &message) const;
 
         [[nodiscard]] BreakSource GetBreakSource() const;
@@ -59,5 +66,9 @@ namespace glimmer {
         [[nodiscard]] uint8_t GetTileWidth() const;
 
         [[nodiscard]] uint8_t GetTileHeight() const;
+
+        [[nodiscard]] uint8_t GetAttachmentDirection() const;
+
+        [[nodiscard]] const Vector2DI &GetAttachmentOffset() const;
     };
 }

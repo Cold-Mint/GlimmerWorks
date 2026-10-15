@@ -780,7 +780,7 @@ namespace toml {
             resource.layerMask = toml::find_or<uint8_t>(v, "layer_mask", 0);
             resource.offset = toml::find_or<glimmer::Vector2DIResource>(v, "offset", {.x = 0, .y = -1});
             resource.processorId = toml::find_or<uint8_t>(v, "processor_id", 0);
-            resource.requiredTag = toml::find<std::string>(v, "required_tag");
+            resource.requiredTags = toml::find_or<std::vector<std::string> >(v, "required_tags", {});
             resource.resourceId = toml::find<std::string>(v, "resource_id");
             return resource;
         }
@@ -804,6 +804,14 @@ namespace toml {
             resource.allowChainMining = toml::find_or<bool>(v, "allow_chain_mining", false);
             resource.allowDirAdjustAnchor = toml::find_or<bool>(v, "allow_dir_adjust_anchor", true);
             resource.allowOfflineGrowth = toml::find_or<bool>(v, "allow_offline_growth", true);
+            resource.attachmentMask = toml::find_or<uint8_t>(v, "attachment_mask", 0);
+            resource.attachmentTags = toml::find_or<std::vector<std::string> >(v, "attachment_tags", {});
+            resource.attachmentTextureBack = toml::find_or<glimmer::ResourceRef>(v, "attachment_texture_back", {});
+            resource.attachmentTextureDown = toml::find_or<glimmer::ResourceRef>(v, "attachment_texture_down", {});
+            resource.attachmentTextureLeft = toml::find_or<glimmer::ResourceRef>(v, "attachment_texture_left", {});
+            resource.attachmentTextureRight = toml::find_or<glimmer::ResourceRef>(v, "attachment_texture_right", {});
+            resource.attachmentTextureUp = toml::find_or<glimmer::ResourceRef>(v, "attachment_texture_up", {});
+            resource.autoDerivedTags = toml::find_or<bool>(v, "auto_derived_tags", true);
             resource.autoDigCostScale = toml::find_or<bool>(v, "auto_dig_cost_scale", true);
             resource.autoHardnessScale = toml::find_or<bool>(v, "auto_hardness_scale", true);
             resource.backLightMask = toml::find<glimmer::ResourceRef>(v, "back_light_mask");

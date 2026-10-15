@@ -67,6 +67,10 @@ void glimmer::MiningSystem::SaveTileState(const TileStateMessage *tileState, Til
     backup.SetWidth(tileState->width());
     backup.SetHeight(tileState->height());
     backup.ReadOffsetMessage(tileState->offset());
+    backup.SetAttachmentDirection(tileState->attachmentdirection());
+    Vector2DI attachmentOffset;
+    attachmentOffset.ReadVector2DIMessage(tileState->attachmentoffset());
+    backup.SetAttachmentOffset(attachmentOffset);
 }
 
 void glimmer::MiningSystem::RestoreTileState(TileStateMessage *tileState, const TileStateBackup &backup) {
@@ -74,6 +78,8 @@ void glimmer::MiningSystem::RestoreTileState(TileStateMessage *tileState, const 
     tileState->set_width(backup.GetWidth());
     tileState->set_height(backup.GetHeight());
     backup.WriteOffsetMessage(*tileState->mutable_offset());
+    tileState->set_attachmentdirection(backup.GetAttachmentDirection());
+    backup.GetAttachmentOffset().WriteVector2DIMessage(*tileState->mutable_attachmentoffset());
 }
 
 bool glimmer::MiningSystem::TryPlaceTile(const TileLayerComponent *tileLayerComponent,
@@ -93,6 +99,8 @@ bool glimmer::MiningSystem::TryPlaceTile(const TileLayerComponent *tileLayerComp
     } else {
         tileState->set_placesource(PLACE_SOURCE_BREAK);
     }
+    tileState->set_attachmentdirection(config.GetAttachmentDirection());
+    config.GetAttachmentOffset().WriteVector2DIMessage(*tileState->mutable_attachmentoffset());
     TileVector2D offset = topLeftVector - currentVector;
     offset.WriteVector2DIMessage(*tileState->mutable_offset());
     if (tileLayerComponent->CommitTileState(config.GetBreakSource(),
@@ -244,6 +252,8 @@ void glimmer::MiningSystem::ProcessSingleTile(const TileBreakParams &params,
     config.SetResourceRef(newTileRef);
     config.SetPlaceMode(params.IsPlaceMode());
     config.SetBreakSource(params.GetBreakSource());
+    config.SetAttachmentDirection(params.GetAttachmentDirection());
+    config.SetAttachmentOffset(params.GetAttachmentOffset());
     if (const TileResource *tileResource = appContext->GetResourceLocator()->FindTileRaw(&newTileRef); !TryPlaceTile(
         tileLayerComponent, tileStateMessage, currentVector, params.GetTopLeftPosition(),
         config, backup, tileResource, worldContext->GetGlobalTick())) {

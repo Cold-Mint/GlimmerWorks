@@ -25,6 +25,7 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include "core/math/Vector2DI.h"
 #include "core/world/BreakSource.h"
 #include "core/world/WorldContext.h"
 
@@ -32,6 +33,7 @@ namespace glimmer {
     class TileBreakParams {
         ResourceRef newTileRef_;
         TileVector2D topLeftPosition_;
+        Vector2DI attachmentOffset_ = {0, 0};
         WorldContext *worldContext_ = nullptr;
         const TileLayerComponent *tileLayerComponent_ = nullptr;
         BreakSource breakSource_ = BreakSource::Unknown;
@@ -39,6 +41,7 @@ namespace glimmer {
         bool isPlaceMode_ = false;
         uint8_t tileWidth_ = 1;
         uint8_t tileHeight_ = 1;
+        uint8_t attachmentDirection_ = 0;
 
     public:
         void SetBreakSource(const BreakSource &breakSource);
@@ -59,6 +62,10 @@ namespace glimmer {
 
         void SetNewTileRef(const ResourceRef &newTileRef);
 
+        void SetAttachmentDirection(uint8_t attachmentDirection);
+
+        void SetAttachmentOffset(const Vector2DI &attachmentOffset);
+
         [[nodiscard]] BreakSource GetBreakSource() const;
 
         [[nodiscard]] WorldContext *GetWorldContext() const;
@@ -78,5 +85,9 @@ namespace glimmer {
         [[nodiscard]] ResourceRef &GetMutableNewTileRef();
 
         [[nodiscard]] const ResourceRef &GetNewTileRef() const;
+
+        [[nodiscard]] uint8_t GetAttachmentDirection() const;
+
+        [[nodiscard]] const Vector2DI &GetAttachmentOffset() const;
     };
 }

@@ -73,9 +73,16 @@ namespace glimmer {
         TilePhysicsType physicsType_ = TilePhysicsType::None;
         bool destroySelfAfterGrowth_ = false;
         bool isOverwritable_ = false;
+        //附着点掩码，0表示不启用附着。
+        uint8_t attachmentMask_ = 0;
+        //附着点标签缓存ID列表，目标瓦片必须拥有其中任一标签才被视为有效附着点。
+        std::vector<uint64_t> attachmentTagIds_ = {};
 
         static TileVector2D CalculateTileAnchor(TileAnchorType tileAnchorType, uint8_t tileWidth, uint8_t tileHeight,
                                                 const Vector2DIResource &customTileAnchor);
+
+        static void AppendDerivedTag(std::unordered_set<uint64_t> &existingTagIds, std::vector<ItemTagResource> &tags,
+                              const std::string &name);
 
         static std::unique_ptr<Tile> FromTileResource(const AppContext *appContext,
                                                       const TileResource *tileResource);
@@ -164,5 +171,9 @@ namespace glimmer {
         [[nodiscard]] TileLightResourceData *GetMutableLightResourceData();
 
         [[nodiscard]] const TileLightResourceData *GetLightResourceData() const;
+
+        [[nodiscard]] uint8_t GetAttachmentMask() const;
+
+        [[nodiscard]] const std::vector<uint64_t> &GetAttachmentTagIds() const;
     };
 }

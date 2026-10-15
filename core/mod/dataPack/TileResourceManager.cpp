@@ -41,7 +41,6 @@ glimmer::TileResource *glimmer::TileResourceManager::AddCoreResource(const CoreT
     if (params.descriptionKey) {
         tileResource->description = CreateCoreRef(*params.descriptionKey, RESOURCE_STRING);
     }
-
     tileResource->resourceId = params.resourceId;
     tileResource->packId = RESOURCE_REF_CORE;
     tileResource->physicsType = std::to_underlying(params.physicsType);
@@ -49,7 +48,7 @@ glimmer::TileResource *glimmer::TileResourceManager::AddCoreResource(const CoreT
     tileResource->unitHardness = params.unitHardness;
     tileResource->isOverwritable = params.isOverwritable;
     tileResource->canDropLoot = params.canDropLoot;
-
+    tileResource->autoDerivedTags = params.autoDerivedTags;
     tileResource->lightSource = CreateCoreRef(params.lightSourceKey, RESOURCE_LIGHT_SOURCE);
     tileResource->sideLightMask = CreateCoreRef(params.sideLightMaskKey, RESOURCE_LIGHT_MASK);
     tileResource->backLightMask = CreateCoreRef(params.backLightMaskKey, RESOURCE_LIGHT_MASK);
@@ -87,7 +86,7 @@ void glimmer::TileResourceManager::InitBuiltinTiles() {
         LIGHT_NONE, LIGHT_MASK_NONE, LIGHT_MASK_NONE,
         -1.0F, true, false,
         TilePhysicsType::None, TileLayerType::Ground,
-        {StringUtils::MakeTag(TAG_AIR), StringUtils::MakeTag(TAG_REPLACEABLE)}
+        {StringUtils::MakeTag(TAG_AIR)}
     });
     airWall_ = AddCoreResource(CoreTileResourceParams{
         STRING_TILE_AIR_WALL_DESCRIPTION, TILE_ID_AIR_WALL,
@@ -95,7 +94,7 @@ void glimmer::TileResourceManager::InitBuiltinTiles() {
         LIGHT_NONE, LIGHT_MASK_NONE, LIGHT_MASK_NONE,
         -1.0F, true, false,
         TilePhysicsType::None, TileLayerType::BackGround,
-        {StringUtils::MakeTag(TAG_AIR), StringUtils::MakeTag(TAG_REPLACEABLE)}
+        {StringUtils::MakeTag(TAG_AIR)}
     });
     AddCoreResource(CoreTileResourceParams{
         STRING_TILE_VOID_DESCRIPTION, TILE_ID_VOID,
@@ -103,7 +102,7 @@ void glimmer::TileResourceManager::InitBuiltinTiles() {
         LIGHT_NONE, LIGHT_MASK_NONE, LIGHT_MASK_NONE,
         -1.0F, false, false,
         TilePhysicsType::None, TileLayerType::Ground,
-        {StringUtils::MakeTag(TAG_VOID), StringUtils::MakeTag(TAG_UNBREAKABLE)}
+        {StringUtils::MakeTag(TAG_VOID)}
     });
     AddCoreResource(CoreTileResourceParams{
         STRING_TILE_BEDROCK_DESCRIPTION, TILE_ID_BEDROCK,
@@ -111,7 +110,7 @@ void glimmer::TileResourceManager::InitBuiltinTiles() {
         LIGHT_NONE, LIGHT_MASK_FULL, LIGHT_MASK_FULL,
         -1.0F, false, false,
         TilePhysicsType::Static, TileLayerType::Ground,
-        {StringUtils::MakeTag(TAG_BEDROCK), StringUtils::MakeTag(TAG_UNBREAKABLE)}
+        {StringUtils::MakeTag(TAG_BEDROCK)}
     });
     AddCoreResource(CoreTileResourceParams{
         STRING_TILE_VOID_WALL_DESCRIPTION, TILE_ID_VOID_WALL,
@@ -119,14 +118,14 @@ void glimmer::TileResourceManager::InitBuiltinTiles() {
         LIGHT_NONE, LIGHT_MASK_NONE, LIGHT_MASK_LOW,
         -1.0F, false, false,
         TilePhysicsType::None, TileLayerType::BackGround,
-        {StringUtils::MakeTag(TAG_VOID), StringUtils::MakeTag(TAG_UNBREAKABLE)}
+        {StringUtils::MakeTag(TAG_VOID)}
     });
     AddCoreResource(CoreTileResourceParams{
         std::nullopt, TILE_ID_WATER,
         STRING_TILE_WATER_NAME, "tiles/water",
         LIGHT_NONE, LIGHT_MASK_NONE, LIGHT_MASK_LOW,
-        -1.0F, true, true,
-        TilePhysicsType::None, TileLayerType::Ground,
+        -1.0F, true, false,
+        TilePhysicsType::Fluid, TileLayerType::Ground,
         {StringUtils::MakeTag(TAG_WATER), StringUtils::MakeTag(TAG_FLUID)}
     });
     AddCoreResource(CoreTileResourceParams{
@@ -142,7 +141,7 @@ void glimmer::TileResourceManager::InitBuiltinTiles() {
         STRING_TILE_ERROR_WALL_NAME, ERROR_TEXTURE_KEY,
         LIGHT_NONE, LIGHT_MASK_MEDIUM, LIGHT_MASK_LOW,
         0.1F, false, true,
-        TilePhysicsType::Static, TileLayerType::BackGround,
+        TilePhysicsType::None, TileLayerType::BackGround,
         {StringUtils::MakeTag(TAG_ERROR), StringUtils::MakeTag(TAG_PLACEHOLDER)}
     });
     AddCoreResource(CoreTileResourceParams{
@@ -158,7 +157,7 @@ void glimmer::TileResourceManager::InitBuiltinTiles() {
         STRING_TILE_ACCESS_DENIED_WALL_NAME, ACCESS_DENIED_TEXTURE_KEY,
         LIGHT_NONE, LIGHT_MASK_MEDIUM, LIGHT_MASK_LOW,
         0.1F, false, true,
-        TilePhysicsType::Static, TileLayerType::BackGround,
+        TilePhysicsType::None, TileLayerType::BackGround,
         {StringUtils::MakeTag(TAG_ACCESS_DENIED), StringUtils::MakeTag(TAG_PLACEHOLDER)}
     });
 }

@@ -26,6 +26,8 @@
  */
 #include "AdjacentTileGrowthConditionProcessor.h"
 
+#include <unordered_set>
+
 #include "core/config/Constants.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/math/TileVector2D.h"
@@ -48,10 +50,11 @@ bool glimmer::AdjacentTileGrowthConditionProcessor::Match(const WorldContext *wo
     if (adjacentTileCondition == nullptr || worldContext == nullptr) {
         return false;
     }
-    const uint64_t requiredTagId = adjacentTileCondition->cachedTagId;
-    if (requiredTagId == 0) {
+    const auto &requiredTagIds = adjacentTileCondition->cachedTagIds;
+    if (requiredTagIds.empty()) {
         return false;
     }
+    const std::unordered_set requiredTagSet(requiredTagIds.begin(), requiredTagIds.end());
     const TileVector2D adjacentPosition(position.x + adjacentTileCondition->offset.x,
                                         position.y + adjacentTileCondition->offset.y);
     const ChunkManager *chunkManager = worldContext->GetChunkManager();
@@ -80,7 +83,7 @@ bool glimmer::AdjacentTileGrowthConditionProcessor::Match(const WorldContext *wo
             continue;
         }
         for (const auto &tag: tileData->GetTags()) {
-            if (tag.cachedTagId == requiredTagId) {
+            if (requiredTagSet.contains(tag.cachedTagId)) {
                 return true;
             }
         }

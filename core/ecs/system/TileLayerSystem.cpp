@@ -38,6 +38,7 @@
 #include "core/world/ChunkManager.h"
 #include "core/world/Dimension.h"
 #include "core/world/Tile.h"
+#include "core/world/TileAttachmentType.h"
 #include "core/world/generator/Chunk.h"
 #include "core/world/generator/TileLayerType.h"
 
@@ -105,13 +106,30 @@ void glimmer::TileLayerSystem::RenderTileSnapshot(RenderQueue *queue, const Tile
     if (tileResourceData == nullptr) {
         return;
     }
-    TextureResourceResult *textureResourceResult = tileResourceData->GetTexture();
+    const auto attachmentDirection = static_cast<TileAttachmentDirection>(tileState->attachmentdirection());
+    TextureResourceResult *textureResourceResult = nullptr;
+    Uint8 flip = FLIP_NONE;
+    if (attachmentDirection == TileAttachmentDirection::Left) {
+        //约定A：纹理按朝右绘制。左侧附着时，优先使用显式的左向纹理（不翻转），
+        //否则用右侧纹理（或默认纹理）水平翻转生成。
+        textureResourceResult = tileResourceData->GetAttachmentTexture(TileAttachmentDirection::Left);
+        if (textureResourceResult == nullptr) {
+            textureResourceResult = tileResourceData->GetAttachmentTexture(TileAttachmentDirection::Right);
+            if (textureResourceResult == nullptr) {
+                textureResourceResult = tileResourceData->GetTexture();
+            }
+            flip = FLIP_HORIZONTAL;
+        }
+    } else {
+        textureResourceResult = tileResourceData->GetResolvedTexture(attachmentDirection);
+    }
     if (textureResourceResult == nullptr) {
         return;
     }
-    queue->DrawTexture(RenderLayer::Tile, 0.0F, textureResourceResult, nullptr, &renderQuad,
-                       {255, 255, 255, 255}, tileResourceData->GetPipeline(), tileResourceData->GetSampler(),
-                       tileResourceData->GetUniformBlocks());
+    queue->DrawTextureRotated(RenderLayer::Tile, 0.0F, textureResourceResult, nullptr, &renderQuad,
+                              0.0F, nullptr, flip,
+                              {255, 255, 255, 255}, tileResourceData->GetPipeline(), tileResourceData->GetSampler(),
+                              tileResourceData->GetUniformBlocks());
 }
 
 glimmer::TileLayerSystem::TileLayerSystem(WorldContext *worldContext)

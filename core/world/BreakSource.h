@@ -43,6 +43,9 @@ namespace glimmer {
         //Crop mature growth overwrites existing block on top.
         //作物长成覆盖顶掉方块。
         CropGrowthOverwrite,
+        //The tile lost its attachment support and was broken.
+        //瓦片失去附着支撑而被破坏。
+        AttachmentLoss,
         Console
     };
 }

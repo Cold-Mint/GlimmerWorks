@@ -359,6 +359,9 @@ static constexpr std::string TAG_REPLACEABLE = "replaceable";
 static constexpr std::string TAG_UNBREAKABLE = "unbreakable";
 static constexpr std::string TAG_FLUID = "fluid";
 static constexpr std::string TAG_PLACEHOLDER = "placeholder";
+static constexpr std::string TAG_SOLID = "solid";
+static constexpr std::string TAG_WALL = "wall";
+static constexpr std::string TAG_PARTIAL = "partial";
 
 static constexpr std::string STRING_TILE_AIR_NAME = "tile_name_air";
 static const std::string STRING_TILE_AIR_WALL_NAME = "tile_name_air_wall";

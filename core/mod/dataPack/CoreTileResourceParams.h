@@ -50,5 +50,6 @@ namespace glimmer {
         TilePhysicsType physicsType;
         TileLayerType layer;
         std::vector<ItemTagResource> tags = {};
+        bool autoDerivedTags = true;
     };
 }

@@ -27,11 +27,14 @@
 #pragma once
 #include "core/ecs/GameComponent.h"
 #include "core/math/TileVector2D.h"
+#include "core/math/Vector2DI.h"
 
 
 namespace glimmer {
     class BlueprintComponent : public GameComponent {
         TileVector2D topLeftVector_;
+        Vector2DI attachmentOffset_ = {0, 0};
+        uint8_t attachmentDirection_ = 0;
         bool canPlace_ = false;
 
     public:
@@ -42,6 +45,14 @@ namespace glimmer {
         void SetTopLeftVector(const TileVector2D &topLeftVector);
 
         [[nodiscard]] const TileVector2D &GetTopLeftVector() const;
+
+        void SetAttachmentDirection(uint8_t attachmentDirection);
+
+        [[nodiscard]] uint8_t GetAttachmentDirection() const;
+
+        void SetAttachmentOffset(const Vector2DI &attachmentOffset);
+
+        [[nodiscard]] const Vector2DI &GetAttachmentOffset() const;
 
         [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 

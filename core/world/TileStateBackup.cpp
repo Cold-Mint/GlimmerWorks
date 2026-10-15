@@ -42,6 +42,14 @@ void glimmer::TileStateBackup::SetOffset(const Vector2DI &offset) {
     offset_ = offset;
 }
 
+void glimmer::TileStateBackup::SetAttachmentDirection(const uint8_t attachmentDirection) {
+    attachmentDirection_ = attachmentDirection;
+}
+
+void glimmer::TileStateBackup::SetAttachmentOffset(const Vector2DI &attachmentOffset) {
+    attachmentOffset_ = attachmentOffset;
+}
+
 const glimmer::ResourceRef &glimmer::TileStateBackup::GetResourceRef() const {
     return resourceRef_;
 }
@@ -73,4 +81,12 @@ uint8_t glimmer::TileStateBackup::GetHeight() const {
 
 uint8_t glimmer::TileStateBackup::GetWidth() const {
     return width_;
+}
+
+uint8_t glimmer::TileStateBackup::GetAttachmentDirection() const {
+    return attachmentDirection_;
+}
+
+const glimmer::Vector2DI &glimmer::TileStateBackup::GetAttachmentOffset() const {
+    return attachmentOffset_;
 }

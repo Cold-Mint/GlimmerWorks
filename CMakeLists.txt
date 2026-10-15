@@ -295,7 +295,7 @@ set(utf8_range_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
 
 FetchContent_Declare(
         glimmerWorksProtobuf
-        GIT_REPOSITORY "https://github.com/Cold-Mint/GlimmerWorksProtobuf"
+        GIT_REPOSITORY "http://192.168.5.64:3000/Cold-Mint/GlimmerWorksProtobufLocal"
         ${GLIMMERWORKS_PROTOBUF_TAG_ARGS}
         GIT_SHALLOW TRUE
         EXCLUDE_FROM_ALL
@@ -461,6 +461,7 @@ target_sources(GlimmerWorks
         core/inventory/TagRuntimeData.cpp
         core/world/TilePlacementConfig.cpp
         core/world/TileStateBackup.cpp
+        core/world/TileAttachmentHelper.cpp
         core/console/Command.cpp
         core/console/CommandArgs.cpp
         core/console/CommandHistoryManager.cpp
@@ -1219,6 +1220,8 @@ target_sources(GlimmerWorks
         core/world/SystemScheduler.h
         core/world/Tile.h
         core/world/TileAnchorType.h
+        core/world/TileAttachmentHelper.h
+        core/world/TileAttachmentType.h
         core/world/TileBlueprintData.h
         core/world/TileDimensions.h
         core/world/TileInstancePool.h

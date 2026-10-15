@@ -33,6 +33,8 @@
 #include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/world/Dimension.h"
+#include "core/world/TileAttachmentHelper.h"
+#include "core/world/TileAttachmentType.h"
 #include "core/world/WorldContext.h"
 
 
@@ -378,6 +380,8 @@ void glimmer::BlueprintSystem::Render(RenderQueue *queue) {
     queue->DrawRect(RenderLayer::Effect, 0.0F, &renderQuad, focusTileBorderColor);
     if (heldTile_ == nullptr) {
         blueprintComponent_->SetCanPlace(false);
+        blueprintComponent_->SetAttachmentDirection(0);
+        blueprintComponent_->SetAttachmentOffset(Vector2DI{0, 0});
         return;
     }
     if (!miningComponent_->IsEnable()) {
@@ -390,7 +394,34 @@ void glimmer::BlueprintSystem::Render(RenderQueue *queue) {
             return;
         }
         RenderBlueprintMask(queue, checkRectResult, leftBottom, tileWidth);
-        blueprintComponent_->SetCanPlace(checkRectResult[checkRectResult.size() - 1]);
+        bool canPlace = checkRectResult[checkRectResult.size() - 1];
+        blueprintComponent_->SetAttachmentDirection(0);
+        blueprintComponent_->SetAttachmentOffset(Vector2DI{0, 0});
+        if (canPlace && heldTile_->GetAttachmentMask() != 0) {
+            const TileVector2D playerTile = CoordinateTransformer::WorldToTile(playerPosition);
+            const TileVector2D vectorA = focusPosition - playerTile;
+            auto direction = TileAttachmentDirection::None;
+            Vector2DI offset{0, 0};
+            LogCat::d(LogLabel::ATTACHMENT, "blueprint_attachment_check",
+                      "Attachment check: tile={}, mask={}, tagCount={}, vectorA=({}, {})",
+                      heldTile_->GetId(), heldTile_->GetAttachmentMask(), heldTile_->GetAttachmentTagIds().size(),
+                      vectorA.x, vectorA.y);
+            if (TileAttachmentHelper::FindAttachment(worldContext, heldTile_->GetLayerType(), topLeftVector,
+                                                     tileWidth, tileHeight, heldTile_->GetAttachmentMask(),
+                                                     heldTile_->GetAttachmentTagIds(), vectorA, direction, offset)) {
+                blueprintComponent_->SetAttachmentDirection(static_cast<uint8_t>(direction));
+                blueprintComponent_->SetAttachmentOffset(offset);
+                LogCat::d(LogLabel::ATTACHMENT, "blueprint_attachment_found",
+                          "Attachment found: tile={}, direction={}, offset=({}, {})",
+                          heldTile_->GetId(), static_cast<int>(direction), offset.x, offset.y);
+            } else {
+                canPlace = false;
+                LogCat::d(LogLabel::ATTACHMENT, "blueprint_attachment_not_found",
+                          "Attachment not found: tile={}, vectorA=({}, {})",
+                          heldTile_->GetId(), vectorA.x, vectorA.y);
+            }
+        }
+        blueprintComponent_->SetCanPlace(canPlace);
     }
 }
 

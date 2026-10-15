@@ -139,6 +139,8 @@ bool glimmer::TileItem::OnUse(bool mouseLeft, WorldContext *worldContext, uint32
                 tileBreakParams.SetTileWidth(tileDimensions_->GetTileWidth());
                 tileBreakParams.SetTileHeight(tileDimensions_->GetTileHeight());
                 tileBreakParams.SetNewTileRef(GetResourceRef());
+                tileBreakParams.SetAttachmentDirection(blueprintComponent->GetAttachmentDirection());
+                tileBreakParams.SetAttachmentOffset(blueprintComponent->GetAttachmentOffset());
                 MiningSystem::BreakTile(tileBreakParams);
             }
 

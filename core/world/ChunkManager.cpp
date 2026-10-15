@@ -26,6 +26,7 @@
  */
 #include "ChunkManager.h"
 
+#include <utility>
 #include <vector>
 
 #include "core/config/Constants.h"
@@ -33,22 +34,167 @@
 #include "core/ecs/EntityManager.h"
 #include "core/ecs/EntityShortCut.h"
 #include "core/ecs/component/Transform2DComponent.h"
+#include "core/ecs/system/MiningSystem.h"
 #include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
+#include "core/math/Vector2DI.h"
 #include "core/mod/ResourceLocator.h"
+#include "core/mod/dataPack/TileResourceManager.h"
 #include "core/saves/Saves.h"
 #include "core/scene/MainThreadDispatcher.h"
 #include "core/world/Dimension.h"
 #include "core/world/Tile.h"
+#include "core/world/TileAttachmentHelper.h"
 #include "core/world/WorldContext.h"
 #include "generator/ChunkGenerator.h"
 #include "generator/ChunkLoader.h"
 #include "src/saves/chunk.pb.h"
 
 
+uint64_t glimmer::ChunkManager::MakeAttachmentOriginFingerprint(const TileVector2D &origin, TileLayerType layer) {
+    uint64_t fingerprint = 0;
+    fingerprint |= (static_cast<uint64_t>(static_cast<uint32_t>(origin.x)) & 0xFFFFFFULL) << 32;
+    fingerprint |= (static_cast<uint64_t>(static_cast<uint32_t>(origin.y)) & 0xFFFFFFULL) << 8;
+    fingerprint |= std::to_underlying(layer);
+    return fingerprint;
+}
+
+TileStateMessage *glimmer::ChunkManager::GetTileStateAt(const ChunkManager *self, const TileLayerType layer,
+                                                        const TileVector2D &cell) {
+    const Chunk *chunk = self->GetChunk(CoordinateTransformer::TileToChunkVertex(cell));
+    if (chunk == nullptr) {
+        return nullptr;
+    }
+    const ChunkRelativeVector2D relative = CoordinateTransformer::TileToChunkRelative(cell);
+    return chunk->GetTileState(layer, CoordinateTransformer::GetArrayIndex(relative.x, relative.y,
+                                                                           CHUNK_SHIFT));
+}
+
+
 void glimmer::ChunkManager::OnChunkTileChange(const std::shared_ptr<Chunk> &chunk, const std::shared_ptr<Tile> &tile,
-                                              TileLayerType layerType, size_t index) const {
+                                              TileLayerType layerType, size_t index, const BreakSource breakSource) {
     UpdateTileLight(chunk.get(), layerType, index);
+    if (breakSource == BreakSource::ChunkLoad || breakSource == BreakSource::ChunkGenerate ||
+        breakSource == BreakSource::ChunkUnload) {
+        return;
+    }
+    const auto relative = CoordinateTransformer::IndexToVector2D<ChunkRelativeVector2D>(index,
+        CHUNK_MASK, CHUNK_SHIFT);
+    const ChunkVertexVector2D &position = chunk->GetPosition();
+    const TileVector2D changedCell{
+        position.x + static_cast<int>(relative.x),
+        position.y + static_cast<int>(relative.y)
+    };
+    PropagateAttachmentLoss(layerType, changedCell);
+}
+
+void glimmer::ChunkManager::PropagateAttachmentLoss(const TileLayerType layerType, const TileVector2D &changedCell) {
+    if (worldContext_ == nullptr) {
+        return;
+    }
+    attachmentPropagateDepth_++;
+    if (attachmentPropagateDepth_ == 1) {
+        attachmentBrokenOrigins_.clear();
+    }
+    struct Candidate {
+        TileVector2D cell;
+        TileLayerType layer;
+        TileAttachmentDirection expectedDirection;
+    };
+    std::vector<Candidate> candidates;
+    //Same-layer cardinal neighbours. 同层四邻格。
+    candidates.push_back({TileVector2D{changedCell.x, changedCell.y - 1}, layerType, TileAttachmentDirection::Up});
+    candidates.push_back({TileVector2D{changedCell.x, changedCell.y + 1}, layerType, TileAttachmentDirection::Down});
+    candidates.push_back({TileVector2D{changedCell.x - 1, changedCell.y}, layerType, TileAttachmentDirection::Right});
+    candidates.push_back({TileVector2D{changedCell.x + 1, changedCell.y}, layerType, TileAttachmentDirection::Left});
+    //Ground tiles attached to a background wall below them. 地面层瓦片附着到其下方的背景层。
+    if (layerType == TileLayerType::BackGround) {
+        candidates.push_back({changedCell, TileLayerType::Ground, TileAttachmentDirection::BackLayer});
+    }
+    for (const Candidate &candidate: candidates) {
+        TileStateMessage *state = GetTileStateAt(this, candidate.layer, candidate.cell);
+        if (state == nullptr) {
+            continue;
+        }
+        const auto direction = static_cast<TileAttachmentDirection>(state->attachmentdirection());
+        if (direction == TileAttachmentDirection::None || direction != candidate.expectedDirection) {
+            continue;
+        }
+        TileVector2D offset(0, 0);
+        offset.ReadVector2DIMessage(state->offset());
+        const TileVector2D origin = candidate.cell + offset;
+        TileStateMessage *originState = GetTileStateAt(this, candidate.layer, origin);
+        if (originState == nullptr) {
+            continue;
+        }
+        const auto width = static_cast<uint8_t>(originState->width());
+        const auto height = static_cast<uint8_t>(originState->height());
+        const uint64_t originKey = MakeAttachmentOriginFingerprint(origin, candidate.layer);
+        if (attachmentBrokenOrigins_.contains(originKey)) {
+            continue;
+        }
+        const Tile *tile = GetTileAt(candidate.layer, origin);
+        if (tile == nullptr) {
+            continue;
+        }
+        if (!TileAttachmentHelper::ValidateAttachment(worldContext_, candidate.layer, origin, width, height,
+                                                      tile->GetAttachmentTagIds(),
+                                                      direction)) {
+            attachmentBrokenOrigins_.insert(originKey);
+            BreakAttachedTile(candidate.layer, origin, width, height);
+        }
+    }
+    attachmentPropagateDepth_--;
+    if (attachmentPropagateDepth_ == 0) {
+        attachmentBrokenOrigins_.clear();
+    }
+}
+
+void glimmer::ChunkManager::BreakAttachedTile(const TileLayerType layerType, const TileVector2D &origin,
+                                              const uint8_t width, const uint8_t height) {
+    const AppContext *appContext = worldContext_ != nullptr ? worldContext_->GetAppContext() : nullptr;
+    if (appContext == nullptr) {
+        return;
+    }
+    const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+    if (resourceLocator == nullptr) {
+        return;
+    }
+    ResourceRef airRef;
+    TileResourceManager::WriteAirResourceRef(layerType, airRef);
+    const TileResource *airTileResource = resourceLocator->FindTileRaw(&airRef);
+    if (airTileResource == nullptr) {
+        return;
+    }
+    //Drop loot at the center cell before overwriting. 覆盖前在中心格掉落。
+    const TileVector2D center{origin.x + static_cast<int>(width) / 2, origin.y - static_cast<int>(height) / 2};
+    Chunk *centerChunk = GetChunk(CoordinateTransformer::TileToChunkVertex(center));
+    if (centerChunk != nullptr) {
+        const ChunkRelativeVector2D relative = CoordinateTransformer::TileToChunkRelative(center);
+        const size_t centerIndex = CoordinateTransformer::GetArrayIndex(relative.x, relative.y, CHUNK_SHIFT);
+        const std::shared_ptr<Tile> oldTile = centerChunk->GetTileShared(layerType, centerIndex);
+        if (oldTile != nullptr) {
+            const TileStateMessage *oldState = centerChunk->GetTileState(layerType, centerIndex);
+            if (oldState != nullptr) {
+                ResourceRef oldRef;
+                oldRef.ReadResourceRefMessage(oldState->resourceref());
+                MiningSystem::DropTileLoot(worldContext_, oldTile, center, oldRef, false);
+            }
+        }
+    }
+    for (int x = 0; x < width; ++x) {
+        for (int y = 0; y < height; ++y) {
+            const TileVector2D cell{origin.x + x, origin.y - y};
+            Chunk *chunk = GetChunk(CoordinateTransformer::TileToChunkVertex(cell));
+            if (chunk == nullptr) {
+                continue;
+            }
+            const ChunkRelativeVector2D relative = CoordinateTransformer::TileToChunkRelative(cell);
+            const size_t index = CoordinateTransformer::GetArrayIndex(relative.x, relative.y, CHUNK_SHIFT);
+            chunk->PlaceTile(layerType, index, airRef, airTileResource, BreakSource::AttachmentLoss,
+                             PLACE_SOURCE_BREAK, 0, 0, false);
+        }
+    }
 }
 
 void glimmer::ChunkManager::UpdateTileLight(const Chunk *chunk, TileLayerType layerType, size_t index) const {
@@ -183,6 +329,16 @@ glimmer::ChunkManager::ChunkManager(WorldContext *worldContext) : worldContext_(
     LogCat::i(LogLabel::CHUNK, "chunk_manager_created", "ChunkManager created for dimension folder.");
 }
 
+const glimmer::Tile *glimmer::ChunkManager::GetTileAt(const TileLayerType layer, const TileVector2D &cell) const {
+    const Chunk *chunk = GetChunk(CoordinateTransformer::TileToChunkVertex(cell));
+    if (chunk == nullptr) {
+        return nullptr;
+    }
+    const ChunkRelativeVector2D relative = CoordinateTransformer::TileToChunkRelative(cell);
+    return chunk->
+            GetTile(layer, CoordinateTransformer::GetArrayIndex(relative.x, relative.y, CHUNK_SHIFT));
+}
+
 void glimmer::ChunkManager::LoadChunkAt(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position) {
     if (HasChunk(position)) {
         return;
@@ -211,8 +367,9 @@ void glimmer::ChunkManager::LoadChunkAt(const ResourceRef &dimensionRef, const C
     }
     newlyCreatedChunk->AddReplaceTileCallback([this](const std::shared_ptr<Chunk> &chunk, const TileLayerType layerType,
                                                      const size_t index,
-                                                     std::shared_ptr<Tile>, const std::shared_ptr<Tile> &newTile) {
-        OnChunkTileChange(chunk, newTile, layerType, index);
+                                                     std::shared_ptr<Tile>, const std::shared_ptr<Tile> &newTile,
+                                                     const BreakSource breakSource) {
+        OnChunkTileChange(chunk, newTile, layerType, index, breakSource);
     });
     newlyCreatedChunk->SetDependencyTerrain(terrainResult);
     {

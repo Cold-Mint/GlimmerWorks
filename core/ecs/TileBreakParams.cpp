@@ -62,6 +62,14 @@ void glimmer::TileBreakParams::SetNewTileRef(const ResourceRef &newTileRef) {
     newTileRef_ = newTileRef;
 }
 
+void glimmer::TileBreakParams::SetAttachmentDirection(const uint8_t attachmentDirection) {
+    attachmentDirection_ = attachmentDirection;
+}
+
+void glimmer::TileBreakParams::SetAttachmentOffset(const Vector2DI &attachmentOffset) {
+    attachmentOffset_ = attachmentOffset;
+}
+
 glimmer::BreakSource glimmer::TileBreakParams::GetBreakSource() const {
     return breakSource_;
 }
@@ -100,4 +108,12 @@ glimmer::ResourceRef &glimmer::TileBreakParams::GetMutableNewTileRef() {
 
 const glimmer::ResourceRef &glimmer::TileBreakParams::GetNewTileRef() const {
     return newTileRef_;
+}
+
+uint8_t glimmer::TileBreakParams::GetAttachmentDirection() const {
+    return attachmentDirection_;
+}
+
+const glimmer::Vector2DI &glimmer::TileBreakParams::GetAttachmentOffset() const {
+    return attachmentOffset_;
 }

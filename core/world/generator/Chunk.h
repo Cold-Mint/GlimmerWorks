@@ -54,7 +54,7 @@ namespace glimmer {
 
         std::vector<std::function<void(std::shared_ptr<Chunk> chunk, TileLayerType layerType, size_t index,
                                        std::shared_ptr<Tile> oldTile,
-                                       std::shared_ptr<Tile> newTile)> > replaceTileCallback_;
+                                       std::shared_ptr<Tile> newTile, BreakSource breakSource)> > replaceTileCallback_;
         ChunkVertexVector2D position_;
         //The terrain data that this chunk depends on. Holding the shared_ptr keeps the terrain alive and allows
         //neighboring chunks to reuse it until this chunk is unloaded.
@@ -65,7 +65,7 @@ namespace glimmer {
 
         void InvokeReplaceTileCallback(const std::shared_ptr<Chunk> &chunk, TileLayerType layerType, size_t index,
                                        const std::shared_ptr<Tile> &oldTile,
-                                       const std::shared_ptr<Tile> &newTile) const;
+                                       const std::shared_ptr<Tile> &newTile, BreakSource breakSource) const;
 
         static void WriteTileStatesToMessage(
             const std::array<std::shared_ptr<TileStateMessage>, CHUNK_AREA> &tileStates,
@@ -83,8 +83,8 @@ namespace glimmer {
         size_t AddReplaceTileCallback(const std::function<void(std::shared_ptr<Chunk> chunk, TileLayerType layerType,
                                                                size_t index,
                                                                std::shared_ptr<Tile> oldTile,
-                                                               std::shared_ptr<Tile> newTile)
-            >
+                                                               std::shared_ptr<Tile> newTile,
+                                                               BreakSource breakSource)>
             &
             callBack
         );

@@ -82,6 +82,8 @@ namespace glimmer {
                     return "CHUNK";
                 case LogLabel::TERRAIN:
                     return "TERRAIN";
+                case LogLabel::ATTACHMENT:
+                    return "ATTACHMENT";
             }
             return "UNKNOWN";
         }

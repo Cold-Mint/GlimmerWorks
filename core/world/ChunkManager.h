@@ -29,13 +29,15 @@
 #include <memory>
 #include <mutex>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "LightBuffer.h"
 #include "TileInstancePool.h"
 #include "core/math/ChunkVertexVector2D.h"
+#include "core/math/TileVector2D.h"
 #include "core/math/Vector2DIHash.h"
-#include "core/mod/ResourceRefHash.h"
+#include "core/world/BreakSource.h"
 #include "generator/Chunk.h"
 #include "generator/ChunkLoader.h"
 #include "generator/TerrainGenerator.h"
@@ -68,6 +70,17 @@ namespace glimmer {
         WorldContext *worldContext_ = nullptr;
         std::unique_ptr<LightBuffer> lightBuffer_ = nullptr;
         std::unique_ptr<TileInstancePool> tileInstancePool_ = nullptr;
+        //附着级联破坏的深度计数与已破坏瓦片原点集合，用于防止多格大型瓦片递归爆炸。
+        int attachmentPropagateDepth_ = 0;
+        std::unordered_set<uint64_t> attachmentBrokenOrigins_;
+
+        static uint64_t MakeAttachmentOriginFingerprint(const TileVector2D &origin,
+                                                        TileLayerType layer);
+
+        static TileStateMessage *GetTileStateAt(const ChunkManager *self, TileLayerType layer,
+                                                const TileVector2D &cell);
+
+
         /**
          * OnChunkTileChange
          * 当区块内的瓦片改变时
@@ -75,12 +88,25 @@ namespace glimmer {
          * @param tile tile 瓦片
          * @param layerType layerType 图层类型
          * @param index index 索引
+         * @param breakSource breakSource 破坏来源
          */
         void OnChunkTileChange(const std::shared_ptr<Chunk> &chunk, const std::shared_ptr<Tile> &tile,
                                TileLayerType layerType,
-                               size_t index) const;
+                               size_t index, BreakSource breakSource);
 
         void UpdateTileLight(const Chunk *chunk, TileLayerType layerType, size_t index) const;
+
+        /**
+         * PropagateAttachmentLoss
+         * 当某个格子变化后，检查附着于该格子的瓦片是否失去支撑，失去支撑则破坏。
+         */
+        void PropagateAttachmentLoss(TileLayerType layerType, const TileVector2D &changedCell);
+
+        /**
+         * BreakAttachedTile
+         * 破坏一个失去支撑的附着瓦片（按原点整块破坏并掉落）。
+         */
+        void BreakAttachedTile(TileLayerType layerType, const TileVector2D &origin, uint8_t width, uint8_t height);
 
         /**
          * Update the lighting for the entire chunk.
@@ -91,6 +117,9 @@ namespace glimmer {
 
     public:
         explicit ChunkManager(WorldContext *worldContext);
+
+        const Tile *GetTileAt(TileLayerType layer,
+                              const TileVector2D &cell) const;
 
         /**
         * Load Chunk

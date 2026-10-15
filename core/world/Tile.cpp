@@ -27,9 +27,12 @@
 #include "Tile.h"
 
 #include <optional>
+#include <unordered_set>
 
 #include "TileAnchorType.h"
+#include "TileAttachmentType.h"
 #include "WorldContext.h"
+#include "core/config/Constants.h"
 #include "core/context/AppContext.h"
 #include "core/context/CacheContext.h"
 #include "core/mod/ResourceLocator.h"
@@ -37,6 +40,7 @@
 #include "core/ecs/component/CropComponent.h"
 #include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
+#include "core/utils/StringUtils.h"
 
 using enum glimmer::TileAnchorType;
 
@@ -163,6 +167,17 @@ glimmer::TileVector2D glimmer::Tile::CalculateTileAnchor(const TileAnchorType ti
     return result;
 }
 
+void glimmer::Tile::AppendDerivedTag(std::unordered_set<uint64_t> &existingTagIds, std::vector<ItemTagResource> &tags,
+                                     const std::string &name) {
+    ItemTagResource tag = StringUtils::MakeTag(name);
+    tag.MakeCachedTag();
+    if (existingTagIds.contains(tag.cachedTagId)) {
+        return;
+    }
+    existingTagIds.insert(tag.cachedTagId);
+    tags.emplace_back(tag);
+}
+
 std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext *appContext,
                                                                const TileResource *tileResource) {
     if (appContext == nullptr) {
@@ -241,6 +256,26 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
         &tileResource->texture);
     tile->resourceData_.SetTextureRef(tileResource->texture);
     tile->resourceData_.SetTexture(textureResult);
+    if (tileResource->attachmentTextureUp.IsValid()) {
+        tile->resourceData_.SetAttachmentTexture(TileAttachmentDirection::Up,
+                                                 resourceLocator->FindTexture(&tileResource->attachmentTextureUp));
+    }
+    if (tileResource->attachmentTextureRight.IsValid()) {
+        tile->resourceData_.SetAttachmentTexture(TileAttachmentDirection::Right,
+                                                 resourceLocator->FindTexture(&tileResource->attachmentTextureRight));
+    }
+    if (tileResource->attachmentTextureDown.IsValid()) {
+        tile->resourceData_.SetAttachmentTexture(TileAttachmentDirection::Down,
+                                                 resourceLocator->FindTexture(&tileResource->attachmentTextureDown));
+    }
+    if (tileResource->attachmentTextureLeft.IsValid()) {
+        tile->resourceData_.SetAttachmentTexture(TileAttachmentDirection::Left,
+                                                 resourceLocator->FindTexture(&tileResource->attachmentTextureLeft));
+    }
+    if (tileResource->attachmentTextureBack.IsValid()) {
+        tile->resourceData_.SetAttachmentTexture(TileAttachmentDirection::BackLayer,
+                                                 resourceLocator->FindTexture(&tileResource->attachmentTextureBack));
+    }
     if (tileResource->pipeline.IsValid()) {
         const std::shared_ptr<GPUPipelineResourceResult> pipelineResult = resourceLocator->FindGPUGraphicsPipeline(
             &tileResource->pipeline, false);
@@ -274,7 +309,38 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     if (tileResource->placeSfx.IsValid()) {
         tile->resourceData_.SetPlaceSFX(resourceLocator->FindAudio(&tileResource->placeSfx));
     }
-    tile->resourceData_.SetTags(tileResource->tags);
+    std::vector<ItemTagResource> tags = tileResource->tags;
+
+    if (tileResource->autoDerivedTags) {
+        const uint64_t voidTag = StringUtils::StringToUint64(TAG_VOID);
+        const uint64_t airTag = StringUtils::StringToUint64(TAG_AIR);
+        std::unordered_set<uint64_t> existingTagIds;
+        for (const auto &tag: tags) {
+            existingTagIds.insert(tag.cachedTagId);
+        }
+        if (tile->isOverwritable_) {
+            AppendDerivedTag(existingTagIds, tags, TAG_REPLACEABLE);
+        }
+        if (!tile->miningData_.IsBreakable() && !tile->isOverwritable_) {
+            AppendDerivedTag(existingTagIds, tags, TAG_UNBREAKABLE);
+        }
+        if (tileResource->partial) {
+            AppendDerivedTag(existingTagIds, tags, TAG_PARTIAL);
+        }
+        //Prohibit the derivation of tiles with the "void" or "air" labels.
+        //禁止对带有void或air标签的瓦片派生
+        if (!existingTagIds.contains(airTag) && !existingTagIds.contains(voidTag)) {
+            if (tile->physicsType_ == TilePhysicsType::Static) {
+                AppendDerivedTag(existingTagIds, tags, TAG_SOLID);
+            }
+            if (tile->layerType_ == TileLayerType::BackGround) {
+                AppendDerivedTag(existingTagIds, tags, TAG_WALL);
+            }
+        }
+    }
+    tile->resourceData_.SetTags(tags);
+    tile->attachmentMask_ = tileResource->attachmentMask;
+    tile->attachmentTagIds_ = tileResource->cachedAttachmentTagIds;
     return tile;
 }
 
@@ -326,7 +392,8 @@ void glimmer::Tile::OnPlace(const WorldContext *worldContext, PlaceSourceMessage
     gameEntities_[fingerprint] = entity;
 }
 
-void glimmer::Tile::OnBreak(const WorldContext *worldContext, const BreakSource breakSource, const TileVector2D &position) {
+void glimmer::Tile::OnBreak(const WorldContext *worldContext, const BreakSource breakSource,
+                            const TileVector2D &position) {
     if (breakSource == BreakSource::ChunkLoad || breakSource == BreakSource::ChunkGenerate) {
         return;
     }
@@ -392,4 +459,12 @@ glimmer::TileLightResourceData *glimmer::Tile::GetMutableLightResourceData() {
 
 const glimmer::TileLightResourceData *glimmer::Tile::GetLightResourceData() const {
     return &lightData_;
+}
+
+uint8_t glimmer::Tile::GetAttachmentMask() const {
+    return attachmentMask_;
+}
+
+const std::vector<uint64_t> &glimmer::Tile::GetAttachmentTagIds() const {
+    return attachmentTagIds_;
 }

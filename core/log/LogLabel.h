@@ -33,6 +33,8 @@ namespace glimmer {
         //区块相关
         CHUNK,
         //地形相关
-        TERRAIN
+        TERRAIN,
+        //瓦片附着点相关
+        ATTACHMENT
     };
 }

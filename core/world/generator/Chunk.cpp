@@ -35,13 +35,6 @@
 #include "core/world/WorldContext.h"
 #include "src/saves/tile_state.pb.h"
 
-size_t glimmer::Chunk::AddReplaceTileCallback(
-    const std::function<void(std::shared_ptr<Chunk> chunk, TileLayerType layerType, size_t index, std::shared_ptr<Tile>
-                             oldTile, std::shared_ptr<Tile> newTile)> &callBack) {
-    replaceTileCallback_.emplace_back(callBack);
-    return replaceTileCallback_.size() - 1;
-}
-
 bool glimmer::Chunk::RemoveReplaceTileCallback(const long index) {
     if (replaceTileCallback_.size() <= index) {
         return false;
@@ -137,7 +130,7 @@ bool glimmer::Chunk::CommitTileState(const BreakSource breakSource, const TileLa
         }
         tileSnapshotPtr->SetTile(newTile);
         tileSnapshotPtr->SetTileState(tileStateMessageShared);
-        InvokeReplaceTileCallback(shared_from_this(), layerType, index, oldTile, newTile);
+        InvokeReplaceTileCallback(shared_from_this(), layerType, index, oldTile, newTile, breakSource);
     }
     return true;
 }
@@ -334,12 +327,13 @@ void glimmer::Chunk::BreakTileEntities() {
     }
 }
 
-void glimmer::Chunk::InvokeReplaceTileCallback(const std::shared_ptr<Chunk> &chunk, TileLayerType layerType,
-                                               size_t index,
+void glimmer::Chunk::InvokeReplaceTileCallback(const std::shared_ptr<Chunk> &chunk, const TileLayerType layerType,
+                                               const size_t index,
                                                const std::shared_ptr<Tile> &oldTile,
-                                               const std::shared_ptr<Tile> &newTile) const {
+                                               const std::shared_ptr<Tile> &newTile,
+                                               const BreakSource breakSource) const {
     for (auto &replaceTileCallback: replaceTileCallback_) {
-        replaceTileCallback(chunk, layerType, index, oldTile, newTile);
+        replaceTileCallback(chunk, layerType, index, oldTile, newTile, breakSource);
     }
 }
 
@@ -366,6 +360,13 @@ glimmer::Chunk::Chunk(WorldContext *worldContext, ChunkVertexVector2D pos) : pos
 
 void glimmer::Chunk::SetDependencyTerrain(std::shared_ptr<TerrainResult> dependencyTerrain) {
     dependencyTerrain_ = std::move(dependencyTerrain);
+}
+
+size_t glimmer::Chunk::AddReplaceTileCallback(
+    const std::function<void(std::shared_ptr<Chunk> chunk, TileLayerType layerType, size_t index, std::shared_ptr<Tile>
+                             oldTile, std::shared_ptr<Tile> newTile, BreakSource breakSource)> &callBack) {
+    replaceTileCallback_.emplace_back(callBack);
+    return replaceTileCallback_.size() - 1;
 }
 
 void glimmer::Chunk::WriteChunkMessage(ChunkMessage &chunkMessage) {

@@ -42,6 +42,22 @@ const glimmer::TileVector2D &glimmer::BlueprintComponent::GetTopLeftVector() con
     return topLeftVector_;
 }
 
+void glimmer::BlueprintComponent::SetAttachmentDirection(const uint8_t attachmentDirection) {
+    attachmentDirection_ = attachmentDirection;
+}
+
+uint8_t glimmer::BlueprintComponent::GetAttachmentDirection() const {
+    return attachmentDirection_;
+}
+
+void glimmer::BlueprintComponent::SetAttachmentOffset(const Vector2DI &attachmentOffset) {
+    attachmentOffset_ = attachmentOffset;
+}
+
+const glimmer::Vector2DI &glimmer::BlueprintComponent::GetAttachmentOffset() const {
+    return attachmentOffset_;
+}
+
 GameComponentTypeMessage glimmer::BlueprintComponent::GetComponentTypeStatic() {
     return COMPONENT_BLUEPRINT;
 }

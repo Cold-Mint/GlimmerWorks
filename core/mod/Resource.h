@@ -307,7 +307,6 @@ namespace glimmer {
     struct AdjacentTileGrowthConditionResource : IGrowthConditionResource {
         //@genNextLine(requiredTags|相邻瓦片需要具备的标签列表，命中任一即可)
         std::vector<std::string> requiredTags = {};
-        //@genNextLine(cachedTagIds|requiredTags 哈希后的缓存ID列表)
         std::vector<uint64_t> cachedTagIds = {};
         //@genNextLine(offset|相对自身瓦片的偏移坐标，例如 [x=0, y=1] 表示正上方，[x=-1, y=0] 表示左侧)
         Vector2DIResource offset = {.x = 0, .y = -1};

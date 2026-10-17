@@ -835,6 +835,7 @@ namespace toml {
             resource.lootTable = toml::find_or<glimmer::ResourceRef>(v, "loot_table", {});
             resource.minMiningEfficiency = toml::find_or<float>(v, "min_mining_efficiency", 0);
             resource.name = toml::find<glimmer::ResourceRef>(v, "name");
+            resource.partial = toml::find_or<bool>(v, "partial", false);
             resource.physicsType = toml::find_or<uint8_t>(v, "physics_type", 0);
             resource.pipeline = toml::find_or<glimmer::ResourceRef>(v, "pipeline", {});
             resource.placeSfx = toml::find<glimmer::ResourceRef>(v, "place_sfx");

@@ -295,7 +295,7 @@ set(utf8_range_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
 
 FetchContent_Declare(
         glimmerWorksProtobuf
-        GIT_REPOSITORY "http://192.168.5.64:3000/Cold-Mint/GlimmerWorksProtobufLocal"
+        GIT_REPOSITORY "https://github.com/Cold-Mint/GlimmerWorksProtobuf"
         ${GLIMMERWORKS_PROTOBUF_TAG_ARGS}
         GIT_SHALLOW TRUE
         EXCLUDE_FROM_ALL

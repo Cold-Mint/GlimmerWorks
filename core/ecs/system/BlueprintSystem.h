@@ -32,6 +32,7 @@
 #include "core/ecs/component/TileLayerComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/world/PreloadColors.h"
+#include "core/world/TileAttachmentType.h"
 
 namespace glimmer {
     class Dimension;
@@ -94,7 +95,8 @@ namespace glimmer {
                                       uint8_t tileWidth,
                                       uint8_t tileHeight) const;
 
-        void RenderBlueprintTexture(RenderQueue *queue, const SDL_FRect &renderQuad) const;
+        void RenderBlueprintTexture(RenderQueue *queue, const SDL_FRect &renderQuad,
+                                    TileAttachmentDirection direction) const;
 
         void RenderBlueprintMask(RenderQueue *queue, const std::vector<bool> &checkRectResult,
                                  const TileVector2D &leftBottom, uint8_t tileWidth) const;

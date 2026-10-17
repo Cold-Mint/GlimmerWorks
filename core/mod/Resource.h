@@ -532,8 +532,6 @@ namespace glimmer {
         ResourceRef pipeline = {};
         //@genNextLine(sampler|采样器引用)
         ResourceRef sampler = {};
-        //@genNextLine(blueprintTexture|蓝图纹理资源引用)
-        ResourceRef blueprintTexture = {};
         //@genNextLine(breakSFX|瓦片被破坏时的音效)
         ResourceRef breakSfx;
         //@genNextLine(placeSFX|放置瓦片时的音效)

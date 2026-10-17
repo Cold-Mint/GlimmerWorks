@@ -293,13 +293,6 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     tile->blueprintData_.SetEnableBlueprint(tileResource->enableBlueprint);
     tile->blueprintData_.SetEnableBlueprintMask(tileResource->enableBlueprintMask);
     tile->blueprintData_.SetDrawValidBlueprintColor(tileResource->drawValidBlueprintColor);
-    if (tileResource->blueprintTexture.IsValid()) {
-        tile->blueprintData_.SetBlueprintTexture(resourceLocator->FindTexture(
-            &tileResource->blueprintTexture));
-    }
-    if (tile->blueprintData_.GetBlueprintTexture() == nullptr) {
-        tile->blueprintData_.SetBlueprintTexture(textureResult);
-    }
     tile->lootData_.SetLootScaleBySize(tileResource->lootScaleBySize);
     tile->miningData_.SetUnitDigCost(tileResource->unitDigCost);
     tile->miningData_.SetAutoDigCostScale(tileResource->autoDigCostScale);

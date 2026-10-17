@@ -815,7 +815,6 @@ namespace toml {
             resource.autoDigCostScale = toml::find_or<bool>(v, "auto_dig_cost_scale", true);
             resource.autoHardnessScale = toml::find_or<bool>(v, "auto_hardness_scale", true);
             resource.backLightMask = toml::find<glimmer::ResourceRef>(v, "back_light_mask");
-            resource.blueprintTexture = toml::find_or<glimmer::ResourceRef>(v, "blueprint_texture", {});
             resource.breakSfx = toml::find<glimmer::ResourceRef>(v, "break_sfx");
             resource.canDropLoot = toml::find_or<bool>(v, "can_drop_loot", true);
             resource.customLootTable = toml::find_or<bool>(v, "custom_loot_table", false);

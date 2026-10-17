@@ -26,6 +26,8 @@
  */
 #include "BlueprintSystem.h"
 
+#include <algorithm>
+
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/ecs/component/TilePlacementForbiddenZoneComponent.h"
 #include "core/gpu/RenderQueue.h"
@@ -88,7 +90,7 @@ bool glimmer::BlueprintSystem::CheckSinglePointValidity(const Tile *tile,
         return false;
     }
 
-    WorldVector2D worldCenter = CoordinateTransformer::TileToWorld(point) +
+    const WorldVector2D worldCenter = CoordinateTransformer::TileToWorld(point) +
                                 WorldVector2D{HALF_TILE_SIZE, HALF_TILE_SIZE};
     if (worldCenter.Distance(playerPosition) / TILE_SIZE > TILE_PLACE_RANGE) {
         return false;
@@ -263,7 +265,8 @@ SDL_FRect glimmer::BlueprintSystem::CalculateRenderQuad(const TileVector2D &focu
     return renderQuad;
 }
 
-void glimmer::BlueprintSystem::RenderBlueprintTexture(RenderQueue *queue, const SDL_FRect &renderQuad) const {
+void glimmer::BlueprintSystem::RenderBlueprintTexture(RenderQueue *queue, const SDL_FRect &renderQuad,
+                                                      const TileAttachmentDirection direction) const {
     if (heldTile_ == nullptr) {
         return;
     }
@@ -274,15 +277,17 @@ void glimmer::BlueprintSystem::RenderBlueprintTexture(RenderQueue *queue, const 
     if (!tileBlueprintData->EnableBlueprint()) {
         return;
     }
-    std::shared_ptr<TextureResourceResult> blueprintTextureResourceResult = tileBlueprintData->GetBlueprintTexture();
-    if (blueprintTextureResourceResult == nullptr) {
+    const TileResourceData *tileResourceData = heldTile_->GetResourceData();
+    if (tileResourceData == nullptr) {
         return;
     }
-    TextureResourceResult *blueprintTexture = blueprintTextureResourceResult.get();
-    if (blueprintTexture == nullptr) {
+    Uint8 flip = FLIP_NONE;
+    TextureResourceResult *texture = tileResourceData->GetResolvedTexture(direction, flip);
+    if (texture == nullptr) {
         return;
     }
-    queue->DrawTexture(RenderLayer::Effect, 0.0F, blueprintTexture, nullptr, &renderQuad, {255, 255, 255, 128});
+    queue->DrawTextureRotated(RenderLayer::Effect, 0.0F, texture, nullptr, &renderQuad,
+                              0.0F, nullptr, flip, {255, 255, 255, 128});
 }
 
 void glimmer::BlueprintSystem::RenderBlueprintMask(RenderQueue *queue, const std::vector<bool> &checkRectResult,
@@ -385,7 +390,6 @@ void glimmer::BlueprintSystem::Render(RenderQueue *queue) {
         return;
     }
     if (!miningComponent_->IsEnable()) {
-        RenderBlueprintTexture(queue, renderQuad);
         std::vector<bool> checkRectResult = CheckRectPlacementValidity(heldTile_, leftBottom,
                                                                        playerPosition, tileWidth,
                                                                        tileHeight, dimensionResource);
@@ -393,14 +397,13 @@ void glimmer::BlueprintSystem::Render(RenderQueue *queue) {
             blueprintComponent_->SetCanPlace(false);
             return;
         }
-        RenderBlueprintMask(queue, checkRectResult, leftBottom, tileWidth);
         bool canPlace = checkRectResult[checkRectResult.size() - 1];
         blueprintComponent_->SetAttachmentDirection(0);
         blueprintComponent_->SetAttachmentOffset(Vector2DI{0, 0});
+        TileAttachmentDirection direction = TileAttachmentDirection::None;
         if (canPlace && heldTile_->GetAttachmentMask() != 0) {
             const TileVector2D playerTile = CoordinateTransformer::WorldToTile(playerPosition);
             const TileVector2D vectorA = focusPosition - playerTile;
-            auto direction = TileAttachmentDirection::None;
             Vector2DI offset{0, 0};
             LogCat::d(LogLabel::ATTACHMENT, "blueprint_attachment_check",
                       "Attachment check: tile={}, mask={}, tagCount={}, vectorA=({}, {})",
@@ -416,11 +419,14 @@ void glimmer::BlueprintSystem::Render(RenderQueue *queue) {
                           heldTile_->GetId(), static_cast<int>(direction), offset.x, offset.y);
             } else {
                 canPlace = false;
+                std::ranges::fill(checkRectResult, false);
                 LogCat::d(LogLabel::ATTACHMENT, "blueprint_attachment_not_found",
                           "Attachment not found: tile={}, vectorA=({}, {})",
                           heldTile_->GetId(), vectorA.x, vectorA.y);
             }
         }
+        RenderBlueprintTexture(queue, renderQuad, direction);
+        RenderBlueprintMask(queue, checkRectResult, leftBottom, tileWidth);
         blueprintComponent_->SetCanPlace(canPlace);
     }
 }

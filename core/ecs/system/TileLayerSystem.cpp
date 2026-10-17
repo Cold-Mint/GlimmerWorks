@@ -107,22 +107,8 @@ void glimmer::TileLayerSystem::RenderTileSnapshot(RenderQueue *queue, const Tile
         return;
     }
     const auto attachmentDirection = static_cast<TileAttachmentDirection>(tileState->attachmentdirection());
-    TextureResourceResult *textureResourceResult = nullptr;
     Uint8 flip = FLIP_NONE;
-    if (attachmentDirection == TileAttachmentDirection::Left) {
-        //约定A：纹理按朝右绘制。左侧附着时，优先使用显式的左向纹理（不翻转），
-        //否则用右侧纹理（或默认纹理）水平翻转生成。
-        textureResourceResult = tileResourceData->GetAttachmentTexture(TileAttachmentDirection::Left);
-        if (textureResourceResult == nullptr) {
-            textureResourceResult = tileResourceData->GetAttachmentTexture(TileAttachmentDirection::Right);
-            if (textureResourceResult == nullptr) {
-                textureResourceResult = tileResourceData->GetTexture();
-            }
-            flip = FLIP_HORIZONTAL;
-        }
-    } else {
-        textureResourceResult = tileResourceData->GetResolvedTexture(attachmentDirection);
-    }
+    TextureResourceResult *textureResourceResult = tileResourceData->GetResolvedTexture(attachmentDirection, flip);
     if (textureResourceResult == nullptr) {
         return;
     }

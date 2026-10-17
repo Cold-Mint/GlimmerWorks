@@ -39,15 +39,6 @@ bool glimmer::TileBlueprintData::DrawValidBlueprintColor() const {
     return drawValidBlueprintColor_;
 }
 
-std::shared_ptr<glimmer::TextureResourceResult> glimmer::TileBlueprintData::GetBlueprintTexture() const {
-    return blueprintTextureResult_;
-}
-
-void glimmer::TileBlueprintData::SetBlueprintTexture(
-    const std::shared_ptr<TextureResourceResult> &blueprintTextureResult) {
-    blueprintTextureResult_ = blueprintTextureResult;
-}
-
 void glimmer::TileBlueprintData::SetEnableBlueprint(bool enableBlueprint) {
     this->enableBlueprint_ = enableBlueprint;
 }

@@ -325,7 +325,6 @@ void glimmer::ResourceFileLoader::LoadTileResourceFromFile(const toml::value &va
     tileResource->attachmentTextureBack.SetSelfPackageId(manifest_->id);
     tileResource->pipeline.SetSelfPackageId(manifest_->id);
     tileResource->sampler.SetSelfPackageId(manifest_->id);
-    tileResource->blueprintTexture.SetSelfPackageId(manifest_->id);
     tileResource->breakSfx.SetSelfPackageId(manifest_->id);
     tileResource->placeSfx.SetSelfPackageId(manifest_->id);
     tileResource->lightSource.SetSelfPackageId(manifest_->id);

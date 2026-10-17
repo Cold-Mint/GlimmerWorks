@@ -48,6 +48,8 @@ namespace glimmer {
         //附着各方向的纹理，索引为 TileAttachmentDirection 的底层值（1-5）。
         std::array<std::shared_ptr<TextureResourceResult>, 6> attachmentTextureResults_ = {};
 
+        [[nodiscard]] TextureResourceResult *GetAttachmentTexture(TileAttachmentDirection direction) const;
+
     public:
         [[nodiscard]] TextureResourceResult *GetTexture() const;
 
@@ -82,12 +84,16 @@ namespace glimmer {
         void SetAttachmentTexture(TileAttachmentDirection direction,
                                   const std::shared_ptr<TextureResourceResult> &textureResult);
 
-        [[nodiscard]] TextureResourceResult *GetAttachmentTexture(TileAttachmentDirection direction) const;
 
         /**
          * GetResolvedTexture
-         * 按附着方向解析最终使用的纹理：优先方向纹理，回退到默认纹理。
+         * 按附着方向解析最终使用的纹理与翻转标志：优先方向纹理，回退到默认纹理。
+         * 约定A：纹理按朝右绘制。左侧附着时优先显式左向纹理（不翻转），
+         * 否则用右侧纹理（或默认纹理）水平翻转生成。
+         * @param direction 附着方向
+         * @param outFlip 输出翻转标志（FLIP_HORIZONTAL/FLIP_VERTICAL 的按位或）
+         * @return 解析后的纹理，可能为 nullptr
          */
-        [[nodiscard]] TextureResourceResult *GetResolvedTexture(TileAttachmentDirection direction) const;
+        [[nodiscard]] TextureResourceResult *GetResolvedTexture(TileAttachmentDirection direction, Uint8 &outFlip) const;
     };
 }

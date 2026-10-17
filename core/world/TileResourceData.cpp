@@ -28,6 +28,8 @@
 
 #include <utility>
 
+#include "core/gpu/RenderCommand.h"
+
 
 glimmer::TextureResourceResult *glimmer::TileResourceData::GetTexture() const {
     if (textureResult_ == nullptr) {
@@ -110,27 +112,42 @@ void glimmer::TileResourceData::SetSampler(std::shared_ptr<GPUSamplerResourceRes
 
 void glimmer::TileResourceData::SetAttachmentTexture(const TileAttachmentDirection direction,
                                                      const std::shared_ptr<TextureResourceResult> &textureResult) {
-    const size_t index = static_cast<size_t>(direction);
+    const auto index = static_cast<size_t>(direction);
     if (index < attachmentTextureResults_.size()) {
         attachmentTextureResults_[index] = textureResult;
     }
 }
 
+glimmer::TextureResourceResult *glimmer::TileResourceData::GetResolvedTexture(const TileAttachmentDirection direction,
+                                                                              Uint8 &outFlip) const {
+    outFlip = FLIP_NONE;
+    if (direction == TileAttachmentDirection::None) {
+        return GetTexture();
+    }
+
+    //Prefer explicit textures for this direction.
+    //优先使用该方向的显式纹理。
+    if (TextureResourceResult *directionTexture = GetAttachmentTexture(direction); directionTexture != nullptr) {
+        return directionTexture;
+    }
+
+    //Textures are drawn facing right. When attaching to the left side, if no explicit leftward texture exists, generate it by horizontally flipping the right-side texture (or default texture).
+    //纹理按朝右绘制。左侧附着时若无显式左向纹理，则用右侧纹理（或默认纹理）水平翻转生成。
+    if (direction == TileAttachmentDirection::Left) {
+        outFlip = FLIP_HORIZONTAL;
+        if (TextureResourceResult *rightTexture = GetAttachmentTexture(TileAttachmentDirection::Right); rightTexture !=
+            nullptr) {
+            return rightTexture;
+        }
+    }
+    return GetTexture();
+}
+
 glimmer::TextureResourceResult *glimmer::TileResourceData::GetAttachmentTexture(
     const TileAttachmentDirection direction) const {
-    const size_t index = static_cast<size_t>(direction);
+    const auto index = static_cast<size_t>(direction);
     if (index >= attachmentTextureResults_.size()) {
         return nullptr;
     }
     return attachmentTextureResults_[index].get();
-}
-
-glimmer::TextureResourceResult *glimmer::TileResourceData::GetResolvedTexture(
-    const TileAttachmentDirection direction) const {
-    if (direction != TileAttachmentDirection::None) {
-        if (TextureResourceResult *attachmentTexture = GetAttachmentTexture(direction); attachmentTexture != nullptr) {
-            return attachmentTexture;
-        }
-    }
-    return GetTexture();
 }

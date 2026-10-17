@@ -78,7 +78,8 @@ void glimmer::App::Run() const {
     LogCat::i(LogLabel::DEFAULT, "initializing_scenes_and_console", "Initializing scenes and console");
     InitScenesAndConsole();
 
-    Uint64 frameStart = SDL_GetTicks();
+    uint64_t frameStart = SDL_GetTicks();
+    uint64_t lastActiveTime = frameStart;
     float deltaTime = 0.0F;
     uint64_t configFingerprint = config->GetFingerprint() + 1;
 
@@ -127,8 +128,10 @@ void glimmer::App::Run() const {
         if (CheckConfigChange(configFingerprint)) {
             LogCat::i(LogLabel::DEFAULT, "configuration_changed", "Configuration changed, reloading hooks and scenes");
         }
-        const float targetFrameTime = CalculateTargetFrameTime(frameStart, eventLoop.GetLastInputTime(),
-                                                               eventLoop.GetPressedKeyCount());
+        if (eventLoop.GetPressedKeyCount() > 0) {
+            lastActiveTime = frameStart;
+        }
+        const float targetFrameTime = CalculateTargetFrameTime(frameStart, lastActiveTime);
         const bool isIdle = targetFrameTime > 1.0F / config->window.normalTargetFps;
         if (isIdle != wasIdle) {
             if (isIdle) {
@@ -143,7 +146,7 @@ void glimmer::App::Run() const {
         const auto targetFrameTimeMs = static_cast<uint32_t>(targetFrameTime * 1000.0F);
         NotifyFrameStart();
         mainThreadDispatcher->ProcessMainThreadTasks();
-        eventLoop.ProcessEvents(frameStart);
+        eventLoop.ProcessEvents();
         rmlContext->UpdateContext();
         UpdateScenes(deltaTime);
         renderer.RenderFrame(windowWidth, windowHeight);
@@ -168,19 +171,14 @@ void glimmer::App::HandleWindowSizeChange(const int &windowWidth, const int &win
     }
 }
 
-float glimmer::App::CalculateTargetFrameTime(const uint64_t frameStart, const uint64_t lastInputTime,
-                                             const int32_t pressedKeyCount) const {
+float glimmer::App::CalculateTargetFrameTime(const uint64_t frameStart, const uint64_t lastActiveTime) const {
     const auto config = appContext_->GetConfig();
     const float idleDelay = config->window.idleDelay;
     if (idleDelay == -1) {
         return 1.0F / config->window.normalTargetFps;
     }
 
-    if (pressedKeyCount > 0) {
-        return 1.0F / config->window.normalTargetFps;
-    }
-
-    if (static_cast<float>(frameStart - lastInputTime) * 0.001F < idleDelay) {
+    if (static_cast<float>(frameStart - lastActiveTime) * 0.001F < idleDelay) {
         return 1.0F / config->window.normalTargetFps;
     }
     return 1.0F / config->window.idleTargetFps;

@@ -121,10 +121,9 @@ void glimmer::AppEventLoop::SendEventToRML(const SDL_Event &event) const {
     }
 }
 
-void glimmer::AppEventLoop::ProcessEvents(const uint64_t frameStart) {
+void glimmer::AppEventLoop::ProcessEvents() {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
-        lastInputTime_ = frameStart;
         switch (event.type) {
             case SDL_EVENT_KEY_DOWN:
                 if (!event.key.repeat) {
@@ -268,11 +267,6 @@ glimmer::AppEventLoop::AppEventLoop(AppContext *appContext) : appContext_(appCon
                                                                   appContext->GetRmlContext()->GetRmlContext()) {
 }
 
-
 int32_t glimmer::AppEventLoop::GetPressedKeyCount() const {
     return pressedKeyCount_;
-}
-
-uint64_t glimmer::AppEventLoop::GetLastInputTime() const {
-    return lastInputTime_;
 }

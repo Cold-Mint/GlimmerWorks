@@ -32,7 +32,6 @@ namespace glimmer {
     class AppEventLoop {
         AppContext *appContext_ = nullptr;
         Rml::Context *rmlContext_ = nullptr;
-        uint64_t lastInputTime_ = SDL_GetTicks();
         int32_t pressedKeyCount_ = 0;
 
         static int SdlModToRmlModifier(SDL_Keymod sdl_mod);
@@ -48,10 +47,8 @@ namespace glimmer {
     public:
         explicit AppEventLoop(AppContext *appContext);
 
-        void ProcessEvents(uint64_t frameStart);
+        void ProcessEvents();
 
         [[nodiscard]] int32_t GetPressedKeyCount() const;
-
-        [[nodiscard]] uint64_t GetLastInputTime() const;
     };
 }

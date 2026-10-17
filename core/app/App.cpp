@@ -79,12 +79,11 @@ void glimmer::App::Run() const {
     InitScenesAndConsole();
 
     Uint64 frameStart = SDL_GetTicks();
-    Uint64 lastInputTime = SDL_GetTicks();
     float deltaTime = 0.0F;
     uint64_t configFingerprint = config->GetFingerprint() + 1;
 
     LogCat::i(LogLabel::DEFAULT, "creating_event_loop_and_renderer", "Creating event loop and renderer");
-    AppEventLoop eventLoop(appContext_, lastInputTime);
+    AppEventLoop eventLoop(appContext_);
     AppRenderer renderer(appContext_);
 
     WindowContext *windowContext = appContext_->GetWindowContext();
@@ -113,6 +112,7 @@ void glimmer::App::Run() const {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "window_is_null", "window is nullptr");
         return;
     }
+    bool wasIdle = false;
     while (sceneManager_->GetSceneCount() > 0) {
         LogCat::IncrementFrameCount();
         SDL_GetWindowSize(window, &windowWidth, &windowHeight);
@@ -127,7 +127,19 @@ void glimmer::App::Run() const {
         if (CheckConfigChange(configFingerprint)) {
             LogCat::i(LogLabel::DEFAULT, "configuration_changed", "Configuration changed, reloading hooks and scenes");
         }
-        const float targetFrameTime = CalculateTargetFrameTime(frameStart, lastInputTime);
+        const float targetFrameTime = CalculateTargetFrameTime(frameStart, eventLoop.GetLastInputTime(),
+                                                               eventLoop.GetPressedKeyCount());
+        const bool isIdle = targetFrameTime > 1.0F / config->window.normalTargetFps;
+        if (isIdle != wasIdle) {
+            if (isIdle) {
+                LogCat::d(LogLabel::FRAME_RATE, "idle_state_entered",
+                          "Idle state entered, target frame time {:.4f}s", targetFrameTime);
+            } else {
+                LogCat::d(LogLabel::FRAME_RATE, "idle_state_exited",
+                          "Idle state exited, target frame time {:.4f}s", targetFrameTime);
+            }
+            wasIdle = isIdle;
+        }
         const auto targetFrameTimeMs = static_cast<uint32_t>(targetFrameTime * 1000.0F);
         NotifyFrameStart();
         mainThreadDispatcher->ProcessMainThreadTasks();
@@ -156,11 +168,15 @@ void glimmer::App::HandleWindowSizeChange(const int &windowWidth, const int &win
     }
 }
 
-float glimmer::App::CalculateTargetFrameTime(const uint64_t frameStart, const uint64_t lastInputTime) const {
+float glimmer::App::CalculateTargetFrameTime(const uint64_t frameStart, const uint64_t lastInputTime,
+                                             const int32_t pressedKeyCount) const {
     const auto config = appContext_->GetConfig();
     const float idleDelay = config->window.idleDelay;
-
     if (idleDelay == -1) {
+        return 1.0F / config->window.normalTargetFps;
+    }
+
+    if (pressedKeyCount > 0) {
         return 1.0F / config->window.normalTargetFps;
     }
 

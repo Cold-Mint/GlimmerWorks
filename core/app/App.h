@@ -41,7 +41,8 @@ namespace glimmer {
 
         void HandleWindowSizeChange(const int &windowWidth, const int &windowHeight) const;
 
-        [[nodiscard]] float CalculateTargetFrameTime(uint64_t frameStart, uint64_t lastInputTime) const;
+        [[nodiscard]] float CalculateTargetFrameTime(uint64_t frameStart, uint64_t lastInputTime,
+                                                     int32_t pressedKeyCount) const;
 
         bool CheckConfigChange(uint64_t &configFingerprint) const;
 

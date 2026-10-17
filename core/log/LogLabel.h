@@ -35,6 +35,8 @@ namespace glimmer {
         //地形相关
         TERRAIN,
         //瓦片附着点相关
-        ATTACHMENT
+        ATTACHMENT,
+        //帧率相关
+        FRAME_RATE
     };
 }

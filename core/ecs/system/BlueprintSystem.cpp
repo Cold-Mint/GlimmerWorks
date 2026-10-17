@@ -91,7 +91,7 @@ bool glimmer::BlueprintSystem::CheckSinglePointValidity(const Tile *tile,
     }
 
     const WorldVector2D worldCenter = CoordinateTransformer::TileToWorld(point) +
-                                WorldVector2D{HALF_TILE_SIZE, HALF_TILE_SIZE};
+                                      WorldVector2D{HALF_TILE_SIZE, HALF_TILE_SIZE};
     if (worldCenter.Distance(playerPosition) / TILE_SIZE > TILE_PLACE_RANGE) {
         return false;
     }
@@ -281,13 +281,13 @@ void glimmer::BlueprintSystem::RenderBlueprintTexture(RenderQueue *queue, const 
     if (tileResourceData == nullptr) {
         return;
     }
-    Uint8 flip = FLIP_NONE;
-    TextureResourceResult *texture = tileResourceData->GetResolvedTexture(direction, flip);
+    uint8_t outFlip = FLIP_NONE;
+    const TextureResourceResult *texture = tileResourceData->GetResolvedTexture(direction, outFlip);
     if (texture == nullptr) {
         return;
     }
     queue->DrawTextureRotated(RenderLayer::Effect, 0.0F, texture, nullptr, &renderQuad,
-                              0.0F, nullptr, flip, {255, 255, 255, 128});
+                              0.0F, nullptr, outFlip, {255, 255, 255, 128});
 }
 
 void glimmer::BlueprintSystem::RenderBlueprintMask(RenderQueue *queue, const std::vector<bool> &checkRectResult,

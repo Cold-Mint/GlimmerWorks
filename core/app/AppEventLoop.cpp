@@ -35,11 +35,6 @@
 #include "RmlUi/Core/Context.h"
 
 
-glimmer::AppEventLoop::AppEventLoop(AppContext *appContext, Uint64 &lastInputTime) : appContext_(appContext),
-    rmlContext_(appContext->GetRmlContext()->GetRmlContext()),
-    lastInputTime_(lastInputTime) {
-}
-
 int glimmer::AppEventLoop::SdlModToRmlModifier(const SDL_Keymod sdl_mod) {
     int mask = 0;
     if (sdl_mod & SDL_KMOD_CTRL) {
@@ -126,10 +121,30 @@ void glimmer::AppEventLoop::SendEventToRML(const SDL_Event &event) const {
     }
 }
 
-void glimmer::AppEventLoop::ProcessEvents(const uint64_t frameStart) const {
+void glimmer::AppEventLoop::ProcessEvents(const uint64_t frameStart) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         lastInputTime_ = frameStart;
+        switch (event.type) {
+            case SDL_EVENT_KEY_DOWN:
+                if (!event.key.repeat) {
+                    ++pressedKeyCount_;
+                }
+                break;
+            case SDL_EVENT_MOUSE_BUTTON_DOWN:
+            case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
+            case SDL_EVENT_JOYSTICK_BUTTON_DOWN:
+                ++pressedKeyCount_;
+                break;
+            case SDL_EVENT_KEY_UP:
+            case SDL_EVENT_MOUSE_BUTTON_UP:
+            case SDL_EVENT_GAMEPAD_BUTTON_UP:
+            case SDL_EVENT_JOYSTICK_BUTTON_UP:
+                --pressedKeyCount_;
+                break;
+            default:
+                break;
+        }
         if (HandleSystemEvent(event)) {
             continue;
         }
@@ -246,4 +261,18 @@ void glimmer::AppEventLoop::DispatchEventToScene(const SDL_Event &event) const {
     if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
         topScene->HandleEvent(event);
     }
+}
+
+glimmer::AppEventLoop::AppEventLoop(AppContext *appContext) : appContext_(appContext),
+                                                              rmlContext_(
+                                                                  appContext->GetRmlContext()->GetRmlContext()) {
+}
+
+
+int32_t glimmer::AppEventLoop::GetPressedKeyCount() const {
+    return pressedKeyCount_;
+}
+
+uint64_t glimmer::AppEventLoop::GetLastInputTime() const {
+    return lastInputTime_;
 }

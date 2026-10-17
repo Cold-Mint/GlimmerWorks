@@ -140,8 +140,8 @@ void glimmer::RenderQueue::DrawTextureRotated(RenderLayer layer, float depth, co
     if (dst->w <= 0.0F || dst->h <= 0.0F) {
         return;
     }
-    const float textureWidth = static_cast<float>(texture->GetWidth());
-    const float textureHeight = static_cast<float>(texture->GetHeight());
+    const auto textureWidth = static_cast<float>(texture->GetWidth());
+    const auto textureHeight = static_cast<float>(texture->GetHeight());
     float u0 = 0.0F;
     float v0 = 0.0F;
     float u1 = 1.0F;

@@ -25,10 +25,9 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <assert.h>
+#include <cassert>
 #include <atomic>
 #include <chrono>
-#include <ctime>
 #include <iomanip>
 #include <iostream>
 #include <memory>
@@ -84,6 +83,8 @@ namespace glimmer {
                     return "TERRAIN";
                 case LogLabel::ATTACHMENT:
                     return "ATTACHMENT";
+                case LogLabel::FRAME_RATE:
+                    return "FRAME_RATE";
             }
             return "UNKNOWN";
         }

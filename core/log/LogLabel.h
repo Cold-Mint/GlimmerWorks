@@ -37,6 +37,8 @@ namespace glimmer {
         //瓦片附着点相关
         ATTACHMENT,
         //帧率相关
-        FRAME_RATE
+        FRAME_RATE,
+        //移动相关
+        MOVE
     };
 }

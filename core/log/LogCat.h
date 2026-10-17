@@ -85,6 +85,8 @@ namespace glimmer {
                     return "ATTACHMENT";
                 case LogLabel::FRAME_RATE:
                     return "FRAME_RATE";
+                case LogLabel::MOVE:
+                    return "MOVE";
             }
             return "UNKNOWN";
         }

@@ -29,6 +29,7 @@
 #include "core/config/Constants.h"
 #include "core/ecs/component/ColliderComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
+#include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/world/TileCollision.h"
 #include "core/world/WorldContext.h"
@@ -50,11 +51,14 @@ void glimmer::PhysicsSystem::OnWatchedComponentChanged(const GameComponentTypeMe
 void glimmer::PhysicsSystem::StepEntity(const WorldContext *worldContext, ColliderComponent *collider,
                                         Transform2DComponent *transform) const {
     WorldVector2D velocityCopy = collider->GetVelocity();
+    LogCat::d(LogLabel::MOVE, "move_step_start", "Physics step start: velocity=({}, {})", velocityCopy.x,
+              velocityCopy.y);
     // Integrate gravity and clamp the fall speed to avoid accumulating huge velocities.
     // 积分重力并钳制下落速度，避免速度无限累积。
     velocityCopy.y -= PHYSICS_GRAVITY * FIXED_TIME_STEP;
     if (velocityCopy.y < -PHYSICS_MAX_FALL_SPEED) {
         velocityCopy.y = -PHYSICS_MAX_FALL_SPEED;
+        LogCat::d(LogLabel::MOVE, "move_fall_speed_clamped", "Fall speed clamped: velocity.y={}", velocityCopy.y);
     }
     WorldVector2D position = transform->GetPosition();
     const float halfWidth = collider->GetHalfWidth();
@@ -65,27 +69,39 @@ void glimmer::PhysicsSystem::StepEntity(const WorldContext *worldContext, Collid
     position.x += velocityCopy.x * FIXED_TIME_STEP;
 
     {
-        const float centerX = position.x;
+        const float playerBottom = position.y - halfHeight;
+        const float playerTop = position.y + halfHeight;
         const TileVector2D minTile = CoordinateTransformer::WorldToTile(
-            WorldVector2D{position.x - halfWidth, position.y - halfHeight});
+            WorldVector2D{position.x - halfWidth, playerBottom});
         const TileVector2D maxTile = CoordinateTransformer::WorldToTile(
-            WorldVector2D{position.x + halfWidth, position.y + halfHeight});
+            WorldVector2D{position.x + halfWidth, playerTop});
         for (int ty = minTile.y; ty <= maxTile.y; ++ty) {
             for (int tx = minTile.x; tx <= maxTile.x; ++tx) {
                 if (!TileCollision::IsSolidTile(chunkManager, TileVector2D{tx, ty})) {
                     continue;
                 }
                 // A tile is centered on (tx*TILE_SIZE, ty*TILE_SIZE) and spans
-                // [tx*TILE_SIZE - HALF_TILE_SIZE, tx*TILE_SIZE + HALF_TILE_SIZE). Push the AABB out of the
-                // tile's left/right faces accordingly.
+                // [tx*TILE_SIZE - HALF_TILE_SIZE, tx*TILE_SIZE + HALF_TILE_SIZE). Only resolve a tile
+                // whose AABB actually overlaps the player's AABB on both axes, then push the player out
+                // along the direction of horizontal motion.
                 // 瓦片以 (tx*TILE_SIZE, ty*TILE_SIZE) 为中心，覆盖 [tx*TILE_SIZE - HALF_TILE_SIZE,
-                // tx*TILE_SIZE + HALF_TILE_SIZE)。据此把 AABB 从瓦片左/右面推出。
-                const auto tileCenterX = static_cast<float>(tx * TILE_SIZE);
-                if (velocityCopy.x > 0.0F && tileCenterX > centerX) {
-                    position.x = tileCenterX - HALF_TILE_SIZE - halfWidth;
-                    velocityCopy.x = 0.0F;
-                } else if (velocityCopy.x < 0.0F && tileCenterX < centerX) {
-                    position.x = tileCenterX + HALF_TILE_SIZE + halfWidth;
+                // tx*TILE_SIZE + HALF_TILE_SIZE)。只解算与玩家 AABB 在两个轴上都真正重叠的瓦片，
+                // 再沿水平运动方向把玩家推出。
+                const float tileBottom = static_cast<float>(ty * TILE_SIZE) - HALF_TILE_SIZE;
+                const float tileTop = static_cast<float>(ty * TILE_SIZE) + HALF_TILE_SIZE;
+                if (playerTop <= tileBottom || playerBottom >= tileTop) {
+                    continue;
+                }
+                const float tileLeft = static_cast<float>(tx * TILE_SIZE) - HALF_TILE_SIZE;
+                const float tileRight = static_cast<float>(tx * TILE_SIZE) + HALF_TILE_SIZE;
+                const float playerLeft = position.x - halfWidth;
+                const float playerRight = position.x + halfWidth;
+                if (playerRight > tileLeft && playerLeft < tileRight) {
+                    if (velocityCopy.x > 0.0F) {
+                        position.x = tileLeft - halfWidth;
+                    } else if (velocityCopy.x < 0.0F) {
+                        position.x = tileRight + halfWidth;
+                    }
                     velocityCopy.x = 0.0F;
                 }
             }
@@ -94,31 +110,47 @@ void glimmer::PhysicsSystem::StepEntity(const WorldContext *worldContext, Collid
 
     // Move on the Y axis and resolve vertical collisions (landing / ceiling bump).
     // 在 Y 轴上移动并解算竖直碰撞（落地 / 撞头）。
+    LogCat::d(LogLabel::MOVE, "move_x_axis_resolved", "X axis resolved: position=({}, {})", position.x,
+              position.y);
     bool grounded = false;
     position.y += velocityCopy.y * FIXED_TIME_STEP;
     {
-        const float centerY = position.y;
+        const float playerLeft = position.x - halfWidth;
+        const float playerRight = position.x + halfWidth;
         const TileVector2D minTile = CoordinateTransformer::WorldToTile(
-            WorldVector2D{position.x - halfWidth, position.y - halfHeight});
+            WorldVector2D{playerLeft, position.y - halfHeight});
         const TileVector2D maxTile = CoordinateTransformer::WorldToTile(
-            WorldVector2D{position.x + halfWidth, position.y + halfHeight});
+            WorldVector2D{playerRight, position.y + halfHeight});
         for (int ty = minTile.y; ty <= maxTile.y; ++ty) {
             for (int tx = minTile.x; tx <= maxTile.x; ++tx) {
                 if (!TileCollision::IsSolidTile(chunkManager, TileVector2D{tx, ty})) {
                     continue;
                 }
-                // Only resolve a tile that actually lies in the direction of motion: a floor below the
-                // center when falling, a ceiling above the center when rising. This avoids pushing the
-                // entity through the opposite face when a tile is merely touched at its edge boundary.
-                // 只解算真正位于运动方向上的瓦片：下落时为中心下方的地板，上升时为中心上方的天花板。
-                // 这避免了当瓦片仅在边缘处被接触时，把实体朝反方向推出。
-                const float tileCenterY = static_cast<float>(ty * TILE_SIZE);
-                if (velocityCopy.y < 0.0F && tileCenterY < centerY) {
-                    position.y = tileCenterY + HALF_TILE_SIZE + halfHeight;
-                    grounded = true;
-                    velocityCopy.y = 0.0F;
-                } else if (velocityCopy.y > 0.0F && tileCenterY > centerY) {
-                    position.y = tileCenterY - HALF_TILE_SIZE - halfHeight;
+                // Only resolve a tile whose AABB actually overlaps the player's AABB on both axes, then
+                // push the player out along the direction of vertical motion: onto the tile top when
+                // falling, or below the tile bottom when rising.
+                // 只解算与玩家 AABB 在两个轴上都真正重叠的瓦片，再沿竖直运动方向把玩家推出：
+                // 下落时放到瓦片顶部，上升时放到瓦片底部。
+                const float tileLeft = static_cast<float>(tx * TILE_SIZE) - HALF_TILE_SIZE;
+                const float tileRight = static_cast<float>(tx * TILE_SIZE) + HALF_TILE_SIZE;
+                if (playerRight <= tileLeft || playerLeft >= tileRight) {
+                    continue;
+                }
+                const float tileBottom = static_cast<float>(ty * TILE_SIZE) - HALF_TILE_SIZE;
+                const float tileTop = static_cast<float>(ty * TILE_SIZE) + HALF_TILE_SIZE;
+                const float playerBottom = position.y - halfHeight;
+                const float playerTop = position.y + halfHeight;
+                if (playerBottom < tileTop && playerTop > tileBottom) {
+                    if (velocityCopy.y < 0.0F) {
+                        position.y = tileTop + halfHeight;
+                        grounded = true;
+                        LogCat::d(LogLabel::MOVE, "move_landed", "Landed: position=({}, {})", position.x,
+                                  position.y);
+                    } else if (velocityCopy.y > 0.0F) {
+                        position.y = tileBottom - halfHeight;
+                        LogCat::d(LogLabel::MOVE, "move_ceiling_bump", "Ceiling bump: position=({}, {})", position.x,
+                                  position.y);
+                    }
                     velocityCopy.y = 0.0F;
                 }
             }
@@ -127,6 +159,8 @@ void glimmer::PhysicsSystem::StepEntity(const WorldContext *worldContext, Collid
     collider->SetVelocity(velocityCopy);
     collider->SetGrounded(grounded);
     transform->SetPosition(position);
+    LogCat::d(LogLabel::MOVE, "move_step_end", "Physics step end: position=({}, {}), velocity=({}, {}), grounded={}",
+              position.x, position.y, velocityCopy.x, velocityCopy.y, grounded);
 }
 
 void glimmer::PhysicsSystem::OnTick(const uint64_t tick) {

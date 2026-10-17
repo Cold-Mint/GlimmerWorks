@@ -282,7 +282,7 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
         });
         // Per-layer lighting data
         // 各图层光照数据
-        if (const TileLightData *tileLightData = lightBuffer->GetTileLightData(tileCoord);
+        if (const std::shared_ptr<const TileLightData> tileLightData = lightBuffer->GetTileLightData(tileCoord);
             tileLightData == nullptr) {
             debugLines_.push_back(DebugLine{
                 fmt::format(

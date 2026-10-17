@@ -55,7 +55,8 @@ bool glimmer::LightGrowthConditionProcessor::Match(const WorldContext *worldCont
         return false;
     }
     uint32_t intensity = 0;
-    if (const TileLightData *tileLightData = lightBuffer->GetTileLightData(position); tileLightData != nullptr) {
+    if (const std::shared_ptr<const TileLightData> tileLightData = lightBuffer->GetTileLightData(position);
+        tileLightData != nullptr) {
         const auto *contributions = tileLightData->GetLightContributions();
         if (contributions != nullptr) {
             std::unordered_set<const LightSource *> seenSources;

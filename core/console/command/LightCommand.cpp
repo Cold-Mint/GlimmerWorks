@@ -188,15 +188,15 @@ bool glimmer::LightCommand::ExecuteInfo(const CommandSender *commandSender, cons
         commandArgs->AsCoordinate(2, commandSenderPosition.x),
         commandArgs->AsCoordinate(
             3, commandSenderPosition.y)));
-    const TileLightData *lightData = worldContext->GetLightingBuffer()->GetTileLightData(
+    const std::shared_ptr<const TileLightData> lightData = worldContext->GetLightingBuffer()->GetTileLightData(
         tileVector2D);
     if (lightData == nullptr) {
         onMessageRef(fmt::format(fmt::runtime(langsResources->notIncludeLighting), tileVector2D.x, tileVector2D.y));
         return false;
     }
-    const std::string lightContributionStr = BuildLightContributionString(lightData, langsResources);
-    const std::string lightSourceStr = BuildLightSourceString(lightData, langsResources, tileVector2D);
-    const std::string lightMaskStr = BuildLightMaskString(lightData, langsResources);
+    const std::string lightContributionStr = BuildLightContributionString(lightData.get(), langsResources);
+    const std::string lightSourceStr = BuildLightSourceString(lightData.get(), langsResources, tileVector2D);
+    const std::string lightMaskStr = BuildLightMaskString(lightData.get(), langsResources);
     const std::optional<Color> &finalColor = lightData->GetFinalLightColor();
     std::stringstream stringStream;
     if (finalColor.has_value()) {

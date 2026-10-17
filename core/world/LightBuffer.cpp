@@ -27,6 +27,7 @@
 #include "LightBuffer.h"
 
 #include <algorithm>
+#include <ranges>
 #include <utility>
 #include <vector>
 
@@ -39,7 +40,7 @@
 glimmer::TileLightData &glimmer::LightBuffer::GetOrCreate(const TileVector2D &position) {
     auto &slot = tileLightData_[position];
     if (slot == nullptr) {
-        slot = std::make_unique<TileLightData>();
+        slot = std::make_shared<TileLightData>();
     }
     return *slot;
 }
@@ -148,8 +149,7 @@ void glimmer::LightBuffer::InjectAmbientLightAt(const TileVector2D &position, Ti
         }
         //天光（y 负方向）仅地面层，被侧面遮照遮挡。
         if (layerType == TileLayerType::Ground && skyColor.a > 0) {
-            const float transmittance = GetSkyTransmittance(position);
-            if (transmittance > 0.0F) {
+            if (const float transmittance = GetSkyTransmittanceLocked(position); transmittance > 0.0F) {
                 SetAmbientLightContributionAt(position, layerType, skyLightSource_, Color(
                                                   skyColor.r, skyColor.g, skyColor.b,
                                                   static_cast<uint8_t>(std::clamp(
@@ -216,6 +216,7 @@ void glimmer::LightBuffer::RebuildAllLight() {
 void glimmer::LightBuffer::SetLightMask(const TileVector2D &position, const TileLayerType layerType,
                                         const LightDirection direction,
                                         std::unique_ptr<LightMask> lightMask) {
+    std::lock_guard lock(mutex_);
     if (lightMask == nullptr) {
         return;
     }
@@ -248,6 +249,7 @@ void glimmer::LightBuffer::SetLightMask(const TileVector2D &position, const Tile
 
 void glimmer::LightBuffer::ClearLightMask(const TileVector2D &position, const TileLayerType layerType,
                                           const LightDirection direction) {
+    std::lock_guard lock(mutex_);
     const LightDirection maskDirection = direction == LightDirection::Backward
                                              ? LightDirection::Backward
                                              : LightDirection::Downward;
@@ -271,6 +273,7 @@ void glimmer::LightBuffer::ClearLightMask(const TileVector2D &position, const Ti
 }
 
 void glimmer::LightBuffer::ClearTileLightData(const TileVector2D &position) {
+    std::lock_guard lock(mutex_);
     const auto it = tileLightData_.find(position);
     if (it == tileLightData_.end()) {
         return;
@@ -280,11 +283,11 @@ void glimmer::LightBuffer::ClearTileLightData(const TileVector2D &position) {
         const auto *lightSources = it->second->GetLightSources();
         std::vector<TileLayerType> layerTypesToClear;
         layerTypesToClear.reserve(lightSources->size());
-        for (const auto &[layerType, lightSource]: *lightSources) {
+        for (const auto &layerType: *lightSources | std::views::keys) {
             layerTypesToClear.push_back(layerType);
         }
         for (const auto layerType: layerTypesToClear) {
-            ClearLightSource(position, layerType);
+            ClearLightSourceLocked(position, layerType);
         }
         wasGroundOpaque = it->second->GetLightBlockingStrength(TileLayerType::Ground, LightDirection::Downward) > 0.0F;
     }
@@ -298,20 +301,23 @@ void glimmer::LightBuffer::ClearTileLightData(const TileVector2D &position) {
               position.x, position.y);
 }
 
-const glimmer::TileLightData *glimmer::LightBuffer::GetTileLightData(const TileVector2D &position) const {
+std::shared_ptr<const glimmer::TileLightData> glimmer::LightBuffer::GetTileLightData(
+    const TileVector2D &position) const {
+    std::lock_guard lock(mutex_);
     const auto it = tileLightData_.find(position);
     if (it == tileLightData_.end() || it->second == nullptr) {
         return nullptr;
     }
-    return it->second.get();
+    return it->second;
 }
 
 void glimmer::LightBuffer::SetLightSource(const TileVector2D &position, TileLayerType layerType,
                                           const LightSource &lightSource) {
+    std::lock_guard lock(mutex_);
     //Clear any previous source at this position+layer so its stale point-light
     //contributions do not linger after the new source replaces it.
     //清除该位置+图层上已有的光源，避免新光源替换后残留旧的贡献。
-    ClearLightSource(position, layerType);
+    ClearLightSourceLocked(position, layerType);
     const Color &emission = lightSource.GetEmissionColor();
     LogCat::d(LogLabel::DEFAULT, "light_buffer_set_light_source",
               "LightBuffer: SetLightSource: position=({}, {}), layer={}, radius={}, emission rgba=({},{},{},{})",
@@ -323,6 +329,11 @@ void glimmer::LightBuffer::SetLightSource(const TileVector2D &position, TileLaye
 }
 
 void glimmer::LightBuffer::ClearLightSource(const TileVector2D &position, const TileLayerType layerType) {
+    std::lock_guard lock(mutex_);
+    ClearLightSourceLocked(position, layerType);
+}
+
+void glimmer::LightBuffer::ClearLightSourceLocked(const TileVector2D &position, const TileLayerType layerType) {
     const auto it = tileLightData_.find(position);
     if (it == tileLightData_.end() || it->second == nullptr) {
         return;
@@ -335,6 +346,7 @@ void glimmer::LightBuffer::ClearLightSource(const TileVector2D &position, const 
 }
 
 std::optional<glimmer::Color> glimmer::LightBuffer::GetFinalLightColor(const TileVector2D &position) const {
+    std::lock_guard lock(mutex_);
     const auto it = tileLightData_.find(position);
     if (it == tileLightData_.end() || it->second == nullptr) {
         return ComputeAmbientLightColor(position);
@@ -344,6 +356,7 @@ std::optional<glimmer::Color> glimmer::LightBuffer::GetFinalLightColor(const Til
 
 void glimmer::LightBuffer::SetDynamicLight(uint64_t id, const TileVector2D &position, TileLayerType layerType,
                                            const LightSource &lightSource) {
+    std::lock_guard lock(mutex_);
     if (const auto it = dynamicLights_.find(id); it != dynamicLights_.end()) {
         const DynamicLightEntry &old = it->second;
         const LightSource &oldSource = old.lightSource;
@@ -364,6 +377,7 @@ void glimmer::LightBuffer::SetDynamicLight(uint64_t id, const TileVector2D &posi
 }
 
 void glimmer::LightBuffer::RemoveDynamicLight(const uint64_t id) {
+    std::lock_guard lock(mutex_);
     const auto it = dynamicLights_.find(id);
     if (it == dynamicLights_.end()) {
         return;
@@ -396,7 +410,7 @@ std::optional<glimmer::Color> glimmer::LightBuffer::ComputeAmbientLightColor(con
         hasLight = true;
     }
     if (skyColor.a > 0) {
-        const float transmittance = GetSkyTransmittance(position);
+        const float transmittance = GetSkyTransmittanceLocked(position);
         if (transmittance > 0.0F) {
             const Color sky{
                 skyColor.r,
@@ -418,7 +432,7 @@ std::optional<glimmer::Color> glimmer::LightBuffer::ComputeAmbientLightColor(con
     return result;
 }
 
-float glimmer::LightBuffer::GetSkyTransmittance(const TileVector2D &position) const {
+float glimmer::LightBuffer::GetSkyTransmittanceLocked(const TileVector2D &position) const {
     const auto it = columnSkyOccluders_.find(position.x);
     if (it == columnSkyOccluders_.end()) {
         //No sky-blocking tile in this column: full sky light reaches every tile.
@@ -433,11 +447,11 @@ float glimmer::LightBuffer::GetSkyTransmittance(const TileVector2D &position) co
     //低于 1/255 的透射率视为不可见：最终 alpha 被量化为 uint8_t，该值已四舍五入为 0。
     constexpr float MIN_TRANSMITTANCE = 1.0F / 255.0F;
     float transmittance = 1.0F;
-    for (auto occluderIt = it->second.rbegin(); occluderIt != it->second.rend(); ++occluderIt) {
-        if (*occluderIt <= position.y) {
+    for (const int occluderIt : std::views::reverse(it->second)) {
+        if (occluderIt <= position.y) {
             break;
         }
-        const TileVector2D occluder(position.x, *occluderIt);
+        const TileVector2D occluder(position.x, occluderIt);
         const float occlusion = GetLightBlockingStrength(occluder, TileLayerType::Ground, LightDirection::Downward);
         transmittance *= 1.0F - occlusion;
         if (transmittance <= MIN_TRANSMITTANCE) {
@@ -447,7 +461,13 @@ float glimmer::LightBuffer::GetSkyTransmittance(const TileVector2D &position) co
     return transmittance;
 }
 
+float glimmer::LightBuffer::GetSkyTransmittance(const TileVector2D &position) const {
+    std::lock_guard lock(mutex_);
+    return GetSkyTransmittanceLocked(position);
+}
+
 int glimmer::LightBuffer::GetColumnSkyTopY(const int x) const {
+    std::lock_guard lock(mutex_);
     const auto it = columnSkyOccluders_.find(x);
     if (it == columnSkyOccluders_.end() || it->second.empty()) {
         return std::numeric_limits<int>::min();
@@ -456,19 +476,23 @@ int glimmer::LightBuffer::GetColumnSkyTopY(const int x) const {
 }
 
 uint64_t glimmer::LightBuffer::GetRevision() const {
+    std::lock_guard lock(mutex_);
     return revision_;
 }
 
 const glimmer::Color &glimmer::LightBuffer::GetBackLightColor() const {
+    std::lock_guard lock(mutex_);
     return backLightSource_.GetEmissionColor();
 }
 
 
 const glimmer::Color &glimmer::LightBuffer::GetSkyLightColor() const {
+    std::lock_guard lock(mutex_);
     return skyLightSource_.GetEmissionColor();
 }
 
 const std::unordered_map<uint64_t, glimmer::DynamicLightEntry> *glimmer::LightBuffer::GetDynamicLights() const {
+    std::lock_guard lock(mutex_);
     return &dynamicLights_;
 }
 
@@ -497,6 +521,7 @@ void glimmer::LightBuffer::MarkLightDirty() {
 }
 
 void glimmer::LightBuffer::Flush() {
+    std::lock_guard lock(mutex_);
     if (staticDirty_) {
         staticDirty_ = false;
         ambientDirty_ = false;
@@ -511,6 +536,7 @@ void glimmer::LightBuffer::Flush() {
 }
 
 void glimmer::LightBuffer::SetLightColor(const Color &backLight, const Color &skyLight) {
+    std::lock_guard lock(mutex_);
     const uint64_t newBackLightFingerprint = backLight.GetFingerprint();
     const uint64_t newSkyLightFingerprint = skyLight.GetFingerprint();
     const Color &backColor = backLightSource_.GetEmissionColor();

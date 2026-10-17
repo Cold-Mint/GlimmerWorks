@@ -26,6 +26,8 @@
  */
 #pragma once
 
+#include <memory>
+#include <mutex>
 #include <set>
 #include <unordered_map>
 
@@ -52,7 +54,7 @@ namespace glimmer {
      * 传播光照，取代此前的射线方案。
      */
     class LightBuffer {
-        std::unordered_map<TileVector2D, std::unique_ptr<TileLightData>, Vector2DIHash> tileLightData_;
+        std::unordered_map<TileVector2D, std::shared_ptr<TileLightData>, Vector2DIHash> tileLightData_;
         //Dynamic (mobile) light sources keyed by an arbitrary id (e.g. entity id).
         //动态（移动）光源，以任意 id（如实体 id）为键。
         std::unordered_map<uint64_t, DynamicLightEntry> dynamicLights_;
@@ -94,6 +96,15 @@ namespace glimmer {
         //自上次 flush 以来是否仅环境光颜色发生变化。仅触发环境光重建
         //（RebuildAmbientLight），而非重新传播所有点光源。
         bool ambientDirty_ = false;
+        //Serializes access to the light data. The chunk worker thread mutates the
+        //buffer (via ChunkManager::LoadChunkAt/UnloadChunkAt) while the render
+        //thread flushes and reads it (LightingPass::UpdateLightMap / Flush), so
+        //every public entry point must hold this lock to avoid iterator
+        //invalidation and use-after-free.
+        //串行化对光照数据的访问。区块工作线程（经由 ChunkManager::LoadChunkAt /
+        //UnloadChunkAt）修改缓冲，而渲染线程（LightingPass::UpdateLightMap / Flush）
+        //刷新并读取它，因此每个公开入口都必须持有该锁，避免迭代器失效与释放后使用。
+        mutable std::mutex mutex_;
 
 
         TileLightData &GetOrCreate(const TileVector2D &position);
@@ -101,6 +112,13 @@ namespace glimmer {
         void SetLightFromSource(const LightSource &source, TileLayerType layerType);
 
         void ClearLightFromSource(const LightSource &source, TileLayerType layerType);
+
+        /**
+         * ClearLightSourceLocked
+         * 内部无锁版本的按位置+图层清除光源，仅供已持有 mutex_ 的调用路径使用
+         * （如 SetLightSource、ClearTileLightData）。
+         */
+        void ClearLightSourceLocked(const TileVector2D &position, TileLayerType layerType);
 
         /**
          * SetDynamicLightFromSource
@@ -163,6 +181,12 @@ namespace glimmer {
         [[nodiscard]] std::optional<Color> ComputeAmbientLightColor(const TileVector2D &position) const;
 
         /**
+         * GetSkyTransmittanceLocked
+         * 内部无锁版本的天光透射率查询，仅供已持有 mutex_ 的调用路径使用。
+         */
+        [[nodiscard]] float GetSkyTransmittanceLocked(const TileVector2D &position) const;
+
+        /**
          * UpdateColumnSkyOccluder
          * 根据某列 Ground 层瓦片的挡光状态变化，增量维护天光遮挡索引。
          * @param position position 瓦片世界坐标
@@ -193,7 +217,7 @@ namespace glimmer {
 
         void ClearTileLightData(const TileVector2D &position);
 
-        [[nodiscard]] const TileLightData *GetTileLightData(const TileVector2D &position) const;
+        [[nodiscard]] std::shared_ptr<const TileLightData> GetTileLightData(const TileVector2D &position) const;
 
         void SetLightSource(const TileVector2D &position, TileLayerType layerType,
                             const LightSource &lightSource);

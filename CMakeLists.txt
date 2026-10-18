@@ -387,6 +387,10 @@ FetchContent_Declare(
         GIT_TAG ${MIKKE89_RMLUI_VERSION}
         GIT_SHALLOW TRUE
         EXCLUDE_FROM_ALL
+        # The SDL_GPU backend uses `interface` as an identifier, which collides
+        # with the `interface` macro defined by the Windows SDK. Rename it so the
+        # backend compiles with MSVC.
+        PATCH_COMMAND ${CMAKE_COMMAND} -D SOURCE_DIR=${CMAKE_BINARY_DIR}/_deps/rmlui-src -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/PatchRmlUiSdlGpu.cmake
 )
 FetchContent_MakeAvailable(rmlUi)
 
@@ -1305,6 +1309,15 @@ target_compile_definitions(GlimmerWorks PRIVATE
         RMLUI_SDL_VERSION_MAJOR=3
         APP_PACKNAME="org.glimmerworks"
 )
+
+# On Windows, <windows.h> (included by core/log/LogCat.h) pollutes the global
+# namespace with macros that break otherwise valid C++ identifiers:
+#   - `min`/`max` break std::min/std::max (NOMINMAX disables them)
+#   - `interface`, `small`, `near`, `far`, etc. (WIN32_LEAN_AND_MEAN excludes the
+#     headers that define most of them)
+if (WIN32)
+    target_compile_definitions(GlimmerWorks PRIVATE NOMINMAX WIN32_LEAN_AND_MEAN)
+endif ()
 
 if (ANDROID)
     target_link_libraries(GlimmerWorks PRIVATE ${ANDROID_LOG_LIB} android SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer fmt::fmt SDL3_ttf::SDL3_ttf glimmerworks::proto toml11::toml11 BLAKE3::blake3 RmlUi::RmlUi RmlUi::Debugger glslang::glslang glslang::SPIRV glslang::glslang-default-resource-limits SPIRV-Tools-opt)

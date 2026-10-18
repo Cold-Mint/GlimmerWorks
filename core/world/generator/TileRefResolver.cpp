@@ -91,7 +91,7 @@ void glimmer::TileRefResolver::Initialize(const TerrainResult *terrainResult,
                     chunkVertexVector2D, chunkRelativeVector2D)));
             const size_t idx = CoordinateTransformer::GetArrayIndex(localX, localY, CHUNK_SHIFT);
             const TerrainResultType terrainType = terrainTileResult.GetTerrainType();
-            if (terrainType == TerrainResultType::VOID) {
+            if (terrainType == TerrainResultType::EMPTY) {
                 for (auto &[layerType, refsArray]: tilesRefMap) {
                     WriteVoidResourceRef(layerType, refsArray[idx]);
                 }

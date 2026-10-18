@@ -304,7 +304,7 @@ void glimmer::TerrainGenerator::ComputeBaseTerrainTile(const BiomeRegistry *biom
                                                                     surfaceProximity));
     if (world.y > dimensionResource->maxY || world.y < dimensionResource->minY || world.x > dimensionResource->maxX ||
         world.x < dimensionResource->minX) {
-        terrainTileResult.SetTerrainType(TerrainResultType::VOID);
+        terrainTileResult.SetTerrainType(TerrainResultType::EMPTY);
         return;
     }
     if (world.y == dimensionResource->minY) {

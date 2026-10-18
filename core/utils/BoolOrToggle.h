@@ -29,6 +29,6 @@
 
 namespace glimmer {
     enum class BoolOrToggle : uint8_t {
-        TRUE, FALSE, TOGGLE
+        True, False, Toggle
     };
 }

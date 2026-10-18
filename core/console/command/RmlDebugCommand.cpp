@@ -64,10 +64,10 @@ bool glimmer::RmlDebugCommand::Execute(const CommandSender *commandSender, const
     }
 
     const BoolOrToggle value = commandArgs->AsBoolOrToggle(1);
-    if (value == BoolOrToggle::TOGGLE) {
+    if (value == BoolOrToggle::Toggle) {
         Rml::Debugger::SetVisible(!Rml::Debugger::IsVisible());
     } else {
-        Rml::Debugger::SetVisible(value == BoolOrToggle::TRUE);
+        Rml::Debugger::SetVisible(value == BoolOrToggle::True);
     }
     return true;
 }

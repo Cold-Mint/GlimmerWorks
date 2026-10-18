@@ -93,19 +93,19 @@ bool glimmer::CommandArgs::AsBool(const int index) const {
 glimmer::BoolOrToggle glimmer::CommandArgs::AsBoolOrToggle(int index) const {
     using enum BoolOrToggle;
     if (index < 0 || index >= static_cast<int>(tokens_.size())) {
-        return FALSE;
+        return False;
     }
     const std::string &val = tokens_[index];
     if (val == "1" || val == "true" || val == "yes" || val == "y") {
-        return TRUE;
+        return True;
     }
     if (val == "0" || val == "false" || val == "no" || val == "n") {
-        return FALSE;
+        return False;
     }
     if (val == TOGGLE_KEY_WORD) {
-        return TOGGLE;
+        return Toggle;
     }
-    return FALSE;
+    return False;
 }
 
 int glimmer::CommandArgs::AsInt(const int index) const {

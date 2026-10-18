@@ -416,6 +416,10 @@ static constexpr float PHYSICS_GRAVITY = TILE_SIZE * 20.0F;
 // Terminal fall speed for the custom physics (pixels / second). 30 tiles/s.
 // 自定义物理的下落终端速度（像素/秒）。30 格/秒。
 static constexpr float PHYSICS_MAX_FALL_SPEED = TILE_SIZE * 30.0F;
+// Maximum obstacle height the player can automatically step up onto while moving horizontally (pixels).
+// 1 tile. This lets the player climb low ledges without being bounced back by their own head.
+// 玩家水平移动时可自动迈上的台阶最大高度（像素）。1 格。这让玩家能跨过低矮台阶而不会被自己的头顶弹回。
+static constexpr float PHYSICS_STEP_UP_MAX_HEIGHT = TILE_SIZE;
 
 //How often should the information of picked-up items be accumulated and settled (unit: seconds)?
 //累积多长时间结算一次捡起的物品信息（单位：秒）

@@ -69,8 +69,8 @@ void glimmer::PhysicsSystem::StepEntity(const WorldContext *worldContext, Collid
     position.x += velocityCopy.x * FIXED_TIME_STEP;
 
     {
-        const float playerBottom = position.y - halfHeight;
-        const float playerTop = position.y + halfHeight;
+        float playerBottom = position.y - halfHeight;
+        float playerTop = position.y + halfHeight;
         const TileVector2D minTile = CoordinateTransformer::WorldToTile(
             WorldVector2D{position.x - halfWidth, playerBottom});
         const TileVector2D maxTile = CoordinateTransformer::WorldToTile(
@@ -97,6 +97,51 @@ void glimmer::PhysicsSystem::StepEntity(const WorldContext *worldContext, Collid
                 const float playerLeft = position.x - halfWidth;
                 const float playerRight = position.x + halfWidth;
                 if (playerRight > tileLeft && playerLeft < tileRight) {
+                    // Try to step up onto a low ledge instead of being pushed back. This keeps the
+                    // player's head (which is taller than one tile) from bouncing off a climbable ledge
+                    // at a chunk boundary when jumping diagonally.
+                    // 尝试迈上低矮台阶而不是被推回。避免玩家高于 1 格的头顶在区块边界处、
+                    // 斜着跳时撞到本可迈上的台阶侧面被弹回。
+                    if (velocityCopy.x != 0.0F) {
+                        const float stepHeight = tileTop - playerBottom;
+                        if (stepHeight > 0.0F && stepHeight <= PHYSICS_STEP_UP_MAX_HEIGHT) {
+                            // The space the player's AABB would occupy after stepping up.
+                            // 玩家迈上台阶后 AABB 将占据的空间。
+                            const float steppedBottom = tileTop;
+                            const float steppedTop = tileTop + halfHeight * 2.0F;
+                            const TileVector2D stepMinTile = CoordinateTransformer::WorldToTile(
+                                WorldVector2D{position.x - halfWidth, steppedBottom});
+                            const TileVector2D stepMaxTile = CoordinateTransformer::WorldToTile(
+                                WorldVector2D{position.x + halfWidth, steppedTop});
+                            bool stepUpBlocked = false;
+                            for (int sty = stepMinTile.y; sty <= stepMaxTile.y && !stepUpBlocked; ++sty) {
+                                for (int stx = stepMinTile.x; stx <= stepMaxTile.x; ++stx) {
+                                    if (!TileCollision::IsSolidTile(chunkManager, TileVector2D{stx, sty})) {
+                                        continue;
+                                    }
+                                    const float steppedTileBottom = static_cast<float>(sty * TILE_SIZE) - HALF_TILE_SIZE;
+                                    const float steppedTileTop = static_cast<float>(sty * TILE_SIZE) + HALF_TILE_SIZE;
+                                    if (steppedTop <= steppedTileBottom || steppedBottom >= steppedTileTop) {
+                                        continue;
+                                    }
+                                    const float steppedTileLeft = static_cast<float>(stx * TILE_SIZE) - HALF_TILE_SIZE;
+                                    const float steppedTileRight = static_cast<float>(stx * TILE_SIZE) + HALF_TILE_SIZE;
+                                    if (playerRight > steppedTileLeft && playerLeft < steppedTileRight) {
+                                        stepUpBlocked = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (!stepUpBlocked) {
+                                position.y = tileTop + halfHeight;
+                                playerBottom = tileTop;
+                                playerTop = tileTop + halfHeight * 2.0F;
+                                LogCat::d(LogLabel::MOVE, "move_step_up", "Step up: position=({}, {})",
+                                          position.x, position.y);
+                                continue;
+                            }
+                        }
+                    }
                     if (velocityCopy.x > 0.0F) {
                         position.x = tileLeft - halfWidth;
                     } else if (velocityCopy.x < 0.0F) {

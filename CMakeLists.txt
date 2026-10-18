@@ -5,6 +5,13 @@ set(CMAKE_CXX_STANDARD 26)
 include("${CMAKE_CURRENT_SOURCE_DIR}/versions.cmake")
 
 if (CMAKE_BUILD_TYPE MATCHES "^Debug$")
+    set(SNAPSHOT_BUILD_DEFAULT ON)
+else ()
+    set(SNAPSHOT_BUILD_DEFAULT OFF)
+endif ()
+set(SNAPSHOT_BUILD ${SNAPSHOT_BUILD_DEFAULT} CACHE BOOL "Build a snapshot (fetch latest dependency code) instead of pinned versions")
+
+if (SNAPSHOT_BUILD)
     set(GLIMMERWORKS_PROTOBUF_TAG_ARGS "")
     set(GLIMMERWORKS_DATA_TAG_ARGS "")
     set(GLIMMERWORKS_ASSETS_TAG_ARGS "")
@@ -51,6 +58,11 @@ math(EXPR GAME_VERSION_NUMBER
 set(GAME_VERSION_STRING
         "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CMAKE_BUILD_TYPE}"
 )
+if (SNAPSHOT_BUILD)
+    #Append "snapshot" to the version string and output file name for snapshot builds.
+    #快照构建时在版本名和输出文件名后追加“snapshot”。
+    set(GAME_VERSION_STRING "${GAME_VERSION_STRING}-snapshot")
+endif ()
 
 include(FetchContent)
 

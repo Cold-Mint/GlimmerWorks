@@ -10,13 +10,12 @@ on:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
-    if: ${{ (startsWith(github.ref, 'refs/tags/') && matrix.build_type == 'Release') || (!startsWith(github.ref, 'refs/tags/') && matrix.build_type == 'Debug') }}
 
     strategy:
       fail-fast: false
       matrix:
         os: [ ubuntu-latest, windows-latest ]
-        build_type: [ Release, Debug ]
+        build_type: [ Release ]
         c_compiler: [ clang, cl ]
         include:
           - os: windows-latest
@@ -37,6 +36,15 @@ jobs:
         shell: bash
         run: |
           echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+      - name: Determine snapshot build
+        id: snapshot
+        shell: bash
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            echo "snapshot-build=OFF" >> "$GITHUB_OUTPUT"
+          else
+            echo "snapshot-build=ON" >> "$GITHUB_OUTPUT"
+          fi
       - name: Install dependencies(Linux)
         if: runner.os == 'Linux'
         run: |
@@ -105,6 +113,7 @@ jobs:
           -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
           -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DSNAPSHOT_BUILD=${{ steps.snapshot.outputs.snapshot-build }}
           -DPACK_SIGNER_EXE=${{ env.PACK_SIGNER_EXE }}
           -DSIGN_PRIVATE_KEY="${{ env.SIGN_PRIVATE_KEY }}"
           -DSIGN_PUBLIC_KEY="${{ env.SIGN_PUBLIC_KEY }}"
@@ -120,6 +129,7 @@ jobs:
           -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
           -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DSNAPSHOT_BUILD=${{ steps.snapshot.outputs.snapshot-build }}
           -DPACK_SIGNER_EXE=${{ env.PACK_SIGNER_EXE }}
           -DSIGN_PRIVATE_KEY="${{ env.SIGN_PRIVATE_KEY }}"
           -DSIGN_PUBLIC_KEY="${{ env.SIGN_PUBLIC_KEY }}"
@@ -135,13 +145,13 @@ jobs:
         working-directory: ${{ steps.strings.outputs.build-output-dir }}
         shell: bash
         run: |
-          rm -rf dist/${{ matrix.build_type }}
+          rm -rf dist/Release
           cpack -C ${{ matrix.build_type }}
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
         with:
           name: GlimmerWorks-Package-${{ matrix.os }}
-          path: ${{ runner.os == 'Linux' && format('{0}/dist/{1}/*.tar.zst', steps.strings.outputs.build-output-dir, matrix.build_type) || format('{0}/dist/{1}/*.7z', steps.strings.outputs.build-output-dir, matrix.build_type) }}
+          path: ${{ runner.os == 'Linux' && format('{0}/dist/Release/*.tar.zst', steps.strings.outputs.build-output-dir) || format('{0}/dist/Release/*.7z', steps.strings.outputs.build-output-dir) }}
           archive: false
 
   release:

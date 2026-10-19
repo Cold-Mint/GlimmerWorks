@@ -39,7 +39,7 @@
 #include "core/log/LogCat.h"
 
 #ifdef _WIN32
-void glimmer::LocalConsoleInput::InputLoop(std::stop_token stopToken) {
+void glimmer::LocalConsoleInput::InputLoop(const std::stop_token &stopToken) const {
     LogCat::SetThreadName("ConsoleInput");
     LogCat::i(LogLabel::DEFAULT, "local_console_input_thread_started", "LocalConsoleInput thread started");
     HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);

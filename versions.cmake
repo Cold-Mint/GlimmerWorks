@@ -1,12 +1,12 @@
 #Variable definitions are generated through GlimmerWorksCli. Please do not edit them.
 #The dependencies of the repository can be defined through comments.
-#Last updated date: 2026-09-22 23:50:42
+#Last updated date: 2026-10-19 20:27:52
 #libsdl-org/SDL@latest
-#libsdl-org/SDL-release-3.4.16
-set(LIBSDL-ORG_SDL_VERSION "fa2c02bb6e21974a89ea9824bc53c9932abe5f9c")
+#libsdl-org/SDL-release-3.4.18
+set(LIBSDL-ORG_SDL_VERSION "829a65d769d935c4852f8159e964312c0957260a")
 #libsdl-org/SDL_image@latest
-#libsdl-org/SDL_image-release-3.4.6
-set(LIBSDL-ORG_SDL_IMAGE_VERSION "f661fa1ad24ab1b81e43662532f9a6a9fcf67ea6")
+#libsdl-org/SDL_image-release-3.4.8
+set(LIBSDL-ORG_SDL_IMAGE_VERSION "0891fc30428b518e7d018677bd6fa95c1a50f4c6")
 #libsdl-org/SDL_ttf@latest
 #libsdl-org/SDL_ttf-release-3.2.2
 set(LIBSDL-ORG_SDL_TTF_VERSION "a1ce3670aec736ecbf0936c43f2f0cc53aa61e5b")

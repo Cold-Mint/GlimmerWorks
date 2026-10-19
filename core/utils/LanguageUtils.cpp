@@ -32,7 +32,7 @@
 #include <SDL3/SDL_system.h>
 #endif
 #if defined(_WIN32) || defined(_WIN64)
-#include <Windows.h>
+#include "core/platform/WindowsApi.h"
 #include <locale>
 #endif
 

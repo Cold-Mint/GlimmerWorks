@@ -30,7 +30,7 @@
 #include <string>
 
 #ifdef _WIN32
-#include <windows.h>
+#include "core/platform/WindowsApi.h"
 #else
 #include <poll.h>
 #include <unistd.h>

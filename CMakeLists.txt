@@ -387,10 +387,6 @@ FetchContent_Declare(
         GIT_TAG ${MIKKE89_RMLUI_VERSION}
         GIT_SHALLOW TRUE
         EXCLUDE_FROM_ALL
-        # The SDL_GPU backend uses `interface` as an identifier, which collides
-        # with the `interface` macro defined by the Windows SDK. Rename it so the
-        # backend compiles with MSVC.
-        PATCH_COMMAND ${CMAKE_COMMAND} -D SOURCE_DIR=${CMAKE_BINARY_DIR}/_deps/rmlui-src -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/PatchRmlUiSdlGpu.cmake
 )
 FetchContent_MakeAvailable(rmlUi)
 

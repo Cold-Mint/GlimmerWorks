@@ -45,7 +45,7 @@
 #include <android/log.h>
 #endif
 #if defined(_WIN32)
-#include <windows.h>
+#include "core/platform/WindowsApi.h"
 #else
 #include <pthread.h>
 #endif

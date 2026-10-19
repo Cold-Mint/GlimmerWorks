@@ -818,6 +818,7 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Platform_SDL.h"
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL_GPU.h"
         core/app/App.h
+        core/platform/WindowsApi.h
         core/world/TileCollision.h
         core/utils/VersionAble.h
         core/event/Subscription.h

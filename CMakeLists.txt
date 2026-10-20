@@ -2,6 +2,13 @@ cmake_minimum_required(VERSION 3.31.6)
 project(GlimmerWorks)
 set(CMAKE_CXX_STANDARD 26)
 
+# Use the static C runtime (/MT) on Windows so that the main program and all
+# dependencies (protobuf/absl are built with /MT by default) link against the
+# same CRT, avoiding LNK2038/LNK2005/LNK1169 linker conflicts.
+# 在 Windows 上使用静态 C 运行时（/MT），使主程序与所有依赖（protobuf/absl 默认
+# 使用 /MT）链接到同一份 CRT，避免 LNK2038/LNK2005/LNK1169 链接冲突。
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
 include("${CMAKE_CURRENT_SOURCE_DIR}/versions.cmake")
 
 if (CMAKE_BUILD_TYPE MATCHES "^Debug$")

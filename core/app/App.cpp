@@ -105,6 +105,9 @@ void glimmer::App::Run() const {
         return;
     }
     Rml::Context *rmlContextCore = rmlContext->GetRmlContext();
+    if (rmlContextCore != nullptr) {
+        rmlContextCore->SetDensityIndependentPixelRatio(config->window.uiScale);
+    }
     LogCat::i(LogLabel::DEFAULT, "entering_main_game_loop", "Entering main game loop");
     int windowWidth = 0;
     int windowHeight = 0;
@@ -189,6 +192,12 @@ bool glimmer::App::CheckConfigChange(uint64_t &configFingerprint) const {
     const uint64_t nowConfigFingerprint = config->GetFingerprint();
     if (configFingerprint == nowConfigFingerprint) {
         return false;
+    }
+
+    if (const RmlContext *rmlContext = appContext_->GetRmlContext(); rmlContext != nullptr) {
+        if (Rml::Context *rmlContextCore = rmlContext->GetRmlContext(); rmlContextCore != nullptr) {
+            rmlContextCore->SetDensityIndependentPixelRatio(config->window.uiScale);
+        }
     }
 
     if (CommandHookManager *commandHookManager = appContext_->GetConsoleContext()->GetCommandHookManager();

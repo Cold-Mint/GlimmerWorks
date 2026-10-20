@@ -88,7 +88,7 @@ namespace glimmer {
          * 需要世界加载完成后才能执行
          * @return
          */
-        [[nodiscard]] virtual bool RequiresWorldLoadFinsh() const;
+        [[nodiscard]] virtual bool RequiresWorldLoadFinish() const;
 
         /**
         * RequiresCheatEnabled

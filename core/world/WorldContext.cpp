@@ -60,11 +60,11 @@ glimmer::EntityShortCut *glimmer::WorldContext::GetEntityShortCut() const {
     return entityShortCut_.get();
 }
 
-bool glimmer::WorldContext::IsRuning() const {
+bool glimmer::WorldContext::IsRunning() const {
     return running_.load(std::memory_order_acquire);
 }
 
-void glimmer::WorldContext::SetRuning(const bool run) {
+void glimmer::WorldContext::SetRunning(const bool run) {
     running_.store(run, std::memory_order_release);
 }
 

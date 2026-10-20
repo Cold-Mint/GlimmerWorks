@@ -73,7 +73,7 @@ void glimmer::WorldScene::OnFrameStart() {
 }
 
 bool glimmer::WorldScene::HandleEvent(const SDL_Event &event) {
-    if (!worldContext_->IsRuning()) {
+    if (!worldContext_->IsRunning()) {
         return false;
     }
     if (!worldContext_->IsLoadFinish()) {
@@ -105,7 +105,7 @@ bool glimmer::WorldScene::OnBackPressed() {
 void glimmer::WorldScene::OnTick(uint64_t tick) {
     LogCat::d(LogLabel::DEFAULT, "world_scene_tick_info", "tick: {} globalTick: {}",
               tick, worldContext_->GetGlobalTick());
-    if (!worldContext_->IsRuning()) {
+    if (!worldContext_->IsRunning()) {
         return;
     }
     if (systemScheduler_ != nullptr) {
@@ -117,7 +117,7 @@ void glimmer::WorldScene::OnTick(uint64_t tick) {
 }
 
 void glimmer::WorldScene::Update(const float delta) {
-    if (!worldContext_->IsRuning()) {
+    if (!worldContext_->IsRunning()) {
         return;
     }
     if (systemScheduler_ != nullptr) {

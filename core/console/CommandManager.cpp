@@ -147,16 +147,25 @@ bool glimmer::CommandManager::CanExecuteCommand(const Command *command) const {
     if (command == nullptr) {
         return false;
     }
-    if (command->RequiresWorldContext() && commandEnvironment_.worldContext == nullptr) {
-        return false;
+    if (const WorldContext *worldContext = commandEnvironment_.worldContext; worldContext == nullptr) {
+        if (command->RequiresWorldContext()) {
+            return false;
+        }
+        if (command->RequiresWorldLoadFinish()) {
+            return false;
+        }
+        if (command->RequiresGameRunning()) {
+            return false;
+        }
+    } else {
+        if (command->RequiresWorldLoadFinish() && !worldContext->IsLoadFinish()) {
+            return false;
+        }
+        if (command->RequiresGameRunning() && !worldContext->IsRunning()) {
+            return false;
+        }
     }
     if (command->RequiresCheatEnabled() && !commandEnvironment_.allowCheats) {
-        return false;
-    }
-    if (command->RequiresWorldLoadFinsh() && !commandEnvironment_.worldContext->IsLoadFinish()) {
-        return false;
-    }
-    if (command->RequiresGameRunning() && !commandEnvironment_.worldContext->IsRuning()) {
         return false;
     }
     return true;

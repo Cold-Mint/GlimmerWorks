@@ -51,11 +51,11 @@ bool glimmer::Command::RequiresWorldContext() const {
 }
 
 bool glimmer::Command::RequiresGameRunning() const {
-    return true;
+    return RequiresWorldContext();
 }
 
-bool glimmer::Command::RequiresWorldLoadFinsh() const {
-    return true;
+bool glimmer::Command::RequiresWorldLoadFinish() const {
+    return RequiresWorldContext();
 }
 
 bool glimmer::Command::RequiresCheatEnabled() const {

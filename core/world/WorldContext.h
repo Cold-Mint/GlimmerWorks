@@ -137,10 +137,9 @@ namespace glimmer {
 
         [[nodiscard]] PlayerContext *GetPlayerContext() const;
 
-        [[nodiscard]] bool IsRuning() const;
+        [[nodiscard]] bool IsRunning() const;
 
-        void SetRuning(bool run);
-
+        void SetRunning(bool run);
 
         [[nodiscard]] bool IsLoadFinish() const;
 

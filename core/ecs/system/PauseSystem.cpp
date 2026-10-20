@@ -45,8 +45,8 @@ void glimmer::PauseSystem::TogglePause() const {
                   "Cannot toggle pause system: worldContext is nullptr");
         return;
     }
-    bool newValue = !worldContext->IsRuning();
-    worldContext->SetRuning(newValue);
+    bool newValue = !worldContext->IsRunning();
+    worldContext->SetRunning(newValue);
     LogCat::i(LogLabel::DEFAULT, "pause_toggled", "Pause toggled: {}", newValue);
     if (elementDocument_ == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "pause_toggle_element_document_is_null",
@@ -86,7 +86,7 @@ void glimmer::PauseSystem::OnSaveAndExitButtonClick(Rml::DataModelHandle handle,
                   "Cannot save pause system: worldContext is nullptr");
         return;
     }
-    worldContext->SetRuning(false);
+    worldContext->SetRunning(false);
     worldContext->SaveGame();
     const AppContext *appContext = worldContext->GetAppContext();
     if (appContext == nullptr) {

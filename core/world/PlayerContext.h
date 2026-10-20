@@ -29,6 +29,7 @@
 #include <functional>
 #include <memory>
 
+#include "core/ecs/EcsTypes.h"
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/inventory/ComposableItem.h"
 #include "core/inventory/Item.h"

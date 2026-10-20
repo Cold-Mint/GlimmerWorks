@@ -46,7 +46,6 @@ namespace glimmer {
      */
     class TileLayerComponent final : public GameComponent {
         std::vector<std::pair<TileVector2D, std::vector<std::shared_ptr<TileSnapshot> > > > visibleTiles_;
-        TileVector2D focusPosition_;
         Vector2DIFingerprint visibleTileTopLeftFingerprint_ = 0;
         Vector2DIFingerprint visibleTileBottomRightFingerprint_ = 0;
         WorldContext *worldContext_;
@@ -95,19 +94,6 @@ namespace glimmer {
 
         [[nodiscard]] TileLayerType GetTileLayerType() const;
 
-        /**
-         * Set Focus Position
-         * 设置焦点位置
-         * @param focusPosition
-         */
-        void SetFocusPosition(const TileVector2D &focusPosition);
-
-        /**
-         * Get the focus position
-         * 获取焦点位置
-         * @return
-         */
-        [[nodiscard]] const TileVector2D &GetFocusPosition() const;
 
 
         explicit TileLayerComponent(WorldContext *worldContext,

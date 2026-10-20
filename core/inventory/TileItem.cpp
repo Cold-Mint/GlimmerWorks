@@ -25,6 +25,8 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "TileItem.h"
+
+#include "ItemUseContext.h"
 #include "core/world/TileInstancePool.h"
 #include "core/world/WorldContext.h"
 #include "core/ecs/component/TileLayerComponent.h"
@@ -68,8 +70,9 @@ const glimmer::Tile *glimmer::TileItem::GetTile() const {
     return tile_.get();
 }
 
-bool glimmer::TileItem::OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user,
-                              const AbilityConfig *abilityConfig, std::unordered_set<AbilityType> &popupAbility) {
+bool glimmer::TileItem::OnUse(const ItemUseContext &context) {
+    const bool mouseLeft = context.mouseLeft;
+    WorldContext *worldContext = context.worldContext;
     if (mouseLeft) {
         return false;
     }
@@ -122,7 +125,7 @@ bool glimmer::TileItem::OnUse(bool mouseLeft, WorldContext *worldContext, uint32
         if (itemStackModule->GetAmount() > 0) {
             if (AudioManager *audioManager = appContext->GetAudioContext()->GetAudioManager(); audioManager != nullptr
                 && tileResourceData_ != nullptr) {
-                if (AudioResourceResult *audioResourceResult = tileResourceData_->GetPlaceSFX(); audioResourceResult !=
+                if (const AudioResourceResult *audioResourceResult = tileResourceData_->GetPlaceSFX(); audioResourceResult !=
                     nullptr) {
                     audioManager->TryPlayFree(
                         AudioType::AMBIENT, audioResourceResult->GetResource(), 0);

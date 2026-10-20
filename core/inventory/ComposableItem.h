@@ -98,8 +98,7 @@ namespace glimmer {
 
         [[nodiscard]] const AbilityConfig *GetAbilityConfig() const override;
 
-        bool OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user, const AbilityConfig *abilityConfig,
-                   std::unordered_set<AbilityType> &popupAbility) override;
+        bool OnUse(const ItemUseContext &context) override;
 
         [[nodiscard]] const ResourceRef *GetIconResourceRef() const override;
 

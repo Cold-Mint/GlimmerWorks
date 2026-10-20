@@ -240,9 +240,13 @@ void glimmer::InventoryGUISystem::OnWatchedComponentChanged(GameComponentTypeMes
                     dataModel->amount = 0;
                     dataModel->durability = -1;
                 } else {
-                    const ResourceRef *iconResourceRef = item->GetIconResourceRef();
-                    dataModel->image = StringUtils::MakeTextureUrl(
-                        Resource::GenerateId(iconResourceRef->GetPackageId(), iconResourceRef->GetResourceKey()));
+                    if (const ResourceRef *iconResourceRef = item->GetIconResourceRef();
+                        iconResourceRef == nullptr || !iconResourceRef->IsValid()) {
+                        dataModel->image = "";
+                    } else {
+                        dataModel->image = StringUtils::MakeTextureUrl(
+                            Resource::GenerateId(iconResourceRef->GetPackageId(), iconResourceRef->GetResourceKey()));
+                    }
                     dataModel->amount = amount;
                     const ItemDurabilityModule *durabilityModule = item->GetDurabilityModule();
                     dataModel->durability = ItemSlotDataModel::CalculateDurabilityPercentage(

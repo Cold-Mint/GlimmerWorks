@@ -134,10 +134,9 @@ const glimmer::AbilityConfig *glimmer::AbilityItem::GetAbilityConfig() const {
     return itemAbility_->GetAbilityConfig();
 }
 
-bool glimmer::AbilityItem::OnUse(const bool mouseLeft, WorldContext *worldContext, uint32_t user,
-                                 const AbilityConfig *abilityConfig, std::unordered_set<AbilityType> &popupAbility) {
+bool glimmer::AbilityItem::OnUse(const ItemUseContext &context) {
     if (canUseAlone_) {
-        return itemAbility_->OnUse(mouseLeft, worldContext, user, abilityConfig, popupAbility);
+        return itemAbility_->OnUse(context);
     }
     LogCat::d(LogLabel::DEFAULT, "ability_item_use_alone_disabled",
               "Ability item cannot be used alone, skip. itemId={}", id_);

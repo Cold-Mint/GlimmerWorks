@@ -33,13 +33,12 @@
 #include "ItemLockModule.h"
 #include "ItemStackModule.h"
 #include "ItemTagModule.h"
-#include "ability/AbilityType.h"
 #include "core/math/IAllocatable.h"
-#include "core/mod/resourcePack/GPUSamplerResourceResult.h"
 #include "core/world/TileResourceData.h"
 
 namespace glimmer {
     class WorldContext;
+    struct ItemUseContext;
     /**
      * 物品类
      */
@@ -155,16 +154,10 @@ namespace glimmer {
         /**
          * OnUse
          * 使用物品
-         * @param mouseLeft mouseLeft 是否为鼠标左键
-         * @param worldContext worldContext 世界上下文
-         * @param user user 使用者
-         * @param abilityConfig abilityConfig 能力配置
-         * @param popupAbility The ability to pop up 需要弹出的能力
+         * @param context context 使用物品的上下文
          * @return  Whether this event has been consumed or not. If it returns true, it will not be passed on to the hands; if it returns false, it will be handed over to the hands for processing. 是否消费了此事件，如果返回true，那么不会传递到手上，如果返回false那么交给手处理。
          */
-        virtual bool OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user,
-                           const AbilityConfig *abilityConfig,
-                           std::unordered_set<AbilityType> &popupAbility) = 0;
+        virtual bool OnUse(const ItemUseContext &context) = 0;
 
         /**
          * Get the remaining durability.

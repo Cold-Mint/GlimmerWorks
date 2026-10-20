@@ -49,10 +49,11 @@ std::shared_ptr<const glimmer::MiningRangeData> glimmer::MiningComponent::GetMin
     return miningRangeData_.load(std::memory_order_acquire);
 }
 
-void glimmer::MiningComponent::SetStartPosition(TileVector2D startPosition) {
-    startPosition_ = std::move(startPosition);
+void glimmer::MiningComponent::SetStartPosition(const TileVector2D &startPosition) {
+    startPosition_ = startPosition;
     hasStartPosition_ = true;
 }
+
 
 const glimmer::TileVector2D &glimmer::MiningComponent::GetStartPosition() const {
     return startPosition_;

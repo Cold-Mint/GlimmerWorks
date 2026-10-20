@@ -25,9 +25,7 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <vector>
 
-#include "core/ecs/EcsTypes.h"
 #include "core/ecs/GameComponent.h"
 #include "core/inventory/Item.h"
 

@@ -366,11 +366,11 @@ void glimmer::BlueprintSystem::Render(RenderQueue *queue) {
     uint8_t tileWidth = 1;
     uint8_t tileHeight = 1;
     TileVector2D tileAnchor = {0, 0};
-    const TileVector2D &focusPosition = tileLayerComponent_->GetFocusPosition();
+    const TileVector2D &focusPosition = worldContext->GetFocusPosition();
     const WorldVector2D focusWorldTilePos = CoordinateTransformer::TileToWorld(focusPosition);
-    auto transform2DComponent = entityManager->GetComponent<Transform2DComponent>(player);
-    WorldVector2D playerPosition = transform2DComponent->GetRenderPosition();
-    TileVector2D leftBottom = SetupHeldTileInfo(focusPosition, focusWorldTilePos, playerPosition,
+    const auto transform2DComponent = entityManager->GetComponent<Transform2DComponent>(player);
+    const WorldVector2D &playerPosition = transform2DComponent->GetRenderPosition();
+    const TileVector2D leftBottom = SetupHeldTileInfo(focusPosition, focusWorldTilePos, playerPosition,
                                                 tileWidth, tileHeight, tileAnchor);
     auto topLeftVector = TileVector2D{leftBottom.x, leftBottom.y + tileHeight - 1};
     blueprintComponent_->SetTopLeftVector(topLeftVector);

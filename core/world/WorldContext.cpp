@@ -68,6 +68,15 @@ void glimmer::WorldContext::SetRunning(const bool run) {
     running_.store(run, std::memory_order_release);
 }
 
+void glimmer::WorldContext::SetFocusPosition(const TileVector2D &focusPosition) {
+    focusPosition_ = focusPosition;
+}
+
+const glimmer::TileVector2D &glimmer::WorldContext::GetFocusPosition() const {
+    return focusPosition_;
+}
+
+
 bool glimmer::WorldContext::IsLoadFinish() const {
     return loadFinish_.load(std::memory_order_acquire);
 }

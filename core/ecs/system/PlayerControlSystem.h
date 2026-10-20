@@ -29,6 +29,7 @@
 
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/component/PlayerComponent.h"
+#include "core/inventory/ItemUseContext.h"
 #include "core/inventory/ability/AbilityType.h"
 
 namespace glimmer {
@@ -46,6 +47,7 @@ namespace glimmer {
      */
     class PlayerControlSystem final : public GameSystem {
         std::unordered_set<AbilityType> popupAbility_;
+        ItemUseContext itemUseContext_;
         std::shared_ptr<AudioResourceResult> dropItemSFXResult_ = nullptr;
         AudioManager *audioManager_ = nullptr;
         CameraComponent *cameraComponent_ = nullptr;
@@ -60,14 +62,6 @@ namespace glimmer {
          */
         void DropItem(const ItemContainer *itemContainer, uint8_t index) const;
 
-        /**
-         * UseItem
-         * 使用物品
-         * @param mouseLeft
-         * @param item
-         */
-        bool UseItem(bool mouseLeft, Item *item);
-
         static void UpdateFlying(const PlayerInputHandler *playerInputHandler,
                                  Transform2DComponent *transform2DComponent);
 
@@ -76,8 +70,8 @@ namespace glimmer {
          * into the collider. Gravity and tile collision are handled later by PhysicsSystem.
          * 根据输入计算玩家速度（水平加速/减速与跳跃），写入碰撞体。重力与瓦片碰撞由 PhysicsSystem 稍后处理。
          */
-        void UpdateGroundedMovement(PlayerInputHandler *playerInputHandler, const PlayerComponent *playerComponent,
-                                    ColliderComponent *collider) const;
+        static void UpdateGroundedMovement(PlayerInputHandler *playerInputHandler, const PlayerComponent *playerComponent,
+                                    ColliderComponent *collider) ;
 
         void CheckDropItem(PlayerInputHandler *playerInputHandler, const ItemContainer *itemContainer) const;
 

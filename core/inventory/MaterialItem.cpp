@@ -142,8 +142,7 @@ void glimmer::MaterialItem::SetSampler(std::shared_ptr<GPUSamplerResourceResult>
     sampler_ = std::move(sampler);
 }
 
-bool glimmer::MaterialItem::OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user,
-                                  const AbilityConfig *abilityConfig, std::unordered_set<AbilityType> &popupAbility) {
+bool glimmer::MaterialItem::OnUse(const ItemUseContext &context) {
     // MaterialItem has no special use behavior
     return false;
 }

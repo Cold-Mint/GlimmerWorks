@@ -1107,6 +1107,7 @@ target_sources(GlimmerWorks
         core/inventory/ItemLockModule.h
         core/inventory/ItemStackModule.h
         core/inventory/ItemTagModule.h
+        core/inventory/ItemUseContext.h
         core/inventory/MaterialItem.h
         core/mod/dataPack/StructurePlacementConditionsRegistry.h
         core/mod/dataPack/GrowthConditionsRegistry.h

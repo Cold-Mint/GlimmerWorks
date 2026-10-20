@@ -41,7 +41,6 @@
 #include "core/math/BalanceAllocStrategy.h"
 #include "core/math/ForwardAllocStrategy.h"
 #include "core/math/RandomAllocStrategy.h"
-#include "core/utils/StringUtils.h"
 
 void glimmer::ComposableItem::SwapItem(uint8_t index, ItemContainer *otherContainer, uint8_t otherIndex) const {
     itemContainer_->SwapItem(index, otherContainer, otherIndex);
@@ -153,8 +152,7 @@ const glimmer::AbilityConfig *glimmer::ComposableItem::GetAbilityConfig() const 
     return &totalAbilityConfig_;
 }
 
-bool glimmer::ComposableItem::OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user,
-                                    const AbilityConfig *abilityConfig, std::unordered_set<AbilityType> &popupAbility) {
+bool glimmer::ComposableItem::OnUse(const ItemUseContext &context) {
     bool handle = false;
     const uint8_t max = itemContainer_->GetCapacity();
     //The ability to pop up
@@ -179,19 +177,25 @@ bool glimmer::ComposableItem::OnUse(bool mouseLeft, WorldContext *worldContext, 
                       "itemAbility == nullptr");
             continue;
         }
-
-        if (popupAbility.contains(itemAbility->GetAbilityType())) {
-            //Mutual exclusivity
-            //互斥
-            DroppedItemCreator::SpawnDroppedItem(worldContext,
-                                                 worldContext->GetEntityShortCut()->GetCameraTransform2DComponent()->
-                                                 GetPosition(),
-                                                 itemContainer_->TakeAllItem(index),
-                                                 DROPPED_ITEM_PICKUP_COOLDOWN_TICKS);
+        if (context.popupAbility->contains(itemAbility->GetAbilityType())) {
+            //When there are mutually exclusive modules, for example: two modules providing mining capabilities are placed in the same item. If the modules are not locked, they will pop up.
+            //当出现互斥的模块时，例如：两个提供挖掘能力的模块放在同一件物品内。如果模块不是锁定的那么弹出。
+            const ItemLockModule *itemLockModule = abilityItem->GetLockModule();
+            if (itemLockModule == nullptr) {
+                continue;
+            }
+            if (!itemLockModule->
+                IsLocked()) {
+                DroppedItemCreator::SpawnDroppedItem(context.worldContext,
+                                                     context.worldContext->GetEntityShortCut()->
+                                                     GetCameraTransform2DComponent()->
+                                                     GetPosition(),
+                                                     itemContainer_->TakeAllItem(index),
+                                                     DROPPED_ITEM_PICKUP_COOLDOWN_TICKS);
+            }
             continue;
         }
-        const bool result = itemAbility->OnUse(mouseLeft, worldContext, user, abilityConfig, popupAbility);
-        if (!handle && result) {
+        if (const bool result = itemAbility->OnUse(context); !handle && result) {
             handle = result;
         }
     }

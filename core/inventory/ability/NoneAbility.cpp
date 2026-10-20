@@ -26,7 +26,6 @@
  */
 #include "NoneAbility.h"
 
-#include "core/config/Constants.h"
 #include "core/log/LogCat.h"
 
 glimmer::NoneAbility::NoneAbility(const AbilityConfig &abilityConfigMessage)
@@ -38,8 +37,7 @@ glimmer::AbilityType glimmer::NoneAbility::GetAbilityType() const {
 }
 
 
-bool glimmer::NoneAbility::OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user,
-                                 const AbilityConfig *abilityConfig, std::unordered_set<AbilityType> &popupAbility) {
+bool glimmer::NoneAbility::OnUse(const ItemUseContext &context) {
     // NoneAbility is a placeholder, has no effect when used
     LogCat::d(LogLabel::DEFAULT, "none_ability_use", "NoneAbility used, placeholder has no effect");
     return false;

@@ -85,7 +85,7 @@ namespace glimmer {
 
         [[nodiscard]] std::shared_ptr<const MiningRangeData> GetMiningRangeData() const;
 
-        void SetStartPosition(TileVector2D startPosition);
+        void SetStartPosition(const TileVector2D& startPosition);
 
         [[nodiscard]] const TileVector2D &GetStartPosition() const;
 

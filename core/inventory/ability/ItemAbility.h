@@ -26,10 +26,10 @@
  */
 #pragma once
 #include <memory>
-#include <unordered_set>
 
 #include "AbilityType.h"
 #include "core/mod/Resource.h"
+#include "core/inventory/ItemUseContext.h"
 
 namespace glimmer {
     class AppContext;
@@ -52,9 +52,7 @@ namespace glimmer {
 
         [[nodiscard]] const AbilityConfig *GetAbilityConfig() const;
 
-        virtual bool OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user,
-                           const AbilityConfig *abilityConfig,
-                           std::unordered_set<AbilityType> &popupAbility) = 0;
+        virtual bool OnUse(const ItemUseContext &context) = 0;
 
         [[nodiscard]] virtual std::unique_ptr<ItemAbility> Clone() const = 0;
     };

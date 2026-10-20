@@ -56,7 +56,7 @@ namespace glimmer {
 
         void Reset();
 
-        void SetPoint(TileVector2D point);
+        void SetPoint(const TileVector2D &point);
 
         [[nodiscard]] const TileVector2D &GetStartPoint() const;
 

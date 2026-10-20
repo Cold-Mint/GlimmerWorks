@@ -36,12 +36,15 @@
 #include "core/ecs/component/ItemContainerComponent.h"
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/ecs/component/SpiritRendererComponent.h"
+#include "core/inventory/ItemUseContext.h"
 #include "core/mod/resourcePack/AudioResourceResult.h"
 
 glimmer::PlayerControlSystem::PlayerControlSystem(WorldContext *worldContext) : GameSystem(worldContext) {
     WatchComponent(COMPONENT_PLAYER);
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_TRANSFORM_2D);
+    itemUseContext_.worldContext = worldContext;
+    itemUseContext_.popupAbility = &popupAbility_;
     const AppContext *appContext = worldContext->GetAppContext();
     if (appContext == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "app_context_is_null", "appContext == nullptr");
@@ -192,14 +195,6 @@ void glimmer::PlayerControlSystem::DropItem(const ItemContainer *itemContainer, 
                                          DROPPED_ITEM_PICKUP_COOLDOWN_TICKS);
 }
 
-bool glimmer::PlayerControlSystem::UseItem(const bool mouseLeft, Item *item) {
-    WorldContext *worldContext = GetWorldContext();
-    if (item == nullptr) {
-        return false;
-    }
-    popupAbility_.clear();
-    return item->OnUse(mouseLeft, worldContext, playerEntityID_, item->GetAbilityConfig(), popupAbility_);
-}
 
 void glimmer::PlayerControlSystem::UpdateFlying(const PlayerInputHandler *playerInputHandler,
                                                 Transform2DComponent *transform2DComponent) {
@@ -211,7 +206,7 @@ void glimmer::PlayerControlSystem::UpdateFlying(const PlayerInputHandler *player
 
 void glimmer::PlayerControlSystem::UpdateGroundedMovement(PlayerInputHandler *playerInputHandler,
                                                           const PlayerComponent *playerComponent,
-                                                          ColliderComponent *collider) const {
+                                                          ColliderComponent *collider) {
     WorldVector2D velocity = collider->GetVelocity();
     const bool isGrounded = collider->IsGrounded();
 
@@ -262,6 +257,7 @@ void glimmer::PlayerControlSystem::OnWatchedComponentChanged(GameComponentTypeMe
     }
     if (gameComponentType == COMPONENT_PLAYER && playerEntityID_ == GAME_ENTITY_ID_INVALID) {
         playerEntityID_ = entityShortCut->GetPlayer();
+        itemUseContext_.user = playerEntityID_;
         LogCat::i(LogLabel::DEFAULT, "player_control_player_bound", "PlayerControlSystem player entity bound: id={}",
                   playerEntityID_);
     }
@@ -302,10 +298,43 @@ void glimmer::PlayerControlSystem::OnTick(uint64_t tick) {
     const ItemContainer *itemContainer = itemContainerComponent->GetItemContainer();
     playerInputHandler->AddDropTick();
     CheckDropItem(playerInputHandler, itemContainer);
-
+    auto tileLayerEntities = entityManager->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
+    std::ranges::sort(tileLayerEntities);
+    itemUseContext_.focusedTileLayerComponents.clear();
+    itemUseContext_.focusedTiles.clear();
+    itemUseContext_.focusedTileStateMessages.clear();
+    for (const auto &gameEntity: tileLayerEntities) {
+        const auto tileLayerComponent = entityManager->GetComponent<TileLayerComponent>(
+            gameEntity);
+        if (tileLayerComponent == nullptr) {
+            continue;
+        }
+        const TileVector2D &focusPosition = GetWorldContext()->GetFocusPosition();
+        itemUseContext_.focusPosition = focusPosition;
+        itemUseContext_.focusedTileLayerComponents.push_back(tileLayerComponent);
+        itemUseContext_.focusedTiles.push_back(
+            tileLayerComponent->GetSelfLayerTile(focusPosition));
+        itemUseContext_.focusedTileStateMessages.push_back(
+            tileLayerComponent->GetSelfLayerTileState(focusPosition));
+    }
     if (playerInputHandler->IsMouseLeftDown() || playerInputHandler->IsMouseRightDown()) {
-        if (Item *item = playerComponent->GetItem(); !UseItem(playerInputHandler->IsMouseLeftDown(), item)) {
-            UseItem(playerInputHandler->IsMouseLeftDown(), playerComponent->GetEmptyHandAutoUseItem());
+        itemUseContext_.mouseLeft = playerInputHandler->IsMouseLeftDown();
+        Item *item = playerComponent->GetItem();
+        bool handle = false;
+        if (item != nullptr) {
+            itemUseContext_.item = item;
+            itemUseContext_.popupAbility->clear();
+            handle = item->OnUse(itemUseContext_);
+        }
+        if (Item *emptyHandAutoUseItem = playerComponent->GetEmptyHandAutoUseItem(); !handle &&
+            emptyHandAutoUseItem != nullptr) {
+            itemUseContext_.item = emptyHandAutoUseItem;
+            itemUseContext_.popupAbility->clear();
+            handle = emptyHandAutoUseItem->OnUse(itemUseContext_);
+        }
+        if (!handle && !itemUseContext_.mouseLeft) {
+            //For the right-click of the mouse, if it is not handled, then it is regarded as an event call for the corresponding block.
+            //对于鼠标右键，没处理的，那么看作对方块的事件调用。
         }
     }
 }

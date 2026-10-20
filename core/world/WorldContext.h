@@ -61,6 +61,7 @@ namespace glimmer {
      */
     class WorldContext : public ITickListener {
         friend class WorldBuilder;
+        TileVector2D focusPosition_;
         WorldSaver worldSaver_;
         AppContext *appContext_ = nullptr;
         Saves *saves_ = nullptr;
@@ -140,6 +141,10 @@ namespace glimmer {
         [[nodiscard]] bool IsRunning() const;
 
         void SetRunning(bool run);
+
+        void SetFocusPosition(const TileVector2D &focusPosition);
+
+        [[nodiscard]] const TileVector2D &GetFocusPosition() const;
 
         [[nodiscard]] bool IsLoadFinish() const;
 

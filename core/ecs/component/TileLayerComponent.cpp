@@ -200,14 +200,6 @@ glimmer::TileLayerType glimmer::TileLayerComponent::GetTileLayerType() const {
     return tileLayerType_;
 }
 
-void glimmer::TileLayerComponent::SetFocusPosition(const TileVector2D &focusPosition) {
-    focusPosition_ = focusPosition;
-}
-
-const glimmer::TileVector2D &glimmer::TileLayerComponent::GetFocusPosition() const {
-    return focusPosition_;
-}
-
 glimmer::TileLayerComponent::TileLayerComponent(WorldContext *worldContext, const TileLayerType tileLayerType)
     : worldContext_(worldContext), tileLayerType_(tileLayerType) {
 }

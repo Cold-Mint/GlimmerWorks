@@ -73,8 +73,7 @@ namespace glimmer {
 
         void SetSampler(std::shared_ptr<GPUSamplerResourceResult> sampler);
 
-        bool OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user, const AbilityConfig *abilityConfig,
-                   std::unordered_set<AbilityType> &popupAbility) override;
+        bool OnUse(const ItemUseContext &context) override;
 
         [[nodiscard]] std::unique_ptr<Item> Clone() const override;
     };

@@ -41,9 +41,9 @@ glimmer::AbilityType glimmer::AreaMarkerAbility::GetAbilityType() const {
     return AbilityType::AreaMarker;
 }
 
-bool glimmer::AreaMarkerAbility::OnUse(bool mouseLeft, WorldContext *worldContext, uint32_t user,
-                                       const AbilityConfig *abilityConfig,
-                                       std::unordered_set<AbilityType> &popupAbility) {
+bool glimmer::AreaMarkerAbility::OnUse(const ItemUseContext &context) {
+    const bool mouseLeft = context.mouseLeft;
+    WorldContext *worldContext = context.worldContext;
     LogCat::d(LogLabel::DEFAULT, "area_marker_use_start", "AreaMarkerAbility::OnUse start, mouseLeft={}", mouseLeft);
     if (mouseLeft) {
         LogCat::d(LogLabel::DEFAULT, "area_marker_left_button_skip", "AreaMarkerAbility: left button, skip");
@@ -64,7 +64,7 @@ bool glimmer::AreaMarkerAbility::OnUse(bool mouseLeft, WorldContext *worldContex
                   "AreaMarkerAbility: tileLayerComponent or areaMarkerComponent is null");
         return false;
     }
-    const TileVector2D &focusPosition = tileLayerComponent->GetFocusPosition();
+    const TileVector2D &focusPosition = worldContext->GetFocusPosition();
     areaMarkerComponent->SetPoint(focusPosition);
     LogCat::d(LogLabel::DEFAULT, "area_marker_point_set", "AreaMarkerAbility: marker point set at ({}, {})",
               focusPosition.x, focusPosition.y);

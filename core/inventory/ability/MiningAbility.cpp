@@ -45,14 +45,26 @@ glimmer::AbilityType glimmer::MiningAbility::GetAbilityType() const {
     return AbilityType::Mining;
 }
 
-bool glimmer::MiningAbility::OnUse(const bool mouseLeft, WorldContext *worldContext, uint32_t user,
-                                   const AbilityConfig *abilityConfig, std::unordered_set<AbilityType> &popupAbility) {
+bool glimmer::MiningAbility::OnUse(const ItemUseContext &context) {
+    const bool mouseLeft = context.mouseLeft;
+    const WorldContext *worldContext = context.worldContext;
+    const Item *item = context.item;
+    if (item == nullptr) {
+        return false;
+    }
+    const AbilityConfig *abilityConfig = item->GetAbilityConfig();
+    if (abilityConfig == nullptr) {
+        return false;
+    }
     LogCat::d(LogLabel::DEFAULT, "mining_use_start", "MiningAbility::OnUse start, mouseLeft={}", mouseLeft);
     if (!mouseLeft) {
         LogCat::d(LogLabel::DEFAULT, "mining_use_right_button_skip", "MiningAbility: not left button, skip");
         return false;
     }
-    popupAbility.emplace(GetAbilityType());
+    if (context.popupAbility == nullptr) {
+        return false;
+    }
+    context.popupAbility->emplace(GetAbilityType());
     if (abilityConfig == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "ability_config_is_null",
                   "abilityConfig == nullptr");
@@ -95,23 +107,19 @@ bool glimmer::MiningAbility::OnUse(const bool mouseLeft, WorldContext *worldCont
                   "miningComponent == nullptr");
         return false;
     }
-    auto tileLayerEntities = entityManager->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
-    std::sort(tileLayerEntities.begin(), tileLayerEntities.end());
-    for (const auto &gameEntity: tileLayerEntities) {
-        auto tileLayerComponent = entityManager->GetComponent<TileLayerComponent>(
-            gameEntity);
+    const TileVector2D &tileVector2D = context.focusPosition;
+    for (size_t index = 0; index < context.focusedTileLayerComponents.size(); ++index) {
+        const TileLayerComponent *tileLayerComponent = context.focusedTileLayerComponents[index];
         if (tileLayerComponent == nullptr) {
             continue;
         }
-        const TileLayerType layerType = tileLayerComponent->GetTileLayerType();
-        if (abilityConfig->mineAbleLayerMask & std::to_underlying(layerType)) {
-            const TileVector2D &tileVector2D = tileLayerComponent->GetFocusPosition();
+        if (const TileLayerType layerType = tileLayerComponent->GetTileLayerType(); abilityConfig->mineAbleLayerMask & std::to_underlying(layerType)) {
             if ((CoordinateTransformer::TileToWorld(tileVector2D) + WorldVector2D{HALF_TILE_SIZE, HALF_TILE_SIZE}).
                 Distance(playerWorldPos) / TILE_SIZE > abilityConfig
                 ->miningRange) {
                 continue;
             }
-            const Tile *tile = tileLayerComponent->GetSelfLayerTile(tileVector2D);
+            const Tile *tile = context.focusedTiles[index];
             if (tile == nullptr) {
                 continue;
             }

@@ -143,12 +143,10 @@ void glimmer::TileLayerSystem::Render(RenderQueue *queue) {
     float mouseX = 0;
     float mouseY = 0;
     SDL_GetMouseState(&mouseX, &mouseY);
-    for (auto tileLayerComponent: tileLayerComponents_) {
-        tileLayerComponent->SetFocusPosition(CoordinateTransformer::WorldToTile(CoordinateTransformer::ScreenToWorld(
-            cameraTransform2DComponent_->GetRenderPosition(),
-            ScreenVector2D(mouseX, mouseY), cameraComponent_->GetSize(), cameraComponent_->GetZoom()
-        )));
-    }
+    worldContext->SetFocusPosition(CoordinateTransformer::WorldToTile(CoordinateTransformer::ScreenToWorld(
+        cameraTransform2DComponent_->GetRenderPosition(),
+        ScreenVector2D(mouseX, mouseY), cameraComponent_->GetSize(), cameraComponent_->GetZoom()
+    )));
     TileLayerComponent *tileLayerComponent = tileLayerComponents_.front();
     const AppContext *appContext = worldContext->GetAppContext();
     if (appContext == nullptr) {

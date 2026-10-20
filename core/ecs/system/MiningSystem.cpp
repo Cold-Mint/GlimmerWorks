@@ -293,7 +293,7 @@ void glimmer::MiningSystem::ProcessSingleTile(const TileBreakParams &params,
 }
 
 uint16_t glimmer::MiningSystem::BreakTile(const TileBreakParams &params) {
-    WorldContext *worldContext = params.GetWorldContext();
+    const WorldContext *worldContext = params.GetWorldContext();
     if (worldContext == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "mining_break_tile_invalid_params",
                   "BreakTile: worldContext or tileLayerComponent is nullptr");
@@ -315,7 +315,7 @@ uint16_t glimmer::MiningSystem::BreakTile(const TileBreakParams &params) {
     if (entityManager == nullptr) {
         return 0;
     }
-    auto playerComponent = entityManager->GetComponent<PlayerComponent>(player);
+    const auto playerComponent = entityManager->GetComponent<PlayerComponent>(player);
     Item *item = nullptr;
     if (playerComponent != nullptr) {
         item = playerComponent->GetItem();

@@ -64,7 +64,7 @@ void glimmer::AreaMarkerComponent::Reset() {
     endPoint_.y = 0.0F;
 }
 
-void glimmer::AreaMarkerComponent::SetPoint(const TileVector2D& point) {
+void glimmer::AreaMarkerComponent::SetPoint(const TileVector2D &point) {
     if (first_) {
         startPoint_ = point;
         first_ = false;

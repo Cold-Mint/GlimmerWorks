@@ -119,7 +119,8 @@ void glimmer::PhysicsSystem::StepEntity(const WorldContext *worldContext, Collid
                                     if (!TileCollision::IsSolidTile(chunkManager, TileVector2D{stx, sty})) {
                                         continue;
                                     }
-                                    const float steppedTileBottom = static_cast<float>(sty * TILE_SIZE) - HALF_TILE_SIZE;
+                                    const float steppedTileBottom =
+                                            static_cast<float>(sty * TILE_SIZE) - HALF_TILE_SIZE;
                                     const float steppedTileTop = static_cast<float>(sty * TILE_SIZE) + HALF_TILE_SIZE;
                                     if (steppedTop <= steppedTileBottom || steppedBottom >= steppedTileTop) {
                                         continue;

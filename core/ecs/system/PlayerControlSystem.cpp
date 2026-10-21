@@ -38,6 +38,7 @@
 #include "core/ecs/component/SpiritRendererComponent.h"
 #include "core/inventory/ItemUseContext.h"
 #include "core/mod/resourcePack/AudioResourceResult.h"
+#include "core/world/TargetResourceApplier.h"
 
 glimmer::PlayerControlSystem::PlayerControlSystem(WorldContext *worldContext) : GameSystem(worldContext) {
     WatchComponent(COMPONENT_PLAYER);
@@ -332,11 +333,63 @@ void glimmer::PlayerControlSystem::OnTick(uint64_t tick) {
             itemUseContext_.popupAbility->clear();
             handle = emptyHandAutoUseItem->OnUse(itemUseContext_);
         }
-        if (!handle && !itemUseContext_.mouseLeft) {
-            //For the right-click of the mouse, if it is not handled, then it is regarded as an event call for the corresponding block.
-            //对于鼠标右键，没处理的，那么看作对方块的事件调用。
+        if (!handle) {
+            HandleFocusedTileActions();
         }
     }
+}
+
+void glimmer::PlayerControlSystem::HandleFocusedTileActions() const {
+    WorldContext *worldContext = GetWorldContext();
+    if (worldContext == nullptr) {
+        return;
+    }
+    AppContext *appContext = worldContext->GetAppContext();
+    if (appContext == nullptr) {
+        return;
+    }
+    MainThreadDispatcher *mainThreadDispatcher = appContext->GetMainThreadDispatcher();
+    if (mainThreadDispatcher == nullptr) {
+        return;
+    }
+    //For the mouse click that is not handled by the item, treat it as an event call for the corresponding tile.
+    //对于物品未处理的鼠标点击，看作对方块的事件调用。
+    for (const auto *focusedTile: itemUseContext_.focusedTiles) {
+        if (focusedTile == nullptr) {
+            continue;
+        }
+        if (itemUseContext_.mouseLeft) {
+            //Trigger the secondary action.
+            //触发次要活动。
+            const ResourceRef &secondaryActionTarget = focusedTile->GetSecondaryActionTarget();
+            if (!secondaryActionTarget.IsValid()) {
+                continue;
+            }
+            ApplyTileActionTarget(mainThreadDispatcher, worldContext, focusedTile, secondaryActionTarget,
+                                  BreakSource::TileSecondaryAction, PLACE_SOURCE_TILE_SECONDARY_ACTION);
+        } else {
+            //Trigger the primary action.
+            //触发主要活动。
+            const ResourceRef &primaryActionTarget = focusedTile->GetPrimaryActionTarget();
+            if (!primaryActionTarget.IsValid()) {
+                continue;
+            }
+            ApplyTileActionTarget(mainThreadDispatcher, worldContext, focusedTile, primaryActionTarget,
+                                  BreakSource::TilePrimaryAction, PLACE_SOURCE_TILE_PRIMARY_ACTION);
+        }
+    }
+}
+
+void glimmer::PlayerControlSystem::ApplyTileActionTarget(MainThreadDispatcher *mainThreadDispatcher,
+                                                         WorldContext *worldContext, const Tile *focusedTile,
+                                                         const ResourceRef &actionTarget, BreakSource breakSource,
+                                                         PlaceSourceMessage placeSource) const {
+    mainThreadDispatcher->PostToNextMainFrame(
+        [this, worldContext, focusedTile, actionTarget, breakSource, placeSource] {
+            TargetResourceApplier::Apply(worldContext, itemUseContext_.focusPosition,
+                                         focusedTile->GetLayerType(), actionTarget,
+                                         breakSource, placeSource);
+        });
 }
 
 void glimmer::PlayerControlSystem::UpdatePlayerFacing(PlayerComponent *playerComponent,

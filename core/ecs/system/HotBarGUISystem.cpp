@@ -116,7 +116,8 @@ void glimmer::HotBarGUISystem::OnWatchedComponentChanged(GameComponentTypeMessag
                     dataModel->amount = 0;
                     dataModel->durability = -1;
                 } else {
-                    if (const ResourceRef *iconResourceRef = item->GetIconResourceRef(); iconResourceRef == nullptr || !iconResourceRef->IsValid()) {
+                    if (const ResourceRef *iconResourceRef = item->GetIconResourceRef();
+                        iconResourceRef == nullptr || !iconResourceRef->IsValid()) {
                         dataModel->image = "";
                     } else {
                         dataModel->image = StringUtils::MakeTextureUrl(

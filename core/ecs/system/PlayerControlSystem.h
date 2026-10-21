@@ -26,6 +26,7 @@
  */
 #pragma once
 #include <unordered_set>
+#include <src/core/place_source_message.pb.h>
 
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/component/PlayerComponent.h"
@@ -40,6 +41,9 @@ namespace glimmer {
     class ItemContainer;
     class Item;
     class HotBarComponent;
+    class MainThreadDispatcher;
+    class ResourceRef;
+    enum class BreakSource;
 
     /**
      * The player control system processes the player's input control and realizes the WASD mobile camera function
@@ -70,10 +74,32 @@ namespace glimmer {
          * into the collider. Gravity and tile collision are handled later by PhysicsSystem.
          * 根据输入计算玩家速度（水平加速/减速与跳跃），写入碰撞体。重力与瓦片碰撞由 PhysicsSystem 稍后处理。
          */
-        static void UpdateGroundedMovement(PlayerInputHandler *playerInputHandler, const PlayerComponent *playerComponent,
-                                    ColliderComponent *collider) ;
+        static void UpdateGroundedMovement(PlayerInputHandler *playerInputHandler,
+                                           const PlayerComponent *playerComponent,
+                                           ColliderComponent *collider);
 
         void CheckDropItem(PlayerInputHandler *playerInputHandler, const ItemContainer *itemContainer) const;
+
+        /**
+         * When the item does not handle the mouse click, treat it as a tile action event and apply the
+         * primary/secondary action target of each focused tile.
+         * 当物品未处理鼠标点击时，将其视为瓦片活动事件，并应用每个聚焦瓦片的主/次要活动目标。
+         */
+        void HandleFocusedTileActions() const;
+
+        /**
+         * Apply a single action target of the focused tile on the next main frame.
+         * 在下一个主帧应用聚焦瓦片的单个活动目标。
+         * @param mainThreadDispatcher mainThreadDispatcher 主线程调度器
+         * @param worldContext worldContext 世界上下文
+         * @param focusedTile focusedTile 聚焦瓦片
+         * @param actionTarget actionTarget 活动目标资源引用
+         * @param breakSource breakSource 破坏来源
+         * @param placeSource placeSource 放置源
+         */
+        void ApplyTileActionTarget(MainThreadDispatcher *mainThreadDispatcher, WorldContext *worldContext,
+                                   const Tile *focusedTile, const ResourceRef &actionTarget,
+                                   BreakSource breakSource, PlaceSourceMessage placeSource) const;
 
         static void HandleMouseButton(const SDL_Event &event, PlayerInputHandler *playerInputHandler);
 

@@ -94,6 +94,7 @@ namespace glimmer {
          * @param outFlip 输出翻转标志（FLIP_HORIZONTAL/FLIP_VERTICAL 的按位或）
          * @return 解析后的纹理，可能为 nullptr
          */
-        [[nodiscard]] TextureResourceResult *GetResolvedTexture(TileAttachmentDirection direction, Uint8 &outFlip) const;
+        [[nodiscard]] TextureResourceResult *
+        GetResolvedTexture(TileAttachmentDirection direction, Uint8 &outFlip) const;
     };
 }

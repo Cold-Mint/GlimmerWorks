@@ -447,7 +447,7 @@ float glimmer::LightBuffer::GetSkyTransmittanceLocked(const TileVector2D &positi
     //低于 1/255 的透射率视为不可见：最终 alpha 被量化为 uint8_t，该值已四舍五入为 0。
     constexpr float MIN_TRANSMITTANCE = 1.0F / 255.0F;
     float transmittance = 1.0F;
-    for (const int occluderIt : std::views::reverse(it->second)) {
+    for (const int occluderIt: std::views::reverse(it->second)) {
         if (occluderIt <= position.y) {
             break;
         }

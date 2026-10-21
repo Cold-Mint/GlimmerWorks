@@ -95,7 +95,6 @@ namespace glimmer {
         [[nodiscard]] TileLayerType GetTileLayerType() const;
 
 
-
         explicit TileLayerComponent(WorldContext *worldContext,
                                     TileLayerType tileLayerType);
 

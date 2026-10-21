@@ -46,6 +46,12 @@ namespace glimmer {
         //The tile lost its attachment support and was broken.
         //瓦片失去附着支撑而被破坏。
         AttachmentLoss,
+        //Triggered by the tile's primary action, it is destroyed.
+        //由于瓦片的主活动被触发而被破坏。
+        TilePrimaryAction,
+        //Destroyed when the tile's secondary action is triggered.
+        //由于瓦片的次要活动被触发而被破坏。
+        TileSecondaryAction,
         Console
     };
 }

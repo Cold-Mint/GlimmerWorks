@@ -51,13 +51,16 @@ namespace glimmer {
         TileResourceData resourceData_;
         TileLootData lootData_;
         ResourceRef growthTarget_;
+        ResourceRef primaryActionTarget_;
+        ResourceRef secondaryActionTarget_;
+
         std::unordered_map<Vector2DIFingerprint, GameEntityID> gameEntities_;
         std::optional<std::string> description_;
         std::string id_;
         std::string name_;
         TileDimensions dimensions_;
         TileBlueprintData blueprintData_;
-        std::vector<ResourceRef> growthConditions_ = {};
+        std::vector<ResourceRef> growthConditions_;
         TileMiningData miningData_;
         uint64_t growthMinTicks_ = 0;
         uint64_t growthMaxTicks_ = 0;
@@ -76,7 +79,7 @@ namespace glimmer {
         //附着点掩码，0表示不启用附着。
         uint8_t attachmentMask_ = 0;
         //附着点标签缓存ID列表，目标瓦片必须拥有其中任一标签才被视为有效附着点。
-        std::vector<uint64_t> attachmentTagIds_ = {};
+        std::vector<uint64_t> attachmentTagIds_;
 
         static TileVector2D CalculateTileAnchor(TileAnchorType tileAnchorType, uint8_t tileWidth, uint8_t tileHeight,
                                                 const Vector2DIResource &customTileAnchor);
@@ -97,6 +100,10 @@ namespace glimmer {
         [[nodiscard]] bool DestroySelfAfterGrowth() const;
 
         const ResourceRef &GetGrowthTarget() const;
+
+        const ResourceRef &GetPrimaryActionTarget() const;
+
+        const ResourceRef &GetSecondaryActionTarget() const;
 
         /**
          * GetSpawnOriginOffset

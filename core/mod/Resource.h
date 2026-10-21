@@ -543,6 +543,10 @@ namespace glimmer {
         ResourceRef backLightMask;
         //@genNextLine(growthTarget|生长目标瓦片资源引用 引用可以是瓦片，物品，结构，战利品表)
         ResourceRef growthTarget = {};
+        //@genNextLine(primaryAction|主活动)
+        ResourceRef primaryActionTarget = {};
+        //@genNextLine(secondaryAction|副活动)
+        ResourceRef secondaryActionTarget = {};
         //@genNextLine(growthConditions|生长条件资源引用列表)
         std::vector<ResourceRef> growthConditions = {};
         //@genNextLine(tags|标签)

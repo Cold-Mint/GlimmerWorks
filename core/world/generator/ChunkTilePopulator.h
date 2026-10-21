@@ -50,12 +50,12 @@ namespace glimmer {
          * @param chunk chunk 目标区块
          * @param resourceLocator resourceLocator 资源定位器
          * @param tilesRefMap tilesRefMap 瓦片引用映射
-         * @param topLeftIndex topLeftIndex 左上角索引
+         * @param cellIndex cellIndex 瓦片根格子的区块内索引
          */
         static void PopulateSingleTilePosition(
             Chunk *chunk, const ResourceLocator *resourceLocator,
             const std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > &tilesRefMap,
-            size_t topLeftIndex);
+            size_t cellIndex);
 
     public:
         /**

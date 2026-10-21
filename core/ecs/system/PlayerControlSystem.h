@@ -93,12 +93,14 @@ namespace glimmer {
          * @param mainThreadDispatcher mainThreadDispatcher 主线程调度器
          * @param worldContext worldContext 世界上下文
          * @param focusedTile focusedTile 聚焦瓦片
+         * @param actionOrigin actionOrigin 活动目标的应用原点（多方块瓦片的原点格子）
          * @param actionTarget actionTarget 活动目标资源引用
          * @param breakSource breakSource 破坏来源
          * @param placeSource placeSource 放置源
          */
         void ApplyTileActionTarget(MainThreadDispatcher *mainThreadDispatcher, WorldContext *worldContext,
-                                   const Tile *focusedTile, const ResourceRef &actionTarget,
+                                   const Tile *focusedTile, const TileVector2D &actionOrigin,
+                                   const ResourceRef &actionTarget,
                                    BreakSource breakSource, PlaceSourceMessage placeSource) const;
 
         static void HandleMouseButton(const SDL_Event &event, PlayerInputHandler *playerInputHandler);

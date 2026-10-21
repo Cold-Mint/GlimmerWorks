@@ -100,8 +100,9 @@ void glimmer::TileLayerSystem::RenderTileSnapshot(RenderQueue *queue, const Tile
     SDL_FRect renderQuad;
     renderQuad.w = width;
     renderQuad.h = height;
-    renderQuad.x = tileTopLeftCamera.x - renderQuad.w * 0.5F;
-    renderQuad.y = tileTopLeftCamera.y - renderQuad.h * 0.5F;
+    const float halfTileScreenSize = static_cast<float>(HALF_TILE_SIZE) * zoom;
+    renderQuad.x = tileTopLeftCamera.x - halfTileScreenSize;
+    renderQuad.y = tileTopLeftCamera.y - halfTileScreenSize;
     const TileResourceData &tileResourceData = tile->GetResourceData();
     const auto attachmentDirection = static_cast<TileAttachmentDirection>(tileState->attachmentdirection());
     Uint8 flip = FLIP_NONE;

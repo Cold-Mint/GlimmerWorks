@@ -37,20 +37,18 @@
 void glimmer::ChunkTilePopulator::PopulateSingleTilePosition(Chunk *chunk, const ResourceLocator *resourceLocator,
                                                              const std::unordered_map<TileLayerType, std::array<
                                                                  ResourceRef, CHUNK_AREA> > &tilesRefMap,
-                                                             const size_t topLeftIndex) {
+                                                             const size_t cellIndex) {
     for (const auto &[tileLayerType, tileArray]: tilesRefMap) {
-        const ResourceRef &resourceRef = tileArray[topLeftIndex];
+        const ResourceRef &resourceRef = tileArray[cellIndex];
         const TileResource *tileResource = resourceLocator->FindTileRaw(&resourceRef);
         if (tileResource == nullptr) {
             continue;
         }
-        for (int x = 0; x < tileResource->tileWidth; x++) {
-            for (int y = 0; y < tileResource->tileHeight; y++) {
-                const size_t unitIndex = topLeftIndex + CoordinateTransformer::GetArrayIndex(x, y, CHUNK_SHIFT);
-                chunk->PlaceTile(tileLayerType, unitIndex, resourceRef, tileResource, BreakSource::ChunkGenerate,
-                                 PLACE_SOURCE_WORLD_GEN, x, y, true);
-            }
-        }
+        //The tile is rooted at cellIndex (its bottom-left); PlaceTileAt expects the top-left index.
+        //瓦片以 cellIndex（左下）为根；PlaceTileAt 需要左上索引。
+        const size_t topLeftIndex = cellIndex + static_cast<size_t>(tileResource->tileHeight - 1) * CHUNK_SIZE;
+        chunk->PlaceTileAt(tileLayerType, topLeftIndex, resourceRef, tileResource, BreakSource::ChunkGenerate,
+                           PLACE_SOURCE_WORLD_GEN, true);
     }
 }
 
@@ -62,8 +60,8 @@ void glimmer::ChunkTilePopulator::Populate(Chunk *chunk,
               chunk->GetPosition().x, chunk->GetPosition().y);
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
         for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
-            const size_t topLeftIndex = CoordinateTransformer::GetArrayIndex(localX, localY, CHUNK_SHIFT);
-            PopulateSingleTilePosition(chunk, resourceLocator, tilesRefMap, topLeftIndex);
+            const size_t cellIndex = CoordinateTransformer::GetArrayIndex(localX, localY, CHUNK_SHIFT);
+            PopulateSingleTilePosition(chunk, resourceLocator, tilesRefMap, cellIndex);
         }
     }
     LogCat::d(LogLabel::CHUNK, "chunk_tile_populate_completed", "Chunk tiles populated: position=({}, {})",

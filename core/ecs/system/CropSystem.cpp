@@ -253,9 +253,9 @@ void glimmer::CropSystem::OnTick(const uint64_t tick) {
                             resourceLocator != nullptr) {
                             if (const TileResource *airTileResource = resourceLocator->FindTileRaw(&airRef);
                                 airTileResource != nullptr) {
-                                chunk->PlaceTile(layerType, index, airRef, airTileResource,
-                                                 BreakSource::CropSelfDestruct,
-                                                 PLACE_SOURCE_CROP_GROWTH, 0, 0, false);
+                                chunk->PlaceTileAt(layerType, index, airRef, airTileResource,
+                                                   BreakSource::CropSelfDestruct,
+                                                   PLACE_SOURCE_CROP_GROWTH, false);
                                 LogCat::d(LogLabel::DEFAULT, "crop_system_replace_with_air",
                                           "[CropSystem] crop replaced with air after growth: position=({}, {}), layerType={}, index={}",
                                           position.x, position.y, static_cast<int>(layerType), index);

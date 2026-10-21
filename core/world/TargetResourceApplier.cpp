@@ -87,22 +87,10 @@ bool glimmer::TargetResourceApplier::Apply(WorldContext *worldContext,
         if (tileResource == nullptr) {
             return false;
         }
-        for (int x = 0; x < tileResource->tileWidth; x++) {
-            for (int y = 0; y < tileResource->tileHeight; y++) {
-                const TileVector2D worldVector2D = {spawnOrigin.x + x, spawnOrigin.y + y};
-                Chunk *targetChunk = chunkManager->GetChunk(
-                    CoordinateTransformer::TileToChunkVertex(worldVector2D));
-                if (targetChunk == nullptr) {
-                    continue;
-                }
-                const ChunkRelativeVector2D relative =
-                        CoordinateTransformer::TileToChunkRelative(worldVector2D);
-                const size_t unitIndex =
-                        CoordinateTransformer::GetArrayIndex(relative.x, relative.y, CHUNK_SHIFT);
-                targetChunk->PlaceTile(layerType, unitIndex, targetRef, tileResource, breakSource, placeSource, x, y,
-                                       false);
-            }
-        }
+        //spawnOrigin is the bottom-left spawn point; PlaceTileAt expects the top-left origin.
+        //spawnOrigin 为左下生成点；PlaceTileAt 需要左上原点。
+        const TileVector2D topLeft{spawnOrigin.x, spawnOrigin.y + static_cast<int>(tileResource->tileHeight) - 1};
+        chunkManager->PlaceTileAt(topLeft, layerType, targetRef, tileResource, breakSource, placeSource, false);
         return true;
     }
     if (resourceType == RESOURCE_ABILITY_ITEM || resourceType == RESOURCE_MATERIAL_ITEM || resourceType ==
@@ -158,24 +146,12 @@ bool glimmer::TargetResourceApplier::Apply(WorldContext *worldContext,
                 if (tileResource == nullptr) {
                     continue;
                 }
-                for (int x = 0; x < tileResource->tileWidth; x++) {
-                    for (int y = 0; y < tileResource->tileHeight; y++) {
-                        TileVector2D worldVector2D = {
-                            spawnOrigin.x + coord.x + x, spawnOrigin.y + coord.y + y
-                        };
-                        Chunk *targetChunk = chunkManager->GetChunk(
-                            CoordinateTransformer::TileToChunkVertex(worldVector2D));
-                        if (targetChunk == nullptr) {
-                            continue;
-                        }
-                        const ChunkRelativeVector2D relative =
-                                CoordinateTransformer::TileToChunkRelative(worldVector2D);
-                        const size_t unitIndex =
-                                CoordinateTransformer::GetArrayIndex(relative.x, relative.y, CHUNK_SHIFT);
-                        targetChunk->PlaceTile(structureLayerType, unitIndex, resourceRef, tileResource, breakSource,
-                                               placeSource, x, y, false);
-                    }
-                }
+                const TileVector2D topLeft{
+                    spawnOrigin.x + coord.x,
+                    spawnOrigin.y + coord.y + static_cast<int>(tileResource->tileHeight) - 1
+                };
+                chunkManager->PlaceTileAt(topLeft, structureLayerType, resourceRef, tileResource, breakSource,
+                                          placeSource, false);
             }
         }
         return true;

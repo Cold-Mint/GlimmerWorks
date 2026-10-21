@@ -39,6 +39,7 @@
 #include "core/inventory/ItemUseContext.h"
 #include "core/mod/resourcePack/AudioResourceResult.h"
 #include "core/world/TargetResourceApplier.h"
+#include "src/saves/tile_state.pb.h"
 
 glimmer::PlayerControlSystem::PlayerControlSystem(WorldContext *worldContext) : GameSystem(worldContext) {
     WatchComponent(COMPONENT_PLAYER);
@@ -354,9 +355,25 @@ void glimmer::PlayerControlSystem::HandleFocusedTileActions() const {
     }
     //For the mouse click that is not handled by the item, treat it as an event call for the corresponding tile.
     //对于物品未处理的鼠标点击，看作对方块的事件调用。
-    for (const auto *focusedTile: itemUseContext_.focusedTiles) {
+    for (size_t i = 0; i < itemUseContext_.focusedTiles.size(); i++) {
+        const Tile *focusedTile = itemUseContext_.focusedTiles[i];
         if (focusedTile == nullptr) {
             continue;
+        }
+        const TileStateMessage *tileState = i < itemUseContext_.focusedTileStateMessages.size()
+                                                ? itemUseContext_.focusedTileStateMessages[i]
+                                                : nullptr;
+        //Resolve the origin cell of a multi-tile tile: the clicked cell plus its stored offset
+        //yields the tile's top-left cell, then shift down by (height - 1) to reach the bottom-left
+        //origin that TargetResourceApplier expects.
+        //解析多方块瓦片的原点格子：点击格 + 存储的偏移得到瓦片左上格，再向下偏移 (height - 1) 得到
+        //TargetResourceApplier 期望的左下原点。
+        TileVector2D actionOrigin = itemUseContext_.focusPosition;
+        if (tileState != nullptr && tileState->height() >= 1) {
+            TileVector2D offset(0, 0);
+            offset.ReadVector2DIMessage(tileState->offset());
+            actionOrigin.x += offset.x;
+            actionOrigin.y += offset.y - (static_cast<int>(tileState->height()) - 1);
         }
         if (itemUseContext_.mouseLeft) {
             //Trigger the secondary action.
@@ -365,7 +382,8 @@ void glimmer::PlayerControlSystem::HandleFocusedTileActions() const {
             if (!secondaryActionTarget.IsValid()) {
                 continue;
             }
-            ApplyTileActionTarget(mainThreadDispatcher, worldContext, focusedTile, secondaryActionTarget,
+            ApplyTileActionTarget(mainThreadDispatcher, worldContext, focusedTile, actionOrigin,
+                                  secondaryActionTarget,
                                   BreakSource::TileSecondaryAction, PLACE_SOURCE_TILE_SECONDARY_ACTION);
         } else {
             //Trigger the primary action.
@@ -374,7 +392,7 @@ void glimmer::PlayerControlSystem::HandleFocusedTileActions() const {
             if (!primaryActionTarget.IsValid()) {
                 continue;
             }
-            ApplyTileActionTarget(mainThreadDispatcher, worldContext, focusedTile, primaryActionTarget,
+            ApplyTileActionTarget(mainThreadDispatcher, worldContext, focusedTile, actionOrigin, primaryActionTarget,
                                   BreakSource::TilePrimaryAction, PLACE_SOURCE_TILE_PRIMARY_ACTION);
         }
     }
@@ -382,11 +400,12 @@ void glimmer::PlayerControlSystem::HandleFocusedTileActions() const {
 
 void glimmer::PlayerControlSystem::ApplyTileActionTarget(MainThreadDispatcher *mainThreadDispatcher,
                                                          WorldContext *worldContext, const Tile *focusedTile,
+                                                         const TileVector2D &actionOrigin,
                                                          const ResourceRef &actionTarget, BreakSource breakSource,
                                                          PlaceSourceMessage placeSource) const {
     mainThreadDispatcher->PostToNextMainFrame(
-        [this, worldContext, focusedTile, actionTarget, breakSource, placeSource] {
-            TargetResourceApplier::Apply(worldContext, itemUseContext_.focusPosition,
+        [this, worldContext, focusedTile, actionTarget, breakSource, placeSource, actionOrigin] {
+            TargetResourceApplier::Apply(worldContext, actionOrigin,
                                          focusedTile->GetLayerType(), actionTarget,
                                          breakSource, placeSource);
         });

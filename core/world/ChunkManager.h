@@ -122,6 +122,23 @@ namespace glimmer {
                               const TileVector2D &cell) const;
 
         /**
+         * PlaceTileAt
+         * 以左上原点 topLeft 放置一个完整的多方块瓦片。
+         * 遍历瓦片所有格子、逐格查找区块（跨区块安全），并自动计算每个格子的偏移。
+         *
+         * @param topLeft topLeft 左上原点格子的瓦片坐标
+         * @param layerType layerType 目标图层
+         * @param resourceRef resourceRef 瓦片资源引用
+         * @param tileResource tileResource 瓦片资源
+         * @param breakSource breakSource 破坏来源
+         * @param placeSource placeSource 放置来源
+         * @param fallback fallback 提交时是否允许 fallback 瓦片
+         */
+        void PlaceTileAt(const TileVector2D &topLeft, TileLayerType layerType,
+                         const ResourceRef &resourceRef, const TileResource *tileResource,
+                         BreakSource breakSource, PlaceSourceMessage placeSource, bool fallback) const;
+
+        /**
         * Load Chunk
         * 加载区块
         * @param dimensionRef dimensionRef 维度资源引用

@@ -257,8 +257,9 @@ SDL_FRect glimmer::BlueprintSystem::CalculateRenderQuad(const TileVector2D &focu
         CoordinateTransformer::TileToWorld(topLeftVector), cameraComponent_->GetSize(),
         cameraComponent_->GetZoom()
     );
-    renderQuad.x = topLeftCamera.x - renderQuad.w * 0.5F;
-    renderQuad.y = topLeftCamera.y - renderQuad.w * 0.5F;
+    const float halfTileScreenSize = static_cast<float>(HALF_TILE_SIZE) * zoom;
+    renderQuad.x = topLeftCamera.x - halfTileScreenSize;
+    renderQuad.y = topLeftCamera.y - halfTileScreenSize;
     return renderQuad;
 }
 

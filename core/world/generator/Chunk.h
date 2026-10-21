@@ -38,7 +38,10 @@
 
 
 namespace glimmer {
+    class ChunkManager;
+
     class Chunk : public std::enable_shared_from_this<Chunk> {
+        friend class ChunkManager;
         std::unordered_map<TileLayerType, std::array<std::shared_ptr<Tile>, CHUNK_AREA> >
         tiles_;
         //Save the tile resource signature for each grid, and rebuild the tile when the signature changes.
@@ -71,6 +74,25 @@ namespace glimmer {
             const std::array<std::shared_ptr<TileStateMessage>, CHUNK_AREA> &tileStates,
             TileStateArrayMessage &layerMessage);
 
+        /**
+         * PlaceTileCell
+         * 写入瓦片的一个格子（内部原语）。由 PlaceTileAt 循环调用，或由 ChunkManager 跨区块放置时逐格调用。
+         *
+         * @param layerType layerType 目标图层
+         * @param index index 区块内索引
+         * @param resourceRef resourceRef 瓦片资源引用
+         * @param tileResource tileResource 瓦片资源
+         * @param breakSource breakSource 破坏来源
+         * @param placeSource placeSource 放置来源
+         * @param cellX cellX 格子在瓦片内的列索引（从左上原点向右，0-based）
+         * @param cellY cellY 格子在瓦片内的行索引（从左上原点向下，0-based）
+         * @param fallback fallback 提交时是否允许 fallback 瓦片
+         * @return Whether the tile was placed successfully 是否成功放置
+         */
+        bool PlaceTileCell(TileLayerType layerType, size_t index, const ResourceRef &resourceRef,
+                           const TileResource *tileResource, BreakSource breakSource,
+                           PlaceSourceMessage placeSource, int cellX, int cellY, bool fallback);
+
     public:
         explicit Chunk(WorldContext *worldContext, ChunkVertexVector2D pos);
 
@@ -95,27 +117,21 @@ namespace glimmer {
         bool CommitTileState(BreakSource breakSource, TileLayerType layerType, size_t index, bool fallback);
 
         /**
-         * PlaceTile
-         * 放置瓦片
-         *
-         * Writes a tile resource into the tile state at the given index (resource ref, width/height,
-         * place source, offset, growth state) and commits the change.
-         * 将瓦片资源写入指定索引处的瓦片状态（资源引用、宽高、放置来源、偏移、生长状态）并提交变更。
+         * PlaceTileAt
+         * 在区块内以 topLeftIndex 为左上原点放置一个完整的多方块瓦片（单格瓦片即 1x1 的瓦片）。
+         * 遍历瓦片所有格子并自动计算每个格子的偏移；不跨区块。
          *
          * @param layerType layerType 目标图层
-         * @param index index 区块内索引
+         * @param topLeftIndex topLeftIndex 左上原点格子的区块内索引
          * @param resourceRef resourceRef 瓦片资源引用
          * @param tileResource tileResource 瓦片资源
-         * @param breakSource breakSource 破坏来源（提交时触发旧瓦片 OnBreak）
+         * @param breakSource breakSource 破坏来源
          * @param placeSource placeSource 放置来源
-         * @param offsetX offsetX 偏移X
-         * @param offsetY offsetY 偏移Y
          * @param fallback fallback 提交时是否允许 fallback 瓦片
-         * @return Whether the tile was placed successfully 是否成功放置
          */
-        bool PlaceTile(TileLayerType layerType, size_t index, const ResourceRef &resourceRef,
-                       const TileResource *tileResource, BreakSource breakSource, PlaceSourceMessage placeSource,
-                       int offsetX, int offsetY, bool fallback);
+        void PlaceTileAt(TileLayerType layerType, size_t topLeftIndex, const ResourceRef &resourceRef,
+                         const TileResource *tileResource, BreakSource breakSource,
+                         PlaceSourceMessage placeSource, bool fallback);
 
         [[nodiscard]] TileStateMessage *GetTileState(TileLayerType layerType, size_t index) const;
 

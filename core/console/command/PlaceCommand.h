@@ -29,18 +29,8 @@
 #include "core/world/generator/TileLayerType.h"
 
 namespace glimmer {
-    struct TileResource;
-    class Chunk;
-
     class PlaceCommand final : public Command {
         void InitSuggestions(NodeTree<std::string> *suggestionsTree) override;
-
-        static void PlaceTileAt(Chunk *chunk, TileLayerType tileLayerType, size_t index,
-                                const ResourceRef &resourceRef, const TileResource *tileResource, int x, int y);
-
-        static void PlaceTileAtWithSize(Chunk *chunk, TileLayerType tileLayerType,
-                                        size_t index,
-                                        const ResourceRef &resourceRef, const TileResource *tileResource);
 
         static bool ExecuteStructure(const CommandArgs *commandArgs, const CommandSender *commandSender,
                                      WorldContext *worldContext);

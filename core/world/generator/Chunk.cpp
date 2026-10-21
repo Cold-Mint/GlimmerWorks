@@ -181,10 +181,10 @@ const glimmer::ChunkVertexVector2D &glimmer::Chunk::GetPosition() const {
 }
 
 
-bool glimmer::Chunk::PlaceTile(const TileLayerType layerType, const size_t index, const ResourceRef &resourceRef,
-                               const TileResource *tileResource, const BreakSource breakSource,
-                               const PlaceSourceMessage placeSource, const int offsetX, const int offsetY,
-                               const bool fallback) {
+bool glimmer::Chunk::PlaceTileCell(const TileLayerType layerType, const size_t index,
+                                   const ResourceRef &resourceRef, const TileResource *tileResource,
+                                   const BreakSource breakSource, const PlaceSourceMessage placeSource,
+                                   const int cellX, const int cellY, const bool fallback) {
     if (tileResource == nullptr) {
         return false;
     }
@@ -195,12 +195,34 @@ bool glimmer::Chunk::PlaceTile(const TileLayerType layerType, const size_t index
     tileStateMessage->set_width(tileResource->tileWidth);
     tileStateMessage->set_height(tileResource->tileHeight);
     tileStateMessage->set_placesource(placeSource);
-    tileStateMessage->mutable_offset()->set_x(offsetX);
-    tileStateMessage->mutable_offset()->set_y(offsetY);
+    //The renderer reconstructs the tile's top-left origin via "tileCoord + offset", so the stored
+    //offset must be "top-left - cell". cellX/cellY are measured from the top-left origin: cellX is the
+    //column to the right and cellY is the row below the top-left cell.
+    //渲染器通过 "tileCoord + offset" 还原瓦片左上原点，故存储的 offset 必须是「左上角 - 当前格」。
+    //cellX/cellY 以左上为原点度量：cellX 为向右的列，cellY 为向下的行。
+    tileStateMessage->mutable_offset()->set_x(-cellX);
+    tileStateMessage->mutable_offset()->set_y(cellY);
     resourceRef.WriteResourceRefMessage(*tileStateMessage->mutable_resourceref());
     const uint64_t tick = worldContext_ != nullptr ? worldContext_->GetGlobalTick() : 0;
     InitGrowthState(tileStateMessage, tileResource, tick);
     return CommitTileState(breakSource, layerType, index, fallback);
+}
+
+void glimmer::Chunk::PlaceTileAt(const TileLayerType layerType, const size_t topLeftIndex,
+                                 const ResourceRef &resourceRef, const TileResource *tileResource,
+                                 const BreakSource breakSource, const PlaceSourceMessage placeSource,
+                                 const bool fallback) {
+    if (tileResource == nullptr) {
+        return;
+    }
+    for (int x = 0; x < tileResource->tileWidth; x++) {
+        for (int y = 0; y < tileResource->tileHeight; y++) {
+            //Cells extend right (+x) and down (+y); each row down decreases the chunk-local index by CHUNK_SIZE.
+            //格子向右(+x)向下(+y)延伸；每向下一行，区块内索引减少 CHUNK_SIZE。
+            const size_t index = topLeftIndex + x - static_cast<size_t>(y) * CHUNK_SIZE;
+            PlaceTileCell(layerType, index, resourceRef, tileResource, breakSource, placeSource, x, y, fallback);
+        }
+    }
 }
 
 

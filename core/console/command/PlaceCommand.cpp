@@ -42,14 +42,6 @@ void glimmer::PlaceCommand::InitSuggestions(NodeTree<std::string> *suggestionsTr
             AddChild(X_DYNAMIC_SUGGESTIONS_NAME)->AddChild(Y_DYNAMIC_SUGGESTIONS_NAME);
 }
 
-void glimmer::PlaceCommand::PlaceTileAt(Chunk *chunk, const TileLayerType tileLayerType,
-                                        const size_t index, const ResourceRef &resourceRef,
-                                        const TileResource *tileResource,
-                                        const int x, const int y) {
-    chunk->PlaceTile(tileLayerType, index, resourceRef, tileResource, BreakSource::Console,
-                     PLACE_SOURCE_CONSOLE, x, y, false);
-}
-
 glimmer::PlaceCommand::PlaceCommand(AppContext *appContext) : Command(appContext) {
 }
 
@@ -74,17 +66,6 @@ bool glimmer::PlaceCommand::RequiresWorldContext() const {
 
 bool glimmer::PlaceCommand::RequiresCheatEnabled() const {
     return true;
-}
-
-void glimmer::PlaceCommand::PlaceTileAtWithSize(Chunk *chunk,
-                                                const TileLayerType tileLayerType,
-                                                const size_t index, const ResourceRef &resourceRef,
-                                                const TileResource *tileResource) {
-    for (int x = 0; x < tileResource->tileWidth; x++) {
-        for (int y = 0; y < tileResource->tileHeight; y++) {
-            PlaceTileAt(chunk, tileLayerType, index, resourceRef, tileResource, x, y);
-        }
-    }
 }
 
 bool glimmer::PlaceCommand::ExecuteStructure(const CommandArgs *commandArgs, const CommandSender *commandSender,
@@ -137,39 +118,24 @@ bool glimmer::PlaceCommand::ExecuteStructure(const CommandArgs *commandArgs, con
         return false;
     }
     StructureInfo *structureInfoPtr = structureInfo.get();
-    const int baseX = tilePosition.x;
-    const int baseY = tilePosition.y;
-
-    Chunk *currentChunk = nullptr;
-    TileVector2D currentChunkCoord = {INT_MIN, INT_MIN};
     ChunkManager *chunkManager = worldContext->GetChunkManager();
     if (chunkManager == nullptr) {
         return false;
     }
     for (auto &[tileLayerType, tileMap]: structureInfoPtr->GetStructureMap()) {
         for (auto &[coord, resourceRef]: tileMap) {
-            const int worldX = baseX + coord.x;
-            const int worldY = baseY + coord.y;
-            const int chunkX = worldX & ~CHUNK_MASK;
-            const int chunkY = worldY & ~CHUNK_MASK;
-            const int relativeX = worldX & CHUNK_MASK;
-            const int relativeY = worldY & CHUNK_MASK;
-            if (TileVector2D chunkCoord{chunkX, chunkY}; chunkCoord != currentChunkCoord) {
-                currentChunkCoord = chunkCoord;
-                currentChunk = chunkManager->GetChunk(
-                    CoordinateTransformer::TileToChunkVertex(chunkCoord)
-                );
-            }
-            if (currentChunk == nullptr) {
-                continue;
-            }
             auto tileResource = appContext->GetResourceLocator()->FindTileRaw(&resourceRef);
             if (tileResource == nullptr) {
                 continue;
             }
-            PlaceTileAtWithSize(currentChunk, tileLayerType,
-                                CoordinateTransformer::GetArrayIndex(relativeX, relativeY, CHUNK_SHIFT), resourceRef,
-                                tileResource);
+            //coord is the bottom-left of the structure tile; PlaceTileAt expects the top-left origin.
+            //coord 为结构瓦片的左下角；PlaceTileAt 需要左上原点。
+            const TileVector2D topLeft{
+                tilePosition.x + coord.x,
+                tilePosition.y + coord.y + static_cast<int>(tileResource->tileHeight) - 1
+            };
+            chunkManager->PlaceTileAt(topLeft, tileLayerType,
+                                      resourceRef, tileResource, BreakSource::Console, PLACE_SOURCE_CONSOLE, false);
         }
     }
 

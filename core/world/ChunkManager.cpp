@@ -191,8 +191,8 @@ void glimmer::ChunkManager::BreakAttachedTile(const TileLayerType layerType, con
             }
             const ChunkRelativeVector2D relative = CoordinateTransformer::TileToChunkRelative(cell);
             const size_t index = CoordinateTransformer::GetArrayIndex(relative.x, relative.y, CHUNK_SHIFT);
-            chunk->PlaceTile(layerType, index, airRef, airTileResource, BreakSource::AttachmentLoss,
-                             PLACE_SOURCE_BREAK, 0, 0, false);
+            chunk->PlaceTileAt(layerType, index, airRef, airTileResource, BreakSource::AttachmentLoss,
+                               PLACE_SOURCE_BREAK, false);
         }
     }
 }
@@ -337,6 +337,29 @@ const glimmer::Tile *glimmer::ChunkManager::GetTileAt(const TileLayerType layer,
     const ChunkRelativeVector2D relative = CoordinateTransformer::TileToChunkRelative(cell);
     return chunk->
             GetTile(layer, CoordinateTransformer::GetArrayIndex(relative.x, relative.y, CHUNK_SHIFT));
+}
+
+void glimmer::ChunkManager::PlaceTileAt(const TileVector2D &topLeft, const TileLayerType layerType,
+                                        const ResourceRef &resourceRef, const TileResource *tileResource,
+                                        const BreakSource breakSource,
+                                        const PlaceSourceMessage placeSource, const bool fallback) const {
+    if (tileResource == nullptr) {
+        return;
+    }
+    for (int x = 0; x < tileResource->tileWidth; x++) {
+        for (int y = 0; y < tileResource->tileHeight; y++) {
+            //Cells extend right (+x) and down (-y) from the top-left origin.
+            //格子自左上原点向右(+x)向下(-y)延伸。
+            const TileVector2D cell{topLeft.x + x, topLeft.y - y};
+            Chunk *chunk = GetChunk(CoordinateTransformer::TileToChunkVertex(cell));
+            if (chunk == nullptr) {
+                continue;
+            }
+            const ChunkRelativeVector2D relative = CoordinateTransformer::TileToChunkRelative(cell);
+            const size_t index = CoordinateTransformer::GetArrayIndex(relative.x, relative.y, CHUNK_SHIFT);
+            chunk->PlaceTileCell(layerType, index, resourceRef, tileResource, breakSource, placeSource, x, y, fallback);
+        }
+    }
 }
 
 void glimmer::ChunkManager::LoadChunkAt(const ResourceRef &dimensionRef, const ChunkVertexVector2D &position) {

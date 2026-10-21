@@ -37,5 +37,5 @@ void glimmer::UiPass::Record(RenderFrameContext &ctx) {
     if (rmlContext_ == nullptr || ctx.commandBuffer == nullptr || ctx.swapChainTexture == nullptr) {
         return;
     }
-    rmlContext_->RenderContext(ctx.commandBuffer, ctx.swapChainTexture, ctx.logicalWidth, ctx.logicalHeight);
+    rmlContext_->RenderContext(ctx.commandBuffer, ctx.swapChainTexture, ctx.swapChainWidth, ctx.swapChainHeight);
 }

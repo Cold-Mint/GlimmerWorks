@@ -65,11 +65,8 @@ bool glimmer::MiningRangeData::IsValidForChainMining(const TileLayerComponent *t
     if (tile == nullptr) {
         return false;
     }
-    const TileMiningData *tileMiningData = tile->GetMiningData();
-    if (tileMiningData == nullptr) {
-        return false;
-    }
-    if (!tileMiningData->IsBreakable() || !tileMiningData->IsAllowChainMining()) {
+    const TileMiningData &tileMiningData = tile->GetMiningData();
+    if (!tileMiningData.IsBreakable() || !tileMiningData.IsAllowChainMining()) {
         return false;
     }
     const TileStateMessage *tileStateMessage = tileLayerComponent->GetSelfLayerTileState(position);
@@ -79,28 +76,24 @@ bool glimmer::MiningRangeData::IsValidForChainMining(const TileLayerComponent *t
     return true;
 }
 
-const glimmer::TileMiningData *glimmer::MiningRangeData::GetValidStartMiningData(
-    const TileLayerComponent *tileLayerComponent,
-    const TileVector2D &startVector) {
+std::optional<glimmer::TileMiningData> glimmer::MiningRangeData::GetValidStartMiningData(
+    const TileLayerComponent *tileLayerComponent, const TileVector2D &startVector) {
     const Tile *startTile = tileLayerComponent->GetSelfLayerTile(startVector);
     if (startTile == nullptr) {
-        return nullptr;
+        return std::nullopt;
     }
-    const TileMiningData *tileMiningData = startTile->GetMiningData();
-    if (tileMiningData == nullptr) {
-        return nullptr;
-    }
-    if (!tileMiningData->IsBreakable()) {
-        return nullptr;
+    const TileMiningData tileMiningDataCopy = startTile->GetMiningData();
+    if (!tileMiningDataCopy.IsBreakable()) {
+        return std::nullopt;
     }
     const TileStateMessage *tileStateMessage = tileLayerComponent->GetSelfLayerTileState(startVector);
     if (tileStateMessage != nullptr && tileStateMessage->placesource() == PLACE_SOURCE_PLAYER) {
-        return nullptr;
+        return std::nullopt;
     }
-    if (!tileMiningData->IsAllowChainMining()) {
-        return nullptr;
+    if (!tileMiningDataCopy.IsAllowChainMining()) {
+        return std::nullopt;
     }
-    return tileMiningData;
+    return tileMiningDataCopy;
 }
 
 
@@ -133,11 +126,8 @@ void glimmer::MiningRangeData::CalculateMining(const TileLayerComponent *tileLay
     if (startTile == nullptr) {
         return;
     }
-    const TileMiningData *tileMiningData = startTile->GetMiningData();
-    if (tileMiningData == nullptr) {
-        return;
-    }
-    if (!tileMiningData->IsBreakable()) {
+    const TileMiningData &tileMiningData = startTile->GetMiningData();
+    if (!tileMiningData.IsBreakable()) {
         return;
     }
     const TileStateMessage *tileStateMessage = tileLayerComponent->GetSelfLayerTileState(startVector);
@@ -146,7 +136,7 @@ void glimmer::MiningRangeData::CalculateMining(const TileLayerComponent *tileLay
     }
 
     TryPushPoint(tileLayerComponent, startVector);
-    maxHardness_ = tileMiningData->GetHardness();
+    maxHardness_ = tileMiningData.GetHardness();
 }
 
 void glimmer::MiningRangeData::CalculateChainMining(const TileLayerComponent *tileLayerComponent,
@@ -154,13 +144,13 @@ void glimmer::MiningRangeData::CalculateChainMining(const TileLayerComponent *ti
     if (radius <= 0) {
         return;
     }
-    const TileMiningData *tileMiningData = GetValidStartMiningData(tileLayerComponent,
-                                                                   startVector);
-    if (tileMiningData == nullptr) {
+    const std::optional<TileMiningData> tileMiningDataOptional = GetValidStartMiningData(tileLayerComponent,
+        startVector);
+    if (!tileMiningDataOptional.has_value()) {
         return;
     }
-
-    maxHardness_ = tileMiningData->GetHardness();
+    TileMiningData tileMiningData = tileMiningDataOptional.value();
+    maxHardness_ = tileMiningData.GetHardness();
     TryPushPoint(tileLayerComponent, startVector);
 
     const std::vector<TileVector2D> directions = {
@@ -217,8 +207,8 @@ void glimmer::MiningRangeData::ProcessChainMiningNeighbor(const TileLayerCompone
         return;
     }
 
-    const TileMiningData *nextTileMiningData = nextTile->GetMiningData();
-    if (float nextHardness = nextTileMiningData->GetHardness(); nextHardness > maxHardness_) {
+    const TileMiningData nextTileMiningData = nextTile->GetMiningData();
+    if (float nextHardness = nextTileMiningData.GetHardness(); nextHardness > maxHardness_) {
         maxHardness_ = nextHardness;
     }
 }

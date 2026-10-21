@@ -50,7 +50,6 @@
 #include "core/console/command/ScreenshotCommand.h"
 #include "core/console/command/SceneCommand.h"
 #include "core/console/command/SeedCommand.h"
-#include "core/console/command/SummonCommand.h"
 #include "core/console/command/TagCommand.h"
 #include "core/console/command/TechnologyCommand.h"
 #include "core/console/command/TileSnapshotCommand.h"
@@ -89,7 +88,6 @@ void glimmer::ConsoleContext::RegisterCommands(AppContext *appContext) const {
     commandManager_->RegisterCommand(std::make_unique<GiveCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<HelpCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<TpCommand>(appContext));
-    commandManager_->RegisterCommand(std::make_unique<SummonCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<PlaceCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<ClearCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<LootCommand>(appContext));

@@ -113,7 +113,8 @@ bool glimmer::MiningAbility::OnUse(const ItemUseContext &context) {
         if (tileLayerComponent == nullptr) {
             continue;
         }
-        if (const TileLayerType layerType = tileLayerComponent->GetTileLayerType(); abilityConfig->mineAbleLayerMask & std::to_underlying(layerType)) {
+        if (const TileLayerType layerType = tileLayerComponent->GetTileLayerType();
+            abilityConfig->mineAbleLayerMask & std::to_underlying(layerType)) {
             if ((CoordinateTransformer::TileToWorld(tileVector2D) + WorldVector2D{HALF_TILE_SIZE, HALF_TILE_SIZE}).
                 Distance(playerWorldPos) / TILE_SIZE > abilityConfig
                 ->miningRange) {
@@ -123,11 +124,8 @@ bool glimmer::MiningAbility::OnUse(const ItemUseContext &context) {
             if (tile == nullptr) {
                 continue;
             }
-            const TileMiningData *tileMiningData = tile->GetMiningData();
-            if (tileMiningData == nullptr) {
-                continue;
-            }
-            if (!tileMiningData->IsBreakable()) {
+            const TileMiningData &tileMiningData = tile->GetMiningData();
+            if (!tileMiningData.IsBreakable()) {
                 continue;
             }
             if (!miningComponent->HasStartPosition() || miningComponent->GetStartPosition() != tileVector2D) {

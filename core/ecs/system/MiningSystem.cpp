@@ -52,11 +52,8 @@ bool glimmer::MiningSystem::CanProcessTile(const Tile *tile, bool isPlaceMode) {
     if (isPlaceMode && !tile->IsOverwritable()) {
         return false;
     }
-    const TileMiningData *miningData = tile->GetMiningData();
-    if (miningData == nullptr) {
-        return false;
-    }
-    if (!isPlaceMode && !miningData->IsBreakable()) {
+    const TileMiningData &miningData = tile->GetMiningData();
+    if (!isPlaceMode && !miningData.IsBreakable()) {
         return false;
     }
     return true;
@@ -118,12 +115,9 @@ void glimmer::MiningSystem::ApplyItemDurability(Item *item, const Tile *tile, bo
     if (item == nullptr) {
         return;
     }
-    const TileMiningData *miningData = tile->GetMiningData();
-    if (miningData == nullptr) {
-        return;
-    }
-    if (miningData->IsAutoDigCostScale() || isCenter) {
-        item->Reduce(miningData->GetUnitDigCost());
+    const TileMiningData &miningData = tile->GetMiningData();
+    if (miningData.IsAutoDigCostScale() || isCenter) {
+        item->Reduce(miningData.GetUnitDigCost());
     }
 }
 
@@ -145,15 +139,12 @@ void glimmer::MiningSystem::DropTileLoot(WorldContext *worldContext,
     if (appContext == nullptr) {
         return;
     }
-    const TileLootData *tileLootData = tile->GetLootData();
-    if (tileLootData == nullptr) {
+    const TileLootData &tileLootData = tile->GetLootData();
+    if (!tileLootData.CanDropLoot()) {
         return;
     }
-    if (!tileLootData->CanDropLoot()) {
-        return;
-    }
-    const auto lootResource = appContext->GetResourceLocator()->FindLoot(tileLootData->GetLootTableRef());
-    if (precisionMining || !tileLootData->IsCustomLootTable() || lootResource == nullptr) {
+    const auto lootResource = appContext->GetResourceLocator()->FindLoot(tileLootData.GetLootTableRef());
+    if (precisionMining || !tileLootData.IsCustomLootTable() || lootResource == nullptr) {
         DropDefaultLoot(worldContext, tile, position, oldResourceRef);
         return;
     }
@@ -186,11 +177,8 @@ void glimmer::MiningSystem::PlayBreakSFX(const AppContext *appContext, const Til
     if (audioContext == nullptr) {
         return;
     }
-    const TileResourceData *tileResourceData = tile->GetResourceData();
-    if (tileResourceData == nullptr) {
-        return;
-    }
-    auto breakSFX = tileResourceData->GetBreakSFX();
+    const TileResourceData &tileResourceData = tile->GetResourceData();
+    auto breakSFX = tileResourceData.GetBreakSFX();
     if (breakSFX == nullptr) {
         return;
     }
@@ -204,18 +192,13 @@ void glimmer::MiningSystem::PlayBreakSFX(const AppContext *appContext, const Til
 
 
 static bool CheckMiningEfficiency(const glimmer::Tile *tile, const glimmer::AbilityConfig *abilityConfig) {
-    const glimmer::TileMiningData *tileMiningData = tile->GetMiningData();
-    if (tileMiningData == nullptr) {
-        glimmer::LogCat::w(glimmer::LogLabel::DEFAULT, std::source_location::current(), "tile_mining_data_is_null",
-                           "tileMiningData == nullptr");
-        return true;
-    }
+    const glimmer::TileMiningData &tileMiningData = tile->GetMiningData();
     if (abilityConfig == nullptr) {
         glimmer::LogCat::w(glimmer::LogLabel::DEFAULT, std::source_location::current(), "ability_config_is_null",
                            "abilityConfig == nullptr");
         return true;
     }
-    if (tileMiningData->GetMinMiningEfficiency() > abilityConfig->miningEfficiency) {
+    if (tileMiningData.GetMinMiningEfficiency() > abilityConfig->miningEfficiency) {
         glimmer::LogCat::w(glimmer::LogLabel::DEFAULT, std::source_location::current(), "mining_efficiency_exceeded",
                            "tileMiningData->GetMinMiningEfficiency() > abilityConfig->miningEfficiency");
         return false;
@@ -281,11 +264,8 @@ void glimmer::MiningSystem::ProcessSingleTile(const TileBreakParams &params,
     if (!CheckMiningEfficiency(currentTile.get(), &abilityConfigCopy)) {
         return;
     }
-    const TileLootData *tileLootData = currentTile->GetLootData();
-    if (tileLootData == nullptr) {
-        return;
-    }
-    if (!isCenter && !tileLootData->LootScaleBySize()) {
+    const TileLootData &tileLootData = currentTile->GetLootData();
+    if (!isCenter && !tileLootData.LootScaleBySize()) {
         return;
     }
     DropTileLoot(worldContext, currentTile, currentVector,

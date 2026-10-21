@@ -94,11 +94,8 @@ bool glimmer::TileAttachmentHelper::HasAnyTag(const Tile *tile, const std::vecto
     if (tile == nullptr || tagIds.empty()) {
         return false;
     }
-    const TileResourceData *resourceData = tile->GetResourceData();
-    if (resourceData == nullptr) {
-        return false;
-    }
-    for (const auto &tag: resourceData->GetTags()) {
+    const TileResourceData &resourceData = tile->GetResourceData();
+    for (const auto &tag: resourceData.GetTags()) {
         for (const uint64_t tagId: tagIds) {
             if (tag.cachedTagId == tagId) {
                 return true;

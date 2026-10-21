@@ -50,7 +50,7 @@ namespace glimmer {
         TileLightResourceData lightData_;
         TileResourceData resourceData_;
         TileLootData lootData_;
-        ResourceRef growthTarget_ = {};
+        ResourceRef growthTarget_;
         std::unordered_map<Vector2DIFingerprint, GameEntityID> gameEntities_;
         std::optional<std::string> description_;
         std::string id_;
@@ -82,7 +82,7 @@ namespace glimmer {
                                                 const Vector2DIResource &customTileAnchor);
 
         static void AppendDerivedTag(std::unordered_set<uint64_t> &existingTagIds, std::vector<ItemTagResource> &tags,
-                              const std::string &name);
+                                     const std::string &name);
 
         static std::unique_ptr<Tile> FromTileResource(const AppContext *appContext,
                                                       const TileResource *tileResource);
@@ -96,7 +96,7 @@ namespace glimmer {
 
         [[nodiscard]] bool DestroySelfAfterGrowth() const;
 
-        const ResourceRef *GetGrowthTarget() const;
+        const ResourceRef &GetGrowthTarget() const;
 
         /**
          * GetSpawnOriginOffset
@@ -148,25 +148,25 @@ namespace glimmer {
 
         void OnBreak(const WorldContext *worldContext, BreakSource breakSource, const TileVector2D &position);
 
-        [[nodiscard]] TileResourceData *GetMutableResourceData();
+        [[nodiscard]] TileResourceData &GetMutableResourceData();
 
-        [[nodiscard]] const TileResourceData *GetResourceData() const;
+        [[nodiscard]] const TileResourceData &GetResourceData() const;
 
-        [[nodiscard]] TileBlueprintData *GetMutableBlueprintData();
+        [[nodiscard]] TileBlueprintData &GetMutableBlueprintData();
 
-        [[nodiscard]] const TileBlueprintData *GetBlueprintData() const;
+        [[nodiscard]] const TileBlueprintData &GetBlueprintData() const;
 
-        [[nodiscard]] TileDimensions *GetMutableDimensions();
+        [[nodiscard]] TileDimensions &GetMutableDimensions();
 
-        [[nodiscard]] const TileDimensions *GetDimensions() const;
+        [[nodiscard]] const TileDimensions &GetDimensions() const;
 
-        [[nodiscard]] TileMiningData *GetMutableMiningData();
+        [[nodiscard]] TileMiningData &GetMutableMiningData();
 
-        [[nodiscard]] const TileMiningData *GetMiningData() const;
+        [[nodiscard]] const TileMiningData &GetMiningData() const;
 
-        [[nodiscard]] TileLootData *GetMutableLootData();
+        [[nodiscard]] TileLootData &GetMutableLootData();
 
-        [[nodiscard]] const TileLootData *GetLootData() const;
+        [[nodiscard]] const TileLootData &GetLootData() const;
 
         [[nodiscard]] TileLightResourceData *GetMutableLightResourceData();
 

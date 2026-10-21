@@ -61,8 +61,8 @@ bool glimmer::Tile::DestroySelfAfterGrowth() const {
     return destroySelfAfterGrowth_;
 }
 
-const glimmer::ResourceRef *glimmer::Tile::GetGrowthTarget() const {
-    return &growthTarget_;
+const glimmer::ResourceRef &glimmer::Tile::GetGrowthTarget() const {
+    return growthTarget_;
 }
 
 const glimmer::Vector2DIResource &glimmer::Tile::GetSpawnOriginOffset() const {
@@ -406,44 +406,44 @@ void glimmer::Tile::OnBreak(const WorldContext *worldContext, const BreakSource 
     gameEntities_.erase(gameEntityIterator);
 }
 
-glimmer::TileResourceData *glimmer::Tile::GetMutableResourceData() {
-    return &resourceData_;
+glimmer::TileResourceData &glimmer::Tile::GetMutableResourceData() {
+    return resourceData_;
 }
 
-const glimmer::TileResourceData *glimmer::Tile::GetResourceData() const {
-    return &resourceData_;
+const glimmer::TileResourceData &glimmer::Tile::GetResourceData() const {
+    return resourceData_;
 }
 
-glimmer::TileBlueprintData *glimmer::Tile::GetMutableBlueprintData() {
-    return &blueprintData_;
+glimmer::TileBlueprintData &glimmer::Tile::GetMutableBlueprintData() {
+    return blueprintData_;
 }
 
-const glimmer::TileBlueprintData *glimmer::Tile::GetBlueprintData() const {
-    return &blueprintData_;
+const glimmer::TileBlueprintData &glimmer::Tile::GetBlueprintData() const {
+    return blueprintData_;
 }
 
-glimmer::TileDimensions *glimmer::Tile::GetMutableDimensions() {
-    return &dimensions_;
+glimmer::TileDimensions &glimmer::Tile::GetMutableDimensions() {
+    return dimensions_;
 }
 
-const glimmer::TileDimensions *glimmer::Tile::GetDimensions() const {
-    return &dimensions_;
+const glimmer::TileDimensions &glimmer::Tile::GetDimensions() const {
+    return dimensions_;
 }
 
-glimmer::TileMiningData *glimmer::Tile::GetMutableMiningData() {
-    return &miningData_;
+glimmer::TileMiningData &glimmer::Tile::GetMutableMiningData() {
+    return miningData_;
 }
 
-const glimmer::TileMiningData *glimmer::Tile::GetMiningData() const {
-    return &miningData_;
+const glimmer::TileMiningData &glimmer::Tile::GetMiningData() const {
+    return miningData_;
 }
 
-glimmer::TileLootData *glimmer::Tile::GetMutableLootData() {
-    return &lootData_;
+glimmer::TileLootData &glimmer::Tile::GetMutableLootData() {
+    return lootData_;
 }
 
-const glimmer::TileLootData *glimmer::Tile::GetLootData() const {
-    return &lootData_;
+const glimmer::TileLootData &glimmer::Tile::GetLootData() const {
+    return lootData_;
 }
 
 glimmer::TileLightResourceData *glimmer::Tile::GetMutableLightResourceData() {

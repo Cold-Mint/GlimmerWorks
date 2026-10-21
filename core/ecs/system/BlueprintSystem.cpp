@@ -222,15 +222,12 @@ glimmer::TileVector2D glimmer::BlueprintSystem::SetupHeldTileInfo(const TileVect
     if (heldTile_ == nullptr) {
         return leftBottom;
     }
-    const TileDimensions *tileDimensions = heldTile_->GetDimensions();
-    if (tileDimensions == nullptr) {
-        return leftBottom;
-    }
-    tileWidth = tileDimensions->GetTileWidth();
-    tileHeight = tileDimensions->GetTileHeight();
-    tileAnchor = *tileDimensions->GetTileAnchor();
-    bool atLeft = focusWorldTilePos.x < playerPosition.x;
-    if (atLeft && tileDimensions->IsAllowDirAdjustAnchor()) {
+    const TileDimensions &tileDimensions = heldTile_->GetDimensions();
+    tileWidth = tileDimensions.GetTileWidth();
+    tileHeight = tileDimensions.GetTileHeight();
+    tileAnchor = *tileDimensions.GetTileAnchor();
+    const bool atLeft = focusWorldTilePos.x < playerPosition.x;
+    if (atLeft && tileDimensions.IsAllowDirAdjustAnchor()) {
         tileAnchor.x = tileWidth - 1 - tileAnchor.x;
     }
     leftBottom.x = focusPosition.x - tileAnchor.x;
@@ -270,19 +267,13 @@ void glimmer::BlueprintSystem::RenderBlueprintTexture(RenderQueue *queue, const 
     if (heldTile_ == nullptr) {
         return;
     }
-    const TileBlueprintData *tileBlueprintData = heldTile_->GetBlueprintData();
-    if (tileBlueprintData == nullptr) {
+    const TileBlueprintData &tileBlueprintData = heldTile_->GetBlueprintData();
+    if (!tileBlueprintData.EnableBlueprint()) {
         return;
     }
-    if (!tileBlueprintData->EnableBlueprint()) {
-        return;
-    }
-    const TileResourceData *tileResourceData = heldTile_->GetResourceData();
-    if (tileResourceData == nullptr) {
-        return;
-    }
+    const TileResourceData &tileResourceData = heldTile_->GetResourceData();
     uint8_t outFlip = FLIP_NONE;
-    const TextureResourceResult *texture = tileResourceData->GetResolvedTexture(direction, outFlip);
+    const TextureResourceResult *texture = tileResourceData.GetResolvedTexture(direction, outFlip);
     if (texture == nullptr) {
         return;
     }
@@ -295,11 +286,8 @@ void glimmer::BlueprintSystem::RenderBlueprintMask(RenderQueue *queue, const std
     if (heldTile_ == nullptr) {
         return;
     }
-    const TileBlueprintData *tileBlueprintData = heldTile_->GetBlueprintData();
-    if (tileBlueprintData == nullptr) {
-        return;
-    }
-    if (!tileBlueprintData->EnableBlueprintMask()) {
+    const TileBlueprintData &tileBlueprintData = heldTile_->GetBlueprintData();
+    if (!tileBlueprintData.EnableBlueprintMask()) {
         return;
     }
     const float zoom = cameraComponent_->GetZoom();
@@ -317,7 +305,7 @@ void glimmer::BlueprintSystem::RenderBlueprintMask(RenderQueue *queue, const std
         indicatorRenderQuad.y = tileScreenPos.y - indicatorRenderQuad.h * 0.5f;
         SDL_Color maskColor;
         if (checkRectResult[i]) {
-            if (!tileBlueprintData->DrawValidBlueprintColor()) {
+            if (!tileBlueprintData.DrawValidBlueprintColor()) {
                 continue;
             }
             maskColor = {
@@ -371,7 +359,7 @@ void glimmer::BlueprintSystem::Render(RenderQueue *queue) {
     const auto transform2DComponent = entityManager->GetComponent<Transform2DComponent>(player);
     const WorldVector2D &playerPosition = transform2DComponent->GetRenderPosition();
     const TileVector2D leftBottom = SetupHeldTileInfo(focusPosition, focusWorldTilePos, playerPosition,
-                                                tileWidth, tileHeight, tileAnchor);
+                                                      tileWidth, tileHeight, tileAnchor);
     auto topLeftVector = TileVector2D{leftBottom.x, leftBottom.y + tileHeight - 1};
     blueprintComponent_->SetTopLeftVector(topLeftVector);
     SDL_FRect renderQuad = CalculateRenderQuad(focusPosition, topLeftVector, tileWidth, tileHeight);

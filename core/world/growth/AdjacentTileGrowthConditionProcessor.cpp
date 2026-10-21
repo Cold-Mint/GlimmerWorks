@@ -78,11 +78,8 @@ bool glimmer::AdjacentTileGrowthConditionProcessor::Match(const WorldContext *wo
         if (tile == nullptr) {
             continue;
         }
-        const TileResourceData *tileData = tile->GetResourceData();
-        if (tileData == nullptr) {
-            continue;
-        }
-        for (const auto &tag: tileData->GetTags()) {
+        const TileResourceData &tileData = tile->GetResourceData();
+        for (const auto &tag: tileData.GetTags()) {
             if (requiredTagSet.contains(tag.cachedTagId)) {
                 return true;
             }

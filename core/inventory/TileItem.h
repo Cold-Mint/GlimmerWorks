@@ -32,8 +32,6 @@
 namespace glimmer {
     class TileItem : public Item {
         std::shared_ptr<Tile> tile_ = nullptr;
-        const TileResourceData *tileResourceData_;
-        const TileDimensions *tileDimensions_;
 
     public:
         ~TileItem() override = default;

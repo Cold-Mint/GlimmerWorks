@@ -481,6 +481,7 @@ target_sources(GlimmerWorks
         core/world/TilePlacementConfig.cpp
         core/world/TileStateBackup.cpp
         core/world/TileAttachmentHelper.cpp
+        core/world/TargetResourceApplier.cpp
         core/console/Command.cpp
         core/console/CommandArgs.cpp
         core/console/CommandHistoryManager.cpp
@@ -539,7 +540,6 @@ target_sources(GlimmerWorks
         core/console/command/SceneCommand.cpp
         core/console/command/ScreenshotCommand.cpp
         core/console/command/SeedCommand.cpp
-        core/console/command/SummonCommand.cpp
         core/console/command/TagCommand.cpp
         core/console/command/TechnologyCommand.cpp
         core/console/command/TileSnapshotCommand.cpp
@@ -927,6 +927,7 @@ target_sources(GlimmerWorks
         core/inventory/TagRuntimeData.h
         core/world/TilePlacementConfig.h
         core/world/TileStateBackup.h
+        core/world/TargetResourceApplier.h
         core/console/Command.h
         core/console/CommandArgs.h
         core/console/CommandEnvironment.h
@@ -988,7 +989,6 @@ target_sources(GlimmerWorks
         core/console/command/SceneCommand.h
         core/console/command/ScreenshotCommand.h
         core/console/command/SeedCommand.h
-        core/console/command/SummonCommand.h
         core/console/command/TagCommand.h
         core/console/command/TechnologyCommand.h
         core/console/command/TileSnapshotCommand.h

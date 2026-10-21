@@ -72,8 +72,8 @@ namespace glimmer {
          * @param layerType layerType  图层类型
          * @param growthTargetRef growthTargetRef 目标资源引用
          */
-        static bool OnGrowMature(WorldContext *worldContext, Chunk *chunk, const ChunkRelativeVector2D &position,
-                                 TileLayerType layerType, const ResourceRef *growthTargetRef);
+        static bool OnGrowMature(WorldContext *worldContext, const Chunk *chunk, const ChunkRelativeVector2D &position,
+                                 TileLayerType layerType, const ResourceRef &growthTargetRef);
 
         void OnTick(uint64_t tick) override;
 

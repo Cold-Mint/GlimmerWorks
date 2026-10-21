@@ -38,11 +38,8 @@
 
 glimmer::TileItem::TileItem(const std::shared_ptr<Tile> &tile, const ResourceRef &resourceRef) : tile_(tile) {
     SetResourceRef(resourceRef);
-    tileResourceData_ = tile->GetResourceData();
-    tileDimensions_ = tile->GetDimensions();
-    if (tileResourceData_ != nullptr) {
-        SetTags(tileResourceData_->GetTags());
-    }
+    const TileResourceData &tileResourceData = tile_->GetResourceData();
+    SetTags(tileResourceData.GetTags());
     SetMaxStack(ITEM_MAX_STACK);
     SetUnbreakable(true);
     const TileLightResourceData *tileLightResourceData = tile->GetLightResourceData();
@@ -123,29 +120,29 @@ bool glimmer::TileItem::OnUse(const ItemUseContext &context) {
             continue;
         }
         if (itemStackModule->GetAmount() > 0) {
-            if (AudioManager *audioManager = appContext->GetAudioContext()->GetAudioManager(); audioManager != nullptr
-                && tileResourceData_ != nullptr) {
-                if (const AudioResourceResult *audioResourceResult = tileResourceData_->GetPlaceSFX(); audioResourceResult !=
+            if (AudioManager *audioManager = appContext->GetAudioContext()->GetAudioManager();
+                audioManager != nullptr) {
+                if (const AudioResourceResult *audioResourceResult = tile_->GetResourceData().GetPlaceSFX();
+                    audioResourceResult !=
                     nullptr) {
                     audioManager->TryPlayFree(
                         AudioType::AMBIENT, audioResourceResult->GetResource(), 0);
                 }
             }
-            if (tileDimensions_ != nullptr) {
-                TileBreakParams tileBreakParams;
-                tileBreakParams.SetBreakSource(BreakSource::PlayerOverride);
-                tileBreakParams.SetWorldContext(worldContext);
-                tileBreakParams.SetTileLayerComponent(tileLayer);
-                tileBreakParams.SetTopLeftPosition(blueprintComponent->GetTopLeftVector());
-                tileBreakParams.SetPrecisionMining(false);
-                tileBreakParams.SetPlaceMode(true);
-                tileBreakParams.SetTileWidth(tileDimensions_->GetTileWidth());
-                tileBreakParams.SetTileHeight(tileDimensions_->GetTileHeight());
-                tileBreakParams.SetNewTileRef(GetResourceRef());
-                tileBreakParams.SetAttachmentDirection(blueprintComponent->GetAttachmentDirection());
-                tileBreakParams.SetAttachmentOffset(blueprintComponent->GetAttachmentOffset());
-                MiningSystem::BreakTile(tileBreakParams);
-            }
+            TileBreakParams tileBreakParams;
+            tileBreakParams.SetBreakSource(BreakSource::PlayerOverride);
+            tileBreakParams.SetWorldContext(worldContext);
+            tileBreakParams.SetTileLayerComponent(tileLayer);
+            tileBreakParams.SetTopLeftPosition(blueprintComponent->GetTopLeftVector());
+            tileBreakParams.SetPrecisionMining(false);
+            tileBreakParams.SetPlaceMode(true);
+            const TileDimensions &tileDimensions = tile_->GetDimensions();
+            tileBreakParams.SetTileWidth(tileDimensions.GetTileWidth());
+            tileBreakParams.SetTileHeight(tileDimensions.GetTileHeight());
+            tileBreakParams.SetNewTileRef(GetResourceRef());
+            tileBreakParams.SetAttachmentDirection(blueprintComponent->GetAttachmentDirection());
+            tileBreakParams.SetAttachmentOffset(blueprintComponent->GetAttachmentOffset());
+            MiningSystem::BreakTile(tileBreakParams);
 
             itemStackModule->RemoveAmount(1);
         }
@@ -154,32 +151,32 @@ bool glimmer::TileItem::OnUse(const ItemUseContext &context) {
 }
 
 glimmer::TextureResourceResult *glimmer::TileItem::GetIcon() const {
-    if (tileResourceData_ == nullptr) {
+    if (tile_ == nullptr) {
         return nullptr;
     }
-    return tileResourceData_->GetTexture();
+    return tile_->GetResourceData().GetTexture();
 }
 
 SDL_GPUGraphicsPipeline *glimmer::TileItem::GetPipeline() const {
-    if (tileResourceData_ == nullptr) {
+    if (tile_ == nullptr) {
         return nullptr;
     }
-    return tileResourceData_->GetPipeline();
+    return tile_->GetResourceData().GetPipeline();
 }
 
 SDL_GPUSampler *glimmer::TileItem::GetSampler() const {
-    if (tileResourceData_ == nullptr) {
+    if (tile_ == nullptr) {
         return nullptr;
     }
-    return tileResourceData_->GetSampler();
+    return tile_->GetResourceData().GetSampler();
 }
 
 
 const glimmer::ResourceRef *glimmer::TileItem::GetIconResourceRef() const {
-    if (tileResourceData_ == nullptr) {
+    if (tile_ == nullptr) {
         return nullptr;
     }
-    return tileResourceData_->GetTextureRef();
+    return tile_->GetResourceData().GetTextureRef();
 }
 
 const glimmer::AbilityConfig *glimmer::TileItem::GetAbilityConfig() const {

@@ -221,14 +221,11 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
                             });
                         }
                     }
-                    const TileMiningData *miningData = tile->GetMiningData();
-                    if (miningData == nullptr) {
-                        continue;
-                    }
+                    const TileMiningData &miningData = tile->GetMiningData();
                     debugLines_.push_back(DebugLine{
                         fmt::format(
                             fmt::runtime(langsResources->tileResDebugInfo),
-                            std::to_underlying(tile->GetLayerType()), tile->GetId(), miningData->GetHardness(),
+                            std::to_underlying(tile->GetLayerType()), tile->GetId(), miningData.GetHardness(),
                             tile->GetName()
                         )
                     });

@@ -102,20 +102,17 @@ void glimmer::TileLayerSystem::RenderTileSnapshot(RenderQueue *queue, const Tile
     renderQuad.h = height;
     renderQuad.x = tileTopLeftCamera.x - renderQuad.w * 0.5F;
     renderQuad.y = tileTopLeftCamera.y - renderQuad.h * 0.5F;
-    const TileResourceData *tileResourceData = tile->GetResourceData();
-    if (tileResourceData == nullptr) {
-        return;
-    }
+    const TileResourceData &tileResourceData = tile->GetResourceData();
     const auto attachmentDirection = static_cast<TileAttachmentDirection>(tileState->attachmentdirection());
     Uint8 flip = FLIP_NONE;
-    TextureResourceResult *textureResourceResult = tileResourceData->GetResolvedTexture(attachmentDirection, flip);
+    TextureResourceResult *textureResourceResult = tileResourceData.GetResolvedTexture(attachmentDirection, flip);
     if (textureResourceResult == nullptr) {
         return;
     }
     queue->DrawTextureRotated(RenderLayer::Tile, 0.0F, textureResourceResult, nullptr, &renderQuad,
                               0.0F, nullptr, flip,
-                              {255, 255, 255, 255}, tileResourceData->GetPipeline(), tileResourceData->GetSampler(),
-                              tileResourceData->GetUniformBlocks());
+                              {255, 255, 255, 255}, tileResourceData.GetPipeline(), tileResourceData.GetSampler(),
+                              tileResourceData.GetUniformBlocks());
 }
 
 glimmer::TileLayerSystem::TileLayerSystem(WorldContext *worldContext)

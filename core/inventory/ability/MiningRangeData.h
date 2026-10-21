@@ -52,7 +52,7 @@ namespace glimmer {
         [[nodiscard]] static bool IsValidForChainMining(const TileLayerComponent *tileLayerComponent,
                                                         const TileVector2D &position);
 
-        [[nodiscard]] static const TileMiningData *GetValidStartMiningData(
+        [[nodiscard]] static std::optional<TileMiningData> GetValidStartMiningData(
             const TileLayerComponent *tileLayerComponent,
             const TileVector2D &startVector);
 

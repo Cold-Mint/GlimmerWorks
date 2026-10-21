@@ -50,6 +50,27 @@ namespace glimmer {
                                                        float zoom);
 
         /**
+         * Calculate the screen-space render quad for a (multi-)tile.
+         * 计算（多方块）瓦片在屏幕空间的渲染矩形。
+         *
+         * The returned quad's top-left corner is offset by half a tile from the top-left cell's
+         * center, so it covers the whole tile regardless of its width/height.
+         * 返回矩形的左上角相对左上角格子中心偏移半格，因此无论瓦片宽高都能完整覆盖。
+         *
+         * @param cameraPosition cameraPosition 相机位置（世界坐标）
+         * @param topLeftTilePos topLeftTilePos 瓦片左上角格子的瓦片坐标
+         * @param tileWidth tileWidth 瓦片宽度（格数）
+         * @param tileHeight tileHeight 瓦片高度（格数）
+         * @param cameraSize cameraSize 相机尺寸（像素）
+         * @param zoom zoom 缩放比例
+         * @return SDL_FRect 屏幕空间渲染矩形
+         */
+        [[nodiscard]] static SDL_FRect CalculateTileRenderQuad(const WorldVector2D &cameraPosition,
+                                                               const TileVector2D &topLeftTilePos,
+                                                               uint8_t tileWidth, uint8_t tileHeight,
+                                                               const ScreenVector2D &cameraSize, float zoom);
+
+        /**
          * World coordinates to screen coordinates
          * 世界坐标转屏幕坐标
          * @param cameraPosition The camera position in world coordinates 相机位置（世界坐标）

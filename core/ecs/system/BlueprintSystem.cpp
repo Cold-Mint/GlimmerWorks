@@ -239,28 +239,13 @@ SDL_FRect glimmer::BlueprintSystem::CalculateRenderQuad(const TileVector2D &focu
                                                         const TileVector2D &topLeftVector,
                                                         uint8_t tileWidth,
                                                         uint8_t tileHeight) const {
-    SDL_FRect renderQuad;
-    const float zoom = cameraComponent_->GetZoom();
-    renderQuad.w = static_cast<float>(tileWidth) * TILE_SIZE * zoom;
-    renderQuad.h = static_cast<float>(tileHeight) * TILE_SIZE * zoom;
-    if (heldTile_ == nullptr) {
-        const ScreenVector2D focusWorldTileCamera = CoordinateTransformer::WorldToScreen(
-            cameraTransform2DComponent_->GetRenderPosition(),
-            CoordinateTransformer::TileToWorld({focusPosition.x, focusPosition.y}),
-            cameraComponent_->GetSize(), cameraComponent_->GetZoom());
-        renderQuad.x = focusWorldTileCamera.x - renderQuad.w * 0.5F;
-        renderQuad.y = focusWorldTileCamera.y - renderQuad.h * 0.5F;
-        return renderQuad;
-    }
-    const ScreenVector2D topLeftCamera = CoordinateTransformer::WorldToScreen(
-        cameraTransform2DComponent_->GetRenderPosition(),
-        CoordinateTransformer::TileToWorld(topLeftVector), cameraComponent_->GetSize(),
-        cameraComponent_->GetZoom()
-    );
-    const float halfTileScreenSize = static_cast<float>(HALF_TILE_SIZE) * zoom;
-    renderQuad.x = topLeftCamera.x - halfTileScreenSize;
-    renderQuad.y = topLeftCamera.y - halfTileScreenSize;
-    return renderQuad;
+    //When no tile is held, draw a 1x1 focus indicator at the focus position; otherwise draw the
+    //held tile anchored at its top-left cell.
+    //未持瓦片时在焦点格绘制 1x1 焦点框；否则以左上角格子为锚绘制手持瓦片。
+    const TileVector2D &origin = heldTile_ == nullptr ? focusPosition : topLeftVector;
+    return CoordinateTransformer::CalculateTileRenderQuad(
+        cameraTransform2DComponent_->GetRenderPosition(), origin,
+        tileWidth, tileHeight, cameraComponent_->GetSize(), cameraComponent_->GetZoom());
 }
 
 void glimmer::BlueprintSystem::RenderBlueprintTexture(RenderQueue *queue, const SDL_FRect &renderQuad,
@@ -291,19 +276,13 @@ void glimmer::BlueprintSystem::RenderBlueprintMask(RenderQueue *queue, const std
     if (!tileBlueprintData.EnableBlueprintMask()) {
         return;
     }
-    const float zoom = cameraComponent_->GetZoom();
     for (int i = 0; i < static_cast<int>(checkRectResult.size()) - 1; i++) {
         int relX = i % tileWidth;
         int relY = i / tileWidth;
         TileVector2D currTile = {leftBottom.x + relX, leftBottom.y + relY};
-        const ScreenVector2D tileScreenPos = CoordinateTransformer::WorldToScreen(
-            cameraTransform2DComponent_->GetRenderPosition(), CoordinateTransformer::TileToWorld(currTile),
+        const SDL_FRect indicatorRenderQuad = CoordinateTransformer::CalculateTileRenderQuad(
+            cameraTransform2DComponent_->GetRenderPosition(), currTile, 1, 1,
             cameraComponent_->GetSize(), cameraComponent_->GetZoom());
-        SDL_FRect indicatorRenderQuad;
-        indicatorRenderQuad.w = TILE_SIZE * zoom;
-        indicatorRenderQuad.h = TILE_SIZE * zoom;
-        indicatorRenderQuad.x = tileScreenPos.x - indicatorRenderQuad.w * 0.5f;
-        indicatorRenderQuad.y = tileScreenPos.y - indicatorRenderQuad.h * 0.5f;
         SDL_Color maskColor;
         if (checkRectResult[i]) {
             if (!tileBlueprintData.DrawValidBlueprintColor()) {

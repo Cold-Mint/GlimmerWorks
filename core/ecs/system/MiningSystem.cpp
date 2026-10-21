@@ -470,14 +470,13 @@ void glimmer::MiningSystem::Render(RenderQueue *queue) {
     if (miningRangeData == nullptr) {
         return;
     }
-    float zoom = cameraComponent_->GetZoom();
     size_t pointsCount = miningRangeData->GetPointsCount();
     for (size_t i = 0; i < pointsCount; i++) {
         const MiningRangeDataPoint *point = miningRangeData->GetPoint(i);
         if (point == nullptr) {
             continue;
         }
-        RenderDiggingPoint(queue, point, zoom);
+        RenderDiggingPoint(queue, point);
     }
 }
 
@@ -485,24 +484,15 @@ uint8_t glimmer::MiningSystem::GetExecutionOrder() {
     return EXECUTION_ORDER_DIGGING;
 }
 
-void glimmer::MiningSystem::RenderDiggingPoint(RenderQueue *queue, const MiningRangeDataPoint *point,
-                                               const float zoom) const {
+void glimmer::MiningSystem::RenderDiggingPoint(RenderQueue *queue, const MiningRangeDataPoint *point) const {
     const TileVector2D &tileTopLeftPosition = point->GetTileTopLeftPosition();
-    const WorldVector2D tileTopLeftPositionWorld = CoordinateTransformer::TileToWorld({
-        tileTopLeftPosition.x, tileTopLeftPosition.y
-    });
-    const ScreenVector2D ScreenVector2D = CoordinateTransformer::WorldToScreen(
-        cameraTransform2DComponent_->GetRenderPosition(), tileTopLeftPositionWorld, cameraComponent_->GetSize(),
-        cameraComponent_->GetZoom());
     const auto maxIndex = static_cast<float>(textureResultList_.size() - 1);
     const auto crackIndex = static_cast<uint8_t>(std::min(miningComponent_->GetProgress() * maxIndex,
                                                           maxIndex));
-    float w = TILE_SIZE * zoom * static_cast<float>(point->GetWidth());
-    float h = TILE_SIZE * zoom * static_cast<float>(point->GetHeight());
-    SDL_FRect dstRect = {
-        ScreenVector2D.x - w * 0.5F, ScreenVector2D.y - h * 0.5F, w,
-        h
-    };
+    const SDL_FRect dstRect = CoordinateTransformer::CalculateTileRenderQuad(
+        cameraTransform2DComponent_->GetRenderPosition(), tileTopLeftPosition,
+        point->GetWidth(), point->GetHeight(),
+        cameraComponent_->GetSize(), cameraComponent_->GetZoom());
     auto &crackTextureResult = textureResultList_[crackIndex];
     if (crackTextureResult == nullptr) {
         return;

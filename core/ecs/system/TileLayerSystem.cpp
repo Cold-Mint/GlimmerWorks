@@ -90,19 +90,10 @@ void glimmer::TileLayerSystem::RenderTileSnapshot(RenderQueue *queue, const Tile
         return;
     }
     drawnTiles.emplace(tileTopLeftFingerprint);
-    const float zoom = cameraComponent_->GetZoom();
-    const ScreenVector2D tileTopLeftCamera = CoordinateTransformer::WorldToScreen(
-        cameraTransform2DComponent_->GetRenderPosition(), CoordinateTransformer::TileToWorld(TileVector2D{
-            tileTopLeftPosition.x, tileTopLeftPosition.y
-        }), cameraComponent_->GetSize(), cameraComponent_->GetZoom());
-    float width = static_cast<float>(tileState->width()) * TILE_SIZE * zoom;
-    float height = static_cast<float>(tileState->height()) * TILE_SIZE * zoom;
-    SDL_FRect renderQuad;
-    renderQuad.w = width;
-    renderQuad.h = height;
-    const float halfTileScreenSize = static_cast<float>(HALF_TILE_SIZE) * zoom;
-    renderQuad.x = tileTopLeftCamera.x - halfTileScreenSize;
-    renderQuad.y = tileTopLeftCamera.y - halfTileScreenSize;
+    const SDL_FRect renderQuad = CoordinateTransformer::CalculateTileRenderQuad(
+        cameraTransform2DComponent_->GetRenderPosition(), tileTopLeftPosition,
+        static_cast<uint8_t>(tileState->width()), static_cast<uint8_t>(tileState->height()),
+        cameraComponent_->GetSize(), cameraComponent_->GetZoom());
     const TileResourceData &tileResourceData = tile->GetResourceData();
     const auto attachmentDirection = static_cast<TileAttachmentDirection>(tileState->attachmentdirection());
     Uint8 flip = FLIP_NONE;

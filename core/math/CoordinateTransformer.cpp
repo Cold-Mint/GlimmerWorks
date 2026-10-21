@@ -41,6 +41,20 @@ SDL_FRect glimmer::CoordinateTransformer::GetViewportRect(const WorldVector2D &c
     };
 }
 
+SDL_FRect glimmer::CoordinateTransformer::CalculateTileRenderQuad(const WorldVector2D &cameraPosition,
+                                                                  const TileVector2D &topLeftTilePos,
+                                                                  const uint8_t tileWidth, const uint8_t tileHeight,
+                                                                  const ScreenVector2D &cameraSize, const float zoom) {
+    const ScreenVector2D topLeftCamera = WorldToScreen(cameraPosition, TileToWorld(topLeftTilePos), cameraSize, zoom);
+    const float halfTileScreenSize = static_cast<float>(HALF_TILE_SIZE) * zoom;
+    SDL_FRect quad;
+    quad.x = topLeftCamera.x - halfTileScreenSize;
+    quad.y = topLeftCamera.y - halfTileScreenSize;
+    quad.w = static_cast<float>(tileWidth) * TILE_SIZE * zoom;
+    quad.h = static_cast<float>(tileHeight) * TILE_SIZE * zoom;
+    return quad;
+}
+
 glimmer::ScreenVector2D glimmer::CoordinateTransformer::WorldToScreen(const WorldVector2D &cameraPosition,
                                                                       const WorldVector2D &worldPosition,
                                                                       const ScreenVector2D &cameraSize,

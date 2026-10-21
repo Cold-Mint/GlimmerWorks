@@ -144,7 +144,6 @@ void glimmer::DebugMultiMapSystem::Render(RenderQueue *queue) {
     auto viewportRect = CoordinateTransformer::GetViewportRect(cameraTransform2DComponent_->GetRenderPosition(),
                                                                cameraComponent_->GetSize(),
                                                                cameraComponent_->GetZoom());
-    const float zoom = cameraComponent_->GetZoom();
     const TileVector2D topLeft = CoordinateTransformer::WorldToTile({viewportRect.x, viewportRect.y});
     const TileVector2D bottomRight = CoordinateTransformer::WorldToTile({
         viewportRect.x + viewportRect.w + TILE_SIZE,
@@ -154,18 +153,11 @@ void glimmer::DebugMultiMapSystem::Render(RenderQueue *queue) {
     for (int x = topLeft.x; x < bottomRight.x; x++) {
         for (int y = topLeft.y; y < bottomRight.y; y++) {
             const TileVector2D tileVector2D = {x, y};
-            const WorldVector2D worldTilePos = CoordinateTransformer::TileToWorld(tileVector2D);
-            const ScreenVector2D screenPos = CoordinateTransformer::WorldToScreen(
-                cameraTransform2DComponent_->GetRenderPosition(), worldTilePos, cameraComponent_->GetSize(),
-                cameraComponent_->GetZoom());
-            SDL_FRect renderQuad;
-            renderQuad.w = TILE_SIZE * zoom;
-            renderQuad.h = TILE_SIZE * zoom;
-            renderQuad.x = screenPos.x - renderQuad.w * 0.5F;
-            renderQuad.y = screenPos.y - renderQuad.h * 0.5F;
-            SDL_FRect dstRect = {renderQuad.x, renderQuad.y, renderQuad.w, renderQuad.h};
+            const SDL_FRect renderQuad = CoordinateTransformer::CalculateTileRenderQuad(
+                cameraTransform2DComponent_->GetRenderPosition(), tileVector2D, 1, 1,
+                cameraComponent_->GetSize(), cameraComponent_->GetZoom());
             const Color color = GetTileDebugColor(tileVector2D);
-            queue->FillRect(RenderLayer::Debug, 0.0F, &dstRect, {color.r, color.g, color.b, color.a});
+            queue->FillRect(RenderLayer::Debug, 0.0F, &renderQuad, {color.r, color.g, color.b, color.a});
         }
     }
 }

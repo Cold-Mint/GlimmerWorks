@@ -90,7 +90,7 @@ namespace glimmer {
 
         void ProcessMiningComplete(const TileLayerComponent *tileLayer, TileLayerType tileLayerType) const;
 
-        void RenderDiggingPoint(RenderQueue *queue, const MiningRangeDataPoint *point, float zoom) const;
+        void RenderDiggingPoint(RenderQueue *queue, const MiningRangeDataPoint *point) const;
 
     public:
         static uint16_t BreakTile(const TileBreakParams &params);

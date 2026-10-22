@@ -47,8 +47,6 @@ namespace glimmer {
     class TileRefResolver {
         static void WriteWaterResourceRef(TileLayerType layerType, ResourceRef &resourceRef);
 
-        static void WriteAirResourceRef(TileLayerType layerType, ResourceRef &resourceRef);
-
         static void WriteBedRockResourceRef(TileLayerType layerType, ResourceRef &resourceRef);
 
 

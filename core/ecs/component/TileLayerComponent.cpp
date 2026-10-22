@@ -171,7 +171,7 @@ glimmer::TileLayerComponent::GetTopVisibleTileSnapshotsInViewport(const std::byt
     }
 
     visibleTiles_.clear();
-    ChunkManager *chunkManager = worldContext_->GetChunkManager();
+    const ChunkManager *chunkManager = worldContext_->GetChunkManager();
     if (chunkManager == nullptr) {
         return nullptr;
     }

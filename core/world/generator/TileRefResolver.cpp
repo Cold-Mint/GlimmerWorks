@@ -47,11 +47,6 @@ void glimmer::TileRefResolver::WriteWaterResourceRef(const TileLayerType layerTy
     }
 }
 
-void glimmer::TileRefResolver::WriteAirResourceRef(const TileLayerType layerType, ResourceRef &resourceRef) {
-    TileResourceManager::WriteAirResourceRef(
-        layerType, resourceRef);
-}
-
 void glimmer::TileRefResolver::WriteBedRockResourceRef(const TileLayerType layerType, ResourceRef &resourceRef) {
     //The ground layer is equipped with bedrock, while the other layers are fitted with void walls.
     //地面层设置基岩，其他层设置虚空墙壁。
@@ -98,7 +93,8 @@ void glimmer::TileRefResolver::Initialize(const TerrainResult *terrainResult,
             }
             if (terrainType == TerrainResultType::AIR) {
                 for (auto &[layerType, refsArray]: tilesRefMap) {
-                    WriteAirResourceRef(layerType, refsArray[idx]);
+                    TileResourceManager::WriteAirResourceRef(
+                        layerType, refsArray[idx]);
                 }
             }
             if (terrainType == TerrainResultType::WATER) {
@@ -112,8 +108,15 @@ void glimmer::TileRefResolver::Initialize(const TerrainResult *terrainResult,
                 }
             }
             if (terrainType == TerrainResultType::STRUCTURE) {
-                for (const auto &[structureLayerType, structureResRef]: terrainTileResult.GetStructureResRefs()) {
-                    tilesRefMap[structureLayerType][idx] = structureResRef;
+                auto &structureResRefs = terrainTileResult.GetStructureResRefs();
+                for (auto &[layerType, refsArray]: tilesRefMap) {
+                    auto iterator = structureResRefs.find(layerType);
+                    if (iterator == structureResRefs.end()) {
+                        TileResourceManager::WriteAirResourceRef(
+                            layerType, refsArray[idx]);
+                        continue;
+                    }
+                    tilesRefMap[layerType][idx] = iterator->second;
                 }
             }
             if (terrainType == TerrainResultType::BEDROCK) {

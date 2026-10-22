@@ -457,6 +457,7 @@ target_sources(GlimmerWorks
         core/context/tasks/InitSDLTask.cpp
         core/context/tasks/InitSavesManagerTask.cpp
         core/context/tasks/InitVFSTask.cpp
+        core/inventory/ItemUseContext.cpp
         core/context/tasks/InitWindowAndRendererTask.cpp
         core/mod/dataPack/AbilityItemRegistry.cpp
         core/mod/dataPack/MaterialItemRegistry.cpp

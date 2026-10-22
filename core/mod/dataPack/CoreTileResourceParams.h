@@ -44,12 +44,13 @@ namespace glimmer {
         std::string lightSourceKey;
         std::string sideLightMaskKey;
         std::string backLightMaskKey;
+        std::vector<ItemTagResource> tags = {};
         float unitHardness;
-        bool isOverwritable;
-        bool canDropLoot;
         TilePhysicsType physicsType;
         TileLayerType layer;
-        std::vector<ItemTagResource> tags = {};
+        bool isOverwritable;
+        bool canDropLoot;
+        bool solid = false;
         bool autoDerivedTags = true;
     };
 }

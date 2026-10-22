@@ -88,26 +88,20 @@ void glimmer::PlayerControlSystem::CheckDropItem(PlayerInputHandler *playerInput
     if (!playerInputHandler->IsDropPressed()) {
         return;
     }
-    if (playerInputHandler->GetDropTimer() < DROP_INTERVAL) {
-        return;
-    }
-    playerInputHandler->RemoveDropTick();
     DropItem(itemContainer, itemContainer->GetSelectIndex());
     playerInputHandler->SetDropPressed(false);
 }
 
 void glimmer::PlayerControlSystem::HandleMouseButton(const SDL_Event &event, PlayerInputHandler *playerInputHandler) {
-    if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && event.button.button == SDL_BUTTON_LEFT) {
-        playerInputHandler->SetMouseLeftDown(true);
+    const uint32_t type = event.type;
+    if (type != SDL_EVENT_MOUSE_BUTTON_DOWN && type != SDL_EVENT_MOUSE_BUTTON_UP) {
+        return;
     }
-    if (event.type == SDL_EVENT_MOUSE_BUTTON_UP && event.button.button == SDL_BUTTON_LEFT) {
-        playerInputHandler->SetMouseLeftDown(false);
+    if (event.button.button == SDL_BUTTON_LEFT) {
+        playerInputHandler->SetMouseLeftDown(type == SDL_EVENT_MOUSE_BUTTON_DOWN);
     }
-    if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && event.button.button == SDL_BUTTON_RIGHT) {
-        playerInputHandler->SetMouseRightDown(true);
-    }
-    if (event.type == SDL_EVENT_MOUSE_BUTTON_UP && event.button.button == SDL_BUTTON_RIGHT) {
-        playerInputHandler->SetMouseRightDown(false);
+    if (event.button.button == SDL_BUTTON_RIGHT) {
+        playerInputHandler->SetMouseRightDown(type == SDL_EVENT_MOUSE_BUTTON_DOWN);
     }
 }
 
@@ -298,29 +292,32 @@ void glimmer::PlayerControlSystem::OnTick(uint64_t tick) {
     }
     const auto itemContainerComponent = entityShortCut->GetItemContainerComponent();
     const ItemContainer *itemContainer = itemContainerComponent->GetItemContainer();
-    playerInputHandler->AddDropTick();
     CheckDropItem(playerInputHandler, itemContainer);
-    auto tileLayerEntities = entityManager->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
-    std::ranges::sort(tileLayerEntities);
-    itemUseContext_.focusedTileLayerComponents.clear();
-    itemUseContext_.focusedTiles.clear();
-    itemUseContext_.focusedTileStateMessages.clear();
-    for (const auto &gameEntity: tileLayerEntities) {
-        const auto tileLayerComponent = entityManager->GetComponent<TileLayerComponent>(
-            gameEntity);
-        if (tileLayerComponent == nullptr) {
-            continue;
-        }
+    //The status must be updated here. Do not put it inside playerInputHandler->IsMouseLeftDown() || playerInputHandler->IsMouseRightDown(), because this will cause the condition to always be true.
+    //必须在这里更新状态。不要放到playerInputHandler->IsMouseLeftDown() || playerInputHandler->IsMouseRightDown()内，因为这样会导致入永远为true。
+    itemUseContext_.SetMouseLeftDown(playerInputHandler->IsMouseLeftDown());
+    itemUseContext_.SetMouseRightDown(playerInputHandler->IsMouseRightDown());
+    if (playerInputHandler->IsMouseLeftDown() || playerInputHandler->IsMouseRightDown()) {
+        auto tileLayerEntities = entityManager->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
+        std::ranges::sort(tileLayerEntities);
+        itemUseContext_.focusedTileLayerComponents.clear();
+        itemUseContext_.focusedTiles.clear();
+        itemUseContext_.focusedTileStateMessages.clear();
         const TileVector2D &focusPosition = GetWorldContext()->GetFocusPosition();
         itemUseContext_.focusPosition = focusPosition;
-        itemUseContext_.focusedTileLayerComponents.push_back(tileLayerComponent);
-        itemUseContext_.focusedTiles.push_back(
-            tileLayerComponent->GetSelfLayerTile(focusPosition));
-        itemUseContext_.focusedTileStateMessages.push_back(
-            tileLayerComponent->GetSelfLayerTileState(focusPosition));
-    }
-    if (playerInputHandler->IsMouseLeftDown() || playerInputHandler->IsMouseRightDown()) {
-        itemUseContext_.mouseLeft = playerInputHandler->IsMouseLeftDown();
+        for (const auto &gameEntity: tileLayerEntities) {
+            const auto tileLayerComponent = entityManager->GetComponent<TileLayerComponent>(
+                gameEntity);
+            if (tileLayerComponent == nullptr) {
+                continue;
+            }
+            itemUseContext_.focusedTileLayerComponents.push_back(tileLayerComponent);
+            itemUseContext_.focusedTiles.push_back(
+                tileLayerComponent->GetSelfLayerTile(focusPosition));
+            itemUseContext_.focusedTileStateMessages.push_back(
+                tileLayerComponent->GetSelfLayerTileState(focusPosition));
+        }
+
         Item *item = playerComponent->GetItem();
         bool handle = false;
         if (item != nullptr) {
@@ -345,7 +342,7 @@ void glimmer::PlayerControlSystem::HandleFocusedTileActions() const {
     if (worldContext == nullptr) {
         return;
     }
-    AppContext *appContext = worldContext->GetAppContext();
+    const AppContext *appContext = worldContext->GetAppContext();
     if (appContext == nullptr) {
         return;
     }
@@ -375,7 +372,7 @@ void glimmer::PlayerControlSystem::HandleFocusedTileActions() const {
             actionOrigin.x += offset.x;
             actionOrigin.y += offset.y - (static_cast<int>(tileState->height()) - 1);
         }
-        if (itemUseContext_.mouseLeft) {
+        if (itemUseContext_.IsFirstMouseLeftDown()) {
             //Trigger the secondary action.
             //触发次要活动。
             const ResourceRef &secondaryActionTarget = focusedTile->GetSecondaryActionTarget();
@@ -385,7 +382,8 @@ void glimmer::PlayerControlSystem::HandleFocusedTileActions() const {
             ApplyTileActionTarget(mainThreadDispatcher, worldContext, focusedTile, actionOrigin,
                                   secondaryActionTarget,
                                   BreakSource::TileSecondaryAction, PLACE_SOURCE_TILE_SECONDARY_ACTION);
-        } else {
+        }
+        if (itemUseContext_.IsFirstMouseRightDown()) {
             //Trigger the primary action.
             //触发主要活动。
             const ResourceRef &primaryActionTarget = focusedTile->GetPrimaryActionTarget();
@@ -435,17 +433,10 @@ void glimmer::PlayerControlSystem::HandleKeyAction(const SDL_Event &event, Playe
     }
     if (event.key.key == SDLK_Q) {
         playerInputHandler->SetDropPressed(pressed);
-        if (!pressed) {
-            playerInputHandler->ResetDropTick();
-        }
     }
 }
 
 bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
-    const WorldContext *worldContext = GetWorldContext();
-    if (worldContext == nullptr) {
-        return false;
-    }
     EntityManager *entityManager = GetEntityManager();
     if (entityManager == nullptr) {
         return false;

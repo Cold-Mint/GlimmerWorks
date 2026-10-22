@@ -68,14 +68,14 @@ const glimmer::Tile *glimmer::TileItem::GetTile() const {
 }
 
 bool glimmer::TileItem::OnUse(const ItemUseContext &context) {
-    const bool mouseLeft = context.mouseLeft;
-    WorldContext *worldContext = context.worldContext;
-    if (mouseLeft) {
+    const bool mouseRightDown = context.IsMouseRightDown();
+    if (!mouseRightDown) {
         return false;
     }
     if (tile_ == nullptr) {
         return false;
     }
+    WorldContext *worldContext = context.worldContext;
     if (worldContext == nullptr) {
         return false;
     }

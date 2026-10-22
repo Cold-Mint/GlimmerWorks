@@ -42,13 +42,11 @@ glimmer::AbilityType glimmer::AreaMarkerAbility::GetAbilityType() const {
 }
 
 bool glimmer::AreaMarkerAbility::OnUse(const ItemUseContext &context) {
-    const bool mouseLeft = context.mouseLeft;
-    WorldContext *worldContext = context.worldContext;
-    LogCat::d(LogLabel::DEFAULT, "area_marker_use_start", "AreaMarkerAbility::OnUse start, mouseLeft={}", mouseLeft);
-    if (mouseLeft) {
-        LogCat::d(LogLabel::DEFAULT, "area_marker_left_button_skip", "AreaMarkerAbility: left button, skip");
+    const bool mouseRightDown = context.IsMouseRightDown();
+    if (!mouseRightDown) {
         return false;
     }
+    const WorldContext *worldContext = context.worldContext;
     auto entityManager = worldContext->GetEntityManager();
     auto tileLayerEntityList = entityManager->GetEntityIDWithComponents({COMPONENT_TILE_LAYER, COMPONENT_AREA_MARKER});
     if (tileLayerEntityList.empty()) {

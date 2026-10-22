@@ -94,18 +94,6 @@ bool glimmer::PlayerInputHandler::IsPressedD() const {
     return pressedD_;
 }
 
-void glimmer::PlayerInputHandler::ResetDropTick() {
-    dropTick_ = 0;
-}
-
-void glimmer::PlayerInputHandler::AddDropTick() {
-    dropTick_++;
-}
-
-void glimmer::PlayerInputHandler::RemoveDropTick() {
-    dropTick_--;
-}
-
 void glimmer::PlayerInputHandler::SetJump(const bool jump) {
     jump_ = jump;
 }
@@ -123,24 +111,21 @@ float glimmer::PlayerInputHandler::GetJumpBuffer() const {
 }
 
 void glimmer::PlayerInputHandler::SetMouseLeftDown(const bool mouseLeftDown) {
-    mouseLeftDown_ = mouseLeftDown;
+    mouseLeftDown_.store(mouseLeftDown, std::memory_order::release);
 }
 
 bool glimmer::PlayerInputHandler::IsMouseLeftDown() const {
-    return mouseLeftDown_;
+    return mouseLeftDown_.load(std::memory_order_acquire);
 }
 
 void glimmer::PlayerInputHandler::SetMouseRightDown(const bool mouseRightDown) {
-    mouseRightDown_ = mouseRightDown;
+    mouseRightDown_.store(mouseRightDown, std::memory_order_release);
 }
 
 bool glimmer::PlayerInputHandler::IsMouseRightDown() const {
-    return mouseRightDown_;
+    return mouseRightDown_.load(std::memory_order_acquire);
 }
 
-float glimmer::PlayerInputHandler::GetDropTimer() const {
-    return dropTick_;
-}
 
 void glimmer::PlayerInputHandler::SetDropPressed(const bool dropPressed) {
     dropPressed_ = dropPressed;

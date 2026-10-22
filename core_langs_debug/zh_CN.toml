@@ -651,8 +651,6 @@ mining_player_transform_null = "挖掘能力：玩家Transform2D组件为空，�
 mining_entity_shortcut_null = "挖掘能力：实体快捷访问器为空，跳过"
 mining_chain_recalculated = "挖掘起点改变，重新计算链式挖掘：起点=({}, {})，链式半径={}"
 mining_no_exploitable_tiles = "未发现可挖掘方块，计算默认挖掘范围"
-area_marker_use_start = "开始使用区域标记能力：mouseLeft={}"
-area_marker_left_button_skip = "区域标记能力：左键，跳过"
 area_marker_no_entity = "区域标记能力：未找到区域标记实体，跳过"
 area_marker_component_null_on_use = "区域标记能力：瓦片图层组件或区域标记组件为空"
 area_marker_point_set = "区域标记能力：标记点已设置在 ({}, {})"

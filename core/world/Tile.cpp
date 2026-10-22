@@ -330,12 +330,12 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
         if (tileResource->partial) {
             AppendDerivedTag(existingTagIds, tags, TAG_PARTIAL);
         }
+        if (tileResource->solid) {
+            AppendDerivedTag(existingTagIds, tags, TAG_SOLID);
+        }
         //Prohibit the derivation of tiles with the "void" or "air" labels.
         //禁止对带有void或air标签的瓦片派生
         if (!existingTagIds.contains(airTag) && !existingTagIds.contains(voidTag)) {
-            if (tile->physicsType_ == TilePhysicsType::Static) {
-                AppendDerivedTag(existingTagIds, tags, TAG_SOLID);
-            }
             if (tile->layerType_ == TileLayerType::BackGround) {
                 AppendDerivedTag(existingTagIds, tags, TAG_WALL);
             }

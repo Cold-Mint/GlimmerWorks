@@ -25,11 +25,10 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <cstdint>
+#include <atomic>
 
 namespace glimmer {
     class PlayerInputHandler {
-        uint64_t dropTick_ = 0;
         float horizontalInput_ = 0.0F;
         float verticalInput_ = 0.0F;
         float jumpBuffer_ = 0;
@@ -38,8 +37,8 @@ namespace glimmer {
         bool pressedS_ = false;
         bool pressedD_ = false;
         bool jump_ = false;
-        bool mouseLeftDown_ = false;
-        bool mouseRightDown_ = false;
+        std::atomic_bool mouseLeftDown_ = false;
+        std::atomic_bool mouseRightDown_ = false;
         bool dropPressed_ = false;
 
     public:
@@ -93,13 +92,6 @@ namespace glimmer {
 
         [[nodiscard]] bool IsMouseRightDown() const;
 
-        void ResetDropTick();
-
-        void AddDropTick();
-
-        void RemoveDropTick();
-
-        [[nodiscard]] float GetDropTimer() const;
 
         void SetDropPressed(bool dropPressed);
 

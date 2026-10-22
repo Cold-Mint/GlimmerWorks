@@ -845,6 +845,7 @@ namespace toml {
             resource.sampler = toml::find_or<glimmer::ResourceRef>(v, "sampler", {});
             resource.secondaryActionTarget = toml::find_or<glimmer::ResourceRef>(v, "secondary_action_target", {});
             resource.sideLightMask = toml::find<glimmer::ResourceRef>(v, "side_light_mask");
+            resource.solid = toml::find_or<bool>(v, "solid", false);
             resource.spawnOriginOffset = toml::find_or<glimmer::Vector2DIResource>(v, "spawn_origin_offset", {0, 0});
             resource.tags = toml::find_or<std::vector<glimmer::ItemTagResource> >(v, "tags", {});
             resource.technologyLevel = toml::find_or<uint8_t>(v, "technology_level", 0);

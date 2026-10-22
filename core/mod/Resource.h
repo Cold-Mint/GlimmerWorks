@@ -613,6 +613,8 @@ namespace glimmer {
         bool autoDerivedTags = true;
         //@genNextLine(partial|是否将其看作不会将其沾满整个格子。例如：火把，放置在泥土上，设置partial为true，那么引擎会认为泥土上面还有空气，其可以长出草。)
         bool partial = false;
+        //@genNextLine(solid|是否为固体)
+        bool solid = false;
         //附着点标签缓存ID列表（由 attachmentTags 哈希得到）
         std::vector<uint64_t> cachedAttachmentTagIds = {};
 

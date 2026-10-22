@@ -46,7 +46,7 @@ glimmer::AbilityType glimmer::MiningAbility::GetAbilityType() const {
 }
 
 bool glimmer::MiningAbility::OnUse(const ItemUseContext &context) {
-    const bool mouseLeft = context.mouseLeft;
+    const bool mouseLeftDown = context.IsMouseLeftDown();
     const WorldContext *worldContext = context.worldContext;
     const Item *item = context.item;
     if (item == nullptr) {
@@ -56,8 +56,8 @@ bool glimmer::MiningAbility::OnUse(const ItemUseContext &context) {
     if (abilityConfig == nullptr) {
         return false;
     }
-    LogCat::d(LogLabel::DEFAULT, "mining_use_start", "MiningAbility::OnUse start, mouseLeft={}", mouseLeft);
-    if (!mouseLeft) {
+    LogCat::d(LogLabel::DEFAULT, "mining_use_start", "MiningAbility::OnUse start, mouseLeft={}", mouseLeftDown);
+    if (!mouseLeftDown) {
         LogCat::d(LogLabel::DEFAULT, "mining_use_right_button_skip", "MiningAbility: not left button, skip");
         return false;
     }

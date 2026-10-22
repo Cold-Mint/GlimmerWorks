@@ -25,7 +25,6 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <cstdint>
 #include <unordered_set>
 #include <vector>
 
@@ -53,6 +52,33 @@ namespace glimmer {
         Item *item = nullptr;
         std::unordered_set<AbilityType> *popupAbility = nullptr;
         uint32_t user = 0;
-        bool mouseLeft = false;
+
+        void SetMouseLeftDown(bool mouseLeftDown);
+
+        /**
+         * Was it the first time that the left button was pressed?
+         * 是否为首次按下左键
+         * @return
+         */
+        [[nodiscard]] bool IsFirstMouseLeftDown() const;
+
+        /**
+        * Was it the first time that the right mouse button was pressed?
+        * 是否为首次按下右键
+        * @return
+        */
+        [[nodiscard]] bool IsFirstMouseRightDown() const;
+
+        [[nodiscard]] bool IsMouseLeftDown() const;
+
+        void SetMouseRightDown(bool mouseRightDown);
+
+        [[nodiscard]] bool IsMouseRightDown() const;
+
+    private:
+        bool mouseLeftDown_ = false;
+        bool mouseRightDown_ = false;
+        bool firstMouseRightDown_ = false;
+        bool firstMouseLeftDown_ = false;
     };
 }

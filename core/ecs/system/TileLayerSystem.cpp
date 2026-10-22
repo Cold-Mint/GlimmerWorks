@@ -161,9 +161,23 @@ void glimmer::TileLayerSystem::Render(RenderQueue *queue) {
     if (chunkManager == nullptr) {
         return;
     }
-    for (auto &[tileCoord, tileList]: *visibleTiles) {
-        for (const auto &tileSnapshot: tileList) {
-            RenderTileSnapshot(queue, tileSnapshot.get(), tileCoord, drawnTiles);
+    //Draw layer by layer: all background walls first, then all ground tiles. A single
+    //per-cell pass would submit the wall of an upper cell after the multi-tile foreground
+    //tile anchored at a lower cell (e.g. a two-tall door), so the wall would overdraw the
+    //tile's upper half. Splitting into two passes keeps walls behind foreground tiles.
+    //逐层绘制：先画完所有背景墙，再画所有地面。若单次按格遍历，上方格子的墙会排在
+    //下方格子锚定的多方块前景（如两格高的门）之后，从而遮住前景的上半部分；分成两遍
+    //遍历即可保证墙始终位于前景之后。
+    for (int i = 0; i < TILE_LAYER_TYPE_COUNT; i++) {
+        auto layerType = static_cast<TileLayerType>(1 << i);
+        for (auto &[tileCoord, tileList]: *visibleTiles) {
+            for (const auto &tileSnapshot: tileList) {
+                const Tile *tile = tileSnapshot->GetTile();
+                if (tile == nullptr || tile->GetLayerType() != layerType) {
+                    continue;
+                }
+                RenderTileSnapshot(queue, tileSnapshot.get(), tileCoord, drawnTiles);
+            }
         }
     }
 }

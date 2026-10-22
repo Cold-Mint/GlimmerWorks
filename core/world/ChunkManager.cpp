@@ -37,7 +37,6 @@
 #include "core/ecs/system/MiningSystem.h"
 #include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
-#include "core/math/Vector2DI.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/mod/dataPack/TileResourceManager.h"
 #include "core/saves/Saves.h"
@@ -72,7 +71,8 @@ TileStateMessage *glimmer::ChunkManager::GetTileStateAt(const ChunkManager *self
 
 
 void glimmer::ChunkManager::OnChunkTileChange(const std::shared_ptr<Chunk> &chunk, const std::shared_ptr<Tile> &tile,
-                                              TileLayerType layerType, size_t index, const BreakSource breakSource) {
+                                              const TileLayerType layerType, size_t index,
+                                              const BreakSource breakSource) {
     UpdateTileLight(chunk.get(), layerType, index);
     if (breakSource == BreakSource::ChunkLoad || breakSource == BreakSource::ChunkGenerate ||
         breakSource == BreakSource::ChunkUnload) {
@@ -80,11 +80,8 @@ void glimmer::ChunkManager::OnChunkTileChange(const std::shared_ptr<Chunk> &chun
     }
     const auto relative = CoordinateTransformer::IndexToVector2D<ChunkRelativeVector2D>(index,
         CHUNK_MASK, CHUNK_SHIFT);
-    const ChunkVertexVector2D &position = chunk->GetPosition();
-    const TileVector2D changedCell{
-        position.x + static_cast<int>(relative.x),
-        position.y + static_cast<int>(relative.y)
-    };
+    const ChunkVertexVector2D &vertex = chunk->GetPosition();
+    const TileVector2D changedCell = CoordinateTransformer::ChunkRelativeToTile(vertex, relative);
     PropagateAttachmentLoss(layerType, changedCell);
 }
 
@@ -103,45 +100,59 @@ void glimmer::ChunkManager::PropagateAttachmentLoss(const TileLayerType layerTyp
     };
     std::vector<Candidate> candidates;
     //Same-layer cardinal neighbours. 同层四邻格。
-    candidates.push_back({TileVector2D{changedCell.x, changedCell.y - 1}, layerType, TileAttachmentDirection::Up});
-    candidates.push_back({TileVector2D{changedCell.x, changedCell.y + 1}, layerType, TileAttachmentDirection::Down});
-    candidates.push_back({TileVector2D{changedCell.x - 1, changedCell.y}, layerType, TileAttachmentDirection::Right});
-    candidates.push_back({TileVector2D{changedCell.x + 1, changedCell.y}, layerType, TileAttachmentDirection::Left});
+    candidates.push_back({
+        .cell = TileVector2D{changedCell.x, changedCell.y - 1}, .layer = layerType,
+        .expectedDirection = TileAttachmentDirection::Up
+    });
+    candidates.push_back({
+        .cell = TileVector2D{changedCell.x, changedCell.y + 1}, .layer = layerType,
+        .expectedDirection = TileAttachmentDirection::Down
+    });
+    candidates.push_back({
+        .cell = TileVector2D{changedCell.x - 1, changedCell.y}, .layer = layerType,
+        .expectedDirection = TileAttachmentDirection::Right
+    });
+    candidates.push_back({
+        .cell = TileVector2D{changedCell.x + 1, changedCell.y}, .layer = layerType,
+        .expectedDirection = TileAttachmentDirection::Left
+    });
     //Ground tiles attached to a background wall below them. 地面层瓦片附着到其下方的背景层。
     if (layerType == TileLayerType::BackGround) {
-        candidates.push_back({changedCell, TileLayerType::Ground, TileAttachmentDirection::BackLayer});
+        candidates.push_back({
+            .cell = changedCell, .layer = TileLayerType::Ground, .expectedDirection = TileAttachmentDirection::BackLayer
+        });
     }
-    for (const Candidate &candidate: candidates) {
-        TileStateMessage *state = GetTileStateAt(this, candidate.layer, candidate.cell);
+    for (const auto &[cell, layer, expectedDirection]: candidates) {
+        const TileStateMessage *state = GetTileStateAt(this, layer, cell);
         if (state == nullptr) {
             continue;
         }
         const auto direction = static_cast<TileAttachmentDirection>(state->attachmentdirection());
-        if (direction == TileAttachmentDirection::None || direction != candidate.expectedDirection) {
+        if (direction == TileAttachmentDirection::None || direction != expectedDirection) {
             continue;
         }
         TileVector2D offset(0, 0);
         offset.ReadVector2DIMessage(state->offset());
-        const TileVector2D origin = candidate.cell + offset;
-        TileStateMessage *originState = GetTileStateAt(this, candidate.layer, origin);
+        const TileVector2D origin = cell + offset;
+        TileStateMessage *originState = GetTileStateAt(this, layer, origin);
         if (originState == nullptr) {
             continue;
         }
         const auto width = static_cast<uint8_t>(originState->width());
         const auto height = static_cast<uint8_t>(originState->height());
-        const uint64_t originKey = MakeAttachmentOriginFingerprint(origin, candidate.layer);
+        const uint64_t originKey = MakeAttachmentOriginFingerprint(origin, layer);
         if (attachmentBrokenOrigins_.contains(originKey)) {
             continue;
         }
-        const Tile *tile = GetTileAt(candidate.layer, origin);
+        const Tile *tile = GetTileAt(layer, origin);
         if (tile == nullptr) {
             continue;
         }
-        if (!TileAttachmentHelper::ValidateAttachment(worldContext_, candidate.layer, origin, width, height,
+        if (!TileAttachmentHelper::ValidateAttachment(worldContext_, layer, origin, width, height,
                                                       tile->GetAttachmentTagIds(),
                                                       direction)) {
             attachmentBrokenOrigins_.insert(originKey);
-            BreakAttachedTile(candidate.layer, origin, width, height);
+            BreakAttachedTile(layer, origin, width, height);
         }
     }
     attachmentPropagateDepth_--;
@@ -151,7 +162,7 @@ void glimmer::ChunkManager::PropagateAttachmentLoss(const TileLayerType layerTyp
 }
 
 void glimmer::ChunkManager::BreakAttachedTile(const TileLayerType layerType, const TileVector2D &origin,
-                                              const uint8_t width, const uint8_t height) {
+                                              const uint8_t width, const uint8_t height) const {
     const AppContext *appContext = worldContext_ != nullptr ? worldContext_->GetAppContext() : nullptr;
     if (appContext == nullptr) {
         return;

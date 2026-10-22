@@ -106,7 +106,7 @@ namespace glimmer {
          * BreakAttachedTile
          * 破坏一个失去支撑的附着瓦片（按原点整块破坏并掉落）。
          */
-        void BreakAttachedTile(TileLayerType layerType, const TileVector2D &origin, uint8_t width, uint8_t height);
+        void BreakAttachedTile(TileLayerType layerType, const TileVector2D &origin, uint8_t width, uint8_t height) const;
 
         /**
          * Update the lighting for the entire chunk.

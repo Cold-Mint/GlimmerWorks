@@ -31,12 +31,24 @@ void glimmer::ColliderComponent::SetHalfExtents(const float halfWidth, const flo
     halfHeight_ = halfHeight;
 }
 
+void glimmer::ColliderComponent::SetGravityScale(const float gravityScale) {
+    gravityScale_ = gravityScale;
+}
+
+float glimmer::ColliderComponent::GetGravityScale() const {
+    return gravityScale_;
+}
+
 float glimmer::ColliderComponent::GetHalfWidth() const {
     return halfWidth_;
 }
 
 float glimmer::ColliderComponent::GetHalfHeight() const {
     return halfHeight_;
+}
+
+glimmer::WorldAABB glimmer::ColliderComponent::GetAABB(const WorldVector2D &center) const {
+    return WorldAABB{center, halfWidth_, halfHeight_};
 }
 
 void glimmer::ColliderComponent::SetVelocity(const WorldVector2D &velocity) {

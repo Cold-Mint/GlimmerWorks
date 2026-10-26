@@ -157,10 +157,11 @@ namespace glimmer {
          * Note: This method does not guarantee the order of the vector.
          * 注意：此方法不保证vector的顺序。
          * @param gameComponentTypeMessages
+         * @param limit
          * @return
          */
         std::vector<GameEntityID> GetEntityIDWithComponents(
-            const std::vector<GameComponentTypeMessage> &gameComponentTypeMessages) const;
+            const std::vector<GameComponentTypeMessage> &gameComponentTypeMessages, size_t limit = 0) const;
 
         /**
          * RecoveryComponent

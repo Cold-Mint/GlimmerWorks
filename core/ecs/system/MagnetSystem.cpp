@@ -34,7 +34,8 @@
 #include "core/ecs/component/MagneticComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/ecs/component/ItemContainerComponent.h"
-#include "core/world/TileCollision.h"
+#include "core/math/CoordinateTransformer.h"
+#include "core/utils/RayCastUtils.h"
 
 
 void glimmer::MagnetSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) {
@@ -129,17 +130,27 @@ bool glimmer::MagnetSystem::ProcessMagneticEntity(GameEntityID magneticEntity,
         //一个都放不下。
         return false;
     }
-    WorldVector2D magneticPos = magneticTransform->GetPosition();
+    const WorldVector2D &magneticPos = magneticTransform->GetPosition();
+    const TileVector2D magneticPosTile = CoordinateTransformer::WorldToTile(magneticPos);
+    const WorldContext *worldContext = GetWorldContext();
+    if (worldContext == nullptr) {
+        return false;
+    }
+    const ChunkManager *chunkManager = worldContext->GetChunkManager();
+    if (chunkManager == nullptr) {
+        return false;
+    }
+    //Block the pull when a solid tile lies between the item and the magnet.
+    //物品与磁铁之间存在实心瓦片时阻挡吸力。
+    if (const TileVector2D magnetPosTile = CoordinateTransformer::WorldToTile(magnetPos);
+        RayCastUtils::TileRayCast(chunkManager, magneticPosTile, magnetPosTile) != std::nullopt) {
+        return false;
+    }
     const WorldVector2D distanceVector = magnetPos - magneticPos;
     float distance = distanceVector.Length();
     const float detectionRadius = magnet->GetDetectionRadius();
     if (distance > detectionRadius) {
         magnet->RemoveEntity(magneticEntity);
-        return false;
-    }
-    //Block the pull when a solid tile lies between the item and the magnet.
-    //物品与磁铁之间存在实心瓦片时阻挡吸力。
-    if (TileCollision::LineHitsSolidTile(GetWorldContext(), magneticPos, magnetPos)) {
         return false;
     }
     if (distance < MIN_SAFE_DISTANCE) {

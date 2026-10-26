@@ -46,7 +46,7 @@ namespace glimmer {
         std::string backLightMaskKey;
         std::vector<ItemTagResource> tags = {};
         float unitHardness;
-        TilePhysicsType physicsType;
+        uint8_t collisionMask;
         TileLayerType layer;
         bool isOverwritable;
         bool canDropLoot;

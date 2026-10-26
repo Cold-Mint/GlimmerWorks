@@ -422,6 +422,11 @@ target_sources(GlimmerWorks
         core/context/tasks/InitValidateGameTask.cpp
         core/mod/resourcePack/cache/GpuSamplerCache.cpp
         core/mod/resourcePack/GPUSamplerResourceResult.cpp
+        core/utils/RayCastUtils.cpp
+        core/utils/BresenhamLine.cpp
+        core/physics/PhysicsSolver.cpp
+        core/physics/HorizontalPhysicsSolver.cpp
+        core/physics/VerticalPhysicsSolver.cpp
         core/gpu/RenderQueue.cpp
         core/gpu/LightMapTexture.cpp
         core/saves/PlayerManifest.cpp
@@ -472,7 +477,6 @@ target_sources(GlimmerWorks
         core/app/pass/ScenePass.cpp
         core/app/pass/LightingPass.cpp
         core/app/pass/UiPass.cpp
-        core/utils/BoolOrToggle.cpp
         core/console/hook/CommandHookEntry.cpp
         core/console/hook/CommandHookManager.cpp
         core/config/Config.cpp
@@ -741,7 +745,6 @@ target_sources(GlimmerWorks
         core/utils/LanguageUtils.cpp
         core/utils/LightUtils.cpp
         core/utils/MouseButtonUtils.cpp
-        core/utils/NodeTree.cpp
         core/utils/ScanCodeUtils.cpp
         core/utils/StringUtils.cpp
         core/utils/TimeUtils.cpp
@@ -816,7 +819,6 @@ target_sources(GlimmerWorks
         core/rmi/DecoratorNinePatchTextureInstancer.cpp
         core/ecs/system/InventoryGUISystem.cpp
         core/ecs/component/RecipeSelectionComponent.cpp
-        core/world/TileCollision.cpp
         main.cpp
         PUBLIC
         FILE_SET HEADERS
@@ -827,9 +829,17 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL_GPU.h"
         core/app/App.h
         core/platform/WindowsApi.h
-        core/world/TileCollision.h
         core/utils/VersionAble.h
         core/event/Subscription.h
+        core/utils/RayCastUtils.h
+        core/utils/BresenhamLine.h
+        core/physics/PhysicsSolver.h
+        core/physics/IHorizontalPhysicsSolver.h
+        core/physics/IVerticalPhysicsSolver.h
+        core/physics/SolveResult.h
+        core/physics/HorizontalPhysicsSolver.h
+        core/physics/VerticalPhysicsSolver.h
+        core/physics/VerticalPhysicsSolver.h
         core/world/generator/NoiseField.h
         core/log/WarningCode.h
         core/world/DayNormalizedTime.h
@@ -1272,7 +1282,6 @@ target_sources(GlimmerWorks
         core/world/generator/TerrainResultType.h
         core/world/generator/TerrainTileResult.h
         core/world/generator/TileLayerType.h
-        core/world/generator/TilePhysicsType.h
         core/world/generator/TileRefResolver.h
         core/world/generator/TileSnapshot.h
         core/world/structure/BiomeStructureConditionProcessor.h

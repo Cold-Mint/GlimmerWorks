@@ -231,9 +231,9 @@ bool glimmer::EntityManager::HasComponent(GameEntityID gameEntityId, const GameC
 }
 
 std::vector<GameEntityID> glimmer::EntityManager::GetEntityIDWithComponents(
-    const std::vector<GameComponentTypeMessage> &targetComponentType) const {
+    const std::vector<GameComponentTypeMessage> &gameComponentTypeMessages, const size_t limit) const {
     std::vector<GameEntityID> result;
-    const size_t number = targetComponentType.size();
+    const size_t number = gameComponentTypeMessages.size();
     for (auto &entityToGameComponentType: entityToGameComponentType_) {
         const std::unordered_set<GameComponentTypeMessage> &gameComponentTypeMessageSet = entityToGameComponentType.
                 second;
@@ -243,7 +243,7 @@ std::vector<GameEntityID> glimmer::EntityManager::GetEntityIDWithComponents(
             continue;
         }
         bool missComponent = false;
-        for (auto targetComponent: targetComponentType) {
+        for (auto targetComponent: gameComponentTypeMessages) {
             if (!gameComponentTypeMessageSet.contains(targetComponent)) {
                 //Found the missing component.
                 //发现缺失的组件。
@@ -255,6 +255,11 @@ std::vector<GameEntityID> glimmer::EntityManager::GetEntityIDWithComponents(
             continue;
         }
         result.push_back(entityToGameComponentType.first);
+        //If the limit is greater than 0, it indicates that the quantity limit has been enabled.
+        //如果limit大于0，那么表示启用了数量限制。
+        if (limit > 0 && result.size() == limit) {
+            break;
+        }
     }
     return result;
 }

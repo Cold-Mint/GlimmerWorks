@@ -45,10 +45,6 @@
 using enum glimmer::TileAnchorType;
 
 
-glimmer::TilePhysicsType glimmer::Tile::GetTilePhysicsType() const {
-    return physicsType_;
-}
-
 const std::string &glimmer::Tile::GetId() const {
     return id_;
 }
@@ -216,7 +212,7 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     tile->lootData_.SetCustomLootTable(tileResource->customLootTable);
     tile->lootData_.SetLootTable(tileResource->lootTable);
     tile->layerType_ = static_cast<TileLayerType>(tileResource->layer);
-    tile->physicsType_ = static_cast<TilePhysicsType>(tileResource->physicsType);
+    tile->collisionMask_ = tileResource->collisionMask;
     tile->miningData_.SetAllowChainMining(tileResource->allowChainMining);
     tile->miningData_.SetMinMiningEfficiency(tileResource->minMiningEfficiency);
     tile->lightData_.SetBackLightMask(tileResource->backLightMask);
@@ -345,6 +341,10 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     tile->attachmentMask_ = tileResource->attachmentMask;
     tile->attachmentTagIds_ = tileResource->cachedAttachmentTagIds;
     return tile;
+}
+
+uint8_t glimmer::Tile::GetCollisionMask() const {
+    return collisionMask_;
 }
 
 void glimmer::Tile::OnPlace(const WorldContext *worldContext, PlaceSourceMessage placeSource,

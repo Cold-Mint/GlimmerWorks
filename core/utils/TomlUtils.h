@@ -817,6 +817,7 @@ namespace toml {
             resource.backLightMask = toml::find<glimmer::ResourceRef>(v, "back_light_mask");
             resource.breakSfx = toml::find<glimmer::ResourceRef>(v, "break_sfx");
             resource.canDropLoot = toml::find_or<bool>(v, "can_drop_loot", true);
+            resource.collisionMask = toml::find_or<uint8_t>(v, "collision_mask", 0);
             resource.customLootTable = toml::find_or<bool>(v, "custom_loot_table", false);
             resource.customTileAnchor = toml::find_or<glimmer::Vector2DIResource>(v, "custom_tile_anchor", {1, 1});
             resource.description = toml::find_or<glimmer::ResourceRef>(v, "description", {});
@@ -836,7 +837,6 @@ namespace toml {
             resource.minMiningEfficiency = toml::find_or<float>(v, "min_mining_efficiency", 0);
             resource.name = toml::find<glimmer::ResourceRef>(v, "name");
             resource.partial = toml::find_or<bool>(v, "partial", false);
-            resource.physicsType = toml::find_or<uint8_t>(v, "physics_type", 0);
             resource.pipeline = toml::find_or<glimmer::ResourceRef>(v, "pipeline", {});
             resource.placeSfx = toml::find<glimmer::ResourceRef>(v, "place_sfx");
             resource.primaryActionTarget = toml::find_or<glimmer::ResourceRef>(v, "primary_action_target", {});

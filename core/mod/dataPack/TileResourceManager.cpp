@@ -30,7 +30,6 @@
 
 #include "core/config/Constants.h"
 #include "core/world/generator/TileLayerType.h"
-#include "core/world/generator/TilePhysicsType.h"
 
 
 glimmer::TileResource *glimmer::TileResourceManager::AddCoreResource(const CoreTileResourceParams &params) {
@@ -43,7 +42,7 @@ glimmer::TileResource *glimmer::TileResourceManager::AddCoreResource(const CoreT
     }
     tileResource->resourceId = params.resourceId;
     tileResource->packId = RESOURCE_REF_CORE;
-    tileResource->physicsType = std::to_underlying(params.physicsType);
+    tileResource->collisionMask = params.collisionMask;
     tileResource->layer = std::to_underlying(params.layer);
     tileResource->unitHardness = params.unitHardness;
     tileResource->isOverwritable = params.isOverwritable;
@@ -85,7 +84,7 @@ void glimmer::TileResourceManager::InitBuiltinTiles() {
         .descriptionKey = STRING_TILE_AIR_DESCRIPTION, .resourceId = TILE_ID_AIR,
         .nameKey = STRING_TILE_AIR_NAME, .textureKey = "tiles/air",
         .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_NONE, .backLightMaskKey = LIGHT_MASK_NONE,
-        .tags = {StringUtils::MakeTag(TAG_AIR)}, .unitHardness = -1.0F, .physicsType = TilePhysicsType::None,
+        .tags = {StringUtils::MakeTag(TAG_AIR)}, .unitHardness = -1.0F, .collisionMask = COLLISION_MASK_NONE,
         .layer = TileLayerType::Ground, .isOverwritable = true, .canDropLoot = false, .solid = false,
 
     });
@@ -93,28 +92,28 @@ void glimmer::TileResourceManager::InitBuiltinTiles() {
         .descriptionKey = STRING_TILE_AIR_WALL_DESCRIPTION, .resourceId = TILE_ID_AIR_WALL,
         .nameKey = STRING_TILE_AIR_WALL_NAME, .textureKey = "tiles/air_wall",
         .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_NONE, .backLightMaskKey = LIGHT_MASK_NONE,
-        .tags = {StringUtils::MakeTag(TAG_AIR)}, .unitHardness = -1.0F, .physicsType = TilePhysicsType::None,
+        .tags = {StringUtils::MakeTag(TAG_AIR)}, .unitHardness = -1.0F, .collisionMask = COLLISION_MASK_NONE,
         .layer = TileLayerType::BackGround, .isOverwritable = true, .canDropLoot = false, .solid = false
     });
     AddCoreResource(CoreTileResourceParams{
         .descriptionKey = STRING_TILE_VOID_DESCRIPTION, .resourceId = TILE_ID_VOID,
         .nameKey = STRING_TILE_VOID_NAME, .textureKey = "tiles/void",
         .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_NONE, .backLightMaskKey = LIGHT_MASK_NONE,
-        .tags = {StringUtils::MakeTag(TAG_VOID)}, .unitHardness = -1.0F, .physicsType = TilePhysicsType::None,
+        .tags = {StringUtils::MakeTag(TAG_VOID)}, .unitHardness = -1.0F, .collisionMask = COLLISION_MASK_NONE,
         .layer = TileLayerType::Ground, .isOverwritable = false, .canDropLoot = false,
     });
     AddCoreResource(CoreTileResourceParams{
         .descriptionKey = STRING_TILE_BEDROCK_DESCRIPTION, .resourceId = TILE_ID_BEDROCK,
         .nameKey = STRING_TILE_BEDROCK_NAME, .textureKey = "tiles/bedrock",
         .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_FULL, .backLightMaskKey = LIGHT_MASK_FULL,
-        .tags = {StringUtils::MakeTag(TAG_BEDROCK)}, .unitHardness = -1.0F, .physicsType = TilePhysicsType::Static,
+        .tags = {StringUtils::MakeTag(TAG_BEDROCK)}, .unitHardness = -1.0F, .collisionMask = COLLISION_MASK_SOLID,
         .layer = TileLayerType::Ground, .isOverwritable = false, .canDropLoot = false, .solid = true
     });
     AddCoreResource(CoreTileResourceParams{
         .descriptionKey = STRING_TILE_VOID_WALL_DESCRIPTION, .resourceId = TILE_ID_VOID_WALL,
         .nameKey = STRING_TILE_VOID_WALL_NAME, .textureKey = "tiles/void_wall",
         .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_NONE, .backLightMaskKey = LIGHT_MASK_LOW,
-        .tags = {StringUtils::MakeTag(TAG_VOID)}, .unitHardness = -1.0F, .physicsType = TilePhysicsType::None,
+        .tags = {StringUtils::MakeTag(TAG_VOID)}, .unitHardness = -1.0F, .collisionMask = COLLISION_MASK_NONE,
         .layer = TileLayerType::BackGround, .isOverwritable = false, .canDropLoot = false
 
     });
@@ -123,7 +122,7 @@ void glimmer::TileResourceManager::InitBuiltinTiles() {
         .nameKey = STRING_TILE_WATER_NAME, .textureKey = "tiles/water",
         .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_NONE, .backLightMaskKey = LIGHT_MASK_LOW,
         .tags = {StringUtils::MakeTag(TAG_WATER), StringUtils::MakeTag(TAG_FLUID)}, .unitHardness = -1.0F,
-        .physicsType = TilePhysicsType::Fluid,
+        .collisionMask = COLLISION_MASK_NONE,
         .layer = TileLayerType::Ground, .isOverwritable = true, .canDropLoot = false,
 
     });
@@ -132,7 +131,7 @@ void glimmer::TileResourceManager::InitBuiltinTiles() {
         .nameKey = STRING_TILE_ERROR_NAME, .textureKey = ERROR_TEXTURE_KEY,
         .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_MEDIUM, .backLightMaskKey = LIGHT_MASK_LOW,
         .tags = {StringUtils::MakeTag(TAG_ERROR), StringUtils::MakeTag(TAG_PLACEHOLDER)}, .unitHardness = 0.1F,
-        .physicsType = TilePhysicsType::Static,
+        .collisionMask = COLLISION_MASK_SOLID,
         .layer = TileLayerType::Ground, .canDropLoot = true, .solid = true
 
     });
@@ -141,7 +140,7 @@ void glimmer::TileResourceManager::InitBuiltinTiles() {
         .nameKey = STRING_TILE_ERROR_WALL_NAME, .textureKey = ERROR_TEXTURE_KEY,
         .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_MEDIUM, .backLightMaskKey = LIGHT_MASK_LOW,
         .tags = {StringUtils::MakeTag(TAG_ERROR), StringUtils::MakeTag(TAG_PLACEHOLDER)}, .unitHardness = 0.1F,
-        .physicsType = TilePhysicsType::None,
+        .collisionMask = COLLISION_MASK_NONE,
         .layer = TileLayerType::BackGround, .isOverwritable = false, .canDropLoot = true,
 
     });
@@ -150,7 +149,7 @@ void glimmer::TileResourceManager::InitBuiltinTiles() {
         .nameKey = STRING_TILE_ACCESS_DENIED_NAME, .textureKey = ACCESS_DENIED_TEXTURE_KEY,
         .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_MEDIUM, .backLightMaskKey = LIGHT_MASK_LOW,
         .tags = {StringUtils::MakeTag(TAG_ACCESS_DENIED), StringUtils::MakeTag(TAG_PLACEHOLDER)}, .unitHardness = 0.1F,
-        .physicsType = TilePhysicsType::Static,
+        .collisionMask = COLLISION_MASK_SOLID,
         .layer = TileLayerType::Ground, .canDropLoot = true, .solid = true
     });
     AddCoreResource(CoreTileResourceParams{
@@ -158,7 +157,7 @@ void glimmer::TileResourceManager::InitBuiltinTiles() {
         .nameKey = STRING_TILE_ACCESS_DENIED_WALL_NAME, .textureKey = ACCESS_DENIED_TEXTURE_KEY,
         .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_MEDIUM, .backLightMaskKey = LIGHT_MASK_LOW,
         .tags = {StringUtils::MakeTag(TAG_ACCESS_DENIED), StringUtils::MakeTag(TAG_PLACEHOLDER)}, .unitHardness = 0.1F,
-        .physicsType = TilePhysicsType::None,
+        .collisionMask = COLLISION_MASK_NONE,
         .layer = TileLayerType::BackGround, .canDropLoot = true
     });
 }
@@ -170,8 +169,7 @@ glimmer::TileResource *glimmer::TileResourceManager::AddErrorPlaceHolder(std::st
     errorPlaceholder->texture = CreateCoreRef(ERROR_TEXTURE_KEY, RESOURCE_TEXTURE);
     errorPlaceholder->resourceId = resourceId;
     errorPlaceholder->packId = packId;
-    errorPlaceholder->physicsType = std::to_underlying(
-        tileLayer == TileLayerType::Ground ? TilePhysicsType::Static : TilePhysicsType::None);
+    errorPlaceholder->collisionMask = tileLayer == TileLayerType::Ground ? COLLISION_MASK_SOLID : COLLISION_MASK_NONE;
     errorPlaceholder->layer = std::to_underlying(tileLayer);
     errorPlaceholder->unitHardness = 0.1F;
     errorPlaceholder->missing = true;
@@ -197,8 +195,9 @@ glimmer::TileResource *glimmer::TileResourceManager::GenerateAccessDeniedPlaceHo
     accessDeniedPlaceholder->packId = packId;
     accessDeniedPlaceholder->isOverwritable = false;
     accessDeniedPlaceholder->canDropLoot = true;
-    accessDeniedPlaceholder->physicsType = std::to_underlying(
-        tileLayer == TileLayerType::Ground ? TilePhysicsType::Static : TilePhysicsType::None);
+    accessDeniedPlaceholder->collisionMask = tileLayer == TileLayerType::Ground
+                                                 ? COLLISION_MASK_SOLID
+                                                 : COLLISION_MASK_NONE;
     accessDeniedPlaceholder->layer = std::to_underlying(tileLayer);
     accessDeniedPlaceholder->unitHardness = 0.1F;
     accessDeniedPlaceholder->missing = true;

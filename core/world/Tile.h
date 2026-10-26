@@ -37,7 +37,6 @@
 #include "core/context/AppContext.h"
 #include "core/ecs/EcsTypes.h"
 #include "generator/TileLayerType.h"
-#include "generator/TilePhysicsType.h"
 #include "src/core/place_source_message.pb.h"
 
 class TileStateMessage;
@@ -67,17 +66,17 @@ namespace glimmer {
         //Offset from the crop origin to the spawn point used when it matures.
         //作物成熟时，生成点相对于原点的偏移。
         Vector2DIResource spawnOriginOffset_ = {0, 0};
+        uint8_t technologyLevel_ = 0;
+        uint8_t recipeGroup_ = 0;
+        uint8_t collisionMask_ = COLLISION_MASK_SOLID;
+        //附着点掩码，0表示不启用附着。
+        uint8_t attachmentMask_ = 0;
+        TileLayerType layerType_ = TileLayerType::Ground;
         //Whether offline growth is allowed: when the chunk is reloaded, interpolate the elapsed time.
         //是否允许离线生长：区块重新加载时补算离线时长。
         bool allowOfflineGrowth_ = true;
-        uint8_t technologyLevel_ = 0;
-        uint8_t recipeGroup_ = 0;
-        TileLayerType layerType_ = TileLayerType::Ground;
-        TilePhysicsType physicsType_ = TilePhysicsType::None;
         bool destroySelfAfterGrowth_ = false;
         bool isOverwritable_ = false;
-        //附着点掩码，0表示不启用附着。
-        uint8_t attachmentMask_ = 0;
         //附着点标签缓存ID列表，目标瓦片必须拥有其中任一标签才被视为有效附着点。
         std::vector<uint64_t> attachmentTagIds_;
 
@@ -91,7 +90,7 @@ namespace glimmer {
                                                       const TileResource *tileResource);
 
     public:
-        [[nodiscard]] TilePhysicsType GetTilePhysicsType() const;
+        [[nodiscard]] uint8_t GetCollisionMask() const;
 
         [[nodiscard]] const std::string &GetId() const;
 

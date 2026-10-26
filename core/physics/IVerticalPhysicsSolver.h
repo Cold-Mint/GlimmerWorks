@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,4 +24,27 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "core/utils/BoolOrToggle.h"
+#pragma once
+#include "SolveResult.h"
+#include "core/math/WorldAABB.h"
+
+namespace glimmer {
+    class ChunkManager;
+
+    class IVerticalPhysicsSolver {
+    public:
+        virtual ~IVerticalPhysicsSolver() = default;
+
+        /**
+         * Solve the y direction
+         * 解算y方向
+         * @param chunkManager chunkManager 区块管理器
+         * @param box box 碰撞盒
+         * @param velocityY velocityY y方向分量
+         * @param gravityScale gravityScale 重力缩放
+         * @return The solve result. 解算结果。
+         */
+        virtual SolveResult SolveYDirection(ChunkManager *chunkManager, const WorldAABB &box, float velocityY,
+                                            float gravityScale) = 0;
+    };
+}

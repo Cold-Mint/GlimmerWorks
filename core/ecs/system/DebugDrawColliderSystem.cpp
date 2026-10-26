@@ -36,8 +36,8 @@
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/gpu/RenderQueue.h"
 #include "core/math/CoordinateTransformer.h"
+#include "core/world/ChunkManager.h"
 #include "core/world/PreloadColors.h"
-#include "core/world/TileCollision.h"
 #include "core/world/WorldContext.h"
 
 glimmer::DebugDrawColliderSystem::DebugDrawColliderSystem(WorldContext *worldContext) : GameSystem(worldContext) {
@@ -97,12 +97,10 @@ void glimmer::DebugDrawColliderSystem::RenderEntityColliders(RenderQueue *queue)
             continue;
         }
         const float zoom = cameraComponent_->GetZoom();
-        const float pixelW = collider->GetHalfWidth() * 2.0F * zoom;
-        const float pixelH = collider->GetHalfHeight() * 2.0F * zoom;
-        const WorldVector2D minCorner{
-            position.x - collider->GetHalfWidth(),
-            position.y - collider->GetHalfHeight()
-        };
+        const WorldAABB box = collider->GetAABB(position);
+        const float pixelW = box.halfWidth * 2.0F * zoom;
+        const float pixelH = box.halfHeight * 2.0F * zoom;
+        const WorldVector2D minCorner{ box.Left(), box.Bottom() };
         const ScreenVector2D screenPos = CoordinateTransformer::WorldToScreen(
             cameraTransform2DComponent_->GetRenderPosition(), minCorner,
             cameraComponent_->GetSize(), zoom);
@@ -147,9 +145,17 @@ void glimmer::DebugDrawColliderSystem::RenderSolidTiles(RenderQueue *queue) cons
         preloadColors_->debugColor.collisionBoxTileColor.a
     };
 
+    const ChunkManager *chunkManager = worldContext->GetChunkManager();
+    if (chunkManager == nullptr) {
+        return;
+    }
     for (int ty = minTile.y; ty <= maxTile.y; ++ty) {
         for (int tx = minTile.x; tx <= maxTile.x; ++tx) {
-            if (!TileCollision::IsSolidTile(worldContext->GetChunkManager(), TileVector2D{tx, ty})) {
+            const Tile *tile = chunkManager->GetTileAt(TileLayerType::Ground, TileVector2D{tx, ty});
+            if (tile == nullptr) {
+                continue;
+            }
+            if (tile->GetCollisionMask() == COLLISION_MASK_NONE) {
                 continue;
             }
             const WorldVector2D minCorner{

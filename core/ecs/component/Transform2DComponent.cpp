@@ -66,18 +66,6 @@ void glimmer::Transform2DComponent::Commit(const float alpha) {
     }
 }
 
-void glimmer::Transform2DComponent::SetRotation(const float newRotation) {
-    if (newRotation == rotation_) {
-        return;
-    }
-    rotation_ = newRotation;
-    AddVersion();
-}
-
-float glimmer::Transform2DComponent::GetRotation() const {
-    return rotation_;
-}
-
 const glimmer::WorldVector2D &glimmer::Transform2DComponent::GetPosition() const {
     return pendingPosition_;
 }
@@ -93,7 +81,6 @@ std::optional<std::string> glimmer::Transform2DComponent::Serialize() {
     const auto pos = transform2DMessage.mutable_position();
     pos->set_x(position.x);
     pos->set_y(position.y);
-    transform2DMessage.set_rotation(rotation_);
     return transform2DMessage.SerializeAsString();
 }
 
@@ -101,7 +88,6 @@ std::optional<std::string> glimmer::Transform2DComponent::Serialize() {
 void glimmer::Transform2DComponent::Deserialize(WorldContext *worldContext, const std::string &data) {
     if (Transform2dMessage transform2DMessage; transform2DMessage.ParseFromString(data)) {
         SetPosition({transform2DMessage.position().x(), transform2DMessage.position().y()});
-        SetRotation(transform2DMessage.rotation());
     }
 }
 

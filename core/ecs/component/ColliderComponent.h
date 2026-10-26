@@ -27,15 +27,13 @@
 #pragma once
 
 #include "core/ecs/GameComponent.h"
+#include "core/math/WorldAABB.h"
 #include "core/math/WorldVector2D.h"
 
 namespace glimmer {
     /**
-     * Axis-aligned bounding box collider used by the custom tile-grid physics.
-     * The collider stores a half-extent box (in pixels), a velocity
-     * (pixels/second) and a grounded flag that is refreshed by the physics system every tick.
-     * 自定义瓦片网格物理使用的轴对齐包围盒碰撞体。
-     * 碰撞体保存一个半宽/半高包围盒（像素）、速度（像素/秒）以及由物理系统每 tick 刷新的落地标记。
+     * Physical collision body component
+     * 物理碰撞体组件
      */
     class ColliderComponent : public GameComponent {
         //Half extents of the AABB, in pixels.
@@ -51,6 +49,9 @@ namespace glimmer {
         //Whether the collider participates in physics.
         //碰撞体是否参与物理。
         bool enabled_ = false;
+        //Gravity scale of the collider affects gravitational pull. A value of 0 disables gravity; negative values produce anti‑gravity floatation; positive values result in downward falling.
+        //碰撞体的重力缩放，影响重力。（0为不启用重力，负数为反重力漂浮，正数为下落。）
+        float gravityScale_ = 1.0F;
 
     public:
         /**
@@ -58,6 +59,10 @@ namespace glimmer {
          * 设置 AABB 的半宽/半高（像素）。
          */
         void SetHalfExtents(float halfWidth, float halfHeight);
+
+        void SetGravityScale(float gravityScale);
+
+        [[nodiscard]] float GetGravityScale() const;
 
         /**
          * Get the half width of the AABB (pixels).
@@ -70,6 +75,14 @@ namespace glimmer {
          * 获取 AABB 半高（像素）。
          */
         [[nodiscard]] float GetHalfHeight() const;
+
+        /**
+         * Build an AABB from a center position and this collider's half extents.
+         * 用中心位置与本碰撞体的半宽半高组装一个 AABB。
+         * @param center center 盒子中心（世界坐标）。
+         * @return The AABB. AABB。
+         */
+        [[nodiscard]] WorldAABB GetAABB(const WorldVector2D &center) const;
 
         /**
          * Set the velocity (pixels/second).

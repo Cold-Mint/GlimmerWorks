@@ -53,7 +53,6 @@ namespace glimmer {
         //commit aligns instead of interpolating to avoid a teleport from (0,0).
         //位置是否已提交过至少一次；首次提交直接对齐而非插值，避免从 (0,0) 瞬移。
         bool firstCommit_ = true;
-        float rotation_ = 0.0F;
 
     public:
         Transform2DComponent() = default;
@@ -73,19 +72,6 @@ namespace glimmer {
          * @param alpha interpolation factor in [0, 1] 插值因子，取值 [0, 1]
          */
         void Commit(float alpha);
-
-        /**
-         * SetRotation 设置旋转角度
-         * @param newRotation newRotation 新的旋转角度
-         */
-        void SetRotation(float newRotation);
-
-        /**
-         * GetRotation 获取旋转角度
-         * @return 旋转角度
-         */
-        [[nodiscard]] float GetRotation() const;
-
 
         /**
          * GetPosition 获取最新世界坐标

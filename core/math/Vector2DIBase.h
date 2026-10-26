@@ -37,8 +37,7 @@ namespace glimmer {
     using Vector2DIFingerprint = uint64_t;
 
     template<typename Derived>
-    class Vector2DIBase : public IFingerprintAble, public IFingerAssignable {
-    public:
+    struct Vector2DIBase : IFingerprintAble, IFingerAssignable {
         int x = 0;
         int y = 0;
 

@@ -573,8 +573,6 @@ namespace glimmer {
         uint8_t technologyLevel = 0;
         //@genNextLine(recipeGroup|配方组)
         uint8_t recipeGroup = 0;
-        //@genNextLine(physicsType|物理类型)
-        uint8_t physicsType = 0;
         //@genNextLine(layer|瓦片图层)
         uint8_t layer = 0;
         //@genNextLine(The anchor point type of the tiles. When placing large tiles, the placement position is relative to the anchor point of the tile. The anchor point is based on the player's right side.|瓦片的锚点类型，当放置大型瓦片时放置位置相对于瓦片的锚点，锚点以玩家右侧为准)
@@ -607,6 +605,8 @@ namespace glimmer {
         bool allowOfflineGrowth = true;
         //@genNextLine(attachmentMask|附着点掩码 位1上 位2右 位3下 位4左 位5背景(下层)，0表示不启用附着)
         uint8_t attachmentMask = 0;
+        //@genNextLine(collisionMask|碰撞掩码 位1上 位2右 位3下 位4左，当某个位为1表示禁用/阻挡某个方向，例如单向平台(0b0000 1011 - 禁止上，右，左，仅允许从下方跳进去)，0表示不启用碰撞)
+        uint8_t collisionMask = 0;
         //@genNextLine(attachmentTags|附着点标签，目标瓦片必须拥有此标签才被视为有效附着点)
         std::vector<std::string> attachmentTags = {};
         //@genNextLine(autoDerivedTags|是否自动生成派生标签)

@@ -25,7 +25,6 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <memory>
 #include "core/math/Color.h"
 
 
@@ -42,8 +41,8 @@ namespace glimmer {
         static Color ApplyLightingMask(const Color *light, const Color *mask, float tintFactor);
 
         /**
-    * 两束光照加法混合（越叠越亮）
-    */
+        * 两束光照加法混合（越叠越亮）
+        */
         static Color MixLights(const Color *colorA, const Color *colorB);
     };
 }

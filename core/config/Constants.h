@@ -410,9 +410,9 @@ static constexpr std::string PROJECT_NAME = "GlimmerWorks";
 static constexpr int JUMP_BUFFER_FRAMES = 4;
 static constexpr int FLY_SPEED = TILE_SIZE * 25;
 
-// Gravity for the custom tile-grid physics (pixels / second^2). 20 tiles/s^2.
-// 自定义瓦片网格物理使用的重力（像素/秒²）。20 格/秒²。
-static constexpr float PHYSICS_GRAVITY = TILE_SIZE * 20.0F;
+// Gravity for the tile-grid physics (pixels/second²). 9.8 tiles/s².
+// 瓦片网格物理使用的重力（像素/秒²）。按真实重力 9.8 米/秒² 换算。
+static constexpr float PHYSICS_GRAVITY = TILE_SIZE * 9.8F;
 // Terminal fall speed for the custom physics (pixels / second). 30 tiles/s.
 // 自定义物理的下落终端速度（像素/秒）。30 格/秒。
 static constexpr float PHYSICS_MAX_FALL_SPEED = TILE_SIZE * 30.0F;
@@ -438,3 +438,11 @@ static constexpr std::string PIPELINE_NAME_LIGHTING = "lighting";
 static constexpr std::string SHADER_EXTENSION_VERT = "vert";
 static constexpr std::string SHADER_EXTENSION_FRAG = "frag";
 static constexpr std::string SHADER_ENTRY_POINT = "main";
+
+//Disable up/down/left/right movement (solid collision block)
+//禁止上下左右（实心方块）
+static constexpr uint8_t COLLISION_MASK_SOLID = 15;
+
+//Allow all directions
+//允许所有方向
+static constexpr uint8_t COLLISION_MASK_NONE = 0;

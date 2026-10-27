@@ -26,30 +26,132 @@
  */
 #include "VerticalPhysicsSolver.h"
 
+#include <algorithm>
+#include <cmath>
+
 #include "core/config/Constants.h"
+#include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/world/ChunkManager.h"
+#include "core/world/Tile.h"
+#include "core/world/generator/TileLayerType.h"
 
-glimmer::SolveResult glimmer::VerticalPhysicsSolver::SolveYDirection(ChunkManager *chunkManager, const WorldAABB &box,
-                                                                     float velocityY, float gravityScale) {
+glimmer::SolveResult glimmer::VerticalPhysicsSolver::SolveYDirection(const ChunkManager *chunkManager,
+                                                                     const WorldAABB &box, float velocityY,
+                                                                     float gravityScale) {
     SolveResult result;
-    // //Make use of gravity.
-    // //应用重力。
-    // velocityY -= PHYSICS_GRAVITY * FIXED_TIME_STEP * gravityScale;
-    // const TileVector2D startTile = CoordinateTransformer::WorldToTile(box.center);
-    // const auto centerY = box.center +
-    //                      WorldVector2D{
-    //                          0, velocityY
-    //                      };
-    // const TileVector2D endTile = CoordinateTransformer::WorldToTile(centerY);
-    // const TileVector2D direction = endTile - startTile;
-    // //Several tiles are needed.
-    // //需要走几个瓦片。
-    // int distanceY = direction.y;
-    // //fixme：我发现可能需要考虑方向性！
-    // for (int i = 0; i <= distanceY; i++) {
-    //     const TileVector2D nextTile = startTile + TileVector2D{0, i};
-    //     chunkManager->GetTileAt()
-    // }
+    if (chunkManager == nullptr) {
+        LogCat::w(LogLabel::PHYSICS, std::source_location::current(), "physics_vertical_chunk_manager_null",
+                  "Vertical physics solve: chunk manager is null, skip");
+        return result;
+    }
+
+    //Make use of gravity.
+    //应用重力。
+    velocityY -= PHYSICS_GRAVITY * FIXED_TIME_STEP * gravityScale;
+    //Clamp the fall speed to avoid accumulating huge velocities.
+    //钳制下落速度，避免速度无限累积。
+    if (velocityY < -PHYSICS_MAX_FALL_SPEED) {
+        LogCat::d(LogLabel::PHYSICS, "physics_vertical_fall_clamped",
+                  "Vertical physics: fall speed clamped: {} -> {}", velocityY, -PHYSICS_MAX_FALL_SPEED);
+        velocityY = -PHYSICS_MAX_FALL_SPEED;
+    }
+
+    //The displacement to attempt this tick (signed: positive = up, negative = down).
+    //这一步想走的位移（有符号：正=向上，负=向下）。
+    const float stepY = velocityY * FIXED_TIME_STEP;
+    if (stepY == 0.0F) {
+        LogCat::d(LogLabel::PHYSICS, "physics_vertical_zero_step",
+                  "Vertical physics: zero step, skip");
+        return result;
+    }
+
+
+    //Swept bounding box along Y. X is fixed during a vertical sweep.
+    //沿 Y 的扫掠包围盒。竖直扫掠时 X 不变。
+    const float yMin = std::min(box.Bottom(), box.Bottom() + stepY);
+    const float yMax = std::max(box.Top(), box.Top() + stepY);
+    const TileVector2D minTile = CoordinateTransformer::WorldToTile(WorldVector2D{box.Left(), yMin});
+    const TileVector2D maxTile = CoordinateTransformer::WorldToTile(WorldVector2D{box.Right(), yMax});
+
+    LogCat::d(LogLabel::PHYSICS, "physics_vertical_sweep_start",
+              "Vertical physics sweep: velocityY={}, stepY={}, gravityScale={}, yRange=[{}, {}], tileRange=({}, {})..({}, {})",
+              velocityY, stepY, gravityScale, yMin, yMax, minTile.x, minTile.y, maxTile.x, maxTile.y);
+
+    //The farthest distance still allowed to travel (magnitude).
+    //还允许行走的最远距离（大小）。
+    float remaining = std::fabs(stepY);
+
+    for (int ty = minTile.y; ty <= maxTile.y; ++ty) {
+        for (int tx = minTile.x; tx <= maxTile.x; ++tx) {
+            const Tile *tile = chunkManager->GetTileAt(TileLayerType::Ground, TileVector2D{tx, ty});
+            if (tile == nullptr) {
+                continue;
+            }
+            const uint8_t mask = tile->GetCollisionMask();
+            if (mask == COLLISION_MASK_NONE) {
+                continue;
+            }
+
+            //Tile collision box (configurable size/offset, default = full cell).
+            //瓦片碰撞箱（可配置尺寸/偏移，默认整格）。
+            const WorldAABB tileBox = tile->GetCollisionAABB(TileVector2D{tx, ty});
+            if (tileBox.halfWidth <= 0.0F || tileBox.halfHeight <= 0.0F) {
+                continue;
+            }
+            const float tileLeft = tileBox.Left();
+            const float tileRight = tileBox.Right();
+            const float tileBottom = tileBox.Bottom();
+            const float tileTop = tileBox.Top();
+
+            //Perpendicular (X) overlap check: skip tiles outside the horizontal lane.
+            //垂直轴（X）重叠检查：跳过不在水平通道内的瓦片。
+            if (box.Right() <= tileLeft || box.Left() >= tileRight) {
+                continue;
+            }
+
+            //The face we approach depends on the vertical direction.
+            //逼近哪个面取决于竖直方向。
+            float dist = 0.0F;
+            if (stepY < 0.0F) {
+                //Falling: the bottom edge approaches the tile's top face.
+                //下落：底边逼近瓦片顶面。
+                if ((mask & COLLISION_MASK_TOP) == 0) {
+                    continue;
+                }
+                dist = box.Bottom() - tileTop;
+            } else {
+                //Rising: the top edge approaches the tile's bottom face.
+                //上升：顶边逼近瓦片底面。
+                if ((mask & COLLISION_MASK_BOTTOM) == 0) {
+                    continue;
+                }
+                dist = tileBottom - box.Top();
+            }
+
+            //Only approaching contacts (dist >= 0) are resolved. Already-overlapping tiles (dist < 0)
+            //are skipped so the body can freely move back out of them.
+            //只解算逼近接触（dist >= 0）。已重叠的瓦片（dist < 0）被跳过，让身体能自由走出。
+            if (dist >= -PHYSICS_CONTACT_EPSILON && dist < remaining) {
+                remaining = std::max(dist, 0.0F);
+                result.blocked = true;
+                result.hitTile = TileVector2D{tx, ty};
+                LogCat::d(LogLabel::PHYSICS, "physics_vertical_tile_hit",
+                          "Vertical physics: hit tile at ({}, {}), dist={}, remaining={}", tx, ty, dist, remaining);
+            }
+        }
+    }
+
+    //Move up to the closest contact, keeping the sign of the intended step.
+    //走到最近的接触点，保留原步长的符号。
+    result.distance = std::copysign(remaining, stepY);
+    //The corrected vertical velocity (zeroed when blocked), and whether the body landed.
+    //修正后的竖直速度（被挡则为 0），以及是否落地。
+    result.velocity = result.blocked ? 0.0F : velocityY;
+    result.grounded = result.blocked && stepY < 0.0F;
+
+    LogCat::d(LogLabel::PHYSICS, "physics_vertical_solve_result",
+              "Vertical physics done: distance={}, velocity={}, blocked={}, grounded={}, hitTile=({}, {})",
+              result.distance, result.velocity, result.blocked, result.grounded, result.hitTile.x, result.hitTile.y);
     return result;
 }

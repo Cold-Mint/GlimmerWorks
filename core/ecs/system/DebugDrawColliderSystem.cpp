@@ -137,7 +137,6 @@ void glimmer::DebugDrawColliderSystem::RenderSolidTiles(RenderQueue *queue) cons
         WorldVector2D{viewportRect.x + viewportRect.w, viewportRect.y + viewportRect.h});
 
     const float zoom = cameraComponent_->GetZoom();
-    const float pixelSize = TILE_SIZE * zoom;
     const SDL_Color tileColor{
         preloadColors_->debugColor.collisionBoxTileColor.r,
         preloadColors_->debugColor.collisionBoxTileColor.g,
@@ -158,14 +157,17 @@ void glimmer::DebugDrawColliderSystem::RenderSolidTiles(RenderQueue *queue) cons
             if (tile->GetCollisionMask() == COLLISION_MASK_NONE) {
                 continue;
             }
-            const WorldVector2D minCorner{
-                static_cast<float>(tx * TILE_SIZE - HALF_TILE_SIZE),
-                static_cast<float>(ty * TILE_SIZE - HALF_TILE_SIZE)
-            };
+            const WorldAABB tileBox = tile->GetCollisionAABB(TileVector2D{tx, ty});
+            if (tileBox.halfWidth <= 0.0F || tileBox.halfHeight <= 0.0F) {
+                continue;
+            }
+            const float pixelW = tileBox.halfWidth * 2.0F * zoom;
+            const float pixelH = tileBox.halfHeight * 2.0F * zoom;
+            const WorldVector2D minCorner{tileBox.Left(), tileBox.Bottom()};
             const ScreenVector2D screenPos = CoordinateTransformer::WorldToScreen(
                 cameraTransform2DComponent_->GetRenderPosition(), minCorner,
                 cameraComponent_->GetSize(), zoom);
-            const SDL_FRect rect{screenPos.x, screenPos.y - pixelSize, pixelSize, pixelSize};
+            const SDL_FRect rect{screenPos.x, screenPos.y - pixelH, pixelW, pixelH};
             queue->DrawRect(RenderLayer::Debug, 0.0F, &rect, tileColor);
         }
     }

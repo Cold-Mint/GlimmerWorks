@@ -410,12 +410,12 @@ static constexpr std::string PROJECT_NAME = "GlimmerWorks";
 static constexpr int JUMP_BUFFER_FRAMES = 4;
 static constexpr int FLY_SPEED = TILE_SIZE * 25;
 
-// Gravity for the tile-grid physics (pixels/second²). 9.8 tiles/s².
-// 瓦片网格物理使用的重力（像素/秒²）。按真实重力 9.8 米/秒² 换算。
-static constexpr float PHYSICS_GRAVITY = TILE_SIZE * 9.8F;
-// Terminal fall speed for the custom physics (pixels / second). 30 tiles/s.
-// 自定义物理的下落终端速度（像素/秒）。30 格/秒。
-static constexpr float PHYSICS_MAX_FALL_SPEED = TILE_SIZE * 30.0F;
+// Gravity for the tile-grid physics (pixels/second²). 10.0 tiles/s².
+// 瓦片网格物理使用的重力（像素/秒²）。按真实重力 10.0 米/秒² 换算。
+static constexpr float PHYSICS_GRAVITY = TILE_SIZE * 10.0F;
+// Terminal fall speed for the custom physics (pixels / second). 16 tiles/s.
+// 自定义物理的下落终端速度（像素/秒）。16 格/秒。
+static constexpr float PHYSICS_MAX_FALL_SPEED = TILE_SIZE * 16.0F;
 // Maximum obstacle height the player can automatically step up onto while moving horizontally (pixels).
 // 1 tile. This lets the player climb low ledges without being bounced back by their own head.
 // 玩家水平移动时可自动迈上的台阶最大高度（像素）。1 格。这让玩家能跨过低矮台阶而不会被自己的头顶弹回。
@@ -446,3 +446,13 @@ static constexpr uint8_t COLLISION_MASK_SOLID = 15;
 //Allow all directions
 //允许所有方向
 static constexpr uint8_t COLLISION_MASK_NONE = 0;
+
+//Collision mask bit convention (see Resource.h collisionMask): bit1(0b0001)=top, bit2(0b0010)=right,
+//bit3(0b0100)=bottom, bit4(0b1000)=left. A set bit blocks that direction.
+//碰撞掩码位约定（见 Resource.h collisionMask）：位1(0b0001)=上，位2(0b0010)=右，位3(0b0100)=下，位4(0b1000)=左。
+//位为 1 表示该方向被阻挡。
+constexpr uint8_t COLLISION_MASK_TOP = 0b0001;
+constexpr uint8_t COLLISION_MASK_RIGHT = 0b0010;
+constexpr uint8_t COLLISION_MASK_BOTTOM = 0b0100;
+constexpr uint8_t COLLISION_MASK_LEFT = 0b1000;
+static constexpr float PHYSICS_CONTACT_EPSILON = 0.01F;

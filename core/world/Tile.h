@@ -36,6 +36,7 @@
 #include "TileResourceData.h"
 #include "core/context/AppContext.h"
 #include "core/ecs/EcsTypes.h"
+#include "core/math/WorldAABB.h"
 #include "generator/TileLayerType.h"
 #include "src/core/place_source_message.pb.h"
 
@@ -69,6 +70,10 @@ namespace glimmer {
         uint8_t technologyLevel_ = 0;
         uint8_t recipeGroup_ = 0;
         uint8_t collisionMask_ = COLLISION_MASK_SOLID;
+        //碰撞箱尺寸（以瓦片为单位），默认 1x1 占满整格。
+        Vector2DResource collisionBoxSize_ = {1.0F, 1.0F};
+        //碰撞箱偏移（以瓦片为单位），碰撞箱左下角相对格子左下角的偏移。
+        Vector2DResource collisionBoxOffset_ = {0.0F, 0.0F};
         //附着点掩码，0表示不启用附着。
         uint8_t attachmentMask_ = 0;
         TileLayerType layerType_ = TileLayerType::Ground;
@@ -91,6 +96,28 @@ namespace glimmer {
 
     public:
         [[nodiscard]] uint8_t GetCollisionMask() const;
+
+        /**
+         * GetCollisionBoxSize
+         * 获取碰撞箱尺寸（以瓦片为单位）。
+         * @return
+         */
+        [[nodiscard]] const Vector2DResource &GetCollisionBoxSize() const;
+
+        /**
+         * GetCollisionBoxOffset
+         * 获取碰撞箱偏移（以瓦片为单位，左下角相对格子左下角）。
+         * @return
+         */
+        [[nodiscard]] const Vector2DResource &GetCollisionBoxOffset() const;
+
+        /**
+         * GetCollisionAABB
+         * 获取该瓦片在指定格子坐标处的碰撞箱世界坐标 AABB（中心 + 半宽半高）。
+         * @param tilePos tilePos 瓦片坐标
+         * @return 碰撞箱 AABB
+         */
+        [[nodiscard]] WorldAABB GetCollisionAABB(const TileVector2D &tilePos) const;
 
         [[nodiscard]] const std::string &GetId() const;
 
@@ -153,8 +180,6 @@ namespace glimmer {
                      const TileStateMessage *tileState);
 
         void OnBreak(const WorldContext *worldContext, BreakSource breakSource, const TileVector2D &position);
-
-        [[nodiscard]] TileResourceData &GetMutableResourceData();
 
         [[nodiscard]] const TileResourceData &GetResourceData() const;
 

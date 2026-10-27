@@ -30,6 +30,7 @@
 namespace glimmer {
     class HorizontalPhysicsSolver : public IHorizontalPhysicsSolver{
     public:
-        SolveResult SolveXDirection(const WorldAABB &box, float velocityX) override;
+        SolveResult SolveXDirection(const ChunkManager *chunkManager, const WorldAABB &box,
+                                    float velocityX) override;
     };
 }

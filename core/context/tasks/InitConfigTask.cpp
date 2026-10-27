@@ -47,6 +47,7 @@ bool glimmer::InitConfigTask::Run(ISystemBucket *systemBucket) {
     config->SetConfigValue(
         std::make_unique<toml::value>(toml::parse_str(configData.value(), TOML_VERSION)));
     config->ReloadConfig();
+    LogCat::SetLogPath(config->logPath);
     systemBucket->SetConfig(std::move(config));
     return true;
 }

@@ -607,6 +607,10 @@ namespace glimmer {
         uint8_t attachmentMask = 0;
         //@genNextLine(collisionMask|碰撞掩码 位1上 位2右 位3下 位4左，当某个位为1表示禁用/阻挡某个方向，例如单向平台(0b0000 1011 - 禁止上，右，左，仅允许从下方跳进去)，0表示不启用碰撞)
         uint8_t collisionMask = 0;
+        //@genNextLine(collisionBoxSize|碰撞箱尺寸（以瓦片为单位，可为小数，0.5 表示半格），默认 1x1 占满整格)
+        Vector2DResource collisionBoxSize = {1.0F, 1.0F};
+        //@genNextLine(collisionBoxOffset|碰撞箱偏移（以瓦片为单位），碰撞箱左下角相对格子左下角的偏移，默认 0,0)
+        Vector2DResource collisionBoxOffset = {0.0F, 0.0F};
         //@genNextLine(attachmentTags|附着点标签，目标瓦片必须拥有此标签才被视为有效附着点)
         std::vector<std::string> attachmentTags = {};
         //@genNextLine(autoDerivedTags|是否自动生成派生标签)

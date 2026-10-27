@@ -40,6 +40,7 @@
 #include "core/ecs/component/CropComponent.h"
 #include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
+#include "core/math/WorldAABB.h"
 #include "core/utils/StringUtils.h"
 
 using enum glimmer::TileAnchorType;
@@ -213,6 +214,8 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     tile->lootData_.SetLootTable(tileResource->lootTable);
     tile->layerType_ = static_cast<TileLayerType>(tileResource->layer);
     tile->collisionMask_ = tileResource->collisionMask;
+    tile->collisionBoxSize_ = tileResource->collisionBoxSize;
+    tile->collisionBoxOffset_ = tileResource->collisionBoxOffset;
     tile->miningData_.SetAllowChainMining(tileResource->allowChainMining);
     tile->miningData_.SetMinMiningEfficiency(tileResource->minMiningEfficiency);
     tile->lightData_.SetBackLightMask(tileResource->backLightMask);
@@ -347,6 +350,29 @@ uint8_t glimmer::Tile::GetCollisionMask() const {
     return collisionMask_;
 }
 
+const glimmer::Vector2DResource &glimmer::Tile::GetCollisionBoxSize() const {
+    return collisionBoxSize_;
+}
+
+const glimmer::Vector2DResource &glimmer::Tile::GetCollisionBoxOffset() const {
+    return collisionBoxOffset_;
+}
+
+glimmer::WorldAABB glimmer::Tile::GetCollisionAABB(const TileVector2D &tilePos) const {
+    const float cellMinX = static_cast<float>(tilePos.x * TILE_SIZE) - static_cast<float>(HALF_TILE_SIZE);
+    const float cellMinY = static_cast<float>(tilePos.y * TILE_SIZE) - static_cast<float>(HALF_TILE_SIZE);
+    const float boxLeft = cellMinX + collisionBoxOffset_.x * static_cast<float>(TILE_SIZE);
+    const float boxBottom = cellMinY + collisionBoxOffset_.y * static_cast<float>(TILE_SIZE);
+    const float boxRight = boxLeft + collisionBoxSize_.x * static_cast<float>(TILE_SIZE);
+    const float boxTop = boxBottom + collisionBoxSize_.y * static_cast<float>(TILE_SIZE);
+
+    WorldAABB box;
+    box.center = WorldVector2D{(boxLeft + boxRight) * 0.5F, (boxBottom + boxTop) * 0.5F};
+    box.halfWidth = (boxRight - boxLeft) * 0.5F;
+    box.halfHeight = (boxTop - boxBottom) * 0.5F;
+    return box;
+}
+
 void glimmer::Tile::OnPlace(const WorldContext *worldContext, PlaceSourceMessage placeSource,
                             const TileVector2D &position, const TileStateMessage *tileState) {
     EntityManager *entityManager = worldContext->GetEntityManager();
@@ -414,10 +440,6 @@ void glimmer::Tile::OnBreak(const WorldContext *worldContext, const BreakSource 
               "Broke block, removed entity: id={}, position=({}, {})",
               gameEntityIterator->second, position.x, position.y);
     gameEntities_.erase(gameEntityIterator);
-}
-
-glimmer::TileResourceData &glimmer::Tile::GetMutableResourceData() {
-    return resourceData_;
 }
 
 const glimmer::TileResourceData &glimmer::Tile::GetResourceData() const {

@@ -36,22 +36,22 @@ namespace glimmer {
      * 物理碰撞体组件
      */
     class ColliderComponent : public GameComponent {
+        //Velocity in pixels/second.
+        //速度（像素/秒）。
+        WorldVector2D velocity_;
         //Half extents of the AABB, in pixels.
         //AABB 的半宽/半高，单位像素。
         float halfWidth_ = 8.0F;
         float halfHeight_ = 8.0F;
-        //Velocity in pixels/second.
-        //速度（像素/秒）。
-        WorldVector2D velocity_;
+        //Gravity scale of the collider affects gravitational pull. A value of 0 disables gravity; negative values produce anti‑gravity floatation; positive values result in downward falling.
+        //碰撞体的重力缩放，影响重力。（0为不启用重力，负数为反重力漂浮，正数为下落。）
+        float gravityScale_ = 1.0F;
         //Whether the entity is standing on a solid tile. Refreshed by the physics system.
         //实体是否站在实心瓦片上。由物理系统刷新。
         bool grounded_ = false;
         //Whether the collider participates in physics.
         //碰撞体是否参与物理。
         bool enabled_ = false;
-        //Gravity scale of the collider affects gravitational pull. A value of 0 disables gravity; negative values produce anti‑gravity floatation; positive values result in downward falling.
-        //碰撞体的重力缩放，影响重力。（0为不启用重力，负数为反重力漂浮，正数为下落。）
-        float gravityScale_ = 1.0F;
 
     public:
         /**

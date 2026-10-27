@@ -44,7 +44,7 @@ namespace glimmer {
          * @param gravityScale gravityScale 重力缩放
          * @return The solve result. 解算结果。
          */
-        virtual SolveResult SolveYDirection(ChunkManager *chunkManager, const WorldAABB &box, float velocityY,
+        virtual SolveResult SolveYDirection(const ChunkManager *chunkManager, const WorldAABB &box, float velocityY,
                                             float gravityScale) = 0;
     };
 }

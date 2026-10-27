@@ -28,13 +28,17 @@
 #include <cassert>
 #include <atomic>
 #include <chrono>
+#include <filesystem>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <memory>
+#include <mutex>
 #include <source_location>
 #include <sstream>
 #include <string>
 #include <string_view>
+#include <system_error>
 #include <thread>
 #include <unordered_map>
 #include <fmt/format.h>
@@ -71,6 +75,75 @@ namespace glimmer {
 
         static inline std::chrono::steady_clock::time_point startTime_ = std::chrono::steady_clock::now();
 
+#if !defined(NDEBUG)
+        //The flush threshold (in bytes). Once the in-memory buffer reaches this
+        //size, its contents are appended to the log file, so logs are persisted
+        //incrementally instead of all at once on shutdown.
+        //刷写阈值（单位：字节）。当内存缓冲区达到该大小时，就将其内容追加到日志
+        //文件，使日志逐步落盘，而不是等到程序关闭时一次性写出。
+        static constexpr size_t LOG_FLUSH_THRESHOLD = 64 * 1024;
+
+        static inline std::mutex logMutex_;
+        static inline std::string logBuffer_;
+        //Resolved log file path. Fixed on the first flush so that all flushes
+        //append to the same timestamped file.
+        //已解析的日志文件路径。首次刷写时确定，保证后续所有刷写都追加到同一个时间戳文件。
+        static inline std::string logFilePath_;
+        //Directory that receives the debug log files. Resolved from the log_path
+        //configuration at startup; defaults to runtime/.logs.
+        //调试日志文件的存放目录。启动时根据 log_path 配置确定；默认为 runtime/.logs。
+        static inline std::string logPath_ = "runtime/.logs";
+
+        //Append the current buffer to the log file. The caller must hold logMutex_.
+        //将当前缓冲区追加写入日志文件。调用方必须已持有 logMutex_。
+        static void FlushToFileLocked() {
+            if (logBuffer_.empty()) {
+                return;
+            }
+            if (logFilePath_.empty()) {
+                std::error_code errorCode;
+                std::filesystem::create_directories(logPath_, errorCode);
+                if (errorCode) {
+                    //Keep the buffer and retry on the next flush.
+                    //保留缓冲区，等待下次刷写时重试。
+                    return;
+                }
+                logFilePath_ = (std::filesystem::path(logPath_) / (FileTimestamp() + ".log")).string();
+            }
+            std::ofstream file(logFilePath_, std::ios::out | std::ios::app);
+            if (file.is_open()) {
+                file << logBuffer_;
+                file.flush();
+                logBuffer_.clear();
+            }
+            //If the file cannot be opened, keep the buffer and retry next time.
+            //若无法打开文件，则保留缓冲区，等待下次刷写时重试。
+        }
+
+        static void AppendToBuffer(std::string_view line) {
+            std::lock_guard lock(logMutex_);
+            logBuffer_.append(line);
+            logBuffer_.push_back('\n');
+            if (logBuffer_.size() >= LOG_FLUSH_THRESHOLD) {
+                FlushToFileLocked();
+            }
+        }
+
+        static std::string FileTimestamp() {
+            const auto now = std::chrono::system_clock::now();
+            const std::time_t t = std::chrono::system_clock::to_time_t(now);
+            std::tm tm{};
+#if defined(_WIN32)
+            localtime_s(&tm, &t);
+#else
+            localtime_r(&t, &tm);
+#endif
+            std::ostringstream oss;
+            oss << std::put_time(&tm, "%Y-%m-%d_%H_%M_%S");
+            return oss.str();
+        }
+#endif
+
         static const char *ToString(LogLabel label) {
             switch (label) {
                 case LogLabel::DEFAULT:
@@ -87,6 +160,8 @@ namespace glimmer {
                     return "FRAME_RATE";
                 case LogLabel::MOVE:
                     return "MOVE";
+                case LogLabel::PHYSICS:
+                    return "PHYSICS";
             }
             return "UNKNOWN";
         }
@@ -189,16 +264,44 @@ namespace glimmer {
             localizer_.store(nullptr);
         }
 
+        /**
+         * Set the directory that receives the debug log files. Must be called
+         * before logging starts; the directory is fixed on the first flush.
+         * 设置调试日志文件的存放目录。必须在日志开始前调用；首次刷写时该目录即被固定。
+         */
+        static void SetLogPath(const std::string_view path) {
+#if !defined(NDEBUG)
+            logPath_ = std::string(path);
+#endif
+        }
+
+        /**
+         * Write the accumulated log buffer to a timestamped file under runtime/.logs.
+         * This is a debug-only feature; it is a no-op in release builds (NDEBUG).
+         * The buffer is also flushed incrementally once it exceeds LOG_FLUSH_THRESHOLD bytes;
+         * this method writes out whatever remains at shutdown.
+         * 将累积的日志缓冲区写出到 runtime/.logs 下的时间戳命名文件中。
+         * 该功能仅调试构建有效；发布构建（NDEBUG）下为空操作。
+         * 当缓冲区超过 LOG_FLUSH_THRESHOLD 字节时也会增量刷写，本方法在程序关闭时写出剩余内容。
+         */
+        static void WriteToFile() {
+#if !defined(NDEBUG)
+            std::lock_guard lock(logMutex_);
+            FlushToFileLocked();
+#endif
+        }
+
         template<typename... Args>
         static void i([[maybe_unused]] const LogLabel label, [[maybe_unused]] std::string_view key,
                       [[maybe_unused]] std::string_view fallback, [[maybe_unused]] Args &&... args) {
 #if  !defined(NDEBUG)
             const std::string message = Format(key, fallback, std::forward<Args>(args)...);
+            const std::string line = Timestamp("i", label) + " " + message;
+            AppendToBuffer(line);
 #ifdef __ANDROID__
-            __android_log_print(ANDROID_LOG_INFO, "GlimmerWorks", "%s %s", Timestamp("i", label).c_str(),
-                                message.c_str());
+            __android_log_print(ANDROID_LOG_INFO, "GlimmerWorks", "%s", line.c_str());
 #else
-            std::cout << COLOR_INFO << Timestamp("i", label) << " " << message << COLOR_RESET << std::endl;
+            std::cout << COLOR_INFO << line << COLOR_RESET << std::endl;
 #endif
 #endif
         }
@@ -208,11 +311,12 @@ namespace glimmer {
                       [[maybe_unused]] std::string_view fallback, [[maybe_unused]] Args &&... args) {
 #if  !defined(NDEBUG)
             const std::string message = Format(key, fallback, std::forward<Args>(args)...);
+            const std::string line = Timestamp("d", label) + " " + message;
+            AppendToBuffer(line);
 #ifdef __ANDROID__
-            __android_log_print(ANDROID_LOG_DEBUG, "GlimmerWorks", "%s %s", Timestamp("d", label).c_str(),
-                                message.c_str());
+            __android_log_print(ANDROID_LOG_DEBUG, "GlimmerWorks", "%s", line.c_str());
 #else
-            std::cout << COLOR_DEBUG << Timestamp("d", label) << " " << message << COLOR_RESET << std::endl;
+            std::cout << COLOR_DEBUG << line << COLOR_RESET << std::endl;
 #endif
 #endif
         }
@@ -223,16 +327,13 @@ namespace glimmer {
                       [[maybe_unused]] std::string_view fallback, [[maybe_unused]] Args &&... args) {
 #if  !defined(NDEBUG)
             const std::string message = Format(key, fallback, std::forward<Args>(args)...);
+            const std::string line = Timestamp("w", label) + " At " + sourceLocation.file_name() + ":" +
+                                     std::to_string(sourceLocation.line()) + " " + message;
+            AppendToBuffer(line);
 #ifdef __ANDROID__
-            std::ostringstream oss;
-            oss << Timestamp("w", label) << " At " << sourceLocation.file_name() << ":" << sourceLocation.line()
-                    << " " << message;
-            __android_log_print(ANDROID_LOG_WARN, "GlimmerWorks", "%s", oss.str().c_str());
+            __android_log_print(ANDROID_LOG_WARN, "GlimmerWorks", "%s", line.c_str());
 #else
-            std::cout << COLOR_WARN;
-            std::cout << Timestamp("w", label) << " At " << sourceLocation.file_name() << ":" << sourceLocation.line()
-                    << " " << message;
-            std::cout << COLOR_RESET << std::endl;
+            std::cout << COLOR_WARN << line << COLOR_RESET << std::endl;
 #endif
 #endif
         }
@@ -245,16 +346,15 @@ namespace glimmer {
         static void e(const LogLabel label, const std::source_location sourceLocation, std::string_view key,
                       std::string_view fallback, Args &&... args) {
             const std::string message = Format(key, fallback, std::forward<Args>(args)...);
+            const std::string line = Timestamp("e", label) + " At " + sourceLocation.file_name() + ":" +
+                                     std::to_string(sourceLocation.line()) + " " + message;
+#if  !defined(NDEBUG)
+            AppendToBuffer(line);
+#endif
 #ifdef __ANDROID__
-            std::ostringstream oss;
-            oss << Timestamp("e", label) << " At " << sourceLocation.file_name() << ":" << sourceLocation.line()
-                    << " " << message;
-            __android_log_print(ANDROID_LOG_ERROR, "GlimmerWorks", "%s", oss.str().c_str());
+            __android_log_print(ANDROID_LOG_ERROR, "GlimmerWorks", "%s", line.c_str());
 #else
-            std::cout << COLOR_ERROR;
-            std::cout << Timestamp("e", label) << " At " << sourceLocation.file_name() << ":" << sourceLocation.line()
-                    << " " << message;
-            std::cout << COLOR_RESET << std::endl;
+            std::cout << COLOR_ERROR << line << COLOR_RESET << std::endl;
 #endif
 #if  !defined(NDEBUG)
             assert(false);
@@ -271,16 +371,17 @@ namespace glimmer {
                                 std::string_view fallback,
                                 Args &&... args) {
             const std::string message = Format(key, fallback, std::forward<Args>(args)...);
+            const std::string line = Timestamp("e-" + std::to_string(static_cast<uint32_t>(errorCode)), label) + " At "
+                                     +
+                                     sourceLocation.file_name() + ":" + std::to_string(sourceLocation.line()) + " " +
+                                     message;
+#if  !defined(NDEBUG)
+            AppendToBuffer(line);
+#endif
 #ifdef __ANDROID__
-            std::ostringstream oss;
-            oss << Timestamp("e", label) << " At " << sourceLocation.file_name() << ":" << sourceLocation.line()
-                    << " " << message;
-            __android_log_print(ANDROID_LOG_ERROR, "GlimmerWorks", "%s", oss.str().c_str());
+            __android_log_print(ANDROID_LOG_ERROR, "GlimmerWorks", "%s", line.c_str());
 #else
-            std::cout << COLOR_ERROR;
-            std::cout << Timestamp("e-" + std::to_string(static_cast<uint32_t>(errorCode)), label) << " At " <<
-                    sourceLocation.file_name() << ":" << sourceLocation.line() << " " << message;
-            std::cout << COLOR_RESET << std::endl;
+            std::cout << COLOR_ERROR << line << COLOR_RESET << std::endl;
 #endif
 #if  !defined(NDEBUG)
             assert(false);

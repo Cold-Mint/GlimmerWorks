@@ -33,6 +33,7 @@ namespace glimmer {
         std::vector<GameEntityID> entities_;
         std::unique_ptr<PhysicsSolver> physicsSolver_;
         EntityManager *entityManager_ = nullptr;
+        ChunkManager *chunkManager_ = nullptr;
         uint32_t colliderCount_ = 0;
         uint32_t transform2dCount_ = 0;
 

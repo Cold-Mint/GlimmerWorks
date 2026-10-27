@@ -29,6 +29,8 @@
 #include "core/math/WorldAABB.h"
 
 namespace glimmer {
+    class ChunkManager;
+
     class IHorizontalPhysicsSolver {
     public:
         virtual ~IHorizontalPhysicsSolver() = default;
@@ -36,10 +38,12 @@ namespace glimmer {
         /**
          * Solve the x-direction
          * 解算x方向
+         * @param chunkManager chunkManager 区块管理器
          * @param box box 碰撞盒
          * @param velocityX velocityX x 方向速度
          * @return The solve result. 解算结果。
          */
-        virtual SolveResult SolveXDirection(const WorldAABB &box, float velocityX) = 0;
+        virtual SolveResult SolveXDirection(const ChunkManager *chunkManager, const WorldAABB &box,
+                                            float velocityX) = 0;
     };
 }

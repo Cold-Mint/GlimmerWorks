@@ -5,7 +5,10 @@ config_version = 1
 runtime_path = "runtime"
 # Cache storage path (compiled shader binaries, etc.)
 # 缓存存放路径（编译后的着色器二进制等）
-cache_path = ".cache"
+cache_path = "runtime/.cache"
+#Log storage path
+#日志存放路径
+log_path = "runtime/.logs"
 
 [window]
 # Window width (pixels)

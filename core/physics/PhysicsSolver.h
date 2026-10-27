@@ -31,6 +31,7 @@
 #include "IVerticalPhysicsSolver.h"
 
 namespace glimmer {
+    class TileLayerComponent;
     class ChunkManager;
     class ColliderComponent;
     class Transform2DComponent;
@@ -48,6 +49,6 @@ namespace glimmer {
 
         void SetVerticalPhysicsSolver(std::unique_ptr<IVerticalPhysicsSolver> verticalPhysicsSolver);
 
-        void Solver(const ChunkManager* chunkManager,const ColliderComponent *colliderComponent, Transform2DComponent *transform2dComponent);
+        void Solver(const ChunkManager* chunkManager, ColliderComponent *colliderComponent, Transform2DComponent *transform2dComponent);
     };
 }

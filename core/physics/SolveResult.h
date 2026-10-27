@@ -42,5 +42,13 @@ namespace glimmer {
         // Only valid when blocked is true.
         // 挡住移动的那个瓦片的坐标。仅在 blocked 为 true 时有效。
         TileVector2D hitTile{0, 0};
+
+        // The corrected velocity along this axis (zeroed when blocked).
+        // 该轴修正后的速度（被挡则为 0）。
+        float velocity = 0.0F;
+
+        // Whether the body landed on a surface this tick (vertical solver only).
+        // 本 tick 是否落地（仅竖直求解器设置）。
+        bool grounded = false;
     };
 }

@@ -39,6 +39,8 @@ namespace glimmer {
         //帧率相关
         FRAME_RATE,
         //移动相关
-        MOVE
+        MOVE,
+        //物理解算相关
+        PHYSICS
     };
 }

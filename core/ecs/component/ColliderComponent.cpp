@@ -48,7 +48,7 @@ float glimmer::ColliderComponent::GetHalfHeight() const {
 }
 
 glimmer::WorldAABB glimmer::ColliderComponent::GetAABB(const WorldVector2D &center) const {
-    return WorldAABB{center, halfWidth_, halfHeight_};
+    return WorldAABB{.center = center, .halfWidth = halfWidth_, .halfHeight = halfHeight_};
 }
 
 void glimmer::ColliderComponent::SetVelocity(const WorldVector2D &velocity) {

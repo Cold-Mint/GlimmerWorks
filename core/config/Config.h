@@ -142,12 +142,17 @@ namespace glimmer {
         Mods mods{};
         Audio audio{};
         Window window{};
-        std::string runtimePath;
+        std::string runtimePath = "runtime";
         /**
      * Cache storage path (compiled shader binaries, etc.).
      * 缓存存放路径（编译后的着色器二进制等）。
      */
-        std::string cachePath = ".cache";
+        std::string cachePath = "runtime/.cache";
+        /**
+     * Log storage path (debug log files).
+     * 日志存放路径（调试日志文件）。
+     */
+        std::string logPath = "runtime/.logs";
         std::vector<CommandHookResource> commandHooks;
 #if  !defined(NDEBUG)
         Debug debug{};

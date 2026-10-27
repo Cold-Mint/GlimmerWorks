@@ -44,14 +44,20 @@ int main() {
         PROJECT_NAME.c_str(), GAME_VERSION_STRING,
         APP_PACKNAME);
     StringUtils::InitStringToResourceTypeMap();
-    AppContext appContext;
-    if (!appContext.InitSystem()) {
-        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "app_context_init_failed",
-                  "appContext Init failed");
-        return EXIT_FAILURE;
+    {
+        AppContext appContext;
+        if (!appContext.InitSystem()) {
+            LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "app_context_init_failed",
+                      "appContext Init failed");
+            LogCat::WriteToFile();
+            return EXIT_FAILURE;
+        }
+        App app(&appContext);
+        app.Run();
     }
-    App app(&appContext);
-    app.Run();
+    //Write the accumulated debug logs to runtime/.logs/<timestamp>.log on shutdown.
+    //程序关闭时把累积的调试日志写出到 runtime/.logs/<timestamp>.log。
+    LogCat::WriteToFile();
     return EXIT_SUCCESS;
 }
 

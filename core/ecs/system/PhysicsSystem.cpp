@@ -31,6 +31,7 @@
 #include "core/log/LogCat.h"
 #include "core/physics/HorizontalPhysicsSolver.h"
 #include "core/physics/PhysicsSolver.h"
+#include "core/physics/VerticalPhysicsSolver.h"
 #include "core/world/WorldContext.h"
 
 void glimmer::PhysicsSystem::OnWatchedComponentChanged(const GameComponentTypeMessage gameComponentType,
@@ -44,6 +45,8 @@ void glimmer::PhysicsSystem::OnWatchedComponentChanged(const GameComponentTypeMe
     if (colliderCount_ > 0 && transform2dCount_ > 0) {
         entities_.clear();
         entities_ = entityManager_->GetEntityIDWithComponents({COMPONENT_COLLIDER_2D, COMPONENT_TRANSFORM_2D});
+        LogCat::d(LogLabel::PHYSICS, "physics_entities_rebuilt",
+                  "Physics entities rebuilt: {} entities", entities_.size());
     }
 }
 
@@ -61,7 +64,7 @@ void glimmer::PhysicsSystem::OnTick(const uint64_t tick) {
         if (transform == nullptr) {
             continue;
         }
-        // physicsSolver_->Solver(collider, transform);
+        physicsSolver_->Solver(chunkManager_, collider, transform);
     }
 }
 
@@ -69,6 +72,8 @@ glimmer::PhysicsSystem::PhysicsSystem(WorldContext *worldContext) : GameSystem(w
     entityManager_ = worldContext->GetEntityManager();
     physicsSolver_ = std::make_unique<PhysicsSolver>();
     physicsSolver_->SetHorizontalPhysicsSolver(std::make_unique<HorizontalPhysicsSolver>());
+    physicsSolver_->SetVerticalPhysicsSolver(std::make_unique<VerticalPhysicsSolver>());
+    chunkManager_ = worldContext->GetChunkManager();
     WatchComponent(COMPONENT_COLLIDER_2D);
     WatchComponent(COMPONENT_TRANSFORM_2D);
     Init();

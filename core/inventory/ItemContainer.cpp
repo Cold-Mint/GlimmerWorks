@@ -42,7 +42,7 @@ void glimmer::ItemContainer::BindItemEvent(uint8_t index, std::unique_ptr<Item> 
     InvokeOnContentChanged(index, item.get(), ContainerChangeType::STACK_CREATE);
     if (ItemStackModule *itemStackModule = item->GetMutableStackModule(); itemStackModule != nullptr) {
         itemStackModule->SetOnAmountChanged(
-            [this,index, &item](const ContainerChangeType changeType, const uint8_t amount) {
+            [this,index, &item](const ContainerChangeType changeType, const uint16_t amount) {
                 InvokeOnContentChanged(index, item.get(), changeType);
                 if (amount == 0) {
                     UnBindItemEvent(item.get());
@@ -126,7 +126,7 @@ void glimmer::ItemContainer::CacheItemTag(Item *item) {
     if (itemStackModule == nullptr) {
         return;
     }
-    const uint8_t amount = itemStackModule->GetAmount();
+    const uint16_t amount = itemStackModule->GetAmount();
     if (amount == 0) {
         return;
     }
@@ -277,7 +277,7 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::AddItem(std::unique_ptr<I
             ++index;
             continue;
         }
-        const uint8_t remainingStackCount = currentItemStackModule->GetRemainingStackCount();
+        const uint16_t remainingStackCount = currentItemStackModule->GetRemainingStackCount();
         if (remainingStackCount == 0) {
             LogCat::d(LogLabel::DEFAULT, "slot_no_stack_space", "Slot[{}] no stack space. itemId:{}",
                       static_cast<int>(index),
@@ -289,7 +289,7 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::AddItem(std::unique_ptr<I
                   static_cast<int>(index),
                   static_cast<int>(remainingStackCount), currentItem->GetId());
 
-        const uint8_t stackedAmount = currentItemStackModule->AddAmount(newItemStackModule->GetAmount());
+        const uint16_t stackedAmount = currentItemStackModule->AddAmount(newItemStackModule->GetAmount());
         if (stackedAmount == 0) {
             LogCat::d(LogLabel::DEFAULT, "slot_stacked_amount_zero", "Slot[{}] stackedAmount = 0, skip",
                       static_cast<int>(index));
@@ -368,7 +368,7 @@ bool glimmer::ItemContainer::HasTag(uint64_t tag) {
     return tagToValue_.contains(tag);
 }
 
-uint8_t glimmer::ItemContainer::GetRemainingItemAmountAfterAdd(const Item *item) const {
+uint16_t glimmer::ItemContainer::GetRemainingItemAmountAfterAdd(const Item *item) const {
     if (item == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "item_is_null", "item == nullptr");
         return 0;
@@ -379,7 +379,7 @@ uint8_t glimmer::ItemContainer::GetRemainingItemAmountAfterAdd(const Item *item)
                   "itemStackModule == nullptr");
         return 0;
     }
-    uint8_t remainingAmount = itemStackModule->GetAmount();
+    uint16_t remainingAmount = itemStackModule->GetAmount();
     for (const auto &slot: items_) {
         if (remainingAmount == 0) {
             break;
@@ -395,7 +395,7 @@ uint8_t glimmer::ItemContainer::GetRemainingItemAmountAfterAdd(const Item *item)
         if (currentStackModule == nullptr) {
             return 0;
         }
-        const uint8_t remainingStackCount = currentStackModule->GetRemainingStackCount();
+        const uint16_t remainingStackCount = currentStackModule->GetRemainingStackCount();
         if (remainingStackCount == 0) {
             continue;
         }
@@ -429,7 +429,7 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::ReplaceItem(const uint8_t
     return oldItem;
 }
 
-uint8_t glimmer::ItemContainer::RemoveItem(std::string_view id, const uint8_t amount) const {
+uint16_t glimmer::ItemContainer::RemoveItem(std::string_view id, const uint16_t amount) const {
     int unallocatedCount = amount;
     LogCat::d(LogLabel::DEFAULT, "container_remove_item", "RemoveItem start. itemId={} requestAmount={}", id,
               static_cast<int>(amount));
@@ -443,7 +443,7 @@ uint8_t glimmer::ItemContainer::RemoveItem(std::string_view id, const uint8_t am
             if (itemStackModule == nullptr) {
                 continue;
             }
-            const uint8_t actualAmount = itemStackModule->RemoveAmount(unallocatedCount);
+            const uint16_t actualAmount = itemStackModule->RemoveAmount(unallocatedCount);
             if (actualAmount == 0) {
                 continue;
             }
@@ -453,7 +453,7 @@ uint8_t glimmer::ItemContainer::RemoveItem(std::string_view id, const uint8_t am
             }
         }
     }
-    const uint8_t removedCount = static_cast<uint8_t>(amount - unallocatedCount);
+    const uint16_t removedCount = static_cast<uint16_t>(amount - unallocatedCount);
     LogCat::d(LogLabel::DEFAULT, "container_remove_item_complete", "RemoveItem complete. itemId={} removed={}", id,
               static_cast<int>(removedCount));
     return removedCount;
@@ -470,7 +470,7 @@ uint8_t glimmer::ItemContainer::GetUsedCapacity() const {
     return count;
 }
 
-uint8_t glimmer::ItemContainer::RemoveItemAt(const uint8_t index, const uint8_t amount) const {
+uint16_t glimmer::ItemContainer::RemoveItemAt(const uint8_t index, const uint16_t amount) const {
     if (index >= items_.size() || items_[index] == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "container_remove_item_at_invalid",
                   "RemoveItemAt invalid: index out of range or empty slot. index={} size={}",
@@ -510,7 +510,7 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::TakeAllItem(const uint8_t
     return item;
 }
 
-std::unique_ptr<glimmer::Item> glimmer::ItemContainer::TakeItem(const uint8_t index, const uint8_t amount) const {
+std::unique_ptr<glimmer::Item> glimmer::ItemContainer::TakeItem(const uint8_t index, const uint16_t amount) const {
     if (index >= items_.size()) {
         return nullptr;
     }
@@ -526,7 +526,7 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::TakeItem(const uint8_t in
     if (itemStackModule == nullptr) {
         return nullptr;
     }
-    const uint8_t removedAmount = itemStackModule->RemoveAmount(amount);
+    const uint16_t removedAmount = itemStackModule->RemoveAmount(amount);
     if (removedAmount == 0) {
         return nullptr;
     }

@@ -32,15 +32,15 @@
 
 namespace glimmer {
     class ItemStackModule {
-        std::function<void(ContainerChangeType, uint8_t)> onAmountChanged_ = nullptr;
-        uint8_t amount_ = 1;
-        uint8_t maxStack_ = 1;
+        std::function<void(ContainerChangeType, uint16_t)> onAmountChanged_ = nullptr;
+        uint16_t amount_ = 1;
+        uint16_t maxStack_ = 1;
         bool stackable_ = false;
 
     public:
-        [[nodiscard]] uint8_t GetAmount() const;
+        [[nodiscard]] uint16_t GetAmount() const;
 
-        [[nodiscard]] uint8_t GetMaxStack() const;
+        [[nodiscard]] uint16_t GetMaxStack() const;
 
         [[nodiscard]] bool IsStackable() const;
 
@@ -49,7 +49,7 @@ namespace glimmer {
          * 获取剩余的可堆叠数量。
          * @return
          */
-        [[nodiscard]] uint8_t GetRemainingStackCount() const;
+        [[nodiscard]] uint16_t GetRemainingStackCount() const;
 
         /**
          * AddAmount
@@ -57,7 +57,7 @@ namespace glimmer {
          * @param amount amount 数量
          * @return The number of successful additions. If it is 0, it indicates that no additions were made. 成功添加的数量，如果为0表示未添加。
          */
-        uint8_t AddAmount(uint8_t amount);
+        uint16_t AddAmount(uint16_t amount);
 
         /**
          * RemoveAmount
@@ -65,12 +65,12 @@ namespace glimmer {
          * @param amount amount 数量
          * @return The number of successful deductions, if it is 0, indicates a failure in the deduction process. 成功扣除的数量，如果为0表示扣除失败。
          */
-        uint8_t RemoveAmount(uint8_t amount);
+        uint16_t RemoveAmount(uint16_t amount);
 
-        void SetAmount(uint8_t amount);
+        void SetAmount(uint16_t amount);
 
-        void SetMaxStack(uint8_t maxStack);
+        void SetMaxStack(uint16_t maxStack);
 
-        void SetOnAmountChanged(const std::function<void(ContainerChangeType, uint8_t)> &onAmountChanged);
+        void SetOnAmountChanged(const std::function<void(ContainerChangeType, uint16_t)> &onAmountChanged);
     };
 }

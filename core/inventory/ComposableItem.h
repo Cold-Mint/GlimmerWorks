@@ -94,7 +94,7 @@ namespace glimmer {
 
         [[nodiscard]] std::unique_ptr<Item> ReplaceItem(uint8_t index, std::unique_ptr<Item> item) const;
 
-        [[nodiscard]] uint8_t RemoveItemAbility(const std::string &id, uint8_t amount) const;
+        [[nodiscard]] uint16_t RemoveItemAbility(const std::string &id, uint16_t amount) const;
 
         [[nodiscard]] const AbilityConfig *GetAbilityConfig() const override;
 

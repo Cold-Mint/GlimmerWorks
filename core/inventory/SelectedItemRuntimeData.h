@@ -33,7 +33,7 @@ namespace glimmer {
         uint8_t slotIndex_ = 0;
         //selectedAmount
         //选中的数量
-        uint8_t selectedAmount_ = 0;
+        uint16_t selectedAmount_ = 0;
 
     public:
         void SetItem(Item *item);
@@ -42,9 +42,9 @@ namespace glimmer {
 
         [[nodiscard]] uint8_t GetSlotIndex() const;
 
-        [[nodiscard]] uint8_t GetSelectedAmount() const;
+        [[nodiscard]] uint16_t GetSelectedAmount() const;
 
-        void SetSelectedAmount(uint8_t selectedAmount);
+        void SetSelectedAmount(uint16_t selectedAmount);
 
         void SetSlotIndex(uint8_t slotIndex);
     };

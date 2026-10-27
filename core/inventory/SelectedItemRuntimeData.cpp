@@ -38,11 +38,11 @@ uint8_t glimmer::SelectedItemRuntimeData::GetSlotIndex() const {
     return slotIndex_;
 }
 
-uint8_t glimmer::SelectedItemRuntimeData::GetSelectedAmount() const {
+uint16_t glimmer::SelectedItemRuntimeData::GetSelectedAmount() const {
     return selectedAmount_;
 }
 
-void glimmer::SelectedItemRuntimeData::SetSelectedAmount(const uint8_t selectedAmount) {
+void glimmer::SelectedItemRuntimeData::SetSelectedAmount(const uint16_t selectedAmount) {
     selectedAmount_ = selectedAmount;
 }
 

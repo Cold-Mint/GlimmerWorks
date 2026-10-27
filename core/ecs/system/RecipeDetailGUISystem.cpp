@@ -96,7 +96,7 @@ void glimmer::RecipeDetailGUISystem::LoadRecipeDetail() {
         return;
     }
     outputAmount_ = static_cast<int>(currentRecipe_->output.amount);
-    if (uint8_t maxStack = stackModule->GetMaxStack(); maxStack > 0 && outputAmount_ > 0) {
+    if (uint16_t maxStack = stackModule->GetMaxStack(); maxStack > 0 && outputAmount_ > 0) {
         maxCraftCount_ = static_cast<int>(maxStack) / outputAmount_;
         if (maxCraftCount_ < 1) {
             maxCraftCount_ = 1;
@@ -285,7 +285,7 @@ void glimmer::RecipeDetailGUISystem::ExecuteCraftBatch(int count) {
             const ItemStackModule *stackModule = outputItem->GetStackModule();
             if (stackModule != nullptr) {
                 const_cast<ItemStackModule *>(stackModule)->SetAmount(
-                    static_cast<uint8_t>(outputAmount_ * count));
+                    static_cast<uint16_t>(outputAmount_ * count));
             }
             (void) itemContainer_->AddItem(std::move(outputItem));
         }
@@ -372,7 +372,7 @@ void glimmer::RecipeDetailGUISystem::AutoFill() {
                 }
             }
             choice.investedAmount += unitsNeeded;
-            investedItems_[static_cast<uint8_t>(slotIndex)] += static_cast<uint8_t>(unitsNeeded);
+            investedItems_[static_cast<uint8_t>(slotIndex)] += static_cast<uint16_t>(unitsNeeded);
             needed -= unitsNeeded * cand.tagValue;
         }
     }
@@ -600,7 +600,7 @@ void glimmer::RecipeDetailGUISystem::OnItemDecrease(Rml::DataModelHandle handle,
     auto slotIndex = static_cast<uint8_t>(inventoryIndex);
     if (choice->investedAmount <= 0) {
         choice->investedAmount = choice->backpackAmount;
-        investedItems_[slotIndex] = static_cast<uint8_t>(choice->backpackAmount);
+        investedItems_[slotIndex] = static_cast<uint16_t>(choice->backpackAmount);
     } else {
         choice->investedAmount--;
         auto it = investedItems_.find(slotIndex);

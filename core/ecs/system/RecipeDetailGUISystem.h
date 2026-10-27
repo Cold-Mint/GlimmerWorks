@@ -46,7 +46,7 @@ namespace glimmer {
         int maxCraftCount_ = 1;
         bool canCraft_ = false;
 
-        std::unordered_map<uint8_t, uint8_t> investedItems_;
+        std::unordered_map<uint8_t, uint16_t> investedItems_;
 
         void LoadRecipeDetail();
 

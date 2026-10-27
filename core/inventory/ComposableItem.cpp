@@ -73,7 +73,7 @@ std::unique_ptr<glimmer::Item> glimmer::ComposableItem::ReplaceItem(const uint8_
     return itemContainer_->ReplaceItem(index, std::move(item));
 }
 
-uint8_t glimmer::ComposableItem::RemoveItemAbility(const std::string &id, const uint8_t amount) const {
+uint16_t glimmer::ComposableItem::RemoveItemAbility(const std::string &id, const uint16_t amount) const {
     return itemContainer_->RemoveItem(id, amount);
 }
 

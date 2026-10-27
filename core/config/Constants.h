@@ -192,7 +192,7 @@ static constexpr std::string DATA_FILE_TYPE_LIGHT_SOURCE = "light_source";
 static constexpr std::string DATA_FILE_TYPE_RECIPE = "recipe";
 
 
-static constexpr uint8_t ITEM_MAX_STACK = 64;
+static constexpr uint16_t ITEM_MAX_STACK = 65535;
 static constexpr uint8_t HOT_BAR_SIZE = 9;
 static constexpr uint8_t INVENTORY_ROW_COUNT = 4;
 static constexpr DesignDimension MATERIAL_SELECT_CRAFT_PANEL_MIN_WIDTH = 380.0F;

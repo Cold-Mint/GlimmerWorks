@@ -66,7 +66,7 @@ void glimmer::Item::SetTags(const std::vector<ItemTagResource> &tags) {
     }
 }
 
-void glimmer::Item::SetMaxStack(const uint8_t maxStack) {
+void glimmer::Item::SetMaxStack(const uint16_t maxStack) {
     itemStackModule_.SetMaxStack(maxStack);
 }
 
@@ -75,7 +75,7 @@ void glimmer::Item::SetUnbreakable(const bool unbreakable) {
 }
 
 void glimmer::Item::ReadItemMessage(WorldContext *worldContext, const ItemMessage &itemMessage) {
-    uint8_t amount = itemMessage.amount();
+    auto amount = static_cast<uint16_t>(itemMessage.amount());
     if (amount == 0) {
         amount = 1;
     }

@@ -40,7 +40,7 @@ glimmer::TileItem::TileItem(const std::shared_ptr<Tile> &tile, const ResourceRef
     SetResourceRef(resourceRef);
     const TileResourceData &tileResourceData = tile_->GetResourceData();
     SetTags(tileResourceData.GetTags());
-    SetMaxStack(ITEM_MAX_STACK);
+    SetStackable(true);
     SetUnbreakable(true);
     const TileLightResourceData *tileLightResourceData = tile->GetLightResourceData();
     if (tileLightResourceData != nullptr) {

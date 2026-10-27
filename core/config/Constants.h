@@ -190,9 +190,9 @@ static constexpr std::string DATA_FILE_TYPE_FIXED_COLOR = "fixed_color";
 static constexpr std::string DATA_FILE_TYPE_LIGHT_MASK = "light_mask";
 static constexpr std::string DATA_FILE_TYPE_LIGHT_SOURCE = "light_source";
 static constexpr std::string DATA_FILE_TYPE_RECIPE = "recipe";
-
-
-static constexpr uint16_t ITEM_MAX_STACK = 65535;
+//The default maximum stack size per slot for an item container (e.g. the player backpack).
+//物品容器每格的默认最大堆叠数量（例如玩家背包）。
+static constexpr uint16_t DEFAULT_CONTAINER_MAX_STACK = 64;
 static constexpr uint8_t HOT_BAR_SIZE = 9;
 static constexpr uint8_t INVENTORY_ROW_COUNT = 4;
 static constexpr DesignDimension MATERIAL_SELECT_CRAFT_PANEL_MIN_WIDTH = 380.0F;

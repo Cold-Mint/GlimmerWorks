@@ -37,6 +37,8 @@
 #include "core/config/Constants.h"
 
 namespace glimmer {
+    class ItemContainer;
+
     class EntityShortCut {
         CameraComponent *cameraComponent_ = nullptr;
         Transform2DComponent *cameraTransform2DComponent_ = nullptr;
@@ -46,6 +48,7 @@ namespace glimmer {
         AreaMarkerComponent *areaMarkerComponent_ = nullptr;
         ItemToolTipComponent *itemToolTipComponent_ = nullptr;
         RecipeSelectionComponent *recipeSelectionComponent_ = nullptr;
+        ItemContainer *openedStorageContainer_ = nullptr;
         GameEntityID player_ = GAME_ENTITY_ID_INVALID;
 
     public:
@@ -84,5 +87,19 @@ namespace glimmer {
         void SetRecipeSelectionComponent(RecipeSelectionComponent *recipeSelectionComponent);
 
         [[nodiscard]] RecipeSelectionComponent *GetRecipeSelectionComponent() const;
+
+        /**
+         * Set the currently opened storage container (e.g. a chest block).
+         * 设置当前打开的存储容器（例如箱子方块）。
+         * @param container container 容器指针
+         */
+        void SetOpenedStorageContainer(ItemContainer *container);
+
+        /**
+         * Get the currently opened storage container.
+         * 获取当前打开的存储容器。
+         * @return 容器指针，未打开返回 nullptr
+         */
+        [[nodiscard]] ItemContainer *GetOpenedStorageContainer() const;
     };
 }

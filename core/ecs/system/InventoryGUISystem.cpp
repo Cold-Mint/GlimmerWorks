@@ -26,7 +26,11 @@
  */
 #include "InventoryGUISystem.h"
 
+#include <algorithm>
+#include <cctype>
+
 #include "RecipeDetailGUISystem.h"
+#include "RmlUi/Core/Elements/ElementFormControlInput.h"
 #include "core/context/AppContext.h"
 #include "core/context/ModContext.h"
 #include "core/ecs/EntityManager.h"
@@ -41,52 +45,56 @@
 #include "core/world/SystemScheduler.h"
 #include "core/world/WorldContext.h"
 
-glimmer::ItemSlotDataModel *glimmer::InventoryGUISystem::GetItemSlotDataModel(uint8_t index) {
-    const uint8_t size = itemSlots_.size();
-    if (index >= size) {
-        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "item_slot_data_model_is_null",
-                  "itemSlotDataModel == nullptr");
-        return nullptr;
-    }
-    return &itemSlots_[index];
-}
-
-void glimmer::InventoryGUISystem::LoadInitialItems() {
+void glimmer::InventoryGUISystem::RefreshItemSlots() {
+    itemSlots_.clear();
     if (itemContainer_ == nullptr) {
-        LogCat::i(LogLabel::DEFAULT, "load_initial_hotbar_item_container_is_null",
-                  "LoadInitialHotbarItems: itemContainer_ is nullptr");
         return;
     }
-    LogCat::i(LogLabel::DEFAULT, "loading_initial_hotbar_items",
-              "Loading initial hotbar items after data model created...");
-    uint8_t capacity = itemContainer_->GetCapacity();
+    const uint8_t capacity = itemContainer_->GetCapacity();
+    itemSlots_.reserve(capacity);
+    const uint8_t selectIndex = itemContainer_->GetSelectIndex();
     for (uint8_t i = 0; i < capacity; ++i) {
         const Item *item = itemContainer_->GetItem(i);
-        auto dataModel = GetItemSlotDataModel(i);
-        if (dataModel == nullptr) {
+        ItemSlotDataModel slot;
+        slot.index = static_cast<int>(i);
+        slot.selected = i == selectIndex;
+        if (item == nullptr) {
+            //Skip empty slots while filtering so the grid shows a compacted result.
+            //过滤时跳过空格，使网格显示紧凑结果。
+            if (!filter_.empty()) {
+                continue;
+            }
+            slot.image = "";
+            slot.amount = 0;
+            slot.durability = -1;
+            itemSlots_.push_back(std::move(slot));
             continue;
         }
-        dataModel->selected = i == itemContainer_->GetSelectIndex();
-        if (item == nullptr) {
-            dataModel->image = "";
-            dataModel->amount = 0;
-            dataModel->durability = -1;
-        } else {
-            const ResourceRef *iconResourceRef = item->GetIconResourceRef();
-            dataModel->image = StringUtils::MakeTextureUrl(Resource::GenerateId(iconResourceRef->GetPackageId(),
-                iconResourceRef->GetResourceKey()));
-            const ItemStackModule *stackModule = item->GetStackModule();
-            dataModel->amount = stackModule != nullptr ? stackModule->GetAmount() : 1;
-            const ItemDurabilityModule *durabilityModule = item->GetDurabilityModule();
-            dataModel->durability = ItemSlotDataModel::CalculateDurabilityPercentage(
-                durabilityModule->GetMaxDurability(), durabilityModule->GetUsedDurability(),
-                durabilityModule->IsUnbreakable());
+        if (!filter_.empty() && !StringUtils::ContainsIgnoreCase(item->GetName(), filter_)) {
+            continue;
         }
+        const ResourceRef *iconResourceRef = item->GetIconResourceRef();
+        if (iconResourceRef != nullptr && iconResourceRef->IsValid()) {
+            slot.image = StringUtils::MakeTextureUrl(
+                Resource::GenerateId(iconResourceRef->GetPackageId(), iconResourceRef->GetResourceKey()));
+        } else {
+            slot.image = "";
+        }
+        const ItemStackModule *stackModule = item->GetStackModule();
+        slot.amount = stackModule != nullptr ? stackModule->GetAmount() : 1;
+        const ItemDurabilityModule *durabilityModule = item->GetDurabilityModule();
+        slot.durability = ItemSlotDataModel::CalculateDurabilityPercentage(
+            durabilityModule->GetMaxDurability(), durabilityModule->GetUsedDurability(),
+            durabilityModule->IsUnbreakable());
+        itemSlots_.push_back(std::move(slot));
     }
     if (constructor_ != nullptr) {
         constructor_->GetModelHandle().DirtyVariable("item_slots");
-        LogCat::i(LogLabel::DEFAULT, "item_slots_variable_dirtied", "item_slots variable dirtied");
     }
+}
+
+void glimmer::InventoryGUISystem::ApplyFilter() {
+    RefreshItemSlots();
 }
 
 void glimmer::InventoryGUISystem::RefreshRecipeList() {
@@ -214,51 +222,12 @@ void glimmer::InventoryGUISystem::OnWatchedComponentChanged(GameComponentTypeMes
                   "itemContainer == nullptr");
         return;
     }
-    itemSlots_.resize(itemContainer_->GetCapacity());
     callback_ = itemContainer_->AddOnContentChanged(
-        [this](const uint8_t index, const Item *item, const ContainerChangeType changeType) {
-            const auto dataModel = GetItemSlotDataModel(index);
-            if (dataModel == nullptr) {
-                LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "data_model_is_null",
-                          "dataModel == nullptr");
-                return;
-            }
-            if (changeType == ContainerChangeType::STACK_DESTROY ||
-                changeType == ContainerChangeType::STACK_AMOUNT_EXHAUSTED ||
-                changeType == ContainerChangeType::STACK_DURABILITY_EXHAUSTED) {
-                dataModel->image = "";
-                dataModel->amount = 0;
-                dataModel->durability = -1;
-            } else {
-                const auto stackModule = item->GetStackModule();
-                auto amount = 0;
-                if (stackModule != nullptr) {
-                    amount = stackModule->GetAmount();
-                }
-                if (amount == 0) {
-                    dataModel->image = "";
-                    dataModel->amount = 0;
-                    dataModel->durability = -1;
-                } else {
-                    if (const ResourceRef *iconResourceRef = item->GetIconResourceRef();
-                        iconResourceRef == nullptr || !iconResourceRef->IsValid()) {
-                        dataModel->image = "";
-                    } else {
-                        dataModel->image = StringUtils::MakeTextureUrl(
-                            Resource::GenerateId(iconResourceRef->GetPackageId(), iconResourceRef->GetResourceKey()));
-                    }
-                    dataModel->amount = amount;
-                    const ItemDurabilityModule *durabilityModule = item->GetDurabilityModule();
-                    dataModel->durability = ItemSlotDataModel::CalculateDurabilityPercentage(
-                        durabilityModule->GetMaxDurability(), durabilityModule->GetUsedDurability(),
-                        durabilityModule->IsUnbreakable());
-                }
-            }
-            if (constructor_ != nullptr) {
-                constructor_->GetModelHandle().DirtyVariable("item_slots");
-            }
+        [this](const uint8_t, const Item *, const ContainerChangeType) {
+            RefreshItemSlots();
             RefreshRecipeList();
         });
+    RefreshItemSlots();
 }
 
 glimmer::InventoryGUISystem::InventoryGUISystem(WorldContext *worldContext)
@@ -285,7 +254,9 @@ void glimmer::InventoryGUISystem::OnCreateDataModels(IDocumentRegistry *document
     constructor_->BindEventCallback("on_item_out", &InventoryGUISystem::OnItemOut, this);
     constructor_->BindEventCallback("on_recipe_hover", &InventoryGUISystem::OnRecipeHover, this);
     constructor_->BindEventCallback("on_recipe_out", &InventoryGUISystem::OnItemOut, this);
-    LoadInitialItems();
+    constructor_->BindEventCallback("on_sort_click", &InventoryGUISystem::OnSortClick, this);
+    constructor_->BindEventCallback("on_filter_change", &InventoryGUISystem::OnFilterChange, this);
+    RefreshItemSlots();
 }
 
 void glimmer::InventoryGUISystem::SetupDragAndDrop() {
@@ -329,6 +300,11 @@ void glimmer::InventoryGUISystem::SetupDragAndDrop() {
 void glimmer::InventoryGUISystem::OnActivationChanged(bool activeStatus) {
     GuiStackGameSystem::OnActivationChanged(activeStatus);
     if (activeStatus) {
+        filter_.clear();
+        if (searchInputElement_ != nullptr) {
+            searchInputElement_->SetValue("");
+        }
+        RefreshItemSlots();
         RefreshRecipeList();
     }
 }
@@ -348,6 +324,12 @@ void glimmer::InventoryGUISystem::LoadDocuments(IDocumentRegistry *documentRegis
     resourceRef.SetResourceKey("inventory/inventory");
     SetAndHideElementDocument(documentRegistry->LoadSingleDocument(&resourceRef));
     SetupDragAndDrop();
+    Rml::ElementDocument *document = GetElementDocument();
+    if (document != nullptr) {
+        if (Rml::Element *searchInput = document->GetElementById("search_input"); searchInput != nullptr) {
+            searchInputElement_ = rmlui_dynamic_cast<Rml::ElementFormControlInput *>(searchInput);
+        }
+    }
 }
 
 void glimmer::InventoryGUISystem::OnRecipeClick(Rml::DataModelHandle handle, Rml::Event &event,
@@ -414,4 +396,20 @@ void glimmer::InventoryGUISystem::OnRecipeHover(Rml::DataModelHandle handle, Rml
         return;
     }
     itemToolTipComponent_->SetItem(recipeOutputItems_[index].get());
+}
+
+void glimmer::InventoryGUISystem::OnSortClick(Rml::DataModelHandle handle, Rml::Event &event,
+                                              const Rml::VariantList &args) {
+    if (itemContainer_ != nullptr) {
+        itemContainer_->Sort();
+    }
+}
+
+void glimmer::InventoryGUISystem::OnFilterChange(Rml::DataModelHandle handle, Rml::Event &event,
+                                                 const Rml::VariantList &args) {
+    if (searchInputElement_ == nullptr) {
+        return;
+    }
+    filter_ = searchInputElement_->GetAttribute<Rml::String>("value", "");
+    ApplyFilter();
 }

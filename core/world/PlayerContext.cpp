@@ -195,6 +195,7 @@ void glimmer::PlayerContext::InitPlayerInventory(const uint32_t playerEntity) co
         return;
     }
     itemContainer->Resize(HOT_BAR_SIZE * INVENTORY_ROW_COUNT);
+    itemContainer->SetMaxStackPerSlot(DEFAULT_CONTAINER_MAX_STACK);
     const auto &allInitialInventory = worldContext_->GetAppContext()->GetModContext()->GetInitialInventoryManager()->
             GetAllInitialInventory();
     const auto *playerTransform = entityManager->GetComponent<Transform2DComponent>(playerEntity);

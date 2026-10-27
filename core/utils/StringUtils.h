@@ -71,6 +71,24 @@ namespace glimmer {
         static uint64_t StringToUint64Blake3(const std::string &string);
 
         /**
+         * ToLower
+         * 转小写
+         * @param text text 文本
+         * @return string 小写文本
+         */
+        static std::string ToLower(std::string text);
+
+
+        /**
+         * Check if haystack contains substring needle, case-insensitive.
+         * 判断字符串 haystack 里是否包含子串 needle，且比较时忽略大小写
+         * @param haystack haystack 被搜索的原字符串
+         * @param needle needle 要查找的子串
+         * @return
+         */
+        static bool ContainsIgnoreCase(const std::string &haystack, const std::string &needle);
+
+        /**
          * MakeTag
          * 字符串转Tag资源
          * @param name

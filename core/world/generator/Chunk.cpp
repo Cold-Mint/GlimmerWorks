@@ -28,6 +28,9 @@
 
 #include <utility>
 
+#include "core/ecs/EntityManager.h"
+#include "core/ecs/component/ItemContainerComponent.h"
+#include "core/inventory/ItemContainer.h"
 #include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/utils/RandomUtils.h"
@@ -396,6 +399,44 @@ void glimmer::Chunk::WriteChunkMessage(ChunkMessage &chunkMessage) {
     chunkMessage.clear_tilestates();
     LogCat::d(LogLabel::CHUNK, "chunk_write_message", "Writing chunk message: position=({}, {})", position_.x,
               position_.y);
+    //Sync the live storage container of each storage block into its tile state before saving.
+    //存档前把每个存储方块的活动容器同步进其瓦片状态。
+    if (worldContext_ != nullptr) {
+        if (EntityManager *entityManager = worldContext_->GetEntityManager(); entityManager != nullptr) {
+            for (const auto &[layerType, tileArray]: tiles_) {
+                const auto tileStateIt = tileState_.find(layerType);
+                if (tileStateIt == tileState_.end()) {
+                    continue;
+                }
+                for (size_t index = 0; index < CHUNK_AREA; ++index) {
+                    const std::shared_ptr<Tile> &tile = tileArray[index];
+                    if (tile == nullptr || !tile->IsStorageBlock()) {
+                        continue;
+                    }
+                    const std::shared_ptr<TileStateMessage> &tileStatePtr = tileStateIt->second[index];
+                    if (tileStatePtr == nullptr) {
+                        continue;
+                    }
+                    const auto relative = CoordinateTransformer::IndexToVector2D<ChunkRelativeVector2D>(index,
+                        CHUNK_MASK, CHUNK_SHIFT);
+                    const GameEntityID entityId = tile->GetGameEntity(
+                        CoordinateTransformer::ChunkRelativeToTile(position_, relative));
+                    if (WorldContext::IsEmptyEntityId(entityId)) {
+                        continue;
+                    }
+                    const auto *containerComponent = entityManager->GetComponent<ItemContainerComponent>(entityId);
+                    if (containerComponent == nullptr) {
+                        continue;
+                    }
+                    const ItemContainer *container = containerComponent->GetItemContainer();
+                    if (container == nullptr) {
+                        continue;
+                    }
+                    container->ToMessage(*tileStatePtr->mutable_itemcontainer());
+                }
+            }
+        }
+    }
     for (const auto &[layerType, tileArray]: tileState_) {
         auto &tileData =
                 (*chunkMessage.mutable_tilestates())[std::to_underlying(layerType)];

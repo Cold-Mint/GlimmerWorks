@@ -69,7 +69,7 @@ namespace glimmer {
 
         void SetTags(const std::vector<ItemTagResource> &tags);
 
-        void SetMaxStack(uint16_t maxStack);
+        void SetStackable(bool stackable);
 
         void SetUnbreakable(bool unbreakable);
 

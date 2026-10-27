@@ -26,7 +26,6 @@
 #include "InventoryGUISystem.h"
 #include "core/context/AppContext.h"
 #include "core/ecs/EntityManager.h"
-#include "core/ecs/component/PlayerComponent.h"
 #include "core/log/LogCat.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/utils/StringUtils.h"
@@ -96,7 +95,8 @@ void glimmer::RecipeDetailGUISystem::LoadRecipeDetail() {
         return;
     }
     outputAmount_ = static_cast<int>(currentRecipe_->output.amount);
-    if (uint16_t maxStack = stackModule->GetMaxStack(); maxStack > 0 && outputAmount_ > 0) {
+    if (itemContainer_ != nullptr && outputAmount_ > 0) {
+        const uint16_t maxStack = itemContainer_->GetMaxStackPerSlot();
         maxCraftCount_ = static_cast<int>(maxStack) / outputAmount_;
         if (maxCraftCount_ < 1) {
             maxCraftCount_ = 1;

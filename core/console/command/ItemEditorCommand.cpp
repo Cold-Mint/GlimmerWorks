@@ -137,7 +137,7 @@ std::string glimmer::ItemEditorCommand::GetItemAttribute(const std::string &attr
         }
     } else if (attribute == "max_stack") {
         if (const ItemStackModule *itemStackModule = item->GetMutableStackModule(); itemStackModule != nullptr) {
-            value << static_cast<uint32_t>(itemStackModule->GetMaxStack());
+            value << (itemStackModule->IsStackable() ? 1 : 0);
         }
     } else if (attribute == "locked") {
         if (const ItemLockModule *itemLockModule = item->GetLockModule(); itemLockModule != nullptr) {

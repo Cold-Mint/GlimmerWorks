@@ -573,6 +573,10 @@ namespace glimmer {
         uint8_t technologyLevel = 0;
         //@genNextLine(recipeGroup|配方组)
         uint8_t recipeGroup = 0;
+        //@genNextLine(containerCapacity The storage capacity of the tile. 0 means it cannot store items.|容器容量 瓦片的存储容量（格子数），0表示不可存储物品。)
+        uint8_t containerCapacity = 0;
+        //@genNextLine(containerMaxStack The maximum stack size per slot of the tile container. 0 means the default value.|容器每格最大堆叠 瓦片容器每格的最大堆叠数量，0表示使用默认值。)
+        uint16_t containerMaxStack = 0;
         //@genNextLine(layer|瓦片图层)
         uint8_t layer = 0;
         //@genNextLine(The anchor point type of the tiles. When placing large tiles, the placement position is relative to the anchor point of the tile. The anchor point is based on the player's right side.|瓦片的锚点类型，当放置大型瓦片时放置位置相对于瓦片的锚点，锚点以玩家右侧为准)

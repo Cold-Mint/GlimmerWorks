@@ -31,6 +31,7 @@
 #include <string_view>
 #include "ContainerChangeType.h"
 #include "Item.h"
+#include "core/config/Constants.h"
 #include "src/saves/item_container.pb.h"
 
 namespace glimmer {
@@ -44,6 +45,9 @@ namespace glimmer {
         std::vector<std::shared_ptr<std::function<void(uint8_t)> > > onSelectIndexChanged_;
         bool needRefreshTag_ = true;
         uint8_t selectIndex_ = 0;
+        //The maximum stack size per slot. Determined by the container, not the item.
+        //每格的最大堆叠数量。由容器决定，而非物品。
+        uint16_t maxStackPerSlot_ = DEFAULT_CONTAINER_MAX_STACK;
 
         /**
          * Binding Item Event
@@ -81,6 +85,20 @@ namespace glimmer {
          * @param capacity
          */
         void Resize(uint8_t capacity);
+
+        /**
+         * Get the maximum stack size per slot.
+         * 获取每格最大堆叠数量。
+         * @return
+         */
+        [[nodiscard]] uint16_t GetMaxStackPerSlot() const;
+
+        /**
+         * Set the maximum stack size per slot.
+         * 设置每格最大堆叠数量。
+         * @param maxStackPerSlot
+         */
+        void SetMaxStackPerSlot(uint16_t maxStackPerSlot);
 
         void RemoveOnContentChanged(
             const std::shared_ptr<std::function<void(uint8_t, Item *, ContainerChangeType)> > &onContentChanged);
@@ -121,6 +139,20 @@ namespace glimmer {
         const std::vector<const ItemTagResource *> &GetTotalTags();
 
         bool HasTag(uint64_t tag);
+
+        /**
+         * ContainsId
+         * 判断容器内是否存在指定 id 的物品。
+         * @param id id 物品id
+         * @return 存在返回 true
+         */
+        [[nodiscard]] bool ContainsId(std::string_view id) const;
+
+        /**
+         * Sort
+         * 整理容器：合并同类可堆叠物品，并按本地化名称排序。
+         */
+        void Sort();
 
         /**
          * Get Remaining Item Amount After Add

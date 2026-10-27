@@ -69,6 +69,8 @@ namespace glimmer {
         Vector2DIResource spawnOriginOffset_ = {0, 0};
         uint8_t technologyLevel_ = 0;
         uint8_t recipeGroup_ = 0;
+        uint8_t containerCapacity_ = 0;
+        uint16_t containerMaxStack_ = 0;
         uint8_t collisionMask_ = COLLISION_MASK_SOLID;
         //碰撞箱尺寸（以瓦片为单位），默认 1x1 占满整格。
         Vector2DResource collisionBoxSize_ = {1.0F, 1.0F};
@@ -153,6 +155,35 @@ namespace glimmer {
         [[nodiscard]] bool IsWorkBlock() const;
 
         /**
+         * IsStorageBlock
+         * 是否为存储方块（可持有物品的容器）？
+         * @return
+         */
+        [[nodiscard]] bool IsStorageBlock() const;
+
+        /**
+         * GetContainerCapacity
+         * 获取容器容量（格子数）。
+         * @return
+         */
+        [[nodiscard]] uint8_t GetContainerCapacity() const;
+
+        /**
+         * GetContainerMaxStack
+         * 获取容器每格最大堆叠数量。
+         * @return
+         */
+        [[nodiscard]] uint16_t GetContainerMaxStack() const;
+
+        /**
+         * GetGameEntity
+         * 获取指定位置该瓦片绑定的实体ID。
+         * @param position position 瓦片原点坐标
+         * @return 实体ID，未绑定返回 GAME_ENTITY_ID_INVALID
+         */
+        [[nodiscard]] GameEntityID GetGameEntity(const TileVector2D &position) const;
+
+        /**
          * IsCropsBlock
          * 是否为作物方块？
          * @return
@@ -176,10 +207,10 @@ namespace glimmer {
 
         [[nodiscard]] const std::optional<std::string> &GetDescription() const;
 
-        void OnPlace(const WorldContext *worldContext, PlaceSourceMessage placeSource, const TileVector2D &position,
+        void OnPlace(WorldContext *worldContext, PlaceSourceMessage placeSource, const TileVector2D &position,
                      const TileStateMessage *tileState);
 
-        void OnBreak(const WorldContext *worldContext, BreakSource breakSource, const TileVector2D &position);
+        void OnBreak(WorldContext *worldContext, BreakSource breakSource, const TileVector2D &position);
 
         [[nodiscard]] const TileResourceData &GetResourceData() const;
 

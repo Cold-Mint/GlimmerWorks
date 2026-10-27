@@ -53,6 +53,7 @@
 #include "core/ecs/system/PhysicsSystem.h"
 #include "core/ecs/system/PlayerControlSystem.h"
 #include "core/ecs/system/RecipeDetailGUISystem.h"
+#include "core/ecs/system/StorageGUISystem.h"
 #include "core/ecs/system/SpiritRendererSystem.h"
 #include "core/ecs/system/TechProviderSystem.h"
 #include "core/ecs/system/TileLayerSystem.h"
@@ -392,6 +393,7 @@ void glimmer::SystemScheduler::InitSystem() {
     RegisterGuiSystem(std::make_unique<LoadWorldGuiSystem>(worldContext_));
     RegisterGuiSystem(std::make_unique<InventoryGUISystem>(worldContext_));
     RegisterGuiSystem(std::make_unique<RecipeDetailGUISystem>(worldContext_));
+    RegisterGuiSystem(std::make_unique<StorageGUISystem>(worldContext_));
     RegisterGuiSystem(std::make_unique<ItemTooltipSystem>(worldContext_));
 #if  !defined(NDEBUG)
     RegisterSystem(std::make_unique<DebugDrawSystem>(worldContext_));

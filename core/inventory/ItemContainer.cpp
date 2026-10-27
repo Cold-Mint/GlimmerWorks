@@ -26,6 +26,8 @@
  */
 #include "ItemContainer.h"
 
+#include <algorithm>
+
 #include "AbilityItem.h"
 #include "core/log/LogCat.h"
 #include "core/mod/ResourceLocator.h"
@@ -198,6 +200,14 @@ void glimmer::ItemContainer::Resize(const uint8_t capacity) {
     items_.resize(capacity);
 }
 
+uint16_t glimmer::ItemContainer::GetMaxStackPerSlot() const {
+    return maxStackPerSlot_;
+}
+
+void glimmer::ItemContainer::SetMaxStackPerSlot(const uint16_t maxStackPerSlot) {
+    maxStackPerSlot_ = maxStackPerSlot == 0 ? DEFAULT_CONTAINER_MAX_STACK : maxStackPerSlot;
+}
+
 void glimmer::ItemContainer::RemoveOnContentChanged(
 
     const std::shared_ptr<std::function<void(uint8_t, Item *, ContainerChangeType)> > &onContentChanged
@@ -273,11 +283,11 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::AddItem(std::unique_ptr<I
             continue;
         }
         ItemStackModule *currentItemStackModule = currentItem->GetMutableStackModule();
-        if (currentItemStackModule == nullptr) {
+        if (currentItemStackModule == nullptr || !currentItemStackModule->IsStackable()) {
             ++index;
             continue;
         }
-        const uint16_t remainingStackCount = currentItemStackModule->GetRemainingStackCount();
+        const uint16_t remainingStackCount = currentItemStackModule->GetRemainingStackCount(maxStackPerSlot_);
         if (remainingStackCount == 0) {
             LogCat::d(LogLabel::DEFAULT, "slot_no_stack_space", "Slot[{}] no stack space. itemId:{}",
                       static_cast<int>(index),
@@ -289,7 +299,8 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::AddItem(std::unique_ptr<I
                   static_cast<int>(index),
                   static_cast<int>(remainingStackCount), currentItem->GetId());
 
-        const uint16_t stackedAmount = currentItemStackModule->AddAmount(newItemStackModule->GetAmount());
+        const uint16_t stackedAmount = currentItemStackModule->AddAmount(newItemStackModule->GetAmount(),
+                                                                         maxStackPerSlot_);
         if (stackedAmount == 0) {
             LogCat::d(LogLabel::DEFAULT, "slot_stacked_amount_zero", "Slot[{}] stackedAmount = 0, skip",
                       static_cast<int>(index));
@@ -368,6 +379,36 @@ bool glimmer::ItemContainer::HasTag(uint64_t tag) {
     return tagToValue_.contains(tag);
 }
 
+bool glimmer::ItemContainer::ContainsId(std::string_view id) const {
+    for (const auto &item: items_) {
+        if (item != nullptr && item->GetId() == id) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void glimmer::ItemContainer::Sort() {
+    //Extract all items out of the container (firing content-changed events).
+    //把容器内所有物品取出（触发内容变更事件）。
+    std::vector<std::unique_ptr<Item> > all;
+    all.reserve(items_.size());
+    for (uint8_t i = 0; i < items_.size(); ++i) {
+        if (items_[i] == nullptr) {
+            continue;
+        }
+        all.push_back(TakeAllItem(i));
+    }
+    //Sort by localized name. Adjacent same-id stacks will be merged again by AddItem.
+    //按本地化名称排序，相邻的同id堆叠会由AddItem重新合并。
+    std::ranges::sort(all, [](const std::unique_ptr<Item> &a, const std::unique_ptr<Item> &b) {
+        return a->GetName() < b->GetName();
+    });
+    for (auto &item: all) {
+        (void) AddItem(std::move(item));
+    }
+}
+
 uint16_t glimmer::ItemContainer::GetRemainingItemAmountAfterAdd(const Item *item) const {
     if (item == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "item_is_null", "item == nullptr");
@@ -392,10 +433,10 @@ uint16_t glimmer::ItemContainer::GetRemainingItemAmountAfterAdd(const Item *item
             break;
         }
         const ItemStackModule *currentStackModule = currentItemPtr->GetStackModule();
-        if (currentStackModule == nullptr) {
-            return 0;
+        if (currentStackModule == nullptr || !currentStackModule->IsStackable()) {
+            continue;
         }
-        const uint16_t remainingStackCount = currentStackModule->GetRemainingStackCount();
+        const uint16_t remainingStackCount = currentStackModule->GetRemainingStackCount(maxStackPerSlot_);
         if (remainingStackCount == 0) {
             continue;
         }
@@ -624,6 +665,7 @@ std::unique_ptr<glimmer::ItemContainer> glimmer::ItemContainer::Clone() const {
     LogCat::d(LogLabel::DEFAULT, "container_clone", "Clone container, capacity={}", static_cast<int>(size));
     auto newContainer = std::make_unique<ItemContainer>();
     newContainer->Resize(size);
+    newContainer->SetMaxStackPerSlot(maxStackPerSlot_);
     for (uint8_t i = 0; i < size; ++i) {
         if (items_[i] != nullptr) {
             newContainer->items_[i] = items_[i]->Clone();

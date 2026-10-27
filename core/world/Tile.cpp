@@ -38,6 +38,8 @@
 #include "core/mod/ResourceLocator.h"
 #include "core/ecs/component/TechProviderComponent.h"
 #include "core/ecs/component/CropComponent.h"
+#include "core/ecs/component/ItemContainerComponent.h"
+#include "core/ecs/DroppedItemCreator.h"
 #include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/math/WorldAABB.h"
@@ -80,6 +82,26 @@ bool glimmer::Tile::AllowOfflineGrowth() const {
 
 bool glimmer::Tile::IsWorkBlock() const {
     return technologyLevel_ > 0;
+}
+
+bool glimmer::Tile::IsStorageBlock() const {
+    return containerCapacity_ > 0;
+}
+
+uint8_t glimmer::Tile::GetContainerCapacity() const {
+    return containerCapacity_;
+}
+
+uint16_t glimmer::Tile::GetContainerMaxStack() const {
+    return containerMaxStack_;
+}
+
+GameEntityID glimmer::Tile::GetGameEntity(const TileVector2D &position) const {
+    const auto iterator = gameEntities_.find(position.GetFingerprint());
+    if (iterator == gameEntities_.end()) {
+        return GAME_ENTITY_ID_INVALID;
+    }
+    return iterator->second;
 }
 
 bool glimmer::Tile::IsCropsBlock() const {
@@ -256,6 +278,8 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     }
     tile->technologyLevel_ = tileResource->technologyLevel;
     tile->recipeGroup_ = tileResource->recipeGroup;
+    tile->containerCapacity_ = tileResource->containerCapacity;
+    tile->containerMaxStack_ = tileResource->containerMaxStack;
     tile->dimensions_.SetTileAnchor(CalculateTileAnchor(static_cast<TileAnchorType>(tileResource->tileAnchorType),
                                                         tileWidth,
                                                         tileHeight,
@@ -373,10 +397,23 @@ glimmer::WorldAABB glimmer::Tile::GetCollisionAABB(const TileVector2D &tilePos) 
     return box;
 }
 
-void glimmer::Tile::OnPlace(const WorldContext *worldContext, PlaceSourceMessage placeSource,
+void glimmer::Tile::OnPlace(WorldContext *worldContext, PlaceSourceMessage placeSource,
                             const TileVector2D &position, const TileStateMessage *tileState) {
     EntityManager *entityManager = worldContext->GetEntityManager();
     if (entityManager == nullptr || tileState == nullptr) {
+        return;
+    }
+    //Block-level entities (work blocks / crops / storage blocks) are created once per block, anchored
+    //at the block's bottom-left origin cell. The stored offset is "top-left - cell" = (-cellX, cellY),
+    //so the bottom-left origin cell satisfies cellX == 0 and cellY == height - 1. Other cells of a
+    //multi-tile block must not create an entity, otherwise a 2-tall storage block would get two
+    //duplicated containers.
+    //方块级实体（工作方块/作物/存储方块）每个方块只建一个，锚定在左下角原点格。
+    //存储的 offset 为「左上角 - 当前格」=(-cellX, cellY)，左下角格满足 cellX==0、cellY==height-1。
+    //多格方块的其他格子不应再建实体，否则 2 格存储方块会得到两个重复的容器。
+    TileVector2D offset(0, 0);
+    offset.ReadVector2DIMessage(tileState->offset());
+    if (offset.x != 0 || offset.y != static_cast<int>(tileState->height()) - 1) {
         return;
     }
     const Vector2DIFingerprint fingerprint = position.GetFingerprint();
@@ -413,6 +450,23 @@ void glimmer::Tile::OnPlace(const WorldContext *worldContext, PlaceSourceMessage
                   "Placed crop block, created entity: id={}, position=({}, {})",
                   entity, position.x, position.y);
     }
+    if (IsStorageBlock()) {
+        if (entity == GAME_ENTITY_ID_INVALID) {
+            entity = entityManager->AddEntity();
+        }
+        const auto itemContainerComponent = entityManager->AddComponent<ItemContainerComponent>(entity);
+        ItemContainer *itemContainer = itemContainerComponent->GetItemContainer();
+        if (itemContainer != nullptr) {
+            itemContainer->Resize(containerCapacity_);
+            itemContainer->SetMaxStackPerSlot(containerMaxStack_);
+            if (tileState->has_itemcontainer()) {
+                itemContainer->FromMessage(worldContext, tileState->itemcontainer());
+            }
+        }
+        LogCat::d(LogLabel::DEFAULT, "tile_on_place_entity_created",
+                  "Placed storage block, created entity: id={}, position=({}, {})",
+                  entity, position.x, position.y);
+    }
     if (entity == GAME_ENTITY_ID_INVALID) {
         return;
     }
@@ -421,7 +475,7 @@ void glimmer::Tile::OnPlace(const WorldContext *worldContext, PlaceSourceMessage
     gameEntities_[fingerprint] = entity;
 }
 
-void glimmer::Tile::OnBreak(const WorldContext *worldContext, const BreakSource breakSource,
+void glimmer::Tile::OnBreak(WorldContext *worldContext, const BreakSource breakSource,
                             const TileVector2D &position) {
     if (breakSource == BreakSource::ChunkLoad || breakSource == BreakSource::ChunkGenerate) {
         return;
@@ -435,10 +489,28 @@ void glimmer::Tile::OnBreak(const WorldContext *worldContext, const BreakSource 
     if (gameEntityIterator == gameEntities_.end()) {
         return;
     }
-    entityManager->RemoveEntity(gameEntityIterator->second);
+    const GameEntityID entityId = gameEntityIterator->second;
+    if (IsStorageBlock() && breakSource != BreakSource::ChunkUnload) {
+        const auto itemContainerComponent = entityManager->GetComponent<ItemContainerComponent>(entityId);
+        if (itemContainerComponent != nullptr) {
+            ItemContainer *itemContainer = itemContainerComponent->GetItemContainer();
+            if (itemContainer != nullptr) {
+                const WorldVector2D dropPosition = CoordinateTransformer::TileToWorld(position);
+                for (uint8_t i = 0; i < itemContainer->GetCapacity(); ++i) {
+                    std::unique_ptr<Item> item = itemContainer->TakeAllItem(i);
+                    if (item == nullptr) {
+                        continue;
+                    }
+                    DroppedItemCreator::SpawnDroppedItem(worldContext, dropPosition, std::move(item),
+                                                         DROPPED_ITEM_PICKUP_COOLDOWN_TICKS);
+                }
+            }
+        }
+    }
+    entityManager->RemoveEntity(entityId);
     LogCat::d(LogLabel::DEFAULT, "tile_on_break_entity_removed",
               "Broke block, removed entity: id={}, position=({}, {})",
-              gameEntityIterator->second, position.x, position.y);
+              entityId, position.x, position.y);
     gameEntities_.erase(gameEntityIterator);
 }
 

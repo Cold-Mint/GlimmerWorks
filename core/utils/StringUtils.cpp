@@ -103,6 +103,24 @@ uint64_t glimmer::StringUtils::StringToUint64Blake3(const std::string &string) {
     return res;
 }
 
+std::string glimmer::StringUtils::ToLower(std::string text) {
+    std::ranges::transform(text, text.begin(), [](const unsigned char c) {
+        return static_cast<char>(std::tolower(c));
+    });
+    return text;
+}
+
+bool glimmer::StringUtils::ContainsIgnoreCase(const std::string &haystack, const std::string &needle) {
+    if (needle.empty()) {
+        return true;
+    }
+    auto eq = [](const char a, const char b) {
+        return std::tolower(static_cast<unsigned char>(a)) ==
+               std::tolower(static_cast<unsigned char>(b));
+    };
+    return !std::ranges::search(haystack, needle, eq).empty();
+}
+
 glimmer::ItemTagResource glimmer::StringUtils::MakeTag(const std::string &name) {
     ItemTagResource tag;
     tag.name = name;

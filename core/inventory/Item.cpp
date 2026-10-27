@@ -66,8 +66,8 @@ void glimmer::Item::SetTags(const std::vector<ItemTagResource> &tags) {
     }
 }
 
-void glimmer::Item::SetMaxStack(const uint16_t maxStack) {
-    itemStackModule_.SetMaxStack(maxStack);
+void glimmer::Item::SetStackable(const bool stackable) {
+    itemStackModule_.SetStackable(stackable);
 }
 
 void glimmer::Item::SetUnbreakable(const bool unbreakable) {

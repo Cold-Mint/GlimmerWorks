@@ -139,3 +139,11 @@ glimmer::RecipeSelectionComponent *glimmer::EntityShortCut::GetRecipeSelectionCo
     }
     return recipeSelectionComponent_;
 }
+
+void glimmer::EntityShortCut::SetOpenedStorageContainer(ItemContainer *container) {
+    openedStorageContainer_ = container;
+}
+
+glimmer::ItemContainer *glimmer::EntityShortCut::GetOpenedStorageContainer() const {
+    return openedStorageContainer_;
+}

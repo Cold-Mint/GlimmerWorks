@@ -62,6 +62,7 @@ namespace glimmer {
         ButtonSystem,
         TeachProviderSystem,
         RecipeDetailGUISystem,
+        StorageGUISystem,
         CropSystem,
         LoadWorldGuiStackSystem
     };

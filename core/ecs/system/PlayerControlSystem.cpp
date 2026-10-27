@@ -30,14 +30,19 @@
 
 #include "core/log/LogCat.h"
 #include "core/world/WorldContext.h"
+#include "core/ecs/EntityManager.h"
+#include "core/ecs/EntityShortCut.h"
+#include "core/ecs/GameSystemType.h"
 #include "core/ecs/component/ColliderComponent.h"
 #include "core/config/Constants.h"
 #include "core/ecs/DroppedItemCreator.h"
 #include "core/ecs/component/ItemContainerComponent.h"
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/ecs/component/SpiritRendererComponent.h"
+#include "core/inventory/ItemContainer.h"
 #include "core/inventory/ItemUseContext.h"
 #include "core/mod/resourcePack/AudioResourceResult.h"
+#include "core/world/SystemScheduler.h"
 #include "core/world/TargetResourceApplier.h"
 #include "src/saves/tile_state.pb.h"
 
@@ -366,7 +371,7 @@ void glimmer::PlayerControlSystem::HandleFocusedTileActions() const {
         //解析多方块瓦片的原点格子：点击格 + 存储的偏移得到瓦片左上格，再向下偏移 (height - 1) 得到
         //TargetResourceApplier 期望的左下原点。
         TileVector2D actionOrigin = itemUseContext_.focusPosition;
-        if (tileState != nullptr && tileState->height() >= 1) {
+        if (tileState != nullptr) {
             TileVector2D offset(0, 0);
             offset.ReadVector2DIMessage(tileState->offset());
             actionOrigin.x += offset.x;
@@ -386,6 +391,35 @@ void glimmer::PlayerControlSystem::HandleFocusedTileActions() const {
         if (itemUseContext_.IsFirstMouseRightDown()) {
             //Trigger the primary action.
             //触发主要活动。
+            if (focusedTile->IsStorageBlock()) {
+                //Storage block: open its storage GUI instead of applying a tile action target.
+                //存储方块：打开其存储GUI，而不是应用瓦片活动目标。
+                const GameEntityID entityId = focusedTile->GetGameEntity(actionOrigin);
+                if (!WorldContext::IsEmptyEntityId(entityId)) {
+                    EntityManager *entityManager = worldContext->GetEntityManager();
+                    if (entityManager != nullptr) {
+                        const auto *itemContainerComponent = entityManager->GetComponent<ItemContainerComponent>(
+                            entityId);
+                        if (itemContainerComponent != nullptr) {
+                            ItemContainer *container = itemContainerComponent->GetItemContainer();
+                            if (container != nullptr) {
+                                mainThreadDispatcher->PostToNextMainFrame([worldContext, container] {
+                                    EntityShortCut *entityShortCut = worldContext->GetEntityShortCut();
+                                    if (entityShortCut == nullptr) {
+                                        return;
+                                    }
+                                    entityShortCut->SetOpenedStorageContainer(container);
+                                    SystemScheduler *systemScheduler = worldContext->GetSystemScheduler();
+                                    if (systemScheduler != nullptr) {
+                                        systemScheduler->PushGuiSystemType(GameSystemType::StorageGUISystem);
+                                    }
+                                });
+                                continue;
+                            }
+                        }
+                    }
+                }
+            }
             const ResourceRef &primaryActionTarget = focusedTile->GetPrimaryActionTarget();
             if (!primaryActionTarget.IsValid()) {
                 continue;

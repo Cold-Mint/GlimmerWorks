@@ -3,14 +3,15 @@
 #include "RmlUi/Core/Element.h"
 #include "core/inventory/ItemContainer.h"
 
-glimmer::InventoryDragListener::InventoryDragListener(ItemContainer *itemContainer) : itemContainer_(itemContainer) {
+glimmer::InventoryDragListener::InventoryDragListener(ItemContainer *itemContainer) : defaultContainer_(itemContainer) {
+}
+
+glimmer::InventoryDragListener::~InventoryDragListener() {
+    UnregisterContainer();
 }
 
 void glimmer::InventoryDragListener::ProcessEvent(Rml::Event &event) {
     if (event != Rml::EventId::Dragdrop) {
-        return;
-    }
-    if (itemContainer_ == nullptr) {
         return;
     }
 
@@ -35,9 +36,8 @@ void glimmer::InventoryDragListener::ProcessEvent(Rml::Event &event) {
         return;
     }
 
-    int sourceIndex = GetSlotIndex(sourceSlot);
-    int targetIndex = GetSlotIndex(targetSlot);
-
+    const int sourceIndex = GetSlotIndex(sourceSlot);
+    const int targetIndex = GetSlotIndex(targetSlot);
 
     if (sourceIndex < 0) {
         return;
@@ -45,30 +45,56 @@ void glimmer::InventoryDragListener::ProcessEvent(Rml::Event &event) {
     if (targetIndex < 0) {
         return;
     }
-    if (sourceIndex == targetIndex) {
+    if (sourceSlot == targetSlot) {
         return;
     }
-    itemContainer_->SwapItem(
+
+    ItemContainer *sourceContainer = FindContainer(sourceSlot);
+    ItemContainer *targetContainer = FindContainer(targetSlot);
+    if (sourceContainer == nullptr || targetContainer == nullptr) {
+        return;
+    }
+    sourceContainer->SwapItem(
         static_cast<uint8_t>(sourceIndex),
-        itemContainer_,
+        targetContainer,
         static_cast<uint8_t>(targetIndex));
 }
 
 void glimmer::InventoryDragListener::RegisterContainer(Rml::Element *containerElement) {
-    if (containerElement_ != nullptr) {
-        containerElement_->RemoveEventListener(Rml::EventId::Dragdrop, this);
+    RegisterContainer(containerElement, defaultContainer_);
+}
+
+void glimmer::InventoryDragListener::RegisterContainer(Rml::Element *containerElement, ItemContainer *container) {
+    if (containerElement == nullptr) {
+        return;
     }
-    containerElement_ = containerElement;
-    if (containerElement_ != nullptr) {
-        containerElement_->AddEventListener(Rml::EventId::Dragdrop, this);
+    for (const auto &registration: registrations_) {
+        if (registration.element == containerElement) {
+            return;
+        }
     }
+    containerElement->AddEventListener(Rml::EventId::Dragdrop, this);
+    registrations_.push_back({container, containerElement});
 }
 
 void glimmer::InventoryDragListener::UnregisterContainer() {
-    if (containerElement_ != nullptr) {
-        containerElement_->RemoveEventListener(Rml::EventId::Dragdrop, this);
-        containerElement_ = nullptr;
+    for (const auto &registration: registrations_) {
+        if (registration.element != nullptr) {
+            registration.element->RemoveEventListener(Rml::EventId::Dragdrop, this);
+        }
     }
+    registrations_.clear();
+}
+
+glimmer::ItemContainer *glimmer::InventoryDragListener::FindContainer(Rml::Element *slotElement) {
+    for (Rml::Element *current = slotElement; current != nullptr; current = current->GetParentNode()) {
+        for (const auto &registration: registrations_) {
+            if (registration.element == current) {
+                return registration.container;
+            }
+        }
+    }
+    return nullptr;
 }
 
 Rml::Element *glimmer::InventoryDragListener::FindSlotElement(Rml::Element *element) {

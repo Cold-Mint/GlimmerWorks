@@ -818,6 +818,7 @@ target_sources(GlimmerWorks
         core/ecs/system/ItemTooltipSystem.cpp
         core/rmi/DecoratorNinePatchTextureInstancer.cpp
         core/ecs/system/InventoryGUISystem.cpp
+        core/ecs/system/StorageGUISystem.cpp
         core/ecs/component/RecipeSelectionComponent.cpp
         main.cpp
         PUBLIC
@@ -1297,6 +1298,7 @@ target_sources(GlimmerWorks
         core/world/structure/TreeStructureGenerator.h
         core/ecs/system/ItemTooltipSystem.h
         core/ecs/system/InventoryGUISystem.h
+        core/ecs/system/StorageGUISystem.h
         core/rmi/dataModel/TagProgressDataModel.h
         core/rmi/dataModel/RecipeItemChoiceDataModel.h
         core/ecs/component/RecipeSelectionComponent.h

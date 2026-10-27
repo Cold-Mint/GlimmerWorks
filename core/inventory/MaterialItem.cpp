@@ -44,7 +44,7 @@ glimmer::MaterialItem::MaterialItem(std::string id, std::string name, std::optio
                                                                           textureResourceRef)) {
     SetTags(tags);
     SetResourceRef(resourceRef);
-    SetMaxStack(ITEM_MAX_STACK);
+    SetStackable(true);
 }
 
 std::unique_ptr<glimmer::MaterialItem> glimmer::MaterialItem::FromItemResource(const AppContext *appContext,

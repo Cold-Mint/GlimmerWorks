@@ -818,6 +818,8 @@ namespace toml {
             resource.breakSfx = toml::find<glimmer::ResourceRef>(v, "break_sfx");
             resource.canDropLoot = toml::find_or<bool>(v, "can_drop_loot", true);
             resource.collisionMask = toml::find_or<uint8_t>(v, "collision_mask", 0);
+            resource.containerCapacity = toml::find_or<uint8_t>(v, "container_capacity", 0);
+            resource.containerMaxStack = toml::find_or<uint16_t>(v, "container_max_stack", 0);
             resource.collisionBoxOffset = toml::find_or<glimmer::Vector2DResource>(v, "collision_box_offset", {0.0F, 0.0F});
             resource.collisionBoxSize = toml::find_or<glimmer::Vector2DResource>(v, "collision_box_size", {1.0F, 1.0F});
             resource.customLootTable = toml::find_or<bool>(v, "custom_loot_table", false);

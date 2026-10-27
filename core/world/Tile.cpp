@@ -335,6 +335,12 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     if (tileResource->placeSfx.IsValid()) {
         tile->resourceData_.SetPlaceSFX(resourceLocator->FindAudio(&tileResource->placeSfx));
     }
+    if (tileResource->primaryActionSfx.IsValid()) {
+        tile->resourceData_.SetPrimaryActionSFX(resourceLocator->FindAudio(&tileResource->primaryActionSfx));
+    }
+    if (tileResource->secondaryActionSfx.IsValid()) {
+        tile->resourceData_.SetSecondaryActionSFX(resourceLocator->FindAudio(&tileResource->secondaryActionSfx));
+    }
     std::vector<ItemTagResource> tags = tileResource->tags;
 
     if (tileResource->autoDerivedTags) {

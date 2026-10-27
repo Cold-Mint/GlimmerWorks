@@ -52,6 +52,20 @@ glimmer::AudioResourceResult *glimmer::TileResourceData::GetPlaceSFX() const {
     return placeSFXResult_.get();
 }
 
+glimmer::AudioResourceResult *glimmer::TileResourceData::GetPrimaryActionSFX() const {
+    if (primaryActionSFXResult_ == nullptr) {
+        return nullptr;
+    }
+    return primaryActionSFXResult_.get();
+}
+
+glimmer::AudioResourceResult *glimmer::TileResourceData::GetSecondaryActionSFX() const {
+    if (secondaryActionSFXResult_ == nullptr) {
+        return nullptr;
+    }
+    return secondaryActionSFXResult_.get();
+}
+
 const glimmer::ResourceRef *glimmer::TileResourceData::GetTextureRef() const {
     return &textureRef_;
 }
@@ -96,6 +110,15 @@ void glimmer::TileResourceData::SetBreakSFX(const std::shared_ptr<AudioResourceR
 
 void glimmer::TileResourceData::SetPlaceSFX(const std::shared_ptr<AudioResourceResult> &placeSFXResult) {
     this->placeSFXResult_ = placeSFXResult;
+}
+
+void glimmer::TileResourceData::SetPrimaryActionSFX(const std::shared_ptr<AudioResourceResult> &primaryActionSFXResult) {
+    this->primaryActionSFXResult_ = primaryActionSFXResult;
+}
+
+void glimmer::TileResourceData::SetSecondaryActionSFX(
+    const std::shared_ptr<AudioResourceResult> &secondaryActionSFXResult) {
+    this->secondaryActionSFXResult_ = secondaryActionSFXResult;
 }
 
 void glimmer::TileResourceData::SetTags(const std::vector<ItemTagResource> &tags) {

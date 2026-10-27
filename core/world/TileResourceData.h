@@ -45,6 +45,8 @@ namespace glimmer {
         std::shared_ptr<TextureResourceResult> textureResult_ = nullptr;
         std::shared_ptr<AudioResourceResult> breakSFXResult_ = nullptr;
         std::shared_ptr<AudioResourceResult> placeSFXResult_ = nullptr;
+        std::shared_ptr<AudioResourceResult> primaryActionSFXResult_ = nullptr;
+        std::shared_ptr<AudioResourceResult> secondaryActionSFXResult_ = nullptr;
         //附着各方向的纹理，索引为 TileAttachmentDirection 的底层值（1-5）。
         std::array<std::shared_ptr<TextureResourceResult>, 6> attachmentTextureResults_ = {};
 
@@ -56,6 +58,10 @@ namespace glimmer {
         [[nodiscard]] AudioResourceResult *GetBreakSFX() const;
 
         [[nodiscard]] AudioResourceResult *GetPlaceSFX() const;
+
+        [[nodiscard]] AudioResourceResult *GetPrimaryActionSFX() const;
+
+        [[nodiscard]] AudioResourceResult *GetSecondaryActionSFX() const;
 
         [[nodiscard]] const ResourceRef *GetTextureRef() const;
 
@@ -74,6 +80,10 @@ namespace glimmer {
         void SetBreakSFX(const std::shared_ptr<AudioResourceResult> &breakSFXResult);
 
         void SetPlaceSFX(const std::shared_ptr<AudioResourceResult> &placeSFXResult);
+
+        void SetPrimaryActionSFX(const std::shared_ptr<AudioResourceResult> &primaryActionSFXResult);
+
+        void SetSecondaryActionSFX(const std::shared_ptr<AudioResourceResult> &secondaryActionSFXResult);
 
         void SetTags(const std::vector<ItemTagResource> &tags);
 

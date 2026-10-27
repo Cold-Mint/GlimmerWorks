@@ -103,6 +103,14 @@ namespace glimmer {
                                    const ResourceRef &actionTarget,
                                    BreakSource breakSource, PlaceSourceMessage placeSource) const;
 
+        /**
+         * Play the primary/secondary action sound effect of a tile if it is valid.
+         * 播放瓦片的主/次要活动音效（若有效）。
+         * @param tile tile 瓦片
+         * @param primary primary true=主活动，false=副活动
+         */
+        void PlayTileActionSFX(const Tile *tile, bool primary) const;
+
         static void HandleMouseButton(const SDL_Event &event, PlayerInputHandler *playerInputHandler);
 
         void HandleHorizontalInput(const SDL_Event &event, PlayerComponent *playerComponent,

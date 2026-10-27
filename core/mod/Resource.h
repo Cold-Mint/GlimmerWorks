@@ -545,8 +545,12 @@ namespace glimmer {
         ResourceRef growthTarget = {};
         //@genNextLine(primaryAction|主活动)
         ResourceRef primaryActionTarget = {};
+        //@genNextLine(primaryActionSFX|主活动音效)
+        ResourceRef primaryActionSfx = {};
         //@genNextLine(secondaryAction|副活动)
         ResourceRef secondaryActionTarget = {};
+        //@genNextLine(secondaryActionSFX|副活动音效)
+        ResourceRef secondaryActionSfx = {};
         //@genNextLine(growthConditions|生长条件资源引用列表)
         std::vector<ResourceRef> growthConditions = {};
         //@genNextLine(tags|标签)

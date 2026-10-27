@@ -387,6 +387,7 @@ void glimmer::PlayerControlSystem::HandleFocusedTileActions() const {
             ApplyTileActionTarget(mainThreadDispatcher, worldContext, focusedTile, actionOrigin,
                                   secondaryActionTarget,
                                   BreakSource::TileSecondaryAction, PLACE_SOURCE_TILE_SECONDARY_ACTION);
+            PlayTileActionSFX(focusedTile, false);
         }
         if (itemUseContext_.IsFirstMouseRightDown()) {
             //Trigger the primary action.
@@ -426,6 +427,7 @@ void glimmer::PlayerControlSystem::HandleFocusedTileActions() const {
             }
             ApplyTileActionTarget(mainThreadDispatcher, worldContext, focusedTile, actionOrigin, primaryActionTarget,
                                   BreakSource::TilePrimaryAction, PLACE_SOURCE_TILE_PRIMARY_ACTION);
+            PlayTileActionSFX(focusedTile, true);
         }
     }
 }
@@ -441,6 +443,22 @@ void glimmer::PlayerControlSystem::ApplyTileActionTarget(MainThreadDispatcher *m
                                          focusedTile->GetLayerType(), actionTarget,
                                          breakSource, placeSource);
         });
+}
+
+void glimmer::PlayerControlSystem::PlayTileActionSFX(const Tile *tile, bool primary) const {
+    if (tile == nullptr || audioManager_ == nullptr) {
+        return;
+    }
+    const TileResourceData &tileResourceData = tile->GetResourceData();
+    const AudioResourceResult *audioResourceResult = primary
+                                                         ? tileResourceData.GetPrimaryActionSFX()
+                                                         : tileResourceData.GetSecondaryActionSFX();
+    if (audioResourceResult == nullptr) {
+        return;
+    }
+    if (MIX_Audio *audio = audioResourceResult->GetResource(); audio != nullptr) {
+        audioManager_->TryPlayFree(AudioType::AMBIENT, audio, 0);
+    }
 }
 
 void glimmer::PlayerControlSystem::UpdatePlayerFacing(PlayerComponent *playerComponent,

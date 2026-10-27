@@ -817,11 +817,12 @@ namespace toml {
             resource.backLightMask = toml::find<glimmer::ResourceRef>(v, "back_light_mask");
             resource.breakSfx = toml::find<glimmer::ResourceRef>(v, "break_sfx");
             resource.canDropLoot = toml::find_or<bool>(v, "can_drop_loot", true);
+            resource.collisionBoxOffset = toml::find_or<glimmer::Vector2DResource>(
+                v, "collision_box_offset", {0.0F, 0.0F});
+            resource.collisionBoxSize = toml::find_or<glimmer::Vector2DResource>(v, "collision_box_size", {1.0F, 1.0F});
             resource.collisionMask = toml::find_or<uint8_t>(v, "collision_mask", 0);
             resource.containerCapacity = toml::find_or<uint8_t>(v, "container_capacity", 0);
             resource.containerMaxStack = toml::find_or<uint16_t>(v, "container_max_stack", 0);
-            resource.collisionBoxOffset = toml::find_or<glimmer::Vector2DResource>(v, "collision_box_offset", {0.0F, 0.0F});
-            resource.collisionBoxSize = toml::find_or<glimmer::Vector2DResource>(v, "collision_box_size", {1.0F, 1.0F});
             resource.customLootTable = toml::find_or<bool>(v, "custom_loot_table", false);
             resource.customTileAnchor = toml::find_or<glimmer::Vector2DIResource>(v, "custom_tile_anchor", {1, 1});
             resource.description = toml::find_or<glimmer::ResourceRef>(v, "description", {});
@@ -843,10 +844,12 @@ namespace toml {
             resource.partial = toml::find_or<bool>(v, "partial", false);
             resource.pipeline = toml::find_or<glimmer::ResourceRef>(v, "pipeline", {});
             resource.placeSfx = toml::find<glimmer::ResourceRef>(v, "place_sfx");
+            resource.primaryActionSfx = toml::find_or<glimmer::ResourceRef>(v, "primary_action_sfx", {});
             resource.primaryActionTarget = toml::find_or<glimmer::ResourceRef>(v, "primary_action_target", {});
             resource.recipeGroup = toml::find_or<uint8_t>(v, "recipe_group", 0);
             resource.resourceId = toml::find<std::string>(v, "resource_id");
             resource.sampler = toml::find_or<glimmer::ResourceRef>(v, "sampler", {});
+            resource.secondaryActionSfx = toml::find_or<glimmer::ResourceRef>(v, "secondary_action_sfx", {});
             resource.secondaryActionTarget = toml::find_or<glimmer::ResourceRef>(v, "secondary_action_target", {});
             resource.sideLightMask = toml::find<glimmer::ResourceRef>(v, "side_light_mask");
             resource.solid = toml::find_or<bool>(v, "solid", false);

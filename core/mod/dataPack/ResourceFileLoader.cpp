@@ -327,6 +327,8 @@ void glimmer::ResourceFileLoader::LoadTileResourceFromFile(const toml::value &va
     tileResource->sampler.SetSelfPackageId(manifest_->id);
     tileResource->breakSfx.SetSelfPackageId(manifest_->id);
     tileResource->placeSfx.SetSelfPackageId(manifest_->id);
+    tileResource->primaryActionSfx.SetSelfPackageId(manifest_->id);
+    tileResource->secondaryActionSfx.SetSelfPackageId(manifest_->id);
     tileResource->lightSource.SetSelfPackageId(manifest_->id);
     tileResource->sideLightMask.SetSelfPackageId(manifest_->id);
     tileResource->backLightMask.SetSelfPackageId(manifest_->id);

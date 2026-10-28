@@ -151,6 +151,11 @@ uint32_t glimmer::PlayerContext::CreateOrLoadPlayer(const ResourceRef &resourceR
         }
     }
     if (!WorldContext::IsEmptyEntityId(playerEntity)) {
+        //The loaded player's rigid body is disabled until chunk loading finishes, so the player does not
+        //fall through the not-yet-loaded terrain (which would leave them embedded inside the ground).
+        //从存档加载的玩家同样需要先禁用刚体，等区块加载完成后（LoadWorldGuiSystem 收到 ChunkTaskFinshEvent）
+        //再启用，避免玩家在区块尚未加载时下坠、穿过地表卡进地里。
+        DisablePlayerRigidBody(playerEntity);
         LogCat::i(LogLabel::DEFAULT, "player_context_loaded", "Loaded player from saves: id={}", playerEntity);
         return playerEntity;
     }

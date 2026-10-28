@@ -26,6 +26,7 @@
  */
 #pragma once
 #include <optional>
+#include <stack>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -41,7 +42,8 @@ namespace glimmer {
 
         [[nodiscard]] virtual std::optional<std::string> Execute(
             const std::vector<std::filesystem::path> &templateSearchPath,
-            std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<> > &variable,
+            std::stack<std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<> > > &
+            variablesStack,
             std::vector<std::string> &args,
             const VirtualFileSystem *virtualFileSystem) = 0;
 

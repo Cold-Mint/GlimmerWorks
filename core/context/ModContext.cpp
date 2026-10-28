@@ -27,7 +27,9 @@
 #include "ModContext.h"
 
 #include "core/log/LogCat.h"
+#include "core/mod/templateCommand/EndScopeTemplateCommand.h"
 #include "core/mod/templateCommand/InsertTemplateCommand.h"
+#include "core/mod/templateCommand/ScopeTemplateCommand.h"
 #include "core/mod/templateCommand/SetTemplateCommand.h"
 #include "core/mod/templateCommand/UnSetTemplateCommand.h"
 #include "core/world/generator/FillBiomeDecorator.h"
@@ -67,6 +69,8 @@ void glimmer::ModContext::Init(VirtualFileSystem *vfs, const LangsResources *lan
     tomlTemplateExpander_->Register(std::make_unique<InsertTemplateCommand>());
     tomlTemplateExpander_->Register(std::make_unique<SetTemplateCommand>());
     tomlTemplateExpander_->Register(std::make_unique<UnSetTemplateCommand>());
+    tomlTemplateExpander_->Register(std::make_unique<ScopeTemplateCommand>());
+    tomlTemplateExpander_->Register(std::make_unique<EndScopeTemplateCommand>());
 
     LogCat::d(LogLabel::DEFAULT, "creating_data_pack_manager", "Creating DataPackManager");
     dataPackManager_ = std::make_unique<DataPackManager>();

@@ -29,10 +29,16 @@
 
 std::optional<std::string> glimmer::UnSetTemplateCommand::Execute(
     const std::vector<std::filesystem::path> &templateSearchPath,
-    std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<> > &variable,
+    std::stack<std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<> > > &variablesStack,
     std::vector<std::string> &args, const VirtualFileSystem *virtualFileSystem) {
-    if (args.size() == 1) {
-        variable.erase(args[0]);
+    if (variablesStack.empty()) {
+        return std::nullopt;
+    }
+    std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<> > &variables = variablesStack.
+            top();
+    const size_t size = args.size();
+    for (size_t i = 0; i < size; ++i) {
+        variables.erase(args[i]);
     }
     return std::nullopt;
 }

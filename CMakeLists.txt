@@ -416,6 +416,8 @@ target_sources(GlimmerWorks
         core/saves/SavesCreateRequest.cpp
         core/world/scheduler/ChunkTask.cpp
         core/world/scheduler/ChunkTaskScheduler.cpp
+        core/mod/templateCommand/ScopeTemplateCommand.cpp
+        core/mod/templateCommand/EndScopeTemplateCommand.cpp
         core/event/Subscription.cpp
         core/utils/VersionAble.cpp
         core/ecs/TileBreakParams.cpp
@@ -837,6 +839,8 @@ target_sources(GlimmerWorks
         core/physics/PhysicsSolver.h
         core/physics/IHorizontalPhysicsSolver.h
         core/physics/IVerticalPhysicsSolver.h
+        core/mod/templateCommand/ScopeTemplateCommand.h
+        core/mod/templateCommand/EndScopeTemplateCommand.h
         core/physics/SolveResult.h
         core/physics/HorizontalPhysicsSolver.h
         core/physics/VerticalPhysicsSolver.h

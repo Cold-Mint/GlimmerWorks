@@ -33,7 +33,7 @@
 #include <sstream>
 #include <algorithm>
 #include <cassert>
-#include <ranges>
+#include <stack>
 
 #include "core/log/LogCat.h"
 
@@ -56,7 +56,11 @@ std::string glimmer::TomlTemplateExpander::Expand(const std::vector<std::filesys
     std::stringstream inputStringStream(inputText);
     std::stringstream output;
     std::string line;
-    std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<> > variables = {};
+    std::stack<std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<> > > variablesStack =
+            {};
+    //Construct the bottom element of the stack.
+    //构造栈底元素。
+    variablesStack.emplace();
     while (std::getline(inputStringStream, line)) {
         if (line.starts_with("#@")) {
             std::string commandLine = line.substr(2);
@@ -85,7 +89,7 @@ std::string glimmer::TomlTemplateExpander::Expand(const std::vector<std::filesys
             while (std::getline(argsIss, arg, ',')) {
                 args.push_back(arg);
             }
-            auto result = cmd->Execute(templateSearchPath, variables, args, virtualFileSystem);
+            auto result = cmd->Execute(templateSearchPath, variablesStack, args, virtualFileSystem);
             if (result.has_value()) {
                 output << *result << '\n';
             }

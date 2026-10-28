@@ -28,12 +28,20 @@
 
 std::optional<std::string> glimmer::SetTemplateCommand::Execute(
     const std::vector<std::filesystem::path> &templateSearchPath,
-    std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<> > &variable,
+    std::stack<std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<> > > &variablesStack,
     std::vector<std::string> &args, const VirtualFileSystem *virtualFileSystem) {
-    if (args.size() == 2) {
-        const std::string &key = args[0];
-        const std::string &value = args[1];
-        variable[key] = value;
+    if (variablesStack.empty()) {
+        return std::nullopt;
+    }
+    std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<> > &variables = variablesStack.
+            top();
+    const size_t size = args.size();
+    //If the number is odd, then skip the last element.
+    //如果是奇数，那么跳过最后一个元素。
+    for (size_t i = 0; i + 1 < size; i += 2) {
+        const std::string &key = args[i];
+        const std::string &value = args[i + 1];
+        variables[key] = value;
     }
     return std::nullopt;
 }

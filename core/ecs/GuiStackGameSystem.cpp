@@ -62,6 +62,10 @@ SDL_Scancode glimmer::GuiStackGameSystem::GetHotKey() const {
     return hotKey_;
 }
 
+bool glimmer::GuiStackGameSystem::IsCloseKeyCompatible() const {
+    return false;
+}
+
 bool glimmer::GuiStackGameSystem::CanActive() const {
     const WorldContext *worldContext = GetWorldContext();
     if (worldContext == nullptr) {

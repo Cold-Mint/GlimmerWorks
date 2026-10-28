@@ -57,6 +57,13 @@ namespace glimmer {
         virtual SDL_Scancode GetHotKey() const;
 
         /**
+         * Add the shortcut key to the list of compatible shortcuts. The first shortcut key that players encounter when entering the game is E (to open the inventory). Once players get used to using E to close the UI, even if the system's key for closing the UI is ESC, they will press E to open the inventory UI. The expectation is to press E to close. This method indicates whether to add the shortcut key to the compatible list to accommodate players' habits.
+         * 将快捷键添加到关闭兼容快捷键列表内，玩家进入游戏接触到的第一个快捷键是E（打开背包），玩家就会习惯使用E关闭UI，即使系统关闭UI的键为ESC，玩家使用E键打开背包UI，预期为按E关闭。这个方法是表示是否将快捷键加入到兼容列表内，以兼容玩家的习惯。
+         * @return
+         */
+        virtual bool IsCloseKeyCompatible() const;
+
+        /**
          * This method achieves automatic start-stop scheduling.
          * 这个方法实现了自动启停调度。
          * @return

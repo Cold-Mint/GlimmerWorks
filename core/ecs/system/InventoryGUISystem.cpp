@@ -59,18 +59,10 @@ void glimmer::InventoryGUISystem::RefreshItemSlots() {
         slot.index = static_cast<int>(i);
         slot.selected = i == selectIndex;
         if (item == nullptr) {
-            //Skip empty slots while filtering so the grid shows a compacted result.
-            //过滤时跳过空格，使网格显示紧凑结果。
-            if (!filter_.empty()) {
-                continue;
-            }
             slot.image = "";
             slot.amount = 0;
             slot.durability = -1;
             itemSlots_.push_back(std::move(slot));
-            continue;
-        }
-        if (!filter_.empty() && !StringUtils::ContainsIgnoreCase(item->GetName(), filter_)) {
             continue;
         }
         const ResourceRef *iconResourceRef = item->GetIconResourceRef();
@@ -255,8 +247,11 @@ void glimmer::InventoryGUISystem::OnCreateDataModels(IDocumentRegistry *document
     constructor_->BindEventCallback("on_recipe_hover", &InventoryGUISystem::OnRecipeHover, this);
     constructor_->BindEventCallback("on_recipe_out", &InventoryGUISystem::OnItemOut, this);
     constructor_->BindEventCallback("on_sort_click", &InventoryGUISystem::OnSortClick, this);
-    constructor_->BindEventCallback("on_filter_change", &InventoryGUISystem::OnFilterChange, this);
     RefreshItemSlots();
+}
+
+bool glimmer::InventoryGUISystem::IsCloseKeyCompatible() const {
+    return true;
 }
 
 void glimmer::InventoryGUISystem::SetupDragAndDrop() {
@@ -300,7 +295,6 @@ void glimmer::InventoryGUISystem::SetupDragAndDrop() {
 void glimmer::InventoryGUISystem::OnActivationChanged(bool activeStatus) {
     GuiStackGameSystem::OnActivationChanged(activeStatus);
     if (activeStatus) {
-        filter_.clear();
         if (searchInputElement_ != nullptr) {
             searchInputElement_->SetValue("");
         }
@@ -403,13 +397,4 @@ void glimmer::InventoryGUISystem::OnSortClick(Rml::DataModelHandle handle, Rml::
     if (itemContainer_ != nullptr) {
         itemContainer_->Sort();
     }
-}
-
-void glimmer::InventoryGUISystem::OnFilterChange(Rml::DataModelHandle handle, Rml::Event &event,
-                                                 const Rml::VariantList &args) {
-    if (searchInputElement_ == nullptr) {
-        return;
-    }
-    filter_ = searchInputElement_->GetAttribute<Rml::String>("value", "");
-    ApplyFilter();
 }

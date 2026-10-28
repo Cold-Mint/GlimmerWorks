@@ -27,7 +27,6 @@
 #pragma once
 #include <functional>
 #include <memory>
-#include <string>
 #include <vector>
 
 #include "core/ecs/GuiStackGameSystem.h"
@@ -60,7 +59,6 @@ namespace glimmer {
         std::shared_ptr<std::function<void(uint8_t, Item *, ContainerChangeType)> > playerCallback_;
         std::shared_ptr<std::function<void(uint8_t, Item *, ContainerChangeType)> > chestCallback_;
         std::unique_ptr<InventoryDragListener> dragListener_;
-        std::string filter_;
 
         static void MoveStack(ItemContainer *from, uint8_t index, ItemContainer *to);
 
@@ -100,8 +98,6 @@ namespace glimmer {
 
         void OnSortChestClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
-        void OnFilterChange(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
-
     public:
         ~StorageGUISystem() override;
 
@@ -112,8 +108,6 @@ namespace glimmer {
         void OnCreateDataModels(IDocumentRegistry *documentRegistry) override;
 
         void OnActivationChanged(bool activeStatus) override;
-
-        SDL_Scancode GetHotKey() const override;
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
 

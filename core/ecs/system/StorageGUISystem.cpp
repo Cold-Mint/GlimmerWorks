@@ -55,7 +55,8 @@ void glimmer::StorageGUISystem::MoveStack(ItemContainer *from, const uint8_t ind
     }
 }
 
-void glimmer::StorageGUISystem::RefreshSlots(const ItemContainer *container, std::vector<ItemSlotDataModel> &slots) const {
+void glimmer::StorageGUISystem::RefreshSlots(const ItemContainer *container,
+                                             std::vector<ItemSlotDataModel> &slots) const {
     slots.clear();
     if (container == nullptr) {
         return;
@@ -68,18 +69,10 @@ void glimmer::StorageGUISystem::RefreshSlots(const ItemContainer *container, std
         slot.index = static_cast<int>(i);
         slot.selected = false;
         if (item == nullptr) {
-            //Skip empty slots while filtering so the grid shows a compacted result.
-            //过滤时跳过空格，使网格显示紧凑结果。
-            if (!filter_.empty()) {
-                continue;
-            }
             slot.image = "";
             slot.amount = 0;
             slot.durability = -1;
             slots.push_back(std::move(slot));
-            continue;
-        }
-        if (!filter_.empty() && !StringUtils::ContainsIgnoreCase(item->GetName(), filter_)) {
             continue;
         }
         const ResourceRef *iconRef = item->GetIconResourceRef();
@@ -213,7 +206,7 @@ void glimmer::StorageGUISystem::Restock() {
         if (amount >= maxStack) {
             continue;
         }
-        uint16_t space = static_cast<uint16_t>(maxStack - amount);
+        auto space = static_cast<uint16_t>(maxStack - amount);
         for (uint8_t ci = 0; ci < openedContainer_->GetCapacity() && space > 0; ++ci) {
             const Item *chestItem = openedContainer_->GetItem(ci);
             if (chestItem == nullptr || chestItem->GetId() != playerItem->GetId()) {
@@ -299,7 +292,6 @@ void glimmer::StorageGUISystem::OnCreateDataModels(IDocumentRegistry *documentRe
     constructor_->BindEventCallback("on_restock_click", &StorageGUISystem::OnRestockClick, this);
     constructor_->BindEventCallback("on_sort_player_click", &StorageGUISystem::OnSortPlayerClick, this);
     constructor_->BindEventCallback("on_sort_chest_click", &StorageGUISystem::OnSortChestClick, this);
-    constructor_->BindEventCallback("on_filter_change", &StorageGUISystem::OnFilterChange, this);
 }
 
 void glimmer::StorageGUISystem::OnActivationChanged(bool activeStatus) {
@@ -319,7 +311,6 @@ void glimmer::StorageGUISystem::OnActivationChanged(bool activeStatus) {
                       "StorageGUISystem: opened storage container is null");
             return;
         }
-        filter_.clear();
         if (searchInputElement_ != nullptr) {
             searchInputElement_->SetValue("");
         }
@@ -339,10 +330,6 @@ void glimmer::StorageGUISystem::OnActivationChanged(bool activeStatus) {
         openedContainer_ = nullptr;
         playerContainer_ = nullptr;
     }
-}
-
-SDL_Scancode glimmer::StorageGUISystem::GetHotKey() const {
-    return SDL_SCANCODE_UNKNOWN;
 }
 
 glimmer::GameSystemType glimmer::StorageGUISystem::GetGameSystemType() const {
@@ -403,13 +390,4 @@ void glimmer::StorageGUISystem::OnSortChestClick(Rml::DataModelHandle handle, Rm
     if (openedContainer_ != nullptr) {
         openedContainer_->Sort();
     }
-}
-
-void glimmer::StorageGUISystem::OnFilterChange(Rml::DataModelHandle handle, Rml::Event &event,
-                                               const Rml::VariantList &args) {
-    if (searchInputElement_ == nullptr) {
-        return;
-    }
-    filter_ = searchInputElement_->GetAttribute<Rml::String>("value", "");
-    ApplyFilter();
 }

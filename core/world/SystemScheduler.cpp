@@ -143,7 +143,12 @@ glimmer::GameSystem *glimmer::SystemScheduler::GetGameSystem(GameSystemType type
 }
 
 bool glimmer::SystemScheduler::HandleEvent(const SDL_Event &event) {
-    if (event.type == SDL_EVENT_KEY_DOWN) {
+    if (event.type == SDL_EVENT_KEY_DOWN && !event.key.repeat) {
+        if (HasAnyModalGuiOpen() && std::ranges::find(compatibleCloseKeys_, event.key.scancode) != compatibleCloseKeys_.
+            end()) {
+            PopGuiSystemType();
+            return true;
+        }
         auto iterator = scancodeToSystemType_.find(event.key.scancode);
         if (iterator != scancodeToSystemType_.end()) {
             if (HasAnyModalGuiOpen()) {
@@ -450,6 +455,9 @@ void glimmer::SystemScheduler::RegisterGuiSystem(std::unique_ptr<GuiGameSystem> 
                 const GameSystemType gameSystemType = guiStackGameSystem->GetGameSystemType();
                 scancodeToSystemType_[hotKey] = gameSystemType;
                 systemTypeToScancode_[gameSystemType] = hotKey;
+                if (guiStackGameSystem->IsCloseKeyCompatible()) {
+                    compatibleCloseKeys_.push_back(hotKey);
+                }
             }
         }
     }

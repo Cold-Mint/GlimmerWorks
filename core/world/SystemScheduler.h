@@ -67,6 +67,7 @@ namespace glimmer {
       * 的并发访问。
       */
         mutable std::mutex systemMutex_;
+        std::vector<SDL_Scancode> compatibleCloseKeys_;
         std::vector<std::unique_ptr<GameSystem> > activeSystems_;
         std::vector<std::unique_ptr<GameSystem> > inactiveSystems_;
         std::vector<GuiGameSystem *> guiGameSystems_;

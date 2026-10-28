@@ -26,7 +26,6 @@
 */
 #pragma once
 #include <memory>
-#include <string>
 
 #include "core/ecs/GuiStackGameSystem.h"
 #include "core/inventory/Item.h"
@@ -52,7 +51,6 @@ namespace glimmer {
         ItemToolTipComponent *itemToolTipComponent_ = nullptr;
         ItemContainer *itemContainer_ = nullptr;
         std::unique_ptr<InventoryDragListener> dragListener_;
-        std::string filter_;
 
         void RefreshItemSlots();
 
@@ -72,8 +70,6 @@ namespace glimmer {
 
         void OnSortClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
-        void OnFilterChange(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
-
     public:
         ~InventoryGUISystem() override;
 
@@ -82,6 +78,8 @@ namespace glimmer {
         explicit InventoryGUISystem(WorldContext *worldContext);
 
         void OnCreateDataModels(IDocumentRegistry *documentRegistry) override;
+
+        bool IsCloseKeyCompatible() const override;
 
         void OnActivationChanged(bool activeStatus) override;
 

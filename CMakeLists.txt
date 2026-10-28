@@ -725,6 +725,7 @@ target_sources(GlimmerWorks
         core/rmi/GameFontEngineInterface.cpp
         core/rmi/DecoratorNinePatchTexture.cpp
         core/rmi/InventoryDragListener.cpp
+        core/rmi/ItemToolTipHelper.cpp
         core/rmi/RenderInterfaceSDL3.cpp
         core/rmi/SystemInterfaceSDL3.cpp
         core/rmi/dataModel/MainSceneDataModel.cpp
@@ -1203,6 +1204,7 @@ target_sources(GlimmerWorks
         core/rmi/GameFontEngineInterface.h
         core/rmi/DecoratorNinePatchTexture.h
         core/rmi/InventoryDragListener.h
+        core/rmi/ItemToolTipHelper.h
         core/rmi/DecoratorNinePatchTextureInstancer.h
         core/rmi/RenderInterfaceSDL3.h
         core/rmi/SystemInterfaceSDL3.h

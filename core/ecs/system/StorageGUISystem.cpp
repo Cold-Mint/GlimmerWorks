@@ -31,11 +31,13 @@
 #include "RmlUi/Core/Elements/ElementFormControlInput.h"
 #include "core/ecs/EntityShortCut.h"
 #include "core/ecs/component/ItemContainerComponent.h"
+#include "core/ecs/component/ItemToolTipComponent.h"
 #include "core/inventory/Item.h"
 #include "core/inventory/ItemContainer.h"
 #include "core/inventory/ItemDurabilityModule.h"
 #include "core/log/LogCat.h"
 #include "core/rmi/InventoryDragListener.h"
+#include "core/rmi/ItemToolTipHelper.h"
 #include "core/utils/StringUtils.h"
 #include "core/world/SystemScheduler.h"
 #include "core/world/WorldContext.h"
@@ -250,12 +252,17 @@ glimmer::StorageGUISystem::~StorageGUISystem() {
 glimmer::StorageGUISystem::StorageGUISystem(WorldContext *worldContext)
     : GuiStackGameSystem(worldContext) {
     WatchComponent(COMPONENT_ITEM_CONTAINER);
+    WatchComponent(COMPONENT_ITEM_TOOL_TIP);
     dragListener_ = std::make_unique<InventoryDragListener>(nullptr);
     Init();
 }
 
 void glimmer::StorageGUISystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType,
                                                           uint32_t count) {
+    if (gameComponentType == COMPONENT_ITEM_TOOL_TIP) {
+        itemToolTipComponent_ = GetEntityShortCut()->GetItemToolTipComponent();
+        return;
+    }
     if (gameComponentType != COMPONENT_ITEM_CONTAINER) {
         return;
     }
@@ -275,14 +282,7 @@ void glimmer::StorageGUISystem::OnCreateDataModels(IDocumentRegistry *documentRe
     if (constructor_ == nullptr) {
         return;
     }
-    if (auto slotStruct = constructor_->RegisterStruct<ItemSlotDataModel>()) {
-        slotStruct.RegisterMember("image", &ItemSlotDataModel::image);
-        slotStruct.RegisterMember("amount", &ItemSlotDataModel::amount);
-        slotStruct.RegisterMember("selected", &ItemSlotDataModel::selected);
-        slotStruct.RegisterMember("index", &ItemSlotDataModel::index);
-        slotStruct.RegisterMember("durability", &ItemSlotDataModel::durability);
-        constructor_->RegisterArray<std::vector<ItemSlotDataModel> >();
-    }
+    RegisterItemSlotDataModel(constructor_);
     constructor_->Bind("player_slots", &playerSlots_);
     constructor_->Bind("chest_slots", &chestSlots_);
     constructor_->BindEventCallback("on_back_click", &StorageGUISystem::OnBackClick, this);
@@ -292,6 +292,9 @@ void glimmer::StorageGUISystem::OnCreateDataModels(IDocumentRegistry *documentRe
     constructor_->BindEventCallback("on_restock_click", &StorageGUISystem::OnRestockClick, this);
     constructor_->BindEventCallback("on_sort_player_click", &StorageGUISystem::OnSortPlayerClick, this);
     constructor_->BindEventCallback("on_sort_chest_click", &StorageGUISystem::OnSortChestClick, this);
+    constructor_->BindEventCallback("on_player_item_hover", &StorageGUISystem::OnPlayerItemHover, this);
+    constructor_->BindEventCallback("on_chest_item_hover", &StorageGUISystem::OnChestItemHover, this);
+    constructor_->BindEventCallback("on_item_out", &StorageGUISystem::OnItemOut, this);
 }
 
 void glimmer::StorageGUISystem::OnActivationChanged(bool activeStatus) {
@@ -390,4 +393,19 @@ void glimmer::StorageGUISystem::OnSortChestClick(Rml::DataModelHandle handle, Rm
     if (openedContainer_ != nullptr) {
         openedContainer_->Sort();
     }
+}
+
+void glimmer::StorageGUISystem::OnPlayerItemHover(Rml::DataModelHandle handle, Rml::Event &event,
+                                                  const Rml::VariantList &args) {
+    ItemToolTipHelper::SetItemToolTip(itemToolTipComponent_, playerContainer_, args);
+}
+
+void glimmer::StorageGUISystem::OnChestItemHover(Rml::DataModelHandle handle, Rml::Event &event,
+                                                 const Rml::VariantList &args) {
+    ItemToolTipHelper::SetItemToolTip(itemToolTipComponent_, openedContainer_, args);
+}
+
+void glimmer::StorageGUISystem::OnItemOut(Rml::DataModelHandle handle, Rml::Event &event,
+                                          const Rml::VariantList &args) {
+    ItemToolTipHelper::ResetItemToolTip(itemToolTipComponent_);
 }

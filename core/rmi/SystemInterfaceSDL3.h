@@ -38,5 +38,7 @@ namespace glimmer {
         int TranslateString(Rml::String &translated, const Rml::String &input) override;
 
         bool LogMessage(Rml::Log::Type type, const Rml::String &message) override;
+
+        void SetMouseCursor(const Rml::String &cursorName) override;
     };
 }

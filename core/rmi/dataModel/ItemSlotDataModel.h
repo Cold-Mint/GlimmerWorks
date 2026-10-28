@@ -28,6 +28,11 @@
 #include <cstdint>
 #include <string>
 
+
+namespace Rml {
+    class DataModelConstructor;
+}
+
 namespace glimmer {
     struct ItemSlotDataModel {
         std::string image;
@@ -38,4 +43,10 @@ namespace glimmer {
 
         static int CalculateDurabilityPercentage(uint32_t maxDurability, uint32_t usedDurability, bool unbreakable);
     };
+
+    /**
+     * Register the ItemSlotDataModel struct and its array type into the given data model constructor.
+     * 将 ItemSlotDataModel 结构体及其数组类型注册到给定的数据模型构造器中。
+     */
+    void RegisterItemSlotDataModel(Rml::DataModelConstructor *constructor);
 }

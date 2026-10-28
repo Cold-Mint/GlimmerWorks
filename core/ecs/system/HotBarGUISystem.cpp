@@ -26,11 +26,11 @@
  */
 #include "HotBarGUISystem.h"
 
-#include "core/ecs/component/ItemToolTipComponent.h"
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/inventory/ItemDurabilityModule.h"
 #include "core/log/LogCat.h"
 #include "core/mod/Resource.h"
+#include "core/rmi/ItemToolTipHelper.h"
 #include "core/rmi/dataModel/ItemSlotDataModel.h"
 #include "core/scene/Scene.h"
 #include "core/utils/StringUtils.h"
@@ -148,15 +148,7 @@ void glimmer::HotBarGUISystem::OnCreateDataModels(IDocumentRegistry *documentReg
     LogCat::i(LogLabel::DEFAULT, "on_create_data_models_called", "OnCreateDataModels called");
     constructor_ = documentRegistry->CreateDataModel("hotbar");
     LogCat::i(LogLabel::DEFAULT, "data_model_hotbar_created", "DataModel 'hotbar' created");
-    if (auto linkStruct = constructor_->RegisterStruct<ItemSlotDataModel>()) {
-        linkStruct.RegisterMember("image", &ItemSlotDataModel::image);
-        linkStruct.RegisterMember("amount", &ItemSlotDataModel::amount);
-        linkStruct.RegisterMember("selected", &ItemSlotDataModel::selected);
-        linkStruct.RegisterMember("index", &ItemSlotDataModel::index);
-        linkStruct.RegisterMember("durability", &ItemSlotDataModel::durability);
-        constructor_->RegisterArray<std::vector<ItemSlotDataModel> >();
-        LogCat::i(LogLabel::DEFAULT, "struct_members_registered", "Struct members registered: image, amount, selected");
-    }
+    RegisterItemSlotDataModel(constructor_);
     constructor_->Bind("item_slots", &itemSlots_);
     LogCat::i(LogLabel::DEFAULT, "item_slots_bound_to_data_model", "item_slots bound to data model");
     constructor_->BindEventCallback("on_item_hover", &HotBarGUISystem::OnItemHover, this);
@@ -256,20 +248,10 @@ glimmer::GameSystemType glimmer::HotBarGUISystem::GetGameSystemType() const {
 
 void glimmer::HotBarGUISystem::OnItemHover(Rml::DataModelHandle handle, Rml::Event &event,
                                            const Rml::VariantList &args) {
-    if (args.empty() || itemContainer_ == nullptr || itemToolTipComponent_ == nullptr) {
-        return;
-    }
-    const int index = args[0].Get<int>();
-    if (index < 0 || index >= static_cast<int>(itemContainer_->GetCapacity())) {
-        return;
-    }
-    itemToolTipComponent_->SetItem(itemContainer_->GetItem(static_cast<uint8_t>(index)));
+    ItemToolTipHelper::SetItemToolTip(itemToolTipComponent_, itemContainer_, args);
 }
 
 void glimmer::HotBarGUISystem::OnItemOut(Rml::DataModelHandle handle, Rml::Event &event,
                                          const Rml::VariantList &args) {
-    if (itemToolTipComponent_ == nullptr) {
-        return;
-    }
-    itemToolTipComponent_->ResetItem();
+    ItemToolTipHelper::ResetItemToolTip(itemToolTipComponent_);
 }

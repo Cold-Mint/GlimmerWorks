@@ -39,6 +39,7 @@ namespace Rml {
 namespace glimmer {
     class Item;
     class ItemContainer;
+    class ItemToolTipComponent;
     class InventoryDragListener;
     enum class ContainerChangeType;
 
@@ -56,6 +57,7 @@ namespace glimmer {
         Rml::ElementFormControlInput *searchInputElement_ = nullptr;
         ItemContainer *playerContainer_ = nullptr;
         ItemContainer *openedContainer_ = nullptr;
+        ItemToolTipComponent *itemToolTipComponent_ = nullptr;
         std::shared_ptr<std::function<void(uint8_t, Item *, ContainerChangeType)> > playerCallback_;
         std::shared_ptr<std::function<void(uint8_t, Item *, ContainerChangeType)> > chestCallback_;
         std::unique_ptr<InventoryDragListener> dragListener_;
@@ -97,6 +99,12 @@ namespace glimmer {
         void OnSortPlayerClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
         void OnSortChestClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
+
+        void OnPlayerItemHover(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
+
+        void OnChestItemHover(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
+
+        void OnItemOut(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
     public:
         ~StorageGUISystem() override;

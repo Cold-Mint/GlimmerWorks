@@ -73,3 +73,12 @@ bool glimmer::SystemInterfaceSDL3::LogMessage(const Rml::Log::Type type, const R
     }
     return true;
 }
+
+void glimmer::SystemInterfaceSDL3::SetMouseCursor(const Rml::String &cursorName) {
+    if (cursorName == "none") {
+        SDL_HideCursor();
+        return;
+    }
+    SystemInterface_SDL::SetMouseCursor(cursorName);
+    SDL_ShowCursor();
+}

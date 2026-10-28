@@ -26,6 +26,10 @@
  */
 #include "ItemSlotDataModel.h"
 
+#include <vector>
+
+#include "RmlUi/Core/DataModelHandle.h"
+
 int glimmer::ItemSlotDataModel::CalculateDurabilityPercentage(uint32_t maxDurability, uint32_t usedDurability,
                                                               bool unbreakable) {
     if (maxDurability == 0) {
@@ -36,4 +40,18 @@ int glimmer::ItemSlotDataModel::CalculateDurabilityPercentage(uint32_t maxDurabi
     }
     const uint32_t remaining = maxDurability > usedDurability ? maxDurability - usedDurability : 0;
     return static_cast<int>(remaining * 100 / maxDurability);
+}
+
+void glimmer::RegisterItemSlotDataModel(Rml::DataModelConstructor *constructor) {
+    if (constructor == nullptr) {
+        return;
+    }
+    if (auto linkStruct = constructor->RegisterStruct<ItemSlotDataModel>()) {
+        linkStruct.RegisterMember("image", &ItemSlotDataModel::image);
+        linkStruct.RegisterMember("amount", &ItemSlotDataModel::amount);
+        linkStruct.RegisterMember("selected", &ItemSlotDataModel::selected);
+        linkStruct.RegisterMember("index", &ItemSlotDataModel::index);
+        linkStruct.RegisterMember("durability", &ItemSlotDataModel::durability);
+        constructor->RegisterArray<std::vector<ItemSlotDataModel> >();
+    }
 }

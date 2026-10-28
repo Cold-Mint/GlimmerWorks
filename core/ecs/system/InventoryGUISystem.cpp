@@ -27,7 +27,6 @@
 #include "InventoryGUISystem.h"
 
 #include <algorithm>
-#include <cctype>
 
 #include "RecipeDetailGUISystem.h"
 #include "RmlUi/Core/Elements/ElementFormControlInput.h"
@@ -41,6 +40,7 @@
 #include "core/mod/ResourceLocator.h"
 #include "core/mod/dataPack/RecipeManager.h"
 #include "core/rmi/InventoryDragListener.h"
+#include "core/rmi/ItemToolTipHelper.h"
 #include "core/utils/StringUtils.h"
 #include "core/world/SystemScheduler.h"
 #include "core/world/WorldContext.h"
@@ -231,14 +231,7 @@ glimmer::InventoryGUISystem::InventoryGUISystem(WorldContext *worldContext)
 
 void glimmer::InventoryGUISystem::OnCreateDataModels(IDocumentRegistry *documentRegistry) {
     constructor_ = documentRegistry->CreateDataModel("inventory");
-    if (auto linkStruct = constructor_->RegisterStruct<ItemSlotDataModel>()) {
-        linkStruct.RegisterMember("image", &ItemSlotDataModel::image);
-        linkStruct.RegisterMember("amount", &ItemSlotDataModel::amount);
-        linkStruct.RegisterMember("selected", &ItemSlotDataModel::selected);
-        linkStruct.RegisterMember("index", &ItemSlotDataModel::index);
-        linkStruct.RegisterMember("durability", &ItemSlotDataModel::durability);
-        constructor_->RegisterArray<std::vector<ItemSlotDataModel> >();
-    }
+    RegisterItemSlotDataModel(constructor_);
     constructor_->Bind("item_slots", &itemSlots_);
     constructor_->Bind("recipe_slots", &recipeSlots_);
     constructor_->BindEventCallback("on_recipe_click", &InventoryGUISystem::OnRecipeClick, this);
@@ -359,22 +352,12 @@ void glimmer::InventoryGUISystem::OnRecipeClick(Rml::DataModelHandle handle, Rml
 
 void glimmer::InventoryGUISystem::OnItemHover(Rml::DataModelHandle handle, Rml::Event &event,
                                               const Rml::VariantList &args) {
-    if (args.empty() || itemContainer_ == nullptr || itemToolTipComponent_ == nullptr) {
-        return;
-    }
-    const int index = args[0].Get<int>();
-    if (index < 0 || index >= static_cast<int>(itemContainer_->GetCapacity())) {
-        return;
-    }
-    itemToolTipComponent_->SetItem(itemContainer_->GetItem(static_cast<uint8_t>(index)));
+    ItemToolTipHelper::SetItemToolTip(itemToolTipComponent_, itemContainer_, args);
 }
 
 void glimmer::InventoryGUISystem::OnItemOut(Rml::DataModelHandle handle, Rml::Event &event,
                                             const Rml::VariantList &args) {
-    if (itemToolTipComponent_ == nullptr) {
-        return;
-    }
-    itemToolTipComponent_->ResetItem();
+    ItemToolTipHelper::ResetItemToolTip(itemToolTipComponent_);
 }
 
 void glimmer::InventoryGUISystem::OnRecipeHover(Rml::DataModelHandle handle, Rml::Event &event,

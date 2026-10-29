@@ -146,6 +146,14 @@ namespace glimmer {
          */
         static void InitGrowthState(TileStateMessage *msg, const TileResource *tileResource, uint64_t tick);
 
+        /**
+         * InitializeLootBoxUuid
+         * 为战利品箱（含 containerLootTable 的瓦片）的原点格分配 uuid。空 uuid 表示非战利品箱。
+         * @param msg 目标瓦片状态
+         * @param tileResource tileResource 瓦片资源
+         */
+        static void InitLootBoxUuid(TileStateMessage *msg, const TileResource *tileResource);
+
         [[nodiscard]] const ChunkVertexVector2D &GetPosition() const;
 
         [[nodiscard]] const Tile *GetTile(TileLayerType layerType, size_t index) const;

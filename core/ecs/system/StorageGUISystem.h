@@ -27,6 +27,7 @@
 #pragma once
 #include <functional>
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "core/ecs/GuiStackGameSystem.h"
@@ -53,13 +54,20 @@ namespace glimmer {
     class StorageGUISystem : public GuiStackGameSystem {
         std::vector<ItemSlotDataModel> playerSlots_;
         std::vector<ItemSlotDataModel> chestSlots_;
+        std::vector<ItemSlotDataModel> lootSlots_;
+        bool showLoot_ = false;
         Rml::DataModelConstructor *constructor_ = nullptr;
         Rml::ElementFormControlInput *searchInputElement_ = nullptr;
         ItemContainer *playerContainer_ = nullptr;
         ItemContainer *openedContainer_ = nullptr;
+        //The materialized loot container of the currently opened loot box (owned by this system).
+        //当前打开的战利品箱的物化战利品容器（由本系统持有）。
+        std::unique_ptr<ItemContainer> lootContainer_;
+        std::string lootBoxUuid_;
         ItemToolTipComponent *itemToolTipComponent_ = nullptr;
         std::shared_ptr<std::function<void(uint8_t, Item *, ContainerChangeType)> > playerCallback_;
         std::shared_ptr<std::function<void(uint8_t, Item *, ContainerChangeType)> > chestCallback_;
+        std::shared_ptr<std::function<void(uint8_t, Item *, ContainerChangeType)> > lootCallback_;
         std::unique_ptr<InventoryDragListener> dragListener_;
 
         static void MoveStack(ItemContainer *from, uint8_t index, ItemContainer *to);
@@ -69,6 +77,8 @@ namespace glimmer {
         void RefreshPlayerSlots();
 
         void RefreshChestSlots();
+
+        void RefreshLootSlots();
 
         void BindCallbacks();
 
@@ -82,6 +92,8 @@ namespace glimmer {
 
         void LootAll();
 
+        void TakeLootAll();
+
         void Restock();
 
         void ApplyFilter();
@@ -93,6 +105,8 @@ namespace glimmer {
         void OnQuickStackClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
         void OnLootAllClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
+
+        void OnLootTakeAllClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
         void OnRestockClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 

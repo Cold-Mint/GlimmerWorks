@@ -88,8 +88,13 @@ void glimmer::PlayerManifest::FromMessage(const PlayerMessage &playerMessage) {
     }
     entityItemMessage = playerMessage.entity();
     currentDimensionIndex_ = playerMessage.currentdimensionindex();
-    LogCat::d(LogLabel::DEFAULT, "player_manifest_from_message", "Player manifest parsed: visitedDimensions={}",
-              visitedDimensionsSize);
+    openedLootBoxSnapshot.clear();
+    for (const auto &[uuid, snapshot] : playerMessage.openedlootboxsnapshot()) {
+        openedLootBoxSnapshot[uuid] = snapshot;
+    }
+    LogCat::d(LogLabel::DEFAULT, "player_manifest_from_message",
+              "Player manifest parsed: visitedDimensions={}, openedLootBoxSnapshot={}",
+              visitedDimensionsSize, openedLootBoxSnapshot.size());
 }
 
 void glimmer::PlayerManifest::ToMessage(PlayerMessage &playerMessage) const {
@@ -102,6 +107,11 @@ void glimmer::PlayerManifest::ToMessage(PlayerMessage &playerMessage) const {
         playerMessage.mutable_visiteddimensions()->Add()->CopyFrom(visitedDimensions_[i]);
     }
     playerMessage.mutable_entity()->CopyFrom(entityItemMessage);
-    LogCat::d(LogLabel::DEFAULT, "player_manifest_to_message", "Player manifest serialized: visitedDimensions={}",
-              visitedDimensionsSize);
+    playerMessage.mutable_openedlootboxsnapshot()->clear();
+    for (const auto &[uuid, snapshot] : openedLootBoxSnapshot) {
+        (*playerMessage.mutable_openedlootboxsnapshot())[uuid] = snapshot;
+    }
+    LogCat::d(LogLabel::DEFAULT, "player_manifest_to_message",
+              "Player manifest serialized: visitedDimensions={}, openedLootBoxSnapshot={}",
+              visitedDimensionsSize, openedLootBoxSnapshot.size());
 }

@@ -38,9 +38,42 @@
 #include "core/log/LogCat.h"
 #include "core/rmi/InventoryDragListener.h"
 #include "core/rmi/ItemToolTipHelper.h"
+#include "core/saves/PlayerManifest.h"
 #include "core/utils/StringUtils.h"
 #include "core/world/SystemScheduler.h"
 #include "core/world/WorldContext.h"
+
+namespace {
+    /**
+     * Materialize a loot-box snapshot into an ItemContainer.
+     * 将战利品箱快照物化为一个 ItemContainer。
+     */
+    void SnapshotToContainer(glimmer::WorldContext *worldContext,
+                             const LootBoxSnapshotMessage &snapshot,
+                             glimmer::ItemContainer *container) {
+        ItemContainerMessage message;
+        for (const auto &item : snapshot.items()) {
+            message.add_itemresourceref()->CopyFrom(item);
+        }
+        container->FromMessage(worldContext, message);
+    }
+
+    /**
+     * Serialize an ItemContainer back into a loot-box snapshot (only non-empty slots are kept).
+     * 将 ItemContainer 序列化回战利品箱快照（仅保留非空格子）。
+     */
+    void ContainerToSnapshot(const glimmer::ItemContainer *container, LootBoxSnapshotMessage &snapshot) {
+        ItemContainerMessage message;
+        container->ToMessage(message);
+        snapshot.clear_items();
+        for (const auto &item : message.itemresourceref()) {
+            if (!item.has_itemresourceref()) {
+                continue;
+            }
+            snapshot.add_items()->CopyFrom(item);
+        }
+    }
+}
 
 
 void glimmer::StorageGUISystem::MoveStack(ItemContainer *from, const uint8_t index, ItemContainer *to) {
@@ -102,6 +135,10 @@ void glimmer::StorageGUISystem::RefreshChestSlots() {
     RefreshSlots(openedContainer_, chestSlots_);
 }
 
+void glimmer::StorageGUISystem::RefreshLootSlots() {
+    RefreshSlots(lootContainer_.get(), lootSlots_);
+}
+
 void glimmer::StorageGUISystem::BindCallbacks() {
     UnbindCallbacks();
     if (playerContainer_ != nullptr) {
@@ -122,6 +159,20 @@ void glimmer::StorageGUISystem::BindCallbacks() {
                 }
             });
     }
+    if (lootContainer_ != nullptr) {
+        lootCallback_ = lootContainer_->AddOnContentChanged(
+            [this](const uint8_t, Item *, const ContainerChangeType) {
+                RefreshLootSlots();
+                if (constructor_ != nullptr) {
+                    constructor_->GetModelHandle().DirtyVariable("loot_slots");
+                    const bool hasLoot = lootContainer_->GetUsedCapacity() > 0;
+                    if (showLoot_ != hasLoot) {
+                        showLoot_ = hasLoot;
+                        constructor_->GetModelHandle().DirtyVariable("show_loot");
+                    }
+                }
+            });
+    }
 }
 
 void glimmer::StorageGUISystem::UnbindCallbacks() {
@@ -131,8 +182,12 @@ void glimmer::StorageGUISystem::UnbindCallbacks() {
     if (openedContainer_ != nullptr && chestCallback_ != nullptr) {
         openedContainer_->RemoveOnContentChanged(chestCallback_);
     }
+    if (lootContainer_ != nullptr && lootCallback_ != nullptr) {
+        lootContainer_->RemoveOnContentChanged(lootCallback_);
+    }
     playerCallback_.reset();
     chestCallback_.reset();
+    lootCallback_.reset();
 }
 
 void glimmer::StorageGUISystem::SetupDragAndDrop() {
@@ -142,11 +197,15 @@ void glimmer::StorageGUISystem::SetupDragAndDrop() {
     }
     Rml::Element *playerContainerElement = document->GetElementById("player_container");
     Rml::Element *chestContainerElement = document->GetElementById("chest_container");
+    Rml::Element *lootContainerElement = document->GetElementById("loot_container");
     if (playerContainerElement != nullptr && playerContainer_ != nullptr) {
         dragListener_->RegisterContainer(playerContainerElement, playerContainer_);
     }
     if (chestContainerElement != nullptr && openedContainer_ != nullptr) {
         dragListener_->RegisterContainer(chestContainerElement, openedContainer_);
+    }
+    if (lootContainerElement != nullptr && lootContainer_ != nullptr) {
+        dragListener_->RegisterContainer(lootContainerElement, lootContainer_.get());
     }
 }
 
@@ -187,6 +246,18 @@ void glimmer::StorageGUISystem::LootAll() {
             continue;
         }
         MoveStack(openedContainer_, i, playerContainer_);
+    }
+}
+
+void glimmer::StorageGUISystem::TakeLootAll() {
+    if (playerContainer_ == nullptr || lootContainer_ == nullptr) {
+        return;
+    }
+    for (uint8_t i = 0; i < lootContainer_->GetCapacity(); ++i) {
+        if (lootContainer_->GetItem(i) == nullptr) {
+            continue;
+        }
+        MoveStack(lootContainer_.get(), i, playerContainer_);
     }
 }
 
@@ -285,10 +356,13 @@ void glimmer::StorageGUISystem::OnCreateDataModels(IDocumentRegistry *documentRe
     RegisterItemSlotDataModel(constructor_);
     constructor_->Bind("player_slots", &playerSlots_);
     constructor_->Bind("chest_slots", &chestSlots_);
+    constructor_->Bind("loot_slots", &lootSlots_);
+    constructor_->Bind("show_loot", &showLoot_);
     constructor_->BindEventCallback("on_back_click", &StorageGUISystem::OnBackClick, this);
     constructor_->BindEventCallback("on_deposit_all_click", &StorageGUISystem::OnDepositAllClick, this);
     constructor_->BindEventCallback("on_quick_stack_click", &StorageGUISystem::OnQuickStackClick, this);
     constructor_->BindEventCallback("on_loot_all_click", &StorageGUISystem::OnLootAllClick, this);
+    constructor_->BindEventCallback("on_loot_take_all_click", &StorageGUISystem::OnLootTakeAllClick, this);
     constructor_->BindEventCallback("on_restock_click", &StorageGUISystem::OnRestockClick, this);
     constructor_->BindEventCallback("on_sort_player_click", &StorageGUISystem::OnSortPlayerClick, this);
     constructor_->BindEventCallback("on_sort_chest_click", &StorageGUISystem::OnSortChestClick, this);
@@ -300,7 +374,7 @@ void glimmer::StorageGUISystem::OnCreateDataModels(IDocumentRegistry *documentRe
 void glimmer::StorageGUISystem::OnActivationChanged(bool activeStatus) {
     GuiStackGameSystem::OnActivationChanged(activeStatus);
     if (activeStatus) {
-        const EntityShortCut *entityShortCut = GetEntityShortCut();
+        EntityShortCut *entityShortCut = GetEntityShortCut();
         if (entityShortCut == nullptr) {
             return;
         }
@@ -314,24 +388,58 @@ void glimmer::StorageGUISystem::OnActivationChanged(bool activeStatus) {
                       "StorageGUISystem: opened storage container is null");
             return;
         }
+        //Materialize this player's loot-box snapshot into a temporary container.
+        //把该玩家的战利品箱快照物化为临时容器。
+        lootBoxUuid_ = entityShortCut->GetOpenedLootBoxUuid();
+        lootContainer_.reset();
+        if (!lootBoxUuid_.empty()) {
+            if (PlayerManifest *playerManifest = GetWorldContext()->GetPlayerManifest();
+                playerManifest != nullptr) {
+                const auto it = playerManifest->openedLootBoxSnapshot.find(lootBoxUuid_);
+                if (it != playerManifest->openedLootBoxSnapshot.end()) {
+                    lootContainer_ = std::make_unique<ItemContainer>();
+                    SnapshotToContainer(GetWorldContext(), it->second, lootContainer_.get());
+                }
+            }
+        }
+        showLoot_ = lootContainer_ != nullptr && lootContainer_->GetUsedCapacity() > 0;
         if (searchInputElement_ != nullptr) {
             searchInputElement_->SetValue("");
         }
         RefreshPlayerSlots();
         RefreshChestSlots();
+        RefreshLootSlots();
         BindCallbacks();
         SetupDragAndDrop();
         if (constructor_ != nullptr) {
             constructor_->GetModelHandle().DirtyVariable("player_slots");
             constructor_->GetModelHandle().DirtyVariable("chest_slots");
+            constructor_->GetModelHandle().DirtyVariable("loot_slots");
+            constructor_->GetModelHandle().DirtyVariable("show_loot");
         }
     } else {
+        //Persist the loot container back into the player's snapshot before closing.
+        //关闭前把战利品容器写回玩家快照。
+        if (lootContainer_ != nullptr && !lootBoxUuid_.empty()) {
+            if (PlayerManifest *playerManifest = GetWorldContext()->GetPlayerManifest();
+                playerManifest != nullptr) {
+                LootBoxSnapshotMessage snapshot;
+                ContainerToSnapshot(lootContainer_.get(), snapshot);
+                playerManifest->openedLootBoxSnapshot[lootBoxUuid_] = std::move(snapshot);
+            }
+        }
+        if (EntityShortCut *entityShortCut = GetEntityShortCut(); entityShortCut != nullptr) {
+            entityShortCut->SetOpenedLootBoxUuid("");
+        }
         UnbindCallbacks();
         if (dragListener_ != nullptr) {
             dragListener_->UnregisterContainer();
         }
         openedContainer_ = nullptr;
         playerContainer_ = nullptr;
+        lootContainer_.reset();
+        lootBoxUuid_.clear();
+        showLoot_ = false;
     }
 }
 
@@ -374,6 +482,11 @@ void glimmer::StorageGUISystem::OnQuickStackClick(Rml::DataModelHandle handle, R
 void glimmer::StorageGUISystem::OnLootAllClick(Rml::DataModelHandle handle, Rml::Event &event,
                                                const Rml::VariantList &args) {
     LootAll();
+}
+
+void glimmer::StorageGUISystem::OnLootTakeAllClick(Rml::DataModelHandle handle, Rml::Event &event,
+                                                    const Rml::VariantList &args) {
+    TakeLootAll();
 }
 
 void glimmer::StorageGUISystem::OnRestockClick(Rml::DataModelHandle handle, Rml::Event &event,

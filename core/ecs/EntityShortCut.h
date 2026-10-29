@@ -25,6 +25,8 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <string>
+
 #include "EcsTypes.h"
 #include "component/AreaMarkerComponent.h"
 #include "component/BlueprintComponent.h"
@@ -49,6 +51,9 @@ namespace glimmer {
         ItemToolTipComponent *itemToolTipComponent_ = nullptr;
         RecipeSelectionComponent *recipeSelectionComponent_ = nullptr;
         ItemContainer *openedStorageContainer_ = nullptr;
+        //The uuid of the currently opened loot box (empty = not a loot box).
+        //当前打开的战利品箱的uuid（空表示不是战利品箱）。
+        std::string openedLootBoxUuid_;
         GameEntityID player_ = GAME_ENTITY_ID_INVALID;
 
     public:
@@ -101,5 +106,19 @@ namespace glimmer {
          * @return 容器指针，未打开返回 nullptr
          */
         [[nodiscard]] ItemContainer *GetOpenedStorageContainer() const;
+
+        /**
+         * Set the uuid of the currently opened loot box.
+         * 设置当前打开的战利品箱的uuid。
+         * @param uuid uuid 箱子uuid，空字符串表示不是战利品箱
+         */
+        void SetOpenedLootBoxUuid(const std::string &uuid);
+
+        /**
+         * Get the uuid of the currently opened loot box.
+         * 获取当前打开的战利品箱的uuid。
+         * @return 箱子uuid，空字符串表示不是战利品箱
+         */
+        [[nodiscard]] const std::string &GetOpenedLootBoxUuid() const;
     };
 }

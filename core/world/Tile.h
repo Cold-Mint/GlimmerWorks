@@ -53,6 +53,7 @@ namespace glimmer {
         ResourceRef growthTarget_;
         ResourceRef primaryActionTarget_;
         ResourceRef secondaryActionTarget_;
+        ResourceRef containerLootTable_;
 
         std::unordered_map<Vector2DIFingerprint, GameEntityID> gameEntities_;
         std::optional<std::string> description_;
@@ -132,6 +133,13 @@ namespace glimmer {
         const ResourceRef &GetPrimaryActionTarget() const;
 
         const ResourceRef &GetSecondaryActionTarget() const;
+
+        /**
+         * GetContainerLootTable
+         * 获取容器战利品表引用（箱子等存储方块首次打开时生成的战利品）。
+         * @return 战利品表资源引用
+         */
+        const ResourceRef &GetContainerLootTable() const;
 
         /**
          * GetSpawnOriginOffset

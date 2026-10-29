@@ -72,6 +72,10 @@ const glimmer::ResourceRef &glimmer::Tile::GetSecondaryActionTarget() const {
     return secondaryActionTarget_;
 }
 
+const glimmer::ResourceRef &glimmer::Tile::GetContainerLootTable() const {
+    return containerLootTable_;
+}
+
 const glimmer::Vector2DIResource &glimmer::Tile::GetSpawnOriginOffset() const {
     return spawnOriginOffset_;
 }
@@ -254,6 +258,7 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     tile->allowOfflineGrowth_ = tileResource->allowOfflineGrowth;
     tile->primaryActionTarget_ = tileResource->primaryActionTarget;
     tile->secondaryActionTarget_ = tileResource->secondaryActionTarget;
+    tile->containerLootTable_ = tileResource->containerLootTable;
     uint8_t tileHeight = tileResource->tileHeight;
     if (tileHeight > CHUNK_SIZE) {
         tileHeight = CHUNK_SIZE;

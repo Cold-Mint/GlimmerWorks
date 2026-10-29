@@ -335,6 +335,7 @@ void glimmer::ResourceFileLoader::LoadTileResourceFromFile(const toml::value &va
     tileResource->growthTarget.SetSelfPackageId(manifest_->id);
     tileResource->primaryActionTarget.SetSelfPackageId(manifest_->id);
     tileResource->secondaryActionTarget.SetSelfPackageId(manifest_->id);
+    tileResource->containerLootTable.SetSelfPackageId(manifest_->id);
     for (auto &growthCondition: tileResource->growthConditions) {
         growthCondition.SetSelfPackageId(manifest_->id);
     }

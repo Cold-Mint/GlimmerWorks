@@ -44,11 +44,12 @@ std::string glimmer::UUIDUtils::Generate() {
     };
     data[1] = data[1] & 0xFFFF0FFF | 0x00004000;
     data[2] = data[2] & 0x3FFFFFFF | 0x80000000;
-    return std::format("{:08x}-{:04x}-{:04x}-{:04x}-{:04x}-{:08x}",
+    //node 段为 48 位（data[2] 低 16 位 + data[3] 的 32 位），合并后格式化为 12 位十六进制，符合标准 8-4-4-4-12 格式。
+    const uint64_t node = (static_cast<uint64_t>(data[2] & 0xFFFF) << 32) | data[3];
+    return std::format("{:08x}-{:04x}-{:04x}-{:04x}-{:012x}",
                        data[0],
                        static_cast<uint16_t>(data[1] >> 16),
                        static_cast<uint16_t>(data[1] & 0xFFFF),
                        static_cast<uint16_t>(data[2] >> 16),
-                       static_cast<uint16_t>(data[2] & 0xFFFF),
-                       data[3]);
+                       node);
 }

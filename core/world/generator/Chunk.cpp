@@ -34,6 +34,7 @@
 #include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/utils/RandomUtils.h"
+#include "core/utils/UUIDUtils.h"
 #include "core/world/TileInstancePool.h"
 #include "core/world/WorldContext.h"
 #include "src/saves/tile_state.pb.h"
@@ -179,6 +180,28 @@ void glimmer::Chunk::InitGrowthState(TileStateMessage *msg, const TileResource *
     }
 }
 
+void glimmer::Chunk::InitLootBoxUuid(TileStateMessage *msg, const TileResource *tileResource) {
+    if (msg == nullptr || tileResource == nullptr) {
+        return;
+    }
+    //Only the block's origin cell (bottom-left, i.e. offset == (0, height-1)) carries the uuid.
+    //只有方块的原点格（左下角，即 offset == (0, height-1)）承载 uuid。
+    TileVector2D offset(0, 0);
+    offset.ReadVector2DIMessage(msg->offset());
+    const bool isOriginCell = offset.x == 0 && offset.y == static_cast<int>(msg->height()) - 1;
+    if (tileResource->containerLootTable.IsValid() && isOriginCell) {
+        if (msg->uuid().empty()) {
+            msg->set_uuid(UUIDUtils::Generate());
+        }
+        return;
+    }
+    //Not a loot box origin cell: clear any stale uuid left by a previous box at this cell.
+    //非战利品箱原点格：清除此格子上一个箱子残留的旧 uuid。
+    if (!msg->uuid().empty()) {
+        msg->clear_uuid();
+    }
+}
+
 const glimmer::ChunkVertexVector2D &glimmer::Chunk::GetPosition() const {
     return position_;
 }
@@ -208,6 +231,7 @@ bool glimmer::Chunk::PlaceTileCell(const TileLayerType layerType, const size_t i
     resourceRef.WriteResourceRefMessage(*tileStateMessage->mutable_resourceref());
     const uint64_t tick = worldContext_ != nullptr ? worldContext_->GetGlobalTick() : 0;
     InitGrowthState(tileStateMessage, tileResource, tick);
+    InitLootBoxUuid(tileStateMessage, tileResource);
     return CommitTileState(breakSource, layerType, index, fallback);
 }
 

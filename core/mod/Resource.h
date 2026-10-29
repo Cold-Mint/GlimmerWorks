@@ -515,6 +515,8 @@ namespace glimmer {
         ResourceRef description = {};
         //@genNextLine(lootTable|战利品表资源引用)
         ResourceRef lootTable = {};
+        //@genNextLine(containerLootTable|容器战利品表资源引用 箱子等存储方块首次打开时生成的战利品)
+        ResourceRef containerLootTable = {};
         //@genNextLine(texture|默认纹理资源引用，未指定方向纹理时使用)
         ResourceRef texture;
         //@genNextLine(attachmentTextureUp|附着在上方时使用的纹理)

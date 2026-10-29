@@ -105,6 +105,7 @@ bool glimmer::MiningSystem::TryPlaceTile(const TileLayerComponent *tileLayerComp
                                             currentVector,
                                             false)) {
         Chunk::InitGrowthState(tileState, tileResource, tick);
+        Chunk::InitLootBoxUuid(tileState, tileResource);
         return true;
     }
     RestoreTileState(tileState, backup);

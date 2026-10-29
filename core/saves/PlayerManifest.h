@@ -25,6 +25,10 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <string>
+#include <unordered_map>
+#include <vector>
+
 #include "core/mod/ResourceRef.h"
 #include "src/core/player.pb.h"
 
@@ -42,6 +46,11 @@ namespace glimmer {
         EntityItemMessage entityItemMessage;
         long lastPlayedTime = 0;
         PlayerPermissionLevelMessage permissionLevel = PLAYER_PERMISSION_LEVEL_NORMAL;
+        /**
+         * The loot boxes this player has opened, keyed by the box's uuid.
+         * 玩家打开过的战利品箱，key 为箱子 uuid，value 为尚未领取的战利品快照。
+         */
+        std::unordered_map<std::string, LootBoxSnapshotMessage> openedLootBoxSnapshot;
 
         /**
          * Check if the player has visited a certain dimension.

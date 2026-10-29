@@ -147,3 +147,11 @@ void glimmer::EntityShortCut::SetOpenedStorageContainer(ItemContainer *container
 glimmer::ItemContainer *glimmer::EntityShortCut::GetOpenedStorageContainer() const {
     return openedStorageContainer_;
 }
+
+void glimmer::EntityShortCut::SetOpenedLootBoxUuid(const std::string &uuid) {
+    openedLootBoxUuid_ = uuid;
+}
+
+const std::string &glimmer::EntityShortCut::GetOpenedLootBoxUuid() const {
+    return openedLootBoxUuid_;
+}

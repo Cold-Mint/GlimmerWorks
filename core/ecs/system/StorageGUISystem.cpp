@@ -52,7 +52,7 @@ namespace {
                              const LootBoxSnapshotMessage &snapshot,
                              glimmer::ItemContainer *container) {
         ItemContainerMessage message;
-        for (const auto &item : snapshot.items()) {
+        for (const auto &item: snapshot.items()) {
             message.add_itemresourceref()->CopyFrom(item);
         }
         container->FromMessage(worldContext, message);
@@ -66,7 +66,7 @@ namespace {
         ItemContainerMessage message;
         container->ToMessage(message);
         snapshot.clear_items();
-        for (const auto &item : message.itemresourceref()) {
+        for (const auto &item: message.itemresourceref()) {
             if (!item.has_itemresourceref()) {
                 continue;
             }
@@ -368,6 +368,7 @@ void glimmer::StorageGUISystem::OnCreateDataModels(IDocumentRegistry *documentRe
     constructor_->BindEventCallback("on_sort_chest_click", &StorageGUISystem::OnSortChestClick, this);
     constructor_->BindEventCallback("on_player_item_hover", &StorageGUISystem::OnPlayerItemHover, this);
     constructor_->BindEventCallback("on_chest_item_hover", &StorageGUISystem::OnChestItemHover, this);
+    constructor_->BindEventCallback("on_loot_item_hover", &StorageGUISystem::OnLootItemHover, this);
     constructor_->BindEventCallback("on_item_out", &StorageGUISystem::OnItemOut, this);
 }
 
@@ -485,7 +486,7 @@ void glimmer::StorageGUISystem::OnLootAllClick(Rml::DataModelHandle handle, Rml:
 }
 
 void glimmer::StorageGUISystem::OnLootTakeAllClick(Rml::DataModelHandle handle, Rml::Event &event,
-                                                    const Rml::VariantList &args) {
+                                                   const Rml::VariantList &args) {
     TakeLootAll();
 }
 
@@ -516,6 +517,11 @@ void glimmer::StorageGUISystem::OnPlayerItemHover(Rml::DataModelHandle handle, R
 void glimmer::StorageGUISystem::OnChestItemHover(Rml::DataModelHandle handle, Rml::Event &event,
                                                  const Rml::VariantList &args) {
     ItemToolTipHelper::SetItemToolTip(itemToolTipComponent_, openedContainer_, args);
+}
+
+void glimmer::StorageGUISystem::OnLootItemHover(Rml::DataModelHandle handle, Rml::Event &event,
+                                                const Rml::VariantList &args) {
+    ItemToolTipHelper::SetItemToolTip(itemToolTipComponent_, lootContainer_.get(), args);
 }
 
 void glimmer::StorageGUISystem::OnItemOut(Rml::DataModelHandle handle, Rml::Event &event,

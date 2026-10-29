@@ -118,6 +118,8 @@ namespace glimmer {
 
         void OnChestItemHover(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
+        void OnLootItemHover(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
+
         void OnItemOut(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
     public:

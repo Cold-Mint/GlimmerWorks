@@ -45,7 +45,8 @@ namespace glimmer {
          * @param endPosition
          * @return
          */
-        static std::optional<TileVector2D> TileRayCast(const ChunkManager *chunkManager, const TileVector2D& startPosition,
-                                                       const TileVector2D& endPosition);
+        static std::optional<TileVector2D> TileRayCast(const ChunkManager *chunkManager,
+                                                       const TileVector2D &startPosition,
+                                                       const TileVector2D &endPosition);
     };
 }

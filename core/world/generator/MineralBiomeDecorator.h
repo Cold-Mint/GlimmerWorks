@@ -42,5 +42,7 @@ namespace glimmer {
 
     public:
         BiomeDecoratorType GetBiomeDecoratorType() override;
+
+        BiomeDecoratorPass GetPass() override;
     };
 }

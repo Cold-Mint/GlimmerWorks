@@ -31,6 +31,7 @@ namespace glimmer {
     enum class BiomeDecoratorType : uint8_t {
         FILL = 0,
         MINERAL = 1,
-        SURFACE = 2,
+        REPLACE_TILE = 2,
+        LOOT_CHEST = 3,
     };
 }

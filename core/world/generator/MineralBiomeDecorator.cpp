@@ -65,7 +65,9 @@ void glimmer::MineralBiomeDecorator::DecorationImpl(const ChunkVertexVector2D &c
     }
     std::array<ResourceRef, CHUNK_AREA> &targetLayer = tilesRefMap->at(
         static_cast<TileLayerType>(decoratorResource->layer));
-    for (int localX = 0; localX < CHUNK_SIZE; localX++) {
+    const int limit = decoratorResource->limit;
+    int number = 0;
+    for (int localX = 0; localX < CHUNK_SIZE && number < limit; localX++) {
         for (int localY = 0; localY < CHUNK_SIZE; localY++) {
             const size_t idx = CoordinateTransformer::GetArrayIndex(localX, localY, CHUNK_SHIFT);
             ChunkRelativeVector2D chunkRelativeVector2D(localX, localY);
@@ -99,6 +101,9 @@ void glimmer::MineralBiomeDecorator::DecorationImpl(const ChunkVertexVector2D &c
 
             if (normalizedOreNoise > currentSpawnThreshold) {
                 targetLayer[idx] = decoratorResource->ore;
+                if (++number >= limit) {
+                    break;
+                }
             }
         }
     }
@@ -106,4 +111,8 @@ void glimmer::MineralBiomeDecorator::DecorationImpl(const ChunkVertexVector2D &c
 
 glimmer::BiomeDecoratorType glimmer::MineralBiomeDecorator::GetBiomeDecoratorType() {
     return BiomeDecoratorType::MINERAL;
+}
+
+glimmer::BiomeDecoratorPass glimmer::MineralBiomeDecorator::GetPass() {
+    return BiomeDecoratorPass::TerrainCarving;
 }

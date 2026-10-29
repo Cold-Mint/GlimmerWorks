@@ -29,7 +29,6 @@
 #include "core/math/ChunkRelativeVector2D.h"
 #include "core/math/CoordinateTransformer.h"
 
-
 void glimmer::FillBiomeDecorator::DecorationImpl(const ChunkVertexVector2D &chunkVertex, WorldContext *worldContext,
                                                  TerrainResult *terrainResult,
                                                  FillBiomeDecoratorResource *decoratorResource,
@@ -63,4 +62,8 @@ void glimmer::FillBiomeDecorator::DecorationImpl(const ChunkVertexVector2D &chun
 
 glimmer::BiomeDecoratorType glimmer::FillBiomeDecorator::GetBiomeDecoratorType() {
     return BiomeDecoratorType::FILL;
+}
+
+glimmer::BiomeDecoratorPass glimmer::FillBiomeDecorator::GetPass() {
+    return BiomeDecoratorPass::TerrainCarving;
 }

@@ -26,6 +26,7 @@
  */
 #pragma once
 
+#include "BiomeDecoratorPass.h"
 #include "TerrainResult.h"
 #include "core/config/Constants.h"
 #include "core/math/ChunkVertexVector2D.h"
@@ -54,6 +55,12 @@ namespace glimmer {
         0;
 
         virtual BiomeDecoratorType GetBiomeDecoratorType() = 0;
+
+        /**
+         * BiomeDecoratorPass
+         * 获取生物群系装饰器通道
+         */
+        virtual BiomeDecoratorPass GetPass() = 0;
     };
 
     template<typename ResourceT>

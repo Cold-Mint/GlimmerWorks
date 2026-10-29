@@ -41,6 +41,8 @@ namespace glimmer {
         //移动相关
         MOVE,
         //物理解算相关
-        PHYSICS
+        PHYSICS,
+        //生物群系装饰器相关
+        BIOME_DECORATOR
     };
 }

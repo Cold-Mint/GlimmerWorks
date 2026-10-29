@@ -74,7 +74,7 @@ namespace {
             return;
         }
         const std::vector<ItemMessage> lootItems = glimmer::LootResource::GetLootItems(lootResource);
-        for (const auto &itemMessage : lootItems) {
+        for (const auto &itemMessage: lootItems) {
             snapshot.add_items()->CopyFrom(itemMessage);
         }
     }
@@ -449,7 +449,7 @@ void glimmer::PlayerControlSystem::HandleFocusedTileActions() const {
                                                 : nullptr;
                                     if (tileLayerComponent != nullptr) {
                                         if (const TileStateMessage *originState = tileLayerComponent->
-                                            GetSelfLayerTileState(actionOrigin)) {
+                                                GetSelfLayerTileState(actionOrigin)) {
                                             lootBoxUuid = originState->uuid();
                                         }
                                     }
@@ -464,7 +464,8 @@ void glimmer::PlayerControlSystem::HandleFocusedTileActions() const {
                                                 !playerManifest->openedLootBoxSnapshot.contains(lootBoxUuid)) {
                                                 LootBoxSnapshotMessage snapshot;
                                                 RollLootBoxSnapshot(worldContext, containerLootTable, snapshot);
-                                                playerManifest->openedLootBoxSnapshot[lootBoxUuid] = std::move(snapshot);
+                                                playerManifest->openedLootBoxSnapshot[lootBoxUuid] =
+                                                        std::move(snapshot);
                                             }
                                         }
                                         EntityShortCut *entityShortCut = worldContext->GetEntityShortCut();

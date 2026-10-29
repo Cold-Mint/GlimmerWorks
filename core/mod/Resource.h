@@ -639,7 +639,6 @@ namespace glimmer {
     struct IBiomeDecoratorResource : Resource {
         ~IBiomeDecoratorResource() = default;
 
-        //@genNextLine(biomeDecoratorType|装饰器类型)
         uint8_t biomeDecoratorType = 0;
         //@genNextLine(layer|瓦片图层)
         uint8_t layer = 0;
@@ -674,6 +673,8 @@ namespace glimmer {
         float oreSpawnMinNoiseThreshold = 0.5F;
         //@genNextLine(oreSpawnMaxNoiseThreshold|矿石生成最大噪声阈值)
         float oreSpawnMaxNoiseThreshold = 0.8F;
+        //@genNextLine(limit|单个区块最多放置多少个矿石，默认256即不限制)
+        int limit = 256;
         //@genNextLine(noiseType|噪声类型)
         uint8_t noiseType;
         //@genNextLine(invertOreSpawnByDepth|是否随深度增加矿石生成概率)
@@ -682,12 +683,50 @@ namespace glimmer {
         FastNoiseLite *GetFastNoiseLite(int seed);
     };
 
-    //@genNextLine(SurfaceBiomeDecoratorResource|表面生物群系装饰器)
-    struct SurfaceBiomeDecoratorResource : IBiomeDecoratorResource {
-        //@genNextLine(openAirTile|露天瓦片（上方为空气时使用）)
-        ResourceRef openAirTile = {};
-        //@genNextLine(underwaterTile|水下瓦片（上方为液体时使用）)
-        ResourceRef underwaterTile = {};
+    //@genNextLine(ReplaceTileBiomeDecoratorRule|替换瓦片规则)
+    struct ReplaceTileBiomeDecoratorRule {
+        //@genNextLine(Offset of the detection point|检测点的偏移，如果是0,0那么检查自身格子，如果是0,1那么检查顶部)
+        Vector2DIResource offset;
+        //@genNextLine(sourceTile|源瓦片（检测点需要匹配的瓦片）)
+        ResourceRef sourceTile = {};
+        //@genNextLine(targetTile|目标瓦片（替换为的瓦片）)
+        ResourceRef targetTile;
+        //@genNextLine(sourceTerrain|源地形检测点需要匹配的地形类型，设置为0表示不启用过滤)
+        uint8_t sourceTerrainMask = 0;
+    };
+
+    //@genNextLine(ReplaceTileBiomeDecoratorResource|替换瓦片生物群系装饰器)
+    struct ReplaceTileBiomeDecoratorResource : IBiomeDecoratorResource {
+        //@genNextLine(rules|替换规则)
+        std::vector<ReplaceTileBiomeDecoratorRule> rules;
+    };
+
+    //@genNextLine(LootChestBiomeDecoratorResource|战利品箱生物群系装饰器)
+    struct LootChestBiomeDecoratorResource : IBiomeDecoratorResource {
+    private:
+        std::unique_ptr<FastNoiseLite> fastNoiseLite_ = nullptr;
+
+    public:
+        //@genNextLine(chestTile|战利品箱瓦片（需为带 container_loot_table 的存储方块）)
+        ResourceRef chestTile;
+        //@genNextLine(seedOffset|种子偏移量 用于区分不同装饰器实例，保证同种子同位置)
+        int seedOffset = 4096;
+        //@genNextLine(frequency|噪声频率 决定箱子团块大小与疏密)
+        float frequency = 0.02F;
+        //@genNextLine(spawnThreshold|噪声阈值（0~1）噪声值超过该值才放置，决定密度)
+        float spawnThreshold = 0.55F;
+        //@genNextLine(minSpawnElevation|箱子最小生成高度（归一化0~1，地下深处）)
+        float minSpawnElevation = 0.0F;
+        //@genNextLine(maxSpawnElevation|箱子最大生成高度（归一化0~1，地表浅层）)
+        float maxSpawnElevation = 1.0F;
+        //@genNextLine(limit|单个区块最多放置多少个箱子，默认256即不限制)
+        int limit = 256;
+        //@genNextLine(noiseType|噪声类型（FastNoiseLite::NoiseType）)
+        uint8_t noiseType = 0;
+        //@genNextLine(requireSurface|仅当上方为空气时才放置，避免埋入地下)
+        bool requireSurface = true;
+
+        FastNoiseLite *GetFastNoiseLite(int seed);
     };
 
     /**

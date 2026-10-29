@@ -31,6 +31,6 @@ namespace glimmer {
     class VerticalPhysicsSolver : public IVerticalPhysicsSolver {
     public:
         SolveResult SolveYDirection(const ChunkManager *chunkManager, const WorldAABB &box, float velocityY,
-            float gravityScale) override;
+                                    float gravityScale) override;
     };
 }

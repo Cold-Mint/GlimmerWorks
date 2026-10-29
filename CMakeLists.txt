@@ -794,8 +794,9 @@ target_sources(GlimmerWorks
         core/world/generator/ChunkTilePopulator.cpp
         core/world/generator/ClimateSampler.cpp
         core/world/generator/FillBiomeDecorator.cpp
+        core/world/generator/LootChestBiomeDecorator.cpp
         core/world/generator/MineralBiomeDecorator.cpp
-        core/world/generator/SurfaceBiomeDecorator.cpp
+        core/world/generator/ReplaceTileBiomeDecorator.cpp
         core/world/generator/TerrainGenerator.cpp
         core/world/generator/TerrainMath.cpp
         core/world/generator/TerrainResult.cpp
@@ -832,6 +833,7 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Platform_SDL.h"
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL_GPU.h"
         core/app/App.h
+        core/world/generator/BiomeDecoratorPass.h
         core/platform/WindowsApi.h
         core/utils/VersionAble.h
         core/event/Subscription.h
@@ -1281,8 +1283,9 @@ target_sources(GlimmerWorks
         core/world/generator/ChunkTilePopulator.h
         core/world/generator/ClimateSampler.h
         core/world/generator/FillBiomeDecorator.h
+        core/world/generator/LootChestBiomeDecorator.h
         core/world/generator/MineralBiomeDecorator.h
-        core/world/generator/SurfaceBiomeDecorator.h
+        core/world/generator/ReplaceTileBiomeDecorator.h
         core/world/generator/TerrainGenerator.h
         core/world/generator/TerrainMath.h
         core/world/generator/TerrainResult.h

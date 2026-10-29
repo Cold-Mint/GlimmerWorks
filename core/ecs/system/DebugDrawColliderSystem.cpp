@@ -100,7 +100,7 @@ void glimmer::DebugDrawColliderSystem::RenderEntityColliders(RenderQueue *queue)
         const WorldAABB box = collider->GetAABB(position);
         const float pixelW = box.halfWidth * 2.0F * zoom;
         const float pixelH = box.halfHeight * 2.0F * zoom;
-        const WorldVector2D minCorner{ box.Left(), box.Bottom() };
+        const WorldVector2D minCorner{box.Left(), box.Bottom()};
         const ScreenVector2D screenPos = CoordinateTransformer::WorldToScreen(
             cameraTransform2DComponent_->GetRenderPosition(), minCorner,
             cameraComponent_->GetSize(), zoom);

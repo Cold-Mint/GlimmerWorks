@@ -33,8 +33,9 @@
 #include "core/mod/templateCommand/SetTemplateCommand.h"
 #include "core/mod/templateCommand/UnSetTemplateCommand.h"
 #include "core/world/generator/FillBiomeDecorator.h"
+#include "core/world/generator/LootChestBiomeDecorator.h"
 #include "core/world/generator/MineralBiomeDecorator.h"
-#include "core/world/generator/SurfaceBiomeDecorator.h"
+#include "core/world/generator/ReplaceTileBiomeDecorator.h"
 #include "core/world/structure/BiomeStructureConditionProcessor.h"
 #include "core/world/structure/HeightStructureConditionProcessor.h"
 #include "core/world/structure/SpacingStructureConditionProcessor.h"
@@ -135,8 +136,9 @@ void glimmer::ModContext::Init(VirtualFileSystem *vfs, const LangsResources *lan
 
     LogCat::d(LogLabel::DEFAULT, "registering_biome_decorators", "Registering biome decorators");
     biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<FillBiomeDecorator>());
-    biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<SurfaceBiomeDecorator>());
+    biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<ReplaceTileBiomeDecorator>());
     biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<MineralBiomeDecorator>());
+    biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<LootChestBiomeDecorator>());
 
     LogCat::d(LogLabel::DEFAULT, "creating_loot_table_manager", "Creating LootTableManager");
     lootTableRegistry_ = std::make_unique<LootTableRegistry>();

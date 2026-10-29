@@ -86,6 +86,16 @@ FastNoiseLite *glimmer::MineralBiomeDecoratorResource::GetFastNoiseLite(const in
     return fastNoiseLite_.get();
 }
 
+FastNoiseLite *glimmer::LootChestBiomeDecoratorResource::GetFastNoiseLite(const int seed) {
+    if (fastNoiseLite_ == nullptr) {
+        fastNoiseLite_ = std::make_unique<FastNoiseLite>();
+    }
+    fastNoiseLite_->SetSeed(seed + seedOffset);
+    fastNoiseLite_->SetNoiseType(static_cast<FastNoiseLite::NoiseType>(noiseType));
+    fastNoiseLite_->SetFrequency(frequency);
+    return fastNoiseLite_.get();
+}
+
 void glimmer::LootResource::TryRollSingleLoot(uint32_t totalWeight, const LootResource *lootResource,
                                               std::vector<ItemMessage> &itemMessageList) {
     auto rollsRandomValue = RandomUtils::Random<uint32_t>(0, totalWeight - 1);

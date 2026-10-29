@@ -162,6 +162,8 @@ namespace glimmer {
                     return "MOVE";
                 case LogLabel::PHYSICS:
                     return "PHYSICS";
+                case LogLabel::BIOME_DECORATOR:
+                    return "BIOME_DECORATOR";
             }
             return "UNKNOWN";
         }

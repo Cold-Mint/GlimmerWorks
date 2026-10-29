@@ -35,9 +35,9 @@ namespace glimmer {
      * 以「中心 + 半宽半高」存储，与 ColliderComponent 的 halfWidth/halfHeight 一致。
      */
     struct WorldAABB {
-        WorldVector2D center;      // Center of the box. 盒子中心。
-        float halfWidth = 0.0F;    // Half width in pixels. 半宽（像素）。
-        float halfHeight = 0.0F;   // Half height in pixels. 半高（像素）。
+        WorldVector2D center; // Center of the box. 盒子中心。
+        float halfWidth = 0.0F; // Half width in pixels. 半宽（像素）。
+        float halfHeight = 0.0F; // Half height in pixels. 半高（像素）。
 
         /**
          * Left edge. 左边界。

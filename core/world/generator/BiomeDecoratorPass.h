@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -25,17 +25,25 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "BiomeDecorator.h"
-
 namespace glimmer {
-    class SurfaceBiomeDecorator : public BiomeDecorator<SurfaceBiomeDecoratorResource> {
-        void DecorationImpl(const ChunkVertexVector2D &chunkVertex, WorldContext *worldContext,
-                            TerrainResult *terrainResult, SurfaceBiomeDecoratorResource *decoratorResource,
-                            BiomeResource *biomeResource,
-                            std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > *
-                            tilesRefMap) override;
-
-    public:
-        BiomeDecoratorType GetBiomeDecoratorType() override;
+    /**
+     * BiomeDecoratorPass
+     * 生物群系装饰阶段。
+     */
+    enum class BiomeDecoratorPass {
+        /**
+         * The sculpting decorator relies on terrain data to carve out the blocks.
+         * 雕刻型装饰器依赖地形数据，来雕刻区块。
+         * For example: Filling block
+         * 例如：填充区块
+         */
+        TerrainCarving,
+        /**
+         * Content-type decorators require the block data that has been carved by the carving decorators.
+         * 内容型装饰器，需要依赖雕刻装饰器雕刻后的区块数据。
+         * For example: Place the loot chest.
+         * 例如：放置战利品箱。
+         */
+        ContentPlacing
     };
 }

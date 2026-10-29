@@ -49,6 +49,7 @@ namespace glimmer {
 
         void SetVerticalPhysicsSolver(std::unique_ptr<IVerticalPhysicsSolver> verticalPhysicsSolver);
 
-        void Solver(const ChunkManager* chunkManager, ColliderComponent *colliderComponent, Transform2DComponent *transform2dComponent);
+        void Solver(const ChunkManager *chunkManager, ColliderComponent *colliderComponent,
+                    Transform2DComponent *transform2dComponent);
     };
 }

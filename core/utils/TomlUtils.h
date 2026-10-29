@@ -176,7 +176,6 @@ namespace toml {
     struct from<glimmer::IBiomeDecoratorResource> {
         static glimmer::IBiomeDecoratorResource from_toml(const value &v) {
             glimmer::IBiomeDecoratorResource resource;
-            resource.biomeDecoratorType = toml::find_or<uint8_t>(v, "biome_decorator_type", 0);
             resource.layer = toml::find_or<uint8_t>(v, "layer", 0);
             resource.resourceId = toml::find<std::string>(v, "resource_id");
             return resource;
@@ -323,6 +322,17 @@ namespace toml {
             glimmer::PackDependence resource;
             resource.minVersion = toml::find<uint32_t>(v, "min_version");
             resource.packId = toml::find<std::string>(v, "pack_id");
+            return resource;
+        }
+    };
+
+    template<>
+    struct from<glimmer::ReplaceTileBiomeDecoratorResource> {
+        static glimmer::ReplaceTileBiomeDecoratorResource from_toml(const value &v) {
+            glimmer::ReplaceTileBiomeDecoratorResource resource;
+            resource.layer = toml::find_or<uint8_t>(v, "layer", 0);
+            resource.resourceId = toml::find<std::string>(v, "resource_id");
+            resource.rules = toml::find<std::vector<glimmer::ReplaceTileBiomeDecoratorRule> >(v, "rules");
             return resource;
         }
     };
@@ -611,7 +621,6 @@ namespace toml {
     struct from<glimmer::FillBiomeDecoratorResource> {
         static glimmer::FillBiomeDecoratorResource from_toml(const value &v) {
             glimmer::FillBiomeDecoratorResource resource;
-            resource.biomeDecoratorType = toml::find_or<uint8_t>(v, "biome_decorator_type", 0);
             resource.layer = toml::find_or<uint8_t>(v, "layer", 0);
             resource.resourceId = toml::find<std::string>(v, "resource_id");
             resource.tile = toml::find<glimmer::ResourceRef>(v, "tile");
@@ -683,6 +692,25 @@ namespace toml {
     };
 
     template<>
+    struct from<glimmer::LootChestBiomeDecoratorResource> {
+        static glimmer::LootChestBiomeDecoratorResource from_toml(const value &v) {
+            glimmer::LootChestBiomeDecoratorResource resource;
+            resource.chestTile = toml::find<glimmer::ResourceRef>(v, "chest_tile");
+            resource.frequency = toml::find_or<float>(v, "frequency", 0.02F);
+            resource.layer = toml::find_or<uint8_t>(v, "layer", 0);
+            resource.limit = toml::find_or<int>(v, "limit", 256);
+            resource.maxSpawnElevation = toml::find_or<float>(v, "max_spawn_elevation", 1.0F);
+            resource.minSpawnElevation = toml::find_or<float>(v, "min_spawn_elevation", 0.0F);
+            resource.noiseType = toml::find_or<uint8_t>(v, "noise_type", 0);
+            resource.requireSurface = toml::find_or<bool>(v, "require_surface", true);
+            resource.resourceId = toml::find<std::string>(v, "resource_id");
+            resource.seedOffset = toml::find_or<int>(v, "seed_offset", 4096);
+            resource.spawnThreshold = toml::find_or<float>(v, "spawn_threshold", 0.55F);
+            return resource;
+        }
+    };
+
+    template<>
     struct from<glimmer::LootEntry> {
         static glimmer::LootEntry from_toml(const value &v) {
             glimmer::LootEntry resource;
@@ -715,10 +743,10 @@ namespace toml {
     struct from<glimmer::MineralBiomeDecoratorResource> {
         static glimmer::MineralBiomeDecoratorResource from_toml(const value &v) {
             glimmer::MineralBiomeDecoratorResource resource;
-            resource.biomeDecoratorType = toml::find_or<uint8_t>(v, "biome_decorator_type", 0);
             resource.frequency = toml::find_or<float>(v, "frequency", 0.01F);
             resource.invertOreSpawnByDepth = toml::find_or<bool>(v, "invert_ore_spawn_by_depth", true);
             resource.layer = toml::find_or<uint8_t>(v, "layer", 0);
+            resource.limit = toml::find_or<int>(v, "limit", 256);
             resource.maxSpawnElevation = toml::find_or<float>(v, "max_spawn_elevation", 0.5F);
             resource.minSpawnElevation = toml::find_or<float>(v, "min_spawn_elevation", 0.0F);
             resource.noiseType = toml::find<uint8_t>(v, "noise_type");
@@ -761,19 +789,6 @@ namespace toml {
     };
 
     template<>
-    struct from<glimmer::SurfaceBiomeDecoratorResource> {
-        static glimmer::SurfaceBiomeDecoratorResource from_toml(const value &v) {
-            glimmer::SurfaceBiomeDecoratorResource resource;
-            resource.biomeDecoratorType = toml::find_or<uint8_t>(v, "biome_decorator_type", 0);
-            resource.layer = toml::find_or<uint8_t>(v, "layer", 0);
-            resource.openAirTile = toml::find_or<glimmer::ResourceRef>(v, "open_air_tile", {});
-            resource.resourceId = toml::find<std::string>(v, "resource_id");
-            resource.underwaterTile = toml::find_or<glimmer::ResourceRef>(v, "underwater_tile", {});
-            return resource;
-        }
-    };
-
-    template<>
     struct from<glimmer::AdjacentTileGrowthConditionResource> {
         static glimmer::AdjacentTileGrowthConditionResource from_toml(const value &v) {
             glimmer::AdjacentTileGrowthConditionResource resource;
@@ -782,6 +797,18 @@ namespace toml {
             resource.processorId = toml::find_or<uint8_t>(v, "processor_id", 0);
             resource.requiredTags = toml::find_or<std::vector<std::string> >(v, "required_tags", {});
             resource.resourceId = toml::find<std::string>(v, "resource_id");
+            return resource;
+        }
+    };
+
+    template<>
+    struct from<glimmer::ReplaceTileBiomeDecoratorRule> {
+        static glimmer::ReplaceTileBiomeDecoratorRule from_toml(const value &v) {
+            glimmer::ReplaceTileBiomeDecoratorRule resource;
+            resource.offset = toml::find<glimmer::Vector2DIResource>(v, "offset");
+            resource.sourceTerrainMask = toml::find_or<uint8_t>(v, "source_terrain_mask", 0);
+            resource.sourceTile = toml::find_or<glimmer::ResourceRef>(v, "source_tile", {});
+            resource.targetTile = toml::find<glimmer::ResourceRef>(v, "target_tile");
             return resource;
         }
     };

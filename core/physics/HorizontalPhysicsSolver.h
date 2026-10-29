@@ -28,7 +28,7 @@
 #include "IHorizontalPhysicsSolver.h"
 
 namespace glimmer {
-    class HorizontalPhysicsSolver : public IHorizontalPhysicsSolver{
+    class HorizontalPhysicsSolver : public IHorizontalPhysicsSolver {
     public:
         SolveResult SolveXDirection(const ChunkManager *chunkManager, const WorldAABB &box,
                                     float velocityX) override;

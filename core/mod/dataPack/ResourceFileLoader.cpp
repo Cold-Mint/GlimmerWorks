@@ -102,8 +102,11 @@ void glimmer::ResourceFileLoader::RegisterHandlers() {
     handlerMap_[DATA_FILE_TYPE_DECORATOR_MINERAL] = [this](const toml::value &v, const AppContext *appContext) {
         LoadBiomeDecoratorResourceFromFile(v, appContext, MINERAL);
     };
-    handlerMap_[DATA_FILE_TYPE_DECORATOR_SURFACE] = [this](const toml::value &v, const AppContext *appContext) {
-        LoadBiomeDecoratorResourceFromFile(v, appContext, SURFACE);
+    handlerMap_[DATA_FILE_TYPE_DECORATOR_REPLACE] = [this](const toml::value &v, const AppContext *appContext) {
+        LoadBiomeDecoratorResourceFromFile(v, appContext, REPLACE_TILE);
+    };
+    handlerMap_[DATA_FILE_TYPE_DECORATOR_LOOT_CHEST] = [this](const toml::value &v, const AppContext *appContext) {
+        LoadBiomeDecoratorResourceFromFile(v, appContext, LOOT_CHEST);
     };
     handlerMap_[DATA_FILE_TYPE_FIXED_COLOR] = [this](const toml::value &v, const AppContext *appContext) {
         LoadFixedColorResourceFromFile(v, appContext);
@@ -592,14 +595,25 @@ void glimmer::ResourceFileLoader::LoadBiomeDecoratorResourceFromFile(const toml:
             biomeDecoratorRegistry->Register(std::move(mineralBiomeDecoratorResource));
             break;
         }
-        case SURFACE: {
-            auto surfaceBiomeDecoratorResource = std::make_unique<SurfaceBiomeDecoratorResource>(
-                toml::get<SurfaceBiomeDecoratorResource>(value));
-            surfaceBiomeDecoratorResource->packId = manifest_->id;
-            surfaceBiomeDecoratorResource->openAirTile.SetSelfPackageId(manifest_->id);
-            surfaceBiomeDecoratorResource->underwaterTile.SetSelfPackageId(manifest_->id);
-            surfaceBiomeDecoratorResource->biomeDecoratorType = std::to_underlying(type);
-            biomeDecoratorRegistry->Register(std::move(surfaceBiomeDecoratorResource));
+        case REPLACE_TILE: {
+            auto replaceTileBiomeDecoratorResource = std::make_unique<ReplaceTileBiomeDecoratorResource>(
+                toml::get<ReplaceTileBiomeDecoratorResource>(value));
+            replaceTileBiomeDecoratorResource->packId = manifest_->id;
+            for (auto &rule: replaceTileBiomeDecoratorResource->rules) {
+                rule.sourceTile.SetSelfPackageId(manifest_->id);
+                rule.targetTile.SetSelfPackageId(manifest_->id);
+            }
+            replaceTileBiomeDecoratorResource->biomeDecoratorType = std::to_underlying(type);
+            biomeDecoratorRegistry->Register(std::move(replaceTileBiomeDecoratorResource));
+            break;
+        }
+        case LOOT_CHEST: {
+            auto lootChestResource = std::make_unique<LootChestBiomeDecoratorResource>(
+                toml::get<LootChestBiomeDecoratorResource>(value));
+            lootChestResource->packId = manifest_->id;
+            lootChestResource->chestTile.SetSelfPackageId(manifest_->id);
+            lootChestResource->biomeDecoratorType = std::to_underlying(type);
+            biomeDecoratorRegistry->Register(std::move(lootChestResource));
             break;
         }
     }

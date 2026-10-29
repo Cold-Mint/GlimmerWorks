@@ -112,7 +112,8 @@ void glimmer::TileResourceData::SetPlaceSFX(const std::shared_ptr<AudioResourceR
     this->placeSFXResult_ = placeSFXResult;
 }
 
-void glimmer::TileResourceData::SetPrimaryActionSFX(const std::shared_ptr<AudioResourceResult> &primaryActionSFXResult) {
+void glimmer::TileResourceData::SetPrimaryActionSFX(
+    const std::shared_ptr<AudioResourceResult> &primaryActionSFXResult) {
     this->primaryActionSFXResult_ = primaryActionSFXResult;
 }
 

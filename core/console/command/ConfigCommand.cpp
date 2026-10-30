@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -68,8 +68,6 @@ void glimmer::ConfigCommand::PutCommandStructure(const CommandArgs *commandArgs,
             strings->emplace_back("[value:int]");
         } else if (configType == TYPE_ARRAY) {
             strings->emplace_back("[value:array(format:value1,value2)]");
-        } else if (configType == TYPE_TABLE) {
-            strings->emplace_back("[value:table]");
         } else {
             strings->emplace_back("[value:string]");
         }
@@ -85,8 +83,8 @@ void glimmer::ConfigCommand::UpdateSetSuggestions(const CommandArgs *commandArgs
             obj->AddChild(BOOL_TOGGLE_DYNAMIC_SUGGESTIONS_NAME);
         }
         if (GetParameterType(arg2) == ConfigType::TYPE_STRING && (
-                arg2 == "mods.resourcePackPath" || arg2 ==
-                "mods.dataPackPath")) {
+                arg2 == "resource_pack_path" || arg2 ==
+                "data_pack_path")) {
             obj->AddChild(std::string(VFS_DYNAMIC_SUGGESTIONS_NAME) + ":" + commandArgs->AsString(3));
         }
     }
@@ -94,7 +92,6 @@ void glimmer::ConfigCommand::UpdateSetSuggestions(const CommandArgs *commandArgs
 
 glimmer::ConfigCommand::ConfigCommand(AppContext *appContext) : Command(appContext),
                                                                 config_(appContext->GetConfig()),
-                                                                configValue_(config_->GetConfigValue()),
                                                                 virtualFileSystem_(appContext->GetVirtualFileSystem()) {
 }
 
@@ -108,13 +105,12 @@ glimmer::NodeTree<std::string> *glimmer::ConfigCommand::GetSuggestionsTree(const
 
 
 bool glimmer::ConfigCommand::ExecuteCommit(const VirtualFileSystem *virtualFileSystem, Config *config,
-                                           const toml::value *configValue, const LangsResources *langsResources,
+                                           const LangsResources *langsResources,
                                            const std::function<void(const std::string &text)> &onMessageRef) {
     if (virtualFileSystem == nullptr || config == nullptr) {
         return false;
     }
-    if (virtualFileSystem->WriteFile(CONFIG_FILE_NAME, toml::format(*configValue))) {
-        config->ReloadConfig();
+    if (virtualFileSystem->WriteFile(CONFIG_FILE_NAME, toml::format(config->Save()))) {
         onMessageRef(langsResources->configurationCommitSuccess);
         return true;
     }
@@ -144,13 +140,13 @@ bool glimmer::ConfigCommand::Execute(const CommandSender *commandSender, const C
 
     const std::string operation = commandArgs->AsString(1);
     if (operation == "commit") {
-        return ExecuteCommit(virtualFileSystem_, config_, configValue_, langsResources, onMessageRef);
+        return ExecuteCommit(virtualFileSystem_, config_, langsResources, onMessageRef);
     }
     if (operation == "get") {
         return ExecuteGet(size, commandArgs, langsResources, this, onMessageRef);
     }
     if (operation == "set") {
-        return ExecuteSet(size, commandArgs, langsResources, config_, this, onMessageRef);
+        return ExecuteSet(size, commandArgs, langsResources, this, onMessageRef);
     }
 
     onMessageRef(appContext->GetLangsResources()->unknownCommandParameters);
@@ -158,165 +154,43 @@ bool glimmer::ConfigCommand::Execute(const CommandSender *commandSender, const C
 }
 
 glimmer::ConfigType glimmer::ConfigCommand::GetParameterType(const std::string &parameterName) const {
-    using enum ConfigType;
-    if (!configValue_ || !configValue_->is_table()) {
-        return TYPE_STRING;
+    if (config_ == nullptr) {
+        return ConfigType::TYPE_STRING;
     }
-
-    const toml::value *current = configValue_;
-    std::size_t start = 0;
-    while (true) {
-        const std::size_t dot = parameterName.find('.', start);
-        const std::string key =
-                dot == std::string::npos
-                    ? parameterName.substr(start)
-                    : parameterName.substr(start, dot - start);
-
-        // The current node must be of type "table" in order to proceed further.
-        // 当前节点必须是 table 才能继续向下
-        if (!current->is_table()) {
-            return TYPE_STRING;
-        }
-
-        const auto &table = current->as_table();
-        const auto it = table.find(key);
-        if (it == table.end()) {
-            return TYPE_STRING;
-        }
-
-        current = &it->second;
-
-        if (dot == std::string::npos) {
-            break;
-        }
-        start = dot + 1;
+    const SettingDef *setting = config_->Find(parameterName);
+    if (setting == nullptr) {
+        return ConfigType::TYPE_STRING;
     }
-
-    if (current->is_string()) {
-        return TYPE_STRING;
+    switch (setting->type) {
+        case SettingType::Bool:
+            return ConfigType::TYPE_BOOLEAN;
+        case SettingType::Int:
+        case SettingType::IntRange:
+            return ConfigType::TYPE_INT;
+        case SettingType::Float:
+        case SettingType::FloatRange:
+            return ConfigType::TYPE_FLOAT;
+        case SettingType::List:
+            return ConfigType::TYPE_ARRAY;
+        case SettingType::String:
+        case SettingType::Enum:
+        default:
+            return ConfigType::TYPE_STRING;
     }
-    if (current->is_array()) {
-        return TYPE_ARRAY;
-    }
-    if (current->is_table()) {
-        return TYPE_TABLE;
-    }
-    if (current->is_floating()) {
-        return TYPE_FLOAT;
-    }
-    if (current->is_integer()) {
-        return TYPE_INT;
-    }
-    if (current->is_boolean()) {
-        return TYPE_BOOLEAN;
-    }
-    return TYPE_STRING;
 }
 
 std::string glimmer::ConfigCommand::GetValue(const std::string &parameterName) const {
-    if (!configValue_ || !configValue_->is_table()) {
+    if (config_ == nullptr) {
         return "";
     }
-
-    const toml::value *current = configValue_;
-
-    std::size_t start = 0;
-    std::size_t dot = 0;
-    while ((dot = parameterName.find('.', start)) != std::string::npos) {
-        const std::string key =
-                dot == std::string::npos
-                    ? parameterName.substr(start)
-                    : parameterName.substr(start, dot - start);
-
-        // The current node must be of type "table" in order to proceed further.
-        // 当前节点必须是 table 才能继续向下
-        if (!current->is_table()) {
-            return "";
-        }
-
-        const auto &table = current->as_table();
-        const auto it = table.find(key);
-        if (it == table.end()) {
-            return "";
-        }
-
-        current = &it->second;
-        start = dot + 1;
-    }
-    return toml::format(current->at(parameterName.substr(start)));
+    return config_->GetAsString(parameterName);
 }
 
 bool glimmer::ConfigCommand::SetValue(
     const std::string &parameterName,
     const std::string &value) const {
-    if (!configValue_ || !configValue_->is_table()) {
+    if (config_ == nullptr) {
         return false;
     }
-
-    toml::value *current = configValue_;
-    std::size_t start = 0;
-    std::size_t dot = 0;
-
-    while ((dot = parameterName.find('.', start)) != std::string::npos) {
-        const std::string key = parameterName.substr(start, dot - start);
-
-        if (!current->is_table()) {
-            return false;
-        }
-
-        auto &table = current->as_table();
-        auto it = table.find(key);
-        if (it == table.end()) {
-            return false;
-        }
-
-        current = &it->second;
-        start = dot + 1;
-    }
-
-    if (!current->is_table()) {
-        return false;
-    }
-
-    const std::string finalKey = parameterName.substr(start);
-    auto &table = current->as_table();
-
-    auto it = table.find(finalKey);
-    const bool exists = it != table.end();
-
-    if (exists && it->second.is_array()) {
-        toml::array arr;
-
-        std::string_view content(value);
-        while (!content.empty()) {
-            const auto comma = content.find(',');
-            std::string_view token = content.substr(0, comma);
-            arr.emplace_back(std::string(token));
-
-            if (comma == std::string_view::npos) break;
-            content.remove_prefix(comma + 1);
-        }
-
-        table[finalKey] = toml::value(arr);
-        return true;
-    }
-
-    if (exists && it->second.is_boolean()) {
-        table[finalKey] = toml::value(value == "true" || value == "1");
-        return true;
-    }
-
-    if (exists && it->second.is_floating()) {
-        table[finalKey] = toml::value(std::stof(value));
-        return true;
-    }
-
-
-    if (exists && it->second.is_integer()) {
-        table[finalKey] = toml::value(std::stoi(value));
-        return true;
-    }
-
-    table[finalKey] = toml::value(value);
-    return true;
+    return config_->SetFromString(parameterName, value);
 }

@@ -81,32 +81,32 @@ glimmer::Color glimmer::DebugMultiMapSystem::GetTileDebugColor(const TileVector2
     float elevation = TerrainMath::GetElevation(dimensionResource, tile.x);
     std::vector<Color> activeColors;
 
-    if (config->debug.displayElevationMap) {
+    if (config->Get<bool>("display_elevation_map")) {
         activeColors.emplace_back(
             ColorUtils::LinearInterpolateColor(debugColor.elevationMapFrom, debugColor.elevationMapTo, elevation)
         );
     }
 
-    if (config->debug.displayTempMap) {
+    if (config->Get<bool>("display_temp_map")) {
         activeColors.emplace_back(
             ColorUtils::LinearInterpolateColor(debugColor.tempMapFrom, debugColor.tempMapTo,
                                                climateSampler->GetTemperature(worldSeed, dimensionResource, tile,
                                                                               elevation))
         );
     }
-    if (config->debug.displayHumidityMap) {
+    if (config->Get<bool>("display_humidity_map")) {
         activeColors.emplace_back(
             ColorUtils::LinearInterpolateColor(debugColor.humidityMapFrom, debugColor.humidityMapTo,
                                                climateSampler->GetHumidity(worldSeed, dimensionResource, tile))
         );
     }
-    if (config->debug.displayErosionMap) {
+    if (config->Get<bool>("display_erosion_map")) {
         activeColors.emplace_back(
             ColorUtils::LinearInterpolateColor(debugColor.erosionMapFrom, debugColor.erosionMapTo,
                                                climateSampler->GetErosion(worldSeed, dimensionResource, tile))
         );
     }
-    if (config->debug.displayWeirdnessMap) {
+    if (config->Get<bool>("display_weirdness_map")) {
         activeColors.emplace_back(
             ColorUtils::LinearInterpolateColor(debugColor.weirdnessMapFrom, debugColor.weirdnessMapTo,
                                                climateSampler->GetWeirdness(worldSeed, dimensionResource, tile))

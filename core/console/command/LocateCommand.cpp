@@ -143,7 +143,7 @@ bool glimmer::LocateCommand::ExecuteBiome(const CommandArgs *commandArgs,
         return false;
     }
     TileVector2D position = CoordinateTransformer::WorldToTile(transform2dComponent->GetPosition());
-    uint16_t locateMaxRadiusSearchChunks = appContext->GetConfig()->command.locateMaxRadiusSearchChunks;
+    uint16_t locateMaxRadiusSearchChunks = appContext->GetConfig()->Get<int>("locate_max_radius_search_chunks");
     const int worldSeed = worldContext->GetWorldSeed();
     std::optional<TileVector2D> target = SearchBiomeInRadius(
         position, dimensionResourceRef, biomeRegistry, climateSampler, targetBiomeID, locateMaxRadiusSearchChunks,

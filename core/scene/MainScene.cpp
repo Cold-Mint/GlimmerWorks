@@ -30,6 +30,7 @@
 
 #include "CreateWorldScene.h"
 #include "SavedGamesScene.h"
+#include "SettingsScene.h"
 #include "fmt/xchar.h"
 #include "core/config/Config.h"
 
@@ -110,6 +111,11 @@ void glimmer::MainScene::OnCreateDataModels() {
             this
         );
         constructor->BindEventCallback(
+            "on_settings_click",
+            &MainScene::OnSettingsClick,
+            this
+        );
+        constructor->BindEventCallback(
             "on_link_click",
             &MainScene::OnLinkClick,
             this
@@ -161,6 +167,25 @@ void glimmer::MainScene::OnExitGameClick(Rml::DataModelHandle handle, Rml::Event
     });
 }
 
+void glimmer::MainScene::OnSettingsClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args) {
+    AppContext *context = GetAppContext();
+    if (context == nullptr) {
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "context_is_null", "context == nullptr");
+        return;
+    }
+    SceneManager *sceneManager = context->GetSceneManager();
+    if (sceneManager == nullptr) {
+        return;
+    }
+    MainThreadDispatcher *mainThreadDispatcher = context->GetMainThreadDispatcher();
+    if (mainThreadDispatcher == nullptr) {
+        return;
+    }
+    mainThreadDispatcher->PostToNextMainFrame([context, sceneManager] {
+        sceneManager->PushScene(std::make_unique<SettingsScene>(context));
+    });
+}
+
 void glimmer::MainScene::OnLinkClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args) {
     if (args.empty()) {
         return;
@@ -190,13 +215,14 @@ void glimmer::MainScene::SetBackgroundIndex(const int index) {
 }
 
 void glimmer::MainScene::OnConfigChanged(const Config *config) {
-    uiScale_ = config->window.uiScale;
-    if (config->mainMenuBackground.targetFps <= 0.0F) {
+    uiScale_ = config->Get<float>("ui_scale");
+    const float targetFps = config->Get<float>("main_menu_target_fps");
+    if (targetFps <= 0.0F) {
         //Set to -1 for frame-by-frame refresh.
         //设置为-1每帧刷新。
         backgroundTargetSecond_ = -1;
     } else {
-        backgroundTargetSecond_ = 1.0F / config->mainMenuBackground.targetFps;
+        backgroundTargetSecond_ = 1.0F / targetFps;
     }
 }
 

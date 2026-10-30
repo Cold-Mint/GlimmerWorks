@@ -242,8 +242,8 @@ void glimmer::CreateWorldScene::LoadDimensions() {
 
 
 void glimmer::CreateWorldScene::OnConfigChanged(const Config *config) {
-    uiScale_ = config->window.uiScale;
-    runtimePath_ = config->runtimePath;
+    uiScale_ = config->Get<float>("ui_scale");
+    runtimePath_ = config->Get<std::string>("runtime_path");
 }
 
 std::optional<std::string> glimmer::CreateWorldScene::RandomName() const {

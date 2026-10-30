@@ -742,6 +742,7 @@ target_sources(GlimmerWorks
         core/scene/SavedGamesScene.cpp
         core/scene/Scene.cpp
         core/scene/SceneManager.cpp
+        core/scene/SettingsScene.cpp
         core/scene/SplashScene.cpp
         core/scene/WorldScene.cpp
         core/utils/ColorUtils.cpp
@@ -1229,6 +1230,7 @@ target_sources(GlimmerWorks
         core/scene/SavedGamesScene.h
         core/scene/Scene.h
         core/scene/SceneManager.h
+        core/scene/SettingsScene.h
         core/scene/SplashScene.h
         core/scene/WorldScene.h
         core/utils/ColorUtils.h

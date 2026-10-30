@@ -155,7 +155,7 @@ void glimmer::FloatingTextSystem::Render(RenderQueue *queue) {
 }
 
 void glimmer::FloatingTextSystem::OnConfigChanged(const Config *config) {
-    normalTargetFps_ = config->window.normalTargetFps;
+    normalTargetFps_ = config->Get<int>("normal_target_fps");
     LogCat::i(LogLabel::DEFAULT, "floating_text_fps_config", "FloatingText normal target fps: {}", normalTargetFps_);
 }
 

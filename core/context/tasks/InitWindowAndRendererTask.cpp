@@ -47,15 +47,16 @@ bool glimmer::InitWindowAndRendererTask::Run(ISystemBucket *systemBucket) {
         return false;
     }
     LogCat::i(LogLabel::DEFAULT, "creating_window", "Creating window: width={}, height={}, fullscreen={}",
-              config->window.width,
-              config->window.height, config->window.fullscreen);
+              config->Get<int>("width"),
+              config->Get<int>("height"), config->Get<bool>("fullscreen"));
     WindowContext *windowContext = systemBucket->GetWindowContext();
     if (windowContext == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "window_context_is_null",
                   "windowContext is nullptr");
         return false;
     }
-    if (!windowContext->CreateWindowAndDevice(config->window.width, config->window.height, config->window.fullscreen)) {
+    if (!windowContext->CreateWindowAndDevice(config->Get<int>("width"), config->Get<int>("height"),
+                                              config->Get<bool>("fullscreen"))) {
         return false;
     }
     ResourcePackManager *resourcePackManager = systemBucket->GetResourcePackManager();
@@ -75,7 +76,7 @@ bool glimmer::InitWindowAndRendererTask::Run(ISystemBucket *systemBucket) {
     LogCat::i(LogLabel::DEFAULT, "initializing_rml_context", "Initializing RmlContext");
     rmlContext->Init(systemBucket->GetVirtualFileSystem(), windowContext->GetDevice(),
                      systemBucket->GetResourceLocator(), systemBucket->GetLangsValue(), windowContext->GetWindow(),
-                     config->window.width, config->window.height);
+                     config->Get<int>("width"), config->Get<int>("height"));
     LogCat::i(LogLabel::DEFAULT, "rml_context_initialized", "RmlContext initialized successfully");
     return true;
 }

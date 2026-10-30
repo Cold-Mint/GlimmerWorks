@@ -53,7 +53,7 @@ namespace glimmer {
          * @param config
          * @return
          */
-        virtual std::vector<uint64_t> *GetEnabledPack(Config *config) const = 0;
+        virtual std::vector<uint64_t> GetEnabledPack(Config *config) const = 0;
 
         /**
          * Obtain the path for package loading
@@ -81,7 +81,7 @@ namespace glimmer {
         * @return
         */
         static bool IsPackEnabled(const uint64_t &uuid,
-                                  std::vector<uint64_t> *enabledPack);
+                                  const std::vector<uint64_t> &enabledPack);
 
         /**
          * Check if the bag is usable
@@ -121,8 +121,9 @@ namespace glimmer {
     }
 
     template<typename ResourceType>
-    bool BasePackManager<ResourceType>::IsPackEnabled(const uint64_t &uuid, std::vector<uint64_t> *enabledPack) {
-        return std::ranges::find(*enabledPack, uuid) != enabledPack->end();
+    bool BasePackManager<ResourceType>::IsPackEnabled(const uint64_t &uuid,
+                                                      const std::vector<uint64_t> &enabledPack) {
+        return std::ranges::find(enabledPack, uuid) != enabledPack.end();
     }
 
     template<typename ResourceType>

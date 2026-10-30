@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -27,16 +27,10 @@
 #pragma once
 #include "DynamicSuggestions.h"
 #include "core/context/AppContext.h"
-#include "toml11/types.hpp"
 
 namespace glimmer {
     class ConfigSuggestions final : public DynamicSuggestions {
         std::vector<std::string> suggestions_;
-        toml::value *configValue_;
-
-        static void ParseTable(const toml::value::table_type &table,
-                               std::vector<std::string> &fields,
-                               const std::string &prefix = "");
 
     public:
         explicit ConfigSuggestions(const AppContext *appContext);
@@ -47,4 +41,4 @@ namespace glimmer {
 
         const std::vector<std::string> &GetSuggestions(const std::optional<std::string> &param) override;
     };
-}
+} // namespace glimmer

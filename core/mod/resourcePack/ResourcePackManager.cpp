@@ -30,12 +30,12 @@
 #include "core/context/AppContext.h"
 #include "core/log/LogCat.h"
 
-std::vector<uint64_t> *glimmer::ResourcePackManager::GetEnabledPack(Config *config) const {
-    return &config->mods.enabledResourcePack;
+std::vector<uint64_t> glimmer::ResourcePackManager::GetEnabledPack(Config *config) const {
+    return config->GetUint64List("enabled_resource_pack");
 }
 
 std::filesystem::path glimmer::ResourcePackManager::GetPackPath(Config *config) const {
-    return config->mods.resourcePackPath;
+    return config->Get<std::string>("resource_pack_path");
 }
 
 std::unique_ptr<glimmer::ResourcePack> glimmer::ResourcePackManager::LoadPack(const PackScanRequest *packScanRequest,

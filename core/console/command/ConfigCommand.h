@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -38,7 +38,6 @@ namespace glimmer {
     enum class ConfigType {
         TYPE_STRING,
         TYPE_ARRAY,
-        TYPE_TABLE,
         TYPE_FLOAT,
         TYPE_INT,
         TYPE_BOOLEAN
@@ -46,7 +45,6 @@ namespace glimmer {
 
     class ConfigCommand final : public Command {
         Config *config_ = nullptr;
-        toml::value *configValue_ = nullptr;
         VirtualFileSystem *virtualFileSystem_ = nullptr;
 
         void InitSuggestions(NodeTree<std::string> *suggestionsTree) override;
@@ -54,7 +52,7 @@ namespace glimmer {
         void UpdateSetSuggestions(const CommandArgs *commandArgs);
 
         static bool ExecuteCommit(const VirtualFileSystem *virtualFileSystem, Config *config,
-                                  const toml::value *configValue, const LangsResources *langsResources,
+                                  const LangsResources *langsResources,
                                   const std::function<void(const std::string &text)> &onMessageRef);
 
         template<typename F>
@@ -72,7 +70,7 @@ namespace glimmer {
 
         template<typename F>
         static bool ExecuteSet(int size, const CommandArgs *commandArgs, const LangsResources *langsResources,
-                               Config *config, const ConfigCommand *command, F &&onMessageRef) {
+                               const ConfigCommand *command, F &&onMessageRef) {
             if (size < 4) {
                 onMessageRef(fmt::format(
                     fmt::runtime(langsResources->insufficientParameterLength),
@@ -86,11 +84,7 @@ namespace glimmer {
                 const std::string oldValue = command->GetValue(parameterName);
                 value = oldValue == "true" ? "false" : "true";
             }
-            if (config == nullptr) {
-                return false;
-            }
             if (command->SetValue(parameterName, value)) {
-                config->ReloadConfig();
                 onMessageRef(fmt::format(fmt::runtime(langsResources->configurationUpdate),
                                          parameterName, value));
             }
@@ -117,4 +111,4 @@ namespace glimmer {
 
         [[nodiscard]] bool SetValue(const std::string &parameterName, const std::string &value) const;
     };
-}
+} // namespace glimmer

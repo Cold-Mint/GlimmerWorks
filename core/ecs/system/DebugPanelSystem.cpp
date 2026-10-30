@@ -85,7 +85,7 @@ glimmer::DebugPanelSystem::DebugPanelSystem(WorldContext *worldContext) : GuiGam
 }
 
 void glimmer::DebugPanelSystem::OnConfigChanged(const Config *config) {
-    displayDebugPanel_ = config->debug.displayDebugPanel;
+    displayDebugPanel_ = config->Get<bool>("display_debug_panel");
     LogCat::i(LogLabel::DEFAULT, "debug_panel_display_changed", "DebugPanel display changed: {}", displayDebugPanel_);
 }
 

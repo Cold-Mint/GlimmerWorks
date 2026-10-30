@@ -107,7 +107,7 @@ void glimmer::App::Run() const {
     }
     Rml::Context *rmlContextCore = rmlContext->GetRmlContext();
     if (rmlContextCore != nullptr) {
-        rmlContextCore->SetDensityIndependentPixelRatio(config->window.uiScale);
+        rmlContextCore->SetDensityIndependentPixelRatio(config->Get<float>("ui_scale"));
     }
     LogCat::i(LogLabel::DEFAULT, "entering_main_game_loop", "Entering main game loop");
     int windowWidth = 0;
@@ -136,7 +136,7 @@ void glimmer::App::Run() const {
             lastActiveTime = frameStart;
         }
         const float targetFrameTime = CalculateTargetFrameTime(frameStart, lastActiveTime);
-        const bool isIdle = targetFrameTime > 1.0F / config->window.normalTargetFps;
+        const bool isIdle = targetFrameTime > 1.0F / config->Get<int>("normal_target_fps");
         if (isIdle != wasIdle) {
             if (isIdle) {
                 LogCat::d(LogLabel::FRAME_RATE, "idle_state_entered",
@@ -177,15 +177,15 @@ void glimmer::App::HandleWindowSizeChange(const int &windowWidth, const int &win
 
 float glimmer::App::CalculateTargetFrameTime(const uint64_t frameStart, const uint64_t lastActiveTime) const {
     const auto config = appContext_->GetConfig();
-    const float idleDelay = config->window.idleDelay;
+    const float idleDelay = config->Get<float>("idle_delay");
     if (idleDelay == -1) {
-        return 1.0F / config->window.normalTargetFps;
+        return 1.0F / config->Get<int>("normal_target_fps");
     }
 
     if (static_cast<float>(frameStart - lastActiveTime) * 0.001F < idleDelay) {
-        return 1.0F / config->window.normalTargetFps;
+        return 1.0F / config->Get<int>("normal_target_fps");
     }
-    return 1.0F / config->window.idleTargetFps;
+    return 1.0F / config->Get<int>("idle_target_fps");
 }
 
 bool glimmer::App::CheckConfigChange(uint64_t &configFingerprint) const {
@@ -197,13 +197,13 @@ bool glimmer::App::CheckConfigChange(uint64_t &configFingerprint) const {
 
     if (const RmlContext *rmlContext = appContext_->GetRmlContext(); rmlContext != nullptr) {
         if (Rml::Context *rmlContextCore = rmlContext->GetRmlContext(); rmlContextCore != nullptr) {
-            rmlContextCore->SetDensityIndependentPixelRatio(config->window.uiScale);
+            rmlContextCore->SetDensityIndependentPixelRatio(config->Get<float>("ui_scale"));
         }
     }
 
     if (CommandHookManager *commandHookManager = appContext_->GetConsoleContext()->GetCommandHookManager();
         commandHookManager != nullptr) {
-        commandHookManager->LoadHookFromConfig(config->commandHooks);
+        commandHookManager->LoadHookFromConfig(config->CommandHooks());
     }
 
     const auto &overlayScenes = sceneManager_->GetOverlayScenes();

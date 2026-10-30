@@ -57,7 +57,7 @@ bool glimmer::DebugDrawColliderSystem::CanActive() const {
 }
 
 void glimmer::DebugDrawColliderSystem::OnConfigChanged(const Config *config) {
-    displayCollisionBox_ = config->debug.displayCollisionBox;
+    displayCollisionBox_ = config->Get<bool>("display_collision_box");
 }
 
 void glimmer::DebugDrawColliderSystem::OnWatchedComponentChanged(const GameComponentTypeMessage gameComponentType,

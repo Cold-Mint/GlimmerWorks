@@ -49,8 +49,8 @@ bool glimmer::DebugChunkSystem::CanActive() const {
 }
 
 void glimmer::DebugChunkSystem::OnConfigChanged(const Config *config) {
-    displayChunkView_ = config->debug.displayChunkView;
-    displayTerrainView_ = config->debug.displayTerrainView;
+    displayChunkView_ = config->Get<bool>("display_chunk_view");
+    displayTerrainView_ = config->Get<bool>("display_terrain_view");
 }
 
 void glimmer::DebugChunkSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) {

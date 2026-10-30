@@ -46,8 +46,8 @@ bool glimmer::InitConsoleContextTask::Run(ISystemBucket *systemBucket) {
         return false;
     }
     auto consoleContext = std::make_unique<ConsoleContext>();
-    if (!consoleContext->Init(appContext_, virtualFileSystem, config->runtimePath,
-                              config->console.maxHistoryEntries)) {
+    if (!consoleContext->Init(appContext_, virtualFileSystem, config->Get<std::string>("runtime_path"),
+                              config->Get<int>("max_history_entries"))) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "init_console_context_failed",
                   "init consoleContext fail.");
         return false;

@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -26,31 +26,17 @@
  */
 #include "ConfigSuggestions.h"
 
-#include "core/config/Constants.h"
+#include "core/config/Config.h"
 
-void glimmer::ConfigSuggestions::ParseTable(const toml::value::table_type &table, std::vector<std::string> &fields,
-                                            const std::string &prefix) {
-    for (const auto &[key, val]: table) {
-        std::string fullKey;
-        if (prefix.empty()) {
-            fullKey = key;
-        } else {
-            fullKey.reserve(prefix.size() + 1 + key.size());
-            fullKey = prefix;
-            fullKey.push_back('.');
-            fullKey += key;
-        }
-        if (val.is_table()) {
-            ParseTable(val.as_table(), fields, fullKey);
-        } else {
-            fields.push_back(fullKey);
-        }
+glimmer::ConfigSuggestions::ConfigSuggestions(const AppContext *appContext) {
+    const Config *config = appContext->GetConfig();
+    if (config == nullptr) {
+        return;
     }
-}
-
-glimmer::ConfigSuggestions::ConfigSuggestions(const AppContext *appContext) : configValue_(
-    appContext->GetConfig()->GetConfigValue()) {
-    ParseTable(configValue_->as_table(), suggestions_);
+    suggestions_.reserve(config->Settings().size());
+    for (const auto &setting: config->Settings()) {
+        suggestions_.emplace_back(setting.key);
+    }
 }
 
 bool glimmer::ConfigSuggestions::Match(const std::string &keyword, const std::string &param) {

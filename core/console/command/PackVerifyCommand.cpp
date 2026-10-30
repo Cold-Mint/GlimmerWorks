@@ -64,7 +64,7 @@ bool glimmer::PackVerifyCommand::Execute(const CommandSender *commandSender, con
     if (langsResources == nullptr) {
         return false;
     }
-    if (!config->mods.enableSignVerify) {
+    if (!config->Get<bool>("enable_sign_verify")) {
         onMessageRef(langsResources->notEnabledSignVerify);
     }
     if (int size = commandArgs->GetSize(); size < 2) {

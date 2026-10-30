@@ -128,8 +128,8 @@ void glimmer::DebugOverlay::RebuildCoordinateLabels() {
 }
 
 void glimmer::DebugOverlay::OnConfigChanged(const Config *config) {
-    displayDebugPanel_ = config->debug.displayDebugPanel;
-    uiScale_ = config->window.uiScale;
+    displayDebugPanel_ = config->Get<bool>("display_debug_panel");
+    uiScale_ = config->Get<float>("ui_scale");
     UpdateDocumentVisibility();
     RebuildCoordinateLabels();
 }

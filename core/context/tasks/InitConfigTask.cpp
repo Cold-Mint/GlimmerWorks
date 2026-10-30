@@ -44,10 +44,12 @@ bool glimmer::InitConfigTask::Run(ISystemBucket *systemBucket) {
         return false;
     }
     auto config = std::make_unique<Config>();
-    config->SetConfigValue(
-        std::make_unique<toml::value>(toml::parse_str(configData.value(), TOML_VERSION)));
-    config->ReloadConfig();
-    LogCat::SetLogPath(config->logPath);
+    if (!config->Load(toml::parse_str(configData.value(), TOML_VERSION))) {
+        LogCat::publicError(LogLabel::DEFAULT, ErrorCode::CAN_NOT_READ_CONFIG_DATA, std::source_location::current(),
+                            "can_not_parse_config_data", "Can not parse {}.", CONFIG_FILE_NAME);
+        return false;
+    }
+    LogCat::SetLogPath(config->Get<std::string>("log_path"));
     systemBucket->SetConfig(std::move(config));
     return true;
 }

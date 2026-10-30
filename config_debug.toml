@@ -1,8 +1,122 @@
 # === Debug Only ===
 # === 只在调试构建可用的配置 ===
+[[tags]]
+displayName = "settings_tag_debug"
+tag_id = "debug"
+enable = true
+visible = true
+
+[[settings]]
+displayName = "settings_display_debug_panel"
+key = "display_debug_panel"
+group_tag = "debug"
+required_tags = []
+type = "bool"
+default_value = false
+value = false
+
+[[settings]]
+displayName = "settings_display_collision_box"
+key = "display_collision_box"
+group_tag = "debug"
+required_tags = []
+type = "bool"
+default_value = false
+value = false
+
+[[settings]]
+displayName = "settings_display_draggable_target"
+key = "display_draggable_target"
+group_tag = "debug"
+required_tags = []
+type = "bool"
+default_value = false
+value = false
+
+[[settings]]
+displayName = "settings_display_elevation_map"
+key = "display_elevation_map"
+group_tag = "debug"
+required_tags = []
+type = "bool"
+default_value = false
+value = false
+
+[[settings]]
+displayName = "settings_display_temp_map"
+key = "display_temp_map"
+group_tag = "debug"
+required_tags = []
+type = "bool"
+default_value = false
+value = false
+
+[[settings]]
+displayName = "settings_display_humidity_map"
+key = "display_humidity_map"
+group_tag = "debug"
+required_tags = []
+type = "bool"
+default_value = false
+value = false
+
+[[settings]]
+displayName = "settings_display_erosion_map"
+key = "display_erosion_map"
+group_tag = "debug"
+required_tags = []
+type = "bool"
+default_value = false
+value = false
+
+[[settings]]
+displayName = "settings_display_weirdness_map"
+key = "display_weirdness_map"
+group_tag = "debug"
+required_tags = []
+type = "bool"
+default_value = false
+value = false
+
+[[settings]]
+displayName = "settings_display_chunk_view"
+key = "display_chunk_view"
+group_tag = "debug"
+required_tags = []
+type = "bool"
+default_value = false
+value = false
+
+[[settings]]
+displayName = "settings_display_terrain_view"
+key = "display_terrain_view"
+group_tag = "debug"
+required_tags = []
+type = "bool"
+default_value = false
+value = false
+
+[[settings]]
+displayName = "settings_display_light_map"
+key = "display_light_map"
+group_tag = "debug"
+required_tags = []
+type = "bool"
+default_value = false
+value = false
+
+[[settings]]
+displayName = "settings_disable_lighting"
+key = "disable_lighting"
+group_tag = "debug"
+required_tags = []
+type = "bool"
+default_value = false
+value = false
+
 [[command_hooks]]
 hook_id = "828542cb-e97d-42a1-b87d-7d0f091d4058"
-command = "config set debug.display_debug_panel toggle"
+command = "config set display_debug_panel toggle"
 code = "f12"
 event_type = "key_down"
 
@@ -14,7 +128,7 @@ event_type = "key_down"
 
 [[command_hooks]]
 hook_id = "fee1f88b-4c3b-43e6-84ee-8e158a1a12ff"
-command = "config set debug.display_collision_box toggle"
+command = "config set display_collision_box toggle"
 code = "f11"
 event_type = "key_down"
 
@@ -26,7 +140,7 @@ event_type = "key_down"
 
 [[command_hooks]]
 hook_id = "a21709c9-f296-4b00-a7da-cd6b86da4a37"
-command = "config set debug.display_elevation_map toggle"
+command = "config set display_elevation_map toggle"
 code = "f10"
 event_type = "key_down"
 
@@ -38,7 +152,7 @@ event_type = "key_down"
 
 [[command_hooks]]
 hook_id = "50afeafd-4774-4a80-a0e6-e874f3403317"
-command = "config set debug.display_temp_map toggle"
+command = "config set display_temp_map toggle"
 code = "f9"
 event_type = "key_down"
 
@@ -50,7 +164,7 @@ event_type = "key_down"
 
 [[command_hooks]]
 hook_id = "0b7f2aca-d5a0-4d3c-8f6c-48d6926d5783"
-command = "config set debug.display_erosion_map toggle"
+command = "config set display_erosion_map toggle"
 code = "f8"
 event_type = "key_down"
 
@@ -62,7 +176,7 @@ event_type = "key_down"
 
 [[command_hooks]]
 hook_id = "3ceb425e-7e63-4f02-b5db-0752217c6773"
-command = "config set debug.display_weirdness_map toggle"
+command = "config set display_weirdness_map toggle"
 code = "f7"
 event_type = "key_down"
 
@@ -74,7 +188,7 @@ event_type = "key_down"
 
 [[command_hooks]]
 hook_id = "f4a857a2-9b82-48c5-818d-a8d726acca84"
-command = "config set debug.display_humidity_map toggle"
+command = "config set display_humidity_map toggle"
 code = "f6"
 event_type = "key_down"
 
@@ -86,7 +200,7 @@ event_type = "key_down"
 
 [[command_hooks]]
 hook_id = "b068131c-42e2-4dc6-9771-468cf145b75e"
-command = "config set debug.display_light_map toggle"
+command = "config set display_light_map toggle"
 code = "f5"
 event_type = "key_down"
 
@@ -98,7 +212,7 @@ event_type = "key_down"
 
 [[command_hooks]]
 hook_id = "ffbd05e6-dd34-4d2c-8d43-45c5a88c7573"
-command = "config set debug.display_chunk_view toggle"
+command = "config set display_chunk_view toggle"
 code = "f3"
 event_type = "key_down"
 
@@ -110,7 +224,7 @@ event_type = "key_down"
 
 [[command_hooks]]
 hook_id = "9d1f2b3c-4d5e-4f6a-9b8c-1a2b3c4d5e6f"
-command = "config set debug.display_terrain_view toggle"
+command = "config set display_terrain_view toggle"
 code = "f4"
 event_type = "key_down"
 
@@ -122,7 +236,7 @@ event_type = "key_down"
 
 [[command_hooks]]
 hook_id = "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e"
-command = "config set debug.disable_lighting toggle"
+command = "config set disable_lighting toggle"
 code = "f2"
 event_type = "key_down"
 
@@ -131,41 +245,3 @@ hook_id = "c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f"
 command = "config commit"
 code = "f2"
 event_type = "key_down"
-
-[debug]
-# Show debug panel in game
-# 游戏内显示调试面板
-display_debug_panel = false
-# Draw entity collision boxes (AABB) and the solid tile grid
-# 绘制实体碰撞盒（AABB）与实心瓦片网格
-display_collision_box = false
-# Draw the boundaries of the area for dragging and dropping
-# 绘制拖拽的区域边界
-display_draggable_target = false
-# Display elevation map
-# 显示海拔图
-display_elevation_map = false
-# Display temperature map
-# 显示温度图
-display_temp_map = false
-# Display humidity map
-# 显示湿度图
-display_humidity_map = false
-# Display erosion map
-# 显示侵蚀图
-display_erosion_map = false
-# Display weirdness map
-# 显示奇异度图
-display_weirdness_map = false
-# Display chunk boundaries and the chunk view
-# 显示区块边界和区块视图
-display_chunk_view = false
-# Display terrain block boundaries
-# 显示地形块边界
-display_terrain_view = false
-# Display the raw light map texture in the bottom-right corner
-# 在屏幕右下角显示原始光照贴图纹理
-display_light_map = false
-# Disable the lighting composite and blit the unlit scene directly
-# 禁用光照合成，直接把无光照场景绘制到屏幕
-disable_lighting = false

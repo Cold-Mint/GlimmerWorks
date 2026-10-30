@@ -1,144 +1,358 @@
-config_version = 1
+# GlimmerWorks 配置
+# 本文件是自描述的设置注册表：[[tags]] 定义分组，[[settings]] 定义设置项。
+# displayName 为本地化字符串 Key（见程序本地化体系），UI 通过 TranslateString 自动翻译。
+version = 1
 
-# Runtime data storage path
-# 运行时数据存放路径
-runtime_path = "runtime"
-# Cache storage path (compiled shader binaries, etc.)
-# 缓存存放路径（编译后的着色器二进制等）
-cache_path = "runtime/.cache"
-#Log storage path
-#日志存放路径
-log_path = "runtime/.logs"
+[[tags]]
+displayName = "settings_tag_general"
+tag_id = "general"
+enable = true
+visible = true
 
-[window]
-# Window width (pixels)
-# 窗口宽度（像素）
-width = 1920
-# Window height (pixels)
-# 窗口高度（像素）
-height = 1080
-# Is it full screen
-# 是否全屏
-fullscreen = false
-# After being idle and without any operation for a certain period of time, the frame rate will start to decrease (unit: seconds).
-# -1 indicates that the function is turned off.
-# 闲置无操作多久后开始降帧 (单位：秒)，-1为关闭功能。
-idle_delay = 10.0
-# The minimum rendering frame rate locked in the idle state
-# 闲置状态下锁定的最低渲染帧率
-idle_target_fps = 15.0
-# The baseline frame rate during normal gameplay
-# 正常游玩时的基准帧率（帧/秒）
-normal_target_fps = 60.0
-# UI scaling factor
-# UI界面缩放比例
-ui_scale = 1.0
-# Camera zooming
-# 相机缩放
-camera_scale = 2.0
-# Enable vertical sync (VSync)
-# 启用垂直同步
-vsync = true
+[[tags]]
+displayName = "settings_tag_window"
+tag_id = "window"
+enable = true
+visible = true
 
-[main_menu_background]
-# The target frame rate for background switching on the main page(If set to -1, then the adaptive refresh rate will be used, that is, the window.normal_target_fps will be applied.)
-# 主页面背景切换的目标帧率（如果设置为-1,那么自适应刷新率，即使用window.normal_target_fps）
-target_fps = 15.0
+[[tags]]
+displayName = "settings_tag_audio"
+tag_id = "audio"
+enable = true
+visible = true
 
-[audio]
-# Master volume
-# 主音量
-master_volume = 1.0
-# channels
-# 声道数
-channels = 2
-#freq
-#采样率
-freq = 44100
+[[tags]]
+displayName = "settings_tag_world"
+tag_id = "world"
+enable = true
+visible = true
 
-# Audio data format
-# 音频数据格式
-# Optional values: F32, S32, S16, U8
-# 可选值：F32, S32, S16, U8
-#
-# F32 ：Floating-point 32-bit | 32位浮点型
-#       Best quality, no distortion, modern standard(Default)
-#       音质最好、无失真、现代游戏标准(默认)
-#
-# S16 ：Signed integer 16-bit | 16位整型
-#       Lightweight, good compatibility, low CPU usage
-#       轻量省电、兼容性强、低配设备首选
-#
-# S32 ：Signed integer 32-bit | 32位整型
-#       High precision, but not necessary for games
-#       精度高，但游戏中无明显优势
-#
-# U8 ：Unsigned 8-bit | 8位无符号型
-#       Lowest quality, only for retro/chiptune
-#       音质差，仅用于复古/8-bit音效
-#
-format = "F32"
+[[tags]]
+displayName = "settings_tag_mods"
+tag_id = "mods"
+enable = true
+visible = true
 
-# Audio track group configuration (pre-allocate fixed track pool for each audio type, reuse to avoid performance issues)
-# 音频轨道组配置（按音频类型分配固定轨道池，预创建复用，避免频繁创建销毁）
-[[audio.track]]
-#BGM
-type = 0
-#The number of pre-allocated orbits of this type
-#该类型预分配的轨道数量
-track_count = 1
-volume = 1.0
+[[tags]]
+displayName = "settings_tag_console"
+tag_id = "console"
+enable = true
+visible = true
 
-[[audio.track]]
-#AMBIENT
-#环境音效
-type = 1
-track_count = 20
-volume = 1.0
+[[tags]]
+displayName = "settings_tag_advanced"
+tag_id = "advanced"
+enable = false
+visible = false
 
-[world]
-# Preload config for off-screen chunks (view range expansion)
-# 屏幕外区块预加载配置（视野范围扩展）
-# Preload chunk outer radius (view range expansion)
-# 区块预加载外扩范围（视野范围扩展）
-preload_chunk_radius = 1
-# Interval of block scanning
-# 区块扫描的间隔
-chunk_scan_task_tick_interval = 1
+# ==== 通用 ====
+[[settings]]
+displayName = "settings_runtime_path"
+key = "runtime_path"
+group_tag = "general"
+required_tags = ["advanced"]
+type = "string"
+default_value = "runtime"
+value = "runtime"
 
-[biome_bgm]
-# Player must stay in a different biome this long before the BGM switches.
-# Filters out brief crossings such as a single jump across a tile boundary (unit: seconds).
-# 玩家须在新生物群系连续停留该时长后才会切换 BGM，
-# 用于过滤短暂跨越（如单次跳跃跨过瓦片边界）造成的频繁切换（单位：秒）。
-debounce_seconds = 3.0
+[[settings]]
+displayName = "settings_cache_path"
+key = "cache_path"
+group_tag = "general"
+required_tags = ["advanced"]
+type = "string"
+default_value = "runtime/.cache"
+value = "runtime/.cache"
 
-[command]
-# Number of chunks traversed in the positive/negative X direction when using the `locate biome` command.
-# 使用 locate biome 命令时，沿 X 轴正 / 负方向遍历的区块数量。
-locate_max_radius_search_chunks = 2048
+[[settings]]
+displayName = "settings_log_path"
+key = "log_path"
+group_tag = "general"
+required_tags = ["advanced"]
+type = "string"
+default_value = "runtime/.logs"
+value = "runtime/.logs"
 
-[mods]
-# Enable signature verification
-# 是否开启签名校验
-enable_sign_verify = true
-# Only load the verified modules
-# 仅加载校验通过的模组
-load_only_verified = false
-# Data pack storage path
-# 数据包存储路径
-data_pack_path = "mods/data_packs"
-# Resource pack storage path
-# 资源包存储路径
-resource_pack_path = "mods/resource_packs"
-# Enabled data packs (list of pack IDs)
-# 启用的数据包（包ID列表）
-enabled_data_pack = ["glimmerworks"]
-# Enabled resource packs (list of pack IDs)
-# 启用的资源包（包ID列表）
-enabled_resource_pack = ["glimmerworks_res"]
+[[settings]]
+displayName = "settings_main_menu_target_fps"
+key = "main_menu_target_fps"
+group_tag = "general"
+required_tags = ["advanced"]
+type = "float"
+default_value = 15.0
+value = 15.0
 
-[console]
-# Maximum number of console history entries to save (0 = disable history function)
-# 控制台历史记录最大保存条数（0 = 禁用历史记录功能）
-max_history_entries = 100
+# ==== 窗口 ====
+[[settings]]
+displayName = "settings_width"
+key = "width"
+group_tag = "window"
+required_tags = ["advanced"]
+type = "int"
+default_value = 1920
+value = 1920
+
+[[settings]]
+displayName = "settings_height"
+key = "height"
+group_tag = "window"
+required_tags = ["advanced"]
+type = "int"
+default_value = 1080
+value = 1080
+
+[[settings]]
+displayName = "settings_fullscreen"
+key = "fullscreen"
+group_tag = "window"
+required_tags = []
+type = "bool"
+default_value = false
+value = false
+
+[[settings]]
+displayName = "settings_vsync"
+key = "vsync"
+group_tag = "window"
+required_tags = []
+type = "bool"
+default_value = true
+value = true
+
+[[settings]]
+displayName = "settings_ui_scale"
+key = "ui_scale"
+group_tag = "window"
+required_tags = []
+type = "float_range"
+default_value = 1.0
+value = 1.0
+min_value = 0.5
+max_value = 3.0
+step_value = 0.1
+
+[[settings]]
+displayName = "settings_camera_scale"
+key = "camera_scale"
+group_tag = "window"
+required_tags = []
+type = "float_range"
+default_value = 2.0
+value = 2.0
+min_value = 0.5
+max_value = 4.0
+step_value = 0.1
+
+[[settings]]
+displayName = "settings_idle_delay"
+key = "idle_delay"
+group_tag = "window"
+required_tags = ["advanced"]
+type = "float"
+default_value = 10.0
+value = 10.0
+
+[[settings]]
+displayName = "settings_idle_target_fps"
+key = "idle_target_fps"
+group_tag = "window"
+required_tags = ["advanced"]
+type = "int"
+default_value = 15
+value = 15
+
+[[settings]]
+displayName = "settings_normal_target_fps"
+key = "normal_target_fps"
+group_tag = "window"
+required_tags = ["advanced"]
+type = "int"
+default_value = 60
+value = 60
+
+# ==== 音频 ====
+[[settings]]
+displayName = "settings_master_volume"
+key = "master_volume"
+group_tag = "audio"
+required_tags = []
+type = "float_range"
+default_value = 1.0
+value = 1.0
+min_value = 0.0
+max_value = 1.0
+step_value = 0.01
+
+[[settings]]
+displayName = "settings_channels"
+key = "channels"
+group_tag = "audio"
+required_tags = ["advanced"]
+type = "int"
+default_value = 2
+value = 2
+
+[[settings]]
+displayName = "settings_freq"
+key = "freq"
+group_tag = "audio"
+required_tags = ["advanced"]
+type = "int"
+default_value = 44100
+value = 44100
+
+[[settings]]
+displayName = "settings_format"
+key = "format"
+group_tag = "audio"
+required_tags = []
+type = "enum"
+default_value = "F32"
+value = "F32"
+options = ["F32", "S32", "S16", "U8"]
+
+# BGM (type=0)
+[[settings]]
+displayName = "settings_audio_track_0_count"
+key = "audio_track_0_count"
+group_tag = "audio"
+required_tags = []
+type = "int_range"
+default_value = 1
+value = 1
+min_value = 1
+max_value = 10
+
+[[settings]]
+displayName = "settings_audio_track_0_volume"
+key = "audio_track_0_volume"
+group_tag = "audio"
+required_tags = []
+type = "float_range"
+default_value = 1.0
+value = 1.0
+min_value = 0.0
+max_value = 1.0
+
+# AMBIENT (type=1)
+[[settings]]
+displayName = "settings_audio_track_1_count"
+key = "audio_track_1_count"
+group_tag = "audio"
+required_tags = []
+type = "int"
+default_value = 20
+value = 20
+
+[[settings]]
+displayName = "settings_audio_track_1_volume"
+key = "audio_track_1_volume"
+group_tag = "audio"
+required_tags = []
+type = "float_range"
+default_value = 1.0
+value = 1.0
+min_value = 0.0
+max_value = 1.0
+
+# ==== 世界 ====
+[[settings]]
+displayName = "settings_preload_chunk_radius"
+key = "preload_chunk_radius"
+group_tag = "world"
+required_tags = ["advanced"]
+type = "int"
+default_value = 1
+value = 1
+
+[[settings]]
+displayName = "settings_chunk_scan_task_tick_interval"
+key = "chunk_scan_task_tick_interval"
+group_tag = "world"
+required_tags = ["advanced"]
+type = "int"
+default_value = 1
+value = 1
+
+[[settings]]
+displayName = "settings_debounce_seconds"
+key = "debounce_seconds"
+group_tag = "world"
+required_tags = ["advanced"]
+type = "float"
+default_value = 3.0
+value = 3.0
+
+[[settings]]
+displayName = "settings_locate_max_radius_search_chunks"
+key = "locate_max_radius_search_chunks"
+group_tag = "console"
+required_tags = ["advanced"]
+type = "int"
+default_value = 2048
+value = 2048
+
+# ==== 模组 ====
+[[settings]]
+displayName = "settings_enable_sign_verify"
+key = "enable_sign_verify"
+group_tag = "mods"
+required_tags = ["advanced"]
+type = "bool"
+default_value = true
+value = true
+
+[[settings]]
+displayName = "settings_load_only_verified"
+key = "load_only_verified"
+group_tag = "mods"
+required_tags = ["advanced"]
+type = "bool"
+default_value = false
+value = false
+
+[[settings]]
+displayName = "settings_data_pack_path"
+key = "data_pack_path"
+group_tag = "mods"
+required_tags = ["advanced"]
+type = "string"
+default_value = "mods/data_packs"
+value = "mods/data_packs"
+
+[[settings]]
+displayName = "settings_resource_pack_path"
+key = "resource_pack_path"
+group_tag = "mods"
+required_tags = ["advanced"]
+type = "string"
+default_value = "mods/resource_packs"
+value = "mods/resource_packs"
+
+[[settings]]
+displayName = "settings_enabled_data_pack"
+key = "enabled_data_pack"
+group_tag = "mods"
+required_tags = ["advanced"]
+type = "list"
+default_value = ["glimmerworks"]
+value = ["glimmerworks"]
+
+[[settings]]
+displayName = "settings_enabled_resource_pack"
+key = "enabled_resource_pack"
+group_tag = "mods"
+required_tags = ["advanced"]
+type = "list"
+default_value = ["glimmerworks_res"]
+value = ["glimmerworks_res"]
+
+# ==== 控制台 ====
+[[settings]]
+displayName = "settings_max_history_entries"
+key = "max_history_entries"
+group_tag = "console"
+required_tags = ["advanced"]
+type = "int"
+default_value = 100
+value = 100

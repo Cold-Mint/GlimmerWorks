@@ -41,6 +41,8 @@ namespace glimmer {
 
         void OnSaveAndExitButtonClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
+        void OnSettingsButtonClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
+
         void LoadDocuments(IDocumentRegistry *documentRegistry) override;
 
         void OnCreateDataModels(IDocumentRegistry *documentRegistry) override;

@@ -118,8 +118,7 @@ namespace glimmer {
         if (config == nullptr) {
             return TryGetPlaceholder(appContext, resourceRef, enablePlaceHolder);
         }
-        const Mods &mods = config->mods;
-        const std::vector<uint64_t> &enabledResourcePack = mods.enabledResourcePack;
+        const std::vector<uint64_t> enabledResourcePack = config->GetUint64List("enabled_resource_pack");
         ResourcePackManager *resourcePackManager = appContext->GetResourcePackManager();
         if (resourcePackManager == nullptr) {
             return TryGetPlaceholder(appContext, resourceRef, enablePlaceHolder);

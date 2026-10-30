@@ -44,7 +44,7 @@ bool glimmer::InitAudioTask::Run(ISystemBucket *systemBucket) {
         return false;
     }
     SDL_AudioSpec audioSpec;
-    const std::string &audioFormat = config->audio.format;
+    const std::string audioFormat = config->Get<std::string>("format");
     if (audioFormat == "U8") {
         audioSpec.format = SDL_AUDIO_U8;
     } else if (audioFormat == "S16") {
@@ -55,11 +55,13 @@ bool glimmer::InitAudioTask::Run(ISystemBucket *systemBucket) {
         audioSpec.format = SDL_AUDIO_F32;
     }
 
-    audioSpec.channels = config->audio.channels;
-    audioSpec.freq = config->audio.freq;
+    const int channels = config->Get<int>("channels");
+    const int freq = config->Get<int>("freq");
+    audioSpec.channels = channels;
+    audioSpec.freq = freq;
     LogCat::i(LogLabel::DEFAULT, "creating_audio_mixer", "Creating audio mixer: format={}, channels={}, freq={}",
               audioFormat,
-              config->audio.channels, config->audio.freq);
+              channels, freq);
 
     MIX_Mixer *mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audioSpec);
     if (mixer == nullptr) {
@@ -97,18 +99,22 @@ bool glimmer::InitAudioTask::Run(ISystemBucket *systemBucket) {
     }
     audioManager->SetMixer(mixer);
 
-    LogCat::i(LogLabel::DEFAULT, "configuring_audio_tracks", "Configuring audio tracks: count={}",
-              config->audio.track.size());
-    for (const AudioTrack &trackConfig: config->audio.track) {
-        audioManager->CreateTracks(trackConfig.type, trackConfig.trackCount);
-        audioManager->SetTypeVolume(trackConfig.type, trackConfig.volume);
+    LogCat::i(LogLabel::DEFAULT, "configuring_audio_tracks", "Configuring audio tracks");
+    const AudioType audioTypes[] = {AudioType::BGM, AudioType::AMBIENT};
+    for (const AudioType type: audioTypes) {
+        const int index = static_cast<int>(std::to_underlying(type));
+        const int trackCount = config->Get<int>("audio_track_" + std::to_string(index) + "_count");
+        const float volume = config->Get<float>("audio_track_" + std::to_string(index) + "_volume");
+        audioManager->CreateTracks(type, trackCount);
+        audioManager->SetTypeVolume(type, volume);
         LogCat::i(LogLabel::DEFAULT, "audio_track", "  Track: type={}, count={}, volume={}",
-                  static_cast<int>(std::to_underlying(trackConfig.type)),
-                  trackConfig.trackCount,
-                  trackConfig.volume);
+                  index,
+                  trackCount,
+                  volume);
     }
-    audioManager->SetMasterVolume(config->audio.masterVolume);
-    LogCat::i(LogLabel::DEFAULT, "master_volume_set", "Master volume set to: {}", config->audio.masterVolume);
+    const float masterVolume = config->Get<float>("master_volume");
+    audioManager->SetMasterVolume(masterVolume);
+    LogCat::i(LogLabel::DEFAULT, "master_volume_set", "Master volume set to: {}", masterVolume);
 
     LogCat::i(LogLabel::DEFAULT, "init_audio_completed", "InitAudio completed successfully");
     return true;

@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -25,106 +25,76 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <cstdint>
+#include <optional>
 #include <string>
+#include <string_view>
+#include <unordered_map>
+#include <variant>
 #include <vector>
 
-#include "core/mod/resourcePack/AudioType.h"
 #include "toml11/types.hpp"
 
 
 namespace glimmer {
-    class CommandHookManager;
-
-    struct Window {
-        int width = 1920;
-        int height = 1080;
-        //How long (in seconds) should the frame rate be reduced after being idle and without any operation? -1 indicates that the function is turned off.
-        // 闲置无操作多久后开始降帧 (单位：秒)，-1为关闭功能。
-        float idleDelay;
-
-        // The minimum rendering frame rate locked in the idle state
-        // 闲置状态下锁定的最低渲染帧率
-        float idleTargetFps;
-
-        // The baseline frame rate during normal gameplay
-        // 正常游玩时的基准帧率
-        float normalTargetFps;
-
-        //uiScale
-        //ui缩放
-        float uiScale = 1.0F;
-        float cameraScale = 2.0F;
-        bool vSync = true;
-        bool fullscreen = false;
+    /**
+     * SettingType
+     * 设置项类型。决定设置页使用哪种控件、以及 toml 值的解析方式。
+     */
+    enum class SettingType {
+        Bool,
+        Int,
+        Float,
+        String,
+        Enum,
+        IntRange,
+        FloatRange,
+        List,
     };
 
-    struct MainMenuBackground {
-        float targetFps;
+    /**
+     * SettingValue
+     * 设置项的值（强类型 variant）。
+     */
+    using SettingValue = std::variant<bool, int, float, std::string, std::vector<std::string> >;
+
+    /**
+     * SettingDef
+     * 一条自描述的设置项，直接由 config.toml 的 [[settings]] 解析而来。
+     */
+    struct SettingDef {
+        std::string key;
+        std::string labelKey;
+        std::string groupTag;
+        std::vector<std::string> requiredTags;
+        SettingType type = SettingType::String;
+        SettingValue value;
+        SettingValue defaultValue;
+        std::vector<std::string> options;
+        std::optional<float> minValue;
+        std::optional<float> maxValue;
+        std::optional<float> stepValue;
+
+        [[nodiscard]] std::string GetAsString() const;
+
+        bool SetFromString(const std::string &text);
     };
 
-    struct BiomeBGMConfig {
-        // Player must stay in a different biome this long before the BGM switches.
-        // 玩家须在新生物群系连续停留该时长后才会切换 BGM。
-        float debounceSeconds = 3.0F;
+    /**
+     * TagDef
+     * 一个设置分组（标签），直接由 config.toml 的 [[tags]] 解析而来。
+     */
+    struct TagDef {
+        std::string tagId;
+        std::string labelKey;
+        bool enable = false;
+        bool visible = false;
     };
 
-    struct CommandConfig {
-        uint16_t locateMaxRadiusSearchChunks = 2048;
-    };
-
-    struct Mods {
-        std::string dataPackPath;
-        std::string resourcePackPath;
-        std::vector<uint64_t> enabledDataPack;
-        std::vector<uint64_t> enabledResourcePack;
-        bool enableSignVerify;
-        bool loadOnlyVerified;
-    };
-
-    struct Debug {
-        bool displayDebugPanel;
-        bool displayCollisionBox;
-        bool displayDraggableTarget;
-        bool displayElevationMap;
-        bool displayTempMap;
-        bool displayHumidityMap;
-        bool displayErosionMap;
-        bool displayWeirdnessMap;
-        bool displayChunkView;
-        bool displayTerrainView;
-        bool displayLightMap;
-        //Disable the lighting composite and blit the unlit scene directly.
-        //禁用光照合成，直接把无光照场景绘制到屏幕。
-        bool disableLighting;
-    };
-
-    struct Console {
-        uint16_t maxHistoryEntries = 100;
-    };
-
-    struct World {
-        //Every few ticks, tasks are initiated to remove remote blocks and load nearby blocks.
-        //每多少tick创建卸载远程区块，加载近距离区块的任务。
-        uint8_t chunkScanTaskTickInterval = 1;
-        //How many blocks with a certain radius beyond the screen need to be preloaded?
-        //需要预加载屏幕外多少半径的区块
-        uint8_t preloadChunkRadius = 1;
-    };
-
-    struct AudioTrack {
-        int trackCount;
-        float volume;
-        AudioType type;
-    };
-
-    struct Audio {
-        std::string format = "F32";
-        std::vector<AudioTrack> track;
-        float masterVolume;
-        int channels;
-        int freq;
-    };
-
+    /**
+     * CommandHookResource
+     * 命令钩子资源。在 config.toml 中以 [[command_hooks]] 原始透传，不参与设置页。
+     */
     struct CommandHookResource {
         std::string hookId;
         std::string command;
@@ -133,44 +103,98 @@ namespace glimmer {
         bool keyRepeat;
     };
 
-
+    /**
+     * Config
+     * 自描述的配置注册表：由 config.toml 的 [[tags]] + [[settings]] + [[command_hooks]]
+     * 解析而来，同时驱动运行时访问、设置页生成与序列化。
+     */
     class Config {
+        std::vector<TagDef> tags_;
+        std::vector<SettingDef> settings_;
+        std::unordered_map<std::string, SettingDef *> settingsByKey_;
+        std::vector<CommandHookResource> commandHooks_;
         uint64_t fingerprint_ = 0;
-        std::unique_ptr<toml::value> configValue_ = nullptr;
 
     public:
-        Mods mods{};
-        Audio audio{};
-        Window window{};
-        std::string runtimePath = "runtime";
+        [[nodiscard]] const std::vector<TagDef> &Tags() const { return tags_; }
+
+        [[nodiscard]] std::vector<TagDef> &Tags() { return tags_; }
+
+        [[nodiscard]] const std::vector<SettingDef> &Settings() const { return settings_; }
+
+        [[nodiscard]] std::vector<SettingDef> &Settings() { return settings_; }
+
+        [[nodiscard]] const std::vector<CommandHookResource> &CommandHooks() const { return commandHooks_; }
+
+        [[nodiscard]] SettingDef *Find(std::string_view key);
+
+        [[nodiscard]] const SettingDef *Find(std::string_view key) const;
+
         /**
-     * Cache storage path (compiled shader binaries, etc.).
-     * 缓存存放路径（编译后的着色器二进制等）。
-     */
-        std::string cachePath = "runtime/.cache";
+         * Read a setting by flattened key. Returns T{} if the key is missing or
+         * the value type does not match.
+         * 按扁平 key 读取设置值。key 缺失或类型不匹配时返回 T{}。
+         */
+        template<typename T>
+        [[nodiscard]] T Get(std::string_view key) const {
+            const SettingDef *setting = Find(key);
+            if (setting == nullptr) {
+                return T{};
+            }
+            if (const T *value = std::get_if<T>(&setting->value)) {
+                return *value;
+            }
+            return T{};
+        }
+
         /**
-     * Log storage path (debug log files).
-     * 日志存放路径（调试日志文件）。
-     */
-        std::string logPath = "runtime/.logs";
-        std::vector<CommandHookResource> commandHooks;
-#if  !defined(NDEBUG)
-        Debug debug{};
-#endif
-        MainMenuBackground mainMenuBackground{};
-        BiomeBGMConfig biomeBgm{};
-        int configVersion = 1;
-        CommandConfig command{};
-        World world{};
-        Console console{};
+         * Write a setting by flattened key and mark the config dirty.
+         * 按扁平 key 写入设置值，并标记配置已变更。
+         */
+        template<typename T>
+        void Set(std::string_view key, T value) {
+            SettingDef *setting = Find(key);
+            if (setting == nullptr) {
+                return;
+            }
+            setting->value = std::move(value);
+            fingerprint_++;
+        }
 
+        /**
+         * Read a setting value as its string representation.
+         * 以字符串形式读取设置值。
+         */
+        [[nodiscard]] std::string GetAsString(std::string_view key) const;
 
-        [[nodiscard]] uint64_t GetFingerprint() const;
+        /**
+         * Write a setting value from its string representation.
+         * 以字符串形式写入设置值。
+         */
+        bool SetFromString(std::string_view key, const std::string &text);
 
-        void SetConfigValue(std::unique_ptr<toml::value> configValue);
+        /**
+         * Read a list setting as a list of uint64 (converting each element via
+         * StringUtils::StringToUint64). Used for enabled pack ids.
+         * 将 list 类型的设置读取为 uint64 列表（逐个元素用 StringUtils::StringToUint64
+         * 转换）。用于启用的包 ID 列表。
+         */
+        [[nodiscard]] std::vector<uint64_t> GetUint64List(std::string_view key) const;
 
-        [[nodiscard]] toml::value *GetConfigValue() const;
+        void MarkDirty() { fingerprint_++; }
 
-        bool ReloadConfig();
+        [[nodiscard]] uint64_t GetFingerprint() const { return fingerprint_; }
+
+        /**
+         * Parse the new config.toml structure.
+         * 解析新的 config.toml 结构。
+         */
+        bool Load(const toml::value &v);
+
+        /**
+         * Serialize the current state back into the config.toml structure.
+         * 将当前状态序列化回 config.toml 结构。
+         */
+        [[nodiscard]] toml::value Save() const;
     };
-}
+} // namespace glimmer

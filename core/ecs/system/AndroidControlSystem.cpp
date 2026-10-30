@@ -163,7 +163,7 @@ namespace glimmer {
             jumpPressedTexture = load("gui/jump_pressed.png");*/
         }
 
-        float uiScale = appContext->GetConfig()->window.uiScale;
+        float uiScale = appContext->GetConfig()->Get<float>("ui_scale");
         int windowW = 0;
         int windowH = 0;
         SDL_GetWindowSize(appContext->GetWindow(), &windowW, &windowH);

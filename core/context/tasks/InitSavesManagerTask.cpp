@@ -43,7 +43,7 @@ bool glimmer::InitSavesManagerTask::Run(ISystemBucket *systemBucket) {
         return false;
     }
     auto savesManager = std::make_unique<SavesManager>(virtualFileSystem);
-    savesManager->LoadAllSaves(config->runtimePath);
+    savesManager->LoadAllSaves(config->Get<std::string>("runtime_path"));
     systemBucket->SetSavesManager(std::move(savesManager));
     return true;
 }

@@ -28,6 +28,7 @@
 #include "core/world/WorldContext.h"
 #include "core/scene/Scene.h"
 #include "core/scene/SceneManager.h"
+#include "core/scene/SettingsScene.h"
 #include "core/scene/MainThreadDispatcher.h"
 #include "core/context/AppContext.h"
 #include "core/log/LogCat.h"
@@ -112,6 +113,32 @@ void glimmer::PauseSystem::OnSaveAndExitButtonClick(Rml::DataModelHandle handle,
     });
 }
 
+void glimmer::PauseSystem::OnSettingsButtonClick(Rml::DataModelHandle handle, Rml::Event &event,
+                                                  const Rml::VariantList &args) {
+    WorldContext *worldContext = GetWorldContext();
+    if (worldContext == nullptr) {
+        return;
+    }
+    AppContext *appContext = worldContext->GetAppContext();
+    if (appContext == nullptr) {
+        return;
+    }
+    MainThreadDispatcher *mainThreadDispatcher = appContext->GetMainThreadDispatcher();
+    if (mainThreadDispatcher == nullptr) {
+        return;
+    }
+    SceneManager *sceneManager = appContext->GetSceneManager();
+    if (sceneManager == nullptr) {
+        return;
+    }
+    if (elementDocument_ != nullptr) {
+        elementDocument_->Hide();
+    }
+    mainThreadDispatcher->PostToNextMainFrame([appContext, sceneManager] {
+        sceneManager->PushScene(std::make_unique<SettingsScene>(appContext));
+    });
+}
+
 void glimmer::PauseSystem::LoadDocuments(IDocumentRegistry *documentRegistry) {
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
@@ -139,6 +166,12 @@ void glimmer::PauseSystem::OnCreateDataModels(IDocumentRegistry *documentRegistr
                                    [this](Rml::DataModelHandle handle, Rml::Event &event,
                                           const Rml::VariantList &args) {
                                        OnSaveAndExitButtonClick(handle, event, args);
+                                   });
+
+    constructor->BindEventCallback("on_settings_button_click",
+                                   [this](Rml::DataModelHandle handle, Rml::Event &event,
+                                          const Rml::VariantList &args) {
+                                       OnSettingsButtonClick(handle, event, args);
                                    });
 }
 

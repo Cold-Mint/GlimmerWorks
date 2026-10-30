@@ -48,7 +48,7 @@ bool glimmer::InitFontTask::Run(ISystemBucket *systemBucket) {
     LogCat::i(LogLabel::DEFAULT, "loading_font_for_language", "Loading font for language: {}",
               systemBucket->GetLanguage());
     const auto fontPathOpt = resourcePackManager->GetFontPath(
-        config->mods.enabledResourcePack,
+        config->GetUint64List("enabled_resource_pack"),
         systemBucket->GetLanguage(),
         systemBucket->GetVirtualFileSystem());
 

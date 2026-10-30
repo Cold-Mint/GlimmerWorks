@@ -161,8 +161,8 @@ void glimmer::AppRenderer::RenderFrame(const int windowWidth, const int windowHe
 #if  !defined(NDEBUG)
     if (lightingPass_ != nullptr) {
         if (const Config *config = appContext_->GetConfig(); config != nullptr) {
-            lightingPass_->SetDisplayLightMap(config->debug.displayLightMap);
-            lightingPass_->SetEnableLighting(!config->debug.disableLighting);
+            lightingPass_->SetDisplayLightMap(config->Get<bool>("display_light_map"));
+            lightingPass_->SetEnableLighting(!config->Get<bool>("disable_lighting"));
         }
     }
 #endif

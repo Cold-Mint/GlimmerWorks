@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -26,23 +26,12 @@
  */
 #include "core/config/Config.h"
 
-#include <algorithm>
+#include <type_traits>
 
-#include "core/console/hook/CommandHookManager.h"
 #include "core/log/LogCat.h"
 #include "core/utils/StringUtils.h"
+#include "fmt/format.h"
 #include "toml11/find.hpp"
-
-template<>
-struct toml::from<glimmer::AudioTrack> {
-    static glimmer::AudioTrack from_toml(const value &v) {
-        glimmer::AudioTrack track{};
-        track.trackCount = toml::find<int>(v, "track_count");
-        track.type = static_cast<glimmer::AudioType>(toml::find<int>(v, "type"));
-        track.volume = toml::find<float>(v, "volume");
-        return track;
-    }
-};
 
 
 template<>
@@ -59,95 +48,333 @@ struct toml::from<glimmer::CommandHookResource> {
 };
 
 
-uint64_t glimmer::Config::GetFingerprint() const {
-    return fingerprint_;
-}
-
-void glimmer::Config::SetConfigValue(std::unique_ptr<toml::value> configValue) {
-    if (configValue_ == nullptr) {
-        configValue_ = std::move(configValue);
-        return;
+namespace {
+    glimmer::SettingType ParseSettingType(const std::string &text) {
+        if (text == "bool") {
+            return glimmer::SettingType::Bool;
+        }
+        if (text == "int") {
+            return glimmer::SettingType::Int;
+        }
+        if (text == "float") {
+            return glimmer::SettingType::Float;
+        }
+        if (text == "enum") {
+            return glimmer::SettingType::Enum;
+        }
+        if (text == "int_range") {
+            return glimmer::SettingType::IntRange;
+        }
+        if (text == "float_range") {
+            return glimmer::SettingType::FloatRange;
+        }
+        if (text == "list") {
+            return glimmer::SettingType::List;
+        }
+        return glimmer::SettingType::String;
     }
-    LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "toml_config_cannot_be_set_repeatedly",
-              "The toml configuration data cannot be set repeatedly.");
-}
 
-toml::value *glimmer::Config::GetConfigValue() const {
-    if (configValue_ == nullptr) {
-        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "toml_config_not_found",
-                  "The toml configuration data cannot be found.");
-        return nullptr;
+    std::string SettingTypeToString(glimmer::SettingType type) {
+        using glimmer::SettingType;
+        switch (type) {
+            case SettingType::Bool: return "bool";
+            case SettingType::Int: return "int";
+            case SettingType::Float: return "float";
+            case SettingType::Enum: return "enum";
+            case SettingType::IntRange: return "int_range";
+            case SettingType::FloatRange: return "float_range";
+            case SettingType::List: return "list";
+            default: return "string";
+        }
     }
-    return configValue_.get();
+
+    glimmer::SettingValue ParseValue(const toml::value &table, const glimmer::SettingType type, const char *key) {
+        using glimmer::SettingType;
+        switch (type) {
+            case SettingType::Bool:
+                return toml::find_or<bool>(table, key, false);
+            case SettingType::Int:
+            case SettingType::IntRange:
+                return toml::find_or<int>(table, key, 0);
+            case SettingType::Float:
+            case SettingType::FloatRange:
+                return toml::find_or<float>(table, key, 0.0F);
+            case SettingType::List:
+                return toml::find_or<std::vector<std::string> >(table, key, {});
+            case SettingType::Enum:
+            case SettingType::String:
+            default:
+                return toml::find_or<std::string>(table, key, "");
+        }
+    }
+
+    std::optional<float> ParseOptionalFloat(const toml::value &table, const char *key) {
+        if (!table.contains(key)) {
+            return std::nullopt;
+        }
+        const auto &value = table.at(key);
+        if (value.is_floating()) {
+            return static_cast<float>(value.as_floating());
+        }
+        if (value.is_integer()) {
+            return static_cast<float>(value.as_integer());
+        }
+        return std::nullopt;
+    }
+
+    toml::value ValueToToml(const glimmer::SettingValue &value) {
+        return std::visit([](const auto &v) -> toml::value {
+            using T = std::decay_t<decltype(v)>;
+            if constexpr (std::is_same_v<T, std::vector<std::string> >) {
+                toml::array arr;
+                for (const auto &item: v) {
+                    arr.emplace_back(item);
+                }
+                return toml::value(arr);
+            } else {
+                return toml::value(v);
+            }
+        }, value);
+    }
+} // namespace
+
+
+glimmer::SettingDef *glimmer::Config::Find(const std::string_view key) {
+    const auto it = settingsByKey_.find(std::string(key));
+    return it == settingsByKey_.end() ? nullptr : it->second;
 }
 
-bool glimmer::Config::ReloadConfig() {
-    if (configValue_ == nullptr) {
-        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "config_value_is_null",
-                  "configValue_ == nullptr");
+const glimmer::SettingDef *glimmer::Config::Find(const std::string_view key) const {
+    const auto it = settingsByKey_.find(std::string(key));
+    return it == settingsByKey_.end() ? nullptr : it->second;
+}
+
+std::string glimmer::Config::GetAsString(const std::string_view key) const {
+    const SettingDef *setting = Find(key);
+    return setting == nullptr ? "" : setting->GetAsString();
+}
+
+bool glimmer::Config::SetFromString(const std::string_view key, const std::string &text) {
+    SettingDef *setting = Find(key);
+    if (setting == nullptr) {
         return false;
     }
-    const toml::value *valuePtr = configValue_.get();
-    if (valuePtr == nullptr) {
-        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "value_ptr_is_null", "valuePtr == nullptr");
-        return false;
+    if (setting->SetFromString(text)) {
+        fingerprint_++;
+        return true;
     }
-    const toml::value &tomlRef = *valuePtr;
-    configVersion = toml::find<int>(tomlRef, "config_version");
-    window.height = toml::find<int>(tomlRef, "window", "height");
-    window.width = toml::find<int>(tomlRef, "window", "width");
-    window.fullscreen = toml::find<bool>(tomlRef, "window", "fullscreen");
-    window.uiScale = toml::find<float>(tomlRef, "window", "ui_scale");
-    window.cameraScale = toml::find<float>(tomlRef, "window", "camera_scale");
-    window.vSync = toml::find<bool>(tomlRef, "window", "vsync");
-    window.idleDelay = toml::find<float>(tomlRef, "window", "idle_delay");
-    window.idleTargetFps = toml::find<float>(tomlRef, "window", "idle_target_fps");
-    window.normalTargetFps = toml::find<float>(tomlRef, "window", "normal_target_fps");
-    mods.enableSignVerify = toml::find<bool>(tomlRef, "mods", "enable_sign_verify");
-    mods.loadOnlyVerified = toml::find<bool>(tomlRef, "mods", "load_only_verified");
-    mods.dataPackPath = toml::find<std::string>(tomlRef, "mods", "data_pack_path");
-    mods.resourcePackPath = toml::find<std::string>(tomlRef, "mods", "resource_pack_path");
-    const std::vector<std::string> enabledDataPack = toml::find<std::vector<std::string> >(
-        tomlRef, "mods", "enabled_data_pack");
-    mods.enabledDataPack.clear();
-    for (const auto &dataPack: enabledDataPack) {
-        mods.enabledDataPack.emplace_back(StringUtils::StringToUint64(dataPack));
+    return false;
+}
+
+std::vector<uint64_t> glimmer::Config::GetUint64List(const std::string_view key) const {
+    const SettingDef *setting = Find(key);
+    if (setting == nullptr) {
+        return {};
     }
-    const std::vector<std::string> enabledResourcePack = toml::find<std::vector<std::string> >(
-        tomlRef, "mods", "enabled_resource_pack");
-    mods.enabledResourcePack.clear();
-    for (const auto &resourcePack: enabledResourcePack) {
-        mods.enabledResourcePack.emplace_back(StringUtils::StringToUint64(resourcePack));
+    const auto *list = std::get_if<std::vector<std::string> >(&setting->value);
+    if (list == nullptr) {
+        return {};
     }
-    world.preloadChunkRadius = toml::find<uint8_t>(tomlRef, "world", "preload_chunk_radius");
-    world.chunkScanTaskTickInterval = toml::find<uint8_t>(tomlRef, "world", "chunk_scan_task_tick_interval");
-    audio.channels = toml::find<int>(tomlRef, "audio", "channels");
-    audio.masterVolume = toml::find<float>(tomlRef, "audio", "master_volume");
-    audio.freq = toml::find<int>(tomlRef, "audio", "freq");
-    audio.track = toml::find<std::vector<AudioTrack> >(tomlRef, "audio", "track");
-    audio.format = toml::find<std::string>(tomlRef, "audio", "format");
-    console.maxHistoryEntries = toml::find<uint16_t>(tomlRef, "console", "max_history_entries");
-    runtimePath = toml::find_or<std::string>(tomlRef, "runtime_path", runtimePath);
-    cachePath = toml::find_or<std::string>(tomlRef, "cache_path", cachePath);
-    logPath = toml::find_or<std::string>(tomlRef, "log_path", logPath);
-    command.locateMaxRadiusSearchChunks = toml::find<uint16_t>(tomlRef, "command",
-                                                               "locate_max_radius_search_chunks");
-    commandHooks = toml::find_or<std::vector<CommandHookResource> >(tomlRef, "command_hooks", {});
-    biomeBgm.debounceSeconds = toml::find<float>(tomlRef, "biome_bgm", "debounce_seconds");
-#if  !defined(NDEBUG)
-    debug.displayDebugPanel = toml::find<bool>(tomlRef, "debug", "display_debug_panel");
-    debug.displayCollisionBox = toml::find<bool>(tomlRef, "debug", "display_collision_box");
-    debug.displayDraggableTarget = toml::find<bool>(tomlRef, "debug", "display_draggable_target");
-    debug.displayElevationMap = toml::find<bool>(tomlRef, "debug", "display_elevation_map");
-    debug.displayTempMap = toml::find<bool>(tomlRef, "debug", "display_temp_map");
-    debug.displayHumidityMap = toml::find<bool>(tomlRef, "debug", "display_humidity_map");
-    debug.displayErosionMap = toml::find<bool>(tomlRef, "debug", "display_erosion_map");
-    debug.displayWeirdnessMap = toml::find<bool>(tomlRef, "debug", "display_weirdness_map");
-    debug.displayChunkView = toml::find<bool>(tomlRef, "debug", "display_chunk_view");
-    debug.displayTerrainView = toml::find<bool>(tomlRef, "debug", "display_terrain_view");
-    debug.displayLightMap = toml::find<bool>(tomlRef, "debug", "display_light_map");
-    debug.disableLighting = toml::find<bool>(tomlRef, "debug", "disable_lighting");
-#endif
+    std::vector<uint64_t> result;
+    result.reserve(list->size());
+    for (const auto &item: *list) {
+        result.emplace_back(StringUtils::StringToUint64(item));
+    }
+    return result;
+}
+
+std::string glimmer::SettingDef::GetAsString() const {
+    return std::visit([](const auto &v) -> std::string {
+        using T = std::decay_t<decltype(v)>;
+        if constexpr (std::is_same_v<T, bool>) {
+            return v ? "true" : "false";
+        } else if constexpr (std::is_same_v<T, int>) {
+            return std::to_string(v);
+        } else if constexpr (std::is_same_v<T, float>) {
+            return fmt::format("{}", v);
+        } else if constexpr (std::is_same_v<T, std::string>) {
+            return v;
+        } else if constexpr (std::is_same_v<T, std::vector<std::string> >) {
+            std::string out;
+            for (size_t i = 0; i < v.size(); ++i) {
+                if (i != 0) {
+                    out += ',';
+                }
+                out += v[i];
+            }
+            return out;
+        }
+        return "";
+    }, value);
+}
+
+bool glimmer::SettingDef::SetFromString(const std::string &text) {
+    switch (type) {
+        case SettingType::Bool:
+            value = (text == "true" || text == "1");
+            return true;
+        case SettingType::Int: {
+            try {
+                value = std::stoi(text);
+            } catch (...) {
+                return false;
+            }
+            return true;
+        }
+        case SettingType::IntRange: {
+            try {
+                value = static_cast<int>(std::stof(text));
+            } catch (...) {
+                return false;
+            }
+            return true;
+        }
+        case SettingType::Float:
+        case SettingType::FloatRange: {
+            try {
+                value = std::stof(text);
+            } catch (...) {
+                return false;
+            }
+            return true;
+        }
+        case SettingType::List: {
+            std::vector<std::string> list;
+            std::string_view view(text);
+            size_t start = 0;
+            while (start <= view.size()) {
+                const size_t comma = view.find(',', start);
+                const std::string_view token = view.substr(
+                    start, comma == std::string_view::npos ? std::string_view::npos : comma - start);
+                if (!token.empty()) {
+                    list.emplace_back(token);
+                }
+                if (comma == std::string_view::npos) {
+                    break;
+                }
+                start = comma + 1;
+            }
+            value = std::move(list);
+            return true;
+        }
+        case SettingType::Enum:
+        case SettingType::String:
+        default:
+            value = text;
+            return true;
+    }
+}
+
+bool glimmer::Config::Load(const toml::value &v) {
+    tags_.clear();
+    settings_.clear();
+    settingsByKey_.clear();
+    commandHooks_.clear();
+
+    if (v.contains("tags")) {
+        for (const auto &tagValue: toml::find<std::vector<toml::value> >(v, "tags")) {
+            TagDef tag;
+            tag.tagId = toml::find<std::string>(tagValue, "tag_id");
+            tag.labelKey = toml::find_or<std::string>(tagValue, "displayName", tag.tagId);
+            tag.enable = toml::find_or<bool>(tagValue, "enable", false);
+            tag.visible = toml::find_or<bool>(tagValue, "visible", false);
+            tags_.push_back(std::move(tag));
+        }
+    }
+
+    if (v.contains("settings")) {
+        for (const auto &settingValue: toml::find<std::vector<toml::value> >(v, "settings")) {
+            SettingDef setting;
+            setting.key = toml::find<std::string>(settingValue, "key");
+            setting.labelKey = toml::find_or<std::string>(settingValue, "displayName", setting.key);
+            setting.groupTag = toml::find_or<std::string>(settingValue, "group_tag", "");
+            setting.requiredTags = toml::find_or<std::vector<std::string> >(settingValue, "required_tags", {});
+            setting.type = ParseSettingType(toml::find_or<std::string>(settingValue, "type", "string"));
+            setting.options = toml::find_or<std::vector<std::string> >(settingValue, "options", {});
+            setting.minValue = ParseOptionalFloat(settingValue, "min_value");
+            setting.maxValue = ParseOptionalFloat(settingValue, "max_value");
+            setting.stepValue = ParseOptionalFloat(settingValue, "step_value");
+            setting.defaultValue = ParseValue(settingValue, setting.type, "default_value");
+            if (settingValue.contains("value")) {
+                setting.value = ParseValue(settingValue, setting.type, "value");
+            } else {
+                setting.value = setting.defaultValue;
+            }
+            settings_.push_back(std::move(setting));
+        }
+    }
+
+    for (SettingDef &setting: settings_) {
+        settingsByKey_[setting.key] = &setting;
+    }
+
+    commandHooks_ = toml::find_or<std::vector<CommandHookResource> >(v, "command_hooks", {});
+
     fingerprint_++;
     return true;
+}
+
+toml::value glimmer::Config::Save() const {
+    toml::value root(toml::table{});
+
+    root["version"] = toml::value(1);
+
+    toml::array tagArray;
+    for (const auto &tag: tags_) {
+        toml::table table;
+        table["displayName"] = toml::value(tag.labelKey);
+        table["tag_id"] = toml::value(tag.tagId);
+        table["enable"] = toml::value(tag.enable);
+        table["visible"] = toml::value(tag.visible);
+        tagArray.emplace_back(table);
+    }
+    root["tags"] = toml::value(tagArray);
+
+    toml::array settingArray;
+    for (const auto &setting: settings_) {
+        toml::table table;
+        table["displayName"] = toml::value(setting.labelKey);
+        table["key"] = toml::value(setting.key);
+        table["group_tag"] = toml::value(setting.groupTag);
+        toml::array requiredArray;
+        for (const auto &tag: setting.requiredTags) {
+            requiredArray.emplace_back(tag);
+        }
+        table["required_tags"] = toml::value(requiredArray);
+        table["type"] = toml::value(SettingTypeToString(setting.type));
+        table["default_value"] = ValueToToml(setting.defaultValue);
+        table["value"] = ValueToToml(setting.value);
+        if (!setting.options.empty()) {
+            toml::array optionArray;
+            for (const auto &option: setting.options) {
+                optionArray.emplace_back(option);
+            }
+            table["options"] = toml::value(optionArray);
+        }
+        if (setting.minValue.has_value()) {
+            table["min_value"] = toml::value(*setting.minValue);
+        }
+        if (setting.maxValue.has_value()) {
+            table["max_value"] = toml::value(*setting.maxValue);
+        }
+        if (setting.stepValue.has_value()) {
+            table["step_value"] = toml::value(*setting.stepValue);
+        }
+        settingArray.emplace_back(table);
+    }
+    root["settings"] = toml::value(settingArray);
+
+    toml::array hookArray;
+    for (const auto &hook: commandHooks_) {
+        toml::table table;
+        table["hook_id"] = toml::value(hook.hookId);
+        table["command"] = toml::value(hook.command);
+        table["code"] = toml::value(hook.code);
+        table["event_type"] = toml::value(hook.eventType);
+        table["key_repeat"] = toml::value(hook.keyRepeat);
+        hookArray.emplace_back(table);
+    }
+    root["command_hooks"] = toml::value(hookArray);
+
+    return root;
 }

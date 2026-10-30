@@ -47,7 +47,7 @@ void glimmer::CameraSystem::OnWatchedComponentChanged(GameComponentTypeMessage g
             LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "config_is_null", "config is nullptr");
             return;
         }
-        cameraComponent_->SetZoom(config->window.cameraScale);
+        cameraComponent_->SetZoom(config->Get<float>("camera_scale"));
         cameraComponent_->SetSize(ScreenVector2D(static_cast<float>(appContext->GetWindowContext()->GetWindowWidth()),
                                                  static_cast<float>(appContext->GetWindowContext()->
                                                      GetWindowHeight())));
@@ -75,7 +75,7 @@ void glimmer::CameraSystem::OnConfigChanged(const Config *config) {
         return;
     }
     const float oldZoom = cameraComponent_->GetZoom();
-    const float newZoom = config->window.cameraScale;
+    const float newZoom = config->Get<float>("camera_scale");
     if (oldZoom == newZoom) {
         return;
     }

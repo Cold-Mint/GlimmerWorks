@@ -42,6 +42,7 @@
 #include "RmlUi/Core/Context.h"
 #include "core/scene/ConsoleOverlay.h"
 #include "core/scene/UIMessageOverlay.h"
+#include "core/scene/DialogOverlay.h"
 #include "core/tick/TickWorker.h"
 
 
@@ -245,6 +246,9 @@ void glimmer::App::InitScenesAndConsole() const {
 #endif
     sceneManager->AddOverlayScene(std::make_unique<ConsoleOverlay>(appContext_));
     sceneManager->AddOverlayScene(std::make_unique<UIMessageOverlay>(appContext_));
+    std::unique_ptr<DialogOverlay> dialogOverlay = std::make_unique<DialogOverlay>(appContext_);
+    appContext_->SetDialogOverlay(dialogOverlay.get());
+    sceneManager->AddOverlayScene(std::move(dialogOverlay));
     ConsoleWorker *consoleWorker = appContext_->GetConsoleContext()->GetConsoleWorker();
     if (consoleWorker == nullptr) {
         return;

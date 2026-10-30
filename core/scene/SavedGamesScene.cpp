@@ -36,6 +36,7 @@
 #include "core/world/WorldContext.h"
 
 #include "core/context/AppContext.h"
+#include "core/ui/Dialog.h"
 #include "core/utils/StringUtils.h"
 #include "core/utils/TimeUtils.h"
 #include "core/log/LogCat.h"
@@ -154,20 +155,35 @@ void glimmer::SavedGamesScene::OnDeleteClick(Rml::DataModelHandle handle, Rml::E
         return;
     }
     int originalIndex = savedGamesDataModel_.saveItems[listIndex].originalIndex;
-    if (savesManager_->DeleteSave(originalIndex)) {
-        UpdateSaveItems();
-        SetSelectedSaveIndex(-1);
-        handle.DirtyVariable("save_items");
-        handle.DirtyVariable("has_valid_selection");
-    }
-    if (savesManager_->GetSavesListSize() == 0) {
-        if (mainThreadDispatcher == nullptr) {
+
+    DialogRequest request;
+    request.title = "delete_game";
+    request.message = "want_delete_this_save";
+    request.buttons = {
+        {.label = "cancel", .result = 0},
+        {.label = "delete_game", .result = 1, .destructive = true},
+    };
+    request.cancelResult = 0;
+    request.onResult = [this, originalIndex](const int result) {
+        if (result != 1) {
             return;
         }
-        mainThreadDispatcher->PostToNextMainFrame([this] {
-            sceneManager_->ReplaceScene(std::make_unique<CreateWorldScene>(GetAppContext()));
-        });
-    }
+        if (savesManager_->DeleteSave(originalIndex)) {
+            UpdateSaveItems();
+            SetSelectedSaveIndex(-1);
+            savedGamesDataModelHandle_.DirtyVariable("save_items");
+            savedGamesDataModelHandle_.DirtyVariable("has_valid_selection");
+        }
+        if (savesManager_->GetSavesListSize() == 0) {
+            if (mainThreadDispatcher == nullptr) {
+                return;
+            }
+            mainThreadDispatcher->PostToNextMainFrame([this] {
+                sceneManager_->ReplaceScene(std::make_unique<CreateWorldScene>(GetAppContext()));
+            });
+        }
+    };
+    GetAppContext()->ShowDialog(std::move(request));
 }
 
 void glimmer::SavedGamesScene::OnBackClick(Rml::DataModelHandle handle, Rml::Event &event,

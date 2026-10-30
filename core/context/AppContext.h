@@ -34,6 +34,7 @@
 #include "core/utils/LangsResources.h"
 #include "core/config/Config.h"
 #include "core/saves/SavesManager.h"
+#include "core/ui/Dialog.h"
 #include "core/ui/UIMessage.h"
 #include "core/vfs/VirtualFileSystem.h"
 #include "ConsoleContext.h"
@@ -49,10 +50,12 @@
 
 namespace glimmer {
     class EventBus;
+    class DialogOverlay;
 
     class AppContext {
         mutable std::optional<PendingScreenshot> pendingScreenshot_;
         std::vector<UIMessage> uiMessages_;
+        DialogOverlay *dialogOverlay_ = nullptr;
         std::vector<std::unique_ptr<IAppContextInitTask> > initTasks_;
         std::unique_ptr<ISystemBucket> systemBucket_;
 
@@ -118,6 +121,29 @@ namespace glimmer {
          * @return The pending UI messages. 待显示的 UI 消息列表。
          */
         [[nodiscard]] std::vector<UIMessage> &GetUIMessages();
+
+        /**
+         * Set the dialog overlay used by ShowDialog. Called once during app
+         * startup when the overlay scene is registered.
+         * 设置 ShowDialog 所使用的对话框叠加层。在应用启动注册叠加层场景时调用一次。
+         */
+        void SetDialogOverlay(DialogOverlay *overlay);
+
+        /**
+         * @return The dialog overlay, or nullptr if it has not been registered.
+         * 对话框叠加层，若尚未注册则为 nullptr。
+         */
+        [[nodiscard]] DialogOverlay *GetDialogOverlay() const;
+
+        /**
+         * Show a generic modal dialog (GNOME / Adwaita styled) with an optional
+         * title, an optional message and up to three buttons. The user's choice
+         * is delivered asynchronously through DialogRequest::onResult.
+         * 显示一个通用模态对话框（GNOME / Adwaita 风格），包含可选标题、可选消息和
+         * 最多三个按钮。用户选择通过 DialogRequest::onResult 异步回传。
+         * @param request request 对话框请求
+         */
+        void ShowDialog(DialogRequest request);
 
 
         void CreateScreenshot(const std::function<void(const std::string &text)> *onMessage) const;

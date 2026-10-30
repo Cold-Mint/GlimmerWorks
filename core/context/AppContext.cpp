@@ -29,6 +29,7 @@
 #include "SystemBucket.h"
 #include "core/gpu/PendingScreenshot.h"
 #include "core/log/LogCat.h"
+#include "core/scene/DialogOverlay.h"
 #include "core/utils/RandomUtils.h"
 #include "core/utils/StringUtils.h"
 #include "fmt/xchar.h"
@@ -267,4 +268,21 @@ void glimmer::AppContext::AddUIMessage(const std::string &text) {
 
 std::vector<glimmer::UIMessage> &glimmer::AppContext::GetUIMessages() {
     return uiMessages_;
+}
+
+void glimmer::AppContext::SetDialogOverlay(DialogOverlay *overlay) {
+    dialogOverlay_ = overlay;
+}
+
+glimmer::DialogOverlay *glimmer::AppContext::GetDialogOverlay() const {
+    return dialogOverlay_;
+}
+
+void glimmer::AppContext::ShowDialog(DialogRequest request) {
+    if (dialogOverlay_ == nullptr) {
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "dialog_overlay_is_null",
+                  "dialogOverlay_ == nullptr");
+        return;
+    }
+    dialogOverlay_->ShowDialog(std::move(request));
 }

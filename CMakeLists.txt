@@ -735,6 +735,7 @@ target_sources(GlimmerWorks
         core/scene/ConsoleOverlay.cpp
         core/scene/CreateWorldScene.cpp
         core/scene/DebugOverlay.cpp
+        core/scene/DialogOverlay.cpp
         core/scene/MainScene.cpp
         core/scene/UIMessageOverlay.cpp
         core/scene/MainThreadDispatcher.cpp
@@ -938,6 +939,7 @@ target_sources(GlimmerWorks
         core/console/hook/CommandHookScope.h
         core/config/Config.h
         core/config/Constants.h
+        core/ui/Dialog.h
         core/ui/Hyperlink.h
         core/ui/UIMessage.h
         core/utils/IFingerprintable.h
@@ -1220,6 +1222,7 @@ target_sources(GlimmerWorks
         core/scene/ConsoleOverlay.h
         core/scene/CreateWorldScene.h
         core/scene/DebugOverlay.h
+        core/scene/DialogOverlay.h
         core/scene/MainScene.h
         core/scene/UIMessageOverlay.h
         core/scene/MainThreadDispatcher.h

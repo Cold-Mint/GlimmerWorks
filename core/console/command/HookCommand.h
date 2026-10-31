@@ -39,9 +39,11 @@ namespace glimmer {
         static void PutListCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings,
                                             int size);
 
-        void UpdateAddSuggestionsTree(NodeTree<std::string> *operationTypeTree, const std::string &eventTypeString);
+        static void UpdateAddSuggestionsTree(NodeTree<std::string> *operationTypeTree,
+                                             const std::string &eventTypeString);
 
-        void UpdateListSuggestionsTree(NodeTree<std::string> *operationTypeTree, const std::string &eventTypeString);
+        static void UpdateListSuggestionsTree(NodeTree<std::string> *operationTypeTree,
+                                              const std::string &eventTypeString);
 
         template<typename MessageCallback>
         bool ExecuteAdd(const CommandArgs *commandArgs,

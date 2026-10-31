@@ -34,6 +34,7 @@
 #include "core/mod/dataPack/RecipeGroup.h"
 #include "core/mod/dataPack/RecipeManager.h"
 #include "core/context/AppContext.h"
+#include "core/context/ModContext.h"
 #include "core/world/WorldContext.h"
 #include "fmt/xchar.h"
 
@@ -102,7 +103,11 @@ bool glimmer::UnlockedRecipesCommand::Execute(const CommandSender *commandSender
         onMessageRef(langsResources->worldContextIsNull);
         return false;
     }
-    const RecipeManager *recipeManager = appContext->GetModContext()->GetRecipeManager();
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
+        return false;
+    }
+    const RecipeManager *recipeManager = modContext->GetRecipeManager();
     if (recipeManager == nullptr) {
         return false;
     }

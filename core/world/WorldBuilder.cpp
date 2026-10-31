@@ -42,6 +42,7 @@
 #include "core/ecs/component/TileLayerComponent.h"
 #include "core/log/LogCat.h"
 #include "core/mod/Resource.h"
+#include "core/mod/ResourceLocator.h"
 #include "core/mod/ResourceRef.h"
 #include "core/saves/Saves.h"
 #include "generator/TileLayerType.h"
@@ -89,7 +90,11 @@ void glimmer::WorldBuilder::Build() {
     ResourceRef dimensionResourceRef;
     dimensionResourceRef.ReadResourceRefMessage(playerDimensionMessage->dimension());
     worldContext_->dimension_ = std::make_unique<Dimension>();
-    DimensionResource *dimensionResource = worldContext_->appContext_->GetResourceLocator()->FindDimension(
+    ResourceLocator *resourceLocator = worldContext_->appContext_->GetResourceLocator();
+    if (resourceLocator == nullptr) {
+        return;
+    }
+    DimensionResource *dimensionResource = resourceLocator->FindDimension(
         &dimensionResourceRef);
     if (dimensionResource == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "world_builder_dimension_resource_null",

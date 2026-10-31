@@ -28,6 +28,7 @@
 
 #include "core/context/AppContext.h"
 #include "core/context/CacheContext.h"
+#include "core/context/ModContext.h"
 #include "core/inventory/Item.h"
 #include "core/log/LogCat.h"
 #include "core/utils/StringUtils.h"

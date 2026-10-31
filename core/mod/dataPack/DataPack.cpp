@@ -184,7 +184,7 @@ bool glimmer::DataPack::LoadPack(const AppContext *appContext) {
     std::vector<uint8_t> allHashData;
     SpecialFileProcessingParams specialFileProcessingParams{
         rootPath_ / ".public", rootPath_ / ".sign",
-        std::vector<uint8_t>(32), std::vector<uint8_t>(64), config->Get<bool>("enable_sign_verify"), false, false
+        std::vector<uint8_t>(32), std::vector<uint8_t>(64), config->Get<bool>(enableSignVerify_), false, false
     };
     PackSignatureVerifier signatureVerifier(virtualFileSystem, specialFileProcessingParams);
     for (const auto &file: files) {
@@ -198,7 +198,7 @@ bool glimmer::DataPack::LoadPack(const AppContext *appContext) {
         packVerifyState_ = signatureVerifier.Verify(allHashData);
     }
 
-    if (config->Get<bool>("load_only_verified") && packVerifyState_ != PackVerifyState::VerifiedSuccess) {
+    if (config->Get<bool>(loadOnlyVerified_) && packVerifyState_ != PackVerifyState::VerifiedSuccess) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "data_pack_verification_rejected",
                   "Data pack signature verification failed, rejected: {}", manifest_.id);
         return false;

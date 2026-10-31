@@ -27,6 +27,8 @@
 #include "LootTablesAssetEnumerator.h"
 #if  !defined(NDEBUG)
 #include "core/context/AppContext.h"
+#include "core/context/ModContext.h"
+#include "core/lootTable/LootTableRegistry.h"
 
 std::string_view glimmer::LootTablesAssetEnumerator::GetAssetType() const {
     return assetName;
@@ -36,7 +38,11 @@ std::optional<std::string> glimmer::LootTablesAssetEnumerator::ListAsset(const A
     if (appContext == nullptr) {
         return std::nullopt;
     }
-    const LootTableRegistry *lootTableRegistry = appContext->GetModContext()->GetLootTableRegistry();
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
+        return std::nullopt;
+    }
+    const LootTableRegistry *lootTableRegistry = modContext->GetLootTableRegistry();
     if (lootTableRegistry == nullptr) {
         return std::nullopt;
     }

@@ -35,7 +35,6 @@ namespace glimmer {
         Transform2DComponent *cameraTransform2DComponent_ = nullptr;
         uint32_t transform2DCount_ = 0;
         uint32_t floatingTextCount_ = 0;
-        float normalTargetFps_ = 60;
 
     public:
         explicit FloatingTextSystem(WorldContext *worldContext);
@@ -45,8 +44,6 @@ namespace glimmer {
         void Update(float delta) override;
 
         void Render(RenderQueue *queue) override;
-
-        void OnConfigChanged(const Config *config) override;
 
         uint8_t GetExecutionOrder() override;
 

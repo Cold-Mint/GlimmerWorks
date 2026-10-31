@@ -28,6 +28,7 @@
 
 #include "BiomeDecorator.h"
 #include "BiomeDecoratorManager.h"
+#include "core/context/ModContext.h"
 #include "core/log/LogCat.h"
 #include "core/mod/Resource.h"
 #include "core/mod/ResourceLocator.h"

@@ -102,7 +102,7 @@ void glimmer::HookCommand::PutCommandStructure(const CommandArgs *commandArgs, s
 
 void glimmer::HookCommand::UpdateAddSuggestionsTree(NodeTree<std::string> *operationTypeTree,
                                                     const std::string &eventTypeString) {
-    auto eventTypeTree = operationTypeTree->GetChildByValue(EVENT_TYPE_DYNAMIC_SUGGESTIONS_NAME);
+    auto eventTypeTree = operationTypeTree->GetMutableChildByValue(EVENT_TYPE_DYNAMIC_SUGGESTIONS_NAME);
     if (eventTypeTree == nullptr) {
         return;
     }
@@ -124,7 +124,7 @@ void glimmer::HookCommand::UpdateAddSuggestionsTree(NodeTree<std::string> *opera
 
 void glimmer::HookCommand::UpdateListSuggestionsTree(NodeTree<std::string> *operationTypeTree,
                                                      const std::string &eventTypeString) {
-    auto eventTypeTree = operationTypeTree->GetChildByValue(EVENT_TYPE_DYNAMIC_SUGGESTIONS_NAME);
+    auto eventTypeTree = operationTypeTree->GetMutableChildByValue(EVENT_TYPE_DYNAMIC_SUGGESTIONS_NAME);
     if (eventTypeTree == nullptr) {
         return;
     }
@@ -143,7 +143,7 @@ glimmer::NodeTree<std::string> *glimmer::HookCommand::GetSuggestionsTree(const C
         return &GetPrivateSuggestionsTree();
     }
     const std::string operationType = commandArgs->AsString(1);
-    auto operationTypeTree = GetPrivateSuggestionsTree().GetChildByValue(operationType);
+    auto operationTypeTree = GetPrivateSuggestionsTree().GetMutableChildByValue(operationType);
     if (operationTypeTree == nullptr) {
         return &GetPrivateSuggestionsTree();
     }

@@ -28,6 +28,8 @@
 
 #include "core/mod/PackVerifyState.h"
 #include "core/context/AppContext.h"
+#include "core/context/ModContext.h"
+#include "core/mod/dataPack/DataPackManager.h"
 #include "core/utils/StringUtils.h"
 #include "fmt/xchar.h"
 
@@ -64,7 +66,7 @@ bool glimmer::PackVerifyCommand::Execute(const CommandSender *commandSender, con
     if (langsResources == nullptr) {
         return false;
     }
-    if (!config->Get<bool>("enable_sign_verify")) {
+    if (!config->Get<bool>(enableSignVerify_)) {
         onMessageRef(langsResources->notEnabledSignVerify);
     }
     if (int size = commandArgs->GetSize(); size < 2) {
@@ -73,7 +75,11 @@ bool glimmer::PackVerifyCommand::Execute(const CommandSender *commandSender, con
             2, size));
         return false;
     }
-    DataPackManager *dataPackManager = appContext->GetModContext()->GetDataPackManager();
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
+        return false;
+    }
+    DataPackManager *dataPackManager = modContext->GetDataPackManager();
     if (dataPackManager == nullptr) {
         return false;
     }

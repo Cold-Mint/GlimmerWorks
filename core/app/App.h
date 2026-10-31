@@ -35,15 +35,20 @@ namespace glimmer {
         AppContext *appContext_ = nullptr;
         TickWorker *tickWorker_ = nullptr;
         SceneManager *sceneManager_ = nullptr;
+        uint64_t uiScale_ = StringUtils::StringToUint64("ui_scale");
+        uint64_t idleDelay_ = StringUtils::StringToUint64("idle_delay");
+        uint64_t normalTargetFps_ = StringUtils::StringToUint64("normal_target_fps");
+        uint64_t idleTargetFps_ = StringUtils::StringToUint64("idle_target_fps");
 
         static bool CheckWindowSizeChange(WindowContext *windowContext, const int &windowWidth,
                                           const int &windowHeight);
 
         void HandleWindowSizeChange(const int &windowWidth, const int &windowHeight) const;
 
-        [[nodiscard]] float CalculateTargetFrameTime(uint64_t frameStart, uint64_t lastActiveTime) const;
+        [[nodiscard]] float CalculateTargetFrameTime(float normalTargetFps, uint64_t frameStart,
+                                                     uint64_t lastActiveTime) const;
 
-        bool CheckConfigChange(uint64_t &configFingerprint) const;
+        bool CheckConfigChange(const Config *config, uint32_t &outConfigVersion) const;
 
         void NotifyFrameStart() const;
 

@@ -28,6 +28,7 @@
 #if  !defined(NDEBUG)
 #include "core/log/LogCat.h"
 #include "core/context/AppContext.h"
+#include "core/context/ModContext.h"
 
 std::string_view glimmer::AbilityItemsAssetEnumerator::GetAssetType() const {
     return assetName;

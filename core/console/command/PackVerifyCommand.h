@@ -29,6 +29,8 @@
 
 namespace glimmer {
     class PackVerifyCommand final : public Command {
+        uint64_t enableSignVerify_ = StringUtils::StringToUint64("enable_sign_verify");
+
         void InitSuggestions(NodeTree<std::string> *suggestionsTree) override;
 
     public:

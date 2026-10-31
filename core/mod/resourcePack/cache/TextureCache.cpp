@@ -26,6 +26,7 @@
  */
 #include "TextureCache.h"
 
+#include "core/mod/resourcePack/TextureResourceResult.h"
 #include "core/world/PreloadColors.h"
 #include "SDL3/SDL_gpu.h"
 #include "SDL3_image/SDL_image.h"

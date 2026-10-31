@@ -27,6 +27,8 @@
 #pragma once
 #include <memory>
 #include <unordered_map>
+
+#include "ResourcePackManager.h"
 #include "core/context/AppContext.h"
 
 
@@ -118,7 +120,8 @@ namespace glimmer {
         if (config == nullptr) {
             return TryGetPlaceholder(appContext, resourceRef, enablePlaceHolder);
         }
-        const std::vector<uint64_t> enabledResourcePack = config->GetUint64List("enabled_resource_pack");
+        const std::vector<uint64_t> enabledResourcePack = config->GetUint64List(
+            StringUtils::StringToUint64("enabled_resource_pack"));
         ResourcePackManager *resourcePackManager = appContext->GetResourcePackManager();
         if (resourcePackManager == nullptr) {
             return TryGetPlaceholder(appContext, resourceRef, enablePlaceHolder);

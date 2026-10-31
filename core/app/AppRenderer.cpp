@@ -40,6 +40,7 @@
 #include "core/gpu/RenderFrameContext.h"
 #include "core/gpu/UniformInjectContext.h"
 #include "core/log/LogCat.h"
+#include "core/mod/ResourceLocator.h"
 #include "core/mod/ResourceRef.h"
 #include "core/mod/resourcePack/GPUPipelineResourceResult.h"
 #include "core/scene/Scene.h"
@@ -161,8 +162,8 @@ void glimmer::AppRenderer::RenderFrame(const int windowWidth, const int windowHe
 #if  !defined(NDEBUG)
     if (lightingPass_ != nullptr) {
         if (const Config *config = appContext_->GetConfig(); config != nullptr) {
-            lightingPass_->SetDisplayLightMap(config->Get<bool>("display_light_map"));
-            lightingPass_->SetEnableLighting(!config->Get<bool>("disable_lighting"));
+            lightingPass_->SetDisplayLightMap(config->Get<bool>(StringUtils::StringToUint64("display_light_map")));
+            lightingPass_->SetEnableLighting(!config->Get<bool>(StringUtils::StringToUint64("disable_lighting")));
         }
     }
 #endif

@@ -80,6 +80,7 @@
 #include "core/console/suggestion/VFSDynamicSuggestions.h"
 #include "core/log/LogCat.h"
 #include "AppContext.h"
+#include "ModContext.h"
 #include "core/console/command/ExitCommand.h"
 #include "core/console/command/RmlDebugCommand.h"
 #include "core/console/suggestion/SceneDynamicSuggestions.h"

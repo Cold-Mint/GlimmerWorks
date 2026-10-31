@@ -33,6 +33,7 @@
 #include "core/inventory/ItemContainer.h"
 #include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
+#include "core/mod/ResourceLocator.h"
 #include "core/utils/RandomUtils.h"
 #include "core/utils/UUIDUtils.h"
 #include "core/world/TileInstancePool.h"

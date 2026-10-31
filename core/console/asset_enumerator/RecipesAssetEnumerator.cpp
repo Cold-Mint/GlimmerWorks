@@ -27,6 +27,8 @@
 #include "RecipesAssetEnumerator.h"
 #if  !defined(NDEBUG)
 #include "core/context/AppContext.h"
+#include "core/context/ModContext.h"
+#include "core/mod/dataPack/RecipeManager.h"
 
 std::string_view glimmer::RecipesAssetEnumerator::GetAssetType() const {
     return assetName;
@@ -36,7 +38,11 @@ std::optional<std::string> glimmer::RecipesAssetEnumerator::ListAsset(const AppC
     if (appContext == nullptr) {
         return std::nullopt;
     }
-    const RecipeManager *recipeManager = appContext->GetModContext()->GetRecipeManager();
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
+        return std::nullopt;
+    }
+    const RecipeManager *recipeManager = modContext->GetRecipeManager();
     if (recipeManager == nullptr) {
         return std::nullopt;
     }

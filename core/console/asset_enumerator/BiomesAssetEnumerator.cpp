@@ -28,6 +28,7 @@
 #if  !defined(NDEBUG)
 #include "core/log/LogCat.h"
 #include "core/context/AppContext.h"
+#include "core/context/ModContext.h"
 
 std::string_view glimmer::BiomesAssetEnumerator::GetAssetType() const {
     return assetName;
@@ -38,7 +39,11 @@ std::optional<std::string> glimmer::BiomesAssetEnumerator::ListAsset(const AppCo
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "app_context_is_null", "appContext is nullptr");
         return std::nullopt;
     }
-    const BiomeRegistry *biomeRegistry = appContext->GetModContext()->GetBiomeRegistry();
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
+        return std::nullopt;
+    }
+    const BiomeRegistry *biomeRegistry = modContext->GetBiomeRegistry();
     if (biomeRegistry == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "biomes_manager_is_null",
                   "biomesManager is nullptr");

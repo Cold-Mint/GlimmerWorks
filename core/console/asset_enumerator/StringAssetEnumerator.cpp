@@ -27,6 +27,7 @@
 #include "StringAssetEnumerator.h"
 #if  !defined(NDEBUG)
 #include "core/context/AppContext.h"
+#include "core/context/ModContext.h"
 
 std::string_view glimmer::StringAssetEnumerator::GetAssetType() const {
     return assetName;
@@ -36,7 +37,11 @@ std::optional<std::string> glimmer::StringAssetEnumerator::ListAsset(const AppCo
     if (appContext == nullptr) {
         return std::nullopt;
     }
-    const StringManager *stringManager = appContext->GetModContext()->GetStringManager();
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
+        return std::nullopt;
+    }
+    const StringManager *stringManager = modContext->GetStringManager();
     if (stringManager == nullptr) {
         return std::nullopt;
     }

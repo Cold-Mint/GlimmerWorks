@@ -28,6 +28,8 @@
 #if  !defined(NDEBUG)
 #include "core/log/LogCat.h"
 #include "core/context/AppContext.h"
+#include "core/context/ModContext.h"
+#include "core/mod/dataPack/BiomeDecoratorRegistry.h"
 
 std::string_view glimmer::BiomeDecorsAssetEnumerator::GetAssetType() const {
     return assetName;

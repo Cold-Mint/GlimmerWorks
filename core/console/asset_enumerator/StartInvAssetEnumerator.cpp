@@ -27,6 +27,8 @@
 #include "StartInvAssetEnumerator.h"
 #if  !defined(NDEBUG)
 #include "core/context/AppContext.h"
+#include "core/context/ModContext.h"
+#include "core/inventory/InitialInventoryManager.h"
 
 std::string_view glimmer::StartInvAssetEnumerator::GetAssetType() const {
     return assetName;
@@ -36,7 +38,11 @@ std::optional<std::string> glimmer::StartInvAssetEnumerator::ListAsset(const App
     if (appContext == nullptr) {
         return std::nullopt;
     }
-    const InitialInventoryManager *initialInventoryManager = appContext->GetModContext()->GetInitialInventoryManager();
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
+        return std::nullopt;
+    }
+    const InitialInventoryManager *initialInventoryManager = modContext->GetInitialInventoryManager();
     if (initialInventoryManager == nullptr) {
         return std::nullopt;
     }

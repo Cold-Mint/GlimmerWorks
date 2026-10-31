@@ -55,10 +55,6 @@ void glimmer::ItemEditorCommand::AddSuggestionsValue(NodeTree<std::string> *sugg
         durabilityStrategy->AddChild(ALLOC_STRATEGY_TYPE_DYNAMIC_SUGGESTIONS_NAME);
     }
     suggestionsTree->AddChild("amount");
-    auto locked = suggestionsTree->AddChild("locked");
-    if (setMode) {
-        locked->AddChild(BOOL_DYNAMIC_SUGGESTIONS_NAME);
-    }
     if (!setMode) {
         suggestionsTree->AddChild("unbreakable");
     }
@@ -86,14 +82,6 @@ void glimmer::ItemEditorCommand::SetItemAttribute(const std::string &attribute, 
     } else if (attribute == "amount") {
         if (ItemStackModule *itemStackModule = item->GetMutableStackModule(); itemStackModule != nullptr) {
             itemStackModule->SetAmount(std::stoi(value));
-        }
-    } else if (attribute == "locked") {
-        if (ItemLockModule *itemLockModule = item->GetMutableLockModule(); itemLockModule != nullptr) {
-            if (value == "true") {
-                itemLockModule->Lock();
-            } else {
-                itemLockModule->Unlock();
-            }
         }
     }
 }
@@ -138,10 +126,6 @@ std::string glimmer::ItemEditorCommand::GetItemAttribute(const std::string &attr
     } else if (attribute == "max_stack") {
         if (const ItemStackModule *itemStackModule = item->GetMutableStackModule(); itemStackModule != nullptr) {
             value << (itemStackModule->IsStackable() ? 1 : 0);
-        }
-    } else if (attribute == "locked") {
-        if (const ItemLockModule *itemLockModule = item->GetLockModule(); itemLockModule != nullptr) {
-            value << itemLockModule->IsLocked();
         }
     } else if (attribute == "unbreakable") {
         if (const ItemDurabilityModule *itemDurabilityModule = item->GetDurabilityModule(); itemDurabilityModule !=
@@ -209,8 +193,6 @@ void glimmer::ItemEditorCommand::PutCommandStructure(const CommandArgs *commandA
                 strings->emplace_back("[number:uint]");
             } else if (attribute == "durability_strategy") {
                 strings->emplace_back("[type:string]");
-            } else if (attribute == "locked") {
-                strings->emplace_back("[locked:bool]");
             } else if (attribute == "amount") {
                 strings->emplace_back("[number:uint]");
             }

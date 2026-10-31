@@ -29,6 +29,8 @@
 #include "core/utils/LangsResources.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/context/AppContext.h"
+#include "core/context/ModContext.h"
+#include "core/mod/dataPack/BiomeRegistry.h"
 #include "core/world/Dimension.h"
 #include "core/world/WorldContext.h"
 #include "core/world/generator/TerrainMath.h"
@@ -204,7 +206,7 @@ bool glimmer::BiomeScoreCommand::Execute(const CommandSender *commandSender, con
         if (terrainGenerator == nullptr) {
             return false;
         }
-        ModContext *modContext = appContext->GetModContext();
+        const ModContext *modContext = appContext->GetModContext();
         if (modContext == nullptr) {
             return false;
         }

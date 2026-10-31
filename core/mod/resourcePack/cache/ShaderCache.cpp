@@ -82,7 +82,7 @@ std::shared_ptr<glimmer::ShaderResourceResult> glimmer::ShaderCache::LoadResourc
     shaderInfo.num_storage_buffers = 0;
     shaderInfo.props = 0;
     std::unique_ptr<GpuShaderCompileResult> gpuShaderCompileResult = nullptr;
-    auto cachePath = std::filesystem::path(config->Get<std::string>("cache_path")) / "shaders" / StringUtils::
+    auto cachePath = std::filesystem::path(config->Get<std::string>(cachePathSettingId_)) / "shaders" / StringUtils::
                      SanitizeFileName(
                          resourceRef->GetPackageId()) /
                      StringUtils::SanitizeFileName(resourceRef->GetResourceKey());

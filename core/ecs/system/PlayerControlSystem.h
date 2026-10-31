@@ -64,7 +64,7 @@ namespace glimmer {
          * @param itemContainer
          * @param index
          */
-        void DropItem(const ItemContainer *itemContainer, uint8_t index) const;
+        void DropItem(ItemContainer *itemContainer, uint8_t index);
 
         static void UpdateFlying(const PlayerInputHandler *playerInputHandler,
                                  Transform2DComponent *transform2DComponent);
@@ -78,7 +78,7 @@ namespace glimmer {
                                            const PlayerComponent *playerComponent,
                                            ColliderComponent *collider);
 
-        void CheckDropItem(PlayerInputHandler *playerInputHandler, const ItemContainer *itemContainer) const;
+        void CheckDropItem(PlayerInputHandler *playerInputHandler, ItemContainer *itemContainer);
 
         /**
          * When the item does not handle the mouse click, treat it as a tile action event and apply the

@@ -82,7 +82,7 @@ void glimmer::App::Run() const {
     uint64_t frameStart = SDL_GetTicks();
     uint64_t lastActiveTime = frameStart;
     float deltaTime = 0.0F;
-    uint64_t configFingerprint = config->GetFingerprint() + 1;
+    uint32_t configVersion = config->GetVersion();
 
     LogCat::i(LogLabel::DEFAULT, "creating_event_loop_and_renderer", "Creating event loop and renderer");
     AppEventLoop eventLoop(appContext_);
@@ -107,7 +107,7 @@ void glimmer::App::Run() const {
     }
     Rml::Context *rmlContextCore = rmlContext->GetRmlContext();
     if (rmlContextCore != nullptr) {
-        rmlContextCore->SetDensityIndependentPixelRatio(config->Get<float>("ui_scale"));
+        rmlContextCore->SetDensityIndependentPixelRatio(config->Get<float>(uiScale_));
     }
     LogCat::i(LogLabel::DEFAULT, "entering_main_game_loop", "Entering main game loop");
     int windowWidth = 0;
@@ -129,14 +129,15 @@ void glimmer::App::Run() const {
             }
             HandleWindowSizeChange(windowWidth, windowHeight);
         }
-        if (CheckConfigChange(configFingerprint)) {
+        if (CheckConfigChange(config, configVersion)) {
             LogCat::i(LogLabel::DEFAULT, "configuration_changed", "Configuration changed, reloading hooks and scenes");
         }
         if (eventLoop.GetPressedKeyCount() > 0) {
             lastActiveTime = frameStart;
         }
-        const float targetFrameTime = CalculateTargetFrameTime(frameStart, lastActiveTime);
-        const bool isIdle = targetFrameTime > 1.0F / config->Get<int>("normal_target_fps");
+        const auto normalTargetFps = config->Get<float>(normalTargetFps_);
+        const float targetFrameTime = CalculateTargetFrameTime(normalTargetFps, frameStart, lastActiveTime);
+        const bool isIdle = targetFrameTime > 1.0F / normalTargetFps;
         if (isIdle != wasIdle) {
             if (isIdle) {
                 LogCat::d(LogLabel::FRAME_RATE, "idle_state_entered",
@@ -175,29 +176,27 @@ void glimmer::App::HandleWindowSizeChange(const int &windowWidth, const int &win
     }
 }
 
-float glimmer::App::CalculateTargetFrameTime(const uint64_t frameStart, const uint64_t lastActiveTime) const {
+float glimmer::App::
+CalculateTargetFrameTime(const float normalTargetFps, const uint64_t frameStart, const uint64_t lastActiveTime) const {
     const auto config = appContext_->GetConfig();
-    const float idleDelay = config->Get<float>("idle_delay");
+    const auto idleDelay = config->Get<float>(idleDelay_);
     if (idleDelay == -1) {
-        return 1.0F / config->Get<int>("normal_target_fps");
+        return 1.0F / normalTargetFps;
     }
-
     if (static_cast<float>(frameStart - lastActiveTime) * 0.001F < idleDelay) {
-        return 1.0F / config->Get<int>("normal_target_fps");
+        return 1.0F / normalTargetFps;
     }
-    return 1.0F / config->Get<int>("idle_target_fps");
+    return 1.0F / config->Get<float>(idleTargetFps_);
 }
 
-bool glimmer::App::CheckConfigChange(uint64_t &configFingerprint) const {
-    const auto config = appContext_->GetConfig();
-    const uint64_t nowConfigFingerprint = config->GetFingerprint();
-    if (configFingerprint == nowConfigFingerprint) {
+bool glimmer::App::CheckConfigChange(const Config *config, uint32_t &outConfigVersion) const {
+    const uint32_t nowConfigVersion = config->GetVersion();
+    if (outConfigVersion == nowConfigVersion) {
         return false;
     }
-
     if (const RmlContext *rmlContext = appContext_->GetRmlContext(); rmlContext != nullptr) {
         if (Rml::Context *rmlContextCore = rmlContext->GetRmlContext(); rmlContextCore != nullptr) {
-            rmlContextCore->SetDensityIndependentPixelRatio(config->Get<float>("ui_scale"));
+            rmlContextCore->SetDensityIndependentPixelRatio(config->Get<float>(uiScale_));
         }
     }
 
@@ -213,8 +212,7 @@ bool glimmer::App::CheckConfigChange(uint64_t &configFingerprint) const {
     if (Scene *topScene = sceneManager_->GetTopScene(); topScene != nullptr) {
         topScene->OnConfigChanged(config);
     }
-
-    configFingerprint = nowConfigFingerprint;
+    outConfigVersion = nowConfigVersion;
     return true;
 }
 

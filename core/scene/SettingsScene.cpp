@@ -161,6 +161,11 @@ glimmer::SettingDef *glimmer::SettingsScene::FindSetting(const std::string &key)
 }
 
 glimmer::SettingItemModel glimmer::SettingsScene::ToItemModel(const SettingDef &setting) {
+    const std::optional<std::string> valueOptional = setting.GetAsString();
+    std::string value;
+    if (valueOptional.has_value()) {
+        value = valueOptional.value();
+    }
     SettingItemModel model;
     model.key = setting.key;
     model.label = setting.labelKey;
@@ -171,13 +176,13 @@ glimmer::SettingItemModel glimmer::SettingsScene::ToItemModel(const SettingDef &
             break;
         case SettingType::Enum:
             model.isEnum = true;
-            model.value = setting.GetAsString();
+            model.value = value;
             model.options = setting.options;
             break;
         case SettingType::IntRange:
         case SettingType::FloatRange:
             model.isRange = true;
-            model.value = setting.GetAsString();
+            model.value = value;
             model.min = setting.minValue.value_or(0.0F);
             model.max = setting.maxValue.value_or(0.0F);
             model.step = setting.stepValue.value_or(1.0F);
@@ -188,7 +193,7 @@ glimmer::SettingItemModel glimmer::SettingsScene::ToItemModel(const SettingDef &
         case SettingType::List:
         default:
             model.isText = true;
-            model.value = setting.GetAsString();
+            model.value = value;
             break;
     }
     return model;
@@ -258,7 +263,7 @@ void glimmer::SettingsScene::OnValueChanged(Rml::DataModelHandle handle, Rml::Ev
     if (args.empty()) {
         return;
     }
-    const std::string key = args[0].Get<std::string>();
+    const auto key = args[0].Get<std::string>();
     const auto &parameters = event.GetParameters();
     const auto valueIt = parameters.find("value");
     if (valueIt == parameters.end()) {
@@ -278,7 +283,7 @@ void glimmer::SettingsScene::OnBoolChanged(Rml::DataModelHandle handle, Rml::Eve
     if (args.empty()) {
         return;
     }
-    const std::string key = args[0].Get<std::string>();
+    const auto key = args[0].Get<std::string>();
     const auto &parameters = event.GetParameters();
     const auto checkedIt = parameters.find("checked");
     if (checkedIt == parameters.end() || checkedIt->second.GetType() != Rml::Variant::BOOL) {
@@ -323,23 +328,12 @@ void glimmer::SettingsScene::OnSaveClick(Rml::DataModelHandle handle, Rml::Event
     if (config_ == nullptr) {
         return;
     }
-    // 将草稿值写回 Config（触发指纹变化，从而即时应用）。
     for (const auto &draft: draftSettings_) {
-        if (SettingDef *setting = config_->Find(draft.key); setting != nullptr) {
-            setting->value = draft.value;
-        }
+        config_->Set(StringUtils::StringToUint64(draft.key), draft.value);
     }
-    // 将标签 enable 写回 Config（例如 advanced 的开关）。
     for (const auto &draftTag: draftTags_) {
-        for (auto &tag: config_->Tags()) {
-            if (tag.tagId == draftTag.tagId) {
-                tag.enable = draftTag.enable;
-                break;
-            }
-        }
+        config_->SetTagEnabled(StringUtils::StringToUint64(draftTag.tagId), draftTag.enable);
     }
-    config_->MarkDirty();
-
     if (virtualFileSystem_ != nullptr) {
         if (!virtualFileSystem_->WriteFile(CONFIG_FILE_NAME, toml::format(config_->Save()))) {
             LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "settings_save_failed",

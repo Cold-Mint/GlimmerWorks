@@ -44,6 +44,7 @@
 #include "core/mod/ResourceRef.h"
 #include "core/mod/resourcePack/AudioResourceResult.h"
 #include "core/context/AppContext.h"
+#include "core/context/ModContext.h"
 #include "core/world/ChunkManager.h"
 #include "core/world/Dimension.h"
 #include "core/world/WorldContext.h"
@@ -201,7 +202,19 @@ void glimmer::PlayerContext::InitPlayerInventory(const uint32_t playerEntity) co
     }
     itemContainer->Resize(HOT_BAR_SIZE * INVENTORY_ROW_COUNT);
     itemContainer->SetMaxStackPerSlot(DEFAULT_CONTAINER_MAX_STACK);
-    const auto &allInitialInventory = worldContext_->GetAppContext()->GetModContext()->GetInitialInventoryManager()->
+    AppContext *appContext = worldContext_->GetAppContext();
+    if (appContext == nullptr) {
+        return;
+    }
+    ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
+        return;
+    }
+    InitialInventoryManager *initialInventoryManager = modContext->GetInitialInventoryManager();
+    if (initialInventoryManager == nullptr) {
+        return;
+    }
+    const auto &allInitialInventory = initialInventoryManager->
             GetAllInitialInventory();
     const auto *playerTransform = entityManager->GetComponent<Transform2DComponent>(playerEntity);
     const WorldVector2D playerPos = playerTransform != nullptr ? playerTransform->GetPosition() : WorldVector2D();
@@ -334,16 +347,15 @@ void glimmer::PlayerContext::DropComposableItemAbilities(const ComposableItem *c
         if (itemStackModule == nullptr) {
             continue;
         }
-        const ItemLockModule *itemLockModule = abilityItem->GetLockModule();
-        if (itemLockModule == nullptr) {
-            continue;
-        }
         const uint8_t abilityRemaining = abilityItem->GetRemaining();
-        if (abilityRemaining == 0 || itemLockModule->IsLocked()) {
+        if (abilityRemaining == 0) {
             continue;
         }
-        std::unique_ptr<Item> takeItem = itemContainer->TakeItem(i, itemStackModule->GetAmount());
-        DroppedItemCreator::SpawnDroppedItem(worldContext_, dropPos, std::move(takeItem),
+        ItemResult itemResult = itemContainer->TakeItem(i, itemStackModule->GetAmount());
+        if (!itemResult.IsSuccess() || itemResult.GetItem() == nullptr) {
+            continue;
+        }
+        DroppedItemCreator::SpawnDroppedItem(worldContext_, dropPos, itemResult.TakeItem(),
                                              DROPPED_ITEM_PICKUP_COOLDOWN_TICKS);
     }
 }

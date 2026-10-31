@@ -30,7 +30,6 @@
 #include <string>
 
 #include "ItemDurabilityModule.h"
-#include "ItemLockModule.h"
 #include "ItemStackModule.h"
 #include "ItemTagModule.h"
 #include "core/math/IAllocatable.h"
@@ -51,7 +50,6 @@ namespace glimmer {
         ResourceRef lightSourceRef_;
         ItemTagModule itemTagModule_;
         ItemDurabilityModule itemDurabilityModule_;
-        ItemLockModule itemLockModule_;
         ItemStackModule itemStackModule_;
 
     protected:
@@ -64,8 +62,6 @@ namespace glimmer {
         [[nodiscard]] ItemStackModule *GetMutableStackModule();
 
         [[nodiscard]] ItemTagModule *GetMutableTagModule();
-
-        [[nodiscard]] ItemLockModule *GetMutableLockModule();
 
         void SetTags(const std::vector<ItemTagResource> &tags);
 
@@ -98,8 +94,6 @@ namespace glimmer {
         [[nodiscard]] const ItemStackModule *GetStackModule() const;
 
         [[nodiscard]] const ItemTagModule *GetTagModule() const;
-
-        [[nodiscard]] const ItemLockModule *GetLockModule() const;
 
         /**
           * GetId

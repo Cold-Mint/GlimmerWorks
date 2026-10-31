@@ -49,7 +49,7 @@ bool glimmer::InitConfigTask::Run(ISystemBucket *systemBucket) {
                             "can_not_parse_config_data", "Can not parse {}.", CONFIG_FILE_NAME);
         return false;
     }
-    LogCat::SetLogPath(config->Get<std::string>("log_path"));
+    LogCat::SetLogPath(config->Get<std::string>(StringUtils::StringToUint64("log_path")));
     systemBucket->SetConfig(std::move(config));
     return true;
 }

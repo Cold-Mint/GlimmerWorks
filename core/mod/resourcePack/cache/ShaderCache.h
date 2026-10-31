@@ -34,6 +34,8 @@ namespace glimmer {
     class GpuShaderCompileResult;
 
     class ShaderCache : public BaseResourceCache<ShaderResourceResult> {
+        uint64_t cachePathSettingId_ = StringUtils::StringToUint64("cache_path");
+
     protected:
         std::shared_ptr<ShaderResourceResult> LoadResourceFromPack(AppContext *appContext,
                                                                    const ResourceRef *resourceRef,

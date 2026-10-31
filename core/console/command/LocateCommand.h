@@ -34,6 +34,8 @@ namespace glimmer {
     struct DimensionResource;
 
     class LocateCommand final : public Command {
+        uint64_t locateMaxRadiusSearchChunks_ = StringUtils::StringToUint64("locate_max_radius_search_chunks");
+
         void InitSuggestions(NodeTree<std::string> *suggestionsTree) override;
 
         static std::optional<TileVector2D> SearchBiomes(int tileX, const ResourceRef &dimension,
@@ -43,9 +45,9 @@ namespace glimmer {
                                                         int worldSeed,
                                                         const DimensionResource *dimensionResource);
 
-        static bool ExecuteBiome(const CommandArgs *commandArgs,
-                                 const std::function<void(const std::string &text)> &onMessageRef,
-                                 const AppContext *appContext, const WorldContext *worldContext);
+        bool ExecuteBiome(const CommandArgs *commandArgs,
+                          const std::function<void(const std::string &text)> &onMessageRef,
+                          const AppContext *appContext, const WorldContext *worldContext) const;
 
         static std::optional<TileVector2D> SearchBiomeInRadius(const TileVector2D &position,
                                                                const ResourceRef &dimension,

@@ -34,6 +34,9 @@
 
 namespace glimmer {
     class ResourcePackManager : public BasePackManager<ResourcePack> {
+        uint64_t enabledResourcePack_ = StringUtils::StringToUint64("enabled_resource_pack");
+        uint64_t resourcePackPath_ = StringUtils::StringToUint64("resource_pack_path");
+
     protected:
         std::vector<uint64_t> GetEnabledPack(Config *config) const override;
 

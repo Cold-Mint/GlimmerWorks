@@ -92,7 +92,7 @@ namespace glimmer {
                       ItemContainer *otherContainer,
                       uint8_t otherIndex) const;
 
-        [[nodiscard]] std::unique_ptr<Item> ReplaceItem(uint8_t index, std::unique_ptr<Item> item) const;
+        [[nodiscard]] ItemResult ReplaceItem(uint8_t index, std::unique_ptr<Item> item) const;
 
         [[nodiscard]] uint16_t RemoveItemAbility(const std::string &id, uint16_t amount) const;
 

@@ -44,8 +44,10 @@ namespace glimmer {
         WorldVector2D mousePosition_;
         CameraComponent *cameraComponent_ = nullptr;
         Transform2DComponent *cameraTransform2DComponent_ = nullptr;
-        bool displayChunkView_ = false;
-        bool displayTerrainView_ = false;
+        uint64_t displayChunkView_ = StringUtils::StringToUint64("display_chunk_view");
+        uint64_t displayTerrainView_ = StringUtils::StringToUint64("display_terrain_view");
+        bool displayChunkViewValue_ = false;
+        bool displayTerrainViewValue_ = false;
 
         /**
          * Draw the boundaries of the chunks visible on screen.

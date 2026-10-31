@@ -56,10 +56,6 @@ glimmer::ItemTagModule *glimmer::Item::GetMutableTagModule() {
     return &itemTagModule_;
 }
 
-glimmer::ItemLockModule *glimmer::Item::GetMutableLockModule() {
-    return &itemLockModule_;
-}
-
 void glimmer::Item::SetTags(const std::vector<ItemTagResource> &tags) {
     if (ItemTagModule *itemTagModule = GetMutableTagModule(); itemTagModule != nullptr) {
         itemTagModule->SetTags(tags);
@@ -80,7 +76,6 @@ void glimmer::Item::ReadItemMessage(WorldContext *worldContext, const ItemMessag
         amount = 1;
     }
     itemStackModule_.SetAmount(amount);
-    itemLockModule_.SetLockStatus(itemMessage.locked());
     itemDurabilityModule_.SetUsedDurability(itemMessage.useddurability());
     resourceRef_.ReadResourceRefMessage(itemMessage.itemresourceref());
 }
@@ -92,7 +87,6 @@ void glimmer::Item::WriteItemMessage(ItemMessage &itemMessage) const {
 #endif
     }
     itemMessage.set_amount(itemStackModule_.GetAmount());
-    itemMessage.set_locked(itemLockModule_.IsLocked());
     itemMessage.set_useddurability(itemDurabilityModule_.GetUsedDurability());
     resourceRef_.WriteResourceRefMessage(*itemMessage.mutable_itemresourceref());
 }
@@ -107,10 +101,6 @@ const glimmer::ItemStackModule *glimmer::Item::GetStackModule() const {
 
 const glimmer::ItemTagModule *glimmer::Item::GetTagModule() const {
     return &itemTagModule_;
-}
-
-const glimmer::ItemLockModule *glimmer::Item::GetLockModule() const {
-    return &itemLockModule_;
 }
 
 SDL_GPUGraphicsPipeline *glimmer::Item::GetPipeline() const {

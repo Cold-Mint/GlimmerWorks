@@ -138,36 +138,62 @@ namespace {
     }
 } // namespace
 
-
-glimmer::SettingDef *glimmer::Config::Find(const std::string_view key) {
-    const auto it = settingsByKey_.find(std::string(key));
-    return it == settingsByKey_.end() ? nullptr : it->second;
+glimmer::TagDef *glimmer::Config::FindMutableTag(const uint64_t tagId) const {
+    const auto it = tagDefMap_.find(tagId);
+    if (it == tagDefMap_.end()) {
+        return nullptr;
+    }
+    return it->second;
 }
 
-const glimmer::SettingDef *glimmer::Config::Find(const std::string_view key) const {
-    const auto it = settingsByKey_.find(std::string(key));
-    return it == settingsByKey_.end() ? nullptr : it->second;
+void glimmer::Config::SetTagEnabled(const uint64_t tagId, const bool enable) {
+    TagDef *tagDef = FindMutableTag(tagId);
+    if (tagDef == nullptr) {
+        return;
+    }
+    tagDef->enable = enable;
+    AddVersion();
 }
 
-std::string glimmer::Config::GetAsString(const std::string_view key) const {
-    const SettingDef *setting = Find(key);
-    return setting == nullptr ? "" : setting->GetAsString();
+glimmer::SettingDef *glimmer::Config::FindMutableSettingDef(const uint64_t settingId) {
+    const auto it = settingsByKey_.find(settingId);
+    if (it == settingsByKey_.end()) {
+        return nullptr;
+    }
+    return it->second;
 }
 
-bool glimmer::Config::SetFromString(const std::string_view key, const std::string &text) {
-    SettingDef *setting = Find(key);
+const glimmer::SettingDef *glimmer::Config::FindSettingDef(const uint64_t settingId) const {
+    const auto it = settingsByKey_.find(settingId);
+    if (it == settingsByKey_.end()) {
+        return nullptr;
+    }
+    return it->second;
+}
+
+
+std::optional<std::string> glimmer::Config::GetAsString(const uint64_t settingId) const {
+    const SettingDef *settingDef = FindSettingDef(settingId);
+    if (settingDef == nullptr) {
+        return std::nullopt;
+    }
+    return settingDef->GetAsString();
+}
+
+bool glimmer::Config::SetFromString(const uint64_t settingId, const std::string &text) {
+    SettingDef *setting = FindMutableSettingDef(settingId);
     if (setting == nullptr) {
         return false;
     }
     if (setting->SetFromString(text)) {
-        fingerprint_++;
+        AddVersion();
         return true;
     }
     return false;
 }
 
-std::vector<uint64_t> glimmer::Config::GetUint64List(const std::string_view key) const {
-    const SettingDef *setting = Find(key);
+std::vector<uint64_t> glimmer::Config::GetUint64List(const uint64_t settingId) const {
+    const SettingDef *setting = FindSettingDef(settingId);
     if (setting == nullptr) {
         return {};
     }
@@ -183,28 +209,28 @@ std::vector<uint64_t> glimmer::Config::GetUint64List(const std::string_view key)
     return result;
 }
 
-std::string glimmer::SettingDef::GetAsString() const {
-    return std::visit([](const auto &v) -> std::string {
-        using T = std::decay_t<decltype(v)>;
+
+std::optional<std::string> glimmer::SettingDef::GetAsString() const {
+    return std::visit([]<typename T>(const T &value) -> std::optional<std::string> {
         if constexpr (std::is_same_v<T, bool>) {
-            return v ? "true" : "false";
+            return value ? "true" : "false";
         } else if constexpr (std::is_same_v<T, int>) {
-            return std::to_string(v);
+            return std::to_string(value);
         } else if constexpr (std::is_same_v<T, float>) {
-            return fmt::format("{}", v);
+            return fmt::format("{}", value);
         } else if constexpr (std::is_same_v<T, std::string>) {
-            return v;
+            return value;
         } else if constexpr (std::is_same_v<T, std::vector<std::string> >) {
             std::string out;
-            for (size_t i = 0; i < v.size(); ++i) {
+            for (size_t i = 0; i < value.size(); ++i) {
                 if (i != 0) {
                     out += ',';
                 }
-                out += v[i];
+                out += value[i];
             }
             return out;
         }
-        return "";
+        return std::nullopt;
     }, value);
 }
 
@@ -267,6 +293,7 @@ bool glimmer::SettingDef::SetFromString(const std::string &text) {
 
 bool glimmer::Config::Load(const toml::value &v) {
     tags_.clear();
+    tagDefMap_.clear();
     settings_.clear();
     settingsByKey_.clear();
     commandHooks_.clear();
@@ -280,6 +307,9 @@ bool glimmer::Config::Load(const toml::value &v) {
             tag.visible = toml::find_or<bool>(tagValue, "visible", false);
             tags_.push_back(std::move(tag));
         }
+    }
+    for (TagDef &tagDef: tags_) {
+        tagDefMap_[StringUtils::StringToUint64(tagDef.tagId)] = &tagDef;
     }
 
     if (v.contains("settings")) {
@@ -305,12 +335,12 @@ bool glimmer::Config::Load(const toml::value &v) {
     }
 
     for (SettingDef &setting: settings_) {
-        settingsByKey_[setting.key] = &setting;
+        settingsByKey_[StringUtils::StringToUint64(setting.key)] = &setting;
     }
 
     commandHooks_ = toml::find_or<std::vector<CommandHookResource> >(v, "command_hooks", {});
 
-    fingerprint_++;
+    AddVersion();
     return true;
 }
 

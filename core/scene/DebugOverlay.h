@@ -61,7 +61,8 @@ namespace glimmer {
         int fpsFrameCount_ = 0;
         int windowWidth_ = 0;
         int windowHeight_ = 0;
-        bool displayDebugPanel_ = false;
+        uint64_t displayDebugPanel_ = StringUtils::StringToUint64("display_debug_panel");
+        bool displayDebugPanelValue_ = false;
 
         /**
          * Show or hide the debug document according to displayDebugPanel_.

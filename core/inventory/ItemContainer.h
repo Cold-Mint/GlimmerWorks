@@ -31,6 +31,8 @@
 #include <string_view>
 #include "ContainerChangeType.h"
 #include "Item.h"
+#include "ItemFilter.h"
+#include "ItemResult.h"
 #include "core/config/Constants.h"
 #include "src/saves/item_container.pb.h"
 
@@ -39,15 +41,19 @@ namespace glimmer {
 
     class ItemContainer {
         std::unordered_map<uint64_t, ItemTagResource> tagToValue_;
+        ItemFilter globalItemFilter_;
         std::vector<std::unique_ptr<Item> > items_;
+        //Slot index to ItemFilter
+        //槽位index到ItemFilter
+        std::unordered_map<uint8_t, ItemFilter> itemFilterMap_;
         std::vector<const ItemTagResource *> totalTagVector_;
         std::vector<std::shared_ptr<std::function<void(uint8_t, Item *, ContainerChangeType)> > > onContentChanged_;
         std::vector<std::shared_ptr<std::function<void(uint8_t)> > > onSelectIndexChanged_;
-        bool needRefreshTag_ = true;
-        uint8_t selectIndex_ = 0;
         //The maximum stack size per slot. Determined by the container, not the item.
         //每格的最大堆叠数量。由容器决定，而非物品。
         uint16_t maxStackPerSlot_ = DEFAULT_CONTAINER_MAX_STACK;
+        bool needRefreshTag_ = true;
+        uint8_t selectIndex_ = 0;
 
         /**
          * Binding Item Event
@@ -60,15 +66,20 @@ namespace glimmer {
         /**
          * Unbinding Item Incident
          * 解绑物品事件
+         * @param index
          * @param item
          */
-        static void UnBindItemEvent(Item *item);
+        void UnBindItemEvent(uint8_t index, Item *item);
 
         void InvokeOnContentChanged(uint8_t index, Item *item, ContainerChangeType containerChange);
 
         void InvokeOnSelectIndexChanged(uint8_t index) const;
 
         void CacheItemTag(Item *item);
+
+        bool CanInput(uint8_t index, const Item *item);
+
+        bool CanOutput(uint8_t index) const;
 
         void RefreshTotalTags();
 
@@ -78,6 +89,8 @@ namespace glimmer {
 
         std::shared_ptr<std::function<void(uint8_t)> > AddOnSelectIndexChanged(
             const std::function<void(uint8_t)> &onSelectIndexChanged);
+
+        ItemFilter &GetMutableGlobalItemFilter();
 
         /**
          * Set the capacity of the item container.
@@ -166,10 +179,10 @@ namespace glimmer {
          * ReplaceItem
          * 替换物品
          * @param index index 位置
-         * @param item item 物品
-         * @return The replaced item 被替换的物品
+         * @param item item 物品（如果传入null，那么表示清空槽位）
+         * @return
          */
-        [[nodiscard]] std::unique_ptr<Item> ReplaceItem(uint8_t index, std::unique_ptr<Item> item);
+        [[nodiscard]] ItemResult ReplaceItem(uint8_t index, std::unique_ptr<Item> item);
 
         /**
          * Remove Item
@@ -219,7 +232,7 @@ namespace glimmer {
          * @param index
          * @return
          */
-        [[nodiscard]] std::unique_ptr<Item> TakeAllItem(uint8_t index);
+        [[nodiscard]] ItemResult TakeAllItem(uint8_t index);
 
         /**
          * Take out the specified quantity of items
@@ -228,7 +241,7 @@ namespace glimmer {
          * @param amount
          * @return
          */
-        [[nodiscard]] std::unique_ptr<Item> TakeItem(uint8_t index, uint16_t amount) const;
+        [[nodiscard]] ItemResult TakeItem(uint8_t index, uint16_t amount);
 
         /**
          * Swap Item

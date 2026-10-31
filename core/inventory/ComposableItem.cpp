@@ -68,8 +68,8 @@ void glimmer::ComposableItem::RefreshAttributes() {
     }
 }
 
-std::unique_ptr<glimmer::Item> glimmer::ComposableItem::ReplaceItem(const uint8_t index,
-                                                                    std::unique_ptr<Item> item) const {
+glimmer::ItemResult glimmer::ComposableItem::ReplaceItem(const uint8_t index,
+                                                         std::unique_ptr<Item> item) const {
     return itemContainer_->ReplaceItem(index, std::move(item));
 }
 
@@ -178,21 +178,15 @@ bool glimmer::ComposableItem::OnUse(const ItemUseContext &context) {
             continue;
         }
         if (context.popupAbility->contains(itemAbility->GetAbilityType())) {
-            //When there are mutually exclusive modules, for example: two modules providing mining capabilities are placed in the same item. If the modules are not locked, they will pop up.
-            //当出现互斥的模块时，例如：两个提供挖掘能力的模块放在同一件物品内。如果模块不是锁定的那么弹出。
-            const ItemLockModule *itemLockModule = abilityItem->GetLockModule();
-            if (itemLockModule == nullptr) {
+            ItemResult itemResult = itemContainer_->TakeAllItem(index);
+            if (!itemResult.IsSuccess() || itemResult.GetItem() == nullptr) {
                 continue;
             }
-            if (!itemLockModule->
-                IsLocked()) {
-                DroppedItemCreator::SpawnDroppedItem(context.worldContext,
-                                                     context.worldContext->GetEntityShortCut()->
-                                                     GetCameraTransform2DComponent()->
-                                                     GetPosition(),
-                                                     itemContainer_->TakeAllItem(index),
-                                                     DROPPED_ITEM_PICKUP_COOLDOWN_TICKS);
-            }
+            DroppedItemCreator::SpawnDroppedItem(context.worldContext,
+                                                 context.worldContext->GetEntityShortCut()->
+                                                 GetCameraTransform2DComponent()->
+                                                 GetPosition(), itemResult.TakeItem(),
+                                                 DROPPED_ITEM_PICKUP_COOLDOWN_TICKS);
             continue;
         }
         if (const bool result = itemAbility->OnUse(context); !handle && result) {
@@ -295,8 +289,16 @@ void glimmer::ComposableItem::ReadItemMessage(WorldContext *worldContext, const 
             }
             const ItemMessage &abilityItemMessage = itemMessage.abilityitemref(i);
             std::unique_ptr<Item> item = resourceLocator->FindItem(worldContext, abilityItemMessage);
-            if (item != nullptr) {
-                std::unique_ptr<Item> result = ReplaceItem(static_cast<uint8_t>(i), std::move(item));
+            if (item == nullptr) {
+                continue;
+            }
+            ItemResult itemResult = ReplaceItem(static_cast<uint8_t>(i), std::move(item));
+            if (itemResult.IsSuccess() && itemResult.GetItem() != nullptr) {
+                DroppedItemCreator::SpawnDroppedItem(worldContext,
+                                                     worldContext->GetEntityShortCut()->
+                                                     GetCameraTransform2DComponent()->
+                                                     GetPosition(), itemResult.TakeItem(),
+                                                     DROPPED_ITEM_PICKUP_COOLDOWN_TICKS);
             }
         }
     }

@@ -38,6 +38,7 @@
 
 #include "core/context/AppContext.h"
 #include "core/log/LogCat.h"
+#include "core/mod/ResourceLocator.h"
 #include "core/saves/SavesManager.h"
 #include "RmlUi/Core/DataModelHandle.h"
 
@@ -215,8 +216,7 @@ void glimmer::MainScene::SetBackgroundIndex(const int index) {
 }
 
 void glimmer::MainScene::OnConfigChanged(const Config *config) {
-    uiScale_ = config->Get<float>("ui_scale");
-    const float targetFps = config->Get<float>("main_menu_target_fps");
+    const auto targetFps = config->Get<float>(mainMenuTargetFps_);
     if (targetFps <= 0.0F) {
         //Set to -1 for frame-by-frame refresh.
         //设置为-1每帧刷新。

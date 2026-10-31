@@ -35,17 +35,11 @@
 namespace glimmer {
     struct LangsResources;
 
-    enum class ConfigType {
-        TYPE_STRING,
-        TYPE_ARRAY,
-        TYPE_FLOAT,
-        TYPE_INT,
-        TYPE_BOOLEAN
-    };
-
     class ConfigCommand final : public Command {
         Config *config_ = nullptr;
         VirtualFileSystem *virtualFileSystem_ = nullptr;
+        uint64_t resourcePackPath_ = StringUtils::StringToUint64("resource_pack_path");
+        uint64_t dataPackPath_ = StringUtils::StringToUint64("data_pack_path");
 
         void InitSuggestions(NodeTree<std::string> *suggestionsTree) override;
 
@@ -64,13 +58,18 @@ namespace glimmer {
                     3, size));
                 return false;
             }
-            onMessageRef(command->GetValue(commandArgs->AsString(2)));
+            std::optional<std::string> stringOptional = command->GetValue(
+                StringUtils::StringToUint64(commandArgs->AsString(2)));
+            if (!stringOptional.has_value()) {
+                return false;
+            }
+            onMessageRef(stringOptional.value());
             return true;
         }
 
         template<typename F>
-        static bool ExecuteSet(int size, const CommandArgs *commandArgs, const LangsResources *langsResources,
-                               const ConfigCommand *command, F &&onMessageRef) {
+        bool ExecuteSet(int size, const CommandArgs *commandArgs, const LangsResources *langsResources,
+                        const ConfigCommand *command, F &&onMessageRef) {
             if (size < 4) {
                 onMessageRef(fmt::format(
                     fmt::runtime(langsResources->insufficientParameterLength),
@@ -79,12 +78,18 @@ namespace glimmer {
             }
 
             std::string parameterName = commandArgs->AsString(2);
+            const uint64_t settingId = StringUtils::StringToUint64(parameterName);
             std::string value = commandArgs->AsString(3);
-            if (command->GetParameterType(parameterName) == ConfigType::TYPE_BOOLEAN && value == TOGGLE_KEY_WORD) {
-                const std::string oldValue = command->GetValue(parameterName);
+            const auto settingDef = GetSettingDef(settingId);
+            if (settingDef == nullptr) {
+                return false;
+            }
+            if (const SettingType settingType = settingDef->type;
+                settingType == SettingType::Bool && value == TOGGLE_KEY_WORD) {
+                const std::optional<std::string> oldValue = command->GetValue(settingId);
                 value = oldValue == "true" ? "false" : "true";
             }
-            if (command->SetValue(parameterName, value)) {
+            if (command->SetValue(settingId, value)) {
                 onMessageRef(fmt::format(fmt::runtime(langsResources->configurationUpdate),
                                          parameterName, value));
             }
@@ -105,10 +110,10 @@ namespace glimmer {
         bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
                      const std::function<void(const std::string &text)> *onMessage) override;
 
-        [[nodiscard]] ConfigType GetParameterType(const std::string &parameterName) const;
+        [[nodiscard]] const SettingDef *GetSettingDef(uint64_t settingId) const;
 
-        [[nodiscard]] std::string GetValue(const std::string &parameterName) const;
+        [[nodiscard]] std::optional<std::string> GetValue(uint64_t settingId) const;
 
-        [[nodiscard]] bool SetValue(const std::string &parameterName, const std::string &value) const;
+        [[nodiscard]] bool SetValue(uint64_t settingId, const std::string &value) const;
     };
-} // namespace glimmer
+}

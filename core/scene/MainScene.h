@@ -36,6 +36,7 @@ namespace glimmer {
         Rml::DataModelHandle mainModelHandle_;
         VirtualFileSystem *virtualFileSystem_ = nullptr;
         uint64_t resourcePackId_ = 0;
+        uint64_t mainMenuTargetFps_ = StringUtils::StringToUint64("main_menu_target_fps");
         float backgroundTargetSecond_ = 0;
         float backgroundAnimTimer_ = 0;
         float uiScale_ = 1.0F;

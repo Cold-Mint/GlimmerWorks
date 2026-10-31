@@ -36,6 +36,7 @@ namespace glimmer {
     class CameraSystem final : public GameSystem {
         AppContext *appContext_ = nullptr;
         CameraComponent *cameraComponent_ = nullptr;
+        uint64_t cameraScale_ = StringUtils::StringToUint64("camera_scale");
 
     public:
         explicit CameraSystem(WorldContext *worldContext);

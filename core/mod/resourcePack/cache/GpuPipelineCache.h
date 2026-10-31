@@ -29,6 +29,9 @@
 #include "core/mod/resourcePack/BaseResourceCache.h"
 
 namespace glimmer {
+    class GPUPipelineResourceResult;
+    class ShaderResourceResult;
+
     class GpuPipelineCache : public BaseResourceCache<GPUPipelineResourceResult> {
         std::shared_ptr<ShaderResourceResult> vertexShaderResult_ = nullptr;
         std::shared_ptr<ShaderResourceResult> fragmentShaderResult_ = nullptr;

@@ -424,6 +424,8 @@ target_sources(GlimmerWorks
         core/context/tasks/InitValidateGameTask.cpp
         core/mod/resourcePack/cache/GpuSamplerCache.cpp
         core/mod/resourcePack/GPUSamplerResourceResult.cpp
+        core/inventory/ItemFilter.cpp
+        core/inventory/ItemResult.cpp
         core/utils/RayCastUtils.cpp
         core/utils/BresenhamLine.cpp
         core/physics/PhysicsSolver.cpp
@@ -662,7 +664,6 @@ target_sources(GlimmerWorks
         core/inventory/ItemContainer.cpp
         core/inventory/ItemDurabilityModule.cpp
         core/inventory/ItemFactory.cpp
-        core/inventory/ItemLockModule.cpp
         core/inventory/ItemStackModule.cpp
         core/inventory/ItemTagModule.cpp
         core/inventory/MaterialItem.cpp
@@ -930,6 +931,8 @@ target_sources(GlimmerWorks
         core/app/AppEventLoop.h
         core/app/AppRenderer.h
         core/app/pass/ClearPass.h
+        core/inventory/ItemFilter.h
+        core/inventory/ItemResult.h
         core/app/pass/PassUtils.h
         core/app/pass/ScenePass.h
         core/app/pass/LightingPass.h
@@ -1126,7 +1129,6 @@ target_sources(GlimmerWorks
         core/inventory/ItemContainer.h
         core/inventory/ItemDurabilityModule.h
         core/inventory/ItemFactory.h
-        core/inventory/ItemLockModule.h
         core/inventory/ItemStackModule.h
         core/inventory/ItemTagModule.h
         core/inventory/ItemUseContext.h

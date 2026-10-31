@@ -51,9 +51,10 @@ namespace glimmer {
         Transform2DComponent *cameraTransform2DComponent_ = nullptr;
         AppContext *appContext_ = nullptr;
         Rml::DataModelHandle debugModelHandle_;
+        uint64_t displayDebugPanel_ = StringUtils::StringToUint64("display_debug_panel");
         int crosshairX_ = 0;
         int crosshairY_ = 0;
-        bool displayDebugPanel_ = false;
+        bool displayDebugPanelValue_ = false;
 
     public:
         bool CanActive() const override;

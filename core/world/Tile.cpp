@@ -508,11 +508,11 @@ void glimmer::Tile::OnBreak(WorldContext *worldContext, const BreakSource breakS
             if (itemContainer != nullptr) {
                 const WorldVector2D dropPosition = CoordinateTransformer::TileToWorld(position);
                 for (uint8_t i = 0; i < itemContainer->GetCapacity(); ++i) {
-                    std::unique_ptr<Item> item = itemContainer->TakeAllItem(i);
-                    if (item == nullptr) {
+                    ItemResult itemResult = itemContainer->TakeAllItem(i);
+                    if (!itemResult.IsSuccess() || itemResult.GetItem() == nullptr) {
                         continue;
                     }
-                    DroppedItemCreator::SpawnDroppedItem(worldContext, dropPosition, std::move(item),
+                    DroppedItemCreator::SpawnDroppedItem(worldContext, dropPosition, itemResult.TakeItem(),
                                                          DROPPED_ITEM_PICKUP_COOLDOWN_TICKS);
                 }
             }

@@ -34,7 +34,6 @@
 #include "core/ecs/EntityShortCut.h"
 #include "core/ecs/component/ItemToolTipComponent.h"
 #include "core/inventory/Item.h"
-#include "core/inventory/ItemLockModule.h"
 #include "core/log/LogCat.h"
 #include "core/mod/Resource.h"
 #include "core/scene/ConsoleOverlay.h"
@@ -82,10 +81,6 @@ void glimmer::ItemTooltipSystem::OnItemChanged(const Item *item) {
                 chainMiningRadius > 0
             });
         }
-    }
-    const ItemLockModule *itemLockModule = item->GetLockModule();
-    if (itemLockModule != nullptr && itemLockModule->IsLocked() && langsResources != nullptr) {
-        itemTooltipDataModel_.abilityTips.push_back({langsResources->lockedTip, false});
     }
     dataModelHandle_.DirtyVariable("tooltip_name");
     dataModelHandle_.DirtyVariable("tooltip_desc");

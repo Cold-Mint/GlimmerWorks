@@ -26,6 +26,7 @@
  */
 #include "LocateCommand.h"
 
+#include "core/context/ModContext.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/world/Dimension.h"
 #include "core/world/WorldContext.h"
@@ -84,7 +85,7 @@ std::optional<glimmer::TileVector2D> glimmer::LocateCommand::SearchBiomes(int ti
 bool glimmer::LocateCommand::ExecuteBiome(const CommandArgs *commandArgs,
                                           const std::function<void(const std::string &text)> &onMessageRef,
                                           const AppContext *appContext,
-                                          const WorldContext *worldContext) {
+                                          const WorldContext *worldContext) const {
     const ModContext *modContext = appContext->GetModContext();
     if (modContext == nullptr) {
         return false;
@@ -143,7 +144,7 @@ bool glimmer::LocateCommand::ExecuteBiome(const CommandArgs *commandArgs,
         return false;
     }
     TileVector2D position = CoordinateTransformer::WorldToTile(transform2dComponent->GetPosition());
-    uint16_t locateMaxRadiusSearchChunks = appContext->GetConfig()->Get<int>("locate_max_radius_search_chunks");
+    uint16_t locateMaxRadiusSearchChunks = appContext->GetConfig()->Get<int>(locateMaxRadiusSearchChunks_);
     const int worldSeed = worldContext->GetWorldSeed();
     std::optional<TileVector2D> target = SearchBiomeInRadius(
         position, dimensionResourceRef, biomeRegistry, climateSampler, targetBiomeID, locateMaxRadiusSearchChunks,
@@ -226,8 +227,7 @@ bool glimmer::LocateCommand::Execute(const CommandSender *commandSender, const C
             3, size));
         return false;
     }
-    std::string type = commandArgs->AsString(1);
-    if (type == "biome") {
+    if (std::string type = commandArgs->AsString(1); type == "biome") {
         return ExecuteBiome(commandArgs, onMessageRef, appContext, worldContext);
     }
     return false;

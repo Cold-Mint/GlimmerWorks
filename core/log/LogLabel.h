@@ -43,6 +43,7 @@ namespace glimmer {
         //物理解算相关
         PHYSICS,
         //生物群系装饰器相关
-        BIOME_DECORATOR
+        BIOME_DECORATOR,
+        LOAD_WORLD,
     };
 }

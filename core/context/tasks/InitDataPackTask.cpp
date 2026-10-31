@@ -29,7 +29,9 @@
 #include "InitDataPackTask.h"
 
 #include "core/context/ISystemBucket.h"
+#include "core/context/ModContext.h"
 #include "core/log/LogCat.h"
+#include "core/mod/dataPack/DataPackManager.h"
 
 glimmer::InitDataPackTask::InitDataPackTask(AppContext *appContext) : appContext_(appContext) {
 }

@@ -27,6 +27,8 @@
 #include "MaterialItemsAssetEnumerator.h"
 #if  !defined(NDEBUG)
 #include "core/context/AppContext.h"
+#include "core/context/ModContext.h"
+#include "core/mod/dataPack/MaterialItemRegistry.h"
 
 std::string_view glimmer::MaterialItemsAssetEnumerator::GetAssetType() const {
     return assetName;
@@ -36,7 +38,11 @@ std::optional<std::string> glimmer::MaterialItemsAssetEnumerator::ListAsset(cons
     if (appContext == nullptr) {
         return std::nullopt;
     }
-    const MaterialItemRegistry *materialItemRegistry = appContext->GetModContext()->GetMaterialItemRegistry();
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
+        return std::nullopt;
+    }
+    const MaterialItemRegistry *materialItemRegistry = modContext->GetMaterialItemRegistry();
     if (materialItemRegistry == nullptr) {
         return std::nullopt;
     }

@@ -33,6 +33,8 @@ namespace glimmer {
     class DataPackManager : public BasePackManager<DataPack> {
         ResourceFileLoader *resourceFileLoader_ = nullptr;
         std::vector<std::string> packIdVector;
+        uint64_t dataPackPath_ = StringUtils::StringToUint64("data_pack_path");
+        uint64_t enabledDataPack_ = StringUtils::StringToUint64("enabled_data_pack");
 
     protected:
         void AfterRegister(DataPack *resource) override;

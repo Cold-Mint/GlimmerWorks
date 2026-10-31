@@ -33,6 +33,7 @@
 #include <variant>
 #include <vector>
 
+#include "core/utils/VersionAble.h"
 #include "toml11/types.hpp"
 
 
@@ -42,14 +43,15 @@ namespace glimmer {
      * 设置项类型。决定设置页使用哪种控件、以及 toml 值的解析方式。
      */
     enum class SettingType {
+        String,
         Bool,
         Int,
         Float,
-        String,
         Enum,
         IntRange,
         FloatRange,
         List,
+        Path
     };
 
     /**
@@ -75,7 +77,7 @@ namespace glimmer {
         std::optional<float> maxValue;
         std::optional<float> stepValue;
 
-        [[nodiscard]] std::string GetAsString() const;
+        [[nodiscard]] std::optional<std::string> GetAsString() const;
 
         bool SetFromString(const std::string &text);
     };
@@ -108,17 +110,21 @@ namespace glimmer {
      * 自描述的配置注册表：由 config.toml 的 [[tags]] + [[settings]] + [[command_hooks]]
      * 解析而来，同时驱动运行时访问、设置页生成与序列化。
      */
-    class Config {
+    class Config : public VersionAble {
         std::vector<TagDef> tags_;
         std::vector<SettingDef> settings_;
-        std::unordered_map<std::string, SettingDef *> settingsByKey_;
+        std::unordered_map<uint64_t, TagDef *> tagDefMap_;
+        std::unordered_map<uint64_t, SettingDef *> settingsByKey_;
         std::vector<CommandHookResource> commandHooks_;
-        uint64_t fingerprint_ = 0;
 
     public:
         [[nodiscard]] const std::vector<TagDef> &Tags() const { return tags_; }
 
         [[nodiscard]] std::vector<TagDef> &Tags() { return tags_; }
+
+        TagDef *FindMutableTag(uint64_t tagId) const;
+
+        void SetTagEnabled(uint64_t tagId, bool enable);
 
         [[nodiscard]] const std::vector<SettingDef> &Settings() const { return settings_; }
 
@@ -126,9 +132,9 @@ namespace glimmer {
 
         [[nodiscard]] const std::vector<CommandHookResource> &CommandHooks() const { return commandHooks_; }
 
-        [[nodiscard]] SettingDef *Find(std::string_view key);
+        [[nodiscard]] SettingDef *FindMutableSettingDef(uint64_t settingId);
 
-        [[nodiscard]] const SettingDef *Find(std::string_view key) const;
+        [[nodiscard]] const SettingDef *FindSettingDef(uint64_t settingId) const;
 
         /**
          * Read a setting by flattened key. Returns T{} if the key is missing or
@@ -136,8 +142,8 @@ namespace glimmer {
          * 按扁平 key 读取设置值。key 缺失或类型不匹配时返回 T{}。
          */
         template<typename T>
-        [[nodiscard]] T Get(std::string_view key) const {
-            const SettingDef *setting = Find(key);
+        [[nodiscard]] T Get(const uint64_t settingId) const {
+            const SettingDef *setting = FindSettingDef(settingId);
             if (setting == nullptr) {
                 return T{};
             }
@@ -152,26 +158,26 @@ namespace glimmer {
          * 按扁平 key 写入设置值，并标记配置已变更。
          */
         template<typename T>
-        void Set(std::string_view key, T value) {
-            SettingDef *setting = Find(key);
+        void Set(const uint64_t settingId, T value) {
+            SettingDef *setting = FindMutableSettingDef(settingId);
             if (setting == nullptr) {
                 return;
             }
             setting->value = std::move(value);
-            fingerprint_++;
+            AddVersion();
         }
 
         /**
          * Read a setting value as its string representation.
          * 以字符串形式读取设置值。
          */
-        [[nodiscard]] std::string GetAsString(std::string_view key) const;
+        [[nodiscard]] std::optional<std::string> GetAsString(uint64_t settingId) const;
 
         /**
          * Write a setting value from its string representation.
          * 以字符串形式写入设置值。
          */
-        bool SetFromString(std::string_view key, const std::string &text);
+        bool SetFromString(uint64_t settingId, const std::string &text);
 
         /**
          * Read a list setting as a list of uint64 (converting each element via
@@ -179,11 +185,8 @@ namespace glimmer {
          * 将 list 类型的设置读取为 uint64 列表（逐个元素用 StringUtils::StringToUint64
          * 转换）。用于启用的包 ID 列表。
          */
-        [[nodiscard]] std::vector<uint64_t> GetUint64List(std::string_view key) const;
+        [[nodiscard]] std::vector<uint64_t> GetUint64List(uint64_t settingId) const;
 
-        void MarkDirty() { fingerprint_++; }
-
-        [[nodiscard]] uint64_t GetFingerprint() const { return fingerprint_; }
 
         /**
          * Parse the new config.toml structure.

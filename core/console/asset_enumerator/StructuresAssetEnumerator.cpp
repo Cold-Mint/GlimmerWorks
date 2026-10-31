@@ -27,6 +27,8 @@
 #include "StructuresAssetEnumerator.h"
 #if  !defined(NDEBUG)
 #include "core/context/AppContext.h"
+#include "core/context/ModContext.h"
+#include "core/mod/dataPack/StructureRegistry.h"
 
 std::string_view glimmer::StructuresAssetEnumerator::GetAssetType() const {
     return assetName;
@@ -36,7 +38,11 @@ std::optional<std::string> glimmer::StructuresAssetEnumerator::ListAsset(const A
     if (appContext == nullptr) {
         return std::nullopt;
     }
-    const StructureRegistry *structureRegistry = appContext->GetModContext()->GetStructureRegistry();
+    ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
+        return std::nullopt;
+    }
+    const StructureRegistry *structureRegistry = modContext->GetStructureRegistry();
     if (structureRegistry == nullptr) {
         return std::nullopt;
     }

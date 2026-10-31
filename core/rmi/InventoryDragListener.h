@@ -30,7 +30,7 @@ namespace glimmer {
 
         static int GetSlotIndex(const Rml::Element *slotElement);
 
-        ItemContainer *FindContainer(Rml::Element *slotElement);
+        ItemContainer *FindContainer(Rml::Element *slotElement) const;
 
     public:
         explicit InventoryDragListener(ItemContainer *itemContainer);

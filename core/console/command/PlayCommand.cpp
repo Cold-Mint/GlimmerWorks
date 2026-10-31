@@ -28,6 +28,7 @@
 
 #include "core/mod/resourcePack/AudioResourceResult.h"
 #include "core/context/AppContext.h"
+#include "core/mod/ResourceLocator.h"
 #include "fmt/xchar.h"
 
 void glimmer::PlayCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
@@ -78,7 +79,11 @@ bool glimmer::PlayCommand::Execute(const CommandSender *commandSender, const Com
     if (!resourceRef.has_value()) {
         return false;
     }
-    const std::shared_ptr<AudioResourceResult> audioResourceResult = appContext->GetResourceLocator()->FindAudio(
+    const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+    if (resourceLocator == nullptr) {
+        return false;
+    }
+    const std::shared_ptr<AudioResourceResult> audioResourceResult = resourceLocator->FindAudio(
         &resourceRef.value());
     if (audioResourceResult == nullptr) {
         return false;

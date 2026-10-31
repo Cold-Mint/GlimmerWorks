@@ -123,7 +123,7 @@ glimmer::PlayerControlSystem::PlayerControlSystem(WorldContext *worldContext) : 
 }
 
 void glimmer::PlayerControlSystem::CheckDropItem(PlayerInputHandler *playerInputHandler,
-                                                 const ItemContainer *itemContainer) const {
+                                                 ItemContainer *itemContainer) {
     if (!playerInputHandler->IsDropPressed()) {
         return;
     }
@@ -196,7 +196,7 @@ glimmer::GameSystemType glimmer::PlayerControlSystem::GetGameSystemType() const 
     return GameSystemType::PlayerControlSystem;
 }
 
-void glimmer::PlayerControlSystem::DropItem(const ItemContainer *itemContainer, const uint8_t index) const {
+void glimmer::PlayerControlSystem::DropItem(ItemContainer *itemContainer, uint8_t index) {
     WorldContext *worldContext = GetWorldContext();
 
     if (itemContainer == nullptr) {
@@ -208,15 +208,8 @@ void glimmer::PlayerControlSystem::DropItem(const ItemContainer *itemContainer, 
     if (item == nullptr) {
         return;
     }
-    const ItemLockModule *itemLockModule = item->GetLockModule();
-    if (itemLockModule == nullptr) {
-        return;
-    }
-    if (itemLockModule->IsLocked()) {
-        return;
-    }
-    auto takeItem = itemContainer->TakeItem(index, 1);
-    if (takeItem == nullptr) {
+    auto itemResult = itemContainer->TakeItem(index, 1);
+    if (!itemResult.IsSuccess() || itemResult.GetItem() == nullptr) {
         return;
     }
     LogCat::i(LogLabel::DEFAULT, "player_dropped_item", "Player dropped item: slot={}", index);
@@ -226,10 +219,9 @@ void glimmer::PlayerControlSystem::DropItem(const ItemContainer *itemContainer, 
         }
     }
     DroppedItemCreator::SpawnDroppedItem(worldContext,
-                                         cameraTransform2DComponent_->GetPosition(), std::move(takeItem),
+                                         cameraTransform2DComponent_->GetPosition(), itemResult.TakeItem(),
                                          DROPPED_ITEM_PICKUP_COOLDOWN_TICKS);
 }
-
 
 void glimmer::PlayerControlSystem::UpdateFlying(const PlayerInputHandler *playerInputHandler,
                                                 Transform2DComponent *transform2DComponent) {
@@ -330,8 +322,7 @@ void glimmer::PlayerControlSystem::OnTick(uint64_t tick) {
         UpdateGroundedMovement(playerInputHandler, playerComponent, collider);
     }
     const auto itemContainerComponent = entityShortCut->GetItemContainerComponent();
-    const ItemContainer *itemContainer = itemContainerComponent->GetItemContainer();
-    CheckDropItem(playerInputHandler, itemContainer);
+    CheckDropItem(playerInputHandler, itemContainerComponent->GetItemContainer());
     //The status must be updated here. Do not put it inside playerInputHandler->IsMouseLeftDown() || playerInputHandler->IsMouseRightDown(), because this will cause the condition to always be true.
     //必须在这里更新状态。不要放到playerInputHandler->IsMouseLeftDown() || playerInputHandler->IsMouseRightDown()内，因为这样会导致入永远为true。
     itemUseContext_.SetMouseLeftDown(playerInputHandler->IsMouseLeftDown());

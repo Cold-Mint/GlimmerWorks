@@ -153,7 +153,6 @@ namespace glimmer {
         std::string debugChunkInfo;
         std::string debugTimeInfo;
         std::string fpsInfo;
-        std::string lockedTip;
         std::string timeS;
         std::string timeM;
         std::string timeH;

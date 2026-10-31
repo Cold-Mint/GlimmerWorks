@@ -30,6 +30,7 @@
 #include "core/gpu/SpriteVertex.h"
 #include "core/gpu/UniformBlock.h"
 #include "core/log/LogCat.h"
+#include "core/mod/ResourceLocator.h"
 #include "core/utils/TomlUtils.h"
 #include "toml11/parser.hpp"
 

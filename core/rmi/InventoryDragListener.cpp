@@ -86,7 +86,7 @@ void glimmer::InventoryDragListener::UnregisterContainer() {
     registrations_.clear();
 }
 
-glimmer::ItemContainer *glimmer::InventoryDragListener::FindContainer(Rml::Element *slotElement) {
+glimmer::ItemContainer *glimmer::InventoryDragListener::FindContainer(Rml::Element *slotElement) const {
     for (Rml::Element *current = slotElement; current != nullptr; current = current->GetParentNode()) {
         for (const auto &registration: registrations_) {
             if (registration.element == current) {

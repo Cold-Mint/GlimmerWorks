@@ -43,7 +43,8 @@ namespace glimmer {
         CameraComponent *cameraComponent_ = nullptr;
         Transform2DComponent *cameraTransform2DComponent_ = nullptr;
         PreloadColors *preloadColors_ = nullptr;
-        bool displayCollisionBox_ = false;
+        uint64_t displayCollisionBox_ = StringUtils::StringToUint64("display_collision_box");
+        bool displayCollisionBoxValue_ = false;
         uint32_t colliderCount_ = 0;
         uint32_t transform2dCount_ = 0;
 

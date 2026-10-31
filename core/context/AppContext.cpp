@@ -139,8 +139,8 @@ const {
     if (virtualFileSystem == nullptr) {
         return;
     }
-    const std::filesystem::path screenshotsFolder = std::filesystem::path(config->Get<std::string>("runtime_path")) /
-                                                     "screenshots";
+    const std::filesystem::path screenshotsFolder = std::filesystem::path(config->Get<std::string>(runtimePath_)) /
+                                                    "screenshots";
     if (!virtualFileSystem->Exists(screenshotsFolder) && !virtualFileSystem->CreateFolder(screenshotsFolder)) {
         onMessageRef(fmt::format(
             fmt::runtime(GetLangsResources()->screenshotSavedFailed),

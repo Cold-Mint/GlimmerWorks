@@ -33,6 +33,8 @@
 #include "core/ecs/GuiStackGameSystem.h"
 #include "core/rmi/dataModel/ItemSlotDataModel.h"
 
+class LootBoxSnapshotMessage;
+
 namespace Rml {
     class ElementFormControlInput;
 }
@@ -72,7 +74,29 @@ namespace glimmer {
 
         static void MoveStack(ItemContainer *from, uint8_t index, ItemContainer *to);
 
-        void RefreshSlots(const ItemContainer *container, std::vector<ItemSlotDataModel> &slots) const;
+        /**
+         * Refresh slot
+         * 刷新槽
+         * @param container ItemContainer 物品容器
+         * @param slots  Slots 槽位列表
+         * @param hideNullItem Do you want to hide the empty item slots? 是否隐藏空物品槽
+         */
+        static void RefreshSlots(const ItemContainer *container, std::vector<ItemSlotDataModel> &slots,
+                                 bool hideNullItem);
+
+        /**
+        * Materialize a loot-box snapshot into an ItemContainer.
+        * 将战利品箱快照物化为一个 ItemContainer。
+        */
+        static void SnapshotToContainer(WorldContext *worldContext,
+                                        const LootBoxSnapshotMessage &snapshot,
+                                        ItemContainer *container);
+
+        /**
+        * Serialize an ItemContainer back into a loot-box snapshot (only non-empty slots are kept).
+        * 将 ItemContainer 序列化回战利品箱快照（仅保留非空格子）。
+        */
+        static void ContainerToSnapshot(const ItemContainer *container, LootBoxSnapshotMessage &snapshot);
 
         void RefreshPlayerSlots();
 
@@ -92,11 +116,9 @@ namespace glimmer {
 
         void LootAll();
 
-        void TakeLootAll();
+        void TakeLootAll() const;
 
         void Restock();
-
-        void ApplyFilter();
 
         void OnBackClick(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
@@ -121,6 +143,8 @@ namespace glimmer {
         void OnLootItemHover(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
         void OnItemOut(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
+
+        void OnLootItemOut(Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &args);
 
     public:
         ~StorageGUISystem() override;

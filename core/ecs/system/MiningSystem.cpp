@@ -42,6 +42,7 @@
 #include "core/config/Constants.h"
 #include "core/gpu/RenderLayer.h"
 #include "core/gpu/RenderQueue.h"
+#include "core/mod/ResourceLocator.h"
 #include "core/world/Dimension.h"
 
 
@@ -144,7 +145,11 @@ void glimmer::MiningSystem::DropTileLoot(WorldContext *worldContext,
     if (!tileLootData.CanDropLoot()) {
         return;
     }
-    const auto lootResource = appContext->GetResourceLocator()->FindLoot(tileLootData.GetLootTableRef());
+    const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+    if (resourceLocator == nullptr) {
+        return;
+    }
+    const auto lootResource = resourceLocator->FindLoot(tileLootData.GetLootTableRef());
     if (precisionMining || !tileLootData.IsCustomLootTable() || lootResource == nullptr) {
         DropDefaultLoot(worldContext, tile, position, oldResourceRef);
         return;
@@ -158,8 +163,12 @@ void glimmer::MiningSystem::DropCustomLoot(WorldContext *worldContext,
     std::vector<ItemMessage> itemMessageList = LootResource::GetLootItems(lootResource);
     LogCat::d(LogLabel::DEFAULT, "mining_drop_custom_loot", "Dropping custom loot: {} items at ({}, {})",
               itemMessageList.size(), topLeftVector.x, topLeftVector.y);
+    const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+    if (resourceLocator == nullptr) {
+        return;
+    }
     for (auto &itemMessage: itemMessageList) {
-        auto itemPtr = appContext->GetResourceLocator()->FindItem(worldContext, itemMessage);
+        auto itemPtr = resourceLocator->FindItem(worldContext, itemMessage);
         if (itemPtr == nullptr) {
             continue;
         }
@@ -238,7 +247,11 @@ void glimmer::MiningSystem::ProcessSingleTile(const TileBreakParams &params,
     config.SetBreakSource(params.GetBreakSource());
     config.SetAttachmentDirection(params.GetAttachmentDirection());
     config.SetAttachmentOffset(params.GetAttachmentOffset());
-    if (const TileResource *tileResource = appContext->GetResourceLocator()->FindTileRaw(&newTileRef); !TryPlaceTile(
+    const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+    if (resourceLocator == nullptr) {
+        return;
+    }
+    if (const TileResource *tileResource = resourceLocator->FindTileRaw(&newTileRef); !TryPlaceTile(
         tileLayerComponent, tileStateMessage, currentVector, params.GetTopLeftPosition(),
         config, backup, tileResource, worldContext->GetGlobalTick())) {
         return;

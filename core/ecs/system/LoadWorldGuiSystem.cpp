@@ -90,6 +90,7 @@ glimmer::LoadWorldGuiSystem::LoadWorldGuiSystem(WorldContext *worldContext) : Gu
             }
             dispatcher->PostToNextMainFrame([this, text] {
                 statusText_ = text;
+                LogCat::d(LogLabel::LOAD_WORLD, text, text);
                 dataModelHandle_.DirtyVariable("status_text");
             });
         });

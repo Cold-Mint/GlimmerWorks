@@ -31,11 +31,11 @@
 #include "core/log/LogCat.h"
 
 std::vector<uint64_t> glimmer::ResourcePackManager::GetEnabledPack(Config *config) const {
-    return config->GetUint64List("enabled_resource_pack");
+    return config->GetUint64List(enabledResourcePack_);
 }
 
 std::filesystem::path glimmer::ResourcePackManager::GetPackPath(Config *config) const {
-    return config->Get<std::string>("resource_pack_path");
+    return config->Get<std::string>(resourcePackPath_);
 }
 
 std::unique_ptr<glimmer::ResourcePack> glimmer::ResourcePackManager::LoadPack(const PackScanRequest *packScanRequest,

@@ -32,7 +32,9 @@
 #include "MainScene.h"
 #include "WorldScene.h"
 #include "core/config/Config.h"
+#include "core/context/ModContext.h"
 #include "core/log/LogCat.h"
+#include "core/mod/ResourceLocator.h"
 #include "core/rmi/dataModel/DimensionItem.h"
 #include "core/saves/Saves.h"
 #include "core/saves/SavesCreateRequest.h"
@@ -199,7 +201,7 @@ void glimmer::CreateWorldScene::CreateWorld() const {
     createRequest.SetWorldName(worldName);
     createRequest.SetSeed(seedValue);
     createRequest.SetDimensionsResourceRef(resourceRefOptional.value());
-    Saves *saves = savesManager->Create(runtimePath_, createRequest);
+    Saves *saves = savesManager->Create(runtimePathValue_, createRequest);
     if (saves == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "failed_to_create_saves",
                   "Failed to create saves");
@@ -242,8 +244,7 @@ void glimmer::CreateWorldScene::LoadDimensions() {
 
 
 void glimmer::CreateWorldScene::OnConfigChanged(const Config *config) {
-    uiScale_ = config->Get<float>("ui_scale");
-    runtimePath_ = config->Get<std::string>("runtime_path");
+    runtimePathValue_ = config->Get<std::string>(runtimePath_);
 }
 
 std::optional<std::string> glimmer::CreateWorldScene::RandomName() const {

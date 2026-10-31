@@ -53,11 +53,11 @@ glimmer::DebugDrawColliderSystem::DebugDrawColliderSystem(WorldContext *worldCon
 }
 
 bool glimmer::DebugDrawColliderSystem::CanActive() const {
-    return displayCollisionBox_;
+    return displayCollisionBoxValue_;
 }
 
 void glimmer::DebugDrawColliderSystem::OnConfigChanged(const Config *config) {
-    displayCollisionBox_ = config->Get<bool>("display_collision_box");
+    displayCollisionBoxValue_ = config->Get<bool>(displayCollisionBox_);
 }
 
 void glimmer::DebugDrawColliderSystem::OnWatchedComponentChanged(const GameComponentTypeMessage gameComponentType,
@@ -174,7 +174,7 @@ void glimmer::DebugDrawColliderSystem::RenderSolidTiles(RenderQueue *queue) cons
 }
 
 void glimmer::DebugDrawColliderSystem::Render(RenderQueue *queue) {
-    if (!displayCollisionBox_ || cameraComponent_ == nullptr || cameraTransform2DComponent_ == nullptr ||
+    if (!displayCollisionBoxValue_ || cameraComponent_ == nullptr || cameraTransform2DComponent_ == nullptr ||
         preloadColors_ == nullptr) {
         return;
     }

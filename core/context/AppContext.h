@@ -58,6 +58,7 @@ namespace glimmer {
         DialogOverlay *dialogOverlay_ = nullptr;
         std::vector<std::unique_ptr<IAppContextInitTask> > initTasks_;
         std::unique_ptr<ISystemBucket> systemBucket_;
+        uint64_t runtimePath_ = StringUtils::StringToUint64("runtime_path");
 
         void RegisterInitTask(std::unique_ptr<IAppContextInitTask> initTask);
 
@@ -157,7 +158,4 @@ namespace glimmer {
     };
 }
 
-#include "core/mod/ResourceLocator.h"
-#include "core/mod/resourcePack/ResourcePackManager.h"
-#include "ModContext.h"
 #include "core/mod/BasePackManager.inl"

@@ -50,6 +50,8 @@ namespace glimmer {
         std::filesystem::path rootPath_;
         ResourceFileLoader *resourceFileLoader_;
         PackVerifyState packVerifyState_ = PackVerifyState::Unsigned;
+        uint64_t enableSignVerify_ = StringUtils::StringToUint64("enable_sign_verify");
+        uint64_t loadOnlyVerified_ = StringUtils::StringToUint64("load_only_verified");
 
         /**
          * ReadFileContent

@@ -35,7 +35,6 @@
 #include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/world/ChunkManager.h"
-#include "core/world/Dimension.h"
 #include "core/world/WorldContext.h"
 
 glimmer::DebugChunkSystem::DebugChunkSystem(WorldContext *worldContext) : GameSystem(worldContext) {
@@ -49,8 +48,8 @@ bool glimmer::DebugChunkSystem::CanActive() const {
 }
 
 void glimmer::DebugChunkSystem::OnConfigChanged(const Config *config) {
-    displayChunkView_ = config->Get<bool>("display_chunk_view");
-    displayTerrainView_ = config->Get<bool>("display_terrain_view");
+    displayChunkViewValue_ = config->Get<bool>(displayChunkView_);
+    displayTerrainViewValue_ = config->Get<bool>(displayTerrainView_);
 }
 
 void glimmer::DebugChunkSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) {

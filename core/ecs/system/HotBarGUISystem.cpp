@@ -99,7 +99,7 @@ void glimmer::HotBarGUISystem::OnWatchedComponentChanged(GameComponentTypeMessag
                           "dataModel == nullptr");
                 return;
             }
-            if (changeType == ContainerChangeType::STACK_DESTROY ||
+            if (item == nullptr || changeType == ContainerChangeType::STACK_DESTROY ||
                 changeType == ContainerChangeType::STACK_AMOUNT_EXHAUSTED ||
                 changeType == ContainerChangeType::STACK_DURABILITY_EXHAUSTED) {
                 dataModel->image = "";

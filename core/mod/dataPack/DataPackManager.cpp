@@ -87,11 +87,11 @@ std::unique_ptr<glimmer::DataPack> glimmer::DataPackManager::LoadPack(const Pack
 }
 
 std::filesystem::path glimmer::DataPackManager::GetPackPath(Config *config) const {
-    return config->Get<std::string>("data_pack_path");
+    return config->Get<std::string>(dataPackPath_);
 }
 
 std::vector<uint64_t> glimmer::DataPackManager::GetEnabledPack(Config *config) const {
-    return config->GetUint64List("enabled_data_pack");
+    return config->GetUint64List(enabledDataPack_);
 }
 
 bool glimmer::DataPackManager::CheckDependencyVersion(const std::vector<PackDependence> &dependencies, uint64_t packId2,

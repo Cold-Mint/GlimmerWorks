@@ -114,7 +114,7 @@ void glimmer::PauseSystem::OnSaveAndExitButtonClick(Rml::DataModelHandle handle,
 }
 
 void glimmer::PauseSystem::OnSettingsButtonClick(Rml::DataModelHandle handle, Rml::Event &event,
-                                                  const Rml::VariantList &args) {
+                                                 const Rml::VariantList &args) {
     WorldContext *worldContext = GetWorldContext();
     if (worldContext == nullptr) {
         return;

@@ -42,7 +42,7 @@ glimmer::DebugOverlay::DebugOverlay(AppContext *context)
 }
 
 void glimmer::DebugOverlay::Update(const float delta) {
-    if (!displayDebugPanel_) {
+    if (!displayDebugPanelValue_) {
         return;
     }
     if (delta <= 0.0F) {
@@ -101,7 +101,7 @@ void glimmer::DebugOverlay::UpdateDocumentVisibility() {
     if (debugDocument_ == nullptr) {
         return;
     }
-    if (displayDebugPanel_) {
+    if (displayDebugPanelValue_) {
         debugDocument_->Show();
     } else {
         debugDocument_->Hide();
@@ -128,8 +128,7 @@ void glimmer::DebugOverlay::RebuildCoordinateLabels() {
 }
 
 void glimmer::DebugOverlay::OnConfigChanged(const Config *config) {
-    displayDebugPanel_ = config->Get<bool>("display_debug_panel");
-    uiScale_ = config->Get<float>("ui_scale");
+    displayDebugPanelValue_ = config->Get<bool>(displayDebugPanel_);
     UpdateDocumentVisibility();
     RebuildCoordinateLabels();
 }

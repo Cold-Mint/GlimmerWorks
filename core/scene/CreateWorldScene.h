@@ -37,7 +37,8 @@ namespace glimmer {
 
     class CreateWorldScene : public Scene {
         CreateWorldDataModel createWorldDataModel_;
-        std::filesystem::path runtimePath_;
+        uint64_t runtimePath_ = StringUtils::StringToUint64("runtime_path");
+        std::filesystem::path runtimePathValue_;
         Rml::DataModelHandle modelHandle_;
         SceneManager *sceneManager_ = nullptr;
         DimensionRegistry *dimensionRegistry_ = nullptr;

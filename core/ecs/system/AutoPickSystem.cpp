@@ -34,6 +34,7 @@
 #include "core/world/WorldContext.h"
 #include "core/ecs/component/DroppedItemComponent.h"
 #include "core/ecs/component/MagnetComponent.h"
+#include "core/mod/ResourceLocator.h"
 #include "core/mod/resourcePack/AudioResourceResult.h"
 
 
@@ -71,7 +72,10 @@ glimmer::AutoPickSystem::AutoPickSystem(WorldContext *worldContext) : GameSystem
     ref.SetSelfPackageId(RESOURCE_REF_CORE);
     ref.SetResourceType(RESOURCE_AUDIO);
     ref.SetResourceKey("sfx/pick_item");
-    pickItemSFXResult_ = appContext->GetResourceLocator()->FindAudio(&ref);
+    const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+    if (resourceLocator != nullptr) {
+        pickItemSFXResult_ = resourceLocator->FindAudio(&ref);
+    }
     audioManager_ = appContext->GetAudioContext()->GetAudioManager();
     Init();
 }

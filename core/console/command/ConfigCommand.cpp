@@ -58,35 +58,61 @@ void glimmer::ConfigCommand::PutCommandStructure(const CommandArgs *commandArgs,
         }
     }
     if (size >= 3 && commandArgs->AsString(1) == "set") {
-        using enum ConfigType;
-        if (const ConfigType configType = GetParameterType(commandArgs->AsString(2));
-            configType == TYPE_BOOLEAN) {
-            strings->emplace_back("[value:bool]");
-        } else if (configType == TYPE_FLOAT) {
-            strings->emplace_back("[value:float]");
-        } else if (configType == TYPE_INT) {
-            strings->emplace_back("[value:int]");
-        } else if (configType == TYPE_ARRAY) {
-            strings->emplace_back("[value:array(format:value1,value2)]");
-        } else {
-            strings->emplace_back("[value:string]");
+        const auto settingDef = GetSettingDef(StringUtils::StringToUint64(commandArgs->AsString(2)));
+        if (settingDef == nullptr) {
+            return;
+        }
+        switch (settingDef->type) {
+            case SettingType::Bool:
+                strings->emplace_back("[value:bool]");
+                break;
+            case SettingType::Float:
+                strings->emplace_back("[value:float]");
+                break;
+            case SettingType::FloatRange:
+                strings->emplace_back(fmt::format("[value:floatRange({},{})]", settingDef->minValue.value_or(0.0),
+                                                  settingDef->maxValue.value_or(0.0)));
+                break;
+            case SettingType::Int:
+                strings->emplace_back("[value:int]");
+                break;
+            case SettingType::IntRange:
+                strings->emplace_back(fmt::format("[value:intRange({:.0f},{:.0f})]", settingDef->minValue.value_or(0.0),
+                                                  settingDef->maxValue.value_or(0.0)));
+                break;
+            case SettingType::List:
+                strings->emplace_back("[value:array(format:value1,value2)]");
+                break;
+            case SettingType::String:
+            case SettingType::Enum:
+            default:
+                strings->emplace_back("[value:string]");
+                break;
         }
     }
 }
 
 void glimmer::ConfigCommand::UpdateSetSuggestions(const CommandArgs *commandArgs) {
-    if (const auto obj = GetPrivateSuggestionsTree().GetChildByValue("set")->GetChildByValue(
-        CONFIG_DYNAMIC_SUGGESTIONS_NAME); obj != nullptr) {
-        obj->ClearChildren();
-        const std::string arg2 = commandArgs->AsString(2);
-        if (GetParameterType(arg2) == ConfigType::TYPE_BOOLEAN) {
-            obj->AddChild(BOOL_TOGGLE_DYNAMIC_SUGGESTIONS_NAME);
-        }
-        if (GetParameterType(arg2) == ConfigType::TYPE_STRING && (
-                arg2 == "resource_pack_path" || arg2 ==
-                "data_pack_path")) {
-            obj->AddChild(std::string(VFS_DYNAMIC_SUGGESTIONS_NAME) + ":" + commandArgs->AsString(3));
-        }
+    auto &suggestionsTree = GetPrivateSuggestionsTree();
+    const auto setNodeTree = suggestionsTree.GetMutableChildByValue("set");
+    if (setNodeTree == nullptr) {
+        return;
+    }
+    const auto configNodeTree = setNodeTree->GetMutableChildByValue(CONFIG_DYNAMIC_SUGGESTIONS_NAME);
+    if (configNodeTree == nullptr) {
+        return;
+    }
+    configNodeTree->ClearChildren();
+    const auto settingDef = GetSettingDef(StringUtils::StringToUint64(commandArgs->AsString(2)));
+    if (settingDef == nullptr) {
+        return;
+    }
+    const SettingType settingType = settingDef->type;
+    if (settingType == SettingType::Bool) {
+        configNodeTree->AddChild(BOOL_TOGGLE_DYNAMIC_SUGGESTIONS_NAME);
+    }
+    if (settingType == SettingType::Path) {
+        configNodeTree->AddChild(std::string(VFS_DYNAMIC_SUGGESTIONS_NAME) + ":" + commandArgs->AsString(3));
     }
 }
 
@@ -96,8 +122,7 @@ glimmer::ConfigCommand::ConfigCommand(AppContext *appContext) : Command(appConte
 }
 
 glimmer::NodeTree<std::string> *glimmer::ConfigCommand::GetSuggestionsTree(const CommandArgs *commandArgs) {
-    const int size = commandArgs->GetSize();
-    if (size > 2 && commandArgs->AsString(1) == "set") {
+    if (const int size = commandArgs->GetSize(); size > 2 && commandArgs->AsString(1) == "set") {
         UpdateSetSuggestions(commandArgs);
     }
     return &GetPrivateSuggestionsTree();
@@ -153,44 +178,26 @@ bool glimmer::ConfigCommand::Execute(const CommandSender *commandSender, const C
     return false;
 }
 
-glimmer::ConfigType glimmer::ConfigCommand::GetParameterType(const std::string &parameterName) const {
+const glimmer::SettingDef *glimmer::ConfigCommand::GetSettingDef(uint64_t settingId) const {
     if (config_ == nullptr) {
-        return ConfigType::TYPE_STRING;
+        return nullptr;
     }
-    const SettingDef *setting = config_->Find(parameterName);
-    if (setting == nullptr) {
-        return ConfigType::TYPE_STRING;
-    }
-    switch (setting->type) {
-        case SettingType::Bool:
-            return ConfigType::TYPE_BOOLEAN;
-        case SettingType::Int:
-        case SettingType::IntRange:
-            return ConfigType::TYPE_INT;
-        case SettingType::Float:
-        case SettingType::FloatRange:
-            return ConfigType::TYPE_FLOAT;
-        case SettingType::List:
-            return ConfigType::TYPE_ARRAY;
-        case SettingType::String:
-        case SettingType::Enum:
-        default:
-            return ConfigType::TYPE_STRING;
-    }
+    return config_->FindSettingDef(settingId);
 }
 
-std::string glimmer::ConfigCommand::GetValue(const std::string &parameterName) const {
+
+std::optional<std::string> glimmer::ConfigCommand::GetValue(const uint64_t settingId) const {
     if (config_ == nullptr) {
-        return "";
+        return std::nullopt;
     }
-    return config_->GetAsString(parameterName);
+    return config_->GetAsString(settingId);
 }
 
 bool glimmer::ConfigCommand::SetValue(
-    const std::string &parameterName,
+    const uint64_t settingId,
     const std::string &value) const {
     if (config_ == nullptr) {
         return false;
     }
-    return config_->SetFromString(parameterName, value);
+    return config_->SetFromString(settingId, value);
 }

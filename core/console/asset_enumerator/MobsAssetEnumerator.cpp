@@ -27,6 +27,8 @@
 #include "MobsAssetEnumerator.h"
 #if  !defined(NDEBUG)
 #include "core/context/AppContext.h"
+#include "core/context/ModContext.h"
+#include "core/mod/dataPack/MobRegistry.h"
 
 std::string_view glimmer::MobsAssetEnumerator::GetAssetType() const {
     return assetName;
@@ -36,7 +38,11 @@ std::optional<std::string> glimmer::MobsAssetEnumerator::ListAsset(const AppCont
     if (appContext == nullptr) {
         return std::nullopt;
     }
-    const MobRegistry *mobRegistry = appContext->GetModContext()->GetMobRegistry();
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
+        return std::nullopt;
+    }
+    const MobRegistry *mobRegistry = modContext->GetMobRegistry();
     if (mobRegistry == nullptr) {
         return std::nullopt;
     }

@@ -111,12 +111,12 @@ namespace glimmer {
         }
 
         /**
-         * Obtain the child nodes based on the value
-         * 根据 value 获取子节点
+         * Obtain modifiable child nodes based on the value
+         * 根据 value 获取可修改子节点
          * @param value value 值
          * @return
          */
-        [[nodiscard]] NodeTree *GetChildByValue(const T &value) {
+        [[nodiscard]] NodeTree *GetMutableChildByValue(const T &value) {
             for (auto &child: children_) {
                 if (child.Data().has_value() && child.Data().value() == value) {
                     return &child;
@@ -125,6 +125,12 @@ namespace glimmer {
             return nullptr;
         }
 
+        /**
+         * Retrieve the child nodes based on the value
+         * 根据value获取子节点
+         * @param value
+         * @return
+         */
         [[nodiscard]] const NodeTree *GetChildByValue(const T &value) const {
             for (const auto &child: children_) {
                 if (child.Data().has_value() && child.Data().value() == value) {

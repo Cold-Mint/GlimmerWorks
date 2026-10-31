@@ -31,7 +31,6 @@
 #include "RmlUi/Core/Elements/ElementFormControlInput.h"
 #include "core/ecs/EntityShortCut.h"
 #include "core/ecs/component/ItemContainerComponent.h"
-#include "core/ecs/component/ItemToolTipComponent.h"
 #include "core/inventory/Item.h"
 #include "core/inventory/ItemContainer.h"
 #include "core/inventory/ItemDurabilityModule.h"
@@ -43,55 +42,23 @@
 #include "core/world/SystemScheduler.h"
 #include "core/world/WorldContext.h"
 
-namespace {
-    /**
-     * Materialize a loot-box snapshot into an ItemContainer.
-     * 将战利品箱快照物化为一个 ItemContainer。
-     */
-    void SnapshotToContainer(glimmer::WorldContext *worldContext,
-                             const LootBoxSnapshotMessage &snapshot,
-                             glimmer::ItemContainer *container) {
-        ItemContainerMessage message;
-        for (const auto &item: snapshot.items()) {
-            message.add_itemresourceref()->CopyFrom(item);
-        }
-        container->FromMessage(worldContext, message);
-    }
-
-    /**
-     * Serialize an ItemContainer back into a loot-box snapshot (only non-empty slots are kept).
-     * 将 ItemContainer 序列化回战利品箱快照（仅保留非空格子）。
-     */
-    void ContainerToSnapshot(const glimmer::ItemContainer *container, LootBoxSnapshotMessage &snapshot) {
-        ItemContainerMessage message;
-        container->ToMessage(message);
-        snapshot.clear_items();
-        for (const auto &item: message.itemresourceref()) {
-            if (!item.has_itemresourceref()) {
-                continue;
-            }
-            snapshot.add_items()->CopyFrom(item);
-        }
-    }
-}
-
 
 void glimmer::StorageGUISystem::MoveStack(ItemContainer *from, const uint8_t index, ItemContainer *to) {
     if (from == nullptr || to == nullptr) {
         return;
     }
-    std::unique_ptr<Item> item = from->TakeAllItem(index);
-    if (item == nullptr) {
+    ItemResult itemResult = from->TakeAllItem(index);
+    if (!itemResult.IsSuccess() || itemResult.GetItem() == nullptr) {
         return;
     }
-    std::unique_ptr<Item> leftover = to->AddItem(std::move(item));
+    std::unique_ptr<Item> leftover = to->AddItem(itemResult.TakeItem());
     if (leftover != nullptr) {
         (void) from->AddItem(std::move(leftover));
     }
 }
 
-void glimmer::StorageGUISystem::RefreshSlots(const ItemContainer *container,
-                                             std::vector<ItemSlotDataModel> &slots) const {
+void glimmer::StorageGUISystem::RefreshSlots(const ItemContainer *container, std::vector<ItemSlotDataModel> &slots,
+                                             const bool hideNullItem) {
     slots.clear();
     if (container == nullptr) {
         return;
@@ -104,6 +71,9 @@ void glimmer::StorageGUISystem::RefreshSlots(const ItemContainer *container,
         slot.index = static_cast<int>(i);
         slot.selected = false;
         if (item == nullptr) {
+            if (hideNullItem) {
+                continue;
+            }
             slot.image = "";
             slot.amount = 0;
             slot.durability = -1;
@@ -127,16 +97,38 @@ void glimmer::StorageGUISystem::RefreshSlots(const ItemContainer *container,
     }
 }
 
+
+void glimmer::StorageGUISystem::SnapshotToContainer(WorldContext *worldContext,
+                                                    const LootBoxSnapshotMessage &snapshot, ItemContainer *container) {
+    ItemContainerMessage message;
+    for (const auto &item: snapshot.items()) {
+        message.add_itemresourceref()->CopyFrom(item);
+    }
+    container->FromMessage(worldContext, message);
+}
+
+void glimmer::StorageGUISystem::ContainerToSnapshot(const ItemContainer *container, LootBoxSnapshotMessage &snapshot) {
+    ItemContainerMessage message;
+    container->ToMessage(message);
+    snapshot.clear_items();
+    for (const auto &item: message.itemresourceref()) {
+        if (!item.has_itemresourceref()) {
+            continue;
+        }
+        snapshot.add_items()->CopyFrom(item);
+    }
+}
+
 void glimmer::StorageGUISystem::RefreshPlayerSlots() {
-    RefreshSlots(playerContainer_, playerSlots_);
+    RefreshSlots(playerContainer_, playerSlots_, false);
 }
 
 void glimmer::StorageGUISystem::RefreshChestSlots() {
-    RefreshSlots(openedContainer_, chestSlots_);
+    RefreshSlots(openedContainer_, chestSlots_, false);
 }
 
 void glimmer::StorageGUISystem::RefreshLootSlots() {
-    RefreshSlots(lootContainer_.get(), lootSlots_);
+    RefreshSlots(lootContainer_.get(), lootSlots_, true);
 }
 
 void glimmer::StorageGUISystem::BindCallbacks() {
@@ -249,7 +241,7 @@ void glimmer::StorageGUISystem::LootAll() {
     }
 }
 
-void glimmer::StorageGUISystem::TakeLootAll() {
+void glimmer::StorageGUISystem::TakeLootAll() const {
     if (playerContainer_ == nullptr || lootContainer_ == nullptr) {
         return;
     }
@@ -290,25 +282,16 @@ void glimmer::StorageGUISystem::Restock() {
             if (take == 0) {
                 continue;
             }
-            std::unique_ptr<Item> taken = openedContainer_->TakeItem(ci, take);
-            if (taken == nullptr) {
+            ItemResult itemResult = openedContainer_->TakeItem(ci, take);
+            if (!itemResult.IsSuccess() || itemResult.GetItem() == nullptr) {
                 continue;
             }
-            std::unique_ptr<Item> leftover = playerContainer_->AddItem(std::move(taken));
+            std::unique_ptr<Item> leftover = playerContainer_->AddItem(itemResult.TakeItem());
             if (leftover != nullptr) {
                 (void) openedContainer_->AddItem(std::move(leftover));
             }
             space = static_cast<uint16_t>(space - take);
         }
-    }
-}
-
-void glimmer::StorageGUISystem::ApplyFilter() {
-    RefreshPlayerSlots();
-    RefreshChestSlots();
-    if (constructor_ != nullptr) {
-        constructor_->GetModelHandle().DirtyVariable("player_slots");
-        constructor_->GetModelHandle().DirtyVariable("chest_slots");
     }
 }
 
@@ -370,6 +353,7 @@ void glimmer::StorageGUISystem::OnCreateDataModels(IDocumentRegistry *documentRe
     constructor_->BindEventCallback("on_chest_item_hover", &StorageGUISystem::OnChestItemHover, this);
     constructor_->BindEventCallback("on_loot_item_hover", &StorageGUISystem::OnLootItemHover, this);
     constructor_->BindEventCallback("on_item_out", &StorageGUISystem::OnItemOut, this);
+    constructor_->BindEventCallback("on_loot_item_out", &StorageGUISystem::OnItemOut, this);
 }
 
 void glimmer::StorageGUISystem::OnActivationChanged(bool activeStatus) {
@@ -400,6 +384,8 @@ void glimmer::StorageGUISystem::OnActivationChanged(bool activeStatus) {
                 if (it != playerManifest->openedLootBoxSnapshot.end()) {
                     lootContainer_ = std::make_unique<ItemContainer>();
                     SnapshotToContainer(GetWorldContext(), it->second, lootContainer_.get());
+                    ItemFilter &itemFilter = lootContainer_->GetMutableGlobalItemFilter();
+                    itemFilter.DisableInput();
                 }
             }
         }
@@ -526,5 +512,10 @@ void glimmer::StorageGUISystem::OnLootItemHover(Rml::DataModelHandle handle, Rml
 
 void glimmer::StorageGUISystem::OnItemOut(Rml::DataModelHandle handle, Rml::Event &event,
                                           const Rml::VariantList &args) {
+    ItemToolTipHelper::ResetItemToolTip(itemToolTipComponent_);
+}
+
+void glimmer::StorageGUISystem::OnLootItemOut(Rml::DataModelHandle handle, Rml::Event &event,
+                                              const Rml::VariantList &args) {
     ItemToolTipHelper::ResetItemToolTip(itemToolTipComponent_);
 }

@@ -32,6 +32,7 @@
 #include "core/mod/dataPack/StringManager.h"
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/context/AppContext.h"
+#include "core/context/ModContext.h"
 #include "core/world/WorldContext.h"
 #include "fmt/xchar.h"
 
@@ -114,7 +115,11 @@ bool glimmer::TagCommand::ExecuteHand([[maybe_unused]] const CommandSender *comm
     if (item == nullptr) {
         return false;
     }
-    StringManager *stringManager = appContext->GetModContext()->GetStringManager();
+    const ModContext *modContext = appContext->GetModContext();
+    if (modContext == nullptr) {
+        return false;
+    }
+    StringManager *stringManager = modContext->GetStringManager();
     const ItemTagModule *itemTagModule = item->GetTagModule();
     if (itemTagModule == nullptr) {
         return false;

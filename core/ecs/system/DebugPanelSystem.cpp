@@ -48,7 +48,7 @@
 #include "fmt/xchar.h"
 
 bool glimmer::DebugPanelSystem::CanActive() const {
-    return displayDebugPanel_;
+    return displayDebugPanelValue_;
 }
 
 void glimmer::DebugPanelSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) {
@@ -85,8 +85,9 @@ glimmer::DebugPanelSystem::DebugPanelSystem(WorldContext *worldContext) : GuiGam
 }
 
 void glimmer::DebugPanelSystem::OnConfigChanged(const Config *config) {
-    displayDebugPanel_ = config->Get<bool>("display_debug_panel");
-    LogCat::i(LogLabel::DEFAULT, "debug_panel_display_changed", "DebugPanel display changed: {}", displayDebugPanel_);
+    displayDebugPanelValue_ = config->Get<bool>(displayDebugPanel_);
+    LogCat::i(LogLabel::DEFAULT, "debug_panel_display_changed", "DebugPanel display changed: {}",
+              displayDebugPanelValue_);
 }
 
 void glimmer::DebugPanelSystem::OnActivationChanged(bool activeStatus) {

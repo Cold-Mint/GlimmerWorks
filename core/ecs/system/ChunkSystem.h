@@ -44,10 +44,12 @@ namespace glimmer {
         std::mutex worldConfigMutex_;
         CameraComponent *cameraComponent_ = nullptr;
         Transform2DComponent *cameraTransform2DComponent_ = nullptr;
+        uint64_t chunkScanTaskTickInterval_ = StringUtils::StringToUint64("chunk_scan_task_tick_interval");
+        uint64_t preloadChunkRadius_ = StringUtils::StringToUint64("preload_chunk_radius");
         uint32_t cameraLastVersion_ = 0;
         uint32_t cameraTransformLastVersion_ = 0;
-        uint8_t preloadChunkRadius_ = 1;
-        uint8_t chunkScanTaskTickInterval_ = 1;
+        uint8_t preloadChunkRadiusValue_ = 1;
+        uint8_t chunkScanTaskTickIntervalValue_ = 1;
         //Has the block generation task been dispatched to the worker thread?
         //区块生成任务是否投递到了工作线程。
         std::atomic_bool chunkTaskInProgress_ = false;

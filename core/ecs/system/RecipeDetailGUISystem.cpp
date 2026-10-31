@@ -25,6 +25,7 @@
 
 #include "InventoryGUISystem.h"
 #include "core/context/AppContext.h"
+#include "core/context/ModContext.h"
 #include "core/ecs/EntityManager.h"
 #include "core/log/LogCat.h"
 #include "core/mod/ResourceLocator.h"
@@ -129,10 +130,6 @@ void glimmer::RecipeDetailGUISystem::LoadRecipeDetail() {
         for (uint8_t i = 0; i < capacity; ++i) {
             const Item *item = itemContainer_->GetItem(i);
             if (item == nullptr) {
-                continue;
-            }
-            const ItemLockModule *lockModule = item->GetLockModule();
-            if (lockModule != nullptr && lockModule->IsLocked()) {
                 continue;
             }
             const ItemTagModule *tagModule = item->GetTagModule();

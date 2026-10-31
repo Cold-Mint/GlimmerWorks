@@ -81,32 +81,32 @@ glimmer::Color glimmer::DebugMultiMapSystem::GetTileDebugColor(const TileVector2
     float elevation = TerrainMath::GetElevation(dimensionResource, tile.x);
     std::vector<Color> activeColors;
 
-    if (config->Get<bool>("display_elevation_map")) {
+    if (config->Get<bool>(displayElevationMap_)) {
         activeColors.emplace_back(
             ColorUtils::LinearInterpolateColor(debugColor.elevationMapFrom, debugColor.elevationMapTo, elevation)
         );
     }
 
-    if (config->Get<bool>("display_temp_map")) {
+    if (config->Get<bool>(displayTempMap_)) {
         activeColors.emplace_back(
             ColorUtils::LinearInterpolateColor(debugColor.tempMapFrom, debugColor.tempMapTo,
                                                climateSampler->GetTemperature(worldSeed, dimensionResource, tile,
                                                                               elevation))
         );
     }
-    if (config->Get<bool>("display_humidity_map")) {
+    if (config->Get<bool>(displayHumidityMap_)) {
         activeColors.emplace_back(
             ColorUtils::LinearInterpolateColor(debugColor.humidityMapFrom, debugColor.humidityMapTo,
                                                climateSampler->GetHumidity(worldSeed, dimensionResource, tile))
         );
     }
-    if (config->Get<bool>("display_erosion_map")) {
+    if (config->Get<bool>(displayErosionMap_)) {
         activeColors.emplace_back(
             ColorUtils::LinearInterpolateColor(debugColor.erosionMapFrom, debugColor.erosionMapTo,
                                                climateSampler->GetErosion(worldSeed, dimensionResource, tile))
         );
     }
-    if (config->Get<bool>("display_weirdness_map")) {
+    if (config->Get<bool>(displayWeirdnessMap_)) {
         activeColors.emplace_back(
             ColorUtils::LinearInterpolateColor(debugColor.weirdnessMapFrom, debugColor.weirdnessMapTo,
                                                climateSampler->GetWeirdness(worldSeed, dimensionResource, tile))

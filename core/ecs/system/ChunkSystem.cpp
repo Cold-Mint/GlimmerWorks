@@ -210,8 +210,8 @@ void glimmer::ChunkSystem::OnTick(const uint64_t tick) {
     uint8_t chunkScanTaskTickInterval;
     {
         std::lock_guard lock(worldConfigMutex_);
-        preloadChunkRadius = preloadChunkRadius_;
-        chunkScanTaskTickInterval = chunkScanTaskTickInterval_;
+        preloadChunkRadius = preloadChunkRadiusValue_;
+        chunkScanTaskTickInterval = chunkScanTaskTickIntervalValue_;
     }
 
     //Has it reached the interval for configuration?
@@ -282,8 +282,8 @@ void glimmer::ChunkSystem::OnConfigChanged(const Config *config) {
         return;
     }
     std::lock_guard lock(worldConfigMutex_);
-    chunkScanTaskTickInterval_ = config->Get<int>("chunk_scan_task_tick_interval");
-    preloadChunkRadius_ = config->Get<int>("preload_chunk_radius");
+    chunkScanTaskTickIntervalValue_ = config->Get<int>(chunkScanTaskTickInterval_);
+    preloadChunkRadiusValue_ = config->Get<int>(preloadChunkRadius_);
 }
 
 glimmer::GameSystemType glimmer::ChunkSystem::GetGameSystemType() const {

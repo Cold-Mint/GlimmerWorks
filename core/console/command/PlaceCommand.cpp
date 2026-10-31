@@ -28,8 +28,12 @@
 
 #include "core/math/CoordinateTransformer.h"
 #include "core/context/AppContext.h"
+#include "core/context/ModContext.h"
+#include "core/mod/ResourceLocator.h"
 #include "core/world/WorldContext.h"
 #include "core/world/ChunkManager.h"
+#include "core/world/structure/StructureGeneratorManager.h"
+#include "core/world/structure/StructureInfo.h"
 #include "fmt/format.h"
 
 

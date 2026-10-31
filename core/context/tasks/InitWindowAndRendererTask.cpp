@@ -46,17 +46,21 @@ bool glimmer::InitWindowAndRendererTask::Run(ISystemBucket *systemBucket) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "config_is_null", "config is nullptr");
         return false;
     }
+    int width = config->Get<int>(StringUtils::StringToUint64("width"));
+    int height = config->Get<int>(StringUtils::StringToUint64("height"));
+    bool fullscreen = config->Get<bool>(StringUtils::StringToUint64("fullscreen"));
     LogCat::i(LogLabel::DEFAULT, "creating_window", "Creating window: width={}, height={}, fullscreen={}",
-              config->Get<int>("width"),
-              config->Get<int>("height"), config->Get<bool>("fullscreen"));
+              width,
+              height,
+              fullscreen);
     WindowContext *windowContext = systemBucket->GetWindowContext();
     if (windowContext == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "window_context_is_null",
                   "windowContext is nullptr");
         return false;
     }
-    if (!windowContext->CreateWindowAndDevice(config->Get<int>("width"), config->Get<int>("height"),
-                                              config->Get<bool>("fullscreen"))) {
+    if (!windowContext->CreateWindowAndDevice(width, height,
+                                              fullscreen)) {
         return false;
     }
     ResourcePackManager *resourcePackManager = systemBucket->GetResourcePackManager();
@@ -76,7 +80,7 @@ bool glimmer::InitWindowAndRendererTask::Run(ISystemBucket *systemBucket) {
     LogCat::i(LogLabel::DEFAULT, "initializing_rml_context", "Initializing RmlContext");
     rmlContext->Init(systemBucket->GetVirtualFileSystem(), windowContext->GetDevice(),
                      systemBucket->GetResourceLocator(), systemBucket->GetLangsValue(), windowContext->GetWindow(),
-                     config->Get<int>("width"), config->Get<int>("height"));
+                     width, height);
     LogCat::i(LogLabel::DEFAULT, "rml_context_initialized", "RmlContext initialized successfully");
     return true;
 }

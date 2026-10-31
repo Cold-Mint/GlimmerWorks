@@ -34,6 +34,11 @@ namespace glimmer {
     class DebugMultiMapSystem : public GameSystem {
         CameraComponent *cameraComponent_ = nullptr;
         Transform2DComponent *cameraTransform2DComponent_ = nullptr;
+        uint64_t displayElevationMap_ = StringUtils::StringToUint64("display_elevation_map");
+        uint64_t displayTempMap_ = StringUtils::StringToUint64("display_temp_map");
+        uint64_t displayHumidityMap_ = StringUtils::StringToUint64("display_humidity_map");
+        uint64_t displayErosionMap_ = StringUtils::StringToUint64("display_erosion_map");
+        uint64_t displayWeirdnessMap_ = StringUtils::StringToUint64("display_weirdness_map");
 
         Color GetTileDebugColor(const TileVector2D &tile) const;
 

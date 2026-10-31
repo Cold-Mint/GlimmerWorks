@@ -144,7 +144,7 @@ namespace glimmer {
         }
 #endif
 
-        static const char *ToString(LogLabel label) {
+        static const char *ToString(const LogLabel label) {
             switch (label) {
                 case LogLabel::DEFAULT:
                     return "DEFAULT";
@@ -164,6 +164,10 @@ namespace glimmer {
                     return "PHYSICS";
                 case LogLabel::BIOME_DECORATOR:
                     return "BIOME_DECORATOR";
+                case LogLabel::LOAD_WORLD:
+                    return "LOAD_WORLD";
+                default:
+                    return "UNKNOWN";
             }
             return "UNKNOWN";
         }

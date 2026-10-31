@@ -28,6 +28,7 @@
 #include "core/context/AppContext.h"
 #include "core/world/WorldContext.h"
 #include "core/ecs/component/ItemContainerComponent.h"
+#include "core/mod/ResourceLocator.h"
 #include "fmt/format.h"
 
 void glimmer::LootCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
@@ -105,7 +106,11 @@ bool glimmer::LootCommand::Execute(const CommandSender *commandSender, const Com
             return false;
         }
         ResourceRef &resourceRef = lootId.value();
-        LootResource *lootResource = appContext->GetResourceLocator()->FindLoot(&resourceRef);
+        ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+        if (resourceLocator == nullptr) {
+            return false;
+        }
+        LootResource *lootResource = resourceLocator->FindLoot(&resourceRef);
         if (lootResource == nullptr) {
             return false;
         }
@@ -114,7 +119,7 @@ bool glimmer::LootCommand::Execute(const CommandSender *commandSender, const Com
             return false;
         }
         for (auto &itemMessage: itemMessageList) {
-            auto itemRes = appContext->GetResourceLocator()->FindItem(worldContext, itemMessage);
+            auto itemRes = resourceLocator->FindItem(worldContext, itemMessage);
             if (itemRes != nullptr) {
                 itemRes->ReadItemMessage(worldContext, itemMessage);
                 std::unique_ptr<Item> item = itemContainer->GetItemContainer()->AddItem(

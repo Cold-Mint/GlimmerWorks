@@ -44,7 +44,7 @@ bool glimmer::InitAudioTask::Run(ISystemBucket *systemBucket) {
         return false;
     }
     SDL_AudioSpec audioSpec;
-    const std::string audioFormat = config->Get<std::string>("format");
+    const auto audioFormat = config->Get<std::string>(StringUtils::StringToUint64("format"));
     if (audioFormat == "U8") {
         audioSpec.format = SDL_AUDIO_U8;
     } else if (audioFormat == "S16") {
@@ -55,8 +55,8 @@ bool glimmer::InitAudioTask::Run(ISystemBucket *systemBucket) {
         audioSpec.format = SDL_AUDIO_F32;
     }
 
-    const int channels = config->Get<int>("channels");
-    const int freq = config->Get<int>("freq");
+    const int channels = config->Get<int>(StringUtils::StringToUint64("channels"));
+    const int freq = config->Get<int>(StringUtils::StringToUint64("freq"));
     audioSpec.channels = channels;
     audioSpec.freq = freq;
     LogCat::i(LogLabel::DEFAULT, "creating_audio_mixer", "Creating audio mixer: format={}, channels={}, freq={}",
@@ -102,9 +102,11 @@ bool glimmer::InitAudioTask::Run(ISystemBucket *systemBucket) {
     LogCat::i(LogLabel::DEFAULT, "configuring_audio_tracks", "Configuring audio tracks");
     const AudioType audioTypes[] = {AudioType::BGM, AudioType::AMBIENT};
     for (const AudioType type: audioTypes) {
-        const int index = static_cast<int>(std::to_underlying(type));
-        const int trackCount = config->Get<int>("audio_track_" + std::to_string(index) + "_count");
-        const float volume = config->Get<float>("audio_track_" + std::to_string(index) + "_volume");
+        const int index = std::to_underlying(type);
+        const int trackCount = config->Get<int>(
+            StringUtils::StringToUint64("audio_track_" + std::to_string(index) + "_count"));
+        const auto volume = config->Get<float>(
+            StringUtils::StringToUint64("audio_track_" + std::to_string(index) + "_volume"));
         audioManager->CreateTracks(type, trackCount);
         audioManager->SetTypeVolume(type, volume);
         LogCat::i(LogLabel::DEFAULT, "audio_track", "  Track: type={}, count={}, volume={}",
@@ -112,7 +114,7 @@ bool glimmer::InitAudioTask::Run(ISystemBucket *systemBucket) {
                   trackCount,
                   volume);
     }
-    const float masterVolume = config->Get<float>("master_volume");
+    const auto masterVolume = config->Get<float>(StringUtils::StringToUint64("master_volume"));
     audioManager->SetMasterVolume(masterVolume);
     LogCat::i(LogLabel::DEFAULT, "master_volume_set", "Master volume set to: {}", masterVolume);
 

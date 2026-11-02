@@ -513,8 +513,8 @@ namespace glimmer {
         ResourceRef name;
         //@genNextLine(description|描述资源引用)
         ResourceRef description = {};
-        //@genNextLine(lootTable|战利品表资源引用)
-        ResourceRef lootTable = {};
+        //@genNextLine(lootTarget|战利品目标)
+        ResourceRef lootTarget = {};
         //@genNextLine(containerLootTable|容器战利品表资源引用 箱子等存储方块首次打开时生成的战利品)
         ResourceRef containerLootTable = {};
         //@genNextLine(forceMineRequireTip|强制挖掘提示)
@@ -589,8 +589,6 @@ namespace glimmer {
         uint8_t layer = 0;
         //@genNextLine(The anchor point type of the tiles. When placing large tiles, the placement position is relative to the anchor point of the tile. The anchor point is based on the player's right side.|瓦片的锚点类型，当放置大型瓦片时放置位置相对于瓦片的锚点，锚点以玩家右侧为准)
         uint8_t tileAnchorType = 6;
-        //@genNextLine(customLootTable|是否使用自定义战利品表)
-        bool customLootTable = false;
         //@genNextLine(enableBlueprint|启用蓝图-手持瓦片时显示蓝图)
         bool enableBlueprint = true;
         //@genNextLine(enableBlueprintMask|启用蓝图遮照-用颜色标记禁止放置的区域)

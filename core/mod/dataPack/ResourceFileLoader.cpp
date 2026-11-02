@@ -340,6 +340,7 @@ void glimmer::ResourceFileLoader::LoadTileResourceFromFile(const toml::value &va
     tileResource->secondaryActionTarget.SetSelfPackageId(manifest_->id);
     tileResource->containerLootTable.SetSelfPackageId(manifest_->id);
     tileResource->forceMineRequireTip.SetSelfPackageId(manifest_->id);
+    tileResource->lootTarget.SetSelfPackageId(manifest_->id);
     for (auto &growthCondition: tileResource->growthConditions) {
         growthCondition.SetSelfPackageId(manifest_->id);
     }
@@ -350,9 +351,6 @@ void glimmer::ResourceFileLoader::LoadTileResourceFromFile(const toml::value &va
         tag.MakeCachedTag();
     }
     tileResource->MakeCachedTag();
-    if (tileResource->customLootTable) {
-        tileResource->lootTable.SetSelfPackageId(manifest_->id);
-    }
     tileResourceManager->AddResource(std::move(tileResource));
 }
 

@@ -43,6 +43,8 @@
 #include "core/gpu/RenderLayer.h"
 #include "core/gpu/RenderQueue.h"
 #include "core/mod/ResourceLocator.h"
+#include "core/world/tileActionHandler/TargetResourceApplier.h"
+#include "core/world/tileActionHandler/TargetResourceApplierContext.h"
 
 
 bool glimmer::MiningSystem::CanProcessTile(const Tile *tile, bool isPlaceMode) {
@@ -133,28 +135,6 @@ void glimmer::MiningSystem::DropDefaultLoot(WorldContext *worldContext,
                                          0);
 }
 
-void glimmer::MiningSystem::DropCustomLoot(WorldContext *worldContext,
-                                           const AppContext *appContext, const LootResource *lootResource,
-                                           const TileVector2D &topLeftVector) {
-    std::vector<ItemMessage> itemMessageList = LootResource::GetLootItems(lootResource);
-    LogCat::d(LogLabel::DEFAULT, "mining_drop_custom_loot", "Dropping custom loot: {} items at ({}, {})",
-              itemMessageList.size(), topLeftVector.x, topLeftVector.y);
-    const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
-    if (resourceLocator == nullptr) {
-        return;
-    }
-    for (auto &itemMessage: itemMessageList) {
-        auto itemPtr = resourceLocator->FindItem(worldContext, itemMessage);
-        if (itemPtr == nullptr) {
-            continue;
-        }
-        itemPtr->ReadItemMessage(worldContext, itemMessage);
-        DroppedItemCreator::SpawnDroppedItem(worldContext,
-                                             CoordinateTransformer::TileToWorld(topLeftVector),
-                                             std::move(itemPtr), 0);
-    }
-}
-
 void glimmer::MiningSystem::PlayBreakSFX(const AppContext *appContext, const Tile *tile) {
     if (appContext == nullptr || tile == nullptr) {
         return;
@@ -223,8 +203,8 @@ void glimmer::MiningSystem::ProcessSingleTile(const TileBreakParams &params, con
     if (!isCenter && !tileLootData.LootScaleBySize()) {
         return;
     }
-    DropTileLoot(worldContext, currentTile, currentVector,
-                 backup.GetResourceRef(), params.IsPrecisionMining(), params.AllowDropLoot());
+    ApplyTileLootTarget(worldContext, currentTile, currentVector,
+                        backup.GetResourceRef(), params.IsPrecisionMining(), params.AllowDropLoot());
 }
 
 void glimmer::MiningSystem::ProcessMiningComplete(const TileLayerComponent *tileLayerComponent,
@@ -334,9 +314,9 @@ uint16_t glimmer::MiningSystem::BreakTile(const TileBreakParams &params) {
     return sum;
 }
 
-void glimmer::MiningSystem::DropTileLoot(WorldContext *worldContext, const std::shared_ptr<Tile> &tile,
-                                         const TileVector2D &position, const ResourceRef &oldResourceRef,
-                                         bool precisionMining, bool allowDropLoot) {
+void glimmer::MiningSystem::ApplyTileLootTarget(WorldContext *worldContext, const std::shared_ptr<Tile> &tile,
+                                                const TileVector2D &position, const ResourceRef &oldResourceRef,
+                                                const bool precisionMining, const bool allowDropLoot) {
     const AppContext *appContext = worldContext->GetAppContext();
     if (appContext == nullptr) {
         return;
@@ -349,12 +329,19 @@ void glimmer::MiningSystem::DropTileLoot(WorldContext *worldContext, const std::
     if (resourceLocator == nullptr) {
         return;
     }
-    const auto lootResource = resourceLocator->FindLoot(tileLootData.GetLootTableRef());
-    if (precisionMining || !tileLootData.IsCustomLootTable() || lootResource == nullptr) {
+    const ResourceRef &lootTarget = tileLootData.GetLootTarget();
+    if (precisionMining || !lootTarget.IsValid()) {
         DropDefaultLoot(worldContext, tile, position, oldResourceRef);
         return;
     }
-    DropCustomLoot(worldContext, appContext, lootResource, position);
+    TargetResourceApplierContext applierContext;
+    applierContext.SetActionOrigin(position);
+    applierContext.SetActionTarget(lootTarget);
+    applierContext.SetBreakSource(BreakSource::TileLootTarget);
+    applierContext.SetPlaceSource(PLACE_SOURCE_BREAK);
+    applierContext.SetWorldContext(worldContext);
+    applierContext.SetTileLayerType(tile->GetLayerType());
+    TargetResourceApplier::Apply(applierContext);
 }
 
 void glimmer::MiningSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) {

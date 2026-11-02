@@ -26,12 +26,9 @@
  */
 #include "TileLootData.h"
 
-bool glimmer::TileLootData::IsCustomLootTable() const {
-    return customLootTable_;
-}
 
-const glimmer::ResourceRef *glimmer::TileLootData::GetLootTableRef() const {
-    return &lootTable_;
+const glimmer::ResourceRef &glimmer::TileLootData::GetLootTarget() const {
+    return lootTarget_;
 }
 
 bool glimmer::TileLootData::LootScaleBySize() const {
@@ -42,18 +39,15 @@ bool glimmer::TileLootData::CanDropLoot() const {
     return canDropLoot_;
 }
 
-void glimmer::TileLootData::SetCustomLootTable(bool customLootTable) {
-    this->customLootTable_ = customLootTable;
+
+void glimmer::TileLootData::SetLootTarget(const ResourceRef &lootTarget) {
+    this->lootTarget_ = lootTarget;
 }
 
-void glimmer::TileLootData::SetLootTable(const ResourceRef &lootTable) {
-    this->lootTable_ = lootTable;
-}
-
-void glimmer::TileLootData::SetLootScaleBySize(bool lootScaleBySize) {
+void glimmer::TileLootData::SetLootScaleBySize(const bool lootScaleBySize) {
     this->lootScaleBySize_ = lootScaleBySize;
 }
 
-void glimmer::TileLootData::SetCanDropLoot(bool canDropLoot) {
+void glimmer::TileLootData::SetCanDropLoot(const bool canDropLoot) {
     this->canDropLoot_ = canDropLoot;
 }

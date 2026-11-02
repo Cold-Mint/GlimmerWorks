@@ -189,7 +189,7 @@ void glimmer::ChunkManager::BreakAttachedTile(const TileLayerType layerType, con
             if (oldState != nullptr) {
                 ResourceRef oldRef;
                 oldRef.ReadResourceRefMessage(oldState->resourceref());
-                MiningSystem::DropTileLoot(worldContext_, oldTile, center, oldRef, false, true);
+                MiningSystem::ApplyTileLootTarget(worldContext_, oldTile, center, oldRef, false, true);
             }
         }
     }

@@ -240,8 +240,7 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     if (descriptionStringResource != nullptr) {
         tile->description_ = descriptionStringResource->value;
     }
-    tile->lootData_.SetCustomLootTable(tileResource->customLootTable);
-    tile->lootData_.SetLootTable(tileResource->lootTable);
+    tile->lootData_.SetLootTarget(tileResource->lootTarget);
     tile->layerType_ = static_cast<TileLayerType>(tileResource->layer);
     tile->collisionMask_ = tileResource->collisionMask;
     tile->collisionBoxSize_ = tileResource->collisionBoxSize;

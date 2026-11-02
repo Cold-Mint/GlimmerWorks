@@ -850,7 +850,6 @@ namespace toml {
             resource.containerCapacity = toml::find_or<uint8_t>(v, "container_capacity", 0);
             resource.containerLootTable = toml::find_or<glimmer::ResourceRef>(v, "container_loot_table", {});
             resource.containerMaxStack = toml::find_or<uint16_t>(v, "container_max_stack", 0);
-            resource.customLootTable = toml::find_or<bool>(v, "custom_loot_table", false);
             resource.customTileAnchor = toml::find_or<glimmer::Vector2DIResource>(v, "custom_tile_anchor", {1, 1});
             resource.description = toml::find_or<glimmer::ResourceRef>(v, "description", {});
             resource.destroySelfAfterGrowth = toml::find_or<bool>(v, "destroy_self_after_growth", false);
@@ -866,7 +865,7 @@ namespace toml {
             resource.layer = toml::find_or<uint8_t>(v, "layer", 0);
             resource.lightSource = toml::find<glimmer::ResourceRef>(v, "light_source");
             resource.lootScaleBySize = toml::find_or<bool>(v, "loot_scale_by_size", false);
-            resource.lootTable = toml::find_or<glimmer::ResourceRef>(v, "loot_table", {});
+            resource.lootTarget = toml::find_or<glimmer::ResourceRef>(v, "loot_target", {});
             resource.minMiningEfficiency = toml::find_or<float>(v, "min_mining_efficiency", 0);
             resource.name = toml::find<glimmer::ResourceRef>(v, "name");
             resource.partial = toml::find_or<bool>(v, "partial", false);

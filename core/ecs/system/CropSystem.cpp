@@ -43,6 +43,7 @@
 #include "core/world/generator/Chunk.h"
 #include "core/world/growth/IGrowthConditionProcessor.h"
 #include "core/world/tileActionHandler/TargetResourceApplier.h"
+#include "core/world/tileActionHandler/TargetResourceApplierContext.h"
 #include "src/saves/tile_state.pb.h"
 
 glimmer::CropSystem::CropSystem(WorldContext *worldContext) : GameSystem(worldContext) {

@@ -29,23 +29,18 @@
 
 namespace glimmer {
     class TileLootData {
-        ResourceRef lootTable_;
-        bool customLootTable_ = false;
+        ResourceRef lootTarget_;
         bool lootScaleBySize_ = false;
         bool canDropLoot_ = true;
 
     public:
-        [[nodiscard]] bool IsCustomLootTable() const;
-
-        [[nodiscard]] const ResourceRef *GetLootTableRef() const;
+        [[nodiscard]] const ResourceRef &GetLootTarget() const;
 
         [[nodiscard]] bool LootScaleBySize() const;
 
         [[nodiscard]] bool CanDropLoot() const;
 
-        void SetCustomLootTable(bool customLootTable);
-
-        void SetLootTable(const ResourceRef &lootTable);
+        void SetLootTarget(const ResourceRef &lootTarget);
 
         void SetLootScaleBySize(bool lootScaleBySize);
 

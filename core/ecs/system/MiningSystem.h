@@ -75,11 +75,6 @@ namespace glimmer {
                                     const TileVector2D &position,
                                     const ResourceRef &oldResourceRef);
 
-        static void DropCustomLoot(WorldContext *worldContext,
-                                   const AppContext *appContext,
-                                   const LootResource *lootResource,
-                                   const TileVector2D &topLeftVector);
-
         static void PlayBreakSFX(const AppContext *appContext, const Tile *tile);
 
         static void ProcessSingleTile(const TileBreakParams &params,
@@ -96,11 +91,11 @@ namespace glimmer {
     public:
         static uint16_t BreakTile(const TileBreakParams &params);
 
-        static void DropTileLoot(WorldContext *worldContext,
-                                 const std::shared_ptr<Tile> &tile,
-                                 const TileVector2D &position,
-                                 const ResourceRef &oldResourceRef,
-                                 bool precisionMining, bool allowDropLoot);
+        static void ApplyTileLootTarget(WorldContext *worldContext,
+                                        const std::shared_ptr<Tile> &tile,
+                                        const TileVector2D &position,
+                                        const ResourceRef &oldResourceRef,
+                                        bool precisionMining, bool allowDropLoot);
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 

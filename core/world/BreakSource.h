@@ -52,6 +52,9 @@ namespace glimmer {
         //Destroyed when the tile's secondary action is triggered.
         //由于瓦片的次要活动被触发而被破坏。
         TileSecondaryAction,
-        Console
+        Console,
+        //Due to the damage of a certain tile, its target area covers this block. For example: the target could be a structure or a tile.
+        //由于某个瓦片被破坏，其目标覆盖了此方块。例如：目标是结构或者瓦片。
+        TileLootTarget
     };
 }

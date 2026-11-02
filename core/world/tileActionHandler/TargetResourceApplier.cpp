@@ -26,6 +26,7 @@
  */
 #include "TargetResourceApplier.h"
 
+#include "TargetResourceApplierContext.h"
 #include "core/context/AppContext.h"
 #include "core/context/ModContext.h"
 #include "core/ecs/DroppedItemCreator.h"
@@ -110,7 +111,7 @@ bool glimmer::TargetResourceApplier::Apply(const TargetResourceApplierContext &a
         return true;
     }
     if (resourceType == RESOURCE_LOOT_TABLE) {
-        LootResource *lootResource = resourceLocator->FindLoot(&targetRef);
+        const LootResource *lootResource = resourceLocator->FindLoot(&targetRef);
         if (lootResource == nullptr) {
             return false;
         }

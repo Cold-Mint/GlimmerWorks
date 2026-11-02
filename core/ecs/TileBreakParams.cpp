@@ -42,6 +42,10 @@ void glimmer::TileBreakParams::SetTopLeftPosition(const TileVector2D &topLeftPos
     topLeftPosition_ = topLeftPosition;
 }
 
+void glimmer::TileBreakParams::SetAllowDropLoot(const bool allowDropLoot) {
+    allowDropLoot_ = allowDropLoot;
+}
+
 void glimmer::TileBreakParams::SetPrecisionMining(bool precisionMining) {
     precisionMining_ = precisionMining;
 }
@@ -84,6 +88,10 @@ const glimmer::TileLayerComponent *glimmer::TileBreakParams::GetTileLayerCompone
 
 const glimmer::TileVector2D &glimmer::TileBreakParams::GetTopLeftPosition() const {
     return topLeftPosition_;
+}
+
+bool glimmer::TileBreakParams::AllowDropLoot() const {
+    return allowDropLoot_;
 }
 
 bool glimmer::TileBreakParams::IsPrecisionMining() const {

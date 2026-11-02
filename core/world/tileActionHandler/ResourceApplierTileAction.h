@@ -35,6 +35,6 @@ namespace glimmer {
     class ResourceApplierTileAction : public ITileActionHandler {
     public:
         [[nodiscard]] bool DoAction(const TargetResourceApplierContext &applierContext, const Tile &focusedTile,
-            const TileStateMessage &focusedTileState) const override;
+                                    const TileStateMessage &focusedTileState) const override;
     };
 }

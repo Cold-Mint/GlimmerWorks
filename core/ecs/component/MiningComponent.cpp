@@ -26,8 +26,6 @@
  */
 #include "MiningComponent.h"
 
-#include <utility>
-
 bool glimmer::MiningComponent::IsEnable() const {
     return enable_.load(std::memory_order_acquire);
 }
@@ -38,6 +36,14 @@ void glimmer::MiningComponent::SetEnable(const bool enable) {
 
 void glimmer::MiningComponent::SetMiningRangeData(const MiningRangeData &miningRangeData) {
     miningRangeData_.store(std::make_shared<const MiningRangeData>(miningRangeData), std::memory_order_release);
+}
+
+void glimmer::MiningComponent::SetAllowDropLoot(const bool allowDropLoot) {
+    allowDropLoot_ = allowDropLoot;
+}
+
+bool glimmer::MiningComponent::AllowDropLoot() const {
+    return allowDropLoot_;
 }
 
 void glimmer::MiningComponent::ClearMiningRangeData() {
@@ -87,7 +93,7 @@ void glimmer::MiningComponent::SetProgress(const float progress) {
     progress_.store(progress, std::memory_order_release);
 }
 
-void glimmer::MiningComponent::SetPrecisionMining(bool precisionMining) {
+void glimmer::MiningComponent::SetPrecisionMining(const bool precisionMining) {
     precisionMining_ = precisionMining;
 }
 
@@ -95,11 +101,11 @@ bool glimmer::MiningComponent::IsPrecisionMining() const {
     return precisionMining_;
 }
 
-void glimmer::MiningComponent::AddProgress(float progress) {
+void glimmer::MiningComponent::AddProgress(const float progress) {
     progress_.fetch_add(progress, std::memory_order_acq_rel);
 }
 
-void glimmer::MiningComponent::SetEfficiency(float efficiency) {
+void glimmer::MiningComponent::SetEfficiency(const float efficiency) {
     efficiency_ = efficiency;
 }
 

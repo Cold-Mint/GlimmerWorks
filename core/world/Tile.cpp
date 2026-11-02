@@ -72,6 +72,10 @@ const glimmer::ResourceRef &glimmer::Tile::GetSecondaryActionTarget() const {
     return secondaryActionTarget_;
 }
 
+const glimmer::ResourceRef &glimmer::Tile::GetForceMineRequireTip() const {
+    return forceMineRequireTip_;
+}
+
 const glimmer::ResourceRef &glimmer::Tile::GetContainerLootTable() const {
     return containerLootTable_;
 }
@@ -259,6 +263,7 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     tile->primaryActionTarget_ = tileResource->primaryActionTarget;
     tile->secondaryActionTarget_ = tileResource->secondaryActionTarget;
     tile->containerLootTable_ = tileResource->containerLootTable;
+    tile->forceMineRequireTip_ = tileResource->forceMineRequireTip;
     uint8_t tileHeight = tileResource->tileHeight;
     if (tileHeight > CHUNK_SIZE) {
         tileHeight = CHUNK_SIZE;

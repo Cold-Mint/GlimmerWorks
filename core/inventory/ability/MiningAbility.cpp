@@ -33,8 +33,34 @@
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/inventory/TileItem.h"
 #include "core/math/CoordinateTransformer.h"
+#include "core/mod/ResourceLocator.h"
 #include "core/world/ChunkManager.h"
-#include "core/world/Dimension.h"
+
+
+std::optional<std::string> glimmer::MiningAbility::GetRequireForceMineTip(const Tile &tile,
+                                                                          const AppContext &appContext) {
+    auto &forceMineRequireTip = tile.GetForceMineRequireTip();
+    if (!forceMineRequireTip.IsValid()) {
+        return std::nullopt;
+    }
+    const ResourceLocator *resourceLocator = appContext.GetResourceLocator();
+    if (resourceLocator == nullptr) {
+        return std::nullopt;
+    }
+    const StringResource *stringRes = resourceLocator->FindString(&forceMineRequireTip);
+    if (stringRes == nullptr) {
+        return std::nullopt;
+    }
+    return StringUtils::MakeRawText(stringRes->value);
+}
+
+std::optional<std::string> glimmer::MiningAbility::GetInsufficientToolPowerTip(const TileMiningData &tileMiningData,
+                                                                               const AbilityConfig &abilityConfig) {
+    if (tileMiningData.GetMinMiningEfficiency() > abilityConfig.miningEfficiency) {
+        return "insufficient_tool_power";
+    }
+    return std::nullopt;
+}
 
 
 glimmer::MiningAbility::MiningAbility(const AbilityConfig &abilityConfig) : ItemAbility(
@@ -52,10 +78,11 @@ bool glimmer::MiningAbility::OnUse(const ItemUseContext &context) {
     if (item == nullptr) {
         return false;
     }
-    const AbilityConfig *abilityConfig = item->GetAbilityConfig();
-    if (abilityConfig == nullptr) {
+    const AbilityConfig *abilityConfigPtr = item->GetAbilityConfig();
+    if (abilityConfigPtr == nullptr) {
         return false;
     }
+    const AbilityConfig &abilityConfig = *abilityConfigPtr;
     LogCat::d(LogLabel::DEFAULT, "mining_use_start", "MiningAbility::OnUse start, mouseLeft={}", mouseLeftDown);
     if (!mouseLeftDown) {
         LogCat::d(LogLabel::DEFAULT, "mining_use_right_button_skip", "MiningAbility: not left button, skip");
@@ -65,12 +92,7 @@ bool glimmer::MiningAbility::OnUse(const ItemUseContext &context) {
         return false;
     }
     context.popupAbility->emplace(GetAbilityType());
-    if (abilityConfig == nullptr) {
-        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "ability_config_is_null",
-                  "abilityConfig == nullptr");
-        return false;
-    }
-    if (abilityConfig->mineAbleLayerMask == 0) {
+    if (abilityConfig.mineAbleLayerMask == 0) {
         LogCat::d(LogLabel::DEFAULT, "mining_mineable_layer_zero", "MiningAbility: mineAbleLayer mask is 0, skip");
         return false;
     }
@@ -107,68 +129,102 @@ bool glimmer::MiningAbility::OnUse(const ItemUseContext &context) {
                   "miningComponent == nullptr");
         return false;
     }
+    AppContext *appContext = worldContext->GetAppContext();
+    if (appContext == nullptr) {
+        return false;
+    }
     const TileVector2D &tileVector2D = context.focusPosition;
     for (size_t index = 0; index < context.focusedTileLayerComponents.size(); ++index) {
+        miningComponent->SetAllowDropLoot(true);
         const TileLayerComponent *tileLayerComponent = context.focusedTileLayerComponents[index];
         if (tileLayerComponent == nullptr) {
             continue;
         }
-        if (const TileLayerType layerType = tileLayerComponent->GetTileLayerType();
-            abilityConfig->mineAbleLayerMask & std::to_underlying(layerType)) {
-            if ((CoordinateTransformer::TileToWorld(tileVector2D) + WorldVector2D{HALF_TILE_SIZE, HALF_TILE_SIZE}).
-                Distance(playerWorldPos) / TILE_SIZE > abilityConfig
-                ->miningRange) {
-                continue;
-            }
-            const Tile *tile = context.focusedTiles[index];
-            if (tile == nullptr) {
-                continue;
-            }
-            const TileMiningData &tileMiningData = tile->GetMiningData();
-            if (!tileMiningData.IsBreakable()) {
-                continue;
-            }
-            if (!miningComponent->HasStartPosition() || miningComponent->GetStartPosition() != tileVector2D) {
-                //Change the starting point of the excavation and recalculate the progress.
-                //挖掘起点改变，重新计算进度。
-                LogCat::d(LogLabel::DEFAULT, "mining_chain_recalculated",
-                          "Mining start point changed, recalculate chain mining: start=({}, {}) chainRadius={}",
-                          tileVector2D.x, tileVector2D.y, static_cast<int>(abilityConfig->chainMiningRadius));
-                miningRangeData_.Reset();
-                miningComponent->SetChainMiningRadius(abilityConfig->chainMiningRadius);
-                miningRangeData_.
-                        CalculateChainMining(tileLayerComponent, tileVector2D,
-                                             abilityConfig->chainMiningRadius);
-                miningComponent->SetPrecisionMining(abilityConfig->enablePrecisionMining);
-                size_t pointCount = miningRangeData_.GetPointsCount();
-                if (pointCount == 0) {
-                    //If no exploitable tiles are found, then calculate the default excavation range.
-                    //如果没有发现可挖掘的瓦片，那么计算默认的挖掘范围。
-                    LogCat::d(LogLabel::DEFAULT, "mining_no_exploitable_tiles",
-                              "No exploitable tiles found, calculate default mining range");
-                    miningRangeData_.CalculateMining(tileLayerComponent, tileVector2D);
-                }
-                miningComponent->SetEfficiency(abilityConfig->miningEfficiency);
-                miningComponent->SetMiningRangeData(miningRangeData_);
-                miningComponent->SetProgress(0.0F);
-                miningComponent->SetStartPosition(tileVector2D);
-            }
-            //efficiency
-            //工具效率
-            miningComponent->SetLayerType(layerType);
-            if (miningRangeData_.GetPointsCount() > 0) {
-                //If there are any exploitable tiles, then activate the mining module.
-                //如果有可挖掘的瓦片，那么激活挖掘组建。
-                miningComponent->MarkActive();
-            }
-            // Must break the loop: tool can destroy multiple layers (e.g. mineAbleLayer = 3: ground + background).
-            // If current layerType = 1 (ground) is destroyed, stop checking next layers.
-            // Do NOT destroy ground and background simultaneously.
-            // 必须终止循环：该工具能够破坏多层（例如，mineAbleLayer = 3：地面 + 背景）。
-            // 如果当前的 layerType（即地面层，值为 1）被破坏，则停止检查后续的层。
-            // 不要同时破坏地面和背景层。
-            break;
+        const TileLayerType layerType = tileLayerComponent->GetTileLayerType();
+        if ((abilityConfig.mineAbleLayerMask & std::to_underlying(layerType)) == 0) {
+            continue;
         }
+        if ((CoordinateTransformer::TileToWorld(tileVector2D) + WorldVector2D{HALF_TILE_SIZE, HALF_TILE_SIZE}).
+            Distance(playerWorldPos) / TILE_SIZE > abilityConfig.miningRange) {
+            continue;
+        }
+        const Tile *tile = context.focusedTiles[index];
+        if (tile == nullptr) {
+            continue;
+        }
+        const TileMiningData &tileMiningData = tile->GetMiningData();
+        if (!tileMiningData.IsBreakable()) {
+            continue;
+        }
+        if (context.force) {
+            //Even if forced excavation is carried out, it is necessary to check whether the generation of dropped items is prohibited due to insufficient efficiency of the tools.
+            //即使是强制挖掘，那么也要检查是否因为工具效率不足而禁止生成掉落物。
+            if (const auto insufficientToolPowerTip = GetInsufficientToolPowerTip(tileMiningData, abilityConfig);
+                insufficientToolPowerTip.has_value()) {
+                miningComponent->SetAllowDropLoot(false);
+            }
+        } else {
+            uint8_t needBreak = 0;
+            //Anyway, always check here each time to see if you can break the blocks.
+            //无论如何，每次都要在这里检查是否可以破坏方块。
+            if (const auto insufficientToolPowerTip = GetInsufficientToolPowerTip(tileMiningData, abilityConfig);
+                insufficientToolPowerTip.has_value()) {
+                if (context.IsFirstMouseLeftDown()) {
+                    appContext->AddUIMessage(insufficientToolPowerTip.value());
+                }
+                needBreak++;
+            }
+            if (const auto forceMineTip = GetRequireForceMineTip(*tile, *appContext); forceMineTip.has_value()) {
+                if (context.IsFirstMouseLeftDown()) {
+                    appContext->AddUIMessage(forceMineTip.value());
+                }
+                needBreak++;
+            }
+            if (needBreak > 0) {
+                break;
+            }
+        }
+
+        if (!miningComponent->HasStartPosition() || miningComponent->GetStartPosition() != tileVector2D) {
+            //Change the starting point of the excavation and recalculate the progress.
+            //挖掘起点改变，重新计算进度。
+            LogCat::d(LogLabel::DEFAULT, "mining_chain_recalculated",
+                      "Mining start point changed, recalculate chain mining: start=({}, {}) chainRadius={}",
+                      tileVector2D.x, tileVector2D.y, static_cast<int>(abilityConfig.chainMiningRadius));
+            miningRangeData_.Reset();
+            miningComponent->SetChainMiningRadius(abilityConfig.chainMiningRadius);
+            miningRangeData_.
+                    CalculateChainMining(tileLayerComponent, tileVector2D,
+                                         abilityConfig.chainMiningRadius);
+            miningComponent->SetPrecisionMining(abilityConfig.enablePrecisionMining);
+            size_t pointCount = miningRangeData_.GetPointsCount();
+            if (pointCount == 0) {
+                //If no exploitable tiles are found, then calculate the default excavation range.
+                //如果没有发现可挖掘的瓦片，那么计算默认的挖掘范围。
+                LogCat::d(LogLabel::DEFAULT, "mining_no_exploitable_tiles",
+                          "No exploitable tiles found, calculate default mining range");
+                miningRangeData_.CalculateMining(tileLayerComponent, tileVector2D);
+            }
+            miningComponent->SetEfficiency(abilityConfig.miningEfficiency);
+            miningComponent->SetMiningRangeData(miningRangeData_);
+            miningComponent->SetProgress(0.0F);
+            miningComponent->SetStartPosition(tileVector2D);
+        }
+        //efficiency
+        //工具效率
+        miningComponent->SetLayerType(layerType);
+        if (miningRangeData_.GetPointsCount() > 0) {
+            //If there are any exploitable tiles, then activate the mining module.
+            //如果有可挖掘的瓦片，那么激活挖掘组建。
+            miningComponent->MarkActive();
+        }
+        // Must break the loop: tool can destroy multiple layers (e.g. mineAbleLayer = 3: ground + background).
+        // If current layerType = 1 (ground) is destroyed, stop checking next layers.
+        // Do NOT destroy ground and background simultaneously.
+        // 必须终止循环：该工具能够破坏多层（例如，mineAbleLayer = 3：地面 + 背景）。
+        // 如果当前的 layerType（即地面层，值为 1）被破坏，则停止检查后续的层。
+        // 不要同时破坏地面和背景层。
+        break;
     }
     return true;
 }

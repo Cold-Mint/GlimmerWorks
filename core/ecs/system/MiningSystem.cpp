@@ -43,7 +43,6 @@
 #include "core/gpu/RenderLayer.h"
 #include "core/gpu/RenderQueue.h"
 #include "core/mod/ResourceLocator.h"
-#include "core/world/Dimension.h"
 
 
 bool glimmer::MiningSystem::CanProcessTile(const Tile *tile, bool isPlaceMode) {
@@ -134,29 +133,6 @@ void glimmer::MiningSystem::DropDefaultLoot(WorldContext *worldContext,
                                          0);
 }
 
-void glimmer::MiningSystem::DropTileLoot(WorldContext *worldContext,
-                                         const std::shared_ptr<Tile> &tile, const TileVector2D &position,
-                                         const ResourceRef &oldResourceRef, bool precisionMining) {
-    const AppContext *appContext = worldContext->GetAppContext();
-    if (appContext == nullptr) {
-        return;
-    }
-    const TileLootData &tileLootData = tile->GetLootData();
-    if (!tileLootData.CanDropLoot()) {
-        return;
-    }
-    const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
-    if (resourceLocator == nullptr) {
-        return;
-    }
-    const auto lootResource = resourceLocator->FindLoot(tileLootData.GetLootTableRef());
-    if (precisionMining || !tileLootData.IsCustomLootTable() || lootResource == nullptr) {
-        DropDefaultLoot(worldContext, tile, position, oldResourceRef);
-        return;
-    }
-    DropCustomLoot(worldContext, appContext, lootResource, position);
-}
-
 void glimmer::MiningSystem::DropCustomLoot(WorldContext *worldContext,
                                            const AppContext *appContext, const LootResource *lootResource,
                                            const TileVector2D &topLeftVector) {
@@ -200,26 +176,8 @@ void glimmer::MiningSystem::PlayBreakSFX(const AppContext *appContext, const Til
         AudioType::AMBIENT, breakSFX->GetResource(), 0);
 }
 
-
-static bool CheckMiningEfficiency(const glimmer::Tile *tile, const glimmer::AbilityConfig *abilityConfig) {
-    const glimmer::TileMiningData &tileMiningData = tile->GetMiningData();
-    if (abilityConfig == nullptr) {
-        glimmer::LogCat::w(glimmer::LogLabel::DEFAULT, std::source_location::current(), "ability_config_is_null",
-                           "abilityConfig == nullptr");
-        return true;
-    }
-    if (tileMiningData.GetMinMiningEfficiency() > abilityConfig->miningEfficiency) {
-        glimmer::LogCat::w(glimmer::LogLabel::DEFAULT, std::source_location::current(), "mining_efficiency_exceeded",
-                           "tileMiningData->GetMinMiningEfficiency() > abilityConfig->miningEfficiency");
-        return false;
-    }
-    return true;
-}
-
-void glimmer::MiningSystem::ProcessSingleTile(const TileBreakParams &params,
-                                              const TileVector2D &currentVector,
-                                              Item *item, const Item *emptyHandAutoUseItem, bool isCenter,
-                                              uint8_t &sum) {
+void glimmer::MiningSystem::ProcessSingleTile(const TileBreakParams &params, const TileVector2D &currentVector,
+                                              Item *item, bool isCenter, uint8_t &sum) {
     WorldContext *worldContext = params.GetWorldContext();
     if (worldContext == nullptr) {
         return;
@@ -257,34 +215,76 @@ void glimmer::MiningSystem::ProcessSingleTile(const TileBreakParams &params,
         return;
     }
     sum++;
-    const AbilityConfig *abilityConfigPtr = item->GetAbilityConfig();
     ApplyItemDurability(item, currentTile.get(), isCenter);
     if (isCenter && !params.IsPlaceMode()) {
         PlayBreakSFX(appContext, currentTile.get());
-    }
-    if (abilityConfigPtr == nullptr) {
-        //If the held item is not a combinable item and does not have the ability to be configured, then obtain the player's "hand" and use the hand's ability configuration.
-        //如果手持的物品，不是可组合物品，没有能力配置，那么获取玩家的"手"，使用手的能力配置。
-        //For example, when holding coal, use "hand" to dig blocks. But when holding a piece of paper (such as a manuscript), use the paper to dig.
-        //例如手持煤炭时，使用"手"来挖掘方块，而手持稿子，这类可组合物品时，则使用稿子挖掘。
-        abilityConfigPtr = emptyHandAutoUseItem->GetAbilityConfig();
-        if (abilityConfigPtr == nullptr) {
-            //The "hands" of the players are not combinable items either, so they are not allowed to drop (usually modified by third-party data packages).
-            //玩家的"手"也不是可组合物品，那么禁止掉落。（通常由第三方数据包修改）
-            return;
-        }
-    }
-    const AbilityConfig abilityConfigCopy = *abilityConfigPtr;
-    if (!CheckMiningEfficiency(currentTile.get(), &abilityConfigCopy)) {
-        return;
     }
     const TileLootData &tileLootData = currentTile->GetLootData();
     if (!isCenter && !tileLootData.LootScaleBySize()) {
         return;
     }
     DropTileLoot(worldContext, currentTile, currentVector,
-                 backup.GetResourceRef(), params.IsPrecisionMining());
+                 backup.GetResourceRef(), params.IsPrecisionMining(), params.AllowDropLoot());
 }
+
+void glimmer::MiningSystem::ProcessMiningComplete(const TileLayerComponent *tileLayerComponent,
+                                                  TileLayerType tileLayerType, bool allowDropLoot) const {
+    WorldContext *worldContext = GetWorldContext();
+    if (worldContext == nullptr) {
+        return;
+    }
+    const AppContext *appContext = worldContext->GetAppContext();
+    if (appContext == nullptr) {
+        return;
+    }
+    MainThreadDispatcher *mainThreadDispatcher = appContext->GetMainThreadDispatcher();
+    if (mainThreadDispatcher == nullptr) {
+        return;
+    }
+    const std::shared_ptr<const MiningRangeData> miningRangeData = miningComponent_->GetMiningRangeData();
+    if (miningRangeData == nullptr) {
+        return;
+    }
+    const bool precisionMining = miningComponent_->IsPrecisionMining();
+    // Reset the mining state on the tick thread immediately so that the completion is
+    // only processed once, while the actual tile breaking runs on the main thread.
+    // If the dispatcher is unavailable, we return before resetting so the completion is
+    // retried on the next tick instead of being silently dropped.
+    // 在 tick 线程立即重置挖掘状态，保证完成逻辑只执行一次；实际的破坏瓦片在主线程执行。
+    // 若调度器不可用，则在重置前返回，使完成逻辑在下一个 tick 重试，而不是被静默丢弃。
+    miningComponent_->SetProgress(0.0F);
+    miningComponent_->SetEnable(false);
+    miningComponent_->ClearMiningRangeData();
+
+    mainThreadDispatcher->PostToNextMainFrame(
+        [worldContext, tileLayerComponent, tileLayerType, miningRangeData, precisionMining, allowDropLoot] {
+            const size_t pointsCount = miningRangeData->GetPointsCount();
+            LogCat::i(LogLabel::DEFAULT, "mining_complete_processing", "Mining complete, processing {} mining points",
+                      pointsCount);
+            for (size_t i = 0; i < pointsCount; i++) {
+                const MiningRangeDataPoint *point = miningRangeData->GetPoint(i);
+                if (point == nullptr) {
+                    continue;
+                }
+                TileBreakParams tileBreakParams;
+                tileBreakParams.SetBreakSource(BreakSource::PlayerMining);
+                tileBreakParams.SetWorldContext(worldContext);
+                tileBreakParams.SetTileLayerComponent(tileLayerComponent);
+                tileBreakParams.SetTopLeftPosition(point->GetTileTopLeftPosition());
+                tileBreakParams.SetPrecisionMining(precisionMining);
+                tileBreakParams.SetPlaceMode(false);
+                tileBreakParams.SetTileWidth(point->GetWidth());
+                tileBreakParams.SetTileHeight(point->GetHeight());
+                tileBreakParams.SetAllowDropLoot(allowDropLoot);
+                TileResourceManager::WriteAirResourceRef(tileLayerType, tileBreakParams.GetMutableNewTileRef());
+                if (uint16_t broken = BreakTile(tileBreakParams); broken > 0) {
+                    LogCat::i(LogLabel::DEFAULT, "broken_tiles_at_position", "Broken tiles at position ({}, {}): {}",
+                              point->GetTileTopLeftPosition().x, point->GetTileTopLeftPosition().y, broken);
+                }
+            }
+        });
+}
+
 
 uint16_t glimmer::MiningSystem::BreakTile(const TileBreakParams &params) {
     const WorldContext *worldContext = params.GetWorldContext();
@@ -326,13 +326,35 @@ uint16_t glimmer::MiningSystem::BreakTile(const TileBreakParams &params) {
     for (int x = 0; x < tileWidth; x++) {
         for (int y = 0; y < tileHeight; y++) {
             ProcessSingleTile(params, TileVector2D(topLeftPosition.x + x, topLeftPosition.y - y), item,
-                              playerComponent->GetEmptyHandAutoUseItem(),
                               x == centerX && y == centerY, sum);
         }
     }
     LogCat::d(LogLabel::DEFAULT, "mining_break_tile_complete", "BreakTile complete: {} tiles broken",
               static_cast<int>(sum));
     return sum;
+}
+
+void glimmer::MiningSystem::DropTileLoot(WorldContext *worldContext, const std::shared_ptr<Tile> &tile,
+                                         const TileVector2D &position, const ResourceRef &oldResourceRef,
+                                         bool precisionMining, bool allowDropLoot) {
+    const AppContext *appContext = worldContext->GetAppContext();
+    if (appContext == nullptr) {
+        return;
+    }
+    const TileLootData &tileLootData = tile->GetLootData();
+    if (!allowDropLoot || !tileLootData.CanDropLoot()) {
+        return;
+    }
+    const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+    if (resourceLocator == nullptr) {
+        return;
+    }
+    const auto lootResource = resourceLocator->FindLoot(tileLootData.GetLootTableRef());
+    if (precisionMining || !tileLootData.IsCustomLootTable() || lootResource == nullptr) {
+        DropDefaultLoot(worldContext, tile, position, oldResourceRef);
+        return;
+    }
+    DropCustomLoot(worldContext, appContext, lootResource, position);
 }
 
 void glimmer::MiningSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) {
@@ -395,67 +417,10 @@ void glimmer::MiningSystem::OnTick(const uint64_t tick) {
         miningComponent_->AddProgress(
             miningComponent_->GetEfficiency() / rangeData->GetMaxHardness() * FIXED_TIME_STEP);
         if (miningComponent_->GetProgress() >= 1.0F) {
-            ProcessMiningComplete(tileLayer, tileLayerType);
+            ProcessMiningComplete(tileLayer, tileLayerType, miningComponent_->AllowDropLoot());
         }
         break;
     }
-}
-
-void glimmer::MiningSystem::ProcessMiningComplete(const TileLayerComponent *tileLayerComponent,
-                                                  TileLayerType tileLayerType) const {
-    WorldContext *worldContext = GetWorldContext();
-    if (worldContext == nullptr) {
-        return;
-    }
-    const AppContext *appContext = worldContext->GetAppContext();
-    if (appContext == nullptr) {
-        return;
-    }
-    MainThreadDispatcher *mainThreadDispatcher = appContext->GetMainThreadDispatcher();
-    if (mainThreadDispatcher == nullptr) {
-        return;
-    }
-    const std::shared_ptr<const MiningRangeData> miningRangeData = miningComponent_->GetMiningRangeData();
-    if (miningRangeData == nullptr) {
-        return;
-    }
-    const bool precisionMining = miningComponent_->IsPrecisionMining();
-    // Reset the mining state on the tick thread immediately so that the completion is
-    // only processed once, while the actual tile breaking runs on the main thread.
-    // If the dispatcher is unavailable, we return before resetting so the completion is
-    // retried on the next tick instead of being silently dropped.
-    // 在 tick 线程立即重置挖掘状态，保证完成逻辑只执行一次；实际的破坏瓦片在主线程执行。
-    // 若调度器不可用，则在重置前返回，使完成逻辑在下一个 tick 重试，而不是被静默丢弃。
-    miningComponent_->SetProgress(0.0F);
-    miningComponent_->SetEnable(false);
-    miningComponent_->ClearMiningRangeData();
-
-    mainThreadDispatcher->PostToNextMainFrame(
-        [worldContext, tileLayerComponent, tileLayerType, miningRangeData, precisionMining] {
-            const size_t pointsCount = miningRangeData->GetPointsCount();
-            LogCat::i(LogLabel::DEFAULT, "mining_complete_processing", "Mining complete, processing {} mining points",
-                      pointsCount);
-            for (size_t i = 0; i < pointsCount; i++) {
-                const MiningRangeDataPoint *point = miningRangeData->GetPoint(i);
-                if (point == nullptr) {
-                    continue;
-                }
-                TileBreakParams tileBreakParams;
-                tileBreakParams.SetBreakSource(BreakSource::PlayerMining);
-                tileBreakParams.SetWorldContext(worldContext);
-                tileBreakParams.SetTileLayerComponent(tileLayerComponent);
-                tileBreakParams.SetTopLeftPosition(point->GetTileTopLeftPosition());
-                tileBreakParams.SetPrecisionMining(precisionMining);
-                tileBreakParams.SetPlaceMode(false);
-                tileBreakParams.SetTileWidth(point->GetWidth());
-                tileBreakParams.SetTileHeight(point->GetHeight());
-                TileResourceManager::WriteAirResourceRef(tileLayerType, tileBreakParams.GetMutableNewTileRef());
-                if (uint16_t broken = BreakTile(tileBreakParams); broken > 0) {
-                    LogCat::i(LogLabel::DEFAULT, "broken_tiles_at_position", "Broken tiles at position ({}, {}): {}",
-                              point->GetTileTopLeftPosition().x, point->GetTileTopLeftPosition().y, broken);
-                }
-            }
-        });
 }
 
 void glimmer::MiningSystem::Render(RenderQueue *queue) {

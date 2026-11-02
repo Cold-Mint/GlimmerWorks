@@ -28,6 +28,10 @@
 #include "core/math/TileVector2D.h"
 
 namespace glimmer {
+    /**
+     * TileDimensions
+     * 瓦片规格
+     */
     class TileDimensions {
         TileVector2D tileAnchor_ = TileVector2D(1, 1);
         uint8_t tileWidth_ = 1;

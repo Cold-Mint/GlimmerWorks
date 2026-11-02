@@ -39,6 +39,7 @@ namespace glimmer {
         BreakSource breakSource_ = BreakSource::Unknown;
         bool precisionMining_ = false;
         bool isPlaceMode_ = false;
+        bool allowDropLoot_ = false;
         uint8_t tileWidth_ = 1;
         uint8_t tileHeight_ = 1;
         uint8_t attachmentDirection_ = 0;
@@ -52,6 +53,13 @@ namespace glimmer {
 
         void SetTopLeftPosition(const TileVector2D &topLeftPosition);
 
+        void SetAllowDropLoot(bool allowDropLoot);
+
+        /**
+         * SetPrecisionMining
+         * 设置精准挖掘模式
+         * @param precisionMining
+         */
         void SetPrecisionMining(bool precisionMining);
 
         void SetPlaceMode(bool placeMode);
@@ -74,6 +82,13 @@ namespace glimmer {
 
         [[nodiscard]] const TileVector2D &GetTopLeftPosition() const;
 
+        [[nodiscard]] bool AllowDropLoot() const;
+
+        /**
+         * IsPrecisionMining
+         * 是否为精准挖掘模式
+         * @return
+         */
         [[nodiscard]] bool IsPrecisionMining() const;
 
         [[nodiscard]] bool IsPlaceMode() const;

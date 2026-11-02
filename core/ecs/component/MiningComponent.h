@@ -64,6 +64,7 @@ namespace glimmer {
         // activeSignal_ is only accessed on the tick thread.
         // activeSignal_ 仅在 tick 线程访问。
         bool activeSignal_ = false;
+        bool allowDropLoot_ = false;
 
         // enable_ is written on the tick thread and read on the render/main thread.
         // enable_ 在 tick 线程写入，在渲染/主线程读取。
@@ -80,6 +81,10 @@ namespace glimmer {
         void SetEnable(bool enable);
 
         void SetMiningRangeData(const MiningRangeData &miningRangeData);
+
+        void SetAllowDropLoot(bool allowDropLoot);
+
+        [[nodiscard]] bool AllowDropLoot() const;
 
         void ClearMiningRangeData();
 

@@ -36,11 +36,11 @@ namespace glimmer {
 
     class StorageBlockTileAction : public ITileActionHandler {
         static void RollLootBoxSnapshot(const AppContext &appContext,
-                                 const ResourceRef &lootTableRef,
-                                 LootBoxSnapshotMessage &snapshot);
+                                        const ResourceRef &lootTableRef,
+                                        LootBoxSnapshotMessage &snapshot);
 
     public:
         [[nodiscard]] bool DoAction(const TargetResourceApplierContext &applierContext, const Tile &focusedTile,
-            const TileStateMessage &focusedTileState) const override;
+                                    const TileStateMessage &focusedTileState) const override;
     };
 }

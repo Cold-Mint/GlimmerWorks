@@ -31,7 +31,6 @@
 #include "core/world/WorldContext.h"
 #include "core/ecs/component/TileLayerComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
-#include "core/config/Constants.h"
 
 #include "core/ecs/system/MiningSystem.h"
 
@@ -68,41 +67,42 @@ const glimmer::Tile *glimmer::TileItem::GetTile() const {
 }
 
 bool glimmer::TileItem::OnUse(const ItemUseContext &context) {
+    bool placeSuccess = false;
     const bool mouseRightDown = context.IsMouseRightDown();
     if (!mouseRightDown) {
-        return false;
+        return placeSuccess;
     }
     if (tile_ == nullptr) {
-        return false;
+        return placeSuccess;
     }
     WorldContext *worldContext = context.worldContext;
     if (worldContext == nullptr) {
-        return false;
+        return placeSuccess;
     }
     const AppContext *appContext = worldContext->GetAppContext();
     if (appContext == nullptr) {
-        return false;
+        return placeSuccess;
     }
     EntityShortCut *entityShortCut = worldContext->GetEntityShortCut();
     if (entityShortCut == nullptr) {
-        return false;
+        return placeSuccess;
     }
     auto playerEntity = entityShortCut->GetPlayer();
     if (WorldContext::IsEmptyEntityId(playerEntity)) {
-        return false;
+        return placeSuccess;
     }
     EntityManager *entityManager = worldContext->GetEntityManager();
     auto playerTransform = entityManager->GetComponent<Transform2DComponent>(playerEntity);
     if (playerTransform == nullptr) {
-        return false;
+        return placeSuccess;
     }
     const BlueprintComponent *blueprintComponent = entityShortCut->GetBlueprintComponent();
     if (blueprintComponent == nullptr) {
-        return false;
+        return placeSuccess;
     }
     ItemStackModule *itemStackModule = GetMutableStackModule();
     if (itemStackModule == nullptr) {
-        return false;
+        return placeSuccess;
     }
     const auto entities = entityManager->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
     const TileLayerType targetTileLayerType = tile_->GetLayerType();
@@ -119,35 +119,38 @@ bool glimmer::TileItem::OnUse(const ItemUseContext &context) {
         if (!blueprintComponent->CanPlace()) {
             continue;
         }
-        if (itemStackModule->GetAmount() > 0) {
-            if (AudioManager *audioManager = appContext->GetAudioContext()->GetAudioManager();
-                audioManager != nullptr) {
-                if (const AudioResourceResult *audioResourceResult = tile_->GetResourceData().GetPlaceSFX();
-                    audioResourceResult !=
-                    nullptr) {
-                    audioManager->TryPlayFree(
-                        AudioType::AMBIENT, audioResourceResult->GetResource(), 0);
-                }
+        if (itemStackModule->GetAmount() == 0) {
+            continue;
+        }
+        if (AudioManager *audioManager = appContext->GetAudioContext()->GetAudioManager();
+            audioManager != nullptr) {
+            if (const AudioResourceResult *audioResourceResult = tile_->GetResourceData().GetPlaceSFX();
+                audioResourceResult !=
+                nullptr) {
+                audioManager->TryPlayFree(
+                    AudioType::AMBIENT, audioResourceResult->GetResource(), 0);
             }
-            TileBreakParams tileBreakParams;
-            tileBreakParams.SetBreakSource(BreakSource::PlayerOverride);
-            tileBreakParams.SetWorldContext(worldContext);
-            tileBreakParams.SetTileLayerComponent(tileLayer);
-            tileBreakParams.SetTopLeftPosition(blueprintComponent->GetTopLeftVector());
-            tileBreakParams.SetPrecisionMining(false);
-            tileBreakParams.SetPlaceMode(true);
-            const TileDimensions &tileDimensions = tile_->GetDimensions();
-            tileBreakParams.SetTileWidth(tileDimensions.GetTileWidth());
-            tileBreakParams.SetTileHeight(tileDimensions.GetTileHeight());
-            tileBreakParams.SetNewTileRef(GetResourceRef());
-            tileBreakParams.SetAttachmentDirection(blueprintComponent->GetAttachmentDirection());
-            tileBreakParams.SetAttachmentOffset(blueprintComponent->GetAttachmentOffset());
-            MiningSystem::BreakTile(tileBreakParams);
-
+        }
+        TileBreakParams tileBreakParams;
+        tileBreakParams.SetBreakSource(BreakSource::PlayerOverride);
+        tileBreakParams.SetWorldContext(worldContext);
+        tileBreakParams.SetTileLayerComponent(tileLayer);
+        tileBreakParams.SetTopLeftPosition(blueprintComponent->GetTopLeftVector());
+        tileBreakParams.SetPrecisionMining(false);
+        tileBreakParams.SetPlaceMode(true);
+        const TileDimensions &tileDimensions = tile_->GetDimensions();
+        tileBreakParams.SetTileWidth(tileDimensions.GetTileWidth());
+        tileBreakParams.SetTileHeight(tileDimensions.GetTileHeight());
+        tileBreakParams.SetNewTileRef(GetResourceRef());
+        tileBreakParams.SetAttachmentDirection(blueprintComponent->GetAttachmentDirection());
+        tileBreakParams.SetAttachmentOffset(blueprintComponent->GetAttachmentOffset());
+        if (MiningSystem::BreakTile(tileBreakParams) > 0) {
             itemStackModule->RemoveAmount(1);
+            placeSuccess = true;
+            break;
         }
     }
-    return true;
+    return placeSuccess;
 }
 
 glimmer::TextureResourceResult *glimmer::TileItem::GetIcon() const {

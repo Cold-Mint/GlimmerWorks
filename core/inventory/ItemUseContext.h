@@ -50,8 +50,12 @@ namespace glimmer {
         TileVector2D focusPosition;
         WorldContext *worldContext = nullptr;
         Item *item = nullptr;
+        Item *emptyHandAutoUseItem = nullptr;
         std::unordered_set<AbilityType> *popupAbility = nullptr;
         uint32_t user = 0;
+        //Did you press the "shift" (for forced excavation) during the excavation process?
+        //挖掘时是否按下了shift（强制挖掘）
+        bool force = false;
 
         void SetMouseLeftDown(bool mouseLeftDown);
 

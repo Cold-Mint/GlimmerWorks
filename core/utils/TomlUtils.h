@@ -857,6 +857,7 @@ namespace toml {
             resource.drawValidBlueprintColor = toml::find_or<bool>(v, "draw_valid_blueprint_color", true);
             resource.enableBlueprint = toml::find_or<bool>(v, "enable_blueprint", true);
             resource.enableBlueprintMask = toml::find_or<bool>(v, "enable_blueprint_mask", true);
+            resource.forceMineRequireTip = toml::find_or<glimmer::ResourceRef>(v, "force_mine_require_tip", {});
             resource.growthConditions = toml::find_or<std::vector<glimmer::ResourceRef> >(v, "growth_conditions", {});
             resource.growthMaxTicks = toml::find_or<uint64_t>(v, "growth_max_ticks", 0);
             resource.growthMinTicks = toml::find_or<uint64_t>(v, "growth_min_ticks", 0);

@@ -54,6 +54,7 @@ namespace glimmer {
         ResourceRef primaryActionTarget_;
         ResourceRef secondaryActionTarget_;
         ResourceRef containerLootTable_;
+        ResourceRef forceMineRequireTip_;
 
         std::unordered_map<Vector2DIFingerprint, GameEntityID> gameEntities_;
         std::optional<std::string> description_;
@@ -62,6 +63,8 @@ namespace glimmer {
         TileDimensions dimensions_;
         TileBlueprintData blueprintData_;
         std::vector<ResourceRef> growthConditions_;
+        //附着点标签缓存ID列表，目标瓦片必须拥有其中任一标签才被视为有效附着点。
+        std::vector<uint64_t> attachmentTagIds_;
         TileMiningData miningData_;
         uint64_t growthMinTicks_ = 0;
         uint64_t growthMaxTicks_ = 0;
@@ -85,8 +88,6 @@ namespace glimmer {
         bool allowOfflineGrowth_ = true;
         bool destroySelfAfterGrowth_ = false;
         bool isOverwritable_ = false;
-        //附着点标签缓存ID列表，目标瓦片必须拥有其中任一标签才被视为有效附着点。
-        std::vector<uint64_t> attachmentTagIds_;
 
         static TileVector2D CalculateTileAnchor(TileAnchorType tileAnchorType, uint8_t tileWidth, uint8_t tileHeight,
                                                 const Vector2DIResource &customTileAnchor);
@@ -133,6 +134,8 @@ namespace glimmer {
         const ResourceRef &GetPrimaryActionTarget() const;
 
         const ResourceRef &GetSecondaryActionTarget() const;
+
+        const ResourceRef &GetForceMineRequireTip() const;
 
         /**
          * GetContainerLootTable
@@ -228,6 +231,11 @@ namespace glimmer {
 
         [[nodiscard]] TileDimensions &GetMutableDimensions();
 
+        /**
+         * GetDimensions
+         * 获取瓦片规格
+         * @return
+         */
         [[nodiscard]] const TileDimensions &GetDimensions() const;
 
         [[nodiscard]] TileMiningData &GetMutableMiningData();

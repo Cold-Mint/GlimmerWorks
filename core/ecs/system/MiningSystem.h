@@ -84,11 +84,12 @@ namespace glimmer {
 
         static void ProcessSingleTile(const TileBreakParams &params,
                                       const TileVector2D &currentVector,
-                                      Item *item, const Item *emptyHandAutoUseItem,
+                                      Item *item,
                                       bool isCenter,
                                       uint8_t &sum);
 
-        void ProcessMiningComplete(const TileLayerComponent *tileLayer, TileLayerType tileLayerType) const;
+        void ProcessMiningComplete(const TileLayerComponent *tileLayerComponent, TileLayerType tileLayerType,
+                                   bool allowDropLoot) const;
 
         void RenderDiggingPoint(RenderQueue *queue, const MiningRangeDataPoint *point) const;
 
@@ -99,7 +100,7 @@ namespace glimmer {
                                  const std::shared_ptr<Tile> &tile,
                                  const TileVector2D &position,
                                  const ResourceRef &oldResourceRef,
-                                 bool precisionMining);
+                                 bool precisionMining, bool allowDropLoot);
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 

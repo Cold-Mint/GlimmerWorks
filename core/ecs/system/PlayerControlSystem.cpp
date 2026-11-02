@@ -376,6 +376,7 @@ void glimmer::PlayerControlSystem::OnTick(uint64_t tick) {
         itemUseContext_.focusedTileStateMessages.clear();
         const TileVector2D &focusPosition = GetWorldContext()->GetFocusPosition();
         itemUseContext_.focusPosition = focusPosition;
+        itemUseContext_.emptyHandAutoUseItem = playerComponent->GetEmptyHandAutoUseItem();
         for (const auto &gameEntity: tileLayerEntities) {
             const auto tileLayerComponent = entityManager->GetComponent<TileLayerComponent>(
                 gameEntity);
@@ -388,7 +389,6 @@ void glimmer::PlayerControlSystem::OnTick(uint64_t tick) {
             itemUseContext_.focusedTileStateMessages.push_back(
                 tileLayerComponent->GetSelfLayerTileState(focusPosition));
         }
-
         Item *item = playerComponent->GetItem();
         bool handle = false;
         if (item != nullptr) {
@@ -396,11 +396,11 @@ void glimmer::PlayerControlSystem::OnTick(uint64_t tick) {
             itemUseContext_.popupAbility->clear();
             handle = item->OnUse(itemUseContext_);
         }
-        if (Item *emptyHandAutoUseItem = playerComponent->GetEmptyHandAutoUseItem(); !handle &&
-            emptyHandAutoUseItem != nullptr) {
-            itemUseContext_.item = emptyHandAutoUseItem;
+        if (!handle &&
+            itemUseContext_.emptyHandAutoUseItem != nullptr) {
+            itemUseContext_.item = itemUseContext_.emptyHandAutoUseItem;
             itemUseContext_.popupAbility->clear();
-            handle = emptyHandAutoUseItem->OnUse(itemUseContext_);
+            handle = itemUseContext_.item->OnUse(itemUseContext_);
         }
         if (!handle) {
             handle = HandleFocusedTileActions();
@@ -471,7 +471,8 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
     if (event.type != SDL_EVENT_KEY_DOWN && event.type != SDL_EVENT_KEY_UP) {
         return false;
     }
-    bool pressed = event.type == SDL_EVENT_KEY_DOWN;
+    const bool pressed = event.type == SDL_EVENT_KEY_DOWN;
+    itemUseContext_.force = event.key.mod & SDL_KMOD_SHIFT;
     HandleHorizontalInput(event, playerComponent, playerInputHandler, pressed);
     HandleVerticalInput(event, playerInputHandler, pressed);
     HandleKeyAction(event, playerInputHandler, pressed);

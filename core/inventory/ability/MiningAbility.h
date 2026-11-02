@@ -33,6 +33,25 @@ namespace glimmer {
     class MiningAbility : public ItemAbility {
         MiningRangeData miningRangeData_;
 
+        /**
+         * If necessary, display a prompt indicating that forced excavation is required.
+         * 如果需要的话，显示需要强制挖掘提示。
+         * @param tile Tile 瓦片
+         * @param appContext AppContext 应用上下文
+         * @return 返回需要显示的消息
+         */
+        static std::optional<std::string> GetRequireForceMineTip(const Tile &tile, const AppContext &appContext);
+
+        /**
+         * If necessary, display a prompt indicating that the display tool is not efficient.
+         * 如果需要的话，显示工具效率不够的提示。
+         * @param tileMiningData
+         * @param abilityConfig
+         * @return
+         */
+        static std::optional<std::string> GetInsufficientToolPowerTip(const TileMiningData &tileMiningData,
+                                                                      const AbilityConfig &abilityConfig);
+
     public:
         explicit MiningAbility(const AbilityConfig &abilityConfig);
 

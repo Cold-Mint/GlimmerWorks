@@ -26,12 +26,12 @@
  */
 #pragma once
 #include <unordered_set>
-#include <src/core/place_source_message.pb.h>
 
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/inventory/ItemUseContext.h"
 #include "core/inventory/ability/AbilityType.h"
+#include "core/world/tileActionHandler/ITileActionHandler.h"
 
 namespace glimmer {
     class ColliderComponent;
@@ -52,6 +52,7 @@ namespace glimmer {
     class PlayerControlSystem final : public GameSystem {
         std::unordered_set<AbilityType> popupAbility_;
         ItemUseContext itemUseContext_;
+        std::vector<std::unique_ptr<ITileActionHandler> > actionHandlers_;
         std::shared_ptr<AudioResourceResult> dropItemSFXResult_ = nullptr;
         AudioManager *audioManager_ = nullptr;
         CameraComponent *cameraComponent_ = nullptr;
@@ -85,23 +86,8 @@ namespace glimmer {
          * primary/secondary action target of each focused tile.
          * 当物品未处理鼠标点击时，将其视为瓦片活动事件，并应用每个聚焦瓦片的主/次要活动目标。
          */
-        void HandleFocusedTileActions() const;
+        bool HandleFocusedTileActions() const;
 
-        /**
-         * Apply a single action target of the focused tile on the next main frame.
-         * 在下一个主帧应用聚焦瓦片的单个活动目标。
-         * @param mainThreadDispatcher mainThreadDispatcher 主线程调度器
-         * @param worldContext worldContext 世界上下文
-         * @param focusedTile focusedTile 聚焦瓦片
-         * @param actionOrigin actionOrigin 活动目标的应用原点（多方块瓦片的原点格子）
-         * @param actionTarget actionTarget 活动目标资源引用
-         * @param breakSource breakSource 破坏来源
-         * @param placeSource placeSource 放置源
-         */
-        void ApplyTileActionTarget(MainThreadDispatcher *mainThreadDispatcher, WorldContext *worldContext,
-                                   const Tile *focusedTile, const TileVector2D &actionOrigin,
-                                   const ResourceRef &actionTarget,
-                                   BreakSource breakSource, PlaceSourceMessage placeSource) const;
 
         /**
          * Play the primary/secondary action sound effect of a tile if it is valid.

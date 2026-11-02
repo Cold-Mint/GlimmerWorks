@@ -89,7 +89,7 @@ bool glimmer::Tile::IsWorkBlock() const {
 }
 
 bool glimmer::Tile::IsStorageBlock() const {
-    return containerCapacity_ > 0;
+    return containerCapacity_ > 0 && containerMaxStack_ > 0;
 }
 
 uint8_t glimmer::Tile::GetContainerCapacity() const {
@@ -466,8 +466,7 @@ void glimmer::Tile::OnPlace(WorldContext *worldContext, PlaceSourceMessage place
             entity = entityManager->AddEntity();
         }
         const auto itemContainerComponent = entityManager->AddComponent<ItemContainerComponent>(entity);
-        ItemContainer *itemContainer = itemContainerComponent->GetItemContainer();
-        if (itemContainer != nullptr) {
+        if (ItemContainer *itemContainer = itemContainerComponent->GetItemContainer(); itemContainer != nullptr) {
             itemContainer->Resize(containerCapacity_);
             itemContainer->SetMaxStackPerSlot(containerMaxStack_);
             if (tileState->has_itemcontainer()) {

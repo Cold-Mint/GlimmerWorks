@@ -25,11 +25,7 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "BreakSource.h"
-#include "core/math/TileVector2D.h"
-#include "core/mod/ResourceRef.h"
-#include "generator/TileLayerType.h"
-#include "src/core/place_source_message.pb.h"
+#include "TargetResourceApplierContext.h"
 
 namespace glimmer {
     class WorldContext;
@@ -53,19 +49,9 @@ namespace glimmer {
          * Apply
          * 应用目标资源
          *
-         * @param worldContext worldContext 世界上下文
-         * @param originTilePosition originTilePosition 目标应用的原点瓦片位置（绝对瓦片坐标）
-         * @param layerType layerType 图层类型
-         * @param targetRef targetRef 目标资源引用
-         * @param breakSource breakSource 覆盖/放置时的破坏来源
-         * @param placeSource placeSource 放置来源
+         * @param applierContext applierContext 应用资源上下文
          * @return Whether the target was applied successfully 是否成功应用目标
          */
-        static bool Apply(WorldContext *worldContext,
-                          const TileVector2D &originTilePosition,
-                          TileLayerType layerType,
-                          const ResourceRef &targetRef,
-                          BreakSource breakSource,
-                          PlaceSourceMessage placeSource);
+        static bool Apply(const TargetResourceApplierContext &applierContext);
     };
-} // namespace glimmer
+}

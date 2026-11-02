@@ -421,6 +421,10 @@ target_sources(GlimmerWorks
         core/event/Subscription.cpp
         core/utils/VersionAble.cpp
         core/ecs/TileBreakParams.cpp
+        core/world/tileActionHandler/TargetResourceApplierContext.cpp
+        core/world/tileActionHandler/TargetResourceApplier.cpp
+        core/world/tileActionHandler/ResourceApplierTileAction.cpp
+        core/world/tileActionHandler/StorageBlockTileAction.cpp
         core/context/tasks/InitValidateGameTask.cpp
         core/mod/resourcePack/cache/GpuSamplerCache.cpp
         core/mod/resourcePack/GPUSamplerResourceResult.cpp
@@ -490,7 +494,6 @@ target_sources(GlimmerWorks
         core/world/TilePlacementConfig.cpp
         core/world/TileStateBackup.cpp
         core/world/TileAttachmentHelper.cpp
-        core/world/TargetResourceApplier.cpp
         core/console/Command.cpp
         core/console/CommandArgs.cpp
         core/console/CommandHistoryManager.cpp
@@ -952,11 +955,15 @@ target_sources(GlimmerWorks
         core/inventory/TagRuntimeData.h
         core/world/TilePlacementConfig.h
         core/world/TileStateBackup.h
-        core/world/TargetResourceApplier.h
         core/console/Command.h
         core/console/CommandArgs.h
+        core/world/tileActionHandler/TargetResourceApplierContext.h
+        core/world/tileActionHandler/TargetResourceApplier.h
         core/console/CommandEnvironment.h
         core/console/CommandHistoryManager.h
+        core/world/tileActionHandler/ITileActionHandler.h
+        core/world/tileActionHandler/ResourceApplierTileAction.h
+        core/world/tileActionHandler/StorageBlockTileAction.h
         core/console/CommandManager.h
         core/rmi/dataModel/HotbarDataModel.h
         core/rmi/dataModel/ItemSlotDataModel.h

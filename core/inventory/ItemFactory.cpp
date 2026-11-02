@@ -115,13 +115,11 @@ std::unique_ptr<glimmer::Item> glimmer::ItemFactory::CreateItem(WorldContext *wo
     LogCat::d(LogLabel::DEFAULT, "item_factory_create_from_message",
               "Create item from item message resource: amount={} abilityItemCount={}",
               itemMessageResource.amount, itemMessageResource.abilityItemRef.size());
-    itemMessage.set_locked(itemMessageResource.locked);
     itemMessage.set_amount(itemMessageResource.amount);
     itemMessageResource.item.WriteResourceRefMessage(*itemMessage.mutable_itemresourceref());
     for (auto &abilityItemResource: itemMessageResource.abilityItemRef) {
         ItemMessage *abilityItem = itemMessage.add_abilityitemref();
         abilityItemResource.item.WriteResourceRefMessage(*abilityItem->mutable_itemresourceref());
-        abilityItem->set_locked(abilityItemResource.locked);
         abilityItem->set_amount(abilityItemResource.amount);
     }
     if (itemMessageResource.durabilityStrategyType < 0) {

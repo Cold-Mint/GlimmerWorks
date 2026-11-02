@@ -919,8 +919,6 @@ namespace glimmer {
         uint64_t amount = 1;
         //@genNextLine(durabilityStrategyType|耐久度消耗策略类型 仅在可组合物品内有效，影响子模块的耐久消耗策略，设置为-1,那么随机抽取一个策略。默认值。其他可选值：0前向消耗，1后向消耗，2负载均横，3.随机)
         int8_t durabilityStrategyType = -1;
-        //@genNextLine(locked If it is true, then the player cannot move the item within the inventory. Dropping is prohibited. For combined items, neither moving nor extracting is allowed, but when the combined items are used up, this module will disappear as well.Items that are locked are prohibited from being used in the synthesis process.|绑定 如果为true那么玩家不能在物品槽内移动他。禁止丢弃。在可组合物品内，同样不能移动和取出，但是当可组合物品被用完，此模块会随之消失。锁定的物品禁止参与合成。)
-        bool locked = false;
     };
 
 

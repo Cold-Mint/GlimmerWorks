@@ -39,10 +39,10 @@
 #include "core/mod/dataPack/TileResourceManager.h"
 #include "core/scene/MainThreadDispatcher.h"
 #include "core/world/ChunkManager.h"
-#include "core/world/TargetResourceApplier.h"
 #include "core/world/WorldContext.h"
 #include "core/world/generator/Chunk.h"
 #include "core/world/growth/IGrowthConditionProcessor.h"
+#include "core/world/tileActionHandler/TargetResourceApplier.h"
 #include "src/saves/tile_state.pb.h"
 
 glimmer::CropSystem::CropSystem(WorldContext *worldContext) : GameSystem(worldContext) {
@@ -73,15 +73,8 @@ void glimmer::CropSystem::OnWatchedComponentChanged(const GameComponentTypeMessa
               cropComponents_.size());
 }
 
-bool glimmer::CropSystem::OnGrowMature(WorldContext *worldContext, const Chunk *chunk,
-                                       const ChunkRelativeVector2D &position,
-                                       const TileLayerType layerType, const ResourceRef &growthTargetRef) {
-    if (worldContext == nullptr || chunk == nullptr || !growthTargetRef.IsValid()) {
-        return false;
-    }
-    const TileVector2D absolutePosition = CoordinateTransformer::ChunkRelativeToTile(chunk->GetPosition(), position);
-    return TargetResourceApplier::Apply(worldContext, absolutePosition, layerType, growthTargetRef,
-                                        BreakSource::CropGrowthOverwrite, PLACE_SOURCE_CROP_GROWTH);
+bool glimmer::CropSystem::OnGrowMature(const TargetResourceApplierContext &applierContext) {
+    return TargetResourceApplier::Apply(applierContext);
 }
 
 
@@ -236,7 +229,15 @@ void glimmer::CropSystem::OnTick(const uint64_t tick) {
                 if (chunk == nullptr) {
                     return;
                 }
-                if (OnGrowMature(worldContext, chunk, relative, layerType, growthTargetRef)) {
+                TargetResourceApplierContext applierContext;
+                applierContext.SetWorldContext(worldContext);
+                applierContext.SetTileLayerType(layerType);
+                applierContext.SetActionTarget(growthTargetRef);
+                applierContext.SetActionOrigin(
+                    CoordinateTransformer::ChunkRelativeToTile(chunk->GetPosition(), relative));
+                applierContext.SetBreakSource(BreakSource::CropGrowthOverwrite);
+                applierContext.SetPlaceSource(PLACE_SOURCE_CROP_GROWTH);
+                if (OnGrowMature(applierContext)) {
                     LogCat::d(LogLabel::DEFAULT, "crop_system_grow_mature_success",
                               "[CropSystem] crop matured: position=({}, {}), layerType={}, targetPackageId={}, targetResourceKey={}, isTileTarget={}, destroySelfOnGrowth={}",
                               position.x, position.y, static_cast<int>(layerType), growthTargetRef.GetPackageId(),

@@ -653,7 +653,6 @@ namespace toml {
             resource.amount = toml::find_or<uint64_t>(v, "amount", 1);
             resource.durabilityStrategyType = toml::find_or<int8_t>(v, "durability_strategy_type", -1);
             resource.item = toml::find<glimmer::ResourceRef>(v, "item");
-            resource.locked = toml::find_or<bool>(v, "locked", false);
             return resource;
         }
     };

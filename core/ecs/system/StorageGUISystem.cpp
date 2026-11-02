@@ -450,8 +450,7 @@ void glimmer::StorageGUISystem::LoadDocuments(IDocumentRegistry *documentRegistr
 
 void glimmer::StorageGUISystem::OnBackClick(Rml::DataModelHandle handle, Rml::Event &event,
                                             const Rml::VariantList &args) {
-    SystemScheduler *scheduler = GetWorldContext()->GetSystemScheduler();
-    if (scheduler != nullptr) {
+    if (SystemScheduler *scheduler = GetWorldContext()->GetSystemScheduler(); scheduler != nullptr) {
         scheduler->PopGuiSystemType();
     }
 }

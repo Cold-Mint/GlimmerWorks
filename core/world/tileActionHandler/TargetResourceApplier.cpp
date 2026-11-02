@@ -38,24 +38,28 @@
 #include "core/world/generator/Chunk.h"
 #include "core/world/structure/StructureGeneratorManager.h"
 
-bool glimmer::TargetResourceApplier::Apply(WorldContext *worldContext,
-                                           const TileVector2D &originTilePosition,
-                                           const TileLayerType layerType,
-                                           const ResourceRef &targetRef,
-                                           const BreakSource breakSource,
-                                           const PlaceSourceMessage placeSource) {
+bool glimmer::TargetResourceApplier::Apply(const TargetResourceApplierContext &applierContext) {
+    WorldContext *worldContext = applierContext.GetWorldContext();
     if (worldContext == nullptr) {
         return false;
     }
+    const ResourceRef &targetRef = applierContext.GetActionTarget();
+    if (!targetRef.IsValid()) {
+        return false;
+    }
+    const TileVector2D &originTilePosition = applierContext.GetActionOrigin();
+    const TileLayerType layerType = applierContext.GetTileLayerType();
+    const BreakSource breakSource = applierContext.GetBreakSource();
+    const PlaceSourceMessage placeSource = applierContext.GetPlaceSource();
     const AppContext *appContext = worldContext->GetAppContext();
     if (appContext == nullptr) {
         return false;
     }
-    ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+    const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
     if (resourceLocator == nullptr) {
         return false;
     }
-    ChunkManager *chunkManager = worldContext->GetChunkManager();
+    const ChunkManager *chunkManager = worldContext->GetChunkManager();
     if (chunkManager == nullptr) {
         return false;
     }

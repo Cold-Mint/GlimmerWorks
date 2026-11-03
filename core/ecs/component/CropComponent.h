@@ -43,7 +43,7 @@ namespace glimmer {
      */
     class CropComponent : public GameComponent {
         TileVector2D position_;
-        TileLayerType layerType_ = TileLayerType::Ground;
+        TileLayerType layerType_ = TileLayerType::BackGround;
 
     public:
         void SetPosition(const TileVector2D &position);

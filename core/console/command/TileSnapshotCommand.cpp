@@ -131,8 +131,10 @@ bool glimmer::TileSnapshotCommand::ExecuteInfo(const CommandSender *commandSende
     }
     const auto chunkRelative = CoordinateTransformer::TileToChunkRelative(tileVector2D);
     std::vector<std::shared_ptr<TileSnapshot> > tileSnapshotVectorPtr = chunk->GetTopVisibleTileSnapshots(
-        std::byte{std::to_underlying(TileLayerType::Ground)}
-        | std::byte{std::to_underlying(TileLayerType::BackGround)},
+        std::byte{std::to_underlying(TileLayerType::BackGround)}
+        | std::byte{std::to_underlying(TileLayerType::BackgroundDecoration)} | std::byte{
+            std::to_underlying(TileLayerType::Ground)
+        },
         CoordinateTransformer::GetArrayIndex(chunkRelative.x, chunkRelative.y, CHUNK_SHIFT));
     auto tileSnapshotSize = tileSnapshotVectorPtr.size();
     if (tileSnapshotSize == 0) {

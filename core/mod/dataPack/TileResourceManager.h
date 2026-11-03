@@ -35,8 +35,6 @@
 
 namespace glimmer {
     class TileResourceManager {
-        inline static uint64_t airResourceRefFingerprint_ = 0;
-        inline static uint64_t airWallResourceRefFingerprint_ = 0;
         std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<TileResource>,
                 TransparentStringHash, std::equal_to<> >,
             TransparentStringHash, std::equal_to<> > tileMap_;
@@ -48,15 +46,11 @@ namespace glimmer {
 
         std::vector<std::string> tileIdList_{};
 
-        TileResource *air_ = nullptr;
-        TileResource *airWall_ = nullptr;
-
         TileResource *AddCoreResource(const CoreTileResourceParams &params);
 
         static ResourceRef CreateCoreRef(const std::string &key, ResourceTypeMessage type);
 
     public:
-        TileResourceManager();
 
         /**
          * Initialize the built-in tiles
@@ -72,8 +66,6 @@ namespace glimmer {
 
         TileResource *AddResource(std::unique_ptr<TileResource> tileResource);
 
-
-        [[nodiscard]] static uint64_t GetAirResourceRefFingerprint(TileLayerType tileLayerType);
 
         static void WriteAirResourceRef(TileLayerType tileLayerType, ResourceRef &resourceRef);
 

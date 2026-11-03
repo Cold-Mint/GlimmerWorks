@@ -30,17 +30,21 @@
 namespace glimmer {
     enum class TileLayerType : uint8_t {
         /**
-     * BackGround
-     * 背景墙层
-     */
+        * BackGround
+        * 背景墙层
+        */
         BackGround = 1,
+        /**
+         * Background decoration
+         * 背景装饰层
+         */
+        BackgroundDecoration = 2,
         /**
          * Ground
          * 地面图层
-         *
          * The ground layer allows players to stand on it.
          * 地面图层玩家可以站在上面。
          */
-        Ground = 2,
+        Ground = 4
     };
 }

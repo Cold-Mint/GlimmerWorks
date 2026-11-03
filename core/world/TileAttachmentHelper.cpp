@@ -28,6 +28,7 @@
 
 #include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
+#include "core/utils/TileLayerTypeUtils.h"
 #include "core/world/ChunkManager.h"
 #include "core/world/Tile.h"
 #include "core/world/WorldContext.h"
@@ -118,20 +119,20 @@ bool glimmer::TileAttachmentHelper::IsSupportValid(const WorldContext *worldCont
               static_cast<int>(layerType), tileTopLeft.x, tileTopLeft.y, width, height,
               static_cast<int>(direction), tagIds.size());
     if (direction == TileAttachmentType::BackLayer) {
-        if (layerType != TileLayerType::Ground) {
-            LogCat::d(LogLabel::ATTACHMENT, "attachment_support_back_layer_invalid",
-                      "IsSupportValid: BackLayer requires Ground layer, current layer={}",
-                      static_cast<int>(layerType));
+        auto backLayerTypeOptional = TileLayerTypeUtils::GetBackLayerType(layerType);
+        if (!backLayerTypeOptional.has_value()) {
+            //There are no subsequent layers; BackLayer is not supported.
+            //后面没有其他图层了，不支持BackLayer。
             return false;
         }
         for (int x = 0; x < width; ++x) {
             for (int y = 0; y < height; ++y) {
                 const TileVector2D cell{tileTopLeft.x + x, tileTopLeft.y - y};
-                const Tile *support = GetTileAt(worldContext, TileLayerType::BackGround, cell);
+                const Tile *support = GetTileAt(worldContext, backLayerTypeOptional.value(), cell);
                 if (!HasAnyTag(support, tagIds)) {
                     LogCat::d(LogLabel::ATTACHMENT, "attachment_support_cell_invalid",
                               "IsSupportValid cell invalid: direction={}, supportLayer={}, cell=({}, {})",
-                              static_cast<int>(direction), static_cast<int>(TileLayerType::BackGround),
+                              static_cast<int>(direction), static_cast<int>(backLayerTypeOptional.value()),
                               cell.x, cell.y);
                     return false;
                 }
@@ -214,11 +215,6 @@ bool glimmer::TileAttachmentHelper::FindAttachment(const WorldContext *worldCont
         if ((attachmentMask & static_cast<uint8_t>(direction)) == 0) {
             LogCat::d(LogLabel::ATTACHMENT, "attachment_direction_skipped_by_mask",
                       "Direction {} skipped: not set in mask {}", static_cast<int>(direction), attachmentMask);
-            continue;
-        }
-        if (direction == TileAttachmentType::BackLayer && layerType != TileLayerType::Ground) {
-            LogCat::d(LogLabel::ATTACHMENT, "attachment_direction_skipped_by_layer",
-                      "Direction BackLayer skipped: layer {} is not Ground", static_cast<int>(layerType));
             continue;
         }
         const bool valid = IsSupportValid(worldContext, layerType, tileTopLeft, width, height, direction, tagIds);

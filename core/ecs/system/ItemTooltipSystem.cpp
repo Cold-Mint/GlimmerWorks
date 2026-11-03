@@ -50,14 +50,21 @@ void glimmer::ItemTooltipSystem::OnItemChanged(const Item *item) {
     const LangsResources *langsResources = appContext_ != nullptr ? appContext_->GetLangsResources() : nullptr;
     const AbilityConfig *abilityConfig = item->GetAbilityConfig();
     if (abilityConfig != nullptr && langsResources != nullptr) {
-        if ((std::byte{abilityConfig->mineAbleLayerMask} & std::byte{std::to_underlying(TileLayerType::Ground)}) !=
-            std::byte{0}) {
-            itemTooltipDataModel_.abilityTips.push_back({langsResources->canMineBlockTip, true});
-        }
         if ((std::byte{abilityConfig->mineAbleLayerMask} & std::byte{std::to_underlying(TileLayerType::BackGround)}) !=
             std::byte{0}) {
             itemTooltipDataModel_.abilityTips.push_back({langsResources->canMineWallTip, true});
         }
+        if ((std::byte{abilityConfig->mineAbleLayerMask} & std::byte{
+                 std::to_underlying(TileLayerType::BackgroundDecoration)
+             }) !=
+            std::byte{0}) {
+            itemTooltipDataModel_.abilityTips.push_back({langsResources->canMineBackgroundDecorationTip, true});
+        }
+        if ((std::byte{abilityConfig->mineAbleLayerMask} & std::byte{std::to_underlying(TileLayerType::Ground)}) !=
+            std::byte{0}) {
+            itemTooltipDataModel_.abilityTips.push_back({langsResources->canMineBlockTip, true});
+        }
+
         if (abilityConfig->enablePrecisionMining) {
             itemTooltipDataModel_.abilityTips.push_back({langsResources->precisionMiningTip, true});
         }

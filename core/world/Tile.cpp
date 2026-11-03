@@ -374,6 +374,9 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
         //Prohibit the derivation of tiles with the "void" or "air" labels.
         //禁止对带有void或air标签的瓦片派生
         if (!existingTagIds.contains(airTag) && !existingTagIds.contains(voidTag)) {
+            if (tile->layerType_ == TileLayerType::BackgroundDecoration) {
+                AppendDerivedTag(existingTagIds, tags, TAG_DECORATION);
+            }
             if (tile->layerType_ == TileLayerType::BackGround) {
                 AppendDerivedTag(existingTagIds, tags, TAG_WALL);
             }

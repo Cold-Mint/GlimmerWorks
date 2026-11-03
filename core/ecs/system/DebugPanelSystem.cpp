@@ -394,7 +394,7 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
                     fmt::format(
                         fmt::runtime(langsResources->dynamicLightInfo),
                         id, entry.position.x, entry.position.y,
-                        std::to_underlying(entry.layer),
+                        std::to_underlying(entry.layerType),
                         entry.lightSource.GetMaxRadius(),
                         emission.a, emission.r, emission.g, emission.b
                     )

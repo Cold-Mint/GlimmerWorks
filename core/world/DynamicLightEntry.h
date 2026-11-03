@@ -40,6 +40,6 @@ namespace glimmer {
     struct DynamicLightEntry {
         TileVector2D position;
         LightSource lightSource;
-        TileLayerType layer;
+        TileLayerType layerType = TileLayerType::BackGround;
     };
 }

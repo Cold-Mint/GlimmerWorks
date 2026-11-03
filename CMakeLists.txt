@@ -415,6 +415,7 @@ target_sources(GlimmerWorks
         core/mod/PackScanRequest.cpp
         core/saves/SavesCreateRequest.cpp
         core/world/scheduler/ChunkTask.cpp
+        core/utils/TileLayerTypeUtils.cpp
         core/world/scheduler/ChunkTaskScheduler.cpp
         core/mod/templateCommand/ScopeTemplateCommand.cpp
         core/mod/templateCommand/EndScopeTemplateCommand.cpp
@@ -882,6 +883,7 @@ target_sources(GlimmerWorks
         core/ecs/system/LoadWorldGuiSystem.h
         core/event/ChunkTaskExecEvent.h
         core/event/DimensionSwitchEvent.h
+        core/utils/TileLayerTypeUtils.h
         core/mod/BasePackManager.h
         core/context/CacheContext.h
         core/mod/resourcePack/cache/ColorCache.h

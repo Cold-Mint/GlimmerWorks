@@ -38,12 +38,12 @@
 
 
 const glimmer::Tile *glimmer::TileLayerComponent::GetSelfLayerTile(const TileVector2D &tilePos) const {
-    return GetTile(tileLayerType_, tilePos);
+    return GetTile(layerType_, tilePos);
 }
 
 std::shared_ptr<glimmer::Tile> glimmer::TileLayerComponent::GetSelfLayerTileShared(
     const TileVector2D &tilePos) const {
-    return GetTileShared(tileLayerType_, tilePos);
+    return GetTileShared(layerType_, tilePos);
 }
 
 
@@ -110,12 +110,12 @@ bool glimmer::TileLayerComponent::CommitTileState(BreakSource breakSource,
 
 const TileStateMessage *glimmer::TileLayerComponent::GetSelfLayerTileState(
     const TileVector2D &tilePos) const {
-    return GetTileStatePtr(tileLayerType_, tilePos);
+    return GetTileStatePtr(layerType_, tilePos);
 }
 
 TileStateMessage *glimmer::TileLayerComponent::GetSelfLayerTileStateMutable(
     const TileVector2D &tilePos) const {
-    return GetTileStatePtr(tileLayerType_, tilePos);
+    return GetTileStatePtr(layerType_, tilePos);
 }
 
 uint64_t glimmer::TileLayerComponent::GenerateTileFingerprint(const TileVector2D &tileTopLeftPosition,
@@ -197,11 +197,11 @@ glimmer::TileLayerComponent::GetTopVisibleTileSnapshotsInViewport(const std::byt
 
 
 glimmer::TileLayerType glimmer::TileLayerComponent::GetTileLayerType() const {
-    return tileLayerType_;
+    return layerType_;
 }
 
 glimmer::TileLayerComponent::TileLayerComponent(WorldContext *worldContext, const TileLayerType tileLayerType)
-    : worldContext_(worldContext), tileLayerType_(tileLayerType) {
+    : worldContext_(worldContext), layerType_(tileLayerType) {
 }
 
 GameComponentTypeMessage glimmer::TileLayerComponent::GetComponentTypeStatic() {

@@ -128,6 +128,8 @@ void glimmer::WorldBuilder::Build() {
         worldContext_->entityManager_->AddComponent<BlueprintComponent>(groundTileLayerEntity));
     auto backgroundTileLayerEntity = worldContext_->entityManager_->AddEntity();
     worldContext_->entityManager_->AddComponent<
+        TileLayerComponent>(backgroundTileLayerEntity, worldContext_, TileLayerType::BackgroundDecoration);
+    worldContext_->entityManager_->AddComponent<
         TileLayerComponent>(backgroundTileLayerEntity, worldContext_, TileLayerType::BackGround);
     worldContext_->playerContext_ = std::make_unique<PlayerContext>(worldContext_);
     LogCat::i(LogLabel::DEFAULT, "world_context_core_subsystems_created",

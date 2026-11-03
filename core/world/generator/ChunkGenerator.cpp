@@ -92,6 +92,7 @@ std::shared_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const C
     auto chunk = std::make_shared<Chunk>(worldContext_, position);
     std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > tilesRefMap = {
         {TileLayerType::Ground, {}},
+        {TileLayerType::BackgroundDecoration, {}},
         {TileLayerType::BackGround, {}}
     };
     std::unordered_set<BiomeResource *> biomeResourcesSet;

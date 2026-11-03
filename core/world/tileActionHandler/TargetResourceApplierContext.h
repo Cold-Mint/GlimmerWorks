@@ -43,7 +43,7 @@ namespace glimmer {
         TileVector2D actionOrigin_ = {};
         WorldContext *worldContext_ = nullptr;
         BreakSource breakSource_ = BreakSource::Unknown;
-        TileLayerType layerType_ = TileLayerType::Ground;
+        TileLayerType layerType_ = TileLayerType::BackGround;
         PlaceSourceMessage placeSource_ = PLACE_SOURCE_TILE_PRIMARY_ACTION;
 
     public:

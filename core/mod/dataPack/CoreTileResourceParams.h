@@ -47,7 +47,7 @@ namespace glimmer {
         std::vector<ItemTagResource> tags = {};
         float unitHardness;
         uint8_t collisionMask;
-        TileLayerType layer;
+        TileLayerType layerType;
         bool isOverwritable;
         bool canDropLoot;
         bool solid = false;

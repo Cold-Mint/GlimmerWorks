@@ -36,7 +36,6 @@
 #include "core/world/TileInstancePool.h"
 #include "core/world/WorldContext.h"
 #include "core/world/ChunkManager.h"
-#include "core/world/Dimension.h"
 #include "core/world/Tile.h"
 #include "core/world/TileAttachmentType.h"
 #include "core/world/generator/Chunk.h"
@@ -54,8 +53,8 @@ void glimmer::TileLayerSystem::OnWatchedComponentChanged(GameComponentTypeMessag
     if (gameComponentType == COMPONENT_TILE_LAYER) {
         tileLayerComponents_.clear();
         auto tileLayerEntities = entityManager->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
-        std::sort(tileLayerEntities.begin(), tileLayerEntities.end());
-        for (auto &entity: tileLayerEntities) {
+        std::ranges::sort(tileLayerEntities);
+        for (const auto &entity: tileLayerEntities) {
             auto tileLayerComponent = entityManager->GetComponent<TileLayerComponent>(entity);
             if (tileLayerComponent == nullptr) {
                 continue;
@@ -144,6 +143,9 @@ void glimmer::TileLayerSystem::Render(RenderQueue *queue) {
     std::vector<std::pair<TileVector2D, std::vector<std::shared_ptr<TileSnapshot> > > > *visibleTiles =
             tileLayerComponent->GetTopVisibleTileSnapshotsInViewport(std::byte{
                                                                          std::to_underlying(TileLayerType::Ground)
+                                                                     } | std::byte{
+                                                                         std::to_underlying(
+                                                                             TileLayerType::BackgroundDecoration)
                                                                      } | std::byte{
                                                                          std::to_underlying(
                                                                              TileLayerType::BackGround)

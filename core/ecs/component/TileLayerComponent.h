@@ -49,7 +49,7 @@ namespace glimmer {
         Vector2DIFingerprint visibleTileTopLeftFingerprint_ = 0;
         Vector2DIFingerprint visibleTileBottomRightFingerprint_ = 0;
         WorldContext *worldContext_;
-        TileLayerType tileLayerType_;
+        TileLayerType layerType_ = TileLayerType::BackGround;
 
         [[nodiscard]] std::shared_ptr<Tile>
         GetTileShared(TileLayerType layerType, const TileVector2D &tilePos) const;

@@ -196,7 +196,7 @@ void glimmer::LightBuffer::RebuildAllLight() {
         }
     }
     for (const auto &entry: dynamicLights_ | std::views::values) {
-        sources.emplace_back(entry.layer, &entry.lightSource);
+        sources.emplace_back(entry.layerType, &entry.lightSource);
     }
     for (const auto &[position, tileData]: tileLightData_) {
         if (tileData != nullptr) {
@@ -363,7 +363,7 @@ void glimmer::LightBuffer::SetDynamicLight(uint64_t id, const TileVector2D &posi
         if (oldSource == lightSource) {
             return;
         }
-        ClearLightFromSource(oldSource, old.layer);
+        ClearLightFromSource(oldSource, old.layerType);
         dynamicLights_.erase(it);
     }
     const int radius = lightSource.GetMaxRadius();
@@ -382,7 +382,7 @@ void glimmer::LightBuffer::RemoveDynamicLight(const uint64_t id) {
     if (it == dynamicLights_.end()) {
         return;
     }
-    ClearLightFromSource(it->second.lightSource, it->second.layer);
+    ClearLightFromSource(it->second.lightSource, it->second.layerType);
     dynamicLights_.erase(it);
     ++revision_;
     LogCat::d(LogLabel::DEFAULT, "light_buffer_remove_dynamic_light", "LightBuffer: RemoveDynamicLight: id={}", id);

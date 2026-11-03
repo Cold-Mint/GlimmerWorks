@@ -82,7 +82,7 @@ namespace glimmer {
         Vector2DResource collisionBoxOffset_ = {0.0F, 0.0F};
         //附着点掩码，0表示不启用附着。
         uint8_t attachmentMask_ = 0;
-        TileLayerType layerType_ = TileLayerType::Ground;
+        TileLayerType layerType_ = TileLayerType::BackGround;
         //Whether offline growth is allowed: when the chunk is reloaded, interpolate the elapsed time.
         //是否允许离线生长：区块重新加载时补算离线时长。
         bool allowOfflineGrowth_ = true;

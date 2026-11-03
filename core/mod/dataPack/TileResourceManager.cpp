@@ -43,7 +43,7 @@ glimmer::TileResource *glimmer::TileResourceManager::AddCoreResource(const CoreT
     tileResource->resourceId = params.resourceId;
     tileResource->packId = RESOURCE_REF_CORE;
     tileResource->collisionMask = params.collisionMask;
-    tileResource->layer = std::to_underlying(params.layer);
+    tileResource->layer = std::to_underlying(params.layerType);
     tileResource->unitHardness = params.unitHardness;
     tileResource->isOverwritable = params.isOverwritable;
     tileResource->canDropLoot = params.canDropLoot;
@@ -68,54 +68,55 @@ glimmer::TileResourceManager::CreateCoreRef(const std::string &key, const Resour
     return ref;
 }
 
-glimmer::TileResourceManager::TileResourceManager() {
-    ResourceRef airResourceRef;
-    airResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    airResourceRef.SetResourceType(RESOURCE_TILE);
-    airResourceRef.SetResourceKey(TILE_ID_AIR);
-
-    airResourceRefFingerprint_ = airResourceRef.GetFingerprint();
-    airResourceRef.SetResourceKey(TILE_ID_AIR_WALL);
-    airWallResourceRefFingerprint_ = airResourceRef.GetFingerprint();
-}
-
 void glimmer::TileResourceManager::InitBuiltinTiles() {
-    air_ = AddCoreResource(CoreTileResourceParams{
+    AddCoreResource(CoreTileResourceParams{
         .descriptionKey = STRING_TILE_AIR_DESCRIPTION, .resourceId = TILE_ID_AIR,
         .nameKey = STRING_TILE_AIR_NAME, .textureKey = "tiles/air",
         .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_NONE, .backLightMaskKey = LIGHT_MASK_NONE,
         .tags = {StringUtils::MakeTag(TAG_AIR)}, .unitHardness = -1.0F, .collisionMask = COLLISION_MASK_NONE,
-        .layer = TileLayerType::Ground, .isOverwritable = true, .canDropLoot = false, .solid = false,
-
+        .layerType = TileLayerType::Ground, .isOverwritable = true, .canDropLoot = false, .solid = false,
     });
-    airWall_ = AddCoreResource(CoreTileResourceParams{
+    AddCoreResource(CoreTileResourceParams{
         .descriptionKey = STRING_TILE_AIR_WALL_DESCRIPTION, .resourceId = TILE_ID_AIR_WALL,
         .nameKey = STRING_TILE_AIR_WALL_NAME, .textureKey = "tiles/air_wall",
         .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_NONE, .backLightMaskKey = LIGHT_MASK_NONE,
         .tags = {StringUtils::MakeTag(TAG_AIR)}, .unitHardness = -1.0F, .collisionMask = COLLISION_MASK_NONE,
-        .layer = TileLayerType::BackGround, .isOverwritable = true, .canDropLoot = false, .solid = false
+        .layerType = TileLayerType::BackGround, .isOverwritable = true, .canDropLoot = false, .solid = false
+    });
+    AddCoreResource(CoreTileResourceParams{
+        .descriptionKey = STRING_TILE_AIR_DECORATION_DESCRIPTION, .resourceId = TILE_ID_AIR_DECORATION,
+        .nameKey = STRING_TILE_AIR_DECORATION_NAME, .textureKey = "tiles/air_decoration",
+        .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_NONE, .backLightMaskKey = LIGHT_MASK_NONE,
+        .tags = {StringUtils::MakeTag(TAG_AIR)}, .unitHardness = -1.0F, .collisionMask = COLLISION_MASK_NONE,
+        .layerType = TileLayerType::BackgroundDecoration, .isOverwritable = true, .canDropLoot = false, .solid = false
     });
     AddCoreResource(CoreTileResourceParams{
         .descriptionKey = STRING_TILE_VOID_DESCRIPTION, .resourceId = TILE_ID_VOID,
         .nameKey = STRING_TILE_VOID_NAME, .textureKey = "tiles/void",
         .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_NONE, .backLightMaskKey = LIGHT_MASK_NONE,
         .tags = {StringUtils::MakeTag(TAG_VOID)}, .unitHardness = -1.0F, .collisionMask = COLLISION_MASK_NONE,
-        .layer = TileLayerType::Ground, .isOverwritable = false, .canDropLoot = false,
+        .layerType = TileLayerType::Ground, .isOverwritable = false, .canDropLoot = false,
     });
     AddCoreResource(CoreTileResourceParams{
         .descriptionKey = STRING_TILE_BEDROCK_DESCRIPTION, .resourceId = TILE_ID_BEDROCK,
         .nameKey = STRING_TILE_BEDROCK_NAME, .textureKey = "tiles/bedrock",
         .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_FULL, .backLightMaskKey = LIGHT_MASK_FULL,
         .tags = {StringUtils::MakeTag(TAG_BEDROCK)}, .unitHardness = -1.0F, .collisionMask = COLLISION_MASK_SOLID,
-        .layer = TileLayerType::Ground, .isOverwritable = false, .canDropLoot = false, .solid = true
+        .layerType = TileLayerType::Ground, .isOverwritable = false, .canDropLoot = false, .solid = true
     });
     AddCoreResource(CoreTileResourceParams{
         .descriptionKey = STRING_TILE_VOID_WALL_DESCRIPTION, .resourceId = TILE_ID_VOID_WALL,
         .nameKey = STRING_TILE_VOID_WALL_NAME, .textureKey = "tiles/void_wall",
         .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_NONE, .backLightMaskKey = LIGHT_MASK_LOW,
         .tags = {StringUtils::MakeTag(TAG_VOID)}, .unitHardness = -1.0F, .collisionMask = COLLISION_MASK_NONE,
-        .layer = TileLayerType::BackGround, .isOverwritable = false, .canDropLoot = false
-
+        .layerType = TileLayerType::BackGround, .isOverwritable = false, .canDropLoot = false
+    });
+    AddCoreResource(CoreTileResourceParams{
+        .descriptionKey = STRING_TILE_VOID_DECORATION_DESCRIPTION, .resourceId = TILE_ID_VOID_DECORATION,
+        .nameKey = STRING_TILE_VOID_DECORATION_NAME, .textureKey = "tiles/void_decoration",
+        .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_NONE, .backLightMaskKey = LIGHT_MASK_LOW,
+        .tags = {StringUtils::MakeTag(TAG_VOID)}, .unitHardness = -1.0F, .collisionMask = COLLISION_MASK_NONE,
+        .layerType = TileLayerType::BackgroundDecoration, .isOverwritable = false, .canDropLoot = false
     });
     AddCoreResource(CoreTileResourceParams{
         .descriptionKey = std::nullopt, .resourceId = TILE_ID_WATER,
@@ -123,7 +124,7 @@ void glimmer::TileResourceManager::InitBuiltinTiles() {
         .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_NONE, .backLightMaskKey = LIGHT_MASK_LOW,
         .tags = {StringUtils::MakeTag(TAG_WATER), StringUtils::MakeTag(TAG_FLUID)}, .unitHardness = -1.0F,
         .collisionMask = COLLISION_MASK_NONE,
-        .layer = TileLayerType::Ground, .isOverwritable = true, .canDropLoot = false,
+        .layerType = TileLayerType::Ground, .isOverwritable = true, .canDropLoot = false,
 
     });
     AddCoreResource(CoreTileResourceParams{
@@ -132,7 +133,7 @@ void glimmer::TileResourceManager::InitBuiltinTiles() {
         .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_MEDIUM, .backLightMaskKey = LIGHT_MASK_LOW,
         .tags = {StringUtils::MakeTag(TAG_ERROR), StringUtils::MakeTag(TAG_PLACEHOLDER)}, .unitHardness = 0.1F,
         .collisionMask = COLLISION_MASK_SOLID,
-        .layer = TileLayerType::Ground, .canDropLoot = true, .solid = true
+        .layerType = TileLayerType::Ground, .canDropLoot = true, .solid = true
 
     });
     AddCoreResource(CoreTileResourceParams{
@@ -141,7 +142,7 @@ void glimmer::TileResourceManager::InitBuiltinTiles() {
         .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_MEDIUM, .backLightMaskKey = LIGHT_MASK_LOW,
         .tags = {StringUtils::MakeTag(TAG_ERROR), StringUtils::MakeTag(TAG_PLACEHOLDER)}, .unitHardness = 0.1F,
         .collisionMask = COLLISION_MASK_NONE,
-        .layer = TileLayerType::BackGround, .isOverwritable = false, .canDropLoot = true,
+        .layerType = TileLayerType::BackGround, .isOverwritable = false, .canDropLoot = true,
 
     });
     AddCoreResource(CoreTileResourceParams{
@@ -150,7 +151,7 @@ void glimmer::TileResourceManager::InitBuiltinTiles() {
         .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_MEDIUM, .backLightMaskKey = LIGHT_MASK_LOW,
         .tags = {StringUtils::MakeTag(TAG_ACCESS_DENIED), StringUtils::MakeTag(TAG_PLACEHOLDER)}, .unitHardness = 0.1F,
         .collisionMask = COLLISION_MASK_SOLID,
-        .layer = TileLayerType::Ground, .canDropLoot = true, .solid = true
+        .layerType = TileLayerType::Ground, .canDropLoot = true, .solid = true
     });
     AddCoreResource(CoreTileResourceParams{
         .descriptionKey = STRING_TILE_ACCESS_DENIED_WALL_DESCRIPTION, .resourceId = TILE_ID_ACCESS_DENIED_WALL,
@@ -158,7 +159,7 @@ void glimmer::TileResourceManager::InitBuiltinTiles() {
         .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_MEDIUM, .backLightMaskKey = LIGHT_MASK_LOW,
         .tags = {StringUtils::MakeTag(TAG_ACCESS_DENIED), StringUtils::MakeTag(TAG_PLACEHOLDER)}, .unitHardness = 0.1F,
         .collisionMask = COLLISION_MASK_NONE,
-        .layer = TileLayerType::BackGround, .canDropLoot = true
+        .layerType = TileLayerType::BackGround, .canDropLoot = true
     });
 }
 
@@ -181,8 +182,8 @@ glimmer::TileResource *glimmer::TileResourceManager::AddErrorPlaceHolder(std::st
     return AddResource(std::move(errorPlaceholder));
 }
 
-glimmer::TileResource *glimmer::TileResourceManager::GenerateAccessDeniedPlaceHolder(std::string_view packId,
-    std::string_view resourceId,
+glimmer::TileResource *glimmer::TileResourceManager::GenerateAccessDeniedPlaceHolder(const std::string_view packId,
+    const std::string_view resourceId,
     const TileLayerType tileLayer) {
     if (const auto packIt = accessDeniedTileMap_.find(packId); packIt != accessDeniedTileMap_.end()) {
         if (const auto keyIt = packIt->second.find(resourceId); keyIt != packIt->second.end()) {
@@ -218,24 +219,20 @@ glimmer::TileResource *glimmer::TileResourceManager::AddResource(std::unique_ptr
     return slot.get();
 }
 
-uint64_t glimmer::TileResourceManager::GetAirResourceRefFingerprint(const TileLayerType tileLayerType) {
-    if (tileLayerType == TileLayerType::Ground) {
-        return airResourceRefFingerprint_;
-    }
-    return airWallResourceRefFingerprint_;
-}
-
 void glimmer::TileResourceManager::WriteAirResourceRef(const TileLayerType tileLayerType, ResourceRef &resourceRef) {
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_TILE);
     if (tileLayerType == TileLayerType::Ground) {
         resourceRef.SetResourceKey(TILE_ID_AIR);
+    } else if (tileLayerType == TileLayerType::BackgroundDecoration) {
+        resourceRef.SetResourceKey(TILE_ID_AIR_DECORATION);
     } else {
         resourceRef.SetResourceKey(TILE_ID_AIR_WALL);
     }
 }
 
-glimmer::TileResource *glimmer::TileResourceManager::FindTileRaw(std::string_view packId, std::string_view key) {
+glimmer::TileResource *glimmer::TileResourceManager::FindTileRaw(const std::string_view packId,
+                                                                 const std::string_view key) {
     if (const auto packIt = tileMap_.find(packId); packIt != tileMap_.end()) {
         if (const auto keyIt = packIt->second.find(key); keyIt != packIt->second.end()) {
             return keyIt->second.get();

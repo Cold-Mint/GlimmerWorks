@@ -244,7 +244,7 @@ static constexpr int CHUNK_AREA = CHUNK_SIZE * CHUNK_SIZE;
  * 512 * 512 = 262144
  */
 static constexpr int TERRAIN_AREA = TERRAIN_SIZE * TERRAIN_SIZE;
-static constexpr int TILE_LAYER_TYPE_COUNT = 2;
+static constexpr int TILE_LAYER_TYPE_COUNT = 3;
 
 
 /**
@@ -336,8 +336,10 @@ static constexpr uint8_t EXECUTION_ORDER_GUI_SYSTEM = 255;
 
 static constexpr std::string TILE_ID_AIR = "air";
 static constexpr std::string TILE_ID_AIR_WALL = "air_wall";
+static constexpr std::string TILE_ID_AIR_DECORATION = "air_decoration";
 static constexpr std::string TILE_ID_VOID = "void";
 static constexpr std::string TILE_ID_VOID_WALL = "void_wall";
+static constexpr std::string TILE_ID_VOID_DECORATION = "void_decoration";
 static constexpr std::string TILE_ID_WATER = "water";
 static constexpr std::string TILE_ID_BEDROCK = "bedrock";
 static constexpr std::string TILE_ID_ERROR = "error";
@@ -362,14 +364,18 @@ static constexpr std::string TAG_FLUID = "fluid";
 static constexpr std::string TAG_PLACEHOLDER = "placeholder";
 static constexpr std::string TAG_SOLID = "solid";
 static constexpr std::string TAG_WALL = "wall";
+static constexpr std::string TAG_DECORATION = "decoration";
 static constexpr std::string TAG_PARTIAL = "partial";
 
 static constexpr std::string STRING_TILE_AIR_NAME = "tile_name_air";
 static const std::string STRING_TILE_AIR_WALL_NAME = "tile_name_air_wall";
+static const std::string STRING_TILE_AIR_DECORATION_NAME = "tile_name_air_decoration";
 static constexpr std::string STRING_TILE_VOID_NAME = "tile_name_void";
 static const std::string STRING_TILE_VOID_DESCRIPTION = "tile_description_void";
 static const std::string STRING_TILE_VOID_WALL_NAME = "tile_name_void_wall";
 static const std::string STRING_TILE_VOID_WALL_DESCRIPTION = "tile_description_void_wall";
+static const std::string STRING_TILE_VOID_DECORATION_NAME = "tile_name_void_decoration";
+static const std::string STRING_TILE_VOID_DECORATION_DESCRIPTION = "tile_description_void_decoration";
 static constexpr std::string STRING_TILE_ERROR_NAME = "tile_name_error";
 static const std::string STRING_TILE_ERROR_WALL_NAME = "tile_name_error_wall";
 static const std::string STRING_TILE_ACCESS_DENIED_NAME = "tile_name_access_denied";
@@ -378,6 +384,7 @@ static const std::string STRING_TILE_BEDROCK_NAME = "tile_name_bedrock";
 static constexpr std::string STRING_TILE_WATER_NAME = "tile_name_water";
 static const std::string STRING_TILE_AIR_DESCRIPTION = "tile_description_air";
 static const std::string STRING_TILE_AIR_WALL_DESCRIPTION = "tile_description_air_wall";
+static const std::string STRING_TILE_AIR_DECORATION_DESCRIPTION = "tile_description_air_decoration";
 static const std::string STRING_TILE_ERROR_DESCRIPTION = "tile_description_error";
 static const std::string STRING_TILE_ERROR_WALL_DESCRIPTION = "tile_description_error_wall";
 static const std::string STRING_TILE_ACCESS_DENIED_DESCRIPTION = "tile_description_access_denied";

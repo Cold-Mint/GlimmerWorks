@@ -33,7 +33,7 @@ namespace glimmer {
     class StructureTile {
         uint32_t tileIndex_ = 0;
         const ResourceRef *structureResource_ = nullptr;
-        TileLayerType layerType_ = TileLayerType::Ground;
+        TileLayerType layerType_ = TileLayerType::BackGround;
 
     public:
         void SetTileIndex(uint32_t tileIndex);

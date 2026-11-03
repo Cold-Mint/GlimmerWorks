@@ -41,6 +41,7 @@
 #include "core/mod/dataPack/TileResourceManager.h"
 #include "core/saves/Saves.h"
 #include "core/scene/MainThreadDispatcher.h"
+#include "core/utils/TileLayerTypeUtils.h"
 #include "core/world/Dimension.h"
 #include "core/world/Tile.h"
 #include "core/world/TileAttachmentHelper.h"
@@ -95,31 +96,33 @@ void glimmer::ChunkManager::PropagateAttachmentLoss(const TileLayerType layerTyp
     }
     struct Candidate {
         TileVector2D cell;
-        TileLayerType layer;
+        TileLayerType layerType;
         TileAttachmentDirection expectedDirection;
     };
     std::vector<Candidate> candidates;
     //Same-layer cardinal neighbours. 同层四邻格。
     candidates.push_back({
-        .cell = TileVector2D{changedCell.x, changedCell.y - 1}, .layer = layerType,
+        .cell = TileVector2D{changedCell.x, changedCell.y - 1}, .layerType = layerType,
         .expectedDirection = TileAttachmentDirection::Up
     });
     candidates.push_back({
-        .cell = TileVector2D{changedCell.x, changedCell.y + 1}, .layer = layerType,
+        .cell = TileVector2D{changedCell.x, changedCell.y + 1}, .layerType = layerType,
         .expectedDirection = TileAttachmentDirection::Down
     });
     candidates.push_back({
-        .cell = TileVector2D{changedCell.x - 1, changedCell.y}, .layer = layerType,
+        .cell = TileVector2D{changedCell.x - 1, changedCell.y}, .layerType = layerType,
         .expectedDirection = TileAttachmentDirection::Right
     });
     candidates.push_back({
-        .cell = TileVector2D{changedCell.x + 1, changedCell.y}, .layer = layerType,
+        .cell = TileVector2D{changedCell.x + 1, changedCell.y}, .layerType = layerType,
         .expectedDirection = TileAttachmentDirection::Left
     });
-    //Ground tiles attached to a background wall below them. 地面层瓦片附着到其下方的背景层。
-    if (layerType == TileLayerType::BackGround) {
+    //If there are layers in front of the current layer, check the BackLayer direction.
+    //如果当前图层前面还有图层，那么检查BackLayer方向。
+    if (const auto frontLayerTypeOptional = TileLayerTypeUtils::GetFrontLayerType(layerType); frontLayerTypeOptional.has_value()) {
         candidates.push_back({
-            .cell = changedCell, .layer = TileLayerType::Ground, .expectedDirection = TileAttachmentDirection::BackLayer
+            .cell = changedCell, .layerType = frontLayerTypeOptional.value(),
+            .expectedDirection = TileAttachmentDirection::BackLayer
         });
     }
     for (const auto &[cell, layer, expectedDirection]: candidates) {

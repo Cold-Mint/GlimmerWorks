@@ -56,7 +56,7 @@ namespace glimmer {
         //Chain collection radius
         //连锁采集半径
         int chainMiningRadius_ = 0;
-        TileLayerType layerType_ = TileLayerType::Ground;
+        TileLayerType layerType_ = TileLayerType::BackGround;
         //precisionMining
         //精准采集
         bool precisionMining_ = false;

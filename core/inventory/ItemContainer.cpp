@@ -343,11 +343,11 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::AddItem(std::unique_ptr<I
     return newItem;
 }
 
-int glimmer::ItemContainer::FindIndex(const Item *item) const {
+std::optional<size_t> glimmer::ItemContainer::FindIndex(const Item *item) const {
     if (item == nullptr) {
-        return -1;
+        return std::nullopt;
     }
-    for (uint8_t i = 0; i < items_.size(); ++i) {
+    for (size_t i = 0; i < items_.size(); ++i) {
         const std::unique_ptr<Item> &currentItem = items_[i];
         if (currentItem == nullptr) {
             continue;
@@ -356,7 +356,7 @@ int glimmer::ItemContainer::FindIndex(const Item *item) const {
             return i;
         }
     }
-    return -1;
+    return std::nullopt;
 }
 
 const std::vector<const glimmer::ItemTagResource *> &glimmer::ItemContainer::GetTotalTags() {
@@ -387,7 +387,7 @@ void glimmer::ItemContainer::Sort() {
     //把容器内所有物品取出（触发内容变更事件）。
     std::vector<std::unique_ptr<Item> > all;
     all.reserve(items_.size());
-    for (uint8_t i = 0; i < items_.size(); ++i) {
+    for (size_t i = 0; i < items_.size(); ++i) {
         if (items_[i] == nullptr) {
             continue;
         }
@@ -477,7 +477,7 @@ uint16_t glimmer::ItemContainer::RemoveItem(std::string_view id, const uint16_t 
     int unallocatedCount = amount;
     LogCat::d(LogLabel::DEFAULT, "container_remove_item", "RemoveItem start. itemId={} requestAmount={}", id,
               static_cast<int>(amount));
-    for (uint8_t i = 0; i < items_.size(); ++i) {
+    for (size_t i = 0; i < items_.size(); ++i) {
         if (!CanOutput(i)) {
             continue;
         }
@@ -500,7 +500,7 @@ uint16_t glimmer::ItemContainer::RemoveItem(std::string_view id, const uint16_t 
             }
         }
     }
-    const uint16_t removedCount = static_cast<uint16_t>(amount - unallocatedCount);
+    const auto removedCount = static_cast<uint16_t>(amount - unallocatedCount);
     LogCat::d(LogLabel::DEFAULT, "container_remove_item_complete", "RemoveItem complete. itemId={} removed={}", id,
               static_cast<int>(removedCount));
     return removedCount;
@@ -657,14 +657,12 @@ void glimmer::ItemContainer::FromMessage(WorldContext *worldContext, const ItemC
 }
 
 void glimmer::ItemContainer::ToMessage(ItemContainerMessage &message) const {
-    message.mutable_itemresourceref()->Reserve(
-        items_.size()
-    );
-    for (uint8_t i = 0; i < items_.size(); ++i) {
+    message.clear_itemresourceref();
+    for (const auto &i: items_) {
         //Even if the slot is empty, we create an empty object and put it into the serializer.
         //即使槽位为空，我们创建空对象，放到系列化器内。
         const auto itemMessage = message.add_itemresourceref();
-        const auto item = items_[i].get();
+        const auto item = i.get();
         if (item == nullptr) {
             continue;
         }
@@ -675,7 +673,7 @@ void glimmer::ItemContainer::ToMessage(ItemContainerMessage &message) const {
 void glimmer::ItemContainer::ResetItems() {
     LogCat::d(LogLabel::DEFAULT, "container_reset_items", "Reset container items, capacity={}",
               static_cast<int>(items_.size()));
-    for (uint8_t i = 0; i < items_.size(); ++i) {
+    for (size_t i = 0; i < items_.size(); ++i) {
         std::unique_ptr<Item> &item = items_[i];
         if (item == nullptr) {
             continue;

@@ -147,7 +147,7 @@ namespace glimmer {
          * @param item
          * @return A return value of -1 indicates that the item is not within the container. 返回-1,则表示不在容器内。
          */
-        [[nodiscard]] int FindIndex(const Item *item) const;
+        [[nodiscard]] std::optional<size_t> FindIndex(const Item *item) const;
 
         const std::vector<const ItemTagResource *> &GetTotalTags();
 

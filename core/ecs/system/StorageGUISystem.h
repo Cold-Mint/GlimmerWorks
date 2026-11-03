@@ -54,23 +54,24 @@ namespace glimmer {
      * 并排显示两个库存：玩家背包与当前打开的存储方块（例如箱子），允许玩家在两者间移动物品。
      */
     class StorageGUISystem : public GuiStackGameSystem {
+        std::string openedStorageContainerName_ = "chest";
+        std::string openedStorageContainerUuid_;
         std::vector<ItemSlotDataModel> playerSlots_;
         std::vector<ItemSlotDataModel> chestSlots_;
         std::vector<ItemSlotDataModel> lootSlots_;
-        bool showLoot_ = false;
+        std::shared_ptr<std::function<void(uint8_t, Item *, ContainerChangeType)> > playerCallback_;
+        std::shared_ptr<std::function<void(uint8_t, Item *, ContainerChangeType)> > chestCallback_;
+        std::shared_ptr<std::function<void(uint8_t, Item *, ContainerChangeType)> > lootCallback_;
+        //The materialized loot container of the currently opened loot box (owned by this system).
+        //当前打开的战利品箱的物化战利品容器（由本系统持有）。
+        std::unique_ptr<ItemContainer> lootContainer_;
+        std::unique_ptr<InventoryDragListener> dragListener_;
+        ItemToolTipComponent *itemToolTipComponent_ = nullptr;
         Rml::DataModelConstructor *constructor_ = nullptr;
         Rml::ElementFormControlInput *searchInputElement_ = nullptr;
         ItemContainer *playerContainer_ = nullptr;
         ItemContainer *openedContainer_ = nullptr;
-        //The materialized loot container of the currently opened loot box (owned by this system).
-        //当前打开的战利品箱的物化战利品容器（由本系统持有）。
-        std::unique_ptr<ItemContainer> lootContainer_;
-        std::string lootBoxUuid_;
-        ItemToolTipComponent *itemToolTipComponent_ = nullptr;
-        std::shared_ptr<std::function<void(uint8_t, Item *, ContainerChangeType)> > playerCallback_;
-        std::shared_ptr<std::function<void(uint8_t, Item *, ContainerChangeType)> > chestCallback_;
-        std::shared_ptr<std::function<void(uint8_t, Item *, ContainerChangeType)> > lootCallback_;
-        std::unique_ptr<InventoryDragListener> dragListener_;
+        bool showLoot_ = false;
 
         static void MoveStack(ItemContainer *from, uint8_t index, ItemContainer *to);
 

@@ -341,6 +341,7 @@ void glimmer::StorageGUISystem::OnCreateDataModels(IDocumentRegistry *documentRe
     constructor_->Bind("chest_slots", &chestSlots_);
     constructor_->Bind("loot_slots", &lootSlots_);
     constructor_->Bind("show_loot", &showLoot_);
+    constructor_->Bind("container_name", &openedStorageContainerName_);
     constructor_->BindEventCallback("on_back_click", &StorageGUISystem::OnBackClick, this);
     constructor_->BindEventCallback("on_deposit_all_click", &StorageGUISystem::OnDepositAllClick, this);
     constructor_->BindEventCallback("on_quick_stack_click", &StorageGUISystem::OnQuickStackClick, this);
@@ -375,12 +376,13 @@ void glimmer::StorageGUISystem::OnActivationChanged(bool activeStatus) {
         }
         //Materialize this player's loot-box snapshot into a temporary container.
         //把该玩家的战利品箱快照物化为临时容器。
-        lootBoxUuid_ = entityShortCut->GetOpenedLootBoxUuid();
+        openedStorageContainerUuid_ = entityShortCut->GetOpenedStorageContainerUuid();
+        openedStorageContainerName_ = entityShortCut->GetOpenedStorageContainerName();
         lootContainer_.reset();
-        if (!lootBoxUuid_.empty()) {
+        if (!openedStorageContainerUuid_.empty()) {
             if (PlayerManifest *playerManifest = GetWorldContext()->GetPlayerManifest();
                 playerManifest != nullptr) {
-                const auto it = playerManifest->openedLootBoxSnapshot.find(lootBoxUuid_);
+                const auto it = playerManifest->openedLootBoxSnapshot.find(openedStorageContainerUuid_);
                 if (it != playerManifest->openedLootBoxSnapshot.end()) {
                     lootContainer_ = std::make_unique<ItemContainer>();
                     SnapshotToContainer(GetWorldContext(), it->second, lootContainer_.get());
@@ -403,20 +405,21 @@ void glimmer::StorageGUISystem::OnActivationChanged(bool activeStatus) {
             constructor_->GetModelHandle().DirtyVariable("chest_slots");
             constructor_->GetModelHandle().DirtyVariable("loot_slots");
             constructor_->GetModelHandle().DirtyVariable("show_loot");
+            constructor_->GetModelHandle().DirtyVariable("container_name");
         }
     } else {
         //Persist the loot container back into the player's snapshot before closing.
         //关闭前把战利品容器写回玩家快照。
-        if (lootContainer_ != nullptr && !lootBoxUuid_.empty()) {
+        if (lootContainer_ != nullptr && !openedStorageContainerUuid_.empty()) {
             if (PlayerManifest *playerManifest = GetWorldContext()->GetPlayerManifest();
                 playerManifest != nullptr) {
                 LootBoxSnapshotMessage snapshot;
                 ContainerToSnapshot(lootContainer_.get(), snapshot);
-                playerManifest->openedLootBoxSnapshot[lootBoxUuid_] = std::move(snapshot);
+                playerManifest->openedLootBoxSnapshot[openedStorageContainerUuid_] = std::move(snapshot);
             }
         }
         if (EntityShortCut *entityShortCut = GetEntityShortCut(); entityShortCut != nullptr) {
-            entityShortCut->SetOpenedLootBoxUuid("");
+            entityShortCut->SetOpenedStorageContainerUuid("");
         }
         UnbindCallbacks();
         if (dragListener_ != nullptr) {
@@ -425,7 +428,7 @@ void glimmer::StorageGUISystem::OnActivationChanged(bool activeStatus) {
         openedContainer_ = nullptr;
         playerContainer_ = nullptr;
         lootContainer_.reset();
-        lootBoxUuid_.clear();
+        openedStorageContainerUuid_.clear();
         showLoot_ = false;
     }
 }

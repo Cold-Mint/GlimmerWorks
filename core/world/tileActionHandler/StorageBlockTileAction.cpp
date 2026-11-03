@@ -109,7 +109,8 @@ bool glimmer::StorageBlockTileAction::DoAction(const TargetResourceApplierContex
         return false;
     }
     entityShortCut->SetOpenedStorageContainer(container);
-    entityShortCut->SetOpenedLootBoxUuid(lootBoxUuid);
+    entityShortCut->SetOpenedStorageContainerUuid(lootBoxUuid);
+    entityShortCut->SetOpenedStorageContainerName(focusedTile.GetName());
     SystemScheduler *systemScheduler = worldContext->GetSystemScheduler();
     if (systemScheduler == nullptr) {
         return false;

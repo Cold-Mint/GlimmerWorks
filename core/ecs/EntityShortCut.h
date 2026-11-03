@@ -53,7 +53,8 @@ namespace glimmer {
         ItemContainer *openedStorageContainer_ = nullptr;
         //The uuid of the currently opened loot box (empty = not a loot box).
         //当前打开的战利品箱的uuid（空表示不是战利品箱）。
-        std::string openedLootBoxUuid_;
+        std::string openedStorageContainerUuid_;
+        std::string openedStorageContainerName_;
         GameEntityID player_ = GAME_ENTITY_ID_INVALID;
 
     public:
@@ -108,17 +109,16 @@ namespace glimmer {
         [[nodiscard]] ItemContainer *GetOpenedStorageContainer() const;
 
         /**
-         * Set the uuid of the currently opened loot box.
-         * 设置当前打开的战利品箱的uuid。
-         * @param uuid uuid 箱子uuid，空字符串表示不是战利品箱
-         */
-        void SetOpenedLootBoxUuid(const std::string &uuid);
-
-        /**
          * Get the uuid of the currently opened loot box.
          * 获取当前打开的战利品箱的uuid。
          * @return 箱子uuid，空字符串表示不是战利品箱
          */
-        [[nodiscard]] const std::string &GetOpenedLootBoxUuid() const;
+        [[nodiscard]] const std::string &GetOpenedStorageContainerUuid() const;
+
+        [[nodiscard]] const std::string &GetOpenedStorageContainerName() const;
+
+        void SetOpenedStorageContainerName(const std::string &openedStorageContainerName);
+
+        void SetOpenedStorageContainerUuid(const std::string &uuid);
     };
 }

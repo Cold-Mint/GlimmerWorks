@@ -30,10 +30,11 @@
 #include <string>
 #include <vector>
 
-#include "cmake-build-debug/_deps/glimmerworksprotobuf-build/cpp/src/core/loot_chest_snapshot.pb.h"
 #include "core/ecs/GuiStackGameSystem.h"
 #include "core/rmi/dataModel/ItemSlotDataModel.h"
 
+
+class LootChestSnapshotMessage;
 
 namespace Rml {
     class ElementFormControlInput;

@@ -91,13 +91,16 @@ bool glimmer::TileItem::OnUse(const ItemUseContext &context) {
     if (WorldContext::IsEmptyEntityId(playerEntity)) {
         return placeSuccess;
     }
+    const BlueprintComponent *blueprintComponent = entityShortCut->GetBlueprintComponent();
+    if (blueprintComponent == nullptr) {
+        return placeSuccess;
+    }
+    if (!blueprintComponent->CanPlace()) {
+        return placeSuccess;
+    }
     EntityManager *entityManager = worldContext->GetEntityManager();
     auto playerTransform = entityManager->GetComponent<Transform2DComponent>(playerEntity);
     if (playerTransform == nullptr) {
-        return placeSuccess;
-    }
-    const BlueprintComponent *blueprintComponent = entityShortCut->GetBlueprintComponent();
-    if (blueprintComponent == nullptr) {
         return placeSuccess;
     }
     ItemStackModule *itemStackModule = GetMutableStackModule();
@@ -114,9 +117,6 @@ bool glimmer::TileItem::OnUse(const ItemUseContext &context) {
         if (tileLayer->GetTileLayerType() != targetTileLayerType) {
             //The tile layer is incorrect. Let's look for the next one.
             //瓦片图层不对，找下一个。
-            continue;
-        }
-        if (!blueprintComponent->CanPlace()) {
             continue;
         }
         if (itemStackModule->GetAmount() == 0) {

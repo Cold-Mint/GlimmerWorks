@@ -615,7 +615,7 @@ namespace glimmer {
         bool allowOfflineGrowth = true;
         //@genNextLine(attachmentProbeMask|附着点探针掩码 位1上 位2右 位3下 位4左 位5背景(下层)，0表示不启用附着)
         uint8_t attachmentProbeMask = 0;
-        //@genNextLine(attachmentReceptionMask|接收口掩码 位1上 位2右 位3下 位4左 位6顶部，0表示不能被附着)
+        //@genNextLine(attachmentReceptionMask|附着点接收口掩码 位1上 位2右 位3下 位4左 位6顶部，0表示不能被附着)
         uint8_t attachmentReceptionMask = 255;
         //@genNextLine(collisionMask|碰撞掩码 位1上 位2右 位3下 位4左，当某个位为1表示禁用/阻挡某个方向，例如单向平台(0b0000 1011 - 禁止上，右，左，仅允许从下方跳进去)，0表示不启用碰撞)
         uint8_t collisionMask = 0;

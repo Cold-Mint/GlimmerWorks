@@ -126,9 +126,10 @@ void glimmer::WorldBuilder::Build() {
         worldContext_->entityManager_->AddComponent<AreaMarkerComponent>(groundTileLayerEntity));
     worldContext_->entityShortCut_->SetBlueprintComponent(
         worldContext_->entityManager_->AddComponent<BlueprintComponent>(groundTileLayerEntity));
-    auto backgroundTileLayerEntity = worldContext_->entityManager_->AddEntity();
+    auto backgroundDecorationTileLayerEntity = worldContext_->entityManager_->AddEntity();
     worldContext_->entityManager_->AddComponent<
-        TileLayerComponent>(backgroundTileLayerEntity, worldContext_, TileLayerType::BackgroundDecoration);
+        TileLayerComponent>(backgroundDecorationTileLayerEntity, worldContext_, TileLayerType::BackgroundDecoration);
+    auto backgroundTileLayerEntity = worldContext_->entityManager_->AddEntity();
     worldContext_->entityManager_->AddComponent<
         TileLayerComponent>(backgroundTileLayerEntity, worldContext_, TileLayerType::BackGround);
     worldContext_->playerContext_ = std::make_unique<PlayerContext>(worldContext_);

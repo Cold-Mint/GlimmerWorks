@@ -179,7 +179,9 @@ glimmer::TileAttachmentSupportResult glimmer::TileAttachmentHelper::ValidateAtta
     TileAttachmentSupportResult result;
     const TileLayerType sourceTileLayerType = sourceTile.GetLayerType();
     result.SetTileLayerType(sourceTileLayerType);
-    if (sourceTile.GetAttachmentProbeMask() == 0 || direction == TileAttachmentType::None) {
+    if (sourceTile.GetAttachmentProbeMask() == 0 || (
+            sourceTile.GetAttachmentProbeMask() & static_cast<uint8_t>(direction)) == 0 || direction ==
+        TileAttachmentType::None) {
         return result;
     }
     if (direction == TileAttachmentType::BackLayer) {

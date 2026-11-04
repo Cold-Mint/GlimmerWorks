@@ -103,6 +103,12 @@ void glimmer::TileRefResolver::Initialize(const TerrainResult *terrainResult,
                 }
             }
             if (terrainType == TerrainResultType::SOLID) {
+                //Fill the solid terrain with air.
+                //为固体地形填充空气。
+                for (auto &[layerType, refsArray]: tilesRefMap) {
+                    TileResourceManager::WriteAirResourceRef(
+                        layerType, refsArray[idx]);
+                }
                 if (BiomeResource *biomeResource = terrainTileResult.GetBiomeResource(); biomeResource != nullptr) {
                     biomeResourcesSet.insert(biomeResource);
                 }

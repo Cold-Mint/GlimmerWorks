@@ -42,7 +42,6 @@
 #include "core/saves/Saves.h"
 #include "core/scene/MainThreadDispatcher.h"
 #include "core/utils/TileLayerTypeUtils.h"
-#include "core/world/Dimension.h"
 #include "core/world/Tile.h"
 #include "core/world/TileAttachmentHelper.h"
 #include "core/world/WorldContext.h"

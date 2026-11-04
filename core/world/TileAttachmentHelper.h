@@ -46,6 +46,8 @@ namespace glimmer {
      * 瓦片附着点工具类：负责根据向量A解析附着方向、验证附着支撑、计算附着偏移。
      */
     class TileAttachmentHelper {
+        static bool CanAttach(const Tile &sourceTile, const Tile &targetTile, TileAttachmentType direction);
+
         /**
        * Do the tiles support in a certain direction?
        * 瓦片在某个方向上是否支持
@@ -78,12 +80,6 @@ namespace glimmer {
          * @return 检测顺序
          */
         static std::vector<TileAttachmentType> BuildSearchOrder(TileAttachmentType priority);
-
-        /**
-         * HasAnyTag
-         * 判断瓦片是否拥有指定标签集合中的任一标签（按缓存ID匹配）。
-         */
-        static bool CanAttach(const Tile &sourceTile, const Tile &targetTile, TileAttachmentType direction);
 
 
         /**

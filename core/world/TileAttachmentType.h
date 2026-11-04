@@ -43,15 +43,8 @@ namespace glimmer {
     };
 
     /**
-     * TileAttachmentDirection
-     * 瓦片实际解析出的附着方向，用于持久化到区块。取值为 1-5 与上述位掩码对应。
-     */
-    enum class TileAttachmentDirection : uint8_t {
-        None = 0,
-        Up = 1,
-        Right = 2,
-        Down = 3,
-        Left = 4,
-        BackLayer = 5,
-    };
+    * TileAttachmentDirection
+    * 瓦片实际解析出的附着方向，用于持久化到区块。取值为 1-5 与上述位掩码对应。
+    */
+    using TileAttachmentDirection = TileAttachmentType;
 }

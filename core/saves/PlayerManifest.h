@@ -50,7 +50,7 @@ namespace glimmer {
          * The loot boxes this player has opened, keyed by the box's uuid.
          * 玩家打开过的战利品箱，key 为箱子 uuid，value 为尚未领取的战利品快照。
          */
-        std::unordered_map<std::string, LootBoxSnapshotMessage> openedLootBoxSnapshot;
+        std::unordered_map<std::string, LootChestSnapshotMessage> openedLootBoxSnapshot;
 
         /**
          * Check if the player has visited a certain dimension.

@@ -28,13 +28,14 @@
 #include "core/ecs/GameComponent.h"
 #include "core/math/TileVector2D.h"
 #include "core/math/Vector2DI.h"
+#include "core/world/TileAttachmentType.h"
 
 
 namespace glimmer {
     class BlueprintComponent : public GameComponent {
         TileVector2D topLeftVector_;
         Vector2DI attachmentOffset_ = {0, 0};
-        uint8_t attachmentDirection_ = 0;
+        TileAttachmentDirection attachmentDirection_ = TileAttachmentDirection::None;
         bool canPlace_ = false;
 
     public:
@@ -46,9 +47,9 @@ namespace glimmer {
 
         [[nodiscard]] const TileVector2D &GetTopLeftVector() const;
 
-        void SetAttachmentDirection(uint8_t attachmentDirection);
+        void SetAttachmentDirection(TileAttachmentDirection attachmentDirection);
 
-        [[nodiscard]] uint8_t GetAttachmentDirection() const;
+        [[nodiscard]] TileAttachmentDirection GetAttachmentDirection() const;
 
         void SetAttachmentOffset(const Vector2DI &attachmentOffset);
 

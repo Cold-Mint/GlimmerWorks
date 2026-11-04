@@ -98,7 +98,7 @@ bool glimmer::MiningSystem::TryPlaceTile(const TileLayerComponent *tileLayerComp
     } else {
         tileState->set_placesource(PLACE_SOURCE_BREAK);
     }
-    tileState->set_attachmentdirection(config.GetAttachmentDirection());
+    tileState->set_attachmentdirection(static_cast<uint32_t>(config.GetAttachmentDirection()));
     config.GetAttachmentOffset().WriteVector2DIMessage(*tileState->mutable_attachmentoffset());
     TileVector2D offset = topLeftVector - currentVector;
     offset.WriteVector2DIMessage(*tileState->mutable_offset());
@@ -107,7 +107,7 @@ bool glimmer::MiningSystem::TryPlaceTile(const TileLayerComponent *tileLayerComp
                                             currentVector,
                                             false)) {
         Chunk::InitGrowthState(tileState, tileResource, tick);
-        Chunk::InitLootBoxUuid(tileState, tileResource);
+        Chunk::InitLootBoxChest(tileState, tileResource);
         return true;
     }
     RestoreTileState(tileState, backup);

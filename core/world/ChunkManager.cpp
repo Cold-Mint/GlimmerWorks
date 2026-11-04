@@ -59,20 +59,9 @@ uint64_t glimmer::ChunkManager::MakeAttachmentOriginFingerprint(const TileVector
     return fingerprint;
 }
 
-TileStateMessage *glimmer::ChunkManager::GetTileStateAt(const ChunkManager *self, const TileLayerType layer,
-                                                        const TileVector2D &cell) {
-    const Chunk *chunk = self->GetChunk(CoordinateTransformer::TileToChunkVertex(cell));
-    if (chunk == nullptr) {
-        return nullptr;
-    }
-    const ChunkRelativeVector2D relative = CoordinateTransformer::TileToChunkRelative(cell);
-    return chunk->GetTileState(layer, CoordinateTransformer::GetArrayIndex(relative.x, relative.y,
-                                                                           CHUNK_SHIFT));
-}
-
 
 void glimmer::ChunkManager::OnChunkTileChange(const std::shared_ptr<Chunk> &chunk, const std::shared_ptr<Tile> &tile,
-                                              const TileLayerType layerType, size_t index,
+                                              const TileLayerType layerType, const size_t index,
                                               const BreakSource breakSource) {
     UpdateTileLight(chunk.get(), layerType, index);
     if (breakSource == BreakSource::ChunkLoad || breakSource == BreakSource::ChunkGenerate ||
@@ -86,12 +75,41 @@ void glimmer::ChunkManager::OnChunkTileChange(const std::shared_ptr<Chunk> &chun
     PropagateAttachmentLoss(layerType, changedCell);
 }
 
+namespace {
+    const char *AttachmentDirectionToString(const glimmer::TileAttachmentType direction) {
+        using glimmer::TileAttachmentType;
+        switch (direction) {
+            case TileAttachmentType::None:
+                return "None";
+            case TileAttachmentType::Up:
+                return "Up";
+            case TileAttachmentType::Right:
+                return "Right";
+            case TileAttachmentType::Down:
+                return "Down";
+            case TileAttachmentType::Left:
+                return "Left";
+            case TileAttachmentType::BackLayer:
+                return "BackLayer";
+        }
+        return "Unknown";
+    }
+}
+
 void glimmer::ChunkManager::PropagateAttachmentLoss(const TileLayerType layerType, const TileVector2D &changedCell) {
     if (worldContext_ == nullptr) {
+        LogCat::w(LogLabel::ATTACHMENT, std::source_location::current(), "attachment_propagate_no_context",
+                  "Skipping attachment propagation: WorldContext is null, layer={}, changedCell=({}, {})",
+                  static_cast<int>(layerType), changedCell.x, changedCell.y);
         return;
     }
     attachmentPropagateDepth_++;
+    LogCat::d(LogLabel::ATTACHMENT, "attachment_propagate_start",
+              "Propagating attachment loss: layer={}, changedCell=({}, {}), depth={}",
+              static_cast<int>(layerType), changedCell.x, changedCell.y, attachmentPropagateDepth_);
     if (attachmentPropagateDepth_ == 1) {
+        LogCat::d(LogLabel::ATTACHMENT, "attachment_propagate_reset_origins",
+                  "Clearing broken origin cache at propagation root: depth={}", attachmentPropagateDepth_);
         attachmentBrokenOrigins_.clear();
     }
     struct Candidate {
@@ -117,49 +135,105 @@ void glimmer::ChunkManager::PropagateAttachmentLoss(const TileLayerType layerTyp
         .cell = TileVector2D{changedCell.x + 1, changedCell.y}, .layerType = layerType,
         .expectedDirection = TileAttachmentDirection::Left
     });
-    //If there are layers in front of the current layer, check the BackLayer direction.
-    //如果当前图层前面还有图层，那么检查BackLayer方向。
-    if (const auto frontLayerTypeOptional = TileLayerTypeUtils::GetFrontLayerType(layerType); frontLayerTypeOptional.has_value()) {
+    //If there are layers in front of the current layer, check the FrontLayer direction.
+    //如果当前图层前面还有图层，那么检查FrontLayer方向。
+    if (const auto frontLayerTypeOptional = TileLayerTypeUtils::GetFrontLayerType(layerType); frontLayerTypeOptional.
+        has_value()) {
         candidates.push_back({
             .cell = changedCell, .layerType = frontLayerTypeOptional.value(),
             .expectedDirection = TileAttachmentDirection::BackLayer
         });
     }
-    for (const auto &[cell, layer, expectedDirection]: candidates) {
-        const TileStateMessage *state = GetTileStateAt(this, layer, cell);
-        if (state == nullptr) {
+    LogCat::d(LogLabel::ATTACHMENT, "attachment_propagate_candidates",
+              "Prepared attachment candidates: count={}, layer={}, changedCell=({}, {}), depth={}",
+              candidates.size(), static_cast<int>(layerType), changedCell.x, changedCell.y,
+              attachmentPropagateDepth_);
+    for (const auto &[cell, selfLayerType, expectedDirection]: candidates) {
+        LogCat::d(LogLabel::ATTACHMENT, "attachment_propagate_check_candidate",
+                  "Checking attachment candidate: cell=({}, {}), layer={}, expectedDirection={}, depth={}",
+                  cell.x, cell.y, static_cast<int>(selfLayerType),
+                  AttachmentDirectionToString(expectedDirection), attachmentPropagateDepth_);
+        const TileStateMessage *selfState = GetTileStateAt(selfLayerType, cell);
+        if (selfState == nullptr) {
+            LogCat::d(LogLabel::ATTACHMENT, "attachment_propagate_skip_no_state",
+                      "Attachment candidate skipped: no tile state, cell=({}, {}), layer={}, expectedDirection={}",
+                      cell.x, cell.y, static_cast<int>(selfLayerType),
+                      AttachmentDirectionToString(expectedDirection));
             continue;
         }
-        const auto direction = static_cast<TileAttachmentDirection>(state->attachmentdirection());
+        const auto direction = static_cast<TileAttachmentDirection>(selfState->attachmentdirection());
         if (direction == TileAttachmentDirection::None || direction != expectedDirection) {
+            LogCat::d(LogLabel::ATTACHMENT, "attachment_propagate_skip_direction",
+                      "Attachment candidate skipped: direction mismatch, cell=({}, {}), layer={}, expectedDirection={}, actualDirection={}",
+                      cell.x, cell.y, static_cast<int>(selfLayerType),
+                      AttachmentDirectionToString(expectedDirection),
+                      AttachmentDirectionToString(direction));
             continue;
         }
         TileVector2D offset(0, 0);
-        offset.ReadVector2DIMessage(state->offset());
+        offset.ReadVector2DIMessage(selfState->offset());
         const TileVector2D origin = cell + offset;
-        TileStateMessage *originState = GetTileStateAt(this, layer, origin);
+        LogCat::d(LogLabel::ATTACHMENT, "attachment_propagate_candidate_origin",
+                  "Resolved attachment origin: cell=({}, {}), origin=({}, {}), offset=({}, {}), layer={}, direction={}",
+                  cell.x, cell.y, origin.x, origin.y, offset.x, offset.y, static_cast<int>(selfLayerType),
+                  AttachmentDirectionToString(direction));
+        const TileStateMessage *originState = GetTileStateAt(selfLayerType, origin);
         if (originState == nullptr) {
+            LogCat::d(LogLabel::ATTACHMENT, "attachment_propagate_skip_no_origin_state",
+                      "Attachment candidate skipped: origin tile state missing, origin=({}, {}), layer={}, direction={}",
+                      origin.x, origin.y, static_cast<int>(selfLayerType),
+                      AttachmentDirectionToString(direction));
             continue;
         }
         const auto width = static_cast<uint8_t>(originState->width());
         const auto height = static_cast<uint8_t>(originState->height());
-        const uint64_t originKey = MakeAttachmentOriginFingerprint(origin, layer);
+        const uint64_t originKey = MakeAttachmentOriginFingerprint(origin, selfLayerType);
+        LogCat::d(LogLabel::ATTACHMENT, "attachment_propagate_origin_info",
+                  "Attachment origin info: origin=({}, {}), layer={}, size={}x{}, originKey={}, direction={}",
+                  origin.x, origin.y, static_cast<int>(selfLayerType), width, height, originKey,
+                  AttachmentDirectionToString(direction));
         if (attachmentBrokenOrigins_.contains(originKey)) {
+            LogCat::d(LogLabel::ATTACHMENT, "attachment_propagate_skip_already_broken",
+                      "Attachment candidate skipped: origin already broken, origin=({}, {}), layer={}, originKey={}, direction={}",
+                      origin.x, origin.y, static_cast<int>(selfLayerType), originKey,
+                      AttachmentDirectionToString(direction));
             continue;
         }
-        const Tile *tile = GetTileAt(layer, origin);
+        const Tile *tile = GetTileAt(selfLayerType, origin);
         if (tile == nullptr) {
+            LogCat::d(LogLabel::ATTACHMENT, "attachment_propagate_skip_no_origin_tile",
+                      "Attachment candidate skipped: origin tile missing, origin=({}, {}), layer={}, direction={}",
+                      origin.x, origin.y, static_cast<int>(selfLayerType),
+                      AttachmentDirectionToString(direction));
             continue;
         }
-        if (!TileAttachmentHelper::ValidateAttachment(worldContext_, layer, origin, width, height,
-                                                      tile->GetAttachmentTagIds(),
-                                                      direction)) {
+        if (!TileAttachmentHelper::ValidateAttachment(*tile, *this, origin,
+                                                      direction).IsSupport()) {
+            LogCat::d(LogLabel::ATTACHMENT, "attachment_propagate_support_lost",
+                      "Attachment support lost, breaking attached tile: origin=({}, {}), layer={}, size={}x{}, direction={}, originKey={}, depth={}",
+                      origin.x, origin.y, static_cast<int>(selfLayerType), width, height,
+                      AttachmentDirectionToString(direction), originKey, attachmentPropagateDepth_);
             attachmentBrokenOrigins_.insert(originKey);
-            BreakAttachedTile(layer, origin, width, height);
+            BreakAttachedTile(selfLayerType, origin, width, height);
+            LogCat::d(LogLabel::ATTACHMENT, "attachment_propagate_break_completed",
+                      "Attached tile broken: origin=({}, {}), layer={}, size={}x{}, direction={}, originKey={}",
+                      origin.x, origin.y, static_cast<int>(selfLayerType), width, height,
+                      AttachmentDirectionToString(direction), originKey);
+        } else {
+            LogCat::d(LogLabel::ATTACHMENT, "attachment_propagate_support_valid",
+                      "Attachment still supported: origin=({}, {}), layer={}, size={}x{}, direction={}",
+                      origin.x, origin.y, static_cast<int>(selfLayerType), width, height,
+                      AttachmentDirectionToString(direction));
         }
     }
     attachmentPropagateDepth_--;
+    LogCat::d(LogLabel::ATTACHMENT, "attachment_propagate_end",
+              "Attachment propagation finished: layer={}, changedCell=({}, {}), depth={}, brokenOrigins={}",
+              static_cast<int>(layerType), changedCell.x, changedCell.y, attachmentPropagateDepth_,
+              attachmentBrokenOrigins_.size());
     if (attachmentPropagateDepth_ == 0) {
+        LogCat::d(LogLabel::ATTACHMENT, "attachment_propagate_clear_origins",
+                  "Clearing broken origin cache after propagation: count={}", attachmentBrokenOrigins_.size());
         attachmentBrokenOrigins_.clear();
     }
 }
@@ -351,6 +425,17 @@ const glimmer::Tile *glimmer::ChunkManager::GetTileAt(const TileLayerType layer,
     const ChunkRelativeVector2D relative = CoordinateTransformer::TileToChunkRelative(cell);
     return chunk->
             GetTile(layer, CoordinateTransformer::GetArrayIndex(relative.x, relative.y, CHUNK_SHIFT));
+}
+
+const TileStateMessage *
+glimmer::ChunkManager::GetTileStateAt(const TileLayerType layer, const TileVector2D &cell) const {
+    const Chunk *chunk = GetChunk(CoordinateTransformer::TileToChunkVertex(cell));
+    if (chunk == nullptr) {
+        return nullptr;
+    }
+    const ChunkRelativeVector2D relative = CoordinateTransformer::TileToChunkRelative(cell);
+    return chunk->GetTileState(layer, CoordinateTransformer::GetArrayIndex(relative.x, relative.y,
+                                                                           CHUNK_SHIFT));
 }
 
 void glimmer::ChunkManager::PlaceTileAt(const TileVector2D &topLeft, const TileLayerType layerType,

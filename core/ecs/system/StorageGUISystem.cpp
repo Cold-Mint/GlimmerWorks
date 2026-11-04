@@ -97,9 +97,9 @@ void glimmer::StorageGUISystem::RefreshSlots(const ItemContainer *container, std
     }
 }
 
-
 void glimmer::StorageGUISystem::SnapshotToContainer(WorldContext *worldContext,
-                                                    const LootBoxSnapshotMessage &snapshot, ItemContainer *container) {
+                                                    const LootChestSnapshotMessage &snapshot,
+                                                    ItemContainer *container) {
     ItemContainerMessage message;
     for (const auto &item: snapshot.items()) {
         message.add_itemresourceref()->CopyFrom(item);
@@ -107,7 +107,8 @@ void glimmer::StorageGUISystem::SnapshotToContainer(WorldContext *worldContext,
     container->FromMessage(worldContext, message);
 }
 
-void glimmer::StorageGUISystem::ContainerToSnapshot(const ItemContainer *container, LootBoxSnapshotMessage &snapshot) {
+void glimmer::StorageGUISystem::
+ContainerToSnapshot(const ItemContainer *container, LootChestSnapshotMessage &snapshot) {
     ItemContainerMessage message;
     container->ToMessage(message);
     snapshot.clear_items();
@@ -413,7 +414,7 @@ void glimmer::StorageGUISystem::OnActivationChanged(bool activeStatus) {
         if (lootContainer_ != nullptr && !openedStorageContainerUuid_.empty()) {
             if (PlayerManifest *playerManifest = GetWorldContext()->GetPlayerManifest();
                 playerManifest != nullptr) {
-                LootBoxSnapshotMessage snapshot;
+                LootChestSnapshotMessage snapshot;
                 ContainerToSnapshot(lootContainer_.get(), snapshot);
                 playerManifest->openedLootBoxSnapshot[openedStorageContainerUuid_] = std::move(snapshot);
             }

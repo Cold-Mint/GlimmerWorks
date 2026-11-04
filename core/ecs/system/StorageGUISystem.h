@@ -30,10 +30,10 @@
 #include <string>
 #include <vector>
 
+#include "cmake-build-debug/_deps/glimmerworksprotobuf-build/cpp/src/core/loot_chest_snapshot.pb.h"
 #include "core/ecs/GuiStackGameSystem.h"
 #include "core/rmi/dataModel/ItemSlotDataModel.h"
 
-class LootBoxSnapshotMessage;
 
 namespace Rml {
     class ElementFormControlInput;
@@ -90,14 +90,14 @@ namespace glimmer {
         * 将战利品箱快照物化为一个 ItemContainer。
         */
         static void SnapshotToContainer(WorldContext *worldContext,
-                                        const LootBoxSnapshotMessage &snapshot,
+                                        const LootChestSnapshotMessage &snapshot,
                                         ItemContainer *container);
 
         /**
         * Serialize an ItemContainer back into a loot-box snapshot (only non-empty slots are kept).
         * 将 ItemContainer 序列化回战利品箱快照（仅保留非空格子）。
         */
-        static void ContainerToSnapshot(const ItemContainer *container, LootBoxSnapshotMessage &snapshot);
+        static void ContainerToSnapshot(const ItemContainer *container, LootChestSnapshotMessage &snapshot);
 
         void RefreshPlayerSlots();
 

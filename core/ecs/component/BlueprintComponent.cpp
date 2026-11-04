@@ -26,7 +26,7 @@
  */
 #include "BlueprintComponent.h"
 
-void glimmer::BlueprintComponent::SetCanPlace(bool canPlace) {
+void glimmer::BlueprintComponent::SetCanPlace(const bool canPlace) {
     canPlace_ = canPlace;
 }
 
@@ -42,11 +42,11 @@ const glimmer::TileVector2D &glimmer::BlueprintComponent::GetTopLeftVector() con
     return topLeftVector_;
 }
 
-void glimmer::BlueprintComponent::SetAttachmentDirection(const uint8_t attachmentDirection) {
+void glimmer::BlueprintComponent::SetAttachmentDirection(const TileAttachmentDirection attachmentDirection) {
     attachmentDirection_ = attachmentDirection;
 }
 
-uint8_t glimmer::BlueprintComponent::GetAttachmentDirection() const {
+glimmer::TileAttachmentDirection glimmer::BlueprintComponent::GetAttachmentDirection() const {
     return attachmentDirection_;
 }
 

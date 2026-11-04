@@ -253,8 +253,8 @@ void glimmer::BlueprintSystem::RenderBlueprintTexture(RenderQueue *queue, const 
     if (heldTile_ == nullptr) {
         return;
     }
-    const TileBlueprintData &tileBlueprintData = heldTile_->GetBlueprintData();
-    if (!tileBlueprintData.EnableBlueprint()) {
+    if (const TileBlueprintData &tileBlueprintData = heldTile_->GetBlueprintData(); !tileBlueprintData.
+        EnableBlueprint()) {
         return;
     }
     const TileResourceData &tileResourceData = heldTile_->GetResourceData();
@@ -340,10 +340,9 @@ void glimmer::BlueprintSystem::Render(RenderQueue *queue) {
     const WorldVector2D &playerPosition = transform2DComponent->GetRenderPosition();
     const TileVector2D leftBottom = SetupHeldTileInfo(focusPosition, focusWorldTilePos, playerPosition,
                                                       tileWidth, tileHeight, tileAnchor);
-    auto topLeftVector = TileVector2D{leftBottom.x, leftBottom.y + tileHeight - 1};
+    const auto topLeftVector = TileVector2D{leftBottom.x, leftBottom.y + tileHeight - 1};
     blueprintComponent_->SetTopLeftVector(topLeftVector);
-    SDL_FRect renderQuad = CalculateRenderQuad(focusPosition, topLeftVector, tileWidth, tileHeight);
-
+    const SDL_FRect renderQuad = CalculateRenderQuad(focusPosition, topLeftVector, tileWidth, tileHeight);
     const SDL_Color focusTileBorderColor = {
         preloadColors_->game.focusTileBorderColor.r,
         preloadColors_->game.focusTileBorderColor.g,
@@ -353,7 +352,7 @@ void glimmer::BlueprintSystem::Render(RenderQueue *queue) {
     queue->DrawRect(RenderLayer::Effect, 0.0F, &renderQuad, focusTileBorderColor);
     if (heldTile_ == nullptr) {
         blueprintComponent_->SetCanPlace(false);
-        blueprintComponent_->SetAttachmentDirection(0);
+        blueprintComponent_->SetAttachmentDirection(TileAttachmentType::None);
         blueprintComponent_->SetAttachmentOffset(Vector2DI{0, 0});
         return;
     }
@@ -366,25 +365,23 @@ void glimmer::BlueprintSystem::Render(RenderQueue *queue) {
             return;
         }
         bool canPlace = checkRectResult[checkRectResult.size() - 1];
-        blueprintComponent_->SetAttachmentDirection(0);
+        blueprintComponent_->SetAttachmentDirection(TileAttachmentDirection::None);
         blueprintComponent_->SetAttachmentOffset(Vector2DI{0, 0});
         TileAttachmentDirection direction = TileAttachmentDirection::None;
-        if (canPlace && heldTile_->GetAttachmentMask() != 0) {
+        if (canPlace && heldTile_->GetAttachmentProbeMask() != 0) {
             const TileVector2D playerTile = CoordinateTransformer::WorldToTile(playerPosition);
             const TileVector2D vectorA = focusPosition - playerTile;
-            Vector2DI offset{0, 0};
-            LogCat::d(LogLabel::ATTACHMENT, "blueprint_attachment_check",
-                      "Attachment check: tile={}, mask={}, tagCount={}, vectorA=({}, {})",
-                      heldTile_->GetId(), heldTile_->GetAttachmentMask(), heldTile_->GetAttachmentTagIds().size(),
-                      vectorA.x, vectorA.y);
-            if (TileAttachmentHelper::FindAttachment(worldContext, heldTile_->GetLayerType(), topLeftVector,
-                                                     tileWidth, tileHeight, heldTile_->GetAttachmentMask(),
-                                                     heldTile_->GetAttachmentTagIds(), vectorA, direction, offset)) {
-                blueprintComponent_->SetAttachmentDirection(static_cast<uint8_t>(direction));
-                blueprintComponent_->SetAttachmentOffset(offset);
-                LogCat::d(LogLabel::ATTACHMENT, "blueprint_attachment_found",
-                          "Attachment found: tile={}, direction={}, offset=({}, {})",
-                          heldTile_->GetId(), static_cast<int>(direction), offset.x, offset.y);
+            const ChunkManager *chunkManager = worldContext->GetChunkManager();
+            if (chunkManager == nullptr) {
+                return;
+            }
+            const TileAttachmentResult tileAttachmentResult = TileAttachmentHelper::FindAttachment(
+                *heldTile_, *chunkManager, topLeftVector,
+                vectorA);
+            if (tileAttachmentResult.IsFindAttachment()) {
+                direction = tileAttachmentResult.GetAttachmentDirection();
+                blueprintComponent_->SetAttachmentDirection(direction);
+                blueprintComponent_->SetAttachmentOffset(tileAttachmentResult.GetAttachmentOffset());
             } else {
                 canPlace = false;
                 std::ranges::fill(checkRectResult, false);

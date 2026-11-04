@@ -84,7 +84,8 @@ bool glimmer::InitLangsTask::Run(ISystemBucket *systemBucket) {
     langsResources->precisionMiningTip = toml::find<std::string>(tomlValue, "precision_mining_tip");
     langsResources->canMineBlockTip = toml::find<std::string>(tomlValue, "can_mine_block_tip");
     langsResources->canMineWallTip = toml::find<std::string>(tomlValue, "can_mine_wall_tip");
-    langsResources->canMineBackgroundDecorationTip = toml::find<std::string>(tomlValue, "can_mine_background_decoration_tip");
+    langsResources->canMineBackgroundDecorationTip = toml::find<std::string>(
+        tomlValue, "can_mine_background_decoration_tip");
     langsResources->chainMiningTip = toml::find<std::string>(tomlValue, "chain_mining_tip");
     langsResources->flyEnable = toml::find<std::string>(tomlValue, "fly_enable");
     langsResources->flyDisable = toml::find<std::string>(tomlValue, "fly_disable");

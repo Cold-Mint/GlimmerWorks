@@ -416,6 +416,8 @@ target_sources(GlimmerWorks
         core/saves/SavesCreateRequest.cpp
         core/world/scheduler/ChunkTask.cpp
         core/utils/TileLayerTypeUtils.cpp
+        core/world/TileAttachmentResult.cpp
+        core/world/TileAttachmentSupportResult.cpp
         core/world/scheduler/ChunkTaskScheduler.cpp
         core/mod/templateCommand/ScopeTemplateCommand.cpp
         core/mod/templateCommand/EndScopeTemplateCommand.cpp
@@ -758,7 +760,6 @@ target_sources(GlimmerWorks
         core/utils/ScanCodeUtils.cpp
         core/utils/StringUtils.cpp
         core/utils/TimeUtils.cpp
-        core/utils/TomlUtils.cpp
         core/utils/TransparentStringHash.cpp
         core/utils/UUIDUtils.cpp
         core/vfs/AAssetStream.cpp
@@ -855,6 +856,8 @@ target_sources(GlimmerWorks
         core/physics/HorizontalPhysicsSolver.h
         core/physics/VerticalPhysicsSolver.h
         core/physics/VerticalPhysicsSolver.h
+        core/world/TileAttachmentSupportResult.h
+        core/world/TileAttachmentResult.h
         core/world/generator/NoiseField.h
         core/log/WarningCode.h
         core/world/DayNormalizedTime.h

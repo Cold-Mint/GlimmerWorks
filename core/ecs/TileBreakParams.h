@@ -42,7 +42,7 @@ namespace glimmer {
         bool allowDropLoot_ = false;
         uint8_t tileWidth_ = 1;
         uint8_t tileHeight_ = 1;
-        uint8_t attachmentDirection_ = 0;
+        TileAttachmentDirection attachmentDirection_ = TileAttachmentDirection::None;
 
     public:
         void SetBreakSource(const BreakSource &breakSource);
@@ -70,7 +70,7 @@ namespace glimmer {
 
         void SetNewTileRef(const ResourceRef &newTileRef);
 
-        void SetAttachmentDirection(uint8_t attachmentDirection);
+        void SetAttachmentDirection(TileAttachmentDirection attachmentDirection);
 
         void SetAttachmentOffset(const Vector2DI &attachmentOffset);
 
@@ -101,7 +101,7 @@ namespace glimmer {
 
         [[nodiscard]] const ResourceRef &GetNewTileRef() const;
 
-        [[nodiscard]] uint8_t GetAttachmentDirection() const;
+        [[nodiscard]] TileAttachmentDirection GetAttachmentDirection() const;
 
         [[nodiscard]] const Vector2DI &GetAttachmentOffset() const;
     };

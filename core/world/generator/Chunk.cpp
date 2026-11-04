@@ -181,7 +181,7 @@ void glimmer::Chunk::InitGrowthState(TileStateMessage *msg, const TileResource *
     }
 }
 
-void glimmer::Chunk::InitLootBoxUuid(TileStateMessage *msg, const TileResource *tileResource) {
+void glimmer::Chunk::InitLootBoxChest(TileStateMessage *msg, const TileResource *tileResource) {
     if (msg == nullptr || tileResource == nullptr) {
         return;
     }
@@ -232,7 +232,7 @@ bool glimmer::Chunk::PlaceTileCell(const TileLayerType layerType, const size_t i
     resourceRef.WriteResourceRefMessage(*tileStateMessage->mutable_resourceref());
     const uint64_t tick = worldContext_ != nullptr ? worldContext_->GetGlobalTick() : 0;
     InitGrowthState(tileStateMessage, tileResource, tick);
-    InitLootBoxUuid(tileStateMessage, tileResource);
+    InitLootBoxChest(tileStateMessage, tileResource);
     return CommitTileState(breakSource, layerType, index, fallback);
 }
 

@@ -152,7 +152,7 @@ namespace glimmer {
          * @param msg 目标瓦片状态
          * @param tileResource tileResource 瓦片资源
          */
-        static void InitLootBoxUuid(TileStateMessage *msg, const TileResource *tileResource);
+        static void InitLootBoxChest(TileStateMessage *msg, const TileResource *tileResource);
 
         [[nodiscard]] const ChunkVertexVector2D &GetPosition() const;
 

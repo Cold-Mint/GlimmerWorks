@@ -64,7 +64,7 @@ namespace glimmer {
         TileBlueprintData blueprintData_;
         std::vector<ResourceRef> growthConditions_;
         //附着点标签缓存ID列表，目标瓦片必须拥有其中任一标签才被视为有效附着点。
-        std::vector<uint64_t> attachmentTagIds_;
+        std::vector<uint64_t> attachmentTagFilter_;
         TileMiningData miningData_;
         uint64_t growthMinTicks_ = 0;
         uint64_t growthMaxTicks_ = 0;
@@ -81,7 +81,8 @@ namespace glimmer {
         //碰撞箱偏移（以瓦片为单位），碰撞箱左下角相对格子左下角的偏移。
         Vector2DResource collisionBoxOffset_ = {0.0F, 0.0F};
         //附着点掩码，0表示不启用附着。
-        uint8_t attachmentMask_ = 0;
+        uint8_t attachmentProbeMask_ = 0;
+        uint8_t attachmentReceptionMask_ = 255;
         TileLayerType layerType_ = TileLayerType::BackGround;
         //Whether offline growth is allowed: when the chunk is reloaded, interpolate the elapsed time.
         //是否允许离线生长：区块重新加载时补算离线时长。
@@ -250,8 +251,10 @@ namespace glimmer {
 
         [[nodiscard]] const TileLightResourceData *GetLightResourceData() const;
 
-        [[nodiscard]] uint8_t GetAttachmentMask() const;
+        [[nodiscard]] uint8_t GetAttachmentProbeMask() const;
 
-        [[nodiscard]] const std::vector<uint64_t> &GetAttachmentTagIds() const;
+        [[nodiscard]] uint8_t GetAttachmentReceptionMask() const;
+
+        [[nodiscard]] const std::vector<uint64_t> &GetAttachmentTagFilter() const;
     };
 }

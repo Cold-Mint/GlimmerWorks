@@ -51,7 +51,6 @@ namespace glimmer {
         static ResourceRef CreateCoreRef(const std::string &key, ResourceTypeMessage type);
 
     public:
-
         /**
          * Initialize the built-in tiles
          * 初始化内置瓦片

@@ -830,8 +830,9 @@ namespace toml {
             resource.allowChainMining = toml::find_or<bool>(v, "allow_chain_mining", false);
             resource.allowDirAdjustAnchor = toml::find_or<bool>(v, "allow_dir_adjust_anchor", true);
             resource.allowOfflineGrowth = toml::find_or<bool>(v, "allow_offline_growth", true);
-            resource.attachmentMask = toml::find_or<uint8_t>(v, "attachment_mask", 0);
-            resource.attachmentTags = toml::find_or<std::vector<std::string> >(v, "attachment_tags", {});
+            resource.attachmentProbeMask = toml::find_or<uint8_t>(v, "attachment_probe_mask", 0);
+            resource.attachmentReceptionMask = toml::find_or<uint8_t>(v, "attachment_reception_mask", 255);
+            resource.attachmentTagFilter = toml::find_or<std::vector<std::string> >(v, "attachment_tag_filter", {});
             resource.attachmentTextureBack = toml::find_or<glimmer::ResourceRef>(v, "attachment_texture_back", {});
             resource.attachmentTextureDown = toml::find_or<glimmer::ResourceRef>(v, "attachment_texture_down", {});
             resource.attachmentTextureLeft = toml::find_or<glimmer::ResourceRef>(v, "attachment_texture_left", {});

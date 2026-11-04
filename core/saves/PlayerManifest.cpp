@@ -89,7 +89,7 @@ void glimmer::PlayerManifest::FromMessage(const PlayerMessage &playerMessage) {
     entityItemMessage = playerMessage.entity();
     currentDimensionIndex_ = playerMessage.currentdimensionindex();
     openedLootBoxSnapshot.clear();
-    for (const auto &[uuid, snapshot]: playerMessage.openedlootboxsnapshot()) {
+    for (const auto &[uuid, snapshot]: playerMessage.openedlootchestsnapshot()) {
         openedLootBoxSnapshot[uuid] = snapshot;
     }
     LogCat::d(LogLabel::DEFAULT, "player_manifest_from_message",
@@ -107,9 +107,9 @@ void glimmer::PlayerManifest::ToMessage(PlayerMessage &playerMessage) const {
         playerMessage.mutable_visiteddimensions()->Add()->CopyFrom(visitedDimensions_[i]);
     }
     playerMessage.mutable_entity()->CopyFrom(entityItemMessage);
-    playerMessage.mutable_openedlootboxsnapshot()->clear();
+    playerMessage.mutable_openedlootchestsnapshot()->clear();
     for (const auto &[uuid, snapshot]: openedLootBoxSnapshot) {
-        (*playerMessage.mutable_openedlootboxsnapshot())[uuid] = snapshot;
+        (*playerMessage.mutable_openedlootchestsnapshot())[uuid] = snapshot;
     }
     LogCat::d(LogLabel::DEFAULT, "player_manifest_to_message",
               "Player manifest serialized: visitedDimensions={}, openedLootBoxSnapshot={}",

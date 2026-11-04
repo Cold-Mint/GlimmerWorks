@@ -77,9 +77,6 @@ namespace glimmer {
         static uint64_t MakeAttachmentOriginFingerprint(const TileVector2D &origin,
                                                         TileLayerType layer);
 
-        static TileStateMessage *GetTileStateAt(const ChunkManager *self, TileLayerType layer,
-                                                const TileVector2D &cell);
-
 
         /**
          * OnChunkTileChange
@@ -121,6 +118,10 @@ namespace glimmer {
 
         const Tile *GetTileAt(TileLayerType layer,
                               const TileVector2D &cell) const;
+
+
+        const TileStateMessage *GetTileStateAt(TileLayerType layer,
+                                               const TileVector2D &cell) const;
 
         /**
          * PlaceTileAt

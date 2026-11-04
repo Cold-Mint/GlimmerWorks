@@ -613,24 +613,26 @@ namespace glimmer {
         bool destroySelfAfterGrowth = false;
         //@genNextLine(allowOfflineGrowth|是否允许离线生长，区块卸载后再次加载补时间插值)
         bool allowOfflineGrowth = true;
-        //@genNextLine(attachmentMask|附着点掩码 位1上 位2右 位3下 位4左 位5背景(下层)，0表示不启用附着)
-        uint8_t attachmentMask = 0;
+        //@genNextLine(attachmentProbeMask|附着点探针掩码 位1上 位2右 位3下 位4左 位5背景(下层)，0表示不启用附着)
+        uint8_t attachmentProbeMask = 0;
+        //@genNextLine(attachmentReceptionMask|接收口掩码 位1上 位2右 位3下 位4左 位6顶部，0表示不能被附着)
+        uint8_t attachmentReceptionMask = 255;
         //@genNextLine(collisionMask|碰撞掩码 位1上 位2右 位3下 位4左，当某个位为1表示禁用/阻挡某个方向，例如单向平台(0b0000 1011 - 禁止上，右，左，仅允许从下方跳进去)，0表示不启用碰撞)
         uint8_t collisionMask = 0;
         //@genNextLine(collisionBoxSize|碰撞箱尺寸（以瓦片为单位，可为小数，0.5 表示半格），默认 1x1 占满整格)
         Vector2DResource collisionBoxSize = {1.0F, 1.0F};
         //@genNextLine(collisionBoxOffset|碰撞箱偏移（以瓦片为单位），碰撞箱左下角相对格子左下角的偏移，默认 0,0)
         Vector2DResource collisionBoxOffset = {0.0F, 0.0F};
-        //@genNextLine(attachmentTags|附着点标签，目标瓦片必须拥有此标签才被视为有效附着点)
-        std::vector<std::string> attachmentTags = {};
+        //@genNextLine(attachmentTagFilter|附着点标签过滤，目标瓦片必须拥有此标签才被视为有效附着点，留空不启用tag过滤)
+        std::vector<std::string> attachmentTagFilter = {};
+        //附着点标签缓存ID列表（由 attachmentTags 哈希得到）
+        std::vector<uint64_t> cachedAttachmentTagFilter = {};
         //@genNextLine(autoDerivedTags|是否自动生成派生标签)
         bool autoDerivedTags = true;
         //@genNextLine(partial|是否将其看作不会将其沾满整个格子。例如：火把，放置在泥土上，设置partial为true，那么引擎会认为泥土上面还有空气，其可以长出草。)
         bool partial = false;
         //@genNextLine(solid|是否为固体)
         bool solid = false;
-        //附着点标签缓存ID列表（由 attachmentTags 哈希得到）
-        std::vector<uint64_t> cachedAttachmentTagIds = {};
 
         void MakeCachedTag();
     };

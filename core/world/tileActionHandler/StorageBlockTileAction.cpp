@@ -33,8 +33,9 @@
 #include "core/world/Tile.h"
 #include "core/world/WorldContext.h"
 
-void glimmer::StorageBlockTileAction::RollLootBoxSnapshot(const AppContext &appContext, const ResourceRef &lootTableRef,
-                                                          LootBoxSnapshotMessage &snapshot) {
+void glimmer::StorageBlockTileAction::RollLootChestSnapshot(const AppContext &appContext,
+                                                            const ResourceRef &lootTableRef,
+                                                            LootChestSnapshotMessage &snapshot) {
     if (!lootTableRef.IsValid()) {
         return;
     }
@@ -98,8 +99,8 @@ bool glimmer::StorageBlockTileAction::DoAction(const TargetResourceApplierContex
         if (PlayerManifest *playerManifest = worldContext->GetPlayerManifest();
             playerManifest != nullptr &&
             !playerManifest->openedLootBoxSnapshot.contains(lootBoxUuid)) {
-            LootBoxSnapshotMessage snapshot;
-            RollLootBoxSnapshot(*appContext, containerLootTable, snapshot);
+            LootChestSnapshotMessage snapshot;
+            RollLootChestSnapshot(*appContext, containerLootTable, snapshot);
             playerManifest->openedLootBoxSnapshot[lootBoxUuid] =
                     std::move(snapshot);
         }

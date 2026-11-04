@@ -26,6 +26,7 @@
  */
 #include "TileAttachmentHelper.h"
 
+#include "TileAttachmentSupportResult.h"
 #include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/utils/TileLayerTypeUtils.h"
@@ -33,16 +34,56 @@
 #include "core/world/Tile.h"
 #include "core/world/WorldContext.h"
 
-const glimmer::Tile *glimmer::TileAttachmentHelper::GetTileAt(const WorldContext *worldContext,
-                                                              const TileLayerType layerType, const TileVector2D &cell) {
-    if (worldContext == nullptr) {
-        return nullptr;
+bool glimmer::TileAttachmentHelper::SupportsDirection(const Tile &sourceTile, const ChunkManager &chunkManager,
+                                                      TileLayerType targetLayerType, const TileVector2D &tileTopLeft,
+                                                      TileAttachmentType direction) {
+    auto &sourceTileDimensions = sourceTile.GetDimensions();
+    const uint8_t width = sourceTileDimensions.GetTileWidth();
+    const uint8_t height = sourceTileDimensions.GetTileHeight();
+    std::vector<TileVector2D> cells;
+    switch (direction) {
+        case TileAttachmentType::BackLayer:
+            for (int x = 0; x < width; ++x) {
+                for (int y = 0; y < height; ++y) {
+                    cells.emplace_back(tileTopLeft.x + x, tileTopLeft.y - y);
+                }
+            }
+            break;
+        case TileAttachmentType::Up:
+            for (int x = 0; x < width; ++x) {
+                cells.emplace_back(tileTopLeft.x + x, tileTopLeft.y + 1);
+            }
+            break;
+        case TileAttachmentType::Right:
+            for (int y = 0; y < height; ++y) {
+                cells.emplace_back(tileTopLeft.x + width, tileTopLeft.y - y);
+            }
+            break;
+        case TileAttachmentType::Down:
+            for (int x = 0; x < width; ++x) {
+                cells.emplace_back(tileTopLeft.x + x, tileTopLeft.y - height);
+            }
+            break;
+        case TileAttachmentType::Left:
+            for (int y = 0; y < height; ++y) {
+                cells.emplace_back(tileTopLeft.x - 1, tileTopLeft.y - y);
+            }
+            break;
+        case TileAttachmentType::None:
+        default:
+            return false;
+            break;
     }
-    const ChunkManager *chunkManager = worldContext->GetChunkManager();
-    if (chunkManager == nullptr) {
-        return nullptr;
+    for (auto &cell: cells) {
+        const auto targetTilePtr = chunkManager.GetTileAt(targetLayerType, cell);
+        if (targetTilePtr == nullptr) {
+            return false;
+        }
+        if (const auto &targetTile = *targetTilePtr; !CanAttach(sourceTile, targetTile, direction)) {
+            return false;
+        }
     }
-    return chunkManager->GetTileAt(layerType, cell);
+    return true;
 }
 
 glimmer::TileAttachmentType glimmer::TileAttachmentHelper::DeterminePriorityDirection(const TileVector2D &vectorA) {
@@ -91,162 +132,93 @@ std::vector<glimmer::TileAttachmentType> glimmer::TileAttachmentHelper::BuildSea
     }
 }
 
-bool glimmer::TileAttachmentHelper::HasAnyTag(const Tile *tile, const std::vector<uint64_t> &tagIds) {
-    if (tile == nullptr || tagIds.empty()) {
+bool glimmer::TileAttachmentHelper::CanAttach(const Tile &sourceTile, const Tile &targetTile,
+                                              const TileAttachmentType direction) {
+    if (direction == TileAttachmentType::None) {
         return false;
     }
-    const TileResourceData &resourceData = tile->GetResourceData();
-    for (const auto &tag: resourceData.GetTags()) {
-        for (const uint64_t tagId: tagIds) {
-            if (tag.cachedTagId == tagId) {
-                return true;
+    const auto &attachmentTagFilter = sourceTile.GetAttachmentTagFilter();
+    if (!attachmentTagFilter.empty()) {
+        //EnableTagFilter
+        //启用tag过滤。
+        const TileResourceData &resourceData = targetTile.GetResourceData();
+        const auto &tags = resourceData.GetTags();
+        if (tags.empty()) {
+            return false;
+        }
+        bool found = false;
+        for (const ItemTagResource &tag: tags) {
+            for (const uint64_t attachmentTag: attachmentTagFilter) {
+                if (tag.cachedTagId == attachmentTag) {
+                    //Satisfy if any tag is found
+                    //发现任意一个tag，就满足条件。
+                    found = true;
+                    break;
+                }
+            }
+            if (found) {
+                break;
             }
         }
+        if (!found) {
+            return false;
+        }
     }
-    return false;
-}
-
-bool glimmer::TileAttachmentHelper::IsSupportValid(const WorldContext *worldContext, TileLayerType layerType,
-                                                   const TileVector2D &tileTopLeft, uint8_t width, uint8_t height,
-                                                   TileAttachmentType direction, const std::vector<uint64_t> &tagIds) {
-    if (tagIds.empty()) {
-        LogCat::d(LogLabel::ATTACHMENT, "attachment_support_tag_empty",
-                  "IsSupportValid: tagIds is empty, direction={}", static_cast<int>(direction));
+    const auto value = static_cast<uint8_t>(direction);
+    if ((sourceTile.GetAttachmentProbeMask() & value) == 0) {
         return false;
     }
-    LogCat::d(LogLabel::ATTACHMENT, "attachment_support_check_start",
-              "IsSupportValid start: layer={}, topLeft=({}, {}), size={}x{}, direction={}, tagCount={}",
-              static_cast<int>(layerType), tileTopLeft.x, tileTopLeft.y, width, height,
-              static_cast<int>(direction), tagIds.size());
-    if (direction == TileAttachmentType::BackLayer) {
-        auto backLayerTypeOptional = TileLayerTypeUtils::GetBackLayerType(layerType);
-        if (!backLayerTypeOptional.has_value()) {
-            //There are no subsequent layers; BackLayer is not supported.
-            //后面没有其他图层了，不支持BackLayer。
-            return false;
-        }
-        for (int x = 0; x < width; ++x) {
-            for (int y = 0; y < height; ++y) {
-                const TileVector2D cell{tileTopLeft.x + x, tileTopLeft.y - y};
-                const Tile *support = GetTileAt(worldContext, backLayerTypeOptional.value(), cell);
-                if (!HasAnyTag(support, tagIds)) {
-                    LogCat::d(LogLabel::ATTACHMENT, "attachment_support_cell_invalid",
-                              "IsSupportValid cell invalid: direction={}, supportLayer={}, cell=({}, {})",
-                              static_cast<int>(direction), static_cast<int>(backLayerTypeOptional.value()),
-                              cell.x, cell.y);
-                    return false;
-                }
-            }
-        }
-        LogCat::d(LogLabel::ATTACHMENT, "attachment_support_valid",
-                  "IsSupportValid valid: direction={}", static_cast<int>(direction));
-        return true;
+    if ((targetTile.GetAttachmentReceptionMask() & value) == 0) {
+        return false;
     }
-    switch (direction) {
-        case TileAttachmentType::Up:
-            for (int x = 0; x < width; ++x) {
-                const TileVector2D cell{tileTopLeft.x + x, tileTopLeft.y + 1};
-                if (!HasAnyTag(GetTileAt(worldContext, layerType, cell), tagIds)) {
-                    LogCat::d(LogLabel::ATTACHMENT, "attachment_support_cell_invalid",
-                              "IsSupportValid cell invalid: direction={}, supportLayer={}, cell=({}, {})",
-                              static_cast<int>(direction), static_cast<int>(layerType), cell.x, cell.y);
-                    return false;
-                }
-            }
-            break;
-        case TileAttachmentType::Down:
-            for (int x = 0; x < width; ++x) {
-                const TileVector2D cell{tileTopLeft.x + x, tileTopLeft.y - height};
-                if (!HasAnyTag(GetTileAt(worldContext, layerType, cell), tagIds)) {
-                    LogCat::d(LogLabel::ATTACHMENT, "attachment_support_cell_invalid",
-                              "IsSupportValid cell invalid: direction={}, supportLayer={}, cell=({}, {})",
-                              static_cast<int>(direction), static_cast<int>(layerType), cell.x, cell.y);
-                    return false;
-                }
-            }
-            break;
-        case TileAttachmentType::Right:
-            for (int y = 0; y < height; ++y) {
-                const TileVector2D cell{tileTopLeft.x + width, tileTopLeft.y - y};
-                if (!HasAnyTag(GetTileAt(worldContext, layerType, cell), tagIds)) {
-                    LogCat::d(LogLabel::ATTACHMENT, "attachment_support_cell_invalid",
-                              "IsSupportValid cell invalid: direction={}, supportLayer={}, cell=({}, {})",
-                              static_cast<int>(direction), static_cast<int>(layerType), cell.x, cell.y);
-                    return false;
-                }
-            }
-            break;
-        case TileAttachmentType::Left:
-            for (int y = 0; y < height; ++y) {
-                const TileVector2D cell{tileTopLeft.x - 1, tileTopLeft.y - y};
-                if (!HasAnyTag(GetTileAt(worldContext, layerType, cell), tagIds)) {
-                    LogCat::d(LogLabel::ATTACHMENT, "attachment_support_cell_invalid",
-                              "IsSupportValid cell invalid: direction={}, supportLayer={}, cell=({}, {})",
-                              static_cast<int>(direction), static_cast<int>(layerType), cell.x, cell.y);
-                    return false;
-                }
-            }
-            break;
-        default:
-            return false;
-    }
-    LogCat::d(LogLabel::ATTACHMENT, "attachment_support_valid",
-              "IsSupportValid valid: direction={}", static_cast<int>(direction));
     return true;
 }
 
-bool glimmer::TileAttachmentHelper::FindAttachment(const WorldContext *worldContext, const TileLayerType layerType,
-                                                   const TileVector2D &tileTopLeft, const uint8_t width,
-                                                   const uint8_t height,
-                                                   const uint8_t attachmentMask, const std::vector<uint64_t> &tagIds,
-                                                   const TileVector2D &vectorA, TileAttachmentDirection &outDirection,
-                                                   Vector2DI &outOffset) {
-    outDirection = TileAttachmentDirection::None;
-    outOffset = Vector2DI{0, 0};
-    if (attachmentMask == 0) {
-        return false;
+glimmer::TileAttachmentSupportResult glimmer::TileAttachmentHelper::ValidateAttachment(const Tile &sourceTile,
+    const ChunkManager &chunkManager, const TileVector2D &tileTopLeft, const TileAttachmentType direction) {
+    TileAttachmentSupportResult result;
+    const TileLayerType sourceTileLayerType = sourceTile.GetLayerType();
+    result.SetTileLayerType(sourceTileLayerType);
+    if (sourceTile.GetAttachmentProbeMask() == 0 || direction == TileAttachmentType::None) {
+        return result;
     }
-    const TileAttachmentType priority = DeterminePriorityDirection(vectorA);
-    LogCat::d(LogLabel::ATTACHMENT, "attachment_find_start",
-              "FindAttachment start: layer={}, topLeft=({}, {}), size={}x{}, mask={}, tagCount={}, vectorA=({}, {}), priority={}",
-              static_cast<int>(layerType), tileTopLeft.x, tileTopLeft.y, width, height, attachmentMask, tagIds.size(),
-              vectorA.x, vectorA.y, static_cast<int>(priority));
-    for (const TileAttachmentType direction: BuildSearchOrder(priority)) {
-        if ((attachmentMask & static_cast<uint8_t>(direction)) == 0) {
-            LogCat::d(LogLabel::ATTACHMENT, "attachment_direction_skipped_by_mask",
-                      "Direction {} skipped: not set in mask {}", static_cast<int>(direction), attachmentMask);
-            continue;
+    if (direction == TileAttachmentType::BackLayer) {
+        auto backLayerTypeOptional = TileLayerTypeUtils::GetBackLayerType(sourceTileLayerType);
+        bool hasNextLayer = backLayerTypeOptional.has_value();
+        while (hasNextLayer) {
+            const TileLayerType backLayer = backLayerTypeOptional.value();
+            result.SetTileLayerType(backLayer);
+            if (SupportsDirection(sourceTile, chunkManager, backLayer, tileTopLeft, direction)) {
+                result.SetSupport(true);
+                return result;
+            }
+            backLayerTypeOptional = TileLayerTypeUtils::GetBackLayerType(backLayer);
+            hasNextLayer = backLayerTypeOptional.has_value();
         }
-        const bool valid = IsSupportValid(worldContext, layerType, tileTopLeft, width, height, direction, tagIds);
-        LogCat::d(LogLabel::ATTACHMENT, "attachment_direction_check",
-                  "Direction {} support valid: {}", static_cast<int>(direction), valid);
-        if (valid) {
-            outDirection = ToDirection(direction);
-            outOffset = GetAttachmentOffset(direction);
-            LogCat::d(LogLabel::ATTACHMENT, "attachment_find_success",
-                      "FindAttachment success: direction={}, offset=({}, {})", static_cast<int>(outDirection),
-                      outOffset.x, outOffset.y);
-            return true;
-        }
+        return result;
     }
-    LogCat::d(LogLabel::ATTACHMENT, "attachment_find_failed",
-              "FindAttachment failed: mask={}, tagCount={}, vectorA=({}, {})", attachmentMask, tagIds.size(),
-              vectorA.x, vectorA.y);
-    return false;
+    result.SetSupport(SupportsDirection(sourceTile, chunkManager, sourceTileLayerType, tileTopLeft, direction));
+    return result;
 }
 
-bool glimmer::TileAttachmentHelper::ValidateAttachment(const WorldContext *worldContext, TileLayerType layerType,
-                                                       const TileVector2D &tileTopLeft, uint8_t width, uint8_t height,
-                                                       const std::vector<uint64_t> &tagIds,
-                                                       TileAttachmentDirection direction) {
-    if (direction == TileAttachmentDirection::None) {
-        return false;
+glimmer::TileAttachmentResult glimmer::TileAttachmentHelper::FindAttachment(const Tile &sourceTile,
+                                                                            const ChunkManager &chunkManager,
+                                                                            const TileVector2D &tileTopLeft,
+                                                                            const TileVector2D &vectorA) {
+    TileAttachmentResult result;
+    for (const TileAttachmentType priority = DeterminePriorityDirection(vectorA); const TileAttachmentType direction:
+         BuildSearchOrder(priority)) {
+        const TileAttachmentSupportResult supportResult = ValidateAttachment(
+            sourceTile, chunkManager, tileTopLeft, direction);
+        if (supportResult.IsSupport()) {
+            result.SetFindAttachment(true);
+            result.SetAttachmentDirection(direction);
+            result.SetAttachmentOffset(GetAttachmentOffset(direction));
+            result.SetLayerType(supportResult.GetTileLayerType());
+            return result;
+        }
     }
-    const TileAttachmentType maskType = ToMaskType(direction);
-    if (maskType == TileAttachmentType::None) {
-        return false;
-    }
-    return IsSupportValid(worldContext, layerType, tileTopLeft, width, height, maskType, tagIds);
+    return result;
 }
 
 glimmer::Vector2DI glimmer::TileAttachmentHelper::GetAttachmentOffset(const TileAttachmentType direction) {
@@ -263,41 +235,5 @@ glimmer::Vector2DI glimmer::TileAttachmentHelper::GetAttachmentOffset(const Tile
         case TileAttachmentType::None:
         default:
             return Vector2DI{0, 0};
-    }
-}
-
-glimmer::TileAttachmentDirection glimmer::TileAttachmentHelper::ToDirection(const TileAttachmentType type) {
-    switch (type) {
-        case TileAttachmentType::Up:
-            return TileAttachmentDirection::Up;
-        case TileAttachmentType::Right:
-            return TileAttachmentDirection::Right;
-        case TileAttachmentType::Down:
-            return TileAttachmentDirection::Down;
-        case TileAttachmentType::Left:
-            return TileAttachmentDirection::Left;
-        case TileAttachmentType::BackLayer:
-            return TileAttachmentDirection::BackLayer;
-        case TileAttachmentType::None:
-        default:
-            return TileAttachmentDirection::None;
-    }
-}
-
-glimmer::TileAttachmentType glimmer::TileAttachmentHelper::ToMaskType(const TileAttachmentDirection direction) {
-    switch (direction) {
-        case TileAttachmentDirection::Up:
-            return TileAttachmentType::Up;
-        case TileAttachmentDirection::Right:
-            return TileAttachmentType::Right;
-        case TileAttachmentDirection::Down:
-            return TileAttachmentType::Down;
-        case TileAttachmentDirection::Left:
-            return TileAttachmentType::Left;
-        case TileAttachmentDirection::BackLayer:
-            return TileAttachmentType::BackLayer;
-        case TileAttachmentDirection::None:
-        default:
-            return TileAttachmentType::None;
     }
 }

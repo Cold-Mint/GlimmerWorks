@@ -50,25 +50,25 @@ void glimmer::TileRefResolver::WriteWaterResourceRef(const TileLayerType layerTy
 void glimmer::TileRefResolver::WriteBedRockResourceRef(const TileLayerType layerType, ResourceRef &resourceRef) {
     //The ground layer is equipped with bedrock, while the other layers are fitted with void walls.
     //地面层设置基岩，其他层设置虚空墙壁。
+    resourceRef.SetResourceType(RESOURCE_TILE);
+    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     if (layerType == TileLayerType::Ground) {
-        resourceRef.SetResourceType(RESOURCE_TILE);
-        resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
         resourceRef.SetResourceKey(TILE_ID_BEDROCK);
+    } else if (layerType == TileLayerType::BackgroundDecoration) {
+        resourceRef.SetResourceKey(TILE_ID_VOID_DECORATION);
     } else {
-        resourceRef.SetResourceType(RESOURCE_TILE);
-        resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
         resourceRef.SetResourceKey(TILE_ID_VOID_WALL);
     }
 }
 
 void glimmer::TileRefResolver::WriteVoidResourceRef(const TileLayerType layerType, ResourceRef &resourceRef) {
+    resourceRef.SetResourceType(RESOURCE_TILE);
+    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     if (layerType == TileLayerType::Ground) {
-        resourceRef.SetResourceType(RESOURCE_TILE);
-        resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
         resourceRef.SetResourceKey(TILE_ID_VOID);
+    } else if (layerType == TileLayerType::BackgroundDecoration) {
+        resourceRef.SetResourceKey(TILE_ID_VOID_DECORATION);
     } else {
-        resourceRef.SetResourceType(RESOURCE_TILE);
-        resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
         resourceRef.SetResourceKey(TILE_ID_VOID_WALL);
     }
 }

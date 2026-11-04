@@ -27,12 +27,17 @@
 #pragma once
 #include <vector>
 
+#include "TileAttachmentResult.h"
+#include "TileAttachmentSupportResult.h"
 #include "core/math/Vector2DI.h"
 #include "core/math/TileVector2D.h"
 #include "core/world/TileAttachmentType.h"
 #include "core/world/generator/TileLayerType.h"
 
+class TileStateMessage;
+
 namespace glimmer {
+    class ChunkManager;
     class Tile;
     class WorldContext;
 
@@ -41,8 +46,19 @@ namespace glimmer {
      * 瓦片附着点工具类：负责根据向量A解析附着方向、验证附着支撑、计算附着偏移。
      */
     class TileAttachmentHelper {
-        static const Tile *GetTileAt(const WorldContext *worldContext, TileLayerType layerType,
-                                     const TileVector2D &cell);
+        /**
+       * Do the tiles support in a certain direction?
+       * 瓦片在某个方向上是否支持
+       * @param sourceTile
+       * @param chunkManager
+       * @param targetLayerType
+       * @param tileTopLeft
+       * @param direction
+       * @return
+       */
+        static bool SupportsDirection(const Tile &sourceTile, const ChunkManager &chunkManager,
+                                      TileLayerType targetLayerType, const TileVector2D &tileTopLeft,
+                                      TileAttachmentType direction);
 
     public:
         /**
@@ -67,53 +83,36 @@ namespace glimmer {
          * HasAnyTag
          * 判断瓦片是否拥有指定标签集合中的任一标签（按缓存ID匹配）。
          */
-        static bool HasAnyTag(const Tile *tile, const std::vector<uint64_t> &tagIds);
+        static bool CanAttach(const Tile &sourceTile, const Tile &targetTile, TileAttachmentType direction);
 
-        /**
-         * IsSupportValid
-         * 判断瓦片在指定附着方向上的整条支撑边是否全部有效（每个支撑格都存在且拥有任一标签）。
-         * @param worldContext
-         * @param layerType 瓦片所在图层
-         * @param tileTopLeft 瓦片左上角坐标
-         * @param width 瓦片宽度
-         * @param height 瓦片高度
-         * @param direction 附着方向
-         * @param tagIds 目标瓦片必须拥有的标签ID列表（任一匹配即可）
-         */
-        static bool IsSupportValid(const WorldContext *worldContext, TileLayerType layerType,
-                                   const TileVector2D &tileTopLeft, uint8_t width, uint8_t height,
-                                   TileAttachmentType direction, const std::vector<uint64_t> &tagIds);
-
-        /**
-         * FindAttachment
-         * 按优先级与顺时针顺序查找第一个有效的附着方向。
-         * @param outDirection 输出解析出的附着方向
-         * @param outOffset 输出附着点单位偏移（相对瓦片原点，指向支撑瓦片）
-         * @return 是否找到有效附着点
-         */
-        static bool FindAttachment(const WorldContext *worldContext, TileLayerType layerType,
-                                   const TileVector2D &tileTopLeft, uint8_t width, uint8_t height,
-                                   uint8_t attachmentMask, const std::vector<uint64_t> &tagIds,
-                                   const TileVector2D &vectorA,
-                                   TileAttachmentDirection &outDirection, Vector2DI &outOffset);
 
         /**
          * ValidateAttachment
          * 校验已附着瓦片的支撑是否仍然有效（用于加载后校验与破坏级联）。
+         * @param sourceTile
+         * @param chunkManager
+         * @param tileTopLeft 瓦片左上角坐标
+         * @param direction 附着方向
          */
-        static bool ValidateAttachment(const WorldContext *worldContext, TileLayerType layerType,
-                                       const TileVector2D &tileTopLeft, uint8_t width, uint8_t height,
-                                       const std::vector<uint64_t> &tagIds,
-                                       TileAttachmentDirection direction);
+        static TileAttachmentSupportResult ValidateAttachment(const Tile &sourceTile,
+                                                              const ChunkManager &chunkManager,
+                                                              const TileVector2D &tileTopLeft,
+                                                              TileAttachmentType direction);
+
+        /**
+         * FindAttachment
+         * 按优先级与顺时针顺序查找第一个有效的附着方向。
+         * @return 是否找到有效附着点
+         */
+        static TileAttachmentResult FindAttachment(const Tile &sourceTile,
+                                                   const ChunkManager &chunkManager,
+                                                   const TileVector2D &tileTopLeft,
+                                                   const TileVector2D &vectorA);
 
         /**
          * GetAttachmentOffset
          * 获取附着方向的单位偏移向量（相对瓦片原点，指向支撑瓦片）。
          */
         static Vector2DI GetAttachmentOffset(TileAttachmentType direction);
-
-        static TileAttachmentDirection ToDirection(TileAttachmentType type);
-
-        static TileAttachmentType ToMaskType(TileAttachmentDirection direction);
     };
 }

@@ -383,8 +383,9 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
         }
     }
     tile->resourceData_.SetTags(tags);
-    tile->attachmentMask_ = tileResource->attachmentMask;
-    tile->attachmentTagIds_ = tileResource->cachedAttachmentTagIds;
+    tile->attachmentReceptionMask_ = tileResource->attachmentReceptionMask;
+    tile->attachmentProbeMask_ = tileResource->attachmentProbeMask;
+    tile->attachmentTagFilter_ = tileResource->cachedAttachmentTagFilter;
     return tile;
 }
 
@@ -575,10 +576,14 @@ const glimmer::TileLightResourceData *glimmer::Tile::GetLightResourceData() cons
     return &lightData_;
 }
 
-uint8_t glimmer::Tile::GetAttachmentMask() const {
-    return attachmentMask_;
+uint8_t glimmer::Tile::GetAttachmentProbeMask() const {
+    return attachmentProbeMask_;
 }
 
-const std::vector<uint64_t> &glimmer::Tile::GetAttachmentTagIds() const {
-    return attachmentTagIds_;
+uint8_t glimmer::Tile::GetAttachmentReceptionMask() const {
+    return attachmentReceptionMask_;
+}
+
+const std::vector<uint64_t> &glimmer::Tile::GetAttachmentTagFilter() const {
+    return attachmentTagFilter_;
 }

@@ -26,6 +26,7 @@
  */
 #pragma once
 
+#include "TileAttachmentType.h"
 #include "core/math/Vector2DI.h"
 #include "core/mod/ResourceRef.h"
 #include "core/world/BreakSource.h"
@@ -37,7 +38,7 @@ namespace glimmer {
         BreakSource breakSource_ = BreakSource::Unknown;
         uint8_t tileWidth_ = 1;
         uint8_t tileHeight_ = 1;
-        uint8_t attachmentDirection_ = 0;
+        TileAttachmentDirection attachmentDirection_ = TileAttachmentDirection::None;
         bool isPlaceMode_ = false;
 
     public:
@@ -51,7 +52,7 @@ namespace glimmer {
 
         void SetBreakSource(const BreakSource &breakSource);
 
-        void SetAttachmentDirection(uint8_t attachmentDirection);
+        void SetAttachmentDirection(TileAttachmentDirection attachmentDirection);
 
         void SetAttachmentOffset(const Vector2DI &attachmentOffset);
 
@@ -67,7 +68,7 @@ namespace glimmer {
 
         [[nodiscard]] uint8_t GetTileHeight() const;
 
-        [[nodiscard]] uint8_t GetAttachmentDirection() const;
+        [[nodiscard]] TileAttachmentDirection GetAttachmentDirection() const;
 
         [[nodiscard]] const Vector2DI &GetAttachmentOffset() const;
     };

@@ -27,7 +27,8 @@
 #pragma once
 #include "ITileActionHandler.h"
 
-class LootBoxSnapshotMessage;
+
+class LootChestSnapshotMessage;
 
 namespace glimmer {
     class AppContext;
@@ -35,9 +36,9 @@ namespace glimmer {
     class ResourceRef;
 
     class StorageBlockTileAction : public ITileActionHandler {
-        static void RollLootBoxSnapshot(const AppContext &appContext,
-                                        const ResourceRef &lootTableRef,
-                                        LootBoxSnapshotMessage &snapshot);
+        static void RollLootChestSnapshot(const AppContext &appContext,
+                                          const ResourceRef &lootTableRef,
+                                          LootChestSnapshotMessage &snapshot);
 
     public:
         [[nodiscard]] bool DoAction(const TargetResourceApplierContext &applierContext, const Tile &focusedTile,

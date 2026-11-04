@@ -222,6 +222,45 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
                             });
                         }
                     }
+                    if (tile->GetAttachmentProbeMask() != 0) {
+                        const TileStateMessage *tileState = tileLayerComponent->GetSelfLayerTileState(tileCoord);
+                        switch (static_cast<TileAttachmentType>(tileState->attachmentdirection())) {
+                            case TileAttachmentType::Up:
+                                debugLines_.push_back(DebugLine{
+                                    "attachmentDirection: Up"
+                                });
+                                break;
+                            case TileAttachmentType::Down:
+                                debugLines_.push_back(DebugLine{
+                                    "attachmentDirection: Down"
+                                });
+                                break;
+                            case TileAttachmentType::Left:
+                                debugLines_.push_back(DebugLine{
+                                    "attachmentDirection: Left"
+                                });
+                                break;
+                            case TileAttachmentType::Right:
+                                debugLines_.push_back(DebugLine{
+                                    "attachmentDirection: Right"
+                                });
+                                break;
+                            case TileAttachmentType::BackLayer:
+                                debugLines_.push_back(DebugLine{
+                                    "attachmentDirection: Back"
+                                });
+                            case TileAttachmentType::None:
+                                debugLines_.push_back(DebugLine{
+                                    "attachmentDirection: None"
+                                });
+                                break;
+                        }
+                        debugLines_.push_back(DebugLine{
+                            "attachmentOffset: x=" + std::to_string(tileState->attachmentoffset().x()) + ",y=" +
+                            std::to_string(tileState->attachmentoffset().y())
+                        });
+                    }
+
                     const TileMiningData &miningData = tile->GetMiningData();
                     debugLines_.push_back(DebugLine{
                         fmt::format(

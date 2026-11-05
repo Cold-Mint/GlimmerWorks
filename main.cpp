@@ -31,12 +31,9 @@
 #include "core/context/AppContext.h"
 #include "core/tick/TickWorker.h"
 
-#ifdef __ANDROID__
-#include <jni.h>
-#endif
-
 using namespace glimmer;
 namespace fs = std::filesystem;
+
 
 int main() {
     LogCat::SetThreadName("Main");
@@ -44,38 +41,17 @@ int main() {
         PROJECT_NAME.c_str(), GAME_VERSION_STRING,
         APP_PACKNAME);
     StringUtils::InitStringToResourceTypeMap();
-    {
-        AppContext appContext;
-        if (!appContext.InitSystem()) {
-            LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "app_context_init_failed",
-                      "appContext Init failed");
-            LogCat::WriteToFile();
-            return EXIT_FAILURE;
-        }
-        App app(&appContext);
-        app.Run();
+    AppContext appContext;
+    if (!appContext.InitSystem()) {
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "app_context_init_failed",
+                  "appContext Init failed");
+        LogCat::WriteToFile();
+        return EXIT_FAILURE;
     }
+    const App app(&appContext);
+    app.Run();
     //Write the accumulated debug logs to runtime/.logs/<timestamp>.log on shutdown.
     //程序关闭时把累积的调试日志写出到 runtime/.logs/<timestamp>.log。
     LogCat::WriteToFile();
     return EXIT_SUCCESS;
 }
-
-
-#ifdef __ANDROID__
-extern "C" {
-int SDL_main(int argc, char *argv[]) {
-    return main();
-}
-
-//Set whether to allow the Activity to be recreated
-//设置是否允许Activity被重新创建
-JNIEXPORT jboolean
-
-JNICALL
-Java_org_libsdl_app_SDLActivity_nativeAllowRecreateActivity(JNIEnv *, jclass) {
-    return JNI_TRUE;
-}
-}
-
-#endif

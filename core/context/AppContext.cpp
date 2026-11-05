@@ -50,6 +50,7 @@
 #include "tasks/InitWindowAndRendererTask.h"
 #include "tasks/InitFontTask.h"
 #include "tasks/InitAudioTask.h"
+#include "tasks/InitCrashpadTask.h"
 
 #ifdef __ANDROID__
 #include <jni.h>
@@ -69,6 +70,9 @@ glimmer::AppContext::AppContext() {
     RegisterInitTask(std::make_unique<InitLangsTask>());
     RegisterInitTask(std::make_unique<InitCoreContextsTask>(this));
     RegisterInitTask(std::make_unique<InitConfigTask>());
+#ifdef WITH_CRASHPAD
+    RegisterInitTask(std::make_unique<InitCrashpadTask>());
+#endif
     RegisterInitTask(std::make_unique<InitSavesManagerTask>());
     RegisterInitTask(std::make_unique<InitRmlContextTask>());
     RegisterInitTask(std::make_unique<InitModContextTask>());

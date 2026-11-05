@@ -5,6 +5,10 @@
 # 是否启用X11支持（用于Linux平台）
 option(X11_SUPPORT "Enable X11 support" OFF)
 
+# Should Crashpad be integrated
+# 是否集成Crashpad。
+option(WITH_CRASHPAD "Integrate Crashpad crash reporting and handler" ON)
+
 # Full path to the host protoc executable (required for cross-compilation)
 # 如果是交叉编译，那么必须得由用户指定protoc。
 set(PROTOC_EXECUTABLE_PATH "")

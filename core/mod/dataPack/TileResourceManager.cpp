@@ -163,8 +163,8 @@ void glimmer::TileResourceManager::InitBuiltinTiles() {
     });
 }
 
-glimmer::TileResource *glimmer::TileResourceManager::AddErrorPlaceHolder(std::string_view packId,
-                                                                         std::string_view resourceId,
+glimmer::TileResource *glimmer::TileResourceManager::AddErrorPlaceHolder(const std::string_view packId,
+                                                                         const std::string_view resourceId,
                                                                          const TileLayerType tileLayer) {
     auto errorPlaceholder = std::make_unique<TileResource>();
     errorPlaceholder->texture = CreateCoreRef(ERROR_TEXTURE_KEY, RESOURCE_TEXTURE);

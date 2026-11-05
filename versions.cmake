@@ -1,9 +1,9 @@
 #Variable definitions are generated through GlimmerWorksCli. Please do not edit them.
 #The dependencies of the repository can be defined through comments.
-#Last updated date: 2026-10-19 20:27:52
+#Last updated date: 2026-11-05 18:46:57
 #libsdl-org/SDL@latest
-#libsdl-org/SDL-release-3.4.18
-set(LIBSDL-ORG_SDL_VERSION "829a65d769d935c4852f8159e964312c0957260a")
+#libsdl-org/SDL-release-3.4.20
+set(LIBSDL-ORG_SDL_VERSION "f00dc919ca35b9756316e86c4777392de442f9b2")
 #libsdl-org/SDL_image@latest
 #libsdl-org/SDL_image-release-3.4.8
 set(LIBSDL-ORG_SDL_IMAGE_VERSION "0891fc30428b518e7d018677bd6fa95c1a50f4c6")
@@ -14,8 +14,8 @@ set(LIBSDL-ORG_SDL_TTF_VERSION "a1ce3670aec736ecbf0936c43f2f0cc53aa61e5b")
 #libsdl-org/SDL_mixer-release-3.2.4
 set(LIBSDL-ORG_SDL_MIXER_VERSION "72a81869b45e249e8e67102db4e98dd2441f05a1")
 #mobius3/tweeny@latest
-#mobius3/tweeny-v4.1.0
-set(MOBIUS3_TWEENY_VERSION "68a7f44ae7a0d8404e37b976a3b90b87253d8d69")
+#mobius3/tweeny-v4.2.0
+set(MOBIUS3_TWEENY_VERSION "d24aac56779a4d9e914c476f81b9d6ace3732434")
 #fmtlib/fmt@latest
 #fmtlib/fmt-12.2.0
 set(FMTLIB_FMT_VERSION "1be298e1bd68957e4cd352e1f676f00e07dcfb57")
@@ -46,6 +46,9 @@ set(KHRONOSGROUP_SPIRV-TOOLS_VERSION "b707790a898e44038547df54580022fc1cf89c3d")
 #KhronosGroup/glslang@latest
 #KhronosGroup/glslang-16.6.0
 set(KHRONOSGROUP_GLSLANG_VERSION "e1b562a8bed273a02f30b59b66a5d499793cede5")
+#Cold-Mint/crashpad@latest
+#Cold-Mint/crashpad-latest
+set(COLD-MINT_CRASHPAD_VERSION "d2c7dab6cb137cdfa72ffb37dc6372f6ca29b572")
 #Cold-Mint/GlimmerworksAssets@latest
 #Cold-Mint/GlimmerworksAssets-v0.0.2-b1
 set(COLD-MINT_GLIMMERWORKSASSETS_VERSION "25a4bd99e4f005e06415d8a942e89b5a656b1b53")

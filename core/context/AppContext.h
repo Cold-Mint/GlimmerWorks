@@ -71,7 +71,6 @@ namespace glimmer {
 
         void SetRandomSlogan() const;
 
-
         [[nodiscard]] CacheContext *GetCacheContext() const;
 
         [[nodiscard]] ModContext *GetModContext() const;

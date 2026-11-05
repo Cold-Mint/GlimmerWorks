@@ -292,6 +292,21 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(toml11)
 
+if (WITH_CRASHPAD)
+    set(CRASHPAD_HTTPS_TRANSPORT "NONE" CACHE STRING "HTTPS transport for Crashpad" FORCE)
+    set(CRASHPAD_LOCAL_ONLY ON CACHE BOOL "Build without any network upload support" FORCE)
+    set(CRASHPAD_FLAT_DATABASE_LAYOUT ON CACHE BOOL "Use a flat crash report database layout" FORCE)
+    FetchContent_Declare(
+            crashpad
+            GIT_REPOSITORY "https://github.com/Cold-Mint/crashpad"
+            GIT_TAG ${COLD-MINT_CRASHPAD_VERSION}
+            GIT_SHALLOW TRUE
+            EXCLUDE_FROM_ALL
+    )
+    FetchContent_MakeAvailable(crashpad)
+    set(CRASHPAD_NAME "crashpad_handler")
+endif ()
+
 # Protobuf slimming options (must be set before glimmerWorksProtobuf pulls in protobuf)
 # Protobuf瘦身选项（必须在glimmerWorksProtobuf引入protobuf之前设置）
 set(protobuf_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -417,6 +432,7 @@ target_sources(GlimmerWorks
         core/world/scheduler/ChunkTask.cpp
         core/utils/TileLayerTypeUtils.cpp
         core/world/TileAttachmentResult.cpp
+        core/context/tasks/InitCrashpadTask.cpp
         core/world/TileAttachmentSupportResult.cpp
         core/world/scheduler/ChunkTaskScheduler.cpp
         core/mod/templateCommand/ScopeTemplateCommand.cpp
@@ -847,6 +863,7 @@ target_sources(GlimmerWorks
         core/event/Subscription.h
         core/utils/RayCastUtils.h
         core/utils/BresenhamLine.h
+        core/context/tasks/InitCrashpadTask.h
         core/physics/PhysicsSolver.h
         core/physics/IHorizontalPhysicsSolver.h
         core/physics/IVerticalPhysicsSolver.h
@@ -1355,19 +1372,32 @@ target_compile_definitions(GlimmerWorks PRIVATE
         APP_PACKNAME="org.glimmerworks"
 )
 
-# On Windows, <windows.h> (included by core/log/LogCat.h) pollutes the global
-# namespace with macros that break otherwise valid C++ identifiers:
-#   - `min`/`max` break std::min/std::max (NOMINMAX disables them)
-#   - `interface`, `small`, `near`, `far`, etc. (WIN32_LEAN_AND_MEAN excludes the
-#     headers that define most of them)
-if (WIN32)
-    target_compile_definitions(GlimmerWorks PRIVATE NOMINMAX WIN32_LEAN_AND_MEAN)
-endif ()
-
 if (ANDROID)
     target_link_libraries(GlimmerWorks PRIVATE ${ANDROID_LOG_LIB} android SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer fmt::fmt SDL3_ttf::SDL3_ttf glimmerworks::proto toml11::toml11 BLAKE3::blake3 RmlUi::RmlUi RmlUi::Debugger glslang::glslang glslang::SPIRV glslang::glslang-default-resource-limits SPIRV-Tools-opt)
 else ()
     target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer fmt::fmt SDL3_ttf::SDL3_ttf glimmerworks::proto toml11::toml11 BLAKE3::blake3 RmlUi::RmlUi RmlUi::Debugger glslang::glslang glslang::SPIRV glslang::glslang-default-resource-limits SPIRV-Tools-opt)
+endif ()
+
+#Replace all the hardcoded "absolute source code path prefixes" in the compiled output with an empty string, so that the source code directory of the build machine is not leaked in the binary/debug information, and at the same time, make the build results reproducible.
+#把编译产物里所有硬编码的"绝对源码路径前缀"替换成空字符串，让二进制/调试信息中不泄露构建机的源码目录，同时让构建结果可复现（reproducible build）。
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(GlimmerWorks PRIVATE
+            "-ffile-prefix-map=${CMAKE_SOURCE_DIR}=")
+endif ()
+
+if (WITH_CRASHPAD)
+    target_compile_definitions(GlimmerWorks PRIVATE CRASHPAD_NAME="${CRASHPAD_NAME}" WITH_CRASHPAD)
+    target_link_libraries(GlimmerWorks PRIVATE client)
+    target_include_directories(GlimmerWorks PRIVATE
+            "${CMAKE_BINARY_DIR}/_deps/crashpad-src/client"
+    )
+    add_dependencies(GlimmerWorks handler)
+    add_custom_command(TARGET GlimmerWorks POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "$<TARGET_FILE:handler>"
+            "$<TARGET_FILE_DIR:GlimmerWorks>/${CRASHPAD_NAME}$<TARGET_FILE_SUFFIX:handler>"
+            COMMENT "Deploying crashpad_handler"
+    )
 endif ()
 
 
@@ -1501,6 +1531,9 @@ endif ()
 
 set(CPACK_PACKAGE_DIRECTORY "${CMAKE_BINARY_DIR}/dist/${CMAKE_BUILD_TYPE}")
 include(CPack)
+if (WITH_CRASHPAD)
+    install(PROGRAMS "${CMAKE_BINARY_DIR}/${CRASHPAD_NAME}" DESTINATION .)
+endif ()
 install(TARGETS GlimmerWorks RUNTIME DESTINATION .)
 install(FILES "${CMAKE_SOURCE_DIR}/${CONFIG_FILE_NAME}" DESTINATION .)
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/core_langs/"

@@ -304,7 +304,11 @@ if (WITH_CRASHPAD)
             EXCLUDE_FROM_ALL
     )
     FetchContent_MakeAvailable(crashpad)
-    set(CRASHPAD_NAME "crashpad_handler")
+    if (WIN32)
+        set(CRASHPAD_NAME "crashpad_handler.exe")
+    else ()
+        set(CRASHPAD_NAME "crashpad_handler")
+    endif ()
 endif ()
 
 # Protobuf slimming options (must be set before glimmerWorksProtobuf pulls in protobuf)
@@ -1400,7 +1404,7 @@ if (WITH_CRASHPAD)
     add_custom_command(TARGET GlimmerWorks POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "$<TARGET_FILE:handler>"
-            "$<TARGET_FILE_DIR:GlimmerWorks>/${CRASHPAD_NAME}$<TARGET_FILE_SUFFIX:handler>"
+            "$<TARGET_FILE_DIR:GlimmerWorks>/${CRASHPAD_NAME}"
             COMMENT "Deploying crashpad_handler"
     )
 endif ()

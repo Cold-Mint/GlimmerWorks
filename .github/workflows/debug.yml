@@ -53,7 +53,24 @@ jobs:
           libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev \
           libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev libthai-dev libusb-1.0-0-dev \
           libpipewire-0.3-dev libwayland-dev libdecor-0-dev liburing-dev ninja-build libpng-dev libfreetype-dev libharfbuzz-dev patchelf
-
+      - name: Download PackSigner binaries (Linux)
+        if: runner.os == 'Linux'
+        # robinraju/release-downloader@v1.11 tag:v1.13
+        uses: robinraju/release-downloader@28fc21f50d76778e7023361aa1f863e717d3d56f
+        with:
+          repository: 'Cold-Mint/GlimmerWorksPackSigner'
+          latest: true
+          fileName: 'packSigner-linux-*'
+          out-file-path: 'bin'
+      - name: Download PackSigner binaries (Windows)
+        if: runner.os == 'Windows'
+        # robinraju/release-downloader@v1.11 tag:v1.13
+        uses: robinraju/release-downloader@28fc21f50d76778e7023361aa1f863e717d3d56f
+        with:
+          repository: 'Cold-Mint/GlimmerWorksPackSigner'
+          latest: true
+          fileName: 'packSigner-windows-amd64-*.exe'
+          out-file-path: 'bin'
       - name: Locate PackSigner executable
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then

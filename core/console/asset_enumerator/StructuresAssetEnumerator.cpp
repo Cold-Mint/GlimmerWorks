@@ -30,8 +30,8 @@
 #include "core/context/ModContext.h"
 #include "core/mod/dataPack/StructureRegistry.h"
 
-std::string_view glimmer::StructuresAssetEnumerator::GetAssetType() const {
-    return assetName;
+const std::string & glimmer::StructuresAssetEnumerator::GetAssetType() const {
+    return assetName_;
 }
 
 std::optional<std::string> glimmer::StructuresAssetEnumerator::ListAsset(const AppContext *appContext) {

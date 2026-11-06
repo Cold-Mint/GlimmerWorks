@@ -30,10 +30,10 @@
 
 namespace glimmer {
     class FixedColorAssetEnumerator : public IAssetEnumerator {
-        std::string assetName = "fixedColor";
+        std::string assetName_ = "fixedColor";
 
     public:
-        [[nodiscard]] std::string_view GetAssetType() const override;
+        [[nodiscard]] const std::string & GetAssetType() const override;
 
         [[nodiscard]] std::optional<std::string> ListAsset(const AppContext *appContext) override;
     };

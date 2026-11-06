@@ -25,14 +25,15 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "BiomeDecorsAssetEnumerator.h"
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
 #include "core/log/LogCat.h"
 #include "core/context/AppContext.h"
 #include "core/context/ModContext.h"
 #include "core/mod/dataPack/BiomeDecoratorRegistry.h"
 
-std::string_view glimmer::BiomeDecorsAssetEnumerator::GetAssetType() const {
-    return assetName;
+
+const std::string &glimmer::BiomeDecorsAssetEnumerator::GetAssetType() const {
+    return assetName_;
 }
 
 std::optional<std::string> glimmer::BiomeDecorsAssetEnumerator::ListAsset(const AppContext *appContext) {

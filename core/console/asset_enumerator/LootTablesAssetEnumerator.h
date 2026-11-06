@@ -30,10 +30,10 @@
 
 namespace glimmer {
     class LootTablesAssetEnumerator : public IAssetEnumerator {
-        std::string assetName = "lootTables";
+        std::string assetName_ = "lootTables";
 
     public:
-        [[nodiscard]] std::string_view GetAssetType() const override;
+        [[nodiscard]] const std::string & GetAssetType() const override;
 
         [[nodiscard]] std::optional<std::string> ListAsset(const AppContext *appContext) override;
     };

@@ -25,7 +25,7 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
 #include <optional>
 #include <string>
 
@@ -36,7 +36,7 @@ namespace glimmer {
     public:
         virtual ~IAssetEnumerator() = default;
 
-        [[nodiscard]] virtual std::string_view GetAssetType() const = 0;
+        [[nodiscard]] virtual const std::string &GetAssetType() const = 0;
 
         [[nodiscard]] virtual std::optional<std::string> ListAsset(const AppContext *appContext) = 0;
     };

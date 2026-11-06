@@ -30,8 +30,9 @@
 #include "core/context/ModContext.h"
 #include "core/inventory/InitialInventoryManager.h"
 
-std::string_view glimmer::StartInvAssetEnumerator::GetAssetType() const {
-    return assetName;
+
+const std::string & glimmer::StartInvAssetEnumerator::GetAssetType() const {
+    return assetName_;
 }
 
 std::optional<std::string> glimmer::StartInvAssetEnumerator::ListAsset(const AppContext *appContext) {

@@ -30,8 +30,9 @@
 #include "core/context/ModContext.h"
 #include "core/mod/dataPack/TileResourceManager.h"
 
-std::string_view glimmer::TileAssetEnumerator::GetAssetType() const {
-    return assetName;
+
+const std::string & glimmer::TileAssetEnumerator::GetAssetType() const {
+    return assetName_;
 }
 
 std::optional<std::string> glimmer::TileAssetEnumerator::ListAsset(const AppContext *appContext) {

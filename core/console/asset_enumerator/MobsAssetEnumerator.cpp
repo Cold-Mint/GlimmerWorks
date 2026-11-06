@@ -25,13 +25,14 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "MobsAssetEnumerator.h"
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
 #include "core/context/AppContext.h"
 #include "core/context/ModContext.h"
 #include "core/mod/dataPack/MobRegistry.h"
 
-std::string_view glimmer::MobsAssetEnumerator::GetAssetType() const {
-    return assetName;
+
+const std::string &glimmer::MobsAssetEnumerator::GetAssetType() const {
+    return assetName_;
 }
 
 std::optional<std::string> glimmer::MobsAssetEnumerator::ListAsset(const AppContext *appContext) {

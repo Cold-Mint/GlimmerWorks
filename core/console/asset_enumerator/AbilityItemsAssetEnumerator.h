@@ -25,15 +25,15 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
 #include "IAssetEnumerator.h"
 
 namespace glimmer {
     class AbilityItemsAssetEnumerator : public IAssetEnumerator {
-        std::string assetName = "abilityItems";
+        std::string assetName_ = "abilityItems";
 
     public:
-        [[nodiscard]] std::string_view GetAssetType() const override;
+        [[nodiscard]] const std::string &GetAssetType() const override;
 
         [[nodiscard]] std::optional<std::string> ListAsset(const AppContext *appContext) override;
     };

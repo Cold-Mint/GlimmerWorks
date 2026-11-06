@@ -117,6 +117,7 @@ jobs:
           -DPACK_SIGNER_EXE=${{ env.PACK_SIGNER_EXE }}
           -DSIGN_PRIVATE_KEY="${{ env.SIGN_PRIVATE_KEY }}"
           -DSIGN_PUBLIC_KEY="${{ env.SIGN_PUBLIC_KEY }}"
+          -DWITH_CRASHPAD=ON
           -G Ninja
           -S ${{ github.workspace }}
       - name: Configure CMake (Windows)
@@ -133,6 +134,7 @@ jobs:
           -DPACK_SIGNER_EXE=${{ env.PACK_SIGNER_EXE }}
           -DSIGN_PRIVATE_KEY="${{ env.SIGN_PRIVATE_KEY }}"
           -DSIGN_PUBLIC_KEY="${{ env.SIGN_PUBLIC_KEY }}"
+          -DWITH_CRASHPAD=ON
           -G "Ninja"
           -S ${{ github.workspace }}
       - name: Build

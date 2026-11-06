@@ -43,10 +43,12 @@
 
 glimmer::ScenePass::ScenePass(SDL_GPUDevice *device, SDL_Window *window,
                               std::shared_ptr<GPUPipelineResourceResult> defaultPipeline,
+                              std::shared_ptr<GPUPipelineResourceResult> tintPipeline,
                               std::shared_ptr<GPUSamplerResourceResult> defaultSampler)
     : device_(device),
       window_(window),
       defaultPipeline_(std::move(defaultPipeline)),
+      tintPipeline_(std::move(tintPipeline)),
       defaultSampler_(std::move(defaultSampler)) {
     EnsureSolidColorTexture();
 }
@@ -354,6 +356,11 @@ void glimmer::ScenePass::FlushScenePass(const RenderFrameContext &ctx) {
             }
             SDL_GPUTextureSamplerBinding textureSamplerBinding = {texture, sampler};
             SDL_BindGPUFragmentSamplers(renderPass, 0, &textureSamplerBinding, 1);
+            if (tintPipeline_ != nullptr && command.pipeline == tintPipeline_->GetResource()) {
+                injectContext->tintColor = command.tint;
+                FillAndPushUniformBlock(commandBuffer, tintPipeline_->GetUniformBlocks(), *injectContext,
+                                        sceneStagingBuffer_);
+            }
             SDL_DrawGPUIndexedPrimitives(renderPass, 6, 1, firstIndex, 0, 0);
             firstIndex += 6;
         }

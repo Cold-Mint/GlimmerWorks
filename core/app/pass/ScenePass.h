@@ -59,6 +59,7 @@ namespace glimmer {
         std::vector<SpriteVertex> vertexStaging_;
         std::vector<uint32_t> indexStaging_;
         std::shared_ptr<GPUPipelineResourceResult> defaultPipeline_ = nullptr;
+        std::shared_ptr<GPUPipelineResourceResult> tintPipeline_ = nullptr;
         std::shared_ptr<GPUSamplerResourceResult> defaultSampler_ = nullptr;
         SDL_GPUDevice *device_ = nullptr;
         SDL_Window *window_ = nullptr;
@@ -95,6 +96,7 @@ namespace glimmer {
     public:
         ScenePass(SDL_GPUDevice *device, SDL_Window *window,
                   std::shared_ptr<GPUPipelineResourceResult> defaultPipeline,
+                  std::shared_ptr<GPUPipelineResourceResult> tintPipeline,
                   std::shared_ptr<GPUSamplerResourceResult> defaultSampler);
 
         ~ScenePass() override;

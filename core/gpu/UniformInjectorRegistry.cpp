@@ -76,6 +76,13 @@ namespace {
         dst[1] = static_cast<float>(ctx.lightMapSizeY);
     }
 
+    void InjectTintColor(const glimmer::UniformInjectContext &ctx, float *dst) {
+        dst[0] = ctx.tintColor.r;
+        dst[1] = ctx.tintColor.g;
+        dst[2] = ctx.tintColor.b;
+        dst[3] = ctx.tintColor.a;
+    }
+
     using InjectorMap = std::unordered_map<std::string, glimmer::UniformInjector,
         glimmer::TransparentStringHash, std::equal_to<> >;
 
@@ -89,6 +96,7 @@ namespace {
             map[std::string(glimmer::BUILTIN_TILE_SIZE)] = &InjectTileSize;
             map[std::string(glimmer::BUILTIN_LIGHTMAP_ORIGIN)] = &InjectLightmapOrigin;
             map[std::string(glimmer::BUILTIN_LIGHTMAP_SIZE)] = &InjectLightmapSize;
+            map[std::string(glimmer::BUILTIN_TINT_COLOR)] = &InjectTintColor;
             return map;
         }();
         return injectors;

@@ -26,24 +26,18 @@
  */
 #pragma once
 
-#include <SDL3/SDL_stdinc.h>
-
 namespace glimmer {
     /**
      * Single vertex of a sprite quad: position (pixels, top-left origin,
-     * +Y down), uv, color. The layout must match the inputs of the sprite
-     * shader (shaders/@core/sprite.vert).
-     * 精灵四边形的单个顶点：位置（像素，左上角原点，+Y 向下）、uv、颜色。
-     * 布局必须与精灵着色器的输入一致（shaders/@core/sprite.vert）。
+     * +Y down), uv. The layout must match the inputs of the default/tint
+     * shaders (shaders/@core/default.vert, shaders/@core/tint.vert).
+     * 精灵四边形的单个顶点：位置（像素，左上角原点，+Y 向下）、uv。
+     * 布局必须与 default/tint 着色器的输入一致。
      */
     struct SpriteVertex {
         float x = 0.0F;
         float y = 0.0F;
         float u = 0.0F;
         float v = 0.0F;
-        Uint8 r = 255;
-        Uint8 g = 255;
-        Uint8 b = 255;
-        Uint8 a = 255;
     };
 }

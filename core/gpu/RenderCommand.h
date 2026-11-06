@@ -29,6 +29,7 @@
 #include <vector>
 
 #include <SDL3/SDL_gpu.h>
+#include <SDL3/SDL_pixels.h>
 #include <SDL3/SDL_stdinc.h>
 
 #include "RenderLayer.h"
@@ -66,6 +67,12 @@ namespace glimmer {
      */
     struct RenderCommand {
         SpriteVertex corners[4] = {};
+        //Per-command tint color (0..1). Applied only by pipelines that sample
+        //@builtin.tint_color (e.g. the "tint" pipeline); ignored by the
+        //default pipeline.
+        //每命令染色颜色（0..1）。仅由采样 @builtin.tint_color 的管线
+        //（如 tint 管线）使用；默认管线忽略。
+        SDL_FColor tint = {1.0F, 1.0F, 1.0F, 1.0F};
         //Optional uniform blocks to fill and push before drawing this command.
         //绘制此命令前要填充并推送的可选 uniform 块列表。
         const std::vector<PipelineUniformBlock> *uniformBlocks = nullptr;

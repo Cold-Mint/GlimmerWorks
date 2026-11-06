@@ -25,7 +25,8 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <cstdint>
+
+#include <SDL3/SDL_pixels.h>
 
 #include "core/world/LightBuffer.h"
 
@@ -56,5 +57,9 @@ namespace glimmer {
         int lightMapOriginY = 0;
         uint32_t lightMapSizeX = 0;
         uint32_t lightMapSizeY = 0;
+        //Per-command tint color (0..1). Set by the scene pass before pushing
+        //the tint uniform block of a tinted command.
+        //每命令染色颜色（0..1）。场景 pass 在推送染色命令的 tint uniform 块前设置。
+        SDL_FColor tintColor = {1.0F, 1.0F, 1.0F, 1.0F};
     };
 }

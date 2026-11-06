@@ -37,6 +37,10 @@
 namespace glimmer {
     class RenderQueue {
         std::vector<RenderCommand> commands_;
+        //Pipeline used for tinted commands (solid-color shapes / tinted
+        //textures). Injected by the renderer; nullptr until set.
+        //用于染色命令（纯色图形/染色纹理）的管线。由渲染器注入，未设置时为 nullptr。
+        SDL_GPUGraphicsPipeline *tintPipeline_ = nullptr;
 
         /**
          * Append one quad command to the queue.
@@ -46,7 +50,7 @@ namespace glimmer {
          * @param texture texture 采样纹理（nullptr 表示纯色几何，使用渲染器内置白色纹理）
          * @param positions positions 4 个角点（左上、右上、左下、右下，像素坐标）
          * @param uvs uvs 4 个角点对应的纹理坐标
-         * @param color color 顶点颜色（调色/透明度调制）
+         * @param color color 每命令染色颜色（调色/透明度调制）
          * @param pipeline pipeline 渲染管线（nullptr 表示使用默认管线）
          * @param sampler sampler 采样器（nullptr 表示使用默认采样器）
          * @param uniformBlocks uniformBlocks 可选 uniform 块列表
@@ -76,6 +80,14 @@ namespace glimmer {
          * @param commandCount commandCount 预计的命令数量
          */
         void Reserve(size_t commandCount);
+
+        /**
+         * Set the pipeline used for tinted commands. Must be called by the
+         * renderer before any tinted command is queued.
+         * 设置用于染色命令的管线。必须在任何染色命令入队前由渲染器调用。
+         * @param pipeline pipeline tint 管线（SDL_GPUGraphicsPipeline 指针）
+         */
+        void SetTintPipeline(SDL_GPUGraphicsPipeline *pipeline);
 
         [[nodiscard]] size_t GetCommandCount() const;
 

@@ -87,9 +87,22 @@ glimmer::AppRenderer::AppRenderer(AppContext *appContext) : appContext_(appConte
     lightingSamplerResourceRef.SetResourceType(RESOURCE_SAMPLER);
     lightingSamplerResourceRef.SetResourceKey("lighting");
     auto lightingSampler = resourceLocator_->FindGPUGraphicsSampler(&lightingSamplerResourceRef);
+    ResourceRef tintPipelineResourceRef;
+    tintPipelineResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    tintPipelineResourceRef.SetResourceType(RESOURCE_PIPELINE);
+    tintPipelineResourceRef.SetResourceKey("tint");
+    auto tintPipeline = resourceLocator_->FindGPUGraphicsPipeline(&tintPipelineResourceRef);
+    if (tintPipeline == nullptr) {
+        LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "default_pipeline_failed",
+                  "tintPipeline failed: {}",
+                  SDL_GetError());
+    } else {
+        renderQueue_.SetTintPipeline(tintPipeline->GetResource());
+    }
     sceneManager_ = appContext_->GetSceneManager();
     passes_.emplace_back(
-        std::make_unique<ScenePass>(device_, window_, std::move(defaultPipeline), std::move(defaultSampler)));
+        std::make_unique<ScenePass>(device_, window_, std::move(defaultPipeline), std::move(tintPipeline),
+                                    std::move(defaultSampler)));
     passes_.emplace_back(std::make_unique<ClearPass>());
     passes_.emplace_back(std::make_unique<LightingPass>(resourceLocator_, device_, std::move(lightingPipeline),
                                                         std::move(lightingSampler)));

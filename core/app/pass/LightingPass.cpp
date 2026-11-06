@@ -275,14 +275,14 @@ void glimmer::LightingPass::BlitScene(RenderFrameContext &ctx) {
 
     const auto logicalW = static_cast<float>(ctx.logicalWidth);
     const auto logicalH = static_cast<float>(ctx.logicalHeight);
-    //Build a fullscreen quad in logical pixel coordinates with a white
-    //vertex color, so the sprite shader outputs the sampled texture as-is.
-    //构建逻辑像素坐标下的全屏四边形，顶点色为白色，使精灵着色器原样输出采样纹理。
+    //Build a fullscreen quad in logical pixel coordinates, so the sprite
+    //shader outputs the sampled texture as-is.
+    //构建逻辑像素坐标下的全屏四边形，使精灵着色器原样输出采样纹理。
     const SpriteVertex vertices[4] = {
-        {0.0F, 0.0F, 0.0F, 0.0F, 255, 255, 255, 255},
-        {logicalW, 0.0F, 1.0F, 0.0F, 255, 255, 255, 255},
-        {0.0F, logicalH, 0.0F, 1.0F, 255, 255, 255, 255},
-        {logicalW, logicalH, 1.0F, 1.0F, 255, 255, 255, 255}
+        {0.0F, 0.0F, 0.0F, 0.0F},
+        {logicalW, 0.0F, 1.0F, 0.0F},
+        {0.0F, logicalH, 0.0F, 1.0F},
+        {logicalW, logicalH, 1.0F, 1.0F}
     };
     const uint32_t indices[6] = {0, 1, 2, 1, 3, 2};
 
@@ -413,10 +413,10 @@ void glimmer::LightingPass::DrawLightMapDebug(RenderFrameContext &ctx) {
     const float y = logicalH - h - margin;
 
     const SpriteVertex vertices[4] = {
-        {x, y, 0.0F, 0.0F, 255, 255, 255, 255},
-        {x + w, y, 1.0F, 0.0F, 255, 255, 255, 255},
-        {x, y + h, 0.0F, 1.0F, 255, 255, 255, 255},
-        {x + w, y + h, 1.0F, 1.0F, 255, 255, 255, 255}
+        {x, y, 0.0F, 0.0F},
+        {x + w, y, 1.0F, 0.0F},
+        {x, y + h, 0.0F, 1.0F},
+        {x + w, y + h, 1.0F, 1.0F}
     };
     const uint32_t indices[6] = {0, 1, 2, 1, 3, 2};
 

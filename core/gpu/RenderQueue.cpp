@@ -41,15 +41,20 @@ void glimmer::RenderQueue::AppendQuad(const RenderLayer layer, const float depth
     command.pipeline = pipeline;
     command.sampler = sampler;
     command.uniformBlocks = uniformBlocks;
+    command.tint = {
+        color.r / 255.0F, color.g / 255.0F, color.b / 255.0F, color.a / 255.0F
+    };
     for (int i = 0; i < 4; ++i) {
-        command.corners[i] = {
-            positions[i].x, positions[i].y, uvs[i].x, uvs[i].y, color.r, color.g, color.b, color.a
-        };
+        command.corners[i] = {positions[i].x, positions[i].y, uvs[i].x, uvs[i].y};
     }
 }
 
 void glimmer::RenderQueue::AddCommand(RenderCommand command) {
     commands_.emplace_back(command);
+}
+
+void glimmer::RenderQueue::SetTintPipeline(SDL_GPUGraphicsPipeline *pipeline) {
+    tintPipeline_ = pipeline;
 }
 
 void glimmer::RenderQueue::Clear() {
@@ -125,7 +130,11 @@ void glimmer::RenderQueue::DrawTexture(RenderLayer layer, float depth, TextureRe
         {u0, v1},
         {u1, v1}
     };
-    AppendQuad(layer, depth, texture, positions, uvs, mod, pipeline, sampler, uniformBlocks);
+    SDL_GPUGraphicsPipeline *effectivePipeline = pipeline;
+    if (effectivePipeline == nullptr && (mod.r != 255 || mod.g != 255 || mod.b != 255 || mod.a != 255)) {
+        effectivePipeline = tintPipeline_;
+    }
+    AppendQuad(layer, depth, texture, positions, uvs, mod, effectivePipeline, sampler, uniformBlocks);
 }
 
 void glimmer::RenderQueue::DrawTextureRotated(RenderLayer layer, float depth, const TextureResourceResult *texture,
@@ -192,7 +201,11 @@ void glimmer::RenderQueue::DrawTextureRotated(RenderLayer layer, float depth, co
         std::swap(uvs[0].y, uvs[2].y);
         std::swap(uvs[1].y, uvs[3].y);
     }
-    AppendQuad(layer, depth, texture, positions, uvs, mod, pipeline, sampler, uniformBlocks);
+    SDL_GPUGraphicsPipeline *effectivePipeline = pipeline;
+    if (effectivePipeline == nullptr && (mod.r != 255 || mod.g != 255 || mod.b != 255 || mod.a != 255)) {
+        effectivePipeline = tintPipeline_;
+    }
+    AppendQuad(layer, depth, texture, positions, uvs, mod, effectivePipeline, sampler, uniformBlocks);
 }
 
 void glimmer::RenderQueue::DrawFullScreenQuad(RenderLayer layer, float depth, const SDL_FRect *dst,
@@ -240,7 +253,7 @@ void glimmer::RenderQueue::FillRect(const RenderLayer layer, const float depth, 
         {0.0F, 1.0F},
         {1.0F, 1.0F}
     };
-    AppendQuad(layer, depth, nullptr, positions, uvs, color);
+    AppendQuad(layer, depth, nullptr, positions, uvs, color, tintPipeline_);
 }
 
 void glimmer::RenderQueue::DrawRect(const RenderLayer layer, const float depth, const SDL_FRect *rect,
@@ -283,7 +296,7 @@ void glimmer::RenderQueue::DrawLine(const RenderLayer layer, const float depth, 
         {0.0F, 1.0F},
         {1.0F, 1.0F}
     };
-    AppendQuad(layer, depth, nullptr, positions, uvs, color);
+    AppendQuad(layer, depth, nullptr, positions, uvs, color, tintPipeline_);
 }
 
 void glimmer::RenderQueue::DrawPoint(const RenderLayer layer, const float depth, const float x, const float y,

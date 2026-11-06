@@ -144,7 +144,7 @@ std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::GpuPipelineCache::L
     bufferDescription.pitch = sizeof(SpriteVertex);
     bufferDescription.input_rate = SDL_GPU_VERTEXINPUTRATE_VERTEX;
 
-    SDL_GPUVertexAttribute attributes[3] = {};
+    SDL_GPUVertexAttribute attributes[2] = {};
     attributes[0].location = 0;
     attributes[0].buffer_slot = 0;
     attributes[0].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2;
@@ -153,10 +153,6 @@ std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::GpuPipelineCache::L
     attributes[1].buffer_slot = 0;
     attributes[1].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2;
     attributes[1].offset = offsetof(SpriteVertex, u);
-    attributes[2].location = 2;
-    attributes[2].buffer_slot = 0;
-    attributes[2].format = SDL_GPU_VERTEXELEMENTFORMAT_UBYTE4_NORM;
-    attributes[2].offset = offsetof(SpriteVertex, r);
 
     SDL_GPUColorTargetDescription colorTarget = {};
     colorTarget.blend_state = ToColorTargetBlendState(static_cast<BlendMode>(gpuPipelineResource->blendMode));
@@ -167,7 +163,7 @@ std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::GpuPipelineCache::L
     createInfo.vertex_input_state.vertex_buffer_descriptions = &bufferDescription;
     createInfo.vertex_input_state.num_vertex_buffers = 1;
     createInfo.vertex_input_state.vertex_attributes = attributes;
-    createInfo.vertex_input_state.num_vertex_attributes = 3;
+    createInfo.vertex_input_state.num_vertex_attributes = std::size(attributes);
     createInfo.multisample_state.sample_count = SDL_GPU_SAMPLECOUNT_1;
     createInfo.target_info.color_target_descriptions = &colorTarget;
     createInfo.target_info.num_color_targets = 1;

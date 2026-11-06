@@ -63,7 +63,7 @@ bool glimmer::InitCrashpadTask::Run(ISystemBucket *systemBucket) {
     const std::filesystem::path &runtimeActualPath = runtimeActualPathOptional.value();
     std::filesystem::path databasePath = runtimeActualPath / ".crashpad";
     std::filesystem::create_directories(databasePath);
-    auto databaseFilePath = base::FilePath(databasePath.string());
+    auto databaseFilePath = base::FilePath(databasePath.native());
     std::map<std::string, std::string> annotations;
     annotations["product"] = "GlimmerWorks";
     annotations["version"] = GAME_VERSION_STRING; // 如果你有版本宏
@@ -73,7 +73,7 @@ bool glimmer::InitCrashpadTask::Run(ISystemBucket *systemBucket) {
 
     crashpad::CrashpadClient client;
     bool success = client.StartHandler(
-        base::FilePath(handlerPathOptional.value()),
+        base::FilePath(handlerPathOptional.value().native()),
         databaseFilePath,
         databaseFilePath, // metrics_dir，通常和 database 相同即可
         "",

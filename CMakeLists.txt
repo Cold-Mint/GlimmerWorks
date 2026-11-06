@@ -337,12 +337,17 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(glimmerWorksProtobuf)
 target_include_directories(GlimmerWorksProto PRIVATE "${CMAKE_BINARY_DIR}/_deps/protobuf-src/third_party/utf8_range")
 
+# BLAKE3 enables the generic ASM language unconditionally via
+# project(... LANGUAGES C CXX ASM), which fails on MSVC (no
+# CMAKE_ASM_COMPILE_OBJECT rule). Patch it so MSVC uses ASM_MASM and
+# GNU/Clang uses ASM. See cmake/patches/blake3-asm-language.patch.
 FetchContent_Declare(
         blake3
         GIT_REPOSITORY "https://github.com/BLAKE3-team/BLAKE3"
         GIT_TAG ${BLAKE3-TEAM_BLAKE3_VERSION}
         GIT_SHALLOW TRUE
         SOURCE_SUBDIR c
+        PATCH_COMMAND "${GIT_EXECUTABLE}" apply "${CMAKE_CURRENT_SOURCE_DIR}/cmake/patches/blake3-asm-language.patch"
         EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(blake3)

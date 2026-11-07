@@ -34,9 +34,10 @@ glimmer::BoolDynamicSuggestions::BoolDynamicSuggestions() {
     suggestions_.emplace_back("false");
 }
 
-std::string glimmer::BoolDynamicSuggestions::GetId() const {
-    return BOOL_DYNAMIC_SUGGESTIONS_NAME;
+std::string_view glimmer::BoolDynamicSuggestions::GetId() const {
+    return Constants::BOOL_DYNAMIC_SUGGESTIONS_NAME;
 }
+
 
 const std::vector<std::string> &
 glimmer::BoolDynamicSuggestions::GetSuggestions(const std::optional<std::string> &param) {

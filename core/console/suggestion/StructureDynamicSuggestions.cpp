@@ -32,8 +32,8 @@ glimmer::StructureDynamicSuggestions::StructureDynamicSuggestions(
     StructureRegistry *structureManager) : structureRegistry_(structureManager) {
 }
 
-std::string glimmer::StructureDynamicSuggestions::GetId() const {
-    return STRUCTURE_DYNAMIC_SUGGESTIONS_NAME;
+std::string_view glimmer::StructureDynamicSuggestions::GetId() const {
+    return Constants::STRUCTURE_DYNAMIC_SUGGESTIONS_NAME;
 }
 
 const std::vector<std::string> &glimmer::StructureDynamicSuggestions::GetSuggestions(

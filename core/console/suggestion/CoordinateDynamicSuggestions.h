@@ -33,9 +33,9 @@ namespace glimmer {
         std::vector<std::string> suggestions_;
 
     public:
-        explicit CoordinateDynamicSuggestions(std::string id);
+        explicit CoordinateDynamicSuggestions(std::string_view id);
 
-        [[nodiscard]] std::string GetId() const override;
+        [[nodiscard]] std::string_view GetId() const override;
 
         const std::vector<std::string> &GetSuggestions(const std::optional<std::string> &param) override;
 

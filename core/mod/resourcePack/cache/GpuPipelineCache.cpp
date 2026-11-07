@@ -129,7 +129,7 @@ std::shared_ptr<glimmer::GPUPipelineResourceResult> glimmer::GpuPipelineCache::L
     }
     const std::string &manifestId = resourcePack->GetManifest()->id;
     auto gpuPipelineResource = std::make_unique<GPUPipelineResource>(
-        toml::get<GPUPipelineResource>(toml::parse_str(data.value(), TOML_VERSION)));
+        toml::get<GPUPipelineResource>(toml::parse_str(data.value(), Constants::TOML_VERSION)));
     gpuPipelineResource->vertexShader.SetSelfPackageId(manifestId);
     gpuPipelineResource->fragmentShader.SetSelfPackageId(manifestId);
     for (ResourceRef &uniformBlock: gpuPipelineResource->vertexUniformBlock) {

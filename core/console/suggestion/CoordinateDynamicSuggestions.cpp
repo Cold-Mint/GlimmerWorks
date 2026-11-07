@@ -27,13 +27,12 @@
 #include "CoordinateDynamicSuggestions.h"
 
 #include <stdexcept>
-#include <utility>
 
-glimmer::CoordinateDynamicSuggestions::CoordinateDynamicSuggestions(std::string id) : id_(std::move(id)) {
+glimmer::CoordinateDynamicSuggestions::CoordinateDynamicSuggestions(const std::string_view id): id_(id) {
     suggestions_.emplace_back("~");
 }
 
-std::string glimmer::CoordinateDynamicSuggestions::GetId() const {
+std::string_view glimmer::CoordinateDynamicSuggestions::GetId() const {
     return id_;
 }
 

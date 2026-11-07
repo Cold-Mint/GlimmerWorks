@@ -31,7 +31,7 @@
 
 std::optional<glimmer::TileLayerType> glimmer::TileLayerTypeUtils::GetFrontLayerType(TileLayerType tileLayerType) {
     uint8_t value = static_cast<uint8_t>(tileLayerType) << 1;
-    if (constexpr uint8_t maxLimit = 1U << TILE_LAYER_TYPE_COUNT; value < maxLimit) {
+    if (constexpr uint8_t maxLimit = 1U << Constants::TILE_LAYER_TYPE_COUNT; value < maxLimit) {
         return static_cast<TileLayerType>(value);
     }
     return std::nullopt;

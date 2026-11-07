@@ -402,7 +402,7 @@ void glimmer::MiningSystem::OnTick(const uint64_t tick) {
             break;
         }
         miningComponent_->AddProgress(
-            miningComponent_->GetEfficiency() / rangeData->GetMaxHardness() * FIXED_TIME_STEP);
+            miningComponent_->GetEfficiency() / rangeData->GetMaxHardness() * Constants::FIXED_TIME_STEP);
         if (miningComponent_->GetProgress() >= 1.0F) {
             ProcessMiningComplete(tileLayer, tileLayerType, miningComponent_->AllowDropLoot());
         }
@@ -416,7 +416,7 @@ void glimmer::MiningSystem::Render(RenderQueue *queue) {
     if (!cacheTexture_) {
         for (uint8_t i = 0; i < 10; i++) {
             ResourceRef resourceRef;
-            resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+            resourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
             resourceRef.SetResourceType(RESOURCE_TEXTURE);
             std::stringstream keyStream;
             keyStream << "cracks/cracks_";
@@ -447,7 +447,7 @@ void glimmer::MiningSystem::Render(RenderQueue *queue) {
 }
 
 uint8_t glimmer::MiningSystem::GetExecutionOrder() {
-    return EXECUTION_ORDER_DIGGING;
+    return Constants::EXECUTION_ORDER_DIGGING;
 }
 
 void glimmer::MiningSystem::RenderDiggingPoint(RenderQueue *queue, const MiningRangeDataPoint *point) const {

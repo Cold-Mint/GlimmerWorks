@@ -65,13 +65,13 @@ bool glimmer::DataPack::LoadManifest() {
     if (virtualFileSystem == nullptr) {
         return false;
     }
-    const auto contentOptional = virtualFileSystem->ReadFileAsString(rootPath_ / MANIFEST_FILE_NAME);
+    const auto contentOptional = virtualFileSystem->ReadFileAsString(rootPath_ / Constants::MANIFEST_FILE_NAME);
     if (!contentOptional.has_value()) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "data_pack_manifest_read_failed",
-                  "Failed to read data pack manifest file: {}", (rootPath_ / MANIFEST_FILE_NAME).string());
+                  "Failed to read data pack manifest file: {}", (rootPath_ / Constants::MANIFEST_FILE_NAME).string());
         return false;
     }
-    const toml::value value = toml::parse_str(contentOptional.value(), TOML_VERSION);
+    const toml::value value = toml::parse_str(contentOptional.value(), Constants::TOML_VERSION);
     manifest_ = toml::get<DataPackManifest>(value);
     manifest_.name.SetSelfPackageId(manifest_.id);
     manifest_.description.SetSelfPackageId(manifest_.id);

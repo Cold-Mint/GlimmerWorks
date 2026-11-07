@@ -133,7 +133,7 @@ void glimmer::LightBuffer::SetAmbientLightContributionAt(const TileVector2D &pos
 void glimmer::LightBuffer::InjectAmbientLightAt(const TileVector2D &position, TileLightData &tileData) {
     const Color &backColor = backLightSource_.GetEmissionColor();
     const Color &skyColor = skyLightSource_.GetEmissionColor();
-    for (int i = 0; i < TILE_LAYER_TYPE_COUNT; ++i) {
+    for (int i = 0; i < Constants::TILE_LAYER_TYPE_COUNT; ++i) {
         const auto layerType = static_cast<TileLayerType>(1 << i);
         //背光（z 方向）照所有图层，各层用各自的背光遮照遮挡。
         if (backColor.a > 0) {
@@ -167,7 +167,7 @@ void glimmer::LightBuffer::RebuildAmbientLight() {
         if (tileData == nullptr) {
             continue;
         }
-        for (int i = 0; i < TILE_LAYER_TYPE_COUNT; ++i) {
+        for (int i = 0; i < Constants::TILE_LAYER_TYPE_COUNT; ++i) {
             const auto layerType = static_cast<TileLayerType>(1 << i);
             tileData->ClearLightContribution(layerType, &backLightSource_);
             tileData->ClearLightContribution(layerType, &skyLightSource_);

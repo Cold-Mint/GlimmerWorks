@@ -186,7 +186,7 @@ bool glimmer::ComposableItem::OnUse(const ItemUseContext &context) {
                                                  context.worldContext->GetEntityShortCut()->
                                                  GetCameraTransform2DComponent()->
                                                  GetPosition(), itemResult.TakeItem(),
-                                                 DROPPED_ITEM_PICKUP_COOLDOWN_TICKS);
+                                                 Constants::DROPPED_ITEM_PICKUP_COOLDOWN_TICKS);
             continue;
         }
         if (const bool result = itemAbility->OnUse(context); !handle && result) {
@@ -298,7 +298,7 @@ void glimmer::ComposableItem::ReadItemMessage(WorldContext *worldContext, const 
                                                      worldContext->GetEntityShortCut()->
                                                      GetCameraTransform2DComponent()->
                                                      GetPosition(), itemResult.TakeItem(),
-                                                     DROPPED_ITEM_PICKUP_COOLDOWN_TICKS);
+                                                     Constants::DROPPED_ITEM_PICKUP_COOLDOWN_TICKS);
             }
         }
     }

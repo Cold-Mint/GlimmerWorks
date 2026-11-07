@@ -153,12 +153,12 @@ bool glimmer::MagnetSystem::ProcessMagneticEntity(GameEntityID magneticEntity,
         magnet->RemoveEntity(magneticEntity);
         return false;
     }
-    if (distance < MIN_SAFE_DISTANCE) {
-        distance = MIN_SAFE_DISTANCE;
+    if (distance < Constants::MIN_SAFE_DISTANCE) {
+        distance = Constants::MIN_SAFE_DISTANCE;
     }
     const float normalizedDistance = distance / detectionRadius;
     const float forceStrength = 1.0F - normalizedDistance;
-    collider->SetVelocity(distanceVector.Normalized() * MAX_MAGNET_FORCE * forceStrength);
+    collider->SetVelocity(distanceVector.Normalized() * Constants::MAX_MAGNET_FORCE * forceStrength);
     if (distance <= magnet->GetAdsorptionRadius()) {
         magnet->AddEntity(magneticEntity);
         LogCat::d(LogLabel::DEFAULT, "magnetic_entity_adsorbed", "Magnetic entity {} entered adsorption radius",

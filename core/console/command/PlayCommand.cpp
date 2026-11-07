@@ -32,7 +32,7 @@
 #include "fmt/xchar.h"
 
 void glimmer::PlayCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
-    suggestionsTree->AddChild(AUDIO_TRACK_DYNAMIC_SUGGESTIONS_NAME);
+    suggestionsTree->AddChild(std::string(Constants::AUDIO_TRACK_DYNAMIC_SUGGESTIONS_NAME));
 }
 
 glimmer::PlayCommand::PlayCommand(AppContext *appContext) : Command(appContext),
@@ -40,9 +40,10 @@ glimmer::PlayCommand::PlayCommand(AppContext *appContext) : Command(appContext),
                                                                 appContext->GetAudioContext()->GetAudioManager()) {
 }
 
-const std::string &glimmer::PlayCommand::GetName() const {
-    return PLAY_COMMAND_NAME;
+std::string_view glimmer::PlayCommand::GetName() const {
+    return Constants::PLAY_COMMAND_NAME;
 }
+
 
 void glimmer::PlayCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
     if (strings == nullptr) {
@@ -72,7 +73,7 @@ bool glimmer::PlayCommand::Execute(const CommandSender *commandSender, const Com
     }
     const std::string audioTrack = commandArgs->AsString(1);
     AudioType audioType = AudioType::AMBIENT;
-    if (audioTrack == AUDIO_TRACK_BGM) {
+    if (audioTrack == Constants::AUDIO_TRACK_BGM) {
         audioType = AudioType::BGM;
     }
     const auto resourceRef = commandArgs->AsResourceRef(2, RESOURCE_AUDIO);

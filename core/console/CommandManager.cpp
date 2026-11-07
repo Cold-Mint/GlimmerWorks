@@ -35,7 +35,7 @@
 #include "suggestion/DynamicSuggestionsManager.h"
 
 void glimmer::CommandManager::RegisterCommand(std::unique_ptr<Command> command) {
-    const std::string &name = command->GetName();
+    const std::string_view name = command->GetName();
     command->Initialize();
     commandMap_[name] = std::move(command);
     LogCat::i(LogLabel::DEFAULT, "command_registered", "Command registered: {}", name);
@@ -176,7 +176,7 @@ std::string glimmer::CommandManager::GetHelpText(const LangsResources *langsReso
     stringStream << fmt::format(
         fmt::runtime(langsResources->commandInfo),
         commandMap_.size());
-    for (const auto &[name, command]: commandMap_) {
+    for (const auto &name: commandMap_ | std::views::keys) {
         stringStream << '\n';
         stringStream << name;
     }

@@ -32,9 +32,9 @@ glimmer::ComposableItemResource *glimmer::ComposableItemRegistry::OnNotFound(con
     composableItemResource->packId = packId;
     composableItemResource->resourceId = key;
     ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_TEXTURE);
-    resourceRef.SetResourceKey(ERROR_TEXTURE_KEY);
+    resourceRef.SetResourceKey(Constants::ERROR_TEXTURE_KEY);
     composableItemResource->texture = resourceRef;
     composableItemResource->defaultAbilityList = {};
     composableItemResource->slotSize = 0;

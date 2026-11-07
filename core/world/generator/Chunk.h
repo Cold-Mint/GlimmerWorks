@@ -42,15 +42,15 @@ namespace glimmer {
 
     class Chunk : public std::enable_shared_from_this<Chunk> {
         friend class ChunkManager;
-        std::unordered_map<TileLayerType, std::array<std::shared_ptr<Tile>, CHUNK_AREA> >
+        std::unordered_map<TileLayerType, std::array<std::shared_ptr<Tile>, Constants::CHUNK_AREA> >
         tiles_;
         //Save the tile resource signature for each grid, and rebuild the tile when the signature changes.
         //保存每个格子的瓦片资源签名，并在签名改变时重建瓦片。
-        std::unordered_map<TileLayerType, std::array<uint64_t, CHUNK_AREA> >
+        std::unordered_map<TileLayerType, std::array<uint64_t, Constants::CHUNK_AREA> >
         tileFingerprint_;
-        std::unordered_map<TileLayerType, std::array<std::shared_ptr<TileStateMessage>, CHUNK_AREA> >
+        std::unordered_map<TileLayerType, std::array<std::shared_ptr<TileStateMessage>, Constants::CHUNK_AREA> >
         tileState_;
-        std::unordered_map<TileLayerType, std::array<std::shared_ptr<TileSnapshot>, CHUNK_AREA> > tileSnapshots_;
+        std::unordered_map<TileLayerType, std::array<std::shared_ptr<TileSnapshot>, Constants::CHUNK_AREA> > tileSnapshots_;
         std::vector<std::function<void(Chunk *chunk, size_t index, std::shared_ptr<Tile> tile,
                                        TileLayerType layerType)> >
         onTileRebuilt_;
@@ -71,7 +71,7 @@ namespace glimmer {
                                        const std::shared_ptr<Tile> &newTile, BreakSource breakSource) const;
 
         static void WriteTileStatesToMessage(
-            const std::array<std::shared_ptr<TileStateMessage>, CHUNK_AREA> &tileStates,
+            const std::array<std::shared_ptr<TileStateMessage>, Constants::CHUNK_AREA> &tileStates,
             TileStateArrayMessage &layerMessage);
 
         /**

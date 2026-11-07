@@ -34,8 +34,8 @@ glimmer::ComposableItemDynamicSuggestions::ComposableItemDynamicSuggestions(
     ComposableItemRegistry *composableItemRegistry) : composableItemRegistry_(composableItemRegistry) {
 }
 
-std::string glimmer::ComposableItemDynamicSuggestions::GetId() const {
-    return COMPOSABLE_ITEM_DYNAMIC_SUGGESTIONS_NAME;
+std::string_view glimmer::ComposableItemDynamicSuggestions::GetId() const {
+    return Constants::COMPOSABLE_ITEM_DYNAMIC_SUGGESTIONS_NAME;
 }
 
 bool glimmer::ComposableItemDynamicSuggestions::Match(const std::string &keyword, const std::string &param) {

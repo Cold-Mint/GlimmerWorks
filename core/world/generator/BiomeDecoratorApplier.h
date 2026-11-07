@@ -64,6 +64,6 @@ namespace glimmer {
                           const ResourceLocator *resourceLocator,
                           WorldContext *worldContext,
                           TerrainResult *terrainResult,
-                          std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > &tilesRefMap);
+                          std::unordered_map<TileLayerType, std::array<ResourceRef, Constants::CHUNK_AREA> > &tilesRefMap);
     };
 }

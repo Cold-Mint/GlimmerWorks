@@ -40,8 +40,8 @@ glimmer::ScreenshotCommand::ScreenshotCommand(AppContext *appContext)
     : Command(appContext) {
 }
 
-const std::string &glimmer::ScreenshotCommand::GetName() const {
-    return SCREEN_SHOT_COMMAND_NAME;
+std::string_view glimmer::ScreenshotCommand::GetName() const {
+    return Constants::SCREEN_SHOT_COMMAND_NAME;
 }
 
 void glimmer::ScreenshotCommand::

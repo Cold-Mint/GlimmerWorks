@@ -35,7 +35,7 @@ namespace glimmer {
     public:
         explicit RmlDebugCommand(AppContext *appContext);
 
-        [[nodiscard]] const std::string &GetName() const override;
+        [[nodiscard]] std::string_view GetName() const override;
 
         bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
                      const std::function<void(const std::string &text)> *onMessage) override;

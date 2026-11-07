@@ -31,11 +31,11 @@
 glimmer::BooleanToggleDynamicSuggestions::BooleanToggleDynamicSuggestions() {
     suggestions_.emplace_back("true");
     suggestions_.emplace_back("false");
-    suggestions_.emplace_back(TOGGLE_KEY_WORD);
+    suggestions_.emplace_back(Constants::TOGGLE_KEY_WORD);
 }
 
-std::string glimmer::BooleanToggleDynamicSuggestions::GetId() const {
-    return BOOL_TOGGLE_DYNAMIC_SUGGESTIONS_NAME;
+std::string_view glimmer::BooleanToggleDynamicSuggestions::GetId() const {
+    return Constants::BOOL_TOGGLE_DYNAMIC_SUGGESTIONS_NAME;
 }
 
 const std::vector<std::string> &glimmer::BooleanToggleDynamicSuggestions::GetSuggestions(

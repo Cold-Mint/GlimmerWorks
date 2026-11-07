@@ -38,7 +38,7 @@ glimmer::DialogOverlay::DialogOverlay(AppContext *context) : Scene(context) {
 
 void glimmer::DialogOverlay::LoadDocuments() {
     ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
     resourceRef.SetResourceKey("dialog/dialog");
     dialogDocument_ = LoadSingleDocument(&resourceRef);

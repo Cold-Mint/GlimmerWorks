@@ -75,7 +75,7 @@ namespace glimmer {
         uint8_t recipeGroup_ = 0;
         uint8_t containerCapacity_ = 0;
         uint16_t containerMaxStack_ = 0;
-        uint8_t collisionMask_ = COLLISION_MASK_SOLID;
+        uint8_t collisionMask_ = Constants::COLLISION_MASK_SOLID;
         //碰撞箱尺寸（以瓦片为单位），默认 1x1 占满整格。
         Vector2DResource collisionBoxSize_ = {1.0F, 1.0F};
         //碰撞箱偏移（以瓦片为单位），碰撞箱左下角相对格子左下角的偏移。
@@ -94,7 +94,7 @@ namespace glimmer {
                                                 const Vector2DIResource &customTileAnchor);
 
         static void AppendDerivedTag(std::unordered_set<uint64_t> &existingTagIds, std::vector<ItemTagResource> &tags,
-                                     const std::string &name);
+                                      std::string_view name);
 
         static std::unique_ptr<Tile> FromTileResource(const AppContext *appContext,
                                                       const TileResource *tileResource);

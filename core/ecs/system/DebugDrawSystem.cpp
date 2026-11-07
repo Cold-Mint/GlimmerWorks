@@ -105,7 +105,7 @@ void glimmer::DebugDrawSystem::Render(RenderQueue *queue) {
 }
 
 uint8_t glimmer::DebugDrawSystem::GetExecutionOrder() {
-    return EXECUTION_ORDER_DEBUG_DRAW;
+    return Constants::EXECUTION_ORDER_DEBUG_DRAW;
 }
 
 glimmer::GameSystemType glimmer::DebugDrawSystem::GetGameSystemType() const {

@@ -48,7 +48,7 @@ namespace glimmer {
         std::shared_ptr<AudioResourceResult> pickItemSFXResult_ = nullptr;
         WorldVector2D lastPosition;
         AudioManager *audioManager_ = nullptr;
-        float remainingTime_ = MERGE_DURATION;
+        float remainingTime_ = Constants::MERGE_DURATION;
         uint32_t autoPickCount_ = 0;
         uint32_t magnetCount_ = 0;
         uint32_t itemContainerCount_ = 0;

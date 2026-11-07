@@ -50,7 +50,7 @@ std::shared_ptr<glimmer::ColorResource> glimmer::ColorCache::LoadResourceFromPac
         return nullptr;
     }
     return std::make_shared<ColorResource>(toml::get<ColorResource>(toml::parse_str(
-        dataOptional.value(), TOML_VERSION)));
+        dataOptional.value(), Constants::TOML_VERSION)));
 }
 
 glimmer::ColorCache::~ColorCache() noexcept = default;

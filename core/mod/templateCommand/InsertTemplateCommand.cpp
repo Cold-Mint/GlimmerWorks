@@ -44,7 +44,7 @@ std::optional<std::string> glimmer::InsertTemplateCommand::Execute(
         std::stringstream fileNameStream;
         fileNameStream << args[i];
         fileNameStream << ".";
-        fileNameStream << DATA_FILE_TYPE_TEMPLATE;
+        fileNameStream << Constants::DATA_FILE_TYPE_TEMPLATE;
         fileNameStream << ".";
         fileNameStream << "toml";
         const std::string fileName = fileNameStream.str();

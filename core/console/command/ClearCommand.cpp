@@ -32,10 +32,9 @@
 glimmer::ClearCommand::ClearCommand(AppContext *appContext) : Command(appContext) {
 }
 
-const std::string &glimmer::ClearCommand::GetName() const {
-    return CLEAR_COMMAND_NAME;
+std::string_view glimmer::ClearCommand::GetName() const {
+    return Constants::CLEAR_COMMAND_NAME;
 }
-
 
 bool glimmer::ClearCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
                                     const std::function<void(const std::string &text)> *onMessage) {

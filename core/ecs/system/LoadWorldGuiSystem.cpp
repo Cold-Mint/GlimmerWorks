@@ -102,7 +102,7 @@ glimmer::GameSystemType glimmer::LoadWorldGuiSystem::GetGameSystemType() const {
 
 void glimmer::LoadWorldGuiSystem::LoadDocuments(IDocumentRegistry *documentRegistry) {
     ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
     resourceRef.SetResourceKey("load_world/load_world");
     SetElementDocument(documentRegistry->LoadSingleDocument(&resourceRef));

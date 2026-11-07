@@ -47,7 +47,7 @@ namespace glimmer {
         std::unordered_map<GameComponentTypeMessage, uint32_t> componentCount_;
         std::vector<std::pair<uint32_t, std::function<void(GameComponentTypeMessage, uint32_t)> > >
         onComponentCountChanged_;
-        GameEntityID entityIndex_ = GAME_ENTITY_ID_INVALID;
+        GameEntityID entityIndex_ = Constants::GAME_ENTITY_ID_INVALID;
         uint32_t onComponentCountChangedId_ = 0;
 
 
@@ -61,7 +61,7 @@ namespace glimmer {
          * @param gameEntityId Specify the game entity ID 指定游戏实体Id
          * @return
          */
-        GameEntityID AddEntity(GameEntityID gameEntityId = GAME_ENTITY_ID_INVALID);
+        GameEntityID AddEntity(GameEntityID gameEntityId = Constants::GAME_ENTITY_ID_INVALID);
 
         std::vector<GameEntityID> GetAllEntityIDs() const;
 
@@ -177,7 +177,7 @@ namespace glimmer {
 
     template<typename TComponent, typename... Args>
     TComponent *EntityManager::AddComponent(GameEntityID gameEntityId, Args &&... args) {
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
         // Only in the debugging mode, check if any components are attached to empty entities.
         //仅在调试模式检查是否有向空实体挂载组件。
         const auto entityIterator = entityMap_.find(gameEntityId);

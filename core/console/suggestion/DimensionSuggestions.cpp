@@ -34,8 +34,8 @@ glimmer::DimensionSuggestions::DimensionSuggestions(DimensionRegistry *dimension
     : dimensionRegistry_(dimensionRegistry) {
 }
 
-std::string glimmer::DimensionSuggestions::GetId() const {
-    return DIMENSION_DYNAMIC_SUGGESTIONS_NAME;
+std::string_view glimmer::DimensionSuggestions::GetId() const {
+    return Constants::DIMENSION_DYNAMIC_SUGGESTIONS_NAME;
 }
 
 const std::vector<std::string> &glimmer::DimensionSuggestions::GetSuggestions(

@@ -54,7 +54,7 @@ std::optional<glimmer::TileVector2D> glimmer::RayCastUtils::TileRayCast(const Ch
         if (tilePtr == nullptr) {
             continue;
         }
-        if (tilePtr->GetCollisionMask() != COLLISION_MASK_NONE) {
+        if (tilePtr->GetCollisionMask() != Constants::COLLISION_MASK_NONE) {
             return tile;
         }
     }

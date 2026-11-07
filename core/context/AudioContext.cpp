@@ -38,7 +38,7 @@ glimmer::AudioContext::~AudioContext() = default;
 
 void glimmer::AudioContext::LoadMainMenuBGM(const ResourceLocator *resourceLocator) {
     ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_AUDIO);
     resourceRef.SetResourceKey("bgm/main_menu");
     mainMenuBGM_ = resourceLocator->FindAudio(&resourceRef);

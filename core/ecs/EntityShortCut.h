@@ -55,7 +55,7 @@ namespace glimmer {
         //当前打开的战利品箱的uuid（空表示不是战利品箱）。
         std::string openedStorageContainerUuid_;
         std::string openedStorageContainerName_;
-        GameEntityID player_ = GAME_ENTITY_ID_INVALID;
+        GameEntityID player_ = Constants::GAME_ENTITY_ID_INVALID;
 
     public:
         void SetPlayer(GameEntityID player);

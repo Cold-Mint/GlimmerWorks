@@ -61,7 +61,7 @@ void glimmer::Transform2DSystem::OnFrameStart() {
     const int64_t lastTickCount = lastTickTimestamp_.load(std::memory_order_acquire);
     const auto elapsed = Clock::duration(nowCount - lastTickCount);
     const float elapsedSeconds = std::chrono::duration<float>(elapsed).count();
-    const float alpha = std::clamp(elapsedSeconds / FIXED_TIME_STEP, 0.0F, 1.0F);
+    const float alpha = std::clamp(elapsedSeconds / Constants::FIXED_TIME_STEP, 0.0F, 1.0F);
     for (const auto transform2d: transform2DComponent_) {
         transform2d->Commit(alpha);
     }

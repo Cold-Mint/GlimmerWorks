@@ -62,7 +62,7 @@ namespace glimmer {
          * @param biomeResourcesSet biomeResourcesSet 生物群系集合（会被修改）
          */
         static void Initialize(const TerrainResult *terrainResult, const ChunkVertexVector2D &chunkVertexVector2D,
-                               std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > &tilesRefMap,
+                               std::unordered_map<TileLayerType, std::array<ResourceRef, Constants::CHUNK_AREA> > &tilesRefMap,
                                std::unordered_set<BiomeResource *> &biomeResourcesSet);
     };
 }

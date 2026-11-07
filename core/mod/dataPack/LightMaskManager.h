@@ -40,8 +40,8 @@ namespace glimmer {
         lightMaskMap_
                 {};
 
-        LightMaskResource *RegisterCoreLightMaskResource(const std::string &resourceId,
-                                                         const std::string &colorKey);
+        LightMaskResource *RegisterCoreLightMaskResource(std::string_view resourceId,
+                                                         std::string_view colorKey);
 
     public:
         LightMaskManager();

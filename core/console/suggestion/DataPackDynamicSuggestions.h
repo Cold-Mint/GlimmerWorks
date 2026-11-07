@@ -35,7 +35,7 @@ namespace glimmer {
     public:
         explicit DataPackDynamicSuggestions(DataPackManager *dataPackManager);
 
-        [[nodiscard]] std::string GetId() const override;
+        [[nodiscard]] std::string_view GetId() const override;
 
         bool Match(const std::string &keyword, const std::string &param) override;
 

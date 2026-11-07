@@ -38,7 +38,7 @@ void glimmer::HeightStructureConditionProcessor::Match(const DimensionResource *
                                                        const TerrainResult *terrainResult,
                                                        const IStructurePlacementConditionsResource *
                                                        placementConditionsResource,
-                                                       std::bitset<TERRAIN_AREA> *result) {
+                                                       std::bitset<Constants::TERRAIN_AREA> *result) {
     const auto heightStructureConditions = dynamic_cast<const HeightStructureConditionsResource *>(
         placementConditionsResource);
     if (heightStructureConditions == nullptr) {
@@ -48,12 +48,12 @@ void glimmer::HeightStructureConditionProcessor::Match(const DimensionResource *
     const float minHeightPercent = heightStructureConditions->minHeightPercent;
     const TerrainVertexVector2D &position = terrainResult->GetPosition();
     int matchedTileCount = 0;
-    for (int localX = 0; localX < TERRAIN_SIZE; localX++) {
-        for (int localY = 0; localY < TERRAIN_SIZE; localY++) {
+    for (int localX = 0; localX < Constants::TERRAIN_SIZE; localX++) {
+        for (int localY = 0; localY < Constants::TERRAIN_SIZE; localY++) {
             int globalY = localY + position.y;
             float percent = static_cast<float>(globalY) / static_cast<float>(dimensionResource->maxY);
             if (percent >= minHeightPercent && percent <= maxHeightPercent) {
-                result->set(CoordinateTransformer::GetArrayIndex(localX, localY, TERRAIN_SHIFT));
+                result->set(CoordinateTransformer::GetArrayIndex(localX, localY, Constants::TERRAIN_SHIFT));
                 matchedTileCount++;
             }
         }

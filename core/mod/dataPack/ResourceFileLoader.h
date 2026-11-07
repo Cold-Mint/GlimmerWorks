@@ -78,7 +78,7 @@ namespace glimmer {
         * 处理器接收解析后的 TOML 值以及用于定位目标管理器的上下文。
         */
         using LoadHandler = std::function<void(const toml::value &, const AppContext *appContext)>;
-        std::unordered_map<std::string, LoadHandler> handlerMap_;
+        std::unordered_map<std::string_view, LoadHandler> handlerMap_;
         std::filesystem::path rootPath_;
         const DataPackManifest *manifest_ = nullptr;
         const VirtualFileSystem *virtualFileSystem_ = nullptr;

@@ -110,7 +110,7 @@ void glimmer::MobEntityCreator::LoadTemplateComponents(const uint32_t id, const 
         }
         auto magnetComponent = entityManager->AddComponent<MagnetComponent>(id);
         if (magnetComponent != nullptr) {
-            magnetComponent->SetType(MAGNETIC_TYPE_ITEM);
+            magnetComponent->SetType(Constants::MAGNETIC_TYPE_ITEM);
         }
         entityManager->AddComponent<AutoPickComponent>(id);
     } else {
@@ -121,10 +121,10 @@ void glimmer::MobEntityCreator::LoadTemplateComponents(const uint32_t id, const 
     }
     mobComponent->SetEmptyHandAutoUseItem(resourceLocator->FindItem(
         worldContext, mobResource->emptyHandAutoUseItem));
-    mobComponent->SetMovementAcceleration(mobResource->movementAcceleration * TILE_SIZE);
-    mobComponent->SetMaxSpeed(mobResource->maxSpeed * TILE_SIZE);
+    mobComponent->SetMovementAcceleration(mobResource->movementAcceleration * Constants::TILE_SIZE);
+    mobComponent->SetMaxSpeed(mobResource->maxSpeed * Constants::TILE_SIZE);
     mobComponent->SetAirControlFactor(mobResource->airControlFactor);
-    mobComponent->SetJumpForce(mobResource->jumpForce * TILE_SIZE);
+    mobComponent->SetJumpForce(mobResource->jumpForce * Constants::TILE_SIZE);
     const auto tilePlacementForbiddenZoneComponent = entityManager->AddComponent<
         TilePlacementForbiddenZoneComponent>(id);
     if (tilePlacementForbiddenZoneComponent != nullptr) {
@@ -137,15 +137,15 @@ void glimmer::MobEntityCreator::LoadTemplateComponents(const uint32_t id, const 
 
     const auto collider = entityManager->AddComponent<ColliderComponent>(id);
     if (collider != nullptr) {
-        collider->SetHalfExtents(mobResource->hitboxWidth * TILE_SIZE * 0.5F,
-                                 mobResource->hitboxHeight * TILE_SIZE * 0.5F);
+        collider->SetHalfExtents(mobResource->hitboxWidth * Constants::TILE_SIZE * 0.5F,
+                                 mobResource->hitboxHeight * Constants::TILE_SIZE * 0.5F);
         collider->Enable();
     }
     const auto spiritRendererComponent = entityManager->AddComponent<SpiritRendererComponent>(id);
     if (spiritRendererComponent != nullptr) {
         spiritRendererComponent->SetTextureRef(mobResource->texture);
         spiritRendererComponent->SetPosition({
-            TILE_SIZE * mobResource->textureOffset.x, TILE_SIZE * mobResource->textureOffset.y
+            Constants::TILE_SIZE * mobResource->textureOffset.x, Constants::TILE_SIZE * mobResource->textureOffset.y
         });
         if (mobResource->pipeline.IsValid()) {
             if (const std::shared_ptr<GPUPipelineResourceResult> pipelineResult = resourceLocator->

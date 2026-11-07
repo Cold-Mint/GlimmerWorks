@@ -31,13 +31,13 @@
 glimmer::ExitCommand::ExitCommand(AppContext *appContext) : Command(appContext) {
 }
 
-const std::string &glimmer::ExitCommand::GetName() const {
-    return EXIT_COMMAND_NAME;
+std::string_view glimmer::ExitCommand::GetName() const {
+    return Constants::EXIT_COMMAND_NAME;
 }
 
 bool glimmer::ExitCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
                                    const std::function<void(const std::string &text)> *onMessage) {
-    AppContext *appContext = GetAppContext();
+    const AppContext *appContext = GetAppContext();
     if (appContext == nullptr) {
         return false;
     }

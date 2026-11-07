@@ -53,7 +53,7 @@ glimmer::MainScene::MainScene(AppContext *context)
                   "resourceLocator == nullptr");
         return;
     }
-    nextBackgroundResourceRef_.SetSelfPackageId(RESOURCE_REF_CORE);
+    nextBackgroundResourceRef_.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     nextBackgroundResourceRef_.SetResourceType(RESOURCE_TEXTURE);
     nextBackgroundResourceRef_.SetResourceKey(fmt::format("{}{}", "main_menu_bg_frames/bg_",
                                                           std::to_string(backgroundIndex_)));
@@ -71,7 +71,7 @@ glimmer::MainScene::MainScene(AppContext *context)
 
 void glimmer::MainScene::LoadDocuments() {
     ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
     resourceRef.SetResourceKey("main/main");
     LoadSingleDocument(&resourceRef);
@@ -199,7 +199,7 @@ void glimmer::MainScene::NextBackgroundFrame() {
     int nextIndex = backgroundIndex_ + 1;
     std::filesystem::path path = textureFolder_ / fmt::format("{}{}", "bg_",
                                                               std::to_string(nextIndex));
-    path.replace_extension(TEXTURE_FORMAT);
+    path.replace_extension(Constants::TEXTURE_FORMAT);
     if (virtualFileSystem_->Exists(path)) {
         SetBackgroundIndex(nextIndex);
     } else {

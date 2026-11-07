@@ -92,10 +92,10 @@ std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerra
     terrainResult->SetPosition(position);
     //Compute base terrain data
     //计算基础地形数据。
-    for (int localX = 0; localX < TERRAIN_SIZE; ++localX) {
+    for (int localX = 0; localX < Constants::TERRAIN_SIZE; ++localX) {
         const int firstTileTerrainY = climateSampler_->GetFirstTileTerrainY(worldSeed, dimensionResource,
                                                                             position.x + localX);
-        for (int localY = 0; localY < TERRAIN_SIZE; ++localY) {
+        for (int localY = 0; localY < Constants::TERRAIN_SIZE; ++localY) {
             auto localPosition = TerrainRelativeVector2D(localX, localY);
             ComputeBaseTerrainTile(biomeRegistry, worldSeed, dimensionResource, dimensionRef,
                                    CoordinateTransformer::TerrainRelativeToTile(position, localPosition),
@@ -147,13 +147,13 @@ std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerra
     }
     //Save the placement range of all structures.
     //保存所有结构的放置范围。
-    const auto totalBitset = std::make_unique<std::bitset<TERRAIN_AREA> >();
+    const auto totalBitset = std::make_unique<std::bitset<Constants::TERRAIN_AREA> >();
     //全部设置为1（表示全部可放置）
     totalBitset->set();
     //Save a set of the overall placement points for a structure.
     //保存一个结构的总放置点集合。
-    auto structureBitset = std::make_unique<std::bitset<TERRAIN_AREA> >();
-    auto conditionBitset = std::make_unique<std::bitset<TERRAIN_AREA> >();
+    auto structureBitset = std::make_unique<std::bitset<Constants::TERRAIN_AREA> >();
+    auto conditionBitset = std::make_unique<std::bitset<Constants::TERRAIN_AREA> >();
     bool skipStructure = false;
     bool skipCondition = false;
     for (const auto &structure: structureList) {
@@ -204,13 +204,13 @@ std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerra
             continue;
         }
         //执行结构放置
-        for (int i = 0; i < TERRAIN_AREA; ++i) {
+        for (int i = 0; i < Constants::TERRAIN_AREA; ++i) {
             if (!structureBitset->test(i)) {
                 continue;
             }
             skipStructure = false;
             const auto relative = CoordinateTransformer::IndexToVector2D<TerrainRelativeVector2D>(
-                i, TERRAIN_MASK, TERRAIN_SHIFT);
+                i, Constants::TERRAIN_MASK, Constants::TERRAIN_SHIFT);
             const TileVector2D structuralOrigin =
                     CoordinateTransformer::TerrainRelativeToTile(position, relative);
             std::unique_ptr<StructureInfo> structureInfo = structureGeneratorManager->Generate(
@@ -238,7 +238,7 @@ std::shared_ptr<glimmer::TerrainResult> glimmer::TerrainGenerator::GenerateTerra
                     const TerrainRelativeVector2D terrainRelative = CoordinateTransformer::TileToTerrainRelative(
                         structuralOrigin + tilePosition);
                     const auto index = CoordinateTransformer::GetArrayIndex(
-                        terrainRelative.x, terrainRelative.y, TERRAIN_SHIFT);
+                        terrainRelative.x, terrainRelative.y, Constants::TERRAIN_SHIFT);
                     if (!totalBitset->test(index)) {
                         //Duplicate coordinate points have been detected!
                         //发现重复坐标点！

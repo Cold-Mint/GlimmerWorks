@@ -34,7 +34,7 @@
 
 
 std::filesystem::path glimmer::Saves::ToDimensionPath(const ResourceRef &dimensionRef) const {
-    return path_ / DIMENSIONS_FOLDER_NAME / StringUtils::GetDimensionFolderName(
+    return path_ / Constants::DIMENSIONS_FOLDER_NAME / StringUtils::GetDimensionFolderName(
                dimensionRef.GetPackageId(), dimensionRef.GetResourceKey());
 }
 
@@ -61,7 +61,7 @@ std::filesystem::path glimmer::Saves::ToChunkEntityPath(const ResourceRef &dimen
 }
 
 std::filesystem::path glimmer::Saves::ToLocalPlayerPath() const {
-    return path_ / "players" / LOCAL_PLAYER_FILE_NAME;
+    return path_ / "players" / Constants::LOCAL_PLAYER_FILE_NAME;
 }
 
 glimmer::Saves::Saves(std::filesystem::path path, VirtualFileSystem *virtualFileSystem) : path_(std::move(path)),
@@ -191,11 +191,11 @@ bool glimmer::Saves::DeleteChunkEntity(const ResourceRef &dimensionRef, const Ch
 
 std::optional<DimensionManifestMessage> glimmer::Saves::ReadDimensionManifest(const ResourceRef &dimensionRef) const {
     const auto streamUnique = virtualFileSystem_->ReadFileAsStream(
-        ToDimensionPath(dimensionRef) / DIMENSION_MANIFEST_FILE_NAME);
+        ToDimensionPath(dimensionRef) / Constants::DIMENSION_MANIFEST_FILE_NAME);
     if (streamUnique == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "saves_dimension_manifest_open_failed",
                   "Failed to open dimension manifest: {}",
-                  (ToDimensionPath(dimensionRef) / DIMENSION_MANIFEST_FILE_NAME).string());
+                  (ToDimensionPath(dimensionRef) / Constants::DIMENSION_MANIFEST_FILE_NAME).string());
         return std::nullopt;
     }
     const auto stream = streamUnique.get();
@@ -205,27 +205,27 @@ std::optional<DimensionManifestMessage> glimmer::Saves::ReadDimensionManifest(co
     if (DimensionManifestMessage dimensionManifestMessage; dimensionManifestMessage.ParseFromIstream(stream)) {
         LogCat::d(LogLabel::DEFAULT, "saves_dimension_manifest_read_success",
                   "Read dimension manifest successfully: {}",
-                  (ToDimensionPath(dimensionRef) / DIMENSION_MANIFEST_FILE_NAME).string());
+                  (ToDimensionPath(dimensionRef) / Constants::DIMENSION_MANIFEST_FILE_NAME).string());
         return dimensionManifestMessage;
     }
     LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "saves_dimension_manifest_parse_failed",
               "Failed to parse dimension manifest: {}",
-              (ToDimensionPath(dimensionRef) / DIMENSION_MANIFEST_FILE_NAME).string());
+              (ToDimensionPath(dimensionRef) / Constants::DIMENSION_MANIFEST_FILE_NAME).string());
     return std::nullopt;
 }
 
 bool glimmer::Saves::WriteDimensionManifest(const ResourceRef &dimensionRef,
                                             const DimensionManifestMessage &dimensionManifestMessage) const {
-    bool result = virtualFileSystem_->WriteFile(ToDimensionPath(dimensionRef) / DIMENSION_MANIFEST_FILE_NAME,
+    bool result = virtualFileSystem_->WriteFile(ToDimensionPath(dimensionRef) / Constants::DIMENSION_MANIFEST_FILE_NAME,
                                                 dimensionManifestMessage.SerializeAsString());
     if (!result) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "saves_dimension_manifest_write_failed",
                   "Failed to write dimension manifest: {}",
-                  (ToDimensionPath(dimensionRef) / DIMENSION_MANIFEST_FILE_NAME).string());
+                  (ToDimensionPath(dimensionRef) / Constants::DIMENSION_MANIFEST_FILE_NAME).string());
     } else {
         LogCat::d(LogLabel::DEFAULT, "saves_dimension_manifest_write_success",
                   "Wrote dimension manifest successfully: {}",
-                  (ToDimensionPath(dimensionRef) / DIMENSION_MANIFEST_FILE_NAME).string());
+                  (ToDimensionPath(dimensionRef) / Constants::DIMENSION_MANIFEST_FILE_NAME).string());
     }
     return result;
 }
@@ -273,10 +273,10 @@ uint64_t glimmer::Saves::GetUniqueId() const {
 }
 
 std::optional<MapManifestMessage> glimmer::Saves::ReadMapManifest() const {
-    const auto streamUnique = virtualFileSystem_->ReadFileAsStream(path_ / MAP_MANIFEST_FILE_NAME);
+    const auto streamUnique = virtualFileSystem_->ReadFileAsStream(path_ / Constants::MAP_MANIFEST_FILE_NAME);
     if (streamUnique == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "saves_map_manifest_open_failed",
-                  "Failed to open map manifest: {}", (path_ / MAP_MANIFEST_FILE_NAME).string());
+                  "Failed to open map manifest: {}", (path_ / Constants::MAP_MANIFEST_FILE_NAME).string());
         return std::nullopt;
     }
     const auto stream = streamUnique.get();
@@ -285,11 +285,11 @@ std::optional<MapManifestMessage> glimmer::Saves::ReadMapManifest() const {
     }
     if (MapManifestMessage mapManifestMessage; mapManifestMessage.ParseFromIstream(stream)) {
         LogCat::d(LogLabel::DEFAULT, "saves_map_manifest_read_success", "Read map manifest successfully: {}",
-                  (path_ / MAP_MANIFEST_FILE_NAME).string());
+                  (path_ / Constants::MAP_MANIFEST_FILE_NAME).string());
         return mapManifestMessage;
     }
     LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "saves_map_manifest_parse_failed",
-              "Failed to parse map manifest: {}", (path_ / MAP_MANIFEST_FILE_NAME).string());
+              "Failed to parse map manifest: {}", (path_ / Constants::MAP_MANIFEST_FILE_NAME).string());
     return std::nullopt;
 }
 
@@ -297,14 +297,14 @@ bool glimmer::Saves::WriteMapManifest(const MapManifestMessage &mapManifestMessa
     if (onMapManifestChanged_ != nullptr) {
         onMapManifestChanged_(mapManifestMessage);
     }
-    bool result = virtualFileSystem_->WriteFile(path_ / MAP_MANIFEST_FILE_NAME, mapManifestMessage.SerializeAsString());
+    bool result = virtualFileSystem_->WriteFile(path_ / Constants::MAP_MANIFEST_FILE_NAME, mapManifestMessage.SerializeAsString());
     if (!result) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "map_manifest_write_failed",
                   "Failed to write map manifest: {}",
-                  (path_ / MAP_MANIFEST_FILE_NAME).string());
+                  (path_ / Constants::MAP_MANIFEST_FILE_NAME).string());
     } else {
         LogCat::d(LogLabel::DEFAULT, "saves_map_manifest_write_success", "Wrote map manifest successfully: {}",
-                  (path_ / MAP_MANIFEST_FILE_NAME).string());
+                  (path_ / Constants::MAP_MANIFEST_FILE_NAME).string());
     }
     return result;
 }

@@ -116,7 +116,7 @@ glimmer::Color glimmer::DebugMultiMapSystem::GetTileDebugColor(const TileVector2
 }
 
 uint8_t glimmer::DebugMultiMapSystem::GetExecutionOrder() {
-    return EXECUTION_ORDER_DEBUG_MAP;
+    return Constants::EXECUTION_ORDER_DEBUG_MAP;
 }
 
 void glimmer::DebugMultiMapSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType,
@@ -146,8 +146,8 @@ void glimmer::DebugMultiMapSystem::Render(RenderQueue *queue) {
                                                                cameraComponent_->GetZoom());
     const TileVector2D topLeft = CoordinateTransformer::WorldToTile({viewportRect.x, viewportRect.y});
     const TileVector2D bottomRight = CoordinateTransformer::WorldToTile({
-        viewportRect.x + viewportRect.w + TILE_SIZE,
-        viewportRect.y + viewportRect.h + TILE_SIZE
+        viewportRect.x + viewportRect.w + Constants::TILE_SIZE,
+        viewportRect.y + viewportRect.h + Constants::TILE_SIZE
     });
 
     for (int x = topLeft.x; x < bottomRight.x; x++) {

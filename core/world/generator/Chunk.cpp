@@ -51,12 +51,12 @@ bool glimmer::Chunk::RemoveReplaceTileCallback(const long index) {
 
 bool glimmer::Chunk::CommitTileState(const BreakSource breakSource, const TileLayerType layerType, size_t index,
                                      const bool fallback) {
-    if (index >= CHUNK_AREA) {
+    if (index >= Constants::CHUNK_AREA) {
         return false;
     }
     const auto relative = CoordinateTransformer::IndexToVector2D<ChunkRelativeVector2D>(index,
-        CHUNK_MASK,
-        CHUNK_SHIFT);
+        Constants::CHUNK_MASK,
+        Constants::CHUNK_SHIFT);
     TileVector2D worldTileVector2D;
     worldTileVector2D.x = static_cast<int>(relative.x) + position_.x;
     worldTileVector2D.y = static_cast<int>(relative.y) + position_.y;
@@ -247,7 +247,7 @@ void glimmer::Chunk::PlaceTileAt(const TileLayerType layerType, const size_t top
         for (int y = 0; y < tileResource->tileHeight; y++) {
             //Cells extend right (+x) and down (+y); each row down decreases the chunk-local index by CHUNK_SIZE.
             //格子向右(+x)向下(+y)延伸；每向下一行，区块内索引减少 CHUNK_SIZE。
-            const size_t index = topLeftIndex + x - static_cast<size_t>(y) * CHUNK_SIZE;
+            const size_t index = topLeftIndex + x - static_cast<size_t>(y) * Constants::CHUNK_SIZE;
             PlaceTileCell(layerType, index, resourceRef, tileResource, breakSource, placeSource, x, y, fallback);
         }
     }
@@ -274,10 +274,10 @@ std::vector<std::shared_ptr<glimmer::TileSnapshot> > glimmer::Chunk::GetTopVisib
     const std::byte layerFilter,
     const size_t index) const {
     std::vector<std::shared_ptr<TileSnapshot> > topVisibleTileSnapshots;
-    if (index >= CHUNK_AREA) {
+    if (index >= Constants::CHUNK_AREA) {
         return topVisibleTileSnapshots;
     }
-    for (int i = 0; i < TILE_LAYER_TYPE_COUNT; i++) {
+    for (int i = 0; i < Constants::TILE_LAYER_TYPE_COUNT; i++) {
         auto layer = static_cast<std::byte>(1 << i);
         if ((layerFilter & layer) != std::byte{0}) {
             auto tileLayerType = static_cast<TileLayerType>(layer);
@@ -286,7 +286,7 @@ std::vector<std::shared_ptr<glimmer::TileSnapshot> > glimmer::Chunk::GetTopVisib
                 continue;
             }
 
-            const std::array<std::shared_ptr<TileSnapshot>, CHUNK_AREA> &tileArray = iterator->second;
+            const std::array<std::shared_ptr<TileSnapshot>, Constants::CHUNK_AREA> &tileArray = iterator->second;
             const std::shared_ptr<TileSnapshot> &tileSnapshot = tileArray[index];
             if (tileSnapshot == nullptr) {
                 continue;
@@ -325,7 +325,7 @@ void glimmer::Chunk::ApplyOfflineGrowth() {
     const uint64_t globalTick = worldContext_->GetGlobalTick();
     size_t advancedCount = 0;
     for (auto &[layerType, tileArray]: tiles_) {
-        for (size_t index = 0; index < CHUNK_AREA; ++index) {
+        for (size_t index = 0; index < Constants::CHUNK_AREA; ++index) {
             const std::shared_ptr<Tile> &tile = tileArray[index];
             if (tile == nullptr || !tile->IsCropsBlock() || !tile->AllowOfflineGrowth()) {
                 continue;
@@ -360,14 +360,14 @@ void glimmer::Chunk::BreakTileEntities() {
         return;
     }
     for (auto &tileArray: tiles_ | std::views::values) {
-        for (size_t index = 0; index < CHUNK_AREA; ++index) {
+        for (size_t index = 0; index < Constants::CHUNK_AREA; ++index) {
             const std::shared_ptr<Tile> &tile = tileArray[index];
             if (tile == nullptr) {
                 continue;
             }
             const auto relative = CoordinateTransformer::IndexToVector2D<ChunkRelativeVector2D>(index,
-                CHUNK_MASK,
-                CHUNK_SHIFT);
+                Constants::CHUNK_MASK,
+                Constants::CHUNK_SHIFT);
             const TileVector2D worldTile{
                 static_cast<int>(relative.x) + position_.x,
                 static_cast<int>(relative.y) + position_.y
@@ -388,12 +388,12 @@ void glimmer::Chunk::InvokeReplaceTileCallback(const std::shared_ptr<Chunk> &chu
 }
 
 void glimmer::Chunk::WriteTileStatesToMessage(
-    const std::array<std::shared_ptr<TileStateMessage>, CHUNK_AREA> &tileStates,
+    const std::array<std::shared_ptr<TileStateMessage>, Constants::CHUNK_AREA> &tileStates,
     TileStateArrayMessage &layerMessage) {
-    layerMessage.mutable_tilestatemessage()->Reserve(CHUNK_AREA);
-    for (int y = 0; y < CHUNK_SIZE; y++) {
-        for (int x = 0; x < CHUNK_SIZE; x++) {
-            const size_t index = CoordinateTransformer::GetArrayIndex(x, y, CHUNK_SHIFT);
+    layerMessage.mutable_tilestatemessage()->Reserve(Constants::CHUNK_AREA);
+    for (int y = 0; y < Constants::CHUNK_SIZE; y++) {
+        for (int x = 0; x < Constants::CHUNK_SIZE; x++) {
+            const size_t index = CoordinateTransformer::GetArrayIndex(x, y, Constants::CHUNK_SHIFT);
             const TileStateMessage *tileStateMessage = tileStates[index].get();
             auto *modifiableTileStateMessage = layerMessage.add_tilestatemessage();
             if (tileStateMessage == nullptr) {
@@ -433,7 +433,7 @@ void glimmer::Chunk::WriteChunkMessage(ChunkMessage &chunkMessage) {
                 if (tileStateIt == tileState_.end()) {
                     continue;
                 }
-                for (size_t index = 0; index < CHUNK_AREA; ++index) {
+                for (size_t index = 0; index < Constants::CHUNK_AREA; ++index) {
                     const std::shared_ptr<Tile> &tile = tileArray[index];
                     if (tile == nullptr || !tile->IsStorageBlock()) {
                         continue;
@@ -443,7 +443,7 @@ void glimmer::Chunk::WriteChunkMessage(ChunkMessage &chunkMessage) {
                         continue;
                     }
                     const auto relative = CoordinateTransformer::IndexToVector2D<ChunkRelativeVector2D>(index,
-                        CHUNK_MASK, CHUNK_SHIFT);
+                        Constants::CHUNK_MASK, Constants::CHUNK_SHIFT);
                     const GameEntityID entityId = tile->GetGameEntity(
                         CoordinateTransformer::ChunkRelativeToTile(position_, relative));
                     if (WorldContext::IsEmptyEntityId(entityId)) {
@@ -475,5 +475,6 @@ glimmer::WorldVector2D glimmer::Chunk::GetStartWorldPosition() const {
 
 glimmer::WorldVector2D glimmer::Chunk::GetEndWorldPosition() const {
     return CoordinateTransformer::TileToWorld(
-        CoordinateTransformer::ChunkVertexToTile(position_) + TileVector2D(CHUNK_SIZE, CHUNK_SIZE));
+        CoordinateTransformer::ChunkVertexToTile(position_) +
+        TileVector2D(Constants::CHUNK_SIZE, Constants::CHUNK_SIZE));
 }

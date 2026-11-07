@@ -43,8 +43,8 @@ bool glimmer::ConfigSuggestions::Match(const std::string &keyword, const std::st
     return std::ranges::contains(suggestions_, keyword);
 }
 
-std::string glimmer::ConfigSuggestions::GetId() const {
-    return CONFIG_DYNAMIC_SUGGESTIONS_NAME;
+std::string_view glimmer::ConfigSuggestions::GetId() const {
+    return Constants::CONFIG_DYNAMIC_SUGGESTIONS_NAME;
 }
 
 const std::vector<std::string> &glimmer::ConfigSuggestions::GetSuggestions(const std::optional<std::string> &param) {

@@ -62,7 +62,7 @@ glimmer::PlayerControlSystem::PlayerControlSystem(WorldContext *worldContext) : 
         return;
     }
     ResourceRef ref;
-    ref.SetSelfPackageId(RESOURCE_REF_CORE);
+    ref.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     ref.SetResourceType(RESOURCE_AUDIO);
     ref.SetResourceKey("sfx/drop_item");
     const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
@@ -261,14 +261,14 @@ void glimmer::PlayerControlSystem::DropItem(ItemContainer *itemContainer, uint8_
     }
     DroppedItemCreator::SpawnDroppedItem(worldContext,
                                          cameraTransform2DComponent_->GetPosition(), itemResult.TakeItem(),
-                                         DROPPED_ITEM_PICKUP_COOLDOWN_TICKS);
+                                         Constants::DROPPED_ITEM_PICKUP_COOLDOWN_TICKS);
 }
 
 void glimmer::PlayerControlSystem::UpdateFlying(const PlayerInputHandler *playerInputHandler,
                                                 Transform2DComponent *transform2DComponent) {
     WorldVector2D velocity = {};
-    velocity.x = playerInputHandler->GetHorizontalInput() * FLY_SPEED * FIXED_TIME_STEP;
-    velocity.y = playerInputHandler->GetVerticalInput() * FLY_SPEED * FIXED_TIME_STEP;
+    velocity.x = playerInputHandler->GetHorizontalInput() * Constants::FLY_SPEED * Constants::FIXED_TIME_STEP;
+    velocity.y = playerInputHandler->GetVerticalInput() * Constants::FLY_SPEED * Constants::FIXED_TIME_STEP;
     transform2DComponent->SetPosition(transform2DComponent->GetPosition() + velocity);
 }
 
@@ -285,7 +285,7 @@ void glimmer::PlayerControlSystem::UpdateGroundedMovement(PlayerInputHandler *pl
     const float targetSpeed = playerComponent->GetMaxSpeed() * throttle;
     const float airSteer = isGrounded ? 1.0F : playerComponent->GetAirControlFactor();
     const float acceleration = playerComponent->GetMovementAcceleration() * airSteer;
-    float maxDeltaSpeed = acceleration * FIXED_TIME_STEP;
+    float maxDeltaSpeed = acceleration * Constants::FIXED_TIME_STEP;
     if (targetSpeed == 0.0F) {
         maxDeltaSpeed *= 3.0F; // snappier stop when releasing input 松开输入时更快停下
     }
@@ -299,7 +299,7 @@ void glimmer::PlayerControlSystem::UpdateGroundedMovement(PlayerInputHandler *pl
     // Jump with buffering. Sets the vertical velocity directly; gravity + collision are handled by PhysicsSystem.
     // 带缓冲的跳跃。直接设置竖直速度；重力与碰撞由 PhysicsSystem 处理。
     if (playerInputHandler->IsJump()) {
-        playerInputHandler->SetJumpBuffer(JUMP_BUFFER_FRAMES);
+        playerInputHandler->SetJumpBuffer(Constants::JUMP_BUFFER_FRAMES);
         playerInputHandler->SetJump(false);
     }
     if (playerInputHandler->GetJumpBuffer() > 0 && isGrounded) {
@@ -323,7 +323,7 @@ void glimmer::PlayerControlSystem::OnWatchedComponentChanged(GameComponentTypeMe
     if (gameComponentType == COMPONENT_TRANSFORM_2D && cameraTransform2DComponent_ == nullptr) {
         cameraTransform2DComponent_ = entityShortCut->GetCameraTransform2DComponent();
     }
-    if (gameComponentType == COMPONENT_PLAYER && playerEntityID_ == GAME_ENTITY_ID_INVALID) {
+    if (gameComponentType == COMPONENT_PLAYER && playerEntityID_ == Constants::GAME_ENTITY_ID_INVALID) {
         playerEntityID_ = entityShortCut->GetPlayer();
         itemUseContext_.user = playerEntityID_;
         LogCat::i(LogLabel::DEFAULT, "player_control_player_bound", "PlayerControlSystem player entity bound: id={}",

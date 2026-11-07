@@ -35,14 +35,14 @@ void glimmer::DimensionCommand::InitSuggestions(NodeTree<std::string> *suggestio
     if (suggestionsTree == nullptr) {
         return;
     }
-    suggestionsTree->AddChild(DIMENSION_DYNAMIC_SUGGESTIONS_NAME);
+    suggestionsTree->AddChild(std::string(Constants::DIMENSION_DYNAMIC_SUGGESTIONS_NAME));
 }
 
 glimmer::DimensionCommand::DimensionCommand(AppContext *appContext) : Command(appContext) {
 }
 
-const std::string &glimmer::DimensionCommand::GetName() const {
-    return DIMENSION_COMMAND_NAME;
+std::string_view glimmer::DimensionCommand::GetName() const {
+    return Constants::DIMENSION_COMMAND_NAME;
 }
 
 bool glimmer::DimensionCommand::RequiresWorldContext() const {

@@ -24,7 +24,7 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
 #include "TileSnapshotCommand.h"
 
 #include <utility>
@@ -42,16 +42,17 @@ void glimmer::TileSnapshotCommand::InitSuggestions(NodeTree<std::string> *sugges
         return;
     }
     suggestionsTree->AddChild("inspector");
-    suggestionsTree->AddChild("info")->AddChild(DIMENSION_DYNAMIC_SUGGESTIONS_NAME)->
-            AddChild(X_DYNAMIC_SUGGESTIONS_NAME)->AddChild(Y_DYNAMIC_SUGGESTIONS_NAME);
+    suggestionsTree->AddChild("info")->AddChild(std::string(Constants::DIMENSION_DYNAMIC_SUGGESTIONS_NAME))->
+            AddChild(std::string(Constants::X_DYNAMIC_SUGGESTIONS_NAME))->AddChild(
+                std::string(Constants::Y_DYNAMIC_SUGGESTIONS_NAME));
 }
 
 glimmer::TileSnapshotCommand::TileSnapshotCommand(AppContext *appContext)
     : Command(appContext) {
 }
 
-const std::string &glimmer::TileSnapshotCommand::GetName() const {
-    return TILE_SNAPSHOT_COMMAND_NAME;
+std::string_view glimmer::TileSnapshotCommand::GetName() const {
+    return Constants::TILE_SNAPSHOT_COMMAND_NAME;
 }
 
 bool glimmer::TileSnapshotCommand::RequiresWorldContext() const {
@@ -81,18 +82,18 @@ bool glimmer::TileSnapshotCommand::ExecuteInspector(const AppContext *appContext
         onMessageRef(langsResources->cmdHookManagerNotFound);
         return false;
     }
-    if (commandHookManager->Contains(TILE_SNAPSHOT_INSPECTOR_ID)) {
-        if (commandHookManager->Unregister(TILE_SNAPSHOT_INSPECTOR_ID)) {
+    if (commandHookManager->Contains(Constants::TILE_SNAPSHOT_INSPECTOR_ID)) {
+        if (commandHookManager->Unregister(Constants::TILE_SNAPSHOT_INSPECTOR_ID)) {
             onMessageRef(langsResources->tileSnapshotInspectorDisable);
             return true;
         }
         onMessageRef(langsResources->tileSnapshotInspectorDisableFail);
     } else {
         auto commandHookEntry = std::make_unique<CommandHookEntry>();
-        commandHookEntry->hookId = TILE_SNAPSHOT_INSPECTOR_ID;
+        commandHookEntry->hookId = Constants::TILE_SNAPSHOT_INSPECTOR_ID;
         commandHookEntry->scope = CommandHookScope::SESSION;
         commandHookEntry->code = SDL_BUTTON_LEFT;
-        commandHookEntry->command = TILE_SNAPSHOT_COMMAND_NAME + " info ~ ~";
+        commandHookEntry->command = std::string(Constants::TILE_SNAPSHOT_COMMAND_NAME) + " info ~ ~";
         commandHookEntry->eventType = SDL_EVENT_MOUSE_BUTTON_DOWN;
         if (commandHookManager->Register(std::move(commandHookEntry))) {
             onMessageRef(langsResources->tileSnapshotInspectorEnable);
@@ -135,7 +136,7 @@ bool glimmer::TileSnapshotCommand::ExecuteInfo(const CommandSender *commandSende
         | std::byte{std::to_underlying(TileLayerType::BackgroundDecoration)} | std::byte{
             std::to_underlying(TileLayerType::Ground)
         },
-        CoordinateTransformer::GetArrayIndex(chunkRelative.x, chunkRelative.y, CHUNK_SHIFT));
+        CoordinateTransformer::GetArrayIndex(chunkRelative.x, chunkRelative.y, Constants::CHUNK_SHIFT));
     auto tileSnapshotSize = tileSnapshotVectorPtr.size();
     if (tileSnapshotSize == 0) {
         onMessageRef(fmt::format(fmt::runtime(langsResources->tileSnapshotsDoesNotExist), tileVector2D.x,

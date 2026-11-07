@@ -31,8 +31,8 @@ glimmer::MaterialItemDynamicSuggestions::MaterialItemDynamicSuggestions(
     MaterialItemRegistry *materialItemRegistry) : materialItemRegistry_(materialItemRegistry) {
 }
 
-std::string glimmer::MaterialItemDynamicSuggestions::GetId() const {
-    return MATERIAL_ITEM_DYNAMIC_SUGGESTIONS_NAME;
+std::string_view glimmer::MaterialItemDynamicSuggestions::GetId() const {
+    return Constants::MATERIAL_ITEM_DYNAMIC_SUGGESTIONS_NAME;
 }
 
 bool glimmer::MaterialItemDynamicSuggestions::Match(const std::string &keyword, const std::string &param) {

@@ -31,7 +31,8 @@
 
 
 TerrainTileResult &glimmer::TerrainResult::GetMutableTerrainTileResult(const TerrainRelativeVector2D &localPosition) {
-    return terrainTileResult_[CoordinateTransformer::GetArrayIndex(localPosition.x, localPosition.y, TERRAIN_SHIFT)];
+    return terrainTileResult_[CoordinateTransformer::GetArrayIndex(localPosition.x, localPosition.y,
+                                                                   Constants::TERRAIN_SHIFT)];
 }
 
 void glimmer::TerrainResult::SetPosition(const TerrainVertexVector2D &position) {
@@ -43,7 +44,8 @@ const glimmer::TerrainVertexVector2D &glimmer::TerrainResult::GetPosition() cons
 }
 
 const TerrainTileResult &glimmer::TerrainResult::QueryTerrain(const TerrainRelativeVector2D &localPosition) const {
-    return terrainTileResult_[CoordinateTransformer::GetArrayIndex(localPosition.x, localPosition.y, TERRAIN_SHIFT)];
+    return terrainTileResult_[CoordinateTransformer::GetArrayIndex(localPosition.x, localPosition.y,
+                                                                   Constants::TERRAIN_SHIFT)];
 }
 
 void glimmer::TerrainResult::PushStructureTile(const StructureTile &structureTile) {
@@ -56,11 +58,12 @@ void glimmer::TerrainResult::PopAllStructureTile() {
     }
 }
 
-void glimmer::TerrainResult::CommitStructure(const std::unique_ptr<std::bitset<TERRAIN_AREA> > &totalTerrain) {
+void glimmer::TerrainResult::
+CommitStructure(const std::unique_ptr<std::bitset<Constants::TERRAIN_AREA> > &totalTerrain) {
     while (!terrainTileResultStack_.empty()) {
         const StructureTile &structureTile = terrainTileResultStack_.top();
         const uint32_t tileIndex = structureTile.GetTileIndex();
-        if (tileIndex >= TERRAIN_AREA) {
+        if (tileIndex >= Constants::TERRAIN_AREA) {
             terrainTileResultStack_.pop();
             continue;
         }

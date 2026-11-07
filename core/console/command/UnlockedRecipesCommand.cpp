@@ -24,7 +24,7 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
 #include "UnlockedRecipesCommand.h"
 
 #include <sstream>
@@ -82,8 +82,8 @@ bool glimmer::UnlockedRecipesCommand::RequiresWorldContext() const {
     return true;
 }
 
-const std::string &glimmer::UnlockedRecipesCommand::GetName() const {
-    return UNLOCKED_RECIPES_COMMAND_NAME;
+std::string_view glimmer::UnlockedRecipesCommand::GetName() const {
+    return Constants::UNLOCKED_RECIPES_COMMAND_NAME;
 }
 
 

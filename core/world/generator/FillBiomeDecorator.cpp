@@ -33,14 +33,15 @@ void glimmer::FillBiomeDecorator::DecorationImpl(const ChunkVertexVector2D &chun
                                                  TerrainResult *terrainResult,
                                                  FillBiomeDecoratorResource *decoratorResource,
                                                  BiomeResource *biomeResource,
-                                                 std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> >
+                                                 std::unordered_map<TileLayerType, std::array<ResourceRef,
+                                                     Constants::CHUNK_AREA> >
                                                  *tilesRefMap) {
-    std::array<ResourceRef, CHUNK_AREA> &targetLayer = tilesRefMap->at(
+    std::array<ResourceRef, Constants::CHUNK_AREA> &targetLayer = tilesRefMap->at(
         static_cast<TileLayerType>(decoratorResource->layer));
     const ResourceRef &resourceRef = decoratorResource->tile;
-    for (int localX = 0; localX < CHUNK_SIZE; localX++) {
-        for (int localY = 0; localY < CHUNK_SIZE; localY++) {
-            const size_t idx = CoordinateTransformer::GetArrayIndex(localX, localY, CHUNK_SHIFT);
+    for (int localX = 0; localX < Constants::CHUNK_SIZE; localX++) {
+        for (int localY = 0; localY < Constants::CHUNK_SIZE; localY++) {
+            const size_t idx = CoordinateTransformer::GetArrayIndex(localX, localY, Constants::CHUNK_SHIFT);
             ChunkRelativeVector2D chunkRelativeVector2D(localX, localY);
             const auto &self = terrainResult->QueryTerrain(CoordinateTransformer::TileToTerrainRelative(
                 CoordinateTransformer::ChunkRelativeToTile(

@@ -24,7 +24,7 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
 #include "TechnologyCommand.h"
 
 #include "core/utils/LangsResources.h"
@@ -44,8 +44,8 @@ glimmer::TechnologyCommand::TechnologyCommand(AppContext *appContext)
     : Command(appContext) {
 }
 
-const std::string &glimmer::TechnologyCommand::GetName() const {
-    return TECHNOLOGY_COMMAND_NAME;
+std::string_view glimmer::TechnologyCommand::GetName() const {
+    return Constants::TECHNOLOGY_COMMAND_NAME;
 }
 
 bool glimmer::TechnologyCommand::RequiresWorldContext() const {

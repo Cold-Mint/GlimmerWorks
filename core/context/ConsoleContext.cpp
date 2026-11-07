@@ -142,9 +142,9 @@ bool glimmer::ConsoleContext::Init(AppContext *appContext, VirtualFileSystem *vf
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<AllocStrategyTypeDynamicSuggestions>());
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<AudioTrackDynamicSuggestions>());
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-        std::make_unique<CoordinateDynamicSuggestions>(Y_DYNAMIC_SUGGESTIONS_NAME));
+        std::make_unique<CoordinateDynamicSuggestions>(Constants::Y_DYNAMIC_SUGGESTIONS_NAME));
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-        std::make_unique<CoordinateDynamicSuggestions>(X_DYNAMIC_SUGGESTIONS_NAME));
+        std::make_unique<CoordinateDynamicSuggestions>(Constants::X_DYNAMIC_SUGGESTIONS_NAME));
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
         std::make_unique<MobDynamicSuggestions>(modContext->GetMobRegistry()));
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<BoolDynamicSuggestions>());

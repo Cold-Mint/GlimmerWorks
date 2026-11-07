@@ -54,7 +54,7 @@ namespace glimmer {
         virtual void Match(const DimensionResource *dimensionResource,
                            const TerrainResult *terrainResult,
                            const IStructurePlacementConditionsResource *
-                           placementConditionsResource, std::bitset<TERRAIN_AREA> *result)
+                           placementConditionsResource, std::bitset<Constants::TERRAIN_AREA> *result)
         = 0;
     };
 }

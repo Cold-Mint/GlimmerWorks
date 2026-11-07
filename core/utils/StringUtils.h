@@ -40,7 +40,7 @@ namespace glimmer {
         static std::unordered_map<std::string, ResourceTypeMessage> stringToResourceTypeMessage_;
 
 
-        static void AddResourceTypeMap(const std::string &name, ResourceTypeMessage message);
+        static void AddResourceTypeMap(std::string_view name, ResourceTypeMessage message);
 
     public:
         static void InitStringToResourceTypeMap();
@@ -94,7 +94,7 @@ namespace glimmer {
          * @param name
          * @return
          */
-        static ItemTagResource MakeTag(const std::string &name);
+        static ItemTagResource MakeTag(std::string_view name);
 
 
         /**
@@ -122,7 +122,7 @@ namespace glimmer {
          * @param string
          * @return
          */
-        static uint64_t StringToUint64(const std::string &string);
+        static uint64_t StringToUint64(std::string_view string);
 
         /**
          * String to byte data

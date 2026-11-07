@@ -24,7 +24,7 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
 #include "AssetViewerCommand.h"
 
 #include "core/config/Constants.h"
@@ -82,8 +82,8 @@ glimmer::AssetViewerCommand::AssetViewerCommand(AppContext *appContext)
     AddAssetEnumerator(std::make_unique<RecipesAssetEnumerator>());
 }
 
-const std::string &glimmer::AssetViewerCommand::GetName() const {
-    return ASSET_VIEWER_COMMAND_NAME;
+std::string_view glimmer::AssetViewerCommand::GetName() const {
+    return Constants::ASSET_VIEWER_COMMAND_NAME;
 }
 
 bool glimmer::AssetViewerCommand::RequiresWorldContext() const {

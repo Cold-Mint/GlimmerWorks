@@ -48,7 +48,7 @@ glimmer::ItemSlotDataModel *glimmer::HotBarGUISystem::GetItemSlotDataModel(const
 }
 
 glimmer::HotBarGUISystem::HotBarGUISystem(WorldContext *worldContext) : GuiGameSystem(worldContext) {
-    itemSlots_.resize(HOT_BAR_SIZE);
+    itemSlots_.resize(Constants::HOT_BAR_SIZE);
     WatchComponent(COMPONENT_ITEM_TOOL_TIP);
     WatchComponent(COMPONENT_ITEM_CONTAINER);
     Init();
@@ -138,7 +138,7 @@ void glimmer::HotBarGUISystem::OnWatchedComponentChanged(GameComponentTypeMessag
 
 void glimmer::HotBarGUISystem::LoadDocuments(IDocumentRegistry *documentRegistry) {
     ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
     resourceRef.SetResourceKey("hotbar/hotbar");
     SetElementDocument(documentRegistry->LoadSingleDocument(&resourceRef));
@@ -164,7 +164,7 @@ void glimmer::HotBarGUISystem::LoadInitialHotbarItems() {
     }
     LogCat::i(LogLabel::DEFAULT, "loading_initial_hotbar_items",
               "Loading initial hotbar items after data model created...");
-    for (uint8_t i = 0; i < HOT_BAR_SIZE; ++i) {
+    for (uint8_t i = 0; i < Constants::HOT_BAR_SIZE; ++i) {
         const Item *item = itemContainer_->GetItem(i);
         auto dataModel = GetItemSlotDataModel(i);
         if (dataModel == nullptr) {
@@ -221,9 +221,9 @@ bool glimmer::HotBarGUISystem::HandleEvent(const SDL_Event &event) {
         uint8_t beforeIndex = itemContainer_->GetSelectIndex();
         uint8_t nextIndex = beforeIndex;
         if (event.wheel.y > 0) {
-            nextIndex = nextIndex == 0 ? HOT_BAR_SIZE - 1 : nextIndex - 1;
+            nextIndex = nextIndex == 0 ? Constants::HOT_BAR_SIZE - 1 : nextIndex - 1;
         } else if (event.wheel.y < 0) {
-            nextIndex = nextIndex >= HOT_BAR_SIZE - 1 ? 0 : nextIndex + 1;
+            nextIndex = nextIndex >= Constants::HOT_BAR_SIZE - 1 ? 0 : nextIndex + 1;
         }
         UpdateSelectedSlot(beforeIndex, nextIndex);
         return true;

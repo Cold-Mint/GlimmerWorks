@@ -24,7 +24,7 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
 #include "TagCommand.h"
 
 #include "core/utils/LangsResources.h"
@@ -79,8 +79,8 @@ bool glimmer::TagCommand::RequiresWorldContext() const {
     return true;
 }
 
-const std::string &glimmer::TagCommand::GetName() const {
-    return TAG_COMMAND_NAME;
+std::string_view glimmer::TagCommand::GetName() const {
+    return Constants::TAG_COMMAND_NAME;
 }
 
 void glimmer::TagCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {

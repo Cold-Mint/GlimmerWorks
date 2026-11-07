@@ -32,12 +32,12 @@
 #include "core/config/Constants.h"
 
 glimmer::AudioTrackDynamicSuggestions::AudioTrackDynamicSuggestions() {
-    suggestions_.emplace_back(AUDIO_TRACK_BGM);
-    suggestions_.emplace_back(AUDIO_TRACK_AMBIENT);
+    suggestions_.emplace_back(Constants::AUDIO_TRACK_BGM);
+    suggestions_.emplace_back(Constants::AUDIO_TRACK_AMBIENT);
 }
 
-std::string glimmer::AudioTrackDynamicSuggestions::GetId() const {
-    return AUDIO_TRACK_DYNAMIC_SUGGESTIONS_NAME;
+std::string_view glimmer::AudioTrackDynamicSuggestions::GetId() const {
+    return Constants::AUDIO_TRACK_DYNAMIC_SUGGESTIONS_NAME;
 }
 
 const std::vector<std::string> &glimmer::AudioTrackDynamicSuggestions::GetSuggestions(

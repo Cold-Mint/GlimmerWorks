@@ -155,7 +155,7 @@ void glimmer::FloatingTextSystem::Render(RenderQueue *queue) {
 }
 
 uint8_t glimmer::FloatingTextSystem::GetExecutionOrder() {
-    return EXECUTION_ORDER_FLOATING_TEXT;
+    return Constants::EXECUTION_ORDER_FLOATING_TEXT;
 }
 
 glimmer::GameSystemType glimmer::FloatingTextSystem::GetGameSystemType() const {

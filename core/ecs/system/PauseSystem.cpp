@@ -141,7 +141,7 @@ void glimmer::PauseSystem::OnSettingsButtonClick(Rml::DataModelHandle handle, Rm
 
 void glimmer::PauseSystem::LoadDocuments(IDocumentRegistry *documentRegistry) {
     ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
     resourceRef.SetResourceKey("pause/pause");
     elementDocument_ = documentRegistry->LoadSingleDocument(&resourceRef);

@@ -33,8 +33,8 @@
 glimmer::BiomeSuggestions::BiomeSuggestions(BiomeRegistry *biomeRegistry) : biomeRegistry_(biomeRegistry) {
 }
 
-std::string glimmer::BiomeSuggestions::GetId() const {
-    return BIOME_DYNAMIC_SUGGESTIONS_NAME;
+std::string_view glimmer::BiomeSuggestions::GetId() const {
+    return Constants::BIOME_DYNAMIC_SUGGESTIONS_NAME;
 }
 
 const std::vector<std::string> &glimmer::BiomeSuggestions::GetSuggestions(const std::optional<std::string> &param) {

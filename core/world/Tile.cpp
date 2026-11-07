@@ -107,7 +107,7 @@ uint16_t glimmer::Tile::GetContainerMaxStack() const {
 GameEntityID glimmer::Tile::GetGameEntity(const TileVector2D &position) const {
     const auto iterator = gameEntities_.find(position.GetFingerprint());
     if (iterator == gameEntities_.end()) {
-        return GAME_ENTITY_ID_INVALID;
+        return Constants::GAME_ENTITY_ID_INVALID;
     }
     return iterator->second;
 }
@@ -203,7 +203,7 @@ glimmer::TileVector2D glimmer::Tile::CalculateTileAnchor(const TileAnchorType ti
 }
 
 void glimmer::Tile::AppendDerivedTag(std::unordered_set<uint64_t> &existingTagIds, std::vector<ItemTagResource> &tags,
-                                     const std::string &name) {
+    const std::string_view name) {
     ItemTagResource tag = StringUtils::MakeTag(name);
     tag.MakeCachedTag();
     if (existingTagIds.contains(tag.cachedTagId)) {
@@ -264,16 +264,16 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     tile->containerLootTable_ = tileResource->containerLootTable;
     tile->forceMineRequireTip_ = tileResource->forceMineRequireTip;
     uint8_t tileHeight = tileResource->tileHeight;
-    if (tileHeight > CHUNK_SIZE) {
-        tileHeight = CHUNK_SIZE;
+    if (tileHeight > Constants::CHUNK_SIZE) {
+        tileHeight = Constants::CHUNK_SIZE;
     }
     if (tileHeight == 0) {
         tileHeight = 1;
     }
     tile->dimensions_.SetTileHeight(tileHeight);
     uint8_t tileWidth = tileResource->tileWidth;
-    if (tileWidth > CHUNK_SIZE) {
-        tileWidth = CHUNK_SIZE;
+    if (tileWidth > Constants::CHUNK_SIZE) {
+        tileWidth = Constants::CHUNK_SIZE;
     }
     if (tileWidth == 0) {
         tileWidth = 1;
@@ -353,32 +353,32 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     std::vector<ItemTagResource> tags = tileResource->tags;
 
     if (tileResource->autoDerivedTags) {
-        const uint64_t voidTag = StringUtils::StringToUint64(TAG_VOID);
-        const uint64_t airTag = StringUtils::StringToUint64(TAG_AIR);
+        const uint64_t voidTag = StringUtils::StringToUint64(Constants::TAG_VOID);
+        const uint64_t airTag = StringUtils::StringToUint64(Constants::TAG_AIR);
         std::unordered_set<uint64_t> existingTagIds;
         for (const auto &tag: tags) {
             existingTagIds.insert(tag.cachedTagId);
         }
         if (tile->isOverwritable_) {
-            AppendDerivedTag(existingTagIds, tags, TAG_REPLACEABLE);
+            AppendDerivedTag(existingTagIds, tags, Constants::TAG_REPLACEABLE);
         }
         if (!tile->miningData_.IsBreakable() && !tile->isOverwritable_) {
-            AppendDerivedTag(existingTagIds, tags, TAG_UNBREAKABLE);
+            AppendDerivedTag(existingTagIds, tags, Constants::TAG_UNBREAKABLE);
         }
         if (tileResource->partial) {
-            AppendDerivedTag(existingTagIds, tags, TAG_PARTIAL);
+            AppendDerivedTag(existingTagIds, tags, Constants::TAG_PARTIAL);
         }
         if (tileResource->solid) {
-            AppendDerivedTag(existingTagIds, tags, TAG_SOLID);
+            AppendDerivedTag(existingTagIds, tags, Constants::TAG_SOLID);
         }
         //Prohibit the derivation of tiles with the "void" or "air" labels.
         //禁止对带有void或air标签的瓦片派生
         if (!existingTagIds.contains(airTag) && !existingTagIds.contains(voidTag)) {
             if (tile->layerType_ == TileLayerType::BackgroundDecoration) {
-                AppendDerivedTag(existingTagIds, tags, TAG_DECORATION);
+                AppendDerivedTag(existingTagIds, tags, Constants::TAG_DECORATION);
             }
             if (tile->layerType_ == TileLayerType::BackGround) {
-                AppendDerivedTag(existingTagIds, tags, TAG_WALL);
+                AppendDerivedTag(existingTagIds, tags, Constants::TAG_WALL);
             }
         }
     }
@@ -402,12 +402,12 @@ const glimmer::Vector2DResource &glimmer::Tile::GetCollisionBoxOffset() const {
 }
 
 glimmer::WorldAABB glimmer::Tile::GetCollisionAABB(const TileVector2D &tilePos) const {
-    const float cellMinX = static_cast<float>(tilePos.x * TILE_SIZE) - static_cast<float>(HALF_TILE_SIZE);
-    const float cellMinY = static_cast<float>(tilePos.y * TILE_SIZE) - static_cast<float>(HALF_TILE_SIZE);
-    const float boxLeft = cellMinX + collisionBoxOffset_.x * static_cast<float>(TILE_SIZE);
-    const float boxBottom = cellMinY + collisionBoxOffset_.y * static_cast<float>(TILE_SIZE);
-    const float boxRight = boxLeft + collisionBoxSize_.x * static_cast<float>(TILE_SIZE);
-    const float boxTop = boxBottom + collisionBoxSize_.y * static_cast<float>(TILE_SIZE);
+    const float cellMinX = static_cast<float>(tilePos.x * Constants::TILE_SIZE) - static_cast<float>(Constants::HALF_TILE_SIZE);
+    const float cellMinY = static_cast<float>(tilePos.y * Constants::TILE_SIZE) - static_cast<float>(Constants::HALF_TILE_SIZE);
+    const float boxLeft = cellMinX + collisionBoxOffset_.x * static_cast<float>(Constants::TILE_SIZE);
+    const float boxBottom = cellMinY + collisionBoxOffset_.y * static_cast<float>(Constants::TILE_SIZE);
+    const float boxRight = boxLeft + collisionBoxSize_.x * static_cast<float>(Constants::TILE_SIZE);
+    const float boxTop = boxBottom + collisionBoxSize_.y * static_cast<float>(Constants::TILE_SIZE);
 
     WorldAABB box;
     box.center = WorldVector2D{(boxLeft + boxRight) * 0.5F, (boxBottom + boxTop) * 0.5F};
@@ -446,9 +446,9 @@ void glimmer::Tile::OnPlace(WorldContext *worldContext, PlaceSourceMessage place
         return;
 #endif
     }
-    GameEntityID entity = GAME_ENTITY_ID_INVALID;
+    GameEntityID entity = Constants::GAME_ENTITY_ID_INVALID;
     if (IsWorkBlock()) {
-        if (entity == GAME_ENTITY_ID_INVALID) {
+        if (entity == Constants::GAME_ENTITY_ID_INVALID) {
             entity = entityManager->AddEntity();
         }
         const auto teachProviderComponent = entityManager->AddComponent<TechProviderComponent>(entity);
@@ -459,7 +459,7 @@ void glimmer::Tile::OnPlace(WorldContext *worldContext, PlaceSourceMessage place
                   entity, position.x, position.y);
     }
     if (IsCropsBlock()) {
-        if (entity == GAME_ENTITY_ID_INVALID) {
+        if (entity == Constants::GAME_ENTITY_ID_INVALID) {
             entity = entityManager->AddEntity();
         }
         const auto cropComponent = entityManager->AddComponent<CropComponent>(entity);
@@ -470,7 +470,7 @@ void glimmer::Tile::OnPlace(WorldContext *worldContext, PlaceSourceMessage place
                   entity, position.x, position.y);
     }
     if (IsStorageBlock()) {
-        if (entity == GAME_ENTITY_ID_INVALID) {
+        if (entity == Constants::GAME_ENTITY_ID_INVALID) {
             entity = entityManager->AddEntity();
         }
         const auto itemContainerComponent = entityManager->AddComponent<ItemContainerComponent>(entity);
@@ -485,7 +485,7 @@ void glimmer::Tile::OnPlace(WorldContext *worldContext, PlaceSourceMessage place
                   "Placed storage block, created entity: id={}, position=({}, {})",
                   entity, position.x, position.y);
     }
-    if (entity == GAME_ENTITY_ID_INVALID) {
+    if (entity == Constants::GAME_ENTITY_ID_INVALID) {
         return;
     }
     const auto transform2dComponent = entityManager->AddComponent<Transform2DComponent>(entity);
@@ -511,8 +511,7 @@ void glimmer::Tile::OnBreak(WorldContext *worldContext, const BreakSource breakS
     if (IsStorageBlock() && breakSource != BreakSource::ChunkUnload) {
         const auto itemContainerComponent = entityManager->GetComponent<ItemContainerComponent>(entityId);
         if (itemContainerComponent != nullptr) {
-            ItemContainer *itemContainer = itemContainerComponent->GetItemContainer();
-            if (itemContainer != nullptr) {
+            if (ItemContainer *itemContainer = itemContainerComponent->GetItemContainer(); itemContainer != nullptr) {
                 const WorldVector2D dropPosition = CoordinateTransformer::TileToWorld(position);
                 for (uint8_t i = 0; i < itemContainer->GetCapacity(); ++i) {
                     ItemResult itemResult = itemContainer->TakeAllItem(i);
@@ -520,7 +519,7 @@ void glimmer::Tile::OnBreak(WorldContext *worldContext, const BreakSource breakS
                         continue;
                     }
                     DroppedItemCreator::SpawnDroppedItem(worldContext, dropPosition, itemResult.TakeItem(),
-                                                         DROPPED_ITEM_PICKUP_COOLDOWN_TICKS);
+                                                         Constants::DROPPED_ITEM_PICKUP_COOLDOWN_TICKS);
                 }
             }
         }

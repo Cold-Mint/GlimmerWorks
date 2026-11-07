@@ -46,13 +46,13 @@ namespace glimmer {
        * radius(Add it to entities when the radius is less than or equal to this)
        * 吸附半径(当小于等于此半径时将其加入到entities内)
        */
-        float adsorptionRadius_ = TILE_SIZE;
+        float adsorptionRadius_ = Constants::TILE_SIZE;
 
         /**
          * Detection radius (the sensing range of the magnet. When adsorbable substances enter the range, they will move towards the magnet)
          * 检测半径（吸铁石的感知范围，可吸附物进入范围时会向吸铁石移动）
          */
-        float detectionRadius_ = TILE_SIZE * 5;
+        float detectionRadius_ = Constants::TILE_SIZE * 5;
         /**
    * Types of magnetic adsorbates that can be adsorbed(Multiple can be set.)
    * magnetic_type_item | magnetic_type_money

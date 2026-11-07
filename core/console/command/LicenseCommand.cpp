@@ -49,6 +49,6 @@ bool glimmer::LicenseCommand::Execute(const CommandSender *commandSender, const 
     return false;
 }
 
-const std::string &glimmer::LicenseCommand::GetName() const {
-    return LICENSE_COMMAND_NAME;
+std::string_view glimmer::LicenseCommand::GetName() const {
+    return Constants::LICENSE_COMMAND_NAME;
 }

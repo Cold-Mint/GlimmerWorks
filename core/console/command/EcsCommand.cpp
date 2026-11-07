@@ -24,11 +24,10 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
 #include "EcsCommand.h"
 
 #include "fmt/base.h"
-#include "fmt/compile.h"
 #include "core/context/AppContext.h"
 #include "core/scene/WorldScene.h"
 #include "core/world/SystemScheduler.h"
@@ -65,8 +64,8 @@ std::optional<std::string> glimmer::EcsCommand::EntityToString(GameEntityID game
                        stringStream.str());
 }
 
-const std::string &glimmer::EcsCommand::GetName() const {
-    return ECS_COMMAND_NAME;
+std::string_view glimmer::EcsCommand::GetName() const {
+    return Constants::ECS_COMMAND_NAME;
 }
 
 void glimmer::EcsCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {

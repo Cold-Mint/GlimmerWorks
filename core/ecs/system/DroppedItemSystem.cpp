@@ -62,7 +62,7 @@ void glimmer::DroppedItemSystem::OnWatchedComponentChanged(GameComponentTypeMess
 }
 
 uint8_t glimmer::DroppedItemSystem::GetExecutionOrder() {
-    return EXECUTION_ORDER_DROPPED_ITEM;
+    return Constants::EXECUTION_ORDER_DROPPED_ITEM;
 }
 
 glimmer::DroppedItemSystem::DroppedItemSystem(WorldContext *worldContext) : GameSystem(worldContext) {
@@ -124,7 +124,7 @@ void glimmer::DroppedItemSystem::Render(RenderQueue *queue) {
     if (cameraComponent_ == nullptr || cameraTransform2DComponent_ == nullptr) {
         return;
     }
-    float size = DROPPED_ITEM_SIZE * cameraComponent_->GetZoom();
+    float size = Constants::DROPPED_ITEM_SIZE * cameraComponent_->GetZoom();
 
     std::vector<GameEntityID> droppedEntities;
     {

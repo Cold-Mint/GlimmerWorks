@@ -34,9 +34,9 @@ glimmer::AbilityItemResource *glimmer::AbilityItemRegistry::OnNotFound(const std
     abilityItemResource->packId = packId;
     abilityItemResource->resourceId = key;
     ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_TEXTURE);
-    resourceRef.SetResourceKey(ERROR_TEXTURE_KEY);
+    resourceRef.SetResourceKey(Constants::ERROR_TEXTURE_KEY);
     abilityItemResource->texture = resourceRef;
     abilityItemResource->ability = std::to_underlying(AbilityType::None);
     abilityItemResource->missing = true;

@@ -126,7 +126,7 @@ void glimmer::CropSystem::OnTick(const uint64_t tick) {
             continue;
         }
         const ChunkRelativeVector2D relative = CoordinateTransformer::TileToChunkRelative(position);
-        const size_t index = CoordinateTransformer::GetArrayIndex(relative.x, relative.y, CHUNK_SHIFT);
+        const size_t index = CoordinateTransformer::GetArrayIndex(relative.x, relative.y, Constants::CHUNK_SHIFT);
         const Tile *tile = chunk->GetTile(layerType, index);
         if (tile == nullptr || !tile->IsCropsBlock()) {
             LogCat::d(LogLabel::DEFAULT, "crop_system_tile_not_crop",

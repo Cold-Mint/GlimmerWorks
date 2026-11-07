@@ -35,16 +35,17 @@ void glimmer::LootCommand::InitSuggestions(NodeTree<std::string> *suggestionsTre
     if (suggestionsTree == nullptr) {
         return;
     }
-    suggestionsTree->AddChild("get")->AddChild(LOOT_DYNAMIC_SUGGESTIONS_NAME);
+    suggestionsTree->AddChild("get")->AddChild(std::string(Constants::LOOT_DYNAMIC_SUGGESTIONS_NAME));
 }
 
 glimmer::LootCommand::LootCommand(AppContext *appContext)
     : Command(appContext) {
 }
 
-const std::string &glimmer::LootCommand::GetName() const {
-    return LOOT_COMMAND_NAME;
+std::string_view glimmer::LootCommand::GetName() const {
+    return Constants::LOOT_COMMAND_NAME;
 }
+
 
 void glimmer::LootCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
     if (strings == nullptr) {

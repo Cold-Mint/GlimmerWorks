@@ -38,7 +38,7 @@ namespace glimmer {
 
         [[nodiscard]] std::optional<std::string> EntityToString(GameEntityID gameEntityId) const;
 
-        [[nodiscard]] const std::string &GetName() const override;
+        [[nodiscard]] std::string_view GetName() const override;
 
         void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
 

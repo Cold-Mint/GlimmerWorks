@@ -102,7 +102,7 @@ glimmer::BoolOrToggle glimmer::CommandArgs::AsBoolOrToggle(int index) const {
     if (val == "0" || val == "false" || val == "no" || val == "n") {
         return False;
     }
-    if (val == TOGGLE_KEY_WORD) {
+    if (val == Constants::TOGGLE_KEY_WORD) {
         return Toggle;
     }
     return False;
@@ -156,7 +156,7 @@ float glimmer::CommandArgs::AsCoordinate(const int index, const float origin) co
             float offset = std::stof(suffix.substr(numStart));
             //Calculate the final value: Original value + Offset * Sign * Tile size
             //计算最终值：原始值 + 偏移量 * 符号 * 瓦片大小
-            return origin + sign * offset * TILE_SIZE;
+            return origin + sign * offset * Constants::TILE_SIZE;
         } catch (const std::invalid_argument &) {
             //Digital conversion failed (e.g. ~+abc), return original value
             //数字转换失败（如~+abc），返回原始值
@@ -167,7 +167,7 @@ float glimmer::CommandArgs::AsCoordinate(const int index, const float origin) co
             return origin;
         }
     }
-    return std::stof(token) * TILE_SIZE;
+    return std::stof(token) * Constants::TILE_SIZE;
 }
 
 float glimmer::CommandArgs::AsFloat(const int index) const {

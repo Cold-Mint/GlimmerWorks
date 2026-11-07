@@ -47,12 +47,16 @@ bool glimmer::ItemEditorCommand::RequiresCheatEnabled() const {
     return true;
 }
 
+std::string_view glimmer::ItemEditorCommand::GetName() const {
+    return Constants::ITEM_EDITOR_COMMAND_NAME;
+}
+
 
 void glimmer::ItemEditorCommand::AddSuggestionsValue(NodeTree<std::string> *suggestionsTree, bool setMode) {
     suggestionsTree->AddChild("used_durability");
     auto durabilityStrategy = suggestionsTree->AddChild("durability_strategy");
     if (setMode) {
-        durabilityStrategy->AddChild(ALLOC_STRATEGY_TYPE_DYNAMIC_SUGGESTIONS_NAME);
+        durabilityStrategy->AddChild(std::string(Constants::ALLOC_STRATEGY_TYPE_DYNAMIC_SUGGESTIONS_NAME));
     }
     suggestionsTree->AddChild("amount");
     if (!setMode) {
@@ -69,13 +73,13 @@ void glimmer::ItemEditorCommand::SetItemAttribute(const std::string &attribute, 
     } else if (attribute == "durability_strategy") {
         auto composableItem = dynamic_cast<ComposableItem *>(item);
         if (composableItem != nullptr) {
-            if (value == ALLOC_STR_STRATEGY_FORWARD) {
+            if (value == Constants::ALLOC_STR_STRATEGY_FORWARD) {
                 composableItem->SetAllocStrategyType(ALLOC_STRATEGY_FORWARD);
-            } else if (value == ALLOC_STR_STRATEGY_BACKWARD) {
+            } else if (value == Constants::ALLOC_STR_STRATEGY_BACKWARD) {
                 composableItem->SetAllocStrategyType(ALLOC_STRATEGY_BACKWARD);
-            } else if (value == ALLOC_STR_STRATEGY_BALANCE) {
+            } else if (value == Constants::ALLOC_STR_STRATEGY_BALANCE) {
                 composableItem->SetAllocStrategyType(ALLOC_STRATEGY_BALANCE);
-            } else if (value == ALLOC_STR_STRATEGY_RANDOM) {
+            } else if (value == Constants::ALLOC_STR_STRATEGY_RANDOM) {
                 composableItem->SetAllocStrategyType(ALLOC_STRATEGY_RANDOM);
             }
         }
@@ -98,16 +102,16 @@ std::string glimmer::ItemEditorCommand::GetItemAttribute(const std::string &attr
         if (composableItem != nullptr) {
             switch (composableItem->GetAllocStrategyType()) {
                 case ALLOC_STRATEGY_FORWARD:
-                    value << ALLOC_STR_STRATEGY_FORWARD;
+                    value << Constants::ALLOC_STR_STRATEGY_FORWARD;
                     break;
                 case ALLOC_STRATEGY_BACKWARD:
-                    value << ALLOC_STR_STRATEGY_BACKWARD;
+                    value << Constants::ALLOC_STR_STRATEGY_BACKWARD;
                     break;
                 case ALLOC_STRATEGY_BALANCE:
-                    value << ALLOC_STR_STRATEGY_BALANCE;
+                    value << Constants::ALLOC_STR_STRATEGY_BALANCE;
                     break;
                 case ALLOC_STRATEGY_RANDOM:
-                    value << ALLOC_STR_STRATEGY_RANDOM;
+                    value << Constants::ALLOC_STR_STRATEGY_RANDOM;
                     break;
                 case AllocStrategyTypeMessage_INT_MIN_SENTINEL_DO_NOT_USE_:
                 case AllocStrategyTypeMessage_INT_MAX_SENTINEL_DO_NOT_USE_:
@@ -173,9 +177,6 @@ void glimmer::ItemEditorCommand::InitSuggestions(NodeTree<std::string> *suggesti
     AddSuggestionsValue(suggestionsTree->AddChild("set"), true);
 }
 
-const std::string &glimmer::ItemEditorCommand::GetName() const {
-    return ITEM_EDITOR_COMMAND_NAME;
-}
 
 void glimmer::ItemEditorCommand::PutCommandStructure(const CommandArgs *commandArgs,
                                                      std::vector<std::string> *strings) {

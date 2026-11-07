@@ -36,14 +36,14 @@ void glimmer::FlyCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree
     if (suggestionsTree == nullptr) {
         return;
     }
-    suggestionsTree->AddChild(BOOL_TOGGLE_DYNAMIC_SUGGESTIONS_NAME);
+    suggestionsTree->AddChild(std::string(Constants::BOOL_TOGGLE_DYNAMIC_SUGGESTIONS_NAME));
 }
 
 glimmer::FlyCommand::FlyCommand(AppContext *appContext) : Command(appContext) {
 }
 
-const std::string &glimmer::FlyCommand::GetName() const {
-    return FLY_COMMAND_NAME;
+std::string_view glimmer::FlyCommand::GetName() const {
+    return Constants::FLY_COMMAND_NAME;
 }
 
 bool glimmer::FlyCommand::RequiresWorldContext() const {

@@ -24,7 +24,7 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
 #include "BiomeScoreCommand.h"
 #include "core/utils/LangsResources.h"
 #include "core/math/CoordinateTransformer.h"
@@ -37,6 +37,10 @@
 #include "fmt/xchar.h"
 
 glimmer::BiomeScoreCommand::BiomeScoreCommand(AppContext *appContext) : Command(appContext) {
+}
+
+std::string_view glimmer::BiomeScoreCommand::GetName() const {
+    return Constants::BIOME_SCORE_COMMAND_NAME;
 }
 
 
@@ -113,12 +117,10 @@ void glimmer::BiomeScoreCommand::InitSuggestions(NodeTree<std::string> *suggesti
         return;
     }
     suggestionsTree->AddChild("inspector");
-    suggestionsTree->AddChild("info")->AddChild(X_DYNAMIC_SUGGESTIONS_NAME)->AddChild(Y_DYNAMIC_SUGGESTIONS_NAME);
+    suggestionsTree->AddChild("info")->AddChild(std::string(Constants::X_DYNAMIC_SUGGESTIONS_NAME))->AddChild(
+        std::string(Constants::Y_DYNAMIC_SUGGESTIONS_NAME));
 }
 
-const std::string &glimmer::BiomeScoreCommand::GetName() const {
-    return BIOME_SCORE_COMMAND_NAME;
-}
 
 bool glimmer::BiomeScoreCommand::RequiresWorldContext() const {
     return true;
@@ -170,18 +172,18 @@ bool glimmer::BiomeScoreCommand::Execute(const CommandSender *commandSender, con
             onMessageRef(langsResources->cmdHookManagerNotFound);
             return false;
         }
-        if (commandHookManager->Contains(BIOME_SCORE_INSPECTOR_ID)) {
-            if (commandHookManager->Unregister(BIOME_SCORE_INSPECTOR_ID)) {
+        if (commandHookManager->Contains(Constants::BIOME_SCORE_INSPECTOR_ID)) {
+            if (commandHookManager->Unregister(Constants::BIOME_SCORE_INSPECTOR_ID)) {
                 onMessageRef(langsResources->biomeScoreInspectorDisable);
                 return true;
             }
             onMessageRef(langsResources->biomeScoreInspectorDisableFail);
         } else {
             auto commandHookEntry = std::make_unique<CommandHookEntry>();
-            commandHookEntry->hookId = BIOME_SCORE_INSPECTOR_ID;
+            commandHookEntry->hookId = Constants::BIOME_SCORE_INSPECTOR_ID;
             commandHookEntry->scope = CommandHookScope::SESSION;
             commandHookEntry->code = SDL_BUTTON_LEFT;
-            commandHookEntry->command = BIOME_SCORE_COMMAND_NAME + " info ~ ~";
+            commandHookEntry->command = std::string(Constants::BIOME_SCORE_COMMAND_NAME) + " info ~ ~";
             commandHookEntry->eventType = SDL_EVENT_MOUSE_BUTTON_DOWN;
             if (commandHookManager->Register(std::move(commandHookEntry))) {
                 onMessageRef(langsResources->biomeScoreInspectorEnable);

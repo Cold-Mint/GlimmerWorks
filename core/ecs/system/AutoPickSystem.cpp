@@ -69,7 +69,7 @@ glimmer::AutoPickSystem::AutoPickSystem(WorldContext *worldContext) : GameSystem
         return;
     }
     ResourceRef ref;
-    ref.SetSelfPackageId(RESOURCE_REF_CORE);
+    ref.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     ref.SetResourceType(RESOURCE_AUDIO);
     ref.SetResourceKey("sfx/pick_item");
     const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
@@ -166,9 +166,9 @@ void glimmer::AutoPickSystem::OnTick(const uint64_t tick) {
     }
     if (remainingTime_ <= 0) {
         TryMergeFlowingText();
-        remainingTime_ = MERGE_DURATION;
+        remainingTime_ = Constants::MERGE_DURATION;
     }
-    remainingTime_ -= FIXED_TIME_STEP;
+    remainingTime_ -= Constants::FIXED_TIME_STEP;
     std::vector<GameEntityID> entities;
     {
         std::lock_guard lock(entitiesMutex_);

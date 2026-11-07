@@ -48,7 +48,7 @@ namespace glimmer {
 
         TileResource *AddCoreResource(const CoreTileResourceParams &params);
 
-        static ResourceRef CreateCoreRef(const std::string &key, ResourceTypeMessage type);
+        static ResourceRef CreateCoreRef(std::string_view key, ResourceTypeMessage type);
 
     public:
         /**

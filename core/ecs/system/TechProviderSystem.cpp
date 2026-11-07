@@ -77,7 +77,7 @@ void glimmer::TechProviderSystem::OnTick(const uint64_t tick) {
     //消费 OnWatchedComponentChanged 设置的"重新计算"标记；若未标记，则仅在玩家移动超过一个图块后重新计算。
     if (!changed.exchange(false, std::memory_order_relaxed) &&
         playerTransform2DComponent->GetPosition().DistanceSquared(lastPlayerPosition_) <
-        TILE_SIZE * TILE_SIZE) {
+        Constants::TILE_SIZE * Constants::TILE_SIZE) {
         return;
     }
     lastPlayerPosition_ = playerTransform2DComponent->GetPosition();
@@ -102,7 +102,7 @@ void glimmer::TechProviderSystem::OnTick(const uint64_t tick) {
             continue;
         }
         if (playerTransform2DComponent->GetPosition().Distance(
-                providerTransform2DComponent->GetPosition()) / TILE_SIZE > WORK_STATION_RANGE) {
+                providerTransform2DComponent->GetPosition()) / Constants::TILE_SIZE > Constants::WORK_STATION_RANGE) {
             continue;
         }
         auto techProviderComponent = entityManager->GetComponent<TechProviderComponent>(

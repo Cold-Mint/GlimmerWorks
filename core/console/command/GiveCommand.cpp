@@ -43,10 +43,11 @@ void glimmer::GiveCommand::InitSuggestions(NodeTree<std::string> *suggestionsTre
     if (suggestionsTree == nullptr) {
         return;
     }
-    suggestionsTree->AddChild("tileItem")->AddChild(TILE_DYNAMIC_SUGGESTIONS_NAME);
-    suggestionsTree->AddChild("composableItem")->AddChild(COMPOSABLE_ITEM_DYNAMIC_SUGGESTIONS_NAME);
-    suggestionsTree->AddChild("abilityItem")->AddChild(ABILITY_ITEM_DYNAMIC_SUGGESTIONS_NAME);
-    suggestionsTree->AddChild("materialItem")->AddChild(MATERIAL_ITEM_DYNAMIC_SUGGESTIONS_NAME);
+    suggestionsTree->AddChild("tileItem")->AddChild(std::string(Constants::TILE_DYNAMIC_SUGGESTIONS_NAME));
+    suggestionsTree->AddChild("composableItem")->AddChild(
+        std::string(Constants::COMPOSABLE_ITEM_DYNAMIC_SUGGESTIONS_NAME));
+    suggestionsTree->AddChild("abilityItem")->AddChild(std::string(Constants::ABILITY_ITEM_DYNAMIC_SUGGESTIONS_NAME));
+    suggestionsTree->AddChild("materialItem")->AddChild(std::string(Constants::MATERIAL_ITEM_DYNAMIC_SUGGESTIONS_NAME));
 }
 
 glimmer::GiveCommand::GiveCommand(AppContext *appContext)
@@ -304,8 +305,8 @@ bool glimmer::GiveCommand::Execute(const CommandSender *commandSender, const Com
     return false;
 }
 
-const std::string &glimmer::GiveCommand::GetName() const {
-    return GIVE_COMMAND_NAME;
+std::string_view glimmer::GiveCommand::GetName() const {
+    return Constants::GIVE_COMMAND_NAME;
 }
 
 bool glimmer::GiveCommand::RequiresCheatEnabled() const {

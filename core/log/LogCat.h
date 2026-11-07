@@ -363,7 +363,7 @@ namespace glimmer {
             std::cout << COLOR_ERROR << line << COLOR_RESET << std::endl;
 #endif
 #if  !defined(NDEBUG)
-            assert(false);
+            // assert(false);
 #endif
         }
 

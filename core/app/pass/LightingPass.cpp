@@ -52,16 +52,16 @@ glimmer::LightingPass::LightingPass(ResourceLocator *resourceLocator, SDL_GPUDev
       device_(device),
       lightingPipeline_(std::move(lightingPipeline)),
       lightingSampler_(std::move(lightingSampler)) {
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
     if (resourceLocator_ != nullptr) {
         ResourceRef defaultPipelineResourceRef;
-        defaultPipelineResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+        defaultPipelineResourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
         defaultPipelineResourceRef.SetResourceType(RESOURCE_PIPELINE);
         defaultPipelineResourceRef.SetResourceKey("default");
         debugPipeline_ = resourceLocator_->FindGPUGraphicsPipeline(&defaultPipelineResourceRef);
 
         ResourceRef defaultSamplerResourceRef;
-        defaultSamplerResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+        defaultSamplerResourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
         defaultSamplerResourceRef.SetResourceType(RESOURCE_SAMPLER);
         defaultSamplerResourceRef.SetResourceKey("default");
         debugSampler_ = resourceLocator_->FindGPUGraphicsSampler(&defaultSamplerResourceRef);
@@ -70,7 +70,7 @@ glimmer::LightingPass::LightingPass(ResourceLocator *resourceLocator, SDL_GPUDev
 }
 
 glimmer::LightingPass::~LightingPass() {
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
     if (debugTransferBuffer_ != nullptr) {
         SDL_ReleaseGPUTransferBuffer(device_, debugTransferBuffer_);
         debugTransferBuffer_ = nullptr;
@@ -87,7 +87,7 @@ glimmer::LightingPass::~LightingPass() {
 }
 
 void glimmer::LightingPass::Prepare(RenderFrameContext &ctx) {
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
     if (!enableLighting_) {
         return;
     }
@@ -98,7 +98,7 @@ void glimmer::LightingPass::Prepare(RenderFrameContext &ctx) {
 }
 
 void glimmer::LightingPass::Record(RenderFrameContext &ctx) {
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
     if (!enableLighting_) {
         BlitScene(ctx);
         return;
@@ -109,7 +109,7 @@ void glimmer::LightingPass::Record(RenderFrameContext &ctx) {
     }
     lightMapTexture_.Upload(ctx.commandBuffer);
     FlushLightingPass(ctx);
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
     if (displayLightMap_) {
         DrawLightMapDebug(ctx);
     }
@@ -247,7 +247,7 @@ void glimmer::LightingPass::UpdateLightMap(UniformInjectContext *injectContext) 
     injectContext->lightMapSizeY = sizeY;
 }
 
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
 void glimmer::LightingPass::SetDisplayLightMap(const bool display) {
     displayLightMap_ = display;
 }

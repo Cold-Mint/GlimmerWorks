@@ -36,14 +36,16 @@ void glimmer::TpCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree)
     if (suggestionsTree == nullptr) {
         return;
     }
-    suggestionsTree->AddChild(X_DYNAMIC_SUGGESTIONS_NAME)->AddChild(Y_DYNAMIC_SUGGESTIONS_NAME);
+    suggestionsTree->AddChild(std::string(Constants::X_DYNAMIC_SUGGESTIONS_NAME))->AddChild(
+        std::string(Constants::Y_DYNAMIC_SUGGESTIONS_NAME));
 }
 
 glimmer::TpCommand::TpCommand(AppContext *appContext) : Command(appContext) {
 }
 
-const std::string &glimmer::TpCommand::GetName() const {
-    return TP_COMMAND_NAME;
+
+std::string_view glimmer::TpCommand::GetName() const {
+    return Constants::TP_COMMAND_NAME;
 }
 
 void glimmer::TpCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {

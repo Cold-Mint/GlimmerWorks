@@ -90,7 +90,7 @@ std::shared_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const C
     LogCat::i(LogLabel::CHUNK, "chunk_generating", "Generating new chunk at position: ({}, {})", position.x,
               position.y);
     auto chunk = std::make_shared<Chunk>(worldContext_, position);
-    std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > tilesRefMap = {
+    std::unordered_map<TileLayerType, std::array<ResourceRef, Constants::CHUNK_AREA> > tilesRefMap = {
         {TileLayerType::Ground, {}},
         {TileLayerType::BackgroundDecoration, {}},
         {TileLayerType::BackGround, {}}

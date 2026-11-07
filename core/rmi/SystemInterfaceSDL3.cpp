@@ -40,8 +40,8 @@ int glimmer::SystemInterfaceSDL3::TranslateString(Rml::String &translated, const
     if (input.empty() || input == "\n") {
         return 0;
     }
-    if (input.starts_with(RAW_TEXT_PREFIX)) {
-        translated = input.substr(RAW_TEXT_PREFIX.length());
+    if (input.starts_with(Constants::RAW_TEXT_PREFIX)) {
+        translated = input.substr(Constants::RAW_TEXT_PREFIX.length());
         return 1;
     }
     if (langsValuePtr_ == nullptr) {

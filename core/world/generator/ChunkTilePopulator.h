@@ -54,7 +54,7 @@ namespace glimmer {
          */
         static void PopulateSingleTilePosition(
             Chunk *chunk, const ResourceLocator *resourceLocator,
-            const std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > &tilesRefMap,
+            const std::unordered_map<TileLayerType, std::array<ResourceRef, Constants::CHUNK_AREA> > &tilesRefMap,
             size_t cellIndex);
 
     public:
@@ -66,7 +66,7 @@ namespace glimmer {
          * @param tilesRefMap tilesRefMap 瓦片引用映射
          */
         static void Populate(Chunk *chunk, const ResourceLocator *resourceLocator,
-                             const std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > &
+                             const std::unordered_map<TileLayerType, std::array<ResourceRef, Constants::CHUNK_AREA> > &
                              tilesRefMap);
     };
 }

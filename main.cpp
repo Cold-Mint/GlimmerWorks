@@ -38,7 +38,7 @@ namespace fs = std::filesystem;
 int main() {
     LogCat::SetThreadName("Main");
     SDL_SetAppMetadata(
-        PROJECT_NAME.c_str(), GAME_VERSION_STRING,
+        Constants::PROJECT_NAME.data(), GAME_VERSION_STRING,
         APP_PACKNAME);
     StringUtils::InitStringToResourceTypeMap();
     AppContext appContext;

@@ -46,7 +46,9 @@ namespace glimmer {
         //@genNextLine(versionName|版本名称)
         std::string versionName;
         //@genNextLine(templateSearchPath|模板搜索路径)
-        std::vector<std::string> templateSearchPath = {TEMPLATE_CURRENT, TEMPLATE_ROOT};
+        std::vector<std::string> templateSearchPath = {
+            std::string(Constants::TEMPLATE_CURRENT), std::string(Constants::TEMPLATE_ROOT)
+        };
         //@genNextLine(versionNumber|版本号)
         uint32_t versionNumber;
         //@genNextLine(minGameVersion|最低兼容游戏版本号)

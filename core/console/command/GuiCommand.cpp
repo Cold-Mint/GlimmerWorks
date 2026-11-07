@@ -33,9 +33,10 @@
 glimmer::GuiCommand::GuiCommand(AppContext *appContext) : Command(appContext) {
 }
 
-const std::string &glimmer::GuiCommand::GetName() const {
-    return GUI_COMMAND_NAME;
+std::string_view glimmer::GuiCommand::GetName() const {
+    return Constants::GUI_COMMAND_NAME;
 }
+
 
 void glimmer::GuiCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
     if (commandArgs == nullptr || strings == nullptr) {

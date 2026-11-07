@@ -29,8 +29,9 @@
 #include "core/config/Constants.h"
 #include "core/utils/ScanCodeUtils.h"
 
-std::string glimmer::ScanKeyDynamicSuggestions::GetId() const {
-    return SCAN_KEY_DYNAMIC_SUGGESTIONS_NAME;
+
+std::string_view glimmer::ScanKeyDynamicSuggestions::GetId() const {
+    return Constants::SCAN_KEY_DYNAMIC_SUGGESTIONS_NAME;
 }
 
 const std::vector<std::string> &glimmer::ScanKeyDynamicSuggestions::GetSuggestions(

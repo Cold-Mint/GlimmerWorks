@@ -34,7 +34,7 @@ namespace glimmer {
     public:
         virtual ~DynamicSuggestions();
 
-        [[nodiscard]] virtual std::string GetId() const = 0;
+        [[nodiscard]] virtual std::string_view GetId() const = 0;
 
         virtual const std::vector<std::string> &GetSuggestions(const std::optional<std::string> &param) = 0;
 

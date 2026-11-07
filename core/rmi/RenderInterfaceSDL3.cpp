@@ -40,13 +40,13 @@ glimmer::RenderInterfaceSDL3::RenderInterfaceSDL3(SDL_GPUDevice *device, SDL_Win
 
 Rml::TextureHandle glimmer::RenderInterfaceSDL3::LoadTexture(Rml::Vector2i &texture_dimensions,
                                                              const Rml::String &source) {
-    if (!source.starts_with(TEXTURE_PREFIX)) {
+    if (!source.starts_with(Constants::TEXTURE_PREFIX)) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "texture_prefix_unsupported",
-                  "Only textures with the loading path starting with '{}' are supported. source={}", TEXTURE_PREFIX,
+                  "Only textures with the loading path starting with '{}' are supported. source={}", Constants::TEXTURE_PREFIX,
                   source);
         return {};
     }
-    const std::string id = source.substr(TEXTURE_PREFIX.size());
+    const std::string id = source.substr(Constants::TEXTURE_PREFIX.size());
     const std::optional<ResourceRef> resourceRefOptional = ResourceRef::ParseFromId(id, RESOURCE_TEXTURE);
     if (!resourceRefOptional.has_value()) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "resource_ref_optional_empty",

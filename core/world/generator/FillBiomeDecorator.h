@@ -32,7 +32,7 @@ namespace glimmer {
         void DecorationImpl(const ChunkVertexVector2D &chunkVertex, WorldContext *worldContext,
                             TerrainResult *terrainResult, FillBiomeDecoratorResource *decoratorResource,
                             BiomeResource *biomeResource,
-                            std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > *
+                            std::unordered_map<TileLayerType, std::array<ResourceRef, Constants::CHUNK_AREA> > *
                             tilesRefMap) override;
 
     public:

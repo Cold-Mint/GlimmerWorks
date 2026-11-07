@@ -30,14 +30,14 @@
 #include "core/config/Constants.h"
 
 glimmer::AllocStrategyTypeDynamicSuggestions::AllocStrategyTypeDynamicSuggestions() {
-    suggestions_.emplace_back(ALLOC_STR_STRATEGY_BACKWARD);
-    suggestions_.emplace_back(ALLOC_STR_STRATEGY_FORWARD);
-    suggestions_.emplace_back(ALLOC_STR_STRATEGY_BALANCE);
-    suggestions_.emplace_back(ALLOC_STR_STRATEGY_RANDOM);
+    suggestions_.emplace_back(Constants::ALLOC_STR_STRATEGY_BACKWARD);
+    suggestions_.emplace_back(Constants::ALLOC_STR_STRATEGY_FORWARD);
+    suggestions_.emplace_back(Constants::ALLOC_STR_STRATEGY_BALANCE);
+    suggestions_.emplace_back(Constants::ALLOC_STR_STRATEGY_RANDOM);
 }
 
-std::string glimmer::AllocStrategyTypeDynamicSuggestions::GetId() const {
-    return ALLOC_STRATEGY_TYPE_DYNAMIC_SUGGESTIONS_NAME;
+std::string_view glimmer::AllocStrategyTypeDynamicSuggestions::GetId() const {
+    return Constants::ALLOC_STRATEGY_TYPE_DYNAMIC_SUGGESTIONS_NAME;
 }
 
 const std::vector<std::string> &glimmer::AllocStrategyTypeDynamicSuggestions::GetSuggestions(

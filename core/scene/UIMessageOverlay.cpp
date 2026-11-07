@@ -42,7 +42,7 @@ glimmer::UIMessageOverlay::UIMessageOverlay(AppContext *context)
 
 void glimmer::UIMessageOverlay::LoadDocuments() {
     ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
     resourceRef.SetResourceKey("ui_message/ui_message");
     uiMessageDocument_ = LoadSingleDocument(&resourceRef);

@@ -30,11 +30,11 @@
 
 glimmer::ContributorManager::ContributorManager() {
     auto coldMintContributor = std::make_unique<Contributor>();
-    coldMintContributor->uuid = DEV_UUID_COLD_MINT;
-    coldMintContributor->name = DEV_NAME_COLO_MINT;
+    coldMintContributor->uuid = Constants::DEV_UUID_COLD_MINT;
+    coldMintContributor->name = Constants::DEV_NAME_COLO_MINT;
     ResourceRef displayName;
-    displayName.SetSelfPackageId(RESOURCE_REF_CORE);
-    displayName.SetResourceKey(DEV_DISPLAY_NAME_KEY_COLD_MINT);
+    displayName.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
+    displayName.SetResourceKey(Constants::DEV_DISPLAY_NAME_KEY_COLD_MINT);
     displayName.SetResourceType(RESOURCE_STRING);
     coldMintContributor->displayName = displayName;
     coldMintContributor->country = "CN";

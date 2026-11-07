@@ -41,7 +41,7 @@ glimmer::TileResource *glimmer::TileResourceManager::AddCoreResource(const CoreT
         tileResource->description = CreateCoreRef(*params.descriptionKey, RESOURCE_STRING);
     }
     tileResource->resourceId = params.resourceId;
-    tileResource->packId = RESOURCE_REF_CORE;
+    tileResource->packId = Constants::RESOURCE_REF_CORE;
     tileResource->collisionMask = params.collisionMask;
     tileResource->layer = std::to_underlying(params.layerType);
     tileResource->unitHardness = params.unitHardness;
@@ -59,10 +59,10 @@ glimmer::TileResource *glimmer::TileResourceManager::AddCoreResource(const CoreT
     return AddResource(std::move(tileResource));
 }
 
-glimmer::ResourceRef
-glimmer::TileResourceManager::CreateCoreRef(const std::string &key, const ResourceTypeMessage type) {
+glimmer::ResourceRef glimmer::TileResourceManager::CreateCoreRef(const std::string_view key,
+                                                                 const ResourceTypeMessage type) {
     ResourceRef ref;
-    ref.SetSelfPackageId(RESOURCE_REF_CORE);
+    ref.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     ref.SetResourceKey(key);
     ref.SetResourceType(type);
     return ref;
@@ -70,95 +70,134 @@ glimmer::TileResourceManager::CreateCoreRef(const std::string &key, const Resour
 
 void glimmer::TileResourceManager::InitBuiltinTiles() {
     AddCoreResource(CoreTileResourceParams{
-        .descriptionKey = STRING_TILE_AIR_DESCRIPTION, .resourceId = TILE_ID_AIR,
-        .nameKey = STRING_TILE_AIR_NAME, .textureKey = "tiles/air",
-        .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_NONE, .backLightMaskKey = LIGHT_MASK_NONE,
-        .tags = {StringUtils::MakeTag(TAG_AIR)}, .unitHardness = -1.0F, .collisionMask = COLLISION_MASK_NONE,
+        .descriptionKey = Constants::STRING_TILE_AIR_DESCRIPTION.data(),
+        .resourceId = Constants::TILE_ID_AIR.data(),
+        .nameKey = Constants::STRING_TILE_AIR_NAME.data(), .textureKey = "tiles/air",
+        .lightSourceKey = Constants::LIGHT_NONE.data(),
+        .sideLightMaskKey = Constants::LIGHT_MASK_NONE.data(),
+        .backLightMaskKey = Constants::LIGHT_MASK_NONE.data(),
+        .tags = {StringUtils::MakeTag(Constants::TAG_AIR)}, .unitHardness = -1.0F,
+        .collisionMask = Constants::COLLISION_MASK_NONE,
         .layerType = TileLayerType::Ground, .isOverwritable = true, .canDropLoot = false, .solid = false,
     });
     AddCoreResource(CoreTileResourceParams{
-        .descriptionKey = STRING_TILE_AIR_WALL_DESCRIPTION, .resourceId = TILE_ID_AIR_WALL,
-        .nameKey = STRING_TILE_AIR_WALL_NAME, .textureKey = "tiles/air_wall",
-        .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_NONE, .backLightMaskKey = LIGHT_MASK_NONE,
-        .tags = {StringUtils::MakeTag(TAG_AIR)}, .unitHardness = -1.0F, .collisionMask = COLLISION_MASK_NONE,
+        .descriptionKey = Constants::STRING_TILE_AIR_WALL_DESCRIPTION.data(),
+        .resourceId = Constants::TILE_ID_AIR_WALL.data(),
+        .nameKey = Constants::STRING_TILE_AIR_WALL_NAME.data(), .textureKey = "tiles/air_wall",
+        .lightSourceKey = Constants::LIGHT_NONE.data(),
+        .sideLightMaskKey = Constants::LIGHT_MASK_NONE.data(),
+        .backLightMaskKey = Constants::LIGHT_MASK_NONE.data(),
+        .tags = {StringUtils::MakeTag(Constants::TAG_AIR)}, .unitHardness = -1.0F,
+        .collisionMask = Constants::COLLISION_MASK_NONE,
         .layerType = TileLayerType::BackGround, .isOverwritable = true, .canDropLoot = false, .solid = false
     });
     AddCoreResource(CoreTileResourceParams{
-        .descriptionKey = STRING_TILE_AIR_DECORATION_DESCRIPTION, .resourceId = TILE_ID_AIR_DECORATION,
-        .nameKey = STRING_TILE_AIR_DECORATION_NAME, .textureKey = "tiles/air_decoration",
-        .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_NONE, .backLightMaskKey = LIGHT_MASK_NONE,
-        .tags = {StringUtils::MakeTag(TAG_AIR)}, .unitHardness = -1.0F, .collisionMask = COLLISION_MASK_NONE,
+        .descriptionKey = Constants::STRING_TILE_AIR_DECORATION_DESCRIPTION.data(),
+        .resourceId = Constants::TILE_ID_AIR_DECORATION.data(),
+        .nameKey = Constants::STRING_TILE_AIR_DECORATION_NAME.data(), .textureKey = "tiles/air_decoration",
+        .lightSourceKey = Constants::LIGHT_NONE.data(),
+        .sideLightMaskKey = Constants::LIGHT_MASK_NONE.data(),
+        .backLightMaskKey = Constants::LIGHT_MASK_NONE.data(),
+        .tags = {StringUtils::MakeTag(Constants::TAG_AIR)}, .unitHardness = -1.0F,
+        .collisionMask = Constants::COLLISION_MASK_NONE,
         .layerType = TileLayerType::BackgroundDecoration, .isOverwritable = true, .canDropLoot = false, .solid = false
     });
     AddCoreResource(CoreTileResourceParams{
-        .descriptionKey = STRING_TILE_VOID_DESCRIPTION, .resourceId = TILE_ID_VOID,
-        .nameKey = STRING_TILE_VOID_NAME, .textureKey = "tiles/void",
-        .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_NONE, .backLightMaskKey = LIGHT_MASK_NONE,
-        .tags = {StringUtils::MakeTag(TAG_VOID)}, .unitHardness = -1.0F, .collisionMask = COLLISION_MASK_NONE,
+        .descriptionKey = Constants::STRING_TILE_VOID_DESCRIPTION.data(), .resourceId = Constants::TILE_ID_VOID.data(),
+        .nameKey = Constants::STRING_TILE_VOID_NAME.data(), .textureKey = "tiles/void",
+        .lightSourceKey = Constants::LIGHT_NONE.data(), .sideLightMaskKey = Constants::LIGHT_MASK_NONE.data(),
+        .backLightMaskKey = Constants::LIGHT_MASK_NONE.data(),
+        .tags = {StringUtils::MakeTag(Constants::TAG_VOID)}, .unitHardness = -1.0F,
+        .collisionMask = Constants::COLLISION_MASK_NONE,
         .layerType = TileLayerType::Ground, .isOverwritable = false, .canDropLoot = false,
     });
     AddCoreResource(CoreTileResourceParams{
-        .descriptionKey = STRING_TILE_BEDROCK_DESCRIPTION, .resourceId = TILE_ID_BEDROCK,
-        .nameKey = STRING_TILE_BEDROCK_NAME, .textureKey = "tiles/bedrock",
-        .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_FULL, .backLightMaskKey = LIGHT_MASK_FULL,
-        .tags = {StringUtils::MakeTag(TAG_BEDROCK)}, .unitHardness = -1.0F, .collisionMask = COLLISION_MASK_SOLID,
+        .descriptionKey = Constants::STRING_TILE_BEDROCK_DESCRIPTION.data(),
+        .resourceId = Constants::TILE_ID_BEDROCK.data(),
+        .nameKey = Constants::STRING_TILE_BEDROCK_NAME.data(), .textureKey = "tiles/bedrock",
+        .lightSourceKey = Constants::LIGHT_NONE.data(), .sideLightMaskKey = Constants::LIGHT_MASK_FULL.data(),
+        .backLightMaskKey = Constants::LIGHT_MASK_FULL.data(),
+        .tags = {StringUtils::MakeTag(Constants::TAG_BEDROCK)}, .unitHardness = -1.0F,
+        .collisionMask = Constants::COLLISION_MASK_SOLID,
         .layerType = TileLayerType::Ground, .isOverwritable = false, .canDropLoot = false, .solid = true
     });
     AddCoreResource(CoreTileResourceParams{
-        .descriptionKey = STRING_TILE_VOID_WALL_DESCRIPTION, .resourceId = TILE_ID_VOID_WALL,
-        .nameKey = STRING_TILE_VOID_WALL_NAME, .textureKey = "tiles/void_wall",
-        .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_NONE, .backLightMaskKey = LIGHT_MASK_LOW,
-        .tags = {StringUtils::MakeTag(TAG_VOID)}, .unitHardness = -1.0F, .collisionMask = COLLISION_MASK_NONE,
+        .descriptionKey = Constants::STRING_TILE_VOID_WALL_DESCRIPTION.data(),
+        .resourceId = Constants::TILE_ID_VOID_WALL.data(),
+        .nameKey = Constants::STRING_TILE_VOID_WALL_NAME.data(), .textureKey = "tiles/void_wall",
+        .lightSourceKey = Constants::LIGHT_NONE.data(), .sideLightMaskKey = Constants::LIGHT_MASK_NONE.data(),
+        .backLightMaskKey = Constants::LIGHT_MASK_LOW.data(),
+        .tags = {StringUtils::MakeTag(Constants::TAG_VOID)}, .unitHardness = -1.0F,
+        .collisionMask = Constants::COLLISION_MASK_NONE,
         .layerType = TileLayerType::BackGround, .isOverwritable = false, .canDropLoot = false
     });
     AddCoreResource(CoreTileResourceParams{
-        .descriptionKey = STRING_TILE_VOID_DECORATION_DESCRIPTION, .resourceId = TILE_ID_VOID_DECORATION,
-        .nameKey = STRING_TILE_VOID_DECORATION_NAME, .textureKey = "tiles/void_decoration",
-        .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_NONE, .backLightMaskKey = LIGHT_MASK_LOW,
-        .tags = {StringUtils::MakeTag(TAG_VOID)}, .unitHardness = -1.0F, .collisionMask = COLLISION_MASK_NONE,
+        .descriptionKey = Constants::STRING_TILE_VOID_DECORATION_DESCRIPTION.data(),
+        .resourceId = Constants::TILE_ID_VOID_DECORATION.data(),
+        .nameKey = Constants::STRING_TILE_VOID_DECORATION_NAME.data(), .textureKey = "tiles/void_decoration",
+        .lightSourceKey = Constants::LIGHT_NONE.data(), .sideLightMaskKey = Constants::LIGHT_MASK_NONE.data(),
+        .backLightMaskKey = Constants::LIGHT_MASK_LOW.data(),
+        .tags = {StringUtils::MakeTag(Constants::TAG_VOID)}, .unitHardness = -1.0F,
+        .collisionMask = Constants::COLLISION_MASK_NONE,
         .layerType = TileLayerType::BackgroundDecoration, .isOverwritable = false, .canDropLoot = false
     });
     AddCoreResource(CoreTileResourceParams{
-        .descriptionKey = std::nullopt, .resourceId = TILE_ID_WATER,
-        .nameKey = STRING_TILE_WATER_NAME, .textureKey = "tiles/water",
-        .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_NONE, .backLightMaskKey = LIGHT_MASK_LOW,
-        .tags = {StringUtils::MakeTag(TAG_WATER), StringUtils::MakeTag(TAG_FLUID)}, .unitHardness = -1.0F,
-        .collisionMask = COLLISION_MASK_NONE,
+        .descriptionKey = std::nullopt, .resourceId = Constants::TILE_ID_WATER.data(),
+        .nameKey = Constants::STRING_TILE_WATER_NAME.data(), .textureKey = "tiles/water",
+        .lightSourceKey = Constants::LIGHT_NONE.data(), .sideLightMaskKey = Constants::LIGHT_MASK_NONE.data(),
+        .backLightMaskKey = Constants::LIGHT_MASK_LOW.data(),
+        .tags = {StringUtils::MakeTag(Constants::TAG_WATER), StringUtils::MakeTag(Constants::TAG_FLUID)},
+        .unitHardness = -1.0F,
+        .collisionMask = Constants::COLLISION_MASK_NONE,
         .layerType = TileLayerType::Ground, .isOverwritable = true, .canDropLoot = false,
 
     });
     AddCoreResource(CoreTileResourceParams{
-        .descriptionKey = STRING_TILE_ERROR_DESCRIPTION, .resourceId = TILE_ID_ERROR,
-        .nameKey = STRING_TILE_ERROR_NAME, .textureKey = ERROR_TEXTURE_KEY,
-        .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_MEDIUM, .backLightMaskKey = LIGHT_MASK_LOW,
-        .tags = {StringUtils::MakeTag(TAG_ERROR), StringUtils::MakeTag(TAG_PLACEHOLDER)}, .unitHardness = 0.1F,
-        .collisionMask = COLLISION_MASK_SOLID,
+        .descriptionKey = Constants::STRING_TILE_ERROR_DESCRIPTION.data(),
+        .resourceId = Constants::TILE_ID_ERROR.data(),
+        .nameKey = Constants::STRING_TILE_ERROR_NAME.data(), .textureKey = Constants::ERROR_TEXTURE_KEY.data(),
+        .lightSourceKey = Constants::LIGHT_NONE.data(), .sideLightMaskKey = Constants::LIGHT_MASK_MEDIUM.data(),
+        .backLightMaskKey = Constants::LIGHT_MASK_LOW.data(),
+        .tags = {StringUtils::MakeTag(Constants::TAG_ERROR), StringUtils::MakeTag(Constants::TAG_PLACEHOLDER)},
+        .unitHardness = 0.1F,
+        .collisionMask = Constants::COLLISION_MASK_SOLID,
         .layerType = TileLayerType::Ground, .canDropLoot = true, .solid = true
 
     });
     AddCoreResource(CoreTileResourceParams{
-        .descriptionKey = STRING_TILE_ERROR_WALL_DESCRIPTION, .resourceId = TILE_ID_ERROR_WALL,
-        .nameKey = STRING_TILE_ERROR_WALL_NAME, .textureKey = ERROR_TEXTURE_KEY,
-        .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_MEDIUM, .backLightMaskKey = LIGHT_MASK_LOW,
-        .tags = {StringUtils::MakeTag(TAG_ERROR), StringUtils::MakeTag(TAG_PLACEHOLDER)}, .unitHardness = 0.1F,
-        .collisionMask = COLLISION_MASK_NONE,
+        .descriptionKey = Constants::STRING_TILE_ERROR_WALL_DESCRIPTION.data(),
+        .resourceId = Constants::TILE_ID_ERROR_WALL.data(),
+        .nameKey = Constants::STRING_TILE_ERROR_WALL_NAME.data(), .textureKey = Constants::ERROR_TEXTURE_KEY.data(),
+        .lightSourceKey = Constants::LIGHT_NONE.data(), .sideLightMaskKey = Constants::LIGHT_MASK_MEDIUM.data(),
+        .backLightMaskKey = Constants::LIGHT_MASK_LOW.data(),
+        .tags = {StringUtils::MakeTag(Constants::TAG_ERROR), StringUtils::MakeTag(Constants::TAG_PLACEHOLDER)},
+        .unitHardness = 0.1F,
+        .collisionMask = Constants::COLLISION_MASK_NONE,
         .layerType = TileLayerType::BackGround, .isOverwritable = false, .canDropLoot = true,
 
     });
     AddCoreResource(CoreTileResourceParams{
-        .descriptionKey = STRING_TILE_ACCESS_DENIED_DESCRIPTION, .resourceId = TILE_ID_ACCESS_DENIED,
-        .nameKey = STRING_TILE_ACCESS_DENIED_NAME, .textureKey = ACCESS_DENIED_TEXTURE_KEY,
-        .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_MEDIUM, .backLightMaskKey = LIGHT_MASK_LOW,
-        .tags = {StringUtils::MakeTag(TAG_ACCESS_DENIED), StringUtils::MakeTag(TAG_PLACEHOLDER)}, .unitHardness = 0.1F,
-        .collisionMask = COLLISION_MASK_SOLID,
+        .descriptionKey = Constants::STRING_TILE_ACCESS_DENIED_DESCRIPTION.data(),
+        .resourceId = Constants::TILE_ID_ACCESS_DENIED.data(),
+        .nameKey = Constants::STRING_TILE_ACCESS_DENIED_NAME.data(),
+        .textureKey = Constants::ACCESS_DENIED_TEXTURE_KEY.data(),
+        .lightSourceKey = Constants::LIGHT_NONE.data(), .sideLightMaskKey = Constants::LIGHT_MASK_MEDIUM.data(),
+        .backLightMaskKey = Constants::LIGHT_MASK_LOW.data(),
+        .tags = {StringUtils::MakeTag(Constants::TAG_ACCESS_DENIED), StringUtils::MakeTag(Constants::TAG_PLACEHOLDER)},
+        .unitHardness = 0.1F,
+        .collisionMask = Constants::COLLISION_MASK_SOLID,
         .layerType = TileLayerType::Ground, .canDropLoot = true, .solid = true
     });
     AddCoreResource(CoreTileResourceParams{
-        .descriptionKey = STRING_TILE_ACCESS_DENIED_WALL_DESCRIPTION, .resourceId = TILE_ID_ACCESS_DENIED_WALL,
-        .nameKey = STRING_TILE_ACCESS_DENIED_WALL_NAME, .textureKey = ACCESS_DENIED_TEXTURE_KEY,
-        .lightSourceKey = LIGHT_NONE, .sideLightMaskKey = LIGHT_MASK_MEDIUM, .backLightMaskKey = LIGHT_MASK_LOW,
-        .tags = {StringUtils::MakeTag(TAG_ACCESS_DENIED), StringUtils::MakeTag(TAG_PLACEHOLDER)}, .unitHardness = 0.1F,
-        .collisionMask = COLLISION_MASK_NONE,
+        .descriptionKey = Constants::STRING_TILE_ACCESS_DENIED_WALL_DESCRIPTION.data(),
+        .resourceId = Constants::TILE_ID_ACCESS_DENIED_WALL.data(),
+        .nameKey = Constants::STRING_TILE_ACCESS_DENIED_WALL_NAME.data(),
+        .textureKey = Constants::ACCESS_DENIED_TEXTURE_KEY.data(),
+        .lightSourceKey = Constants::LIGHT_NONE.data(), .sideLightMaskKey = Constants::LIGHT_MASK_MEDIUM.data(),
+        .backLightMaskKey = Constants::LIGHT_MASK_LOW.data(),
+        .tags = {StringUtils::MakeTag(Constants::TAG_ACCESS_DENIED), StringUtils::MakeTag(Constants::TAG_PLACEHOLDER)},
+        .unitHardness = 0.1F,
+        .collisionMask = Constants::COLLISION_MASK_NONE,
         .layerType = TileLayerType::BackGround, .canDropLoot = true
     });
 }
@@ -167,15 +206,19 @@ glimmer::TileResource *glimmer::TileResourceManager::AddErrorPlaceHolder(const s
                                                                          const std::string_view resourceId,
                                                                          const TileLayerType tileLayer) {
     auto errorPlaceholder = std::make_unique<TileResource>();
-    errorPlaceholder->texture = CreateCoreRef(ERROR_TEXTURE_KEY, RESOURCE_TEXTURE);
+    errorPlaceholder->texture = CreateCoreRef(Constants::ERROR_TEXTURE_KEY, RESOURCE_TEXTURE);
     errorPlaceholder->resourceId = resourceId;
     errorPlaceholder->packId = packId;
-    errorPlaceholder->collisionMask = tileLayer == TileLayerType::Ground ? COLLISION_MASK_SOLID : COLLISION_MASK_NONE;
+    errorPlaceholder->collisionMask = tileLayer == TileLayerType::Ground
+                                          ? Constants::COLLISION_MASK_SOLID
+                                          : Constants::COLLISION_MASK_NONE;
     errorPlaceholder->layer = std::to_underlying(tileLayer);
     errorPlaceholder->unitHardness = 0.1F;
     errorPlaceholder->missing = true;
     errorPlaceholder->solid = true;
-    errorPlaceholder->tags = {StringUtils::MakeTag(TAG_ERROR), StringUtils::MakeTag(TAG_PLACEHOLDER)};
+    errorPlaceholder->tags = {
+        StringUtils::MakeTag(Constants::TAG_ERROR), StringUtils::MakeTag(Constants::TAG_PLACEHOLDER)
+    };
     for (auto &tag: errorPlaceholder->tags) {
         tag.MakeCachedTag();
     }
@@ -191,19 +234,21 @@ glimmer::TileResource *glimmer::TileResourceManager::GenerateAccessDeniedPlaceHo
         }
     }
     auto accessDeniedPlaceholder = std::make_unique<TileResource>();
-    accessDeniedPlaceholder->texture = CreateCoreRef(ACCESS_DENIED_TEXTURE_KEY, RESOURCE_TEXTURE);
+    accessDeniedPlaceholder->texture = CreateCoreRef(Constants::ACCESS_DENIED_TEXTURE_KEY, RESOURCE_TEXTURE);
     accessDeniedPlaceholder->resourceId = resourceId;
     accessDeniedPlaceholder->packId = packId;
     accessDeniedPlaceholder->isOverwritable = false;
     accessDeniedPlaceholder->canDropLoot = true;
     accessDeniedPlaceholder->collisionMask = tileLayer == TileLayerType::Ground
-                                                 ? COLLISION_MASK_SOLID
-                                                 : COLLISION_MASK_NONE;
+                                                 ? Constants::COLLISION_MASK_SOLID
+                                                 : Constants::COLLISION_MASK_NONE;
     accessDeniedPlaceholder->layer = std::to_underlying(tileLayer);
     accessDeniedPlaceholder->unitHardness = 0.1F;
     accessDeniedPlaceholder->missing = true;
     accessDeniedPlaceholder->solid = true;
-    accessDeniedPlaceholder->tags = {StringUtils::MakeTag(TAG_ACCESS_DENIED), StringUtils::MakeTag(TAG_PLACEHOLDER)};
+    accessDeniedPlaceholder->tags = {
+        StringUtils::MakeTag(Constants::TAG_ACCESS_DENIED), StringUtils::MakeTag(Constants::TAG_PLACEHOLDER)
+    };
     for (auto &tag: accessDeniedPlaceholder->tags) {
         tag.MakeCachedTag();
     }
@@ -220,14 +265,14 @@ glimmer::TileResource *glimmer::TileResourceManager::AddResource(std::unique_ptr
 }
 
 void glimmer::TileResourceManager::WriteAirResourceRef(const TileLayerType tileLayerType, ResourceRef &resourceRef) {
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_TILE);
     if (tileLayerType == TileLayerType::Ground) {
-        resourceRef.SetResourceKey(TILE_ID_AIR);
+        resourceRef.SetResourceKey(Constants::TILE_ID_AIR);
     } else if (tileLayerType == TileLayerType::BackgroundDecoration) {
-        resourceRef.SetResourceKey(TILE_ID_AIR_DECORATION);
+        resourceRef.SetResourceKey(Constants::TILE_ID_AIR_DECORATION);
     } else {
-        resourceRef.SetResourceKey(TILE_ID_AIR_WALL);
+        resourceRef.SetResourceKey(Constants::TILE_ID_AIR_WALL);
     }
 }
 

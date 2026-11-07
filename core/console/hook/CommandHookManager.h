@@ -98,6 +98,6 @@ namespace glimmer {
 
         [[nodiscard]] std::optional<std::string> Register(std::unique_ptr<CommandHookEntry> commandHookEntry);
 
-        [[nodiscard]] bool Unregister(const std::string &commandHookId);
+        [[nodiscard]] bool Unregister(std::string_view commandHookId);
     };
 }

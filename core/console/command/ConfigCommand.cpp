@@ -36,13 +36,14 @@ void glimmer::ConfigCommand::InitSuggestions(NodeTree<std::string> *suggestionsT
     if (suggestionsTree == nullptr) {
         return;
     }
-    suggestionsTree->AddChild("get")->AddChild(CONFIG_DYNAMIC_SUGGESTIONS_NAME);
-    suggestionsTree->AddChild("set")->AddChild(CONFIG_DYNAMIC_SUGGESTIONS_NAME);
+    suggestionsTree->AddChild("get")->AddChild(std::string(Constants::CONFIG_DYNAMIC_SUGGESTIONS_NAME));
+    suggestionsTree->AddChild("set")->AddChild(std::string(Constants::CONFIG_DYNAMIC_SUGGESTIONS_NAME));
     suggestionsTree->AddChild("commit");
 }
 
-const std::string &glimmer::ConfigCommand::GetName() const {
-    return CONFIG_COMMAND_NAME;
+
+std::string_view glimmer::ConfigCommand::GetName() const {
+    return Constants::CONFIG_COMMAND_NAME;
 }
 
 void glimmer::ConfigCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
@@ -98,7 +99,8 @@ void glimmer::ConfigCommand::UpdateSetSuggestions(const CommandArgs *commandArgs
     if (setNodeTree == nullptr) {
         return;
     }
-    const auto configNodeTree = setNodeTree->GetMutableChildByValue(CONFIG_DYNAMIC_SUGGESTIONS_NAME);
+    const auto configNodeTree = setNodeTree->GetMutableChildByValue(
+        std::string(Constants::CONFIG_DYNAMIC_SUGGESTIONS_NAME));
     if (configNodeTree == nullptr) {
         return;
     }
@@ -109,10 +111,10 @@ void glimmer::ConfigCommand::UpdateSetSuggestions(const CommandArgs *commandArgs
     }
     const SettingType settingType = settingDef->type;
     if (settingType == SettingType::Bool) {
-        configNodeTree->AddChild(BOOL_TOGGLE_DYNAMIC_SUGGESTIONS_NAME);
+        configNodeTree->AddChild(std::string(Constants::BOOL_TOGGLE_DYNAMIC_SUGGESTIONS_NAME));
     }
     if (settingType == SettingType::Path) {
-        configNodeTree->AddChild(std::string(VFS_DYNAMIC_SUGGESTIONS_NAME) + ":" + commandArgs->AsString(3));
+        configNodeTree->AddChild(std::string(Constants::VFS_DYNAMIC_SUGGESTIONS_NAME) + ":" + commandArgs->AsString(3));
     }
 }
 

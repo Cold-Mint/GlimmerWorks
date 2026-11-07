@@ -40,30 +40,30 @@
 
 std::unordered_map<std::string, ResourceTypeMessage> glimmer::StringUtils::stringToResourceTypeMessage_;
 
-void glimmer::StringUtils::AddResourceTypeMap(const std::string &name, const ResourceTypeMessage message) {
-    stringToResourceTypeMessage_[name] = message;
+void glimmer::StringUtils::AddResourceTypeMap(const std::string_view name, ResourceTypeMessage message) {
+    stringToResourceTypeMessage_[name.data()] = message;
 }
 
 void glimmer::StringUtils::InitStringToResourceTypeMap() {
-    AddResourceTypeMap(DATA_FILE_TYPE_STRINGS, RESOURCE_STRING);
-    AddResourceTypeMap(DATA_FILE_TYPE_TILE, RESOURCE_TILE);
-    AddResourceTypeMap(DATA_FILE_TYPE_COMPOSABLE_ITEM, RESOURCE_COMPOSABLE_ITEM);
-    AddResourceTypeMap(DATA_FILE_TYPE_ABILITY_ITEM, RESOURCE_ABILITY_ITEM);
-    AddResourceTypeMap(DATA_FILE_TYPE_LOOT_TABLE, RESOURCE_LOOT_TABLE);
-    AddResourceTypeMap(DATA_FILE_TYPE_STRUCTURE, RESOURCE_STRUCTURE);
+    AddResourceTypeMap(Constants::DATA_FILE_TYPE_STRINGS, RESOURCE_STRING);
+    AddResourceTypeMap(Constants::DATA_FILE_TYPE_TILE, RESOURCE_TILE);
+    AddResourceTypeMap(Constants::DATA_FILE_TYPE_COMPOSABLE_ITEM, RESOURCE_COMPOSABLE_ITEM);
+    AddResourceTypeMap(Constants::DATA_FILE_TYPE_ABILITY_ITEM, RESOURCE_ABILITY_ITEM);
+    AddResourceTypeMap(Constants::DATA_FILE_TYPE_LOOT_TABLE, RESOURCE_LOOT_TABLE);
+    AddResourceTypeMap(Constants::DATA_FILE_TYPE_STRUCTURE, RESOURCE_STRUCTURE);
     AddResourceTypeMap("texture", RESOURCE_TEXTURE);
-    AddResourceTypeMap(DATA_FILE_TYPE_BIOME, RESOURCE_BIOME);
-    AddResourceTypeMap(DATA_FILE_TYPE_COLOR, RESOURCE_COLOR);
-    AddResourceTypeMap(DATA_FILE_TYPE_MOB, RESOURCE_MOB);
+    AddResourceTypeMap(Constants::DATA_FILE_TYPE_BIOME, RESOURCE_BIOME);
+    AddResourceTypeMap(Constants::DATA_FILE_TYPE_COLOR, RESOURCE_COLOR);
+    AddResourceTypeMap(Constants::DATA_FILE_TYPE_MOB, RESOURCE_MOB);
     AddResourceTypeMap("audio", RESOURCE_AUDIO);
     AddResourceTypeMap("dropped_item", RESOURCE_DROPPED_ITEM);
     AddResourceTypeMap("biome_decorator", RESOURCE_BIOME_DECORATOR);
-    AddResourceTypeMap(DATA_FILE_TYPE_FIXED_COLOR, RESOURCE_FIXED_COLOR);
-    AddResourceTypeMap(DATA_FILE_TYPE_LIGHT_SOURCE, RESOURCE_LIGHT_SOURCE);
-    AddResourceTypeMap(DATA_FILE_TYPE_LIGHT_MASK, RESOURCE_LIGHT_MASK);
-    AddResourceTypeMap(DATA_FILE_TYPE_TREE_STRUCTURE, RESOURCE_TREE_STRUCTURE);
-    AddResourceTypeMap(DATA_FILE_TYPE_STATIC_STRUCTURE, RESOURCE_STATIC_STRUCTURE);
-    AddResourceTypeMap(DATA_FILE_TYPE_MATERIAL_ITEM, RESOURCE_MATERIAL_ITEM);
+    AddResourceTypeMap(Constants::DATA_FILE_TYPE_FIXED_COLOR, RESOURCE_FIXED_COLOR);
+    AddResourceTypeMap(Constants::DATA_FILE_TYPE_LIGHT_SOURCE, RESOURCE_LIGHT_SOURCE);
+    AddResourceTypeMap(Constants::DATA_FILE_TYPE_LIGHT_MASK, RESOURCE_LIGHT_MASK);
+    AddResourceTypeMap(Constants::DATA_FILE_TYPE_TREE_STRUCTURE, RESOURCE_TREE_STRUCTURE);
+    AddResourceTypeMap(Constants::DATA_FILE_TYPE_STATIC_STRUCTURE, RESOURCE_STATIC_STRUCTURE);
+    AddResourceTypeMap(Constants::DATA_FILE_TYPE_MATERIAL_ITEM, RESOURCE_MATERIAL_ITEM);
     AddResourceTypeMap("rml_path", RESOURCE_RML_PATH);
     AddResourceTypeMap("structure_placement_conditions", RESOURCE_STRUCTURE_PLACEMENT_CONDITIONS);
     AddResourceTypeMap("shader_vertex", RESOURCE_SHADER_VERTEX);
@@ -71,7 +71,7 @@ void glimmer::StringUtils::InitStringToResourceTypeMap() {
     AddResourceTypeMap("pipeline", RESOURCE_PIPELINE);
     AddResourceTypeMap("sampler", RESOURCE_SAMPLER);
     AddResourceTypeMap("uniform_block", RESOURCE_UNIFORM_BLOCK);
-    AddResourceTypeMap(DATA_FILE_TYPE_DIMENSION, RESOURCE_DIMENSION);
+    AddResourceTypeMap(Constants::DATA_FILE_TYPE_DIMENSION, RESOURCE_DIMENSION);
     AddResourceTypeMap("growth_condition", RESOURCE_GROWTH_CONDITION);
 }
 
@@ -121,7 +121,7 @@ bool glimmer::StringUtils::ContainsIgnoreCase(const std::string &haystack, const
     return !std::ranges::search(haystack, needle, eq).empty();
 }
 
-glimmer::ItemTagResource glimmer::StringUtils::MakeTag(const std::string &name) {
+glimmer::ItemTagResource glimmer::StringUtils::MakeTag(const std::string_view name) {
     ItemTagResource tag;
     tag.name = name;
     return tag;
@@ -157,8 +157,8 @@ bool glimmer::StringUtils::IsInteger(const std::string &str) {
     return true;
 }
 
-uint64_t glimmer::StringUtils::StringToUint64(const std::string &string) {
-    return std::hash<std::string>{}(string);
+uint64_t glimmer::StringUtils::StringToUint64(const std::string_view string) {
+    return std::hash<std::string>{}(string.data());
 }
 
 std::span<const std::byte> glimmer::StringUtils::StringToByteData(const std::string_view string) {
@@ -171,20 +171,20 @@ std::string glimmer::StringUtils::MakeRawText(const std::string_view string) {
     if (string.empty()) {
         return "";
     }
-    if (string.starts_with(RAW_TEXT_PREFIX)) {
+    if (string.starts_with(Constants::RAW_TEXT_PREFIX)) {
         return std::string(string);
     }
-    return fmt::format("{}{}", RAW_TEXT_PREFIX, string);
+    return fmt::format("{}{}", Constants::RAW_TEXT_PREFIX, string);
 }
 
 std::string glimmer::StringUtils::MakeTextureUrl(const std::string_view resourceKey) {
     if (resourceKey.empty()) {
         return "";
     }
-    if (resourceKey.starts_with(TEXTURE_PREFIX)) {
+    if (resourceKey.starts_with(Constants::TEXTURE_PREFIX)) {
         return std::string(resourceKey);
     }
-    return fmt::format("{}{}", TEXTURE_PREFIX, resourceKey);
+    return fmt::format("{}{}", Constants::TEXTURE_PREFIX, resourceKey);
 }
 
 std::optional<std::string> glimmer::StringUtils::StreamToString(const std::istream *stream) {
@@ -214,7 +214,7 @@ std::string glimmer::StringUtils::GetScreenshotFileName() {
     std::ostringstream oss;
     oss << "screenshot_"
             << std::put_time(&tm, "%Y%m%d_%H%M%S") << "."
-            << TEXTURE_FORMAT;
+            << Constants::TEXTURE_FORMAT;
     return oss.str();
 }
 

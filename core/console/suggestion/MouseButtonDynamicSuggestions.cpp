@@ -29,8 +29,9 @@
 #include "core/config/Constants.h"
 #include "core/utils/MouseButtonUtils.h"
 
-std::string glimmer::MouseButtonDynamicSuggestions::GetId() const {
-    return MOUSE_BUTTON_DYNAMIC_SUGGESTIONS_NAME;
+
+std::string_view glimmer::MouseButtonDynamicSuggestions::GetId() const {
+    return Constants::MOUSE_BUTTON_DYNAMIC_SUGGESTIONS_NAME;
 }
 
 const std::vector<std::string> &glimmer::MouseButtonDynamicSuggestions::GetSuggestions(

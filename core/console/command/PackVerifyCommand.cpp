@@ -37,7 +37,7 @@ void glimmer::PackVerifyCommand::InitSuggestions(NodeTree<std::string> *suggesti
     if (suggestionsTree == nullptr) {
         return;
     }
-    suggestionsTree->AddChild(DATA_PACK_SUGGESTIONS_NAME);
+    suggestionsTree->AddChild(std::string(Constants::DATA_PACK_SUGGESTIONS_NAME));
 }
 
 glimmer::PackVerifyCommand::PackVerifyCommand(AppContext *appContext) : Command(appContext) {
@@ -104,6 +104,6 @@ bool glimmer::PackVerifyCommand::Execute(const CommandSender *commandSender, con
     return true;
 }
 
-const std::string &glimmer::PackVerifyCommand::GetName() const {
-    return PACK_VERIFY_COMMAND_NAME;
+std::string_view glimmer::PackVerifyCommand::GetName() const {
+    return Constants::PACK_VERIFY_COMMAND_NAME;
 }

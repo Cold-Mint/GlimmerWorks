@@ -24,7 +24,7 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
 #include "DebugChunkSystem.h"
 
 #include <cmath>
@@ -66,7 +66,7 @@ void glimmer::DebugChunkSystem::RenderChunkBounds(RenderQueue *queue) {
     auto viewportRect = CoordinateTransformer::GetViewportRect(cameraTransform2DComponent_->GetRenderPosition(),
                                                                cameraComponent_->GetSize(),
                                                                cameraComponent_->GetZoom());
-    constexpr float chunkWorldSize = CHUNK_SIZE * TILE_SIZE;
+    constexpr float chunkWorldSize = Constants::CHUNK_SIZE * Constants::TILE_SIZE;
     const int minChunkX = static_cast<int>(std::floor(viewportRect.x / chunkWorldSize));
     const int minChunkY = static_cast<int>(std::floor(viewportRect.y / chunkWorldSize));
     const int maxChunkX = static_cast<int>(std::floor((viewportRect.x + viewportRect.w) / chunkWorldSize));
@@ -75,8 +75,8 @@ void glimmer::DebugChunkSystem::RenderChunkBounds(RenderQueue *queue) {
         for (int chunkY = minChunkY; chunkY <= maxChunkY; ++chunkY) {
             constexpr SDL_Color chunkBorderColor = {0, 255, 255, 180};
             WorldVector2D chunkWorldPos{
-                static_cast<float>(chunkX) * chunkWorldSize - HALF_TILE_SIZE,
-                static_cast<float>(chunkY) * chunkWorldSize - HALF_TILE_SIZE
+                static_cast<float>(chunkX) * chunkWorldSize - Constants::HALF_TILE_SIZE,
+                static_cast<float>(chunkY) * chunkWorldSize - Constants::HALF_TILE_SIZE
             };
             const ScreenVector2D screenPos = CoordinateTransformer::WorldToScreen(
                 cameraTransform2DComponent_->GetRenderPosition(), chunkWorldPos,
@@ -97,7 +97,7 @@ void glimmer::DebugChunkSystem::RenderTerrainBounds(RenderQueue *queue) {
     auto viewportRect = CoordinateTransformer::GetViewportRect(cameraTransform2DComponent_->GetRenderPosition(),
                                                                cameraComponent_->GetSize(),
                                                                cameraComponent_->GetZoom());
-    constexpr float terrainWorldSize = static_cast<float>(TERRAIN_SIZE) * TILE_SIZE;
+    constexpr float terrainWorldSize = static_cast<float>(Constants::TERRAIN_SIZE) * Constants::TILE_SIZE;
     const int minTerrainX = static_cast<int>(std::floor(viewportRect.x / terrainWorldSize));
     const int minTerrainY = static_cast<int>(std::floor(viewportRect.y / terrainWorldSize));
     const int maxTerrainX = static_cast<int>(std::floor((viewportRect.x + viewportRect.w) / terrainWorldSize));
@@ -106,8 +106,8 @@ void glimmer::DebugChunkSystem::RenderTerrainBounds(RenderQueue *queue) {
         for (int terrainY = minTerrainY; terrainY <= maxTerrainY; ++terrainY) {
             constexpr SDL_Color terrainBorderColor = {255, 255, 0, 180};
             WorldVector2D terrainWorldPos{
-                static_cast<float>(terrainX) * terrainWorldSize - HALF_TILE_SIZE,
-                static_cast<float>(terrainY) * terrainWorldSize - HALF_TILE_SIZE
+                static_cast<float>(terrainX) * terrainWorldSize - Constants::HALF_TILE_SIZE,
+                static_cast<float>(terrainY) * terrainWorldSize - Constants::HALF_TILE_SIZE
             };
             const ScreenVector2D screenPos = CoordinateTransformer::WorldToScreen(
                 cameraTransform2DComponent_->GetRenderPosition(), terrainWorldPos,
@@ -141,11 +141,11 @@ void glimmer::DebugChunkSystem::RenderChunkView(RenderQueue *queue, AppContext *
 
     const int windowHeight = windowContext->GetWindowHeight();
     const auto getChunkIndex = [](const int tileCoord) {
-        return static_cast<int>(std::floor(static_cast<float>(tileCoord) / CHUNK_SIZE));
+        return static_cast<int>(std::floor(static_cast<float>(tileCoord) / Constants::CHUNK_SIZE));
     };
 
-    const int playerTileX = static_cast<int>(std::floor(mousePosition_.x / TILE_SIZE));
-    const int playerTileY = static_cast<int>(std::floor(mousePosition_.y / TILE_SIZE));
+    const int playerTileX = static_cast<int>(std::floor(mousePosition_.x / Constants::TILE_SIZE));
+    const int playerTileY = static_cast<int>(std::floor(mousePosition_.y / Constants::TILE_SIZE));
     const int playerChunkX = getChunkIndex(playerTileX);
     const int playerChunkY = getChunkIndex(playerTileY);
 
@@ -157,8 +157,8 @@ void glimmer::DebugChunkSystem::RenderChunkView(RenderQueue *queue, AppContext *
     // 绘制已加载的区块（蓝色）
     for (const auto &pos: loadedChunks) {
         constexpr SDL_Color loadedChunkColor = {100, 149, 237, 128};
-        const int chunkIndexX = pos.x >> CHUNK_SHIFT;
-        const int chunkIndexY = pos.y >> CHUNK_SHIFT;
+        const int chunkIndexX = pos.x >> Constants::CHUNK_SHIFT;
+        const int chunkIndexY = pos.y >> Constants::CHUNK_SHIFT;
         const float drawX = gridCenterX + static_cast<float>(chunkIndexX - playerChunkX) * cellSize;
         const float drawY = gridCenterY + static_cast<float>(playerChunkY - chunkIndexY) * cellSize;
         const SDL_FRect rect = {drawX, drawY, cellSize - 1.0F, cellSize - 1.0F};
@@ -176,10 +176,12 @@ void glimmer::DebugChunkSystem::RenderChunkView(RenderQueue *queue, AppContext *
     const SDL_FRect viewport = CoordinateTransformer::GetViewportRect(cameraTransform2DComponent_->GetRenderPosition(),
                                                                       cameraComponent_->GetSize(),
                                                                       cameraComponent_->GetZoom());
-    const int startChunkX = static_cast<int>(std::floor(viewport.x / TILE_SIZE / CHUNK_SIZE));
-    const int startChunkY = static_cast<int>(std::floor(viewport.y / TILE_SIZE / CHUNK_SIZE));
-    const int endChunkX = static_cast<int>(std::floor((viewport.x + viewport.w) / TILE_SIZE / CHUNK_SIZE));
-    const int endChunkY = static_cast<int>(std::floor((viewport.y + viewport.h) / TILE_SIZE / CHUNK_SIZE));
+    const int startChunkX = static_cast<int>(std::floor(viewport.x / Constants::TILE_SIZE / Constants::CHUNK_SIZE));
+    const int startChunkY = static_cast<int>(std::floor(viewport.y / Constants::TILE_SIZE / Constants::CHUNK_SIZE));
+    const int endChunkX = static_cast<int>(std::floor(
+        (viewport.x + viewport.w) / Constants::TILE_SIZE / Constants::CHUNK_SIZE));
+    const int endChunkY = static_cast<int>(std::floor(
+        (viewport.y + viewport.h) / Constants::TILE_SIZE / Constants::CHUNK_SIZE));
     const SDL_Color visibleChunkColor = {255, 165, 0, 255};
     for (int cy = startChunkY; cy <= endChunkY; ++cy) {
         for (int cx = startChunkX; cx <= endChunkX; ++cx) {
@@ -235,7 +237,7 @@ bool glimmer::DebugChunkSystem::HandleEvent(const SDL_Event &event) {
 }
 
 uint8_t glimmer::DebugChunkSystem::GetExecutionOrder() {
-    return EXECUTION_ORDER_DEBUG_CHUNK;
+    return Constants::EXECUTION_ORDER_DEBUG_CHUNK;
 }
 
 glimmer::GameSystemType glimmer::DebugChunkSystem::GetGameSystemType() const {

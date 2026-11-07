@@ -27,14 +27,14 @@
 #include "LightMaskManager.h"
 
 
-glimmer::LightMaskResource *glimmer::LightMaskManager::RegisterCoreLightMaskResource(const std::string &resourceId,
-    const std::string &colorKey) {
+glimmer::LightMaskResource *glimmer::LightMaskManager::RegisterCoreLightMaskResource(const std::string_view resourceId,
+    const std::string_view colorKey) {
     auto result = std::make_unique<LightMaskResource>();
-    result->packId = RESOURCE_REF_CORE;
+    result->packId = Constants::RESOURCE_REF_CORE;
     result->resourceId = resourceId;
     result->missing = false;
     ResourceRef colorRef;
-    colorRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    colorRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     colorRef.SetResourceKey(colorKey);
     colorRef.SetResourceType(RESOURCE_FIXED_COLOR);
     result->lightMaskColor = colorRef;
@@ -42,11 +42,11 @@ glimmer::LightMaskResource *glimmer::LightMaskManager::RegisterCoreLightMaskReso
 }
 
 glimmer::LightMaskManager::LightMaskManager() {
-    RegisterCoreLightMaskResource(LIGHT_MASK_FULL, LIGHT_MASK_FULL_COLOR);
-    RegisterCoreLightMaskResource(LIGHT_MASK_HIGH, LIGHT_MASK_HIGH_COLOR);
-    RegisterCoreLightMaskResource(LIGHT_MASK_MEDIUM, LIGHT_MASK_MEDIUM_COLOR);
-    RegisterCoreLightMaskResource(LIGHT_MASK_LOW, LIGHT_MASK_LOW_COLOR);
-    RegisterCoreLightMaskResource(LIGHT_MASK_NONE, LIGHT_MASK_NONE_COLOR);
+    RegisterCoreLightMaskResource(Constants::LIGHT_MASK_FULL, Constants::LIGHT_MASK_FULL_COLOR);
+    RegisterCoreLightMaskResource(Constants::LIGHT_MASK_HIGH, Constants::LIGHT_MASK_HIGH_COLOR);
+    RegisterCoreLightMaskResource(Constants::LIGHT_MASK_MEDIUM, Constants::LIGHT_MASK_MEDIUM_COLOR);
+    RegisterCoreLightMaskResource(Constants::LIGHT_MASK_LOW, Constants::LIGHT_MASK_LOW_COLOR);
+    RegisterCoreLightMaskResource(Constants::LIGHT_MASK_NONE, Constants::LIGHT_MASK_NONE_COLOR);
 }
 
 glimmer::LightMaskResource *glimmer::LightMaskManager::Register(std::unique_ptr<LightMaskResource> lightMaskResource) {

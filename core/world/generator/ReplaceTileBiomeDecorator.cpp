@@ -34,15 +34,15 @@ void glimmer::ReplaceTileBiomeDecorator::DecorationImpl(const ChunkVertexVector2
                                                         ReplaceTileBiomeDecoratorResource *decoratorResource,
                                                         BiomeResource *biomeResource,
                                                         std::unordered_map<TileLayerType, std::array<ResourceRef,
-                                                            CHUNK_AREA> > *tilesRefMap) {
+                                                            Constants::CHUNK_AREA> > *tilesRefMap) {
     if (decoratorResource == nullptr || tilesRefMap == nullptr) {
         return;
     }
-    std::array<ResourceRef, CHUNK_AREA> &targetLayer = tilesRefMap->at(
+    std::array<ResourceRef, Constants::CHUNK_AREA> &targetLayer = tilesRefMap->at(
         static_cast<TileLayerType>(decoratorResource->layer));
-    for (int localX = 0; localX < CHUNK_SIZE; localX++) {
-        for (int localY = 0; localY < CHUNK_SIZE; localY++) {
-            const size_t idx = CoordinateTransformer::GetArrayIndex(localX, localY, CHUNK_SHIFT);
+    for (int localX = 0; localX < Constants::CHUNK_SIZE; localX++) {
+        for (int localY = 0; localY < Constants::CHUNK_SIZE; localY++) {
+            const size_t idx = CoordinateTransformer::GetArrayIndex(localX, localY, Constants::CHUNK_SHIFT);
             ChunkRelativeVector2D chunkRelativeVector2D(localX, localY);
             const TileVector2D absolutePosition = CoordinateTransformer::ChunkRelativeToTile(
                 chunkVertex, chunkRelativeVector2D);
@@ -68,8 +68,8 @@ void glimmer::ReplaceTileBiomeDecorator::DecorationImpl(const ChunkVertexVector2
                 }
                 const int detectionLocalX = localX + rule.offset.x;
                 const int detectionLocalY = localY + rule.offset.y;
-                const bool inChunk = detectionLocalX >= 0 && detectionLocalX < CHUNK_SIZE &&
-                                     detectionLocalY >= 0 && detectionLocalY < CHUNK_SIZE;
+                const bool inChunk = detectionLocalX >= 0 && detectionLocalX < Constants::CHUNK_SIZE &&
+                                     detectionLocalY >= 0 && detectionLocalY < Constants::CHUNK_SIZE;
 
                 //条件一：地形掩码（原始地形，可跨区块）
                 if (rule.sourceTerrainMask != 0) {
@@ -91,7 +91,7 @@ void glimmer::ReplaceTileBiomeDecorator::DecorationImpl(const ChunkVertexVector2
                         continue;
                     }
                     const size_t detectionIdx = CoordinateTransformer::GetArrayIndex(
-                        detectionLocalX, detectionLocalY, CHUNK_SHIFT);
+                        detectionLocalX, detectionLocalY, Constants::CHUNK_SHIFT);
                     if (targetLayer[detectionIdx] != rule.sourceTile) {
                         continue;
                     }

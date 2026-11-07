@@ -144,8 +144,10 @@ bool glimmer::MiningAbility::OnUse(const ItemUseContext &context) {
         if ((abilityConfig.mineAbleLayerMask & std::to_underlying(layerType)) == 0) {
             continue;
         }
-        if ((CoordinateTransformer::TileToWorld(tileVector2D) + WorldVector2D{HALF_TILE_SIZE, HALF_TILE_SIZE}).
-            Distance(playerWorldPos) / TILE_SIZE > abilityConfig.miningRange) {
+        if ((CoordinateTransformer::TileToWorld(tileVector2D) + WorldVector2D{
+                 Constants::HALF_TILE_SIZE, Constants::HALF_TILE_SIZE
+             }).
+            Distance(playerWorldPos) / Constants::TILE_SIZE > abilityConfig.miningRange) {
             continue;
         }
         const Tile *tile = context.focusedTiles[index];

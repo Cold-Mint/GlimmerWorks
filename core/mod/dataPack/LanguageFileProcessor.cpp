@@ -67,7 +67,7 @@ bool glimmer::LanguageFileProcessor::ProcessLanguageFile(const std::filesystem::
                                                          std::vector<std::filesystem::path> &defaultLanguageFiles,
                                                          std::vector<std::filesystem::path> &targetLanguageFiles,
                                                          const AppContext *appContext) {
-    if (dataType != DATA_FILE_TYPE_STRINGS) {
+    if (dataType != Constants::DATA_FILE_TYPE_STRINGS) {
         return false;
     }
     const auto langOptional = ExtractLanguageFromFileName(fileName);

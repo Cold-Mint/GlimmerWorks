@@ -26,7 +26,6 @@
  */
 #pragma once
 #include "core/console/Command.h"
-#include "core/world/generator/TileLayerType.h"
 
 namespace glimmer {
     class PlaceCommand final : public Command {
@@ -38,7 +37,7 @@ namespace glimmer {
     public:
         explicit PlaceCommand(AppContext *appContext);
 
-        [[nodiscard]] const std::string &GetName() const override;
+        [[nodiscard]] std::string_view GetName() const override;
 
         void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
 

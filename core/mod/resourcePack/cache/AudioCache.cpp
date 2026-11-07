@@ -33,7 +33,7 @@ std::shared_ptr<glimmer::AudioResourceResult> glimmer::AudioCache::LoadResourceF
     const ResourceRef *resourceRef, const ResourcePack *resourcePack) {
     std::filesystem::path audioPath = resourcePack->GetPath() / "audios" / resourceRef->GetPackageId() / resourceRef->
                                       GetResourceKey();
-    audioPath.replace_extension(AUDIO_FORMAT);
+    audioPath.replace_extension(std::filesystem::path(Constants::AUDIO_FORMAT));
     const VirtualFileSystem *virtualFileSystem = appContext->GetVirtualFileSystem();
     if (virtualFileSystem == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "vfs_is_null", "virtualFileSystem == nullptr");

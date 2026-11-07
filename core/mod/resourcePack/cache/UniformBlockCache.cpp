@@ -53,7 +53,7 @@ std::shared_ptr<glimmer::UniformBlockResourceResult> glimmer::UniformBlockCache:
         return nullptr;
     }
     auto resource = std::make_unique<UniformBlockResource>(
-        toml::get<UniformBlockResource>(toml::parse_str(data.value(), TOML_VERSION)));
+        toml::get<UniformBlockResource>(toml::parse_str(data.value(), Constants::TOML_VERSION)));
     std::unique_ptr<CompiledUniformBlock> block = CompiledUniformBlock::Compile(*resource);
     if (block == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "uniform_block_compile_failed",

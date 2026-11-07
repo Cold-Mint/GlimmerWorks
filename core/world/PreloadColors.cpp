@@ -250,7 +250,7 @@ void glimmer::PreloadColors::LoadAllColors(const ResourceLocator *resourceLocato
 glimmer::Color glimmer::PreloadColors::LoadColor(const ResourceLocator *resourceLocator, const std::string &key,
                                                  Color &defaultColor) {
     ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_COLOR);
     resourceRef.SetResourceKey(key);
     if (std::optional<Color> targetColor = resourceLocator->FindColor(&resourceRef); targetColor.has_value()) {

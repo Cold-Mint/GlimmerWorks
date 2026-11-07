@@ -51,8 +51,8 @@ void glimmer::ChunkSystem::GenerateLoadTasks(const DimensionResource *dimensionR
     if (chunkManager == nullptr || scheduler == nullptr) {
         return;
     }
-    for (int cy = startChunk.y; cy <= endChunk.y; cy += CHUNK_SIZE) {
-        for (int cx = startChunk.x; cx <= endChunk.x; cx += CHUNK_SIZE) {
+    for (int cy = startChunk.y; cy <= endChunk.y; cy += Constants::CHUNK_SIZE) {
+        for (int cx = startChunk.x; cx <= endChunk.x; cx += Constants::CHUNK_SIZE) {
             const ChunkVertexVector2D chunkVertexCoordinates(cx, cy);
             if (ChunkManager::ChunkIsOutOfBounds(dimensionResource, chunkVertexCoordinates)) {
                 continue;
@@ -240,10 +240,10 @@ void glimmer::ChunkSystem::OnTick(const uint64_t tick) {
                                                                      cameraComponent_->GetSize(),
                                                                      cameraComponent_->GetZoom());
     auto preloadedChunkViewportRect = viewportRect;
-    preloadedChunkViewportRect.x -= preloadChunkRadius * CHUNK_WORLD_SIZE;
-    preloadedChunkViewportRect.y -= preloadChunkRadius * CHUNK_WORLD_SIZE;
-    preloadedChunkViewportRect.w += preloadChunkRadius * 2 * CHUNK_WORLD_SIZE;
-    preloadedChunkViewportRect.h += preloadChunkRadius * 2 * CHUNK_WORLD_SIZE;
+    preloadedChunkViewportRect.x -= preloadChunkRadius * Constants::CHUNK_WORLD_SIZE;
+    preloadedChunkViewportRect.y -= preloadChunkRadius * Constants::CHUNK_WORLD_SIZE;
+    preloadedChunkViewportRect.w += preloadChunkRadius * 2 * Constants::CHUNK_WORLD_SIZE;
+    preloadedChunkViewportRect.h += preloadChunkRadius * 2 * Constants::CHUNK_WORLD_SIZE;
 
     const TileVector2D topLeftChunkCorner = CoordinateTransformer::WorldToTile(
         WorldVector2D(preloadedChunkViewportRect.x, preloadedChunkViewportRect.y));

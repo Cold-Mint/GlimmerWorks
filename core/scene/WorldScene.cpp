@@ -48,7 +48,8 @@ glimmer::WorldScene::WorldScene(AppContext *context, std::unique_ptr<WorldContex
               worldContext_->GetMapManifest()->name);
     if (context != nullptr) {
         context->GetWindowContext()->SetWindowTitle(
-            (PROJECT_NAME + " - " + worldContext_->GetMapManifest()->name).c_str());
+            (std::string(Constants::PROJECT_NAME) + " - " +
+             worldContext_->GetMapManifest()->name).c_str());
     }
     Init();
     uniformInjectContext_ = std::make_unique<UniformInjectContext>();
@@ -87,7 +88,7 @@ bool glimmer::WorldScene::HandleEvent(const SDL_Event &event) {
 
 bool glimmer::WorldScene::OnBackPressed() {
     if (!worldContext_->IsLoadFinish()) {
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
         AppContext *appContext = worldContext_->GetAppContext();
         if (appContext == nullptr) {
             return false;

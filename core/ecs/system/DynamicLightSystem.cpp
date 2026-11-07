@@ -100,7 +100,7 @@ void glimmer::DynamicLightSystem::Update(const float delta) {
 }
 
 uint8_t glimmer::DynamicLightSystem::GetExecutionOrder() {
-    return EXECUTION_ORDER_DYNAMIC_LIGHT;
+    return Constants::EXECUTION_ORDER_DYNAMIC_LIGHT;
 }
 
 glimmer::GameSystemType glimmer::DynamicLightSystem::GetGameSystemType() const {

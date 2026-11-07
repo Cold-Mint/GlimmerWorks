@@ -32,8 +32,8 @@ glimmer::VFSDynamicSuggestions::VFSDynamicSuggestions(VirtualFileSystem *virtual
     virtualFileSystem) {
 }
 
-std::string glimmer::VFSDynamicSuggestions::GetId() const {
-    return VFS_DYNAMIC_SUGGESTIONS_NAME;
+std::string_view glimmer::VFSDynamicSuggestions::GetId() const {
+    return Constants::VFS_DYNAMIC_SUGGESTIONS_NAME;
 }
 
 bool glimmer::VFSDynamicSuggestions::Match(const std::string &keyword, const std::string &param) {

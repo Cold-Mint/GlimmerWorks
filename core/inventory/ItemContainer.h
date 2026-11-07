@@ -51,7 +51,7 @@ namespace glimmer {
         std::vector<std::shared_ptr<std::function<void(uint8_t)> > > onSelectIndexChanged_;
         //The maximum stack size per slot. Determined by the container, not the item.
         //每格的最大堆叠数量。由容器决定，而非物品。
-        uint16_t maxStackPerSlot_ = DEFAULT_CONTAINER_MAX_STACK;
+        uint16_t maxStackPerSlot_ = Constants::DEFAULT_CONTAINER_MAX_STACK;
         bool needRefreshTag_ = true;
         uint8_t selectIndex_ = 0;
 

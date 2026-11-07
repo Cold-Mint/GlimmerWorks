@@ -36,7 +36,7 @@ void glimmer::TickWorker::TickLoop(std::stop_token stopToken) {
     LogCat::i(LogLabel::DEFAULT, "tick_worker_thread_started", "TickWorker thread started");
     using Clock = std::chrono::steady_clock;
     const auto tickInterval = std::chrono::duration_cast<Clock::duration>(
-        std::chrono::duration<double>(1.0 / TICK_RATE));
+        std::chrono::duration<double>(1.0 / Constants::TICK_RATE));
     auto nextTick = Clock::now();
     while (!stopToken.stop_requested()) {
         nextTick += tickInterval;

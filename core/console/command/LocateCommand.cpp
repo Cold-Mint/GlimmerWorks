@@ -37,11 +37,15 @@
 glimmer::LocateCommand::LocateCommand(AppContext *appContext) : Command(appContext) {
 }
 
+std::string_view glimmer::LocateCommand::GetName() const {
+    return Constants::LOCATE_COMMAND_NAME;
+}
+
 void glimmer::LocateCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
     if (suggestionsTree == nullptr) {
         return;
     }
-    suggestionsTree->AddChild("biome")->AddChild(BIOME_DYNAMIC_SUGGESTIONS_NAME);
+    suggestionsTree->AddChild("biome")->AddChild(std::string(Constants::BIOME_DYNAMIC_SUGGESTIONS_NAME));
 }
 
 std::optional<glimmer::TileVector2D> glimmer::LocateCommand::SearchBiomes(int tileX, const ResourceRef &dimension,
@@ -55,10 +59,10 @@ std::optional<glimmer::TileVector2D> glimmer::LocateCommand::SearchBiomes(int ti
     }
     TileVector2D chunkCenter = CoordinateTransformer::ChunkVertexToTile(
                                    CoordinateTransformer::TileToChunkVertex({tileX, 0})) + TileVector2D{
-                                   HALF_CHUNK_SIZE, HALF_CHUNK_SIZE
+                                   Constants::HALF_CHUNK_SIZE, Constants::HALF_CHUNK_SIZE
                                };
     const int firstTileTerrainY = climateSampler->GetFirstTileTerrainY(worldSeed, dimensionResource, tileX);
-    for (int y = dimensionResource->maxY - HALF_CHUNK_SIZE; y > dimensionResource->minY; y -= CHUNK_SIZE) {
+    for (int y = dimensionResource->maxY - Constants::HALF_CHUNK_SIZE; y > dimensionResource->minY; y -= Constants::CHUNK_SIZE) {
         if (y > firstTileTerrainY) {
             continue;
         }
@@ -172,7 +176,7 @@ std::optional<glimmer::TileVector2D> glimmer::LocateCommand::SearchBiomeInRadius
         return target;
     }
     for (int searchRadius = 1; searchRadius < maxRadiusChunks; searchRadius++) {
-        const int distance = searchRadius * CHUNK_SIZE;
+        const int distance = searchRadius * Constants::CHUNK_SIZE;
         target = SearchBiomes(position.x + distance, dimension, biomeRegistry, climateSampler, targetBiomeId,
                               worldSeed, dimensionResource);
         if (target.has_value()) {
@@ -187,9 +191,7 @@ std::optional<glimmer::TileVector2D> glimmer::LocateCommand::SearchBiomeInRadius
     return std::nullopt;
 }
 
-const std::string &glimmer::LocateCommand::GetName() const {
-    return LOCATE_COMMAND_NAME;
-}
+
 
 bool glimmer::LocateCommand::RequiresWorldContext() const {
     return true;

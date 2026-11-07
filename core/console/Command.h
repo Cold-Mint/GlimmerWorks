@@ -66,7 +66,7 @@ namespace glimmer {
 
         explicit Command(AppContext *appContext);
 
-        [[nodiscard]] virtual const std::string &GetName() const = 0;
+        [[nodiscard]] virtual std::string_view GetName() const = 0;
 
         /**
          * Is the world context required to execute this command

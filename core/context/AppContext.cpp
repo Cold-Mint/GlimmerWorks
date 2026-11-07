@@ -244,11 +244,11 @@ void glimmer::AppContext::SetRandomSlogan() const {
     }
     const LangsResources *langsResources = systemBucket_->GetLangsResources();
     if (langsResources == nullptr) {
-        windowContext->SetWindowTitle(PROJECT_NAME.c_str());
+        windowContext->SetWindowTitle(Constants::PROJECT_NAME.data());
         return;
     }
     if (const std::vector<std::string> &slogans = langsResources->slogans; slogans.empty()) {
-        windowContext->SetWindowTitle(PROJECT_NAME.c_str());
+        windowContext->SetWindowTitle(Constants::PROJECT_NAME.data());
     } else {
         const int idx = RandomUtils::Random(0, static_cast<int>(slogans.size()) - 1);
         const std::string &random_str = slogans[idx];

@@ -49,7 +49,7 @@ namespace glimmer {
     public:
         explicit BiomeScoreCommand(AppContext *appContext);
 
-        [[nodiscard]] const std::string &GetName() const override;
+        [[nodiscard]] std::string_view GetName() const override;
 
         [[nodiscard]] bool RequiresWorldContext() const override;
 

@@ -49,7 +49,7 @@ namespace glimmer {
         const Tile *heldTile_ = nullptr;
         PlayerComponent *playerComponent_ = nullptr;
         MiningComponent *miningComponent_ = nullptr;
-        GameEntityID player = GAME_ENTITY_ID_INVALID;
+        GameEntityID player = Constants::GAME_ENTITY_ID_INVALID;
         uint32_t tilePlacementForbiddenZoneCount_ = 0;
         uint32_t transform2DCount_ = 0;
 

@@ -41,17 +41,20 @@ void glimmer::PlaceCommand::InitSuggestions(NodeTree<std::string> *suggestionsTr
     if (suggestionsTree == nullptr) {
         return;
     }
-    suggestionsTree->AddChild("structure")->AddChild(STRUCTURE_DYNAMIC_SUGGESTIONS_NAME)->AddChild(
-                DIMENSION_DYNAMIC_SUGGESTIONS_NAME)->
-            AddChild(X_DYNAMIC_SUGGESTIONS_NAME)->AddChild(Y_DYNAMIC_SUGGESTIONS_NAME);
+    suggestionsTree->AddChild("structure")->AddChild(std::string(Constants::STRUCTURE_DYNAMIC_SUGGESTIONS_NAME))->
+            AddChild(
+                std::string(Constants::DIMENSION_DYNAMIC_SUGGESTIONS_NAME))->
+            AddChild(std::string(Constants::X_DYNAMIC_SUGGESTIONS_NAME))->AddChild(
+                std::string(Constants::Y_DYNAMIC_SUGGESTIONS_NAME));
 }
 
 glimmer::PlaceCommand::PlaceCommand(AppContext *appContext) : Command(appContext) {
 }
 
-const std::string &glimmer::PlaceCommand::GetName() const {
-    return PLACE_COMMAND_NAME;
+std::string_view glimmer::PlaceCommand::GetName() const {
+    return Constants::PLACE_COMMAND_NAME;
 }
+
 
 void glimmer::PlaceCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
     if (strings == nullptr) {

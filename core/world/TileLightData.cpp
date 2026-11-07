@@ -37,7 +37,7 @@ std::optional<glimmer::Color> glimmer::TileLightData::ComputeFinalLightColor() {
     }
     Color finalLightColor;
     bool hasFoundLightSource = false;
-    for (int i = 0; i < TILE_LAYER_TYPE_COUNT; ++i) {
+    for (int i = 0; i < Constants::TILE_LAYER_TYPE_COUNT; ++i) {
         auto tileLayer = static_cast<TileLayerType>(1 << i);
         const auto lightContributionIterator = lightContributions_.find(tileLayer);
         if (lightContributionIterator == lightContributions_.end()) {

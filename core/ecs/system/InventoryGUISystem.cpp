@@ -306,7 +306,7 @@ glimmer::GameSystemType glimmer::InventoryGUISystem::GetGameSystemType() const {
 
 void glimmer::InventoryGUISystem::LoadDocuments(IDocumentRegistry *documentRegistry) {
     ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
     resourceRef.SetResourceKey("inventory/inventory");
     SetAndHideElementDocument(documentRegistry->LoadSingleDocument(&resourceRef));

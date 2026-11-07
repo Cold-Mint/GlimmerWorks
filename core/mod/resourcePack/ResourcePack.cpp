@@ -40,14 +40,14 @@ glimmer::ResourcePack::ResourcePack(std::filesystem::path path,
 }
 
 bool glimmer::ResourcePack::LoadManifest() {
-    const auto contentOptional = virtualFileSystem_->ReadFileAsString(path_ / MANIFEST_FILE_NAME);
+    const auto contentOptional = virtualFileSystem_->ReadFileAsString(path_ / Constants::MANIFEST_FILE_NAME);
     if (!contentOptional.has_value()) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "resource_pack_manifest_read_failed",
-                  "Failed to read resource pack manifest file: {}", (path_ / MANIFEST_FILE_NAME).string());
+                  "Failed to read resource pack manifest file: {}", (path_ / Constants::MANIFEST_FILE_NAME).string());
         return false;
     }
     const toml::value value = toml::parse_str(contentOptional.value(),
-                                              TOML_VERSION);
+                                              Constants::TOML_VERSION);
     manifest_ = toml::get<ResourcePackManifest>(value);
     manifest_.name.SetSelfPackageId(manifest_.id);
     manifest_.description.SetSelfPackageId(manifest_.id);

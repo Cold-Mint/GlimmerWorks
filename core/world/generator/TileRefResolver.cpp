@@ -39,8 +39,8 @@ void glimmer::TileRefResolver::WriteWaterResourceRef(const TileLayerType layerTy
     //地面层设置为水，其他层设置为空气。
     if (layerType == TileLayerType::Ground) {
         resourceRef.SetResourceType(RESOURCE_TILE);
-        resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-        resourceRef.SetResourceKey(TILE_ID_WATER);
+        resourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
+        resourceRef.SetResourceKey(Constants::TILE_ID_WATER);
     } else {
         TileResourceManager::WriteAirResourceRef(
             layerType, resourceRef);
@@ -51,40 +51,40 @@ void glimmer::TileRefResolver::WriteBedRockResourceRef(const TileLayerType layer
     //The ground layer is equipped with bedrock, while the other layers are fitted with void walls.
     //地面层设置基岩，其他层设置虚空墙壁。
     resourceRef.SetResourceType(RESOURCE_TILE);
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     if (layerType == TileLayerType::Ground) {
-        resourceRef.SetResourceKey(TILE_ID_BEDROCK);
+        resourceRef.SetResourceKey(Constants::TILE_ID_BEDROCK);
     } else if (layerType == TileLayerType::BackgroundDecoration) {
-        resourceRef.SetResourceKey(TILE_ID_VOID_DECORATION);
+        resourceRef.SetResourceKey(Constants::TILE_ID_VOID_DECORATION);
     } else {
-        resourceRef.SetResourceKey(TILE_ID_VOID_WALL);
+        resourceRef.SetResourceKey(Constants::TILE_ID_VOID_WALL);
     }
 }
 
 void glimmer::TileRefResolver::WriteVoidResourceRef(const TileLayerType layerType, ResourceRef &resourceRef) {
     resourceRef.SetResourceType(RESOURCE_TILE);
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     if (layerType == TileLayerType::Ground) {
-        resourceRef.SetResourceKey(TILE_ID_VOID);
+        resourceRef.SetResourceKey(Constants::TILE_ID_VOID);
     } else if (layerType == TileLayerType::BackgroundDecoration) {
-        resourceRef.SetResourceKey(TILE_ID_VOID_DECORATION);
+        resourceRef.SetResourceKey(Constants::TILE_ID_VOID_DECORATION);
     } else {
-        resourceRef.SetResourceKey(TILE_ID_VOID_WALL);
+        resourceRef.SetResourceKey(Constants::TILE_ID_VOID_WALL);
     }
 }
 
 void glimmer::TileRefResolver::Initialize(const TerrainResult *terrainResult,
                                           const ChunkVertexVector2D &chunkVertexVector2D,
-                                          std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > &
+                                          std::unordered_map<TileLayerType, std::array<ResourceRef, Constants::CHUNK_AREA> > &
                                           tilesRefMap,
                                           std::unordered_set<BiomeResource *> &biomeResourcesSet) {
-    for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
-        for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
+    for (int localX = 0; localX < Constants::CHUNK_SIZE; ++localX) {
+        for (int localY = 0; localY < Constants::CHUNK_SIZE; ++localY) {
             ChunkRelativeVector2D chunkRelativeVector2D(localX, localY);
             const auto &terrainTileResult = terrainResult->QueryTerrain(CoordinateTransformer::TileToTerrainRelative(
                 CoordinateTransformer::ChunkRelativeToTile(
                     chunkVertexVector2D, chunkRelativeVector2D)));
-            const size_t idx = CoordinateTransformer::GetArrayIndex(localX, localY, CHUNK_SHIFT);
+            const size_t idx = CoordinateTransformer::GetArrayIndex(localX, localY, Constants::CHUNK_SHIFT);
             const TerrainResultType terrainType = terrainTileResult.GetTerrainType();
             if (terrainType == TerrainResultType::EMPTY) {
                 for (auto &[layerType, refsArray]: tilesRefMap) {

@@ -202,6 +202,6 @@ std::optional<std::string> glimmer::CommandHookManager::Register(std::unique_ptr
                         std::move(commandHookEntry));
 }
 
-bool glimmer::CommandHookManager::Unregister(const std::string &commandHookId) {
+bool glimmer::CommandHookManager::Unregister(const std::string_view commandHookId) {
     return UnregisterImpl(sessionCommandHookMap_, sessionCommandHookVector_, CommandHookScope::CONFIG, commandHookId);
 }

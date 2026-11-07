@@ -122,7 +122,7 @@ glimmer::TerrainGenerator *glimmer::WorldContext::GetTerrainGenerator() const {
 }
 
 bool glimmer::WorldContext::IsEmptyEntityId(const uint32_t id) {
-    return id == GAME_ENTITY_ID_INVALID;
+    return id == Constants::GAME_ENTITY_ID_INVALID;
 }
 
 glimmer::ChunkManager *glimmer::WorldContext::GetChunkManager() const {

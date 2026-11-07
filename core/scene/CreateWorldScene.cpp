@@ -119,7 +119,7 @@ void glimmer::CreateWorldScene::OnPauseScene() {
 
 void glimmer::CreateWorldScene::LoadDocuments() {
     ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
     resourceRef.SetResourceKey("create_world/create_world");
     LoadSingleDocument(&resourceRef);
@@ -176,7 +176,7 @@ void glimmer::CreateWorldScene::CreateWorld() const {
     LogCat::i(LogLabel::DEFAULT, "creating_new_world", "Creating new world: name={}", worldName);
 
     const std::string seedInput = createWorldDataModel_.seedStr;
-    int seedValue = 0;
+    int seedValue;
     if (StringUtils::IsInteger(seedInput)) {
         seedValue = std::stoi(seedInput);
     } else {

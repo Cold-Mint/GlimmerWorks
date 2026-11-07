@@ -47,7 +47,7 @@ glimmer::SolveResult glimmer::HorizontalPhysicsSolver::SolveXDirection(const Chu
 
     //The displacement to attempt this tick (signed: positive = right, negative = left).
     //这一步想走的位移（有符号：正=向右，负=向左）。
-    const float stepX = velocityX * FIXED_TIME_STEP;
+    const float stepX = velocityX * Constants::FIXED_TIME_STEP;
     if (stepX == 0.0F) {
         LogCat::d(LogLabel::PHYSICS, "physics_horizontal_zero_step",
                   "Horizontal physics: zero step, skip");
@@ -76,7 +76,7 @@ glimmer::SolveResult glimmer::HorizontalPhysicsSolver::SolveXDirection(const Chu
                 continue;
             }
             const uint8_t mask = tile->GetCollisionMask();
-            if (mask == COLLISION_MASK_NONE) {
+            if (mask == Constants::COLLISION_MASK_NONE) {
                 continue;
             }
 
@@ -103,14 +103,14 @@ glimmer::SolveResult glimmer::HorizontalPhysicsSolver::SolveXDirection(const Chu
             if (stepX > 0.0F) {
                 //Moving right: the right edge approaches the tile's left face.
                 //向右：右边缘逼近瓦片左面。
-                if ((mask & COLLISION_MASK_LEFT) == 0) {
+                if ((mask & Constants::COLLISION_MASK_LEFT) == 0) {
                     continue;
                 }
                 dist = tileLeft - box.Right();
             } else {
                 //Moving left: the left edge approaches the tile's right face.
                 //向左：左边缘逼近瓦片右面。
-                if ((mask & COLLISION_MASK_RIGHT) == 0) {
+                if ((mask & Constants::COLLISION_MASK_RIGHT) == 0) {
                     continue;
                 }
                 dist = box.Left() - tileRight;
@@ -119,7 +119,7 @@ glimmer::SolveResult glimmer::HorizontalPhysicsSolver::SolveXDirection(const Chu
             //Only approaching contacts (dist >= 0) are resolved. Already-overlapping tiles (dist < 0)
             //are skipped so the body can freely move back out of them.
             //只解算逼近接触（dist >= 0）。已重叠的瓦片（dist < 0）被跳过，让身体能自由走出。
-            if (dist >= -PHYSICS_CONTACT_EPSILON && dist < remaining) {
+            if (dist >= -Constants::PHYSICS_CONTACT_EPSILON && dist < remaining) {
                 remaining = std::max(dist, 0.0F);
                 result.blocked = true;
                 result.hitTile = TileVector2D{tx, ty};

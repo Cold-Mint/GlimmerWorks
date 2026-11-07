@@ -58,7 +58,7 @@ glimmer::AppRenderer::AppRenderer(AppContext *appContext) : appContext_(appConte
     }
     resourceLocator_ = appContext_->GetResourceLocator();
     ResourceRef defaultPipelineResourceRef;
-    defaultPipelineResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    defaultPipelineResourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     defaultPipelineResourceRef.SetResourceType(RESOURCE_PIPELINE);
     defaultPipelineResourceRef.SetResourceKey("default");
     auto defaultPipeline = resourceLocator_->FindGPUGraphicsPipeline(&defaultPipelineResourceRef);
@@ -68,7 +68,7 @@ glimmer::AppRenderer::AppRenderer(AppContext *appContext) : appContext_(appConte
                   SDL_GetError());
     }
     ResourceRef defaultSamplerResourceRef;
-    defaultSamplerResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    defaultSamplerResourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     defaultSamplerResourceRef.SetResourceType(RESOURCE_SAMPLER);
     defaultSamplerResourceRef.SetResourceKey("default");
     auto defaultSampler = resourceLocator_->FindGPUGraphicsSampler(&defaultSamplerResourceRef);
@@ -78,17 +78,17 @@ glimmer::AppRenderer::AppRenderer(AppContext *appContext) : appContext_(appConte
                   SDL_GetError());
     }
     ResourceRef lightingPipelineResourceRef;
-    lightingPipelineResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    lightingPipelineResourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     lightingPipelineResourceRef.SetResourceType(RESOURCE_PIPELINE);
     lightingPipelineResourceRef.SetResourceKey("lighting");
     auto lightingPipeline = resourceLocator_->FindGPUGraphicsPipeline(&lightingPipelineResourceRef);
     ResourceRef lightingSamplerResourceRef;
-    lightingSamplerResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    lightingSamplerResourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     lightingSamplerResourceRef.SetResourceType(RESOURCE_SAMPLER);
     lightingSamplerResourceRef.SetResourceKey("lighting");
     auto lightingSampler = resourceLocator_->FindGPUGraphicsSampler(&lightingSamplerResourceRef);
     ResourceRef tintPipelineResourceRef;
-    tintPipelineResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    tintPipelineResourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     tintPipelineResourceRef.SetResourceType(RESOURCE_PIPELINE);
     tintPipelineResourceRef.SetResourceKey("tint");
     auto tintPipeline = resourceLocator_->FindGPUGraphicsPipeline(&tintPipelineResourceRef);
@@ -106,7 +106,7 @@ glimmer::AppRenderer::AppRenderer(AppContext *appContext) : appContext_(appConte
     passes_.emplace_back(std::make_unique<ClearPass>());
     passes_.emplace_back(std::make_unique<LightingPass>(resourceLocator_, device_, std::move(lightingPipeline),
                                                         std::move(lightingSampler)));
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
     lightingPass_ = dynamic_cast<LightingPass *>(passes_.back().get());
 #endif
     passes_.emplace_back(std::make_unique<UiPass>(appContext_->GetRmlContext()));
@@ -172,7 +172,7 @@ void glimmer::AppRenderer::RenderFrame(const int windowWidth, const int windowHe
         }
     }
 
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
     if (lightingPass_ != nullptr) {
         if (const Config *config = appContext_->GetConfig(); config != nullptr) {
             lightingPass_->SetDisplayLightMap(config->Get<bool>(StringUtils::StringToUint64("display_light_map")));

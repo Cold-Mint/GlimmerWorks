@@ -440,7 +440,7 @@ glimmer::GameSystemType glimmer::StorageGUISystem::GetGameSystemType() const {
 
 void glimmer::StorageGUISystem::LoadDocuments(IDocumentRegistry *documentRegistry) {
     ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
     resourceRef.SetResourceKey("storage/storage");
     SetAndHideElementDocument(documentRegistry->LoadSingleDocument(&resourceRef));

@@ -34,8 +34,8 @@ glimmer::CommandHookIdDynamicSuggestions::CommandHookIdDynamicSuggestions(
     CommandHookManager *commandHookManager) : commandHookManager_(commandHookManager) {
 }
 
-std::string glimmer::CommandHookIdDynamicSuggestions::GetId() const {
-    return COMMAND_HOOK_ID_SUGGESTION_NAME;
+std::string_view glimmer::CommandHookIdDynamicSuggestions::GetId() const {
+    return Constants::COMMAND_HOOK_ID_SUGGESTION_NAME;
 }
 
 const std::vector<std::string> &glimmer::CommandHookIdDynamicSuggestions::GetSuggestions(

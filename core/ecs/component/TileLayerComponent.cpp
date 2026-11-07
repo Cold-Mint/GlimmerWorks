@@ -58,7 +58,7 @@ std::shared_ptr<glimmer::Tile> glimmer::TileLayerComponent::GetTileShared(const 
         return nullptr;
     }
     const ChunkRelativeVector2D pos = CoordinateTransformer::TileToChunkRelative(tilePos);
-    return chunk->GetTileShared(layerType, CoordinateTransformer::GetArrayIndex(pos.x, pos.y, CHUNK_SHIFT));
+    return chunk->GetTileShared(layerType, CoordinateTransformer::GetArrayIndex(pos.x, pos.y, Constants::CHUNK_SHIFT));
 }
 
 std::vector<std::shared_ptr<glimmer::TileSnapshot> > glimmer::TileLayerComponent::GetTopVisibleTileSnapshots(
@@ -69,7 +69,7 @@ std::vector<std::shared_ptr<glimmer::TileSnapshot> > glimmer::TileLayerComponent
     }
     const ChunkRelativeVector2D pos = CoordinateTransformer::TileToChunkRelative(tilePos);
     return chunk->GetTopVisibleTileSnapshots(layerFilter,
-                                             CoordinateTransformer::GetArrayIndex(pos.x, pos.y, CHUNK_SHIFT));
+                                             CoordinateTransformer::GetArrayIndex(pos.x, pos.y, Constants::CHUNK_SHIFT));
 }
 
 TileStateMessage *glimmer::TileLayerComponent::GetTileStatePtr(TileLayerType layerType,
@@ -86,7 +86,7 @@ TileStateMessage *glimmer::TileLayerComponent::GetTileStatePtr(TileLayerType lay
         return nullptr;
     }
     const ChunkRelativeVector2D pos = CoordinateTransformer::TileToChunkRelative(tilePos);
-    return chunk->GetTileState(layerType, CoordinateTransformer::GetArrayIndex(pos.x, pos.y, CHUNK_SHIFT));
+    return chunk->GetTileState(layerType, CoordinateTransformer::GetArrayIndex(pos.x, pos.y, Constants::CHUNK_SHIFT));
 }
 
 bool glimmer::TileLayerComponent::CommitTileState(BreakSource breakSource,
@@ -105,7 +105,7 @@ bool glimmer::TileLayerComponent::CommitTileState(BreakSource breakSource,
     }
     const ChunkRelativeVector2D pos = CoordinateTransformer::TileToChunkRelative(tilePos);
     return chunk->CommitTileState(breakSource, layerType,
-                                  CoordinateTransformer::GetArrayIndex(pos.x, pos.y, CHUNK_SHIFT), fallback);
+                                  CoordinateTransformer::GetArrayIndex(pos.x, pos.y, Constants::CHUNK_SHIFT), fallback);
 }
 
 const TileStateMessage *glimmer::TileLayerComponent::GetSelfLayerTileState(
@@ -141,7 +141,7 @@ const glimmer::Tile *glimmer::TileLayerComponent::GetTile(const TileLayerType la
         return nullptr;
     }
     const ChunkRelativeVector2D pos = CoordinateTransformer::TileToChunkRelative(tilePos);
-    return chunk->GetTile(layerType, CoordinateTransformer::GetArrayIndex(pos.x, pos.y, CHUNK_SHIFT));
+    return chunk->GetTile(layerType, CoordinateTransformer::GetArrayIndex(pos.x, pos.y, Constants::CHUNK_SHIFT));
 }
 
 std::vector<std::pair<glimmer::TileVector2D, std::vector<std::shared_ptr<glimmer::TileSnapshot> > > > *
@@ -159,8 +159,8 @@ glimmer::TileLayerComponent::GetTopVisibleTileSnapshotsInViewport(const std::byt
     //The purpose of adding "TILE_SIZE" in the lower right corner is to prevent blank areas from appearing.
     //右下角加TILE_SIZE的目的是，防止出现空白区域。
     const TileVector2D bottomRight = CoordinateTransformer::WorldToTile({
-        worldViewport.x + worldViewport.w + TILE_SIZE,
-        worldViewport.y + worldViewport.h + TILE_SIZE
+        worldViewport.x + worldViewport.w + Constants::TILE_SIZE,
+        worldViewport.y + worldViewport.h + Constants::TILE_SIZE
     });
     Vector2DIFingerprint visibleTileBottomRightFingerprint = bottomRight.GetFingerprint();
     if (visibleTileBottomRightFingerprint != visibleTileBottomRightFingerprint_) {

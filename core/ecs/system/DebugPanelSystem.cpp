@@ -24,7 +24,7 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
 #include "DebugPanelSystem.h"
 #include <cmath>
 #include <utility>
@@ -104,7 +104,7 @@ void glimmer::DebugPanelSystem::OnActivationChanged(bool activeStatus) {
 
 void glimmer::DebugPanelSystem::LoadDocuments(IDocumentRegistry *documentRegistry) {
     ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
     resourceRef.SetResourceKey("debug_panel/debug_panel");
     Rml::ElementDocument *elementDocument = documentRegistry->LoadSingleDocument(&resourceRef);
@@ -331,7 +331,7 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
             const auto *lightSources = tileLightData->GetLightSources();
             const auto *lightContributions = tileLightData->GetLightContributions();
             const auto *lightMasks = tileLightData->GetLightMasks();
-            for (int i = 0; i < TILE_LAYER_TYPE_COUNT; ++i) {
+            for (int i = 0; i < Constants::TILE_LAYER_TYPE_COUNT; ++i) {
                 const auto layerType = static_cast<TileLayerType>(1 << i);
                 const float sideBlocking = tileLightData->GetLightBlockingStrength(layerType, LightDirection::Downward);
                 const float backBlocking = tileLightData->GetLightBlockingStrength(layerType, LightDirection::Backward);
@@ -447,11 +447,11 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
         if (chunkManager == nullptr) {
             return;
         }
-        int playerTileX = static_cast<int>(std::floor(mousePosition_.x / TILE_SIZE));
-        int playerTileY = static_cast<int>(std::floor(mousePosition_.y / TILE_SIZE));
+        int playerTileX = static_cast<int>(std::floor(mousePosition_.x / Constants::TILE_SIZE));
+        int playerTileY = static_cast<int>(std::floor(mousePosition_.y / Constants::TILE_SIZE));
 
         auto getChunkIndex = [](const int tileCoord) {
-            return static_cast<int>(std::floor(static_cast<float>(tileCoord) / CHUNK_SIZE));
+            return static_cast<int>(std::floor(static_cast<float>(tileCoord) / Constants::CHUNK_SIZE));
         };
 
         int playerChunkX = getChunkIndex(playerTileX);
@@ -460,10 +460,12 @@ void glimmer::DebugPanelSystem::Update(const float delta) {
         SDL_FRect viewport = CoordinateTransformer::GetViewportRect(cameraTransform2DComponent_->GetRenderPosition(),
                                                                     cameraComponent_->GetSize(),
                                                                     cameraComponent_->GetZoom());
-        int startChunkX = static_cast<int>(std::floor(viewport.x / TILE_SIZE / CHUNK_SIZE));
-        int startChunkY = static_cast<int>(std::floor(viewport.y / TILE_SIZE / CHUNK_SIZE));
-        int endChunkX = static_cast<int>(std::floor((viewport.x + viewport.w) / TILE_SIZE / CHUNK_SIZE));
-        int endChunkY = static_cast<int>(std::floor((viewport.y + viewport.h) / TILE_SIZE / CHUNK_SIZE));
+        int startChunkX = static_cast<int>(std::floor(viewport.x / Constants::TILE_SIZE / Constants::CHUNK_SIZE));
+        int startChunkY = static_cast<int>(std::floor(viewport.y / Constants::TILE_SIZE / Constants::CHUNK_SIZE));
+        int endChunkX = static_cast<int>(std::floor(
+            (viewport.x + viewport.w) / Constants::TILE_SIZE / Constants::CHUNK_SIZE));
+        int endChunkY = static_cast<int>(std::floor(
+            (viewport.y + viewport.h) / Constants::TILE_SIZE / Constants::CHUNK_SIZE));
         int visibleChunkCount = (endChunkX - startChunkX + 1) * (endChunkY - startChunkY + 1);
 
         chunkText_ = fmt::format(fmt::runtime(langsResources->debugChunkInfo), playerChunkX,
@@ -502,7 +504,7 @@ bool glimmer::DebugPanelSystem::HandleEvent(const SDL_Event &event) {
 }
 
 uint8_t glimmer::DebugPanelSystem::GetExecutionOrder() {
-    return EXECUTION_ORDER_DEBUG_PANEL;
+    return Constants::EXECUTION_ORDER_DEBUG_PANEL;
 }
 
 glimmer::GameSystemType glimmer::DebugPanelSystem::GetGameSystemType() const {

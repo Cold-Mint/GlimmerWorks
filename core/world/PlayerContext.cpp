@@ -53,7 +53,7 @@ glimmer::PlayerContext::PlayerContext(WorldContext *worldContext) : worldContext
     const AppContext *appContext = worldContext_->GetAppContext();
     if (appContext != nullptr) {
         ResourceRef ref;
-        ref.SetSelfPackageId(RESOURCE_REF_CORE);
+        ref.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
         ref.SetResourceType(RESOURCE_AUDIO);
         ref.SetResourceKey("sfx/item_break");
         itemBreakSFXResult_ = appContext->GetResourceLocator()->FindAudio(&ref);
@@ -133,7 +133,7 @@ void glimmer::PlayerContext::InitPlayer(const ResourceRef &resourceRef) {
 }
 
 uint32_t glimmer::PlayerContext::CreateOrLoadPlayer(const ResourceRef &resourceRef) const {
-    uint32_t playerEntity = GAME_ENTITY_ID_INVALID;
+    uint32_t playerEntity = Constants::GAME_ENTITY_ID_INVALID;
     if (worldContext_ == nullptr) {
         return playerEntity;
     }
@@ -200,8 +200,8 @@ void glimmer::PlayerContext::InitPlayerInventory(const uint32_t playerEntity) co
     if (itemContainer == nullptr) {
         return;
     }
-    itemContainer->Resize(HOT_BAR_SIZE * INVENTORY_ROW_COUNT);
-    itemContainer->SetMaxStackPerSlot(DEFAULT_CONTAINER_MAX_STACK);
+    itemContainer->Resize(Constants::HOT_BAR_SIZE * Constants::INVENTORY_ROW_COUNT);
+    itemContainer->SetMaxStackPerSlot(Constants::DEFAULT_CONTAINER_MAX_STACK);
     AppContext *appContext = worldContext_->GetAppContext();
     if (appContext == nullptr) {
         return;
@@ -229,7 +229,7 @@ void glimmer::PlayerContext::InitPlayerInventory(const uint32_t playerEntity) co
                 continue;
             }
             DroppedItemCreator::SpawnDroppedItem(worldContext_, playerPos, std::move(returnItem),
-                                                 DROPPED_ITEM_PICKUP_COOLDOWN_TICKS);
+                                                 Constants::DROPPED_ITEM_PICKUP_COOLDOWN_TICKS);
         }
     }
 }
@@ -273,7 +273,7 @@ void glimmer::PlayerContext::OnPlayerItemChanged(const ItemContainer *itemContai
         return;
     }
     const EntityShortCut *entityShortCut = worldContext_->GetEntityShortCut();
-    const GameEntityID playerEntity = entityShortCut != nullptr ? entityShortCut->GetPlayer() : GAME_ENTITY_ID_INVALID;
+    const GameEntityID playerEntity = entityShortCut != nullptr ? entityShortCut->GetPlayer() : Constants::GAME_ENTITY_ID_INVALID;
     if (changeType == ContainerChangeType::STACK_DURABILITY_EXHAUSTED) {
         HandleItemBreak(item, playerComponent);
         playerComponent->SetItem(nullptr);
@@ -356,6 +356,6 @@ void glimmer::PlayerContext::DropComposableItemAbilities(const ComposableItem *c
             continue;
         }
         DroppedItemCreator::SpawnDroppedItem(worldContext_, dropPos, itemResult.TakeItem(),
-                                             DROPPED_ITEM_PICKUP_COOLDOWN_TICKS);
+                                             Constants::DROPPED_ITEM_PICKUP_COOLDOWN_TICKS);
     }
 }

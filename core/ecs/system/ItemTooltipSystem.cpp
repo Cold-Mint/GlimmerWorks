@@ -117,7 +117,7 @@ glimmer::GameSystemType glimmer::ItemTooltipSystem::GetGameSystemType() const {
 
 void glimmer::ItemTooltipSystem::LoadDocuments(IDocumentRegistry *documentRegistry) {
     ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
     resourceRef.SetResourceKey("tooltip/tooltip");
     document_ = documentRegistry->LoadSingleDocument(&resourceRef);

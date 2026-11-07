@@ -48,18 +48,18 @@ glimmer::SolveResult glimmer::VerticalPhysicsSolver::SolveYDirection(const Chunk
 
     //Make use of gravity.
     //应用重力。
-    velocityY -= PHYSICS_GRAVITY * FIXED_TIME_STEP * gravityScale;
+    velocityY -= Constants::PHYSICS_GRAVITY * Constants::FIXED_TIME_STEP * gravityScale;
     //Clamp the fall speed to avoid accumulating huge velocities.
     //钳制下落速度，避免速度无限累积。
-    if (velocityY < -PHYSICS_MAX_FALL_SPEED) {
+    if (velocityY < -Constants::PHYSICS_MAX_FALL_SPEED) {
         LogCat::d(LogLabel::PHYSICS, "physics_vertical_fall_clamped",
-                  "Vertical physics: fall speed clamped: {} -> {}", velocityY, -PHYSICS_MAX_FALL_SPEED);
-        velocityY = -PHYSICS_MAX_FALL_SPEED;
+                  "Vertical physics: fall speed clamped: {} -> {}", velocityY, -Constants::PHYSICS_MAX_FALL_SPEED);
+        velocityY = -Constants::PHYSICS_MAX_FALL_SPEED;
     }
 
     //The displacement to attempt this tick (signed: positive = up, negative = down).
     //这一步想走的位移（有符号：正=向上，负=向下）。
-    const float stepY = velocityY * FIXED_TIME_STEP;
+    const float stepY = velocityY * Constants::FIXED_TIME_STEP;
     if (stepY == 0.0F) {
         LogCat::d(LogLabel::PHYSICS, "physics_vertical_zero_step",
                   "Vertical physics: zero step, skip");
@@ -89,7 +89,7 @@ glimmer::SolveResult glimmer::VerticalPhysicsSolver::SolveYDirection(const Chunk
                 continue;
             }
             const uint8_t mask = tile->GetCollisionMask();
-            if (mask == COLLISION_MASK_NONE) {
+            if (mask == Constants::COLLISION_MASK_NONE) {
                 continue;
             }
 
@@ -116,14 +116,14 @@ glimmer::SolveResult glimmer::VerticalPhysicsSolver::SolveYDirection(const Chunk
             if (stepY < 0.0F) {
                 //Falling: the bottom edge approaches the tile's top face.
                 //下落：底边逼近瓦片顶面。
-                if ((mask & COLLISION_MASK_TOP) == 0) {
+                if ((mask & Constants::COLLISION_MASK_TOP) == 0) {
                     continue;
                 }
                 dist = box.Bottom() - tileTop;
             } else {
                 //Rising: the top edge approaches the tile's bottom face.
                 //上升：顶边逼近瓦片底面。
-                if ((mask & COLLISION_MASK_BOTTOM) == 0) {
+                if ((mask & Constants::COLLISION_MASK_BOTTOM) == 0) {
                     continue;
                 }
                 dist = tileBottom - box.Top();
@@ -132,7 +132,7 @@ glimmer::SolveResult glimmer::VerticalPhysicsSolver::SolveYDirection(const Chunk
             //Only approaching contacts (dist >= 0) are resolved. Already-overlapping tiles (dist < 0)
             //are skipped so the body can freely move back out of them.
             //只解算逼近接触（dist >= 0）。已重叠的瓦片（dist < 0）被跳过，让身体能自由走出。
-            if (dist >= -PHYSICS_CONTACT_EPSILON && dist < remaining) {
+            if (dist >= -Constants::PHYSICS_CONTACT_EPSILON && dist < remaining) {
                 remaining = std::max(dist, 0.0F);
                 result.blocked = true;
                 result.hitTile = TileVector2D{tx, ty};

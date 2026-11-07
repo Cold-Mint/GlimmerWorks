@@ -38,7 +38,7 @@ void glimmer::BiomeStructureConditionProcessor::Match(const DimensionResource *d
                                                       const TerrainResult *terrainResult,
                                                       const IStructurePlacementConditionsResource *
                                                       placementConditionsResource,
-                                                      std::bitset<TERRAIN_AREA> *result) {
+                                                      std::bitset<Constants::TERRAIN_AREA> *result) {
     const auto biomeStructurePlacementConditions = dynamic_cast<const BiomeStructurePlacementConditionsResource *>(
         placementConditionsResource);
     if (biomeStructurePlacementConditions == nullptr) {
@@ -49,8 +49,8 @@ void glimmer::BiomeStructureConditionProcessor::Match(const DimensionResource *d
         return;
     }
     int matchedTileCount = 0;
-    for (int localX = 0; localX < TERRAIN_SIZE; localX++) {
-        for (int localY = 0; localY < TERRAIN_SIZE; localY++) {
+    for (int localX = 0; localX < Constants::TERRAIN_SIZE; localX++) {
+        for (int localY = 0; localY < Constants::TERRAIN_SIZE; localY++) {
             TerrainRelativeVector2D relativeVector2d(localX, localY);
             const TerrainTileResult &self = terrainResult->QueryTerrain(relativeVector2d);
             const BiomeResource *biomeResource = self.GetBiomeResource();
@@ -58,7 +58,7 @@ void glimmer::BiomeStructureConditionProcessor::Match(const DimensionResource *d
                 continue;
             }
             if (biomeSet.contains(Resource::GenerateId(*biomeResource))) {
-                result->set(CoordinateTransformer::GetArrayIndex(localX, localY, TERRAIN_SHIFT));
+                result->set(CoordinateTransformer::GetArrayIndex(localX, localY, Constants::TERRAIN_SHIFT));
                 matchedTileCount++;
             }
         }

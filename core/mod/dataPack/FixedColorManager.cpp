@@ -30,7 +30,7 @@ void glimmer::FixedColorManager::RegisterCoreRef(std::string_view resourceId, ui
                                                  uint8_t g, uint8_t a) {
     auto fixedColorResource = std::make_unique<FixedColorResource>();
     fixedColorResource->resourceId = resourceId;
-    fixedColorResource->packId = RESOURCE_REF_CORE;
+    fixedColorResource->packId = Constants::RESOURCE_REF_CORE;
     fixedColorResource->missing = false;
     fixedColorResource->r = r;
     fixedColorResource->g = g;
@@ -40,13 +40,13 @@ void glimmer::FixedColorManager::RegisterCoreRef(std::string_view resourceId, ui
 }
 
 glimmer::FixedColorManager::FixedColorManager() {
-    RegisterCoreRef(LIGHT_MASK_FULL_COLOR, 0, 0, 0, 255);
-    RegisterCoreRef(LIGHT_MASK_NONE_COLOR, 0, 0, 0, 0);
-    RegisterCoreRef(LIGHT_MASK_LOW_COLOR, 0, 0, 0, 64);
-    RegisterCoreRef(LIGHT_MASK_MEDIUM_COLOR, 0, 0, 0, 128);
-    RegisterCoreRef(LIGHT_MASK_HIGH_COLOR, 0, 0, 0, 192);
-    RegisterCoreRef(LIGHT_NONE_COLOR, 0, 0, 0, 0);
-    RegisterCoreRef(LIGHT_SKY_COLOR, 255, 255, 255, 24);
+    RegisterCoreRef(Constants::LIGHT_MASK_FULL_COLOR, 0, 0, 0, 255);
+    RegisterCoreRef(Constants::LIGHT_MASK_NONE_COLOR, 0, 0, 0, 0);
+    RegisterCoreRef(Constants::LIGHT_MASK_LOW_COLOR, 0, 0, 0, 64);
+    RegisterCoreRef(Constants::LIGHT_MASK_MEDIUM_COLOR, 0, 0, 0, 128);
+    RegisterCoreRef(Constants::LIGHT_MASK_HIGH_COLOR, 0, 0, 0, 192);
+    RegisterCoreRef(Constants::LIGHT_NONE_COLOR, 0, 0, 0, 0);
+    RegisterCoreRef(Constants::LIGHT_SKY_COLOR, 255, 255, 255, 24);
 }
 
 glimmer::FixedColorResource *glimmer::FixedColorManager::Register(

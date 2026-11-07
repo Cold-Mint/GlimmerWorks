@@ -48,7 +48,7 @@ void glimmer::Dimension::AdvanceTime(const uint64_t tick) {
     }
     const DayNormalizedTime advanced = normalizedTime_.load(std::memory_order_relaxed) +
                                        dimensionResource->timeFlowSpeed * static_cast<DayNormalizedTime>(tickDelta) /
-                                       static_cast<DayNormalizedTime>(DAY_LENGTH);
+                                       static_cast<DayNormalizedTime>(Constants::DAY_LENGTH);
     normalizedTime_.store(Normalize(advanced), std::memory_order_relaxed);
 }
 

@@ -24,7 +24,7 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
 #include "HookCommand.h"
 #include "core/context/AppContext.h"
 #include "core/utils/EventTypeUtils.h"
@@ -36,19 +36,20 @@
 glimmer::HookCommand::HookCommand(AppContext *appContext) : Command(appContext) {
 }
 
+std::string_view glimmer::HookCommand::GetName() const {
+    return Constants::HOOK_COMMAND_NAME;
+}
+
 void glimmer::HookCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
     if (suggestionsTree == nullptr) {
         return;
     }
     suggestionsTree->AddChild("add")->AddChild(
-        EVENT_TYPE_DYNAMIC_SUGGESTIONS_NAME);
-    suggestionsTree->AddChild("remove")->AddChild(COMMAND_HOOK_ID_SUGGESTION_NAME);
-    suggestionsTree->AddChild("list")->AddChild(EVENT_TYPE_DYNAMIC_SUGGESTIONS_NAME);
+        std::string(Constants::EVENT_TYPE_DYNAMIC_SUGGESTIONS_NAME));
+    suggestionsTree->AddChild("remove")->AddChild(std::string(Constants::COMMAND_HOOK_ID_SUGGESTION_NAME));
+    suggestionsTree->AddChild("list")->AddChild(std::string(Constants::EVENT_TYPE_DYNAMIC_SUGGESTIONS_NAME));
 }
 
-const std::string &glimmer::HookCommand::GetName() const {
-    return HOOK_COMMAND_NAME;
-}
 
 void glimmer::HookCommand::PutAddCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings,
                                                   int size) {
@@ -102,39 +103,42 @@ void glimmer::HookCommand::PutCommandStructure(const CommandArgs *commandArgs, s
 
 void glimmer::HookCommand::UpdateAddSuggestionsTree(NodeTree<std::string> *operationTypeTree,
                                                     const std::string &eventTypeString) {
-    auto eventTypeTree = operationTypeTree->GetMutableChildByValue(EVENT_TYPE_DYNAMIC_SUGGESTIONS_NAME);
+    auto eventTypeTree = operationTypeTree->GetMutableChildByValue(
+        std::string(Constants::EVENT_TYPE_DYNAMIC_SUGGESTIONS_NAME));
     if (eventTypeTree == nullptr) {
         return;
     }
     const SDL_EventType eventType = EventTypeUtils::StringToEventType(eventTypeString);
     eventTypeTree->ClearChildren();
     if (eventType == SDL_EVENT_KEY_DOWN || eventType == SDL_EVENT_KEY_UP) {
-        eventTypeTree->AddChild(SCAN_KEY_DYNAMIC_SUGGESTIONS_NAME)->AddChild(BOOL_DYNAMIC_SUGGESTIONS_NAME)->
+        eventTypeTree->AddChild(std::string(Constants::SCAN_KEY_DYNAMIC_SUGGESTIONS_NAME))->AddChild(
+                    std::string(Constants::BOOL_DYNAMIC_SUGGESTIONS_NAME))->
                 AddChild(
-                    COMMAND_HOOK_SCOPE_DYNAMIC_SUGGESTIONS_NAME);
+                    std::string(Constants::COMMAND_HOOK_SCOPE_DYNAMIC_SUGGESTIONS_NAME));
     } else if (eventType == SDL_EVENT_MOUSE_BUTTON_DOWN || eventType == SDL_EVENT_MOUSE_BUTTON_UP) {
-        eventTypeTree->AddChild(MOUSE_BUTTON_DYNAMIC_SUGGESTIONS_NAME)->
+        eventTypeTree->AddChild(std::string(Constants::MOUSE_BUTTON_DYNAMIC_SUGGESTIONS_NAME))->
                 AddChild(
-                    COMMAND_HOOK_SCOPE_DYNAMIC_SUGGESTIONS_NAME);
+                    std::string(Constants::COMMAND_HOOK_SCOPE_DYNAMIC_SUGGESTIONS_NAME));
     } else {
         eventTypeTree->AddChild(
-            COMMAND_HOOK_SCOPE_DYNAMIC_SUGGESTIONS_NAME);
+            std::string(Constants::COMMAND_HOOK_SCOPE_DYNAMIC_SUGGESTIONS_NAME));
     }
 }
 
 void glimmer::HookCommand::UpdateListSuggestionsTree(NodeTree<std::string> *operationTypeTree,
                                                      const std::string &eventTypeString) {
-    auto eventTypeTree = operationTypeTree->GetMutableChildByValue(EVENT_TYPE_DYNAMIC_SUGGESTIONS_NAME);
+    auto eventTypeTree = operationTypeTree->GetMutableChildByValue(
+        std::string(Constants::EVENT_TYPE_DYNAMIC_SUGGESTIONS_NAME));
     if (eventTypeTree == nullptr) {
         return;
     }
     const SDL_EventType eventType = EventTypeUtils::StringToEventType(eventTypeString);
     eventTypeTree->ClearChildren();
     if (eventType == SDL_EVENT_KEY_DOWN || eventType == SDL_EVENT_KEY_UP) {
-        eventTypeTree->AddChild(SCAN_KEY_DYNAMIC_SUGGESTIONS_NAME);
+        eventTypeTree->AddChild(std::string(Constants::SCAN_KEY_DYNAMIC_SUGGESTIONS_NAME));
     }
     if (eventType == SDL_EVENT_MOUSE_BUTTON_DOWN || eventType == SDL_EVENT_MOUSE_BUTTON_UP) {
-        eventTypeTree->AddChild(MOUSE_BUTTON_DYNAMIC_SUGGESTIONS_NAME);
+        eventTypeTree->AddChild(std::string(Constants::MOUSE_BUTTON_DYNAMIC_SUGGESTIONS_NAME));
     }
 }
 

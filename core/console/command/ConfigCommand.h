@@ -85,7 +85,7 @@ namespace glimmer {
                 return false;
             }
             if (const SettingType settingType = settingDef->type;
-                settingType == SettingType::Bool && value == TOGGLE_KEY_WORD) {
+                settingType == SettingType::Bool && value == Constants::TOGGLE_KEY_WORD) {
                 const std::optional<std::string> oldValue = command->GetValue(settingId);
                 value = oldValue == "true" ? "false" : "true";
             }
@@ -101,7 +101,7 @@ namespace glimmer {
 
         ~ConfigCommand() override = default;
 
-        [[nodiscard]] const std::string &GetName() const override;
+        [[nodiscard]] std::string_view GetName() const override;
 
         void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
 

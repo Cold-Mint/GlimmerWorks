@@ -34,8 +34,8 @@ glimmer::TileDynamicSuggestions::TileDynamicSuggestions(TileResourceManager *til
     : tileManager_(tileManager) {
 }
 
-std::string glimmer::TileDynamicSuggestions::GetId() const {
-    return TILE_DYNAMIC_SUGGESTIONS_NAME;
+std::string_view glimmer::TileDynamicSuggestions::GetId() const {
+    return Constants::TILE_DYNAMIC_SUGGESTIONS_NAME;
 }
 
 bool glimmer::TileDynamicSuggestions::Match(const std::string &keyword, const std::string &param) {

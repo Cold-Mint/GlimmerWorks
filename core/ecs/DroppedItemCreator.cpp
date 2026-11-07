@@ -64,9 +64,9 @@ EntityItemMessage glimmer::DroppedItemCreator::GetEntityItemMessage(const WorldV
 
 glimmer::ResourceRef glimmer::DroppedItemCreator::GetResourceRef() {
     ResourceRef resourceRef{};
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_DROPPED_ITEM);
-    resourceRef.SetResourceKey(DROPPED_ITEM_ID_DEFAULT);
+    resourceRef.SetResourceKey(Constants::DROPPED_ITEM_ID_DEFAULT);
     return resourceRef;
 }
 
@@ -115,13 +115,13 @@ void glimmer::DroppedItemCreator::LoadTemplateComponents(const uint32_t id, cons
     entityManager->SetPersistable(id, true);
     const auto collider = entityManager->AddComponent<ColliderComponent>(id);
     if (collider != nullptr) {
-        const float halfExtent = DROPPED_ITEM_SIZE * 0.5F;
+        const float halfExtent = Constants::DROPPED_ITEM_SIZE * 0.5F;
         collider->SetHalfExtents(halfExtent, halfExtent);
         collider->Enable();
     }
     auto magnetic = entityManager->AddComponent<MagneticComponent>(id);
     if (magnetic != nullptr) {
-        magnetic->SetType(MAGNETIC_TYPE_ITEM);
+        magnetic->SetType(Constants::MAGNETIC_TYPE_ITEM);
     }
     LogCat::i(LogLabel::DEFAULT, "dropped_item_entity_template_loaded", "Dropped item entity template loaded: id={}",
               id);

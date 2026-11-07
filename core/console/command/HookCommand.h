@@ -65,7 +65,7 @@ namespace glimmer {
     public:
         explicit HookCommand(AppContext *appContext);
 
-        [[nodiscard]] const std::string &GetName() const override;
+        [[nodiscard]] std::string_view GetName() const override;
 
         void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
 

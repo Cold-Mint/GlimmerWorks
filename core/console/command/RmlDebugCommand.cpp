@@ -30,17 +30,17 @@
 #include "core/context/AppContext.h"
 #include "fmt/xchar.h"
 #include "RmlUi/Debugger/Debugger.h"
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
 
 void glimmer::RmlDebugCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
-    suggestionsTree->AddChild(BOOL_TOGGLE_DYNAMIC_SUGGESTIONS_NAME);
+    suggestionsTree->AddChild(std::string(Constants::BOOL_TOGGLE_DYNAMIC_SUGGESTIONS_NAME));
 }
 
 glimmer::RmlDebugCommand::RmlDebugCommand(AppContext *appContext) : Command(appContext) {
 }
 
-const std::string &glimmer::RmlDebugCommand::GetName() const {
-    return RML_DEBUG_COMMAND_NAME;
+std::string_view glimmer::RmlDebugCommand::GetName() const {
+    return Constants::RML_DEBUG_COMMAND_NAME;
 }
 
 bool glimmer::RmlDebugCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,

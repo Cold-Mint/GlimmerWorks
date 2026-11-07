@@ -24,7 +24,7 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
 #include "LightCommand.h"
 
 #include "core/utils/LangsResources.h"
@@ -42,15 +42,16 @@ void glimmer::LightCommand::InitSuggestions(NodeTree<std::string> *suggestionsTr
         return;
     }
     suggestionsTree->AddChild("inspector");
-    suggestionsTree->AddChild("info")->AddChild(X_DYNAMIC_SUGGESTIONS_NAME)->AddChild(Y_DYNAMIC_SUGGESTIONS_NAME);
+    suggestionsTree->AddChild("info")->AddChild(std::string(Constants::X_DYNAMIC_SUGGESTIONS_NAME))->AddChild(
+        std::string(Constants::Y_DYNAMIC_SUGGESTIONS_NAME));
 }
 
 bool glimmer::LightCommand::RequiresWorldContext() const {
     return true;
 }
 
-const std::string &glimmer::LightCommand::GetName() const {
-    return LIGHT_COMMAND_NAME;
+std::string_view glimmer::LightCommand::GetName() const {
+    return Constants::LIGHT_COMMAND_NAME;
 }
 
 void glimmer::LightCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
@@ -78,18 +79,18 @@ bool glimmer::LightCommand::ExecuteInspector(AppContext *appContext,
         onMessageRef(langsResources->cmdHookManagerNotFound);
         return false;
     }
-    if (commandHookManager->Contains(LIGHT_INSPECTOR_ID)) {
-        if (commandHookManager->Unregister(LIGHT_INSPECTOR_ID)) {
+    if (commandHookManager->Contains(Constants::LIGHT_INSPECTOR_ID)) {
+        if (commandHookManager->Unregister(Constants::LIGHT_INSPECTOR_ID)) {
             onMessageRef(langsResources->lightingInspectorDisable);
             return true;
         }
         onMessageRef(langsResources->lightingInspectorDisableFail);
     } else {
         auto commandHookEntry = std::make_unique<CommandHookEntry>();
-        commandHookEntry->hookId = LIGHT_INSPECTOR_ID;
+        commandHookEntry->hookId = Constants::LIGHT_INSPECTOR_ID;
         commandHookEntry->scope = CommandHookScope::SESSION;
         commandHookEntry->code = SDL_BUTTON_LEFT;
-        commandHookEntry->command = LIGHT_COMMAND_NAME + " info ~ ~";
+        commandHookEntry->command = std::string(Constants::LIGHT_COMMAND_NAME) + " info ~ ~";
         commandHookEntry->eventType = SDL_EVENT_MOUSE_BUTTON_DOWN;
         if (commandHookManager->Register(std::move(commandHookEntry))) {
             onMessageRef(langsResources->lightingInspectorEnable);

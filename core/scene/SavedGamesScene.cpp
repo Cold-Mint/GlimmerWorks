@@ -364,7 +364,7 @@ void glimmer::SavedGamesScene::OnCreateDataModels() {
 
 void glimmer::SavedGamesScene::LoadDocuments() {
     ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
     resourceRef.SetResourceKey("saves/saves");
     Rml::ElementDocument *elementDocument = LoadSingleDocument(&resourceRef);

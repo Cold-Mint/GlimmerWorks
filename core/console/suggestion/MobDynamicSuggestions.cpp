@@ -33,8 +33,8 @@
 glimmer::MobDynamicSuggestions::MobDynamicSuggestions(MobRegistry *mobRegistry) : mobRegistry_(mobRegistry) {
 }
 
-std::string glimmer::MobDynamicSuggestions::GetId() const {
-    return MOB_DYNAMIC_SUGGESTIONS_NAME;
+std::string_view glimmer::MobDynamicSuggestions::GetId() const {
+    return Constants::MOB_DYNAMIC_SUGGESTIONS_NAME;
 }
 
 const std::vector<std::string> &

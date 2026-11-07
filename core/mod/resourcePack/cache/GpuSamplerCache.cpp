@@ -62,7 +62,7 @@ std::shared_ptr<glimmer::GPUSamplerResourceResult> glimmer::GpuSamplerCache::Loa
         return nullptr;
     }
     const auto gpuSamplerResource = std::make_unique<GpuSamplerResource>(
-        toml::get<GpuSamplerResource>(toml::parse_str(data.value(), TOML_VERSION)));
+        toml::get<GpuSamplerResource>(toml::parse_str(data.value(), Constants::TOML_VERSION)));
     if (gpuSamplerResource == nullptr) {
         return nullptr;
     }

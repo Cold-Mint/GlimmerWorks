@@ -34,7 +34,7 @@ namespace glimmer {
     public:
         BoolDynamicSuggestions();
 
-        [[nodiscard]] std::string GetId() const override;
+        [[nodiscard]] std::string_view GetId() const override;
 
         const std::vector<std::string> &GetSuggestions(const std::optional<std::string> &param) override;
 

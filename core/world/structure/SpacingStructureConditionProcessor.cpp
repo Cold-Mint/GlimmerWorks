@@ -37,7 +37,7 @@ void glimmer::SpacingStructureConditionProcessor::Match(const DimensionResource 
                                                         const TerrainResult *terrainResult,
                                                         const IStructurePlacementConditionsResource *
                                                         placementConditionsResource,
-                                                        std::bitset<TERRAIN_AREA> *result) {
+                                                        std::bitset<Constants::TERRAIN_AREA> *result) {
     const auto spacingStructureConditions = dynamic_cast<const SpacingStructureConditionsResource *>(
         placementConditionsResource);
     int minDistance = spacingStructureConditions->minDistance;
@@ -45,20 +45,20 @@ void glimmer::SpacingStructureConditionProcessor::Match(const DimensionResource 
         minDistance = 4;
     }
     if (spacingStructureConditions->isVertical) {
-        for (int y = 0; y < TERRAIN_SIZE; ++y) {
+        for (int y = 0; y < Constants::TERRAIN_SIZE; ++y) {
             int globalY = y + terrainResult->GetPosition().y;
             if (globalY % minDistance == 0) {
-                for (int x = 0; x < TERRAIN_SIZE; ++x) {
-                    result->set(CoordinateTransformer::GetArrayIndex(x, y, TERRAIN_SHIFT));
+                for (int x = 0; x < Constants::TERRAIN_SIZE; ++x) {
+                    result->set(CoordinateTransformer::GetArrayIndex(x, y, Constants::TERRAIN_SHIFT));
                 }
             }
         }
     } else {
-        for (int x = 0; x < TERRAIN_SIZE; ++x) {
+        for (int x = 0; x < Constants::TERRAIN_SIZE; ++x) {
             int globalX = x + terrainResult->GetPosition().x;
             if (globalX % minDistance == 0) {
-                for (int y = 0; y < TERRAIN_SIZE; ++y) {
-                    result->set(CoordinateTransformer::GetArrayIndex(x, y, TERRAIN_SHIFT));
+                for (int y = 0; y < Constants::TERRAIN_SIZE; ++y) {
+                    result->set(CoordinateTransformer::GetArrayIndex(x, y, Constants::TERRAIN_SHIFT));
                 }
             }
         }

@@ -34,8 +34,8 @@
 glimmer::EchoCommand::EchoCommand(AppContext *appContext) : Command(appContext) {
 }
 
-const std::string &glimmer::EchoCommand::GetName() const {
-    return ECHO_COMMAND_NAME;
+std::string_view glimmer::EchoCommand::GetName() const {
+    return Constants::ECHO_COMMAND_NAME;
 }
 
 void glimmer::EchoCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {

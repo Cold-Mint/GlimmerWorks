@@ -218,7 +218,7 @@ uint16_t glimmer::ItemContainer::GetMaxStackPerSlot() const {
 }
 
 void glimmer::ItemContainer::SetMaxStackPerSlot(const uint16_t maxStackPerSlot) {
-    maxStackPerSlot_ = maxStackPerSlot == 0 ? DEFAULT_CONTAINER_MAX_STACK : maxStackPerSlot;
+    maxStackPerSlot_ = maxStackPerSlot == 0 ? Constants::DEFAULT_CONTAINER_MAX_STACK : maxStackPerSlot;
 }
 
 void glimmer::ItemContainer::RemoveOnContentChanged(

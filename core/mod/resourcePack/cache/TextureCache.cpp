@@ -34,17 +34,17 @@
 std::shared_ptr<glimmer::TextureResourceResult> glimmer::TextureCache::CreateTexture(SDL_GPUDevice *gpuDevice,
     const Color &accent, const Color &base) {
     SDL_Surface *surface =
-            SDL_CreateSurface(TILE_SIZE, TILE_SIZE, SDL_PIXELFORMAT_RGBA32);
+            SDL_CreateSurface(Constants::TILE_SIZE, Constants::TILE_SIZE, SDL_PIXELFORMAT_RGBA32);
     if (surface == nullptr) {
         return nullptr;
     }
     const uint32_t accentValue = SDL_MapSurfaceRGBA(surface, accent.r, accent.g, accent.b, accent.a);
     const uint32_t baseValue = SDL_MapSurfaceRGBA(surface, base.r, base.g, base.b, base.a);
-    for (int y = 0; y < TILE_SIZE; ++y) {
-        for (int x = 0; x < TILE_SIZE; ++x) {
+    for (int y = 0; y < Constants::TILE_SIZE; ++y) {
+        for (int x = 0; x < Constants::TILE_SIZE; ++x) {
             const bool isAccentColor =
-                    (x < TILE_SIZE / 2 && y < TILE_SIZE / 2) ||
-                    (x >= TILE_SIZE / 2 && y >= TILE_SIZE / 2);
+                    (x < Constants::TILE_SIZE / 2 && y < Constants::TILE_SIZE / 2) ||
+                    (x >= Constants::TILE_SIZE / 2 && y >= Constants::TILE_SIZE / 2);
             const uint32_t color = isAccentColor ? accentValue : baseValue;
             Uint8 *pixel =
                     static_cast<Uint8 *>(surface->pixels)
@@ -194,12 +194,12 @@ void glimmer::TextureCache::SetAppContext(const AppContext *appContext) {
 
 std::shared_ptr<glimmer::TextureResourceResult> glimmer::TextureCache::CreatePlaceholderResource(
     const AppContext *appContext, const ResourceRef *resourceRef) {
-    if (resourceRef->GetPackageId() == RESOURCE_REF_CORE) {
+    if (resourceRef->GetPackageId() == Constants::RESOURCE_REF_CORE) {
         const std::string resourceKey = resourceRef->GetResourceKey();
-        if (resourceKey == ERROR_TEXTURE_KEY) {
+        if (resourceKey == Constants::ERROR_TEXTURE_KEY) {
             return errorTexture_;
         }
-        if (resourceKey == ACCESS_DENIED_TEXTURE_KEY) {
+        if (resourceKey == Constants::ACCESS_DENIED_TEXTURE_KEY) {
             return accessDeniedTexture_;
         }
     }
@@ -210,7 +210,7 @@ std::shared_ptr<glimmer::TextureResourceResult> glimmer::TextureCache::LoadResou
     const ResourceRef *resourceRef, const ResourcePack *resourcePack) {
     std::filesystem::path texturePath = resourcePack->GetPath() / "textures" / resourceRef->GetPackageId() / resourceRef
                                         ->GetResourceKey();
-    texturePath.replace_extension(TEXTURE_FORMAT);
+    texturePath.replace_extension(std::filesystem::path(Constants::TEXTURE_FORMAT));
     const VirtualFileSystem *virtualFileSystem = appContext->GetVirtualFileSystem();
     if (virtualFileSystem == nullptr) {
         return nullptr;

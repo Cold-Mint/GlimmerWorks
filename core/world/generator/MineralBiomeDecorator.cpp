@@ -41,7 +41,7 @@ void glimmer::MineralBiomeDecorator::DecorationImpl(const ChunkVertexVector2D &c
                                                     MineralBiomeDecoratorResource *decoratorResource,
                                                     BiomeResource *biomeResource,
                                                     std::unordered_map<TileLayerType, std::array<ResourceRef,
-                                                        CHUNK_AREA> > *tilesRefMap) {
+                                                        Constants::CHUNK_AREA> > *tilesRefMap) {
     Dimension *dimension = worldContext->GetDimension();
     if (dimension == nullptr) {
         return;
@@ -63,13 +63,13 @@ void glimmer::MineralBiomeDecorator::DecorationImpl(const ChunkVertexVector2D &c
                   decoratorResource->minSpawnElevation, decoratorResource->maxSpawnElevation);
         return;
     }
-    std::array<ResourceRef, CHUNK_AREA> &targetLayer = tilesRefMap->at(
+    std::array<ResourceRef, Constants::CHUNK_AREA> &targetLayer = tilesRefMap->at(
         static_cast<TileLayerType>(decoratorResource->layer));
     const int limit = decoratorResource->limit;
     int number = 0;
-    for (int localX = 0; localX < CHUNK_SIZE && number < limit; localX++) {
-        for (int localY = 0; localY < CHUNK_SIZE; localY++) {
-            const size_t idx = CoordinateTransformer::GetArrayIndex(localX, localY, CHUNK_SHIFT);
+    for (int localX = 0; localX < Constants::CHUNK_SIZE && number < limit; localX++) {
+        for (int localY = 0; localY < Constants::CHUNK_SIZE; localY++) {
+            const size_t idx = CoordinateTransformer::GetArrayIndex(localX, localY, Constants::CHUNK_SHIFT);
             ChunkRelativeVector2D chunkRelativeVector2D(localX, localY);
             const TileVector2D absolutePosition = CoordinateTransformer::ChunkRelativeToTile(
                 chunkVertex, chunkRelativeVector2D);

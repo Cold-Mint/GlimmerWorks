@@ -91,8 +91,8 @@ bool glimmer::BlueprintSystem::CheckSinglePointValidity(const Tile *tile,
     }
 
     const WorldVector2D worldCenter = CoordinateTransformer::TileToWorld(point) +
-                                      WorldVector2D{HALF_TILE_SIZE, HALF_TILE_SIZE};
-    if (worldCenter.Distance(playerPosition) / TILE_SIZE > TILE_PLACE_RANGE) {
+                                      WorldVector2D{Constants::HALF_TILE_SIZE, Constants::HALF_TILE_SIZE};
+    if (worldCenter.Distance(playerPosition) / Constants::TILE_SIZE > Constants::TILE_PLACE_RANGE) {
         return false;
     }
 
@@ -152,7 +152,7 @@ void glimmer::BlueprintSystem::OnWatchedComponentChanged(GameComponentTypeMessag
 }
 
 uint8_t glimmer::BlueprintSystem::GetExecutionOrder() {
-    return EXECUTION_ORDER_BLUEPRINT;
+    return Constants::EXECUTION_ORDER_BLUEPRINT;
 }
 
 glimmer::BlueprintSystem::BlueprintSystem(WorldContext *worldContext)

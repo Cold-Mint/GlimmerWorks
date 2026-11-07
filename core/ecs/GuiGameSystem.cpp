@@ -43,7 +43,7 @@ glimmer::GuiGameSystem::GuiGameSystem(WorldContext *worldContext)
 }
 
 uint8_t glimmer::GuiGameSystem::GetExecutionOrder() {
-    return EXECUTION_ORDER_GUI_SYSTEM;
+    return Constants::EXECUTION_ORDER_GUI_SYSTEM;
 }
 
 void glimmer::GuiGameSystem::Render(RenderQueue *queue) {

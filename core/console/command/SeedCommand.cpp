@@ -55,6 +55,6 @@ bool glimmer::SeedCommand::Execute(const CommandSender *commandSender, const Com
     return true;
 }
 
-const std::string &glimmer::SeedCommand::GetName() const {
-    return SEED_COMMAND_NAME;
+std::string_view glimmer::SeedCommand::GetName() const {
+    return Constants::SEED_COMMAND_NAME;
 }

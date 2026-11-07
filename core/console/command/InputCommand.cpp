@@ -40,10 +40,10 @@
 
 void glimmer::InputCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
     auto keySuggestion = suggestionsTree->AddChild("key");
-    keySuggestion->AddChild("down")->AddChild(SCAN_KEY_DYNAMIC_SUGGESTIONS_NAME);
-    keySuggestion->AddChild("up")->AddChild(SCAN_KEY_DYNAMIC_SUGGESTIONS_NAME);
+    keySuggestion->AddChild("down")->AddChild(std::string(Constants::SCAN_KEY_DYNAMIC_SUGGESTIONS_NAME));
+    keySuggestion->AddChild("up")->AddChild(std::string(Constants::SCAN_KEY_DYNAMIC_SUGGESTIONS_NAME));
     auto mouseSuggestion = suggestionsTree->AddChild("mouse");
-    mouseSuggestion->AddChild("click")->AddChild(MOUSE_BUTTON_DYNAMIC_SUGGESTIONS_NAME);
+    mouseSuggestion->AddChild("click")->AddChild(std::string(Constants::MOUSE_BUTTON_DYNAMIC_SUGGESTIONS_NAME));
     mouseSuggestion->AddChild("move");
     mouseSuggestion->AddChild("scroll");
 }
@@ -51,8 +51,8 @@ void glimmer::InputCommand::InitSuggestions(NodeTree<std::string> *suggestionsTr
 glimmer::InputCommand::InputCommand(AppContext *appContext) : Command(appContext) {
 }
 
-const std::string &glimmer::InputCommand::GetName() const {
-    return INPUT_COMMAND_NAME;
+std::string_view glimmer::InputCommand::GetName() const {
+    return Constants::INPUT_COMMAND_NAME;
 }
 
 void glimmer::InputCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {

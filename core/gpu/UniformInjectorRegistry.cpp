@@ -63,7 +63,7 @@ namespace {
     }
 
     void InjectTileSize(const glimmer::UniformInjectContext &, float *dst) {
-        dst[0] = static_cast<float>(TILE_SIZE);
+        dst[0] = static_cast<float>(glimmer::Constants::TILE_SIZE);
     }
 
     void InjectLightmapOrigin(const glimmer::UniformInjectContext &ctx, float *dst) {

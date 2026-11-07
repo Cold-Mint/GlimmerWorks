@@ -40,9 +40,9 @@ ComponentFingerprint glimmer::EntityManager::GenComponentFingerprint(const GameE
 }
 
 GameEntityID glimmer::EntityManager::AddEntity(GameEntityID gameEntityId) {
-    if (gameEntityId == GAME_ENTITY_ID_INVALID) {
+    if (gameEntityId == Constants::GAME_ENTITY_ID_INVALID) {
         ++entityIndex_;
-        if (entityIndex_ == GAME_ENTITY_ID_INVALID) {
+        if (entityIndex_ == Constants::GAME_ENTITY_ID_INVALID) {
             //It is prohibited to use illegal IDs.
             //禁止占用非法ID。
             ++entityIndex_;

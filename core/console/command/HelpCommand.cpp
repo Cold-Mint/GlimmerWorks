@@ -38,8 +38,9 @@ void glimmer::HelpCommand::InitSuggestions(NodeTree<std::string> *suggestionsTre
 glimmer::HelpCommand::HelpCommand(AppContext *appContext) : Command(appContext) {
 }
 
-const std::string &glimmer::HelpCommand::GetName() const {
-    return HELP_COMMAND_NAME;
+
+std::string_view glimmer::HelpCommand::GetName() const {
+    return Constants::HELP_COMMAND_NAME;
 }
 
 bool glimmer::HelpCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,

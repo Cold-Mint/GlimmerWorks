@@ -51,9 +51,9 @@ std::shared_ptr<glimmer::ShaderResourceResult> glimmer::ShaderCache::LoadResourc
                                        GetResourceKey();
     bool vertex = resourceRef->GetResourceType() == RESOURCE_SHADER_VERTEX;
     if (vertex) {
-        shaderPath.replace_extension(SHADER_VERT_FORMAT);
+        shaderPath.replace_extension(Constants::SHADER_VERT_FORMAT);
     } else {
-        shaderPath.replace_extension(SHADER_FRAG_FORMAT);
+        shaderPath.replace_extension(Constants::SHADER_FRAG_FORMAT);
     }
     VirtualFileSystem *virtualFileSystem = appContext->GetVirtualFileSystem();
     if (virtualFileSystem == nullptr) {
@@ -75,7 +75,7 @@ std::shared_ptr<glimmer::ShaderResourceResult> glimmer::ShaderCache::LoadResourc
     }
     const std::string &glslCode = dataOptional.value();
     SDL_GPUShaderCreateInfo shaderInfo = {};
-    shaderInfo.entrypoint = SHADER_ENTRY_POINT.c_str();
+    shaderInfo.entrypoint = Constants::SHADER_ENTRY_POINT.data();
     shaderInfo.format = SDL_GPU_SHADERFORMAT_SPIRV;
     shaderInfo.stage = vertex ? SDL_GPU_SHADERSTAGE_VERTEX : SDL_GPU_SHADERSTAGE_FRAGMENT;
     shaderInfo.num_storage_textures = 0;
@@ -87,9 +87,9 @@ std::shared_ptr<glimmer::ShaderResourceResult> glimmer::ShaderCache::LoadResourc
                          resourceRef->GetPackageId()) /
                      StringUtils::SanitizeFileName(resourceRef->GetResourceKey());
     if (resourceRef->GetResourceType() == RESOURCE_SHADER_VERTEX) {
-        cachePath.replace_extension(SHADER_VERT_FORMAT + ".cache");
+        cachePath.replace_extension(std::string(Constants::SHADER_VERT_FORMAT) + ".cache");
     } else {
-        cachePath.replace_extension(SHADER_FRAG_FORMAT + ".cache");
+        cachePath.replace_extension(std::string(Constants::SHADER_FRAG_FORMAT) + ".cache");
     }
     auto shaderCacheMessagePtr = TryLoad(cachePath, virtualFileSystem, mtimeInt64, resourceRef, glslCode);
     std::vector<std::pair<std::string, uint32_t> > uniformBlockBindings;

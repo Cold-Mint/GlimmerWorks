@@ -57,7 +57,7 @@ namespace glimmer {
         AudioManager *audioManager_ = nullptr;
         CameraComponent *cameraComponent_ = nullptr;
         Transform2DComponent *cameraTransform2DComponent_ = nullptr;
-        GameEntityID playerEntityID_ = GAME_ENTITY_ID_INVALID;
+        GameEntityID playerEntityID_ = Constants::GAME_ENTITY_ID_INVALID;
 
         /**
          * DropItem

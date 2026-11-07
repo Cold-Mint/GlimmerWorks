@@ -38,7 +38,7 @@ namespace glimmer {
      * 地形生成结果
      */
     class TerrainResult {
-        std::array<TerrainTileResult, TERRAIN_AREA> terrainTileResult_;
+        std::array<TerrainTileResult, Constants::TERRAIN_AREA> terrainTileResult_;
         TerrainVertexVector2D position_;
         std::stack<StructureTile> terrainTileResultStack_;
 
@@ -68,6 +68,6 @@ namespace glimmer {
          * CommitStructure
          * 将结构提交到地形结果内
          */
-        void CommitStructure(const std::unique_ptr<std::bitset<TERRAIN_AREA> > &totalTerrain);
+        void CommitStructure(const std::unique_ptr<std::bitset<Constants::TERRAIN_AREA> > &totalTerrain);
     };
 }

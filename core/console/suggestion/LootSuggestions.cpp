@@ -34,8 +34,8 @@ glimmer::LootSuggestions::LootSuggestions(LootTableRegistry *lootTableRegistry)
     : lootTableRegistry_(lootTableRegistry) {
 }
 
-std::string glimmer::LootSuggestions::GetId() const {
-    return LOOT_DYNAMIC_SUGGESTIONS_NAME;
+std::string_view glimmer::LootSuggestions::GetId() const {
+    return Constants::LOOT_DYNAMIC_SUGGESTIONS_NAME;
 }
 
 const std::vector<std::string> &glimmer::LootSuggestions::GetSuggestions(const std::optional<std::string> &param) {

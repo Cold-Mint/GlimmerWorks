@@ -38,12 +38,12 @@ void glimmer::LootChestBiomeDecorator::DecorationImpl(const ChunkVertexVector2D 
                                                       LootChestBiomeDecoratorResource *decoratorResource,
                                                       BiomeResource *biomeResource,
                                                       std::unordered_map<TileLayerType, std::array<ResourceRef,
-                                                          CHUNK_AREA> > *tilesRefMap) {
+                                                          Constants::CHUNK_AREA> > *tilesRefMap) {
     if (decoratorResource == nullptr || tilesRefMap == nullptr ||
         !decoratorResource->chestTile.IsValid()) {
         return;
     }
-    std::array<ResourceRef, CHUNK_AREA> &targetLayer =
+    std::array<ResourceRef, Constants::CHUNK_AREA> &targetLayer =
             tilesRefMap->at(static_cast<TileLayerType>(decoratorResource->layer));
 
     const DimensionResource *dimensionResource = nullptr;
@@ -67,9 +67,9 @@ void glimmer::LootChestBiomeDecorator::DecorationImpl(const ChunkVertexVector2D 
               decoratorResource->frequency, decoratorResource->spawnThreshold, decoratorResource->limit);
     const int limit = decoratorResource->limit;
     int number = 0;
-    for (int localY = 0; localY < CHUNK_SIZE && number < limit; ++localY) {
-        for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
-            const size_t idx = CoordinateTransformer::GetArrayIndex(localX, localY, CHUNK_SHIFT);
+    for (int localY = 0; localY < Constants::CHUNK_SIZE && number < limit; ++localY) {
+        for (int localX = 0; localX < Constants::CHUNK_SIZE; ++localX) {
+            const size_t idx = CoordinateTransformer::GetArrayIndex(localX, localY, Constants::CHUNK_SHIFT);
             const TileVector2D absolutePosition = CoordinateTransformer::ChunkRelativeToTile(
                 chunkVertex, ChunkRelativeVector2D(localX, localY));
             const TerrainRelativeVector2D terrainRelative = CoordinateTransformer::TileToTerrainRelative(
@@ -95,20 +95,20 @@ void glimmer::LootChestBiomeDecorator::DecorationImpl(const ChunkVertexVector2D 
                 //tilesRefMap (solid floor + air above), not the raw solid terrain.
                 //洞穴生物群系是实心岩石被空气矿物装饰器挖空而成，因此"上方露天"应依据
                 //tilesRefMap 里已写入的实际瓦片（实心底板 + 上方空气）判断，而非原始实心地形。
-                if (localY + 1 >= CHUNK_SIZE) {
+                if (localY + 1 >= Constants::CHUNK_SIZE) {
                     //The cell above lies in the neighbouring chunk, absent from tilesRefMap.
                     //上方格子位于相邻区块，tilesRefMap 中不存在，跳过。
                     continue;
                 }
-                const size_t upIdx = CoordinateTransformer::GetArrayIndex(localX, localY + 1, CHUNK_SHIFT);
+                const size_t upIdx = CoordinateTransformer::GetArrayIndex(localX, localY + 1, Constants::CHUNK_SHIFT);
                 //Require air above...
                 //要求上方为空气……
-                if (targetLayer[upIdx].GetResourceKey() != TILE_ID_AIR) {
+                if (targetLayer[upIdx].GetResourceKey() != Constants::TILE_ID_AIR) {
                     continue;
                 }
                 //...and a solid cell under the chest (not inside the hollowed-out air).
                 //……且箱子下方为实心（不落在被挖空的空气里）。
-                if (targetLayer[idx].GetResourceKey() == TILE_ID_AIR) {
+                if (targetLayer[idx].GetResourceKey() == Constants::TILE_ID_AIR) {
                     continue;
                 }
             }

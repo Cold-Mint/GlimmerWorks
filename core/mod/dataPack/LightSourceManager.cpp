@@ -30,10 +30,10 @@ void glimmer::LightSourceManager::RegisterCoreLightSourceResource(std::string_vi
                                                                   std::string_view colorResKey, uint8_t lightRadius) {
     auto lightSourceResource = std::make_unique<LightSourceResource>();
     lightSourceResource->resourceId = resourceId;
-    lightSourceResource->packId = RESOURCE_REF_CORE;
+    lightSourceResource->packId = Constants::RESOURCE_REF_CORE;
     lightSourceResource->lightRadius = lightRadius;
     ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_FIXED_COLOR);
     resourceRef.SetResourceKey(colorResKey);
     lightSourceResource->lightColor = resourceRef;
@@ -42,8 +42,8 @@ void glimmer::LightSourceManager::RegisterCoreLightSourceResource(std::string_vi
 }
 
 glimmer::LightSourceManager::LightSourceManager() {
-    RegisterCoreLightSourceResource(LIGHT_NONE, LIGHT_NONE_COLOR, 0);
-    RegisterCoreLightSourceResource(LIGHT_SKY, LIGHT_SKY_COLOR, 1);
+    RegisterCoreLightSourceResource(Constants::LIGHT_NONE, Constants::LIGHT_NONE_COLOR, 0);
+    RegisterCoreLightSourceResource(Constants::LIGHT_SKY, Constants::LIGHT_SKY_COLOR, 1);
 }
 
 glimmer::LightSourceResource *glimmer::LightSourceManager::Register(

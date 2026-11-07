@@ -35,8 +35,8 @@ glimmer::AbilityItemDynamicSuggestions::AbilityItemDynamicSuggestions(
     AbilityItemRegistry *abilityItemRegistry) : abilityItemRegistry_(abilityItemRegistry) {
 }
 
-std::string glimmer::AbilityItemDynamicSuggestions::GetId() const {
-    return ABILITY_ITEM_DYNAMIC_SUGGESTIONS_NAME;
+std::string_view glimmer::AbilityItemDynamicSuggestions::GetId() const {
+    return Constants::ABILITY_ITEM_DYNAMIC_SUGGESTIONS_NAME;
 }
 
 const std::vector<std::string> &glimmer::AbilityItemDynamicSuggestions::GetSuggestions(

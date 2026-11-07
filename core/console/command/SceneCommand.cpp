@@ -25,7 +25,7 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "SceneCommand.h"
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
 #include <string>
 
 #include "fmt/xchar.h"
@@ -40,17 +40,17 @@
 #include "core/config/Constants.h"
 
 void glimmer::SceneCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
-    suggestionsTree->AddChild("push")->AddChild(SCENE_DYNAMIC_SUGGESTIONS_NAME);
-    suggestionsTree->AddChild("replace")->AddChild(SCENE_DYNAMIC_SUGGESTIONS_NAME);
-    suggestionsTree->AddChild("pop")->AddChild(SCENE_DYNAMIC_SUGGESTIONS_NAME);
+    suggestionsTree->AddChild("push")->AddChild(std::string(Constants::SCENE_DYNAMIC_SUGGESTIONS_NAME));
+    suggestionsTree->AddChild("replace")->AddChild(std::string(Constants::SCENE_DYNAMIC_SUGGESTIONS_NAME));
+    suggestionsTree->AddChild("pop")->AddChild(std::string(Constants::SCENE_DYNAMIC_SUGGESTIONS_NAME));
     suggestionsTree->AddChild("list");
 }
 
 glimmer::SceneCommand::SceneCommand(AppContext *appContext) : Command(appContext) {
 }
 
-const std::string &glimmer::SceneCommand::GetName() const {
-    return SCENE_COMMAND_NAME;
+std::string_view glimmer::SceneCommand::GetName() const {
+    return Constants::SCENE_COMMAND_NAME;
 }
 
 void glimmer::SceneCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
@@ -116,19 +116,19 @@ bool glimmer::SceneCommand::Execute(const CommandSender *commandSender, const Co
     if (action == "push") {
         MainThreadDispatcher *dispatcher = appContext->GetMainThreadDispatcher();
 
-        if (sceneName == SCENE_NAME_MAIN) {
+        if (sceneName == Constants::SCENE_NAME_MAIN) {
             dispatcher->PostToNextMainFrame([appContext, sceneManager] {
                 sceneManager->PushScene(std::make_unique<MainScene>(appContext));
             });
-        } else if (sceneName == SCENE_NAME_SPLASH) {
+        } else if (sceneName == Constants::SCENE_NAME_SPLASH) {
             dispatcher->PostToNextMainFrame([appContext, sceneManager] {
                 sceneManager->PushScene(std::make_unique<SplashScene>(appContext));
             });
-        } else if (sceneName == SCENE_NAME_SAVED_GAMES) {
+        } else if (sceneName == Constants::SCENE_NAME_SAVED_GAMES) {
             dispatcher->PostToNextMainFrame([appContext, sceneManager] {
                 sceneManager->PushScene(std::make_unique<SavedGamesScene>(appContext));
             });
-        } else if (sceneName == SCENE_NAME_CREATE_WORLD) {
+        } else if (sceneName == Constants::SCENE_NAME_CREATE_WORLD) {
             dispatcher->PostToNextMainFrame([appContext, sceneManager] {
                 sceneManager->PushScene(std::make_unique<CreateWorldScene>(appContext));
             });
@@ -142,20 +142,19 @@ bool glimmer::SceneCommand::Execute(const CommandSender *commandSender, const Co
 
     if (action == "replace") {
         MainThreadDispatcher *dispatcher = appContext->GetMainThreadDispatcher();
-
-        if (sceneName == SCENE_NAME_MAIN) {
+        if (sceneName == Constants::SCENE_NAME_MAIN) {
             dispatcher->PostToNextMainFrame([appContext, sceneManager] {
                 sceneManager->ReplaceScene(std::make_unique<MainScene>(appContext));
             });
-        } else if (sceneName == SCENE_NAME_SPLASH) {
+        } else if (sceneName == Constants::SCENE_NAME_SPLASH) {
             dispatcher->PostToNextMainFrame([appContext, sceneManager] {
                 sceneManager->ReplaceScene(std::make_unique<SplashScene>(appContext));
             });
-        } else if (sceneName == SCENE_NAME_SAVED_GAMES) {
+        } else if (sceneName == Constants::SCENE_NAME_SAVED_GAMES) {
             dispatcher->PostToNextMainFrame([appContext, sceneManager] {
                 sceneManager->ReplaceScene(std::make_unique<SavedGamesScene>(appContext));
             });
-        } else if (sceneName == SCENE_NAME_CREATE_WORLD) {
+        } else if (sceneName == Constants::SCENE_NAME_CREATE_WORLD) {
             dispatcher->PostToNextMainFrame([appContext, sceneManager] {
                 sceneManager->ReplaceScene(std::make_unique<CreateWorldScene>(appContext));
             });

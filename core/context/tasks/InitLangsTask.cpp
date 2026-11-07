@@ -52,7 +52,7 @@ bool glimmer::InitLangsTask::Run(ISystemBucket *systemBucket) {
                             "can not read language file at langs folder");
         return false;
     }
-    auto tomlValue = toml::parse_str(langData.value(), TOML_VERSION);
+    auto tomlValue = toml::parse_str(langData.value(), Constants::TOML_VERSION);
     auto langsResources = std::make_unique<LangsResources>();
     langsResources->savedGames = toml::find<std::string>(tomlValue, "saved_games");
     langsResources->commandInfo = toml::find<std::string>(tomlValue, "command_info");
@@ -129,27 +129,40 @@ bool glimmer::InitLangsTask::Run(ISystemBucket *systemBucket) {
     langsResources->timeInfo = toml::find<std::string>(tomlValue, "time_info");
     langsResources->timeSetSuccess = toml::find<std::string>(tomlValue, "time_set_success");
     langsResources->timeInvalid = toml::find<std::string>(tomlValue, "time_invalid");
-    langsResources->tileNameAir = toml::find<std::string>(tomlValue, STRING_TILE_AIR_NAME);
-    langsResources->tileNameAirWall = toml::find<std::string>(tomlValue, STRING_TILE_AIR_WALL_NAME);
-    langsResources->tileNameError = toml::find<std::string>(tomlValue, STRING_TILE_ERROR_NAME);
-    langsResources->tileNameErrorWall = toml::find<std::string>(tomlValue, STRING_TILE_ERROR_WALL_NAME);
-    langsResources->tileNameAccessDenied = toml::find<std::string>(tomlValue, STRING_TILE_ACCESS_DENIED_NAME);
-    langsResources->tileNameAccessDeniedWall = toml::find<std::string>(tomlValue, STRING_TILE_ACCESS_DENIED_WALL_NAME);
-    langsResources->tileNameBedrock = toml::find<std::string>(tomlValue, STRING_TILE_BEDROCK_NAME);
-    langsResources->tileNameVoid = toml::find<std::string>(tomlValue, STRING_TILE_VOID_NAME);
-    langsResources->tileDescriptionVoid = toml::find<std::string>(tomlValue, STRING_TILE_VOID_DESCRIPTION);
-    langsResources->tileNameVoidWall = toml::find<std::string>(tomlValue, STRING_TILE_VOID_WALL_NAME);
-    langsResources->tileDescriptionVoidWall = toml::find<std::string>(tomlValue, STRING_TILE_VOID_WALL_DESCRIPTION);
-    langsResources->tileNameWater = toml::find<std::string>(tomlValue, STRING_TILE_WATER_NAME);
-    langsResources->tileDescriptionAir = toml::find<std::string>(tomlValue, STRING_TILE_AIR_DESCRIPTION);
-    langsResources->tileDescriptionAirWall = toml::find<std::string>(tomlValue, STRING_TILE_AIR_WALL_DESCRIPTION);
-    langsResources->tileDescriptionError = toml::find<std::string>(tomlValue, STRING_TILE_ERROR_DESCRIPTION);
-    langsResources->tileDescriptionErrorWall = toml::find<std::string>(tomlValue, STRING_TILE_ERROR_WALL_DESCRIPTION);
+    langsResources->tileNameAir = toml::find<std::string>(tomlValue, std::string(Constants::STRING_TILE_AIR_NAME));
+    langsResources->tileNameAirWall = toml::find<std::string>(
+        tomlValue, std::string(Constants::STRING_TILE_AIR_WALL_NAME));
+    langsResources->tileNameError = toml::find<std::string>(tomlValue, std::string(Constants::STRING_TILE_ERROR_NAME));
+    langsResources->tileNameErrorWall = toml::find<std::string>(
+        tomlValue, std::string(Constants::STRING_TILE_ERROR_WALL_NAME));
+    langsResources->tileNameAccessDenied = toml::find<std::string>(
+        tomlValue, std::string(Constants::STRING_TILE_ACCESS_DENIED_NAME));
+    langsResources->tileNameAccessDeniedWall = toml::find<std::string>(
+        tomlValue, std::string(Constants::STRING_TILE_ACCESS_DENIED_WALL_NAME));
+    langsResources->tileNameBedrock = toml::find<std::string>(
+        tomlValue, std::string(Constants::STRING_TILE_BEDROCK_NAME));
+    langsResources->tileNameVoid = toml::find<std::string>(tomlValue, std::string(Constants::STRING_TILE_VOID_NAME));
+    langsResources->tileDescriptionVoid = toml::find<std::string>(
+        tomlValue, std::string(Constants::STRING_TILE_VOID_DESCRIPTION));
+    langsResources->tileNameVoidWall = toml::find<std::string>(
+        tomlValue, std::string(Constants::STRING_TILE_VOID_WALL_NAME));
+    langsResources->tileDescriptionVoidWall = toml::find<std::string>(
+        tomlValue, std::string(Constants::STRING_TILE_VOID_WALL_DESCRIPTION));
+    langsResources->tileNameWater = toml::find<std::string>(tomlValue, std::string(Constants::STRING_TILE_WATER_NAME));
+    langsResources->tileDescriptionAir = toml::find<std::string>(
+        tomlValue, std::string(Constants::STRING_TILE_AIR_DESCRIPTION));
+    langsResources->tileDescriptionAirWall = toml::find<std::string>(
+        tomlValue, std::string(Constants::STRING_TILE_AIR_WALL_DESCRIPTION));
+    langsResources->tileDescriptionError = toml::find<std::string>(
+        tomlValue, std::string(Constants::STRING_TILE_ERROR_DESCRIPTION));
+    langsResources->tileDescriptionErrorWall = toml::find<std::string>(
+        tomlValue, std::string(Constants::STRING_TILE_ERROR_WALL_DESCRIPTION));
     langsResources->tileDescriptionAccessDenied = toml::find<
-        std::string>(tomlValue, STRING_TILE_ACCESS_DENIED_DESCRIPTION);
+        std::string>(tomlValue, std::string(Constants::STRING_TILE_ACCESS_DENIED_DESCRIPTION));
     langsResources->tileDescriptionAccessDeniedWall = toml::find<std::string>(
-        tomlValue, STRING_TILE_ACCESS_DENIED_WALL_DESCRIPTION);
-    langsResources->tileDescriptionBedrock = toml::find<std::string>(tomlValue, STRING_TILE_BEDROCK_DESCRIPTION);
+        tomlValue, std::string(Constants::STRING_TILE_ACCESS_DENIED_WALL_DESCRIPTION));
+    langsResources->tileDescriptionBedrock = toml::find<std::string>(
+        tomlValue, std::string(Constants::STRING_TILE_BEDROCK_DESCRIPTION));
     langsResources->biomeTemperatureInfo = toml::find<std::string>(tomlValue, "biome_temperature_info");
     langsResources->biomeHumidityInfo = toml::find<std::string>(tomlValue, "biome_humidity_info");
     langsResources->biomeElevationInfo = toml::find<std::string>(tomlValue, "biome_elevation_info");

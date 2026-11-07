@@ -33,8 +33,8 @@ glimmer::DataPackDynamicSuggestions::DataPackDynamicSuggestions(DataPackManager 
     dataPackManager) {
 }
 
-std::string glimmer::DataPackDynamicSuggestions::GetId() const {
-    return DATA_PACK_SUGGESTIONS_NAME;
+std::string_view glimmer::DataPackDynamicSuggestions::GetId() const {
+    return Constants::DATA_PACK_SUGGESTIONS_NAME;
 }
 
 bool glimmer::DataPackDynamicSuggestions::Match(const std::string &keyword, const std::string &param) {

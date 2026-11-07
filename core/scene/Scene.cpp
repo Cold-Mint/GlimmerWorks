@@ -294,7 +294,7 @@ void glimmer::Scene::OnTick(const uint64_t tick) {
 #if  !defined(NDEBUG)
     if (!initSubclassFinish_) {
         initTick_ += tick;
-        if (tick > static_cast<uint64_t>(TICK_RATE) * 2) {
+        if (tick > static_cast<uint64_t>(Constants::TICK_RATE) * 2) {
             assert(false);
         }
     }

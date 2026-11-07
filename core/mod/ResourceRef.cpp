@@ -40,7 +40,7 @@ bool glimmer::ResourceRef::operator==(const ResourceRef &other) const {
 }
 
 void glimmer::ResourceRef::SetSelfPackageId(const std::string_view selfPackageId) {
-    if (packId_ == RESOURCE_REF_SELF) {
+    if (packId_ == Constants::RESOURCE_REF_SELF) {
         packId_ = selfPackageId;
     }
     selfPackageId_ = selfPackageId;

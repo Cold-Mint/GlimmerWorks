@@ -154,7 +154,7 @@ void glimmer::DebugDrawColliderSystem::RenderSolidTiles(RenderQueue *queue) cons
             if (tile == nullptr) {
                 continue;
             }
-            if (tile->GetCollisionMask() == COLLISION_MASK_NONE) {
+            if (tile->GetCollisionMask() == Constants::COLLISION_MASK_NONE) {
                 continue;
             }
             const WorldAABB tileBox = tile->GetCollisionAABB(TileVector2D{tx, ty});
@@ -183,7 +183,7 @@ void glimmer::DebugDrawColliderSystem::Render(RenderQueue *queue) {
 }
 
 uint8_t glimmer::DebugDrawColliderSystem::GetExecutionOrder() {
-    return EXECUTION_ORDER_DEBUG_COLLIDER;
+    return Constants::EXECUTION_ORDER_DEBUG_COLLIDER;
 }
 
 glimmer::GameSystemType glimmer::DebugDrawColliderSystem::GetGameSystemType() const {

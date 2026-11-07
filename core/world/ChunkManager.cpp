@@ -68,7 +68,7 @@ void glimmer::ChunkManager::OnChunkTileChange(const std::shared_ptr<Chunk> &chun
         return;
     }
     const auto relative = CoordinateTransformer::IndexToVector2D<ChunkRelativeVector2D>(index,
-        CHUNK_MASK, CHUNK_SHIFT);
+        Constants::CHUNK_MASK, Constants::CHUNK_SHIFT);
     const ChunkVertexVector2D &vertex = chunk->GetPosition();
     const TileVector2D changedCell = CoordinateTransformer::ChunkRelativeToTile(vertex, relative);
     PropagateAttachmentLoss(layerType, changedCell);
@@ -258,7 +258,7 @@ void glimmer::ChunkManager::BreakAttachedTile(const TileLayerType layerType, con
     Chunk *centerChunk = GetChunk(CoordinateTransformer::TileToChunkVertex(center));
     if (centerChunk != nullptr) {
         const ChunkRelativeVector2D relative = CoordinateTransformer::TileToChunkRelative(center);
-        const size_t centerIndex = CoordinateTransformer::GetArrayIndex(relative.x, relative.y, CHUNK_SHIFT);
+        const size_t centerIndex = CoordinateTransformer::GetArrayIndex(relative.x, relative.y, Constants::CHUNK_SHIFT);
         const std::shared_ptr<Tile> oldTile = centerChunk->GetTileShared(layerType, centerIndex);
         if (oldTile != nullptr) {
             const TileStateMessage *oldState = centerChunk->GetTileState(layerType, centerIndex);
@@ -277,7 +277,7 @@ void glimmer::ChunkManager::BreakAttachedTile(const TileLayerType layerType, con
                 continue;
             }
             const ChunkRelativeVector2D relative = CoordinateTransformer::TileToChunkRelative(cell);
-            const size_t index = CoordinateTransformer::GetArrayIndex(relative.x, relative.y, CHUNK_SHIFT);
+            const size_t index = CoordinateTransformer::GetArrayIndex(relative.x, relative.y, Constants::CHUNK_SHIFT);
             chunk->PlaceTileAt(layerType, index, airRef, airTileResource, BreakSource::AttachmentLoss,
                                PLACE_SOURCE_BREAK, false);
         }
@@ -302,8 +302,8 @@ void glimmer::ChunkManager::UpdateTileLight(const Chunk *chunk, TileLayerType la
     }
     const ChunkVertexVector2D &chunkPosition = chunk->GetPosition();
     const auto local = CoordinateTransformer::IndexToVector2D<ChunkRelativeVector2D>(index,
-        CHUNK_MASK,
-        CHUNK_SHIFT);
+        Constants::CHUNK_MASK,
+        Constants::CHUNK_SHIFT);
     auto lightSourcePosition = TileVector2D(chunkPosition.x + static_cast<int>(local.x),
                                             chunkPosition.y + static_cast<int>(local.y));
     const TileLightResourceData *tileLightResourceData = tile->GetLightResourceData();
@@ -400,8 +400,8 @@ void glimmer::ChunkManager::UpdateChunkLight(const Chunk *chunk) const {
     LogCat::d(LogLabel::CHUNK, "chunk_update_light", "Updating chunk light: position=({}, {})",
               chunk->GetPosition().x,
               chunk->GetPosition().y);
-    for (size_t index = 0; index < CHUNK_AREA; ++index) {
-        for (int i = 0; i < TILE_LAYER_TYPE_COUNT; ++i) {
+    for (size_t index = 0; index < Constants::CHUNK_AREA; ++index) {
+        for (int i = 0; i < Constants::TILE_LAYER_TYPE_COUNT; ++i) {
             UpdateTileLight(chunk, static_cast<TileLayerType>(1 << i), index);
         }
     }
@@ -423,7 +423,7 @@ const glimmer::Tile *glimmer::ChunkManager::GetTileAt(const TileLayerType layer,
     }
     const ChunkRelativeVector2D relative = CoordinateTransformer::TileToChunkRelative(cell);
     return chunk->
-            GetTile(layer, CoordinateTransformer::GetArrayIndex(relative.x, relative.y, CHUNK_SHIFT));
+            GetTile(layer, CoordinateTransformer::GetArrayIndex(relative.x, relative.y, Constants::CHUNK_SHIFT));
 }
 
 const TileStateMessage *
@@ -434,7 +434,7 @@ glimmer::ChunkManager::GetTileStateAt(const TileLayerType layer, const TileVecto
     }
     const ChunkRelativeVector2D relative = CoordinateTransformer::TileToChunkRelative(cell);
     return chunk->GetTileState(layer, CoordinateTransformer::GetArrayIndex(relative.x, relative.y,
-                                                                           CHUNK_SHIFT));
+                                                                           Constants::CHUNK_SHIFT));
 }
 
 void glimmer::ChunkManager::PlaceTileAt(const TileVector2D &topLeft, const TileLayerType layerType,
@@ -454,7 +454,7 @@ void glimmer::ChunkManager::PlaceTileAt(const TileVector2D &topLeft, const TileL
                 continue;
             }
             const ChunkRelativeVector2D relative = CoordinateTransformer::TileToChunkRelative(cell);
-            const size_t index = CoordinateTransformer::GetArrayIndex(relative.x, relative.y, CHUNK_SHIFT);
+            const size_t index = CoordinateTransformer::GetArrayIndex(relative.x, relative.y, Constants::CHUNK_SHIFT);
             chunk->PlaceTileCell(layerType, index, resourceRef, tileResource, breakSource, placeSource, x, y, fallback);
         }
     }
@@ -517,8 +517,8 @@ void glimmer::ChunkManager::UnloadChunkAt(const ResourceRef &dimensionRef, const
                   position.y);
         return;
     }
-    for (int x = 0; x < CHUNK_SIZE; x++) {
-        for (int y = 0; y < CHUNK_SIZE; y++) {
+    for (int x = 0; x < Constants::CHUNK_SIZE; x++) {
+        for (int y = 0; y < Constants::CHUNK_SIZE; y++) {
             lightBuffer_->ClearTileLightData(TileVector2D(position.x + x, position.y + y));
         }
     }

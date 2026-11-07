@@ -36,7 +36,7 @@ namespace glimmer {
         std::unique_ptr<Item> item_ = nullptr;
         //How many ticks remain before it disappears
         //还剩多少个Tick会消失
-        std::atomic<uint64_t> remainingTicks_{DROPPED_ITEM_DESPAWN_TICKS};
+        std::atomic<uint64_t> remainingTicks_{Constants::DROPPED_ITEM_DESPAWN_TICKS};
         //How many ticks remain before it can be picked up
         //还剩多少个Tick可被拾取
         std::atomic<uint64_t> pickupCooldownTicks_{0};

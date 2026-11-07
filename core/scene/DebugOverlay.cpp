@@ -70,7 +70,7 @@ void glimmer::DebugOverlay::Update(const float delta) {
 
 void glimmer::DebugOverlay::LoadDocuments() {
     ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
     resourceRef.SetResourceKey("debug_overlay/debug_overlay");
     debugDocument_ = LoadSingleDocument(&resourceRef);

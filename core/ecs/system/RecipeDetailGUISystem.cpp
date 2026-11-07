@@ -486,7 +486,7 @@ glimmer::GameSystemType glimmer::RecipeDetailGUISystem::GetGameSystemType() cons
 
 void glimmer::RecipeDetailGUISystem::LoadDocuments(IDocumentRegistry *documentRegistry) {
     ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
     resourceRef.SetResourceKey("recipe_detail/recipe_detail");
     SetAndHideElementDocument(documentRegistry->LoadSingleDocument(&resourceRef));

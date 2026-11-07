@@ -34,6 +34,6 @@ namespace glimmer {
 
         void Match(const DimensionResource *dimensionResource, const TerrainResult *terrainResult,
                    const IStructurePlacementConditionsResource *placementConditionsResource,
-                   std::bitset<TERRAIN_AREA> *result) override;
+                   std::bitset<Constants::TERRAIN_AREA> *result) override;
     };
 }

@@ -82,7 +82,7 @@ glimmer::SettingsScene::SettingsScene(AppContext *context) : Scene(context) {
 
 void glimmer::SettingsScene::LoadDocuments() {
     ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
     resourceRef.SetResourceKey("settings/settings");
     LoadSingleDocument(&resourceRef);

@@ -38,9 +38,9 @@ void glimmer::SurfaceStructureConditionProcessor::Match(const DimensionResource 
                                                         const TerrainResult *terrainResult,
                                                         const IStructurePlacementConditionsResource *
                                                         placementConditionsResource,
-                                                        std::bitset<TERRAIN_AREA> *result) {
-    for (int localX = 0; localX < TERRAIN_SIZE; localX++) {
-        for (int localY = 0; localY < TERRAIN_SIZE; localY++) {
+                                                        std::bitset<Constants::TERRAIN_AREA> *result) {
+    for (int localX = 0; localX < Constants::TERRAIN_SIZE; localX++) {
+        for (int localY = 0; localY < Constants::TERRAIN_SIZE; localY++) {
             TerrainRelativeVector2D relativeVector2d(localX, localY);
             if (const TerrainTileResult &self = terrainResult->QueryTerrain(relativeVector2d);
                 self.GetTerrainType() != TerrainResultType::SOLID) {
@@ -48,7 +48,7 @@ void glimmer::SurfaceStructureConditionProcessor::Match(const DimensionResource 
                 //不是固体瓦片。
                 continue;
             }
-            if (localY == TERRAIN_MASK) {
+            if (localY == Constants::TERRAIN_MASK) {
                 //It is already at the topmost position. The next level is outside the local shape block and is skipped.
                 //已是最顶端，上一格在本地形块之外，跳过
                 continue;
@@ -60,7 +60,7 @@ void glimmer::SurfaceStructureConditionProcessor::Match(const DimensionResource 
                 //上方的瓦片不是空气。
                 continue;
             }
-            result->set(CoordinateTransformer::GetArrayIndex(localX, localY, TERRAIN_SHIFT));
+            result->set(CoordinateTransformer::GetArrayIndex(localX, localY, Constants::TERRAIN_SHIFT));
         }
     }
     LogCat::d(LogLabel::TERRAIN, "surface_condition_matched_count", "Surface condition matched tiles: {}",

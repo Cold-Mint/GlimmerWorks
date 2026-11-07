@@ -46,12 +46,12 @@ SDL_FRect glimmer::CoordinateTransformer::CalculateTileRenderQuad(const WorldVec
                                                                   const uint8_t tileWidth, const uint8_t tileHeight,
                                                                   const ScreenVector2D &cameraSize, const float zoom) {
     const ScreenVector2D topLeftCamera = WorldToScreen(cameraPosition, TileToWorld(topLeftTilePos), cameraSize, zoom);
-    const float halfTileScreenSize = static_cast<float>(HALF_TILE_SIZE) * zoom;
+    const float halfTileScreenSize = static_cast<float>(Constants::HALF_TILE_SIZE) * zoom;
     SDL_FRect quad;
     quad.x = topLeftCamera.x - halfTileScreenSize;
     quad.y = topLeftCamera.y - halfTileScreenSize;
-    quad.w = static_cast<float>(tileWidth) * TILE_SIZE * zoom;
-    quad.h = static_cast<float>(tileHeight) * TILE_SIZE * zoom;
+    quad.w = static_cast<float>(tileWidth) * Constants::TILE_SIZE * zoom;
+    quad.h = static_cast<float>(tileHeight) * Constants::TILE_SIZE * zoom;
     return quad;
 }
 
@@ -79,22 +79,22 @@ glimmer::WorldVector2D glimmer::CoordinateTransformer::ScreenToWorld(const World
 
 glimmer::WorldVector2D glimmer::CoordinateTransformer::TileToWorld(const TileVector2D &tilePos) {
     return WorldVector2D{
-        static_cast<float>(tilePos.x) * TILE_SIZE,
-        static_cast<float>(tilePos.y) * TILE_SIZE
+        static_cast<float>(tilePos.x) * Constants::TILE_SIZE,
+        static_cast<float>(tilePos.y) * Constants::TILE_SIZE
     };
 }
 
 glimmer::TileVector2D glimmer::CoordinateTransformer::WorldToTile(const WorldVector2D &worldPos) {
     return TileVector2D{
-        static_cast<int>(std::floor(worldPos.x / TILE_SIZE + 0.5F)),
-        static_cast<int>(std::floor(worldPos.y / TILE_SIZE + 0.5F))
+        static_cast<int>(std::floor(worldPos.x / Constants::TILE_SIZE + 0.5F)),
+        static_cast<int>(std::floor(worldPos.y / Constants::TILE_SIZE + 0.5F))
     };
 }
 
 glimmer::ChunkVertexVector2D glimmer::CoordinateTransformer::TileToChunkVertex(const TileVector2D &tileVector2d) {
     return ChunkVertexVector2D{
-        tileVector2d.x & CHUNK_ALIGN,
-        tileVector2d.y & CHUNK_ALIGN
+        tileVector2d.x & Constants::CHUNK_ALIGN,
+        tileVector2d.y & Constants::CHUNK_ALIGN
     };
 }
 
@@ -108,8 +108,8 @@ ChunkVertexToTile(const ChunkVertexVector2D &chunkVertexVector2d) {
 
 glimmer::ChunkRelativeVector2D glimmer::CoordinateTransformer::TileToChunkRelative(const TileVector2D &tileVector2d) {
     return ChunkRelativeVector2D{
-        static_cast<uint32_t>(tileVector2d.x & CHUNK_MASK),
-        static_cast<uint32_t>(tileVector2d.y & CHUNK_MASK)
+        static_cast<uint32_t>(tileVector2d.x & Constants::CHUNK_MASK),
+        static_cast<uint32_t>(tileVector2d.y & Constants::CHUNK_MASK)
     };
 }
 
@@ -120,18 +120,18 @@ glimmer::TileVector2D glimmer::CoordinateTransformer::ChunkRelativeToTile(const 
 
 glimmer::TerrainVertexVector2D glimmer::CoordinateTransformer::ChunkVertexToTerrainVertex(
     const ChunkVertexVector2D &chunkVertexVector2D) {
-    return TerrainVertexVector2D{chunkVertexVector2D.x & TERRAIN_ALIGN, chunkVertexVector2D.y & TERRAIN_ALIGN};
+    return TerrainVertexVector2D{chunkVertexVector2D.x & Constants::TERRAIN_ALIGN, chunkVertexVector2D.y & Constants::TERRAIN_ALIGN};
 }
 
 glimmer::TerrainVertexVector2D glimmer::CoordinateTransformer::TileToTerrainVertex(const TileVector2D &tileVector2D) {
-    return TerrainVertexVector2D{tileVector2D.x & TERRAIN_ALIGN, tileVector2D.y & TERRAIN_ALIGN};
+    return TerrainVertexVector2D{tileVector2D.x & Constants::TERRAIN_ALIGN, tileVector2D.y & Constants::TERRAIN_ALIGN};
 }
 
 glimmer::TerrainRelativeVector2D glimmer::CoordinateTransformer::
 TileToTerrainRelative(const TileVector2D &tileVector2D) {
     return TerrainRelativeVector2D{
-        static_cast<uint32_t>(tileVector2D.x & TERRAIN_MASK),
-        static_cast<uint32_t>(tileVector2D.y & TERRAIN_MASK)
+        static_cast<uint32_t>(tileVector2D.x & Constants::TERRAIN_MASK),
+        static_cast<uint32_t>(tileVector2D.y & Constants::TERRAIN_MASK)
     };
 }
 

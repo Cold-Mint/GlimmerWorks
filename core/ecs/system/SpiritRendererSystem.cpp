@@ -141,7 +141,7 @@ void glimmer::SpiritRendererSystem::Render(RenderQueue *queue) {
 }
 
 uint8_t glimmer::SpiritRendererSystem::GetExecutionOrder() {
-    return EXECUTION_ORDER_SPIRIT_RENDERER;
+    return Constants::EXECUTION_ORDER_SPIRIT_RENDERER;
 }
 
 glimmer::GameSystemType glimmer::SpiritRendererSystem::GetGameSystemType() const {

@@ -53,8 +53,8 @@ glimmer::VFSCommand::VFSCommand(AppContext *appContext)
     : Command(appContext) {
 }
 
-const std::string &glimmer::VFSCommand::GetName() const {
-    return VFS_COMMAND_NAME;
+std::string_view glimmer::VFSCommand::GetName() const {
+    return Constants::VFS_COMMAND_NAME;
 }
 
 void glimmer::VFSCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
@@ -85,7 +85,7 @@ glimmer::NodeTree<std::string> *glimmer::VFSCommand::GetSuggestionsTree(const Co
                 auto child = GetPrivateSuggestionsTree().GetChild(i);
                 child->ClearChildren();
                 child->AddChild(
-                    std::string(VFS_DYNAMIC_SUGGESTIONS_NAME) + ":" + commandArgs->AsString(2));
+                    std::string(Constants::VFS_DYNAMIC_SUGGESTIONS_NAME) + ":" + commandArgs->AsString(2));
             }
         }
     }

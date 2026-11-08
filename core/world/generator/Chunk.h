@@ -50,7 +50,8 @@ namespace glimmer {
         tileFingerprint_;
         std::unordered_map<TileLayerType, std::array<std::shared_ptr<TileStateMessage>, Constants::CHUNK_AREA> >
         tileState_;
-        std::unordered_map<TileLayerType, std::array<std::shared_ptr<TileSnapshot>, Constants::CHUNK_AREA> > tileSnapshots_;
+        std::unordered_map<TileLayerType, std::array<std::shared_ptr<TileSnapshot>, Constants::CHUNK_AREA> >
+        tileSnapshots_;
         std::vector<std::function<void(Chunk *chunk, size_t index, std::shared_ptr<Tile> tile,
                                        TileLayerType layerType)> >
         onTileRebuilt_;

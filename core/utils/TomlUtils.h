@@ -27,6 +27,7 @@
 #pragma once
 
 #include "toml11/find.hpp"
+using glimmer::Constants;
 
 #include "core/contributor/Contributor.h"
 #include "core/lootTable/LootEntry.h"
@@ -106,6 +107,8 @@ namespace toml {
             resource.name = toml::find<glimmer::ResourceRef>(v, "name");
             resource.packDependencies = toml::find<std::vector<glimmer::PackDependence> >(v, "pack_dependencies");
             resource.resPack = toml::find<bool>(v, "res_pack");
+            resource.templateSearchPath = toml::find_or<std::vector<std::string> >(
+                v, "template_search_path", {Constants::TEMPLATE_CURRENT.data(), Constants::TEMPLATE_ROOT.data()});
             resource.versionName = toml::find<std::string>(v, "version_name");
             resource.versionNumber = toml::find<uint32_t>(v, "version_number");
             return resource;
@@ -365,6 +368,8 @@ namespace toml {
             resource.minGameVersion = toml::find<uint32_t>(v, "min_game_version");
             resource.name = toml::find<glimmer::ResourceRef>(v, "name");
             resource.resPack = toml::find<bool>(v, "res_pack");
+            resource.templateSearchPath = toml::find_or<std::vector<std::string> >(
+                v, "template_search_path", {Constants::TEMPLATE_CURRENT.data(), Constants::TEMPLATE_ROOT.data()});
             resource.versionName = toml::find<std::string>(v, "version_name");
             resource.versionNumber = toml::find<uint32_t>(v, "version_number");
             return resource;
@@ -764,6 +769,8 @@ namespace toml {
             resource.minGameVersion = toml::find<uint32_t>(v, "min_game_version");
             resource.name = toml::find<glimmer::ResourceRef>(v, "name");
             resource.resPack = toml::find<bool>(v, "res_pack");
+            resource.templateSearchPath = toml::find_or<std::vector<std::string> >(
+                v, "template_search_path", {Constants::TEMPLATE_CURRENT.data(), Constants::TEMPLATE_ROOT.data()});
             resource.versionName = toml::find<std::string>(v, "version_name");
             resource.versionNumber = toml::find<uint32_t>(v, "version_number");
             return resource;

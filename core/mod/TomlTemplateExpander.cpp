@@ -97,7 +97,7 @@ std::string glimmer::TomlTemplateExpander::Expand(const std::vector<std::filesys
             output << line << '\n';
         }
     }
-#if  defined(NDEBUG)
+#if defined(NDEBUG)
     return output.str();
 #else
     std::string str = output.str();

@@ -203,7 +203,7 @@ glimmer::TileVector2D glimmer::Tile::CalculateTileAnchor(const TileAnchorType ti
 }
 
 void glimmer::Tile::AppendDerivedTag(std::unordered_set<uint64_t> &existingTagIds, std::vector<ItemTagResource> &tags,
-    const std::string_view name) {
+                                     const std::string_view name) {
     ItemTagResource tag = StringUtils::MakeTag(name);
     tag.MakeCachedTag();
     if (existingTagIds.contains(tag.cachedTagId)) {
@@ -402,8 +402,10 @@ const glimmer::Vector2DResource &glimmer::Tile::GetCollisionBoxOffset() const {
 }
 
 glimmer::WorldAABB glimmer::Tile::GetCollisionAABB(const TileVector2D &tilePos) const {
-    const float cellMinX = static_cast<float>(tilePos.x * Constants::TILE_SIZE) - static_cast<float>(Constants::HALF_TILE_SIZE);
-    const float cellMinY = static_cast<float>(tilePos.y * Constants::TILE_SIZE) - static_cast<float>(Constants::HALF_TILE_SIZE);
+    const float cellMinX = static_cast<float>(tilePos.x * Constants::TILE_SIZE) - static_cast<float>(
+                               Constants::HALF_TILE_SIZE);
+    const float cellMinY = static_cast<float>(tilePos.y * Constants::TILE_SIZE) - static_cast<float>(
+                               Constants::HALF_TILE_SIZE);
     const float boxLeft = cellMinX + collisionBoxOffset_.x * static_cast<float>(Constants::TILE_SIZE);
     const float boxBottom = cellMinY + collisionBoxOffset_.y * static_cast<float>(Constants::TILE_SIZE);
     const float boxRight = boxLeft + collisionBoxSize_.x * static_cast<float>(Constants::TILE_SIZE);
@@ -438,7 +440,7 @@ void glimmer::Tile::OnPlace(WorldContext *worldContext, PlaceSourceMessage place
     const Vector2DIFingerprint fingerprint = position.GetFingerprint();
     auto gameEntityIterator = gameEntities_.find(fingerprint);
     if (gameEntityIterator != gameEntities_.end()) {
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "tile_place_entity_exists",
                   "Before generating a new entity, it is necessary to ensure that there are no other entities at the current location.");
         assert(false);

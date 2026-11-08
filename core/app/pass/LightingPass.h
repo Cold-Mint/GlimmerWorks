@@ -66,7 +66,7 @@ namespace glimmer {
         SDL_GPUDevice *device_ = nullptr;
 
 
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
         std::shared_ptr<GPUPipelineResourceResult> debugPipeline_ = nullptr;
         std::shared_ptr<GPUSamplerResourceResult> debugSampler_ = nullptr;
         SDL_GPUBuffer *debugVertexBuffer_ = nullptr;
@@ -98,7 +98,7 @@ namespace glimmer {
 
         void Record(RenderFrameContext &ctx) override;
 
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
         void SetDisplayLightMap(bool display);
 
         void SetEnableLighting(bool enable);

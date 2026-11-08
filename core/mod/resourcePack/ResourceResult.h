@@ -33,7 +33,7 @@ namespace glimmer {
     class ResourceResult {
         const ResourcePack *resourcePack_ = nullptr;
         T *resource_ = nullptr;
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
         //Indicates whether the resources have been securely destroyed.
         //表示是否被安全销毁资源。
         bool safeDestroy_ = false;
@@ -87,7 +87,7 @@ namespace glimmer {
 
     template<typename T>
     ResourceResult<T>::~ResourceResult() {
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
         if (!safeDestroy_) {
             LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "resource_not_released",
                       "Some resources have not been released correctly. Please implement the \"DestroyResource\" method within the destructor of the subclass.");
@@ -109,7 +109,7 @@ namespace glimmer {
         }
         DestroyResourceImpl(resource);
         resource_ = nullptr;
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
         safeDestroy_ = true;
 #endif
     }

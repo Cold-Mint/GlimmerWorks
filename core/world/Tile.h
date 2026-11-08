@@ -94,7 +94,7 @@ namespace glimmer {
                                                 const Vector2DIResource &customTileAnchor);
 
         static void AppendDerivedTag(std::unordered_set<uint64_t> &existingTagIds, std::vector<ItemTagResource> &tags,
-                                      std::string_view name);
+                                     std::string_view name);
 
         static std::unique_ptr<Tile> FromTileResource(const AppContext *appContext,
                                                       const TileResource *tileResource);

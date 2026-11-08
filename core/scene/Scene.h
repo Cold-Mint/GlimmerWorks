@@ -46,7 +46,7 @@ namespace glimmer {
         std::unordered_set<Rml::String> rmlConstructorNames_;
         AppContext *appContext_ = nullptr;
         RmlContext *rmlContext_ = nullptr;
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
         //After this tick, it indicates that the initialization has failed.
         //超过此tick后表示初始化失败。
         uint64_t initTick_ = 0;

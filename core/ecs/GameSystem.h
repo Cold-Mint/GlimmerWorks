@@ -46,7 +46,7 @@ namespace glimmer {
         WorldContext *worldContext_ = nullptr;
         EntityManager *entityManager_ = nullptr;
         EntityShortCut *entityShortCut_ = nullptr;
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
         float initTimeOut_ = 0.0F;
 #endif
         bool lockWatchComponents_ = false;

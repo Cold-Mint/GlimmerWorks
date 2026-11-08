@@ -42,7 +42,8 @@ Rml::TextureHandle glimmer::RenderInterfaceSDL3::LoadTexture(Rml::Vector2i &text
                                                              const Rml::String &source) {
     if (!source.starts_with(Constants::TEXTURE_PREFIX)) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "texture_prefix_unsupported",
-                  "Only textures with the loading path starting with '{}' are supported. source={}", Constants::TEXTURE_PREFIX,
+                  "Only textures with the loading path starting with '{}' are supported. source={}",
+                  Constants::TEXTURE_PREFIX,
                   source);
         return {};
     }

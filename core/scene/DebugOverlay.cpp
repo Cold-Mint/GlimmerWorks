@@ -24,7 +24,7 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
 #include "DebugOverlay.h"
 
 #include "core/config/Config.h"

@@ -400,7 +400,7 @@ void glimmer::SystemScheduler::InitSystem() {
     RegisterGuiSystem(std::make_unique<RecipeDetailGUISystem>(worldContext_));
     RegisterGuiSystem(std::make_unique<StorageGUISystem>(worldContext_));
     RegisterGuiSystem(std::make_unique<ItemTooltipSystem>(worldContext_));
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
     RegisterSystem(std::make_unique<DebugDrawSystem>(worldContext_));
     RegisterSystem(std::make_unique<DebugDrawColliderSystem>(worldContext_));
     RegisterSystem(std::make_unique<DebugChunkSystem>(worldContext_));
@@ -426,7 +426,7 @@ void glimmer::SystemScheduler::OnConfigChanged(const Config *config) const {
 
 void glimmer::SystemScheduler::RegisterSystem(std::unique_ptr<GameSystem> system) {
     if (allowRegisterSystem_) {
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
         auto guiGameSystem = dynamic_cast<GuiGameSystem *>(system.get());
         if (guiGameSystem != nullptr) {
             LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "system_scheduler_use_register_gui_system",

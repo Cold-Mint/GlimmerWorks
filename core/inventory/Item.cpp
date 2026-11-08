@@ -82,7 +82,7 @@ void glimmer::Item::ReadItemMessage(WorldContext *worldContext, const ItemMessag
 
 void glimmer::Item::WriteItemMessage(ItemMessage &itemMessage) const {
     if (resourceRef_.GetResourceType() == RESOURCE_NONE) {
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
         assert(false);
 #endif
     }

@@ -65,7 +65,7 @@ namespace glimmer {
         //of the swapchain. It is then blitted to the swapchain and downloaded.
         //截图请求时，各 pass 先渲染到此纹理而非交换链，然后再 blit 到交换链并下载。
         SDL_GPUTexture *screenshotTexture_ = nullptr;
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
         LightingPass *lightingPass_ = nullptr;
 #endif
         uint32_t screenshotTextureWidth_ = 0;

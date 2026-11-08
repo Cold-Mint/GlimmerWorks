@@ -69,9 +69,10 @@ void glimmer::ResourceFileLoader::RegisterHandlers() {
     handlerMap_[Constants::DATA_FILE_TYPE_DIMENSION] = [this](const toml::value &v, const AppContext *appContext) {
         LoadDimensionResourceFromFile(v, appContext);
     };
-    handlerMap_[Constants::DATA_FILE_TYPE_COMPOSABLE_ITEM] = [this](const toml::value &v, const AppContext *appContext) {
-        LoadComposableItemResourceFromFile(v, appContext);
-    };
+    handlerMap_[Constants::DATA_FILE_TYPE_COMPOSABLE_ITEM] = [this
+            ](const toml::value &v, const AppContext *appContext) {
+                LoadComposableItemResourceFromFile(v, appContext);
+            };
     handlerMap_[Constants::DATA_FILE_TYPE_ABILITY_ITEM] = [this](const toml::value &v, const AppContext *appContext) {
         LoadAbilityItemResourceFromFile(v, appContext);
     };
@@ -84,12 +85,14 @@ void glimmer::ResourceFileLoader::RegisterHandlers() {
     handlerMap_[Constants::DATA_FILE_TYPE_TREE_STRUCTURE] = [this](const toml::value &v, const AppContext *appContext) {
         LoadStructureResourceFromFile(v, appContext, StructureGeneratorType::Tree);
     };
-    handlerMap_[Constants::DATA_FILE_TYPE_STATIC_STRUCTURE] = [this](const toml::value &v, const AppContext *appContext) {
-        LoadStructureResourceFromFile(v, appContext, StructureGeneratorType::Static);
-    };
-    handlerMap_[Constants::DATA_FILE_TYPE_INITIAL_INVENTORY] = [this](const toml::value &v, const AppContext *appContext) {
-        LoadInitialInventoryResourceFromFile(v, appContext);
-    };
+    handlerMap_[Constants::DATA_FILE_TYPE_STATIC_STRUCTURE] = [this
+            ](const toml::value &v, const AppContext *appContext) {
+                LoadStructureResourceFromFile(v, appContext, StructureGeneratorType::Static);
+            };
+    handlerMap_[Constants::DATA_FILE_TYPE_INITIAL_INVENTORY] = [this
+            ](const toml::value &v, const AppContext *appContext) {
+                LoadInitialInventoryResourceFromFile(v, appContext);
+            };
     handlerMap_[Constants::DATA_FILE_TYPE_CONTRIBUTOR] = [this](const toml::value &v, const AppContext *appContext) {
         LoadContributorResourceFromFile(v, appContext);
     };
@@ -99,15 +102,18 @@ void glimmer::ResourceFileLoader::RegisterHandlers() {
     handlerMap_[Constants::DATA_FILE_TYPE_DECORATOR_FILL] = [this](const toml::value &v, const AppContext *appContext) {
         LoadBiomeDecoratorResourceFromFile(v, appContext, FILL);
     };
-    handlerMap_[Constants::DATA_FILE_TYPE_DECORATOR_MINERAL] = [this](const toml::value &v, const AppContext *appContext) {
-        LoadBiomeDecoratorResourceFromFile(v, appContext, MINERAL);
-    };
-    handlerMap_[Constants::DATA_FILE_TYPE_DECORATOR_REPLACE] = [this](const toml::value &v, const AppContext *appContext) {
-        LoadBiomeDecoratorResourceFromFile(v, appContext, REPLACE_TILE);
-    };
-    handlerMap_[Constants::DATA_FILE_TYPE_DECORATOR_LOOT_CHEST] = [this](const toml::value &v, const AppContext *appContext) {
-        LoadBiomeDecoratorResourceFromFile(v, appContext, LOOT_CHEST);
-    };
+    handlerMap_[Constants::DATA_FILE_TYPE_DECORATOR_MINERAL] = [this
+            ](const toml::value &v, const AppContext *appContext) {
+                LoadBiomeDecoratorResourceFromFile(v, appContext, MINERAL);
+            };
+    handlerMap_[Constants::DATA_FILE_TYPE_DECORATOR_REPLACE] = [this
+            ](const toml::value &v, const AppContext *appContext) {
+                LoadBiomeDecoratorResourceFromFile(v, appContext, REPLACE_TILE);
+            };
+    handlerMap_[Constants::DATA_FILE_TYPE_DECORATOR_LOOT_CHEST] = [this
+            ](const toml::value &v, const AppContext *appContext) {
+                LoadBiomeDecoratorResourceFromFile(v, appContext, LOOT_CHEST);
+            };
     handlerMap_[Constants::DATA_FILE_TYPE_FIXED_COLOR] = [this](const toml::value &v, const AppContext *appContext) {
         LoadFixedColorResourceFromFile(v, appContext);
     };
@@ -129,13 +135,15 @@ void glimmer::ResourceFileLoader::RegisterHandlers() {
         LoadStructurePlacementConditionsResourceFromFile(v, appContext, StructureConditionProcessorType::Height);
     };
     handlerMap_[Constants::DATA_FILE_TYPE_SPACING_STRUCTURE_CONDITION] = [this](const toml::value &v,
-                                                                                const AppContext *appContext) {
-        LoadStructurePlacementConditionsResourceFromFile(v, appContext, StructureConditionProcessorType::Spacing);
-    };
+                const AppContext *appContext) {
+                LoadStructurePlacementConditionsResourceFromFile(v, appContext,
+                                                                 StructureConditionProcessorType::Spacing);
+            };
     handlerMap_[Constants::DATA_FILE_TYPE_SURFACE_STRUCTURE_CONDITION] = [this](const toml::value &v,
-                                                                                const AppContext *appContext) {
-        LoadStructurePlacementConditionsResourceFromFile(v, appContext, StructureConditionProcessorType::Surface);
-    };
+                const AppContext *appContext) {
+                LoadStructurePlacementConditionsResourceFromFile(v, appContext,
+                                                                 StructureConditionProcessorType::Surface);
+            };
     handlerMap_[Constants::DATA_FILE_TYPE_LIGHT_GROWTH_CONDITION] = [this](const toml::value &v,
                                                                            const AppContext *appContext) {
         LoadGrowthConditionsResourceFromFile(v, appContext, GrowthConditionProcessorType::Light);
@@ -145,9 +153,9 @@ void glimmer::ResourceFileLoader::RegisterHandlers() {
         LoadGrowthConditionsResourceFromFile(v, appContext, GrowthConditionProcessorType::Biome);
     };
     handlerMap_[Constants::DATA_FILE_TYPE_ADJACENT_TILE_GROWTH_CONDITION] = [this](const toml::value &v,
-                                                                                   const AppContext *appContext) {
-        LoadGrowthConditionsResourceFromFile(v, appContext, GrowthConditionProcessorType::AdjacentTile);
-    };
+                const AppContext *appContext) {
+                LoadGrowthConditionsResourceFromFile(v, appContext, GrowthConditionProcessorType::AdjacentTile);
+            };
     handlerMap_[Constants::DATA_FILE_TYPE_HEIGHT_GROWTH_CONDITION] = [this](const toml::value &v,
                                                                             const AppContext *appContext) {
         LoadGrowthConditionsResourceFromFile(v, appContext, GrowthConditionProcessorType::Height);
@@ -164,12 +172,12 @@ glimmer::ResourceFileLoader::ResourceFileLoader() {
 
 std::vector<std::filesystem::path> glimmer::ResourceFileLoader::GetActuallyTemplateSearchPath(
     const std::filesystem::path &path) const {
+    std::vector<std::filesystem::path> result;
     const std::optional<std::filesystem::path> currentOptional = virtualFileSystem_->GetParentPath(path);
     if (!currentOptional.has_value()) {
-        return {};
+        return result;
     }
     const std::string currentDir = currentOptional.value().string();
-    std::vector<std::filesystem::path> result;
     for (std::string searchPath: manifest_->templateSearchPath) {
         StringUtils::ReplaceAll(searchPath, Constants::TEMPLATE_CURRENT, currentDir);
         StringUtils::ReplaceAll(searchPath, Constants::TEMPLATE_ROOT, rootPath_.string());
@@ -191,7 +199,8 @@ int glimmer::ResourceFileLoader::LoadStringResourceFromFile(const std::filesyste
         return 0;
     }
     const toml::value value = toml::parse_str(
-        tomlTemplateExpander_->Expand(searchPath, contentOptional.value(), virtualFileSystem_), Constants::TOML_VERSION);
+        tomlTemplateExpander_->Expand(searchPath, contentOptional.value(), virtualFileSystem_),
+        Constants::TOML_VERSION);
     int count = 0;
     auto array = toml::find<std::vector<StringResource> >(value, "string");
     for (auto &stringRes: array) {

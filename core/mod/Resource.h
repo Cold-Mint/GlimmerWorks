@@ -46,7 +46,8 @@ namespace glimmer {
      * All base classes that serialize objects from data packets.
      * 所有从数据包序列化对象的基类。
      */
-    //@include(toml11/find.hpp)
+    //@head(#include "toml11/find.hpp")
+    //@head(using glimmer::Constants;)
     //@genNextLine(Resource|资源类)
     struct Resource {
         std::string packId;

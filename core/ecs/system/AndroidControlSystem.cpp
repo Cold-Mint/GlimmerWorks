@@ -197,7 +197,7 @@ namespace glimmer {
         queue->DrawTexture(RenderLayer::Overlay, 0.0F,
                            jumpActive && jumpPressedTexture ? jumpPressedTexture.get() : jumpTexture.get(),
                            nullptr, &jumpRect);
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
 const SDL_Color debugBorderColor = {255, 0, 0, 255};
 queue->DrawRect(RenderLayer::Overlay, 0.0F, &leftRect, debugBorderColor);
 queue->DrawRect(RenderLayer::Overlay, 0.0F, &rightRect, debugBorderColor);

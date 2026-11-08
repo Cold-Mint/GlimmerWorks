@@ -69,7 +69,8 @@ std::vector<std::shared_ptr<glimmer::TileSnapshot> > glimmer::TileLayerComponent
     }
     const ChunkRelativeVector2D pos = CoordinateTransformer::TileToChunkRelative(tilePos);
     return chunk->GetTopVisibleTileSnapshots(layerFilter,
-                                             CoordinateTransformer::GetArrayIndex(pos.x, pos.y, Constants::CHUNK_SHIFT));
+                                             CoordinateTransformer::GetArrayIndex(
+                                                 pos.x, pos.y, Constants::CHUNK_SHIFT));
 }
 
 TileStateMessage *glimmer::TileLayerComponent::GetTileStatePtr(TileLayerType layerType,

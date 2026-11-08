@@ -74,7 +74,8 @@ bool glimmer::TargetResourceApplier::Apply(const TargetResourceApplierContext &a
         return false;
     }
     const ChunkRelativeVector2D originRelative = CoordinateTransformer::TileToChunkRelative(originTilePosition);
-    const size_t originIndex = CoordinateTransformer::GetArrayIndex(originRelative.x, originRelative.y, Constants::CHUNK_SHIFT);
+    const size_t originIndex = CoordinateTransformer::GetArrayIndex(originRelative.x, originRelative.y,
+                                                                    Constants::CHUNK_SHIFT);
 
     //Spawn origin offset: item / loot / structure spawn here, and the tile branch places its target here too.
     //生成原点偏移：物品 / 战利品 / 结构在此生成，瓦片分支也在此放置目标。

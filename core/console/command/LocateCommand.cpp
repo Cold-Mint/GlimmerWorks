@@ -62,7 +62,8 @@ std::optional<glimmer::TileVector2D> glimmer::LocateCommand::SearchBiomes(int ti
                                    Constants::HALF_CHUNK_SIZE, Constants::HALF_CHUNK_SIZE
                                };
     const int firstTileTerrainY = climateSampler->GetFirstTileTerrainY(worldSeed, dimensionResource, tileX);
-    for (int y = dimensionResource->maxY - Constants::HALF_CHUNK_SIZE; y > dimensionResource->minY; y -= Constants::CHUNK_SIZE) {
+    for (int y = dimensionResource->maxY - Constants::HALF_CHUNK_SIZE; y > dimensionResource->minY;
+         y -= Constants::CHUNK_SIZE) {
         if (y > firstTileTerrainY) {
             continue;
         }
@@ -190,7 +191,6 @@ std::optional<glimmer::TileVector2D> glimmer::LocateCommand::SearchBiomeInRadius
     }
     return std::nullopt;
 }
-
 
 
 bool glimmer::LocateCommand::RequiresWorldContext() const {

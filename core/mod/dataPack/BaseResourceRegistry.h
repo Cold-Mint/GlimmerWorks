@@ -82,7 +82,7 @@ namespace glimmer {
         [[nodiscard]] const std::vector<std::string> &List() const;
 
 
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
         /**
          * List
          * 列出所有资源
@@ -127,7 +127,7 @@ namespace glimmer {
         return list_;
     }
 
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
     template<typename ResourceType>
     std::string BaseResourceRegistry<ResourceType>::ListString() const {
         std::ostringstream oss;

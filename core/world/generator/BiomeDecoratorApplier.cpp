@@ -39,7 +39,8 @@ void glimmer::BiomeDecoratorApplier::Apply(const ChunkVertexVector2D &chunkVerte
                                            const std::unordered_set<BiomeResource *> &biomeResourcesSet,
                                            const ResourceLocator *resourceLocator,
                                            WorldContext *worldContext, TerrainResult *terrainResult,
-                                           std::unordered_map<TileLayerType, std::array<ResourceRef, Constants::CHUNK_AREA> > &
+                                           std::unordered_map<TileLayerType, std::array<ResourceRef,
+                                               Constants::CHUNK_AREA> > &
                                            tilesRefMap) {
     LogCat::d(LogLabel::CHUNK, "biome_decorator_apply_start", "Applying biome decorators: biome count={}",
               biomeResourcesSet.size());

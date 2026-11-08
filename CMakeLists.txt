@@ -1389,10 +1389,12 @@ endif ()
 
 #Replace all the hardcoded "absolute source code path prefixes" in the compiled output with an empty string, so that the source code directory of the build machine is not leaked in the binary/debug information, and at the same time, make the build results reproducible.
 #把编译产物里所有硬编码的"绝对源码路径前缀"替换成空字符串，让二进制/调试信息中不泄露构建机的源码目录，同时让构建结果可复现（reproducible build）。
-if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+#It must be disabled only for Release builds, because this would break GDB attach in Debug mode.
+#必须仅Release编译禁用，因为这会破坏Debug模式下的GDB附加。
+if (NOT CMAKE_BUILD_TYPE MATCHES "^Debug$" AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(GlimmerWorks PRIVATE
             "-ffile-prefix-map=${CMAKE_SOURCE_DIR}=")
-endif ()
+endif()
 
 if (WITH_CRASHPAD)
     target_compile_definitions(GlimmerWorks PRIVATE CRASHPAD_NAME="${CRASHPAD_NAME}" WITH_CRASHPAD)

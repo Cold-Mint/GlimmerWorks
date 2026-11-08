@@ -105,7 +105,7 @@ void glimmer::ResourceRef::ReadResource(const Resource &resource, const Resource
 
 std::string glimmer::ResourceRef::GetPackageId() const {
     if (!bindPackage_) {
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
         assert(false);
 #endif
     }

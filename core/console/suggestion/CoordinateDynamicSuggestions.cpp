@@ -28,7 +28,7 @@
 
 #include <stdexcept>
 
-glimmer::CoordinateDynamicSuggestions::CoordinateDynamicSuggestions(const std::string_view id): id_(id) {
+glimmer::CoordinateDynamicSuggestions::CoordinateDynamicSuggestions(const std::string_view id) : id_(id) {
     suggestions_.emplace_back("~");
 }
 

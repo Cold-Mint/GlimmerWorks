@@ -120,7 +120,9 @@ glimmer::TileVector2D glimmer::CoordinateTransformer::ChunkRelativeToTile(const 
 
 glimmer::TerrainVertexVector2D glimmer::CoordinateTransformer::ChunkVertexToTerrainVertex(
     const ChunkVertexVector2D &chunkVertexVector2D) {
-    return TerrainVertexVector2D{chunkVertexVector2D.x & Constants::TERRAIN_ALIGN, chunkVertexVector2D.y & Constants::TERRAIN_ALIGN};
+    return TerrainVertexVector2D{
+        chunkVertexVector2D.x & Constants::TERRAIN_ALIGN, chunkVertexVector2D.y & Constants::TERRAIN_ALIGN
+    };
 }
 
 glimmer::TerrainVertexVector2D glimmer::CoordinateTransformer::TileToTerrainVertex(const TileVector2D &tileVector2D) {

@@ -105,7 +105,7 @@ void glimmer::LocalConsoleInput::InputLoop(const std::stop_token &stopToken) con
     LogCat::i(LogLabel::DEFAULT, "local_console_input_thread_stopped", "LocalConsoleInput thread stopped");
 }
 
-glimmer::LocalConsoleInput::LocalConsoleInput (std::function<void(const std::string &)> onCommandCallback)
+glimmer::LocalConsoleInput::LocalConsoleInput(std::function<void(const std::string &)> onCommandCallback)
     : onCommandCallback_(std::move(onCommandCallback)) {
     wakeupEvent_ = CreateEventW(nullptr, TRUE, FALSE, nullptr);
     thread_ = std::jthread([this](const std::stop_token &stopToken) { this->InputLoop(stopToken); });

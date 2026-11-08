@@ -51,7 +51,8 @@ namespace glimmer {
                                 TerrainResult *terrainResult,
                                 IBiomeDecoratorResource *decoratorResource,
                                 BiomeResource *biomeResource,
-                                std::unordered_map<TileLayerType, std::array<ResourceRef, Constants::CHUNK_AREA> > *tilesRefMap) =
+                                std::unordered_map<TileLayerType, std::array<ResourceRef, Constants::CHUNK_AREA> > *
+                                tilesRefMap) =
         0;
 
         virtual BiomeDecoratorType GetBiomeDecoratorType() = 0;
@@ -76,7 +77,8 @@ namespace glimmer {
         void Decoration(const ChunkVertexVector2D &chunkVertex, WorldContext *worldContext,
                         TerrainResult *terrainResult,
                         IBiomeDecoratorResource *decoratorResource, BiomeResource *biomeResource,
-                        std::unordered_map<TileLayerType, std::array<ResourceRef, Constants::CHUNK_AREA> > *tilesRefMap) override {
+                        std::unordered_map<TileLayerType, std::array<ResourceRef, Constants::CHUNK_AREA> > *
+                        tilesRefMap) override {
             auto *concreteResource = static_cast<ResourceT *>(decoratorResource);
             DecorationImpl(chunkVertex, worldContext, terrainResult, concreteResource, biomeResource, tilesRefMap);
         }

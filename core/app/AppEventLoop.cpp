@@ -177,7 +177,7 @@ bool glimmer::AppEventLoop::HandleSystemEvent(const SDL_Event &event) const {
                 break;
             }
         }
-#if  defined(NDEBUG)
+#if defined(NDEBUG)
         //Official version: Does not support forced exit.
         //正式版本，不支持强制退出。
         const bool force = false;

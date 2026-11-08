@@ -75,7 +75,8 @@ void glimmer::TileRefResolver::WriteVoidResourceRef(const TileLayerType layerTyp
 
 void glimmer::TileRefResolver::Initialize(const TerrainResult *terrainResult,
                                           const ChunkVertexVector2D &chunkVertexVector2D,
-                                          std::unordered_map<TileLayerType, std::array<ResourceRef, Constants::CHUNK_AREA> > &
+                                          std::unordered_map<TileLayerType, std::array<ResourceRef,
+                                              Constants::CHUNK_AREA> > &
                                           tilesRefMap,
                                           std::unordered_set<BiomeResource *> &biomeResourcesSet) {
     for (int localX = 0; localX < Constants::CHUNK_SIZE; ++localX) {

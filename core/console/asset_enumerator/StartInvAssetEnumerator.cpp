@@ -25,13 +25,13 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "StartInvAssetEnumerator.h"
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
 #include "core/context/AppContext.h"
 #include "core/context/ModContext.h"
 #include "core/inventory/InitialInventoryManager.h"
 
 
-const std::string & glimmer::StartInvAssetEnumerator::GetAssetType() const {
+const std::string &glimmer::StartInvAssetEnumerator::GetAssetType() const {
     return assetName_;
 }
 

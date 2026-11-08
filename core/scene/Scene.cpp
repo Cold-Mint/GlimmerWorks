@@ -109,7 +109,7 @@ Rml::ElementDocument *glimmer::Scene::LoadSingleDocument(const ResourceRef *reso
                   "elementDocument_ == nullptr");
         return nullptr;
     }
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
     if (elementDocumentSet_.contains(elementDocument)) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "duplicate_document_loading",
                   "A duplicate loading of the document has been detected.");
@@ -291,7 +291,7 @@ void glimmer::Scene::Update(float delta) {
 }
 
 void glimmer::Scene::OnTick(const uint64_t tick) {
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
     if (!initSubclassFinish_) {
         initTick_ += tick;
         if (tick > static_cast<uint64_t>(Constants::TICK_RATE) * 2) {

@@ -31,7 +31,7 @@
 #include "core/log/LogCat.h"
 #include "core/config/Config.h"
 #include "core/scene/SplashScene.h"
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
 #include "core/scene/DebugOverlay.h"
 #endif
 #include "core/app/AppEventLoop.h"
@@ -239,7 +239,7 @@ void glimmer::App::UpdateScenes(const float deltaTime) const {
 void glimmer::App::InitScenesAndConsole() const {
     auto sceneManager = appContext_->GetSceneManager();
     sceneManager->PushScene(std::make_unique<SplashScene>(appContext_));
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
     sceneManager->AddOverlayScene(std::make_unique<DebugOverlay>(appContext_));
 #endif
     sceneManager->AddOverlayScene(std::make_unique<ConsoleOverlay>(appContext_));

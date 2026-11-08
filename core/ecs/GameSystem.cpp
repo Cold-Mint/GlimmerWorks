@@ -144,7 +144,7 @@ void glimmer::GameSystem::OnFrameStart() {
 }
 
 void glimmer::GameSystem::Update(const float delta) {
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
     if (!initSubclassFinish_) {
         initTimeOut_ += delta;
         if (initTimeOut_ > 2) {

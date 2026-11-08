@@ -273,7 +273,9 @@ void glimmer::PlayerContext::OnPlayerItemChanged(const ItemContainer *itemContai
         return;
     }
     const EntityShortCut *entityShortCut = worldContext_->GetEntityShortCut();
-    const GameEntityID playerEntity = entityShortCut != nullptr ? entityShortCut->GetPlayer() : Constants::GAME_ENTITY_ID_INVALID;
+    const GameEntityID playerEntity = entityShortCut != nullptr
+                                          ? entityShortCut->GetPlayer()
+                                          : Constants::GAME_ENTITY_ID_INVALID;
     if (changeType == ContainerChangeType::STACK_DURABILITY_EXHAUSTED) {
         HandleItemBreak(item, playerComponent);
         playerComponent->SetItem(nullptr);

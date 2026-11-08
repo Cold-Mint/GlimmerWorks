@@ -300,7 +300,7 @@ namespace glimmer {
         template<typename... Args>
         static void i([[maybe_unused]] const LogLabel label, [[maybe_unused]] std::string_view key,
                       [[maybe_unused]] std::string_view fallback, [[maybe_unused]] Args &&... args) {
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
             const std::string message = Format(key, fallback, std::forward<Args>(args)...);
             const std::string line = Timestamp("i", label) + " " + message;
             AppendToBuffer(line);
@@ -315,7 +315,7 @@ namespace glimmer {
         template<typename... Args>
         static void d([[maybe_unused]] const LogLabel label, [[maybe_unused]] std::string_view key,
                       [[maybe_unused]] std::string_view fallback, [[maybe_unused]] Args &&... args) {
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
             const std::string message = Format(key, fallback, std::forward<Args>(args)...);
             const std::string line = Timestamp("d", label) + " " + message;
             AppendToBuffer(line);
@@ -331,7 +331,7 @@ namespace glimmer {
         static void w([[maybe_unused]] const LogLabel label, [[maybe_unused]] const std::source_location sourceLocation,
                       [[maybe_unused]] std::string_view key,
                       [[maybe_unused]] std::string_view fallback, [[maybe_unused]] Args &&... args) {
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
             const std::string message = Format(key, fallback, std::forward<Args>(args)...);
             const std::string line = Timestamp("w", label) + " At " + sourceLocation.file_name() + ":" +
                                      std::to_string(sourceLocation.line()) + " " + message;
@@ -354,7 +354,7 @@ namespace glimmer {
             const std::string message = Format(key, fallback, std::forward<Args>(args)...);
             const std::string line = Timestamp("e", label) + " At " + sourceLocation.file_name() + ":" +
                                      std::to_string(sourceLocation.line()) + " " + message;
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
             AppendToBuffer(line);
 #endif
 #ifdef __ANDROID__
@@ -362,8 +362,8 @@ namespace glimmer {
 #else
             std::cout << COLOR_ERROR << line << COLOR_RESET << std::endl;
 #endif
-#if  !defined(NDEBUG)
-            // assert(false);
+#if !defined(NDEBUG)
+            assert(false);
 #endif
         }
 
@@ -381,7 +381,7 @@ namespace glimmer {
                                      +
                                      sourceLocation.file_name() + ":" + std::to_string(sourceLocation.line()) + " " +
                                      message;
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
             AppendToBuffer(line);
 #endif
 #ifdef __ANDROID__
@@ -389,7 +389,7 @@ namespace glimmer {
 #else
             std::cout << COLOR_ERROR << line << COLOR_RESET << std::endl;
 #endif
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
             assert(false);
 #endif
         }

@@ -46,7 +46,8 @@ void glimmer::ChunkTilePopulator::PopulateSingleTilePosition(Chunk *chunk, const
         }
         //The tile is rooted at cellIndex (its bottom-left); PlaceTileAt expects the top-left index.
         //瓦片以 cellIndex（左下）为根；PlaceTileAt 需要左上索引。
-        const size_t topLeftIndex = cellIndex + static_cast<size_t>(tileResource->tileHeight - 1) * Constants::CHUNK_SIZE;
+        const size_t topLeftIndex = cellIndex + static_cast<size_t>(tileResource->tileHeight - 1) *
+                                    Constants::CHUNK_SIZE;
         chunk->PlaceTileAt(tileLayerType, topLeftIndex, resourceRef, tileResource, BreakSource::ChunkGenerate,
                            PLACE_SOURCE_WORLD_GEN, true);
     }
@@ -54,7 +55,8 @@ void glimmer::ChunkTilePopulator::PopulateSingleTilePosition(Chunk *chunk, const
 
 void glimmer::ChunkTilePopulator::Populate(Chunk *chunk,
                                            const ResourceLocator *resourceLocator,
-                                           const std::unordered_map<TileLayerType, std::array<ResourceRef, Constants::CHUNK_AREA> >
+                                           const std::unordered_map<TileLayerType, std::array<ResourceRef,
+                                               Constants::CHUNK_AREA> >
                                            &tilesRefMap) {
     LogCat::d(LogLabel::CHUNK, "chunk_tile_populate_start", "Populating chunk tiles: position=({}, {})",
               chunk->GetPosition().x, chunk->GetPosition().y);

@@ -121,7 +121,7 @@ bool glimmer::RmlContext::Init(VirtualFileSystem *virtualFileSystem, SDL_GPUDevi
     decoratorNinePatchTextureInstancer_.RegisterProperties();
     Rml::Factory::RegisterDecoratorInstancer("ninepatch-texture", &decoratorNinePatchTextureInstancer_);
     context_ = Rml::CreateContext("glimmerGui", Rml::Vector2i(width, height));
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
     Rml::Debugger::Initialise(context_);
 #endif
     LogCat::i(LogLabel::DEFAULT, "rml_context_initialized", "RmlContext initialized successfully");

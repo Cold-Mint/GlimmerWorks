@@ -297,7 +297,8 @@ bool glimmer::Saves::WriteMapManifest(const MapManifestMessage &mapManifestMessa
     if (onMapManifestChanged_ != nullptr) {
         onMapManifestChanged_(mapManifestMessage);
     }
-    bool result = virtualFileSystem_->WriteFile(path_ / Constants::MAP_MANIFEST_FILE_NAME, mapManifestMessage.SerializeAsString());
+    bool result = virtualFileSystem_->WriteFile(path_ / Constants::MAP_MANIFEST_FILE_NAME,
+                                                mapManifestMessage.SerializeAsString());
     if (!result) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "map_manifest_write_failed",
                   "Failed to write map manifest: {}",

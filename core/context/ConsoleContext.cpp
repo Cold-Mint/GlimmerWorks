@@ -105,7 +105,7 @@ void glimmer::ConsoleContext::RegisterCommands(AppContext *appContext) const {
     commandManager_->RegisterCommand(std::make_unique<ItemEditorCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<PlayCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<ExitCommand>(appContext));
-#if  !defined(NDEBUG)
+#if !defined(NDEBUG)
     commandManager_->RegisterCommand(std::make_unique<HookCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<TileSnapshotCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<EcsCommand>(appContext));

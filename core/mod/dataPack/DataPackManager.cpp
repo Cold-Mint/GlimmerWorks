@@ -133,7 +133,8 @@ bool glimmer::DataPackManager::IsDependencySatisfied(uint64_t packId1, uint64_t 
         return false;
     }
     if (packId2 == Constants::RESOURCE_REF_CORE_ID) {
-        return CheckDependencyVersion(dataPackManifest1->packDependencies, packId2, Constants::CORE_DATA_PACK_VERSION_NUMBER);
+        return CheckDependencyVersion(dataPackManifest1->packDependencies, packId2,
+                                      Constants::CORE_DATA_PACK_VERSION_NUMBER);
     }
     const DataPackManifest *dataPackManifest2 = nullptr;
     DataPack *dataPack2 = this->Find(packId2);

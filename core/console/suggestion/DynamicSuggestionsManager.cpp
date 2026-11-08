@@ -29,7 +29,7 @@
 void glimmer::DynamicSuggestionsManager::RegisterDynamicSuggestions(
     std::unique_ptr<DynamicSuggestions> dynamicSuggestion) {
     const std::string_view id = dynamicSuggestion->GetId();
-    dynamicSuggestions_[id] = std::move(dynamicSuggestion);
+    dynamicSuggestions_[std::string(id)] = std::move(dynamicSuggestion);
 }
 
 glimmer::DynamicSuggestions *glimmer::DynamicSuggestionsManager::GetSuggestions(const std::string &id) const {

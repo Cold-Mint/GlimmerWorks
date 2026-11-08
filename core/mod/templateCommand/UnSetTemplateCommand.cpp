@@ -26,13 +26,12 @@
  */
 #include "UnSetTemplateCommand.h"
 
-
-std::optional<std::string> glimmer::UnSetTemplateCommand::Execute(
+std::unique_ptr<std::stringstream> glimmer::UnSetTemplateCommand::Execute(
     const std::vector<std::filesystem::path> &templateSearchPath,
     std::stack<std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<> > > &variablesStack,
-    std::vector<std::string> &args, const VirtualFileSystem *virtualFileSystem) {
+    std::vector<std::string> &args, std::stack<bool> &conditionStack, const VirtualFileSystem *virtualFileSystem) {
     if (variablesStack.empty()) {
-        return std::nullopt;
+        return nullptr;
     }
     std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<> > &variables = variablesStack.
             top();
@@ -40,7 +39,7 @@ std::optional<std::string> glimmer::UnSetTemplateCommand::Execute(
     for (size_t i = 0; i < size; ++i) {
         variables.erase(args[i]);
     }
-    return std::nullopt;
+    return nullptr;
 }
 
 const std::string_view &glimmer::UnSetTemplateCommand::GetCommandName() const {

@@ -202,6 +202,51 @@ std::optional<std::string> glimmer::StringUtils::StreamToString(const std::istre
     return oss.str();
 }
 
+std::string glimmer::StringUtils::RenderScan(std::string_view tpl,
+                                             const std::unordered_map<std::string, std::string, TransparentStringHash,
+                                                 std::equal_to<> > &map) {
+    std::string out;
+    out.reserve(tpl.size() + 32);
+    const size_t n = tpl.size();
+    size_t i = 0;
+    while (i < n) {
+        if (const char c = tpl[i]; c == '{') {
+            if (i + 1 < n && tpl[i + 1] == '{') {
+                out.push_back('{');
+                i += 2;
+                continue;
+            }
+
+            const size_t close = tpl.find('}', i + 1);
+            if (close == std::string_view::npos) {
+                out.append(tpl.substr(i));
+                break;
+            }
+            const std::string_view key = tpl.substr(i + 1, close - i - 1);
+
+            if (auto it = map.find(key); it != map.end()) {
+                out.append(it->second);
+            } else {
+                out.append(tpl.substr(i, close - i + 1));
+            }
+            i = close + 1;
+        } else if (c == '}') {
+            if (i + 1 < n && tpl[i + 1] == '}') {
+                out.push_back('}');
+                i += 2;
+            } else {
+                out.push_back('}');
+                ++i;
+            }
+        } else {
+            size_t start = i;
+            while (i < n && tpl[i] != '{' && tpl[i] != '}') ++i;
+            out.append(tpl.substr(start, i - start));
+        }
+    }
+    return out;
+}
+
 std::string glimmer::StringUtils::GetScreenshotFileName() {
     auto now = std::chrono::system_clock::now();
     auto t = std::chrono::system_clock::to_time_t(now);

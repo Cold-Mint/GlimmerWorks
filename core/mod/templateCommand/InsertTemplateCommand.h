@@ -33,11 +33,11 @@ namespace glimmer {
         static constexpr std::string_view insert = "insert_template";
 
     public:
-        [[nodiscard]] std::optional<std::string> Execute(const std::vector<std::filesystem::path> &templateSearchPath,
-                                                         std::stack<std::unordered_map<std::string, std::string,
-                                                             TransparentStringHash, std::equal_to<> > > &
-                                                         variablesStack, std::vector<std::string> &args,
-                                                         const VirtualFileSystem *virtualFileSystem) override;
+        [[nodiscard]] std::unique_ptr<std::stringstream> Execute(
+            const std::vector<std::filesystem::path> &templateSearchPath,
+            std::stack<std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<>>> &
+            variablesStack, std::vector<std::string> &args, std::stack<bool> &conditionStack,
+            const VirtualFileSystem *virtualFileSystem) override;
 
         [[nodiscard]] const std::string_view &GetCommandName() const override;
     };

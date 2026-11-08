@@ -26,15 +26,14 @@
  */
 #include "ScopeTemplateCommand.h"
 
-std::optional<std::string> glimmer::ScopeTemplateCommand::Execute(
+std::unique_ptr<std::stringstream> glimmer::ScopeTemplateCommand::Execute(
     const std::vector<std::filesystem::path> &templateSearchPath,
     std::stack<std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<> > > &variablesStack,
-    std::vector<std::string> &args, const VirtualFileSystem *virtualFileSystem) {
+    std::vector<std::string> &args, std::stack<bool> &conditionStack, const VirtualFileSystem *virtualFileSystem) {
     if (args.empty()) {
         variablesStack.emplace();
-        return std::nullopt;
+        return nullptr;
     }
-
     if (args[0] == "inherit" && !variablesStack.empty()) {
         //#scope(inherit)-- Copy the parent layer and inherit the parent-level variables (snapshot)
         //#scope(inherit)—— 拷贝父层，继承父级变量（快照）
@@ -42,10 +41,10 @@ std::optional<std::string> glimmer::ScopeTemplateCommand::Execute(
         //先拷贝到局部变量，避免引用失效
         auto parentCopy = variablesStack.top();
         variablesStack.push(std::move(parentCopy));
-        return std::nullopt;
+        return nullptr;
     }
     variablesStack.emplace();
-    return std::nullopt;
+    return nullptr;
 }
 
 const std::string_view &glimmer::ScopeTemplateCommand::GetCommandName() const {

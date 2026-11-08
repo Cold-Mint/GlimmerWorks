@@ -128,13 +128,16 @@ int glimmer::DataPack::ProcessFile(const std::filesystem::path &file, const AppC
     if (!dataTypeOptional.has_value()) {
         return 0;
     }
-    const std::string content(fileBuffer.data(), fileBuffer.size());
     const auto &dataType = dataTypeOptional.value();
     if (LanguageFileProcessor::ProcessLanguageFile(file, dataType, fileName, defaultLanguageFiles,
                                                    targetLanguageFiles, appContext)) {
         return 0;
     }
-    return resourceFileLoader_->LoadResourceByType(dataType, file.string(), content,
+    if (file.string() == "mods/data_packs/glimmerworks/fixedColor/glass_black.fixed_color.toml") {
+        LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "{}", "{}", file.string());
+    }
+    std::stringstream inputStringStream(std::string(fileBuffer.begin(), fileBuffer.end()));
+    return resourceFileLoader_->LoadResourceByType(dataType, file.string(), inputStringStream,
                                                    appContext);
 }
 

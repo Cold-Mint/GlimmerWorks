@@ -857,6 +857,8 @@ target_sources(GlimmerWorks
         core/ecs/system/InventoryGUISystem.cpp
         core/ecs/system/StorageGUISystem.cpp
         core/ecs/component/RecipeSelectionComponent.cpp
+        core/mod/templateCommand/IfDefTemplateCommand.cpp
+        core/mod/templateCommand/EndIfDefTemplateCommand.cpp
         main.cpp
         PUBLIC
         FILE_SET HEADERS
@@ -917,6 +919,8 @@ target_sources(GlimmerWorks
         core/context/CacheContext.h
         core/mod/resourcePack/cache/ColorCache.h
         core/saves/SavesCreateRequest.h
+        core/mod/templateCommand/IfDefTemplateCommand.h
+        core/mod/templateCommand/EndIfDefTemplateCommand.h
         core/gpu/BlendMode.h
         core/gpu/RenderQueue.h
         core/gpu/LightMapTexture.h
@@ -1394,7 +1398,7 @@ endif ()
 if (NOT CMAKE_BUILD_TYPE MATCHES "^Debug$" AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(GlimmerWorks PRIVATE
             "-ffile-prefix-map=${CMAKE_SOURCE_DIR}=")
-endif()
+endif ()
 
 if (WITH_CRASHPAD)
     target_compile_definitions(GlimmerWorks PRIVATE CRASHPAD_NAME="${CRASHPAD_NAME}" WITH_CRASHPAD)

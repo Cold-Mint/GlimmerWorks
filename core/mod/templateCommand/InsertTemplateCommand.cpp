@@ -30,16 +30,15 @@
 #include "core/config/Constants.h"
 #include "core/utils/StringUtils.h"
 
-std::optional<std::string> glimmer::InsertTemplateCommand::Execute(
+std::unique_ptr<std::stringstream> glimmer::InsertTemplateCommand::Execute(
     const std::vector<std::filesystem::path> &templateSearchPath,
     std::stack<std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<> > > &variablesStack,
-    std::vector<std::string> &args, const VirtualFileSystem *virtualFileSystem) {
+    std::vector<std::string> &args, std::stack<bool> &conditionStack, const VirtualFileSystem *virtualFileSystem) {
     if (templateSearchPath.empty()) {
-        return std::nullopt;
+        return nullptr;
     }
     const size_t size = args.size();
-    std::stringstream stringStream;
-    bool empty = true;
+    auto stringStream = std::make_unique<std::stringstream>();
     for (int i = 0; i < size; i++) {
         std::stringstream fileNameStream;
         fileNameStream << args[i];
@@ -53,29 +52,14 @@ std::optional<std::string> glimmer::InsertTemplateCommand::Execute(
             if (!virtualFileSystem->Exists(path)) {
                 continue;
             }
-            auto processedContentOptional = virtualFileSystem->ReadFileAsString(path);
-            if (!processedContentOptional.has_value()) {
+            auto processedContentStream = virtualFileSystem->ReadFileAsStream(path);
+            if (processedContentStream == nullptr) {
                 continue;
             }
-            if (!variablesStack.empty()) {
-                std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<> > &variables =
-                        variablesStack.top();
-                for (const auto &[key, value]: variables) {
-                    StringUtils::ReplaceAll(processedContentOptional.value(), "{" + key + "}", value);
-                }
-            }
-            if (empty) {
-                stringStream << processedContentOptional.value();
-                empty = false;
-            } else {
-                stringStream << '\n' << processedContentOptional.value();
-            }
+            *stringStream << '\n' << processedContentStream->rdbuf();
         }
     }
-    if (empty) {
-        return std::nullopt;
-    }
-    return stringStream.str();
+    return stringStream;
 }
 
 const std::string_view &glimmer::InsertTemplateCommand::GetCommandName() const {

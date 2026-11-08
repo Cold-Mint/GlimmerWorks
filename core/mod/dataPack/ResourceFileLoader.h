@@ -198,11 +198,11 @@ namespace glimmer {
          * 按数据类型加载资源
          * @param dataType dataType 数据类型
          * @param file file 文件路径
-         * @param content content 文件内容
+         * @param inputStringStream inputStringStream
          * @param appContext appContext 应用上下文
          * @return 1 if loaded, 0 otherwise 加载成功返回1，否则返回0
          */
         int LoadResourceByType(const std::string &dataType, const std::string &file,
-                               const std::string &content, const AppContext *appContext) const;
+                               std::stringstream &inputStringStream, const AppContext *appContext) const;
     };
 }

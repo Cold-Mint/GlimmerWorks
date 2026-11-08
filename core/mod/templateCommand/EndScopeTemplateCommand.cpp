@@ -26,14 +26,14 @@
  */
 #include "EndScopeTemplateCommand.h"
 
-std::optional<std::string> glimmer::EndScopeTemplateCommand::Execute(
+std::unique_ptr<std::stringstream> glimmer::EndScopeTemplateCommand::Execute(
     const std::vector<std::filesystem::path> &templateSearchPath,
     std::stack<std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<> > > &variablesStack,
-    std::vector<std::string> &args, const VirtualFileSystem *virtualFileSystem) {
+    std::vector<std::string> &args, std::stack<bool> &conditionStack, const VirtualFileSystem *virtualFileSystem) {
     if (variablesStack.size() > 1) {
         variablesStack.pop();
     }
-    return std::nullopt;
+    return nullptr;
 }
 
 const std::string_view &glimmer::EndScopeTemplateCommand::GetCommandName() const {

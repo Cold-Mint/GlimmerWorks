@@ -25,7 +25,6 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <optional>
 #include <stack>
 #include <string>
 #include <unordered_map>
@@ -40,11 +39,11 @@ namespace glimmer {
     public:
         virtual ~ITemplateCommand();
 
-        [[nodiscard]] virtual std::optional<std::string> Execute(
+        [[nodiscard]] virtual std::unique_ptr<std::stringstream> Execute(
             const std::vector<std::filesystem::path> &templateSearchPath,
             std::stack<std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<> > > &
             variablesStack,
-            std::vector<std::string> &args,
+            std::vector<std::string> &args, std::stack<bool> &conditionStack,
             const VirtualFileSystem *virtualFileSystem) = 0;
 
         [[nodiscard]] virtual const std::string_view &GetCommandName() const = 0;

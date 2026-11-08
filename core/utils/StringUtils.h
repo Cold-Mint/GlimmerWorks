@@ -31,6 +31,7 @@
 #include <unordered_map>
 
 #include "blake3.h"
+#include "TransparentStringHash.h"
 #include "src/core/resource_type.pb.h"
 
 namespace glimmer {
@@ -155,6 +156,17 @@ namespace glimmer {
          * @return
          */
         static std::optional<std::string> StreamToString(const std::istream *stream);
+
+        /**
+         * 将变量插入字符串内。
+         * 例如输入： happy{name} 如果map内包含name的值那么会自动插入
+         * @param tpl
+         * @param map
+         * @return
+         */
+        static std::string RenderScan(std::string_view tpl,
+                                      const std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to
+                                          <> >& map);
 
         /**
          * Get Screenshot File Name

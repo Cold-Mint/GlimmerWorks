@@ -188,8 +188,8 @@ std::vector<std::filesystem::path> glimmer::ResourceFileLoader::GetActuallyTempl
 
 int glimmer::ResourceFileLoader::LoadStringResourceFromFile(const std::filesystem::path &path,
                                                             StringManager *stringManager) const {
-    const auto contentOptional = virtualFileSystem_->ReadFileAsString(path);
-    if (!contentOptional.has_value()) {
+    const auto stream = virtualFileSystem_->ReadFileAsStream(path);
+    if (stream == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "resource_file_loader_string_read_failed",
                   "Failed to read string resource file: {}", path.string());
         return 0;
@@ -198,8 +198,10 @@ int glimmer::ResourceFileLoader::LoadStringResourceFromFile(const std::filesyste
     if (searchPath.empty()) {
         return 0;
     }
+    std::stringstream inputStringStream;
+    inputStringStream << stream->rdbuf();
     const toml::value value = toml::parse_str(
-        tomlTemplateExpander_->Expand(searchPath, contentOptional.value(), virtualFileSystem_),
+        tomlTemplateExpander_->Expand(searchPath, inputStringStream, virtualFileSystem_),
         Constants::TOML_VERSION);
     int count = 0;
     auto array = toml::find<std::vector<StringResource> >(value, "string");
@@ -818,18 +820,17 @@ const glimmer::VirtualFileSystem *glimmer::ResourceFileLoader::GetVirtualFileSys
     return virtualFileSystem_;
 }
 
-
 int glimmer::ResourceFileLoader::LoadResourceByType(const std::string &dataType, const std::string &file,
-                                                    const std::string &content, const AppContext *appContext) const {
+                                                    std::stringstream &inputStringStream,
+                                                    const AppContext *appContext) const {
     const std::vector<std::filesystem::path> searchPath = GetActuallyTemplateSearchPath(file);
     if (dataType == Constants::DATA_FILE_TYPE_TEMPLATE) {
         return 1;
     }
-    std::string data = tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_);
+    const std::string data = tomlTemplateExpander_->Expand(searchPath, inputStringStream, virtualFileSystem_);
     try {
         std::istringstream dataStream(data);
         const toml::value value = toml::parse(dataStream, file, Constants::TOML_VERSION);
-
         const auto it = handlerMap_.find(dataType);
         if (it == handlerMap_.end()) {
             LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "resource_file_loader_unknown_type",

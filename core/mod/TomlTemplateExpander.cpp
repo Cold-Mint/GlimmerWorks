@@ -26,16 +26,18 @@
  */
 #include "TomlTemplateExpander.h"
 
+#include <ranges>
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include <optional>
 #include <sstream>
 #include <algorithm>
 #include <cassert>
+#include <queue>
 #include <stack>
 
 #include "core/log/LogCat.h"
+#include "core/utils/StringUtils.h"
 
 
 void glimmer::TomlTemplateExpander::Register(std::unique_ptr<ITemplateCommand> command) {
@@ -48,25 +50,40 @@ void glimmer::TomlTemplateExpander::Register(std::unique_ptr<ITemplateCommand> c
 }
 
 std::string glimmer::TomlTemplateExpander::Expand(const std::vector<std::filesystem::path> &templateSearchPath,
-                                                  const std::string &inputText,
+                                                  std::stringstream &inputStringStream,
                                                   const VirtualFileSystem *virtualFileSystem) const {
     if (templateSearchPath.empty()) {
-        return inputText;
+        return inputStringStream.str();
     }
-    std::stringstream inputStringStream(inputText);
-    std::stringstream output;
-    std::string line;
+
     std::stack<std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<> > > variablesStack =
             {};
+    //条件栈，用于ifdef和ifndef
+    std::stack<bool> conditionStack;
     //Construct the bottom element of the stack.
     //构造栈底元素。
     variablesStack.emplace();
+    std::string line;
+    std::deque<std::string> lines;
     while (std::getline(inputStringStream, line)) {
+        lines.push_back(line);
+    }
+    std::stringstream output;
+    bool firstWrite = true;
+    std::stack<std::string> newLines;
+    while (!lines.empty()) {
+        line = lines.front();
+        lines.pop_front();
         if (line.starts_with("#@")) {
             std::string commandLine = line.substr(2);
             size_t openParen = commandLine.find('(');
             if (openParen == std::string::npos) {
-                output << line << '\n';
+                if (firstWrite) {
+                    firstWrite = false;
+                } else {
+                    output << '\n';
+                }
+                output << line;
                 continue;
             }
 
@@ -89,14 +106,43 @@ std::string glimmer::TomlTemplateExpander::Expand(const std::vector<std::filesys
             while (std::getline(argsIss, arg, ',')) {
                 args.push_back(arg);
             }
-            auto result = cmd->Execute(templateSearchPath, variablesStack, args, virtualFileSystem);
-            if (result.has_value()) {
-                output << *result << '\n';
+            if (auto stringStream = cmd->Execute(templateSearchPath, variablesStack, args, conditionStack,
+                                                 virtualFileSystem);
+                stringStream != nullptr) {
+                //Pointer to the reset stream.
+                //复位流的指针。
+                stringStream->seekg(0);
+                while (std::getline(*stringStream, line)) {
+                    newLines.push(line); // 正序收集：a, b, c
+                }
+                while (!newLines.empty()) {
+                    lines.push_front(newLines.top());
+                    newLines.pop();
+                }
             }
         } else {
-            output << line << '\n';
+            //Here, template substitution is carried out.
+            //这里实现模板替换。
+            if (conditionStack.empty()) {
+                if (firstWrite) {
+                    firstWrite = false;
+                } else {
+                    output << '\n';
+                }
+                output << StringUtils::RenderScan(line, variablesStack.top());
+            } else {
+                if (conditionStack.top()) {
+                    if (firstWrite) {
+                        firstWrite = false;
+                    } else {
+                        output << '\n';
+                    }
+                    output << StringUtils::RenderScan(line, variablesStack.top());
+                }
+            }
         }
     }
+
 #if defined(NDEBUG)
     return output.str();
 #else

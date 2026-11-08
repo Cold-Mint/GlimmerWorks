@@ -43,11 +43,12 @@ namespace glimmer {
          * Expand
          * 展开模板
          * @param templateSearchPath templateSearchPath 模板搜索路径
-         * @param inputText inputText 输入的文本（从文件读取的原始文本）
+         * @param inputStringStream
          * @param virtualFileSystem
          * @return
          */
-        std::string Expand(const std::vector<std::filesystem::path> &templateSearchPath, const std::string &inputText,
+        std::string Expand(const std::vector<std::filesystem::path> &templateSearchPath,
+                           std::stringstream &inputStringStream,
                            const VirtualFileSystem *virtualFileSystem) const;
     };
 }

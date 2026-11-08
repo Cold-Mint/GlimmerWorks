@@ -115,9 +115,12 @@ bool glimmer::VFSCommand::Execute(const CommandSender *commandSender, const Comm
         return true;
     }
     if (size > 2 && type == "actualPath") {
-        auto actualPathArg = commandArgs->AsString(2);
-        auto actualPath = virtualFileSystem->GetActualPath(actualPathArg);
-        onMessageRef(actualPath.value_or(appContext->GetLangsResources()->getActualPathError));
+        const auto actualPathArg = commandArgs->AsString(2);
+        if (const auto actualPath = virtualFileSystem->GetActualPath(actualPathArg); actualPath.has_value()) {
+            onMessageRef(actualPath.value().string());
+        } else {
+            onMessageRef(appContext->GetLangsResources()->getActualPathError);
+        }
         return true;
     }
     if (size > 2 && type == "exists") {

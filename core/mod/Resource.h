@@ -505,6 +505,20 @@ namespace glimmer {
 
 
     /**
+     * MaterialResource
+     * 材质资源
+     */
+    //@genNextLine(MaterialResource|材质资源)
+    struct MaterialResource : Resource {
+        //@genNextLine(pipeline|渲染管线引用)
+        ResourceRef pipeline = {};
+        //@genNextLine(texture|纹理资源引用)
+        ResourceRef texture;
+        //@genNextLine(sampler|采样器引用)
+        ResourceRef sampler = {};
+    };
+
+    /**
      * TileResource
      * 瓦片资源
      */

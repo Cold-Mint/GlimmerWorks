@@ -29,7 +29,7 @@
 
 #include "core/utils/LangsResources.h"
 #include "core/ecs/EntityShortCut.h"
-#include "core/mod/dataPack/StringManager.h"
+#include "core/mod/dataPack/StringResourceRegistry.h"
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/context/AppContext.h"
 #include "core/context/ModContext.h"
@@ -45,7 +45,7 @@ void glimmer::TagCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree
 }
 
 void glimmer::TagCommand::WriteTag(const std::string &tagItem, std::stringstream &stringStream,
-                                   StringManager *stringManager, const ItemTagResource &itemTagResource) {
+                                   StringResourceRegistry *stringManager, const ItemTagResource &itemTagResource) {
     uint64_t cachedTagId = itemTagResource.cachedTagId;
     auto tagTranslate = stringManager->GetTagTranslate(cachedTagId);
     stringStream << fmt::format(fmt::runtime(tagItem), itemTagResource.name,
@@ -53,7 +53,7 @@ void glimmer::TagCommand::WriteTag(const std::string &tagItem, std::stringstream
                                 cachedTagId, itemTagResource.value);
 }
 
-std::string glimmer::TagCommand::BuildTagListString(const std::string &tagItem, StringManager *stringManager,
+std::string glimmer::TagCommand::BuildTagListString(const std::string &tagItem, StringResourceRegistry *stringManager,
                                                     const std::vector<const ItemTagResource *> &tagList) {
     std::stringstream stringStream;
     bool first = true;
@@ -119,7 +119,7 @@ bool glimmer::TagCommand::ExecuteHand([[maybe_unused]] const CommandSender *comm
     if (modContext == nullptr) {
         return false;
     }
-    StringManager *stringManager = modContext->GetStringManager();
+    StringResourceRegistry *stringManager = modContext->GetStringResourceRegistry();
     const ItemTagModule *itemTagModule = item->GetTagModule();
     if (itemTagModule == nullptr) {
         return false;
@@ -159,7 +159,7 @@ bool glimmer::TagCommand::ExecuteInventory([[maybe_unused]] const CommandSender 
         return false;
     }
     const std::vector<const ItemTagResource *> &totalTags = itemContainer->GetTotalTags();
-    StringManager *stringManager = appContext->GetModContext()->GetStringManager();
+    StringResourceRegistry *stringManager = appContext->GetModContext()->GetStringResourceRegistry();
     if (totalTags.empty()) {
         onMessageRef(langsResources->tagCannotFound);
         return true;

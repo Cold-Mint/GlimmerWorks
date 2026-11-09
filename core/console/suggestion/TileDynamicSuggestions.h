@@ -26,14 +26,14 @@
  */
 #pragma once
 #include "DynamicSuggestions.h"
-#include "core/mod/dataPack/TileResourceManager.h"
+#include "core/mod/dataPack/TileResourceRegistry.h"
 
 namespace glimmer {
     class TileDynamicSuggestions final : public DynamicSuggestions {
-        TileResourceManager *tileManager_ = nullptr;
+        TileResourceRegistry *tileResourceRegistry_ = nullptr;
 
     public:
-        explicit TileDynamicSuggestions(TileResourceManager *tileManager);
+        explicit TileDynamicSuggestions(TileResourceRegistry *tileResourceRegistry);
 
         [[nodiscard]] std::string_view GetId() const override;
 

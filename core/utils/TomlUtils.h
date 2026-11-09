@@ -29,7 +29,6 @@
 #include "toml11/find.hpp"
 using glimmer::Constants;
 
-#include "core/contributor/Contributor.h"
 #include "core/lootTable/LootEntry.h"
 #include "core/mod/PackManifest.h"
 #include "core/mod/Resource.h"
@@ -579,18 +578,6 @@ namespace toml {
     };
 
     template<>
-    struct from<glimmer::Contributor> {
-        static glimmer::Contributor from_toml(const value &v) {
-            glimmer::Contributor resource;
-            resource.country = toml::find<std::string>(v, "country");
-            resource.displayName = toml::find<glimmer::ResourceRef>(v, "display_name");
-            resource.name = toml::find<std::string>(v, "name");
-            resource.uuid = toml::find<std::string>(v, "uuid");
-            return resource;
-        }
-    };
-
-    template<>
     struct from<glimmer::DimensionResource> {
         static glimmer::DimensionResource from_toml(const value &v) {
             glimmer::DimensionResource resource;
@@ -734,6 +721,18 @@ namespace toml {
             resource.resourceId = toml::find<std::string>(v, "resource_id");
             resource.sampler = toml::find_or<glimmer::ResourceRef>(v, "sampler", {});
             resource.tags = toml::find_or<std::vector<glimmer::ItemTagResource> >(v, "tags", {});
+            resource.texture = toml::find<glimmer::ResourceRef>(v, "texture");
+            return resource;
+        }
+    };
+
+    template<>
+    struct from<glimmer::MaterialResource> {
+        static glimmer::MaterialResource from_toml(const value &v) {
+            glimmer::MaterialResource resource;
+            resource.pipeline = toml::find_or<glimmer::ResourceRef>(v, "pipeline", {});
+            resource.resourceId = toml::find<std::string>(v, "resource_id");
+            resource.sampler = toml::find_or<glimmer::ResourceRef>(v, "sampler", {});
             resource.texture = toml::find<glimmer::ResourceRef>(v, "texture");
             return resource;
         }

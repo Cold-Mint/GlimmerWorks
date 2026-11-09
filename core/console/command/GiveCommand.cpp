@@ -123,7 +123,11 @@ bool glimmer::GiveCommand::GiveTileItem(const AppContext *appContext,
         return false;
     }
     ResourceRef &resourceRef = itemId.value();
-    const auto tileResource = appContext->GetResourceLocator()->FindTileRaw(&resourceRef);
+    const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+    if (resourceLocator == nullptr) {
+        return false;
+    }
+    const auto tileResource = resourceLocator->FindTile(&resourceRef);
     if (tileResource == nullptr) {
         onMessage(langsResources->tileResourceIsNull);
         return false;

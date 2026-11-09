@@ -66,7 +66,7 @@ std::unique_ptr<glimmer::Item> glimmer::ItemFactory::CreateItem(WorldContext *wo
                       "tileInstancePool == nullptr");
             return nullptr;
         }
-        auto tileResource = resourceLocator_->FindTileRaw(&resourceRef);
+        auto tileResource = resourceLocator_->FindTile(&resourceRef);
         if (tileResource != nullptr) {
             result = std::make_unique<TileItem>(
                 tileInstancePool->CreateTile(appContext_, tileResource, resourceRef.GetFingerprint()), resourceRef);

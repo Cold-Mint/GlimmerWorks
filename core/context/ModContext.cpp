@@ -57,10 +57,6 @@ glimmer::ModContext::~ModContext() = default;
 
 void glimmer::ModContext::Init(VirtualFileSystem *vfs, const LangsResources *langsResources) {
     LogCat::i(LogLabel::DEFAULT, "initializing_mod_context", "Initializing ModContext");
-
-    LogCat::d(LogLabel::DEFAULT, "creating_contributor_manager", "Creating ContributorManager");
-    contributorManager_ = std::make_unique<ContributorManager>();
-
     LogCat::d(LogLabel::DEFAULT, "creating_recipe_manager", "Creating RecipeManager");
     recipeManager_ = std::make_unique<RecipeManager>();
 
@@ -81,8 +77,8 @@ void glimmer::ModContext::Init(VirtualFileSystem *vfs, const LangsResources *lan
     dataPackManager_ = std::make_unique<DataPackManager>();
 
     LogCat::d(LogLabel::DEFAULT, "creating_string_manager", "Creating StringManager and loading language strings");
-    stringManager_ = std::make_unique<StringManager>();
-    stringManager_->LoadLangsString(langsResources);
+    stringResourceRegistry_ = std::make_unique<StringResourceRegistry>();
+    stringResourceRegistry_->LoadLangsString(langsResources);
 
     LogCat::d(LogLabel::DEFAULT, "creating_biomes_manager", "Creating BiomesManager");
     biomeRegistry_ = std::make_unique<BiomeRegistry>();
@@ -91,7 +87,7 @@ void glimmer::ModContext::Init(VirtualFileSystem *vfs, const LangsResources *lan
     dimensionRegistry_ = std::make_unique<DimensionRegistry>();
 
     LogCat::d(LogLabel::DEFAULT, "creating_tile_resource_manager", "Creating TileResourceManager");
-    tileResourceManager_ = std::make_unique<TileResourceManager>();
+    tileResourceRegistry_ = std::make_unique<TileResourceRegistry>();
 
     LogCat::d(LogLabel::DEFAULT, "creating_structure_placement_conditions_manager",
               "Creating StructurePlacementConditionsManager");
@@ -123,8 +119,8 @@ void glimmer::ModContext::Init(VirtualFileSystem *vfs, const LangsResources *lan
     LogCat::d(LogLabel::DEFAULT, "creating_initial_inventory_manager", "Creating InitialInventoryManager");
     initialInventoryManager_ = std::make_unique<InitialInventoryManager>();
 
-    LogCat::d(LogLabel::DEFAULT, "initializing_builtin_tiles", "Initializing built-in tiles");
-    tileResourceManager_->InitBuiltinTiles();
+    // LogCat::d(LogLabel::DEFAULT, "initializing_builtin_tiles", "Initializing built-in tiles");
+    // tileResourceRegistry_->InitBuiltinTiles();
 
     LogCat::d(LogLabel::DEFAULT, "creating_biome_decorator_manager", "Creating BiomeDecoratorManager");
     biomeDecoratorManager_ = std::make_unique<BiomeDecoratorManager>();
@@ -170,12 +166,12 @@ glimmer::DataPackManager *glimmer::ModContext::GetDataPackManager() const {
     return dataPackManager_.get();
 }
 
-glimmer::StringManager *glimmer::ModContext::GetStringManager() const {
-    return stringManager_.get();
+glimmer::StringResourceRegistry *glimmer::ModContext::GetStringResourceRegistry() const {
+    return stringResourceRegistry_.get();
 }
 
-glimmer::TileResourceManager *glimmer::ModContext::GetTileResourceManager() const {
-    return tileResourceManager_.get();
+glimmer::TileResourceRegistry *glimmer::ModContext::GetTileResourceRegistry() const {
+    return tileResourceRegistry_.get();
 }
 
 glimmer::BiomeRegistry *glimmer::ModContext::GetBiomeRegistry() const {
@@ -219,6 +215,10 @@ glimmer::StructureRegistry *glimmer::ModContext::GetStructureRegistry() const {
     return structureRegistry_.get();
 }
 
+glimmer::MaterialResourceRegistry *glimmer::ModContext::GetMaterialResourceRegistry() const {
+    return materialResourceRegistry_.get();
+}
+
 glimmer::StructureGeneratorManager *glimmer::ModContext::GetStructureGeneratorManager() const {
     return structureGeneratorManager_.get();
 }
@@ -249,10 +249,6 @@ glimmer::LootTableRegistry *glimmer::ModContext::GetLootTableRegistry() const {
 
 glimmer::InitialInventoryManager *glimmer::ModContext::GetInitialInventoryManager() const {
     return initialInventoryManager_.get();
-}
-
-glimmer::ContributorManager *glimmer::ModContext::GetContributorManager() const {
-    return contributorManager_.get();
 }
 
 glimmer::TomlTemplateExpander *glimmer::ModContext::GetTomlTemplateExpander() const {

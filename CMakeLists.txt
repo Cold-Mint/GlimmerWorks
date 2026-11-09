@@ -442,6 +442,8 @@ target_sources(GlimmerWorks
         core/utils/TileLayerTypeUtils.cpp
         core/world/TileAttachmentResult.cpp
         core/context/tasks/InitCrashpadTask.cpp
+        core/mod/dataPack/LightSourceResourceRegistry.cpp
+        core/mod/dataPack/LightMaskResourceRegistry.cpp
         core/world/TileAttachmentSupportResult.cpp
         core/world/scheduler/ChunkTaskScheduler.cpp
         core/mod/templateCommand/ScopeTemplateCommand.cpp
@@ -618,8 +620,6 @@ target_sources(GlimmerWorks
         core/context/ModContext.cpp
         core/context/RmlContext.cpp
         core/context/WindowContext.cpp
-        core/contributor/Contributor.cpp
-        core/contributor/ContributorManager.cpp
         core/ecs/DroppedItemCreator.cpp
         core/ecs/EntityManager.cpp
         core/ecs/EntityShortCut.cpp
@@ -717,7 +717,6 @@ target_sources(GlimmerWorks
         core/mod/ResourceRef.cpp
         core/mod/StructurePlacementConditionsProcessorManager.cpp
         core/mod/GrowthConditionProcessorManager.cpp
-        core/mod/dataPack/StructurePlacementConditionsRegistry.cpp
         core/mod/dataPack/GrowthConditionsRegistry.cpp
         core/mod/TomlTemplateExpander.cpp
         core/mod/dataPack/BiomeDecoratorRegistry.cpp
@@ -728,8 +727,6 @@ target_sources(GlimmerWorks
         core/mod/dataPack/DimensionRegistry.cpp
         core/mod/dataPack/FixedColorManager.cpp
         core/mod/dataPack/LanguageFileProcessor.cpp
-        core/mod/dataPack/LightMaskManager.cpp
-        core/mod/dataPack/LightSourceManager.cpp
         core/mod/dataPack/MobRegistry.cpp
         core/mod/dataPack/PackDependence.cpp
         core/mod/dataPack/PackSignatureVerifier.cpp
@@ -737,9 +734,9 @@ target_sources(GlimmerWorks
         core/mod/dataPack/RecipeManager.cpp
         core/mod/dataPack/ResourceFileLoader.cpp
         core/mod/dataPack/SpecialFileProcessingParams.cpp
-        core/mod/dataPack/StringManager.cpp
+        core/mod/dataPack/StringResourceRegistry.cpp
         core/mod/dataPack/StructureRegistry.cpp
-        core/mod/dataPack/TileResourceManager.cpp
+        core/mod/dataPack/TileResourceRegistry.cpp
         core/mod/resourcePack/AudioManager.cpp
         core/mod/resourcePack/AudioResourceResult.cpp
         core/mod/resourcePack/GPUPipelineResourceResult.cpp
@@ -898,6 +895,8 @@ target_sources(GlimmerWorks
         core/log/LogLabel.h
         core/ecs/system/Transform2DSystem.h
         core/utils/IFingerAssignable.h
+        core/mod/dataPack/LightSourceResourceRegistry.h
+        core/mod/dataPack/MaterialResourceRegistry.h
         core/saves/PlayerManifest.h
         core/world/DynamicLightEntry.h
         core/mod/PackScanRequest.h
@@ -1093,8 +1092,6 @@ target_sources(GlimmerWorks
         core/context/ModContext.h
         core/context/RmlContext.h
         core/context/WindowContext.h
-        core/contributor/Contributor.h
-        core/contributor/ContributorManager.h
         core/ecs/DroppedItemCreator.h
         core/ecs/EcsTypes.h
         core/ecs/EntityManager.h
@@ -1218,13 +1215,11 @@ target_sources(GlimmerWorks
         core/mod/dataPack/BiomeDecoratorRegistry.h
         core/mod/dataPack/BiomeDecoratorType.h
         core/mod/dataPack/BiomeRegistry.h
-        core/mod/dataPack/CoreTileResourceParams.h
         core/mod/dataPack/DataPack.h
         core/mod/dataPack/DataPackManager.h
         core/mod/dataPack/FixedColorManager.h
         core/mod/dataPack/LanguageFileProcessor.h
-        core/mod/dataPack/LightMaskManager.h
-        core/mod/dataPack/LightSourceManager.h
+        core/mod/dataPack/LightMaskResourceRegistry.h
         core/mod/dataPack/MobRegistry.h
         core/mod/dataPack/PackDependence.h
         core/mod/dataPack/PackSignatureVerifier.h
@@ -1232,9 +1227,9 @@ target_sources(GlimmerWorks
         core/mod/dataPack/RecipeManager.h
         core/mod/dataPack/ResourceFileLoader.h
         core/mod/dataPack/SpecialFileProcessingParams.h
-        core/mod/dataPack/StringManager.h
+        core/mod/dataPack/StringResourceRegistry.h
         core/mod/dataPack/StructureRegistry.h
-        core/mod/dataPack/TileResourceManager.h
+        core/mod/dataPack/TileResourceRegistry.h
         core/mod/resourcePack/AudioManager.h
         core/mod/resourcePack/AudioResourceResult.h
         core/mod/resourcePack/AudioType.h

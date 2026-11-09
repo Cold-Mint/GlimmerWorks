@@ -135,12 +135,10 @@ namespace glimmer {
         //禁止翻译的前缀
         static constexpr std::string_view RAW_TEXT_PREFIX = "@raw:";
         static constexpr std::string_view TEXTURE_PREFIX = "texture://";
-        static constexpr std::string_view DEV_DISPLAY_NAME_KEY_COLD_MINT = "dev@Cold-Mint";
         static constexpr std::string_view DEV_UUID_COLD_MINT = "4a724ce8-ec7f-411e-833c-b0a5e2529263";
         static constexpr std::string_view LIGHT_INSPECTOR_ID = "7ff1662b-0dd4-4cb3-866a-339f7a95bf8b";
         static constexpr std::string_view TILE_SNAPSHOT_INSPECTOR_ID = "446690e5-36f3-4cc3-b6fe-f170eb77749f";
         static constexpr std::string_view BIOME_SCORE_INSPECTOR_ID = "288937ef-4627-46cf-89b9-187b7b11a445";
-        static constexpr std::string_view DEV_NAME_COLO_MINT = "Cold-Mint";
         static constexpr std::string_view RESOURCE_REF_SELF = "@self";
         static constexpr std::string_view RESOURCE_REF_CORE = "@core";
         inline static const uint64_t RESOURCE_REF_CORE_ID =
@@ -169,7 +167,6 @@ namespace glimmer {
         static constexpr std::string_view DATA_FILE_TYPE_HEIGHT_GROWTH_CONDITION = "height_growth_condition";
         static constexpr std::string_view DATA_FILE_TYPE_TIME_GROWTH_CONDITION = "time_growth_condition";
         static constexpr std::string_view DATA_FILE_TYPE_INITIAL_INVENTORY = "startinv";
-        static constexpr std::string_view DATA_FILE_TYPE_CONTRIBUTOR = "contributor";
         static constexpr std::string_view DATA_FILE_TYPE_COLOR = "color";
         static constexpr std::string_view DATA_FILE_TYPE_MOB = "mob";
         static constexpr std::string_view DATA_FILE_TYPE_TEMPLATE = "template";

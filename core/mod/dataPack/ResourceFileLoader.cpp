@@ -35,19 +35,17 @@
 #include "ComposableItemRegistry.h"
 #include "DimensionRegistry.h"
 #include "FixedColorManager.h"
-#include "LightMaskManager.h"
-#include "LightSourceManager.h"
+#include "LightMaskResourceRegistry.h"
 #include "MaterialItemRegistry.h"
 #include "MobRegistry.h"
 #include "RecipeManager.h"
-#include "StringManager.h"
+#include "StringResourceRegistry.h"
 #include "StructureRegistry.h"
-#include "TileResourceManager.h"
+#include "TileResourceRegistry.h"
 #include "core/config/Constants.h"
 #include "core/context/AppContext.h"
 #include "core/context/GraphicsContext.h"
 #include "core/context/ModContext.h"
-#include "core/contributor/ContributorManager.h"
 #include "core/inventory/InitialInventoryManager.h"
 #include "core/lootTable/LootTableRegistry.h"
 #include "core/log/LogCat.h"
@@ -93,9 +91,6 @@ void glimmer::ResourceFileLoader::RegisterHandlers() {
             ](const toml::value &v, const AppContext *appContext) {
                 LoadInitialInventoryResourceFromFile(v, appContext);
             };
-    handlerMap_[Constants::DATA_FILE_TYPE_CONTRIBUTOR] = [this](const toml::value &v, const AppContext *appContext) {
-        LoadContributorResourceFromFile(v, appContext);
-    };
     handlerMap_[Constants::DATA_FILE_TYPE_MOB] = [this](const toml::value &v, const AppContext *appContext) {
         LoadMobResourceFromFile(v, appContext);
     };
@@ -187,7 +182,7 @@ std::vector<std::filesystem::path> glimmer::ResourceFileLoader::GetActuallyTempl
 }
 
 int glimmer::ResourceFileLoader::LoadStringResourceFromFile(const std::filesystem::path &path,
-                                                            StringManager *stringManager) const {
+                                                            StringResourceRegistry *stringResourceRegistry) const {
     const auto stream = virtualFileSystem_->ReadFileAsStream(path);
     if (stream == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "resource_file_loader_string_read_failed",
@@ -207,7 +202,7 @@ int glimmer::ResourceFileLoader::LoadStringResourceFromFile(const std::filesyste
     auto array = toml::find<std::vector<StringResource> >(value, "string");
     for (auto &stringRes: array) {
         stringRes.packId = manifest_->id;
-        stringManager->AddResource(
+        stringResourceRegistry->Register(
             std::make_unique<StringResource>(std::move(stringRes))
         );
         count++;
@@ -216,7 +211,7 @@ int glimmer::ResourceFileLoader::LoadStringResourceFromFile(const std::filesyste
     auto tagArray = toml::find_or<std::vector<StringResource> >(value, "tag_string", {});
     for (auto &stringRes: tagArray) {
         stringRes.packId = manifest_->id;
-        stringManager->SetTagTranslate(
+        stringResourceRegistry->SetTagTranslate(
             StringUtils::StringToUint64(stringRes.resourceId), stringRes.value
         );
         count++;
@@ -226,6 +221,7 @@ int glimmer::ResourceFileLoader::LoadStringResourceFromFile(const std::filesyste
               count);
     return count;
 }
+
 
 void glimmer::ResourceFileLoader::LoadLootTableResourceFromFile(const toml::value &value,
                                                                 const AppContext *appContext) const {
@@ -323,8 +319,8 @@ void glimmer::ResourceFileLoader::LoadTileResourceFromFile(const toml::value &va
     if (modContext == nullptr) {
         return;
     }
-    TileResourceManager *tileResourceManager = modContext->GetTileResourceManager();
-    if (tileResourceManager == nullptr) {
+    TileResourceRegistry *tileResourceRegistry = modContext->GetTileResourceRegistry();
+    if (tileResourceRegistry == nullptr) {
         return;
     }
     auto tileResource = std::make_unique<TileResource>(toml::get<TileResource>(value));
@@ -362,7 +358,7 @@ void glimmer::ResourceFileLoader::LoadTileResourceFromFile(const toml::value &va
         tag.MakeCachedTag();
     }
     tileResource->MakeCachedTag();
-    tileResourceManager->AddResource(std::move(tileResource));
+    tileResourceRegistry->Register(std::move(tileResource));
 }
 
 void glimmer::ResourceFileLoader::LoadBiomeResourceFromFile(const toml::value &value,
@@ -487,21 +483,6 @@ void glimmer::ResourceFileLoader::LoadMaterialItemResourceResourceFromFile(const
     materialItemRegistry->Register(std::move(itemResource));
 }
 
-void glimmer::ResourceFileLoader::LoadContributorResourceFromFile(const toml::value &value,
-                                                                  const AppContext *appContext) const {
-    const ModContext *modContext = appContext->GetModContext();
-    if (modContext == nullptr) {
-        return;
-    }
-    ContributorManager *contributorManager = modContext->GetContributorManager();
-    if (contributorManager == nullptr) {
-        return;
-    }
-    auto contributorResource = std::make_unique<Contributor>(toml::get<Contributor>(value));
-    contributorResource->displayName.SetSelfPackageId(manifest_->id);
-    contributorManager->Register(std::move(contributorResource));
-}
-
 void glimmer::ResourceFileLoader::LoadMobResourceFromFile(const toml::value &value,
                                                           const AppContext *appContext) const {
     const ModContext *modContext = appContext->GetModContext();
@@ -546,14 +527,14 @@ void glimmer::ResourceFileLoader::LoadLightMaskResourceFromFile(const toml::valu
     if (graphicsContext == nullptr) {
         return;
     }
-    LightMaskManager *lightMaskManager = graphicsContext->GetLightMaskManager();
-    if (lightMaskManager == nullptr) {
+    LightMaskResourceRegistry *lightMaskResourceRegistry = graphicsContext->GetLightMaskResourceRegistry();
+    if (lightMaskResourceRegistry == nullptr) {
         return;
     }
     auto lightMaskResource = std::make_unique<LightMaskResource>(toml::get<LightMaskResource>(value));
     lightMaskResource->packId = manifest_->id;
     lightMaskResource->lightMaskColor.SetSelfPackageId(manifest_->id);
-    lightMaskManager->Register(std::move(lightMaskResource));
+    lightMaskResourceRegistry->Register(std::move(lightMaskResource));
 }
 
 void glimmer::ResourceFileLoader::LoadLightSourceResourceFromFile(const toml::value &value,
@@ -562,8 +543,8 @@ void glimmer::ResourceFileLoader::LoadLightSourceResourceFromFile(const toml::va
     if (graphicsContext == nullptr) {
         return;
     }
-    LightSourceManager *lightSourceManager = graphicsContext->GetLightSourceManager();
-    if (lightSourceManager == nullptr) {
+    LightSourceResourceRegistry *lightSourceResourceRegistry = graphicsContext->GetLightSourceResourceRegistry();
+    if (lightSourceResourceRegistry == nullptr) {
         return;
     }
     auto lightSourceResource = std::make_unique<LightSourceResource>(toml::get<LightSourceResource>(value));
@@ -572,7 +553,7 @@ void glimmer::ResourceFileLoader::LoadLightSourceResourceFromFile(const toml::va
     if (lightSourceResource->lightRadius > Constants::CHUNK_SIZE) {
         lightSourceResource->lightRadius = Constants::CHUNK_SIZE;
     }
-    lightSourceManager->Register(std::move(lightSourceResource));
+    lightSourceResourceRegistry->Register(std::move(lightSourceResource));
 }
 
 void glimmer::ResourceFileLoader::LoadBiomeDecoratorResourceFromFile(const toml::value &value,
@@ -792,7 +773,7 @@ int glimmer::ResourceFileLoader::LoadLanguageFiles(const std::vector<std::filesy
     int total = 0;
     const auto &filesToLoad = targetLanguageFiles.empty() ? defaultLanguageFiles : targetLanguageFiles;
     for (const auto &file: filesToLoad) {
-        total += LoadStringResourceFromFile(file, modContext->GetStringManager());
+        total += LoadStringResourceFromFile(file, modContext->GetStringResourceRegistry());
     }
     LogCat::d(LogLabel::DEFAULT, "resource_file_loader_language_files_loaded",
               "Loaded language files: files={}, strings={}",

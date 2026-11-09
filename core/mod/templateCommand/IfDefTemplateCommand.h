@@ -28,15 +28,16 @@
 #include "core/mod/ITemplateCommand.h"
 
 namespace glimmer {
-    class IfDefTemplateCommand : public ITemplateCommand  {
+    class IfDefTemplateCommand : public ITemplateCommand {
         static constexpr std::string_view ifDef = "if_def";
+
     public:
         [[nodiscard]] std::unique_ptr<std::stringstream> Execute(
             const std::vector<std::filesystem::path> &templateSearchPath,
-            std::stack<std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<>>> &
+            std::stack<std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<> > > &
             variablesStack, std::vector<std::string> &args, std::stack<bool> &conditionStack,
             const VirtualFileSystem *virtualFileSystem) override;
 
-        [[nodiscard]] const std::string_view & GetCommandName() const override;
+        [[nodiscard]] const std::string_view &GetCommandName() const override;
     };
 }

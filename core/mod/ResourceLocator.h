@@ -37,10 +37,9 @@
 #include "dataPack/ComposableItemRegistry.h"
 #include "dataPack/DataPackManager.h"
 #include "dataPack/FixedColorManager.h"
-#include "dataPack/LightMaskManager.h"
-#include "dataPack/LightSourceManager.h"
+#include "dataPack/LightMaskResourceRegistry.h"
 #include "dataPack/MaterialItemRegistry.h"
-#include "dataPack/StringManager.h"
+#include "dataPack/StringResourceRegistry.h"
 #include "resourcePack/AudioResourceResult.h"
 #include "resourcePack/GPUPipelineResourceResult.h"
 #include "resourcePack/GPUSamplerResourceResult.h"
@@ -51,8 +50,10 @@
 
 
 namespace glimmer {
+    class LightSourceResourceRegistry;
+    class MaterialResourceRegistry;
     class CacheContext;
-    class TileResourceManager;
+    class TileResourceRegistry;
     class MobRegistry;
     class ItemManager;
     class LootTableRegistry;
@@ -80,13 +81,14 @@ namespace glimmer {
         ComposableItemRegistry *composableItemRegistry_ = nullptr;
         MaterialItemRegistry *materialItemRegistry_ = nullptr;
         MobRegistry *mobRegistry_ = nullptr;
+        MaterialResourceRegistry *materialResourceRegistry_ = nullptr;
         StructureRegistry *structureRegistry_ = nullptr;
         DimensionRegistry *dimensionRegistry_ = nullptr;
         StructurePlacementConditionsRegistry *structurePlacementConditionsRegistry_ = nullptr;
-        TileResourceManager *tileResourceManager_ = nullptr;
-        LightMaskManager *lightMaskManager_ = nullptr;
-        LightSourceManager *lightSourceManager_ = nullptr;
-        StringManager *stringManager_ = nullptr;
+        TileResourceRegistry *tileResourceRegistry_ = nullptr;
+        LightMaskResourceRegistry *lightMaskResourceRegistry_ = nullptr;
+        LightSourceResourceRegistry *lightSourceResourceRegistry_ = nullptr;
+        StringResourceRegistry *stringManager_ = nullptr;
         BiomeDecoratorRegistry *biomeDecoratorRegistry_ = nullptr;
         DataPackManager *dataPackManager_ = nullptr;
 
@@ -98,13 +100,13 @@ namespace glimmer {
          * 模板辅助方法，执行所有基于注册表的 Find* 方法共有的空值/类型/访问权限检查，再委托给给定查找逻辑。
          * @param resourceRef resourceRef 资源引用
          * @param expectedType expectedType 期望的资源类型
-         * @param lookup lookup 具体的查找逻辑
+         * @param registry
          * @return The located resource, or nullptr on failure 定位到的资源，失败时返回nullptr
          */
-        template<typename ResultT, typename Lookup>
-        [[nodiscard]] ResultT *FindRegistered(const ResourceRef *resourceRef, const ResourceTypeMessage expectedType,
-                                              Lookup &&lookup) const {
-            if (resourceRef == nullptr) {
+        template<typename ResultT>
+        [[nodiscard]] ResultT *FindRegistered(BaseResourceRegistry<ResultT> *registry, const ResourceRef *resourceRef,
+                                              const ResourceTypeMessage expectedType) const {
+            if (resourceRef == nullptr || registry == nullptr) {
                 LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "resource_ref_is_null",
                           "resourceRef == nullptr");
                 return nullptr;
@@ -115,7 +117,8 @@ namespace glimmer {
                           std::to_underlying(expectedType), std::to_underlying(resourceRef->GetResourceType()));
                 return nullptr;
             }
-            return lookup();
+            return registry->Find(resourceRef->GetPackageId(),
+                                  resourceRef->GetResourceKey());
         }
 
     public:
@@ -199,16 +202,7 @@ namespace glimmer {
 
         [[nodiscard]] LightMaskResource *FindLightMask(const ResourceRef *resourceRef) const;
 
-        /**
-         * FindTile
-         * 查找瓦片资源
-         * @param resourceRef  resourceRef 瓦片引用
-         * @param tileLayer tileLayer
-         * @return
-         */
-        [[nodiscard]] TileResource *FindTileFallback(const ResourceRef *resourceRef, TileLayerType tileLayer) const;
-
-        [[nodiscard]] TileResource *FindTileRaw(const ResourceRef *resourceRef) const;
+        [[nodiscard]] TileResource *FindTile(const ResourceRef *resourceRef) const;
 
         [[nodiscard]] MobResource *FindMob(const ResourceRef *resourceRef) const;
 
@@ -254,6 +248,8 @@ namespace glimmer {
         [[nodiscard]] AbilityItemResource *FindAbilityItem(const ResourceRef *resourceRef) const;
 
         [[nodiscard]] MaterialItemResource *FindMaterialItem(const ResourceRef *resourceRef) const;
+
+        [[nodiscard]] MaterialResource *FindMaterial(const ResourceRef *resourceRef) const;
 
         /**
          * FindLoot

@@ -37,10 +37,14 @@ std::optional<std::string> glimmer::LightMaskAssetEnumerator::ListAsset(const Ap
     if (appContext == nullptr) {
         return std::nullopt;
     }
-    const LightMaskManager *lightMaskManager = appContext->GetGraphicsContext()->GetLightMaskManager();
-    if (lightMaskManager == nullptr) {
+    const GraphicsContext *graphicsContext = appContext->GetGraphicsContext();
+    if (graphicsContext == nullptr) {
         return std::nullopt;
     }
-    return lightMaskManager->ListLightMaskResource();
+    const LightMaskResourceRegistry *lightMaskResourceRegistry = graphicsContext->GetLightMaskResourceRegistry();
+    if (lightMaskResourceRegistry == nullptr) {
+        return std::nullopt;
+    }
+    return lightMaskResourceRegistry->ListString();
 }
 #endif

@@ -65,7 +65,7 @@ void glimmer::RecipeDetailGUISystem::LoadRecipeDetail() {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "mod_context_is_null", "modContext == nullptr");
         return;
     }
-    StringManager *stringManager = modContext->GetStringManager();
+    StringResourceRegistry *stringManager = modContext->GetStringResourceRegistry();
     if (stringManager == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "string_manager_is_null",
                   "stringManager == nullptr");

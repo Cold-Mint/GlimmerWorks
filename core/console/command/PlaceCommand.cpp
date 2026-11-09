@@ -131,7 +131,7 @@ bool glimmer::PlaceCommand::ExecuteStructure(const CommandArgs *commandArgs, con
     }
     for (auto &[tileLayerType, tileMap]: structureInfoPtr->GetStructureMap()) {
         for (auto &[coord, resourceRef]: tileMap) {
-            auto tileResource = appContext->GetResourceLocator()->FindTileRaw(&resourceRef);
+            auto tileResource = resourceLocator->FindTile(&resourceRef);
             if (tileResource == nullptr) {
                 continue;
             }

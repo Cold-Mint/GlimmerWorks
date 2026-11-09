@@ -95,9 +95,9 @@ bool glimmer::Chunk::CommitTileState(const BreakSource breakSource, const TileLa
         }
         const TileResource *tileResource = nullptr;
         if (fallback) {
-            tileResource = resourceLocator->FindTileFallback(&resourceRef, layerType);
+            tileResource = resourceLocator->FindTile(&resourceRef);
         } else {
-            tileResource = resourceLocator->FindTileRaw(&resourceRef);
+            tileResource = resourceLocator->FindTile(&resourceRef);
         }
         if (tileResource == nullptr) {
             LogCat::w(LogLabel::CHUNK, std::source_location::current(), "chunk_tile_resource_null",

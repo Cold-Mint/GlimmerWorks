@@ -27,7 +27,7 @@
 #include "MiningSystem.h"
 #include "core/log/LogCat.h"
 #include "core/world/TileInstancePool.h"
-#include "core/mod/dataPack/TileResourceManager.h"
+#include "core/mod/dataPack/TileResourceRegistry.h"
 #include "core/world/WorldContext.h"
 #include "core/ecs/component/CameraComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
@@ -189,7 +189,7 @@ void glimmer::MiningSystem::ProcessSingleTile(const TileBreakParams &params, con
     if (resourceLocator == nullptr) {
         return;
     }
-    if (const TileResource *tileResource = resourceLocator->FindTileRaw(&newTileRef); !TryPlaceTile(
+    if (const TileResource *tileResource = resourceLocator->FindTile(&newTileRef); !TryPlaceTile(
         tileLayerComponent, tileStateMessage, currentVector, params.GetTopLeftPosition(),
         config, backup, tileResource, worldContext->GetGlobalTick())) {
         return;
@@ -256,7 +256,7 @@ void glimmer::MiningSystem::ProcessMiningComplete(const TileLayerComponent *tile
                 tileBreakParams.SetTileWidth(point->GetWidth());
                 tileBreakParams.SetTileHeight(point->GetHeight());
                 tileBreakParams.SetAllowDropLoot(allowDropLoot);
-                TileResourceManager::WriteAirResourceRef(tileLayerType, tileBreakParams.GetMutableNewTileRef());
+                TileResourceRegistry::WriteAirResourceRef(tileLayerType, tileBreakParams.GetMutableNewTileRef());
                 if (uint16_t broken = BreakTile(tileBreakParams); broken > 0) {
                     LogCat::i(LogLabel::DEFAULT, "broken_tiles_at_position", "Broken tiles at position ({}, {}): {}",
                               point->GetTileTopLeftPosition().x, point->GetTileTopLeftPosition().y, broken);

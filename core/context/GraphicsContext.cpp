@@ -30,8 +30,8 @@
 #include "core/world/PreloadColors.h"
 
 glimmer::GraphicsContext::GraphicsContext()
-    : lightMaskManager_(std::make_unique<LightMaskManager>())
-      , lightSourceManager_(std::make_unique<LightSourceManager>())
+    : lightMaskResourceRegistry_(std::make_unique<LightMaskResourceRegistry>())
+      , lightSourceResourceRegistry_(std::make_unique<LightSourceResourceRegistry>())
       , fixedColorManager_(std::make_unique<FixedColorManager>()) {
 }
 
@@ -43,12 +43,12 @@ void glimmer::GraphicsContext::Init(const ResourceLocator *resourceLocator) {
     LogCat::i(LogLabel::DEFAULT, "graphics_context_initialized", "GraphicsContext initialized");
 }
 
-glimmer::LightMaskManager *glimmer::GraphicsContext::GetLightMaskManager() const {
-    return lightMaskManager_.get();
+glimmer::LightMaskResourceRegistry *glimmer::GraphicsContext::GetLightMaskResourceRegistry() const {
+    return lightMaskResourceRegistry_.get();
 }
 
-glimmer::LightSourceManager *glimmer::GraphicsContext::GetLightSourceManager() const {
-    return lightSourceManager_.get();
+glimmer::LightSourceResourceRegistry *glimmer::GraphicsContext::GetLightSourceResourceRegistry() const {
+    return lightSourceResourceRegistry_.get();
 }
 
 glimmer::FixedColorManager *glimmer::GraphicsContext::GetFixedColorManager() const {

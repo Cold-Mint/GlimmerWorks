@@ -25,34 +25,13 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <memory>
-#include <string>
-#include <unordered_map>
-#include <functional>
 
+#include "BaseResourceRegistry.h"
 #include "core/mod/Resource.h"
 
-
 namespace glimmer {
-    class LightSourceManager {
-        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<
-                LightSourceResource>, TransparentStringHash,
-            std::equal_to<> >, TransparentStringHash, std::equal_to<> >
-        lightSourceMap_
-                {};
-
-        void RegisterCoreLightSourceResource(std::string_view resourceId, std::string_view colorResKey,
-                                             uint8_t lightRadius);
-
-    public:
-        LightSourceManager();
-
-        LightSourceResource *Register(std::unique_ptr<LightSourceResource> lightSourceResource);
-
-        [[nodiscard]] LightSourceResource *FindLightSourceResource(std::string_view packId, std::string_view key);
-
-        [[nodiscard]] std::vector<std::string> GetLightSourceResourceList() const;
-
-        std::string ListLightSourceResource() const;
+    class LightMaskResourceRegistry : public BaseResourceRegistry<LightMaskResource> {
+    protected:
+        void InitCoreResource() override;
     };
 }

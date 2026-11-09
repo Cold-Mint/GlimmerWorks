@@ -37,10 +37,14 @@ std::optional<std::string> glimmer::LightSourceAssetEnumerator::ListAsset(const 
     if (appContext == nullptr) {
         return std::nullopt;
     }
-    const LightSourceManager *lightSourceManager = appContext->GetGraphicsContext()->GetLightSourceManager();
-    if (lightSourceManager == nullptr) {
+    const GraphicsContext *graphicsContext = appContext->GetGraphicsContext();
+    if (graphicsContext == nullptr) {
         return std::nullopt;
     }
-    return lightSourceManager->ListLightSourceResource();
+    const LightSourceResourceRegistry *lightSourceResourceRegistry = graphicsContext->GetLightSourceResourceRegistry();
+    if (lightSourceResourceRegistry == nullptr) {
+        return std::nullopt;
+    }
+    return lightSourceResourceRegistry->ListString();
 }
 #endif

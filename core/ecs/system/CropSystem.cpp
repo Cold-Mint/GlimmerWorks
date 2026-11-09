@@ -36,7 +36,7 @@
 #include "core/mod/ResourceLocator.h"
 #include "core/mod/ResourceRef.h"
 #include "core/mod/dataPack/GrowthConditionsRegistry.h"
-#include "core/mod/dataPack/TileResourceManager.h"
+#include "core/mod/dataPack/TileResourceRegistry.h"
 #include "core/scene/MainThreadDispatcher.h"
 #include "core/world/ChunkManager.h"
 #include "core/world/WorldContext.h"
@@ -250,10 +250,10 @@ void glimmer::CropSystem::OnTick(const uint64_t tick) {
                         }
 
                         ResourceRef airRef;
-                        TileResourceManager::WriteAirResourceRef(layerType, airRef);
-                        if (ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+                        TileResourceRegistry::WriteAirResourceRef(layerType, airRef);
+                        if (const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
                             resourceLocator != nullptr) {
-                            if (const TileResource *airTileResource = resourceLocator->FindTileRaw(&airRef);
+                            if (const TileResource *airTileResource = resourceLocator->FindTile(&airRef);
                                 airTileResource != nullptr) {
                                 chunk->PlaceTileAt(layerType, index, airRef, airTileResource,
                                                    BreakSource::CropSelfDestruct,

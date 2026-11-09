@@ -28,7 +28,7 @@
 #if !defined(NDEBUG)
 #include "core/context/AppContext.h"
 #include "core/context/ModContext.h"
-#include "core/mod/dataPack/TileResourceManager.h"
+#include "core/mod/dataPack/TileResourceRegistry.h"
 
 
 const std::string &glimmer::TileAssetEnumerator::GetAssetType() const {
@@ -43,10 +43,10 @@ std::optional<std::string> glimmer::TileAssetEnumerator::ListAsset(const AppCont
     if (modContext == nullptr) {
         return std::nullopt;
     }
-    const TileResourceManager *tileResourceManager = modContext->GetTileResourceManager();
-    if (tileResourceManager == nullptr) {
+    const TileResourceRegistry *tileResourceRegistry = modContext->GetTileResourceRegistry();
+    if (tileResourceRegistry == nullptr) {
         return std::nullopt;
     }
-    return tileResourceManager->ListTiles();
+    return tileResourceRegistry->ListString();
 }
 #endif

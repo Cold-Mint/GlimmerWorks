@@ -40,7 +40,7 @@ void glimmer::ChunkTilePopulator::PopulateSingleTilePosition(Chunk *chunk, const
                                                              const size_t cellIndex) {
     for (const auto &[tileLayerType, tileArray]: tilesRefMap) {
         const ResourceRef &resourceRef = tileArray[cellIndex];
-        const TileResource *tileResource = resourceLocator->FindTileRaw(&resourceRef);
+        const TileResource *tileResource = resourceLocator->FindTile(&resourceRef);
         if (tileResource == nullptr) {
             continue;
         }

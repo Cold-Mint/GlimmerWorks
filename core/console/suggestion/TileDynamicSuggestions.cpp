@@ -30,8 +30,8 @@
 
 #include "core/config/Constants.h"
 
-glimmer::TileDynamicSuggestions::TileDynamicSuggestions(TileResourceManager *tileManager)
-    : tileManager_(tileManager) {
+glimmer::TileDynamicSuggestions::TileDynamicSuggestions(TileResourceRegistry *tileResourceRegistry)
+    : tileResourceRegistry_(tileResourceRegistry) {
 }
 
 std::string_view glimmer::TileDynamicSuggestions::GetId() const {
@@ -39,10 +39,10 @@ std::string_view glimmer::TileDynamicSuggestions::GetId() const {
 }
 
 bool glimmer::TileDynamicSuggestions::Match(const std::string &keyword, const std::string &param) {
-    return std::ranges::contains(tileManager_->GetTileIDList(), keyword);
+    return std::ranges::contains(tileResourceRegistry_->List(), keyword);
 }
 
 const std::vector<std::string> &
 glimmer::TileDynamicSuggestions::GetSuggestions(const std::optional<std::string> &param) {
-    return tileManager_->GetTileIDList();
+    return tileResourceRegistry_->List();
 }

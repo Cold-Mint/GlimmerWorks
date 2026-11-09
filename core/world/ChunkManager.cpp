@@ -38,7 +38,7 @@
 #include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/mod/ResourceLocator.h"
-#include "core/mod/dataPack/TileResourceManager.h"
+#include "core/mod/dataPack/TileResourceRegistry.h"
 #include "core/saves/Saves.h"
 #include "core/scene/MainThreadDispatcher.h"
 #include "core/utils/TileLayerTypeUtils.h"
@@ -248,8 +248,8 @@ void glimmer::ChunkManager::BreakAttachedTile(const TileLayerType layerType, con
         return;
     }
     ResourceRef airRef;
-    TileResourceManager::WriteAirResourceRef(layerType, airRef);
-    const TileResource *airTileResource = resourceLocator->FindTileRaw(&airRef);
+    TileResourceRegistry::WriteAirResourceRef(layerType, airRef);
+    const TileResource *airTileResource = resourceLocator->FindTile(&airRef);
     if (airTileResource == nullptr) {
         return;
     }

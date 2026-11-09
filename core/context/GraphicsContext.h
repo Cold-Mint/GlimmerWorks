@@ -28,17 +28,17 @@
 
 #include <memory>
 
-#include "core/mod/dataPack/LightMaskManager.h"
-#include "core/mod/dataPack/LightSourceManager.h"
+#include "core/mod/dataPack/LightMaskResourceRegistry.h"
 #include "core/mod/dataPack/FixedColorManager.h"
+#include "core/mod/dataPack/LightSourceResourceRegistry.h"
 #include "core/world/PreloadColors.h"
 
 namespace glimmer {
     class ResourceLocator;
 
     class GraphicsContext {
-        std::unique_ptr<LightMaskManager> lightMaskManager_ = nullptr;
-        std::unique_ptr<LightSourceManager> lightSourceManager_ = nullptr;
+        std::unique_ptr<LightMaskResourceRegistry> lightMaskResourceRegistry_ = nullptr;
+        std::unique_ptr<LightSourceResourceRegistry> lightSourceResourceRegistry_ = nullptr;
         std::unique_ptr<FixedColorManager> fixedColorManager_ = nullptr;
         std::unique_ptr<PreloadColors> preloadColors_ = nullptr;
 
@@ -49,9 +49,9 @@ namespace glimmer {
 
         void Init(const ResourceLocator *resourceLocator);
 
-        [[nodiscard]] LightMaskManager *GetLightMaskManager() const;
+        [[nodiscard]] LightMaskResourceRegistry *GetLightMaskResourceRegistry() const;
 
-        [[nodiscard]] LightSourceManager *GetLightSourceManager() const;
+        [[nodiscard]] LightSourceResourceRegistry *GetLightSourceResourceRegistry() const;
 
         [[nodiscard]] FixedColorManager *GetFixedColorManager() const;
 

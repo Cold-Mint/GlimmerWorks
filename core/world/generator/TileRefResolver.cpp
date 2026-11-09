@@ -31,7 +31,7 @@
 #include "TerrainTileResult.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/mod/Resource.h"
-#include "core/mod/dataPack/TileResourceManager.h"
+#include "core/mod/dataPack/TileResourceRegistry.h"
 
 
 void glimmer::TileRefResolver::WriteWaterResourceRef(const TileLayerType layerType, ResourceRef &resourceRef) {
@@ -42,7 +42,7 @@ void glimmer::TileRefResolver::WriteWaterResourceRef(const TileLayerType layerTy
         resourceRef.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
         resourceRef.SetResourceKey(Constants::TILE_ID_WATER);
     } else {
-        TileResourceManager::WriteAirResourceRef(
+        TileResourceRegistry::WriteAirResourceRef(
             layerType, resourceRef);
     }
 }
@@ -94,7 +94,7 @@ void glimmer::TileRefResolver::Initialize(const TerrainResult *terrainResult,
             }
             if (terrainType == TerrainResultType::AIR) {
                 for (auto &[layerType, refsArray]: tilesRefMap) {
-                    TileResourceManager::WriteAirResourceRef(
+                    TileResourceRegistry::WriteAirResourceRef(
                         layerType, refsArray[idx]);
                 }
             }
@@ -107,7 +107,7 @@ void glimmer::TileRefResolver::Initialize(const TerrainResult *terrainResult,
                 //Fill the solid terrain with air.
                 //为固体地形填充空气。
                 for (auto &[layerType, refsArray]: tilesRefMap) {
-                    TileResourceManager::WriteAirResourceRef(
+                    TileResourceRegistry::WriteAirResourceRef(
                         layerType, refsArray[idx]);
                 }
                 if (BiomeResource *biomeResource = terrainTileResult.GetBiomeResource(); biomeResource != nullptr) {
@@ -119,7 +119,7 @@ void glimmer::TileRefResolver::Initialize(const TerrainResult *terrainResult,
                 for (auto &[layerType, refsArray]: tilesRefMap) {
                     auto iterator = structureResRefs.find(layerType);
                     if (iterator == structureResRefs.end()) {
-                        TileResourceManager::WriteAirResourceRef(
+                        TileResourceRegistry::WriteAirResourceRef(
                             layerType, refsArray[idx]);
                         continue;
                     }

@@ -44,21 +44,19 @@ namespace glimmer {
     class TomlTemplateExpander;
     class ModContext;
     class GraphicsContext;
-    class StringManager;
+    class StringResourceRegistry;
     class LootTableRegistry;
     class InitialInventoryManager;
     class StructureRegistry;
-    class TileResourceManager;
+    class TileResourceRegistry;
     class BiomeRegistry;
     class DimensionRegistry;
     class ComposableItemRegistry;
     class AbilityItemRegistry;
     class MaterialItemRegistry;
-    class ContributorManager;
     class MobRegistry;
     class FixedColorManager;
-    class LightMaskManager;
-    class LightSourceManager;
+    class LightMaskResourceRegistry;
     class BiomeDecoratorRegistry;
     class StructurePlacementConditionsRegistry;
     class GrowthConditionsRegistry;
@@ -94,7 +92,8 @@ namespace glimmer {
         [[nodiscard]] std::vector<std::filesystem::path> GetActuallyTemplateSearchPath(
             const std::filesystem::path &path) const;
 
-        int LoadStringResourceFromFile(const std::filesystem::path &path, StringManager *stringManager) const;
+        int LoadStringResourceFromFile(const std::filesystem::path &path,
+                                       StringResourceRegistry *stringResourceRegistry) const;
 
         void LoadLootTableResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 
@@ -115,7 +114,6 @@ namespace glimmer {
 
         void LoadMaterialItemResourceResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 
-        void LoadContributorResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 
         void LoadMobResourceFromFile(const toml::value &value, const AppContext *appContext) const;
 

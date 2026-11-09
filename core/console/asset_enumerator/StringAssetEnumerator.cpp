@@ -42,10 +42,10 @@ std::optional<std::string> glimmer::StringAssetEnumerator::ListAsset(const AppCo
     if (modContext == nullptr) {
         return std::nullopt;
     }
-    const StringManager *stringManager = modContext->GetStringManager();
+    const StringResourceRegistry *stringManager = modContext->GetStringResourceRegistry();
     if (stringManager == nullptr) {
         return std::nullopt;
     }
-    return stringManager->ListStrings();
+    return stringManager->ListString();
 }
 #endif

@@ -165,8 +165,9 @@ namespace glimmer {
          * @return
          */
         static std::string RenderScan(std::string_view tpl,
-                                      const std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to
-                                          <> >& map);
+                                      const std::unordered_map<std::string, std::string, TransparentStringHash,
+                                          std::equal_to
+                                          <> > &map);
 
         /**
          * Get Screenshot File Name

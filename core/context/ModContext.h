@@ -30,24 +30,24 @@
 
 #include "core/mod/dataPack/BiomeRegistry.h"
 #include "core/mod/dataPack/DimensionRegistry.h"
-#include "core/mod/dataPack/TileResourceManager.h"
+#include "core/mod/dataPack/TileResourceRegistry.h"
 #include "core/mod/dataPack/BiomeDecoratorRegistry.h"
 #include "core/lootTable/LootTableRegistry.h"
 #include "core/mod/dataPack/MobRegistry.h"
 #include "core/mod/dataPack/RecipeManager.h"
 #include "core/mod/dataPack/StructureRegistry.h"
-#include "core/mod/dataPack/StringManager.h"
+#include "core/mod/dataPack/StringResourceRegistry.h"
 #include "core/mod/dataPack/DataPackManager.h"
 #include "core/mod/TomlTemplateExpander.h"
 #include "core/mod/StructurePlacementConditionsProcessorManager.h"
 #include "core/mod/GrowthConditionProcessorManager.h"
-#include "core/contributor/ContributorManager.h"
 #include "core/inventory/InitialInventoryManager.h"
 #include "core/mod/dataPack/AbilityItemRegistry.h"
 #include "core/mod/dataPack/ComposableItemRegistry.h"
 #include "core/mod/dataPack/MaterialItemRegistry.h"
 #include "core/mod/dataPack/StructurePlacementConditionsRegistry.h"
 #include "core/mod/dataPack/GrowthConditionsRegistry.h"
+#include "core/mod/dataPack/MaterialResourceRegistry.h"
 #include "core/world/generator/BiomeDecoratorManager.h"
 #include "core/world/structure/StructureGeneratorManager.h"
 
@@ -59,8 +59,8 @@ namespace glimmer {
     class ModContext {
         std::unique_ptr<ResourceFileLoader> resourceFileLoader_;
         std::unique_ptr<DataPackManager> dataPackManager_;
-        std::unique_ptr<StringManager> stringManager_;
-        std::unique_ptr<TileResourceManager> tileResourceManager_;
+        std::unique_ptr<StringResourceRegistry> stringResourceRegistry_;
+        std::unique_ptr<TileResourceRegistry> tileResourceRegistry_;
         std::unique_ptr<BiomeRegistry> biomeRegistry_;
         std::unique_ptr<DimensionRegistry> dimensionRegistry_;
         std::unique_ptr<BiomeDecoratorManager> biomeDecoratorManager_;
@@ -70,6 +70,7 @@ namespace glimmer {
         std::unique_ptr<MaterialItemRegistry> materialItemRegistry_;
         std::unique_ptr<RecipeManager> recipeManager_;
         std::unique_ptr<MobRegistry> mobRegistry_;
+        std::unique_ptr<MaterialResourceRegistry> materialResourceRegistry_;
         std::unique_ptr<StructureRegistry> structureRegistry_;
         std::unique_ptr<StructureGeneratorManager> structureGeneratorManager_;
         std::unique_ptr<StructurePlacementConditionsProcessorManager> structurePlacementConditionsProcessorManager_;
@@ -78,7 +79,6 @@ namespace glimmer {
         std::unique_ptr<GrowthConditionsRegistry> growthConditionsRegistry_;
         std::unique_ptr<LootTableRegistry> lootTableRegistry_;
         std::unique_ptr<InitialInventoryManager> initialInventoryManager_;
-        std::unique_ptr<ContributorManager> contributorManager_;
         std::unique_ptr<TomlTemplateExpander> tomlTemplateExpander_;
 
     public:
@@ -92,9 +92,9 @@ namespace glimmer {
 
         [[nodiscard]] DataPackManager *GetDataPackManager() const;
 
-        [[nodiscard]] StringManager *GetStringManager() const;
+        [[nodiscard]] StringResourceRegistry *GetStringResourceRegistry() const;
 
-        [[nodiscard]] TileResourceManager *GetTileResourceManager() const;
+        [[nodiscard]] TileResourceRegistry *GetTileResourceRegistry() const;
 
         [[nodiscard]] BiomeRegistry *GetBiomeRegistry() const;
 
@@ -116,6 +116,8 @@ namespace glimmer {
 
         [[nodiscard]] StructureRegistry *GetStructureRegistry() const;
 
+        [[nodiscard]] MaterialResourceRegistry *GetMaterialResourceRegistry() const;
+
         [[nodiscard]] StructureGeneratorManager *GetStructureGeneratorManager() const;
 
         [[nodiscard]] StructurePlacementConditionsProcessorManager *
@@ -133,8 +135,6 @@ namespace glimmer {
         [[nodiscard]] LootTableRegistry *GetLootTableRegistry() const;
 
         [[nodiscard]] InitialInventoryManager *GetInitialInventoryManager() const;
-
-        [[nodiscard]] ContributorManager *GetContributorManager() const;
 
         [[nodiscard]] TomlTemplateExpander *GetTomlTemplateExpander() const;
     };

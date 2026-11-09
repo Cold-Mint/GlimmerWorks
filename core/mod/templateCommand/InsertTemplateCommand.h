@@ -35,7 +35,7 @@ namespace glimmer {
     public:
         [[nodiscard]] std::unique_ptr<std::stringstream> Execute(
             const std::vector<std::filesystem::path> &templateSearchPath,
-            std::stack<std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<>>> &
+            std::stack<std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<> > > &
             variablesStack, std::vector<std::string> &args, std::stack<bool> &conditionStack,
             const VirtualFileSystem *virtualFileSystem) override;
 

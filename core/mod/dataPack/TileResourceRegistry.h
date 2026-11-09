@@ -24,29 +24,20 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "ContributorManager.h"
+#pragma once
+#include <memory>
 
-#include "src/core/resource_type.pb.h"
+#include "BaseResourceRegistry.h"
+#include "core/mod/Resource.h"
 
-glimmer::ContributorManager::ContributorManager() {
-    auto coldMintContributor = std::make_unique<Contributor>();
-    coldMintContributor->uuid = Constants::DEV_UUID_COLD_MINT;
-    coldMintContributor->name = Constants::DEV_NAME_COLO_MINT;
-    ResourceRef displayName;
-    displayName.SetSelfPackageId(Constants::RESOURCE_REF_CORE);
-    displayName.SetResourceKey(Constants::DEV_DISPLAY_NAME_KEY_COLD_MINT);
-    displayName.SetResourceType(RESOURCE_STRING);
-    coldMintContributor->displayName = displayName;
-    coldMintContributor->country = "CN";
-    Register(std::move(coldMintContributor));
-}
+namespace glimmer {
+    enum class TileLayerType : uint8_t;
 
-glimmer::Contributor *glimmer::ContributorManager::Register(std::unique_ptr<Contributor> contributor) {
-    auto &contributorPtr = contributors[contributor->uuid];
-    contributorPtr = std::move(contributor);
-    return contributorPtr.get();
-}
+    class TileResourceRegistry : public BaseResourceRegistry<TileResource> {
+    protected:
+        void InitCoreResource() override;
 
-glimmer::Contributor *glimmer::ContributorManager::Find(const std::string &uuid) const {
-    return contributors.find(uuid)->second.get();
+    public:
+        static void WriteAirResourceRef(TileLayerType tileLayerType, ResourceRef &resourceRef);
+    };
 }

@@ -89,7 +89,7 @@ bool glimmer::TargetResourceApplier::Apply(const TargetResourceApplierContext &a
     const WorldVector2D spawnWorldPosition = CoordinateTransformer::TileToWorld(spawnOrigin);
 
     if (resourceType == RESOURCE_TILE) {
-        const TileResource *tileResource = resourceLocator->FindTileRaw(&targetRef);
+        const TileResource *tileResource = resourceLocator->FindTile(&targetRef);
         if (tileResource == nullptr) {
             return false;
         }
@@ -148,7 +148,7 @@ bool glimmer::TargetResourceApplier::Apply(const TargetResourceApplierContext &a
         for (const StructureInfo *structureInfoPtr = structureInfo.get(); const auto &[structureLayerType, tileMap]:
              structureInfoPtr->GetStructureMap()) {
             for (const auto &[coord, resourceRef]: tileMap) {
-                const TileResource *tileResource = resourceLocator->FindTileRaw(&resourceRef);
+                const TileResource *tileResource = resourceLocator->FindTile(&resourceRef);
                 if (tileResource == nullptr) {
                     continue;
                 }

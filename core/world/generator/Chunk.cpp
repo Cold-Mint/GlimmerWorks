@@ -74,7 +74,7 @@ bool glimmer::Chunk::CommitTileState(const BreakSource breakSource, const TileLa
     ResourceRef resourceRef;
     resourceRef.ReadResourceRefMessage(tileStateMessage->resourceref());
     const uint64_t fingerprint = resourceRef.GetFingerprint();
-    bool rebuildTile = false;
+    bool rebuildTile;
     if (const auto iterator = tileFingerprint_.find(layerType); iterator == tileFingerprint_.end()) {
         rebuildTile = true;
     } else {
@@ -93,12 +93,7 @@ bool glimmer::Chunk::CommitTileState(const BreakSource breakSource, const TileLa
         if (resourceLocator == nullptr) {
             return false;
         }
-        const TileResource *tileResource = nullptr;
-        if (fallback) {
-            tileResource = resourceLocator->FindTile(&resourceRef);
-        } else {
-            tileResource = resourceLocator->FindTile(&resourceRef);
-        }
+        const TileResource *tileResource = resourceLocator->FindTile(&resourceRef);
         if (tileResource == nullptr) {
             LogCat::w(LogLabel::CHUNK, std::source_location::current(), "chunk_tile_resource_null",
                       "Tile resource is null, cannot rebuild tile: layer={}, index={}",

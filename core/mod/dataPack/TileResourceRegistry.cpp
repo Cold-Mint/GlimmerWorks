@@ -177,7 +177,7 @@ glimmer::TileResourceRegistry::TileResourceRegistry() {
     bedrock->sideLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_FULL, RESOURCE_LIGHT_MASK);
     bedrock->backLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_FULL, RESOURCE_LIGHT_MASK);
     bedrock->tags.emplace_back(StringUtils::MakeTag(Constants::TAG_BEDROCK));
-    bedrock->collisionMask = Constants::COLLISION_MASK_NONE;
+    bedrock->collisionMask = Constants::COLLISION_MASK_SOLID;
     bedrock->layer = std::to_underlying(TileLayerType::Ground);
     bedrock->unitHardness = -1.0F;
     bedrock->isOverwritable = false;
@@ -185,6 +185,15 @@ glimmer::TileResourceRegistry::TileResourceRegistry() {
     bedrock->solid = false;
     bedrock->partial = true;
     Register(std::move(bedrock));
+}
+
+std::unique_ptr<glimmer::TileResource> glimmer::TileResourceRegistry::GeneratePlaceholderResource(
+    const std::string_view packId, const std::string_view key) {
+    auto tile = std::make_unique<TileResource>();
+    tile->missing = true;
+    tile->packId = packId;
+    tile->resourceId = key;
+    return tile;
 }
 
 void glimmer::TileResourceRegistry::WriteAirResourceRef(const TileLayerType tileLayerType, ResourceRef &resourceRef) {

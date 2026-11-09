@@ -151,10 +151,10 @@ glimmer::ResourceLocator::ResourceLocator(AppContext *appContext) : appContext_(
                   "tileResourceManager_ == nullptr");
         return;
     }
-    stringManager_ = modContext->GetStringResourceRegistry();
-    if (stringManager_ == nullptr) {
+    stringResourceRegistry_ = modContext->GetStringResourceRegistry();
+    if (stringResourceRegistry_ == nullptr) {
         LogCat::e(LogLabel::DEFAULT, std::source_location::current(), "string_manager_is_null",
-                  "stringManager_ == nullptr");
+                  "stringResourceRegistry_ == nullptr");
         return;
     }
     biomeDecoratorRegistry_ = modContext->GetBiomeDecoratorRegistry();
@@ -362,7 +362,7 @@ glimmer::IBiomeDecoratorResource *glimmer::ResourceLocator::FindBiomeDecorator(c
 }
 
 glimmer::StringResource *glimmer::ResourceLocator::FindString(const ResourceRef *resourceRef) const {
-    return FindRegistered<StringResource>(stringManager_, resourceRef, RESOURCE_STRING);
+    return FindRegistered<StringResource>(stringResourceRegistry_, resourceRef, RESOURCE_STRING);
 }
 
 glimmer::LightSourceResource *glimmer::ResourceLocator::FindLightSource(const ResourceRef *resourceRef) const {

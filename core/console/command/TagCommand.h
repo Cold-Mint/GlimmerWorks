@@ -36,10 +36,10 @@ namespace glimmer {
     class TagCommand final : public Command {
         void InitSuggestions(NodeTree<std::string> *suggestionsTree) override;
 
-        static void WriteTag(const std::string &tagItem, std::stringstream &stringStream, StringResourceRegistry *stringManager,
+        static void WriteTag(const std::string &tagItem, std::stringstream &stringStream, StringResourceRegistry *stringResourceRegistry,
                              const ItemTagResource &itemTagResource);
 
-        static std::string BuildTagListString(const std::string &tagItem, StringResourceRegistry *stringManager,
+        static std::string BuildTagListString(const std::string &tagItem, StringResourceRegistry *stringResourceRegistry,
                                               const std::vector<const ItemTagResource *> &tagList);
 
         template<typename MessageCallback>

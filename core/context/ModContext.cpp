@@ -76,7 +76,7 @@ void glimmer::ModContext::Init(VirtualFileSystem *vfs, const LangsResources *lan
     LogCat::d(LogLabel::DEFAULT, "creating_data_pack_manager", "Creating DataPackManager");
     dataPackManager_ = std::make_unique<DataPackManager>();
 
-    LogCat::d(LogLabel::DEFAULT, "creating_string_manager", "Creating StringManager and loading language strings");
+    LogCat::d(LogLabel::DEFAULT, "creating_string_manager", "Creating stringResourceRegistry and loading language strings");
     stringResourceRegistry_ = std::make_unique<StringResourceRegistry>();
     stringResourceRegistry_->LoadLangsString(langsResources);
 
@@ -118,9 +118,6 @@ void glimmer::ModContext::Init(VirtualFileSystem *vfs, const LangsResources *lan
     growthConditionsRegistry_ = std::make_unique<GrowthConditionsRegistry>();
     LogCat::d(LogLabel::DEFAULT, "creating_initial_inventory_manager", "Creating InitialInventoryManager");
     initialInventoryManager_ = std::make_unique<InitialInventoryManager>();
-
-    // LogCat::d(LogLabel::DEFAULT, "initializing_builtin_tiles", "Initializing built-in tiles");
-    // tileResourceRegistry_->InitBuiltinTiles();
 
     LogCat::d(LogLabel::DEFAULT, "creating_biome_decorator_manager", "Creating BiomeDecoratorManager");
     biomeDecoratorManager_ = std::make_unique<BiomeDecoratorManager>();

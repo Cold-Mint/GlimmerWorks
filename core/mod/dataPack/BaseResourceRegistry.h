@@ -46,7 +46,13 @@ namespace glimmer {
                 TransparentStringHash, std::equal_to<> >,
             TransparentStringHash, std::equal_to<> > resourceMap_{};
 
+        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<ResourceType>,
+                TransparentStringHash, std::equal_to<> >,
+            TransparentStringHash, std::equal_to<> > placeholderResourceMap_{};
+
         std::vector<std::string> list_;
+
+        ResourceType *RegisterPlaceholder(std::unique_ptr<ResourceType> resource);
 
     protected:
         static ResourceRef GetCoreResourceRef(std::string_view key, ResourceTypeMessage resourceType);
@@ -62,6 +68,16 @@ namespace glimmer {
          * @param resource
          */
         virtual void OnRegister(ResourceType *resource);
+
+        /**
+         * Generate placeholder resources.
+         * 生成占位资源。
+         * @param packId
+         * @param key
+         * @return
+         */
+        virtual std::unique_ptr<ResourceType>
+        GeneratePlaceholderResource(std::string_view packId, std::string_view key);
 
         /**
          * OnNotFound(This method can be used to achieve resource reservation.)
@@ -105,6 +121,14 @@ namespace glimmer {
     }
 
     template<typename ResourceType>
+    ResourceType *BaseResourceRegistry<ResourceType>::RegisterPlaceholder(std::unique_ptr<ResourceType> resource) {
+        auto &slot =
+                placeholderResourceMap_[resource->packId][resource->resourceId];
+        slot = std::move(resource);
+        return slot.get();
+    }
+
+    template<typename ResourceType>
     ResourceType *BaseResourceRegistry<ResourceType>::Register(std::unique_ptr<ResourceType> resource) {
         auto &slot =
                 resourceMap_[resource->packId][resource->resourceId];
@@ -120,6 +144,12 @@ namespace glimmer {
     }
 
     template<typename ResourceType>
+    std::unique_ptr<ResourceType> BaseResourceRegistry<ResourceType>::GeneratePlaceholderResource(
+        std::string_view packId, std::string_view key) {
+        return nullptr;
+    }
+
+    template<typename ResourceType>
     ResourceType *BaseResourceRegistry<ResourceType>::OnNotFound(std::string_view packId, std::string_view key) {
         return nullptr;
     }
@@ -131,7 +161,16 @@ namespace glimmer {
                 return keyIt->second.get();
             }
         }
-        return OnNotFound(packId, key);
+        if (const auto packIt = placeholderResourceMap_.find(packId); packIt != placeholderResourceMap_.end()) {
+            if (const auto keyIt = packIt->second.find(key); keyIt != packIt->second.end()) {
+                return keyIt->second.get();
+            }
+        }
+        auto placeholder = GeneratePlaceholderResource(packId, key);
+        if (placeholder == nullptr) {
+            return OnNotFound(packId, key);
+        }
+        return RegisterPlaceholder(std::move(placeholder));
     }
 
     template<typename ResourceType>

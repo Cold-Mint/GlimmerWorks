@@ -65,10 +65,10 @@ void glimmer::RecipeDetailGUISystem::LoadRecipeDetail() {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "mod_context_is_null", "modContext == nullptr");
         return;
     }
-    StringResourceRegistry *stringManager = modContext->GetStringResourceRegistry();
-    if (stringManager == nullptr) {
+    StringResourceRegistry *stringResourceRegistry = modContext->GetStringResourceRegistry();
+    if (stringResourceRegistry == nullptr) {
         LogCat::w(LogLabel::DEFAULT, std::source_location::current(), "string_manager_is_null",
-                  "stringManager == nullptr");
+                  "stringResourceRegistry == nullptr");
         return;
     }
     ResourceLocator *resourceLocator = appContext->GetResourceLocator();
@@ -108,7 +108,7 @@ void glimmer::RecipeDetailGUISystem::LoadRecipeDetail() {
     originalRequiredWeights_.reserve(currentRecipe_->input.size());
     for (const auto &requiredTag: currentRecipe_->input) {
         TagProgressDataModel tp;
-        if (auto optional = stringManager->GetTagTranslate(requiredTag.cachedTagId); optional.has_value()) {
+        if (auto optional = stringResourceRegistry->GetTagTranslate(requiredTag.cachedTagId); optional.has_value()) {
             tp.tagName = optional.value();
         } else {
             tp.tagName = requiredTag.requiredTag;
@@ -154,7 +154,7 @@ void glimmer::RecipeDetailGUISystem::LoadRecipeDetail() {
                     tagInfoStringStream << ",";
                 }
 
-                if (auto optional = stringManager->GetTagTranslate(tagRes->cachedTagId); optional.has_value()) {
+                if (auto optional = stringResourceRegistry->GetTagTranslate(tagRes->cachedTagId); optional.has_value()) {
                     tagInfoStringStream << optional.value();
                 } else {
                     tagInfoStringStream << tagRes->name;

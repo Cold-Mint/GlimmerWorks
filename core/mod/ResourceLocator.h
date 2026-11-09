@@ -88,7 +88,7 @@ namespace glimmer {
         TileResourceRegistry *tileResourceRegistry_ = nullptr;
         LightMaskResourceRegistry *lightMaskResourceRegistry_ = nullptr;
         LightSourceResourceRegistry *lightSourceResourceRegistry_ = nullptr;
-        StringResourceRegistry *stringManager_ = nullptr;
+        StringResourceRegistry *stringResourceRegistry_ = nullptr;
         BiomeDecoratorRegistry *biomeDecoratorRegistry_ = nullptr;
         DataPackManager *dataPackManager_ = nullptr;
 

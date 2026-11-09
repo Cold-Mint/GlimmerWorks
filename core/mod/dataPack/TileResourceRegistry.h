@@ -36,6 +36,9 @@ namespace glimmer {
     public:
         TileResourceRegistry();
 
+        std::unique_ptr<TileResource>
+        GeneratePlaceholderResource(std::string_view packId, std::string_view key) override;
+
         static void WriteAirResourceRef(TileLayerType tileLayerType, ResourceRef &resourceRef);
     };
 }

@@ -26,7 +26,7 @@
  */
 #include "LightMaskResourceRegistry.h"
 
-void glimmer::LightMaskResourceRegistry::InitCoreResource() {
+glimmer::LightMaskResourceRegistry::LightMaskResourceRegistry() {
     auto maskFull = std::make_unique<LightMaskResource>();
     maskFull->packId = Constants::RESOURCE_REF_CORE;
     maskFull->resourceId = Constants::LIGHT_MASK_FULL;
@@ -56,6 +56,6 @@ void glimmer::LightMaskResourceRegistry::InitCoreResource() {
     auto maskNone = std::make_unique<LightMaskResource>();
     maskNone->packId = Constants::RESOURCE_REF_CORE;
     maskNone->resourceId = Constants::LIGHT_MASK_NONE;
-    maskNone->lightMaskColor = GetCoreResourceRef(Constants::LIGHT_MASK_NONE, RESOURCE_COLOR);
+    maskNone->lightMaskColor = GetCoreResourceRef(Constants::LIGHT_MASK_NONE_COLOR, RESOURCE_COLOR);
     Register(std::move(maskNone));
 }

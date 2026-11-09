@@ -124,6 +124,7 @@ bool glimmer::StringUtils::ContainsIgnoreCase(const std::string &haystack, const
 glimmer::ItemTagResource glimmer::StringUtils::MakeTag(const std::string_view name) {
     ItemTagResource tag;
     tag.name = name;
+    tag.MakeCachedTag();
     return tag;
 }
 

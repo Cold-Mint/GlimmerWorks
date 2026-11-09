@@ -205,7 +205,6 @@ glimmer::TileVector2D glimmer::Tile::CalculateTileAnchor(const TileAnchorType ti
 void glimmer::Tile::AppendDerivedTag(std::unordered_set<uint64_t> &existingTagIds, std::vector<ItemTagResource> &tags,
                                      const std::string_view name) {
     ItemTagResource tag = StringUtils::MakeTag(name);
-    tag.MakeCachedTag();
     if (existingTagIds.contains(tag.cachedTagId)) {
         return;
     }

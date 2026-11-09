@@ -31,7 +31,7 @@
 
 namespace glimmer {
     class LightSourceResourceRegistry : public BaseResourceRegistry<LightSourceResource> {
-    protected:
-        void InitCoreResource() override;
+    public:
+        LightSourceResourceRegistry();
     };
 }

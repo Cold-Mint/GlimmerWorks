@@ -26,7 +26,7 @@
  */
 #include "LightSourceResourceRegistry.h"
 
-void glimmer::LightSourceResourceRegistry::InitCoreResource() {
+glimmer::LightSourceResourceRegistry::LightSourceResourceRegistry() {
     auto lightSourceNone = std::make_unique<LightSourceResource>();
     lightSourceNone->resourceId = Constants::LIGHT_NONE;
     lightSourceNone->packId = Constants::RESOURCE_REF_CORE;

@@ -32,16 +32,16 @@
 #include "core/world/generator/TileLayerType.h"
 
 
-void glimmer::TileResourceRegistry::InitCoreResource() {
+glimmer::TileResourceRegistry::TileResourceRegistry() {
     auto air = std::make_unique<TileResource>();
     air->packId = Constants::RESOURCE_REF_CORE.data();
     air->resourceId = Constants::TILE_ID_AIR.data();
     air->texture = GetCoreResourceRef("tiles/air", RESOURCE_TEXTURE);
     air->description = GetCoreResourceRef(Constants::STRING_TILE_AIR_DESCRIPTION, RESOURCE_STRING);
     air->name = GetCoreResourceRef(Constants::STRING_TILE_AIR_NAME, RESOURCE_STRING);
-    air->lightSource = GetCoreResourceRef(Constants::LIGHT_NONE, RESOURCE_STRING);
-    air->sideLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_NONE, RESOURCE_STRING);
-    air->backLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_NONE, RESOURCE_STRING);
+    air->lightSource = GetCoreResourceRef(Constants::LIGHT_NONE, RESOURCE_LIGHT_SOURCE);
+    air->sideLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_NONE, RESOURCE_LIGHT_MASK);
+    air->backLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_NONE, RESOURCE_LIGHT_MASK);
     air->tags.emplace_back(StringUtils::MakeTag(Constants::TAG_AIR));
     air->collisionMask = Constants::COLLISION_MASK_NONE;
     air->layer = std::to_underlying(TileLayerType::Ground);
@@ -58,9 +58,9 @@ void glimmer::TileResourceRegistry::InitCoreResource() {
     airDecoration->texture = GetCoreResourceRef("tiles/air_decoration", RESOURCE_TEXTURE);
     airDecoration->description = GetCoreResourceRef(Constants::STRING_TILE_AIR_DECORATION_DESCRIPTION, RESOURCE_STRING);
     airDecoration->name = GetCoreResourceRef(Constants::STRING_TILE_AIR_DECORATION_NAME, RESOURCE_STRING);
-    airDecoration->lightSource = GetCoreResourceRef(Constants::LIGHT_NONE, RESOURCE_STRING);
-    airDecoration->sideLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_NONE, RESOURCE_STRING);
-    airDecoration->backLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_NONE, RESOURCE_STRING);
+    airDecoration->lightSource = GetCoreResourceRef(Constants::LIGHT_NONE, RESOURCE_LIGHT_SOURCE);
+    airDecoration->sideLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_NONE, RESOURCE_LIGHT_MASK);
+    airDecoration->backLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_NONE, RESOURCE_LIGHT_MASK);
     airDecoration->tags.emplace_back(StringUtils::MakeTag(Constants::TAG_AIR));
     airDecoration->collisionMask = Constants::COLLISION_MASK_NONE;
     airDecoration->layer = std::to_underlying(TileLayerType::BackgroundDecoration);
@@ -77,9 +77,9 @@ void glimmer::TileResourceRegistry::InitCoreResource() {
     airWall->texture = GetCoreResourceRef("tiles/air_wall", RESOURCE_TEXTURE);
     airWall->description = GetCoreResourceRef(Constants::STRING_TILE_AIR_WALL_DESCRIPTION, RESOURCE_STRING);
     airWall->name = GetCoreResourceRef(Constants::STRING_TILE_AIR_WALL_NAME, RESOURCE_STRING);
-    airWall->lightSource = GetCoreResourceRef(Constants::LIGHT_NONE, RESOURCE_STRING);
-    airWall->sideLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_NONE, RESOURCE_STRING);
-    airWall->backLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_NONE, RESOURCE_STRING);
+    airWall->lightSource = GetCoreResourceRef(Constants::LIGHT_NONE, RESOURCE_LIGHT_SOURCE);
+    airWall->sideLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_NONE, RESOURCE_LIGHT_MASK);
+    airWall->backLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_NONE, RESOURCE_LIGHT_MASK);
     airWall->tags.emplace_back(StringUtils::MakeTag(Constants::TAG_AIR));
     airWall->collisionMask = Constants::COLLISION_MASK_NONE;
     airWall->layer = std::to_underlying(TileLayerType::BackGround);
@@ -96,14 +96,14 @@ void glimmer::TileResourceRegistry::InitCoreResource() {
     voidTile->texture = GetCoreResourceRef("tiles/void", RESOURCE_TEXTURE);
     voidTile->description = GetCoreResourceRef(Constants::STRING_TILE_VOID_DESCRIPTION, RESOURCE_STRING);
     voidTile->name = GetCoreResourceRef(Constants::STRING_TILE_VOID_NAME, RESOURCE_STRING);
-    voidTile->lightSource = GetCoreResourceRef(Constants::LIGHT_NONE, RESOURCE_STRING);
-    voidTile->sideLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_NONE, RESOURCE_STRING);
-    voidTile->backLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_NONE, RESOURCE_STRING);
+    voidTile->lightSource = GetCoreResourceRef(Constants::LIGHT_NONE, RESOURCE_LIGHT_SOURCE);
+    voidTile->sideLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_NONE, RESOURCE_LIGHT_MASK);
+    voidTile->backLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_LOW, RESOURCE_LIGHT_MASK);
     voidTile->tags.emplace_back(StringUtils::MakeTag(Constants::TAG_VOID));
     voidTile->collisionMask = Constants::COLLISION_MASK_NONE;
     voidTile->layer = std::to_underlying(TileLayerType::Ground);
     voidTile->unitHardness = -1.0F;
-    voidTile->isOverwritable = true;
+    voidTile->isOverwritable = false;
     voidTile->canDropLoot = false;
     voidTile->solid = false;
     voidTile->partial = true;
@@ -115,9 +115,9 @@ void glimmer::TileResourceRegistry::InitCoreResource() {
     voidWall->texture = GetCoreResourceRef("tiles/void_wall", RESOURCE_TEXTURE);
     voidWall->description = GetCoreResourceRef(Constants::STRING_TILE_VOID_WALL_DESCRIPTION, RESOURCE_STRING);
     voidWall->name = GetCoreResourceRef(Constants::STRING_TILE_VOID_WALL_NAME, RESOURCE_STRING);
-    voidWall->lightSource = GetCoreResourceRef(Constants::LIGHT_NONE, RESOURCE_STRING);
-    voidWall->sideLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_NONE, RESOURCE_STRING);
-    voidWall->backLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_NONE, RESOURCE_STRING);
+    voidWall->lightSource = GetCoreResourceRef(Constants::LIGHT_NONE, RESOURCE_LIGHT_SOURCE);
+    voidWall->sideLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_NONE, RESOURCE_LIGHT_MASK);
+    voidWall->backLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_LOW, RESOURCE_LIGHT_MASK);
     voidWall->tags.emplace_back(StringUtils::MakeTag(Constants::TAG_VOID));
     voidWall->collisionMask = Constants::COLLISION_MASK_NONE;
     voidWall->layer = std::to_underlying(TileLayerType::BackGround);
@@ -135,12 +135,12 @@ void glimmer::TileResourceRegistry::InitCoreResource() {
     voidDecoration->description = GetCoreResourceRef(Constants::STRING_TILE_VOID_DECORATION_DESCRIPTION,
                                                      RESOURCE_STRING);
     voidDecoration->name = GetCoreResourceRef(Constants::STRING_TILE_VOID_DECORATION_NAME, RESOURCE_STRING);
-    voidDecoration->lightSource = GetCoreResourceRef(Constants::LIGHT_NONE, RESOURCE_STRING);
-    voidDecoration->sideLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_NONE, RESOURCE_STRING);
-    voidDecoration->backLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_NONE, RESOURCE_STRING);
+    voidDecoration->lightSource = GetCoreResourceRef(Constants::LIGHT_NONE, RESOURCE_LIGHT_SOURCE);
+    voidDecoration->sideLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_NONE, RESOURCE_LIGHT_MASK);
+    voidDecoration->backLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_LOW, RESOURCE_LIGHT_MASK);
     voidDecoration->tags.emplace_back(StringUtils::MakeTag(Constants::TAG_VOID));
     voidDecoration->collisionMask = Constants::COLLISION_MASK_NONE;
-    voidDecoration->layer = std::to_underlying(TileLayerType::BackGround);
+    voidDecoration->layer = std::to_underlying(TileLayerType::BackgroundDecoration);
     voidDecoration->unitHardness = -1.0F;
     voidDecoration->isOverwritable = true;
     voidDecoration->canDropLoot = false;
@@ -153,9 +153,9 @@ void glimmer::TileResourceRegistry::InitCoreResource() {
     water->resourceId = Constants::TILE_ID_WATER.data();
     water->texture = GetCoreResourceRef("tiles/water", RESOURCE_TEXTURE);
     water->name = GetCoreResourceRef(Constants::STRING_TILE_WATER_NAME, RESOURCE_STRING);
-    water->lightSource = GetCoreResourceRef(Constants::LIGHT_NONE, RESOURCE_STRING);
-    water->sideLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_NONE, RESOURCE_STRING);
-    water->backLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_NONE, RESOURCE_STRING);
+    water->lightSource = GetCoreResourceRef(Constants::LIGHT_NONE, RESOURCE_LIGHT_SOURCE);
+    water->sideLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_NONE, RESOURCE_LIGHT_MASK);
+    water->backLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_LOW, RESOURCE_LIGHT_MASK);
     water->tags.emplace_back(StringUtils::MakeTag(Constants::TAG_WATER));
     water->tags.emplace_back(StringUtils::MakeTag(Constants::TAG_FLUID));
     water->collisionMask = Constants::COLLISION_MASK_NONE;
@@ -173,9 +173,9 @@ void glimmer::TileResourceRegistry::InitCoreResource() {
     bedrock->texture = GetCoreResourceRef("tiles/bedrock", RESOURCE_TEXTURE);
     bedrock->description = GetCoreResourceRef(Constants::STRING_TILE_BEDROCK_DESCRIPTION, RESOURCE_STRING);
     bedrock->name = GetCoreResourceRef(Constants::STRING_TILE_BEDROCK_NAME, RESOURCE_STRING);
-    bedrock->lightSource = GetCoreResourceRef(Constants::LIGHT_NONE, RESOURCE_STRING);
-    bedrock->sideLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_NONE, RESOURCE_STRING);
-    bedrock->backLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_NONE, RESOURCE_STRING);
+    bedrock->lightSource = GetCoreResourceRef(Constants::LIGHT_NONE, RESOURCE_LIGHT_SOURCE);
+    bedrock->sideLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_FULL, RESOURCE_LIGHT_MASK);
+    bedrock->backLightMask = GetCoreResourceRef(Constants::LIGHT_MASK_FULL, RESOURCE_LIGHT_MASK);
     bedrock->tags.emplace_back(StringUtils::MakeTag(Constants::TAG_BEDROCK));
     bedrock->collisionMask = Constants::COLLISION_MASK_NONE;
     bedrock->layer = std::to_underlying(TileLayerType::Ground);

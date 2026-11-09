@@ -49,15 +49,10 @@ namespace glimmer {
         std::vector<std::string> list_;
 
     protected:
-        virtual void InitCoreResource();
-
         static ResourceRef GetCoreResourceRef(std::string_view key, ResourceTypeMessage resourceType);
 
     public:
         virtual ~BaseResourceRegistry() = default;
-
-        BaseResourceRegistry();
-
 
         ResourceType *Register(std::unique_ptr<ResourceType> resource);
 
@@ -99,11 +94,6 @@ namespace glimmer {
 #endif
     };
 
-
-    template<typename ResourceType>
-    void BaseResourceRegistry<ResourceType>::InitCoreResource() {
-    }
-
     template<typename ResourceType>
     ResourceRef BaseResourceRegistry<ResourceType>::GetCoreResourceRef(const std::string_view key,
                                                                        const ResourceTypeMessage resourceType) {
@@ -112,11 +102,6 @@ namespace glimmer {
         resourceRef.SetResourceKey(key);
         resourceRef.SetResourceType(resourceType);
         return resourceRef;
-    }
-
-    template<typename ResourceType>
-    BaseResourceRegistry<ResourceType>::BaseResourceRegistry() {
-        BaseResourceRegistry::InitCoreResource();
     }
 
     template<typename ResourceType>

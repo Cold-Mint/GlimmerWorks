@@ -25,7 +25,6 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <memory>
 
 #include "BaseResourceRegistry.h"
 #include "core/mod/Resource.h"
@@ -34,10 +33,9 @@ namespace glimmer {
     enum class TileLayerType : uint8_t;
 
     class TileResourceRegistry : public BaseResourceRegistry<TileResource> {
-    protected:
-        void InitCoreResource() override;
-
     public:
+        TileResourceRegistry();
+
         static void WriteAirResourceRef(TileLayerType tileLayerType, ResourceRef &resourceRef);
     };
 }

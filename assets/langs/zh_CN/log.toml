@@ -1,0 +1,6 @@
+# Log messages
+# 日志消息
+hello_world = "你好，世界！"
+locale_dir_not_found = "未找到语言目录 {0}，已跳过。"
+locale_file_load_failed = "加载语言文件 {0} 失败"
+locale_loaded = "已加载语言 {0}（共 {1} 条）"

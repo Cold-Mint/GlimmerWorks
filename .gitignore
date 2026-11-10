@@ -1,4 +1,3 @@
-#clion
 .idea/
 .trae/
 .vs/
@@ -8,4 +7,7 @@
 # Key folder
 # 密钥文件夹
 keys/
-config.cmake
+obj/
+bin/
+GlimmerWorks.sln.DotSettings.user
+assets/mods/

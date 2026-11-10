@@ -1,0 +1,6 @@
+# Log messages
+# 日志消息
+hello_world = "Hello World!"
+locale_dir_not_found = "Language directory {0} not found, skipped."
+locale_file_load_failed = "Failed to load language file {0}"
+locale_loaded = "Loaded language {0} ({1} entries)"

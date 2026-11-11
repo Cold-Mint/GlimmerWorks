@@ -54,11 +54,6 @@ public class SceneStack
         while (_tasks.TryDequeue(out var sceneStackTask))
         {
             var scene = sceneStackTask.Scene;
-            if (scene == null)
-            {
-                continue;
-            }
-
             switch (sceneStackTask.Type)
             {
                 case StackType.Pop:
@@ -78,6 +73,11 @@ public class SceneStack
 
                     break;
                 case StackType.Push:
+                    if (scene == null)
+                    {
+                        continue;
+                    }
+
                     if (_stack.Count > 0)
                     {
                         _stack.Peek().OnPauseScene();
@@ -88,16 +88,21 @@ public class SceneStack
                     scene.OnResumeScene();
                     break;
                 case StackType.Replace:
+                    if (scene == null)
+                    {
+                        continue;
+                    }
+
                     if (_stack.Count <= 0)
                     {
                         continue;
                     }
-                    
+
                     var top1 = _stack.Peek();
                     top1.OnPauseScene();
                     top1.OnDestroy();
                     _stack.Pop();
-                    
+
                     scene.OnCreate();
                     _stack.Push(scene);
                     scene.OnResumeScene();

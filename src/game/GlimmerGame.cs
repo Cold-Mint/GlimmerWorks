@@ -11,7 +11,7 @@ namespace GlimmerWorks.Game;
 public class GlimmerGame : Microsoft.Xna.Framework.Game
 {
     private readonly AppContext _appContext = new();
-    private readonly Color _defaultBackgroundColor = new(250, 250, 250, 255);
+    private readonly Color _defaultBackgroundColor = new(242, 242, 247, 255);
 
     public GlimmerGame()
     {
@@ -39,7 +39,6 @@ public class GlimmerGame : Microsoft.Xna.Framework.Game
     protected override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
-        _appContext.Desktop?.UpdateInput();
         InputTracker.Update();
         var scene = _appContext.SceneStack.Current();
         if (scene != null)

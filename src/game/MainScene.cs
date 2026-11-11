@@ -1,18 +1,15 @@
 using System.Reflection;
+using GlimmerWorks.Engine;
 using GlimmerWorks.Engine.Scene;
+using GlimmerWorks.Engine.widgets;
 using Microsoft.Xna.Framework;
 using Myra.Events;
 using Myra.Graphics2D;
 using Myra.Graphics2D.UI;
 using AppContext = GlimmerWorks.Engine.AppContext;
+using Label = GlimmerWorks.Engine.widgets.Label;
 
 namespace GlimmerWorks.Game;
-
-public class Link
-{
-    public string? Text { get; set; }
-    public string? Url { get; set; }
-}
 
 public class MainScene(AppContext appContext) : Scene(appContext)
 {
@@ -39,41 +36,27 @@ public class MainScene(AppContext appContext) : Scene(appContext)
             Top = 80
         };
 
-        var startButton = new Button("suggested")
-        {
-            Content = new Label
-            {
-                Text = AppContext.LocalizationManager.Get("ui.start_game"),
-                TextColor = Color.White,
-            }
-        };
+        var startButton = new FilledButton(AppContext.Theme, AppContext.LocalizationManager.Get("ui.start_game"));
         startButton.Click += StartButtonOnClick;
         buttonStack.Widgets.Add(startButton);
-        var exitButton = new Button
-        {
-            Content = new Label
-            {
-                Text = AppContext.LocalizationManager.Get("ui.exit_game"),
-                TextColor = Color.White,
-            }
-        };
+        var exitButton = new OutlinedButton(AppContext.Theme, AppContext.LocalizationManager.Get("ui.exit_game"));
         exitButton.Click += ExitButtonOnClick;
         buttonStack.Widgets.Add(exitButton);
 
         panel.Widgets.Add(buttonStack);
 
-        var copyrightLabel = new Label
+        var copyrightLabel = new Label(AppContext.Theme, GetCopyright())
         {
-            Text = GetCopyright(),
+            Font = AppContext.Theme.GetFont(ThemeFontKind.Small),
             HorizontalAlignment = HorizontalAlignment.Left,
             VerticalAlignment = VerticalAlignment.Bottom,
             Margin = new Thickness(16, 0, 0, 16)
         };
         panel.Widgets.Add(copyrightLabel);
 
-        var versionLabel = new Label
+        var versionLabel = new Label(AppContext.Theme, GetGameVersion())
         {
-            Text = GetGameVersion(),
+            Font = AppContext.Theme.GetFont(ThemeFontKind.Small),
             HorizontalAlignment = HorizontalAlignment.Right,
             VerticalAlignment = VerticalAlignment.Top,
             Margin = new Thickness(0, 16, 16, 0)
@@ -90,18 +73,13 @@ public class MainScene(AppContext appContext) : Scene(appContext)
 
         foreach (var link in _links)
         {
-            var linkLabel = new Label { Text = link.Text };
-            linkLabel.TouchDown += LinkLabelOnTouchDown;
+            var linkLabel = new HyperlinkLabel(theme: AppContext.Theme)
+                { Link = link, Font = AppContext.Theme.GetFont(ThemeFontKind.Small) };
             linksStack.Widgets.Add(linkLabel);
         }
 
         panel.Widgets.Add(linksStack);
         SetWidget(panel);
-    }
-
-    private void LinkLabelOnTouchDown(object sender, MyraEventArgs e)
-    {
-        Console.WriteLine("memem");
     }
 
     private string GetCopyright()
@@ -141,5 +119,7 @@ public class MainScene(AppContext appContext) : Scene(appContext)
 
     private void StartButtonOnClick(object sender, MyraEventArgs e)
     {
+        AppContext.SceneStack.AddTask(
+            new SceneStackTask { Type = StackType.Push, Scene = new CreateWorldScene(AppContext) });
     }
 }

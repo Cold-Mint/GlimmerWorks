@@ -1,3 +1,4 @@
+using GlimmerWorks.Engine;
 using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Engine.Mods;
 using GlimmerWorks.Engine.Mods.PackLoader;
@@ -21,11 +22,11 @@ public class SplashScene(AppContext appContext) : Scene(appContext)
         _loadLabel = new Label
         {
             Text = AppContext.LocalizationManager.Get("ui.prepare"),
-            TextColor = Color.White,
+            TextColor = AppContext.Theme.Info,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Bottom,
             Margin = new Thickness(0, 0, 0, 60),
-            Font = AppContext.FontSystem.GetFont(32)
+            Font = AppContext.Theme.GetFont(ThemeFontKind.Small),
         };
         panel.Widgets.Add(_loadLabel);
         panel.Widgets.Add(new Label
@@ -34,7 +35,7 @@ public class SplashScene(AppContext appContext) : Scene(appContext)
             TextColor = Color.White,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
-            Font = AppContext.FontSystem.GetFont(150)
+            Font = AppContext.Theme.GetFont(ThemeFontKind.Large),
         });
         SetWidget(panel);
         LoadPacks();
@@ -60,7 +61,7 @@ public class SplashScene(AppContext appContext) : Scene(appContext)
 
     public override Color? GetBackgroundColor()
     {
-        return new Color(108, 60, 233, 255);
+        return AppContext.Theme.Primary;
     }
 
     private void OnPackMessage(PackMessage packMessage)
@@ -68,15 +69,15 @@ public class SplashScene(AppContext appContext) : Scene(appContext)
         switch (packMessage.Level)
         {
             case LogLevel.Info:
-                _loadLabel?.TextColor = Color.White;
+                _loadLabel?.TextColor = AppContext.Theme.Info;
                 AppContext.LogCat.Info(packMessage.Message);
                 break;
             case LogLevel.Warn:
-                _loadLabel?.TextColor = Color.Yellow;
+                _loadLabel?.TextColor = AppContext.Theme.Warn;
                 AppContext.LogCat.Warn(packMessage.Message);
                 break;
             case LogLevel.Error:
-                _loadLabel?.TextColor = Color.Red;
+                _loadLabel?.TextColor = AppContext.Theme.Error;
                 AppContext.LogCat.Error(packMessage.Message);
                 break;
         }

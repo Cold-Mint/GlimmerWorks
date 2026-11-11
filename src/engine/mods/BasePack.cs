@@ -4,56 +4,85 @@ using GlimmerWorks.Game;
 
 namespace GlimmerWorks.Engine.Mods;
 
-public abstract class BasePack(PackManifest manifest)
+public abstract class BasePack(VirtualPath packRootPath, PackManifest manifest)
 {
     /// <summary>
     /// <para>resourceTypeDictionary</para>
     /// <para>资源类型转需要序列化的目标类型</para>
     /// </summary>
-    private readonly Dictionary<string, Type?> _resourceTypeDictionary = new();
+    private readonly Dictionary<string, Type> _resourceTypeDictionary = new();
 
     public Dictionary<string, Type> ResourceTypeDictionary => _resourceTypeDictionary;
 
-
-    /// <summary>
-    /// <para>GetResourceType</para>
-    /// <para>获取文件的资源类型</para>
-    /// </summary>
-    /// <param name="fileName"></param>
-    /// <returns></returns>
-    private static string? GetResourceType(string fileName)
-    {
-        var span = Path.GetFileName(fileName.AsSpan());
-        var lastDot = span.LastIndexOf('.');
-        if (lastDot <= 0)
-        {
-            return null;
-        }
-
-        span = span[..lastDot];
-        var prevDot = span.LastIndexOf('.');
-        return prevDot < 0 ? null : span[(prevDot + 1)..].ToString();
-    }
 
     /// <summary>
     /// <para>RegisterResourceType</para>
     /// <para>注册资源类型</para>
     /// </summary>
     /// <param name="resourceTypeDictionary"></param>
-    protected virtual void RegisterResourceType(Dictionary<string, Type> resourceTypeDictionary)
+    public virtual void RegisterResourceType(Dictionary<string, Type> resourceTypeDictionary)
     {
     }
 
+    /// <summary>
+    /// <para>Manually register resources from the file</para>
+    /// <para>手动从文件注册资源</para>
+    /// </summary>
+    /// <param name="appContext"></param>
+    /// <param name="fileEntry"></param>
+    /// <param name="resourceType"></param>
+    /// <param name="onMessage"></param>
+    /// <returns></returns>
+    protected virtual List<Resources>? RegisterResourceManually(AppContext appContext, string resourceType,
+        FileEntry fileEntry,
+        Action<PackMessage> onMessage)
+    {
+        return null;
+    }
+
+    /// <summary>
+    /// <para>LoadAllTemplate</para>
+    /// <para>加载并注册全部模板</para>
+    /// </summary>
+    /// <param name="appContext"></param>
+    /// <param name="onMessage"></param>
+    /// <returns></returns>
+    public void LoadAllTemplate(AppContext appContext,
+        Action<PackMessage> onMessage)
+    {
+        var templateResourceList = LoadTemplate(appContext, onMessage);
+        if (templateResourceList == null)
+        {
+            return;
+        }
+
+        foreach (var templateResource in templateResourceList)
+        {
+            RegisterResource(onMessage, appContext, templateResource);
+        }
+    }
+
+    /// <summary>
+    /// <para>LoadTemplate</para>
+    /// <para>加载模板</para>
+    /// </summary>
+    /// <param name="appContext"></param>
+    /// <param name="onMessage"></param>
+    /// <returns></returns>
+    protected virtual List<TemplateResources>? LoadTemplate(AppContext appContext,
+        Action<PackMessage> onMessage)
+    {
+        return null;
+    }
 
     /// <summary>
     /// <para>Load</para>
     /// <para>加载</para>
     /// </summary>
     /// <param name="appContext"></param>
-    /// <param name="virtualPath"></param>
     /// <param name="onMessage"></param>
     /// <returns></returns>
-    public bool Load(AppContext appContext, VirtualPath virtualPath, Action<PackMessage> onMessage)
+    public bool Load(AppContext appContext, Action<PackMessage> onMessage)
     {
         var startLoadMessage = StartLoadMessage();
         if (startLoadMessage != null)
@@ -66,41 +95,71 @@ public abstract class BasePack(PackManifest manifest)
             return true;
         }
 
-        var fileEntryList = appContext.VirtualFileSystem.List(virtualPath, recurseSubdirectories: true);
-        if (fileEntryList == null)
+        var resourceCount = 0;
+        var fileEntryList = appContext.VirtualFileSystem.List(packRootPath, recurseSubdirectories: true);
+        if (fileEntryList != null)
         {
-            return false;
-        }
-
-        foreach (var fileEntry in fileEntryList)
-        {
-            if (fileEntry.IsDirectory)
+            foreach (var fileEntry in fileEntryList)
             {
-                continue;
-            }
-
-            var resourceType = GetResourceType(fileEntry.Name);
-            if (resourceType == null)
-            {
-                continue;
-            }
-
-            if (_resourceTypeDictionary.TryGetValue(resourceType, out Type type))
-            {
-                var typeObj = appContext.VirtualFileSystem.ReadToml(fileEntry.Path, type);
-                if (typeObj is not Resource resource)
+                if (fileEntry.IsDirectory)
                 {
                     continue;
                 }
 
-                if (!appContext.DataRepository.Register(resource))
+                var resourceType = fileEntry.GetResourceType();
+                if (resourceType == null)
                 {
                     continue;
+                }
+
+                if (_resourceTypeDictionary.TryGetValue(resourceType, out var type))
+                {
+                    //For resources that have specified the conversion type, automatic registration is performed.
+                    //对于指定了转换类型的资源，自动注册。
+                    var typeObj = appContext.VirtualFileSystem.ReadToml(fileEntry.Path, type);
+                    if (typeObj is not Resources resource)
+                    {
+                        continue;
+                    }
+
+
+                    if (RegisterResource(onMessage, appContext, resource))
+                    {
+                        resourceCount++;
+                    }
+                }
+                else
+                {
+                    var resources =
+                        RegisterResourceManually(appContext, resourceType, fileEntry, onMessage);
+                    if (resources == null)
+                    {
+                        continue;
+                    }
+
+                    resourceCount += resources.Count(resource => RegisterResource(onMessage, appContext, resource));
                 }
             }
         }
 
-        return false;
+        return resourceCount > 0;
+    }
+
+    /// <summary>
+    /// <para>RegisterResource</para>
+    /// <para>注册资源</para>
+    /// </summary>
+    /// <param name="onMessage"></param>
+    /// <param name="appContext"></param>
+    /// <param name="resource"></param>
+    /// <returns></returns>
+    private bool RegisterResource(Action<PackMessage> onMessage, AppContext appContext, Resources resource)
+    {
+        resource.PackId = manifest.Id;
+        onMessage.Invoke(new PackMessage(
+            appContext.LocalizationManager.GetFormat("ui.register_resource", resource.GetType().Name, resource.PackId,
+                resource.ResourceId)));
+        return appContext.DataRepository.Register(resource);
     }
 
     /// <summary>

@@ -13,7 +13,7 @@ public class DataRepository
     /// <para>Resource Dictionary</para>
     /// <para>资源字典</para>
     /// </summary>
-    private readonly Dictionary<(string PackId, Type Type, string ResourceId), Resource?> _resources = new();
+    private readonly Dictionary<(string PackId, Type Type, string ResourceId), Resources?> _resources = new();
 
     /// <summary>
     /// <para>packDependencies</para>
@@ -44,7 +44,7 @@ public class DataRepository
     /// <param name="resource"></param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public bool Register<T>(T resource) where T : Resource
+    public bool Register<T>(T resource) where T : Resources
     {
         if (string.IsNullOrWhiteSpace(resource.PackId))
         {
@@ -59,17 +59,17 @@ public class DataRepository
     /// <para>Register</para>
     /// <para>注册资源</para>
     /// </summary>
-    /// <param name="resource"></param>
+    /// <param name="resources"></param>
     /// <returns></returns>
-    public bool Register(Resource resource)
+    public bool Register(Resources resources)
     {
-        if (string.IsNullOrWhiteSpace(resource.PackId))
+        if (string.IsNullOrWhiteSpace(resources.PackId))
         {
             return false;
         }
 
-        return !string.IsNullOrWhiteSpace(resource.ResourceId) &&
-               _resources.TryAdd((resource.PackId, resource.GetType(), resource.ResourceId), resource);
+        return !string.IsNullOrWhiteSpace(resources.ResourceId) &&
+               _resources.TryAdd((resources.PackId, resources.GetType(), resources.ResourceId), resources);
     }
 
 
@@ -81,7 +81,7 @@ public class DataRepository
     /// <param name="resourceRef"></param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public T? Get<T>(ResourceRef resourceRef) where T : Resource
+    public T? Get<T>(ResourceRef resourceRef) where T : Resources
     {
         if (resourceRef.RequesterPackId != resourceRef.TargetPackId &&
             _packDependencies.TryGetValue(resourceRef.RequesterPackId, out var dependencies))

@@ -1,15 +1,16 @@
+using GlimmerWorks.engine.Vfs;
 using GlimmerWorks.Game;
 
 namespace GlimmerWorks.Engine.Mods;
 
-public class AssetsPack(PackManifest manifest) : BasePack(manifest)
+public class AssetsPack(VirtualPath packRootPath, PackManifest manifest) : BasePack(packRootPath, manifest)
 {
     protected override bool ShouldScanFiles()
     {
         return false;
     }
 
-    protected override string? StartLoadMessage()
+    protected override string StartLoadMessage()
     {
         return "ui.load_assets_pack";
     }

@@ -1,8 +1,10 @@
 # UI messages
 # 用户页面消息
 start_game = "Start Game"
+exit_game = "Exit Game"
 prepare = "Prepare"
 load_data_pack = "Load Data Pack:{0}..."
 load_assets_pack = "Load Assets Pack:{0}..."
 load_data_pack_count = "Loaded {0} data packs"
 load_assets_pack_count = "Loaded {0} asset packs"
+register_resource = "Register resource{0}：{1}:{2}"

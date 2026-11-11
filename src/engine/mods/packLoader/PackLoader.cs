@@ -20,8 +20,8 @@ public abstract class PackLoader<T> where T : BasePack
                 return 0;
             }
 
-            var count = 0;
             var enabledSet = GetEnabledSet(appContext.GameConfig.Mod);
+            List<T> packs = [];
             foreach (var fileEntry in fileEntryList)
             {
                 if (!fileEntry.IsDirectory)
@@ -46,19 +46,21 @@ public abstract class PackLoader<T> where T : BasePack
                     continue;
                 }
 
-                var pack = CreatePack(packManifest);
-                if (!pack.Load(appContext, fileEntry.Path, onMessage))
-                {
-                    continue;
-                }
-                count++;
+                var pack = CreatePack(fileEntry.Path, packManifest);
+                packs.Add(pack);
+                pack.LoadAllTemplate(appContext, onMessage);
             }
 
-            return count;
+            foreach (var basePack in packs)
+            {
+                basePack.RegisterResourceType(basePack.ResourceTypeDictionary);
+                basePack.Load(appContext, onMessage);
+            }
+            return packs.Count;
         });
     }
 
     protected abstract HashSet<string> GetEnabledSet(ModConfig modConfig);
 
-    protected abstract T CreatePack(PackManifest manifest);
+    protected abstract T CreatePack(VirtualPath packRootPath, PackManifest manifest);
 }

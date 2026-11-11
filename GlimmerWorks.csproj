@@ -5,6 +5,10 @@
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+
+        <Version>0.0.3</Version>
+        <AssemblyVersion>0.0.0.3</AssemblyVersion>
+        <FileVersion>0.0.0.3</FileVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -20,7 +24,7 @@
         <None Include="assets/mods/**/*"
               Link="mods/%(RecursiveDir)%(Filename)%(Extension)"
               CopyToOutputDirectory="PreserveNewest"
-              CopyToPublishDirectory="PreserveNewest" />
+              CopyToPublishDirectory="PreserveNewest"/>
     </ItemGroup>
 
 </Project>

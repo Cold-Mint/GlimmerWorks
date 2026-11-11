@@ -8,32 +8,29 @@ namespace GlimmerWorks.Engine.Scene;
 /// Scene base class: defines the lifecycle contract of a scene.
 /// 场景基类：定义场景的生命周期契约。
 /// </summary>
-public abstract class Scene
+public abstract class Scene(AppContext appContext)
 {
-    private readonly AppContext _appContext;
+    private Widget? _widget;
+
+    protected AppContext AppContext => appContext;
 
     /// <summary>
-    /// Initializes a new scene bound to the given application context.
-    /// 使用给定的应用上下文初始化一个新场景。
+    /// <para>SetWidget</para>
+    /// <para>设置组件</para>
     /// </summary>
-    /// <param name="context">Application context. 应用上下文。</param>
-    protected Scene(AppContext context)
+    /// <param name="widget"></param>
+    protected void SetWidget(Widget? widget)
     {
-        _appContext = context;
+        _widget = widget;
     }
 
-    /// <summary>
-    /// Gets the application context.
-    /// 获取应用上下文。
-    /// </summary>
-    protected AppContext GetAppContext() => _appContext;
-
-    public virtual void InitSceneUi(Desktop desktop)
-    {
-    }
 
     public virtual void Update(GameTime gameTime)
     {
+        if (AppContext.SceneStack.IsTopScene(this) && appContext.Desktop?.Root != _widget)
+        {
+            appContext.Desktop?.Root = _widget;
+        }
     }
 
     public virtual void Draw(GraphicsDevice graphicsDevice, GameTime gameTime)
@@ -41,21 +38,27 @@ public abstract class Scene
     }
 
     /// <summary>
-    /// This method will be called when the scene is superimposed over the current scene.
-    /// 当场景叠加在当前场景之上时，将调用此方法。
-    /// The overlay scene display does not trigger this method.
-    /// Overlay场景显示不会触发此方法。
+    /// <para>GetBackgroundColor</para>
+    /// <para>获取场景背景色</para>
     /// </summary>
+    /// <returns></returns>
+    public virtual Color? GetBackgroundColor()
+    {
+        return null;
+    }
+
+    public virtual void OnCreate()
+    {
+    }
+
+    public virtual void OnDestroy()
+    {
+    }
+
     public virtual void OnPauseScene()
     {
     }
 
-    /// <summary>
-    /// When a scene above the current scene is popped up, the current scene is displayed.
-    /// 当在场景之上的场景被弹出后，当前场景显示出来。
-    /// The overlay scene hiding does not trigger this method.
-    /// Overlay场景隐藏不会触发此方法。
-    /// </summary>
     public virtual void OnResumeScene()
     {
     }
@@ -65,7 +68,7 @@ public abstract class Scene
     /// 当返回键被按下时调用这个方法，安卓系统向上导航，桌面平台按下ESC。
     /// </summary>
     /// <returns>If true is returned, the framework considers the scene has handled the back event by itself. 如果返回true，告诉框架场景自行处理了返回事件。</returns>
-    public bool OnBackPressed()
+    public virtual bool OnBackPressed()
     {
         return false;
     }

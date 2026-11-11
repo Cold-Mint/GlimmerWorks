@@ -1,8 +1,10 @@
 # UI messages
 # 用户页面消息
 start_game = "开始游戏"
+exit_game = "退出游戏"
 prepare = "准备"
 load_data_pack = "加载数据包:{0}..."
 load_assets_pack = "加载资源包:{0}..."
 load_data_pack_count = "已加载{0}个数据包"
 load_assets_pack_count = "已加载{0}个资源包"
+register_resource = "注册资源{0}：{1}:{2}"

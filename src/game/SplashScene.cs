@@ -1,3 +1,4 @@
+using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Engine.Mods;
 using GlimmerWorks.Engine.Mods.PackLoader;
 using GlimmerWorks.Engine.Scene;
@@ -10,21 +11,21 @@ using AppContext = GlimmerWorks.Engine.AppContext;
 
 namespace GlimmerWorks.Game;
 
-public class SplashScene(AppContext context) : Scene(context)
+public class SplashScene(AppContext appContext) : Scene(appContext)
 {
     private Label? _loadLabel;
 
-    public override void InitSceneUi(Desktop desktop)
+    public override void OnCreate()
     {
         var panel = new Panel();
         _loadLabel = new Label
         {
-            Text = context.LocalizationManager.Get("ui.prepare"),
+            Text = AppContext.LocalizationManager.Get("ui.prepare"),
             TextColor = Color.White,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Bottom,
             Margin = new Thickness(0, 0, 0, 60),
-            Font = context.FontSystem.GetFont(32)
+            Font = AppContext.FontSystem.GetFont(32)
         };
         panel.Widgets.Add(_loadLabel);
         panel.Widgets.Add(new Label
@@ -33,35 +34,53 @@ public class SplashScene(AppContext context) : Scene(context)
             TextColor = Color.White,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
-            Font = context.FontSystem.GetFont(150)
+            Font = AppContext.FontSystem.GetFont(150)
         });
-        desktop.Root = panel;
+        SetWidget(panel);
         LoadPacks();
     }
 
     private async void LoadPacks()
     {
         var dataPackLoader = new DataPackLoader();
-        var dataPackCount = await dataPackLoader.Scan(context, new VirtualPath("mods", "data_packs"), OnPackMessage);
-        
-        OnPackMessage(new PackMessage(context.LocalizationManager.GetFormat("ui.load_data_pack_count", dataPackCount)));
+        var dataPackCount =
+            await dataPackLoader.Scan(AppContext, new VirtualPath("mods", "data_packs"), OnPackMessage);
+        OnPackMessage(
+            new PackMessage(AppContext.LocalizationManager.GetFormat("ui.load_data_pack_count", dataPackCount)));
+
+        var assetsPackLoader = new AssetsPackLoader();
+        var assetsPackCount =
+            await assetsPackLoader.Scan(AppContext, new VirtualPath("mods", "resource_packs"), OnPackMessage);
+        OnPackMessage(
+            new PackMessage(AppContext.LocalizationManager.GetFormat("ui.load_assets_pack_count", assetsPackCount)));
+        AppContext.SceneStack.AddTask(
+            new SceneStackTask { Scene = new MainScene(AppContext), Type = StackType.Replace });
     }
 
-    private void OnPackMessage(PackMessage obj)
+
+    public override Color? GetBackgroundColor()
     {
-        switch (obj.Level)
+        return new Color(108, 60, 233, 255);
+    }
+
+    private void OnPackMessage(PackMessage packMessage)
+    {
+        switch (packMessage.Level)
         {
-            case PackMessageLevel.Info:
+            case LogLevel.Info:
                 _loadLabel?.TextColor = Color.White;
+                AppContext.LogCat.Info(packMessage.Message);
                 break;
-            case PackMessageLevel.Warning:
+            case LogLevel.Warn:
                 _loadLabel?.TextColor = Color.Yellow;
+                AppContext.LogCat.Warn(packMessage.Message);
                 break;
-            case PackMessageLevel.Error:
+            case LogLevel.Error:
                 _loadLabel?.TextColor = Color.Red;
+                AppContext.LogCat.Error(packMessage.Message);
                 break;
         }
 
-        _loadLabel?.Text = obj.Message;
+        _loadLabel?.Text = packMessage.Message;
     }
 }

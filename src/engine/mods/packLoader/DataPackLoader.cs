@@ -1,3 +1,4 @@
+using GlimmerWorks.engine.Vfs;
 using GlimmerWorks.Game;
 
 namespace GlimmerWorks.Engine.Mods.PackLoader;
@@ -13,8 +14,9 @@ public class DataPackLoader : PackLoader<DataPack>
         return modConfig.EnabledDataPacks;
     }
 
-    protected override DataPack CreatePack(PackManifest manifest)
+    protected override DataPack CreatePack(VirtualPath packRootPath, PackManifest manifest)
     {
-        return new DataPack(manifest);
+        return new DataPack(packRootPath, manifest);
     }
+    
 }

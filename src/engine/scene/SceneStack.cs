@@ -1,4 +1,20 @@
+using System.Collections.Concurrent;
+
 namespace GlimmerWorks.Engine.Scene;
+
+public enum StackType
+{
+    None,
+    Push,
+    Pop,
+    Replace
+}
+
+public class SceneStackTask
+{
+    public Scene? Scene { get; set; }
+    public StackType Type { get; set; }
+}
 
 /// <summary>
 /// SceneStack.
@@ -6,37 +22,92 @@ namespace GlimmerWorks.Engine.Scene;
 /// </summary>
 public class SceneStack
 {
-    public Action<Scene>? OnPushScene { get; set; }
     private readonly Stack<Scene> _stack = new();
 
     public Scene? Current() => _stack.Count == 0 ? null : _stack.Peek();
-
-    public void PushScene(Scene scene)
-    {
-        if (_stack.Count > 0)
-        {
-            _stack.Peek().OnPauseScene();
-        }
-
-        _stack.Push(scene);
-        OnPushScene?.Invoke(scene);
-        scene.OnResumeScene();
-    }
+    private ConcurrentQueue<SceneStackTask> _tasks = new();
 
     public int Count => _stack.Count;
 
-    public void PopScene()
+    /// <summary>
+    /// <para>IsTopScene</para>
+    /// <para>某个场景是否在栈顶</para>
+    /// </summary>
+    /// <param name="scene"></param>
+    /// <returns></returns>
+    public bool IsTopScene(Scene scene)
     {
         if (_stack.Count <= 0)
         {
-            return;
+            return false;
         }
 
-        _stack.Peek().OnPauseScene();
-        _stack.Pop();
-        if (_stack.Count > 0)
+        return _stack.Peek() == scene;
+    }
+
+    /// <summary>
+    /// <para>ExecuteTaskQueue</para>
+    /// <para>执行任务队列</para>
+    /// </summary>
+    public void ExecuteTaskQueue()
+    {
+        while (_tasks.TryDequeue(out var sceneStackTask))
         {
-            _stack.Peek().OnResumeScene();
+            var scene = sceneStackTask.Scene;
+            if (scene == null)
+            {
+                continue;
+            }
+
+            switch (sceneStackTask.Type)
+            {
+                case StackType.Pop:
+                    if (_stack.Count <= 0)
+                    {
+                        continue;
+                    }
+
+                    var top = _stack.Peek();
+                    top.OnPauseScene();
+                    top.OnDestroy();
+                    _stack.Pop();
+                    if (_stack.Count > 0)
+                    {
+                        _stack.Peek().OnResumeScene();
+                    }
+
+                    break;
+                case StackType.Push:
+                    if (_stack.Count > 0)
+                    {
+                        _stack.Peek().OnPauseScene();
+                    }
+
+                    scene.OnCreate();
+                    _stack.Push(scene);
+                    scene.OnResumeScene();
+                    break;
+                case StackType.Replace:
+                    if (_stack.Count <= 0)
+                    {
+                        continue;
+                    }
+                    
+                    var top1 = _stack.Peek();
+                    top1.OnPauseScene();
+                    top1.OnDestroy();
+                    _stack.Pop();
+                    
+                    scene.OnCreate();
+                    _stack.Push(scene);
+                    scene.OnResumeScene();
+                    break;
+            }
         }
+    }
+
+    public void AddTask(SceneStackTask sceneStackTask)
+    {
+        _tasks.Enqueue(sceneStackTask);
     }
 }

@@ -7,6 +7,25 @@ public class FileEntry
     public VirtualPath Path { set; get; }
 
     /// <summary>
+    /// <para>GetResourceType</para>
+    /// <para>获取文件的资源类型</para>
+    /// </summary>
+    /// <returns></returns>
+    public string? GetResourceType()
+    {
+        var span = System.IO.Path.GetFileName(Name.AsSpan());
+        var lastDot = span.LastIndexOf('.');
+        if (lastDot <= 0)
+        {
+            return null;
+        }
+
+        span = span[..lastDot];
+        var prevDot = span.LastIndexOf('.');
+        return prevDot < 0 ? null : span[(prevDot + 1)..].ToString();
+    }
+
+    /// <summary>
     /// <para>FromFileSystemInfo</para>
     /// <para>从FileSystemInfo创建</para>
     /// </summary>

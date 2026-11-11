@@ -3,6 +3,18 @@ using System.Globalization;
 namespace GlimmerWorks.Engine.Log;
 
 /// <summary>
+/// Log level; smaller values are more verbose.
+/// 日志级别，值越小越详细。
+/// </summary>
+public enum LogLevel
+{
+    Debug = 0,
+    Info = 1,
+    Warn = 2,
+    Error = 3
+}
+
+/// <summary>
 /// Unified logging utility. Method arguments are localization keys, translated via <see cref="LocalizationManager"/> before output.
 /// 统一的日志输出工具。方法的入参是本地化 key，输出前会通过 <see cref="LocalizationManager"/> 翻译。
 /// </summary>

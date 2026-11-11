@@ -1,3 +1,4 @@
+using GlimmerWorks.engine.Vfs;
 using GlimmerWorks.Game;
 
 namespace GlimmerWorks.Engine.Mods.PackLoader;
@@ -13,8 +14,8 @@ public class AssetsPackLoader : PackLoader<AssetsPack>
         return modConfig.EnabledAssetPacks;
     }
 
-    protected override AssetsPack CreatePack(PackManifest manifest)
+    protected override AssetsPack CreatePack(VirtualPath packRootPath, PackManifest manifest)
     {
-        return new AssetsPack(manifest);
+        return new AssetsPack(packRootPath, manifest);
     }
 }

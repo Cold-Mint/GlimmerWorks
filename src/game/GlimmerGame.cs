@@ -1,3 +1,4 @@
+using GlimmerWorks.Engine;
 using GlimmerWorks.Engine.Scene;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -9,13 +10,12 @@ namespace GlimmerWorks.Game;
 
 public class GlimmerGame : Microsoft.Xna.Framework.Game
 {
-    private readonly GraphicsDeviceManager _graphicsDeviceManager;
-    private Desktop? _desktop;
     private readonly AppContext _appContext = new();
+    private readonly Color _defaultBackgroundColor = new(250, 250, 250, 255);
 
     public GlimmerGame()
     {
-        _graphicsDeviceManager = new GraphicsDeviceManager(this)
+        _appContext.GraphicsDeviceManager = new GraphicsDeviceManager(this)
         {
             PreferredBackBufferWidth = _appContext.GameConfig.Window.Width,
             PreferredBackBufferHeight = _appContext.GameConfig.Window.Height,
@@ -30,49 +30,40 @@ public class GlimmerGame : Microsoft.Xna.Framework.Game
     protected override void Initialize()
     {
         base.Initialize();
-        _desktop = new Desktop();
-        _appContext.SceneStack.OnPushScene += OnPushScene;
-        _appContext.SceneStack.PushScene(new SplashScene(_appContext));
-    }
-
-    private void OnPushScene(Scene obj)
-    {
-        if (_desktop == null)
-        {
-            return;
-        }
-
-        obj.InitSceneUi(_desktop);
+        _appContext.Desktop = new Desktop();
+        _appContext.SceneStack.AddTask(
+            new SceneStackTask { Scene = new SplashScene(_appContext), Type = StackType.Push });
     }
 
 
     protected override void Update(GameTime gameTime)
     {
-        _desktop?.UpdateInput();
+        base.Update(gameTime);
+        _appContext.Desktop?.UpdateInput();
+        InputTracker.Update();
         var scene = _appContext.SceneStack.Current();
         if (scene != null)
         {
-            if (Keyboard.GetState().IsKeyDown(Keys.Escape) && !scene.OnBackPressed())
+            if (InputTracker.IsKeyJustPressed(Keys.Escape) && !scene.OnBackPressed())
             {
-                _appContext.SceneStack.PopScene();
+                _appContext.SceneStack.AddTask(new SceneStackTask { Type = StackType.Pop });
             }
 
             scene.Update(gameTime);
         }
 
+        _appContext.SceneStack.ExecuteTaskQueue();
         if (_appContext.SceneStack.Count == 0)
         {
             Exit();
         }
-
-        base.Update(gameTime);
     }
 
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.Green);
-        _desktop?.Render();
         var scene = _appContext.SceneStack.Current();
+        GraphicsDevice.Clear(scene?.GetBackgroundColor() ?? _defaultBackgroundColor);
+        _appContext.Desktop?.Render();
         scene?.Draw(GraphicsDevice, gameTime);
         base.Draw(gameTime);
     }

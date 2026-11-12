@@ -9,11 +9,6 @@ namespace GlimmerWorks.Engine.Mods.PackLoader;
 /// </summary>
 public class AssetsPackLoader : PackLoader<AssetsPack>
 {
-    protected override HashSet<string> GetEnabledSet(ModConfig modConfig)
-    {
-        return modConfig.EnabledAssetPacks;
-    }
-
     protected override AssetsPack CreatePack(VirtualPath packRootPath, PackManifest manifest)
     {
         return new AssetsPack(packRootPath, manifest);

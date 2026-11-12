@@ -1,3 +1,4 @@
+using GlimmerWorks.Engine.Mods.Data;
 using GlimmerWorks.engine.Vfs;
 using Tomlyn;
 
@@ -65,17 +66,22 @@ public class VirtualFileSystem
     public bool FileExists(VirtualPath path) =>
         _fileSystemProviders.Any(fileSystemProvider => fileSystemProvider.FileExists(path));
 
-    /// <summary>
-    /// <para>ReadToml</para>
-    /// <para>读取Toml</para>
-    /// </summary>
-    /// <param name="path"></param>
-    /// <typeparam name="T"></typeparam>
-    /// <returns></returns>
+    // /// <summary>
+    // /// <para>ReadToml</para>
+    // /// <para>读取Toml</para>
+    // /// </summary>
+    // /// <param name="path"></param>
+    // /// <typeparam name="T"></typeparam>
+    // /// <returns></returns>
     public T? ReadToml<T>(VirtualPath path)
     {
-        var text = ReadAllText(path);
-        return text == null ? default : TomlSerializer.Deserialize<T>(text);
+        var obj = ReadToml(path, typeof(T));
+        if (obj == null)
+        {
+            return default;
+        }
+
+        return (T)obj;
     }
 
     /// <summary>
@@ -88,6 +94,39 @@ public class VirtualFileSystem
     public object? ReadToml(VirtualPath path, Type type)
     {
         var text = ReadAllText(path);
-        return text == null ? null : TomlSerializer.Deserialize(text, type);
+        return string.IsNullOrWhiteSpace(text) ? null : AfterDeserializeToml(path, text, type);
+    }
+
+
+    /// <summary>
+    /// <para>Toml serialization processing</para>
+    /// <para>Toml序列化后加工</para>
+    /// </summary>
+    /// <param name="path"></param>
+    /// <param name="text"></param>
+    /// <param name="type"></param>
+    /// <returns></returns>
+    private object? AfterDeserializeToml(VirtualPath path, string text, Type type)
+    {
+        var obj = TomlSerializer.Deserialize(text, type);
+        if (obj is Resources resources)
+        {
+            resources.VirtualPath = path;
+        }
+
+        if (obj is StringFileResources stringFileResources)
+        {
+            foreach (var stringResources in stringFileResources.StringList)
+            {
+                stringResources.VirtualPath = path;
+            }
+
+            foreach (var tagStringResources in stringFileResources.StringTagList)
+            {
+                tagStringResources.VirtualPath = path;
+            }
+        }
+
+        return obj;
     }
 }

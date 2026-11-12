@@ -5,9 +5,8 @@ namespace GlimmerWorks.Engine.widgets;
 
 public sealed class Label : Myra.Graphics2D.UI.Label
 {
-    public Label(Theme theme, string text)
+    public Label(Theme theme)
     {
-        Text = text;
         TextColor = theme.OnSurface;
         MinHeight = theme.MinHeight;
         Font = theme.GetFont(ThemeFontKind.Normal);

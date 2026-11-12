@@ -1,3 +1,4 @@
+using GlimmerWorks.engine.Vfs;
 using Tomlyn.Serialization;
 
 namespace GlimmerWorks.Engine.Mods.Data;
@@ -10,6 +11,7 @@ public class Resources
 {
     [TomlPropertyName("resource_id")] public string ResourceId { get; set; } = string.Empty;
     public string PackId { get; set; } = string.Empty;
+    public VirtualPath? VirtualPath { get; set; }
 }
 
 /// <summary>

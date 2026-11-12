@@ -66,22 +66,29 @@ public class SplashScene(AppContext appContext) : Scene(appContext)
 
     private void OnPackMessage(PackMessage packMessage)
     {
+        var message = packMessage.Message;
+        if (packMessage.Path != null)
+        {
+            message = AppContext.LocalizationManager.GetFormat("ui.at_source_file",
+                packMessage.Path.Path, packMessage.Message);
+        }
+
         switch (packMessage.Level)
         {
             case LogLevel.Info:
                 _loadLabel?.TextColor = AppContext.Theme.Info;
-                AppContext.LogCat.Info(packMessage.Message);
+                AppContext.LogCat.Info(message);
                 break;
             case LogLevel.Warn:
                 _loadLabel?.TextColor = AppContext.Theme.Warn;
-                AppContext.LogCat.Warn(packMessage.Message);
+                AppContext.LogCat.Warn(message);
                 break;
             case LogLevel.Error:
                 _loadLabel?.TextColor = AppContext.Theme.Error;
-                AppContext.LogCat.Error(packMessage.Message);
+                AppContext.LogCat.Error(message);
                 break;
         }
 
-        _loadLabel?.Text = packMessage.Message;
+        _loadLabel?.Text = message;
     }
 }

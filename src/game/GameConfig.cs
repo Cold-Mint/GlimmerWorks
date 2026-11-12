@@ -17,26 +17,8 @@ public sealed class GameConfig
     [TomlPropertyName("language")]
     public string Language { get; init; } = string.Empty;
 
-    [TomlPropertyName("mod")] public ModConfig Mod { get; init; } = new();
 
     [TomlPropertyName("window")] public WindowConfig Window { get; init; } = new();
-}
-
-public sealed class ModConfig
-{
-    /// <summary>
-    /// Enabled data packs (ids).
-    /// 已启用的数据包 id 集合。
-    /// </summary>
-    [TomlPropertyName("enabled_data_packs")]
-    public HashSet<string> EnabledDataPacks { get; init; } = ["glimmerworks"];
-
-    /// <summary>
-    /// Enabled asset packs (ids).
-    /// 已启用的资源包 id 集合。
-    /// </summary>
-    [TomlPropertyName("enabled_asset_packs")]
-    public HashSet<string> EnabledAssetPacks { get; init; } = ["glimmerworks_res"];
 }
 
 /// <summary>

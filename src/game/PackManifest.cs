@@ -9,11 +9,9 @@ namespace GlimmerWorks.Game;
 /// </summary>
 public sealed class PackManifest
 {
-    [TomlPropertyName("author")]
-    public string Author { get; init; } = string.Empty;
+    [TomlPropertyName("author")] public string Author { get; init; } = string.Empty;
 
-    [TomlPropertyName("id")]
-    public string Id { get; init; } = string.Empty;
+    [TomlPropertyName("id")] public string Id { get; init; } = string.Empty;
 
     /// <summary>
     /// Minimum game version this pack requires.
@@ -29,11 +27,9 @@ public sealed class PackManifest
     [TomlPropertyName("res_pack")]
     public bool ResPack { get; init; }
 
-    [TomlPropertyName("version_name")]
-    public string VersionName { get; init; } = string.Empty;
+    [TomlPropertyName("version_name")] public string VersionName { get; init; } = string.Empty;
 
-    [TomlPropertyName("version_number")]
-    public long VersionNumber { get; init; }
+    [TomlPropertyName("version_number")] public long VersionNumber { get; init; }
 
     /// <summary>
     /// Folders searched for templates (recursively). "@root" means the pack root.
@@ -42,11 +38,9 @@ public sealed class PackManifest
     [TomlPropertyName("template_search_path")]
     public string[] TemplateSearchPath { get; init; } = [];
 
-    [TomlPropertyName("description")]
-    public ResourceRef Description { get; init; } = new();
+    [TomlPropertyName("description")] public ResourceRef Description { get; init; } = new();
 
-    [TomlPropertyName("name")]
-    public ResourceRef Name { get; init; } = new();
+    [TomlPropertyName("name")] public ResourceRef Name { get; init; } = new();
 
     [TomlPropertyName("pack_dependencies")]
     public PackDependency[] PackDependencies { get; init; } = [];
@@ -58,9 +52,7 @@ public sealed class PackManifest
 /// </summary>
 public sealed class PackDependency
 {
-    [TomlPropertyName("min_version")]
-    public long MinVersion { get; init; }
+    [TomlPropertyName("min_version")] public long MinVersion { get; init; }
 
-    [TomlPropertyName("pack_id")]
-    public string PackId { get; init; } = string.Empty;
+    [TomlPropertyName("pack_id")] public string PackId { get; init; } = string.Empty;
 }

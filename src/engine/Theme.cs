@@ -34,6 +34,12 @@ public class Theme
     public int BorderWidth { get; set; } = 2;
 
     /// <summary>
+    /// <para>Surface</para>
+    /// <para>表面颜色</para>
+    /// </summary>
+    public Color Surface = new(242, 242, 247, 255);
+
+    /// <summary>
     /// <para>OnPrimary</para>
     /// <para>主色调上的内容色（文字、图标），与 Primary 搭配使用以保证对比度</para>
     /// </summary>

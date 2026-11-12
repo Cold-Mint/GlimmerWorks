@@ -1,3 +1,5 @@
+using GlimmerWorks.engine.extensions;
+using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Engine.Mods.Data;
 using GlimmerWorks.engine.Vfs;
 using GlimmerWorks.Game;
@@ -24,17 +26,50 @@ public class DataPack(VirtualPath packRootPath, PackManifest manifest) : BasePac
         }
 
         List<TemplateResources> templateResourcesList = [];
+        var suffixLength = ".template.toml".Length;
         foreach (var fileEntry in templateEntryList)
         {
+            var path = fileEntry.Path.Path;
+            var pathSpitArray = path.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            var allSnakeCase = true;
+            for (var i = 0; i < pathSpitArray.Length; i++)
+            {
+                var fragment = pathSpitArray[i];
+                if (i == pathSpitArray.Length - 1)
+                {
+                    fragment = fragment[..^suffixLength];
+                }
+
+                if (!fragment.IsSnakeCase())
+                {
+                    allSnakeCase = false;
+                    onMessage.Invoke(new PackMessage(
+                        appContext.LocalizationManager.GetFormat("ui.template_path_require_snake_case", fragment,
+                            fragment.ToSnakeCase(), fragment))
+                    {
+                        Path = fileEntry.Path,
+                        Level = LogLevel.Error
+                    });
+                    break;
+                }
+            }
+
+            if (!allSnakeCase)
+            {
+                continue;
+            }
+
             var text = appContext.VirtualFileSystem.ReadAllText(fileEntry.Path);
             if (text == null)
             {
                 continue;
             }
 
+            var relativePath = fileEntry.Path.GetRelativePath(_packRootPath);
             templateResourcesList.Add(new TemplateResources
             {
-                ResourceId = fileEntry.Path.GetRelativePath(_packRootPath),
+                VirtualPath = fileEntry.Path,
+                ResourceId = relativePath.Substring(0, relativePath.Length - suffixLength),
                 Content = text
             });
         }

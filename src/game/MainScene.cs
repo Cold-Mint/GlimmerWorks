@@ -2,7 +2,6 @@ using System.Reflection;
 using GlimmerWorks.Engine;
 using GlimmerWorks.Engine.Scene;
 using GlimmerWorks.Engine.widgets;
-using Microsoft.Xna.Framework;
 using Myra.Events;
 using Myra.Graphics2D;
 using Myra.Graphics2D.UI;
@@ -45,8 +44,9 @@ public class MainScene(AppContext appContext) : Scene(appContext)
 
         panel.Widgets.Add(buttonStack);
 
-        var copyrightLabel = new Label(AppContext.Theme, GetCopyright())
+        var copyrightLabel = new Label(AppContext.Theme)
         {
+            Text = GetCopyright(),
             Font = AppContext.Theme.GetFont(ThemeFontKind.Small),
             HorizontalAlignment = HorizontalAlignment.Left,
             VerticalAlignment = VerticalAlignment.Bottom,
@@ -54,8 +54,9 @@ public class MainScene(AppContext appContext) : Scene(appContext)
         };
         panel.Widgets.Add(copyrightLabel);
 
-        var versionLabel = new Label(AppContext.Theme, GetGameVersion())
+        var versionLabel = new Label(AppContext.Theme)
         {
+            Text = GetGameVersion(),
             Font = AppContext.Theme.GetFont(ThemeFontKind.Small),
             HorizontalAlignment = HorizontalAlignment.Right,
             VerticalAlignment = VerticalAlignment.Top,

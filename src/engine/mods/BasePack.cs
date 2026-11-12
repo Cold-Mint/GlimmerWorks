@@ -1,3 +1,5 @@
+using GlimmerWorks.engine.extensions;
+using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Engine.Mods.Data;
 using GlimmerWorks.engine.Vfs;
 using GlimmerWorks.Game;
@@ -122,7 +124,6 @@ public abstract class BasePack(VirtualPath packRootPath, PackManifest manifest)
                         continue;
                     }
 
-
                     if (RegisterResource(onMessage, appContext, resource))
                     {
                         resourceCount++;
@@ -153,9 +154,22 @@ public abstract class BasePack(VirtualPath packRootPath, PackManifest manifest)
     /// <param name="appContext"></param>
     /// <param name="resource"></param>
     /// <returns></returns>
-    private bool RegisterResource(Action<PackMessage> onMessage, AppContext appContext, Resources resource)
+    private bool RegisterResource(Action<PackMessage> onMessage, AppContext appContext,
+        Resources resource)
     {
         resource.PackId = manifest.Id;
+        if (resource is not TemplateResources && !resource.ResourceId.IsSnakeCase())
+        {
+            onMessage.Invoke(new PackMessage(
+                appContext.LocalizationManager.GetFormat("ui.require_snake_case", "resource_id",
+                    resource.ResourceId.ToSnakeCase(), resource.ResourceId))
+            {
+                Path = resource.VirtualPath,
+                Level = LogLevel.Error
+            });
+            return false;
+        }
+
         onMessage.Invoke(new PackMessage(
             appContext.LocalizationManager.GetFormat("ui.register_resource", resource.GetType().Name, resource.PackId,
                 resource.ResourceId)));

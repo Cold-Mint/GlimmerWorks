@@ -43,7 +43,10 @@ public class CreateWorldScene(AppContext appContext) : Scene(appContext)
         panel.Widgets.Add(card);
         var content = new VerticalStackPanel { Spacing = 18 };
         card.Widgets.Add(content);
-        content.Widgets.Add(new Label(AppContext.Theme, AppContext.LocalizationManager.Get("ui.create_world")));
+        content.Widgets.Add(new Label(AppContext.Theme)
+        {
+            Text = AppContext.LocalizationManager.Get("ui.create_world")
+        });
         _worldNameBox.Text = GenerateRandomName();
         content.Widgets.Add(CreateFormRow(
             AppContext.LocalizationManager.Get("ui.world_name"),
@@ -56,7 +59,10 @@ public class CreateWorldScene(AppContext appContext) : Scene(appContext)
             () => _seedBox.Text = GenerateRandomSeed()));
         var row = new HorizontalStackPanel();
         row.Widgets.Add(_allowCheatsCheck);
-        row.Widgets.Add(new Label(AppContext.Theme,AppContext.LocalizationManager.Get("ui.allow_cheating")));
+        row.Widgets.Add(new Label(AppContext.Theme)
+        {
+            Text = AppContext.LocalizationManager.Get("ui.allow_cheating")
+        });
         content.Widgets.Add(row);
         var buttonRow = new HorizontalStackPanel
         {
@@ -76,8 +82,9 @@ public class CreateWorldScene(AppContext appContext) : Scene(appContext)
     private HorizontalStackPanel CreateFormRow(string labelText, Widget input, Action onClick)
     {
         var row = new HorizontalStackPanel();
-        row.Widgets.Add(new Label(AppContext.Theme, labelText)
+        row.Widgets.Add(new Label(AppContext.Theme)
         {
+            Text = labelText,
             VerticalAlignment = VerticalAlignment.Center,
             MinWidth = 180,
             Font = AppContext.Theme.GetFont(ThemeFontKind.Small),

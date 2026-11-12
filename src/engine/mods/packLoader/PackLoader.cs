@@ -1,3 +1,5 @@
+using GlimmerWorks.engine.extensions;
+using GlimmerWorks.Engine.Log;
 using GlimmerWorks.engine.Vfs;
 using GlimmerWorks.Game;
 
@@ -20,7 +22,6 @@ public abstract class PackLoader<T> where T : BasePack
                 return 0;
             }
 
-            var enabledSet = GetEnabledSet(appContext.GameConfig.Mod);
             List<T> packs = [];
             foreach (var fileEntry in fileEntryList)
             {
@@ -41,8 +42,15 @@ public abstract class PackLoader<T> where T : BasePack
                     continue;
                 }
 
-                if (!enabledSet.Contains(packManifest.Id))
+                if (!packManifest.Id.IsSnakeCase())
                 {
+                    onMessage.Invoke(new PackMessage(
+                        appContext.LocalizationManager.GetFormat("ui.require_snake_case", "id",
+                            packManifest.Id.ToSnakeCase(), packManifest.Id))
+                    {
+                        Path = manifestPath,
+                        Level = LogLevel.Error
+                    });
                     continue;
                 }
 
@@ -56,11 +64,10 @@ public abstract class PackLoader<T> where T : BasePack
                 basePack.RegisterResourceType(basePack.ResourceTypeDictionary);
                 basePack.Load(appContext, onMessage);
             }
+
             return packs.Count;
         });
     }
-
-    protected abstract HashSet<string> GetEnabledSet(ModConfig modConfig);
 
     protected abstract T CreatePack(VirtualPath packRootPath, PackManifest manifest);
 }

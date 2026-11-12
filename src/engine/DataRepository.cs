@@ -15,6 +15,8 @@ public class DataRepository
     /// </summary>
     private readonly Dictionary<(string PackId, Type Type, string ResourceId), Resources?> _resources = new();
 
+    private readonly Dictionary<Type, List<Resources>> _typeToResources = new();
+
     /// <summary>
     /// <para>packDependencies</para>
     /// <para>包依赖关系</para>
@@ -25,16 +27,50 @@ public class DataRepository
     /// <para>SetDependencies</para>
     /// <para>设置包依赖</para>
     /// </summary>
-    /// <param name="packId"></param>
+    /// <param name="targetPackId"></param>
     /// <param name="dependencies"></param>
-    void SetDependencies(string packId, IEnumerable<string> dependencies)
+    void SetDependencies(string targetPackId, IEnumerable<string> dependencies)
     {
-        if (string.IsNullOrWhiteSpace(packId))
+        if (string.IsNullOrWhiteSpace(targetPackId))
         {
             return;
         }
 
-        _packDependencies[packId] = [.. dependencies];
+        _packDependencies[targetPackId] = [.. dependencies];
+    }
+
+    private void AddToTypeIndex(Resources resource)
+    {
+        var t = resource.GetType();
+        if (!_typeToResources.TryGetValue(t, out var list))
+        {
+            list = new List<Resources>();
+            _typeToResources[t] = list;
+        }
+
+        list.Add(resource);
+    }
+
+    /// <summary>
+    /// <para>GetResourceList</para>
+    /// <para>获取资源列表</para>
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public IEnumerable<T> GetResourceList<T>(Func<T, bool>? filter = null) where T : Resources
+    {
+        if (!_typeToResources.TryGetValue(typeof(T), out var list))
+        {
+            yield break;
+        }
+
+        foreach (var r in list)
+        {
+            if (r is T t && (filter is null || filter(t)))
+            {
+                yield return t;
+            }
+        }
     }
 
     /// <summary>
@@ -42,34 +78,21 @@ public class DataRepository
     /// <para>注册资源</para>
     /// </summary>
     /// <param name="resource"></param>
-    /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public bool Register<T>(T resource) where T : Resources
+    public bool Register(Resources resource)
     {
-        if (string.IsNullOrWhiteSpace(resource.PackId))
+        if (string.IsNullOrWhiteSpace(resource.PackId) || string.IsNullOrWhiteSpace(resource.ResourceId))
         {
             return false;
         }
 
-        return !string.IsNullOrWhiteSpace(resource.ResourceId) &&
-               _resources.TryAdd((resource.PackId, resource.GetType(), resource.ResourceId), resource);
-    }
-
-    /// <summary>
-    /// <para>Register</para>
-    /// <para>注册资源</para>
-    /// </summary>
-    /// <param name="resources"></param>
-    /// <returns></returns>
-    public bool Register(Resources resources)
-    {
-        if (string.IsNullOrWhiteSpace(resources.PackId))
+        if (_resources.TryAdd((resource.PackId, resource.GetType(), resource.ResourceId), resource))
         {
-            return false;
+            AddToTypeIndex(resource);
+            return true;
         }
 
-        return !string.IsNullOrWhiteSpace(resources.ResourceId) &&
-               _resources.TryAdd((resources.PackId, resources.GetType(), resources.ResourceId), resources);
+        return false;
     }
 
 
@@ -88,7 +111,7 @@ public class DataRepository
         {
             //If it is a cross-package access, then check the dependencies.
             //如果是跨包访问，那么检查依赖。
-            if (!dependencies.Contains(resourceRef.ResourceId))
+            if (!dependencies.Contains(resourceRef.TargetPackId))
             {
                 //Prohibit cross-package access.
                 //禁止跨包访问。

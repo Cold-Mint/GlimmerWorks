@@ -3,6 +3,8 @@ using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Engine.Mods.Data;
 using GlimmerWorks.engine.Vfs;
 using GlimmerWorks.Game;
+using System.Reflection;
+using GlimmerWorks.engine;
 
 namespace GlimmerWorks.Engine.Mods;
 
@@ -44,8 +46,9 @@ public class DataPack(VirtualPath packRootPath, PackManifest manifest) : BasePac
                 {
                     allSnakeCase = false;
                     onMessage.Invoke(new PackMessage(
-                        appContext.LocalizationManager.GetFormat("ui.template_path_require_snake_case", fragment,
-                            fragment.ToSnakeCase(), fragment))
+                        appContext.Localizer[
+                            "Path segment {0} in template must use snake_case (expected: {1}, actual: {2}).", fragment,
+                            fragment.ToSnakeCase(), fragment].Value)
                     {
                         Path = fileEntry.Path,
                         Level = LogLevel.Error
@@ -83,7 +86,7 @@ public class DataPack(VirtualPath packRootPath, PackManifest manifest) : BasePac
         if (resourceType == "strings")
         {
             var stringFileResources =
-                appContext.VirtualFileSystem.ReadToml<StringFileResources>(fileEntry.Path);
+                appContext.VirtualFileSystem.ReadToml<StringSetResources>(fileEntry.Path);
             if (stringFileResources == null)
             {
                 return null;
@@ -95,14 +98,34 @@ public class DataPack(VirtualPath packRootPath, PackManifest manifest) : BasePac
         return null;
     }
 
-    public override void RegisterResourceType(Dictionary<string, Type> resourceTypeDictionary)
+    public override void RegisterResourceType(AppContext appContext, Dictionary<string, Type> resourceTypeDictionary)
     {
-        base.RegisterResourceType(resourceTypeDictionary);
-        resourceTypeDictionary.Add("dimension", typeof(DimensionResources));
+        base.RegisterResourceType(appContext, resourceTypeDictionary);
+        var resourceType = typeof(Resources);
+        foreach (var type in resourceType.Assembly.GetTypes())
+        {
+            if (type.IsAbstract || !resourceType.IsAssignableFrom(type))
+            {
+                continue;
+            }
+
+            var attr = type.GetCustomAttribute<DataPackResource>();
+            if (attr is null)
+            {
+                continue;
+            }
+
+            if (!attr.AutoDeserialization)
+            {
+                continue;
+            }
+
+            resourceTypeDictionary.Add(attr.ResourceType, type);
+        }
     }
 
     protected override string StartLoadMessage()
     {
-        return "ui.load_data_pack";
+        return "Load Data Pack:{0}...";
     }
 }

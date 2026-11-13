@@ -21,8 +21,9 @@ public abstract class BasePack(VirtualPath packRootPath, PackManifest manifest)
     /// <para>RegisterResourceType</para>
     /// <para>注册资源类型</para>
     /// </summary>
+    /// <param name="appContext"></param>
     /// <param name="resourceTypeDictionary"></param>
-    public virtual void RegisterResourceType(Dictionary<string, Type> resourceTypeDictionary)
+    public virtual void RegisterResourceType(AppContext appContext, Dictionary<string, Type> resourceTypeDictionary)
     {
     }
 
@@ -89,7 +90,7 @@ public abstract class BasePack(VirtualPath packRootPath, PackManifest manifest)
         var startLoadMessage = StartLoadMessage();
         if (startLoadMessage != null)
         {
-            onMessage.Invoke(new PackMessage(appContext.LocalizationManager.GetFormat(startLoadMessage, Manifest.Id)));
+            onMessage.Invoke(new PackMessage(appContext.Localizer[startLoadMessage, Manifest.Id].Value));
         }
 
         if (!ShouldScanFiles())
@@ -161,8 +162,8 @@ public abstract class BasePack(VirtualPath packRootPath, PackManifest manifest)
         if (resource is not TemplateResources && !resource.ResourceId.IsSnakeCase())
         {
             onMessage.Invoke(new PackMessage(
-                appContext.LocalizationManager.GetFormat("ui.require_snake_case", "resource_id",
-                    resource.ResourceId.ToSnakeCase(), resource.ResourceId))
+                appContext.Localizer["{0} must use snake_case (expected: {1}, actual: {2}).", "resource_id",
+                    resource.ResourceId.ToSnakeCase(), resource.ResourceId].Value)
             {
                 Path = resource.VirtualPath,
                 Level = LogLevel.Error
@@ -171,8 +172,8 @@ public abstract class BasePack(VirtualPath packRootPath, PackManifest manifest)
         }
 
         onMessage.Invoke(new PackMessage(
-            appContext.LocalizationManager.GetFormat("ui.register_resource", resource.GetType().Name, resource.PackId,
-                resource.ResourceId)));
+            appContext.Localizer["Register resource{0}：{1}:{2}", resource.GetType().Name, resource.PackId,
+                resource.ResourceId].Value));
         return appContext.DataRepository.Register(resource);
     }
 

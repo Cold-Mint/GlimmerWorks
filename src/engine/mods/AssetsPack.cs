@@ -12,6 +12,6 @@ public class AssetsPack(VirtualPath packRootPath, PackManifest manifest) : BaseP
 
     protected override string StartLoadMessage()
     {
-        return "ui.load_assets_pack";
+        return "Load Assets Pack:{0}...";
     }
 }

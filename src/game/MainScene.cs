@@ -35,10 +35,10 @@ public class MainScene(AppContext appContext) : Scene(appContext)
             Top = 80
         };
 
-        var startButton = new FilledButton(AppContext.Theme, AppContext.LocalizationManager.Get("ui.start_game"));
+        var startButton = new FilledButton(AppContext.Theme, AppContext.Localizer["Start Game"].Value);
         startButton.Click += StartButtonOnClick;
         buttonStack.Widgets.Add(startButton);
-        var exitButton = new OutlinedButton(AppContext.Theme, AppContext.LocalizationManager.Get("ui.exit_game"));
+        var exitButton = new OutlinedButton(AppContext.Theme, AppContext.Localizer["Exit Game"].Value);
         exitButton.Click += ExitButtonOnClick;
         buttonStack.Widgets.Add(exitButton);
 

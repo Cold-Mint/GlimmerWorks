@@ -1,3 +1,5 @@
+using System.Reflection;
+using GlimmerWorks.engine;
 using GlimmerWorks.Engine.Mods;
 using GlimmerWorks.Engine.Mods.Data;
 
@@ -17,11 +19,38 @@ public class DataRepository
 
     private readonly Dictionary<Type, List<Resources>> _typeToResources = new();
 
+    private readonly Dictionary<string, Type> _resourceTypeDictionary = new();
+
     /// <summary>
     /// <para>packDependencies</para>
     /// <para>包依赖关系</para>
     /// </summary>
     private readonly Dictionary<string, HashSet<string>> _packDependencies = new();
+
+    public DataRepository()
+    {
+        var resourceType = typeof(Resources);
+        foreach (var type in resourceType.Assembly.GetTypes())
+        {
+            if (type.IsAbstract || !resourceType.IsAssignableFrom(type))
+            {
+                continue;
+            }
+
+            var attr = type.GetCustomAttribute<DataPackResource>();
+            if (attr is null)
+            {
+                continue;
+            }
+
+            if (!attr.AutoDeserialization)
+            {
+                continue;
+            }
+
+            _resourceTypeDictionary.Add(attr.ResourceType, type);
+        }
+    }
 
     /// <summary>
     /// <para>SetDependencies</para>
@@ -74,6 +103,18 @@ public class DataRepository
     }
 
     /// <summary>
+    /// <para>Get a resource by filter</para>
+    /// <para>按照过滤器获取一个资源</para>
+    /// </summary>
+    /// <param name="filter"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public T? FirstOrDefaultResources<T>(Func<T, bool>? filter = null) where T : Resources
+    {
+        return GetResourceList(filter).FirstOrDefault();
+    }
+
+    /// <summary>
     /// <para>Register</para>
     /// <para>注册资源</para>
     /// </summary>
@@ -106,6 +147,12 @@ public class DataRepository
     /// <returns></returns>
     public T? Get<T>(ResourceRef resourceRef) where T : Resources
     {
+
+        if (!_resourceTypeDictionary.TryGetValue(resourceRef.ResourceType, out var actualType))
+        {
+            return null;
+        }
+        
         if (resourceRef.RequesterPackId != resourceRef.TargetPackId &&
             _packDependencies.TryGetValue(resourceRef.RequesterPackId, out var dependencies))
         {

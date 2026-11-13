@@ -1,6 +1,5 @@
-using System.Globalization;
-using GlimmerWorks.Engine.Log;
 using GlimmerWorks.engine.Vfs;
+using Microsoft.Extensions.Localization;
 using Tomlyn.Model;
 
 namespace GlimmerWorks.Engine;
@@ -9,8 +8,20 @@ namespace GlimmerWorks.Engine;
 /// Localization Manager: Loads TOML language files by locale and provides text lookup with fallback.
 /// 本地化管理器：按区域（locale）加载 TOML 语言文件，并提供带兜底的文本查询。
 /// </summary>
-public class LocalizationManager
+public class LocalizationManager : IStringLocalizer
 {
+    private readonly List<LocalizedString> _localizedStringList = new();
+
+    public IEnumerable<LocalizedString> GetAllStrings(bool includeParentCultures)
+    {
+        return _localizedStringList;
+    }
+
+    public LocalizedString this[string name] => Get(name);
+
+    public LocalizedString this[string name, params object[] arguments] => GetFormat(name, arguments);
+
+
     /// <summary>
     /// Fallback locale directory name. When a key is missing in the target locale, fall back to this locale.
     /// 兜底语言目录名。当目标语言缺少某个 key 时回退到此语言。
@@ -23,37 +34,32 @@ public class LocalizationManager
     /// </summary>
     private readonly Dictionary<string, string> _strings = new(StringComparer.Ordinal);
 
+
     /// <summary>
     /// Gets the text; returns the key itself when not found, to expose untranslated items.
     /// 获取文本；找不到时返回 key 本身，便于暴露未翻译项。
     /// </summary>
-    public string Get(string key)
-        => _strings.GetValueOrDefault(key, key);
+    public LocalizedString Get(string name)
+    {
+        return new LocalizedString(name, _strings.GetValueOrDefault(name, name));
+    }
 
     /// <summary>
     /// <para>Get text with formatting capabilities</para>
     /// <para>获取文本并带有格式化功能。</para>
     /// </summary>
-    /// <param name="key"></param>
+    /// <param name="name"></param>
     /// <param name="args"></param>
     /// <returns></returns>
-    public string GetFormat(string key, params object[] args)
+    public LocalizedString GetFormat(string name, params object[] args)
     {
-        if (!_strings.TryGetValue(key, out var stringValue))
+        if (!_strings.TryGetValue(name, out var value))
         {
-            return key;
+            return new LocalizedString(name, string.Format(name, args), true);
         }
 
-        return string.Format(stringValue, args);
+        return new LocalizedString(name, string.Format(value, args));
     }
-
-    /// <summary>
-    /// Gets the text and formats it with the arguments (equivalent to string.Format).
-    /// 获取文本并按参数格式化（等价于 string.Format）。
-    /// </summary>
-    /// <example><c>Get("log.enemies_killed", count)</c></example>
-    public string Get(string key, params object?[] args)
-        => string.Format(CultureInfo.CurrentCulture, Get(key), args);
 
     public void Clear() => _strings.Clear();
 
@@ -90,13 +96,11 @@ public class LocalizationManager
     /// 加载某个语言目录下的所有 *.toml 文件，以文件名作为 key 前缀写入目标表。
     /// </summary>
     public bool LoadDirectory(
-        LogCat logCat,
         VirtualFileSystem virtualFileSystem,
         VirtualPath directoryPath)
     {
         if (!virtualFileSystem.DirectoryExists(directoryPath))
         {
-            logCat.Warn("log.locale_dir_not_found", directoryPath);
             return false;
         }
 
@@ -112,7 +116,7 @@ public class LocalizationManager
             var table = virtualFileSystem.ReadToml<TomlTable>(entry.Path);
             if (table is not null)
             {
-                Flatten(table, category, _strings);
+                Flatten(table, category, _strings, _localizedStringList);
             }
         }
 
@@ -126,18 +130,19 @@ public class LocalizationManager
     private static void Flatten(
         TomlTable table,
         string prefix,
-        IDictionary<string, string> target)
+        IDictionary<string, string> target, List<LocalizedString> localizedStringList)
     {
         foreach (var pair in table)
         {
             var fullKey = string.IsNullOrEmpty(prefix) ? pair.Key : $"{prefix}.{pair.Key}";
             if (pair.Value is TomlTable nested)
             {
-                Flatten(nested, fullKey, target);
+                Flatten(nested, fullKey, target, localizedStringList);
             }
             else
             {
                 target[fullKey] = pair.Value?.ToString() ?? string.Empty;
+                localizedStringList.Add(new LocalizedString(pair.Key, fullKey));
             }
         }
     }

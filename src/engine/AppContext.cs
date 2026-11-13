@@ -1,5 +1,4 @@
 using System.Globalization;
-using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Engine.Scene;
 using GlimmerWorks.engine.Vfs;
 using GlimmerWorks.Game;
@@ -8,15 +7,15 @@ using Myra;
 using Myra.Graphics2D;
 using Myra.Graphics2D.Brushes;
 using Myra.Graphics2D.UI;
+using Microsoft.Extensions.Localization;
 
 namespace GlimmerWorks.Engine;
 
 public class AppContext
 {
-    public LogCat LogCat { get; init; } = new();
-
     public GraphicsDeviceManager? GraphicsDeviceManager { get; set; }
     public LocalizationManager LocalizationManager { get; init; } = new();
+    public IStringLocalizer Localizer => LocalizationManager;
     public GameConfig GameConfig { get; } = new();
     public VirtualFileSystem VirtualFileSystem { get; } = new();
 
@@ -52,7 +51,6 @@ public class AppContext
         ChangeLanguage(string.IsNullOrEmpty(GameConfig.Language)
             ? CultureInfo.CurrentUICulture.Name
             : GameConfig.Language);
-        LogCat.Localization = LocalizationManager;
     }
 
     /// <summary>
@@ -104,7 +102,7 @@ public class AppContext
             var langsRoot = new VirtualPath("assets", "langs", candidate);
             if (!loadLangs && VirtualFileSystem.DirectoryExists(langsRoot))
             {
-                if (LocalizationManager.LoadDirectory(LogCat, VirtualFileSystem, langsRoot))
+                if (LocalizationManager.LoadDirectory(VirtualFileSystem, langsRoot))
                 {
                     loadLangs = true;
                 }

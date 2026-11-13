@@ -114,7 +114,7 @@ public class VirtualFileSystem
             resources.VirtualPath = path;
         }
 
-        if (obj is StringFileResources stringFileResources)
+        if (obj is StringSetResources stringFileResources)
         {
             foreach (var stringResources in stringFileResources.StringList)
             {

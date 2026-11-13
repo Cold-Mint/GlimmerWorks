@@ -1,0 +1,2 @@
+M:System.Console.WriteLine(System.String);Use LogCat instead of Console.WriteLine
+M:System.Console.Write(System.String);Use LogCat instead of Console.Write

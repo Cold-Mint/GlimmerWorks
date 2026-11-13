@@ -17,7 +17,7 @@ public class SelectResourceScene<T>(AppContext appContext)
 
     private readonly Label _cannotFindResourceLabel = new(appContext.Theme)
     {
-        Text = appContext.LocalizationManager.Get("ui.cannot_find_resource"),
+        Text = appContext.Localizer["No matching resource found"].Value,
     };
 
     private readonly ListView _listView = new(appContext.Theme)

@@ -1,4 +1,6 @@
+using GlimmerWorks.engine;
 using GlimmerWorks.engine.Vfs;
+using Microsoft.Extensions.Localization;
 using Tomlyn.Serialization;
 
 namespace GlimmerWorks.Engine.Mods.Data;
@@ -18,6 +20,7 @@ public class Resources
 /// <para>TemplateResources</para>
 /// <para>模板资源</para>
 /// </summary>
+[DataPackResource("template", autoDeserialization: false)]
 public class TemplateResources : Resources
 {
     public string Content { get; set; } = string.Empty;
@@ -27,7 +30,7 @@ public class TemplateResources : Resources
 /// <para>StringFileResources</para>
 /// <para>字符串文件资源</para>
 /// </summary>
-public class StringFileResources : Resources
+public class StringSetResources : Resources
 {
     [TomlPropertyName("string")] public List<StringResources> StringList { get; set; } = new();
     [TomlPropertyName("tag_string")] public List<TagStringResources> StringTagList { get; set; } = new();
@@ -37,6 +40,7 @@ public class StringFileResources : Resources
 /// <para>StringResources</para>
 /// <para>字符串资源</para>
 /// </summary>
+[DataPackResource("string", autoDeserialization: false)]
 public class StringResources : Resources
 {
     [TomlPropertyName("value")] public string Value { get; set; } = string.Empty;
@@ -55,6 +59,7 @@ public class TagStringResources : Resources
 /// <para>DimensionResource</para>
 /// <para>维度资源</para>
 /// </summary>
+[DataPackResource("dimension")]
 public class DimensionResources : Resources
 {
     /// <summary>

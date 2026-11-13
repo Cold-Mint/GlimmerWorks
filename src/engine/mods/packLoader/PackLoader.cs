@@ -45,8 +45,8 @@ public abstract class PackLoader<T> where T : BasePack
                 if (!packManifest.Id.IsSnakeCase())
                 {
                     onMessage.Invoke(new PackMessage(
-                        appContext.LocalizationManager.GetFormat("ui.require_snake_case", "id",
-                            packManifest.Id.ToSnakeCase(), packManifest.Id))
+                        appContext.Localizer["{0} must use snake_case (expected: {1}, actual: {2}).", "id",
+                            packManifest.Id.ToSnakeCase(), packManifest.Id].Value)
                     {
                         Path = manifestPath,
                         Level = LogLevel.Error
@@ -61,7 +61,7 @@ public abstract class PackLoader<T> where T : BasePack
 
             foreach (var basePack in packs)
             {
-                basePack.RegisterResourceType(basePack.ResourceTypeDictionary);
+                basePack.RegisterResourceType(appContext, basePack.ResourceTypeDictionary);
                 basePack.Load(appContext, onMessage);
             }
 

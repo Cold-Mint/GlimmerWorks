@@ -21,7 +21,7 @@ public class SplashScene(AppContext appContext) : Scene(appContext)
         var panel = new Panel();
         _loadLabel = new Label
         {
-            Text = AppContext.LocalizationManager.Get("ui.prepare"),
+            Text = AppContext.Localizer["Prepare"].Value,
             TextColor = AppContext.Theme.Info,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Bottom,
@@ -47,13 +47,13 @@ public class SplashScene(AppContext appContext) : Scene(appContext)
         var dataPackCount =
             await dataPackLoader.Scan(AppContext, new VirtualPath("mods", "data_packs"), OnPackMessage);
         OnPackMessage(
-            new PackMessage(AppContext.LocalizationManager.GetFormat("ui.load_data_pack_count", dataPackCount)));
+            new PackMessage(AppContext.Localizer["Loaded {0} data packs", dataPackCount].Value));
 
         var assetsPackLoader = new AssetsPackLoader();
         var assetsPackCount =
             await assetsPackLoader.Scan(AppContext, new VirtualPath("mods", "resource_packs"), OnPackMessage);
         OnPackMessage(
-            new PackMessage(AppContext.LocalizationManager.GetFormat("ui.load_assets_pack_count", assetsPackCount)));
+            new PackMessage(AppContext.Localizer["Loaded {0} asset packs", assetsPackCount].Value));
         AppContext.SceneStack.AddTask(
             new SceneStackTask { Scene = new MainScene(AppContext), Type = StackType.Replace });
     }
@@ -69,23 +69,23 @@ public class SplashScene(AppContext appContext) : Scene(appContext)
         var message = packMessage.Message;
         if (packMessage.Path != null)
         {
-            message = AppContext.LocalizationManager.GetFormat("ui.at_source_file",
-                packMessage.Path.Path, packMessage.Message);
+            message = AppContext.Localizer["In {0}: {1}",
+                packMessage.Path.Path, packMessage.Message].Value;
         }
 
         switch (packMessage.Level)
         {
             case LogLevel.Info:
                 _loadLabel?.TextColor = AppContext.Theme.Info;
-                AppContext.LogCat.Info(message);
+                LogCat.Info(message);
                 break;
             case LogLevel.Warn:
                 _loadLabel?.TextColor = AppContext.Theme.Warn;
-                AppContext.LogCat.Warn(message);
+                LogCat.Warn(message);
                 break;
             case LogLevel.Error:
                 _loadLabel?.TextColor = AppContext.Theme.Error;
-                AppContext.LogCat.Error(message);
+                LogCat.Error(message);
                 break;
         }
 

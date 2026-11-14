@@ -99,10 +99,10 @@ public class AppContext
         bool loadLangs = false;
         foreach (var candidate in candidates)
         {
-            var langsRoot = new VirtualPath("assets", "langs", candidate);
-            if (!loadLangs && VirtualFileSystem.DirectoryExists(langsRoot))
+            var poFile = new VirtualPath("assets", "langs", $"{candidate}.po");
+            if (!loadLangs && VirtualFileSystem.FileExists(poFile))
             {
-                if (LocalizationManager.LoadDirectory(VirtualFileSystem, langsRoot))
+                if (LocalizationManager.LoadPoFile(VirtualFileSystem, poFile))
                 {
                     loadLangs = true;
                 }

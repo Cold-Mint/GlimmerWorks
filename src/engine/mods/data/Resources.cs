@@ -1,6 +1,5 @@
 using GlimmerWorks.engine;
 using GlimmerWorks.engine.Vfs;
-using Microsoft.Extensions.Localization;
 using Tomlyn.Serialization;
 
 namespace GlimmerWorks.Engine.Mods.Data;
@@ -40,7 +39,7 @@ public class StringSetResources : Resources
 /// <para>StringResources</para>
 /// <para>字符串资源</para>
 /// </summary>
-[DataPackResource("string", autoDeserialization: false)]
+[DataPackResource("strings", autoDeserialization: false)]
 public class StringResources : Resources
 {
     [TomlPropertyName("value")] public string Value { get; set; } = string.Empty;
@@ -68,4 +67,6 @@ public class DimensionResources : Resources
     /// </summary>
     [TomlPropertyName("allow_as_starting")]
     public bool AllowAsStarting { get; set; } = false;
+
+    [TomlPropertyName("name")] public ResourceRef Name { get; set; } = new();
 }

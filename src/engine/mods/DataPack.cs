@@ -124,8 +124,9 @@ public class DataPack(VirtualPath packRootPath, PackManifest manifest) : BasePac
         }
     }
 
-    protected override string StartLoadMessage()
+    protected override void StartLoadMessage(AppContext appContext, Action<PackMessage> onMessage)
     {
-        return "Load Data Pack:{0}...";
+        base.StartLoadMessage(appContext, onMessage);
+        onMessage.Invoke(new PackMessage(appContext.Localizer["Load Data Pack:{0}...", Manifest.Id].Value));
     }
 }

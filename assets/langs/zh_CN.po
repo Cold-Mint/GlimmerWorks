@@ -1,0 +1,148 @@
+#
+# Cold-Mint <cold_mint@qq.com>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-13 14:37+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: zh_CN\n"
+"Last-Translator: Cold-Mint <cold_mint@qq.com>\n"
+"Language-Team: Chinese (China)\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"PO-Revision-Date: 2026-11-14 19:45+0800\n"
+"X-Generator: Gtranslator 50.0\n"
+
+#: src/engine/mods/AssetsPack.cs:17
+msgid "Load Assets Pack:{0}..."
+msgstr "加载资源包：{0}..."
+
+#: src/engine/mods/BasePack.cs:160 src/engine/mods/packLoader/PackLoader.cs:48
+msgid "{0} must use snake_case (expected: {1}, actual: {2})."
+msgstr "{0} 必须使用蛇形命名法（预期：{1}，实际：{2}）。"
+
+#: src/engine/mods/BasePack.cs:170
+msgid "Register resource{0}：{1}:{2}"
+msgstr "注册资源{0}:{1}:{2}"
+
+#: src/engine/mods/DataPack.cs:50
+msgid ""
+"Path segment {0} in template must use snake_case (expected: {1}, actual: "
+"{2})."
+msgstr "模板中的路径段 {0} 必须使用蛇形命名法（预期：{1}，实际：{2}）。"
+
+#: src/engine/mods/DataPack.cs:130
+msgid "Load Data Pack:{0}..."
+msgstr "加载数据包：{0}..."
+
+#: src/game/CreateWorldScene.cs:32 src/game/CreateWorldScene.cs:61
+msgid "Create world"
+msgstr "创建世界"
+
+#: src/game/CreateWorldScene.cs:65
+msgid "World name"
+msgstr "世界名称"
+
+#: src/game/CreateWorldScene.cs:70
+msgid "Seed"
+msgstr "种子"
+
+#: src/game/CreateWorldScene.cs:75
+msgid "Switch"
+msgstr "切换"
+
+#: src/game/CreateWorldScene.cs:85
+msgid "Starting dimension:{0}"
+msgstr "初始维度:{0}"
+
+#: src/game/CreateWorldScene.cs:95
+msgid "Allow Cheating"
+msgstr "允许作弊"
+
+#: src/game/CreateWorldScene.cs:102
+msgid "Back"
+msgstr "返回"
+
+#: src/game/CreateWorldScene.cs:134
+msgid "Random"
+msgstr "随机"
+
+#: src/game/CreateWorldScene.cs:172
+msgid ""
+"Barren, Arid, Desolate, Abandoned, Ruined, Shattered, Collapsed, Scarred, "
+"Wounded, Withered, Wilted, Sparse, Hollow, Jagged, Erased, Verdant, Fertile, "
+"Lush, Luxuriant, Frozen, Wintry, Frigid, Frostbound, Blazing, Scorched, "
+"Sultry, Parched, Damp, Misty, Hazy, Steaming, Dank, Gloomy, Deep, Dusky, "
+"Glimmering, Dim, Murky, Radiant, Silvered, Pale, Ancient, Primordial, Final, "
+"Ageless, Eternal, Evernight, Dawn, Dusk, Twilight, Fleeting, Dreary, Lonely, "
+"Mournful, Serene, Blurred, Dazed, Solitary, Silent, Mad, Cursed, Hidden, "
+"Secret, Sacred, Blessed, Nameless, Untamed, Legendary, Enigmatic, Sunken, "
+"Exiled, Fallen, Wandering, Weathered, Burning, Drifting, Toppled, Whirling, "
+"Surging, Still, Dying, Fading, Feral, Wild, Savage, Vicious, Defiant, "
+"Golden, Silver, Iron, Amber, Glazed, Indigo, Rusted, Gilded, Black, Slate, "
+"Distant, Remote, Endless, Lost, Forgotten, Forsaken, Eclipsed, Starlit, "
+"Stormy, Windswept, Foggy, Charred, Ashen"
+msgstr ""
+"荒芜,干旱,荒凉,废弃,破败,破碎,坍塌,伤痕,受伤,枯萎,凋零,稀疏,空洞,嶙峋,抹除,翠"
+"绿,肥沃,繁茂,丰茂,冰封,寒冬,严寒,霜缚,炽烈,焦灼,闷热,干涸,潮湿,薄雾,朦胧,蒸"
+"腾,阴湿,阴郁,深邃,幽暗,微光,昏暗,浑浊,光辉,银辉,苍白,古老,原初,终焉,不朽,永"
+"恒,永夜,黎明,黄昏,暮色,瞬息,沉闷,孤寂,哀伤,宁静,模糊,茫然,孤零,寂静,疯狂,诅"
+"咒,隐秘,秘密,神圣,祝福,无名,未驯,传奇,神秘,沉没,流放,陨落,漂泊,沧桑,燃烧,漂"
+"流,倾覆,旋转,汹涌,静止,垂死,消逝,野性,狂野,野蛮,凶残,不屈,金色,银色,钢铁,琥"
+"珀,琉璃,靛蓝,锈蚀,镀金,黑色,青灰,遥远,偏远,无尽,迷失,遗忘,遗弃,蚀暗,星光,风"
+"暴,风蚀,雾霭,焦黑,灰白"
+
+#: src/game/CreateWorldScene.cs:175
+msgid ""
+"Canyon, Peaks, Mountains, Valley, Ridge, Cliff, Crag, Highlands, Glen, "
+"Snowpeak, Volcano, Bluff, Pinnacles, Mesa, Cave, Grotto, Cavern, "
+"Frosthollow, Rift, Bay, Beach, Coast, Shore, Cove, Falls, Fjord, Reef, Lake, "
+"Lagoon, Springs, Saltflat, Brook, Underflow, Understream, Archipelago, "
+"Island, Isles, Peninsula, Forest, Weald, Vinewood, Deepwood, Bamboo, Plains, "
+"Wastes, Wilds, Mire, Briars, Desert, Dunes, Expanse, Crater, Delta, Glacier, "
+"Frostland, Snowfield, Tundra, Basin, Vale, Ruins, Relics, Remnants, "
+"Watchtower, Lighthouse, Fortress, Watchspire, Waystation, Docks, Camp, "
+"Altar, Graveyard, Monoliths, Cloister, Belfry, Colony, Outpost, Landing, "
+"Settlement, Haven, Refuge, Tribe, Village, Stonecircle, Oldtown, Gate, "
+"Beacon, Mine, Granary, Starfield, Gloaming, Aurora, Mirage, Phantasm, "
+"Echovale, Hushwood, Mistvale, Abyss, Skyisle, Stormeye, Cloudsea, Tidebelt, "
+"Whispervale"
+msgstr ""
+"峡谷,山峰,山脉,山谷,山脊,悬崖,峭岩,高地,幽谷,雪峰,火山,陡崖,尖峰,台地,洞穴,石"
+"窟,岩洞,霜谷,裂谷,海湾,海滩,海岸,岸边,小湾,瀑布,峡湾,礁石,湖泊,潟湖,泉群,盐"
+"滩,小溪,潜流,地下河,群岛,岛屿,小岛群,半岛,森林,古林,藤木林,深林,竹林,平原,荒"
+"原,荒野,泥沼,荆棘地,沙漠,沙丘,旷野,火山口,三角洲,冰川,霜原,雪原,苔原,盆地,谷"
+"地,废墟,遗迹,残迹,瞭望塔,灯塔,堡垒,瞭望尖塔,驿站,码头,营地,祭坛,墓地,巨石群,"
+"修道院,钟楼,聚居地,前哨,登陆点,定居点,避风港,避难所,部族,村庄,石圈,旧城,城门,"
+"信标,矿场,粮仓,星野,暮霭,极光,蜃景,幻象,回声谷,寂语林,雾谷,深渊,天空岛,风暴之"
+"眼,云海,潮汐带,低语谷"
+
+#: src/game/MainScene.cs:38
+msgid "Start Game"
+msgstr "开始游戏"
+
+#: src/game/MainScene.cs:41
+msgid "Exit Game"
+msgstr "退出游戏"
+
+#: src/game/SelectResourceScene.cs:20
+msgid "No matching resource found"
+msgstr "未找到匹配的资源"
+
+#: src/game/SplashScene.cs:24
+msgid "Prepare"
+msgstr "准备"
+
+#: src/game/SplashScene.cs:50
+msgid "Loaded {0} data packs"
+msgstr "已加载 {0} 个数据包"
+
+#: src/game/SplashScene.cs:56
+msgid "Loaded {0} asset packs"
+msgstr "已加载 {0} 个资源包"
+
+#: src/game/SplashScene.cs:72
+msgid "In {0}: {1}"
+msgstr "在 {0} 中：{1}"

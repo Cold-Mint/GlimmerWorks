@@ -10,8 +10,10 @@ public class AssetsPack(VirtualPath packRootPath, PackManifest manifest) : BaseP
         return false;
     }
 
-    protected override string StartLoadMessage()
+
+    protected override void StartLoadMessage(AppContext appContext, Action<PackMessage> onMessage)
     {
-        return "Load Assets Pack:{0}...";
+        base.StartLoadMessage(appContext, onMessage);
+        onMessage.Invoke(new PackMessage(appContext.Localizer["Load Assets Pack:{0}...", Manifest.Id].Value));
     }
 }

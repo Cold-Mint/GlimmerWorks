@@ -73,10 +73,17 @@ public class CreateWorldScene(AppContext appContext) : Scene(appContext)
         var horizontalStackPanel = new HorizontalStackPanel();
         var switchDimensionButton =
             new OutlinedButton(AppContext.Theme, AppContext.Localizer["Switch"].Value);
+        var name = $"{_dimensionResource.PackId}:{_dimensionResource.ResourceId}";
+        var nameStringResources = AppContext.DataRepository.Get<StringResources>(_dimensionResource.Name);
+        if (nameStringResources != null)
+        {
+            name = nameStringResources.Value;
+        }
+
         var switchDimensionLabel = new Label(AppContext.Theme)
         {
             Text = AppContext.Localizer["Starting dimension:{0}",
-                $"{_dimensionResource.PackId}:{_dimensionResource.ResourceId}"].Value
+                name].Value
         };
         horizontalStackPanel.Widgets.Add(switchDimensionLabel);
         horizontalStackPanel.Widgets.Add(switchDimensionButton);

@@ -1,5 +1,6 @@
 using System.Reflection;
 using GlimmerWorks.engine;
+using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Engine.Mods;
 using GlimmerWorks.Engine.Mods.Data;
 
@@ -43,7 +44,7 @@ public class DataRepository
                 continue;
             }
 
-            if (!attr.AutoDeserialization)
+            if (!attr.ExportResourceReferences)
             {
                 continue;
             }
@@ -70,11 +71,11 @@ public class DataRepository
 
     private void AddToTypeIndex(Resources resource)
     {
-        var t = resource.GetType();
-        if (!_typeToResources.TryGetValue(t, out var list))
+        var type = resource.GetType();
+        if (!_typeToResources.TryGetValue(type, out var list))
         {
-            list = new List<Resources>();
-            _typeToResources[t] = list;
+            list = [];
+            _typeToResources[type] = list;
         }
 
         list.Add(resource);
@@ -147,31 +148,55 @@ public class DataRepository
     /// <returns></returns>
     public T? Get<T>(ResourceRef resourceRef) where T : Resources
     {
-
         if (!_resourceTypeDictionary.TryGetValue(resourceRef.ResourceType, out var actualType))
         {
+            LogCat.Warn($"Unknown resource type {resourceRef.ResourceType}.");
             return null;
         }
-        
-        if (resourceRef.RequesterPackId != resourceRef.TargetPackId &&
-            _packDependencies.TryGetValue(resourceRef.RequesterPackId, out var dependencies))
+
+        var expectType = typeof(T);
+        if (expectType != actualType)
         {
-            //If it is a cross-package access, then check the dependencies.
-            //如果是跨包访问，那么检查依赖。
-            if (!dependencies.Contains(resourceRef.TargetPackId))
+            LogCat.Warn(
+                $"Resource type mismatch (actual: {actualType.FullName ?? actualType.Name}, expected: {expectType.FullName ?? expectType.Name}).");
+            return null;
+        }
+
+        if (resourceRef.RequesterPackId != resourceRef.TargetPackId)
+        {
+            bool allow;
+            if (_packDependencies.TryGetValue(resourceRef.RequesterPackId, out var dependencies))
             {
-                //Prohibit cross-package access.
-                //禁止跨包访问。
+                allow = dependencies.Contains(resourceRef.TargetPackId);
+            }
+            else
+            {
+                allow = false;
+            }
+
+            if (!allow)
+            {
+                LogCat.Warn(string.Format(
+                    "Missing package dependency. (Source package {0}, target package {1}. Please add the following to the manifest file of package {0}:\n\n[[pack_dependencies]]\n\npack_id = \"{1}\"\n\nto fix this issue.)",
+                    resourceRef.RequesterPackId, resourceRef.TargetPackId));
                 return null;
             }
         }
 
-        if (resourceRef.IsValid && _resources.TryGetValue((resourceRef.TargetPackId, typeof(T), resourceRef.ResourceId),
+        if (!resourceRef.IsValid)
+        {
+            LogCat.Warn("Illegal resourceRef.");
+            return null;
+        }
+
+        if (_resources.TryGetValue((resourceRef.TargetPackId, expectType, resourceRef.ResourceId),
                 out var resource))
         {
             return resource as T;
         }
 
+        LogCat.Warn(
+            $"Resource not found (Package: {resourceRef.TargetPackId}, Resource Type: {expectType.FullName ?? expectType.Name}, Resource ID: {resourceRef.ResourceId}).");
         return null;
     }
 }

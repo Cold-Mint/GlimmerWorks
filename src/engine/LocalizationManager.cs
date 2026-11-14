@@ -1,6 +1,6 @@
 using GlimmerWorks.engine.Vfs;
+using Karambolo.PO;
 using Microsoft.Extensions.Localization;
-using Tomlyn.Model;
 
 namespace GlimmerWorks.Engine;
 
@@ -39,7 +39,7 @@ public class LocalizationManager : IStringLocalizer
     /// Gets the text; returns the key itself when not found, to expose untranslated items.
     /// 获取文本；找不到时返回 key 本身，便于暴露未翻译项。
     /// </summary>
-    public LocalizedString Get(string name)
+    private LocalizedString Get(string name)
     {
         return new LocalizedString(name, _strings.GetValueOrDefault(name, name));
     }
@@ -51,7 +51,7 @@ public class LocalizationManager : IStringLocalizer
     /// <param name="name"></param>
     /// <param name="args"></param>
     /// <returns></returns>
-    public LocalizedString GetFormat(string name, params object[] args)
+    private LocalizedString GetFormat(string name, params object[] args)
     {
         if (!_strings.TryGetValue(name, out var value))
         {
@@ -61,7 +61,11 @@ public class LocalizationManager : IStringLocalizer
         return new LocalizedString(name, string.Format(value, args));
     }
 
-    public void Clear() => _strings.Clear();
+    public void Clear()
+    {
+        _strings.Clear();
+        _localizedStringList.Clear();
+    }
 
     /// <summary>
     /// <para>Input the language and obtain the list of candidate languages.</para>
@@ -92,58 +96,36 @@ public class LocalizationManager : IStringLocalizer
 
 
     /// <summary>
-    /// Loads all *.toml files under a locale directory, writing them into the target table with the file name as the key prefix.
-    /// 加载某个语言目录下的所有 *.toml 文件，以文件名作为 key 前缀写入目标表。
+    /// <para>LoadPoFile</para>
+    /// <para>读取po文件</para>
     /// </summary>
-    public bool LoadDirectory(
-        VirtualFileSystem virtualFileSystem,
-        VirtualPath directoryPath)
+    /// <param name="virtualFileSystem"></param>
+    /// <param name="poFile"></param>
+    /// <returns></returns>
+    public bool LoadPoFile(VirtualFileSystem virtualFileSystem, VirtualPath poFile)
     {
-        if (!virtualFileSystem.DirectoryExists(directoryPath))
+        var parser = new POParser(new POParserSettings());
+        using var stream = virtualFileSystem.OpenRead(poFile);
+        var result = parser.Parse(stream);
+        if (result.Success)
         {
-            return false;
-        }
-
-        var entries = virtualFileSystem.List(directoryPath, "*.toml");
-        if (entries == null)
-        {
-            return false;
-        }
-
-        foreach (var entry in entries)
-        {
-            var category = Path.GetFileNameWithoutExtension(entry.Name);
-            var table = virtualFileSystem.ReadToml<TomlTable>(entry.Path);
-            if (table is not null)
+            var catalog = result.Catalog;
+            foreach (var poEntry in catalog)
             {
-                Flatten(table, category, _strings, _localizedStringList);
+                if (poEntry.Count <= 0)
+                {
+                    continue;
+                }
+
+                var name = poEntry.Key.Id;
+                var value = string.IsNullOrEmpty(poEntry[0]) ? poEntry.Key.Id : poEntry[0];
+                _localizedStringList.Add(new LocalizedString(name, value));
+                _strings.Add(name, value);
             }
+
+            return true;
         }
 
-        return true;
-    }
-
-    /// <summary>
-    /// Flattens a TOML table into "prefix.key" key-value pairs, expanding nested tables recursively.
-    /// 将 TOML 表扁平化为 "前缀.键" 形式的键值对，嵌套表递归展开。
-    /// </summary>
-    private static void Flatten(
-        TomlTable table,
-        string prefix,
-        IDictionary<string, string> target, List<LocalizedString> localizedStringList)
-    {
-        foreach (var pair in table)
-        {
-            var fullKey = string.IsNullOrEmpty(prefix) ? pair.Key : $"{prefix}.{pair.Key}";
-            if (pair.Value is TomlTable nested)
-            {
-                Flatten(nested, fullKey, target, localizedStringList);
-            }
-            else
-            {
-                target[fullKey] = pair.Value?.ToString() ?? string.Empty;
-                localizedStringList.Add(new LocalizedString(pair.Key, fullKey));
-            }
-        }
+        return false;
     }
 }

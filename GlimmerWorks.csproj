@@ -29,7 +29,7 @@
 
     <ItemGroup>
         <None Update="assets/config.toml" CopyToOutputDirectory="PreserveNewest"/>
-        <None Update="assets/langs/**/*.toml" CopyToOutputDirectory="PreserveNewest"/>
+        <None Update="assets/langs/*.po" CopyToOutputDirectory="PreserveNewest"/>
         <None Update="assets/fonts/*.ttf" CopyToOutputDirectory="PreserveNewest"/>
         <None Include="assets/mods/**/*" Link="mods/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest"/>
     </ItemGroup>

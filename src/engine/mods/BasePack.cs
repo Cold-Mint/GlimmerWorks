@@ -87,12 +87,7 @@ public abstract class BasePack(VirtualPath packRootPath, PackManifest manifest)
     /// <returns></returns>
     public bool Load(AppContext appContext, Action<PackMessage> onMessage)
     {
-        var startLoadMessage = StartLoadMessage();
-        if (startLoadMessage != null)
-        {
-            onMessage.Invoke(new PackMessage(appContext.Localizer[startLoadMessage, Manifest.Id].Value));
-        }
-
+        StartLoadMessage(appContext, onMessage);
         if (!ShouldScanFiles())
         {
             return true;
@@ -189,9 +184,8 @@ public abstract class BasePack(VirtualPath packRootPath, PackManifest manifest)
     /// <para>开始加载时的消息</para>
     /// </summary>
     /// <returns></returns>
-    protected virtual string? StartLoadMessage()
+    protected virtual void StartLoadMessage(AppContext appContext, Action<PackMessage> onMessage)
     {
-        return null;
     }
 
     public PackManifest Manifest => manifest;

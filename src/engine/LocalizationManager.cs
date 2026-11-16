@@ -10,12 +10,18 @@ namespace GlimmerWorks.Engine;
 /// </summary>
 public class LocalizationManager : IStringLocalizer
 {
-    private readonly List<LocalizedString> _localizedStringList = new();
+    private readonly List<LocalizedString> _localizedStringList = [];
 
     public IEnumerable<LocalizedString> GetAllStrings(bool includeParentCultures)
     {
         return _localizedStringList;
     }
+
+    /// <summary>
+    /// <para>CurrentLanguage</para>
+    /// <para>当前语言</para>
+    /// </summary>
+    public string CurrentLanguage { get; set; } = string.Empty;
 
     public LocalizedString this[string name] => Get(name);
 

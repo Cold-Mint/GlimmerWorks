@@ -31,13 +31,6 @@ public sealed class PackManifest
 
     [TomlPropertyName("version_number")] public long VersionNumber { get; init; }
 
-    /// <summary>
-    /// Folders searched for templates (recursively). "@root" means the pack root.
-    /// 模板搜索目录（递归）。"@root" 表示资源包根目录。
-    /// </summary>
-    [TomlPropertyName("template_search_path")]
-    public string[] TemplateSearchPath { get; init; } = [];
-
     [TomlPropertyName("description")] public ResourceRef Description { get; init; } = new();
 
     [TomlPropertyName("name")] public ResourceRef Name { get; init; } = new();

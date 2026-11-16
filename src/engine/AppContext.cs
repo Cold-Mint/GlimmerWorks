@@ -3,9 +3,6 @@ using GlimmerWorks.Engine.Scene;
 using GlimmerWorks.engine.Vfs;
 using GlimmerWorks.Game;
 using Microsoft.Xna.Framework;
-using Myra;
-using Myra.Graphics2D;
-using Myra.Graphics2D.Brushes;
 using Myra.Graphics2D.UI;
 using Microsoft.Extensions.Localization;
 
@@ -25,15 +22,7 @@ public class AppContext
 
     public Theme Theme { get; init; } = new();
 
-    public Desktop? Desktop
-    {
-        get;
-        set
-        {
-            field = value;
-            ChangeStylesheet();
-        }
-    }
+    public Desktop? Desktop { get; set; }
 
     public AppContext()
     {
@@ -48,41 +37,9 @@ public class AppContext
 
         // Use the configured language if set, otherwise follow the system UI language.
         // 配置了语言则使用配置语言，否则跟随系统 UI 语言。
-        ChangeLanguage(string.IsNullOrEmpty(GameConfig.Language)
+        ChangeLanguage(string.IsNullOrWhiteSpace(GameConfig.Language)
             ? CultureInfo.CurrentUICulture.Name
             : GameConfig.Language);
-    }
-
-    /// <summary>
-    /// <para>ChangeStylesheet</para>
-    /// <para>改变样式</para>
-    /// </summary>
-    private void ChangeStylesheet()
-    {
-        MyraEnvironment.TooltipDelayInMs = 15;
-        MyraEnvironment.TooltipOffset = new Point(12, 10);
-        MyraEnvironment.TooltipCreator = widget =>
-        {
-            if (string.IsNullOrEmpty(widget.Tooltip))
-            {
-                return null;
-            }
-
-            return new Panel
-            {
-                Background = new RoundedCornersSolidBrush(new Color(28, 28, 30, 245)) { Radius = Theme.Radius },
-                Padding = new Thickness(12, 8),
-                Widgets =
-                {
-                    new Label
-                    {
-                        Text = widget.Tooltip,
-                        TextColor = Theme.OnPrimary,
-                        Font = Theme.GetFont(ThemeFontKind.Small)
-                    }
-                }
-            };
-        };
     }
 
     /// <summary>
@@ -94,6 +51,7 @@ public class AppContext
     {
         Theme.Reset();
         LocalizationManager.Clear();
+        LocalizationManager.CurrentLanguage = language;
         var candidates = LocalizationManager.GetCandidates(language);
         bool loadFont = false;
         bool loadLangs = false;

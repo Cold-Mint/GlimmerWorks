@@ -1,4 +1,4 @@
-using GlimmerWorks.engine;
+using GlimmerWorks.engine.attributes;
 using GlimmerWorks.engine.Vfs;
 using Tomlyn.Serialization;
 
@@ -13,6 +13,39 @@ public class Resources
     [TomlPropertyName("resource_id")] public string ResourceId { get; set; } = string.Empty;
     public string PackId { get; set; } = string.Empty;
     public VirtualPath? VirtualPath { get; set; }
+
+    [TomlPropertyName("display_name")] public ResourceRef DisplayName { get; set; } = new();
+
+    public virtual string GetDisplayName(AppContext appContext)
+    {
+        var stringResources = appContext.DataRepository.Get<StringResources>(DisplayName);
+        if (stringResources == null)
+        {
+            return $"{PackId}:{ResourceId}";
+        }
+
+        return stringResources.Value;
+    }
+
+    public bool Filter(AppContext appContext, string keyString)
+    {
+        if (ResourceId.Contains(keyString))
+        {
+            return true;
+        }
+
+        if (PackId.Contains(keyString))
+        {
+            return true;
+        }
+
+        if (GetDisplayName(appContext).Contains(keyString))
+        {
+            return true;
+        }
+
+        return false;
+    }
 }
 
 /// <summary>
@@ -43,6 +76,11 @@ public class StringSetResources : Resources
 public class StringResources : Resources
 {
     [TomlPropertyName("value")] public string Value { get; set; } = string.Empty;
+
+    public override string GetDisplayName(AppContext appContext)
+    {
+        return Value;
+    }
 }
 
 /// <summary>
@@ -52,6 +90,11 @@ public class StringResources : Resources
 public class TagStringResources : Resources
 {
     [TomlPropertyName("value")] public string Value { get; set; } = string.Empty;
+
+    public override string GetDisplayName(AppContext appContext)
+    {
+        return Value;
+    }
 }
 
 /// <summary>
@@ -67,6 +110,4 @@ public class DimensionResources : Resources
     /// </summary>
     [TomlPropertyName("allow_as_starting")]
     public bool AllowAsStarting { get; set; } = false;
-
-    [TomlPropertyName("name")] public ResourceRef Name { get; set; } = new();
 }

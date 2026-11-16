@@ -1,4 +1,4 @@
-namespace GlimmerWorks.engine;
+namespace GlimmerWorks.engine.attributes;
 
 [AttributeUsage(AttributeTargets.Class, Inherited = false)]
 public sealed class DataPackResource(

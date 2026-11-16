@@ -4,6 +4,7 @@ using GlimmerWorks.Engine.Mods.Data;
 using GlimmerWorks.Engine.Scene;
 using GlimmerWorks.Engine.widgets;
 using Microsoft.Xna.Framework;
+using Myra.Events;
 using Myra.Graphics2D;
 using Myra.Graphics2D.Brushes;
 using Myra.Graphics2D.UI;
@@ -15,6 +16,8 @@ namespace GlimmerWorks.Game;
 public class CreateWorldScene(AppContext appContext) : Scene(appContext)
 {
     private DimensionResources? _dimensionResource;
+    private int _switchDimensionRequestCode = 1;
+    private Label _switchDimensionLabel = new(appContext.Theme);
 
     private readonly InputText _worldNameBox = new(appContext.Theme)
     {
@@ -73,19 +76,10 @@ public class CreateWorldScene(AppContext appContext) : Scene(appContext)
         var horizontalStackPanel = new HorizontalStackPanel();
         var switchDimensionButton =
             new OutlinedButton(AppContext.Theme, AppContext.Localizer["Switch"].Value);
-        var name = $"{_dimensionResource.PackId}:{_dimensionResource.ResourceId}";
-        var nameStringResources = AppContext.DataRepository.Get<StringResources>(_dimensionResource.Name);
-        if (nameStringResources != null)
-        {
-            name = nameStringResources.Value;
-        }
-
-        var switchDimensionLabel = new Label(AppContext.Theme)
-        {
-            Text = AppContext.Localizer["Starting dimension:{0}",
-                name].Value
-        };
-        horizontalStackPanel.Widgets.Add(switchDimensionLabel);
+        switchDimensionButton.Click += SwitchDimensionButtonOnClick;
+        _switchDimensionLabel.Text = AppContext.Localizer["Starting dimension:{0}",
+            _dimensionResource.GetDisplayName(AppContext)].Value;
+        horizontalStackPanel.Widgets.Add(_switchDimensionLabel);
         horizontalStackPanel.Widgets.Add(switchDimensionButton);
         content.Widgets.Add(horizontalStackPanel);
         var row = new HorizontalStackPanel();
@@ -106,6 +100,31 @@ public class CreateWorldScene(AppContext appContext) : Scene(appContext)
         buttonRow.Widgets.Add(_createButton);
         content.Widgets.Add(buttonRow);
         SetWidget(panel);
+    }
+
+    private void SwitchDimensionButtonOnClick(object sender, MyraEventArgs e)
+    {
+        AppContext.SceneStack.AddTask(
+            new SceneStackTask
+            {
+                Type = StackType.Push, Scene = new SelectResourceScene<DimensionResources>(AppContext),
+                RequestCode = _switchDimensionRequestCode
+            });
+    }
+
+    public override void OnResult(int requestCode, object? result)
+    {
+        base.OnResult(requestCode, result);
+        if (result == null)
+        {
+            return;
+        }
+
+        if (requestCode == _switchDimensionRequestCode && result is DimensionResources dimensionResource)
+        {
+            _switchDimensionLabel.Text = AppContext.Localizer["Starting dimension:{0}",
+                dimensionResource.GetDisplayName(AppContext)].Value;
+        }
     }
 
     /// <summary>

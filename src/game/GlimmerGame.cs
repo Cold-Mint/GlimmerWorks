@@ -3,6 +3,8 @@ using GlimmerWorks.Engine.Scene;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Myra;
+using Myra.Graphics2D;
+using Myra.Graphics2D.Brushes;
 using Myra.Graphics2D.UI;
 using AppContext = GlimmerWorks.Engine.AppContext;
 
@@ -30,6 +32,35 @@ public class GlimmerGame : Microsoft.Xna.Framework.Game
     {
         base.Initialize();
         _appContext.Desktop = new Desktop();
+        MyraEnvironment.TooltipDelayInMs = 15;
+        MyraEnvironment.TooltipOffset = new Point(12, 10);
+        MyraEnvironment.TooltipCreator = widget =>
+        {
+            if (string.IsNullOrEmpty(widget.Tooltip))
+            {
+                return null;
+            }
+
+            return new Panel
+            {
+                Background = new RoundedCornersSolidBrush(new Color(28, 28, 30, 245))
+                    { Radius = _appContext.Theme.Radius },
+                Padding = new Thickness(12, 8),
+                Widgets =
+                {
+                    new Label
+                    {
+                        Text = widget.Tooltip,
+                        TextColor = _appContext.Theme.OnPrimary,
+                        Font = _appContext.Theme.GetFont(ThemeFontKind.Small)
+                    }
+                }
+            };
+        };
+        //Solve the problem of being unable to input Chinese.
+        //解决无法输入中文的问题。
+        _appContext.Desktop.HasExternalTextInput = true;
+        Window.TextInput += (s, a) => { _appContext.Desktop.OnChar(a.Character); };
         _appContext.SceneStack.AddTask(
             new SceneStackTask { Scene = new SplashScene(_appContext), Type = StackType.Push });
     }

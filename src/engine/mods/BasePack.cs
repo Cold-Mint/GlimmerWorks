@@ -137,9 +137,24 @@ public abstract class BasePack(VirtualPath packRootPath, PackManifest manifest)
                     resourceCount += resources.Count(resource => RegisterResource(onMessage, appContext, resource));
                 }
             }
+
+            var afterScanFiles = AfterScanFiles();
+            if (afterScanFiles != null)
+            {
+                resourceCount += afterScanFiles.Count(resource => RegisterResource(onMessage, appContext, resource));
+            }
         }
 
         return resourceCount > 0;
+    }
+
+    /// <summary>
+    /// <para>AfterScanFiles</para>
+    /// <para>扫描文件之后</para>
+    /// </summary>
+    protected virtual List<Resources>? AfterScanFiles()
+    {
+        return null;
     }
 
     /// <summary>
@@ -154,16 +169,20 @@ public abstract class BasePack(VirtualPath packRootPath, PackManifest manifest)
         Resources resource)
     {
         resource.PackId = manifest.Id;
-        if (resource is not TemplateResources && !resource.ResourceId.IsSnakeCase())
+        resource.DisplayName.SetPackId(manifest.Id);
+        if (resource is not TemplateResources)
         {
-            onMessage.Invoke(new PackMessage(
-                appContext.Localizer["{0} must use snake_case (expected: {1}, actual: {2}).", "resource_id",
-                    resource.ResourceId.ToSnakeCase(), resource.ResourceId].Value)
+            if (!resource.ResourceId.IsSnakeCase())
             {
-                Path = resource.VirtualPath,
-                Level = LogLevel.Error
-            });
-            return false;
+                onMessage.Invoke(new PackMessage(
+                    appContext.Localizer["{0} must use snake_case (expected: {1}, actual: {2}).", "resource_id",
+                        resource.ResourceId.ToSnakeCase(), resource.ResourceId].Value)
+                {
+                    Path = resource.VirtualPath,
+                    Level = LogLevel.Error
+                });
+                return false;
+            }
         }
 
         onMessage.Invoke(new PackMessage(

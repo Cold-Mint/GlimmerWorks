@@ -15,6 +15,33 @@ public abstract class Scene(AppContext appContext)
     protected AppContext AppContext => appContext;
 
     /// <summary>
+    /// <para>When the scene is pushed onto the stack, the request code set by the parent scene is used.</para>
+    /// <para>当场景Push到栈内后，由上级场景设置的请求码</para>
+    /// </summary>
+    public int RequestCode { get; set; }
+
+    /// <summary>
+    /// <para>The result obtained after returning from this scene before being posted by Pop</para>
+    /// <para>当此场景被Pop出去前返回的结果</para>
+    /// </summary>
+    /// <returns></returns>
+    public virtual object? Result()
+    {
+        return null;
+    }
+
+    /// <summary>
+    /// <para>Receive the results from the topmost scene. (If the top of the stack changes, the upper layer can optionally return the results.)</para>
+    /// <para>接收来自栈顶场景的结果。（当栈顶发生变化时，可选的由上层返回结果）</para>
+    /// </summary>
+    /// <param name="requestCode"></param>
+    /// <param name="result"></param>
+    public virtual void OnResult(int requestCode,object? result)
+    {
+        
+    }
+    
+    /// <summary>
     /// <para>SetWidget</para>
     /// <para>设置组件</para>
     /// </summary>

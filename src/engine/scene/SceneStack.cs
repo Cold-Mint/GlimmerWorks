@@ -14,6 +14,8 @@ public class SceneStackTask
 {
     public Scene? Scene { get; set; }
     public StackType Type { get; set; }
+
+    public int RequestCode { get; set; }
 }
 
 /// <summary>
@@ -63,12 +65,20 @@ public class SceneStack
                     }
 
                     var top = _stack.Peek();
+                    var result = top.Result();
+                    var requestCode = top.RequestCode;
                     top.OnPauseScene();
                     top.OnDestroy();
                     _stack.Pop();
                     if (_stack.Count > 0)
                     {
-                        _stack.Peek().OnResumeScene();
+                        var newTop = _stack.Peek();
+                        if (result != null)
+                        {
+                            newTop.OnResult(requestCode, result);
+                        }
+
+                        newTop.OnResumeScene();
                     }
 
                     break;
@@ -83,6 +93,7 @@ public class SceneStack
                         _stack.Peek().OnPauseScene();
                     }
 
+                    scene.RequestCode = sceneStackTask.RequestCode;
                     scene.OnCreate();
                     _stack.Push(scene);
                     scene.OnResumeScene();
@@ -103,6 +114,7 @@ public class SceneStack
                     top1.OnDestroy();
                     _stack.Pop();
 
+                    scene.RequestCode = sceneStackTask.RequestCode;
                     scene.OnCreate();
                     _stack.Push(scene);
                     scene.OnResumeScene();

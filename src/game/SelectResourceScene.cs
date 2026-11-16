@@ -1,7 +1,9 @@
+using GlimmerWorks.Engine;
 using GlimmerWorks.Engine.Mods.Data;
 using GlimmerWorks.Engine.Scene;
 using GlimmerWorks.Engine.widgets;
 using Microsoft.Xna.Framework;
+using Myra.Events;
 using Myra.Graphics2D.UI;
 using AppContext = GlimmerWorks.Engine.AppContext;
 using Label = GlimmerWorks.Engine.widgets.Label;
@@ -14,6 +16,17 @@ public class SelectResourceScene<T>(AppContext appContext)
 {
     private readonly InputText _inputText = new(appContext.Theme);
     private readonly VerticalStackPanel _verticalStackPanel = new();
+
+    private readonly FilledButton _confirmButton =
+        new(appContext.Theme, appContext.LocalizationManager["Confirm"].Value)
+        {
+            Visible = false,
+            HorizontalAlignment = HorizontalAlignment.Center
+        };
+
+    private T? _selectedResource;
+    private T? _result;
+    private List<T> _resourcesList = [];
 
     private readonly Label _cannotFindResourceLabel = new(appContext.Theme)
     {
@@ -28,14 +41,43 @@ public class SelectResourceScene<T>(AppContext appContext)
 
     private string _keyString = string.Empty;
 
+    public override object? Result()
+    {
+        return _result;
+    }
+
     public override void OnCreate()
     {
         base.OnCreate();
+        _listView.SelectedIndexChanged += ListViewOnSelectedIndexChanged;
         _verticalStackPanel.Widgets.Add(_inputText);
         _verticalStackPanel.Widgets.Add(_listView);
         _verticalStackPanel.Widgets.Add(_cannotFindResourceLabel);
+        _verticalStackPanel.Widgets.Add(_confirmButton);
+        _confirmButton.Click += ConfirmButtonOnClick;
         UpdateList();
         SetWidget(_verticalStackPanel);
+    }
+
+    private void ConfirmButtonOnClick(object sender, MyraEventArgs e)
+    {
+        _result = _selectedResource;
+        AppContext.SceneStack.AddTask(new SceneStackTask() { Type = StackType.Pop });
+    }
+
+    private void ListViewOnSelectedIndexChanged(object sender, MyraEventArgs e)
+    {
+        if (_listView.SelectedIndex is { } index and >= 0 &&
+            index < _resourcesList.Count)
+        {
+            _selectedResource = _resourcesList[index];
+            _confirmButton.Visible = true;
+        }
+        else
+        {
+            _selectedResource = null;
+            _confirmButton.Visible = false;
+        }
     }
 
     private bool Filter(T resource)
@@ -45,13 +87,22 @@ public class SelectResourceScene<T>(AppContext appContext)
             return true;
         }
 
-        return resource.PackId.Contains(_keyString) || resource.ResourceId.Contains(_keyString);
+        return resource.Filter(AppContext, _keyString);
     }
 
     private Widget GetListItem(T resource)
     {
-        return new Label(theme: AppContext.Theme)
-            { Text = $"{resource.PackId}/{resource.ResourceId}" };
+        VerticalStackPanel verticalStackPanel = new();
+        verticalStackPanel.Widgets.Add(new Label(theme: AppContext.Theme)
+        {
+            Text = resource.GetDisplayName(AppContext)
+        });
+        verticalStackPanel.Widgets.Add(new Label(theme: AppContext.Theme)
+        {
+            Text = $"{resource.PackId}:{resource.ResourceId}",
+            Font = AppContext.Theme.GetFont(ThemeFontKind.Small)
+        });
+        return verticalStackPanel;
     }
 
 
@@ -60,10 +111,12 @@ public class SelectResourceScene<T>(AppContext appContext)
         var resourcesList = AppContext.DataRepository.GetResourceList<T>(Filter);
         var count = 0;
         _listView.Widgets.Clear();
+        _resourcesList.Clear();
         foreach (var resource in resourcesList)
         {
             count++;
             _listView.Widgets.Add(GetListItem(resource));
+            _resourcesList.Add(resource);
         }
 
         _listView.Visible = count > 0;

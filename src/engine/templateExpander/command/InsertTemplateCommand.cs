@@ -32,7 +32,8 @@ public class InsertTemplateCommand : ITemplateCommand
                 continue;
             }
 
-            buffer.AppendLine(templateResources.Content);
+            buffer.Append('\n');
+            buffer.Append(templateResources.Content);
         }
     }
 

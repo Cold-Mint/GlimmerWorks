@@ -115,12 +115,17 @@ public class TomlTemplateExpander
                 var argsArray = argsStr.Split('\n');
                 buffer.Clear();
                 command.Execute(appContext, variableMapStack, argsArray, buffer, conditionStack, packId);
-                if (buffer.Length > 0)
+                var bufferString = buffer.ToString();
+                if (bufferString.Length > 0)
                 {
-                    var bufferArray = buffer.ToString().Split('\n');
-                    foreach (var newLine in bufferArray)
+                    var bufferArray = bufferString.Split('\n');
+                    var bufferArrayLength = bufferArray.Length;
+                    if (bufferArrayLength > 0)  
                     {
-                        lines.AddFirst(newLine);
+                        for (int i = bufferArrayLength - 1; i >= 0; i--)
+                        {
+                            lines.AddFirst(bufferArray[i]);
+                        }
                     }
                 }
             }

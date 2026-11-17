@@ -7,7 +7,7 @@ namespace GlimmerWorks.Engine.Mods.PackLoader;
 /// <para>AssetsPackLoader</para>
 /// <para>资产包加载器</para>
 /// </summary>
-public class AssetsPackLoader : PackLoader<AssetsPack>
+public class AssetsPackManager : PackManager<AssetsPack>
 {
     protected override AssetsPack CreatePack(VirtualPath packRootPath, PackManifest manifest)
     {

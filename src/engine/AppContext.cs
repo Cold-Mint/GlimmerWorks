@@ -1,5 +1,7 @@
 using System.Globalization;
+using GlimmerWorks.Engine.Mods.PackLoader;
 using GlimmerWorks.Engine.Scene;
+using GlimmerWorks.engine.templateExpander;
 using GlimmerWorks.engine.Vfs;
 using GlimmerWorks.Game;
 using Microsoft.Xna.Framework;
@@ -17,6 +19,12 @@ public class AppContext
     public VirtualFileSystem VirtualFileSystem { get; } = new();
 
     public DataRepository DataRepository { get; init; } = new();
+
+    public DataPackManager DataPackManager { get; init; } = new();
+
+    public AssetsPackManager AssetsPackManager { get; init; } = new();
+
+    public TomlTemplateExpander TomlTemplateExpander { get; init; } = new();
 
     public SceneStack SceneStack { get; init; } = new();
 

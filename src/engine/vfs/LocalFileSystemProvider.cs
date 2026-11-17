@@ -56,6 +56,19 @@ public class LocalFileSystemProvider(string rootPath) : IFileSystemProvider
         return realPath == null ? null : File.ReadAllText(realPath.Path);
     }
 
+    public bool WriteAllText(VirtualPath path, string text)
+    {
+        var realPath = VirtualPathToRealPath(path);
+        if (realPath == null)
+        {
+            return false;
+        }
+
+        File.WriteAllText(realPath.Path, text);
+        return true;
+    }
+
+
     public Stream? OpenRead(VirtualPath path)
     {
         var realPath = VirtualPathToRealPath(path);

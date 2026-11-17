@@ -1,7 +1,6 @@
 using GlimmerWorks.Engine;
 using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Engine.Mods;
-using GlimmerWorks.Engine.Mods.PackLoader;
 using GlimmerWorks.Engine.Scene;
 using GlimmerWorks.engine.Vfs;
 using Microsoft.Xna.Framework;
@@ -43,15 +42,13 @@ public class SplashScene(AppContext appContext) : Scene(appContext)
 
     private async void LoadPacks()
     {
-        var dataPackLoader = new DataPackLoader();
         var dataPackCount =
-            await dataPackLoader.Scan(AppContext, new VirtualPath("mods", "data_packs"), OnPackMessage);
+            await AppContext.DataPackManager.ScanAndLoad(AppContext, VirtualPath.DataPackPath, OnPackMessage);
         OnPackMessage(
             new PackMessage(AppContext.Localizer["Loaded {0} data packs", dataPackCount].Value));
 
-        var assetsPackLoader = new AssetsPackLoader();
         var assetsPackCount =
-            await assetsPackLoader.Scan(AppContext, new VirtualPath("mods", "resource_packs"), OnPackMessage);
+            await AppContext.AssetsPackManager.ScanAndLoad(AppContext, VirtualPath.ResourcePackPath, OnPackMessage);
         OnPackMessage(
             new PackMessage(AppContext.Localizer["Loaded {0} asset packs", assetsPackCount].Value));
         AppContext.SceneStack.AddTask(

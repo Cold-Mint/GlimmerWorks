@@ -4,6 +4,7 @@ using GlimmerWorks.Engine.Mods.Data;
 using GlimmerWorks.engine.Vfs;
 using GlimmerWorks.Game;
 using System.Reflection;
+using GlimmerWorks.engine;
 using GlimmerWorks.engine.attributes;
 
 namespace GlimmerWorks.Engine.Mods;
@@ -94,7 +95,11 @@ public class DataPack(VirtualPath packRootPath, PackManifest manifest) : BasePac
                 //Default match.
                 //默认匹配。
                 var stringFileResources =
-                    appContext.VirtualFileSystem.ReadToml<StringSetResources>(fileEntry.Path);
+                    appContext.VirtualFileSystem.ReadToml<StringSetResources>(fileEntry.Path, new PackContext
+                    {
+                        AppContext = appContext,
+                        RequesterPackId = Manifest.Id
+                    });
                 if (stringFileResources == null)
                 {
                     return null;
@@ -114,7 +119,11 @@ public class DataPack(VirtualPath packRootPath, PackManifest manifest) : BasePac
                     //Best match.
                     //最佳匹配。
                     var stringFileResources =
-                        appContext.VirtualFileSystem.ReadToml<StringSetResources>(fileEntry.Path);
+                        appContext.VirtualFileSystem.ReadToml<StringSetResources>(fileEntry.Path, new PackContext
+                        {
+                            AppContext = appContext,
+                            RequesterPackId = Manifest.Id
+                        });
                     if (stringFileResources == null)
                     {
                         return null;

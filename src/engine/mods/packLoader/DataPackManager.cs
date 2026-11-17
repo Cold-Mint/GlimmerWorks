@@ -7,7 +7,7 @@ namespace GlimmerWorks.Engine.Mods.PackLoader;
 /// <para>DataPackLoader</para>
 /// <para>数据包加载器</para>
 /// </summary>
-public class DataPackLoader : PackLoader<DataPack>
+public class DataPackManager : PackManager<DataPack>
 {
     protected override DataPack CreatePack(VirtualPath packRootPath, PackManifest manifest)
     {

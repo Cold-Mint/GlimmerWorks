@@ -12,64 +12,77 @@ msgstr ""
 "Last-Translator: Cold-Mint <cold_mint@qq.com>\n"
 "Language-Team: Chinese (China)\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"PO-Revision-Date: 2026-11-14 19:45+0800\n"
+"PO-Revision-Date: 2026-11-17 18:37+0800\n"
 "X-Generator: Gtranslator 50.0\n"
 
 #: src/engine/mods/AssetsPack.cs:17
 msgid "Load Assets Pack:{0}..."
 msgstr "加载资源包：{0}..."
 
-#: src/engine/mods/BasePack.cs:160 src/engine/mods/packLoader/PackLoader.cs:48
+#: src/engine/mods/BasePack.cs:178 src/engine/mods/packLoader/PackManager.cs:81
 msgid "{0} must use snake_case (expected: {1}, actual: {2})."
 msgstr "{0} 必须使用蛇形命名法（预期：{1}，实际：{2}）。"
 
-#: src/engine/mods/BasePack.cs:170
+#: src/engine/mods/BasePack.cs:189
 msgid "Register resource{0}：{1}:{2}"
 msgstr "注册资源{0}:{1}:{2}"
 
-#: src/engine/mods/DataPack.cs:50
+#: src/engine/mods/DataPack.cs:52
 msgid ""
 "Path segment {0} in template must use snake_case (expected: {1}, actual: "
 "{2})."
 msgstr "模板中的路径段 {0} 必须使用蛇形命名法（预期：{1}，实际：{2}）。"
 
-#: src/engine/mods/DataPack.cs:130
+#: src/engine/mods/DataPack.cs:171
 msgid "Load Data Pack:{0}..."
 msgstr "加载数据包：{0}..."
 
-#: src/game/CreateWorldScene.cs:32 src/game/CreateWorldScene.cs:61
+#: src/engine/mods/packLoader/PackManager.cs:68
+msgid ""
+"Due to the duplicate package ID, loading is prohibited. The solution is as "
+"follows:\n"
+"1. Modify the manifest.toml file located in the {0} directory and change the "
+"ID to {2} to achieve simultaneous loading.\n"
+"2. Remove the package located at {0} or remove the package located at {1}."
+msgstr ""
+"由于包ID重复，禁止加载。解决方案如下：\n"
+"1. 修改位于 {0} 目录中的 manifest.toml 文件，并将 ID 更改为 {2}，以实现同时加"
+"载。\n"
+"2. 移除位于 {0} 的包，或移除位于 {1} 的包。"
+
+#: src/game/CreateWorldScene.cs:35 src/game/CreateWorldScene.cs:64
 msgid "Create world"
 msgstr "创建世界"
 
-#: src/game/CreateWorldScene.cs:65
+#: src/game/CreateWorldScene.cs:68
 msgid "World name"
 msgstr "世界名称"
 
-#: src/game/CreateWorldScene.cs:70
+#: src/game/CreateWorldScene.cs:73
 msgid "Seed"
 msgstr "种子"
 
-#: src/game/CreateWorldScene.cs:75
+#: src/game/CreateWorldScene.cs:78
 msgid "Switch"
 msgstr "切换"
 
-#: src/game/CreateWorldScene.cs:85
+#: src/game/CreateWorldScene.cs:80 src/game/CreateWorldScene.cs:125
 msgid "Starting dimension:{0}"
 msgstr "初始维度:{0}"
 
-#: src/game/CreateWorldScene.cs:95
+#: src/game/CreateWorldScene.cs:89
 msgid "Allow Cheating"
 msgstr "允许作弊"
 
-#: src/game/CreateWorldScene.cs:102
+#: src/game/CreateWorldScene.cs:96
 msgid "Back"
 msgstr "返回"
 
-#: src/game/CreateWorldScene.cs:134
+#: src/game/CreateWorldScene.cs:153
 msgid "Random"
 msgstr "随机"
 
-#: src/game/CreateWorldScene.cs:172
+#: src/game/CreateWorldScene.cs:191
 msgid ""
 "Barren, Arid, Desolate, Abandoned, Ruined, Shattered, Collapsed, Scarred, "
 "Wounded, Withered, Wilted, Sparse, Hollow, Jagged, Erased, Verdant, Fertile, "
@@ -94,7 +107,7 @@ msgstr ""
 "珀,琉璃,靛蓝,锈蚀,镀金,黑色,青灰,遥远,偏远,无尽,迷失,遗忘,遗弃,蚀暗,星光,风"
 "暴,风蚀,雾霭,焦黑,灰白"
 
-#: src/game/CreateWorldScene.cs:175
+#: src/game/CreateWorldScene.cs:194
 msgid ""
 "Canyon, Peaks, Mountains, Valley, Ridge, Cliff, Crag, Highlands, Glen, "
 "Snowpeak, Volcano, Bluff, Pinnacles, Mesa, Cave, Grotto, Cavern, "
@@ -127,22 +140,22 @@ msgstr "开始游戏"
 msgid "Exit Game"
 msgstr "退出游戏"
 
-#: src/game/SelectResourceScene.cs:20
+#: src/game/SelectResourceScene.cs:33
 msgid "No matching resource found"
 msgstr "未找到匹配的资源"
 
-#: src/game/SplashScene.cs:24
+#: src/game/SplashScene.cs:23
 msgid "Prepare"
 msgstr "准备"
 
-#: src/game/SplashScene.cs:50
+#: src/game/SplashScene.cs:48
 msgid "Loaded {0} data packs"
 msgstr "已加载 {0} 个数据包"
 
-#: src/game/SplashScene.cs:56
+#: src/game/SplashScene.cs:53
 msgid "Loaded {0} asset packs"
 msgstr "已加载 {0} 个资源包"
 
-#: src/game/SplashScene.cs:72
+#: src/game/SplashScene.cs:69
 msgid "In {0}: {1}"
 msgstr "在 {0} 中：{1}"

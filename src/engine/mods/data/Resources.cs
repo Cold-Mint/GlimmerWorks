@@ -111,3 +111,9 @@ public class DimensionResources : Resources
     [TomlPropertyName("allow_as_starting")]
     public bool AllowAsStarting { get; set; } = false;
 }
+
+[DataPackResource("tile")]
+public class TileResources : Resources
+{
+    
+}

@@ -1,3 +1,4 @@
+using GlimmerWorks.engine;
 using GlimmerWorks.Engine.Mods.Data;
 using GlimmerWorks.engine.Vfs;
 using Tomlyn;
@@ -24,6 +25,23 @@ public class VirtualFileSystem
         _fileSystemProviders
             .Select(fileSystemProvider => fileSystemProvider.List(path, searchPattern, recurseSubdirectories))
             .Select(result => result ?? null).FirstOrDefault();
+
+    /// <summary>
+    /// <para>WriteText</para>
+    /// <para>将文本写入到文件内</para>
+    /// </summary>
+    /// <param name="path"></param>
+    /// <param name="text"></param>
+    public void WriteText(VirtualPath path, string text)
+    {
+        foreach (var fileSystemProvider in _fileSystemProviders)
+        {
+            if (fileSystemProvider.WriteAllText(path, text))
+            {
+                break;
+            }
+        }
+    }
 
     /// <summary>
     /// <para>ReadAllText</para>
@@ -73,9 +91,9 @@ public class VirtualFileSystem
     // /// <param name="path"></param>
     // /// <typeparam name="T"></typeparam>
     // /// <returns></returns>
-    public T? ReadToml<T>(VirtualPath path)
+    public T? ReadToml<T>(VirtualPath path, PackContext? tomlContext = null)
     {
-        var obj = ReadToml(path, typeof(T));
+        var obj = ReadToml(path, typeof(T), tomlContext);
         if (obj == null)
         {
             return default;
@@ -90,10 +108,25 @@ public class VirtualFileSystem
     /// </summary>
     /// <param name="path"></param>
     /// <param name="type"></param>
+    /// <param name="tomlContext"></param>
     /// <returns></returns>
-    public object? ReadToml(VirtualPath path, Type type)
+    public object? ReadToml(VirtualPath path, Type type, PackContext? tomlContext = null)
     {
         var text = ReadAllText(path);
+        if (tomlContext != null)
+        {
+            var appContext = tomlContext.AppContext;
+            var requesterPackId = tomlContext.RequesterPackId;
+            if (appContext != null && requesterPackId != null)
+            {
+                var newText = appContext.TomlTemplateExpander.Expand(appContext, path, requesterPackId);
+                if (newText != text)
+                {
+                    appContext.VirtualFileSystem.WriteText(new VirtualPath($"{path.Path}.expand"), newText);
+                }
+            }
+        }
+
         return string.IsNullOrWhiteSpace(text) ? null : AfterDeserializeToml(path, text, type);
     }
 

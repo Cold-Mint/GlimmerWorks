@@ -17,5 +17,6 @@ public interface IFileSystemProvider
     bool FileExists(VirtualPath path);
 
     string? ReadAllText(VirtualPath path);
+    bool WriteAllText(VirtualPath path, string text);
     Stream? OpenRead(VirtualPath path);
 }

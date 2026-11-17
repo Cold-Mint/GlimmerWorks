@@ -2,6 +2,9 @@ namespace GlimmerWorks.engine.Vfs;
 
 public class VirtualPath(params string[] path)
 {
+    public static readonly VirtualPath DataPackPath  = new("mods", "data_packs");
+    public static readonly VirtualPath ResourcePackPath = new("mods", "resource_packs");
+    
     public string Path { get; } = System.IO.Path.Combine(path);
 
     /// <summary>

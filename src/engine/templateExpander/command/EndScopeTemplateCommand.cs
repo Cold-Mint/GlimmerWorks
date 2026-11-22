@@ -21,4 +21,9 @@ public class EndScopeTemplateCommand : ITemplateCommand
     {
         return "end_scope";
     }
+
+    public bool ShouldExecuteWhenInactive()
+    {
+        return true;
+    }
 }

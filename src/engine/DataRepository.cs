@@ -59,14 +59,17 @@ public class DataRepository
     /// </summary>
     /// <param name="targetPackId"></param>
     /// <param name="dependencies"></param>
-    void SetDependencies(string targetPackId, IEnumerable<string> dependencies)
+    public void SetDependencies(string targetPackId, IEnumerable<string> dependencies)
     {
         if (string.IsNullOrWhiteSpace(targetPackId))
         {
             return;
         }
 
-        _packDependencies[targetPackId] = [.. dependencies];
+        _packDependencies[targetPackId] = dependencies
+            .Where(static dependency => !string.IsNullOrWhiteSpace(dependency) && dependency != "@self")
+            .Distinct(StringComparer.Ordinal)
+            .ToHashSet(StringComparer.Ordinal);
     }
 
     private void AddToTypeIndex(Resources resource)

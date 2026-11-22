@@ -17,17 +17,6 @@ public abstract class PackManager<T> where T : BasePack
     private bool _scaning;
 
     /// <summary>
-    /// <para>GetVirtualPath</para>
-    /// <para>获取某个包的虚拟路径</para>
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    public VirtualPath? GetVirtualPath(string id)
-    {
-        return _idToVirtualPath.GetValueOrDefault(id);
-    }
-
-    /// <summary>
     /// <para>GetPack</para>
     /// <para>获取某个包</para>
     /// </summary>
@@ -89,6 +78,12 @@ public abstract class PackManager<T> where T : BasePack
                         continue;
                     }
 
+                    if (packManifest.MinGameCode > Constant.GameCode)
+                    {
+                        LogCat.Warn("The minimum game version is higher than the current game version.");
+                        continue;
+                    }
+
                     if (_idToVirtualPath.TryGetValue(packManifest.Id, out var oldPath))
                     {
                         onMessage.Invoke(new PackMessage(
@@ -102,7 +97,6 @@ public abstract class PackManager<T> where T : BasePack
                         continue;
                     }
 
-                    _idToVirtualPath[packManifest.Id] = path;
                     if (!packManifest.Id.IsSnakeCase())
                     {
                         onMessage.Invoke(new PackMessage(
@@ -115,8 +109,14 @@ public abstract class PackManager<T> where T : BasePack
                         continue;
                     }
 
+                    if (!CheckManifest(appContext, manifestPath, onMessage, packManifest))
+                    {
+                        continue;
+                    }
+
                     var pack = CreatePack(path, packManifest);
                     _packDictionary[packManifest.Id] = pack;
+                    _idToVirtualPath[packManifest.Id] = path;
                     packs.Add(pack);
                     pack.LoadAllTemplate(appContext, onMessage);
                 }
@@ -133,6 +133,21 @@ public abstract class PackManager<T> where T : BasePack
         }
 
         return -1;
+    }
+
+    /// <summary>
+    /// <para>CheckManifest</para>
+    /// <para>检查清单文件是否合法</para>
+    /// </summary>
+    /// <param name="onMessage"></param>
+    /// <param name="packManifest"></param>
+    /// <param name="appContext"></param>
+    /// <param name="manifestPath"></param>
+    /// <returns></returns>
+    protected virtual bool CheckManifest(AppContext appContext, VirtualPath manifestPath, Action<PackMessage> onMessage,
+        PackManifest packManifest)
+    {
+        return true;
     }
 
     protected abstract T CreatePack(VirtualPath packRootPath, PackManifest manifest);

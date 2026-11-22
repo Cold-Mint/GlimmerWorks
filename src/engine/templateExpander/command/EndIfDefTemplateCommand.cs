@@ -21,4 +21,9 @@ public class EndIfDefTemplateCommand : ITemplateCommand
     {
         return "end_if_def";
     }
+
+    public bool ShouldExecuteWhenInactive()
+    {
+        return true;
+    }
 }

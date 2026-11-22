@@ -40,7 +40,8 @@ public class DataPack(VirtualPath packRootPath, PackManifest manifest) : BasePac
                 continue;
             }
 
-            var pathSpitArray = path.Path.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            var relativePath = path.GetRelativePath(_packRootPath);
+            var pathSpitArray = relativePath.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
             for (var i = 0; i < pathSpitArray.Length; i++)
             {
                 var fragment = pathSpitArray[i];
@@ -71,11 +72,10 @@ public class DataPack(VirtualPath packRootPath, PackManifest manifest) : BasePac
                 continue;
             }
 
-            var relativePath = path.GetRelativePath(_packRootPath);
             templateResourcesList.Add(new TemplateResources
             {
                 VirtualPath = path,
-                ResourceId = relativePath.Substring(0, relativePath.Length - suffixLength),
+                ResourceId = relativePath.Substring(0, relativePath.Length - suffixLength).Replace('\\', '/'),
                 Content = text
             });
         }
@@ -177,6 +177,32 @@ public class DataPack(VirtualPath packRootPath, PackManifest manifest) : BasePac
             }
 
             resourceTypeDictionary.Add(attr.ResourceType, type);
+        }
+    }
+
+    protected override void RegisterDependencies(AppContext appContext, Action<PackMessage> onMessage)
+    {
+        var dependencies = Manifest.PackDependencies;
+        appContext.DataRepository.SetDependencies(Manifest.Id,
+            dependencies.Select(static dependency => dependency.PackId));
+
+        foreach (var dependency in dependencies)
+        {
+            var dependencyPackId = dependency.PackId;
+            if (string.IsNullOrWhiteSpace(dependencyPackId) || dependencyPackId == "@self")
+            {
+                continue;
+            }
+
+            if (appContext.DataPackManager.GetPack(dependencyPackId) == null)
+            {
+                onMessage.Invoke(new PackMessage(
+                    appContext.Localizer["Data pack {0} depends on {1}, but {1} is not loaded.", Manifest.Id,
+                        dependencyPackId].Value)
+                {
+                    Level = LogLevel.Warn
+                });
+            }
         }
     }
 

@@ -26,7 +26,7 @@ public class SelectResourceScene<T>(AppContext appContext)
 
     private T? _selectedResource;
     private T? _result;
-    private List<T> _resourcesList = [];
+    private readonly List<T> _resourcesList = [];
 
     private readonly Label _cannotFindResourceLabel = new(appContext.Theme)
     {

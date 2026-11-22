@@ -89,6 +89,7 @@ public abstract class BasePack(VirtualPath packRootPath, PackManifest manifest)
     public bool Load(AppContext appContext, Action<PackMessage> onMessage)
     {
         StartLoadMessage(appContext, onMessage);
+        RegisterDependencies(appContext, onMessage);
         if (!ShouldScanFiles())
         {
             return true;
@@ -215,6 +216,16 @@ public abstract class BasePack(VirtualPath packRootPath, PackManifest manifest)
     /// </summary>
     /// <returns></returns>
     protected virtual void StartLoadMessage(AppContext appContext, Action<PackMessage> onMessage)
+    {
+    }
+
+    /// <summary>
+    /// <para>RegisterDependencies</para>
+    /// <para>注册清单中声明的包依赖</para>
+    /// </summary>
+    /// <param name="appContext"></param>
+    /// <param name="onMessage"></param>
+    protected virtual void RegisterDependencies(AppContext appContext, Action<PackMessage> onMessage)
     {
     }
 

@@ -1,6 +1,7 @@
 using GlimmerWorks.Engine;
 using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Engine.Mods;
+using GlimmerWorks.Engine.Mods.Data;
 using GlimmerWorks.Engine.Scene;
 using GlimmerWorks.engine.Vfs;
 using Microsoft.Xna.Framework;
@@ -44,17 +45,56 @@ public class SplashScene(AppContext appContext) : Scene(appContext)
     {
         var dataPackCount =
             await AppContext.DataPackManager.ScanAndLoad(AppContext, VirtualPath.DataPackPath, OnPackMessage);
+        if (dataPackCount < 0)
+        {
+            LogCat.Error("Data pack scan failed.");
+            return;
+        }
+
         OnPackMessage(
             new PackMessage(AppContext.Localizer["Loaded {0} data packs", dataPackCount].Value));
+        if (dataPackCount == 0)
+        {
+            LogCat.Error("No data packs found.");
+            return;
+        }
+
+        var dimensionResources = AppContext.DataRepository.FirstOrDefaultResources<DimensionResources>(Filter);
+        if (dimensionResources == null)
+        {
+            OnPackMessage(
+                new PackMessage(AppContext.Localizer["At least one initial dimension is required."].Value)
+                {
+                    Level = LogLevel.Error
+                });
+            return;
+        }
 
         var assetsPackCount =
             await AppContext.AssetsPackManager.ScanAndLoad(AppContext, VirtualPath.ResourcePackPath, OnPackMessage);
+        if (assetsPackCount < 0)
+        {
+            LogCat.Error("Asset pack scan failed.");
+            return;
+        }
+
         OnPackMessage(
             new PackMessage(AppContext.Localizer["Loaded {0} asset packs", assetsPackCount].Value));
+        if (assetsPackCount == 0)
+        {
+            LogCat.Error("No asset packs found.");
+            return;
+        }
+
+
         AppContext.SceneStack.AddTask(
             new SceneStackTask { Scene = new MainScene(AppContext), Type = StackType.Replace });
     }
 
+    private bool Filter(DimensionResources dimensionResource)
+    {
+        return dimensionResource.AllowAsStarting;
+    }
 
     public override Color? GetBackgroundColor()
     {

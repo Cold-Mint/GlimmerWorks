@@ -11,9 +11,10 @@ public class ScopeTemplateCommand : ITemplateCommand
         Stack<bool> conditionStack,
         string requesterPackId)
     {
-        if (args.Length == 0)
+        if (args.Length == 0 || string.IsNullOrWhiteSpace(args[0]))
         {
             variableMapStack.Push(new VariableMap());
+            return;
         }
 
         if (args[0] == "inherit" && variableMapStack.Count > 0)
@@ -25,5 +26,10 @@ public class ScopeTemplateCommand : ITemplateCommand
     public string GetCommandName()
     {
         return "scope";
+    }
+
+    public bool ShouldExecuteWhenInactive()
+    {
+        return true;
     }
 }

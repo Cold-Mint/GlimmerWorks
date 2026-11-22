@@ -9,31 +9,21 @@ namespace GlimmerWorks.Game;
 /// </summary>
 public sealed class PackManifest
 {
-    [TomlPropertyName("author")] public string Author { get; init; } = string.Empty;
-
     [TomlPropertyName("id")] public string Id { get; init; } = string.Empty;
 
     /// <summary>
     /// Minimum game version this pack requires.
     /// 此资源包要求的最低游戏版本。
     /// </summary>
-    [TomlPropertyName("min_game_version")]
-    public long MinGameVersion { get; init; }
+    [TomlPropertyName("min_game_code")]
+    public long MinGameCode { get; init; }
 
     /// <summary>
     /// Whether this pack is a resource pack (no code/logic).
     /// 是否为资源包（不含代码/逻辑）。
     /// </summary>
     [TomlPropertyName("res_pack")]
-    public bool ResPack { get; init; }
-
-    [TomlPropertyName("version_name")] public string VersionName { get; init; } = string.Empty;
-
-    [TomlPropertyName("version_number")] public long VersionNumber { get; init; }
-
-    [TomlPropertyName("description")] public ResourceRef Description { get; init; } = new();
-
-    [TomlPropertyName("name")] public ResourceRef Name { get; init; } = new();
+    public bool ResPack { get; init; } = false;
 
     [TomlPropertyName("pack_dependencies")]
     public PackDependency[] PackDependencies { get; init; } = [];

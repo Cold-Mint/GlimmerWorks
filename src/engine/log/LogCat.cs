@@ -24,6 +24,8 @@ public static class LogCat
     /// 最低输出级别，低于此级别的日志会被忽略。
     /// </summary>
     private static LogLevel MinLevel { get; set; } = LogLevel.Info;
+    
+    private static bool FirstRedirectedOutput {get; set;} = true;
 
     public static void Debug(string text) => Write(LogLevel.Debug, text);
 
@@ -33,31 +35,43 @@ public static class LogCat
 
     public static void Error(string text) => Write(LogLevel.Error, text);
 
+    private static string CreateLine(LogLevel level, string text)
+    {
+        return $"[{DateTime.Now:HH:mm:ss.fff}][{level}] {text}";
+    }
+    
     private static void Write(LogLevel level, string text)
     {
         if (level < MinLevel)
         {
             return;
         }
-
-        var line = $"[{DateTime.Now:HH:mm:ss.fff}] [{level,-5}] {text}";
         if (Console.IsOutputRedirected)
         {
-            Console.WriteLine(line);
+            //If the output is redirected, then only plain text will be output.
+            //如果输出被重定向那么仅输出纯文本。
+            if (FirstRedirectedOutput)
+            {
+                FirstRedirectedOutput  = false;
+                Console.WriteLine(CreateLine(LogLevel.Info,"It was detected that console redirection is enabled, and log highlighting has been disabled."));
+            }
+            Console.WriteLine(CreateLine(level, text));
             return;
         }
 
         var previous = Console.ForegroundColor;
-        Console.ForegroundColor = level switch
-        {
-            LogLevel.Debug => ConsoleColor.Gray,
-            LogLevel.Info => ConsoleColor.Cyan,
-            LogLevel.Warn => ConsoleColor.Yellow,
-            LogLevel.Error => ConsoleColor.Red,
-            _ => ConsoleColor.White,
-        };
-        Console.WriteLine(line);
+        Console.ForegroundColor = GetConsoleColor(level);
+        Console.WriteLine(CreateLine(level, text));
         Console.ForegroundColor = previous;
     }
+
+    private static ConsoleColor GetConsoleColor(LogLevel level) => level switch
+    {
+        LogLevel.Debug => ConsoleColor.Gray,
+        LogLevel.Info => ConsoleColor.Cyan,
+        LogLevel.Warn => ConsoleColor.Yellow,
+        LogLevel.Error => ConsoleColor.Red,
+        _ => ConsoleColor.White,
+    };
 }
 #pragma warning restore RS0030

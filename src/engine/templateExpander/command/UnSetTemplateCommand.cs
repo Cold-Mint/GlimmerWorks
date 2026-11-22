@@ -27,4 +27,9 @@ public class UnSetTemplateCommand : ITemplateCommand
     {
         return "unset";
     }
+
+    public bool ShouldExecuteWhenInactive()
+    {
+        return false;
+    }
 }

@@ -32,13 +32,41 @@ public class InsertTemplateCommand : ITemplateCommand
                 continue;
             }
 
+            var content = templateResources.Content;
+            if (content.EndsWith("\r\n"))
+            {
+                content = content[..^2];
+            }
+            else if (content.EndsWith('\n') || content.EndsWith('\r'))
+            {
+                content = content[..^1];
+            }
+
+            var templateKey = $"{resourceRef.TargetPackId}:{resourceRef.ResourceId}";
+            if (buffer.Length > 0)
+            {
+                buffer.Append('\n');
+            }
+
+            buffer.Append(TemplateInsertMarker.CreateBegin(templateKey));
             buffer.Append('\n');
-            buffer.Append(templateResources.Content);
+            if (content.Length > 0)
+            {
+                buffer.Append(content);
+                buffer.Append('\n');
+            }
+
+            buffer.Append(TemplateInsertMarker.CreateEnd(templateKey));
         }
     }
 
     public string GetCommandName()
     {
         return "insert";
+    }
+
+    public bool ShouldExecuteWhenInactive()
+    {
+        return false;
     }
 }

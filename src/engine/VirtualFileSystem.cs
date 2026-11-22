@@ -113,6 +113,12 @@ public class VirtualFileSystem
     public object? ReadToml(VirtualPath path, Type type, PackContext? tomlContext = null)
     {
         var text = ReadAllText(path);
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return null;
+        }
+
+        var parseText = text;
         if (tomlContext != null)
         {
             var appContext = tomlContext.AppContext;
@@ -124,10 +130,12 @@ public class VirtualFileSystem
                 {
                     appContext.VirtualFileSystem.WriteText(new VirtualPath($"{path.Path}.expand"), newText);
                 }
+
+                parseText = newText;
             }
         }
 
-        return string.IsNullOrWhiteSpace(text) ? null : AfterDeserializeToml(path, text, type);
+        return string.IsNullOrWhiteSpace(parseText) ? null : AfterDeserializeToml(path, parseText, type);
     }
 
 

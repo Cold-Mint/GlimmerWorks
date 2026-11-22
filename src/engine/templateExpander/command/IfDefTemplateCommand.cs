@@ -32,4 +32,9 @@ public class IfDefTemplateCommand : ITemplateCommand
     {
         return "if_def";
     }
+
+    public bool ShouldExecuteWhenInactive()
+    {
+        return true;
+    }
 }

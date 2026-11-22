@@ -115,7 +115,13 @@ public abstract class BasePack(VirtualPath packRootPath, PackManifest manifest)
                 {
                     //For resources that have specified the conversion type, automatic registration is performed.
                     //对于指定了转换类型的资源，自动注册。
-                    var typeObj = appContext.VirtualFileSystem.ReadToml(fileEntry.Path, type, new PackContext
+                    var path = fileEntry.Path;
+                    if (path == null)
+                    {
+                        continue;
+                    }
+
+                    var typeObj = appContext.VirtualFileSystem.ReadToml(path, type, new PackContext
                     {
                         AppContext = appContext,
                         RequesterPackId = manifest.Id

@@ -71,7 +71,13 @@ public abstract class PackManager<T> where T : BasePack
                         continue;
                     }
 
-                    var manifestPath = fileEntry.Path.Combine("manifest.toml");
+                    var path = fileEntry.Path;
+                    if (path == null)
+                    {
+                        continue;
+                    }
+
+                    var manifestPath = path.Combine("manifest.toml");
                     if (!appContext.VirtualFileSystem.FileExists(manifestPath))
                     {
                         continue;
@@ -88,7 +94,7 @@ public abstract class PackManager<T> where T : BasePack
                         onMessage.Invoke(new PackMessage(
                             appContext.Localizer[
                                 "Due to the duplicate package ID, loading is prohibited. The solution is as follows:\n1. Modify the manifest.toml file located in the {0} directory and change the ID to {2} to achieve simultaneous loading.\n2. Remove the package located at {0} or remove the package located at {1}.",
-                                fileEntry.Path.Path, oldPath.Path, $"{packManifest.Id}_alt"])
+                                path.Path, oldPath.Path, $"{packManifest.Id}_alt"])
                         {
                             Path = manifestPath,
                             Level = LogLevel.Error
@@ -96,7 +102,7 @@ public abstract class PackManager<T> where T : BasePack
                         continue;
                     }
 
-                    _idToVirtualPath[packManifest.Id] = fileEntry.Path;
+                    _idToVirtualPath[packManifest.Id] = path;
                     if (!packManifest.Id.IsSnakeCase())
                     {
                         onMessage.Invoke(new PackMessage(
@@ -109,7 +115,7 @@ public abstract class PackManager<T> where T : BasePack
                         continue;
                     }
 
-                    var pack = CreatePack(fileEntry.Path, packManifest);
+                    var pack = CreatePack(path, packManifest);
                     _packDictionary[packManifest.Id] = pack;
                     packs.Add(pack);
                     pack.LoadAllTemplate(appContext, onMessage);

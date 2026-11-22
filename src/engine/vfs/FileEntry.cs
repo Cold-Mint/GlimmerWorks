@@ -3,8 +3,8 @@ namespace GlimmerWorks.engine.Vfs;
 public class FileEntry
 {
     public bool IsDirectory { set; get; }
-    public string Name { set; get; }
-    public VirtualPath Path { set; get; }
+    public string? Name { set; get; }
+    public VirtualPath? Path { set; get; }
 
     /// <summary>
     /// <para>GetResourceType</para>

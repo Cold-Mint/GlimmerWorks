@@ -32,11 +32,15 @@ public class DataPack(VirtualPath packRootPath, PackManifest manifest) : BasePac
 
         List<TemplateResources> templateResourcesList = [];
         var suffixLength = ".template.toml".Length;
-        foreach (var fileEntry in templateEntryList)
+        nextTemplate: foreach (var fileEntry in templateEntryList)
         {
-            var path = fileEntry.Path.Path;
-            var pathSpitArray = path.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-            var allSnakeCase = true;
+            var path = fileEntry.Path;
+            if (path == null)
+            {
+                continue;
+            }
+
+            var pathSpitArray = path.Path.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
             for (var i = 0; i < pathSpitArray.Length; i++)
             {
                 var fragment = pathSpitArray[i];
@@ -45,36 +49,32 @@ public class DataPack(VirtualPath packRootPath, PackManifest manifest) : BasePac
                     fragment = fragment[..^suffixLength];
                 }
 
-                if (!fragment.IsSnakeCase())
+                if (fragment.IsSnakeCase())
                 {
-                    allSnakeCase = false;
-                    onMessage.Invoke(new PackMessage(
-                        appContext.Localizer[
-                            "Path segment {0} in template must use snake_case (expected: {1}, actual: {2}).", fragment,
-                            fragment.ToSnakeCase(), fragment].Value)
-                    {
-                        Path = fileEntry.Path,
-                        Level = LogLevel.Error
-                    });
-                    break;
+                    continue;
                 }
+
+                onMessage.Invoke(new PackMessage(
+                    appContext.Localizer[
+                        "Path segment {0} in template must use snake_case (expected: {1}, actual: {2}).", fragment,
+                        fragment.ToSnakeCase(), fragment].Value)
+                {
+                    Path = path,
+                    Level = LogLevel.Error
+                });
+                continue nextTemplate;
             }
 
-            if (!allSnakeCase)
-            {
-                continue;
-            }
-
-            var text = appContext.VirtualFileSystem.ReadAllText(fileEntry.Path);
+            var text = appContext.VirtualFileSystem.ReadAllText(path);
             if (text == null)
             {
                 continue;
             }
 
-            var relativePath = fileEntry.Path.GetRelativePath(_packRootPath);
+            var relativePath = path.GetRelativePath(_packRootPath);
             templateResourcesList.Add(new TemplateResources
             {
-                VirtualPath = fileEntry.Path,
+                VirtualPath = path,
                 ResourceId = relativePath.Substring(0, relativePath.Length - suffixLength),
                 Content = text
             });
@@ -86,16 +86,22 @@ public class DataPack(VirtualPath packRootPath, PackManifest manifest) : BasePac
     protected override List<Resources>? RegisterResourceManually(AppContext appContext, string resourceType,
         FileEntry fileEntry, Action<PackMessage> onMessage)
     {
+        var path = fileEntry.Path;
+        if (path == null)
+        {
+            return null;
+        }
+
         if (resourceType == "strings" && _stringMatchLevel < 2)
         {
             var candidates = LocalizationManager.GetCandidates(appContext.LocalizationManager.CurrentLanguage);
-            var currentFileName = fileEntry.Name.ToLowerInvariant();
+            var currentFileName = fileEntry.Name?.ToLowerInvariant();
             if (_stringMatchLevel == 0 && currentFileName == "default.strings.toml")
             {
                 //Default match.
                 //默认匹配。
                 var stringFileResources =
-                    appContext.VirtualFileSystem.ReadToml<StringSetResources>(fileEntry.Path, new PackContext
+                    appContext.VirtualFileSystem.ReadToml<StringSetResources>(path, new PackContext
                     {
                         AppContext = appContext,
                         RequesterPackId = Manifest.Id
@@ -119,7 +125,7 @@ public class DataPack(VirtualPath packRootPath, PackManifest manifest) : BasePac
                     //Best match.
                     //最佳匹配。
                     var stringFileResources =
-                        appContext.VirtualFileSystem.ReadToml<StringSetResources>(fileEntry.Path, new PackContext
+                        appContext.VirtualFileSystem.ReadToml<StringSetResources>(path, new PackContext
                         {
                             AppContext = appContext,
                             RequesterPackId = Manifest.Id

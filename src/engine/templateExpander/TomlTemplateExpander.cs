@@ -179,7 +179,7 @@ public class TomlTemplateExpander
                 {
                     var bufferArray = bufferString.Split('\n');
                     var bufferArrayLength = bufferArray.Length;
-                    if (bufferArrayLength > 0)  
+                    if (bufferArrayLength > 0)
                     {
                         for (int i = bufferArrayLength - 1; i >= 0; i--)
                         {
@@ -198,7 +198,6 @@ public class TomlTemplateExpander
             }
         }
 
-        LogCat.Info(stringBuilder.ToString());
         return stringBuilder.ToString();
     }
 
@@ -270,20 +269,7 @@ public class TomlTemplateExpander
 
     private static bool IsVariableKey(string key)
     {
-        if (key.Length == 0)
-        {
-            return false;
-        }
-
-        foreach (var c in key)
-        {
-            if (!char.IsAsciiLetterOrDigit(c) && c != '_')
-            {
-                return false;
-            }
-        }
-
-        return true;
+        return key.Length > 0 && key.All(c => char.IsAsciiLetterOrDigit(c) || c == '_');
     }
 
     private static string[] ParseArguments(string argsStr)

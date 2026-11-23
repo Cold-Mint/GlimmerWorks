@@ -34,8 +34,14 @@ public abstract class Scene(AppContext appContext)
     /// <para>Receive the results from the topmost scene. (If the top of the stack changes, the upper layer can optionally return the results.)</para>
     /// <para>接收来自栈顶场景的结果。（当栈顶发生变化时，可选的由上层返回结果）</para>
     /// </summary>
-    /// <param name="requestCode"></param>
-    /// <param name="result"></param>
+    /// <param name="requestCode">
+    ///<para>requestCode</para>
+    ///<para>请求代码</para>
+    /// </param>
+    /// <param name="result">
+    ///<para>result</para>
+    ///<para>结果</para>
+    /// </param>
     public virtual void OnResult(int requestCode, object? result)
     {
     }
@@ -51,6 +57,11 @@ public abstract class Scene(AppContext appContext)
     }
 
 
+    /// <summary>
+    /// <para>Update</para>
+    /// <para>更新</para>
+    /// </summary>
+    /// <param name="gameTime"></param>
     public virtual void Update(GameTime gameTime)
     {
         if (AppContext.SceneStack.IsTopScene(this) && appContext.Desktop?.Root != _widget)
@@ -59,6 +70,18 @@ public abstract class Scene(AppContext appContext)
         }
     }
 
+    /// <summary>
+    /// <para>Draw</para>
+    /// <para>绘制</para>
+    /// </summary>
+    /// <param name="graphicsDevice">
+    ///<para>graphicsDevice</para>
+    ///<para>图像设备</para>
+    /// </param>
+    /// <param name="gameTime">
+    ///<para>gameTime</para>
+    ///<para>游戏时间</para>
+    /// </param>
     public virtual void Draw(GraphicsDevice graphicsDevice, GameTime gameTime)
     {
     }
@@ -73,18 +96,35 @@ public abstract class Scene(AppContext appContext)
         return null;
     }
 
+    /// <summary>
+    /// <para>OnCreate</para>
+    /// <para>当创建场景后</para>
+    /// </summary>
     public virtual void OnCreate()
     {
     }
 
+
+    /// <summary>
+    /// <para>OnDestroy</para>
+    /// <para>当从场景栈内弹出时</para>
+    /// </summary>
     public virtual void OnDestroy()
     {
     }
 
+    /// <summary>
+    /// <para>OnPauseScene</para>
+    /// <para>当场景暂停时</para>
+    /// </summary>
     public virtual void OnPauseScene()
     {
     }
 
+    /// <summary>
+    /// <para>OnResumeScene</para>
+    /// <para>当场景恢复时</para>
+    /// </summary>
     public virtual void OnResumeScene()
     {
     }

@@ -97,9 +97,9 @@ public class SceneStack
             return;
         }
 
-        var top1 = _stack.Peek();
-        top1.OnPauseScene();
-        top1.OnDestroy();
+        var top = _stack.Peek();
+        top.OnPauseScene();
+        top.OnDestroy();
         _stack.Pop();
 
         scene.RequestCode = sceneStackTask.RequestCode;

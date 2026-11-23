@@ -15,9 +15,8 @@ namespace GlimmerWorks.Game;
 
 public class CreateWorldScene(AppContext appContext) : Scene(appContext)
 {
-    private DimensionResources? _dimensionResource;
-    private int _switchDimensionRequestCode = 1;
-    private Label _switchDimensionLabel = new(appContext.Theme);
+    private readonly int _switchDimensionRequestCode = 1;
+    private readonly Label _switchDimensionLabel = new(appContext.Theme);
 
     private readonly InputText _worldNameBox = new(appContext.Theme)
     {
@@ -39,8 +38,9 @@ public class CreateWorldScene(AppContext appContext) : Scene(appContext)
     public override void OnCreate()
     {
         base.OnCreate();
-        _dimensionResource = AppContext.DataRepository.FirstOrDefaultResources<DimensionResources>(Filter);
-        if (_dimensionResource == null)
+        var dimensionResource =
+            AppContext.DataRepository.FirstOrDefaultResources<DimensionResources>(Filter);
+        if (dimensionResource == null)
         {
             _createButton.Enabled = false;
             return;
@@ -78,7 +78,7 @@ public class CreateWorldScene(AppContext appContext) : Scene(appContext)
             new OutlinedButton(AppContext.Theme, AppContext.Localizer["Switch"].Value);
         switchDimensionButton.Click += SwitchDimensionButtonOnClick;
         _switchDimensionLabel.Text = AppContext.Localizer["Starting dimension:{0}",
-            _dimensionResource.GetDisplayName(AppContext)].Value;
+            dimensionResource.GetDisplayName(AppContext)].Value;
         horizontalStackPanel.Widgets.Add(_switchDimensionLabel);
         horizontalStackPanel.Widgets.Add(switchDimensionButton);
         content.Widgets.Add(horizontalStackPanel);
@@ -102,6 +102,12 @@ public class CreateWorldScene(AppContext appContext) : Scene(appContext)
         SetWidget(panel);
     }
 
+    /// <summary>
+    /// <para>SwitchDimensionButtonOnClick</para>
+    /// <para>当切换维度按钮被点击时</para>
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void SwitchDimensionButtonOnClick(object sender, MyraEventArgs e)
     {
         AppContext.SceneStack.AddTask(
@@ -131,13 +137,33 @@ public class CreateWorldScene(AppContext appContext) : Scene(appContext)
     /// <para>DimensionResources</para>
     /// <para>维度过滤器</para>
     /// </summary>
-    /// <param name="dimensionResource"></param>
+    /// <param name="dimensionResource">
+    ///<para>dimensionResource</para>
+    ///<para>维度资源</para>
+    /// </param>
     /// <returns></returns>
-    private bool Filter(DimensionResources dimensionResource)
+    private static bool Filter(DimensionResources dimensionResource)
     {
         return dimensionResource.AllowAsStarting;
     }
 
+    /// <summary>
+    /// <para>CreateFormRow</para>
+    /// <para>创建一行表单</para>
+    /// </summary>
+    /// <param name="labelText">
+    ///<para>labelText</para>
+    ///<para>标签文本</para>
+    /// </param>
+    /// <param name="input">
+    ///<para>input</para>
+    ///<para>输入框</para>
+    /// </param>
+    /// <param name="onClick">
+    ///<para>onClick</para>
+    ///<para>当点击右侧按钮时</para>
+    /// </param>
+    /// <returns></returns>
     private HorizontalStackPanel CreateFormRow(string labelText, Widget input, Action onClick)
     {
         var row = new HorizontalStackPanel();
@@ -160,31 +186,52 @@ public class CreateWorldScene(AppContext appContext) : Scene(appContext)
     }
 
 
+    /// <summary>
+    /// <para>OnBackClick</para>
+    /// <para>当返回按钮被按下时</para>
+    /// </summary>
     private void OnBackClick()
     {
         AppContext.SceneStack.AddTask(new SceneStackTask { Type = StackType.Pop });
     }
 
-    private void OnCreateWorldClick()
+    /// <summary>
+    /// <para>OnCreateWorldClick</para>
+    /// <para>点击创建世界</para>
+    /// </summary>
+    /// <exception cref="NotImplementedException"></exception>
+    private static void OnCreateWorldClick()
     {
+        throw new NotImplementedException();
     }
 
-    private string PickRandom(string? value)
+    /// <summary>
+    /// <para>PickRandom</para>
+    /// <para>随机选择一个字符串</para>
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    private static string? PickRandom(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
-            return string.Empty;
+            return null;
         }
 
         var items = value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         if (items.Length == 0)
         {
-            return string.Empty;
+            return null;
         }
 
         return items[Random.Shared.Next(items.Length)].Trim();
     }
 
+    /// <summary>
+    /// <para>GenerateRandomName</para>
+    /// <para>生成随机的名称</para>
+    /// </summary>
+    /// <returns></returns>
     private string GenerateRandomName()
     {
         var prefix = AppContext.Localizer[
@@ -198,7 +245,12 @@ public class CreateWorldScene(AppContext appContext) : Scene(appContext)
         return string.Concat(prefixPick, suffixPick);
     }
 
-    private string GenerateRandomSeed()
+    /// <summary>
+    /// <para>GenerateRandomSeed</para>
+    /// <para>生成随机种子</para>
+    /// </summary>
+    /// <returns></returns>
+    private static string GenerateRandomSeed()
     {
         return Random.Shared.NextInt64().ToString();
     }

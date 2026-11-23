@@ -7,7 +7,7 @@ using AppContext = GlimmerWorks.Engine.AppContext;
 public interface ITemplateCommand
 {
     public void Execute(AppContext appContext, Stack<VariableMap> variableMapStack, string[] args, StringBuilder buffer,
-        Stack<bool> conditionStack, string packId);
+        Stack<bool> conditionStack, string requesterPackId);
 
     /// <summary>
     /// <para>GetCommandName</para>

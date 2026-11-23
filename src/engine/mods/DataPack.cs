@@ -21,7 +21,7 @@ public class DataPack(VirtualPath packRootPath, PackManifest manifest) : BasePac
     }
 
 
-    private bool CheckPath(AppContext appContext, Action<PackMessage> onMessage, VirtualPath path,
+    private static bool CheckPath(AppContext appContext, Action<PackMessage> onMessage, VirtualPath path,
         string[] pathSpitArray, int suffixLength)
     {
         for (var i = 0; i < pathSpitArray.Length; i++)
@@ -164,7 +164,7 @@ public class DataPack(VirtualPath packRootPath, PackManifest manifest) : BasePac
     }
 
 
-    protected override List<Resources>? AfterScanFiles()
+    protected override List<Resources> AfterScanFiles()
     {
         return _stringResourcesList;
     }

@@ -2,8 +2,16 @@ using System.Text.RegularExpressions;
 
 namespace GlimmerWorks.engine.extensions;
 
-public static class StringExtensions
+public static partial class StringExtensions
 {
+    [GeneratedRegex("(?<=[a-z0-9])([A-Z])")]
+    private static partial Regex BoundaryRegex { get; }
+
+    [GeneratedRegex("[^a-zA-Z0-9]+")]
+    private static partial Regex NonAlphanumericRegex { get; }
+
+    [GeneratedRegex("_+")] private static partial Regex RepeatedUnderscoreRegex { get; }
+
     /// <summary>
     /// <para>IsSnakeCase</para>
     /// <para>判断字符串是否为蛇形命名法</para>
@@ -54,12 +62,6 @@ public static class StringExtensions
         return true;
     }
 
-    private static readonly Regex BoundaryRegex =
-        new(@"(?<=[a-z0-9])([A-Z])", RegexOptions.Compiled);
-
-    private static readonly Regex NonAlnumRegex =
-        new(@"[^a-zA-Z0-9]+", RegexOptions.Compiled);
-
     public static string ToSnakeCase(this string str)
     {
         if (string.IsNullOrEmpty(str))
@@ -67,7 +69,7 @@ public static class StringExtensions
 
         //Illegal characters → Underline
         //1.非法字符 → 下划线
-        var s = NonAlnumRegex.Replace(str, "_");
+        var s = NonAlphanumericRegex.Replace(str, "_");
 
         //2. Convexity boundary → Underline
         //2.驼峰边界 → 下划线
@@ -76,7 +78,7 @@ public static class StringExtensions
         //3. Lowercase + Folded __ + Remove leading and trailing _
         //3.小写 + 折叠 __ + 去前后 _
         s = s.ToLowerInvariant();
-        s = Regex.Replace(s, "_+", "_");
+        s = RepeatedUnderscoreRegex.Replace(s, "_");
         return s.Trim('_');
     }
 }

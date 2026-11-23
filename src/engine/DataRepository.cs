@@ -38,7 +38,7 @@ public class DataRepository
                 continue;
             }
 
-            var attr = type.GetCustomAttribute<DataPackResource>();
+            var attr = type.GetCustomAttribute<DataPackResourceAttribute>();
             if (attr is null)
             {
                 continue;

@@ -95,69 +95,78 @@ public abstract class BasePack(VirtualPath packRootPath, PackManifest manifest)
             return true;
         }
 
-        var resourceCount = 0;
         var fileEntryList = appContext.VirtualFileSystem.List(packRootPath, recurseSubdirectories: true);
-        if (fileEntryList != null)
+        if (fileEntryList == null)
         {
-            foreach (var fileEntry in fileEntryList)
+            return false;
+        }
+
+        var resourceCount = 0;
+        foreach (var fileEntry in fileEntryList)
+        {
+            if (fileEntry.IsDirectory)
             {
-                if (fileEntry.IsDirectory)
-                {
-                    continue;
-                }
-
-                var resourceType = fileEntry.GetResourceType();
-                if (resourceType == null)
-                {
-                    continue;
-                }
-
-                if (_resourceTypeDictionary.TryGetValue(resourceType, out var type))
-                {
-                    //For resources that have specified the conversion type, automatic registration is performed.
-                    //对于指定了转换类型的资源，自动注册。
-                    var path = fileEntry.Path;
-                    if (path == null)
-                    {
-                        continue;
-                    }
-
-                    var typeObj = appContext.VirtualFileSystem.ReadToml(path, type, new PackContext
-                    {
-                        AppContext = appContext,
-                        RequesterPackId = manifest.Id
-                    });
-                    if (typeObj is not Resources resource)
-                    {
-                        continue;
-                    }
-
-                    if (RegisterResource(onMessage, appContext, resource))
-                    {
-                        resourceCount++;
-                    }
-                }
-                else
-                {
-                    var resources =
-                        RegisterResourceManually(appContext, resourceType, fileEntry, onMessage);
-                    if (resources == null)
-                    {
-                        continue;
-                    }
-
-                    resourceCount += resources.Count(resource => RegisterResource(onMessage, appContext, resource));
-                }
+                continue;
             }
 
-            var afterScanFiles = AfterScanFiles();
-            if (afterScanFiles != null)
-            {
-                resourceCount += afterScanFiles.Count(resource => RegisterResource(onMessage, appContext, resource));
-            }
+            resourceCount += HandleSingleFile(appContext, onMessage, fileEntry);
+        }
+
+        var afterScanFiles = AfterScanFiles();
+        if (afterScanFiles != null)
+        {
+            resourceCount += afterScanFiles.Count(resource => RegisterResource(onMessage, appContext, resource));
         }
 
         return resourceCount > 0;
+    }
+
+    private int HandleSingleFile(AppContext appContext, Action<PackMessage> onMessage, FileEntry fileEntry)
+    {
+        var resourceType = fileEntry.GetResourceType();
+        if (resourceType == null)
+        {
+            return 0;
+        }
+
+        if (_resourceTypeDictionary.TryGetValue(resourceType, out var type))
+        {
+            //For resources that have specified the conversion type, automatic registration is performed.
+            //对于指定了转换类型的资源，自动注册。
+            var path = fileEntry.Path;
+            if (path == null)
+            {
+                return 0;
+            }
+
+            var typeObj = appContext.VirtualFileSystem.ReadToml(path, type, new PackContext
+            {
+                AppContext = appContext,
+                RequesterPackId = manifest.Id
+            });
+            if (typeObj is not Resources resource)
+            {
+                return 0;
+            }
+
+            if (RegisterResource(onMessage, appContext, resource))
+            {
+                return 1;
+            }
+        }
+        else
+        {
+            var resources =
+                RegisterResourceManually(appContext, resourceType, fileEntry, onMessage);
+            if (resources == null)
+            {
+                return 0;
+            }
+
+            return resources.Count(resource => RegisterResource(onMessage, appContext, resource));
+        }
+
+        return 0;
     }
 
     /// <summary>
@@ -182,19 +191,16 @@ public abstract class BasePack(VirtualPath packRootPath, PackManifest manifest)
     {
         resource.PackId = manifest.Id;
         resource.DisplayName.SetPackId(manifest.Id);
-        if (resource is not TemplateResources)
+        if (resource is not TemplateResources && !resource.ResourceId.IsSnakeCase())
         {
-            if (!resource.ResourceId.IsSnakeCase())
+            onMessage.Invoke(new PackMessage(
+                appContext.Localizer["{0} must use snake_case (expected: {1}, actual: {2}).", "resource_id",
+                    resource.ResourceId.ToSnakeCase(), resource.ResourceId].Value)
             {
-                onMessage.Invoke(new PackMessage(
-                    appContext.Localizer["{0} must use snake_case (expected: {1}, actual: {2}).", "resource_id",
-                        resource.ResourceId.ToSnakeCase(), resource.ResourceId].Value)
-                {
-                    Path = resource.VirtualPath,
-                    Level = LogLevel.Error
-                });
-                return false;
-            }
+                Path = resource.VirtualPath,
+                Level = LogLevel.Error
+            });
+            return false;
         }
 
         onMessage.Invoke(new PackMessage(

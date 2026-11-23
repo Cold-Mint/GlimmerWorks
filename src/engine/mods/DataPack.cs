@@ -21,6 +21,36 @@ public class DataPack(VirtualPath packRootPath, PackManifest manifest) : BasePac
     }
 
 
+    private bool CheckPath(AppContext appContext, Action<PackMessage> onMessage, VirtualPath path,
+        string[] pathSpitArray, int suffixLength)
+    {
+        for (var i = 0; i < pathSpitArray.Length; i++)
+        {
+            var fragment = pathSpitArray[i];
+            if (i == pathSpitArray.Length - 1)
+            {
+                fragment = fragment[..^suffixLength];
+            }
+
+            if (fragment.IsSnakeCase())
+            {
+                continue;
+            }
+
+            onMessage.Invoke(new PackMessage(
+                appContext.Localizer[
+                    "Path segment {0} in template must use snake_case (expected: {1}, actual: {2}).", fragment,
+                    fragment.ToSnakeCase(), fragment].Value)
+            {
+                Path = path,
+                Level = LogLevel.Error
+            });
+            return false;
+        }
+
+        return true;
+    }
+
     protected override List<TemplateResources>? LoadTemplate(AppContext appContext, Action<PackMessage> onMessage)
     {
         var templateEntryList =
@@ -32,38 +62,20 @@ public class DataPack(VirtualPath packRootPath, PackManifest manifest) : BasePac
 
         List<TemplateResources> templateResourcesList = [];
         var suffixLength = ".template.toml".Length;
-        nextTemplate: foreach (var fileEntry in templateEntryList)
+        foreach (var path in templateEntryList.Select(fileEntry => fileEntry.Path))
         {
-            var path = fileEntry.Path;
             if (path == null)
             {
                 continue;
             }
 
             var relativePath = path.GetRelativePath(_packRootPath);
-            var pathSpitArray = relativePath.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-            for (var i = 0; i < pathSpitArray.Length; i++)
+            var pathSpitArray = relativePath.Split(
+                [Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar],
+                StringSplitOptions.None);
+            if (!CheckPath(appContext, onMessage, path, pathSpitArray, suffixLength))
             {
-                var fragment = pathSpitArray[i];
-                if (i == pathSpitArray.Length - 1)
-                {
-                    fragment = fragment[..^suffixLength];
-                }
-
-                if (fragment.IsSnakeCase())
-                {
-                    continue;
-                }
-
-                onMessage.Invoke(new PackMessage(
-                    appContext.Localizer[
-                        "Path segment {0} in template must use snake_case (expected: {1}, actual: {2}).", fragment,
-                        fragment.ToSnakeCase(), fragment].Value)
-                {
-                    Path = path,
-                    Level = LogLevel.Error
-                });
-                continue nextTemplate;
+                continue;
             }
 
             var text = appContext.VirtualFileSystem.ReadAllText(path);
@@ -83,6 +95,57 @@ public class DataPack(VirtualPath packRootPath, PackManifest manifest) : BasePac
         return templateResourcesList;
     }
 
+    private void RegisterStrings(AppContext appContext,
+        FileEntry fileEntry, VirtualPath path)
+    {
+        var candidates = LocalizationManager.GetCandidates(appContext.LocalizationManager.CurrentLanguage);
+        var currentFileName = fileEntry.Name?.ToLowerInvariant();
+        if (_stringMatchLevel == 0 && currentFileName == "default.strings.toml")
+        {
+            //Default match.
+            //默认匹配。
+            var stringFileResources =
+                appContext.VirtualFileSystem.ReadToml<StringSetResources>(path, new PackContext
+                {
+                    AppContext = appContext,
+                    RequesterPackId = Manifest.Id
+                });
+            if (stringFileResources == null)
+            {
+                return;
+            }
+
+            _stringMatchLevel = 1;
+            _stringResourcesList.AddRange(stringFileResources.StringList);
+            _stringResourcesList.AddRange(stringFileResources.StringTagList);
+        }
+
+        foreach (var candidate in candidates)
+        {
+            var targetFileName = (candidate + ".strings.toml").ToLowerInvariant();
+            if (currentFileName == targetFileName)
+            {
+                //Best match.
+                //最佳匹配。
+                var stringFileResources =
+                    appContext.VirtualFileSystem.ReadToml<StringSetResources>(path, new PackContext
+                    {
+                        AppContext = appContext,
+                        RequesterPackId = Manifest.Id
+                    });
+                if (stringFileResources == null)
+                {
+                    return;
+                }
+
+                _stringMatchLevel = 2;
+                _stringResourcesList.Clear();
+                _stringResourcesList.AddRange(stringFileResources.StringList);
+                _stringResourcesList.AddRange(stringFileResources.StringTagList);
+            }
+        }
+    }
+
     protected override List<Resources>? RegisterResourceManually(AppContext appContext, string resourceType,
         FileEntry fileEntry, Action<PackMessage> onMessage)
     {
@@ -94,54 +157,7 @@ public class DataPack(VirtualPath packRootPath, PackManifest manifest) : BasePac
 
         if (resourceType == "strings" && _stringMatchLevel < 2)
         {
-            var candidates = LocalizationManager.GetCandidates(appContext.LocalizationManager.CurrentLanguage);
-            var currentFileName = fileEntry.Name?.ToLowerInvariant();
-            if (_stringMatchLevel == 0 && currentFileName == "default.strings.toml")
-            {
-                //Default match.
-                //默认匹配。
-                var stringFileResources =
-                    appContext.VirtualFileSystem.ReadToml<StringSetResources>(path, new PackContext
-                    {
-                        AppContext = appContext,
-                        RequesterPackId = Manifest.Id
-                    });
-                if (stringFileResources == null)
-                {
-                    return null;
-                }
-
-                _stringMatchLevel = 1;
-                _stringResourcesList.AddRange(stringFileResources.StringList);
-                _stringResourcesList.AddRange(stringFileResources.StringTagList);
-                return null;
-            }
-
-            foreach (var candidate in candidates)
-            {
-                var targetFileName = (candidate + ".strings.toml").ToLowerInvariant();
-                if (currentFileName == targetFileName)
-                {
-                    //Best match.
-                    //最佳匹配。
-                    var stringFileResources =
-                        appContext.VirtualFileSystem.ReadToml<StringSetResources>(path, new PackContext
-                        {
-                            AppContext = appContext,
-                            RequesterPackId = Manifest.Id
-                        });
-                    if (stringFileResources == null)
-                    {
-                        return null;
-                    }
-
-                    _stringMatchLevel = 2;
-                    _stringResourcesList.Clear();
-                    _stringResourcesList.AddRange(stringFileResources.StringList);
-                    _stringResourcesList.AddRange(stringFileResources.StringTagList);
-                    return null;
-                }
-            }
+            RegisterStrings(appContext, fileEntry, path);
         }
 
         return null;
@@ -165,7 +181,7 @@ public class DataPack(VirtualPath packRootPath, PackManifest manifest) : BasePac
                 continue;
             }
 
-            var attr = type.GetCustomAttribute<DataPackResource>();
+            var attr = type.GetCustomAttribute<DataPackResourceAttribute>();
             if (attr is null)
             {
                 continue;
@@ -186,9 +202,8 @@ public class DataPack(VirtualPath packRootPath, PackManifest manifest) : BasePac
         appContext.DataRepository.SetDependencies(Manifest.Id,
             dependencies.Select(static dependency => dependency.PackId));
 
-        foreach (var dependency in dependencies)
+        foreach (var dependencyPackId in dependencies.Select(dependency => dependency.PackId))
         {
-            var dependencyPackId = dependency.PackId;
             if (string.IsNullOrWhiteSpace(dependencyPackId) || dependencyPackId == "@self")
             {
                 continue;

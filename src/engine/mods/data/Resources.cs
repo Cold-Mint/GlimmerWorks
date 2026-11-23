@@ -1,5 +1,6 @@
 using GlimmerWorks.engine.attributes;
 using GlimmerWorks.engine.Vfs;
+using JetBrains.Annotations;
 using Tomlyn.Serialization;
 
 namespace GlimmerWorks.Engine.Mods.Data;
@@ -10,11 +11,16 @@ namespace GlimmerWorks.Engine.Mods.Data;
 /// </summary>
 public class Resources
 {
-    [TomlPropertyName("resource_id")] public string ResourceId { get; set; } = string.Empty;
+    [UsedImplicitly]
+    [TomlPropertyName("resource_id")]
+    public string ResourceId { get; init; } = string.Empty;
+
     public string PackId { get; set; } = string.Empty;
     public VirtualPath? VirtualPath { get; set; }
 
-    [TomlPropertyName("display_name")] public ResourceRef DisplayName { get; set; } = new();
+    [UsedImplicitly]
+    [TomlPropertyName("display_name")]
+    public ResourceRef DisplayName { get; set; } = new();
 
     public virtual string GetDisplayName(AppContext appContext)
     {
@@ -55,7 +61,7 @@ public class Resources
 [DataPackResource("template", autoDeserialization: false)]
 public class TemplateResources : Resources
 {
-    public string Content { get; set; } = string.Empty;
+    public string Content { get; init; } = string.Empty;
 }
 
 /// <summary>
@@ -64,8 +70,13 @@ public class TemplateResources : Resources
 /// </summary>
 public class StringSetResources : Resources
 {
-    [TomlPropertyName("string")] public List<StringResources> StringList { get; set; } = new();
-    [TomlPropertyName("tag_string")] public List<TagStringResources> StringTagList { get; set; } = new();
+    [UsedImplicitly]
+    [TomlPropertyName("string")]
+    public List<StringResources> StringList { get; set; } = new();
+
+    [UsedImplicitly]
+    [TomlPropertyName("tag_string")]
+    public List<TagStringResources> StringTagList { get; set; } = new();
 }
 
 /// <summary>
@@ -75,7 +86,9 @@ public class StringSetResources : Resources
 [DataPackResource("strings", autoDeserialization: false)]
 public class StringResources : Resources
 {
-    [TomlPropertyName("value")] public string Value { get; set; } = string.Empty;
+    [UsedImplicitly]
+    [TomlPropertyName("value")]
+    public string Value { get; set; } = string.Empty;
 
     public override string GetDisplayName(AppContext appContext)
     {
@@ -89,7 +102,9 @@ public class StringResources : Resources
 /// </summary>
 public class TagStringResources : Resources
 {
-    [TomlPropertyName("value")] public string Value { get; set; } = string.Empty;
+    [UsedImplicitly]
+    [TomlPropertyName("value")] 
+    public string Value { get; set; } = string.Empty;
 
     public override string GetDisplayName(AppContext appContext)
     {
@@ -101,6 +116,7 @@ public class TagStringResources : Resources
 /// <para>DimensionResource</para>
 /// <para>维度资源</para>
 /// </summary>
+[UsedImplicitly]
 [DataPackResource("dimension")]
 public class DimensionResources : Resources
 {
@@ -115,5 +131,4 @@ public class DimensionResources : Resources
 [DataPackResource("tile")]
 public class TileResources : Resources
 {
-    
 }

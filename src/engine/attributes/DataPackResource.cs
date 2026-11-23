@@ -1,7 +1,7 @@
 namespace GlimmerWorks.engine.attributes;
 
 [AttributeUsage(AttributeTargets.Class, Inherited = false)]
-public sealed class DataPackResource(
+public sealed class DataPackResourceAttribute(
     string resourceType,
     bool autoDeserialization = true,
     bool exportResourceReferences = true) : Attribute

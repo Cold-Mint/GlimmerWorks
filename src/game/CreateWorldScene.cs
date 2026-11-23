@@ -2,14 +2,14 @@ using FontStashSharp.RichText;
 using GlimmerWorks.Engine;
 using GlimmerWorks.Engine.Mods.Data;
 using GlimmerWorks.Engine.Scene;
-using GlimmerWorks.Engine.widgets;
+using GlimmerWorks.Engine.Widgets;
 using Microsoft.Xna.Framework;
 using Myra.Events;
 using Myra.Graphics2D;
 using Myra.Graphics2D.Brushes;
 using Myra.Graphics2D.UI;
 using AppContext = GlimmerWorks.Engine.AppContext;
-using Label = GlimmerWorks.Engine.widgets.Label;
+using Label = GlimmerWorks.Engine.Widgets.Label;
 
 namespace GlimmerWorks.Game;
 

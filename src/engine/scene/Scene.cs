@@ -36,11 +36,10 @@ public abstract class Scene(AppContext appContext)
     /// </summary>
     /// <param name="requestCode"></param>
     /// <param name="result"></param>
-    public virtual void OnResult(int requestCode,object? result)
+    public virtual void OnResult(int requestCode, object? result)
     {
-        
     }
-    
+
     /// <summary>
     /// <para>SetWidget</para>
     /// <para>设置组件</para>

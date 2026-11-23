@@ -1,4 +1,4 @@
-using GlimmerWorks.engine.Vfs;
+using GlimmerWorks.Engine.Vfs;
 using GlimmerWorks.Game;
 
 namespace GlimmerWorks.Engine.Mods;

@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace GlimmerWorks.engine.extensions;
+namespace GlimmerWorks.Engine.Extensions;
 
 public static partial class StringExtensions
 {

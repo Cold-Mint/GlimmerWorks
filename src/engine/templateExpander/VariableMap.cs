@@ -1,4 +1,4 @@
-namespace GlimmerWorks.engine.templateExpander;
+namespace GlimmerWorks.Engine.TemplateExpander;
 
 public class VariableMap
 {

@@ -1,4 +1,4 @@
-namespace GlimmerWorks.engine.attributes;
+namespace GlimmerWorks.Engine.Attributes;
 
 [AttributeUsage(AttributeTargets.Class, Inherited = false)]
 public sealed class DataPackResourceAttribute(
@@ -19,7 +19,7 @@ public sealed class DataPackResourceAttribute(
     /// <para>是否从toml文件自动反序列化</para>
     /// </summary>
     public bool AutoDeserialization => autoDeserialization;
-    
+
     /// <summary>
     /// <para>Whether to export it to the resource reference</para>
     /// <para>是否将其导出到资源引用</para>

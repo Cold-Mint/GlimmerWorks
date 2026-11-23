@@ -1,4 +1,4 @@
-namespace GlimmerWorks.engine.Vfs;
+namespace GlimmerWorks.Engine.Vfs;
 
 public interface IFileSystemProvider
 {

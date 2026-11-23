@@ -1,5 +1,5 @@
 using System.Reflection;
-using GlimmerWorks.engine.attributes;
+using GlimmerWorks.Engine.Attributes;
 using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Engine.Mods;
 using GlimmerWorks.Engine.Mods.Data;

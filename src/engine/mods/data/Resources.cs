@@ -1,5 +1,5 @@
-using GlimmerWorks.engine.attributes;
-using GlimmerWorks.engine.Vfs;
+using GlimmerWorks.Engine.Attributes;
+using GlimmerWorks.Engine.Vfs;
 using JetBrains.Annotations;
 using Tomlyn.Serialization;
 

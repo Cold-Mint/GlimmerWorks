@@ -1,6 +1,6 @@
 using Myra.Graphics2D.Brushes;
 
-namespace GlimmerWorks.Engine.widgets;
+namespace GlimmerWorks.Engine.Widgets;
 
 public class ListView : Myra.Graphics2D.UI.ListView
 {

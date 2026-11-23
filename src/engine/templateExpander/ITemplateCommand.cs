@@ -1,8 +1,7 @@
 using System.Text;
 
-namespace GlimmerWorks.engine.templateExpander;
+namespace GlimmerWorks.Engine.TemplateExpander;
 
-using AppContext = GlimmerWorks.Engine.AppContext;
 
 public interface ITemplateCommand
 {

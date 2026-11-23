@@ -1,25 +1,17 @@
 using System.Reflection;
 using GlimmerWorks.Engine;
 using GlimmerWorks.Engine.Scene;
-using GlimmerWorks.Engine.widgets;
+using GlimmerWorks.Engine.Widgets;
 using Myra.Events;
 using Myra.Graphics2D;
 using Myra.Graphics2D.UI;
 using AppContext = GlimmerWorks.Engine.AppContext;
-using Label = GlimmerWorks.Engine.widgets.Label;
+using Label = GlimmerWorks.Engine.Widgets.Label;
 
 namespace GlimmerWorks.Game;
 
 public class MainScene(AppContext appContext) : Scene(appContext)
 {
-    private readonly List<Link> _links =
-    [
-        new() { Text = "Github", Url = "https://github.com/Cold-Mint/GlimmerWorks" },
-        new() { Text = "Discord", Url = "https://discord.com/invite/CfppC9WHw8" },
-        new() { Text = "itch.io", Url = "https://cold-mint.itch.io/glimmerworks" },
-        new() { Text = "QQ Channel", Url = "https://pd.qq.com/s/cntb09fr1?b=9" }
-    ];
-
     public override void OnCreate()
     {
         var panel = new Panel
@@ -72,7 +64,7 @@ public class MainScene(AppContext appContext) : Scene(appContext)
             Margin = new Thickness(0, 0, 16, 16)
         };
 
-        foreach (var link in _links)
+        foreach (var link in AppContext.GameConfig.Links)
         {
             var linkLabel = new HyperlinkLabel(theme: AppContext.Theme)
                 { Link = link, Font = AppContext.Theme.GetFont(ThemeFontKind.Small) };
@@ -83,7 +75,7 @@ public class MainScene(AppContext appContext) : Scene(appContext)
         SetWidget(panel);
     }
 
-    private string GetCopyright()
+    private static string GetCopyright()
     {
         const int copyrightStartYear = 2025;
         var currentYear = Math.Max(DateTime.Now.Year, copyrightStartYear);
@@ -92,7 +84,7 @@ public class MainScene(AppContext appContext) : Scene(appContext)
             : $"Copyright (C) {copyrightStartYear}-{currentYear} Cold-Mint";
     }
 
-    private string GetGameVersion()
+    private static string GetGameVersion()
     {
         var assembly = Assembly.GetExecutingAssembly();
         var info = assembly

@@ -1,16 +1,23 @@
+using JetBrains.Annotations;
 using Tomlyn.Serialization;
 
 namespace GlimmerWorks.Engine.Mods;
 
 public class ResourceRef
 {
-    public string RequesterPackId { get; set; } = string.Empty;
+    public string RequesterPackId { get; private set; } = string.Empty;
 
-    [TomlPropertyName("target_pack_id")] public string TargetPackId { get; set; } = string.Empty;
+    [UsedImplicitly]
+    [TomlPropertyName("target_pack_id")]
+    public string TargetPackId { get; set; } = string.Empty;
 
-    [TomlPropertyName("resource_id")] public string ResourceId { get; init; } = string.Empty;
+    [UsedImplicitly]
+    [TomlPropertyName("resource_id")]
+    public string ResourceId { get; set; } = string.Empty;
 
-    [TomlPropertyName("resource_type")] public string ResourceType { get; init; } = string.Empty;
+    [UsedImplicitly]
+    [TomlPropertyName("resource_type")]
+    public string ResourceType { get; set; } = string.Empty;
 
     /// <summary>
     /// <para>IsValid</para>

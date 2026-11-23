@@ -2,7 +2,7 @@ using FontStashSharp.RichText;
 using Myra.Events;
 using Myra.Graphics2D.UI;
 
-namespace GlimmerWorks.Engine.widgets;
+namespace GlimmerWorks.Engine.Widgets;
 
 public sealed class TextButton : Myra.Graphics2D.UI.Label
 {

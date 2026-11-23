@@ -1,4 +1,4 @@
-namespace GlimmerWorks.engine.templateExpander;
+namespace GlimmerWorks.Engine.TemplateExpander;
 
 /// <summary>
 /// <para>Helpers shared by template commands.</para>

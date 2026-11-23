@@ -1,14 +1,9 @@
 using System.Diagnostics;
+using GlimmerWorks.Game;
 using Myra.Events;
 using Myra.Graphics2D.UI;
 
-namespace GlimmerWorks.Engine.widgets;
-
-public class Link
-{
-    public string? Text { get; set; }
-    public string? Url { get; set; }
-}
+namespace GlimmerWorks.Engine.Widgets;
 
 public sealed class HyperlinkLabel : Myra.Graphics2D.UI.Label
 {
@@ -20,14 +15,14 @@ public sealed class HyperlinkLabel : Myra.Graphics2D.UI.Label
         init
         {
             _link = value;
-            Text = value?.Text ?? string.Empty;
+            Text = value?.Title ?? string.Empty;
         }
     }
 
     public HyperlinkLabel(Theme theme, Link? link = null)
     {
         _link = link;
-        Text = link?.Text ?? string.Empty;
+        Text = link?.Title ?? string.Empty;
         TextColor = theme.Primary;
         Font = theme.GetFont(ThemeFontKind.Normal);
         OverTextColor = theme.PrimaryOver();

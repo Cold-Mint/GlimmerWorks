@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework;
 using Myra.Graphics2D.Brushes;
 using Myra.Graphics2D.UI;
 
-namespace GlimmerWorks.Engine.widgets;
+namespace GlimmerWorks.Engine.Widgets;
 
 public sealed class CheckBox : CheckButton
 {

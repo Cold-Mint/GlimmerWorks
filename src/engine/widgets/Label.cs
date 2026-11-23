@@ -1,7 +1,7 @@
 using FontStashSharp.RichText;
 using Myra.Graphics2D.UI;
 
-namespace GlimmerWorks.Engine.widgets;
+namespace GlimmerWorks.Engine.Widgets;
 
 public sealed class Label : Myra.Graphics2D.UI.Label
 {

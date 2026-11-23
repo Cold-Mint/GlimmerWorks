@@ -2,9 +2,8 @@ using System.Text;
 using GlimmerWorks.Engine.Mods;
 using GlimmerWorks.Engine.Mods.Data;
 using JetBrains.Annotations;
-using AppContext = GlimmerWorks.Engine.AppContext;
 
-namespace GlimmerWorks.engine.templateExpander.command;
+namespace GlimmerWorks.Engine.TemplateExpander.Command;
 
 [UsedImplicitly]
 public class InsertTemplateCommand : ITemplateCommand

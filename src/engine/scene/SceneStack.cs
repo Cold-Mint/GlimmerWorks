@@ -12,10 +12,10 @@ public enum StackType
 
 public class SceneStackTask
 {
-    public Scene? Scene { get; set; }
-    public StackType Type { get; set; }
+    public Scene? Scene { get; init; }
+    public StackType Type { get; init; }
 
-    public int RequestCode { get; set; }
+    public int RequestCode { get; init; }
 }
 
 /// <summary>
@@ -27,7 +27,7 @@ public class SceneStack
     private readonly Stack<Scene> _stack = new();
 
     public Scene? Current() => _stack.Count == 0 ? null : _stack.Peek();
-    private ConcurrentQueue<SceneStackTask> _tasks = new();
+    private readonly ConcurrentQueue<SceneStackTask> _tasks = new();
 
     public int Count => _stack.Count;
 
@@ -48,6 +48,94 @@ public class SceneStack
     }
 
     /// <summary>
+    /// <para>ExecutePop</para>
+    /// <para>执行Pop任务</para>
+    /// </summary>
+    private void ExecutePop()
+    {
+        if (_stack.Count <= 0)
+        {
+            return;
+        }
+
+        var top = _stack.Peek();
+        var result = top.Result();
+        var requestCode = top.RequestCode;
+        top.OnPauseScene();
+        top.OnDestroy();
+        _stack.Pop();
+        if (_stack.Count > 0)
+        {
+            var newTop = _stack.Peek();
+            if (result != null)
+            {
+                newTop.OnResult(requestCode, result);
+            }
+
+            newTop.OnResumeScene();
+        }
+    }
+
+    /// <summary>
+    /// <para>ExecuteReplace</para>
+    /// <para>执行替换</para>
+    /// </summary>
+    /// <param name="sceneStackTask">
+    ///<para>sceneStackTask</para>
+    ///<para>场景栈任务</para>
+    /// </param>
+    private void ExecuteReplace(SceneStackTask sceneStackTask)
+    {
+        var scene = sceneStackTask.Scene;
+        if (scene == null)
+        {
+            return;
+        }
+
+        if (_stack.Count <= 0)
+        {
+            return;
+        }
+
+        var top1 = _stack.Peek();
+        top1.OnPauseScene();
+        top1.OnDestroy();
+        _stack.Pop();
+
+        scene.RequestCode = sceneStackTask.RequestCode;
+        scene.OnCreate();
+        _stack.Push(scene);
+        scene.OnResumeScene();
+    }
+
+    /// <summary>
+    /// <para>ExecutePush</para>
+    /// <para>执行Push</para>
+    /// </summary>
+    /// <param name="sceneStackTask">
+    ///<para>sceneStackTask</para>
+    ///<para>场景栈任务</para>
+    /// </param>
+    private void ExecutePush(SceneStackTask sceneStackTask)
+    {
+        var scene = sceneStackTask.Scene;
+        if (scene == null)
+        {
+            return;
+        }
+
+        if (_stack.Count > 0)
+        {
+            _stack.Peek().OnPauseScene();
+        }
+
+        scene.RequestCode = sceneStackTask.RequestCode;
+        scene.OnCreate();
+        _stack.Push(scene);
+        scene.OnResumeScene();
+    }
+
+    /// <summary>
     /// <para>ExecuteTaskQueue</para>
     /// <para>执行任务队列</para>
     /// </summary>
@@ -55,69 +143,19 @@ public class SceneStack
     {
         while (_tasks.TryDequeue(out var sceneStackTask))
         {
-            var scene = sceneStackTask.Scene;
             switch (sceneStackTask.Type)
             {
                 case StackType.Pop:
-                    if (_stack.Count <= 0)
-                    {
-                        continue;
-                    }
-
-                    var top = _stack.Peek();
-                    var result = top.Result();
-                    var requestCode = top.RequestCode;
-                    top.OnPauseScene();
-                    top.OnDestroy();
-                    _stack.Pop();
-                    if (_stack.Count > 0)
-                    {
-                        var newTop = _stack.Peek();
-                        if (result != null)
-                        {
-                            newTop.OnResult(requestCode, result);
-                        }
-
-                        newTop.OnResumeScene();
-                    }
-
+                    ExecutePop();
                     break;
                 case StackType.Push:
-                    if (scene == null)
-                    {
-                        continue;
-                    }
-
-                    if (_stack.Count > 0)
-                    {
-                        _stack.Peek().OnPauseScene();
-                    }
-
-                    scene.RequestCode = sceneStackTask.RequestCode;
-                    scene.OnCreate();
-                    _stack.Push(scene);
-                    scene.OnResumeScene();
+                    ExecutePush(sceneStackTask);
                     break;
                 case StackType.Replace:
-                    if (scene == null)
-                    {
-                        continue;
-                    }
-
-                    if (_stack.Count <= 0)
-                    {
-                        continue;
-                    }
-
-                    var top1 = _stack.Peek();
-                    top1.OnPauseScene();
-                    top1.OnDestroy();
-                    _stack.Pop();
-
-                    scene.RequestCode = sceneStackTask.RequestCode;
-                    scene.OnCreate();
-                    _stack.Push(scene);
-                    scene.OnResumeScene();
+                    ExecuteReplace(sceneStackTask);
+                    break;
+                case StackType.None:
+                default:
                     break;
             }
         }

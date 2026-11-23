@@ -4,6 +4,22 @@ config_version = 1
 # 界面语言代码（如 "zh_CN"、"en_US"）。留空则跟随系统。
 language = ""
 
+[[links]]
+title = "Github"
+url = "https://github.com/Cold-Mint/GlimmerWorks"
+
+[[links]]
+title = "Discord"
+url = "https://discord.com/invite/CfppC9WHw8"
+
+[[links]]
+title = "itch.io"
+url = "https://cold-mint.itch.io/glimmerworks"
+
+[[links]]
+title = "QQ Channel"
+url = "https://pd.qq.com/s/cntb09fr1?b=9"
+
 [window]
 # Window width (pixels)
 # 窗口宽度（像素）

@@ -1,8 +1,8 @@
 using System.Globalization;
 using GlimmerWorks.Engine.Mods.PackLoader;
 using GlimmerWorks.Engine.Scene;
-using GlimmerWorks.engine.templateExpander;
-using GlimmerWorks.engine.Vfs;
+using GlimmerWorks.Engine.TemplateExpander;
+using GlimmerWorks.Engine.Vfs;
 using GlimmerWorks.Game;
 using Microsoft.Xna.Framework;
 using Myra.Graphics2D.UI;

@@ -3,7 +3,7 @@ using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Engine.Mods;
 using GlimmerWorks.Engine.Mods.Data;
 using GlimmerWorks.Engine.Scene;
-using GlimmerWorks.engine.Vfs;
+using GlimmerWorks.Engine.Vfs;
 using Microsoft.Xna.Framework;
 using Myra.Graphics2D;
 using Myra.Graphics2D.UI;
@@ -91,7 +91,7 @@ public class SplashScene(AppContext appContext) : Scene(appContext)
             new SceneStackTask { Scene = new MainScene(AppContext), Type = StackType.Replace });
     }
 
-    private bool Filter(DimensionResources dimensionResource)
+    private static bool Filter(DimensionResources dimensionResource)
     {
         return dimensionResource.AllowAsStarting;
     }

@@ -1,4 +1,4 @@
-namespace GlimmerWorks.engine.Vfs;
+namespace GlimmerWorks.Engine.Vfs;
 
 public class LocalFileSystemProvider(string rootPath) : IFileSystemProvider
 {

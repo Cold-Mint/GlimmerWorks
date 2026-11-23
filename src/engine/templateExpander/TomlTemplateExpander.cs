@@ -1,10 +1,9 @@
 using System.Reflection;
 using System.Text;
 using GlimmerWorks.Engine.Log;
-using GlimmerWorks.engine.Vfs;
-using AppContext = GlimmerWorks.Engine.AppContext;
+using GlimmerWorks.Engine.Vfs;
 
-namespace GlimmerWorks.engine.templateExpander;
+namespace GlimmerWorks.Engine.TemplateExpander;
 
 public class TomlTemplateExpander
 {

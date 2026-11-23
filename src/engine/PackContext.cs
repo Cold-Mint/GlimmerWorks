@@ -1,6 +1,5 @@
-namespace GlimmerWorks.engine;
+namespace GlimmerWorks.Engine;
 
-using AppContext = GlimmerWorks.Engine.AppContext;
 
 /// <summary>
 /// <para>PackContext</para>

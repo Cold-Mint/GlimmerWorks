@@ -1,4 +1,4 @@
-namespace GlimmerWorks.engine.templateExpander;
+namespace GlimmerWorks.Engine.TemplateExpander;
 
 /// <summary>
 /// <para>Internal markers used to track nested template insertions.</para>
@@ -11,11 +11,11 @@ internal static class TemplateInsertMarker
     private const string EndPrefix = Prefix + "end:";
 
     /// <summary>
-    /// <para>Create a begin marker for the specified template insertion.</para>
+    /// <para>Create a beginning marker for the specified template insertion.</para>
     /// <para>为指定的模板插入创建开始标记。</para>
     /// </summary>
     /// <param name="templateKey">Template key in the form <c>packId:resourceId</c>.</param>
-    /// <returns>The begin marker line.</returns>
+    /// <returns>The beginning marker line.</returns>
     public static string CreateBegin(string templateKey) => BeginPrefix + templateKey;
 
     /// <summary>
@@ -32,7 +32,7 @@ internal static class TemplateInsertMarker
     /// </summary>
     /// <param name="line">Line to inspect.</param>
     /// <param name="isBegin">
-    /// <para><c>true</c> when the line is a begin marker; <c>false</c> when it is an end marker.</para>
+    /// <para><c>true</c> when the line is a beginning marker; <c>false</c> when it is an end marker.</para>
     /// <para>如果该行是开始标记则为 <c>true</c>；如果是结束标记则为 <c>false</c>。</para>
     /// </param>
     /// <param name="templateKey">Parsed template key, or an empty string when parsing fails.</param>

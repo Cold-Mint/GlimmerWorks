@@ -1,6 +1,5 @@
-using GlimmerWorks.engine;
 using GlimmerWorks.Engine.Mods.Data;
-using GlimmerWorks.engine.Vfs;
+using GlimmerWorks.Engine.Vfs;
 using Tomlyn;
 
 namespace GlimmerWorks.Engine;
@@ -147,7 +146,7 @@ public class VirtualFileSystem
     /// <param name="text"></param>
     /// <param name="type"></param>
     /// <returns></returns>
-    private object? AfterDeserializeToml(VirtualPath path, string text, Type type)
+    private static object? AfterDeserializeToml(VirtualPath path, string text, Type type)
     {
         var obj = TomlSerializer.Deserialize(text, type);
         if (obj is Resources resources)

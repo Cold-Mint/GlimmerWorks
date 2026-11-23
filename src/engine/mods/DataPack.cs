@@ -1,11 +1,10 @@
-using GlimmerWorks.engine.extensions;
 using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Engine.Mods.Data;
-using GlimmerWorks.engine.Vfs;
 using GlimmerWorks.Game;
 using System.Reflection;
-using GlimmerWorks.engine;
-using GlimmerWorks.engine.attributes;
+using GlimmerWorks.Engine.Attributes;
+using GlimmerWorks.Engine.Extensions;
+using GlimmerWorks.Engine.Vfs;
 
 namespace GlimmerWorks.Engine.Mods;
 

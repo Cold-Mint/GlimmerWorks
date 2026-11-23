@@ -69,12 +69,16 @@ public abstract class PackManager<TAppContext, TPack> where TAppContext : AppCon
                     continue;
                 }
 
-                var pack = LoadPackTemplate(appContext, path, onMessage);
-                if (pack == null)
+                var packManifest = ReadAndCheckManifest(appContext, path, onMessage);
+                if (packManifest == null)
                 {
                     continue;
                 }
 
+                var pack = CreatePack(path, packManifest);
+                pack.LoadAllTemplate(appContext, onMessage);
+                _packDictionary[packManifest.Id] = pack;
+                _idToVirtualPath[packManifest.Id] = path;
                 packs.Add(pack);
             }
 
@@ -90,30 +94,63 @@ public abstract class PackManager<TAppContext, TPack> where TAppContext : AppCon
     }
 
     /// <summary>
-    /// <para>LoadPackTemplate</para>
-    /// <para>加载包内的模板</para>
+    /// <para>ExtraChecklist</para>
+    /// <para>额外检查清单文件</para>
     /// </summary>
-    /// <param name="appContext"></param>
-    /// <param name="path"></param>
+    /// <param name="packManifest"></param>
+    /// <param name="manifestPath"></param>
     /// <param name="onMessage"></param>
     /// <returns></returns>
-    private TPack? LoadPackTemplate(TAppContext appContext, VirtualPath path, Action<PackMessage> onMessage)
+    protected virtual bool ExtraCheckManifest(PackManifest packManifest, VirtualPath manifestPath,
+        Action<PackMessage> onMessage)
+    {
+        return true;
+    }
+
+
+    /// <summary>
+    /// <para>ReadAndCheckManifest</para>
+    /// <para>读取并检查清单文件</para>
+    /// </summary>
+    /// <param name="onMessage"></param>
+    /// <param name="appContext"></param>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    private PackManifest? ReadAndCheckManifest(TAppContext appContext, VirtualPath path,
+        Action<PackMessage> onMessage)
     {
         var manifestPath = path.Combine("manifest.toml");
         if (!appContext.VirtualFileSystem.FileExists(manifestPath))
         {
+            onMessage.Invoke(new PackMessage(
+                "Missing manifest.toml.")
+            {
+                Path = manifestPath,
+                Level = LogLevel.Warn
+            });
             return null;
         }
 
         var packManifest = appContext.VirtualFileSystem.ReadToml<PackManifest>(manifestPath);
         if (packManifest == null)
         {
+            onMessage.Invoke(new PackMessage(
+                "The manifest.toml file cannot be read.")
+            {
+                Path = manifestPath,
+                Level = LogLevel.Warn
+            });
             return null;
         }
 
         if (packManifest.MinGameCode > EngineConstant.GameCode)
         {
-            LogCat.Warn("The minimum game version is higher than the current game version.");
+            onMessage.Invoke(new PackMessage(
+                "The minimum game version is higher than the current game version.")
+            {
+                Path = manifestPath,
+                Level = LogLevel.Warn
+            });
             return null;
         }
 
@@ -138,35 +175,9 @@ public abstract class PackManager<TAppContext, TPack> where TAppContext : AppCon
                 Path = manifestPath,
                 Level = LogLevel.Error
             });
-            return null;
         }
 
-        if (!CheckManifest(appContext, manifestPath, onMessage, packManifest))
-        {
-            return null;
-        }
-
-        var pack = CreatePack(path, packManifest);
-        _packDictionary[packManifest.Id] = pack;
-        _idToVirtualPath[packManifest.Id] = path;
-        pack.LoadAllTemplate(appContext, onMessage);
-        return pack;
-    }
-
-    /// <summary>
-    /// <para>CheckManifest</para>
-    /// <para>检查清单文件是否合法</para>
-    /// </summary>
-    /// <param name="onMessage"></param>
-    /// <param name="packManifest"></param>
-    /// <param name="appContext"></param>
-    /// <param name="manifestPath"></param>
-    /// <returns></returns>
-    protected virtual bool CheckManifest(TAppContext appContext, VirtualPath manifestPath,
-        Action<PackMessage> onMessage,
-        PackManifest packManifest)
-    {
-        return true;
+        return ExtraCheckManifest(packManifest, manifestPath, onMessage) ? packManifest : null;
     }
 
     protected abstract TPack CreatePack(VirtualPath packRootPath, PackManifest manifest);

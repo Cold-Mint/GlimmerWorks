@@ -100,11 +100,11 @@ public class SplashScene(GameAppContext appContext) : BaseScene(appContext)
 
     private void OnPackMessage(PackMessage packMessage)
     {
-        var message = packMessage.Name;
+        var message = AppContext.Localizer[packMessage.Name, packMessage.Args].Value;
         if (packMessage.Path != null)
         {
             message = AppContext.Localizer["In {0}: {1}",
-                packMessage.Path.Path, AppContext.Localizer[packMessage.Name, packMessage.Args]].Value;
+                packMessage.Path.Path, message].Value;
         }
 
         switch (packMessage.Level)

@@ -11,12 +11,12 @@ namespace GlimmerWorks.Game.Mods;
 /// </summary>
 public class AssetsPackManager : PackManager<GameAppContext, AssetsPack>
 {
-    protected override bool CheckManifest(GameAppContext appContext, VirtualPath manifestPath,
-        Action<PackMessage> onMessage, PackManifest packManifest)
+    protected override bool ExtraCheckManifest(PackManifest packManifest, VirtualPath manifestPath,
+        Action<PackMessage> onMessage)
     {
         if (packManifest.ResPack)
         {
-            return base.CheckManifest(appContext, manifestPath, onMessage, packManifest);
+            return true;
         }
 
         onMessage.Invoke(new PackMessage(
@@ -25,7 +25,7 @@ public class AssetsPackManager : PackManager<GameAppContext, AssetsPack>
             Path = manifestPath,
             Level = LogLevel.Error
         });
-        return base.CheckManifest(appContext, manifestPath, onMessage, packManifest);
+        return false;
     }
 
     protected override AssetsPack CreatePack(VirtualPath packRootPath, PackManifest manifest)

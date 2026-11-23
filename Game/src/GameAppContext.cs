@@ -17,6 +17,8 @@ public class GameAppContext : AppContext
 
     public AssetsPackManager AssetsPackManager { get; init; } = new();
 
+    public DataPackManager DataPackManager { get; init; } = new();
+
     public GraphicsDeviceManager? GraphicsDeviceManager { get; set; }
     public LocalizationManager LocalizationManager { get; init; } = new();
     public IStringLocalizer Localizer => LocalizationManager;
@@ -60,12 +62,10 @@ public class GameAppContext : AppContext
         foreach (var candidate in candidates)
         {
             var poFile = new VirtualPath("assets", "langs", $"{candidate}.po");
-            if (!loadLangs && VirtualFileSystem.FileExists(poFile))
+            if (!loadLangs && VirtualFileSystem.FileExists(poFile) &&
+                LocalizationManager.LoadPoFile(VirtualFileSystem, poFile))
             {
-                if (LocalizationManager.LoadPoFile(VirtualFileSystem, poFile))
-                {
-                    loadLangs = true;
-                }
+                loadLangs = true;
             }
 
             var ttfVirtualPath = new VirtualPath("assets", "fonts", $"{candidate}.ttf");

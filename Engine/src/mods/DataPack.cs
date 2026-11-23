@@ -122,23 +122,6 @@ public class DataPack<TAppContext>(VirtualPath packRootPath, PackManifest manife
         var dependencies = Manifest.PackDependencies;
         appContext.DataRepository.SetDependencies(Manifest.Id,
             dependencies.Select(static dependency => dependency.PackId));
-        foreach (var dependencyPackId in dependencies.Select(dependency => dependency.PackId))
-        {
-            if (string.IsNullOrWhiteSpace(dependencyPackId) || dependencyPackId == "@self")
-            {
-                continue;
-            }
-
-            if (appContext.DataPackManager.GetPack(dependencyPackId) == null)
-            {
-                onMessage.Invoke(new PackMessage(
-                    "Data pack {0} depends on {1}, but {1} is not loaded.", Manifest.Id,
-                    dependencyPackId)
-                {
-                    Level = LogLevel.Warn
-                });
-            }
-        }
     }
 
     protected override void StartLoadMessage(TAppContext appContext, Action<PackMessage> onMessage)

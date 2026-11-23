@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <RootNamespace>GlimmerWorks.Game</RootNamespace>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net11.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Engine\Engine.csproj"/>
+        <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="11.0.0"/>
+        <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.6.1"/>
+        <PackageReference Include="Myra" Version="1.6.8"/>
+        <PackageReference Include="Karambolo.PO" Version="1.13.0"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Update="assets/gameConfig.toml" CopyToOutputDirectory="PreserveNewest"/>
+        <None Update="assets/langs/*.po" CopyToOutputDirectory="PreserveNewest"/>
+        <None Update="assets/fonts/*.ttf" CopyToOutputDirectory="PreserveNewest"/>
+        <None Include="assets/mods/**/*" Link="mods/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest"/>
+    </ItemGroup>
+
+</Project>

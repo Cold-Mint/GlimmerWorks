@@ -1,13 +1,8 @@
 .idea/
 .trae/
 .vs/
-#vscode
 .vscode/
 .claude/
-# Key folder
-# 密钥文件夹
-keys/
-obj/
-bin/
-GlimmerWorks.sln.DotSettings.user
-assets/mods/
+**/obj/
+**/bin/
+Game/assets/mods/

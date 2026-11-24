@@ -1,6 +1,5 @@
 using GlimmerWorks.Engine.Mods.Data;
 using GlimmerWorks.Game.Widgets;
-using Microsoft.Xna.Framework;
 using Myra.Events;
 using Myra.Graphics2D.UI;
 using Label = GlimmerWorks.Game.Widgets.Label;
@@ -121,9 +120,8 @@ public class SelectResourceScene<T>(GameAppContext appContext)
     }
 
 
-    public override void Update(GameTime gameTime)
+    public override void OnTick(long deltaMs, long globalTick)
     {
-        base.Update(gameTime);
         if (_inputText.Text != _keyString)
         {
             _keyString = _inputText.Text;

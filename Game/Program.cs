@@ -1,13 +1,11 @@
-﻿using System.Text;
+﻿namespace GlimmerWorks.Game;
 
-namespace GlimmerWorks.Game;
-
-public static class Program
+internal static class Program
 {
-    public static void Main()
+    [STAThread]
+    private static void Main()
     {
-        Console.OutputEncoding = Encoding.UTF8;
-        var glimmerGame = new GlimmerGame();
-        glimmerGame.Run();
+        var game = new GlimmerGame();
+        game.Start();
     }
 }

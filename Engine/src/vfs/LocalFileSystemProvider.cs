@@ -43,6 +43,17 @@ public class LocalFileSystemProvider(string rootPath) : IFileSystemProvider
         return realPath != null && new DirectoryInfo(realPath.Path).Exists;
     }
 
+    public FileEntry? GetFileEntry(VirtualPath path)
+    {
+        var realPath = VirtualPathToRealPath(path);
+        if (realPath == null)
+        {
+            return null;
+        }
+
+        return FileEntry.FromFileSystemInfo(_rootFullPath, new FileInfo(realPath.Path));
+    }
+
     public bool FileExists(VirtualPath path)
     {
         var realPath = VirtualPathToRealPath(path);
@@ -65,6 +76,26 @@ public class LocalFileSystemProvider(string rootPath) : IFileSystemProvider
         }
 
         File.WriteAllText(realPath.Path, text);
+        return true;
+    }
+
+
+    public byte[]? ReadAllBytes(VirtualPath path)
+    {
+        var realPath = VirtualPathToRealPath(path);
+        return realPath == null ? null : File.ReadAllBytes(realPath.Path);
+    }
+
+    public bool WriteAllBytes(VirtualPath path, ReadOnlySpan<byte> bytes)
+    {
+        var realPath = VirtualPathToRealPath(path);
+        if (realPath == null)
+        {
+            return false;
+        }
+
+        using var fileStream = new FileStream(realPath.Path, FileMode.Create, FileAccess.Write, FileShare.None);
+        fileStream.Write(bytes);
         return true;
     }
 

@@ -6,13 +6,17 @@
         <TargetFramework>net11.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Engine\Engine.csproj"/>
         <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="11.0.0"/>
-        <PackageReference Include="Myra" Version="1.6.8"/>
+        <PackageReference Include="Myra.PlatformAgnostic" Version="1.6.8"/>
         <PackageReference Include="Karambolo.PO" Version="1.13.0"/>
+        <PackageReference Include="SDL3-CS" Version="3.4.20"/>
+        <PackageReference Include="SDL3-CS.Windows" Version="3.4.20"/>
+        <PackageReference Include="Silk.NET.Shaderc" Version="2.23.0"/>
     </ItemGroup>
 
     <ItemGroup>

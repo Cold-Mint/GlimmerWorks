@@ -1,2 +1,12 @@
-M:System.Console.WriteLine(System.String);Use LogCat instead of Console.WriteLine
-M:System.Console.Write(System.String);Use LogCat instead of Console.Write
+M:System.Console.WriteLine(System.String);
+M:System.Console.Write(System.String);
+M:SDL3.SDL.Log(System.String);
+M:SDL3.SDL.LogTrace(SDL3.SDL.LogCategory,System.String);
+M:SDL3.SDL.LogVerbose(SDL3.SDL.LogCategory,System.String);
+M:SDL3.SDL.LogDebug(SDL3.SDL.LogCategory,System.String);
+M:SDL3.SDL.LogInfo(SDL3.SDL.LogCategory,System.String);
+M:SDL3.SDL.LogWarn(SDL3.SDL.LogCategory,System.String);
+M:SDL3.SDL.LogError(SDL3.SDL.LogCategory,System.String);
+M:SDL3.SDL.LogCritical(SDL3.SDL.LogCategory,System.String);
+M:SDL3.SDL.LogMessage(SDL3.SDL.LogCategory,SDL3.SDL.LogPriority,System.String);
+M:SDL3.SDL.LogMessageV(SDL3.SDL.LogCategory,SDL3.SDL.LogPriority,System.String,System.String[]);

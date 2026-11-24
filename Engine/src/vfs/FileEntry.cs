@@ -5,6 +5,10 @@ public class FileEntry
     public bool IsDirectory { set; get; }
     public string? Name { set; get; }
     public VirtualPath? Path { set; get; }
+    public DateTime LastWriteTimeUtc { set; get; }
+
+    public long? Size { set; get; }
+
 
     /// <summary>
     /// <para>GetResourceType</para>
@@ -38,7 +42,9 @@ public class FileEntry
         {
             Name = fileSystemInfo.Name,
             IsDirectory = fileSystemInfo.Attributes.HasFlag(FileAttributes.Directory),
-            Path = new VirtualPath(System.IO.Path.GetRelativePath(rootPath.Path, fileSystemInfo.FullName))
+            Path = new VirtualPath(System.IO.Path.GetRelativePath(rootPath.Path, fileSystemInfo.FullName)),
+            LastWriteTimeUtc = fileSystemInfo.LastWriteTimeUtc,
+            Size = fileSystemInfo is FileInfo { Exists: true } fileInfo ? fileInfo.Length : null
         };
     }
 }

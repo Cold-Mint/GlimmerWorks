@@ -1,0 +1,15 @@
+<Project>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <AdditionalFiles Include="$(MSBuildThisFileDirectory)BannedSymbols.txt" />
+    </ItemGroup>
+    <!-- Disabling the API (BannedSymbols.txt) results in a direct compilation failure upon being invoked, rather than just issuing a warning. -->
+    <!-- 禁用 API（BannedSymbols.txt）一旦被调用就直接编译失败，而不是只给一条警告。 -->
+    <PropertyGroup>
+        <WarningsAsErrors>$(WarningsAsErrors);RS0030</WarningsAsErrors>
+    </PropertyGroup>
+
+</Project>

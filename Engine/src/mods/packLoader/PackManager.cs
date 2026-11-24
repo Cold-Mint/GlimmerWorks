@@ -5,8 +5,8 @@ using GlimmerWorks.Engine.Vfs;
 namespace GlimmerWorks.Engine.Mods.PackLoader;
 
 /// <summary>
-/// <para>PackLoader</para>
-/// <para>包加载器</para>
+/// <para>PackManager</para>
+/// <para>包管理器</para>
 /// </summary>
 /// <typeparam name="TPack"></typeparam>
 /// <typeparam name="TAppContext"></typeparam>
@@ -14,7 +14,26 @@ public abstract class PackManager<TAppContext, TPack> where TAppContext : AppCon
 {
     private readonly Dictionary<string, TPack> _packDictionary = new();
     private readonly Dictionary<string, VirtualPath> _idToVirtualPath = new();
+    private readonly List<TPack> _packs = [];
     private bool _scaning;
+
+    protected IEnumerable<TPack> GetPacks(
+        Func<TPack, bool>? filter = null,
+        IComparer<TPack>? comparer = null)
+    {
+        IEnumerable<TPack> query = _packs;
+        if (filter is not null)
+        {
+            query = query.Where(filter);
+        }
+
+        if (comparer is not null)
+        {
+            query = query.OrderBy(p => p, comparer);
+        }
+
+        return query;
+    }
 
     /// <summary>
     /// <para>GetPack</para>
@@ -48,6 +67,8 @@ public abstract class PackManager<TAppContext, TPack> where TAppContext : AppCon
         return await Task.Run(() =>
         {
             _scaning = true;
+            _packs.Clear();
+            _idToVirtualPath.Clear();
             _packDictionary.Clear();
             var fileEntryList = appContext.VirtualFileSystem.List(virtualPath);
             if (fileEntryList == null)
@@ -55,7 +76,6 @@ public abstract class PackManager<TAppContext, TPack> where TAppContext : AppCon
                 return 0;
             }
 
-            List<TPack> packs = [];
             foreach (var fileEntry in fileEntryList)
             {
                 if (!fileEntry.IsDirectory)
@@ -79,17 +99,17 @@ public abstract class PackManager<TAppContext, TPack> where TAppContext : AppCon
                 pack.LoadAllTemplate(appContext, onMessage);
                 _packDictionary[packManifest.Id] = pack;
                 _idToVirtualPath[packManifest.Id] = path;
-                packs.Add(pack);
+                _packs.Add(pack);
             }
 
-            foreach (var basePack in packs)
+            foreach (var basePack in _packs)
             {
                 basePack.RegisterResourceType(appContext, basePack.ResourceTypeDictionary);
                 basePack.Load(appContext, onMessage);
             }
 
             _scaning = false;
-            return packs.Count;
+            return _packs.Count;
         });
     }
 

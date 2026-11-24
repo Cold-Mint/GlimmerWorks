@@ -1,4 +1,3 @@
-using GlimmerWorks.Engine;
 using GlimmerWorks.Engine.Vfs;
 using Karambolo.PO;
 using Microsoft.Extensions.Localization;

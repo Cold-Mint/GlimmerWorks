@@ -7,8 +7,7 @@ public static partial class StringExtensions
     [GeneratedRegex("(?<=[a-z0-9])([A-Z])")]
     private static partial Regex BoundaryRegex { get; }
 
-    [GeneratedRegex("[^a-zA-Z0-9]+")]
-    private static partial Regex NonAlphanumericRegex { get; }
+    [GeneratedRegex("[^a-zA-Z0-9]+")] private static partial Regex NonAlphanumericRegex { get; }
 
     [GeneratedRegex("_+")] private static partial Regex RepeatedUnderscoreRegex { get; }
 
@@ -60,6 +59,19 @@ public static partial class StringExtensions
         }
 
         return true;
+    }
+    
+    /// <summary>
+    /// <para>Divide the string as if it were a path</para>
+    /// <para>将字符串看作路径进行分割</para>
+    /// </summary>
+    /// <param name="str"></param>
+    /// <returns></returns>
+    public static string[] SplitPath(this string str)
+    {
+        return str.Split(
+            [Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar],
+            StringSplitOptions.None);
     }
 
     public static string ToSnakeCase(this string str)

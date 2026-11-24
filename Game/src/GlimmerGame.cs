@@ -1,97 +1,111 @@
+﻿using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Game.Scene;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
-using Myra;
-using Myra.Graphics2D;
-using Myra.Graphics2D.Brushes;
-using Myra.Graphics2D.UI;
+using SDL3;
 
 namespace GlimmerWorks.Game;
 
-public class GlimmerGame : Microsoft.Xna.Framework.Game
+public class GlimmerGame
 {
     private readonly GameAppContext _appContext = new();
+    private IntPtr GpuDevice { get; set; } = IntPtr.Zero;
+
+    private IntPtr Window { get; set; } = IntPtr.Zero;
 
     public GlimmerGame()
     {
-        _appContext.GraphicsDeviceManager = new GraphicsDeviceManager(this)
+        if (!SDL.Init(SDL.InitFlags.Video))
         {
-            PreferredBackBufferWidth = _appContext.GameConfig.Window.Width,
-            PreferredBackBufferHeight = _appContext.GameConfig.Window.Height,
-            IsFullScreen = _appContext.GameConfig.Window.Fullscreen,
-            SynchronizeWithVerticalRetrace = _appContext.GameConfig.Window.Vsync,
-        };
-        IsMouseVisible = true;
-        Window.AllowUserResizing = true;
-        MyraEnvironment.Game = this;
-    }
-
-    protected override void Initialize()
-    {
-        base.Initialize();
-        _appContext.Desktop = new Desktop();
-        MyraEnvironment.TooltipDelayInMs = 15;
-        MyraEnvironment.TooltipOffset = new Point(12, 10);
-        MyraEnvironment.TooltipCreator = widget =>
-        {
-            if (string.IsNullOrEmpty(widget.Tooltip))
-            {
-                return null;
-            }
-
-            return new Panel
-            {
-                Background = new RoundedCornersSolidBrush(new Color(28, 28, 30, 245))
-                    { Radius = _appContext.Theme.Radius },
-                Padding = new Thickness(12, 8),
-                Widgets =
-                {
-                    new Label
-                    {
-                        Text = widget.Tooltip,
-                        TextColor = _appContext.Theme.OnPrimary,
-                        Font = _appContext.Theme.GetFont(ThemeFontKind.Small)
-                    }
-                }
-            };
-        };
-        //Solve the problem of being unable to input Chinese.
-        //解决无法输入中文的问题。
-        _appContext.Desktop.HasExternalTextInput = true;
-        Window.TextInput += (s, a) => { _appContext.Desktop.OnChar(a.Character); };
-        _appContext.SceneStack.AddTask(
-            new SceneStackTask { Scene = new SplashScene(_appContext), Type = StackType.Push });
-    }
-
-
-    protected override void Update(GameTime gameTime)
-    {
-        base.Update(gameTime);
-        InputTracker.Update();
-        var scene = _appContext.SceneStack.Current();
-        if (scene != null)
-        {
-            if (InputTracker.IsKeyJustPressed(Keys.Escape) && !scene.OnBackPressed())
-            {
-                _appContext.SceneStack.AddTask(new SceneStackTask { Type = StackType.Pop });
-            }
-
-            scene.Update(gameTime);
+            LogCat.Error($"SDL could not initialize: {SDL.GetError()}");
         }
 
+        _appContext.TickTask.OnTick += OnTick;
+        _appContext.SceneStack.AddTask(new SceneStackTask
+            { Scene = new TestScene(_appContext), Type = StackType.Push });
         _appContext.SceneStack.ExecuteTaskQueue();
-        if (_appContext.SceneStack.Count == 0)
-        {
-            Exit();
-        }
     }
 
-    protected override void Draw(GameTime gameTime)
+    private void OnTick(long deltaMs, long globalTick)
     {
-        var scene = _appContext.SceneStack.Current();
-        GraphicsDevice.Clear(scene?.GetBackgroundColor() ?? _appContext.Theme.Surface);
-        _appContext.Desktop?.Render();
-        scene?.Draw(GraphicsDevice, gameTime);
-        base.Draw(gameTime);
+        var topScene = _appContext.SceneStack.TopScene();
+        topScene?.OnTick(deltaMs, globalTick);
+    }
+
+    public void Start()
+    {
+        GpuDevice = SDL.CreateGPUDevice(SDL.GPUShaderFormat.SPIRV, false, null);
+        if (GpuDevice == IntPtr.Zero)
+        {
+            LogCat.Error($"Failed to create GPU device: {SDL.GetError()}");
+            return;
+        }
+
+        Window = SDL.CreateWindow("GlimmerWorks",
+            _appContext.GameConfig.Window.Width,
+            _appContext.GameConfig.Window.Height,
+            SDL.WindowFlags.Resizable);
+        if (Window == IntPtr.Zero)
+        {
+            LogCat.Error($"Failed to create window: {SDL.GetError()}");
+            return;
+        }
+
+        if (!SDL.ClaimWindowForGPUDevice(GpuDevice, Window))
+        {
+            LogCat.Error($"Failed to claim window for GPU device: {SDL.GetError()}");
+            return;
+        }
+
+        _appContext.TickTask.Start();
+        while (_appContext.SceneStack.Count > 0)
+        {
+            _appContext.SceneStack.ExecuteTaskQueue();
+            var topScene = _appContext.SceneStack.TopScene();
+            if (topScene == null)
+            {
+                break;
+            }
+
+            while (SDL.PollEvent(out var sdlEvent))
+            {
+                var eventType = (SDL.EventType)sdlEvent.Type;
+                if (eventType == SDL.EventType.Quit)
+                {
+                    _appContext.SceneStack.AddTask(new SceneStackTask { Type = StackType.Clear });
+                    break;
+                }
+
+                topScene.Input(sdlEvent);
+            }
+
+            RenderFrame();
+            topScene.Draw();
+        }
+
+        _appContext.TickTask.Stop();
+        SDL.ReleaseWindowFromGPUDevice(GpuDevice, Window);
+        SDL.DestroyWindow(Window);
+        SDL.DestroyGPUDevice(GpuDevice);
+        SDL.Quit();
+    }
+
+    /// <summary>
+    /// <para>RenderFrame</para>
+    /// <para>渲染一帧画面</para>
+    /// </summary>
+    private void RenderFrame()
+    {
+        var cmdBuffer = SDL.AcquireGPUCommandBuffer(GpuDevice);
+        if (cmdBuffer == IntPtr.Zero)
+        {
+            return;
+        }
+
+        SDL.AcquireGPUSwapchainTexture(cmdBuffer, Window,
+            out var swapchainTexture, out var swapchainWidth, out var swapchainHeight);
+        if (swapchainTexture != IntPtr.Zero)
+        {
+        }
+
+        SDL.SubmitGPUCommandBuffer(cmdBuffer);
     }
 }

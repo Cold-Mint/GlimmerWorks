@@ -6,4 +6,5 @@
 **/obj/
 **/bin/
 Game/assets/mods/
+Game/assets/shaders/*.cache
 GlimmerWorks.sln.DotSettings.user

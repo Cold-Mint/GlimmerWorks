@@ -1,8 +1,7 @@
 using GlimmerWorks.Engine.Mods.Data;
-using GlimmerWorks.Engine.Vfs;
 using Tomlyn;
 
-namespace GlimmerWorks.Engine;
+namespace GlimmerWorks.Engine.Vfs;
 
 public class VirtualFileSystem
 {
@@ -42,6 +41,19 @@ public class VirtualFileSystem
         }
     }
 
+
+    /// <summary>
+    /// <para>GetFileEntry</para>
+    /// <para>获取文件实体</para>
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    public FileEntry? GetFileEntry(VirtualPath path)
+    {
+        return _fileSystemProviders.Select(fileSystemProvider => fileSystemProvider.GetFileEntry(path))
+            .OfType<FileEntry>().FirstOrDefault();
+    }
+
     /// <summary>
     /// <para>ReadAllText</para>
     /// <para>读取全部内容</para>
@@ -52,6 +64,34 @@ public class VirtualFileSystem
         .Select(fileSystemProvider => fileSystemProvider.ReadAllText(path))
         .OfType<string>()
         .FirstOrDefault();
+
+    /// <summary>
+    /// <para>ReadAllBytes</para>
+    /// <para>读取全部字节</para>
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    public byte[]? ReadAllBytes(VirtualPath path) => _fileSystemProviders
+        .Select(fileSystemProvider => fileSystemProvider.ReadAllBytes(path))
+        .OfType<byte[]>()
+        .FirstOrDefault();
+
+    /// <summary>
+    /// <para>WriteAllBytes</para>
+    /// <para>将字节写入到文件内</para>
+    /// </summary>
+    /// <param name="path"></param>
+    /// <param name="bytes"></param>
+    public void WriteAllBytes(VirtualPath path, ReadOnlySpan<byte> bytes)
+    {
+        foreach (var fileSystemProvider in _fileSystemProviders)
+        {
+            if (fileSystemProvider.WriteAllBytes(path, bytes))
+            {
+                break;
+            }
+        }
+    }
 
     /// <summary>
     /// <para>OpenRead</para>

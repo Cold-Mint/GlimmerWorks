@@ -66,9 +66,7 @@ public class DataPack<TAppContext>(VirtualPath packRootPath, PackManifest manife
             }
 
             var relativePath = path.GetRelativePath(_packRootPath);
-            var pathSpitArray = relativePath.Split(
-                [Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar],
-                StringSplitOptions.None);
+            var pathSpitArray = relativePath.SplitPath();
             if (!CheckPath(onMessage, path, pathSpitArray, suffixLength))
             {
                 continue;

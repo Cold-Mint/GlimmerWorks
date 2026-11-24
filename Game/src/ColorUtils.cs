@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+using FontStashSharp;
 
 namespace GlimmerWorks.Game;
 
@@ -12,10 +12,10 @@ public static class ColorUtils
     /// <param name="o">Overlay color channel. 覆盖色通道值（0–255）。</param>
     /// <param name="opacity">0 = base, 1 = overlay. 0 用底色，1 用覆盖色。</param>
     /// <returns>Mixed channel value. 混合后的通道值（0–255）。</returns>
-    private static byte Blend(byte b, byte o, float opacity)
+    private static int Blend(int b, int o, float opacity)
     {
         var inv = 1f - opacity;
-        return (byte)Math.Round(b * inv + o * opacity);
+        return (int)Math.Round(b * inv + o * opacity);
     }
 
     /// <summary>
@@ -28,10 +28,10 @@ public static class ColorUtils
     /// <param name="overlay">The color on top. 覆盖色（上层颜色）。</param>
     /// <param name="opacity">0 = only base, 1 = only overlay. 0 只有底色，1 只有覆盖色。</param>
     /// <returns>The final mixed color. 最终混合出来的颜色。</returns>
-    public static Color Overlay(Color baseColor, Color overlay, float opacity)
+    public static FSColor Overlay(FSColor baseColor, FSColor overlay, float opacity)
     {
         opacity = Math.Clamp(opacity, 0F, 1F);
-        return new Color(
+        return new FSColor(
             Blend(baseColor.R, overlay.R, opacity),
             Blend(baseColor.G, overlay.G, opacity),
             Blend(baseColor.B, overlay.B, opacity),

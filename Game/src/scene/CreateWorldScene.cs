@@ -1,7 +1,7 @@
+using FontStashSharp;
 using FontStashSharp.RichText;
 using GlimmerWorks.Engine.Mods.Data;
 using GlimmerWorks.Game.Widgets;
-using Microsoft.Xna.Framework;
 using Myra.Events;
 using Myra.Graphics2D;
 using Myra.Graphics2D.Brushes;
@@ -50,7 +50,7 @@ public class CreateWorldScene(GameAppContext appContext) : BaseScene(appContext)
         var card = new Panel
         {
             HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center,
-            MinWidth = 520, Background = new RoundedCornersSolidBrush(new Color(255, 255, 255)) { Radius = 16 },
+            MinWidth = 520, Background = new RoundedCornersSolidBrush(new FSColor(255, 255, 255)) { Radius = 16 },
             Padding = new Thickness(36, 28),
         };
         panel.Widgets.Add(card);

@@ -1,8 +1,8 @@
+using GlimmerWorks.Engine.Extensions;
 using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Engine.Mods;
 using GlimmerWorks.Engine.Mods.Data;
 using GlimmerWorks.Engine.Vfs;
-using Microsoft.Xna.Framework;
 using Myra.Graphics2D;
 using Myra.Graphics2D.UI;
 
@@ -29,7 +29,6 @@ public class SplashScene(GameAppContext appContext) : BaseScene(appContext)
         panel.Widgets.Add(new Label
         {
             Text = "GlimmerWorks",
-            TextColor = Color.White,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
             Font = AppContext.Theme.GetFont(ThemeFontKind.Large),
@@ -41,7 +40,8 @@ public class SplashScene(GameAppContext appContext) : BaseScene(appContext)
     private async void LoadPacks()
     {
         var dataPackCount =
-            await AppContext.DataPackManager.ScanAndLoad(AppContext, VirtualPath.DataPackPath, OnPackMessage);
+            await AppContext.DataPackManager.ScanAndLoad(AppContext,
+                new VirtualPath(AppContext.GameConfig.DataPackPath.SplitPath()), OnPackMessage);
         if (dataPackCount < 0)
         {
             LogCat.Error("Data pack scan failed.");
@@ -68,7 +68,8 @@ public class SplashScene(GameAppContext appContext) : BaseScene(appContext)
         }
 
         var assetsPackCount =
-            await AppContext.AssetsPackManager.ScanAndLoad(AppContext, VirtualPath.ResourcePackPath, OnPackMessage);
+            await AppContext.AssetsPackManager.ScanAndLoad(AppContext,
+                new VirtualPath(AppContext.GameConfig.AssetsPackPath.SplitPath()), OnPackMessage);
         if (assetsPackCount < 0)
         {
             LogCat.Error("Asset pack scan failed.");
@@ -93,10 +94,6 @@ public class SplashScene(GameAppContext appContext) : BaseScene(appContext)
         return dimensionResource.AllowAsStarting;
     }
 
-    public override Color? GetBackgroundColor()
-    {
-        return AppContext.Theme.Primary;
-    }
 
     private void OnPackMessage(PackMessage packMessage)
     {

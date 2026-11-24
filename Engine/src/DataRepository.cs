@@ -49,6 +49,7 @@ public class DataRepository
                 continue;
             }
 
+            LogCat.Info($"Register resource type: {attr.ResourceType}");
             _resourceTypeDictionary.Add(attr.ResourceType, type);
         }
     }

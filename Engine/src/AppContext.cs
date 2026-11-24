@@ -8,8 +8,12 @@ public class AppContext
     public VirtualFileSystem VirtualFileSystem { get; } = new();
 
     public DataRepository DataRepository { get; init; } = new();
-    
+
     public TomlTemplateExpander TomlTemplateExpander { get; init; } = new();
+
+    public GameTick TickTask { get; } = new();
+
+    public EngineConfig EngineConfig { get; set; } = new();
 
     protected AppContext()
     {

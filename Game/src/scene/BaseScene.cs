@@ -1,6 +1,5 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Myra.Graphics2D.UI;
+using SDL3;
 
 namespace GlimmerWorks.Game.Scene;
 
@@ -58,42 +57,32 @@ public abstract class BaseScene(GameAppContext appContext)
 
 
     /// <summary>
-    /// <para>Update</para>
-    /// <para>更新</para>
+    /// <para>OnTick</para>
+    /// <para>当Tick时</para>
     /// </summary>
-    /// <param name="gameTime"></param>
-    public virtual void Update(GameTime gameTime)
+    /// <remarks>
+    ///<para>It is recommended to update the data within the Tick function, and it is not advisable to operate the UI.</para>
+    ///<para>建议在Tick函数内更新数据，不建议操作UI。</para>
+    /// </remarks>
+    public virtual void OnTick(long deltaMs,long globalTick)
     {
-        if (AppContext.SceneStack.IsTopScene(this) && appContext.Desktop?.Root != _widget)
-        {
-            appContext.Desktop?.Root = _widget;
-        }
+    }
+
+    public virtual void Input(SDL.Event sdlEvent)
+    {
+        
     }
 
     /// <summary>
     /// <para>Draw</para>
     /// <para>绘制</para>
     /// </summary>
-    /// <param name="graphicsDevice">
-    ///<para>graphicsDevice</para>
-    ///<para>图像设备</para>
-    /// </param>
-    /// <param name="gameTime">
-    ///<para>gameTime</para>
-    ///<para>游戏时间</para>
-    /// </param>
-    public virtual void Draw(GraphicsDevice graphicsDevice, GameTime gameTime)
+    public virtual void Draw()
     {
-    }
-
-    /// <summary>
-    /// <para>GetBackgroundColor</para>
-    /// <para>获取场景背景色</para>
-    /// </summary>
-    /// <returns></returns>
-    public virtual Color? GetBackgroundColor()
-    {
-        return null;
+        if (AppContext.SceneStack.IsTopScene(this) && appContext.Desktop?.Root != _widget)
+        {
+            appContext.Desktop?.Root = _widget;
+        }
     }
 
     /// <summary>

@@ -1,5 +1,4 @@
 using FontStashSharp;
-using Microsoft.Xna.Framework;
 using Myra.Graphics2D;
 
 namespace GlimmerWorks.Game;
@@ -29,7 +28,9 @@ public class Theme
     /// <para>Primary</para>
     /// <para>主色调</para>
     /// </summary>
-    public Color Primary { get; set; } = new(0x67, 0x50, 0xA4);
+    public FSColor Primary { get; set; } = new(103, 80, 164);
+
+    public FSColor Transparent => new(0, 0, 0, 0);
 
     public int BorderWidth { get; set; } = 2;
 
@@ -37,22 +38,22 @@ public class Theme
     /// <para>Surface</para>
     /// <para>表面颜色</para>
     /// </summary>
-    public Color Surface = new(242, 242, 247, 255);
+    public FSColor Surface = new(242, 242, 247);
 
     /// <summary>
     /// <para>OnPrimary</para>
     /// <para>主色调上的内容色（文字、图标），与 Primary 搭配使用以保证对比度</para>
     /// </summary>
-    public Color OnPrimary { get; set; } = new(0xFF, 0xFF, 0xFF);
+    public FSColor OnPrimary { get; set; } = new(255, 255, 255);
 
-    public Color InputTextBackground { get; set; } = new(0xE6, 0xE0, 0xE9);
+    public FSColor InputTextBackground { get; set; } = new(230, 224, 233);
 
-    public Color PrimaryOver()
+    public FSColor PrimaryOver()
     {
         return ColorUtils.Overlay(Primary, OnPrimary, 0.16F);
     }
 
-    public Color PrimaryPressed()
+    public FSColor PrimaryPressed()
     {
         return ColorUtils.Overlay(Primary, OnPrimary, 0.25F);
     }
@@ -61,12 +62,12 @@ public class Theme
     /// <para>OnSurface</para>
     /// <para>按钮</para>
     /// </summary>
-    public Color OnSurface { get; set; } = new(0x1C, 0x1B, 0x1F);
+    public FSColor OnSurface { get; set; } = new(28, 27, 31);
 
 
-    public Color Info { get; set; } = Color.White;
-    public Color Warn { get; set; } = Color.Yellow;
-    public Color Error { get; set; } = Color.Red;
+    public FSColor Info { get; set; } = new(255, 255, 255);
+    public FSColor Warn { get; set; } = new(255, 255, 0);
+    public FSColor Error { get; set; } = new(255, 0, 0);
 
     private readonly FontSystem _fontSystem = new();
 

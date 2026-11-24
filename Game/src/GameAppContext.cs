@@ -1,9 +1,9 @@
 ﻿using System.Globalization;
 using GlimmerWorks.Engine.Vfs;
+using GlimmerWorks.Game.Graphics;
 using GlimmerWorks.Game.Mods;
 using GlimmerWorks.Game.Scene;
 using AppContext = GlimmerWorks.Engine.AppContext;
-using Microsoft.Xna.Framework;
 using Myra.Graphics2D.UI;
 using Microsoft.Extensions.Localization;
 
@@ -19,9 +19,14 @@ public class GameAppContext : AppContext
 
     public DataPackManager DataPackManager { get; init; } = new();
 
-    public GraphicsDeviceManager? GraphicsDeviceManager { get; set; }
     public LocalizationManager LocalizationManager { get; init; } = new();
     public IStringLocalizer Localizer => LocalizationManager;
+
+    /// <summary>
+    /// <para>Runtime shader compiler.</para>
+    /// <para>运行时着色器编译器</para>
+    /// </summary>
+    public ShaderCompiler ShaderCompiler { get; }
 
     public Theme Theme { get; init; } = new();
 
@@ -29,7 +34,9 @@ public class GameAppContext : AppContext
 
     public GameAppContext()
     {
+        EngineConfig = GameConfig;
         VirtualFileSystem.AddFileSystemProvider(new LocalFileSystemProvider(System.AppContext.BaseDirectory));
+        ShaderCompiler = new ShaderCompiler(VirtualFileSystem);
         // Cover the game configuration.
         // 覆盖游戏配置。
         var gameConfig =
@@ -39,6 +46,7 @@ public class GameAppContext : AppContext
             GameConfig = gameConfig;
         }
 
+        AssetsPackManager.Order = GameConfig.AssetsPackOrder;
         // Use the configured language if set, otherwise follow the system UI language.
         // 配置了语言则使用配置语言，否则跟随系统 UI 语言。
         ChangeLanguage(string.IsNullOrWhiteSpace(GameConfig.Language)
@@ -53,7 +61,6 @@ public class GameAppContext : AppContext
     /// <param name="language"></param>
     private void ChangeLanguage(string language)
     {
-        Theme.Reset();
         LocalizationManager.Clear();
         LocalizationManager.CurrentLanguage = language;
         var candidates = LocalizationManager.GetCandidates(language);
@@ -77,7 +84,6 @@ public class GameAppContext : AppContext
                     continue;
                 }
 
-                Theme.AddFont(stream);
                 loadFont = true;
             }
 

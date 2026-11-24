@@ -8,13 +8,10 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Arch" Version="2.1.0"/>
-        <PackageReference Include="JetBrains.Annotations" Version="2026.2.0"/>
-        <PackageReference Include="Tomlyn" Version="2.11.1"/>
-        <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0">
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-            <PrivateAssets>all</PrivateAssets>
-        </PackageReference>
-        <AdditionalFiles Include="../BannedSymbols.txt"/>
+        <PackageReference Include="Arch" Version="2.1.0" />
+        <PackageReference Include="Blake3" Version="3.0.2" />
+        <PackageReference Include="JetBrains.Annotations" Version="2026.2.0" />
+        <PackageReference Include="MemoryPack" Version="1.22.0" />
+        <PackageReference Include="Tomlyn" Version="2.11.1" />
     </ItemGroup>
 </Project>

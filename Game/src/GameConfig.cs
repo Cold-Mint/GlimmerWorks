@@ -1,3 +1,4 @@
+using GlimmerWorks.Engine;
 using JetBrains.Annotations;
 using Tomlyn.Serialization;
 
@@ -8,7 +9,7 @@ namespace GlimmerWorks.Game;
 /// 游戏配置，对应 config.toml 的内容。
 /// </summary>
 [UsedImplicitly]
-public sealed class GameConfig
+public sealed class GameConfig : EngineConfig
 {
     [UsedImplicitly]
     [TomlPropertyName("config_version")]
@@ -29,6 +30,14 @@ public sealed class GameConfig
     [UsedImplicitly]
     [TomlPropertyName("window")]
     public WindowConfig Window { get; set; } = new();
+
+    [UsedImplicitly]
+    [TomlPropertyName("assets_pack_order")]
+    public List<string> AssetsPackOrder { get; set; } = new();
+
+    [UsedImplicitly]
+    [TomlPropertyName("assets_pack_path")]
+    public string AssetsPackPath { get; set; } = "mods/assets_pack";
 }
 
 [UsedImplicitly]

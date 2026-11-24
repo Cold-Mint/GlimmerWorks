@@ -23,16 +23,21 @@ public class TomlTemplateExpander
 
         foreach (var type in commandTypes)
         {
-            var cmd = (ITemplateCommand)Activator.CreateInstance(type)!;
+            var cmd = Activator.CreateInstance(type) as ITemplateCommand;
+            if (cmd == null)
+            {
+                continue;
+            }
+
             var name = cmd.GetCommandName();
             if (!_commandMap.TryAdd(name, cmd))
             {
                 LogCat.Error(
-                    $"Template command has the same name: {cmd.GetCommandName()}, type: {type.FullName ?? type.Name}");
+                    $"Template command has the same name: {name}, type: {type.FullName ?? type.Name}");
                 continue;
             }
 
-            LogCat.Info($"Register template command: {cmd.GetCommandName()}");
+            LogCat.Info($"Register template command: {name}");
         }
     }
 

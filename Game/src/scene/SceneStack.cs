@@ -7,7 +7,8 @@ public enum StackType
     None,
     Push,
     Pop,
-    Replace
+    Replace,
+    Clear
 }
 
 public class SceneStackTask
@@ -26,7 +27,13 @@ public class SceneStack
 {
     private readonly Stack<BaseScene> _stack = new();
 
-    public BaseScene? Current() => _stack.Count == 0 ? null : _stack.Peek();
+    /// <summary>
+    /// <para>TopScene</para>
+    /// <para>获取位于栈顶的场景</para>
+    /// </summary>
+    /// <returns></returns>
+    public BaseScene? TopScene() => _stack.Count == 0 ? null : _stack.Peek();
+    
     private readonly ConcurrentQueue<SceneStackTask> _tasks = new();
 
     public int Count => _stack.Count;
@@ -73,6 +80,20 @@ public class SceneStack
             }
 
             newTop.OnResumeScene();
+        }
+    }
+
+    /// <summary>
+    /// <para>ExecuteClear</para>
+    /// <para>清理全部场景</para>
+    /// </summary>
+    private void ExecuteClear()
+    {
+        while (_stack.Count > 0)
+        {
+            var top = _stack.Peek();
+            top.OnDestroy();
+            _stack.Pop();
         }
     }
 
@@ -153,6 +174,9 @@ public class SceneStack
                     break;
                 case StackType.Replace:
                     ExecuteReplace(sceneStackTask);
+                    break;
+                case StackType.Clear:
+                    ExecuteClear();
                     break;
                 case StackType.None:
                 default:

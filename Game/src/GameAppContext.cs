@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
+using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Engine.Vfs;
-using GlimmerWorks.Game.Graphics;
 using GlimmerWorks.Game.Mods;
 using GlimmerWorks.Game.Scene;
 using AppContext = GlimmerWorks.Engine.AppContext;
@@ -11,39 +11,38 @@ namespace GlimmerWorks.Game;
 
 public class GameAppContext : AppContext
 {
-    public SceneStack SceneStack { get; init; } = new();
+    public SceneStack SceneStack { get; } = new();
 
     public GameConfig GameConfig { get; } = new();
 
-    public AssetsPackManager AssetsPackManager { get; init; } = new();
+    public AssetsPackManager AssetsPackManager { get; } = new();
 
-    public DataPackManager DataPackManager { get; init; } = new();
+    public DataPackManager DataPackManager { get; } = new();
 
-    public LocalizationManager LocalizationManager { get; init; } = new();
+    public LocalizationManager LocalizationManager { get; } = new();
     public IStringLocalizer Localizer => LocalizationManager;
-
-    /// <summary>
-    /// <para>Runtime shader compiler.</para>
-    /// <para>运行时着色器编译器</para>
-    /// </summary>
-    public ShaderCompiler ShaderCompiler { get; }
-
-    public Theme Theme { get; init; } = new();
+    public Theme Theme { get; } = new();
 
     public Desktop? Desktop { get; set; }
 
     public GameAppContext()
     {
-        EngineConfig = GameConfig;
         VirtualFileSystem.AddFileSystemProvider(new LocalFileSystemProvider(System.AppContext.BaseDirectory));
-        ShaderCompiler = new ShaderCompiler(VirtualFileSystem);
         // Cover the game configuration.
         // 覆盖游戏配置。
         var gameConfig =
-            VirtualFileSystem.ReadToml<GameConfig>(new VirtualPath("assets", "gameConfig.toml"));
+            VirtualFileSystem.ReadToml<GameConfig>(new VirtualPath("assets", "config.toml"));
         if (gameConfig != null)
         {
             GameConfig = gameConfig;
+        }
+
+        EngineConfig = GameConfig;
+        LogCat.Debug("Update LogLevelMask.");
+        LogCat.LogLevelMask = GameConfig.LogLevelMask;
+        if (!CacheManager.ReadCacheManifest(this))
+        {
+            LogCat.Debug("Read cache manifest fail.");
         }
 
         AssetsPackManager.Order = GameConfig.AssetsPackOrder;

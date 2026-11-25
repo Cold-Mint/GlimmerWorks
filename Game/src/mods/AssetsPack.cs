@@ -13,17 +13,15 @@ public class AssetsPack(VirtualPath packRootPath, PackManifest manifest)
         return false;
     }
 
-
     /// <summary>
-    /// <para>ReadAsset</para>
-    /// <para>读取某个资源</para>
+    /// <para>GetAssetsPath</para>
+    /// <para>获取资产的路径</para>
     /// </summary>
-    /// <param name="virtualFileSystem"></param>
     /// <param name="paths"></param>
     /// <returns></returns>
-    public byte[]? ReadAsset(VirtualFileSystem virtualFileSystem, params string[] paths)
+    public VirtualPath GetAssetsPath(params string[] paths)
     {
-        return virtualFileSystem.ReadAllBytes(_packRootPath.Combine(paths));
+        return _packRootPath.Combine(paths);
     }
 
     protected override void StartLoadMessage(GameAppContext appContext, Action<PackMessage> onMessage)

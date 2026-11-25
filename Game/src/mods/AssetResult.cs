@@ -18,5 +18,5 @@ public class AssetResult<T>
     /// <para>If it exists, from which resource pack was it found?</para>
     /// <para>如果存在的话，从哪个资源包找到的</para>
     /// </summary>
-    public AssetsPack? AssetsPack { get; set; } = null;
+    public string? AssetsPackId { get; set; } = null;
 }

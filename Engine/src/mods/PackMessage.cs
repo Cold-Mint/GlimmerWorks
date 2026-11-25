@@ -11,5 +11,5 @@ public sealed class PackMessage(string name, params object[] args)
 
     public VirtualPath? Path { get; init; }
 
-    public LogLevel Level { get; init; } = LogLevel.Info;
+    public LogLevels Level { get; init; } = LogLevels.Info;
 }

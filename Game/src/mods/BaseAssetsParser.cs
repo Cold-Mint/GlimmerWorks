@@ -1,10 +1,12 @@
-﻿namespace GlimmerWorks.Game.Mods;
+﻿using GlimmerWorks.Engine.Vfs;
+
+namespace GlimmerWorks.Game.Mods;
 
 /// <summary>
 /// <para>IAssetsParser</para>
 /// <para>资产解析器</para>
 /// </summary>
-public abstract class BaseAssetsParser
+public abstract class BaseAssetsParser<T>
 {
     /// <summary>
     /// <para>GetFolderName</para>
@@ -28,21 +30,21 @@ public abstract class BaseAssetsParser
     ///<para>appContext</para>
     ///<para>应用上下文</para>
     /// </param>
-    /// <param name="bytes">
-    ///<para>bytes</para>
-    ///<para>文件字节</para>
+    /// <param name="fileEntry">
+    ///<para>fileEntry</para>
+    ///<para>文件实体</para>
     /// </param>
     /// <returns></returns>
-    public abstract T? Parser<T>(GameAppContext appContext, byte[] bytes);
+    public abstract T? Parser(GameAppContext appContext, FileEntry fileEntry);
 
 
     /// <summary>
-    /// <para>GetResourceType</para>
-    /// <para>获取资源类型</para>
+    /// <para>Should file caching be enabled? Use the method provided by the engine to determine if the file has changed, thereby utilizing the file cache. For example, after compiling the shader, a file cache for the shader will be established.</para>
+    /// <para>是否启用文件缓存，使用引擎提供的方法判断文件是否改变，从而利用文件缓存。例如编译着色器后会对着色器建立文件缓存。</para>
     /// </summary>
     /// <returns></returns>
-    public virtual string GetResourceType()
+    public virtual bool EnableFileCache()
     {
-        return GetFolderName();
+        return false;
     }
 }

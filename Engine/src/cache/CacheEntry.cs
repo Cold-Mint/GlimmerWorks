@@ -3,7 +3,7 @@
 namespace GlimmerWorks.Engine.Cache;
 
 [MemoryPackable]
-internal sealed partial class CacheEntry
+public sealed partial class CacheEntry
 {
     public DateTime LastWriteTimeUtc { set; get; }
     public long? Size { set; get; }
@@ -14,5 +14,7 @@ internal sealed partial class CacheEntry
     /// </summary>
     public byte[] Blake3 { set; get; } = [];
 
-    public byte[]? Data { set; get; } = [];
+    public string AssetsPackId { set; get; } = string.Empty;
+
+    public byte[] Data { set; get; } = [];
 }

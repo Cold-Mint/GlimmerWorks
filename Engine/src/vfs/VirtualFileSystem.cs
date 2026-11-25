@@ -1,4 +1,5 @@
 using GlimmerWorks.Engine.Mods.Data;
+using MemoryPack;
 using Tomlyn;
 
 namespace GlimmerWorks.Engine.Vfs;
@@ -82,15 +83,47 @@ public class VirtualFileSystem
     /// </summary>
     /// <param name="path"></param>
     /// <param name="bytes"></param>
-    public void WriteAllBytes(VirtualPath path, ReadOnlySpan<byte> bytes)
+    public bool WriteAllBytes(VirtualPath path, ReadOnlySpan<byte> bytes)
     {
         foreach (var fileSystemProvider in _fileSystemProviders)
         {
             if (fileSystemProvider.WriteAllBytes(path, bytes))
             {
-                break;
+                return true;
             }
         }
+
+        return false;
+    }
+
+    /// <summary>
+    /// <para>Write the memory package into the file.</para>
+    /// <para>将内存包写入到文件内</para>
+    /// </summary>
+    /// <param name="path"></param>
+    /// <param name="t"></param>
+    /// <typeparam name="T"></typeparam>
+    public bool WriteMemoryPack<T>(VirtualPath path, T t)
+    {
+        return WriteAllBytes(path, MemoryPackSerializer.Serialize(t));
+    }
+
+    /// <summary>
+    /// <para>Read the memory pack</para>
+    /// <para>读取内存包</para>
+    /// </summary>
+    /// <param name="path"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public T? ReadMemoryPack<T>(VirtualPath path)
+    {
+        var bytes = ReadAllBytes(path);
+        if (bytes == null)
+        {
+            return default;
+        }
+
+        return MemoryPackSerializer.Deserialize<T>(bytes);
     }
 
     /// <summary>

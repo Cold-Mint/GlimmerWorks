@@ -4,6 +4,8 @@ using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Engine.Mods;
 using GlimmerWorks.Engine.Mods.PackLoader;
 using GlimmerWorks.Engine.Vfs;
+using GlimmerWorks.Game.Attributes;
+using MemoryPack;
 
 namespace GlimmerWorks.Game.Mods;
 
@@ -27,35 +29,41 @@ public class AssetsPackManager : PackManager<GameAppContext, AssetsPack>, ICompa
     /// <para>_assetsParser</para>
     /// <para>资产解析器</para>
     /// </summary>
-    private readonly Dictionary<string, BaseAssetsParser> _assetsParserDictionary = new();
-    
+    private readonly Dictionary<string, object> _assetsParserDictionary = new();
+
     public AssetsPackManager()
     {
-        var baseType = typeof(BaseAssetsParser);
         var assembly = Assembly.GetExecutingAssembly();
-
-        var parserTypes = assembly.GetTypes()
-            .Where(t =>
-                t is { IsInterface: false, IsAbstract: false }
-                && baseType.IsAssignableFrom(t));
-
-        foreach (var type in parserTypes)
+        var openGeneric = typeof(BaseAssetsParser<>);
+        foreach (var type in assembly.GetTypes())
         {
-            var parser = Activator.CreateInstance(type) as BaseAssetsParser;
-            if (parser == null)
+            if (type.IsAbstract || type.IsInterface || !openGeneric.IsAssignableFrom(type))
+            {
+                //It must be a subclass of BaseAssetsParser. It cannot be an abstract class, nor can it be an interface.
+                //必须是BaseAssetsParser的子类。不能是抽象类，不能是接口。
+                continue;
+            }
+
+            var attr = type.GetCustomAttribute<AssetsPasterAttribute>();
+            if (attr is null)
             {
                 continue;
             }
 
-            var resourceType = parser.GetResourceType();
-            if (!_assetsParserDictionary.TryAdd(resourceType, parser))
+            var assetsParser = Activator.CreateInstance(type);
+            if (assetsParser == null)
+            {
+                continue;
+            }
+
+            if (!_assetsParserDictionary.TryAdd(attr.ResourceType, assetsParser))
             {
                 LogCat.Error(
-                    $"AssetsPackManager has the same resourceType: {resourceType}, type: {type.FullName ?? type.Name}");
+                    $"AssetsPackManager has the same resourceType: {attr.ResourceType}, type: {type.FullName ?? type.Name}");
                 continue;
             }
 
-            LogCat.Info($"Register assetsParser: {resourceType}");
+            LogCat.Info($"Register assetsParser: {attr.ResourceType}");
         }
     }
 
@@ -71,9 +79,57 @@ public class AssetsPackManager : PackManager<GameAppContext, AssetsPack>, ICompa
             "Please add \"res_pack = true\" in the file. To solve this error.")
         {
             Path = manifestPath,
-            Level = LogLevel.Error
+            Level = LogLevels.Error
         });
         return false;
+    }
+
+    private static T? TryLoadAssets<T>(GameAppContext appContext, string resourceType,
+        VirtualPath assetsPath, string assetsPackId,
+        BaseAssetsParser<T> parser)
+    {
+        if (!appContext.VirtualFileSystem.FileExists(assetsPath))
+        {
+            return default;
+        }
+
+        if (parser.EnableFileCache())
+        {
+            var cacheEntry =
+                appContext.CacheManager.GetCacheIfAvailable(appContext, resourceType,
+                    assetsPath);
+            var cacheData = cacheEntry?.Data;
+            if (cacheData != null)
+            {
+                var assetObj = MemoryPackSerializer.Deserialize<T>(cacheData);
+                if (!Equals(assetObj, default(T)))
+                {
+                    //Success: Data has been recovered from the cache.
+                    //成功从缓存中恢复。
+                    return assetObj;
+                }
+            }
+        }
+
+        var fileEntry = appContext.VirtualFileSystem.GetFileEntry(assetsPath);
+        if (fileEntry == null)
+        {
+            return default;
+        }
+
+        var asset = parser.Parser(appContext, fileEntry);
+        if (Equals(asset, default(T)))
+        {
+            return default;
+        }
+
+        if (parser.EnableFileCache())
+        {
+            appContext.CacheManager.MakeCache(appContext, resourceType, assetsPath,
+                MemoryPackSerializer.Serialize(asset), assetsPackId);
+        }
+
+        return default;
     }
 
     public AssetResult<T> FindAsset<T>(GameAppContext appContext, ResourceRef resourceRef)
@@ -87,26 +143,33 @@ public class AssetsPackManager : PackManager<GameAppContext, AssetsPack>, ICompa
         var filePath = resourceRef.ResourceId.SplitPath();
         if (_assetsParserDictionary.TryGetValue(resourceRef.ResourceType, out var parser))
         {
-            filePath[^1] += "." + parser.GetFileTypeName();
+            var typedAssetsParser = parser as BaseAssetsParser<T>;
+            if (typedAssetsParser == null)
+            {
+                return result;
+            }
+
+            filePath[^1] += "." + typedAssetsParser.GetFileTypeName();
             foreach (var assetsPack in GetPacks(comparer: this))
             {
-                string[] assetPath = [parser.GetFolderName(), resourceRef.TargetPackId, .. filePath];
-                var bytes = assetsPack.ReadAsset(appContext.VirtualFileSystem, assetPath);
-                if (bytes == null)
+                var assetsPath =
+                    assetsPack.GetAssetsPath([
+                        typedAssetsParser.GetFolderName(), resourceRef.TargetPackId, .. filePath
+                    ]);
+                var assets = TryLoadAssets(appContext, resourceRef.ResourceType, assetsPath, assetsPack.Manifest.Id,
+                    typedAssetsParser);
+                if (Equals(assets, default(T)))
                 {
                     continue;
                 }
 
-                var t = parser.Parser<T>(appContext, bytes);
-                if (!Equals(t, default(T)))
-                {
-                    result.Result = t;
-                    result.AssetsPack = assetsPack;
-                    result.Exist = true;
-                    break;
-                }
+                result.Exist = true;
+                result.Result = assets;
+                result.AssetsPackId = assetsPack.Manifest.Id;
+                return result;
             }
         }
+
         return result;
     }
 

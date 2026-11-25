@@ -39,7 +39,7 @@ public class DataPack<TAppContext>(VirtualPath packRootPath, PackManifest manife
                 fragment.ToSnakeCase(), fragment)
             {
                 Path = path,
-                Level = LogLevel.Error
+                Level = LogLevels.Error
             });
             return false;
         }

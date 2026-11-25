@@ -197,7 +197,7 @@ public abstract class BasePack<TAppContext>(VirtualPath packRootPath, PackManife
                 resource.ResourceId.ToSnakeCase(), resource.ResourceId)
             {
                 Path = resource.VirtualPath,
-                Level = LogLevel.Error
+                Level = LogLevels.Error
             });
             return false;
         }

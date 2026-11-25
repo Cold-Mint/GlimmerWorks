@@ -4,53 +4,58 @@ namespace GlimmerWorks.Engine.Log;
 /// Log level; smaller values are more verbose.
 /// 日志级别，值越小越详细。
 /// </summary>
-public enum LogLevel
+[Flags]
+public enum LogLevels
 {
-    Debug = 0,
-    Info = 1,
-    Warn = 2,
-    Error = 3
+    Debug = 1 << 0,
+    Info = 1 << 1,
+    Warn = 1 << 2,
+    Error = 1 << 3
 }
 
 #pragma warning disable RS0030
 public static class LogCat
 {
     /// <summary>
-    /// Minimum output level; logs below this level are ignored.
-    /// 最低输出级别，低于此级别的日志会被忽略。
+    /// <para>LogLevelMask</para>
+    /// <para>日志等级掩码</para>
     /// </summary>
-    private static LogLevel MinLevel { get; set; } = LogLevel.Info;
-    
-    private static bool FirstRedirectedOutput {get; set;} = true;
+    public static LogLevels LogLevelMask { get; set; } =
+        LogLevels.Debug | LogLevels.Info | LogLevels.Warn | LogLevels.Error;
 
-    public static void Debug(string text) => Write(LogLevel.Debug, text);
+    private static bool FirstRedirectedOutput { get; set; } = true;
 
-    public static void Info(string text) => Write(LogLevel.Info, text);
+    public static void Debug(string text) => Write(LogLevels.Debug, text);
 
-    public static void Warn(string text) => Write(LogLevel.Warn, text);
+    public static void Info(string text) => Write(LogLevels.Info, text);
 
-    public static void Error(string text) => Write(LogLevel.Error, text);
+    public static void Warn(string text) => Write(LogLevels.Warn, text);
 
-    private static string CreateLine(LogLevel level, string text)
+    public static void Error(string text) => Write(LogLevels.Error, text);
+
+    private static string CreateLine(LogLevels level, string text)
     {
         return $"[{DateTime.Now:HH:mm:ss.fff}][{level}] {text}";
     }
-    
-    private static void Write(LogLevel level, string text)
+
+    private static void Write(LogLevels level, string text)
     {
-        if (level < MinLevel)
+        if ((level & LogLevelMask) == 0)
         {
             return;
         }
+
         if (Console.IsOutputRedirected)
         {
             //If the output is redirected, then only plain text will be output.
             //如果输出被重定向那么仅输出纯文本。
             if (FirstRedirectedOutput)
             {
-                FirstRedirectedOutput  = false;
-                Console.WriteLine(CreateLine(LogLevel.Info,"It was detected that console redirection is enabled, and log highlighting has been disabled."));
+                FirstRedirectedOutput = false;
+                Console.WriteLine(CreateLine(LogLevels.Info,
+                    "It was detected that console redirection is enabled, and log highlighting has been disabled."));
             }
+
             Console.WriteLine(CreateLine(level, text));
             return;
         }
@@ -61,12 +66,12 @@ public static class LogCat
         Console.ForegroundColor = previous;
     }
 
-    private static ConsoleColor GetConsoleColor(LogLevel level) => level switch
+    private static ConsoleColor GetConsoleColor(LogLevels level) => level switch
     {
-        LogLevel.Debug => ConsoleColor.Gray,
-        LogLevel.Info => ConsoleColor.Cyan,
-        LogLevel.Warn => ConsoleColor.Yellow,
-        LogLevel.Error => ConsoleColor.Red,
+        LogLevels.Debug => ConsoleColor.Gray,
+        LogLevels.Info => ConsoleColor.Cyan,
+        LogLevels.Warn => ConsoleColor.Yellow,
+        LogLevels.Error => ConsoleColor.Red,
         _ => ConsoleColor.White,
     };
 }

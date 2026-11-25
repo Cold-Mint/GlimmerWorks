@@ -1,14 +1,48 @@
-﻿namespace GlimmerWorks.Game.Mods.assetsParser;
+﻿using GlimmerWorks.Engine.Vfs;
+using GlimmerWorks.Game.Graphics;
+using MemoryPack;
 
-public abstract class ShaderAssetsParser : BaseAssetsParser
+namespace GlimmerWorks.Game.Mods.assetsParser;
+
+public abstract class ShaderAssetsParser : BaseAssetsParser<CompiledShader>
 {
-    public override string GetFolderName()
+    public sealed override string GetFolderName()
     {
         return "shaders";
     }
 
-    public override T? Parser<T>(GameAppContext appContext, byte[]? bytes) where T : default
+    private static CompiledShader? Compile(bool vertexShader, GameAppContext appContext, FileEntry fileEntry)
     {
-        throw new NotImplementedException();
+        var path = fileEntry.Path;
+        if (path == null)
+        {
+            return null;
+        }
+
+        var fileName = fileEntry.Name;
+        if (string.IsNullOrEmpty(fileName))
+        {
+            return null;
+        }
+
+        var bytes = appContext.VirtualFileSystem.ReadAllBytes(path);
+        if (bytes == null)
+        {
+            return null;
+        }
+
+        return ShaderCompiler.Compile(vertexShader, fileName, bytes);
+    }
+
+    protected abstract bool IsVertexShader();
+
+    public sealed override CompiledShader? Parser(GameAppContext appContext, FileEntry fileEntry)
+    {
+        return Compile(IsVertexShader(), appContext, fileEntry);
+    }
+
+    public sealed override bool EnableFileCache()
+    {
+        return true;
     }
 }

@@ -1,3 +1,4 @@
+using GlimmerWorks.Engine.Cache;
 using GlimmerWorks.Engine.TemplateExpander;
 using GlimmerWorks.Engine.Vfs;
 
@@ -7,13 +8,15 @@ public class AppContext
 {
     public VirtualFileSystem VirtualFileSystem { get; } = new();
 
-    public DataRepository DataRepository { get; init; } = new();
+    public DataRepository DataRepository { get; } = new();
 
-    public TomlTemplateExpander TomlTemplateExpander { get; init; } = new();
+    public TomlTemplateExpander TomlTemplateExpander { get; } = new();
+
+    public CacheManager CacheManager { get; } = new();
 
     public GameTick TickTask { get; } = new();
 
-    public EngineConfig EngineConfig { get; set; } = new();
+    public EngineConfig EngineConfig { get; protected init; } = new();
 
     protected AppContext()
     {

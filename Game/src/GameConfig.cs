@@ -33,7 +33,7 @@ public sealed class GameConfig : EngineConfig
 
     [UsedImplicitly]
     [TomlPropertyName("assets_pack_order")]
-    public List<string> AssetsPackOrder { get; set; } = new();
+    public List<string> AssetsPackOrder { get; set; } = [];
 
     [UsedImplicitly]
     [TomlPropertyName("assets_pack_path")]
@@ -61,17 +61,9 @@ public sealed class WindowConfig
 {
     [UsedImplicitly]
     [TomlPropertyName("width")]
-    public int Width { get; set; } = 1280;
+    public int Width { get; set; } = 1920;
 
     [UsedImplicitly]
     [TomlPropertyName("height")]
-    public int Height { get; set; } = 720;
-
-    [UsedImplicitly]
-    [TomlPropertyName("fullscreen")]
-    public bool Fullscreen { get; set; }
-
-    [UsedImplicitly]
-    [TomlPropertyName("vsync")]
-    public bool Vsync { get; set; } = true;
+    public int Height { get; set; } = 1080;
 }

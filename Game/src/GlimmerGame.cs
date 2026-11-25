@@ -77,8 +77,7 @@ public class GlimmerGame
                 topScene.Input(sdlEvent);
             }
 
-            RenderFrame();
-            topScene.Draw();
+            RenderFrame(topScene);
         }
 
         _appContext.TickTask.Stop();
@@ -92,18 +91,18 @@ public class GlimmerGame
     /// <para>RenderFrame</para>
     /// <para>渲染一帧画面</para>
     /// </summary>
-    private void RenderFrame()
+    private void RenderFrame(BaseScene scene)
     {
         var cmdBuffer = SDL.AcquireGPUCommandBuffer(GpuDevice);
         if (cmdBuffer == IntPtr.Zero)
         {
             return;
         }
-
         SDL.AcquireGPUSwapchainTexture(cmdBuffer, Window,
             out var swapchainTexture, out var swapchainWidth, out var swapchainHeight);
         if (swapchainTexture != IntPtr.Zero)
         {
+            scene.Draw();
         }
 
         SDL.SubmitGPUCommandBuffer(cmdBuffer);

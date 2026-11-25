@@ -20,7 +20,7 @@ public class DataPackManager : PackManager<GameAppContext, LocalDataPack>
                 "Please set \"res_pack = false\" in the file. To solve this error.")
             {
                 Path = manifestPath,
-                Level = LogLevel.Error
+                Level = LogLevels.Error
             });
             return false;
         }

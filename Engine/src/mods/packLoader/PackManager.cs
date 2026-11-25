@@ -140,17 +140,6 @@ public abstract class PackManager<TAppContext, TPack> where TAppContext : AppCon
         Action<PackMessage> onMessage)
     {
         var manifestPath = path.Combine("manifest.toml");
-        if (!appContext.VirtualFileSystem.FileExists(manifestPath))
-        {
-            onMessage.Invoke(new PackMessage(
-                "Missing manifest.toml.")
-            {
-                Path = manifestPath,
-                Level = LogLevel.Warn
-            });
-            return null;
-        }
-
         var packManifest = appContext.VirtualFileSystem.ReadToml<PackManifest>(manifestPath);
         if (packManifest == null)
         {
@@ -158,7 +147,7 @@ public abstract class PackManager<TAppContext, TPack> where TAppContext : AppCon
                 "The manifest.toml file cannot be read.")
             {
                 Path = manifestPath,
-                Level = LogLevel.Warn
+                Level = LogLevels.Warn
             });
             return null;
         }
@@ -169,7 +158,7 @@ public abstract class PackManager<TAppContext, TPack> where TAppContext : AppCon
                 "The minimum game version is higher than the current game version.")
             {
                 Path = manifestPath,
-                Level = LogLevel.Warn
+                Level = LogLevels.Warn
             });
             return null;
         }
@@ -181,7 +170,7 @@ public abstract class PackManager<TAppContext, TPack> where TAppContext : AppCon
                 path.Path, oldPath.Path, $"{packManifest.Id}_alt")
             {
                 Path = manifestPath,
-                Level = LogLevel.Error
+                Level = LogLevels.Error
             });
             return null;
         }
@@ -193,7 +182,7 @@ public abstract class PackManager<TAppContext, TPack> where TAppContext : AppCon
                 packManifest.Id.ToSnakeCase(), packManifest.Id)
             {
                 Path = manifestPath,
-                Level = LogLevel.Error
+                Level = LogLevels.Error
             });
         }
 

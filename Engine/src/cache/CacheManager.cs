@@ -1,14 +1,59 @@
 ﻿using Blake3;
 using GlimmerWorks.Engine.Extensions;
 using GlimmerWorks.Engine.Vfs;
-using MemoryPack;
 
 namespace GlimmerWorks.Engine.Cache;
 
 public class CacheManager
 {
-    private readonly Dictionary<string, string> _pathToId = new();
-    
+    private CacheManifest _manifest = new();
+
+    /// <summary>
+    /// <para>Read the list file stored in the cache</para>
+    /// <para>读取缓存的清单文件</para>
+    /// </summary>
+    /// <param name="appContext"></param>
+    public bool ReadCacheManifest(AppContext appContext)
+    {
+        var virtualPath = GetCacheManifestPath(appContext.EngineConfig.CachePath);
+        var fileEntry = appContext.VirtualFileSystem.GetFileEntry(virtualPath);
+        if (fileEntry == null || fileEntry.IsDirectory || !appContext.VirtualFileSystem.FileExists(virtualPath))
+        {
+            return false;
+        }
+
+        var cacheManifest = appContext.VirtualFileSystem.ReadMemoryPack<CacheManifest>(virtualPath);
+        if (cacheManifest == null || cacheManifest.GameCode != EngineConstant.GameCode)
+        {
+            return false;
+        }
+
+        _manifest = cacheManifest;
+        return true;
+    }
+
+    /// <summary>
+    /// <para>WriteCacheManifest</para>
+    /// <para>写入缓存清单文件</para>
+    /// </summary>
+    /// <param name="appContext"></param>
+    /// <returns></returns>
+    public bool WriteCacheManifest(AppContext appContext)
+    {
+        var virtualPath = GetCacheManifestPath(appContext.EngineConfig.CachePath);
+        return appContext.VirtualFileSystem.WriteMemoryPack(virtualPath, _manifest);
+    }
+
+    /// <summary>
+    /// <para>GetCacheManifestPath</para>
+    /// <para>获取缓存的清单路径</para>
+    /// </summary>
+    /// <param name="cachePath"></param>
+    /// <returns></returns>
+    private static VirtualPath GetCacheManifestPath(string cachePath)
+    {
+        return new VirtualPath([.. cachePath.SplitPath(), "manifest.bin"]);
+    }
 
     /// <summary>
     /// <para>GetCacheEntry</para>
@@ -18,36 +63,41 @@ public class CacheManager
     /// <param name="cacheType"></param>
     /// <param name="path"></param>
     /// <returns></returns>
-    private CacheEntry? GetCacheEntry(AppContext appContext, string cacheType,
+    private CacheEntry? ReadCacheEntry(AppContext appContext, string cacheType,
         VirtualPath path)
     {
-        if (!_pathToId.TryGetValue(path.Path, out var uuid))
+        if (!_manifest.PathToId.TryGetValue(path.Path, out var uuid))
         {
             return null;
         }
 
-        var bytes = appContext.VirtualFileSystem.ReadAllBytes(GetCachePath(appContext, cacheType, uuid));
-        if (bytes == null)
-        {
-            return null;
-        }
-
-        return MemoryPackSerializer.Deserialize<CacheEntry>(bytes);
+        return appContext.VirtualFileSystem.ReadMemoryPack<CacheEntry>(GetCachePath(appContext, cacheType, uuid));
     }
 
-    public bool CacheAvailable(AppContext appContext, string cacheType, VirtualPath path)
+    /// <summary>
+    /// <para>GetCacheIfAvailable</para>
+    /// <para>获取缓存</para>
+    /// </summary>
+    /// <param name="appContext"></param>
+    /// <param name="cacheType"></param>
+    /// <param name="path"></param>
+    /// <returns>
+    ///<para>If the cache is unavailable, return null.</para>
+    ///<para>如果缓存不可用返回null。</para>
+    /// </returns>
+    public CacheEntry? GetCacheIfAvailable(AppContext appContext, string cacheType, VirtualPath path)
     {
-        var cacheEntry = GetCacheEntry(appContext, cacheType, path);
+        var cacheEntry = ReadCacheEntry(appContext, cacheType, path);
         if (cacheEntry == null)
         {
-            return false;
+            return null;
         }
 
         var virtualFileSystem = appContext.VirtualFileSystem;
         var fileEntry = virtualFileSystem.GetFileEntry(path);
         if (fileEntry == null || fileEntry.IsDirectory || !virtualFileSystem.FileExists(path))
         {
-            return false;
+            return null;
         }
 
         // Fast path: timestamp and size are unchanged, so the content is treated as unchanged.
@@ -56,7 +106,7 @@ public class CacheManager
             cacheEntry.Size == fileEntry.Size &&
             cacheEntry.LastWriteTimeUtc == fileEntry.LastWriteTimeUtc)
         {
-            return true;
+            return cacheEntry;
         }
 
         // Slow path: metadata changed, compare the content hash to avoid invalidating on touch/copy.
@@ -64,11 +114,16 @@ public class CacheManager
         var bytes = virtualFileSystem.ReadAllBytes(path);
         if (bytes == null)
         {
-            return false;
+            return null;
         }
 
         var hash = Hasher.Hash(bytes);
-        return hash.AsSpan().SequenceEqual(cacheEntry.Blake3);
+        if (hash.AsSpan().SequenceEqual(cacheEntry.Blake3))
+        {
+            return cacheEntry;
+        }
+
+        return null;
     }
 
     /// <summary>
@@ -79,11 +134,12 @@ public class CacheManager
     /// <param name="cacheType"></param>
     /// <param name="path"></param>
     /// <param name="data"></param>
+    /// <param name="assetsPackId"></param>
     /// <returns></returns>
     public bool MakeCache(AppContext appContext, string cacheType,
-        VirtualPath path, byte[]? data = null)
+        VirtualPath path, byte[] data, string assetsPackId)
     {
-        if (_pathToId.ContainsKey(path.Path))
+        if (_manifest.PathToId.ContainsKey(path.Path))
         {
             return false;
         }
@@ -108,11 +164,11 @@ public class CacheManager
             LastWriteTimeUtc = fileEntry.LastWriteTimeUtc,
             Size = fileEntry.Size,
             Blake3 = [.. hash.AsSpan()],
+            AssetsPackId = assetsPackId,
             Data = data
         };
-        _pathToId.Add(path.Path, uuid);
-        appContext.VirtualFileSystem.WriteAllBytes(GetCachePath(appContext, cacheType, uuid),
-            MemoryPackSerializer.Serialize(cacheEntry));
+        _manifest.PathToId.Add(path.Path, uuid);
+        appContext.VirtualFileSystem.WriteMemoryPack(GetCachePath(appContext, cacheType, uuid), cacheEntry);
         return true;
     }
 
@@ -124,7 +180,7 @@ public class CacheManager
     /// <param name="cacheType"></param>
     /// <param name="cacheKey"></param>
     /// <returns></returns>
-    private VirtualPath GetCachePath(AppContext appContext, string cacheType, string cacheKey)
+    private static VirtualPath GetCachePath(AppContext appContext, string cacheType, string cacheKey)
     {
         var typedCacheKey = $"{cacheKey}.cache";
         return new VirtualPath([

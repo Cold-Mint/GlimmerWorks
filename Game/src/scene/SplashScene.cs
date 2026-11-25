@@ -62,7 +62,7 @@ public class SplashScene(GameAppContext appContext) : BaseScene(appContext)
             OnPackMessage(
                 new PackMessage(AppContext.Localizer["At least one initial dimension is required."].Value)
                 {
-                    Level = LogLevel.Error
+                    Level = LogLevels.Error
                 });
             return;
         }
@@ -106,15 +106,15 @@ public class SplashScene(GameAppContext appContext) : BaseScene(appContext)
 
         switch (packMessage.Level)
         {
-            case LogLevel.Info:
+            case LogLevels.Info:
                 _loadLabel?.TextColor = AppContext.Theme.Info;
                 LogCat.Info(message);
                 break;
-            case LogLevel.Warn:
+            case LogLevels.Warn:
                 _loadLabel?.TextColor = AppContext.Theme.Warn;
                 LogCat.Warn(message);
                 break;
-            case LogLevel.Error:
+            case LogLevels.Error:
                 _loadLabel?.TextColor = AppContext.Theme.Error;
                 LogCat.Error(message);
                 break;

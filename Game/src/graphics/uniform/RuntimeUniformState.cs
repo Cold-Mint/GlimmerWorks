@@ -30,6 +30,50 @@ public static class RuntimeUniformState
     public static Vector2 ViewSize { get; set; }
 
     /// <summary>
+    /// <para>
+    /// The elapsed time in seconds. Exposed as <c>@runtime.time</c>.
+    /// </para>
+    /// <para>
+    /// 已流逝的时间（秒）。通过 <c>@runtime.time</c> 暴露。
+    /// </para>
+    /// </summary>
+    [UniformValue("time")]
+    public static float TimeSeconds { get; set; }
+
+    /// <summary>
+    /// <para>
+    /// The camera center in world pixels. Exposed as <c>@runtime.camera_position</c>.
+    /// </para>
+    /// <para>
+    /// 世界坐标中的相机中心（像素）。通过 <c>@runtime.camera_position</c> 暴露。
+    /// </para>
+    /// </summary>
+    [UniformValue]
+    public static Vector2 CameraPosition { get; set; }
+
+    /// <summary>
+    /// <para>
+    /// The camera zoom. Exposed as <c>@runtime.camera_zoom</c>.
+    /// </para>
+    /// <para>
+    /// 相机缩放。通过 <c>@runtime.camera_zoom</c> 暴露。
+    /// </para>
+    /// </summary>
+    [UniformValue]
+    public static float CameraZoom { get; set; } = 1.0F;
+
+    /// <summary>
+    /// <para>
+    /// The dimension sea level in world pixels. Exposed as <c>@runtime.sea_level</c>.
+    /// </para>
+    /// <para>
+    /// 维度海平面（世界像素）。通过 <c>@runtime.sea_level</c> 暴露。
+    /// </para>
+    /// </summary>
+    [UniformValue]
+    public static float SeaLevel { get; set; }
+
+    /// <summary>
     /// <para>The current global tick. Exposed as <c>@runtime.tick</c>.</para>
     /// <para>当前全局 Tick。通过 <c>@runtime.tick</c> 暴露。</para>
     /// </summary>

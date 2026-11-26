@@ -211,18 +211,18 @@ public class CreateWorldScene(GameAppContext appContext) : BaseScene(appContext)
             ? "World"
             : _worldNameBox.Text.Trim();
         var seedText = _seedBox.Text?.Trim();
-        var seed = GlimmerWorks.Engine.World.WorldSeed.Parse(seedText);
+        var seed = Engine.World.WorldSeed.Parse(seedText);
 
-        var saveRoot = GlimmerWorks.Engine.World.Save.SavePaths.GetSaveDirectory(
+        var saveRoot = Engine.World.Save.SavePaths.GetSaveDirectory(
             Path.Combine(System.AppContext.BaseDirectory, "runtime"), name);
         if (Directory.Exists(saveRoot) ||
-            File.Exists(GlimmerWorks.Engine.World.Save.SavePaths.GetManifestPath(saveRoot)))
+            File.Exists(Engine.World.Save.SavePaths.GetManifestPath(saveRoot)))
         {
             // Same-name worlds must not silently reuse an old save directory.
             saveRoot += $"_{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
         }
 
-        var settings = new GlimmerWorks.Engine.World.WorldSettings
+        var settings = new Engine.World.WorldSettings
         {
             Name = name,
             Seed = seed,
@@ -231,7 +231,7 @@ public class CreateWorldScene(GameAppContext appContext) : BaseScene(appContext)
             PreloadRadiusChunks = 3
         };
 
-        var world = GlimmerWorks.Engine.World.World.Create(AppContext, settings, _startingDimension);
+        var world = Engine.World.World.Create(AppContext, settings, _startingDimension);
         if (world == null)
         {
             return;

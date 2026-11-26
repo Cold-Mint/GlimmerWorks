@@ -87,7 +87,7 @@ internal sealed class GameUi : IDisposable
 
         _renderer.BeginFrame();
         Desktop.Render();
-        _renderer.PrepareFrame(frame.CommandBuffer, (int)frame.Width, (int)frame.Height);
+        _renderer.PrepareFrame(frame.CommandBuffer);
 
         ReadOnlySpan<SDL.GPUColorTargetInfo> colorTargets =
         [

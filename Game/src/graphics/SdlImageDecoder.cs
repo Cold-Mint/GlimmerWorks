@@ -16,23 +16,7 @@ namespace GlimmerWorks.Game.Graphics;
 /// </summary>
 internal static class SdlImageDecoder
 {
-    /// <summary>
-    /// <para>Decode a PNG image into <see cref="TextureData"/>.</para>
-    /// <para>把 PNG 图片解码为 <see cref="TextureData"/>。</para>
-    /// </summary>
-    /// <param name="bytes">
-    ///<para>The raw PNG bytes.</para>
-    ///<para>PNG 原始字节。</para>
-    /// </param>
-    /// <param name="name">
-    ///<para>The file name used for diagnostics.</para>
-    ///<para>用于诊断的文件名。</para>
-    /// </param>
-    /// <returns>
-    ///<para>The decoded texture, or <c>null</c> when decoding failed.</para>
-    ///<para>解码后的纹理；解码失败时返回 <c>null</c>。</para>
-    /// </returns>
-    public static unsafe TextureData? DecodePng(byte[] bytes, string name)
+    public static TextureData? DecodePng(byte[] bytes, string name)
     {
         if (bytes.Length == 0)
         {
@@ -43,78 +27,78 @@ internal static class SdlImageDecoder
         // SDL_image reads from the stream synchronously, so the source bytes only
         // need to stay pinned during the call.
         // SDL_image 会同步读取流，因此源字节只需要在调用期间保持固定。
-        fixed (byte* data = bytes)
+        var bytesHandle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
+        var surface = nint.Zero;
+        var rgbaSurface = nint.Zero;
+        try
         {
-            nint surface = nint.Zero;
-            nint rgbaSurface = nint.Zero;
-            try
+            var data = bytesHandle.AddrOfPinnedObject();
+            var ioStream = SDL.IOFromConstMem(data, (nuint)bytes.Length);
+            if (ioStream == nint.Zero)
             {
-                var ioStream = SDL.IOFromConstMem((nint)data, (nuint)bytes.Length);
-                if (ioStream == nint.Zero)
-                {
-                    LogCat.Error($"Failed to decode PNG '{name}': {SDL.GetError()}");
-                    return null;
-                }
-
-                // IMG_LoadPNG_IO takes ownership of the stream and closes it before returning.
-                // IMG_LoadPNG_IO 会接管流并在返回前关闭它。
-                surface = Image.LoadPNGIO(ioStream);
-                if (surface == nint.Zero)
-                {
-                    LogCat.Error($"Failed to decode PNG '{name}': {SDL.GetError()}");
-                    return null;
-                }
-
-                // SDL_PIXELFORMAT_ABGR8888 has the byte order R,G,B,A on little-endian.
-                // SDL_PIXELFORMAT_ABGR8888 在小端平台上按 R、G、B、A 排列字节。
-                rgbaSurface = SDL.ConvertSurface(surface, SDL.PixelFormat.ABGR8888);
-                if (rgbaSurface == nint.Zero)
-                {
-                    LogCat.Error($"Failed to convert PNG '{name}' to RGBA: {SDL.GetError()}");
-                    return null;
-                }
-
-                var surfaceInfo = *(SDL.Surface*)rgbaSurface;
-                if (surfaceInfo.Width <= 0 || surfaceInfo.Height <= 0 ||
-                    surfaceInfo.Pixels == nint.Zero || surfaceInfo.Pitch < surfaceInfo.Width * 4)
-                {
-                    LogCat.Error($"Failed to decode PNG '{name}': the surface layout is invalid.");
-                    return null;
-                }
-
-                var rowBytes = surfaceInfo.Width * 4;
-                var pixels = new byte[rowBytes * surfaceInfo.Height];
-                for (var y = 0; y < surfaceInfo.Height; y++)
-                {
-                    var source = nint.Add(surfaceInfo.Pixels, y * surfaceInfo.Pitch);
-                    Marshal.Copy(source, pixels, y * rowBytes, rowBytes);
-                }
-
-                return new TextureData
-                {
-                    Width = surfaceInfo.Width,
-                    Height = surfaceInfo.Height,
-                    Pixels = pixels,
-                    Name = name
-                };
-            }
-            catch (Exception e)
-            {
-                LogCat.Error($"Failed to decode PNG '{name}': {e.Message}");
+                LogCat.Error($"Failed to decode PNG '{name}': {SDL.GetError()}");
                 return null;
             }
-            finally
-            {
-                if (rgbaSurface != nint.Zero)
-                {
-                    SDL.DestroySurface(rgbaSurface);
-                }
 
-                if (surface != nint.Zero)
-                {
-                    SDL.DestroySurface(surface);
-                }
+            // IMG_LoadPNG_IO takes ownership of the stream and closes it before returning.
+            // IMG_LoadPNG_IO 会接管流并在返回前关闭它。
+            surface = Image.LoadPNGIO(ioStream);
+            if (surface == nint.Zero)
+            {
+                LogCat.Error($"Failed to decode PNG '{name}': {SDL.GetError()}");
+                return null;
             }
+
+            // SDL_PIXELFORMAT_ABGR8888 has the byte order R,G,B,A on little-endian.
+            // SDL_PIXELFORMAT_ABGR8888 在小端平台上按 R、G、B、A 排列字节。
+            rgbaSurface = SDL.ConvertSurface(surface, SDL.PixelFormat.ABGR8888);
+            if (rgbaSurface == nint.Zero)
+            {
+                LogCat.Error($"Failed to convert PNG '{name}' to RGBA: {SDL.GetError()}");
+                return null;
+            }
+
+            var surfaceInfo = Marshal.PtrToStructure<SDL.Surface>(rgbaSurface);
+            if (surfaceInfo.Width <= 0 || surfaceInfo.Height <= 0 ||
+                surfaceInfo.Pixels == nint.Zero || surfaceInfo.Pitch < surfaceInfo.Width * 4)
+            {
+                LogCat.Error($"Failed to decode PNG '{name}': the surface layout is invalid.");
+                return null;
+            }
+
+            var rowBytes = surfaceInfo.Width * 4;
+            var pixels = new byte[rowBytes * surfaceInfo.Height];
+            for (var y = 0; y < surfaceInfo.Height; y++)
+            {
+                var source = nint.Add(surfaceInfo.Pixels, y * surfaceInfo.Pitch);
+                Marshal.Copy(source, pixels, y * rowBytes, rowBytes);
+            }
+
+            return new TextureData
+            {
+                Width = surfaceInfo.Width,
+                Height = surfaceInfo.Height,
+                Pixels = pixels,
+            };
+        }
+        catch (Exception e)
+        {
+            LogCat.Error($"Failed to decode PNG '{name}': {e.Message}");
+            return null;
+        }
+        finally
+        {
+            if (rgbaSurface != nint.Zero)
+            {
+                SDL.DestroySurface(rgbaSurface);
+            }
+
+            if (surface != nint.Zero)
+            {
+                SDL.DestroySurface(surface);
+            }
+
+            bytesHandle.Free();
         }
     }
 }

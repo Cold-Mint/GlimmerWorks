@@ -32,7 +32,7 @@ public class LocalizationManager : IStringLocalizer
     /// Fallback locale directory name. When a key is missing in the target locale, fall back to this locale.
     /// 兜底语言目录名。当目标语言缺少某个 key 时回退到此语言。
     /// </summary>
-    public const string DefaultLocale = "default";
+    private const string DefaultLocale = "default";
 
     /// <summary>
     /// Active translation table. Reading the reference is an atomic operation and can be safely accessed without locking.

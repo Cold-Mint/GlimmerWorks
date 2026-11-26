@@ -8,11 +8,11 @@ public sealed class OutlinedButton : Button
 {
     public OutlinedButton(Theme theme, string text)
     {
-        Background = new RoundedCornersHollowBrush(theme.Primary, theme.Transparent, theme.BorderWidth)
+        Background = new RoundedCornersHollowBrush(theme.Primary, Theme.Transparent, theme.BorderWidth)
             { Radius = theme.Radius };
-        OverBackground = new RoundedCornersHollowBrush(theme.PrimaryOver(), theme.Transparent, theme.BorderWidth)
+        OverBackground = new RoundedCornersHollowBrush(theme.PrimaryOver(), Theme.Transparent, theme.BorderWidth)
             { Radius = theme.Radius };
-        PressedBackground = new RoundedCornersHollowBrush(theme.PrimaryPressed(), theme.Transparent, theme.BorderWidth)
+        PressedBackground = new RoundedCornersHollowBrush(theme.PrimaryPressed(), Theme.Transparent, theme.BorderWidth)
             { Radius = theme.Radius };
         MouseCursor = MouseCursorType.Hand;
         Content = new Myra.Graphics2D.UI.Label

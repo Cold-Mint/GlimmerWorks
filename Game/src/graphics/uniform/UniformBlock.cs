@@ -20,7 +20,7 @@ public sealed class UniformBlock
     /// <para>The prefix that marks a runtime-injected member source.</para>
     /// <para>标记运行时注入成员 source 的前缀。</para>
     /// </summary>
-    public const string RuntimeSourcePrefix = "@runtime.";
+    private const string RuntimeSourcePrefix = "@runtime.";
 
     /// <summary>
     /// <para>The block name. It must match the block name in the shader.</para>

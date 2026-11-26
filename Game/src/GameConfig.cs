@@ -66,4 +66,20 @@ public sealed class WindowConfig
     [UsedImplicitly]
     [TomlPropertyName("height")]
     public int Height { get; set; } = 1080;
+
+    /// <summary>
+    /// Target frame rate. Defaults to 60.
+    /// 目标帧率，默认 60。
+    /// </summary>
+    [UsedImplicitly]
+    [TomlPropertyName("frame_rate")]
+    public int FrameRate { get; set; } = 60;
+
+    /// <summary>
+    /// Whether vertical sync is enabled.
+    /// 是否启用垂直同步。
+    /// </summary>
+    [UsedImplicitly]
+    [TomlPropertyName("vsync")]
+    public bool VSync { get; set; } = true;
 }

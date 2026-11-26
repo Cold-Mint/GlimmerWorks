@@ -1,5 +1,6 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Diagnostics;
 using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Engine.Mods;
 using GlimmerWorks.Game.Graphics.Uniform;
@@ -68,7 +69,11 @@ public sealed class Renderer2D
 
         _gpuResourcesHolder.GpuDevice = frame.Device;
         RuntimeUniformState.ViewSize = new Vector2(frame.Width, frame.Height);
-        EnsureInitialized(frame);
+        // Wrap the clock to one hour so the float stays precise.
+        // 把时钟限制在一小时内，保证 float 精度。
+        RuntimeUniformState.TimeSeconds =
+            (float)(Stopwatch.GetTimestamp() % (Stopwatch.Frequency * 3600L)) / Stopwatch.Frequency;
+        EnsureInitialized();
     }
 
     /// <summary>
@@ -257,10 +262,7 @@ public sealed class Renderer2D
         var normal = new Vector2(-delta.Y, delta.X) / length * half;
         var uv = new Vector2(0.5f, 0.5f);
         AddUiQuad(_whiteTexture,
-            start + normal,
-            end + normal,
-            end - normal,
-            start - normal,
+            new UiQuad(start + normal, end + normal, end - normal, start - normal),
             uv, uv, ToVector4(color));
     }
 
@@ -294,14 +296,15 @@ public sealed class Renderer2D
 
         var uv = new Vector2(0.5f, 0.5f);
         AddUiQuad(_whiteTexture,
-            new Vector2(rect.Left, rect.Top),
-            new Vector2(rect.Right, rect.Top),
-            new Vector2(rect.Right, rect.Bottom),
-            new Vector2(rect.Left, rect.Bottom),
+            new UiQuad(
+                new Vector2(rect.Left, rect.Top),
+                new Vector2(rect.Right, rect.Top),
+                new Vector2(rect.Right, rect.Bottom),
+                new Vector2(rect.Left, rect.Bottom)),
             uv, uv, ToVector4(color));
     }
 
-    private void EnsureInitialized(in SceneFrameContext frame)
+    private void EnsureInitialized()
     {
         if (_initialized)
         {
@@ -310,11 +313,12 @@ public sealed class Renderer2D
 
         _initialized = true;
 
-        _sampler = _gpuResourcesHolder.AddSampler() ?? 0;
+        _sampler = _gpuResourcesHolder.AddSampler(SDL.GPUFilter.Linear,
+            SDL.GPUSamplerAddressMode.Repeat) ?? 0;
         _uiVertexBuffer = _gpuResourcesHolder.CreateBuffer(SDL.GPUBufferUsageFlags.Vertex,
             MaxVertices * UiVertexSize) ?? 0;
         _materialVertexBuffer = _gpuResourcesHolder.CreateBuffer(SDL.GPUBufferUsageFlags.Vertex,
-            (uint)(MaxVertices * MaterialVertexSize)) ?? 0;
+            MaxVertices * MaterialVertexSize) ?? 0;
         _whiteTexture = CreateWhiteTexture();
 
         if (_sampler == 0 || _uiVertexBuffer == 0 || _materialVertexBuffer == 0 ||
@@ -412,8 +416,7 @@ public sealed class Renderer2D
         {
             Width = 1,
             Height = 1,
-            Pixels = [255, 255, 255, 255],
-            Name = "white"
+            Pixels = [255, 255, 255, 255]
         };
         var texture = new Texture2D(data);
         _pendingTextures.Add(texture);
@@ -469,51 +472,72 @@ public sealed class Renderer2D
                 continue;
             }
 
-            if (command.IsMaterial)
+            if (!BindCommandPipeline(renderPass, command))
             {
-                if (command.Pipeline == 0 || command.Material?.Pipeline == null ||
-                    _materialVertexBuffer == 0)
-                {
-                    continue;
-                }
-
-                SDL.BindGPUGraphicsPipeline(renderPass, command.Pipeline);
-                PushMaterialUniforms(command.Material, command.Tint);
-
-                var materialBinding = new SDL.GPUBufferBinding
-                {
-                    Buffer = _materialVertexBuffer,
-                    Offset = 0
-                };
-                SDL.BindGPUVertexBuffers(renderPass, 0, [materialBinding], 1);
-            }
-            else
-            {
-                if (_uiVertexBuffer == 0 || !EnsureUiPipeline())
-                {
-                    continue;
-                }
-
-                SDL.BindGPUGraphicsPipeline(renderPass, _uiPipelineHandle);
-                PushUiUniforms();
-
-                var uiBinding = new SDL.GPUBufferBinding
-                {
-                    Buffer = _uiVertexBuffer,
-                    Offset = 0
-                };
-                SDL.BindGPUVertexBuffers(renderPass, 0, [uiBinding], 1);
+                continue;
             }
 
-            var textureBinding = new SDL.GPUTextureSamplerBinding
-            {
-                Texture = texture.Handle,
-                Sampler = _sampler
-            };
-            SDL.BindGPUFragmentSamplers(renderPass, 0, [textureBinding], 1);
+            BindFragmentTexture(renderPass, texture.Handle);
             SDL.DrawGPUPrimitives(renderPass, (uint)command.VertexCount, 1,
                 (uint)command.FirstVertex, 0);
         }
+    }
+
+    private bool BindCommandPipeline(IntPtr renderPass, RenderCommand command)
+    {
+        if (command.IsMaterial)
+        {
+            return BindMaterialPipeline(renderPass, command);
+        }
+
+        return BindUiPipeline(renderPass);
+    }
+
+    private bool BindMaterialPipeline(IntPtr renderPass, RenderCommand command)
+    {
+        if (command.Pipeline == 0 || command.Material?.Pipeline == null ||
+            _materialVertexBuffer == 0)
+        {
+            return false;
+        }
+
+        SDL.BindGPUGraphicsPipeline(renderPass, command.Pipeline);
+        PushMaterialUniforms(command.Material, command.Tint);
+        BindVertexBuffer(renderPass, _materialVertexBuffer);
+        return true;
+    }
+
+    private bool BindUiPipeline(IntPtr renderPass)
+    {
+        if (_uiVertexBuffer == 0 || !EnsureUiPipeline())
+        {
+            return false;
+        }
+
+        SDL.BindGPUGraphicsPipeline(renderPass, _uiPipelineHandle);
+        PushUiUniforms();
+        BindVertexBuffer(renderPass, _uiVertexBuffer);
+        return true;
+    }
+
+    private static void BindVertexBuffer(IntPtr renderPass, IntPtr vertexBuffer)
+    {
+        var binding = new SDL.GPUBufferBinding
+        {
+            Buffer = vertexBuffer,
+            Offset = 0
+        };
+        SDL.BindGPUVertexBuffers(renderPass, 0, [binding], 1);
+    }
+
+    private void BindFragmentTexture(IntPtr renderPass, IntPtr texture)
+    {
+        var binding = new SDL.GPUTextureSamplerBinding
+        {
+            Texture = texture,
+            Sampler = _sampler
+        };
+        SDL.BindGPUFragmentSamplers(renderPass, 0, [binding], 1);
     }
 
     private void PushMaterialUniforms(Material material, Color? tint)
@@ -571,8 +595,8 @@ public sealed class Renderer2D
         }
     }
 
-    private void AddUiQuad(Texture2D texture, Vector2 topLeft, Vector2 topRight,
-        Vector2 bottomRight, Vector2 bottomLeft, Vector2 uvMin, Vector2 uvMax, Vector4 color)
+    private void AddUiQuad(Texture2D texture, UiQuad quad, Vector2 uvMin, Vector2 uvMax,
+        Vector4 color)
     {
         if (_uiVertexCount + 6 > MaxVertices)
         {
@@ -582,15 +606,18 @@ public sealed class Renderer2D
 
         EnsurePrimitiveCommand(texture);
 
-        AddUiVertex(topLeft, uvMin, color);
-        AddUiVertex(topRight, new Vector2(uvMax.X, uvMin.Y), color);
-        AddUiVertex(bottomRight, uvMax, color);
-        AddUiVertex(topLeft, uvMin, color);
-        AddUiVertex(bottomRight, uvMax, color);
-        AddUiVertex(bottomLeft, new Vector2(uvMin.X, uvMax.Y), color);
+        AddUiVertex(quad.TopLeft, uvMin, color);
+        AddUiVertex(quad.TopRight, new Vector2(uvMax.X, uvMin.Y), color);
+        AddUiVertex(quad.BottomRight, uvMax, color);
+        AddUiVertex(quad.TopLeft, uvMin, color);
+        AddUiVertex(quad.BottomRight, uvMax, color);
+        AddUiVertex(quad.BottomLeft, new Vector2(uvMin.X, uvMax.Y), color);
 
         _currentPrimitiveCommand!.VertexCount += 6;
     }
+
+    private readonly record struct UiQuad(Vector2 TopLeft, Vector2 TopRight, Vector2 BottomRight,
+        Vector2 BottomLeft);
 
     private void AddMaterialQuad(Vector2 topLeft, Vector2 topRight, Vector2 bottomRight,
         Vector2 bottomLeft, Vector2 uvMin, Vector2 uvMax)

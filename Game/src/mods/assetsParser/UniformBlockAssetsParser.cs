@@ -2,7 +2,6 @@ using GlimmerWorks.Engine;
 using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Engine.Vfs;
 using GlimmerWorks.Game.Attributes;
-using GlimmerWorks.Game.Graphics;
 using GlimmerWorks.Game.Graphics.Uniform;
 using JetBrains.Annotations;
 

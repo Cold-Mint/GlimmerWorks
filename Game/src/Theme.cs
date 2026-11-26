@@ -30,7 +30,7 @@ public class Theme
     /// </summary>
     public FSColor Primary { get; set; } = new(103, 80, 164);
 
-    public FSColor Transparent => new(0, 0, 0, 0);
+    public static FSColor Transparent => new(0, 0, 0, 0);
 
     public int BorderWidth { get; set; } = 2;
 
@@ -38,7 +38,7 @@ public class Theme
     /// <para>Surface</para>
     /// <para>表面颜色</para>
     /// </summary>
-    public FSColor Surface = new(242, 242, 247);
+    public FSColor Surface { get; set; } = new(242, 242, 247);
 
     /// <summary>
     /// <para>OnPrimary</para>
@@ -81,12 +81,6 @@ public class Theme
             ThemeFontKind.ExtraLarge => _fontSystem.GetFont(128),
             _ => _fontSystem.GetFont(48)
         };
-    }
-
-
-    public void Reset()
-    {
-        _fontSystem.Reset();
     }
 
     public void AddFont(Stream stream)

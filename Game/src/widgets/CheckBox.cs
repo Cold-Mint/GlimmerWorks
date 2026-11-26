@@ -11,13 +11,13 @@ public sealed class CheckBox : CheckButton
         var size = theme.MinHeight;
         CheckImage.Width = size;
         CheckImage.Height = size;
-        var transparent = new SolidBrush(theme.Transparent);
+        var transparent = new SolidBrush(Theme.Transparent);
         CheckImage.Background = transparent;
         CheckImage.OverBackground = transparent;
         CheckImage.PressedBackground = transparent;
         CheckImage.DisabledBackground = transparent;
         var hollow = new RoundedCornersHollowBrush(
-                theme.Primary, theme.Transparent, theme.BorderWidth)
+                theme.Primary, Theme.Transparent, theme.BorderWidth)
             { Radius = theme.CheckBoxRadius };
 
         var hollowHover = new RoundedCornersHollowBrush(

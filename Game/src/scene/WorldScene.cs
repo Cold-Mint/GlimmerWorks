@@ -3,10 +3,11 @@ using GlimmerWorks.Engine.math;
 using GlimmerWorks.Engine.World;
 using GlimmerWorks.Engine.World.Render;
 using GlimmerWorks.Engine.World.Streaming;
-using GlimmerWorks.Engine.World.Tiles;
 using GlimmerWorks.Game.Graphics.Rendering;
+using GlimmerWorks.Game.Graphics.Uniform;
 using SDL3;
 using TileResource = GlimmerWorks.Engine.Mods.Resources.TileResource;
+using System.Numerics;
 
 namespace GlimmerWorks.Game.Scene;
 
@@ -118,6 +119,10 @@ public sealed class WorldScene : BaseScene
         }
 
         _world.RefreshLighting();
+        RuntimeUniformState.CameraPosition = new Vector2(_camera.X, _camera.Y);
+        RuntimeUniformState.CameraZoom = _zoom;
+        RuntimeUniformState.SeaLevel =
+            _world.CurrentDimension.Resource.SeaLevelY * (float)WorldConstants.TilePixelSize;
         var camera = new CameraView(_camera, new WorldVector2D(width, height), _zoom);
         var commands = _renderCache.Get(_world.CurrentDimension.Store, camera.GetWorldRect());
 
@@ -127,6 +132,15 @@ public sealed class WorldScene : BaseScene
             var left = (bounds.Left - _camera.X) * _zoom + width * 0.5F;
             var top = height * 0.5F - (bounds.Top - _camera.Y) * _zoom;
             var rect = new RectF(left, top, bounds.Width * _zoom, bounds.Height * _zoom);
+            var material = command.Texture.Material is { } materialRef
+                ? renderer.LoadMaterial(materialRef)
+                : null;
+            if (material != null)
+            {
+                renderer.DrawMaterial(material, rect, ApplyLight(new Color(255, 255, 255), command));
+                continue;
+            }
+
             var baseColor = BaseColor(command.Tile.Resource, command.Layer);
             renderer.FillRectangle(rect, ApplyLight(baseColor, command));
         }

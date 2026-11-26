@@ -158,10 +158,7 @@ public class AssetsPackManager : PackManager<GameAppContext, AssetsPack>, ICompa
                 {
                     continue;
                 }
-
-                result.Exist = true;
                 result.Result = assets;
-                result.AssetsPackId = assetsPack.Manifest.Id;
                 return result;
             }
         }

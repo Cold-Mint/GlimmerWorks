@@ -42,7 +42,7 @@ public class SplashScene(GameAppContext appContext) : BaseScene(appContext)
             Font = AppContext.Theme.GetFont(ThemeFontKind.Large),
         });
         SetWidget(panel);
-        LoadPacks();
+        _ = LoadPacksAsync();
     }
 
     protected override void OnDraw(Renderer2D renderer)
@@ -63,7 +63,23 @@ public class SplashScene(GameAppContext appContext) : BaseScene(appContext)
         _pendingMessage = null;
     }
 
-    private async void LoadPacks()
+    /// <summary>
+    /// <para>Loads data packs, asset packs and then enters the main scene.</para>
+    /// <para>加载数据包、资源包，然后进入主场景。</para>
+    /// </summary>
+    private async Task LoadPacksAsync()
+    {
+        try
+        {
+            await LoadPacksCoreAsync();
+        }
+        catch (Exception exception)
+        {
+            LogCat.Error($"Failed to load packs: {exception}");
+        }
+    }
+
+    private async Task LoadPacksCoreAsync()
     {
         var dataPackCount =
             await AppContext.DataPackManager.ScanAndLoad(AppContext,

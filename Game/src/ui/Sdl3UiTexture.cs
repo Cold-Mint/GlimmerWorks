@@ -9,7 +9,5 @@ namespace GlimmerWorks.Game.Ui;
 internal sealed class Sdl3UiTexture(IntPtr handle, int width, int height)
 {
     public IntPtr Handle { get; } = handle;
-    public int Width { get; } = width;
-    public int Height { get; } = height;
-    public Point Size => new(Width, Height);
+    public Point Size => new(width, height);
 }

@@ -8,7 +8,6 @@ using GlimmerWorks.Game.Mods;
 using GlimmerWorks.Game.Scene;
 using GlimmerWorks.Game.Ui;
 using AppContext = GlimmerWorks.Engine.AppContext;
-using Myra.Graphics2D.UI;
 using Microsoft.Extensions.Localization;
 using SDL3;
 
@@ -16,6 +15,8 @@ namespace GlimmerWorks.Game;
 
 public class GameAppContext : AppContext
 {
+    private const string AssetsDirectory = "assets";
+
     public SceneStack SceneStack { get; } = new();
 
     public GameConfig GameConfig { get; } = new();
@@ -30,7 +31,6 @@ public class GameAppContext : AppContext
     public IStringLocalizer Localizer => LocalizationManager;
     public Theme Theme { get; } = new();
 
-    public Desktop? Desktop { get; set; }
 
     /// <summary>
     /// <para>The GPU device used by the game.</para>
@@ -122,7 +122,6 @@ public class GameAppContext : AppContext
         }
 
         Ui = new GameUi(device, window, swapchainFormat, vertexShader, fragmentShader);
-        Desktop = Ui.Desktop;
         LogCat.Info("Myra UI initialized.");
         return true;
     }
@@ -133,7 +132,7 @@ public class GameAppContext : AppContext
         // Cover the game configuration.
         // 覆盖游戏配置。
         var gameConfig =
-            VirtualFileSystem.ReadToml<GameConfig>(new VirtualPath("assets", "config.toml"));
+            VirtualFileSystem.ReadToml<GameConfig>(new VirtualPath(AssetsDirectory, "config.toml"));
         if (gameConfig != null)
         {
             GameConfig = gameConfig;
@@ -164,31 +163,13 @@ public class GameAppContext : AppContext
     {
         LocalizationManager.Clear();
         LocalizationManager.CurrentLanguage = language;
-        var candidates = LocalizationManager.GetCandidates(language);
-        bool loadFont = false;
-        bool loadLangs = false;
-        foreach (var candidate in candidates)
+
+        var loadFont = false;
+        var loadLangs = false;
+        foreach (var candidate in LocalizationManager.GetCandidates(language))
         {
-            var poFile = new VirtualPath("assets", "langs", $"{candidate}.po");
-            if (!loadLangs && VirtualFileSystem.FileExists(poFile) &&
-                LocalizationManager.LoadPoFile(VirtualFileSystem, poFile))
-            {
-                loadLangs = true;
-            }
-
-            var ttfVirtualPath = new VirtualPath("assets", "fonts", $"{candidate}.ttf");
-            if (!loadFont && VirtualFileSystem.FileExists(ttfVirtualPath))
-            {
-                var stream = VirtualFileSystem.OpenRead(ttfVirtualPath);
-                if (stream == null)
-                {
-                    continue;
-                }
-
-                Theme.AddFont(stream);
-                loadFont = true;
-            }
-
+            loadLangs = loadLangs || TryLoadLanguage(candidate);
+            loadFont = loadFont || TryLoadFont(candidate);
             if (loadFont && loadLangs)
             {
                 break;
@@ -197,15 +178,59 @@ public class GameAppContext : AppContext
 
         if (!loadFont)
         {
-            var defaultFontPath = new VirtualPath("assets", "fonts", "default.ttf");
-            if (VirtualFileSystem.FileExists(defaultFontPath))
-            {
-                var stream = VirtualFileSystem.OpenRead(defaultFontPath);
-                if (stream != null)
-                {
-                    Theme.AddFont(stream);
-                }
-            }
+            LoadDefaultFont();
+        }
+    }
+
+    /// <summary>
+    /// <para>Try to load the .po file for a language candidate.</para>
+    /// <para>尝试加载语言候选对应的 .po 文件。</para>
+    /// </summary>
+    private bool TryLoadLanguage(string candidate)
+    {
+        var poFile = new VirtualPath(AssetsDirectory, "langs", $"{candidate}.po");
+        return VirtualFileSystem.FileExists(poFile) &&
+               LocalizationManager.LoadPoFile(VirtualFileSystem, poFile);
+    }
+
+    /// <summary>
+    /// <para>Try to load the .ttf font for a language candidate.</para>
+    /// <para>尝试加载语言候选对应的 .ttf 字体。</para>
+    /// </summary>
+    private bool TryLoadFont(string candidate)
+    {
+        var fontPath = new VirtualPath(AssetsDirectory, "fonts", $"{candidate}.ttf");
+        if (!VirtualFileSystem.FileExists(fontPath))
+        {
+            return false;
+        }
+
+        var stream = VirtualFileSystem.OpenRead(fontPath);
+        if (stream == null)
+        {
+            return false;
+        }
+
+        Theme.AddFont(stream);
+        return true;
+    }
+
+    /// <summary>
+    /// <para>Load the fallback font when no language font was found.</para>
+    /// <para>没有找到语言字体时加载兜底字体。</para>
+    /// </summary>
+    private void LoadDefaultFont()
+    {
+        var defaultFontPath = new VirtualPath(AssetsDirectory, "fonts", "default.ttf");
+        if (!VirtualFileSystem.FileExists(defaultFontPath))
+        {
+            return;
+        }
+
+        var stream = VirtualFileSystem.OpenRead(defaultFontPath);
+        if (stream != null)
+        {
+            Theme.AddFont(stream);
         }
     }
 }

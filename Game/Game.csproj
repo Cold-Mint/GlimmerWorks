@@ -16,6 +16,7 @@
         <PackageReference Include="Karambolo.PO" Version="1.13.0"/>
         <PackageReference Include="SDL3-CS" Version="3.4.20"/>
         <PackageReference Include="SDL3-CS.Windows" Version="3.4.20"/>
+        <PackageReference Include="SDL3-CS.Windows.Image" Version="3.4.8.1"/>
         <PackageReference Include="Silk.NET.Shaderc" Version="2.23.0"/>
     </ItemGroup>
 

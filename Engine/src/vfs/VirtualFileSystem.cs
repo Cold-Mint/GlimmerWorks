@@ -137,6 +137,10 @@ public class VirtualFileSystem
         .OfType<Stream>()
         .FirstOrDefault();
 
+    public bool Mkdir(VirtualPath path)
+    {
+        return _fileSystemProviders.Select(fileSystemProvider => fileSystemProvider.Mkdir(path)).Any(result => result);
+    }
 
     /// <summary>
     /// <para>DirectoryExists</para>

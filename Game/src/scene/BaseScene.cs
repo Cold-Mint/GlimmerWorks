@@ -1,3 +1,4 @@
+using GlimmerWorks.Game.Graphics;
 using Myra.Graphics2D.UI;
 using SDL3;
 
@@ -12,6 +13,10 @@ public abstract class BaseScene(GameAppContext appContext)
     private Widget? _widget;
 
     protected GameAppContext AppContext => appContext;
+
+    protected readonly GpuResourcesHolder GpuResourcesHolder = new();
+
+    private bool _needEnsureGpuResources = true;
 
     /// <summary>
     /// <para>When the scene is pushed onto the stack, the request code set by the parent scene is used.</para>
@@ -64,25 +69,43 @@ public abstract class BaseScene(GameAppContext appContext)
     ///<para>It is recommended to update the data within the Tick function, and it is not advisable to operate the UI.</para>
     ///<para>建议在Tick函数内更新数据，不建议操作UI。</para>
     /// </remarks>
-    public virtual void OnTick(long deltaMs,long globalTick)
+    public virtual void OnTick(long deltaMs, long globalTick)
     {
     }
 
     public virtual void Input(SDL.Event sdlEvent)
     {
-        
+    }
+
+    /// <summary>
+    /// <para>EnsureGpuResources</para>
+    /// <para>确保GPU资源可用</para>
+    /// </summary>
+    /// <param name="sceneFrameContext"></param>
+    public void DoEnsureGpuResources(in SceneFrameContext sceneFrameContext)
+    {
+        if (_needEnsureGpuResources)
+        {
+            EnsureGpuResources(sceneFrameContext);
+            _needEnsureGpuResources = false;
+        }
+    }
+
+    /// <summary>
+    /// <para>EnsureGpuResources</para>
+    /// <para>在这里初始化Gpu资源</para>
+    /// </summary>
+    /// <param name="sceneFrameContext"></param>
+    protected virtual void EnsureGpuResources(in SceneFrameContext sceneFrameContext)
+    {
     }
 
     /// <summary>
     /// <para>Draw</para>
     /// <para>绘制</para>
     /// </summary>
-    public virtual void Draw()
+    public virtual void RenderFrame(in SceneFrameContext sceneFrameContext)
     {
-        if (AppContext.SceneStack.IsTopScene(this) && appContext.Desktop?.Root != _widget)
-        {
-            appContext.Desktop?.Root = _widget;
-        }
     }
 
     /// <summary>

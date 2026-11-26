@@ -6,7 +6,10 @@ namespace GlimmerWorks.Engine.Cache;
 
 public class CacheManager
 {
-    private CacheManifest _manifest = new();
+    private CacheManifest _manifest = new()
+    {
+        CacheCode = EngineConstant.CacheCode,
+    };
 
     /// <summary>
     /// <para>Read the list file stored in the cache</para>
@@ -23,7 +26,7 @@ public class CacheManager
         }
 
         var cacheManifest = appContext.VirtualFileSystem.ReadMemoryPack<CacheManifest>(virtualPath);
-        if (cacheManifest == null || cacheManifest.GameCode != EngineConstant.GameCode)
+        if (cacheManifest == null || cacheManifest.CacheCode != EngineConstant.CacheCode)
         {
             return false;
         }
@@ -168,7 +171,15 @@ public class CacheManager
             Data = data
         };
         _manifest.PathToId.Add(path.Path, uuid);
-        appContext.VirtualFileSystem.WriteMemoryPack(GetCachePath(appContext, cacheType, uuid), cacheEntry);
+        var virtualPath = GetCachePath(appContext, cacheType, uuid);
+        var directoryName = virtualPath.GetDirectoryName();
+        if (directoryName != null)
+        {
+            appContext.VirtualFileSystem.Mkdir(new VirtualPath(directoryName));
+        }
+
+        appContext.VirtualFileSystem.WriteMemoryPack(virtualPath, cacheEntry);
+        WriteCacheManifest(appContext);
         return true;
     }
 

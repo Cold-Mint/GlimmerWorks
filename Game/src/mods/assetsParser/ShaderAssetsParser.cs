@@ -1,6 +1,5 @@
 ﻿using GlimmerWorks.Engine.Vfs;
 using GlimmerWorks.Game.Graphics;
-using MemoryPack;
 
 namespace GlimmerWorks.Game.Mods.assetsParser;
 
@@ -36,7 +35,8 @@ public abstract class ShaderAssetsParser : BaseAssetsParser<CompiledShader>
 
     protected abstract bool IsVertexShader();
 
-    public sealed override CompiledShader? Parser(GameAppContext appContext, FileEntry fileEntry)
+    public sealed override CompiledShader? Parser(GameAppContext appContext, FileEntry fileEntry,
+        string requesterPackId)
     {
         return Compile(IsVertexShader(), appContext, fileEntry);
     }

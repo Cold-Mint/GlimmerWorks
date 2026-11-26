@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 namespace GlimmerWorks.Game.Mods.assetsParser;
 
 [UsedImplicitly]
-[AssetsPaster("fragShader")]
+[AssetsPaster("shader_frag")]
 public class FragmentShaderAssetsParser : ShaderAssetsParser
 {
     public override string GetFileTypeName()

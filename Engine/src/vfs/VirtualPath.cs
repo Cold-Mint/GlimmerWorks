@@ -15,6 +15,11 @@ public class VirtualPath(params string[] path)
         return System.IO.Path.GetRelativePath(rootPath.Path, Path);
     }
 
+    public string? GetDirectoryName()
+    {
+        return System.IO.Path.GetDirectoryName(Path);
+    }
+
     public VirtualPath Combine(params string[] paths)
     {
         var list = new List<string> { Path };

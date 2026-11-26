@@ -10,6 +10,7 @@ public class GlimmerGame
     private IntPtr GpuDevice { get; set; } = IntPtr.Zero;
 
     private IntPtr Window { get; set; } = IntPtr.Zero;
+    private SDL.GPUTextureFormat _swapchainFormat;
 
     public GlimmerGame()
     {
@@ -20,7 +21,7 @@ public class GlimmerGame
 
         _appContext.TickTask.OnTick += OnTick;
         _appContext.SceneStack.AddTask(new SceneStackTask
-            { Scene = new TestScene(_appContext), Type = StackType.Push });
+            { Scene = new SplashScene(_appContext), Type = StackType.Push });
         _appContext.SceneStack.ExecuteTaskQueue();
     }
 
@@ -55,6 +56,7 @@ public class GlimmerGame
             return;
         }
 
+        _swapchainFormat = SDL.GetGPUSwapchainTextureFormat(GpuDevice, Window);
         _appContext.TickTask.Start();
         while (_appContext.SceneStack.Count > 0)
         {
@@ -98,11 +100,15 @@ public class GlimmerGame
         {
             return;
         }
+
         SDL.AcquireGPUSwapchainTexture(cmdBuffer, Window,
             out var swapchainTexture, out var swapchainWidth, out var swapchainHeight);
         if (swapchainTexture != IntPtr.Zero)
         {
-            scene.Draw();
+            var sceneFrameContext = new SceneFrameContext(GpuDevice, cmdBuffer, swapchainTexture,
+                swapchainWidth, swapchainHeight, _swapchainFormat);
+            scene.DoEnsureGpuResources(sceneFrameContext);
+            scene.RenderFrame(sceneFrameContext);
         }
 
         SDL.SubmitGPUCommandBuffer(cmdBuffer);

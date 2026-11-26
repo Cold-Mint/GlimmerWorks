@@ -8,7 +8,7 @@ namespace GlimmerWorks.Game.Mods.assetsParser;
 /// <para>顶点着色器资源解析器</para>
 /// </summary>
 [UsedImplicitly]
-[AssetsPaster("vertShader")]
+[AssetsPaster("shader_vert")]
 public class VertexShaderAssetsParser : ShaderAssetsParser
 {
     public override string GetFileTypeName()

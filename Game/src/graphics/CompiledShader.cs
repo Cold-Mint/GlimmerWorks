@@ -18,6 +18,30 @@ public partial class CompiledShader
     public bool VertexShader { get; set; }
 
     /// <summary>
+    /// <para>The number of samplers defined in the shader.</para>
+    /// <para>着色器中定义的采样纹理数量。</para>
+    /// </summary>
+    public uint NumSamplers { get; set; }
+
+    /// <summary>
+    /// <para>The number of uniform buffers defined in the shader.</para>
+    /// <para>着色器中定义的 Uniform Buffer 数量。</para>
+    /// </summary>
+    public uint NumUniformBuffers { get; set; }
+
+    /// <summary>
+    /// <para>The number of storage textures defined in the shader.</para>
+    /// <para>着色器中定义的存储纹理数量。</para>
+    /// </summary>
+    public uint NumStorageTextures { get; set; }
+
+    /// <summary>
+    /// <para>The number of storage buffers defined in the shader.</para>
+    /// <para>着色器中定义的存储缓冲数量。</para>
+    /// </summary>
+    public uint NumStorageBuffers { get; set; }
+
+    /// <summary>
     /// <para>The size of the SPIR-V bytecode in bytes.</para>
     /// <para>SPIR-V 字节码大小（字节）</para>
     /// </summary>

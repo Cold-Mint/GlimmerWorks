@@ -36,6 +36,31 @@ internal static class ShaderCompiler
     private const uint SpirvMagic = 0x07230203;
 
     /// <summary>
+    /// <para>The size of the SPIR-V header: five 32-bit words.</para>
+    /// <para>SPIR-V 头部大小：5 个 32 位字。</para>
+    /// </summary>
+    private const int SpirvHeaderSize = 5 * sizeof(uint);
+
+    // SPIR-V opcodes used by resource reflection.
+    // 用于资源反射的 SPIR-V 操作码。
+    private const int OpTypeImage = 25;
+    private const int OpTypeSampler = 26;
+    private const int OpTypeSampledImage = 27;
+    private const int OpTypeArray = 28;
+    private const int OpTypeRuntimeArray = 29;
+    private const int OpTypeStruct = 30;
+    private const int OpTypePointer = 32;
+    private const int OpConstant = 43;
+    private const int OpVariable = 59;
+    private const int OpDecorate = 71;
+
+    private const uint DecorationBufferBlock = 3;
+
+    private const uint StorageClassUniformConstant = 0;
+    private const uint StorageClassUniform = 2;
+    private const uint StorageClassStorageBuffer = 12;
+
+    /// <summary>
     /// <para>
     /// The lazily loaded shaderc API. Deferring the load means a missing native
     /// library only breaks shader compilation instead of the whole application.
@@ -92,10 +117,18 @@ internal static class ShaderCompiler
             return null;
         }
 
+        // Reflect the resource declarations so SDL can create the matching shader.
+        // 反射资源声明，供 SDL 创建匹配的着色器使用。
+        var resourceCounts = ReadResourceCounts(spirv);
+
         return new CompiledShader
         {
             Spirv = spirv,
-            VertexShader = vertexShader
+            VertexShader = vertexShader,
+            NumSamplers = resourceCounts.NumSamplers,
+            NumUniformBuffers = resourceCounts.NumUniformBuffers,
+            NumStorageTextures = resourceCounts.NumStorageTextures,
+            NumStorageBuffers = resourceCounts.NumStorageBuffers
         };
     }
 
@@ -258,4 +291,278 @@ internal static class ShaderCompiler
             api.CompilerRelease(compiler);
         }
     }
+
+    /// <summary>
+    /// <para>Counts the shader resources declared in a SPIR-V module.</para>
+    /// <para>统计 SPIR-V 模块中声明的着色器资源数量。</para>
+    /// </summary>
+    /// <param name="spirv">
+    /// <para>The SPIR-V bytecode to inspect.</para>
+    /// <para>要检查的 SPIR-V 字节码。</para>
+    /// </param>
+    /// <returns>
+    /// <para>The resource counts used by <c>SDL.GPUShaderCreateInfo</c>.</para>
+    /// <para>供 <c>SDL.GPUShaderCreateInfo</c> 使用的资源数量。</para>
+    /// </returns>
+    private static ShaderResourceCounts ReadResourceCounts(byte[] spirv)
+    {
+        var types = new Dictionary<uint, SpirvTypeInfo>();
+        var constants = new Dictionary<uint, ulong>();
+        var bufferBlockTypes = new HashSet<uint>();
+        var variables = new List<(uint TypeId, uint StorageClass)>();
+
+        var totalWords = spirv.Length / sizeof(uint);
+        var wordIndex = SpirvHeaderSize / sizeof(uint);
+
+        while (wordIndex < totalWords)
+        {
+            var instruction = ReadWord(spirv, wordIndex);
+            var wordCount = (int)(instruction >> 16);
+            var opcode = (int)(instruction & 0xFFFF);
+
+            if (wordCount <= 0 || wordIndex + wordCount > totalWords)
+            {
+                break;
+            }
+
+            var operand = wordIndex + 1;
+            switch (opcode)
+            {
+                case OpTypeImage when wordCount >= 9:
+                    types[ReadWord(spirv, operand)] = new SpirvTypeInfo
+                    {
+                        Kind = SpirvTypeKind.Image,
+                        // Sampled: 1 = sampled image, 2 = storage image.
+                        // Sampled：1 表示采样图像，2 表示存储图像。
+                        Sampled = ReadWord(spirv, operand + 6)
+                    };
+                    break;
+                case OpTypeSampler when wordCount >= 2:
+                    types[ReadWord(spirv, operand)] = new SpirvTypeInfo
+                    {
+                        Kind = SpirvTypeKind.Sampler
+                    };
+                    break;
+                case OpTypeSampledImage when wordCount >= 3:
+                    types[ReadWord(spirv, operand)] = new SpirvTypeInfo
+                    {
+                        Kind = SpirvTypeKind.SampledImage,
+                        ElementTypeId = ReadWord(spirv, operand + 1)
+                    };
+                    break;
+                case OpTypeArray when wordCount >= 4:
+                    types[ReadWord(spirv, operand)] = new SpirvTypeInfo
+                    {
+                        Kind = SpirvTypeKind.Array,
+                        ElementTypeId = ReadWord(spirv, operand + 1),
+                        LengthId = ReadWord(spirv, operand + 2)
+                    };
+                    break;
+                case OpTypeRuntimeArray when wordCount >= 3:
+                    types[ReadWord(spirv, operand)] = new SpirvTypeInfo
+                    {
+                        Kind = SpirvTypeKind.RuntimeArray,
+                        ElementTypeId = ReadWord(spirv, operand + 1)
+                    };
+                    break;
+                case OpTypeStruct when wordCount >= 2:
+                    types[ReadWord(spirv, operand)] = new SpirvTypeInfo
+                    {
+                        Kind = SpirvTypeKind.Struct
+                    };
+                    break;
+                case OpTypePointer when wordCount >= 4:
+                    types[ReadWord(spirv, operand)] = new SpirvTypeInfo
+                    {
+                        Kind = SpirvTypeKind.Pointer,
+                        ElementTypeId = ReadWord(spirv, operand + 2)
+                    };
+                    break;
+                case OpConstant when wordCount >= 4:
+                    constants[ReadWord(spirv, operand + 1)] = ReadWord(spirv, operand + 2);
+                    break;
+                case OpVariable when wordCount >= 4:
+                    variables.Add((ReadWord(spirv, operand), ReadWord(spirv, operand + 2)));
+                    break;
+                case OpDecorate when wordCount >= 3:
+                    if (ReadWord(spirv, operand + 1) == DecorationBufferBlock)
+                    {
+                        bufferBlockTypes.Add(ReadWord(spirv, operand));
+                    }
+
+                    break;
+            }
+
+            wordIndex += wordCount;
+        }
+
+        // BufferBlock marks a Uniform struct as a storage buffer in SPIR-V 1.0.
+        // BufferBlock 表示 SPIR-V 1.0 中 Uniform 存储类下的结构体是存储缓冲。
+        foreach (var typeId in bufferBlockTypes)
+        {
+            if (types.TryGetValue(typeId, out var type))
+            {
+                type.IsBufferBlock = true;
+                types[typeId] = type;
+            }
+        }
+
+        uint samplers = 0;
+        uint uniformBuffers = 0;
+        uint storageTextures = 0;
+        uint storageBuffers = 0;
+
+        foreach (var (typeId, storageClass) in variables)
+        {
+            var multiplicity = 1u;
+            ResolveResourceType(typeId, types, constants, ref multiplicity, out var typeInfo);
+
+            switch (storageClass)
+            {
+                case StorageClassUniformConstant:
+                    if (typeInfo.Kind is SpirvTypeKind.SampledImage or SpirvTypeKind.Sampler)
+                    {
+                        samplers += multiplicity;
+                    }
+                    else if (typeInfo.Kind == SpirvTypeKind.Image)
+                    {
+                        if (typeInfo.Sampled == 2)
+                        {
+                            storageTextures += multiplicity;
+                        }
+                        else
+                        {
+                            samplers += multiplicity;
+                        }
+                    }
+
+                    break;
+                case StorageClassUniform:
+                    if (typeInfo.Kind == SpirvTypeKind.Struct && typeInfo.IsBufferBlock)
+                    {
+                        storageBuffers += multiplicity;
+                    }
+                    else
+                    {
+                        uniformBuffers += multiplicity;
+                    }
+
+                    break;
+                case StorageClassStorageBuffer:
+                    storageBuffers += multiplicity;
+                    break;
+            }
+        }
+
+        return new ShaderResourceCounts(samplers, uniformBuffers, storageTextures, storageBuffers);
+    }
+
+    /// <summary>
+    /// <para>
+    /// Resolves a variable type through pointers and arrays to the resource type it represents.
+    /// </para>
+    /// <para>
+    /// 沿着指针和数组解析变量类型，得到它实际表示的资源类型。
+    /// </para>
+    /// </summary>
+    /// <param name="typeId">
+    /// <para>The SPIR-V result id of the variable type.</para>
+    /// <para>变量类型对应的 SPIR-V 结果 ID。</para>
+    /// </param>
+    /// <param name="types">
+    /// <para>The collected SPIR-V type definitions.</para>
+    /// <para>已收集的 SPIR-V 类型定义。</para>
+    /// </param>
+    /// <param name="constants">
+    /// <para>The collected SPIR-V integer constants, used for array lengths.</para>
+    /// <para>已收集的 SPIR-V 整数常量，用于数组长度。</para>
+    /// </param>
+    /// <param name="multiplicity">
+    /// <para>The number of resource slots represented by the variable.</para>
+    /// <para>该变量占用的资源槽位数量。</para>
+    /// </param>
+    /// <param name="typeInfo">
+    /// <para>The resolved resource type.</para>
+    /// <para>解析后的资源类型。</para>
+    /// </param>
+    private static void ResolveResourceType(uint typeId, Dictionary<uint, SpirvTypeInfo> types,
+        Dictionary<uint, ulong> constants, ref uint multiplicity, out SpirvTypeInfo typeInfo)
+    {
+        typeInfo = default;
+        var currentTypeId = typeId;
+
+        for (var depth = 0; depth < 32; depth++)
+        {
+            if (!types.TryGetValue(currentTypeId, out typeInfo))
+            {
+                return;
+            }
+
+            switch (typeInfo.Kind)
+            {
+                case SpirvTypeKind.Pointer:
+                    currentTypeId = typeInfo.ElementTypeId;
+                    continue;
+                case SpirvTypeKind.Array:
+                    var length = constants.TryGetValue(typeInfo.LengthId, out var constant)
+                        ? (uint)constant
+                        : 1u;
+                    multiplicity = MultiplyMultiplicity(multiplicity, length);
+                    currentTypeId = typeInfo.ElementTypeId;
+                    continue;
+                case SpirvTypeKind.RuntimeArray:
+                    currentTypeId = typeInfo.ElementTypeId;
+                    continue;
+                default:
+                    return;
+            }
+        }
+
+        // The type chain is unexpectedly deep; treat it as unknown.
+        // 类型链异常过长，按未知类型处理。
+        typeInfo = default;
+    }
+
+    private static uint MultiplyMultiplicity(uint left, uint right)
+    {
+        if (left == 0 || right == 0)
+        {
+            return 0;
+        }
+
+        return left > uint.MaxValue / right ? uint.MaxValue : left * right;
+    }
+
+    private static uint ReadWord(byte[] spirv, int wordIndex)
+    {
+        return BinaryPrimitives.ReadUInt32LittleEndian(
+            spirv.AsSpan(wordIndex * sizeof(uint), sizeof(uint)));
+    }
+
+    private enum SpirvTypeKind
+    {
+        Unknown,
+        Image,
+        Sampler,
+        SampledImage,
+        Array,
+        RuntimeArray,
+        Struct,
+        Pointer
+    }
+
+    private struct SpirvTypeInfo
+    {
+        public SpirvTypeKind Kind;
+        public uint Sampled;
+        public uint ElementTypeId;
+        public uint LengthId;
+        public bool IsBufferBlock;
+    }
+
+    private readonly record struct ShaderResourceCounts(
+        uint NumSamplers,
+        uint NumUniformBuffers,
+        uint NumStorageTextures,
+        uint NumStorageBuffers);
 }

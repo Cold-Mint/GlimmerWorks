@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Engine.Vfs;
+using GlimmerWorks.Game.Graphics.Uniform;
 using GlimmerWorks.Game.Mods;
 using GlimmerWorks.Game.Scene;
 using AppContext = GlimmerWorks.Engine.AppContext;
@@ -16,6 +17,8 @@ public class GameAppContext : AppContext
     public GameConfig GameConfig { get; } = new();
 
     public AssetsPackManager AssetsPackManager { get; } = new();
+
+    public RuntimeUniformManager RuntimeUniformManager { get; } = new();
 
     public DataPackManager DataPackManager { get; } = new();
 

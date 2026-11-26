@@ -43,6 +43,18 @@ public class LocalFileSystemProvider(string rootPath) : IFileSystemProvider
         return realPath != null && new DirectoryInfo(realPath.Path).Exists;
     }
 
+    public bool Mkdir(VirtualPath path)
+    {
+        var realPath = VirtualPathToRealPath(path);
+        if (realPath == null)
+        {
+            return false;
+        }
+
+        Directory.CreateDirectory(realPath.Path);
+        return true;
+    }
+
     public FileEntry? GetFileEntry(VirtualPath path)
     {
         var realPath = VirtualPathToRealPath(path);

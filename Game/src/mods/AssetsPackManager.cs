@@ -34,22 +34,18 @@ public class AssetsPackManager : PackManager<GameAppContext, AssetsPack>, ICompa
     public AssetsPackManager()
     {
         var assembly = Assembly.GetExecutingAssembly();
-        var openGeneric = typeof(BaseAssetsParser<>);
         foreach (var type in assembly.GetTypes())
         {
-            if (type.IsAbstract || type.IsInterface || !openGeneric.IsAssignableFrom(type))
+            if (type.IsAbstract || type.IsInterface)
             {
-                //It must be a subclass of BaseAssetsParser. It cannot be an abstract class, nor can it be an interface.
-                //必须是BaseAssetsParser的子类。不能是抽象类，不能是接口。
                 continue;
             }
-
             var attr = type.GetCustomAttribute<AssetsPasterAttribute>();
             if (attr is null)
             {
                 continue;
             }
-
+            
             var assetsParser = Activator.CreateInstance(type);
             if (assetsParser == null)
             {
@@ -117,7 +113,7 @@ public class AssetsPackManager : PackManager<GameAppContext, AssetsPack>, ICompa
             return default;
         }
 
-        var asset = parser.Parser(appContext, fileEntry);
+        var asset = parser.Parser(appContext, fileEntry, assetsPackId);
         if (Equals(asset, default(T)))
         {
             return default;
@@ -129,7 +125,7 @@ public class AssetsPackManager : PackManager<GameAppContext, AssetsPack>, ICompa
                 MemoryPackSerializer.Serialize(asset), assetsPackId);
         }
 
-        return default;
+        return asset;
     }
 
     public AssetResult<T> FindAsset<T>(GameAppContext appContext, ResourceRef resourceRef)

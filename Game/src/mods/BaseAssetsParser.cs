@@ -22,9 +22,10 @@ public abstract class BaseAssetsParser<T>
     /// <returns></returns>
     public abstract string GetFileTypeName();
 
+
     /// <summary>
     /// <para>Parser</para>
-    /// <para>解析资产</para>
+    /// <para>解析资产（包含请求该资产的资产包 ID，用于解析 @self 之类的相对引用）。</para>
     /// </summary>
     /// <param name="appContext">
     ///<para>appContext</para>
@@ -34,8 +35,12 @@ public abstract class BaseAssetsParser<T>
     ///<para>fileEntry</para>
     ///<para>文件实体</para>
     /// </param>
+    /// <param name="requesterPackId">
+    ///<para>The ID of the asset pack that owns this asset file.</para>
+    ///<para>该资产文件所属资产包的 ID。</para>
+    /// </param>
     /// <returns></returns>
-    public abstract T? Parser(GameAppContext appContext, FileEntry fileEntry);
+    public abstract T? Parser(GameAppContext appContext, FileEntry fileEntry, string requesterPackId);
 
 
     /// <summary>

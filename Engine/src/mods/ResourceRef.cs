@@ -3,8 +3,20 @@ using Tomlyn.Serialization;
 
 namespace GlimmerWorks.Engine.Mods;
 
+public static class ResourceType
+{
+    public static readonly string FragShader = "shader_frag";
+    public static readonly string VertShader = "shader_vert";
+    public static readonly string Material = "material";
+    public static readonly string Pipeline = "pipeline";
+    public static readonly string Texture = "texture";
+    public static readonly string UniformBlock = "uniform_block";
+}
+
 public class ResourceRef
 {
+    public static readonly string CorePackId = "@core";
+
     public string RequesterPackId { get; private set; } = string.Empty;
 
     [UsedImplicitly]
@@ -49,6 +61,34 @@ public class ResourceRef
             ResourceType = array[0],
             TargetPackId = array[1],
             ResourceId = array[2]
+        };
+        resourceRef.SetPackId(requesterPackId);
+        return resourceRef;
+    }
+
+    /// <summary>
+    /// <para>Create</para>
+    /// <para>创建资源引用</para>
+    /// </summary>
+    /// <param name="resourceType"></param>
+    /// <param name="requesterPackId">
+    ///<para>The pack that requests the resource.</para>
+    ///<para>请求该资源的资产包 ID。</para>
+    /// </param>
+    /// <param name="targetPackId">
+    ///<para>The pack that owns the resource. "@self" means the requester pack.</para>
+    ///<para>资源所在的资产包 ID。"@self" 表示请求者所在的资产包。</para>
+    /// </param>
+    /// <param name="resourceId"></param>
+    /// <returns></returns>
+    public static ResourceRef Create(string resourceType, string requesterPackId, string targetPackId,
+        string resourceId)
+    {
+        ResourceRef resourceRef = new()
+        {
+            ResourceType = resourceType,
+            TargetPackId = targetPackId,
+            ResourceId = resourceId
         };
         resourceRef.SetPackId(requesterPackId);
         return resourceRef;

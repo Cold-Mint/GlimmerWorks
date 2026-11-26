@@ -14,9 +14,11 @@ public interface IFileSystemProvider
 
     bool DirectoryExists(VirtualPath path);
 
-    
+    bool Mkdir(VirtualPath path);
+
+
     FileEntry? GetFileEntry(VirtualPath path);
-    
+
     bool FileExists(VirtualPath path);
 
     string? ReadAllText(VirtualPath path);
@@ -38,8 +40,7 @@ public interface IFileSystemProvider
     /// <param name="bytes"></param>
     /// <returns></returns>
     bool WriteAllBytes(VirtualPath path, ReadOnlySpan<byte> bytes);
-    
-    
+
 
     Stream? OpenRead(VirtualPath path);
 }

@@ -36,6 +36,12 @@ public abstract class PackManager<TAppContext, TPack> where TAppContext : AppCon
     }
 
     /// <summary>
+    /// <para>The number of loaded packs.</para>
+    /// <para>已加载的包数量。</para>
+    /// </summary>
+    public int PackCount => _packs.Count;
+
+    /// <summary>
     /// <para>GetPack</para>
     /// <para>获取某个包</para>
     /// </summary>

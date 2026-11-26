@@ -1,4 +1,6 @@
+using GlimmerWorks.Engine.Mods;
 using GlimmerWorks.Game.Graphics;
+using GlimmerWorks.Game.Graphics.Rendering;
 using Myra.Graphics2D.UI;
 using SDL3;
 
@@ -15,6 +17,14 @@ public abstract class BaseScene(GameAppContext appContext)
     protected GameAppContext AppContext => appContext;
 
     protected readonly GpuResourcesHolder GpuResourcesHolder = new();
+
+    private Renderer2D? _renderer;
+
+    /// <summary>
+    /// <para>The color used to clear the screen before drawing.</para>
+    /// <para>绘制前清屏使用的颜色。</para>
+    /// </summary>
+    protected virtual Color ClearColor => new(13, 13, 20);
 
     private bool _needEnsureGpuResources = true;
 
@@ -102,10 +112,48 @@ public abstract class BaseScene(GameAppContext appContext)
 
     /// <summary>
     /// <para>Draw</para>
-    /// <para>绘制</para>
+    /// <para>绘制一帧：清屏、调用 <see cref="OnDraw"/> 并结束渲染通道。</para>
     /// </summary>
-    public virtual void RenderFrame(in SceneFrameContext sceneFrameContext)
+    public void Draw(in SceneFrameContext sceneFrameContext)
     {
+        var renderer = _renderer ??= new Renderer2D(appContext, GpuResourcesHolder);
+        renderer.Begin(sceneFrameContext, ClearColor);
+        try
+        {
+            OnDraw(renderer);
+        }
+        finally
+        {
+            renderer.End();
+        }
+
+        if (_widget == null)
+        {
+            AppContext.Ui?.SetRoot(null);
+            return;
+        }
+
+        AppContext.EnsureUiInitialized(sceneFrameContext);
+        AppContext.Ui?.SetRoot(_widget);
+        AppContext.Ui?.Render(sceneFrameContext);
+    }
+
+    /// <summary>
+    /// <para>OnDraw</para>
+    /// <para>在这里使用 <see cref="Renderer2D"/> 提交绘制内容。</para>
+    /// </summary>
+    protected virtual void OnDraw(Renderer2D renderer)
+    {
+    }
+
+    /// <summary>
+    /// <para>DoCreate</para>
+    /// <para>初始化 UI 环境并调用 <see cref="OnCreate"/>。</para>
+    /// </summary>
+    public void DoCreate()
+    {
+        AppContext.InitializeUi();
+        OnCreate();
     }
 
     /// <summary>
@@ -123,6 +171,7 @@ public abstract class BaseScene(GameAppContext appContext)
     /// </summary>
     public virtual void OnDestroy()
     {
+        GpuResourcesHolder.Destroy();
     }
 
     /// <summary>

@@ -71,17 +71,14 @@ public class ResourceRef
     /// <para>创建资源引用</para>
     /// </summary>
     /// <param name="resourceType"></param>
-    /// <param name="requesterPackId">
-    ///<para>The pack that requests the resource.</para>
-    ///<para>请求该资源的资产包 ID。</para>
-    /// </param>
     /// <param name="targetPackId">
     ///<para>The pack that owns the resource. "@self" means the requester pack.</para>
     ///<para>资源所在的资产包 ID。"@self" 表示请求者所在的资产包。</para>
     /// </param>
     /// <param name="resourceId"></param>
     /// <returns></returns>
-    public static ResourceRef Create(string resourceType, string requesterPackId, string targetPackId,
+    public static ResourceRef Create(string resourceType, 
+        string targetPackId,
         string resourceId)
     {
         ResourceRef resourceRef = new()
@@ -90,7 +87,7 @@ public class ResourceRef
             TargetPackId = targetPackId,
             ResourceId = resourceId
         };
-        resourceRef.SetPackId(requesterPackId);
+        resourceRef.SetPackId(CorePackId);
         return resourceRef;
     }
 

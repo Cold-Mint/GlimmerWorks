@@ -265,6 +265,95 @@ public class GpuResourcesHolder
     }
 
     /// <summary>
+    /// <para>CreateBuffer</para>
+    /// <para>创建 GPU 缓冲区，不立即上传数据。</para>
+    /// </summary>
+    /// <param name="usage"></param>
+    /// <param name="size"></param>
+    /// <returns></returns>
+    public nint? CreateBuffer(SDL.GPUBufferUsageFlags usage, uint size)
+    {
+        if (GpuDevice == IntPtr.Zero)
+        {
+            LogCat.Error("Failed to create GPU buffer: GPU device is not available.");
+            return null;
+        }
+
+        if (size == 0)
+        {
+            LogCat.Error("Failed to create GPU buffer: the size is zero.");
+            return null;
+        }
+
+        var createInfo = new SDL.GPUBufferCreateInfo
+        {
+            Usage = usage,
+            Size = size
+        };
+        var buffer = SDL.CreateGPUBuffer(GpuDevice, in createInfo);
+        if (buffer == IntPtr.Zero)
+        {
+            LogCat.Error($"Failed to create GPU buffer: {SDL.GetError()}");
+            return null;
+        }
+
+        _bufferList.Add(buffer);
+        return buffer;
+    }
+
+    /// <summary>
+    /// <para>UpdateBuffer</para>
+    /// <para>把数据上传到已有的 GPU 缓冲区。</para>
+    /// </summary>
+    /// <param name="buffer"></param>
+    /// <param name="data"></param>
+    /// <param name="commandBuffer"></param>
+    /// <param name="cycle"></param>
+    /// <returns></returns>
+    public bool UpdateBuffer(nint buffer, ReadOnlySpan<byte> data, nint commandBuffer, bool cycle = false)
+    {
+        if (GpuDevice == IntPtr.Zero || buffer == IntPtr.Zero || commandBuffer == IntPtr.Zero)
+        {
+            LogCat.Error("Failed to update GPU buffer: GPU device, buffer or command buffer is not available.");
+            return false;
+        }
+
+        if (data.Length == 0)
+        {
+            return true;
+        }
+
+        var transferBuffer = UploadData(data, out _);
+        if (transferBuffer == IntPtr.Zero)
+        {
+            return false;
+        }
+
+        try
+        {
+            var copyPass = SDL.BeginGPUCopyPass(commandBuffer);
+            var source = new SDL.GPUTransferBufferLocation
+            {
+                TransferBuffer = transferBuffer,
+                Offset = 0
+            };
+            var destination = new SDL.GPUBufferRegion
+            {
+                Buffer = buffer,
+                Offset = 0,
+                Size = (uint)data.Length
+            };
+            SDL.UploadToGPUBuffer(copyPass, in source, in destination, cycle);
+            SDL.EndGPUCopyPass(copyPass);
+            return true;
+        }
+        finally
+        {
+            SDL.ReleaseGPUTransferBuffer(GpuDevice, transferBuffer);
+        }
+    }
+
+    /// <summary>
     /// <para>AddGraphicsPipeline</para>
     /// <para>根据材质管线创建图形管线。</para>
     /// </summary>
@@ -276,8 +365,13 @@ public class GpuResourcesHolder
     ///<para>The swapchain color target format.</para>
     ///<para>交换链颜色目标格式。</para>
     /// </param>
+    /// <param name="vertexLayout">
+    ///<para>The vertex input layout used by the pipeline.</para>
+    ///<para>管线使用的顶点输入布局。</para>
+    /// </param>
     /// <returns></returns>
-    public nint? AddGraphicsPipeline(Pipeline pipeline, SDL.GPUTextureFormat targetFormat)
+    public nint? AddGraphicsPipeline(Pipeline pipeline, SDL.GPUTextureFormat targetFormat,
+        VertexLayout vertexLayout = VertexLayout.PositionTexture)
     {
         if (GpuDevice == IntPtr.Zero)
         {
@@ -298,33 +392,7 @@ public class GpuResourcesHolder
             return null;
         }
 
-        var vertexBuffers = new[]
-        {
-            new SDL.GPUVertexBufferDescription
-            {
-                Slot = 0,
-                Pitch = VertexStride,
-                InputRate = SDL.GPUVertexInputRate.Vertex,
-                InstanceStepRate = 0
-            }
-        };
-        var vertexAttributes = new[]
-        {
-            new SDL.GPUVertexAttribute
-            {
-                Location = 0,
-                BufferSlot = 0,
-                Format = SDL.GPUVertexElementFormat.Float2,
-                Offset = 0
-            },
-            new SDL.GPUVertexAttribute
-            {
-                Location = 1,
-                BufferSlot = 0,
-                Format = SDL.GPUVertexElementFormat.Float2,
-                Offset = 8
-            }
-        };
+        var (vertexBuffers, vertexAttributes) = CreateVertexInput(vertexLayout);
         var colorTargets = new[]
         {
             new SDL.GPUColorTargetDescription
@@ -378,10 +446,75 @@ public class GpuResourcesHolder
     }
 
     /// <summary>
-    /// <para>The byte stride of the engine's default vertex format (position + UV).</para>
-    /// <para>引擎默认顶点格式的字节步长（位置 + UV）。</para>
+    /// <para>The byte stride of the position + UV vertex format.</para>
+    /// <para>位置 + UV 顶点格式的字节步长。</para>
     /// </summary>
-    public const uint VertexStride = 4 * sizeof(float);
+    public const uint PositionTextureStride = 4 * sizeof(float);
+
+    /// <summary>
+    /// <para>The byte stride of the position + UV + color vertex format.</para>
+    /// <para>位置 + UV + 颜色顶点格式的字节步长。</para>
+    /// </summary>
+    public const uint PositionTextureColorStride = 8 * sizeof(float);
+
+    private static (SDL.GPUVertexBufferDescription[] Buffers, SDL.GPUVertexAttribute[] Attributes)
+        CreateVertexInput(VertexLayout vertexLayout)
+    {
+        var buffer = new SDL.GPUVertexBufferDescription
+        {
+            Slot = 0,
+            Pitch = vertexLayout == VertexLayout.PositionTextureColor
+                ? PositionTextureColorStride
+                : PositionTextureStride,
+            InputRate = SDL.GPUVertexInputRate.Vertex,
+            InstanceStepRate = 0
+        };
+
+        var attributes = vertexLayout == VertexLayout.PositionTextureColor
+            ? new[]
+            {
+                new SDL.GPUVertexAttribute
+                {
+                    Location = 0,
+                    BufferSlot = 0,
+                    Format = SDL.GPUVertexElementFormat.Float2,
+                    Offset = 0
+                },
+                new SDL.GPUVertexAttribute
+                {
+                    Location = 1,
+                    BufferSlot = 0,
+                    Format = SDL.GPUVertexElementFormat.Float2,
+                    Offset = 8
+                },
+                new SDL.GPUVertexAttribute
+                {
+                    Location = 2,
+                    BufferSlot = 0,
+                    Format = SDL.GPUVertexElementFormat.Float4,
+                    Offset = 16
+                }
+            }
+            : new[]
+            {
+                new SDL.GPUVertexAttribute
+                {
+                    Location = 0,
+                    BufferSlot = 0,
+                    Format = SDL.GPUVertexElementFormat.Float2,
+                    Offset = 0
+                },
+                new SDL.GPUVertexAttribute
+                {
+                    Location = 1,
+                    BufferSlot = 0,
+                    Format = SDL.GPUVertexElementFormat.Float2,
+                    Offset = 8
+                }
+            };
+
+        return ([buffer], attributes);
+    }
 
     private static SDL.GPUColorTargetBlendState GetBlendState(BlendMode blendMode)
     {
@@ -397,7 +530,9 @@ public class GpuResourcesHolder
                 SrcAlphaBlendFactor = SDL.GPUBlendFactor.SrcAlpha,
                 DstAlphaBlendFactor = SDL.GPUBlendFactor.OneMinusSrcAlpha,
                 AlphaBlendOp = SDL.GPUBlendOp.Add,
-                ColorWriteMask = writeMask
+                ColorWriteMask = writeMask,
+                EnableBlend = true,
+                EnableColorWriteMask = true
             },
             BlendMode.Additive => new SDL.GPUColorTargetBlendState
             {
@@ -407,7 +542,9 @@ public class GpuResourcesHolder
                 SrcAlphaBlendFactor = SDL.GPUBlendFactor.SrcAlpha,
                 DstAlphaBlendFactor = SDL.GPUBlendFactor.One,
                 AlphaBlendOp = SDL.GPUBlendOp.Add,
-                ColorWriteMask = writeMask
+                ColorWriteMask = writeMask,
+                EnableBlend = true,
+                EnableColorWriteMask = true
             },
             _ => new SDL.GPUColorTargetBlendState
             {
@@ -417,7 +554,9 @@ public class GpuResourcesHolder
                 SrcAlphaBlendFactor = SDL.GPUBlendFactor.One,
                 DstAlphaBlendFactor = SDL.GPUBlendFactor.Zero,
                 AlphaBlendOp = SDL.GPUBlendOp.Add,
-                ColorWriteMask = writeMask
+                ColorWriteMask = writeMask,
+                EnableBlend = false,
+                EnableColorWriteMask = true
             }
         };
     }

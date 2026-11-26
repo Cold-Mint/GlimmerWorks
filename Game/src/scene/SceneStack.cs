@@ -124,7 +124,7 @@ public class SceneStack
         _stack.Pop();
 
         scene.RequestCode = sceneStackTask.RequestCode;
-        scene.OnCreate();
+        scene.DoCreate();
         _stack.Push(scene);
         scene.OnResumeScene();
     }
@@ -151,7 +151,7 @@ public class SceneStack
         }
 
         scene.RequestCode = sceneStackTask.RequestCode;
-        scene.OnCreate();
+        scene.DoCreate();
         _stack.Push(scene);
         scene.OnResumeScene();
     }

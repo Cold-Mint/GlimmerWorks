@@ -4,6 +4,7 @@ namespace GlimmerWorks.Game.Scene;
 
 public readonly record struct SceneFrameContext(
     IntPtr Device,
+    IntPtr Window,
     IntPtr CommandBuffer,
     IntPtr SwapchainTexture,
     uint Width,

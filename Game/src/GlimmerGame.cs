@@ -20,9 +20,6 @@ public class GlimmerGame
         }
 
         _appContext.TickTask.OnTick += OnTick;
-        _appContext.SceneStack.AddTask(new SceneStackTask
-            { Scene = new SplashScene(_appContext), Type = StackType.Push });
-        _appContext.SceneStack.ExecuteTaskQueue();
     }
 
     private void OnTick(long deltaMs, long globalTick)
@@ -57,6 +54,14 @@ public class GlimmerGame
         }
 
         _swapchainFormat = SDL.GetGPUSwapchainTextureFormat(GpuDevice, Window);
+        _appContext.GpuDevice = GpuDevice;
+        _appContext.Window = Window;
+        _appContext.SwapchainFormat = _swapchainFormat;
+        SDL.StartTextInput(Window);
+        _appContext.InitializeUi();
+        _appContext.SceneStack.AddTask(new SceneStackTask
+            { Scene = new SplashScene(_appContext), Type = StackType.Push });
+        _appContext.SceneStack.ExecuteTaskQueue();
         _appContext.TickTask.Start();
         while (_appContext.SceneStack.Count > 0)
         {
@@ -76,13 +81,16 @@ public class GlimmerGame
                     break;
                 }
 
+                _appContext.Ui?.ProcessEvent(sdlEvent);
                 topScene.Input(sdlEvent);
             }
 
-            RenderFrame(topScene);
+            DrawFrame(topScene);
         }
 
         _appContext.TickTask.Stop();
+        _appContext.Ui?.Dispose();
+        SDL.StopTextInput(Window);
         SDL.ReleaseWindowFromGPUDevice(GpuDevice, Window);
         SDL.DestroyWindow(Window);
         SDL.DestroyGPUDevice(GpuDevice);
@@ -90,10 +98,10 @@ public class GlimmerGame
     }
 
     /// <summary>
-    /// <para>RenderFrame</para>
-    /// <para>渲染一帧画面</para>
+    /// <para>DrawFrame</para>
+    /// <para>绘制一帧画面</para>
     /// </summary>
-    private void RenderFrame(BaseScene scene)
+    private void DrawFrame(BaseScene scene)
     {
         var cmdBuffer = SDL.AcquireGPUCommandBuffer(GpuDevice);
         if (cmdBuffer == IntPtr.Zero)
@@ -105,10 +113,10 @@ public class GlimmerGame
             out var swapchainTexture, out var swapchainWidth, out var swapchainHeight);
         if (swapchainTexture != IntPtr.Zero)
         {
-            var sceneFrameContext = new SceneFrameContext(GpuDevice, cmdBuffer, swapchainTexture,
+            var sceneFrameContext = new SceneFrameContext(GpuDevice, Window, cmdBuffer, swapchainTexture,
                 swapchainWidth, swapchainHeight, _swapchainFormat);
             scene.DoEnsureGpuResources(sceneFrameContext);
-            scene.RenderFrame(sceneFrameContext);
+            scene.Draw(sceneFrameContext);
         }
 
         SDL.SubmitGPUCommandBuffer(cmdBuffer);

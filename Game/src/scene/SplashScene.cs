@@ -1,38 +1,66 @@
+using System.Diagnostics;
 using GlimmerWorks.Engine.Extensions;
 using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Engine.Mods;
 using GlimmerWorks.Engine.Mods.Data;
 using GlimmerWorks.Engine.Vfs;
+using GlimmerWorks.Game.Graphics.Rendering;
+using Myra.Graphics2D;
+using Myra.Graphics2D.UI;
 
 
 namespace GlimmerWorks.Game.Scene;
 
 public class SplashScene(GameAppContext appContext) : BaseScene(appContext)
 {
-    // private Label? _loadLabel;
+    private const int MinimumDisplayMs = 1000;
+
+    private readonly Stopwatch _displayStopwatch = Stopwatch.StartNew();
+    private Label? _loadLabel;
+    private string? _pendingMessage;
+    private LogLevels _pendingLevel = LogLevels.Info;
 
     public override void OnCreate()
     {
-        // var panel = new Panel();
-        // _loadLabel = new Label
-        // {
-        //     Text = AppContext.Localizer["Prepare"].Value,
-        //     TextColor = AppContext.Theme.Info,
-        //     HorizontalAlignment = HorizontalAlignment.Center,
-        //     VerticalAlignment = VerticalAlignment.Bottom,
-        //     Margin = new Thickness(0, 0, 0, 60),
-        //     Font = AppContext.Theme.GetFont(ThemeFontKind.Small),
-        // };
-        // panel.Widgets.Add(_loadLabel);
-        // panel.Widgets.Add(new Label
-        // {
-        //     Text = "GlimmerWorks",
-        //     HorizontalAlignment = HorizontalAlignment.Center,
-        //     VerticalAlignment = VerticalAlignment.Center,
-        //     Font = AppContext.Theme.GetFont(ThemeFontKind.Large),
-        // });
-        // SetWidget(panel);
+        var panel = new Panel();
+        _loadLabel = new Label
+        {
+            Text = AppContext.Localizer["Prepare"].Value,
+            TextColor = AppContext.Theme.Info,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Bottom,
+            Margin = new Thickness(0, 0, 0, 60),
+            Font = AppContext.Theme.GetFont(ThemeFontKind.Small),
+        };
+        panel.Widgets.Add(_loadLabel);
+        panel.Widgets.Add(new Label
+        {
+            Text = "GlimmerWorks",
+            TextColor = AppContext.Theme.Info,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center,
+            Font = AppContext.Theme.GetFont(ThemeFontKind.Large),
+        });
+        SetWidget(panel);
         LoadPacks();
+    }
+
+    protected override void OnDraw(Renderer2D renderer)
+    {
+        if (_pendingMessage == null || _loadLabel == null)
+        {
+            return;
+        }
+
+        _loadLabel.Text = _pendingMessage;
+        _loadLabel.TextColor = _pendingLevel switch
+        {
+            LogLevels.Info => AppContext.Theme.Info,
+            LogLevels.Warn => AppContext.Theme.Warn,
+            LogLevels.Error => AppContext.Theme.Error,
+            _ => AppContext.Theme.Info
+        };
+        _pendingMessage = null;
     }
 
     private async void LoadPacks()
@@ -82,9 +110,19 @@ public class SplashScene(GameAppContext appContext) : BaseScene(appContext)
             return;
         }
 
+        if (!AppContext.InitializeUi())
+        {
+            LogCat.Error("Failed to initialize the Myra UI.");
+        }
+
+        var remainingDisplayMs = MinimumDisplayMs - (int)_displayStopwatch.ElapsedMilliseconds;
+        if (remainingDisplayMs > 0)
+        {
+            await Task.Delay(remainingDisplayMs);
+        }
 
         AppContext.SceneStack.AddTask(
-            new SceneStackTask { Scene = new TestScene(AppContext), Type = StackType.Replace });
+            new SceneStackTask { Scene = new MainScene(AppContext), Type = StackType.Replace });
     }
 
     private static bool Filter(DimensionResources dimensionResource)
@@ -105,19 +143,17 @@ public class SplashScene(GameAppContext appContext) : BaseScene(appContext)
         switch (packMessage.Level)
         {
             case LogLevels.Info:
-                // _loadLabel?.TextColor = AppContext.Theme.Info;
                 LogCat.Info(message);
                 break;
             case LogLevels.Warn:
-                // _loadLabel?.TextColor = AppContext.Theme.Warn;
                 LogCat.Warn(message);
                 break;
             case LogLevels.Error:
-                // _loadLabel?.TextColor = AppContext.Theme.Error;
                 LogCat.Error(message);
                 break;
         }
 
-        // _loadLabel?.Text = message;
+        _pendingMessage = message;
+        _pendingLevel = packMessage.Level;
     }
 }

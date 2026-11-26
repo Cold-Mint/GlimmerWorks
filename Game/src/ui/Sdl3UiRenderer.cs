@@ -32,111 +32,17 @@ internal sealed class Sdl3UiRenderer : IMyraRenderer
     private DrawCommand? _currentCommand;
     private Rectangle _scissor = new(0, 0, int.MaxValue, int.MaxValue);
     private TextureFiltering _filtering = TextureFiltering.Nearest;
+    private IntPtr _commandBuffer;
     private bool _disposed;
 
-    public Sdl3UiRenderer(IntPtr device, IntPtr vertexShader, IntPtr fragmentShader,
-        SDL.GPUTextureFormat swapchainFormat)
+    public Sdl3UiRenderer(IntPtr device, IntPtr pipeline)
     {
         _device = device;
+        _pipeline = pipeline;
         _textureManager = new Sdl3UiTextureManager(device);
 
         _nearestSampler = CreateSampler(SDL.GPUFilter.Nearest);
         _linearSampler = CreateSampler(SDL.GPUFilter.Linear);
-
-        var vertexBuffers = new SDL.GPUVertexBufferDescription[]
-        {
-            new()
-            {
-                Slot = 0,
-                Pitch = VertexSize,
-                InputRate = SDL.GPUVertexInputRate.Vertex,
-                InstanceStepRate = 0
-            }
-        };
-
-        var vertexAttributes = new SDL.GPUVertexAttribute[]
-        {
-            new()
-            {
-                Location = 0,
-                BufferSlot = 0,
-                Format = SDL.GPUVertexElementFormat.Float2,
-                Offset = 0
-            },
-            new()
-            {
-                Location = 1,
-                BufferSlot = 0,
-                Format = SDL.GPUVertexElementFormat.Float2,
-                Offset = 8
-            },
-            new()
-            {
-                Location = 2,
-                BufferSlot = 0,
-                Format = SDL.GPUVertexElementFormat.Float4,
-                Offset = 16
-            }
-        };
-
-        var blendState = new SDL.GPUColorTargetBlendState
-        {
-            SrcColorBlendFactor = SDL.GPUBlendFactor.One,
-            DstColorBlendFactor = SDL.GPUBlendFactor.OneMinusSrcAlpha,
-            ColorBlendOp = SDL.GPUBlendOp.Add,
-            SrcAlphaBlendFactor = SDL.GPUBlendFactor.One,
-            DstAlphaBlendFactor = SDL.GPUBlendFactor.OneMinusSrcAlpha,
-            AlphaBlendOp = SDL.GPUBlendOp.Add,
-            ColorWriteMask = SDL.GPUColorComponentFlags.R | SDL.GPUColorComponentFlags.G |
-                             SDL.GPUColorComponentFlags.B | SDL.GPUColorComponentFlags.A,
-            EnableBlend = true,
-            EnableColorWriteMask = true
-        };
-
-        var colorTargets = new SDL.GPUColorTargetDescription[]
-        {
-            new()
-            {
-                Format = swapchainFormat,
-                BlendState = blendState
-            }
-        };
-
-        var createInfo = new SDL.GPUGraphicsPipelineCreateInfo
-        {
-            VertexShader = vertexShader,
-            FragmentShader = fragmentShader,
-            PrimitiveType = SDL.GPUPrimitiveType.TriangleList,
-            RasterizerState = new SDL.GPURasterizerState
-            {
-                FillMode = SDL.GPUFillMode.Fill,
-                CullMode = SDL.GPUCullMode.None,
-                FrontFace = SDL.GPUFrontFace.CounterClockwise
-            },
-            MultisampleState = new SDL.GPUMultisampleState
-            {
-                SampleCount = SDL.GPUSampleCount.SampleCount1
-            },
-            DepthStencilState = new SDL.GPUDepthStencilState
-            {
-                EnableDepthTest = false,
-                EnableDepthWrite = false,
-                EnableStencilTest = false
-            },
-            TargetInfo = new SDL.GPUGraphicsPipelineTargetInfo
-            {
-                NumColorTargets = 1,
-                DepthStencilFormat = SDL.GPUTextureFormat.Invalid,
-                HasDepthStencilTarget = false
-            }
-        };
-
-        _pipeline = SDL.CreateGPUGraphicsPipeline(device, createInfo, vertexBuffers, vertexAttributes,
-            colorTargets);
-        if (_pipeline == IntPtr.Zero)
-        {
-            LogCat.Error($"Failed to create the Myra graphics pipeline: {SDL.GetError()}");
-        }
 
         var vertexBufferInfo = new SDL.GPUBufferCreateInfo
         {
@@ -236,10 +142,7 @@ internal sealed class Sdl3UiRenderer : IMyraRenderer
     /// </summary>
     public void PrepareFrame(IntPtr commandBuffer, int width, int height)
     {
-        Span<byte> viewSize = stackalloc byte[8];
-        BinaryPrimitives.WriteSingleLittleEndian(viewSize, width);
-        BinaryPrimitives.WriteSingleLittleEndian(viewSize[4..], height);
-        SDL.PushGPUVertexUniformData(commandBuffer, 0, viewSize, (uint)viewSize.Length);
+        _commandBuffer = commandBuffer;
 
         var uploads = _textureManager.PendingUploads;
         var vertexBytes = _vertexCount * VertexSize;
@@ -250,98 +153,120 @@ internal sealed class Sdl3UiRenderer : IMyraRenderer
             textureBytes += upload.Data.Length;
         }
 
-        var totalBytes = textureBytes + vertexBytes;
-        if (totalBytes <= 0)
+        if (uploads.Count > 0)
         {
-            return;
-        }
-
-        var transferInfo = new SDL.GPUTransferBufferCreateInfo
-        {
-            Usage = SDL.GPUTransferBufferUsage.Upload,
-            Size = (uint)totalBytes
-        };
-        var transferBuffer = SDL.CreateGPUTransferBuffer(_device, transferInfo);
-        if (transferBuffer == IntPtr.Zero)
-        {
-            LogCat.Error($"Failed to create the UI transfer buffer: {SDL.GetError()}");
-            return;
-        }
-
-        var mapped = SDL.MapGPUTransferBuffer(_device, transferBuffer, false);
-        if (mapped == IntPtr.Zero)
-        {
-            LogCat.Error($"Failed to map the UI transfer buffer: {SDL.GetError()}");
-            SDL.ReleaseGPUTransferBuffer(_device, transferBuffer);
-            return;
-        }
-
-        var textureCopies = new List<(Sdl3UiTexture Texture, Rectangle Bounds, int Offset)>(uploads.Count);
-        var offset = 0;
-        foreach (var upload in uploads)
-        {
-            Marshal.Copy(upload.Data, 0, IntPtr.Add(mapped, offset), upload.Data.Length);
-            textureCopies.Add((upload.Texture, upload.Bounds, offset));
-            offset += upload.Data.Length;
-        }
-
-        if (vertexBytes > 0)
-        {
-            unsafe
+            var textureTransferInfo = new SDL.GPUTransferBufferCreateInfo
             {
-                fixed (UiVertex* source = _vertices)
-                {
-                    Buffer.MemoryCopy(source, (byte*)mapped + textureBytes, vertexBytes, vertexBytes);
-                }
+                Usage = SDL.GPUTransferBufferUsage.Upload,
+                Size = (uint)textureBytes
+            };
+            var textureTransferBuffer = SDL.CreateGPUTransferBuffer(_device, textureTransferInfo);
+            if (textureTransferBuffer == IntPtr.Zero)
+            {
+                LogCat.Error($"Failed to create the UI texture transfer buffer: {SDL.GetError()}");
             }
-        }
-
-        SDL.UnmapGPUTransferBuffer(_device, transferBuffer);
-
-        var copyPass = SDL.BeginGPUCopyPass(commandBuffer);
-        foreach (var copy in textureCopies)
-        {
-            var source = new SDL.GPUTextureTransferInfo
+            else
             {
-                TransferBuffer = transferBuffer,
-                Offset = (uint)copy.Offset,
-                PixelsPerRow = (uint)copy.Bounds.Width,
-                RowsPerLayer = (uint)copy.Bounds.Height
-            };
-            var destination = new SDL.GPUTextureRegion
-            {
-                Texture = copy.Texture.Handle,
-                MipLevel = 0,
-                Layer = 0,
-                X = (uint)copy.Bounds.X,
-                Y = (uint)copy.Bounds.Y,
-                Z = 0,
-                W = (uint)copy.Bounds.Width,
-                H = (uint)copy.Bounds.Height,
-                D = 1
-            };
-            SDL.UploadToGPUTexture(copyPass, in source, in destination, false);
+                var mapped = SDL.MapGPUTransferBuffer(_device, textureTransferBuffer, false);
+                if (mapped == IntPtr.Zero)
+                {
+                    LogCat.Error($"Failed to map the UI texture transfer buffer: {SDL.GetError()}");
+                    SDL.ReleaseGPUTransferBuffer(_device, textureTransferBuffer);
+                }
+                else
+                {
+                    var textureCopies = new List<(Sdl3UiTexture Texture, Rectangle Bounds, int Offset)>(uploads.Count);
+                    var offset = 0;
+                    foreach (var upload in uploads)
+                    {
+                        Marshal.Copy(upload.Data, 0, IntPtr.Add(mapped, offset), upload.Data.Length);
+                        textureCopies.Add((upload.Texture, upload.Bounds, offset));
+                        offset += upload.Data.Length;
+                    }
+
+                    SDL.UnmapGPUTransferBuffer(_device, textureTransferBuffer);
+
+                    var copyPass = SDL.BeginGPUCopyPass(commandBuffer);
+                    foreach (var copy in textureCopies)
+                    {
+                        var source = new SDL.GPUTextureTransferInfo
+                        {
+                            TransferBuffer = textureTransferBuffer,
+                            Offset = (uint)copy.Offset,
+                            PixelsPerRow = (uint)copy.Bounds.Width,
+                            RowsPerLayer = (uint)copy.Bounds.Height
+                        };
+                        var destination = new SDL.GPUTextureRegion
+                        {
+                            Texture = copy.Texture.Handle,
+                            MipLevel = 0,
+                            Layer = 0,
+                            X = (uint)copy.Bounds.X,
+                            Y = (uint)copy.Bounds.Y,
+                            Z = 0,
+                            W = (uint)copy.Bounds.Width,
+                            H = (uint)copy.Bounds.Height,
+                            D = 1
+                        };
+                        SDL.UploadToGPUTexture(copyPass, in source, in destination, false);
+                    }
+
+                    SDL.EndGPUCopyPass(copyPass);
+                    SDL.ReleaseGPUTransferBuffer(_device, textureTransferBuffer);
+                }
+
+                uploads.Clear();
+            }
         }
 
         if (vertexBytes > 0 && _vertexBuffer != IntPtr.Zero)
         {
-            var source = new SDL.GPUTransferBufferLocation
+            var vertexTransferInfo = new SDL.GPUTransferBufferCreateInfo
             {
-                TransferBuffer = transferBuffer,
-                Offset = (uint)textureBytes
+                Usage = SDL.GPUTransferBufferUsage.Upload,
+                Size = (uint)vertexBytes
             };
-            var destination = new SDL.GPUBufferRegion
+            var vertexTransferBuffer = SDL.CreateGPUTransferBuffer(_device, vertexTransferInfo);
+            if (vertexTransferBuffer == IntPtr.Zero)
+            {
+                LogCat.Error($"Failed to create the UI vertex transfer buffer: {SDL.GetError()}");
+                return;
+            }
+
+            var mapped = SDL.MapGPUTransferBuffer(_device, vertexTransferBuffer, false);
+            if (mapped == IntPtr.Zero)
+            {
+                LogCat.Error($"Failed to map the UI vertex transfer buffer: {SDL.GetError()}");
+                SDL.ReleaseGPUTransferBuffer(_device, vertexTransferBuffer);
+                return;
+            }
+
+            unsafe
+            {
+                fixed (UiVertex* source = _vertices)
+                {
+                    Buffer.MemoryCopy(source, (void*)mapped, vertexBytes, vertexBytes);
+                }
+            }
+
+            SDL.UnmapGPUTransferBuffer(_device, vertexTransferBuffer);
+
+            var copyPass = SDL.BeginGPUCopyPass(commandBuffer);
+            var sourceInfo = new SDL.GPUTransferBufferLocation
+            {
+                TransferBuffer = vertexTransferBuffer,
+                Offset = 0
+            };
+            var destinationInfo = new SDL.GPUBufferRegion
             {
                 Buffer = _vertexBuffer,
                 Offset = 0,
                 Size = (uint)vertexBytes
             };
-            SDL.UploadToGPUBuffer(copyPass, in source, in destination, true);
+            SDL.UploadToGPUBuffer(copyPass, in sourceInfo, in destinationInfo, true);
+            SDL.EndGPUCopyPass(copyPass);
+            SDL.ReleaseGPUTransferBuffer(_device, vertexTransferBuffer);
         }
-
-        SDL.EndGPUCopyPass(copyPass);
-        SDL.ReleaseGPUTransferBuffer(_device, transferBuffer);
-        uploads.Clear();
     }
 
     /// <summary>
@@ -356,6 +281,11 @@ internal sealed class Sdl3UiRenderer : IMyraRenderer
         }
 
         SDL.BindGPUGraphicsPipeline(renderPass, _pipeline);
+
+        Span<byte> viewSize = stackalloc byte[16];
+        BinaryPrimitives.WriteSingleLittleEndian(viewSize, width);
+        BinaryPrimitives.WriteSingleLittleEndian(viewSize[4..], height);
+        SDL.PushGPUVertexUniformData(_commandBuffer, 0, viewSize, (uint)viewSize.Length);
 
         var viewport = new SDL.GPUViewport
         {
@@ -430,11 +360,6 @@ internal sealed class Sdl3UiRenderer : IMyraRenderer
         if (_vertexBuffer != IntPtr.Zero)
         {
             SDL.ReleaseGPUBuffer(_device, _vertexBuffer);
-        }
-
-        if (_pipeline != IntPtr.Zero)
-        {
-            SDL.ReleaseGPUGraphicsPipeline(_device, _pipeline);
         }
 
         if (_nearestSampler != IntPtr.Zero)

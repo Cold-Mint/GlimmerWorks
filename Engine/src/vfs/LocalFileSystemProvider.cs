@@ -76,7 +76,7 @@ public class LocalFileSystemProvider(string rootPath) : IFileSystemProvider
     public string? ReadAllText(VirtualPath path)
     {
         var realPath = VirtualPathToRealPath(path);
-        return realPath == null ? null : File.ReadAllText(realPath.Path);
+        return realPath == null || !File.Exists(realPath.Path) ? null : File.ReadAllText(realPath.Path);
     }
 
     public bool WriteAllText(VirtualPath path, string text)
@@ -95,7 +95,7 @@ public class LocalFileSystemProvider(string rootPath) : IFileSystemProvider
     public byte[]? ReadAllBytes(VirtualPath path)
     {
         var realPath = VirtualPathToRealPath(path);
-        return realPath == null ? null : File.ReadAllBytes(realPath.Path);
+        return realPath == null || !File.Exists(realPath.Path) ? null : File.ReadAllBytes(realPath.Path);
     }
 
     public bool WriteAllBytes(VirtualPath path, ReadOnlySpan<byte> bytes)
@@ -115,6 +115,6 @@ public class LocalFileSystemProvider(string rootPath) : IFileSystemProvider
     public Stream? OpenRead(VirtualPath path)
     {
         var realPath = VirtualPathToRealPath(path);
-        return realPath == null ? null : File.OpenRead(realPath.Path);
+        return realPath == null || !File.Exists(realPath.Path) ? null : File.OpenRead(realPath.Path);
     }
 }

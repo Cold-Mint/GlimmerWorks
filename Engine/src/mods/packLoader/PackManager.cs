@@ -114,6 +114,9 @@ public abstract class PackManager<TAppContext, TPack> where TAppContext : AppCon
                 basePack.Load(appContext, onMessage);
             }
 
+            //Apply patch resources.
+            //应用补丁资源。
+            appContext.DataRepository.ApplyPatch();
             _scaning = false;
             return _packs.Count;
         });

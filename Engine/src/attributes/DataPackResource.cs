@@ -4,7 +4,8 @@ namespace GlimmerWorks.Engine.Attributes;
 public sealed class DataPackResourceAttribute(
     string resourceType,
     bool autoDeserialization = true,
-    bool exportResourceReferences = true) : Attribute
+    bool exportResourceReferences = true,
+    bool patch = false) : Attribute
 {
     /// <summary>
     /// <para>ResourceType</para>
@@ -25,4 +26,10 @@ public sealed class DataPackResourceAttribute(
     /// <para>是否将其导出到资源引用</para>
     /// </summary>
     public bool ExportResourceReferences => exportResourceReferences;
+
+    /// <summary>
+    /// <para>Is it a patch, that is, to be applied after the data loading is completed?</para>
+    /// <para>是否为补丁，即在数据加载完成后应用</para>
+    /// </summary>
+    public bool Patch => patch;
 }

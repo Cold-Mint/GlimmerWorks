@@ -1,4 +1,4 @@
-using GlimmerWorks.Engine.Mods.Data;
+using GlimmerWorks.Engine.Mods;
 using GlimmerWorks.Game.Widgets;
 using Myra.Events;
 using Myra.Graphics2D.UI;
@@ -8,7 +8,7 @@ using ListView = GlimmerWorks.Game.Widgets.ListView;
 namespace GlimmerWorks.Game.Scene;
 
 public class SelectResourceScene<T>(GameAppContext appContext)
-    : BaseScene(appContext) where T : Resources
+    : BaseScene(appContext) where T : Resource
 {
     private readonly InputText _inputText = new(appContext.Theme);
     private readonly VerticalStackPanel _verticalStackPanel = new();

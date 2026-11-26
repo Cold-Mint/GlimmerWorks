@@ -1,6 +1,6 @@
 using FontStashSharp;
 using FontStashSharp.RichText;
-using GlimmerWorks.Engine.Mods.Data;
+using GlimmerWorks.Engine.Mods.Resources;
 using GlimmerWorks.Game.Widgets;
 using Myra.Events;
 using Myra.Graphics2D;
@@ -14,6 +14,7 @@ public class CreateWorldScene(GameAppContext appContext) : BaseScene(appContext)
 {
     private readonly int _switchDimensionRequestCode = 1;
     private readonly Label _switchDimensionLabel = new(appContext.Theme);
+    private DimensionResource? _startingDimension;
 
     private readonly InputText _worldNameBox = new(appContext.Theme)
     {
@@ -36,12 +37,14 @@ public class CreateWorldScene(GameAppContext appContext) : BaseScene(appContext)
     {
         base.OnCreate();
         var dimensionResource =
-            AppContext.DataRepository.FirstOrDefaultResources<DimensionResources>(Filter);
+            AppContext.DataRepository.FirstOrDefaultResources<DimensionResource>(Filter);
         if (dimensionResource == null)
         {
             _createButton.Enabled = false;
             return;
         }
+
+        _startingDimension = dimensionResource;
 
         var panel = new Panel
         {
@@ -110,7 +113,7 @@ public class CreateWorldScene(GameAppContext appContext) : BaseScene(appContext)
         AppContext.SceneStack.AddTask(
             new SceneStackTask
             {
-                Type = StackType.Push, Scene = new SelectResourceScene<DimensionResources>(AppContext),
+                Type = StackType.Push, Scene = new SelectResourceScene<DimensionResource>(AppContext),
                 RequestCode = _switchDimensionRequestCode
             });
     }
@@ -123,8 +126,9 @@ public class CreateWorldScene(GameAppContext appContext) : BaseScene(appContext)
             return;
         }
 
-        if (requestCode == _switchDimensionRequestCode && result is DimensionResources dimensionResource)
+        if (requestCode == _switchDimensionRequestCode && result is DimensionResource dimensionResource)
         {
+            _startingDimension = dimensionResource;
             _switchDimensionLabel.Text = AppContext.Localizer["Starting dimension:{0}",
                 dimensionResource.GetDisplayName(AppContext)].Value;
         }
@@ -139,7 +143,7 @@ public class CreateWorldScene(GameAppContext appContext) : BaseScene(appContext)
     ///<para>维度资源</para>
     /// </param>
     /// <returns></returns>
-    private static bool Filter(DimensionResources dimensionResource)
+    private static bool Filter(DimensionResource dimensionResource)
     {
         return dimensionResource.AllowAsStarting;
     }
@@ -196,10 +200,54 @@ public class CreateWorldScene(GameAppContext appContext) : BaseScene(appContext)
     /// <para>OnCreateWorldClick</para>
     /// <para>点击创建世界</para>
     /// </summary>
-    /// <exception cref="NotImplementedException"></exception>
-    private static void OnCreateWorldClick()
+    private void OnCreateWorldClick()
     {
-        throw new NotImplementedException();
+        if (_startingDimension == null)
+        {
+            return;
+        }
+
+        var name = string.IsNullOrWhiteSpace(_worldNameBox.Text)
+            ? "World"
+            : _worldNameBox.Text.Trim();
+        var seedText = _seedBox.Text?.Trim();
+        var seed = GlimmerWorks.Engine.World.WorldSeed.Parse(seedText);
+
+        var saveRoot = GlimmerWorks.Engine.World.Save.SavePaths.GetSaveDirectory(
+            Path.Combine(System.AppContext.BaseDirectory, "runtime"), name);
+        if (Directory.Exists(saveRoot) ||
+            File.Exists(GlimmerWorks.Engine.World.Save.SavePaths.GetManifestPath(saveRoot)))
+        {
+            // Same-name worlds must not silently reuse an old save directory.
+            saveRoot += $"_{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
+        }
+
+        var settings = new GlimmerWorks.Engine.World.WorldSettings
+        {
+            Name = name,
+            Seed = seed,
+            AllowCheats = _allowCheatsCheck.IsChecked,
+            Directory = saveRoot,
+            PreloadRadiusChunks = 3
+        };
+
+        var world = GlimmerWorks.Engine.World.World.Create(AppContext, settings, _startingDimension);
+        if (world == null)
+        {
+            return;
+        }
+
+        // Persist the initial manifest/player immediately, before any chunk is generated.
+        if (!world.SaveManifest() || !world.SavePlayer())
+        {
+            return;
+        }
+
+        AppContext.SceneStack.AddTask(new SceneStackTask
+        {
+            Type = StackType.Replace,
+            Scene = new WorldScene(AppContext, world)
+        });
     }
 
     /// <summary>

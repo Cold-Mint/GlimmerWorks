@@ -2,7 +2,7 @@ using System.Reflection;
 using GlimmerWorks.Engine.Attributes;
 using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Engine.Mods;
-using GlimmerWorks.Engine.Mods.Data;
+using GlimmerWorks.Engine.Mods.Resources;
 
 namespace GlimmerWorks.Engine;
 
@@ -16,11 +16,15 @@ public class DataRepository
     /// <para>Resource Dictionary</para>
     /// <para>资源字典</para>
     /// </summary>
-    private readonly Dictionary<(string PackId, Type Type, string ResourceId), Resources?> _resources = new();
+    private readonly Dictionary<(string PackId, Type Type, string ResourceId), Resource?> _resources = new();
 
-    private readonly Dictionary<Type, List<Resources>> _typeToResources = new();
+    private readonly Dictionary<Type, List<Resource>> _typeToResources = new();
 
     private readonly Dictionary<string, Type> _resourceTypeDictionary = new();
+
+    private readonly HashSet<Type> _patchResourceSet = new();
+
+    private readonly List<Resource> _patchList = new();
 
     /// <summary>
     /// <para>packDependencies</para>
@@ -30,7 +34,7 @@ public class DataRepository
 
     public DataRepository()
     {
-        var resourceType = typeof(Resources);
+        var resourceType = typeof(Resource);
         foreach (var type in resourceType.Assembly.GetTypes())
         {
             if (type.IsAbstract || !resourceType.IsAssignableFrom(type))
@@ -44,6 +48,14 @@ public class DataRepository
                 continue;
             }
 
+            if (attr.Patch)
+            {
+                //If it is a patch resource, then it is prohibited to export it as a resource reference.
+                //如果是补丁资源，那么禁止导出到资源引用。
+                _patchResourceSet.Add(type);
+                continue;
+            }
+
             if (!attr.ExportResourceReferences)
             {
                 continue;
@@ -52,6 +64,16 @@ public class DataRepository
             LogCat.Info($"Register resource type: {attr.ResourceType}");
             _resourceTypeDictionary.Add(attr.ResourceType, type);
         }
+    }
+
+    public void ApplyPatch()
+    {
+        foreach (var resourcePatch in _patchList.Select(resource => resource as IResourcePatch))
+        {
+            resourcePatch?.ApplyPatch(this);
+        }
+
+        _patchList.Clear();
     }
 
     /// <summary>
@@ -73,7 +95,7 @@ public class DataRepository
             .ToHashSet(StringComparer.Ordinal);
     }
 
-    private void AddToTypeIndex(Resources resource)
+    private void AddToTypeIndex(Resource resource)
     {
         var type = resource.GetType();
         if (!_typeToResources.TryGetValue(type, out var list))
@@ -91,7 +113,7 @@ public class DataRepository
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public IEnumerable<T> GetResourceList<T>(Func<T, bool>? filter = null) where T : Resources
+    public IEnumerable<T> GetResourceList<T>(Func<T, bool>? filter = null) where T : Resource
     {
         if (!_typeToResources.TryGetValue(typeof(T), out var list))
         {
@@ -114,7 +136,7 @@ public class DataRepository
     /// <param name="filter"></param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public T? FirstOrDefaultResources<T>(Func<T, bool>? filter = null) where T : Resources
+    public T? FirstOrDefaultResources<T>(Func<T, bool>? filter = null) where T : Resource
     {
         return GetResourceList(filter).FirstOrDefault();
     }
@@ -125,11 +147,20 @@ public class DataRepository
     /// </summary>
     /// <param name="resource"></param>
     /// <returns></returns>
-    public bool Register(Resources resource)
+    public bool Register(Resource resource)
     {
         if (string.IsNullOrWhiteSpace(resource.PackId) || string.IsNullOrWhiteSpace(resource.ResourceId))
         {
             return false;
+        }
+        resource.BeforeRegister(resource.PackId);
+        var resourceType = resource.GetType();
+        if (_patchResourceSet.Contains(resourceType))
+        {
+            //If it is a patch resource.
+            //如果是补丁资源。
+            _patchList.Add(resource);
+            return true;
         }
 
         if (_resources.TryAdd((resource.PackId, resource.GetType(), resource.ResourceId), resource))
@@ -138,6 +169,8 @@ public class DataRepository
             return true;
         }
 
+        LogCat.Warn($"Duplicate resource id rejected: {resource.PackId}:{resource.ResourceId} " +
+                    $"({resource.GetType().Name}).");
         return false;
     }
 
@@ -150,7 +183,7 @@ public class DataRepository
     /// <param name="resourceRef"></param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public T? Get<T>(ResourceRef resourceRef) where T : Resources
+    public T? Get<T>(ResourceRef resourceRef) where T : Resource
     {
         if (!_resourceTypeDictionary.TryGetValue(resourceRef.ResourceType, out var actualType))
         {

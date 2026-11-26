@@ -1,4 +1,5 @@
-using GlimmerWorks.Engine.Mods.Data;
+using GlimmerWorks.Engine.Mods;
+using GlimmerWorks.Engine.Mods.Resources;
 using MemoryPack;
 using Tomlyn;
 
@@ -23,7 +24,7 @@ public class VirtualFileSystem
     public List<FileEntry>? List(VirtualPath path, string? searchPattern = null, bool recurseSubdirectories = false) =>
         _fileSystemProviders
             .Select(fileSystemProvider => fileSystemProvider.List(path, searchPattern, recurseSubdirectories))
-            .Select(result => result ?? null).FirstOrDefault();
+            .FirstOrDefault(result => result is not null);
 
     /// <summary>
     /// <para>WriteText</para>
@@ -226,12 +227,12 @@ public class VirtualFileSystem
     private static object? AfterDeserializeToml(VirtualPath path, string text, Type type)
     {
         var obj = TomlSerializer.Deserialize(text, type);
-        if (obj is Resources resources)
+        if (obj is Resource resources)
         {
             resources.VirtualPath = path;
         }
 
-        if (obj is StringSetResources stringFileResources)
+        if (obj is StringSetResource stringFileResources)
         {
             foreach (var stringResources in stringFileResources.StringList)
             {

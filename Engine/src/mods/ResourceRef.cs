@@ -77,7 +77,7 @@ public class ResourceRef
     /// </param>
     /// <param name="resourceId"></param>
     /// <returns></returns>
-    public static ResourceRef Create(string resourceType, 
+    public static ResourceRef Create(string resourceType,
         string targetPackId,
         string resourceId)
     {
@@ -99,7 +99,7 @@ public class ResourceRef
     public void SetPackId(string packId)
     {
         RequesterPackId = packId;
-        if (string.IsNullOrWhiteSpace(TargetPackId) || TargetPackId == "@self")
+        if (string.IsNullOrEmpty(TargetPackId) || TargetPackId == "@self")
         {
             TargetPackId = packId;
         }

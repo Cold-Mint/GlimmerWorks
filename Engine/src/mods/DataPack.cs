@@ -1,8 +1,8 @@
 using GlimmerWorks.Engine.Log;
-using GlimmerWorks.Engine.Mods.Data;
 using System.Reflection;
 using GlimmerWorks.Engine.Attributes;
 using GlimmerWorks.Engine.Extensions;
+using GlimmerWorks.Engine.Mods.Resources;
 using GlimmerWorks.Engine.Vfs;
 
 namespace GlimmerWorks.Engine.Mods;
@@ -47,7 +47,7 @@ public class DataPack<TAppContext>(VirtualPath packRootPath, PackManifest manife
         return true;
     }
 
-    protected override List<TemplateResources>? LoadTemplate(TAppContext appContext, Action<PackMessage> onMessage)
+    protected override List<TemplateResource>? LoadTemplate(TAppContext appContext, Action<PackMessage> onMessage)
     {
         var templateEntryList =
             appContext.VirtualFileSystem.List(_packRootPath, "*.template.toml", recurseSubdirectories: true);
@@ -56,7 +56,7 @@ public class DataPack<TAppContext>(VirtualPath packRootPath, PackManifest manife
             return null;
         }
 
-        List<TemplateResources> templateResourcesList = [];
+        List<TemplateResource> templateResourcesList = [];
         var suffixLength = ".template.toml".Length;
         foreach (var path in templateEntryList.Select(fileEntry => fileEntry.Path))
         {
@@ -78,7 +78,7 @@ public class DataPack<TAppContext>(VirtualPath packRootPath, PackManifest manife
                 continue;
             }
 
-            templateResourcesList.Add(new TemplateResources
+            templateResourcesList.Add(new TemplateResource
             {
                 VirtualPath = path,
                 ResourceId = relativePath.Substring(0, relativePath.Length - suffixLength).Replace('\\', '/'),
@@ -92,7 +92,7 @@ public class DataPack<TAppContext>(VirtualPath packRootPath, PackManifest manife
     public override void RegisterResourceType(TAppContext appContext, Dictionary<string, Type> resourceTypeDictionary)
     {
         base.RegisterResourceType(appContext, resourceTypeDictionary);
-        var resourceType = typeof(Resources);
+        var resourceType = typeof(Resource);
         foreach (var type in resourceType.Assembly.GetTypes())
         {
             if (type.IsAbstract || !resourceType.IsAssignableFrom(type))

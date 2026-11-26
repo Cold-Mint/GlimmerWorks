@@ -1,6 +1,6 @@
 using System.Text;
 using GlimmerWorks.Engine.Mods;
-using GlimmerWorks.Engine.Mods.Data;
+using GlimmerWorks.Engine.Mods.Resources;
 using JetBrains.Annotations;
 
 namespace GlimmerWorks.Engine.TemplateExpander.Command;
@@ -25,7 +25,7 @@ public class InsertTemplateCommand : ITemplateCommand
                 continue;
             }
 
-            var templateResources = appContext.DataRepository.Get<TemplateResources>(resourceRef);
+            var templateResources = appContext.DataRepository.Get<TemplateResource>(resourceRef);
             if (templateResources == null)
             {
                 continue;

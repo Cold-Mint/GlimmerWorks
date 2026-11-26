@@ -2,7 +2,7 @@ using System.Diagnostics;
 using GlimmerWorks.Engine.Extensions;
 using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Engine.Mods;
-using GlimmerWorks.Engine.Mods.Data;
+using GlimmerWorks.Engine.Mods.Resources;
 using GlimmerWorks.Engine.Vfs;
 using GlimmerWorks.Game.Graphics.Rendering;
 using Myra.Graphics2D;
@@ -74,6 +74,7 @@ public class SplashScene(GameAppContext appContext) : BaseScene(appContext)
             return;
         }
 
+        
         OnPackMessage(
             new PackMessage(AppContext.Localizer["Loaded {0} data packs", dataPackCount].Value));
         if (dataPackCount == 0)
@@ -82,7 +83,7 @@ public class SplashScene(GameAppContext appContext) : BaseScene(appContext)
             return;
         }
 
-        var dimensionResources = AppContext.DataRepository.FirstOrDefaultResources<DimensionResources>(Filter);
+        var dimensionResources = AppContext.DataRepository.FirstOrDefaultResources<DimensionResource>(Filter);
         if (dimensionResources == null)
         {
             OnPackMessage(
@@ -125,7 +126,7 @@ public class SplashScene(GameAppContext appContext) : BaseScene(appContext)
             new SceneStackTask { Scene = new MainScene(AppContext), Type = StackType.Replace });
     }
 
-    private static bool Filter(DimensionResources dimensionResource)
+    private static bool Filter(DimensionResource dimensionResource)
     {
         return dimensionResource.AllowAsStarting;
     }

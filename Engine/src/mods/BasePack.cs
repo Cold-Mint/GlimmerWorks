@@ -1,6 +1,6 @@
 using GlimmerWorks.Engine.Extensions;
 using GlimmerWorks.Engine.Log;
-using GlimmerWorks.Engine.Mods.Data;
+using GlimmerWorks.Engine.Mods.Resources;
 using GlimmerWorks.Engine.Vfs;
 
 namespace GlimmerWorks.Engine.Mods;
@@ -36,7 +36,7 @@ public abstract class BasePack<TAppContext>(VirtualPath packRootPath, PackManife
     /// <param name="resourceType"></param>
     /// <param name="onMessage"></param>
     /// <returns></returns>
-    protected virtual List<Resources>? RegisterResourceManually(TAppContext appContext, string resourceType,
+    protected virtual List<Resource>? RegisterResourceManually(TAppContext appContext, string resourceType,
         FileEntry fileEntry,
         Action<PackMessage> onMessage)
     {
@@ -72,7 +72,7 @@ public abstract class BasePack<TAppContext>(VirtualPath packRootPath, PackManife
     /// <param name="appContext"></param>
     /// <param name="onMessage"></param>
     /// <returns></returns>
-    protected virtual List<TemplateResources>? LoadTemplate(TAppContext appContext,
+    protected virtual List<TemplateResource>? LoadTemplate(TAppContext appContext,
         Action<PackMessage> onMessage)
     {
         return null;
@@ -143,7 +143,7 @@ public abstract class BasePack<TAppContext>(VirtualPath packRootPath, PackManife
                 AppContext = appContext,
                 RequesterPackId = manifest.Id
             });
-            if (typeObj is not Resources resource)
+            if (typeObj is not Resource resource)
             {
                 return 0;
             }
@@ -172,7 +172,7 @@ public abstract class BasePack<TAppContext>(VirtualPath packRootPath, PackManife
     /// <para>AfterScanFiles</para>
     /// <para>扫描文件之后</para>
     /// </summary>
-    protected virtual List<Resources>? AfterScanFiles()
+    protected virtual List<Resource>? AfterScanFiles()
     {
         return null;
     }
@@ -186,11 +186,10 @@ public abstract class BasePack<TAppContext>(VirtualPath packRootPath, PackManife
     /// <param name="resource"></param>
     /// <returns></returns>
     private bool RegisterResource(Action<PackMessage> onMessage, TAppContext appContext,
-        Resources resource)
+        Resource resource)
     {
         resource.PackId = manifest.Id;
-        resource.DisplayName.SetPackId(manifest.Id);
-        if (resource is not TemplateResources && !resource.ResourceId.IsSnakeCase())
+        if (resource is not TemplateResource && !resource.ResourceId.IsSnakeCase())
         {
             onMessage.Invoke(new PackMessage(
                 "{0} must use snake_case (expected: {1}, actual: {2}).", "resource_id",
@@ -201,7 +200,6 @@ public abstract class BasePack<TAppContext>(VirtualPath packRootPath, PackManife
             });
             return false;
         }
-
         onMessage.Invoke(new PackMessage(
             "Register resource{0}：{1}:{2}", resource.GetType().Name, resource.PackId,
             resource.ResourceId));

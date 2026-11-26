@@ -1,6 +1,6 @@
 ﻿using GlimmerWorks.Engine;
 using GlimmerWorks.Engine.Mods;
-using GlimmerWorks.Engine.Mods.Data;
+using GlimmerWorks.Engine.Mods.Resources;
 using GlimmerWorks.Engine.Vfs;
 
 namespace GlimmerWorks.Game.Mods;
@@ -9,7 +9,7 @@ public class LocalDataPack(VirtualPath packRootPath, PackManifest manifest)
     : DataPack<GameAppContext>(packRootPath, manifest)
 {
     private int _stringMatchLevel;
-    private readonly List<Resources> _stringResourcesList = new();
+    private readonly List<Resource> _stringResourcesList = new();
 
     private void RegisterStrings(GameAppContext appContext,
         FileEntry fileEntry, VirtualPath path)
@@ -21,7 +21,7 @@ public class LocalDataPack(VirtualPath packRootPath, PackManifest manifest)
             //Default match.
             //默认匹配。
             var stringFileResources =
-                appContext.VirtualFileSystem.ReadToml<StringSetResources>(path,
+                appContext.VirtualFileSystem.ReadToml<StringSetResource>(path,
                     new PackContext
                     {
                         AppContext = appContext,
@@ -45,7 +45,7 @@ public class LocalDataPack(VirtualPath packRootPath, PackManifest manifest)
                 //Best match.
                 //最佳匹配。
                 var stringFileResources =
-                    appContext.VirtualFileSystem.ReadToml<StringSetResources>(path,
+                    appContext.VirtualFileSystem.ReadToml<StringSetResource>(path,
                         new PackContext
                         {
                             AppContext = appContext,
@@ -64,7 +64,7 @@ public class LocalDataPack(VirtualPath packRootPath, PackManifest manifest)
         }
     }
 
-    protected override List<Resources>? RegisterResourceManually(GameAppContext appContext, string resourceType,
+    protected override List<Resource>? RegisterResourceManually(GameAppContext appContext, string resourceType,
         FileEntry fileEntry, Action<PackMessage> onMessage)
     {
         var path = fileEntry.Path;
@@ -82,7 +82,7 @@ public class LocalDataPack(VirtualPath packRootPath, PackManifest manifest)
     }
 
 
-    protected override List<Resources> AfterScanFiles()
+    protected override List<Resource> AfterScanFiles()
     {
         return _stringResourcesList;
     }

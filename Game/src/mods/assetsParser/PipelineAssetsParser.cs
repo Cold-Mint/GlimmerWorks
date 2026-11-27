@@ -4,6 +4,7 @@ using GlimmerWorks.Engine.Mods;
 using GlimmerWorks.Engine.Vfs;
 using GlimmerWorks.Game.Attributes;
 using GlimmerWorks.Game.Graphics;
+using GlimmerWorks.Game.Graphics.Pipeline;
 using GlimmerWorks.Game.Graphics.Uniform;
 using JetBrains.Annotations;
 
@@ -15,7 +16,7 @@ namespace GlimmerWorks.Game.Mods.assetsParser;
 /// </summary>
 [UsedImplicitly]
 [AssetsPaster("pipeline")]
-public class PipelineAssetsParser : BaseAssetsParser<Pipeline>
+public class PipelineAssetsParser : BaseAssetsParser<GPUPipeline>
 {
     public override string GetFolderName()
     {
@@ -27,7 +28,7 @@ public class PipelineAssetsParser : BaseAssetsParser<Pipeline>
         return "pipeline.toml";
     }
 
-    public override Pipeline? Parser(GameAppContext appContext, FileEntry fileEntry, string requesterPackId)
+    public override GPUPipeline? Parser(GameAppContext appContext, FileEntry fileEntry, string requesterPackId)
     {
         var path = fileEntry.Path;
         if (path == null)
@@ -56,7 +57,7 @@ public class PipelineAssetsParser : BaseAssetsParser<Pipeline>
             return null;
         }
 
-        var pipeline = new Pipeline
+        var pipeline = new GPUPipeline
         {
             BlendMode = (BlendMode)definition.BlendMode,
             VertexShader = vertexShader,

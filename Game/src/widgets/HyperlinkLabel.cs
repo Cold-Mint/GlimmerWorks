@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using GlimmerWorks.Game.Ui.Theme;
 using Myra.Events;
 using Myra.Graphics2D.UI;
 
@@ -18,7 +19,7 @@ public sealed class HyperlinkLabel : Myra.Graphics2D.UI.Label
         }
     }
 
-    public HyperlinkLabel(Theme theme, Link? link = null)
+    public HyperlinkLabel(GameTheme theme, Link? link = null)
     {
         _link = link;
         Text = link?.Title ?? string.Empty;

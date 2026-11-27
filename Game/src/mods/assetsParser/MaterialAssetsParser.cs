@@ -4,6 +4,7 @@ using GlimmerWorks.Engine.Mods;
 using GlimmerWorks.Engine.Vfs;
 using GlimmerWorks.Game.Attributes;
 using GlimmerWorks.Game.Graphics;
+using GlimmerWorks.Game.Graphics.Pipeline;
 using JetBrains.Annotations;
 
 namespace GlimmerWorks.Game.Mods.assetsParser;
@@ -52,7 +53,7 @@ public class MaterialAssetsParser : BaseAssetsParser<Material>
             return null;
         }
 
-        var pipeline = Resolve<Pipeline>(appContext, definition.Pipeline, ResourceType.Pipeline,
+        var pipeline = Resolve<GPUPipeline>(appContext, definition.Pipeline, ResourceType.Pipeline,
             requesterPackId);
         if (pipeline == null)
         {

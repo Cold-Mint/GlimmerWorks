@@ -9,6 +9,8 @@ public class FileEntry
 
     public long? Size { set; get; }
 
+    public bool Exists { get; set; }
+
 
     /// <summary>
     /// <para>GetResourceType</para>
@@ -41,6 +43,7 @@ public class FileEntry
         return new FileEntry
         {
             Name = fileSystemInfo.Name,
+            Exists = fileSystemInfo.Exists,
             IsDirectory = fileSystemInfo.Attributes.HasFlag(FileAttributes.Directory),
             Path = new VirtualPath(System.IO.Path.GetRelativePath(rootPath.Path, fileSystemInfo.FullName)),
             LastWriteTimeUtc = fileSystemInfo.LastWriteTimeUtc,

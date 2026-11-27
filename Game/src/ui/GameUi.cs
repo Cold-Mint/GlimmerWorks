@@ -1,7 +1,9 @@
 using System.Runtime.InteropServices;
 using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Game.Graphics;
-using GlimmerWorks.Game.Scene;using Myra;
+using GlimmerWorks.Game.Graphics.Pipeline;
+using GlimmerWorks.Game.Scene;
+using Myra;
 using Myra.Graphics2D.UI;
 using SDL3;
 
@@ -23,7 +25,7 @@ internal sealed class GameUi : IDisposable
     {
         _shaderHolder.GpuDevice = device;
 
-        var pipeline = new Pipeline
+        var pipeline = new GPUPipeline
         {
             BlendMode = BlendMode.Alpha,
             VertexShader = vertexShader,

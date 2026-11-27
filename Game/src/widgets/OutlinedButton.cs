@@ -1,4 +1,5 @@
 using FontStashSharp.RichText;
+using GlimmerWorks.Game.Ui.Theme;
 using Myra.Graphics2D.Brushes;
 using Myra.Graphics2D.UI;
 
@@ -6,13 +7,13 @@ namespace GlimmerWorks.Game.Widgets;
 
 public sealed class OutlinedButton : Button
 {
-    public OutlinedButton(Theme theme, string text)
+    public OutlinedButton(GameTheme theme, string text)
     {
-        Background = new RoundedCornersHollowBrush(theme.Primary, Theme.Transparent, theme.BorderWidth)
+        Background = new RoundedCornersHollowBrush(theme.Primary, GameTheme.Transparent, theme.BorderWidth)
             { Radius = theme.Radius };
-        OverBackground = new RoundedCornersHollowBrush(theme.PrimaryOver(), Theme.Transparent, theme.BorderWidth)
+        OverBackground = new RoundedCornersHollowBrush(theme.PrimaryOver(), GameTheme.Transparent, theme.BorderWidth)
             { Radius = theme.Radius };
-        PressedBackground = new RoundedCornersHollowBrush(theme.PrimaryPressed(), Theme.Transparent, theme.BorderWidth)
+        PressedBackground = new RoundedCornersHollowBrush(theme.PrimaryPressed(), GameTheme.Transparent, theme.BorderWidth)
             { Radius = theme.Radius };
         MouseCursor = MouseCursorType.Hand;
         Content = new Myra.Graphics2D.UI.Label

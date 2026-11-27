@@ -1,6 +1,7 @@
 using FontStashSharp;
 using FontStashSharp.RichText;
 using GlimmerWorks.Engine.Mods.Resources;
+using GlimmerWorks.Game.Ui.Theme;
 using GlimmerWorks.Game.Widgets;
 using Myra.Events;
 using Myra.Graphics2D;
@@ -207,47 +208,7 @@ public class CreateWorldScene(GameAppContext appContext) : BaseScene(appContext)
             return;
         }
 
-        var name = string.IsNullOrWhiteSpace(_worldNameBox.Text)
-            ? "World"
-            : _worldNameBox.Text.Trim();
-        var seedText = _seedBox.Text?.Trim();
-        var seed = Engine.World.WorldSeed.Parse(seedText);
-
-        var saveRoot = Engine.World.Save.SavePaths.GetSaveDirectory(
-            Path.Combine(System.AppContext.BaseDirectory, "runtime"), name);
-        if (Directory.Exists(saveRoot) ||
-            File.Exists(Engine.World.Save.SavePaths.GetManifestPath(saveRoot)))
-        {
-            // Same-name worlds must not silently reuse an old save directory.
-            saveRoot += $"_{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
-        }
-
-        var settings = new Engine.World.WorldSettings
-        {
-            Name = name,
-            Seed = seed,
-            AllowCheats = _allowCheatsCheck.IsChecked,
-            Directory = saveRoot,
-            PreloadRadiusChunks = 3
-        };
-
-        var world = Engine.World.World.Create(AppContext, settings, _startingDimension);
-        if (world == null)
-        {
-            return;
-        }
-
-        // Persist the initial manifest/player immediately, before any chunk is generated.
-        if (!world.SaveManifest() || !world.SavePlayer())
-        {
-            return;
-        }
-
-        AppContext.SceneStack.AddTask(new SceneStackTask
-        {
-            Type = StackType.Replace,
-            Scene = new WorldScene(AppContext, world)
-        });
+    
     }
 
     /// <summary>

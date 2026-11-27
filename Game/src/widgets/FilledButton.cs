@@ -1,4 +1,5 @@
 using FontStashSharp.RichText;
+using GlimmerWorks.Game.Ui.Theme;
 using Myra.Graphics2D.Brushes;
 using Myra.Graphics2D.UI;
 
@@ -6,7 +7,7 @@ namespace GlimmerWorks.Game.Widgets;
 
 public sealed class FilledButton : Button
 {
-    public FilledButton(Theme theme, string text)
+    public FilledButton(GameTheme theme, string text)
     {
         Background = new RoundedCornersSolidBrush(theme.Primary) { Radius = theme.Radius };
         OverBackground = new RoundedCornersSolidBrush(theme.PrimaryOver()) { Radius = theme.Radius };

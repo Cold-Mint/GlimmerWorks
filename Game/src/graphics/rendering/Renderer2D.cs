@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Engine.Mods;
+using GlimmerWorks.Game.Graphics.Pipeline;
 using GlimmerWorks.Game.Graphics.Uniform;
 using GlimmerWorks.Game.Scene;
 using SDL3;
@@ -22,7 +23,7 @@ public sealed class Renderer2D
     private readonly MaterialVertex2D[] _materialVertices = new MaterialVertex2D[MaxVertices];
     private readonly List<RenderCommand> _commands = [];
     private readonly Dictionary<string, Material> _materialCache = [];
-    private readonly Dictionary<Pipeline, nint> _pipelineCache = [];
+    private readonly Dictionary<GPUPipeline, nint> _pipelineCache = [];
     private readonly Dictionary<TextureData, Texture2D> _textureCache = [];
     private readonly List<Texture2D> _pendingTextures = [];
 
@@ -30,7 +31,7 @@ public sealed class Renderer2D
     private nint _uiVertexBuffer;
     private nint _materialVertexBuffer;
     private nint _sampler;
-    private Pipeline? _uiPipeline;
+    private GPUPipeline? _uiPipeline;
     private Texture2D? _whiteTexture;
     private bool _uiPipelineLoadFailed;
 
@@ -341,7 +342,7 @@ public sealed class Renderer2D
         }
 
         var pipelineRef = ResourceRef.Create(ResourceType.Pipeline, ResourceRef.CorePackId, "ui");
-        var pipelineResult = _appContext.AssetsPackManager.FindAsset<Pipeline>(_appContext, pipelineRef);
+        var pipelineResult = _appContext.AssetsPackManager.FindAsset<GPUPipeline>(_appContext, pipelineRef);
         if (!pipelineResult.Exist || pipelineResult.Result == null)
         {
             _uiPipelineLoadFailed = true;
@@ -375,7 +376,7 @@ public sealed class Renderer2D
         }
     }
 
-    private nint GetOrCreatePipeline(Pipeline? pipeline)
+    private nint GetOrCreatePipeline(GPUPipeline? pipeline)
     {
         if (pipeline == null)
         {

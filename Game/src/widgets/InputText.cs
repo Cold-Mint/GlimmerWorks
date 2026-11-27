@@ -1,3 +1,4 @@
+using GlimmerWorks.Game.Ui.Theme;
 using Myra.Graphics2D.Brushes;
 using Myra.Graphics2D.UI;
 
@@ -5,7 +6,7 @@ namespace GlimmerWorks.Game.Widgets;
 
 public sealed class InputText : TextBox
 {
-    public InputText(Theme theme)
+    public InputText(GameTheme theme)
     {
         MouseCursor = MouseCursorType.IBeam;
         Font = theme.GetFont(ThemeFontKind.Normal);

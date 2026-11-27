@@ -1,4 +1,5 @@
 using GlimmerWorks.Engine.Mods;
+using GlimmerWorks.Game.Graphics.Pipeline;
 using JetBrains.Annotations;
 using Tomlyn.Serialization;
 
@@ -20,7 +21,7 @@ public sealed class Material
     /// <para>The resolved pipeline.</para>
     /// <para>解析后的管线。</para>
     /// </summary>
-    public Pipeline? Pipeline { get; set; }
+    public GPUPipeline? Pipeline { get; set; }
 }
 
 /// <summary>

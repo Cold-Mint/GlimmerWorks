@@ -1,17 +1,9 @@
 using FontStashSharp;
 using Myra.Graphics2D;
 
-namespace GlimmerWorks.Game;
+namespace GlimmerWorks.Game.Ui.Theme;
 
-public enum ThemeFontKind
-{
-    Small,
-    Normal,
-    Large,
-    ExtraLarge
-}
-
-public class Theme
+public class GameTheme
 {
     public int Radius { get; set; } = 18;
     public int CheckBoxRadius { get; set; } = 4;

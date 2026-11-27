@@ -5,6 +5,7 @@ using GlimmerWorks.Engine.Mods;
 using GlimmerWorks.Engine.Mods.Resources;
 using GlimmerWorks.Engine.Vfs;
 using GlimmerWorks.Game.Graphics.Rendering;
+using GlimmerWorks.Game.Ui.Theme;
 using Myra.Graphics2D;
 using Myra.Graphics2D.UI;
 

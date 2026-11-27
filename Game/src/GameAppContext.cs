@@ -7,6 +7,7 @@ using GlimmerWorks.Game.Graphics.Uniform;
 using GlimmerWorks.Game.Mods;
 using GlimmerWorks.Game.Scene;
 using GlimmerWorks.Game.Ui;
+using GlimmerWorks.Game.Ui.Theme;
 using AppContext = GlimmerWorks.Engine.AppContext;
 using Microsoft.Extensions.Localization;
 using SDL3;
@@ -29,7 +30,7 @@ public class GameAppContext : AppContext
 
     public LocalizationManager LocalizationManager { get; } = new();
     public IStringLocalizer Localizer => LocalizationManager;
-    public Theme Theme { get; } = new();
+    public GameTheme Theme { get; } = new();
 
 
     /// <summary>

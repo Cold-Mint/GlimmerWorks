@@ -1,8 +1,9 @@
 ﻿using GlimmerWorks.Engine.Attributes;
+using GlimmerWorks.Engine.Mods.Resources;
 using JetBrains.Annotations;
 using Tomlyn.Serialization;
 
-namespace GlimmerWorks.Engine.Mods.Resources;
+namespace GlimmerWorks.Engine.Mods.ResourcePatch;
 
 /// <summary>
 /// <para>DimensionResourcePatch</para>
@@ -12,8 +13,9 @@ namespace GlimmerWorks.Engine.Mods.Resources;
 [DataPackResource("dimension_patch", patch: true)]
 public class DimensionPatchResource : Resource, IResourcePatch
 {
-    [UsedImplicitly] [TomlPropertyName("dimension")]
-    public ResourceRef Dimension = new();
+    [UsedImplicitly]
+    [TomlPropertyName("dimension")]
+    public ResourceRef Dimension { get; set; } = new();
 
     /// <summary>
     /// <para>Add certain biomes to the dimension</para>

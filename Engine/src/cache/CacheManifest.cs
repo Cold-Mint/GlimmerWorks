@@ -7,5 +7,5 @@ internal sealed partial class CacheManifest
 {
     public long CacheCode { get; set; }
 
-    public Dictionary<string, string> PathToId { get; set; } = new();
+    public Dictionary<string, string> PathToId { get; } = new();
 }

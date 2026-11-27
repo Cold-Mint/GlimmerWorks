@@ -8,7 +8,7 @@ public class CacheManager
 {
     private CacheManifest _manifest = new()
     {
-        CacheCode = EngineConstant.CacheCode,
+        CacheCode = EngineConstant.CacheCode
     };
 
     /// <summary>
@@ -20,13 +20,13 @@ public class CacheManager
     {
         var virtualPath = GetCacheManifestPath(appContext.EngineConfig.CachePath);
         var fileEntry = appContext.VirtualFileSystem.GetFileEntry(virtualPath);
-        if (fileEntry == null || fileEntry.IsDirectory || !appContext.VirtualFileSystem.FileExists(virtualPath))
+        if (fileEntry == null || fileEntry.IsDirectory || !fileEntry.Exists)
         {
             return false;
         }
 
         var cacheManifest = appContext.VirtualFileSystem.ReadMemoryPack<CacheManifest>(virtualPath);
-        if (cacheManifest == null || cacheManifest.CacheCode != EngineConstant.CacheCode)
+        if (cacheManifest is not { CacheCode: EngineConstant.CacheCode })
         {
             return false;
         }
@@ -41,10 +41,10 @@ public class CacheManager
     /// </summary>
     /// <param name="appContext"></param>
     /// <returns></returns>
-    public bool WriteCacheManifest(AppContext appContext)
+    private void WriteCacheManifest(AppContext appContext)
     {
         var virtualPath = GetCacheManifestPath(appContext.EngineConfig.CachePath);
-        return appContext.VirtualFileSystem.WriteMemoryPack(virtualPath, _manifest);
+        appContext.VirtualFileSystem.WriteMemoryPack(virtualPath, _manifest);
     }
 
     /// <summary>
@@ -98,7 +98,7 @@ public class CacheManager
 
         var virtualFileSystem = appContext.VirtualFileSystem;
         var fileEntry = virtualFileSystem.GetFileEntry(path);
-        if (fileEntry == null || fileEntry.IsDirectory || !virtualFileSystem.FileExists(path))
+        if (fileEntry == null || fileEntry.IsDirectory || !fileEntry.Exists)
         {
             return null;
         }
@@ -139,24 +139,24 @@ public class CacheManager
     /// <param name="data"></param>
     /// <param name="assetsPackId"></param>
     /// <returns></returns>
-    public bool MakeCache(AppContext appContext, string cacheType,
+    public void MakeCache(AppContext appContext, string cacheType,
         VirtualPath path, byte[] data, string assetsPackId)
     {
         if (_manifest.PathToId.ContainsKey(path.Path))
         {
-            return false;
+            return;
         }
 
         var fileEntry = appContext.VirtualFileSystem.GetFileEntry(path);
-        if (fileEntry == null || fileEntry.IsDirectory || !appContext.VirtualFileSystem.FileExists(path))
+        if (fileEntry == null || fileEntry.IsDirectory || !fileEntry.Exists)
         {
-            return false;
+            return;
         }
 
         var bytes = appContext.VirtualFileSystem.ReadAllBytes(path);
         if (bytes == null)
         {
-            return false;
+            return;
         }
 
         var hash = Hasher.Hash(bytes);
@@ -180,7 +180,6 @@ public class CacheManager
 
         appContext.VirtualFileSystem.WriteMemoryPack(virtualPath, cacheEntry);
         WriteCacheManifest(appContext);
-        return true;
     }
 
     /// <summary>

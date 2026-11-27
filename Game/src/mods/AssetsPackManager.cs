@@ -2,7 +2,6 @@ using System.Reflection;
 using GlimmerWorks.Engine.Extensions;
 using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Engine.Mods;
-using GlimmerWorks.Engine.Mods.PackLoader;
 using GlimmerWorks.Engine.Vfs;
 using GlimmerWorks.Game.Attributes;
 using MemoryPack;

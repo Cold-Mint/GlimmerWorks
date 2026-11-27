@@ -1,6 +1,5 @@
 using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Engine.Mods;
-using GlimmerWorks.Engine.Mods.PackLoader;
 using GlimmerWorks.Engine.Vfs;
 
 namespace GlimmerWorks.Game.Mods;

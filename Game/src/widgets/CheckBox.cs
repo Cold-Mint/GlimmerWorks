@@ -1,4 +1,5 @@
 using FontStashSharp;
+using GlimmerWorks.Game.Ui.Theme;
 using Myra.Graphics2D.Brushes;
 using Myra.Graphics2D.UI;
 
@@ -6,18 +7,18 @@ namespace GlimmerWorks.Game.Widgets;
 
 public sealed class CheckBox : CheckButton
 {
-    public CheckBox(Theme theme)
+    public CheckBox(GameTheme theme)
     {
         var size = theme.MinHeight;
         CheckImage.Width = size;
         CheckImage.Height = size;
-        var transparent = new SolidBrush(Theme.Transparent);
+        var transparent = new SolidBrush(GameTheme.Transparent);
         CheckImage.Background = transparent;
         CheckImage.OverBackground = transparent;
         CheckImage.PressedBackground = transparent;
         CheckImage.DisabledBackground = transparent;
         var hollow = new RoundedCornersHollowBrush(
-                theme.Primary, Theme.Transparent, theme.BorderWidth)
+                theme.Primary, GameTheme.Transparent, theme.BorderWidth)
             { Radius = theme.CheckBoxRadius };
 
         var hollowHover = new RoundedCornersHollowBrush(

@@ -1,6 +1,7 @@
 ﻿using System.Buffers;
 using System.Runtime.InteropServices;
 using GlimmerWorks.Engine.Log;
+using GlimmerWorks.Game.Graphics.Pipeline;
 using SDL3;
 
 namespace GlimmerWorks.Game.Graphics;
@@ -372,7 +373,7 @@ public class GpuResourcesHolder
     ///<para>管线使用的顶点输入布局。</para>
     /// </param>
     /// <returns></returns>
-    public nint? AddGraphicsPipeline(Pipeline pipeline, SDL.GPUTextureFormat targetFormat,
+    public nint? AddGraphicsPipeline(GPUPipeline pipeline, SDL.GPUTextureFormat targetFormat,
         VertexLayout vertexLayout = VertexLayout.PositionTexture)
     {
         if (GpuDevice == IntPtr.Zero)

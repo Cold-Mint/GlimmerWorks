@@ -1,0 +1,10 @@
+[submodule "Game/assets/mods/data_packs/glimmerworks"]
+	path = Game/assets/mods/data_packs/glimmerworks
+	url = https://github.com/Cold-Mint/GlimmerworksData.git
+	branch = master
+	shallow = true
+[submodule "Game/assets/mods/assets_pack/glimmerworks_res"]
+	path = Game/assets/mods/assets_pack/glimmerworks_res
+	url = https://github.com/Cold-Mint/GlimmerworksAssets.git
+	branch = master
+	shallow = true

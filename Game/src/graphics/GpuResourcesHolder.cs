@@ -1,4 +1,6 @@
-﻿using GlimmerWorks.Engine.Log;
+﻿using System.Buffers;
+using System.Runtime.InteropServices;
+using GlimmerWorks.Engine.Log;
 using SDL3;
 
 namespace GlimmerWorks.Game.Graphics;
@@ -584,12 +586,17 @@ public class GpuResourcesHolder
             return IntPtr.Zero;
         }
 
-        unsafe
+        // Marshal.Copy needs a managed array, so rent one to avoid allocating on every upload.
+        // Marshal.Copy 需要托管数组，因此从池中租用，避免每次上传都分配新数组。
+        var buffer = ArrayPool<byte>.Shared.Rent(data.Length);
+        try
         {
-            fixed (byte* source = data)
-            {
-                Buffer.MemoryCopy(source, (void*)mapped, size, size);
-            }
+            data.CopyTo(buffer);
+            Marshal.Copy(buffer, 0, mapped, data.Length);
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(buffer);
         }
 
         SDL.UnmapGPUTransferBuffer(GpuDevice, transferBuffer);

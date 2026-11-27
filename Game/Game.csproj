@@ -6,8 +6,27 @@
         <TargetFramework>net11.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
+
+    <PropertyGroup>
+        <ModsDirectory>assets/mods</ModsDirectory>
+        <RepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/..'))</RepositoryRoot>
+    </PropertyGroup>
+
+    <Target Name="PrepareModRepositories" BeforeTargets="PrepareForBuild">
+        <Exec Command="git submodule update --init --remote &quot;Game/$(ModsDirectory)/data_packs/glimmerworks&quot; &quot;Game/$(ModsDirectory)/assets_pack/glimmerworks_res&quot;"
+              WorkingDirectory="$(RepositoryRoot)"/>
+        <ItemGroup>
+            <ModFile Include="$(ModsDirectory)/**/*"
+                     Exclude="$(ModsDirectory)/**/.git/**/*;$(ModsDirectory)/**/.git"/>
+            <ModFile>
+                <Link>mods/%(RecursiveDir)%(Filename)%(Extension)</Link>
+                <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+                <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+            </ModFile>
+            <None Include="@(ModFile)"/>
+        </ItemGroup>
+    </Target>
 
     <ItemGroup>
         <ProjectReference Include="..\Engine\Engine.csproj"/>
@@ -17,6 +36,8 @@
         <PackageReference Include="SDL3-CS" Version="3.4.20"/>
         <PackageReference Include="SDL3-CS.Windows" Version="3.4.20"/>
         <PackageReference Include="SDL3-CS.Windows.Image" Version="3.4.8.1"/>
+        <PackageReference Include="SDL3-CS.Linux" Version="3.4.20"/>
+        <PackageReference Include="SDL3-CS.Linux.Image" Version="3.4.8.1"/>
         <PackageReference Include="Silk.NET.Shaderc" Version="2.23.0"/>
     </ItemGroup>
 
@@ -24,7 +45,6 @@
         <None Update="assets/config.toml" CopyToOutputDirectory="PreserveNewest"/>
         <None Update="assets/langs/*.po" CopyToOutputDirectory="PreserveNewest"/>
         <None Update="assets/fonts/*.ttf" CopyToOutputDirectory="PreserveNewest"/>
-        <None Include="assets/mods/**/*" Link="mods/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest"/>
     </ItemGroup>
 
 </Project>

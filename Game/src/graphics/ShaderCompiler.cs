@@ -1,9 +1,7 @@
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
-using System.Text;
 using GlimmerWorks.Engine.Log;
 using Silk.NET.Shaderc;
-using ShadercApi = Silk.NET.Shaderc.Shaderc;
 
 namespace GlimmerWorks.Game.Graphics;
 
@@ -59,18 +57,6 @@ internal static class ShaderCompiler
     private const uint StorageClassUniformConstant = 0;
     private const uint StorageClassUniform = 2;
     private const uint StorageClassStorageBuffer = 12;
-
-    /// <summary>
-    /// <para>
-    /// The lazily loaded shaderc API. Deferring the load means a missing native
-    /// library only breaks shader compilation instead of the whole application.
-    /// </para>
-    /// <para>
-    /// 延迟加载的 shaderc API。延迟加载可以让原生库缺失只影响着色器编译，
-    /// 而不会导致整个应用启动失败。
-    /// </para>
-    /// </summary>
-    private static readonly Lazy<ShadercApi> Api = new(ShadercApi.GetApi);
 
     /// <summary>
     /// <para>Compiles GLSL source into SPIR-V for the requested shader stage.</para>
@@ -173,14 +159,14 @@ internal static class ShaderCompiler
     /// <para>The SPIR-V bytecode, or <c>null</c> when compilation fails.</para>
     /// <para>SPIR-V 字节码；编译失败时返回 <c>null</c>。</para>
     /// </returns>
-    private static unsafe byte[]? CompileGlsl(byte[] source, ShaderKind shaderKind, string fileName)
+    private static byte[]? CompileGlsl(byte[] source, ShaderKind shaderKind, string fileName)
     {
-        // Resolve the shaderc bindings lazily; loading the native library may fail.
-        // 延迟获取 shaderc 绑定；原生库可能加载失败。
-        ShadercApi api;
+        // The first native call loads the library, so a missing library is reported here.
+        // 首次原生调用会加载库，因此原生库缺失会在这里报告。
+        IntPtr compiler;
         try
         {
-            api = Api.Value;
+            compiler = ShadercNative.CompilerInitialize();
         }
         catch (Exception e)
         {
@@ -190,8 +176,7 @@ internal static class ShaderCompiler
 
         // A compiler instance owns the native compilation state.
         // 编译器实例持有原生编译状态。
-        var compiler = api.CompilerInitialize();
-        if (compiler == null)
+        if (compiler == IntPtr.Zero)
         {
             LogCat.Error("Failed to compile shader: could not initialize the shader compiler.");
             return null;
@@ -199,96 +184,96 @@ internal static class ShaderCompiler
 
         // The options object is mutated below and then passed to CompileIntoSpv.
         // 下面的选项对象会被修改，然后传给 CompileIntoSpv。
-        var options = api.CompileOptionsInitialize();
-        if (options == null)
+        IntPtr options;
+        try
         {
-            LogCat.Error("Failed to compile shader: could not initialize the compile options.");
-            api.CompilerRelease(compiler);
+            options = ShadercNative.CompileOptionsInitialize();
+        }
+        catch (Exception e)
+        {
+            LogCat.Error($"Failed to compile shader: could not initialize the compile options. {e.Message}");
+            ShadercNative.CompilerRelease(compiler);
             return null;
         }
 
+        if (options == IntPtr.Zero)
+        {
+            LogCat.Error("Failed to compile shader: could not initialize the compile options.");
+            ShadercNative.CompilerRelease(compiler);
+            return null;
+        }
+
+        var result = IntPtr.Zero;
         try
         {
             // Configure GLSL input and Vulkan 1.0 compatible validation rules.
             // 配置 GLSL 输入和 Vulkan 1.0 兼容的校验规则。
-            api.CompileOptionsSetSourceLanguage(options, SourceLanguage.Glsl);
-            api.CompileOptionsSetTargetEnv(options, TargetEnv.Vulkan, (uint)EnvVersion.Vulkan10);
-            api.CompileOptionsSetOptimizationLevel(options, OptimizationLevel.Performance);
+            ShadercNative.CompileOptionsSetSourceLanguage(options, SourceLanguage.Glsl);
+            ShadercNative.CompileOptionsSetTargetEnv(options, TargetEnv.Vulkan, (uint)EnvVersion.Vulkan10);
+            ShadercNative.CompileOptionsSetOptimizationLevel(options, OptimizationLevel.Performance);
 
-            // Native strings must be NUL-terminated UTF-8 byte arrays.
-            // 原生字符串必须是以 \0 结尾的 UTF-8 字节数组。
+            // The P/Invoke marshaller adds the terminating NUL to UTF-8 strings.
+            // P/Invoke 封送器会为 UTF-8 字符串补上结尾的 \0。
             var displayName = string.IsNullOrWhiteSpace(fileName) ? "<memory>" : fileName;
-            var fileNameBytes = Encoding.UTF8.GetBytes(displayName + '\0');
-            var entryPointBytes = Encoding.UTF8.GetBytes(DefaultEntryPoint + '\0');
 
-            // Pin managed arrays for the duration of the native call.
-            // 在原生调用期间固定托管数组，避免 GC 移动内存。
-            CompilationResult* result;
-            fixed (byte* sourcePtr = source)
-            fixed (byte* fileNamePtr = fileNameBytes)
-            fixed (byte* entryPointPtr = entryPointBytes)
-            {
-                result = api.CompileIntoSpv(compiler, sourcePtr, (nuint)source.Length,
-                    shaderKind, fileNamePtr, entryPointPtr, options);
-            }
+            // Pass the source array directly; the marshaller pins it for the call.
+            // 直接传入源码数组；封送器会在调用期间固定它。
+            result = ShadercNative.CompileIntoSpv(compiler, source, (nuint)source.Length,
+                shaderKind, displayName, DefaultEntryPoint, options);
 
-            if (result == null)
+            if (result == IntPtr.Zero)
             {
                 LogCat.Error("Failed to compile shader: the compiler returned no result.");
                 return null;
             }
 
-            // The compilation result is a native object and must be released explicitly.
-            // 编译结果是原生对象，必须显式释放。
-            try
+            // A non-success status means the GLSL did not compile.
+            // 状态不是 Success 表示 GLSL 编译失败。
+            var status = ShadercNative.ResultGetCompilationStatus(result);
+            if (status != CompilationStatus.Success)
             {
-                // A non-success status means the GLSL did not compile.
-                // 状态不是 Success 表示 GLSL 编译失败。
-                var status = api.ResultGetCompilationStatus(result);
-                if (status != CompilationStatus.Success)
-                {
-                    // shaderc reports human-readable diagnostics through the result.
-                    // shaderc 通过结果对象提供可读的诊断信息。
-                    var message = Marshal.PtrToStringUTF8((nint)api.ResultGetErrorMessage(result));
-                    LogCat.Error($"Failed to compile shader ({status})." +
-                                 (string.IsNullOrWhiteSpace(message) ? string.Empty : $"\n{message}"));
-                    return null;
-                }
-
-                // Copy the SPIR-V payload into managed memory before releasing the result.
-                // 在释放结果前，把 SPIR-V 数据复制到托管内存。
-                var length = api.ResultGetLength(result);
-                if (length == 0 || length > int.MaxValue)
-                {
-                    LogCat.Error("Failed to compile shader: the compiler returned an empty or oversized result.");
-                    return null;
-                }
-
-                var spirv = new byte[(int)length];
-                Marshal.Copy((nint)api.ResultGetBytes(result), spirv, 0, spirv.Length);
-
-                // Basic sanity check: a valid module starts with the SPIR-V magic number.
-                // 基本校验：合法的模块以 SPIR-V 魔数开头。
-                if (spirv.Length < sizeof(uint) ||
-                    BinaryPrimitives.ReadUInt32LittleEndian(spirv) != SpirvMagic)
-                {
-                    LogCat.Error("Failed to compile shader: the result is not valid SPIR-V.");
-                    return null;
-                }
-
-                return spirv;
+                // shaderc reports human-readable diagnostics through the result.
+                // shaderc 通过结果对象提供可读的诊断信息。
+                var message = Marshal.PtrToStringUTF8(ShadercNative.ResultGetErrorMessage(result));
+                LogCat.Error($"Failed to compile shader ({status})." +
+                             (string.IsNullOrWhiteSpace(message) ? string.Empty : $"\n{message}"));
+                return null;
             }
-            finally
+
+            // Copy the SPIR-V payload into managed memory before releasing the result.
+            // 在释放结果前，把 SPIR-V 数据复制到托管内存。
+            var length = ShadercNative.ResultGetLength(result);
+            if (length == 0 || length > int.MaxValue)
             {
-                api.ResultRelease(result);
+                LogCat.Error("Failed to compile shader: the compiler returned an empty or oversized result.");
+                return null;
             }
+
+            var spirv = new byte[(int)length];
+            Marshal.Copy(ShadercNative.ResultGetBytes(result), spirv, 0, spirv.Length);
+
+            // Basic sanity check: a valid module starts with the SPIR-V magic number.
+            // 基本校验：合法的模块以 SPIR-V 魔数开头。
+            if (spirv.Length < sizeof(uint) ||
+                BinaryPrimitives.ReadUInt32LittleEndian(spirv) != SpirvMagic)
+            {
+                LogCat.Error("Failed to compile shader: the result is not valid SPIR-V.");
+                return null;
+            }
+
+            return spirv;
         }
         finally
         {
             // Release native resources even when compilation fails.
             // 即使编译失败，也要释放原生资源。
-            api.CompileOptionsRelease(options);
-            api.CompilerRelease(compiler);
+            if (result != IntPtr.Zero)
+            {
+                ShadercNative.ResultRelease(result);
+            }
+
+            ShadercNative.CompileOptionsRelease(options);
+            ShadercNative.CompilerRelease(compiler);
         }
     }
 
@@ -306,11 +291,18 @@ internal static class ShaderCompiler
     /// </returns>
     private static ShaderResourceCounts ReadResourceCounts(byte[] spirv)
     {
-        var types = new Dictionary<uint, SpirvTypeInfo>();
-        var constants = new Dictionary<uint, ulong>();
-        var bufferBlockTypes = new HashSet<uint>();
-        var variables = new List<(uint TypeId, uint StorageClass)>();
+        var module = ReadSpirvModule(spirv);
+        MarkBufferBlocks(module);
+        return CountResources(module);
+    }
 
+    /// <summary>
+    /// <para>Reads the type, constant, variable and decoration information from a SPIR-V module.</para>
+    /// <para>从 SPIR-V 模块中读取类型、常量、变量和装饰信息。</para>
+    /// </summary>
+    private static SpirvModule ReadSpirvModule(byte[] spirv)
+    {
+        var module = new SpirvModule();
         var totalWords = spirv.Length / sizeof(uint);
         var wordIndex = SpirvHeaderSize / sizeof(uint);
 
@@ -325,136 +317,179 @@ internal static class ShaderCompiler
                 break;
             }
 
-            var operand = wordIndex + 1;
-            switch (opcode)
-            {
-                case OpTypeImage when wordCount >= 9:
-                    types[ReadWord(spirv, operand)] = new SpirvTypeInfo
-                    {
-                        Kind = SpirvTypeKind.Image,
-                        // Sampled: 1 = sampled image, 2 = storage image.
-                        // Sampled：1 表示采样图像，2 表示存储图像。
-                        Sampled = ReadWord(spirv, operand + 6)
-                    };
-                    break;
-                case OpTypeSampler when wordCount >= 2:
-                    types[ReadWord(spirv, operand)] = new SpirvTypeInfo
-                    {
-                        Kind = SpirvTypeKind.Sampler
-                    };
-                    break;
-                case OpTypeSampledImage when wordCount >= 3:
-                    types[ReadWord(spirv, operand)] = new SpirvTypeInfo
-                    {
-                        Kind = SpirvTypeKind.SampledImage,
-                        ElementTypeId = ReadWord(spirv, operand + 1)
-                    };
-                    break;
-                case OpTypeArray when wordCount >= 4:
-                    types[ReadWord(spirv, operand)] = new SpirvTypeInfo
-                    {
-                        Kind = SpirvTypeKind.Array,
-                        ElementTypeId = ReadWord(spirv, operand + 1),
-                        LengthId = ReadWord(spirv, operand + 2)
-                    };
-                    break;
-                case OpTypeRuntimeArray when wordCount >= 3:
-                    types[ReadWord(spirv, operand)] = new SpirvTypeInfo
-                    {
-                        Kind = SpirvTypeKind.RuntimeArray,
-                        ElementTypeId = ReadWord(spirv, operand + 1)
-                    };
-                    break;
-                case OpTypeStruct when wordCount >= 2:
-                    types[ReadWord(spirv, operand)] = new SpirvTypeInfo
-                    {
-                        Kind = SpirvTypeKind.Struct
-                    };
-                    break;
-                case OpTypePointer when wordCount >= 4:
-                    types[ReadWord(spirv, operand)] = new SpirvTypeInfo
-                    {
-                        Kind = SpirvTypeKind.Pointer,
-                        ElementTypeId = ReadWord(spirv, operand + 2)
-                    };
-                    break;
-                case OpConstant when wordCount >= 4:
-                    constants[ReadWord(spirv, operand + 1)] = ReadWord(spirv, operand + 2);
-                    break;
-                case OpVariable when wordCount >= 4:
-                    variables.Add((ReadWord(spirv, operand), ReadWord(spirv, operand + 2)));
-                    break;
-                case OpDecorate when wordCount >= 3:
-                    if (ReadWord(spirv, operand + 1) == DecorationBufferBlock)
-                    {
-                        bufferBlockTypes.Add(ReadWord(spirv, operand));
-                    }
-
-                    break;
-            }
-
+            RecordInstruction(module, spirv, opcode, wordIndex + 1, wordCount);
             wordIndex += wordCount;
         }
 
+        return module;
+    }
+
+    /// <summary>
+    /// <para>Records the information carried by a single SPIR-V instruction.</para>
+    /// <para>记录单条 SPIR-V 指令携带的信息。</para>
+    /// </summary>
+    private static void RecordInstruction(SpirvModule module, byte[] spirv, int opcode, int operand, int wordCount)
+    {
+        switch (opcode)
+        {
+            case OpTypeImage when wordCount >= 9:
+                module.Types[ReadWord(spirv, operand)] = new SpirvTypeInfo
+                {
+                    Kind = SpirvTypeKind.Image,
+                    // Sampled: 1 = sampled image, 2 = storage image.
+                    // Sampled：1 表示采样图像，2 表示存储图像。
+                    Sampled = ReadWord(spirv, operand + 6)
+                };
+                break;
+            case OpTypeSampler when wordCount >= 2:
+                module.Types[ReadWord(spirv, operand)] = new SpirvTypeInfo
+                {
+                    Kind = SpirvTypeKind.Sampler
+                };
+                break;
+            case OpTypeSampledImage when wordCount >= 3:
+                module.Types[ReadWord(spirv, operand)] = new SpirvTypeInfo
+                {
+                    Kind = SpirvTypeKind.SampledImage,
+                    ElementTypeId = ReadWord(spirv, operand + 1)
+                };
+                break;
+            case OpTypeArray when wordCount >= 4:
+                module.Types[ReadWord(spirv, operand)] = new SpirvTypeInfo
+                {
+                    Kind = SpirvTypeKind.Array,
+                    ElementTypeId = ReadWord(spirv, operand + 1),
+                    LengthId = ReadWord(spirv, operand + 2)
+                };
+                break;
+            case OpTypeRuntimeArray when wordCount >= 3:
+                module.Types[ReadWord(spirv, operand)] = new SpirvTypeInfo
+                {
+                    Kind = SpirvTypeKind.RuntimeArray,
+                    ElementTypeId = ReadWord(spirv, operand + 1)
+                };
+                break;
+            case OpTypeStruct when wordCount >= 2:
+                module.Types[ReadWord(spirv, operand)] = new SpirvTypeInfo
+                {
+                    Kind = SpirvTypeKind.Struct
+                };
+                break;
+            case OpTypePointer when wordCount >= 4:
+                module.Types[ReadWord(spirv, operand)] = new SpirvTypeInfo
+                {
+                    Kind = SpirvTypeKind.Pointer,
+                    ElementTypeId = ReadWord(spirv, operand + 2)
+                };
+                break;
+            case OpConstant when wordCount >= 4:
+                module.Constants[ReadWord(spirv, operand + 1)] = ReadWord(spirv, operand + 2);
+                break;
+            case OpVariable when wordCount >= 4:
+                module.Variables.Add((ReadWord(spirv, operand), ReadWord(spirv, operand + 2)));
+                break;
+            case OpDecorate when wordCount >= 3:
+                if (ReadWord(spirv, operand + 1) == DecorationBufferBlock)
+                {
+                    module.BufferBlockTypes.Add(ReadWord(spirv, operand));
+                }
+
+                break;
+        }
+    }
+
+    /// <summary>
+    /// <para>Marks the types decorated as buffer blocks.</para>
+    /// <para>标记被装饰为缓冲块的类型。</para>
+    /// </summary>
+    private static void MarkBufferBlocks(SpirvModule module)
+    {
         // BufferBlock marks a Uniform struct as a storage buffer in SPIR-V 1.0.
         // BufferBlock 表示 SPIR-V 1.0 中 Uniform 存储类下的结构体是存储缓冲。
-        foreach (var typeId in bufferBlockTypes)
+        foreach (var typeId in module.BufferBlockTypes)
         {
-            if (types.TryGetValue(typeId, out var type))
+            if (module.Types.TryGetValue(typeId, out var type))
             {
                 type.IsBufferBlock = true;
-                types[typeId] = type;
+                module.Types[typeId] = type;
             }
         }
+    }
 
+    /// <summary>
+    /// <para>Counts the resources represented by the collected variables.</para>
+    /// <para>统计已收集变量所表示的资源。</para>
+    /// </summary>
+    private static ShaderResourceCounts CountResources(SpirvModule module)
+    {
         uint samplers = 0;
         uint uniformBuffers = 0;
         uint storageTextures = 0;
         uint storageBuffers = 0;
 
-        foreach (var (typeId, storageClass) in variables)
+        foreach (var (typeId, storageClass) in module.Variables)
         {
             var multiplicity = 1u;
-            ResolveResourceType(typeId, types, constants, ref multiplicity, out var typeInfo);
-
-            switch (storageClass)
-            {
-                case StorageClassUniformConstant:
-                    if (typeInfo.Kind is SpirvTypeKind.SampledImage or SpirvTypeKind.Sampler)
-                    {
-                        samplers += multiplicity;
-                    }
-                    else if (typeInfo.Kind == SpirvTypeKind.Image)
-                    {
-                        if (typeInfo.Sampled == 2)
-                        {
-                            storageTextures += multiplicity;
-                        }
-                        else
-                        {
-                            samplers += multiplicity;
-                        }
-                    }
-
-                    break;
-                case StorageClassUniform:
-                    if (typeInfo.Kind == SpirvTypeKind.Struct && typeInfo.IsBufferBlock)
-                    {
-                        storageBuffers += multiplicity;
-                    }
-                    else
-                    {
-                        uniformBuffers += multiplicity;
-                    }
-
-                    break;
-                case StorageClassStorageBuffer:
-                    storageBuffers += multiplicity;
-                    break;
-            }
+            ResolveResourceType(typeId, module.Types, module.Constants, ref multiplicity, out var typeInfo);
+            var counts = CountVariable(storageClass, typeInfo, multiplicity);
+            samplers += counts.NumSamplers;
+            uniformBuffers += counts.NumUniformBuffers;
+            storageTextures += counts.NumStorageTextures;
+            storageBuffers += counts.NumStorageBuffers;
         }
 
         return new ShaderResourceCounts(samplers, uniformBuffers, storageTextures, storageBuffers);
+    }
+
+    /// <summary>
+    /// <para>Counts the resources represented by a single variable.</para>
+    /// <para>统计单个变量所表示的资源。</para>
+    /// </summary>
+    private static ShaderResourceCounts CountVariable(uint storageClass, SpirvTypeInfo typeInfo, uint multiplicity)
+    {
+        switch (storageClass)
+        {
+            case StorageClassUniformConstant:
+                return CountUniformConstant(typeInfo, multiplicity);
+            case StorageClassUniform:
+                return CountUniform(typeInfo, multiplicity);
+            case StorageClassStorageBuffer:
+                return new ShaderResourceCounts(0, 0, 0, multiplicity);
+            default:
+                return default;
+        }
+    }
+
+    /// <summary>
+    /// <para>Counts a UniformConstant resource, which is either a sampler or a storage texture.</para>
+    /// <para>统计 UniformConstant 资源；它是采样器或存储纹理。</para>
+    /// </summary>
+    private static ShaderResourceCounts CountUniformConstant(SpirvTypeInfo typeInfo, uint multiplicity)
+    {
+        if (typeInfo.Kind is SpirvTypeKind.SampledImage or SpirvTypeKind.Sampler)
+        {
+            return new ShaderResourceCounts(multiplicity, 0, 0, 0);
+        }
+
+        if (typeInfo.Kind != SpirvTypeKind.Image)
+        {
+            return default;
+        }
+
+        return typeInfo.Sampled == 2
+            ? new ShaderResourceCounts(0, 0, multiplicity, 0)
+            : new ShaderResourceCounts(multiplicity, 0, 0, 0);
+    }
+
+    /// <summary>
+    /// <para>Counts a Uniform resource, which is either a uniform buffer or a storage buffer.</para>
+    /// <para>统计 Uniform 资源；它是统一缓冲或存储缓冲。</para>
+    /// </summary>
+    private static ShaderResourceCounts CountUniform(SpirvTypeInfo typeInfo, uint multiplicity)
+    {
+        return typeInfo is { Kind: SpirvTypeKind.Struct, IsBufferBlock: true }
+            ? new ShaderResourceCounts(0, 0, 0, multiplicity)
+            : new ShaderResourceCounts(0, multiplicity, 0, 0);
     }
 
     /// <summary>
@@ -558,6 +593,18 @@ internal static class ShaderCompiler
         public uint ElementTypeId;
         public uint LengthId;
         public bool IsBufferBlock;
+    }
+
+    /// <summary>
+    /// <para>The SPIR-V information collected while scanning the instruction stream.</para>
+    /// <para>扫描指令流时收集的 SPIR-V 信息。</para>
+    /// </summary>
+    private sealed class SpirvModule
+    {
+        public Dictionary<uint, SpirvTypeInfo> Types { get; } = new();
+        public Dictionary<uint, ulong> Constants { get; } = new();
+        public HashSet<uint> BufferBlockTypes { get; } = new();
+        public List<(uint TypeId, uint StorageClass)> Variables { get; } = new();
     }
 
     private readonly record struct ShaderResourceCounts(

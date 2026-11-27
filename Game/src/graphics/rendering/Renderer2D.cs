@@ -1,10 +1,11 @@
+using System.Buffers.Binary;
 using System.Numerics;
-using System.Runtime.InteropServices;
 using System.Diagnostics;
 using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Engine.Mods;
 using GlimmerWorks.Game.Graphics.Pipeline;
 using GlimmerWorks.Game.Graphics.Uniform;
+using GlimmerWorks.Game.Graphics.Vertex;
 using GlimmerWorks.Game.Scene;
 using SDL3;
 
@@ -13,17 +14,16 @@ namespace GlimmerWorks.Game.Graphics.Rendering;
 public sealed class Renderer2D
 {
     private const int MaxVertices = 65536;
-    private const int UiVertexSize = (int)GpuResourcesHolder.PositionTextureColorStride;
-    private const int MaterialVertexSize = (int)GpuResourcesHolder.PositionTextureStride;
+    private const int MaxVertexStride = VertexLayout.MaxStride;
 
     private readonly GameAppContext _appContext;
     private readonly GpuResourcesHolder _gpuResourcesHolder;
 
-    private readonly Vertex2D[] _uiVertices = new Vertex2D[MaxVertices];
-    private readonly MaterialVertex2D[] _materialVertices = new MaterialVertex2D[MaxVertices];
+    private readonly byte[] _uiVertexData = new byte[MaxVertices * MaxVertexStride];
+    private readonly byte[] _materialVertexData = new byte[MaxVertices * MaxVertexStride];
     private readonly List<RenderCommand> _commands = [];
     private readonly Dictionary<string, Material> _materialCache = [];
-    private readonly Dictionary<GPUPipeline, nint> _pipelineCache = [];
+    private readonly Dictionary<GraphicsPipeline, nint> _pipelineCache = [];
     private readonly Dictionary<TextureData, Texture2D> _textureCache = [];
     private readonly List<Texture2D> _pendingTextures = [];
 
@@ -31,7 +31,8 @@ public sealed class Renderer2D
     private nint _uiVertexBuffer;
     private nint _materialVertexBuffer;
     private nint _sampler;
-    private GPUPipeline? _uiPipeline;
+    private GraphicsPipeline? _uiPipeline;
+    private VertexLayout? _uiLayout;
     private Texture2D? _whiteTexture;
     private bool _uiPipelineLoadFailed;
 
@@ -39,6 +40,7 @@ public sealed class Renderer2D
     private Color _clearColor;
     private int _uiVertexCount;
     private int _materialVertexCount;
+    private int _materialVertexByteCount;
     private RenderCommand? _currentPrimitiveCommand;
     private bool _initialized;
     private bool _begun;
@@ -64,6 +66,7 @@ public sealed class Renderer2D
         _clearColor = clearColor;
         _uiVertexCount = 0;
         _materialVertexCount = 0;
+        _materialVertexByteCount = 0;
         _commands.Clear();
         _currentPrimitiveCommand = null;
         _begun = true;
@@ -194,9 +197,13 @@ public sealed class Renderer2D
             sourceHeight = sourceRect.Height;
         }
 
-        if (sourceWidth <= 0 || sourceHeight <= 0 || _materialVertexCount + 6 > MaxVertices)
+        var layout = material.Pipeline.VertexLayout ?? VertexLayout.PositionTexture;
+        if (sourceWidth <= 0 || sourceHeight <= 0 ||
+            _materialVertexCount + 6 > MaxVertices ||
+            _materialVertexByteCount + 6 * layout.Stride > _materialVertexData.Length)
         {
-            if (_materialVertexCount + 6 > MaxVertices)
+            if (_materialVertexCount + 6 > MaxVertices ||
+                _materialVertexByteCount + 6 * layout.Stride > _materialVertexData.Length)
             {
                 LogCat.Warn("Renderer2D: the material vertex buffer is full; further geometry was skipped.");
             }
@@ -207,14 +214,14 @@ public sealed class Renderer2D
         var uvMin = new Vector2(sourceX / texture.Width, sourceY / texture.Height);
         var uvMax = new Vector2((sourceX + sourceWidth) / texture.Width,
             (sourceY + sourceHeight) / texture.Height);
-        var firstVertex = _materialVertexCount;
+        var firstVertexByteOffset = _materialVertexByteCount;
 
         AddMaterialQuad(
             new Vector2(destination.Left, destination.Top),
             new Vector2(destination.Right, destination.Top),
             new Vector2(destination.Right, destination.Bottom),
             new Vector2(destination.Left, destination.Bottom),
-            uvMin, uvMax);
+            uvMin, uvMax, layout);
 
         // A primitive drawn after this material must start a new batch.
         // 此材质之后绘制的图元必须开启新的批次。
@@ -236,7 +243,7 @@ public sealed class Renderer2D
             IsMaterial = true,
             Material = material,
             Tint = tint,
-            FirstVertex = firstVertex,
+            FirstVertexByteOffset = firstVertexByteOffset,
             VertexCount = 6
         });
     }
@@ -317,9 +324,9 @@ public sealed class Renderer2D
         _sampler = _gpuResourcesHolder.AddSampler(SDL.GPUFilter.Linear,
             SDL.GPUSamplerAddressMode.Repeat) ?? 0;
         _uiVertexBuffer = _gpuResourcesHolder.CreateBuffer(SDL.GPUBufferUsageFlags.Vertex,
-            MaxVertices * UiVertexSize) ?? 0;
+            MaxVertices * MaxVertexStride) ?? 0;
         _materialVertexBuffer = _gpuResourcesHolder.CreateBuffer(SDL.GPUBufferUsageFlags.Vertex,
-            MaxVertices * MaterialVertexSize) ?? 0;
+            MaxVertices * MaxVertexStride) ?? 0;
         _whiteTexture = CreateWhiteTexture();
 
         if (_sampler == 0 || _uiVertexBuffer == 0 || _materialVertexBuffer == 0 ||
@@ -342,7 +349,7 @@ public sealed class Renderer2D
         }
 
         var pipelineRef = ResourceRef.Create(ResourceType.Pipeline, ResourceRef.CorePackId, "ui");
-        var pipelineResult = _appContext.AssetsPackManager.FindAsset<GPUPipeline>(_appContext, pipelineRef);
+        var pipelineResult = _appContext.AssetsPackManager.FindAsset<GraphicsPipeline>(_appContext, pipelineRef);
         if (!pipelineResult.Exist || pipelineResult.Result == null)
         {
             _uiPipelineLoadFailed = true;
@@ -351,8 +358,15 @@ public sealed class Renderer2D
         }
 
         _uiPipeline = pipelineResult.Result;
-        _uiPipelineHandle = _gpuResourcesHolder.AddGraphicsPipeline(_uiPipeline, _frameContext.SwapchainFormat,
-            VertexLayout.PositionTextureColor) ?? 0;
+        if (_uiPipeline.VertexLayout == null)
+        {
+            // Backward compatibility: pipelines without an explicit layout use the built-in UI format.
+            // 向后兼容：未显式声明布局的管线使用内置 UI 格式。
+            _uiPipeline.VertexLayout = VertexLayout.PositionTextureColor;
+        }
+
+        _uiLayout = _uiPipeline.VertexLayout;
+        _uiPipelineHandle = _gpuResourcesHolder.AddGraphicsPipeline(_uiPipeline, _frameContext.SwapchainFormat) ?? 0;
         _uiPipelineLoadFailed = _uiPipelineHandle == 0;
         if (_uiPipelineLoadFailed)
         {
@@ -376,7 +390,7 @@ public sealed class Renderer2D
         }
     }
 
-    private nint GetOrCreatePipeline(GPUPipeline? pipeline)
+    private nint GetOrCreatePipeline(GraphicsPipeline? pipeline)
     {
         if (pipeline == null)
         {
@@ -439,18 +453,18 @@ public sealed class Renderer2D
 
     private void UploadVertexBuffers()
     {
-        if (_uiVertexCount > 0 && _uiVertexBuffer != 0)
+        if (_uiVertexCount > 0 && _uiVertexBuffer != 0 && _uiLayout != null)
         {
-            var data = MemoryMarshal.AsBytes(_uiVertices.AsSpan(0, _uiVertexCount));
+            var data = new ReadOnlySpan<byte>(_uiVertexData, 0, _uiVertexCount * _uiLayout.Stride);
             if (!_gpuResourcesHolder.UpdateBuffer(_uiVertexBuffer, data, _frameContext.CommandBuffer, true))
             {
                 LogCat.Warn("Renderer2D: failed to upload the UI vertex buffer.");
             }
         }
 
-        if (_materialVertexCount > 0 && _materialVertexBuffer != 0)
+        if (_materialVertexByteCount > 0 && _materialVertexBuffer != 0)
         {
-            var data = MemoryMarshal.AsBytes(_materialVertices.AsSpan(0, _materialVertexCount));
+            var data = new ReadOnlySpan<byte>(_materialVertexData, 0, _materialVertexByteCount);
             if (!_gpuResourcesHolder.UpdateBuffer(_materialVertexBuffer, data, _frameContext.CommandBuffer, true))
             {
                 LogCat.Warn("Renderer2D: failed to upload the material vertex buffer.");
@@ -479,8 +493,8 @@ public sealed class Renderer2D
             }
 
             BindFragmentTexture(renderPass, texture.Handle);
-            SDL.DrawGPUPrimitives(renderPass, (uint)command.VertexCount, 1,
-                (uint)command.FirstVertex, 0);
+            var firstVertex = command.IsMaterial ? 0u : (uint)command.FirstVertex;
+            SDL.DrawGPUPrimitives(renderPass, (uint)command.VertexCount, 1, firstVertex, 0);
         }
     }
 
@@ -504,7 +518,7 @@ public sealed class Renderer2D
 
         SDL.BindGPUGraphicsPipeline(renderPass, command.Pipeline);
         PushMaterialUniforms(command.Material, command.Tint);
-        BindVertexBuffer(renderPass, _materialVertexBuffer);
+        BindVertexBuffer(renderPass, _materialVertexBuffer, command.FirstVertexByteOffset);
         return true;
     }
 
@@ -521,12 +535,12 @@ public sealed class Renderer2D
         return true;
     }
 
-    private static void BindVertexBuffer(IntPtr renderPass, IntPtr vertexBuffer)
+    private static void BindVertexBuffer(IntPtr renderPass, IntPtr vertexBuffer, int offsetBytes = 0)
     {
         var binding = new SDL.GPUBufferBinding
         {
             Buffer = vertexBuffer,
-            Offset = 0
+            Offset = (uint)offsetBytes
         };
         SDL.BindGPUVertexBuffers(renderPass, 0, [binding], 1);
     }
@@ -599,6 +613,16 @@ public sealed class Renderer2D
     private void AddUiQuad(Texture2D texture, UiQuad quad, Vector2 uvMin, Vector2 uvMax,
         Vector4 color)
     {
+        if (_uiLayout == null && !EnsureUiPipeline())
+        {
+            return;
+        }
+
+        if (_uiLayout == null)
+        {
+            return;
+        }
+
         if (_uiVertexCount + 6 > MaxVertices)
         {
             LogCat.Warn("Renderer2D: the UI vertex buffer is full; further geometry was skipped.");
@@ -621,14 +645,14 @@ public sealed class Renderer2D
         Vector2 BottomLeft);
 
     private void AddMaterialQuad(Vector2 topLeft, Vector2 topRight, Vector2 bottomRight,
-        Vector2 bottomLeft, Vector2 uvMin, Vector2 uvMax)
+        Vector2 bottomLeft, Vector2 uvMin, Vector2 uvMax, VertexLayout layout)
     {
-        AddMaterialVertex(topLeft, uvMin);
-        AddMaterialVertex(topRight, new Vector2(uvMax.X, uvMin.Y));
-        AddMaterialVertex(bottomRight, uvMax);
-        AddMaterialVertex(topLeft, uvMin);
-        AddMaterialVertex(bottomRight, uvMax);
-        AddMaterialVertex(bottomLeft, new Vector2(uvMin.X, uvMax.Y));
+        AddMaterialVertex(topLeft, uvMin, layout);
+        AddMaterialVertex(topRight, new Vector2(uvMax.X, uvMin.Y), layout);
+        AddMaterialVertex(bottomRight, uvMax, layout);
+        AddMaterialVertex(topLeft, uvMin, layout);
+        AddMaterialVertex(bottomRight, uvMax, layout);
+        AddMaterialVertex(bottomLeft, new Vector2(uvMin.X, uvMax.Y), layout);
     }
 
     private void EnsurePrimitiveCommand(Texture2D texture)
@@ -650,27 +674,68 @@ public sealed class Renderer2D
 
     private void AddUiVertex(Vector2 position, Vector2 uv, Vector4 color)
     {
-        _uiVertices[_uiVertexCount++] = new Vertex2D
+        var layout = _uiLayout;
+        if (layout == null)
         {
-            Position = position,
-            Uv = uv,
-            Color = color
-        };
+            return;
+        }
+
+        WriteVertex(_uiVertexData, _uiVertexCount * layout.Stride, layout, position, uv, color);
+        _uiVertexCount++;
     }
 
-    private void AddMaterialVertex(Vector2 position, Vector2 uv)
+    private void AddMaterialVertex(Vector2 position, Vector2 uv, VertexLayout layout)
     {
-        _materialVertices[_materialVertexCount++] = new MaterialVertex2D
+        WriteVertex(_materialVertexData, _materialVertexByteCount, layout, position, uv,
+            Vector4.One);
+        _materialVertexCount++;
+        _materialVertexByteCount += layout.Stride;
+    }
+
+    private static void WriteVertex(byte[] destination, int vertexOffset, VertexLayout layout,
+        Vector2 position, Vector2 uv, Vector4 color)
+    {
+        foreach (var attribute in layout.Attributes)
         {
-            Position = position,
-            Uv = uv
-        };
+            var offset = vertexOffset + attribute.Offset;
+            switch (attribute.Semantic)
+            {
+                case VertexSemantics.Position:
+                    WriteFloat2(destination, offset, position);
+                    break;
+                case VertexSemantics.Uv:
+                    WriteFloat2(destination, offset, uv);
+                    break;
+                case VertexSemantics.Color:
+                    WriteFloat4(destination, offset, color);
+                    break;
+            }
+        }
+    }
+
+    private static void WriteFloat2(byte[] destination, int offset, Vector2 value)
+    {
+        BinaryPrimitives.WriteSingleLittleEndian(destination.AsSpan(offset, sizeof(float)), value.X);
+        BinaryPrimitives.WriteSingleLittleEndian(destination.AsSpan(offset + sizeof(float), sizeof(float)),
+            value.Y);
+    }
+
+    private static void WriteFloat4(byte[] destination, int offset, Vector4 value)
+    {
+        BinaryPrimitives.WriteSingleLittleEndian(destination.AsSpan(offset, sizeof(float)), value.X);
+        BinaryPrimitives.WriteSingleLittleEndian(destination.AsSpan(offset + sizeof(float), sizeof(float)),
+            value.Y);
+        BinaryPrimitives.WriteSingleLittleEndian(
+            destination.AsSpan(offset + 2 * sizeof(float), sizeof(float)), value.Z);
+        BinaryPrimitives.WriteSingleLittleEndian(
+            destination.AsSpan(offset + 3 * sizeof(float), sizeof(float)), value.W);
     }
 
     private void ResetFrame()
     {
         _uiVertexCount = 0;
         _materialVertexCount = 0;
+        _materialVertexByteCount = 0;
         _commands.Clear();
         _currentPrimitiveCommand = null;
     }

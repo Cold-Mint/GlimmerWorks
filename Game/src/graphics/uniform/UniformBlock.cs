@@ -58,7 +58,7 @@ public sealed class UniformBlock
         var valid = true;
         foreach (var member in Members)
         {
-            if (!UniformTypeInfo.TryParse(member.Type, out var info))
+            if (UniformTypeInfo.TryParse(member.Type) is not { } info)
             {
                 LogCat.Error($"Uniform block '{Name}' has an unsupported member type: {member.Type} ({member.Name})");
                 valid = false;

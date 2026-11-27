@@ -1,11 +1,13 @@
 using GlimmerWorks.Game.Graphics.Uniform;
+using GlimmerWorks.Game.Graphics.Vertex;
+
 namespace GlimmerWorks.Game.Graphics.Pipeline;
 
 /// <summary>
 /// <para>A material pipeline: blend mode, compiled shaders and uniform blocks.</para>
 /// <para>材质管线：混合模式、编译后的着色器与 uniform 块。</para>
 /// </summary>
-public sealed class GPUPipeline
+public sealed class GraphicsPipeline
 {
     /// <summary>
     /// <para>The blend mode (see <see cref="BlendMode"/>).</para>
@@ -16,6 +18,12 @@ public sealed class GPUPipeline
     public CompiledShader? VertexShader { get; set; }
 
     public CompiledShader? FragmentShader { get; set; }
+
+    /// <summary>
+    /// <para>The vertex input layout used when creating the graphics pipeline.</para>
+    /// <para>创建图形管线时使用的顶点输入布局。</para>
+    /// </summary>
+    public VertexLayout? VertexLayout { get; set; }
 
     /// <summary>
     /// <para>The vertex uniform blocks in shader declaration order.</para>

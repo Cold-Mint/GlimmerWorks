@@ -20,5 +20,11 @@ internal sealed class RenderCommand
 
     public int FirstVertex { get; init; }
 
+    /// <summary>
+    /// <para>The byte offset of the first vertex inside the shared material vertex buffer.</para>
+    /// <para>共享材质顶点缓冲区中第一个顶点的字节偏移。</para>
+    /// </summary>
+    public int FirstVertexByteOffset { get; init; }
+
     public int VertexCount { get; set; }
 }

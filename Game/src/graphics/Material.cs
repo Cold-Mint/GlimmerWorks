@@ -21,7 +21,7 @@ public sealed class Material
     /// <para>The resolved pipeline.</para>
     /// <para>解析后的管线。</para>
     /// </summary>
-    public GPUPipeline? Pipeline { get; set; }
+    public GraphicsPipeline? Pipeline { get; set; }
 }
 
 /// <summary>

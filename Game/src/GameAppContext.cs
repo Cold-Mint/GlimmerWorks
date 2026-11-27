@@ -3,7 +3,9 @@ using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Engine.Mods;
 using GlimmerWorks.Engine.Vfs;
 using GlimmerWorks.Game.Graphics;
+using GlimmerWorks.Game.Graphics.Pipeline;
 using GlimmerWorks.Game.Graphics.Uniform;
+using GlimmerWorks.Game.Graphics.Vertex;
 using GlimmerWorks.Game.Mods;
 using GlimmerWorks.Game.Scene;
 using GlimmerWorks.Game.Ui;
@@ -34,52 +36,17 @@ public class GameAppContext : AppContext
 
 
     /// <summary>
-    /// <para>The GPU device used by the game.</para>
-    /// <para>游戏使用的 GPU 设备。</para>
-    /// </summary>
-    public IntPtr GpuDevice { get; set; }
-
-    /// <summary>
-    /// <para>The game window.</para>
-    /// <para>游戏窗口。</para>
-    /// </summary>
-    public IntPtr Window { get; set; }
-
-    /// <summary>
-    /// <para>The swapchain texture format.</para>
-    /// <para>交换链纹理格式。</para>
-    /// </summary>
-    public SDL.GPUTextureFormat SwapchainFormat { get; set; }
-
-    /// <summary>
-    /// <para>The Myra UI manager, created lazily once the GPU device and assets are available.</para>
-    /// <para>Myra UI 管理器，在 GPU 设备和资产可用后延迟创建。</para>
+    /// <para>The Myra UI manager, created once during startup.</para>
+    /// <para>Myra UI 管理器，在启动时创建一次。</para>
     /// </summary>
     internal GameUi? Ui { get; private set; }
 
-    private bool _uiInitializationErrorLogged;
-
     /// <summary>
     /// <para>InitializeUi</para>
-    /// <para>使用已保存的设备和窗口信息初始化 Myra UI。</para>
+    /// <para>使用给定的设备和窗口信息初始化 Myra UI。该操作幂等，仅在启动时调用一次。</para>
     /// </summary>
-    /// <returns></returns>
-    public bool InitializeUi()
-    {
-        return InitializeUi(GpuDevice, Window, SwapchainFormat);
-    }
-
-    /// <summary>
-    /// <para>EnsureUiInitialized</para>
-    /// <para>确保 Myra UI 已初始化。</para>
-    /// </summary>
-    /// <param name="frame"></param>
-    public void EnsureUiInitialized(in SceneFrameContext frame)
-    {
-        InitializeUi(frame.Device, frame.Window, frame.SwapchainFormat);
-    }
-
-    private bool InitializeUi(IntPtr device, IntPtr window, SDL.GPUTextureFormat swapchainFormat)
+    /// <returns>UI 创建成功或已存在时返回 <c>true</c>；初始化失败时返回 <c>false</c>。</returns>
+    internal bool InitializeUi(IntPtr device, IntPtr window, SDL.GPUTextureFormat swapchainFormat)
     {
         if (Ui != null)
         {
@@ -113,16 +80,18 @@ public class GameAppContext : AppContext
 
         if (vertexShader == null || fragmentShader == null)
         {
-            if (!_uiInitializationErrorLogged)
-            {
-                _uiInitializationErrorLogged = true;
-                LogCat.Error("Failed to create the Myra UI shaders.");
-            }
-
+            LogCat.Error("Failed to create the Myra UI shaders.");
             return false;
         }
 
-        Ui = new GameUi(device, window, swapchainFormat, vertexShader, fragmentShader);
+        var pipeline = new GraphicsPipeline
+        {
+            BlendMode = BlendMode.Alpha,
+            VertexShader = vertexShader,
+            FragmentShader = fragmentShader,
+            VertexLayout = VertexLayout.PositionTextureColor
+        };
+        Ui = new GameUi(device, window, swapchainFormat, pipeline);
         LogCat.Info("Myra UI initialized.");
         return true;
     }

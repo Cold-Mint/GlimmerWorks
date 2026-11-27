@@ -21,18 +21,10 @@ internal sealed class GameUi : IDisposable
     private bool _disposed;
 
     public GameUi(IntPtr device, IntPtr window, SDL.GPUTextureFormat swapchainFormat,
-        CompiledShader vertexShader, CompiledShader fragmentShader)
+        GraphicsPipeline pipeline)
     {
         _shaderHolder.GpuDevice = device;
-
-        var pipeline = new GPUPipeline
-        {
-            BlendMode = BlendMode.Alpha,
-            VertexShader = vertexShader,
-            FragmentShader = fragmentShader
-        };
-        var pipelineHandle = _shaderHolder.AddGraphicsPipeline(pipeline, swapchainFormat,
-            VertexLayout.PositionTextureColor) ?? IntPtr.Zero;
+        var pipelineHandle = _shaderHolder.AddGraphicsPipeline(pipeline, swapchainFormat) ?? IntPtr.Zero;
 
         _renderer = new Sdl3UiRenderer(device, pipelineHandle);
         _platform = new Sdl3UiPlatform(window, _renderer);

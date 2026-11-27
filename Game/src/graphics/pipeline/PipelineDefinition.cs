@@ -23,6 +23,10 @@ public sealed class PipelineDefinition
     public ResourceRef? FragmentShader { get; set; }
 
     [UsedImplicitly]
+    [TomlPropertyName("vertex_layout")]
+    public ResourceRef? VertexLayout { get; set; }
+
+    [UsedImplicitly]
     [TomlPropertyName("vertex_uniform_block")]
     public List<ResourceRef> VertexUniformBlocks { get; set; } = [];
 

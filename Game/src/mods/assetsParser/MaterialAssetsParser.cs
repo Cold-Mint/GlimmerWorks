@@ -53,7 +53,7 @@ public class MaterialAssetsParser : BaseAssetsParser<Material>
             return null;
         }
 
-        var pipeline = Resolve<GPUPipeline>(appContext, definition.Pipeline, ResourceType.Pipeline,
+        var pipeline = Resolve<GraphicsPipeline>(appContext, definition.Pipeline, ResourceType.Pipeline,
             requesterPackId);
         if (pipeline == null)
         {

@@ -73,11 +73,13 @@ public class GlimmerGame
 
         ApplyPresentMode();
         _swapchainFormat = SDL.GetGPUSwapchainTextureFormat(GpuDevice, Window);
-        _appContext.GpuDevice = GpuDevice;
-        _appContext.Window = Window;
-        _appContext.SwapchainFormat = _swapchainFormat;
         SDL.StartTextInput(Window);
-        _appContext.InitializeUi();
+        if (!_appContext.InitializeUi(GpuDevice, Window, _swapchainFormat))
+        {
+            LogCat.Error("Failed to initialize the Myra UI.");
+            return false;
+        }
+
         return true;
     }
 
@@ -131,7 +133,8 @@ public class GlimmerGame
     {
         while (SDL.PollEvent(out var sdlEvent))
         {
-            if ((SDL.EventType)sdlEvent.Type == SDL.EventType.Quit)
+            var sdlEventType = (SDL.EventType)sdlEvent.Type;
+            if (sdlEventType == SDL.EventType.Quit)
             {
                 _appContext.SceneStack.AddTask(new SceneStackTask { Type = StackType.Clear });
                 break;

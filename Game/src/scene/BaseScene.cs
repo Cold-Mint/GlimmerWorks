@@ -16,7 +16,7 @@ public abstract class BaseScene(GameAppContext appContext)
 
     protected GameAppContext AppContext => appContext;
 
-    protected readonly GpuResourcesHolder GpuResourcesHolder = new();
+    private readonly GpuResourcesHolder _gpuResourcesHolder = new();
 
     private Renderer2D? _renderer;
 
@@ -116,7 +116,7 @@ public abstract class BaseScene(GameAppContext appContext)
     /// </summary>
     public void Draw(in SceneFrameContext sceneFrameContext)
     {
-        var renderer = _renderer ??= new Renderer2D(appContext, GpuResourcesHolder);
+        var renderer = _renderer ??= new Renderer2D(appContext, _gpuResourcesHolder);
         renderer.Begin(sceneFrameContext, ClearColor);
         try
         {
@@ -133,7 +133,6 @@ public abstract class BaseScene(GameAppContext appContext)
             return;
         }
 
-        AppContext.EnsureUiInitialized(sceneFrameContext);
         AppContext.Ui?.SetRoot(_widget);
         AppContext.Ui?.Render(sceneFrameContext);
     }
@@ -148,11 +147,10 @@ public abstract class BaseScene(GameAppContext appContext)
 
     /// <summary>
     /// <para>DoCreate</para>
-    /// <para>初始化 UI 环境并调用 <see cref="OnCreate"/>。</para>
+    /// <para>调用 <see cref="OnCreate"/>。</para>
     /// </summary>
     public void DoCreate()
     {
-        AppContext.InitializeUi();
         OnCreate();
     }
 
@@ -171,7 +169,7 @@ public abstract class BaseScene(GameAppContext appContext)
     /// </summary>
     public virtual void OnDestroy()
     {
-        GpuResourcesHolder.Destroy();
+        _gpuResourcesHolder.Destroy();
     }
 
     /// <summary>
@@ -188,15 +186,5 @@ public abstract class BaseScene(GameAppContext appContext)
     /// </summary>
     public virtual void OnResumeScene()
     {
-    }
-
-    /// <summary>
-    /// This method is called when the back key is pressed. On Android systems, navigate up; on desktop platforms, press ESC.
-    /// 当返回键被按下时调用这个方法，安卓系统向上导航，桌面平台按下ESC。
-    /// </summary>
-    /// <returns>If true is returned, the framework considers the scene has handled the back event by itself. 如果返回true，告诉框架场景自行处理了返回事件。</returns>
-    public virtual bool OnBackPressed()
-    {
-        return false;
     }
 }

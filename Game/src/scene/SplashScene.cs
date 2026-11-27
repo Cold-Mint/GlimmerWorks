@@ -128,11 +128,6 @@ public class SplashScene(GameAppContext appContext) : BaseScene(appContext)
             return;
         }
 
-        if (!AppContext.InitializeUi())
-        {
-            LogCat.Error("Failed to initialize the Myra UI.");
-        }
-
         var remainingDisplayMs = MinimumDisplayMs - (int)_displayStopwatch.ElapsedMilliseconds;
         if (remainingDisplayMs > 0)
         {

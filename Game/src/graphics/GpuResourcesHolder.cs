@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Game.Graphics.Pipeline;
+using GlimmerWorks.Game.Graphics.Vertex;
 using SDL3;
 
 namespace GlimmerWorks.Game.Graphics;
@@ -368,13 +369,8 @@ public class GpuResourcesHolder
     ///<para>The swapchain color target format.</para>
     ///<para>交换链颜色目标格式。</para>
     /// </param>
-    /// <param name="vertexLayout">
-    ///<para>The vertex input layout used by the pipeline.</para>
-    ///<para>管线使用的顶点输入布局。</para>
-    /// </param>
     /// <returns></returns>
-    public nint? AddGraphicsPipeline(GPUPipeline pipeline, SDL.GPUTextureFormat targetFormat,
-        VertexLayout vertexLayout = VertexLayout.PositionTexture)
+    public nint? AddGraphicsPipeline(GraphicsPipeline pipeline, SDL.GPUTextureFormat targetFormat)
     {
         if (GpuDevice == IntPtr.Zero)
         {
@@ -395,6 +391,7 @@ public class GpuResourcesHolder
             return null;
         }
 
+        var vertexLayout = pipeline.VertexLayout ?? VertexLayout.PositionTexture;
         var (vertexBuffers, vertexAttributes) = CreateVertexInput(vertexLayout);
         var colorTargets = new[]
         {
@@ -466,55 +463,23 @@ public class GpuResourcesHolder
         var buffer = new SDL.GPUVertexBufferDescription
         {
             Slot = 0,
-            Pitch = vertexLayout == VertexLayout.PositionTextureColor
-                ? PositionTextureColorStride
-                : PositionTextureStride,
+            Pitch = (uint)vertexLayout.Stride,
             InputRate = SDL.GPUVertexInputRate.Vertex,
             InstanceStepRate = 0
         };
 
-        var attributes = vertexLayout == VertexLayout.PositionTextureColor
-            ? new[]
+        var attributes = new SDL.GPUVertexAttribute[vertexLayout.Attributes.Count];
+        for (var i = 0; i < attributes.Length; i++)
+        {
+            var attribute = vertexLayout.Attributes[i];
+            attributes[i] = new SDL.GPUVertexAttribute
             {
-                new SDL.GPUVertexAttribute
-                {
-                    Location = 0,
-                    BufferSlot = 0,
-                    Format = SDL.GPUVertexElementFormat.Float2,
-                    Offset = 0
-                },
-                new SDL.GPUVertexAttribute
-                {
-                    Location = 1,
-                    BufferSlot = 0,
-                    Format = SDL.GPUVertexElementFormat.Float2,
-                    Offset = 8
-                },
-                new SDL.GPUVertexAttribute
-                {
-                    Location = 2,
-                    BufferSlot = 0,
-                    Format = SDL.GPUVertexElementFormat.Float4,
-                    Offset = 16
-                }
-            }
-            : new[]
-            {
-                new SDL.GPUVertexAttribute
-                {
-                    Location = 0,
-                    BufferSlot = 0,
-                    Format = SDL.GPUVertexElementFormat.Float2,
-                    Offset = 0
-                },
-                new SDL.GPUVertexAttribute
-                {
-                    Location = 1,
-                    BufferSlot = 0,
-                    Format = SDL.GPUVertexElementFormat.Float2,
-                    Offset = 8
-                }
+                Location = attribute.Location,
+                BufferSlot = 0,
+                Format = attribute.VertexFormat.Format,
+                Offset = (uint)attribute.Offset
             };
+        }
 
         return ([buffer], attributes);
     }

@@ -6,6 +6,7 @@ using GlimmerWorks.Game.Attributes;
 using GlimmerWorks.Game.Graphics;
 using GlimmerWorks.Game.Graphics.Pipeline;
 using GlimmerWorks.Game.Graphics.Uniform;
+using GlimmerWorks.Game.Graphics.Vertex;
 using JetBrains.Annotations;
 
 namespace GlimmerWorks.Game.Mods.assetsParser;
@@ -16,7 +17,7 @@ namespace GlimmerWorks.Game.Mods.assetsParser;
 /// </summary>
 [UsedImplicitly]
 [AssetsPaster("pipeline")]
-public class PipelineAssetsParser : BaseAssetsParser<GPUPipeline>
+public class PipelineAssetsParser : BaseAssetsParser<GraphicsPipeline>
 {
     public override string GetFolderName()
     {
@@ -28,7 +29,7 @@ public class PipelineAssetsParser : BaseAssetsParser<GPUPipeline>
         return "pipeline.toml";
     }
 
-    public override GPUPipeline? Parser(GameAppContext appContext, FileEntry fileEntry, string requesterPackId)
+    public override GraphicsPipeline? Parser(GameAppContext appContext, FileEntry fileEntry, string requesterPackId)
     {
         var path = fileEntry.Path;
         if (path == null)
@@ -57,12 +58,29 @@ public class PipelineAssetsParser : BaseAssetsParser<GPUPipeline>
             return null;
         }
 
-        var pipeline = new GPUPipeline
+        var pipeline = new GraphicsPipeline
         {
             BlendMode = (BlendMode)definition.BlendMode,
             VertexShader = vertexShader,
             FragmentShader = fragmentShader
         };
+
+        if (definition.VertexLayout is { } layoutReference &&
+            !string.IsNullOrWhiteSpace(layoutReference.ResourceId))
+        {
+            layoutReference.SetPackId(requesterPackId);
+            layoutReference.ResourceType = ResourceType.VertexLayout;
+            var layoutResult =
+                appContext.AssetsPackManager.FindAsset<VertexLayout>(appContext, layoutReference);
+            if (!layoutResult.Exist || layoutResult.Result == null)
+            {
+                LogCat.Error(
+                    $"Pipeline '{path.Path}': failed to resolve the vertex layout '{layoutReference.ResourceId}'.");
+                return null;
+            }
+
+            pipeline.VertexLayout = layoutResult.Result;
+        }
 
         if (!ResolveUniformBlocks(appContext, definition.VertexUniformBlocks, requesterPackId,
                 pipeline.VertexUniformBlocks))

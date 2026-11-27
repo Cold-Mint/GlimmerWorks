@@ -13,14 +13,14 @@ namespace GlimmerWorks.Game.Ui;
 /// <para>Owns the Myra desktop, platform and SDL3 GPU renderer.</para>
 /// <para>持有 Myra 的 Desktop、平台实现和 SDL3 GPU 渲染器。</para>
 /// </summary>
-internal sealed class GameUi : IDisposable
+internal sealed class MyraGameUi : IDisposable
 {
     private readonly GpuResourcesHolder _shaderHolder = new();
     private readonly Sdl3UiRenderer _renderer;
     private readonly Sdl3UiPlatform _platform;
     private bool _disposed;
 
-    public GameUi(IntPtr device, IntPtr window, SDL.GPUTextureFormat swapchainFormat,
+    public MyraGameUi(IntPtr device, IntPtr window, SDL.GPUTextureFormat swapchainFormat,
         GraphicsPipeline pipeline)
     {
         _shaderHolder.GpuDevice = device;

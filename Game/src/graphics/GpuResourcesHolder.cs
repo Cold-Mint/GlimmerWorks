@@ -114,7 +114,7 @@ public class GpuResourcesHolder
             return null;
         }
 
-        var transferBuffer = UploadData(texture.Pixels, out _);
+        var transferBuffer = UploadData(texture.Pixels);
         if (transferBuffer == IntPtr.Zero)
         {
             SDL.ReleaseGPUTexture(GpuDevice, gpuTexture);
@@ -150,7 +150,6 @@ public class GpuResourcesHolder
         {
             SDL.ReleaseGPUTransferBuffer(GpuDevice, transferBuffer);
         }
-
         _textureList.Add(gpuTexture);
         return gpuTexture;
     }
@@ -235,7 +234,7 @@ public class GpuResourcesHolder
             return null;
         }
 
-        var transferBuffer = UploadData(data, out _);
+        var transferBuffer = UploadData(data);
         if (transferBuffer == IntPtr.Zero)
         {
             SDL.ReleaseGPUBuffer(GpuDevice, buffer);
@@ -327,7 +326,7 @@ public class GpuResourcesHolder
             return true;
         }
 
-        var transferBuffer = UploadData(data, out _);
+        var transferBuffer = UploadData(data);
         if (transferBuffer == IntPtr.Zero)
         {
             return false;
@@ -529,13 +528,12 @@ public class GpuResourcesHolder
         };
     }
 
-    private nint UploadData(ReadOnlySpan<byte> data, out uint size)
+    private nint UploadData(ReadOnlySpan<byte> data)
     {
-        size = (uint)data.Length;
         var createInfo = new SDL.GPUTransferBufferCreateInfo
         {
             Usage = SDL.GPUTransferBufferUsage.Upload,
-            Size = size
+            Size = (uint)data.Length
         };
         var transferBuffer = SDL.CreateGPUTransferBuffer(GpuDevice, in createInfo);
         if (transferBuffer == IntPtr.Zero)

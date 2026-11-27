@@ -39,7 +39,7 @@ public class GameAppContext : AppContext
     /// <para>The Myra UI manager, created once during startup.</para>
     /// <para>Myra UI 管理器，在启动时创建一次。</para>
     /// </summary>
-    internal GameUi? Ui { get; private set; }
+    internal MyraGameUi? Ui { get; private set; }
 
     /// <summary>
     /// <para>InitializeUi</para>
@@ -91,7 +91,7 @@ public class GameAppContext : AppContext
             FragmentShader = fragmentShader,
             VertexLayout = VertexLayout.PositionTextureColor
         };
-        Ui = new GameUi(device, window, swapchainFormat, pipeline);
+        Ui = new MyraGameUi(device, window, swapchainFormat, pipeline);
         LogCat.Info("Myra UI initialized.");
         return true;
     }

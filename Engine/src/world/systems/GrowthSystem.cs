@@ -1,3 +1,4 @@
+using GlimmerWorks.Engine.Ecs;
 using GlimmerWorks.Engine.math;
 using GlimmerWorks.Engine.Mods.Resources;
 using GlimmerWorks.Engine.World.Storage;
@@ -8,8 +9,26 @@ namespace GlimmerWorks.Engine.World.Systems;
 /// <summary>
 /// <para>GrowthSystem</para>
 /// </summary>
-public sealed class GrowthSystem(ChunkStore store)
+public sealed class GrowthSystem(ChunkStore store) : ISystem
 {
+    private double _accumulator;
+
+    /// <summary>
+    /// <para>Accumulate elapsed milliseconds and advance growth by whole simulation ticks.</para>
+    /// </summary>
+    public void Update(in SystemContext context)
+    {
+        _accumulator += Math.Max(0, context.DeltaMs) * WorldConstants.TicksPerSecond / 1000.0;
+        var ticks = (long)_accumulator;
+        if (ticks <= 0)
+        {
+            return;
+        }
+
+        _accumulator -= ticks;
+        Tick(ticks);
+    }
+
     /// <summary>
     /// <para>Advance growth by the given number of ticks.</para>
     /// </summary>

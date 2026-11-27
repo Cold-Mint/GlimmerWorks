@@ -150,6 +150,7 @@ public sealed class ChunkStore
 
         chunk.Terrain = terrain;
         chunk.World = World;
+        chunk.DimensionId = _dimensionId;
         if (fromSave)
         {
             Growth?.CatchUp(chunk, World?.GlobalTick ?? 0);

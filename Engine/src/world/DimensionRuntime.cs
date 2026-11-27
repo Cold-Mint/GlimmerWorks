@@ -1,3 +1,5 @@
+using GlimmerWorks.Engine.Ecs;
+using GlimmerWorks.Engine.Ecs.Systems;
 using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Engine.Mods;
 using GlimmerWorks.Engine.Mods.Resources;
@@ -16,7 +18,7 @@ namespace GlimmerWorks.Engine.World;
 /// <summary>
 /// <para>DimensionRuntime</para>
 /// </summary>
-public sealed class DimensionRuntime
+public sealed class DimensionRuntime : IDisposable
 {
     /// <summary>
     /// <para>Normalized day length in seconds at time_flow = 1.</para>
@@ -73,7 +75,22 @@ public sealed class DimensionRuntime
 
         CurrentTime = Math.Clamp(resource.InitialTime, 0.0F, 1.0F);
         UpdateAmbient(force: true);
+
+        // Order is the dependency graph: clock -> growth -> streaming.
+        Systems.Add(new TimeSystem());
+        Systems.Add(Growth);
+        Systems.Add(Streaming);
     }
+
+    /// <summary>
+    /// <para>Entity store owned by this dimension.</para>
+    /// </summary>
+    public EcsWorld Ecs { get; } = new();
+
+    /// <summary>
+    /// <para>Systems executed once per simulation step.</para>
+    /// </summary>
+    public SystemScheduler Systems { get; } = new();
 
     public DimensionResource Resource { get; }
 
@@ -148,6 +165,20 @@ public sealed class DimensionRuntime
         _lastAmbientBacklight = backlight;
         _lastAmbientSkylight = skylight;
         Light.SetAmbient(backlight, skylight);
+    }
+
+    /// <summary>
+    /// <para>Run one simulation step of every registered system.</para>
+    /// </summary>
+    public void Tick(long deltaMs, long tick)
+    {
+        Systems.Update(new SystemContext(Ecs, this, deltaMs, tick));
+    }
+
+    public void Dispose()
+    {
+        Systems.Clear();
+        Ecs.Dispose();
     }
 
     private static LightColor? SampleKeyframes(List<LightKeyframeResource> keyframes, double time)

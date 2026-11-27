@@ -40,6 +40,7 @@ public sealed class WorldScene : BaseScene
         var surface = _world.CurrentDimension.Terrain.Climate.GetSurfaceHeight(0);
         _camera = new WorldVector2D(0, (surface + 6) * (float)WorldConstants.TilePixelSize);
         UpdateStreaming();
+        _world.Tick(0);
     }
 
     public override void OnTick(long deltaMs, long globalTick)
@@ -81,8 +82,8 @@ public sealed class WorldScene : BaseScene
             Math.Clamp(_camera.X, -halfWidth, halfWidth),
             Math.Clamp(_camera.Y, 0, halfHeight));
 
-        _world.Tick(deltaMs);
         UpdateStreaming();
+        _world.Tick(deltaMs);
     }
 
     public override void Input(SDL.Event sdlEvent)
@@ -150,6 +151,7 @@ public sealed class WorldScene : BaseScene
     {
         _world.SaveAll();
         _world.UnloadAll();
+        _world.Dispose();
         base.OnDestroy();
     }
 

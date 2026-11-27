@@ -1,8 +1,10 @@
+using GlimmerWorks.Engine.Ecs;
 using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Engine.math;
 using GlimmerWorks.Engine.Mods;
 using GlimmerWorks.Engine.Mods.Resources;
 using GlimmerWorks.Engine.World.Attachments;
+using GlimmerWorks.Engine.World.Entities;
 using GlimmerWorks.Engine.World.Lighting;
 using GlimmerWorks.Engine.World.Placement;
 using GlimmerWorks.Engine.World.Save;
@@ -38,7 +40,7 @@ public sealed class WorldSettings
 
 /// <summary>
 /// <para>IWorldChunkEntityPersistence</para>
-/// <para>区块实体的可选持久化钩子。没有实体系统时保持为 null。</para>
+/// <para>区块实体的持久化钩子。默认实现是 <c>WorldEntityPersistence</c>；替换它即可接管实体存档。</para>
 /// </summary>
 public interface IWorldChunkEntityPersistence
 {
@@ -58,11 +60,11 @@ public interface IWorldChunkEntityPersistence
 /// <summary>
 /// <para>World</para>
 /// </summary>
-public sealed class World
+public sealed class World : IDisposable
 {
     private readonly Dictionary<string, DimensionRuntime> _dimensions = [];
-    private double _growthAccumulator;
     private bool _saving;
+    private bool _disposed;
 
     public World(
         WorldSettings settings,
@@ -90,6 +92,12 @@ public sealed class World
             dimension.Streaming.PreloadRadiusChunks = settings.PreloadRadiusChunks;
             dimension.Streaming.Scheduler.InvalidateCamera();
         }
+
+        var entityPersistence = new WorldEntityPersistence(this);
+        EntityPersistence = entityPersistence;
+        ItemDropped += entityPersistence.OnItemDropped;
+        CollectChunkEntities = entityPersistence.CollectChunkEntities;
+        LoadChunkEntities = entityPersistence.LoadChunkEntities;
     }
 
     public WorldSettings Settings { get; }
@@ -127,6 +135,16 @@ public sealed class World
 
     public LightBuffer Light => CurrentDimension.Light;
 
+    /// <summary>
+    /// <para>Entity store of the current dimension.</para>
+    /// </summary>
+    public EcsWorld Ecs => CurrentDimension.Ecs;
+
+    /// <summary>
+    /// <para>System pipeline of the current dimension.</para>
+    /// </summary>
+    public SystemScheduler Systems => CurrentDimension.Systems;
+
     public bool IsInitialLoadComplete => CurrentDimension.Streaming.IsInitialLoadComplete;
 
     public GrowthSystem Growth => CurrentDimension.Growth;
@@ -144,9 +162,9 @@ public sealed class World
     public event Action<DimensionRuntime, DimensionRuntime>? DimensionChanged;
 
     /// <summary>
-    /// <para>Raised when a tile drops an item. Persist or spawn it through the entity system.</para>
+    /// <para>Raised when a tile drops an item. The chunk identifies the dimension the drop belongs to.</para>
     /// </summary>
-    public event Action<ResourceRef, int, TileVector2D>? ItemDropped;
+    public event Action<Chunk, ResourceRef, int, TileVector2D>? ItemDropped;
 
     /// <summary>
     /// <para>Create a world from loaded data packs.</para>
@@ -277,23 +295,15 @@ public sealed class World
     public void Tick(long deltaMs)
     {
         GlobalTick++;
-        CurrentDimension.AdvanceTime(deltaMs);
-
-        _growthAccumulator += Math.Max(0, deltaMs) * WorldConstants.TicksPerSecond / 1000.0;
-        var growthTicks = (long)_growthAccumulator;
-        if (growthTicks > 0)
-        {
-            _growthAccumulator -= growthTicks;
-            Growth.Tick(growthTicks);
-        }
+        CurrentDimension.Tick(deltaMs, GlobalTick);
     }
 
     /// <summary>
-    /// <para>Feed the current dimension's streaming system with a camera view.</para>
+    /// <para>Feed the current dimension's streaming system with a camera view. Applied on the next tick.</para>
     /// </summary>
     public void SetCamera(CameraView camera)
     {
-        CurrentDimension.Streaming.Tick(camera);
+        CurrentDimension.Streaming.SetCamera(camera);
     }
 
     /// <summary>
@@ -679,7 +689,7 @@ public sealed class World
             {
                 if (!slot.IsEmpty && slot.Item is not null)
                 {
-                    ItemDropped?.Invoke(slot.Item, slot.Count, cell);
+                    ItemDropped?.Invoke(chunk, slot.Item, slot.Count, cell);
                 }
             }
 
@@ -704,7 +714,7 @@ public sealed class World
             count = Math.Max(1, state.Width * state.Height);
         }
 
-        ItemDropped?.Invoke(resource.LootTarget, count, cell);
+        ItemDropped?.Invoke(chunk, resource.LootTarget, count, cell);
     }
 
     /// <summary>
@@ -796,7 +806,18 @@ public sealed class World
     public uint AllocateEntityId() => ++EntityIdIndex;
 
     /// <summary>
-    /// <para>Optional entity load/save hooks. The engine has no entity store, so these are null by default.</para>
+    /// <para>Keep the id counter ahead of ids restored from a save.</para>
+    /// </summary>
+    internal void ObserveEntityId(ulong id)
+    {
+        if (id > EntityIdIndex)
+        {
+            EntityIdIndex = id > uint.MaxValue ? uint.MaxValue : (uint)id;
+        }
+    }
+
+    /// <summary>
+    /// <para>Optional entity load/save hooks. Set by <c>WorldEntityPersistence</c> in the constructor.</para>
     /// </summary>
     public Func<Chunk, ChunkEntityMessage?>? CollectChunkEntities { get; set; }
 
@@ -814,6 +835,28 @@ public sealed class World
         }
 
         return success;
+    }
+
+    /// <summary>
+    /// <para>Release every dimension's entity store. Save first; this does not write files.</para>
+    /// </summary>
+    public void Dispose()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+        ItemDropped = null;
+        CollectChunkEntities = null;
+        LoadChunkEntities = null;
+        foreach (var dimension in _dimensions.Values)
+        {
+            dimension.Dispose();
+        }
+
+        _dimensions.Clear();
     }
 
     // The chunk store calls these hooks. Entity systems may override behaviour through the events.

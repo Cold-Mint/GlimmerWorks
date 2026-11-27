@@ -56,6 +56,12 @@ public sealed class Chunk
     public GlimmerWorks.Engine.World.World? World { get; set; }
 
     /// <summary>
+    /// <para>Id of the dimension that owns this chunk. Set by <c>ChunkStore</c> on creation.</para>
+    /// <para>所属维度的 id，由 ChunkStore 在创建时写入。</para>
+    /// </summary>
+    public string DimensionId { get; set; } = string.Empty;
+
+    /// <summary>
     /// <para>Monotonic revision used by caches.</para>
     /// </summary>
     public long Revision { get; private set; }

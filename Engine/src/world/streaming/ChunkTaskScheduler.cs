@@ -1,3 +1,4 @@
+using GlimmerWorks.Engine.Ecs;
 using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Engine.math;
 using GlimmerWorks.Engine.World.Storage;
@@ -231,8 +232,10 @@ public sealed class ChunkTaskScheduler
 /// <summary>
 /// <para>ChunkStreamingSystem</para>
 /// </summary>
-public sealed class ChunkStreamingSystem(ChunkStore store)
+public sealed class ChunkStreamingSystem(ChunkStore store) : ISystem
 {
+    private CameraView? _camera;
+
     public ChunkStore Store { get; } = store;
 
     public ChunkTaskScheduler Scheduler { get; } = new();
@@ -240,6 +243,25 @@ public sealed class ChunkStreamingSystem(ChunkStore store)
     public int PreloadRadiusChunks { get; set; } = 4;
 
     public bool Asynchronous { get; set; } = true;
+
+    /// <summary>
+    /// <para>Camera used by the next simulation step. Set by the host each frame.</para>
+    /// </summary>
+    public void SetCamera(CameraView camera)
+    {
+        _camera = camera;
+    }
+
+    /// <summary>
+    /// <para>Stream chunks around the last camera. Does nothing until a camera is provided.</para>
+    /// </summary>
+    public void Update(in SystemContext context)
+    {
+        if (_camera is { } camera)
+        {
+            Tick(camera);
+        }
+    }
 
     /// <summary>
     /// <para>True after the first task batch has finished (or the first synchronous load completed).</para>

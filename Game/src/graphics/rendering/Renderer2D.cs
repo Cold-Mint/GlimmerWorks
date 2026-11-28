@@ -11,13 +11,10 @@ using SDL3;
 
 namespace GlimmerWorks.Game.Graphics.Rendering;
 
-public sealed class Renderer2D
+public sealed class Renderer2D(GameAppContext appContext, GpuResourcesHolder gpu)
 {
     private const int MaxVertices = 65536;
     private const int MaxVertexStride = VertexLayout.MaxStride;
-
-    private readonly GameAppContext _appContext;
-    private readonly GpuResourcesHolder _gpuResourcesHolder;
 
     private readonly byte[] _uiVertexData = new byte[MaxVertices * MaxVertexStride];
     private readonly byte[] _materialVertexData = new byte[MaxVertices * MaxVertexStride];
@@ -45,12 +42,6 @@ public sealed class Renderer2D
     private bool _initialized;
     private bool _begun;
 
-    public Renderer2D(GameAppContext appContext, GpuResourcesHolder gpu)
-    {
-        _appContext = appContext;
-        _gpuResourcesHolder = gpu;
-    }
-
     /// <summary>
     /// <para>Start a frame. Must be paired with <see cref="End"/>.</para>
     /// <para>开始一帧，必须与 <see cref="End"/> 成对调用。</para>
@@ -71,7 +62,7 @@ public sealed class Renderer2D
         _currentPrimitiveCommand = null;
         _begun = true;
 
-        _gpuResourcesHolder.GpuDevice = frame.Device;
+        gpu.GpuDevice = frame.Device;
         RuntimeUniformState.ViewSize = new Vector2(frame.Width, frame.Height);
         // Wrap the clock to one hour so the float stays precise.
         // 把时钟限制在一小时内，保证 float 精度。
@@ -145,7 +136,7 @@ public sealed class Renderer2D
             return existing;
         }
 
-        var result = _appContext.AssetsPackManager.FindAsset<Material>(_appContext, reference);
+        var result = appContext.AssetsPackManager.FindAsset<Material>(appContext, reference);
         if (!result.Exist || result.Result == null)
         {
             LogCat.Error($"Renderer2D: failed to load material '{reference.ResourceId}'.");
@@ -321,11 +312,11 @@ public sealed class Renderer2D
 
         _initialized = true;
 
-        _sampler = _gpuResourcesHolder.AddSampler(SDL.GPUFilter.Linear,
+        _sampler = gpu.AddSampler(SDL.GPUFilter.Linear,
             SDL.GPUSamplerAddressMode.Repeat) ?? 0;
-        _uiVertexBuffer = _gpuResourcesHolder.CreateBuffer(SDL.GPUBufferUsageFlags.Vertex,
+        _uiVertexBuffer = gpu.CreateBuffer(SDL.GPUBufferUsageFlags.Vertex,
             MaxVertices * MaxVertexStride) ?? 0;
-        _materialVertexBuffer = _gpuResourcesHolder.CreateBuffer(SDL.GPUBufferUsageFlags.Vertex,
+        _materialVertexBuffer = gpu.CreateBuffer(SDL.GPUBufferUsageFlags.Vertex,
             MaxVertices * MaxVertexStride) ?? 0;
         _whiteTexture = CreateWhiteTexture();
 
@@ -349,7 +340,7 @@ public sealed class Renderer2D
         }
 
         var pipelineRef = ResourceRef.Create(ResourceType.Pipeline, ResourceRef.CorePackId, "ui");
-        var pipelineResult = _appContext.AssetsPackManager.FindAsset<GraphicsPipeline>(_appContext, pipelineRef);
+        var pipelineResult = appContext.AssetsPackManager.FindAsset<GraphicsPipeline>(appContext, pipelineRef);
         if (!pipelineResult.Exist || pipelineResult.Result == null)
         {
             _uiPipelineLoadFailed = true;
@@ -366,7 +357,7 @@ public sealed class Renderer2D
         }
 
         _uiLayout = _uiPipeline.VertexLayout;
-        _uiPipelineHandle = _gpuResourcesHolder.AddGraphicsPipeline(_uiPipeline, _frameContext.SwapchainFormat) ?? 0;
+        _uiPipelineHandle = gpu.AddGraphicsPipeline(_uiPipeline, _frameContext.SwapchainFormat) ?? 0;
         _uiPipelineLoadFailed = _uiPipelineHandle == 0;
         if (_uiPipelineLoadFailed)
         {
@@ -402,7 +393,7 @@ public sealed class Renderer2D
             return existing;
         }
 
-        var handle = _gpuResourcesHolder.AddGraphicsPipeline(pipeline, _frameContext.SwapchainFormat) ?? 0;
+        var handle = gpu.AddGraphicsPipeline(pipeline, _frameContext.SwapchainFormat) ?? 0;
         _pipelineCache[pipeline] = handle;
         return handle;
     }
@@ -444,7 +435,7 @@ public sealed class Renderer2D
         {
             if (texture.Handle == 0)
             {
-                texture.Handle = _gpuResourcesHolder.AddTexture(texture.Data, _frameContext.CommandBuffer) ?? 0;
+                texture.Handle = gpu.AddTexture(texture.Data, _frameContext.CommandBuffer) ?? 0;
             }
         }
 
@@ -456,7 +447,7 @@ public sealed class Renderer2D
         if (_uiVertexCount > 0 && _uiVertexBuffer != 0 && _uiLayout != null)
         {
             var data = new ReadOnlySpan<byte>(_uiVertexData, 0, _uiVertexCount * _uiLayout.Stride);
-            if (!_gpuResourcesHolder.UpdateBuffer(_uiVertexBuffer, data, _frameContext.CommandBuffer, true))
+            if (!gpu.UpdateBuffer(_uiVertexBuffer, data, _frameContext.CommandBuffer, true))
             {
                 LogCat.Warn("Renderer2D: failed to upload the UI vertex buffer.");
             }
@@ -465,7 +456,7 @@ public sealed class Renderer2D
         if (_materialVertexByteCount > 0 && _materialVertexBuffer != 0)
         {
             var data = new ReadOnlySpan<byte>(_materialVertexData, 0, _materialVertexByteCount);
-            if (!_gpuResourcesHolder.UpdateBuffer(_materialVertexBuffer, data, _frameContext.CommandBuffer, true))
+            if (!gpu.UpdateBuffer(_materialVertexBuffer, data, _frameContext.CommandBuffer, true))
             {
                 LogCat.Warn("Renderer2D: failed to upload the material vertex buffer.");
             }
@@ -573,14 +564,14 @@ public sealed class Renderer2D
             for (var i = 0; i < material.Pipeline.VertexUniformBlocks.Count; i++)
             {
                 var data = material.Pipeline.VertexUniformBlocks[i]
-                    .BuildData(_appContext.RuntimeUniformManager);
+                    .BuildData(appContext.RuntimeUniformManager);
                 SDL.PushGPUVertexUniformData(_frameContext.CommandBuffer, (uint)i, data, (uint)data.Length);
             }
 
             for (var i = 0; i < material.Pipeline.FragmentUniformBlocks.Count; i++)
             {
                 var data = material.Pipeline.FragmentUniformBlocks[i]
-                    .BuildData(_appContext.RuntimeUniformManager);
+                    .BuildData(appContext.RuntimeUniformManager);
                 SDL.PushGPUFragmentUniformData(_frameContext.CommandBuffer, (uint)i, data, (uint)data.Length);
             }
         }
@@ -599,13 +590,13 @@ public sealed class Renderer2D
 
         for (var i = 0; i < _uiPipeline.VertexUniformBlocks.Count; i++)
         {
-            var data = _uiPipeline.VertexUniformBlocks[i].BuildData(_appContext.RuntimeUniformManager);
+            var data = _uiPipeline.VertexUniformBlocks[i].BuildData(appContext.RuntimeUniformManager);
             SDL.PushGPUVertexUniformData(_frameContext.CommandBuffer, (uint)i, data, (uint)data.Length);
         }
 
         for (var i = 0; i < _uiPipeline.FragmentUniformBlocks.Count; i++)
         {
-            var data = _uiPipeline.FragmentUniformBlocks[i].BuildData(_appContext.RuntimeUniformManager);
+            var data = _uiPipeline.FragmentUniformBlocks[i].BuildData(appContext.RuntimeUniformManager);
             SDL.PushGPUFragmentUniformData(_frameContext.CommandBuffer, (uint)i, data, (uint)data.Length);
         }
     }

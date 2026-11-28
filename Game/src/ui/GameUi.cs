@@ -49,7 +49,15 @@ internal sealed class MyraGameUi : IDisposable
         }
     }
 
-    public void ProcessEvent(SDL.Event sdlEvent)
+    /// <summary>
+    /// <para>Route one SDL event to the UI.</para>
+    /// <para>把一个 SDL 事件交给 UI。</para>
+    /// </summary>
+    /// <returns>
+    /// <para>True when the UI consumed the event; otherwise false.</para>
+    /// <para>返回 true 表示 UI 已消费该事件，调用方不应再向下传递。</para>
+    /// </returns>
+    public bool ProcessEvent(SDL.Event sdlEvent)
     {
         switch ((SDL.EventType)sdlEvent.Type)
         {
@@ -64,13 +72,31 @@ internal sealed class MyraGameUi : IDisposable
                     }
                 }
 
-                break;
+                return true;
             }
+            case SDL.EventType.KeyDown:
+            case SDL.EventType.KeyUp:
+                // The UI owns the keyboard while a modal widget is open or a widget has keyboard focus.
+                // 有模态控件或键盘焦点时，键盘事件归 UI。
+                return Desktop.HasModalWidget || Desktop.FocusedKeyboardWidget is not null;
             case SDL.EventType.MouseWheel:
+                if (!IsPointerOverUi)
+                {
+                    return false;
+                }
+
                 _platform.AddWheel(sdlEvent.Wheel.Y);
-                break;
+                return true;
+            case SDL.EventType.MouseButtonDown:
+            case SDL.EventType.MouseButtonUp:
+            case SDL.EventType.MouseMotion:
+                return IsPointerOverUi;
+            default:
+                return false;
         }
     }
+
+    private bool IsPointerOverUi => Desktop.HasModalWidget || Desktop.IsMouseOverGUI;
 
     public void Render(in SceneFrameContext frame)
     {

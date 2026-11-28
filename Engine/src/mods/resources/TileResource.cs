@@ -394,13 +394,13 @@ public class TileResource : Resource
     /// <para>Width clamped to [1,16].</para>
     /// <para>夹到 [1,16] 的宽度。</para>
     /// </summary>
-    public int ClampedWidth => Math.Clamp(Width, 1, 16);
+    public int ClampedWidth => System.Math.Clamp(Width, 1, 16);
 
     /// <summary>
     /// <para>Height clamped to [1,16].</para>
     /// <para>夹到 [1,16] 的高度。</para>
     /// </summary>
-    public int ClampedHeight => Math.Clamp(Height, 1, 16);
+    public int ClampedHeight => System.Math.Clamp(Height, 1, 16);
 
     /// <summary>
     /// <para>Validates data that the runtime depends on. Returns false when the resource cannot be used.</para>

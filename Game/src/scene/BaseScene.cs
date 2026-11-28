@@ -1,4 +1,5 @@
 using GlimmerWorks.Engine.Mods;
+using GlimmerWorks.Game.Extensions;
 using GlimmerWorks.Game.Graphics;
 using GlimmerWorks.Game.Graphics.Rendering;
 using Myra.Graphics2D.UI;
@@ -24,9 +25,7 @@ public abstract class BaseScene(GameAppContext appContext)
     /// <para>The color used to clear the screen before drawing.</para>
     /// <para>绘制前清屏使用的颜色。</para>
     /// </summary>
-    protected virtual Color ClearColor => new(13, 13, 20);
-
-    private bool _needEnsureGpuResources = true;
+    protected virtual Color ClearColor { get; } = appContext.Theme.Surface.ToColor();
 
     /// <summary>
     /// <para>When the scene is pushed onto the stack, the request code set by the parent scene is used.</para>
@@ -83,31 +82,18 @@ public abstract class BaseScene(GameAppContext appContext)
     {
     }
 
-    public virtual void Input(SDL.Event sdlEvent)
-    {
-    }
-
     /// <summary>
-    /// <para>EnsureGpuResources</para>
-    /// <para>确保GPU资源可用</para>
+    /// <para>Input</para>
+    /// <para>输入</para>
     /// </summary>
-    /// <param name="sceneFrameContext"></param>
-    public void DoEnsureGpuResources(in SceneFrameContext sceneFrameContext)
+    /// <param name="sdlEvent">
+    ///<para>If the return value is true, it indicates that the event has been handled.</para>
+    ///<para>如果返回true表示事件已被处理。</para>
+    /// </param>
+    /// <returns></returns>
+    public virtual bool Input(SDL.Event sdlEvent)
     {
-        if (_needEnsureGpuResources)
-        {
-            EnsureGpuResources(sceneFrameContext);
-            _needEnsureGpuResources = false;
-        }
-    }
-
-    /// <summary>
-    /// <para>EnsureGpuResources</para>
-    /// <para>在这里初始化Gpu资源</para>
-    /// </summary>
-    /// <param name="sceneFrameContext"></param>
-    protected virtual void EnsureGpuResources(in SceneFrameContext sceneFrameContext)
-    {
+        return false;
     }
 
     /// <summary>

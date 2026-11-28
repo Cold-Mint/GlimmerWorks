@@ -140,8 +140,11 @@ public class GlimmerGame
                 break;
             }
 
-            _appContext.Ui?.ProcessEvent(sdlEvent);
-            scene.Input(sdlEvent);
+            var uiHandled = _appContext.Ui?.ProcessEvent(sdlEvent) ?? false;
+            if (!uiHandled)
+            {
+                scene.Input(sdlEvent);
+            }
         }
     }
 
@@ -234,7 +237,6 @@ public class GlimmerGame
         {
             var sceneFrameContext = new SceneFrameContext(GpuDevice, Window, cmdBuffer, swapchainTexture,
                 swapchainWidth, swapchainHeight, _swapchainFormat);
-            scene.DoEnsureGpuResources(sceneFrameContext);
             scene.Draw(sceneFrameContext);
         }
 

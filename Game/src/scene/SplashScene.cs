@@ -4,6 +4,7 @@ using GlimmerWorks.Engine.Log;
 using GlimmerWorks.Engine.Mods;
 using GlimmerWorks.Engine.Mods.Resources;
 using GlimmerWorks.Engine.Vfs;
+using GlimmerWorks.Game.Extensions;
 using GlimmerWorks.Game.Graphics.Rendering;
 using GlimmerWorks.Game.Ui.Theme;
 using Myra.Graphics2D;
@@ -20,6 +21,8 @@ public class SplashScene(GameAppContext appContext) : BaseScene(appContext)
     private Label? _loadLabel;
     private string? _pendingMessage;
     private LogLevels _pendingLevel = LogLevels.Info;
+
+    protected override Color ClearColor { get; } = appContext.Theme.Primary.ToColor();
 
     public override void OnCreate()
     {
@@ -90,8 +93,6 @@ public class SplashScene(GameAppContext appContext) : BaseScene(appContext)
             LogCat.Error("Data pack scan failed.");
             return;
         }
-
-        
         OnPackMessage(
             new PackMessage(AppContext.Localizer["Loaded {0} data packs", dataPackCount].Value));
         if (dataPackCount == 0)

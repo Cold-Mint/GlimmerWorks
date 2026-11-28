@@ -208,7 +208,11 @@ public class CreateWorldScene(GameAppContext appContext) : BaseScene(appContext)
             return;
         }
 
-    
+        AppContext.SceneStack.AddTask(
+            new SceneStackTask
+            {
+                Type = StackType.Replace, Scene = new GameScene(AppContext),
+            });
     }
 
     /// <summary>
